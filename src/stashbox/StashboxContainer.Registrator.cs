@@ -2,6 +2,7 @@
 using Stashbox.BuildUp;
 using Stashbox.Entity;
 using Stashbox.Entity.Events;
+using Stashbox.Infrastructure;
 using Stashbox.Lifetime;
 using Stashbox.MetaInfo;
 using Stashbox.Registration;
@@ -11,46 +12,26 @@ namespace Stashbox
 {
     public partial class StashboxContainer
     {
-        public ServiceRegistration CreateRegistration<TKey, TValue>(string name = null) where TKey : class where TValue : class, TKey
+        public void RegisterType<TKey, TValue>(string name = null, ILifetime lifetime = null) where TKey : class where TValue : class, TKey
         {
-            throw new NotImplementedException();
+            this.RegisterTypeInternal(typeof(TValue), typeof(TKey), name, lifetime);
         }
 
-        public ServiceRegistration CreateRegistration<TKey>(Type valueType, string name = null) where TKey : class
-        {
-            throw new NotImplementedException();
-        }
-
-        public ServiceRegistration CreateRegistration(Type valueType, Type keType = null, string name = null)
-        {
-            throw new NotImplementedException();
-        }
-
-        public ServiceRegistration CreateRegistration<TValue>(string name = null) where TValue : class
-        {
-            throw new NotImplementedException();
-        }
-
-        public void RegisterType<TKey, TValue>(string name = null) where TKey : class where TValue : class, TKey
-        {
-            this.RegisterTypeInternal(typeof(TValue), typeof(TKey), name);
-        }
-
-        public void RegisterType<TKey>(Type typeTo, string name = null) where TKey : class
+        public void RegisterType<TKey>(Type typeTo, string name = null, ILifetime lifetime = null) where TKey : class
         {
             Shield.EnsureNotNull(typeTo);
-            this.RegisterTypeInternal(typeTo, typeof(TKey), name);
+            this.RegisterTypeInternal(typeTo, typeof(TKey), name, lifetime);
         }
 
-        public void RegisterType(Type typeTo, Type typeFrom = null, string name = null)
+        public void RegisterType(Type typeTo, Type typeFrom = null, string name = null, ILifetime lifetime = null)
         {
             Shield.EnsureNotNull(typeTo);
-            this.RegisterTypeInternal(typeTo, typeFrom, name);
+            this.RegisterTypeInternal(typeTo, typeFrom, name, lifetime);
         }
 
-        public void RegisterType<TValue>(string name = null) where TValue : class
+        public void RegisterType<TValue>(string name = null, ILifetime lifetime = null) where TValue : class
         {
-            this.RegisterTypeInternal(typeof(TValue), null, name);
+            this.RegisterTypeInternal(typeof(TValue), null, name, lifetime);
         }
 
         public void RegisterInstance<TKey>(object instance, string name = null) where TKey : class
@@ -77,13 +58,14 @@ namespace Stashbox
             this.BuildUpInternal(instance, name, type);
         }
 
-        private void RegisterTypeInternal(Type typeTo, Type typeFrom, string keyName)
+        private void RegisterTypeInternal(Type typeTo, Type typeFrom, string keyName, ILifetime lifetime = null)
         {
             var name = this.GetRegistrationName(keyName);
+            var registrationLifetime = lifetime ?? new TransientLifetime();
 
             var builderContext = this.builderContext;
 
-            var registration = new ServiceRegistration(new TransientLifetime(),
+            var registration = new ServiceRegistration(registrationLifetime,
                 new DefaultObjectBuilder(new MetaInfoProvider(builderContext, this.resolverSelector, typeTo),
                     this.buildExtensionManager, this.messagePublisher), builderContext);
 

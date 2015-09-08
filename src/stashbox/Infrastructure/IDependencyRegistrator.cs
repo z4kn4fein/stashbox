@@ -1,32 +1,19 @@
-﻿using Stashbox.Registration;
-using System;
+﻿using System;
 
 namespace Stashbox.Infrastructure
 {
     public interface IDependencyRegistrator
     {
-        ServiceRegistration CreateRegistration<TKey, TValue>(string name = null)
+        void RegisterType<TKey, TValue>(string name = null, ILifetime lifetime = null)
             where TKey : class
             where TValue : class, TKey;
 
-        ServiceRegistration CreateRegistration<TKey>(Type typeTo, string name = null)
+        void RegisterType<TKey>(Type typeTo, string name = null, ILifetime lifetime = null)
             where TKey : class;
 
-        ServiceRegistration CreateRegistration(Type typeTo, Type typeFrom = null, string name = null);
+        void RegisterType(Type typeTo, Type typeFrom = null, string name = null, ILifetime lifetime = null);
 
-        ServiceRegistration CreateRegistration<TValue>(string name = null)
-             where TValue : class;
-
-        void RegisterType<TKey, TValue>(string name = null)
-            where TKey : class
-            where TValue : class, TKey;
-
-        void RegisterType<TKey>(Type typeTo, string name = null)
-            where TKey : class;
-
-        void RegisterType(Type typeTo, Type typeFrom = null, string name = null);
-
-        void RegisterType<TValue>(string name = null)
+        void RegisterType<TValue>(string name = null, ILifetime lifetime = null)
              where TValue : class;
 
         void RegisterInstance<TKey>(object instance, string name = null)

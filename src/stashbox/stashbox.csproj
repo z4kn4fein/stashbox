@@ -62,7 +62,6 @@
     <Compile Include="Exceptions\ResolutionFailedException.cs" />
     <Compile Include="Extensions\Bag.cs" />
     <Compile Include="Extensions\PropertyInfoExtensions.cs" />
-    <Compile Include="Extensions\ServiceRegistrationExtensions.cs" />
     <Compile Include="Extensions\TypeExtensions.cs" />
     <Compile Include="StashboxContainer.cs" />
     <Compile Include="StashboxContainer.Registrator.cs" />
