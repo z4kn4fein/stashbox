@@ -1,0 +1,119 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <MinimumVisualStudioVersion>10.0</MinimumVisualStudioVersion>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{21317234-0499-4178-BCA5-558FBA2CB9AC}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Stashbox</RootNamespace>
+    <AssemblyName>Stashbox</AssemblyName>
+    <DefaultLanguage>en-US</DefaultLanguage>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <TargetFrameworkProfile>Profile259</TargetFrameworkProfile>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Attributes\DependencyAttribute.cs" />
+    <Compile Include="Attributes\InjectionConstructorAttribute.cs" />
+    <Compile Include="Attributes\InjectionMethod.cs" />
+    <Compile Include="Attributes\InjectionPropertyAttribute.cs" />
+    <Compile Include="BuilderContext.cs" />
+    <Compile Include="BuildExtensionManager.cs" />
+    <Compile Include="Build\BuildUpObjectBuilder.cs" />
+    <Compile Include="Build\DefaultObjectBuilder.cs" />
+    <Compile Include="Build\Expressions\ExpressionBuilder.cs" />
+    <Compile Include="Build\FactoryObjectBuilder.cs" />
+    <Compile Include="Build\InstanceObjectBuilder.cs" />
+    <Compile Include="Build\Resolution\ContainerResolver.cs" />
+    <Compile Include="Build\Resolution\ContainerResolverFactory.cs" />
+    <Compile Include="Entity\ConstructorInformation.cs" />
+    <Compile Include="Entity\Events\RegistrationAdded.cs" />
+    <Compile Include="Entity\Events\RegistrationRemoved.cs" />
+    <Compile Include="Entity\ParameterInformation.cs" />
+    <Compile Include="Entity\RegistrationInfo.cs" />
+    <Compile Include="Entity\ResolutionConstructor.cs" />
+    <Compile Include="Entity\ResolutionInfo.cs" />
+    <Compile Include="Entity\ResolutionParameter.cs" />
+    <Compile Include="Entity\TypeInformation.cs" />
+    <Compile Include="Exceptions\ExceptionBase.cs" />
+    <Compile Include="Exceptions\InjectionConstructorNotFoundException.cs" />
+    <Compile Include="Exceptions\RegistrationNotFoundException.cs" />
+    <Compile Include="Exceptions\ResolutionFailedException.cs" />
+    <Compile Include="Extensions\Bag.cs" />
+    <Compile Include="Extensions\PropertyInfoExtensions.cs" />
+    <Compile Include="Extensions\ServiceRegistrationExtensions.cs" />
+    <Compile Include="Extensions\TypeExtensions.cs" />
+    <Compile Include="StashboxContainer.cs" />
+    <Compile Include="StashboxContainer.Registrator.cs" />
+    <Compile Include="StashboxContainer.Resolver.cs" />
+    <Compile Include="Infrastructure\BuildExtension.cs" />
+    <Compile Include="Infrastructure\IBagItem.cs" />
+    <Compile Include="Infrastructure\IBuilderContext.cs" />
+    <Compile Include="Infrastructure\IBuildExtensionManager.cs" />
+    <Compile Include="Infrastructure\IDependencyRegistrator.cs" />
+    <Compile Include="Infrastructure\IDependencyResolver.cs" />
+    <Compile Include="Infrastructure\IStashboxContainer.cs" />
+    <Compile Include="Infrastructure\ILifetime.cs" />
+    <Compile Include="Infrastructure\IMetaInfoCacheRepository.cs" />
+    <Compile Include="Infrastructure\IMetaInfoProvider.cs" />
+    <Compile Include="Infrastructure\IObjectBuilder.cs" />
+    <Compile Include="Infrastructure\IRegistrationRepository.cs" />
+    <Compile Include="Infrastructure\IResolverSelector.cs" />
+    <Compile Include="Infrastructure\IServiceRegistration.cs" />
+    <Compile Include="Infrastructure\Resolver.cs" />
+    <Compile Include="Infrastructure\ResolverFactory.cs" />
+    <Compile Include="LifeTime\TransientLifetime.cs" />
+    <Compile Include="MetaInfo\MetaInfoCache.cs" />
+    <Compile Include="MetaInfo\MetaInfoProvider.cs" />
+    <Compile Include="Overrides\NamedOverride.cs" />
+    <Compile Include="Overrides\Override.cs" />
+    <Compile Include="Overrides\OverrideManager.cs" />
+    <Compile Include="Overrides\TypeOverride.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Registration\RegistrationRepository.cs" />
+    <Compile Include="Registration\ServiceRegistration.cs" />
+    <Compile Include="ResolverSelector.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Ronin.Common, Version=1.0.13.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ronin.Common.1.0.13.0\lib\portable-net45+win+wpa81+wp80+MonoAndroid10+xamarinios10+MonoTouch10\Ronin.Common.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Sendstorm, Version=1.0.4.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Sendstorm.1.0.4.0\lib\portable-net45+win+wpa81+wp80+MonoAndroid10+xamarinios10+MonoTouch10\Sendstorm.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
