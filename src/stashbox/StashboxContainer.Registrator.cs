@@ -1,5 +1,5 @@
 ﻿using Ronin.Common;
-using Stashbox.Build;
+using Stashbox.BuildUp;
 using Stashbox.Entity;
 using Stashbox.Entity.Events;
 using Stashbox.Lifetime;
