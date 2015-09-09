@@ -13,20 +13,20 @@ namespace Stashbox.BuildUp
 {
     internal class DefaultObjectBuilder : IObjectBuilder, IMessageReceiver<RegistrationAdded>, IMessageReceiver<RegistrationRemoved>
     {
-        private readonly IBuildExtensionManager buildExtensionManager;
+        private readonly IContainerExtensionManager containerExtensionManager;
         private readonly IMetaInfoProvider metaInfoProvider;
         private readonly IMessagePublisher messagePublisher;
         private readonly object syncObject = new object();
         private volatile Func<object[], object> constructorDelegate;
         private ResolutionConstructor constructor;
 
-        public DefaultObjectBuilder(IMetaInfoProvider metaInfoProvider, IBuildExtensionManager buildExtensionManager, IMessagePublisher messagePublisher)
+        public DefaultObjectBuilder(IMetaInfoProvider metaInfoProvider, IContainerExtensionManager containerExtensionManager, IMessagePublisher messagePublisher)
         {
             Shield.EnsureNotNull(metaInfoProvider);
-            Shield.EnsureNotNull(buildExtensionManager);
+            Shield.EnsureNotNull(containerExtensionManager);
             Shield.EnsureNotNull(messagePublisher);
 
-            this.buildExtensionManager = buildExtensionManager;
+            this.containerExtensionManager = containerExtensionManager;
             this.metaInfoProvider = metaInfoProvider;
             this.messagePublisher = messagePublisher;
             this.CreateConstructorDelegate();
@@ -63,7 +63,7 @@ namespace Stashbox.BuildUp
                     {
                         if (this.metaInfoProvider.TryChooseConstructor(out this.constructor, resolutionInfo.OverrideManager))
                         {
-                            this.buildExtensionManager.ExecutePreBuildExtensions(builderContext, resolutionInfo);
+                            this.containerExtensionManager.ExecutePreBuildExtensions(builderContext, resolutionInfo);
 
                             this.constructorDelegate = ExpressionBuilder.BuildConstructorExpression(
                                 this.constructor.Constructor.Method,
@@ -79,14 +79,14 @@ namespace Stashbox.BuildUp
                     }
                     else
                     {
-                        this.buildExtensionManager.ExecutePreBuildExtensions(builderContext, resolutionInfo);
+                        this.containerExtensionManager.ExecutePreBuildExtensions(builderContext, resolutionInfo);
                         return this.ResolveType(builderContext, resolutionInfo);
                     }
                 }
             }
             else
             {
-                this.buildExtensionManager.ExecutePreBuildExtensions(builderContext, resolutionInfo);
+                this.containerExtensionManager.ExecutePreBuildExtensions(builderContext, resolutionInfo);
                 return this.ResolveType(builderContext, resolutionInfo);
             }
         }
@@ -104,7 +104,7 @@ namespace Stashbox.BuildUp
         private object ResolveType(IBuilderContext builderContext, ResolutionInfo resolutionInfo)
         {
             var parameters = this.EvaluateParameters(this.constructor.Parameters, resolutionInfo);
-            return this.buildExtensionManager.ExecutePostBuildExtensions(this.constructorDelegate(parameters), builderContext, resolutionInfo);
+            return this.containerExtensionManager.ExecutePostBuildExtensions(this.constructorDelegate(parameters), builderContext, resolutionInfo);
         }
 
         private object[] EvaluateParameters(IEnumerable<ResolutionParameter> parameters, ResolutionInfo info)

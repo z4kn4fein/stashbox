@@ -13,51 +13,51 @@ namespace Stashbox.BuildUp
         private readonly Func<object, object, object> twoParamsFactory;
         private readonly Func<object, object, object, object> threeParamsFactory;
         private readonly Func<object, object, object, object, object> fourParamsFactory;
-        private readonly IBuildExtensionManager buildExtensionManager;
+        private readonly IContainerExtensionManager containerExtensionManager;
 
-        public FactoryObjectBuilder(Func<object> factory, IBuildExtensionManager buildExtensionManager)
+        public FactoryObjectBuilder(Func<object> factory, IContainerExtensionManager containerExtensionManager)
         {
             Shield.EnsureNotNull(factory);
-            Shield.EnsureNotNull(buildExtensionManager);
-            this.buildExtensionManager = buildExtensionManager;
+            Shield.EnsureNotNull(containerExtensionManager);
+            this.containerExtensionManager = containerExtensionManager;
             this.singleFactory = factory;
         }
 
-        public FactoryObjectBuilder(Func<object, object> oneParamsFactory, IBuildExtensionManager buildExtensionManager)
+        public FactoryObjectBuilder(Func<object, object> oneParamsFactory, IContainerExtensionManager containerExtensionManager)
         {
             Shield.EnsureNotNull(oneParamsFactory);
-            Shield.EnsureNotNull(buildExtensionManager);
-            this.buildExtensionManager = buildExtensionManager;
+            Shield.EnsureNotNull(containerExtensionManager);
+            this.containerExtensionManager = containerExtensionManager;
             this.oneParamsFactory = oneParamsFactory;
         }
 
-        public FactoryObjectBuilder(Func<object, object, object> twoParamsFactory, IBuildExtensionManager buildExtensionManager)
+        public FactoryObjectBuilder(Func<object, object, object> twoParamsFactory, IContainerExtensionManager containerExtensionManager)
         {
             Shield.EnsureNotNull(twoParamsFactory);
-            Shield.EnsureNotNull(buildExtensionManager);
-            this.buildExtensionManager = buildExtensionManager;
+            Shield.EnsureNotNull(containerExtensionManager);
+            this.containerExtensionManager = containerExtensionManager;
             this.twoParamsFactory = twoParamsFactory;
         }
 
-        public FactoryObjectBuilder(Func<object, object, object, object> threeParamsFactory, IBuildExtensionManager buildExtensionManager)
+        public FactoryObjectBuilder(Func<object, object, object, object> threeParamsFactory, IContainerExtensionManager containerExtensionManager)
         {
             Shield.EnsureNotNull(threeParamsFactory);
-            Shield.EnsureNotNull(buildExtensionManager);
-            this.buildExtensionManager = buildExtensionManager;
+            Shield.EnsureNotNull(containerExtensionManager);
+            this.containerExtensionManager = containerExtensionManager;
             this.threeParamsFactory = threeParamsFactory;
         }
 
-        public FactoryObjectBuilder(Func<object, object, object, object, object> fourParamsFactory, IBuildExtensionManager buildExtensionManager)
+        public FactoryObjectBuilder(Func<object, object, object, object, object> fourParamsFactory, IContainerExtensionManager containerExtensionManager)
         {
             Shield.EnsureNotNull(fourParamsFactory);
-            Shield.EnsureNotNull(buildExtensionManager);
-            this.buildExtensionManager = buildExtensionManager;
+            Shield.EnsureNotNull(containerExtensionManager);
+            this.containerExtensionManager = containerExtensionManager;
             this.fourParamsFactory = fourParamsFactory;
         }
 
         public object BuildInstance(IBuilderContext builderContext, ResolutionInfo resolutionInfo)
         {
-            this.buildExtensionManager.ExecutePreBuildExtensions(builderContext, resolutionInfo);
+            this.containerExtensionManager.ExecutePreBuildExtensions(builderContext, resolutionInfo);
 
             object instance = null;
 
@@ -83,7 +83,7 @@ namespace Stashbox.BuildUp
                     resolutionInfo.FactoryParams.ElementAt(2),
                     resolutionInfo.FactoryParams.ElementAt(3));
 
-            return this.buildExtensionManager.ExecutePostBuildExtensions(instance, builderContext, resolutionInfo);
+            return this.containerExtensionManager.ExecutePostBuildExtensions(instance, builderContext, resolutionInfo);
         }
 
         public void CleanUp()

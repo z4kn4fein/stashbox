@@ -4,6 +4,7 @@ using Stashbox.BuildUp.Resolution;
 using Stashbox.Entity;
 using Stashbox.Extensions;
 using Stashbox.Infrastructure;
+using Stashbox.Infrastructure.ContainerExtension;
 using Stashbox.Registration;
 using System;
 
@@ -11,7 +12,7 @@ namespace Stashbox
 {
     public partial class StashboxContainer : IStashboxContainer
     {
-        private readonly IBuildExtensionManager buildExtensionManager;
+        private readonly IContainerExtensionManager containerExtensionManager;
         private readonly IResolverSelector resolverSelector;
         private readonly IRegistrationRepository registrationRepository;
         private readonly IMessagePublisher messagePublisher;
@@ -20,7 +21,7 @@ namespace Stashbox
 
         public StashboxContainer()
         {
-            this.buildExtensionManager = new BuildExtensionManager();
+            this.containerExtensionManager = new BuildExtensionManager();
             this.resolverSelector = new ResolverSelector();
             this.registrationRepository = new RegistrationRepository();
             this.messagePublisher = new MessagePublisher();
@@ -30,9 +31,9 @@ namespace Stashbox
             this.RegisterResolvers();
         }
 
-        public void RegisterBuildExtension(BuildExtension buildExtension)
+        public void RegisterExtension(IContainerExtension containerExtension)
         {
-            this.buildExtensionManager.AddExtension(buildExtension);
+            this.containerExtensionManager.AddExtension(containerExtension);
         }
 
         public void RegisterResolver(Func<IBuilderContext, TypeInformation, bool> resolverPredicate, ResolverFactory factory)

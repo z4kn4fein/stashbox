@@ -67,7 +67,7 @@ namespace Stashbox
 
             var registration = new ServiceRegistration(registrationLifetime,
                 new DefaultObjectBuilder(new MetaInfoProvider(builderContext, this.resolverSelector, typeTo),
-                    this.buildExtensionManager, this.messagePublisher), builderContext);
+                    this.containerExtensionManager, this.messagePublisher), builderContext);
 
             this.registrationRepository.AddRegistration(typeFrom, registration, name);
 
@@ -77,7 +77,7 @@ namespace Stashbox
                 TypeTo = typeTo
             };
 
-            this.buildExtensionManager.ExecuteOnRegistrationExtensions(this.builderContext, registrationInfo);
+            this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.builderContext, registrationInfo);
             this.messagePublisher.Broadcast(new RegistrationAdded { RegistrationInfo = registrationInfo });
         }
 
@@ -87,10 +87,10 @@ namespace Stashbox
             var name = this.GetRegistrationName(keyName);
 
             var registration = new ServiceRegistration(new TransientLifetime(),
-                new BuildUpObjectBuilder(instance, this.buildExtensionManager), this.builderContext);
+                new BuildUpObjectBuilder(instance, this.containerExtensionManager), this.builderContext);
 
             this.registrationRepository.AddRegistration(type, registration, name);
-            this.buildExtensionManager.ExecuteOnRegistrationExtensions(this.builderContext, new RegistrationInfo
+            this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.builderContext, new RegistrationInfo
             {
                 TypeFrom = type,
                 TypeTo = type
