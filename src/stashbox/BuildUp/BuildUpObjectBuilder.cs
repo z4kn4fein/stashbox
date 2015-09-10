@@ -1,6 +1,7 @@
 ﻿using Ronin.Common;
 using Stashbox.Entity;
 using Stashbox.Infrastructure;
+using Stashbox.Infrastructure.ContainerExtension;
 using System;
 
 namespace Stashbox.BuildUp

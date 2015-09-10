@@ -1,6 +1,7 @@
 ﻿using Ronin.Common;
 using Stashbox.Entity;
 using Stashbox.Infrastructure;
+using Stashbox.Infrastructure.ContainerExtension;
 using System;
 using System.Linq;
 
@@ -12,7 +13,6 @@ namespace Stashbox.BuildUp
         private readonly Func<object, object> oneParamsFactory;
         private readonly Func<object, object, object> twoParamsFactory;
         private readonly Func<object, object, object, object> threeParamsFactory;
-        private readonly Func<object, object, object, object, object> fourParamsFactory;
         private readonly IContainerExtensionManager containerExtensionManager;
 
         public FactoryObjectBuilder(Func<object> factory, IContainerExtensionManager containerExtensionManager)
@@ -47,14 +47,6 @@ namespace Stashbox.BuildUp
             this.threeParamsFactory = threeParamsFactory;
         }
 
-        public FactoryObjectBuilder(Func<object, object, object, object, object> fourParamsFactory, IContainerExtensionManager containerExtensionManager)
-        {
-            Shield.EnsureNotNull(fourParamsFactory);
-            Shield.EnsureNotNull(containerExtensionManager);
-            this.containerExtensionManager = containerExtensionManager;
-            this.fourParamsFactory = fourParamsFactory;
-        }
-
         public object BuildInstance(IBuilderContext builderContext, ResolutionInfo resolutionInfo)
         {
             this.containerExtensionManager.ExecutePreBuildExtensions(builderContext, resolutionInfo);
@@ -75,13 +67,6 @@ namespace Stashbox.BuildUp
                     resolutionInfo.FactoryParams.ElementAt(0),
                     resolutionInfo.FactoryParams.ElementAt(1),
                     resolutionInfo.FactoryParams.ElementAt(2));
-
-            if (this.fourParamsFactory != null)
-                instance = this.fourParamsFactory.Invoke(
-                    resolutionInfo.FactoryParams.ElementAt(0),
-                    resolutionInfo.FactoryParams.ElementAt(1),
-                    resolutionInfo.FactoryParams.ElementAt(2),
-                    resolutionInfo.FactoryParams.ElementAt(3));
 
             return this.containerExtensionManager.ExecutePostBuildExtensions(instance, builderContext, resolutionInfo);
         }

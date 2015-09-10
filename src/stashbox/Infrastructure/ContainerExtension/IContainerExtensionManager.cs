@@ -1,7 +1,6 @@
 ﻿using Stashbox.Entity;
-using Stashbox.Infrastructure.ContainerExtension;
 
-namespace Stashbox.Infrastructure
+namespace Stashbox.Infrastructure.ContainerExtension
 {
     internal interface IContainerExtensionManager
     {

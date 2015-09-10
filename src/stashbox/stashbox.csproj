@@ -72,7 +72,7 @@
     <Compile Include="Infrastructure\ContainerExtension\IContainerExtension.cs" />
     <Compile Include="Infrastructure\IBagItem.cs" />
     <Compile Include="Infrastructure\IBuilderContext.cs" />
-    <Compile Include="Infrastructure\IContainerExtensionManager.cs" />
+    <Compile Include="Infrastructure\ContainerExtension\IContainerExtensionManager.cs" />
     <Compile Include="Infrastructure\IDependencyRegistrator.cs" />
     <Compile Include="Infrastructure\IDependencyResolver.cs" />
     <Compile Include="Infrastructure\IStashboxContainer.cs" />

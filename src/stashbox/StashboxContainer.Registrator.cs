@@ -12,26 +12,30 @@ namespace Stashbox
 {
     public partial class StashboxContainer
     {
-        public void RegisterType<TKey, TValue>(string name = null, ILifetime lifetime = null) where TKey : class where TValue : class, TKey
+        public void RegisterType<TKey, TValue>(string name = null, ILifetime lifetime = null, Func<object> singleFactory = null, Func<object> oneParamsFactory = null,
+            Func<object> twoParamsFactory = null, Func<object> threeParamsFactory = null) where TKey : class where TValue : class, TKey
         {
-            this.RegisterTypeInternal(typeof(TValue), typeof(TKey), name, lifetime);
+            this.RegisterTypeInternal(typeof(TValue), typeof(TKey), name, lifetime, singleFactory, oneParamsFactory, twoParamsFactory, threeParamsFactory);
         }
 
-        public void RegisterType<TKey>(Type typeTo, string name = null, ILifetime lifetime = null) where TKey : class
+        public void RegisterType<TKey>(Type typeTo, string name = null, ILifetime lifetime = null, Func<object> singleFactory = null, Func<object> oneParamsFactory = null,
+            Func<object> twoParamsFactory = null, Func<object> threeParamsFactory = null) where TKey : class
         {
             Shield.EnsureNotNull(typeTo);
-            this.RegisterTypeInternal(typeTo, typeof(TKey), name, lifetime);
+            this.RegisterTypeInternal(typeTo, typeof(TKey), name, lifetime, singleFactory, oneParamsFactory, twoParamsFactory, threeParamsFactory);
         }
 
-        public void RegisterType(Type typeTo, Type typeFrom = null, string name = null, ILifetime lifetime = null)
+        public void RegisterType(Type typeTo, Type typeFrom = null, string name = null, ILifetime lifetime = null, Func<object> singleFactory = null, Func<object> oneParamsFactory = null,
+            Func<object> twoParamsFactory = null, Func<object> threeParamsFactory = null)
         {
             Shield.EnsureNotNull(typeTo);
-            this.RegisterTypeInternal(typeTo, typeFrom, name, lifetime);
+            this.RegisterTypeInternal(typeTo, typeFrom, name, lifetime, singleFactory, oneParamsFactory, twoParamsFactory, threeParamsFactory);
         }
 
-        public void RegisterType<TValue>(string name = null, ILifetime lifetime = null) where TValue : class
+        public void RegisterType<TValue>(string name = null, ILifetime lifetime = null, Func<object> singleFactory = null, Func<object> oneParamsFactory = null,
+            Func<object> twoParamsFactory = null, Func<object> threeParamsFactory = null) where TValue : class
         {
-            this.RegisterTypeInternal(typeof(TValue), null, name, lifetime);
+            this.RegisterTypeInternal(typeof(TValue), null, name, lifetime, singleFactory, oneParamsFactory, twoParamsFactory, threeParamsFactory);
         }
 
         public void RegisterInstance<TKey>(object instance, string name = null) where TKey : class
@@ -58,16 +62,13 @@ namespace Stashbox
             this.BuildUpInternal(instance, name, type);
         }
 
-        private void RegisterTypeInternal(Type typeTo, Type typeFrom, string keyName, ILifetime lifetime = null)
+        private void RegisterTypeInternal(Type typeTo, Type typeFrom, string keyName, ILifetime lifetime = null, Func<object> singleFactory = null,
+            Func<object> oneParamsFactory = null, Func<object> twoParamsFactory = null, Func<object> threeParamsFactory = null)
         {
             var name = this.GetRegistrationName(keyName);
             var registrationLifetime = lifetime ?? new TransientLifetime();
-
-            var builderContext = this.builderContext;
-
             var registration = new ServiceRegistration(registrationLifetime,
-                new DefaultObjectBuilder(new MetaInfoProvider(builderContext, this.resolverSelector, typeTo),
-                    this.containerExtensionManager, this.messagePublisher), builderContext);
+                this.CreateObjectBuilder(typeTo, singleFactory, oneParamsFactory, twoParamsFactory, threeParamsFactory), this.builderContext);
 
             this.registrationRepository.AddRegistration(typeFrom, registration, name);
 
@@ -111,6 +112,26 @@ namespace Stashbox
         private string GetRegistrationName(string nameKey = null)
         {
             return string.IsNullOrWhiteSpace(nameKey) ? Guid.NewGuid().ToString() : nameKey;
+        }
+
+        private IObjectBuilder CreateObjectBuilder(Type typeTo, Func<object> singleFactory = null,
+            Func<object> oneParamsFactory = null, Func<object> twoParamsFactory = null, Func<object> threeParamsFactory = null)
+        {
+            if (singleFactory != null)
+                return new FactoryObjectBuilder(singleFactory, this.containerExtensionManager);
+
+            if (oneParamsFactory != null)
+                return new FactoryObjectBuilder(oneParamsFactory, this.containerExtensionManager);
+
+            if (twoParamsFactory != null)
+                return new FactoryObjectBuilder(twoParamsFactory, this.containerExtensionManager);
+
+            if (threeParamsFactory != null)
+                return new FactoryObjectBuilder(threeParamsFactory, this.containerExtensionManager);
+
+
+            return new DefaultObjectBuilder(new MetaInfoProvider(this.builderContext, this.resolverSelector, typeTo),
+                this.containerExtensionManager, this.messagePublisher);
         }
     }
 }

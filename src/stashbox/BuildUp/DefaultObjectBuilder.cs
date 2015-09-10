@@ -5,6 +5,7 @@ using Stashbox.Entity;
 using Stashbox.Entity.Events;
 using Stashbox.Exceptions;
 using Stashbox.Infrastructure;
+using Stashbox.Infrastructure.ContainerExtension;
 using System;
 using System.Collections.Generic;
 using System.Linq;

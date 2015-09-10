@@ -17,7 +17,6 @@ namespace Stashbox
         private readonly IRegistrationRepository registrationRepository;
         private readonly IMessagePublisher messagePublisher;
         private readonly IBuilderContext builderContext;
-        private readonly Bag bag;
 
         public StashboxContainer()
         {
@@ -25,8 +24,7 @@ namespace Stashbox
             this.resolverSelector = new ResolverSelector();
             this.registrationRepository = new RegistrationRepository();
             this.messagePublisher = new MessagePublisher();
-            this.bag = new Bag();
-            this.builderContext = new BuilderContext(this.registrationRepository, this.messagePublisher, this, this.bag);
+            this.builderContext = new BuilderContext(this.registrationRepository, this.messagePublisher, this, new Bag());
 
             this.RegisterResolvers();
         }
@@ -43,8 +41,8 @@ namespace Stashbox
 
         private void RegisterResolvers()
         {
-            this.resolverSelector.AddResolverStrategy((builderContext, typeInfo) =>
-            builderContext.RegistrationRepository.ConstainsTypeKey(typeInfo.Type),
+            this.resolverSelector.AddResolverStrategy((context, typeInfo) =>
+            context.RegistrationRepository.ConstainsTypeKey(typeInfo.Type),
             new ContainerResolverFactory());
         }
     }
