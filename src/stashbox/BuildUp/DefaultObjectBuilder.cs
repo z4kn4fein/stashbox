@@ -31,8 +31,8 @@ namespace Stashbox.BuildUp
             this.metaInfoProvider = metaInfoProvider;
             this.messagePublisher = messagePublisher;
             this.CreateConstructorDelegate();
-            this.messagePublisher.Subscribe<RegistrationAdded>(this);
-            this.messagePublisher.Subscribe<RegistrationRemoved>(this);
+            this.messagePublisher.Subscribe<RegistrationAdded>(this, addedEvent => this.metaInfoProvider.SensitivityList.Contains(addedEvent.RegistrationInfo.TypeFrom));
+            this.messagePublisher.Subscribe<RegistrationRemoved>(this, removedEvent => this.metaInfoProvider.SensitivityList.Contains(removedEvent.RegistrationInfo.TypeFrom));
         }
 
         private void CreateConstructorDelegate()

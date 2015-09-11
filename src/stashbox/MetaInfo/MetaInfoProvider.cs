@@ -13,6 +13,8 @@ namespace Stashbox.MetaInfo
         private readonly IResolverSelector resolverSelector;
         private readonly MetaInfoCache metaInfoCache;
 
+        public Type[] SensitivityList { get; private set; }
+
         public Type TypeTo => this.metaInfoCache.TypeTo;
 
         public MetaInfoProvider(IBuilderContext builderContext, IResolverSelector resolverSelector, Type typeTo)
@@ -20,11 +22,17 @@ namespace Stashbox.MetaInfo
             this.builderContext = builderContext;
             this.resolverSelector = resolverSelector;
             this.metaInfoCache = new MetaInfoCache(typeTo);
+            this.BuildSensitivityList();
         }
 
         public bool TryChooseConstructor(out ResolutionConstructor resolutionConstructor, OverrideManager overrideManager = null)
         {
             return this.TryGetBestConstructor(out resolutionConstructor, overrideManager);
+        }
+
+        private void BuildSensitivityList()
+        {
+            this.SensitivityList = this.metaInfoCache.Constructors.SelectMany(constructor => constructor.Parameters, (constructor, parameter) => parameter.Type).ToArray();
         }
 
         private bool TryGetBestConstructor(out ResolutionConstructor resolutionConstructor, OverrideManager overrideManager = null)
