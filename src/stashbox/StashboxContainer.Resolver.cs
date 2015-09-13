@@ -11,18 +11,18 @@ namespace Stashbox
 {
     public partial class StashboxContainer
     {
-        public TKey Resolve<TKey>(string name = null, IEnumerable<object> factoryParameters = null, params Override[] overrides) where TKey : class
+        public TKey Resolve<TKey>(string name = null, IEnumerable<object> factoryParameters = null, IEnumerable<Override> overrides = null) where TKey : class
         {
             return this.ResolveInternal(typeof(TKey), overrides, name, factoryParameters) as TKey;
         }
 
-        public object Resolve(Type typeFrom, string name = null, IEnumerable<object> factoryParameters = null, params Override[] overrides)
+        public object Resolve(Type typeFrom, string name = null, IEnumerable<object> factoryParameters = null, IEnumerable<Override> overrides = null)
         {
             Shield.EnsureNotNull(typeFrom);
             return this.ResolveInternal(typeFrom, overrides, name, factoryParameters);
         }
 
-        public IEnumerable<TKey> ResolveAll<TKey>(IEnumerable<object> factoryParameters = null, params Override[] overrides) where TKey : class
+        public IEnumerable<TKey> ResolveAll<TKey>(IEnumerable<object> factoryParameters = null, IEnumerable<Override> overrides = null) where TKey : class
         {
             var type = typeof(TKey);
             var factoryParams = factoryParameters as object[] ?? factoryParameters.ToArray();

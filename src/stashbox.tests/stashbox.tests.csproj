@@ -54,8 +54,10 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="LifetimeTests.cs" />
+    <Compile Include="OverrideTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="StandardResolveTest.cs" />
+    <Compile Include="StandardResolveTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\stashbox\stashbox.csproj">

@@ -1,5 +1,6 @@
 ﻿using Sendstorm.Infrastructure;
 using Stashbox.Extensions;
+
 namespace Stashbox.Infrastructure
 {
     public interface IBuilderContext

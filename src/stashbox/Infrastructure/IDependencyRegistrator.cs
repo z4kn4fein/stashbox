@@ -1,23 +1,25 @@
-﻿using System;
+﻿using Stashbox.Entity;
+using System;
+using System.Collections.Generic;
 
 namespace Stashbox.Infrastructure
 {
     public interface IDependencyRegistrator
     {
         void RegisterType<TKey, TValue>(string name = null, ILifetime lifetime = null, Func<object> singleFactory = null, Func<object> oneParamsFactory = null,
-            Func<object> twoParamsFactory = null, Func<object> threeParamsFactory = null)
+            Func<object> twoParamsFactory = null, Func<object> threeParamsFactory = null, IEnumerable<InjectionParameter> injectionParameters = null)
             where TKey : class
             where TValue : class, TKey;
 
         void RegisterType<TKey>(Type typeTo, string name = null, ILifetime lifetime = null, Func<object> singleFactory = null, Func<object> oneParamsFactory = null,
-            Func<object> twoParamsFactory = null, Func<object> threeParamsFactory = null)
+            Func<object> twoParamsFactory = null, Func<object> threeParamsFactory = null, IEnumerable<InjectionParameter> injectionParameters = null)
             where TKey : class;
 
         void RegisterType(Type typeTo, Type typeFrom = null, string name = null, ILifetime lifetime = null, Func<object> singleFactory = null, Func<object> oneParamsFactory = null,
-            Func<object> twoParamsFactory = null, Func<object> threeParamsFactory = null);
+            Func<object> twoParamsFactory = null, Func<object> threeParamsFactory = null, IEnumerable<InjectionParameter> injectionParameters = null);
 
         void RegisterType<TValue>(string name = null, ILifetime lifetime = null, Func<object> singleFactory = null, Func<object> oneParamsFactory = null,
-            Func<object> twoParamsFactory = null, Func<object> threeParamsFactory = null)
+            Func<object> twoParamsFactory = null, Func<object> threeParamsFactory = null, IEnumerable<InjectionParameter> injectionParameters = null)
              where TValue : class;
 
         void RegisterInstance<TKey>(object instance, string name = null)

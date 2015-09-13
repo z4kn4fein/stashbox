@@ -1,6 +1,6 @@
 ﻿using Sendstorm;
 using Sendstorm.Infrastructure;
-using Stashbox.BuildUp.Resolution;
+using Stashbox.BuildUp.Resolution.Container;
 using Stashbox.Entity;
 using Stashbox.Extensions;
 using Stashbox.Infrastructure;

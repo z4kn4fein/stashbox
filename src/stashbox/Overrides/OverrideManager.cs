@@ -13,9 +13,9 @@ namespace Stashbox.Overrides
 
         public OverrideManager(IEnumerable<Override> overrides)
         {
-            var overridesArray = overrides as Override[] ?? overrides.ToArray();
+            var overridesArray = overrides as Override[] ?? overrides?.ToArray();
 
-            if (!overridesArray.Any()) return;
+            if (overridesArray == null || !overridesArray.Any()) return;
             this.nameOverrides = new HashSet<NamedOverride>();
             this.typeOverrides = new HashSet<TypeOverride>();
 
@@ -44,14 +44,12 @@ namespace Stashbox.Overrides
 
         private object GetTypedValue(Type type)
         {
-            var overridden = this.typeOverrides?.FirstOrDefault(t => t.OverrideType == type);
-            return overridden?.Value;
+            return this.typeOverrides?.FirstOrDefault(t => t.OverrideType == type)?.Value;
         }
 
         private object GetNamedValue(string name)
         {
-            var overridden = this.nameOverrides?.FirstOrDefault(t => t.OverrideName.Equals(name));
-            return overridden?.Value;
+            return this.nameOverrides?.FirstOrDefault(t => t.OverrideName.Equals(name))?.Value;
         }
     }
 }

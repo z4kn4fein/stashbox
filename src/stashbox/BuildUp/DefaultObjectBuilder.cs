@@ -20,12 +20,16 @@ namespace Stashbox.BuildUp
         private readonly object syncObject = new object();
         private volatile Func<object[], object> constructorDelegate;
         private ResolutionConstructor constructor;
+        private readonly HashSet<InjectionParameter> injectionParameters;
 
-        public DefaultObjectBuilder(IMetaInfoProvider metaInfoProvider, IContainerExtensionManager containerExtensionManager, IMessagePublisher messagePublisher)
+        public DefaultObjectBuilder(IMetaInfoProvider metaInfoProvider, IContainerExtensionManager containerExtensionManager, IMessagePublisher messagePublisher, IEnumerable<InjectionParameter> injectionParameters)
         {
             Shield.EnsureNotNull(metaInfoProvider);
             Shield.EnsureNotNull(containerExtensionManager);
             Shield.EnsureNotNull(messagePublisher);
+
+            if (injectionParameters != null)
+                this.injectionParameters = new HashSet<InjectionParameter>(injectionParameters);
 
             this.containerExtensionManager = containerExtensionManager;
             this.metaInfoProvider = metaInfoProvider;
@@ -41,7 +45,7 @@ namespace Stashbox.BuildUp
             lock (this.syncObject)
             {
                 if (this.constructorDelegate != null) return;
-                if (this.metaInfoProvider.TryChooseConstructor(out this.constructor))
+                if (this.metaInfoProvider.TryChooseConstructor(out this.constructor, injectionParameters: this.injectionParameters))
                 {
                     this.constructorDelegate = ExpressionBuilder.BuildConstructorExpression(
                         this.constructor.Constructor.Method,
@@ -62,7 +66,7 @@ namespace Stashbox.BuildUp
                 {
                     if (this.constructorDelegate == null)
                     {
-                        if (this.metaInfoProvider.TryChooseConstructor(out this.constructor, resolutionInfo.OverrideManager))
+                        if (this.metaInfoProvider.TryChooseConstructor(out this.constructor, resolutionInfo.OverrideManager, this.injectionParameters))
                         {
                             this.containerExtensionManager.ExecutePreBuildExtensions(builderContext, resolutionInfo);
 
@@ -118,6 +122,8 @@ namespace Stashbox.BuildUp
                 var parameter = resolutionParameters.ElementAt(i);
                 if (info.OverrideManager.ContainsValue(parameter.ParameterInfo))
                     result[i] = info.OverrideManager.GetOverriddenValue(parameter.ParameterInfo.Type, parameter.ParameterInfo.DependencyName);
+                else if (parameter.ParameterValue != null)
+                    result[i] = parameter.ParameterValue;
                 else
                     result[i] = parameter.Resolver.Resolve(info);
             }

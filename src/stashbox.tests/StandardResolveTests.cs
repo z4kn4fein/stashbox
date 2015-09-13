@@ -1,13 +1,12 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ronin.Common;
 using Stashbox.Infrastructure;
-using System;
 using System.Threading.Tasks;
 
 namespace Stashbox.Tests
 {
     [TestClass]
-    public class StandardResolveTest
+    public class StandardResolveTests
     {
         [TestMethod]
         public void ResolveTest()
@@ -24,6 +23,10 @@ namespace Stashbox.Tests
             Assert.IsNotNull(test3);
             Assert.IsNotNull(test2);
             Assert.IsNotNull(test1);
+
+            Shield.EnsureTypeOf<Test1>(test1);
+            Shield.EnsureTypeOf<Test2>(test2);
+            Shield.EnsureTypeOf<Test3>(test3);
         }
 
         [TestMethod]
@@ -49,33 +52,10 @@ namespace Stashbox.Tests
                 Assert.IsNotNull(test3);
                 Assert.IsNotNull(test2);
                 Assert.IsNotNull(test1);
-            });
-        }
 
-        [TestMethod]
-        [Ignore]
-        public void ResolveTest_Parallel_Lazy()
-        {
-            IStashboxContainer container = new StashboxContainer();
-            container.RegisterType<ITest1, Test1>();
-            container.RegisterType<ITest2, Test2>();
-            container.RegisterType<ITest3, Test3>();
-
-            Parallel.For(0, 50000, (i) =>
-            {
-                if (i % 100 == 0)
-                {
-                    container.RegisterType<ITest1, Test1>();
-                    container.RegisterType<ITest3, Test3>();
-                }
-
-                var test3 = container.Resolve<Lazy<ITest3>>();
-                var test2 = container.Resolve<Lazy<ITest2>>();
-                var test1 = container.Resolve<Lazy<ITest1>>();
-
-                Assert.IsNotNull(test3.Value);
-                Assert.IsNotNull(test2.Value);
-                Assert.IsNotNull(test1.Value);
+                Shield.EnsureTypeOf<Test1>(test1);
+                Shield.EnsureTypeOf<Test2>(test2);
+                Shield.EnsureTypeOf<Test3>(test3);
             });
         }
 
