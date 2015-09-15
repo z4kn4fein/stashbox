@@ -1,7 +1,7 @@
 ﻿using Stashbox.Entity;
 using Stashbox.Infrastructure;
 
-namespace Stashbox.BuildUp.Resolution.Container
+namespace Stashbox.BuildUp.Resolution
 {
     public class ContainerResolverFactory : ResolverFactory
     {

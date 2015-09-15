@@ -22,7 +22,7 @@ namespace Stashbox
 
         public bool TryChooseResolver(IBuilderContext builderContext, TypeInformation typeInfo, out Resolver resolver)
         {
-            var key = this.resolverRepository.Keys.First(predicate => predicate(builderContext, typeInfo));
+            var key = this.resolverRepository.Keys.FirstOrDefault(predicate => predicate(builderContext, typeInfo));
             ResolverFactory resolverFactory;
             if (key != null && this.resolverRepository.TryGet(key, out resolverFactory))
             {

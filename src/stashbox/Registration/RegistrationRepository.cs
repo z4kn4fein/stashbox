@@ -55,11 +55,24 @@ namespace Stashbox.Registration
         {
             using (this.readerWriterLockSlim.AquireReadLock())
             {
-                return this.serviceRepository.TryGetValue(typeKey, out registrations);
+                Type genericTypeDefinition;
+                return this.serviceRepository.TryGetValue(typeKey, out registrations) ||
+                    (this.TryHandleOpenGenericType(typeKey, out genericTypeDefinition) &&
+                    this.serviceRepository.TryGetValue(genericTypeDefinition, out registrations));
             }
         }
 
         public bool ConstainsTypeKey(Type typeKey)
+        {
+            using (this.readerWriterLockSlim.AquireReadLock())
+            {
+                Type genericTypeDefinition;
+                return this.serviceRepository.ContainsKey(typeKey) ||
+                    (this.TryHandleOpenGenericType(typeKey, out genericTypeDefinition) && this.serviceRepository.ContainsKey(genericTypeDefinition));
+            }
+        }
+
+        public bool ConstainsTypeKeyWithoutGenericDefinitionExtraction(Type typeKey)
         {
             using (this.readerWriterLockSlim.AquireReadLock())
             {
@@ -71,11 +84,23 @@ namespace Stashbox.Registration
         {
             using (this.readerWriterLockSlim.AquireReadLock())
             {
-                IDictionary<string, IServiceRegistration> registrations = null;
+                IDictionary<string, IServiceRegistration> registrations;
                 if (!this.serviceRepository.TryGetValue(typeKey, out registrations))
                 {
-                    registration = null;
-                    return false;
+                    Type genericTypeDefinition;
+                    if (this.TryHandleOpenGenericType(typeKey, out genericTypeDefinition))
+                    {
+                        if (!this.serviceRepository.TryGetValue(genericTypeDefinition, out registrations))
+                        {
+                            registration = null;
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        registration = null;
+                        return false;
+                    }
                 }
                 var enumerator = registrations.GetEnumerator();
                 enumerator.MoveNext();
@@ -114,6 +139,18 @@ namespace Stashbox.Registration
                 registration = null;
                 return false;
             }
+        }
+
+        private bool TryHandleOpenGenericType(Type type, out Type genericTypeDefinition)
+        {
+            if (type.IsConstructedGenericType)
+            {
+                genericTypeDefinition = type.GetGenericTypeDefinition();
+                return true;
+            }
+
+            genericTypeDefinition = null;
+            return false;
         }
     }
 }

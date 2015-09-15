@@ -8,6 +8,7 @@ using Stashbox.MetaInfo;
 using Stashbox.Registration;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace Stashbox
 {
@@ -69,11 +70,14 @@ namespace Stashbox
             var name = this.GetRegistrationName(keyName);
 
             var registrationLifetime = lifetime ?? new TransientLifetime();
+
+            var registrationInfo = new RegistrationInfo { TypeFrom = typeFrom, TypeTo = typeTo };
+
             var registration = new ServiceRegistration(registrationLifetime,
-                this.CreateObjectBuilder(typeTo, singleFactory, oneParamsFactory, twoParamsFactory, threeParamsFactory, injectionParameters), this.builderContext);
+                this.CreateObjectBuilder(typeTo, singleFactory, oneParamsFactory, twoParamsFactory, threeParamsFactory, injectionParameters), this.builderContext, registrationInfo);
 
             this.registrationRepository.AddRegistration(typeFrom, registration, name);
-            this.NotifyAboutNewRegistration(new RegistrationInfo { TypeFrom = typeFrom, TypeTo = typeTo });
+            this.NotifyAboutNewRegistration(registrationInfo);
         }
 
         private void BuildUpInternal(object instance, string keyName, Type type = null)
@@ -81,11 +85,13 @@ namespace Stashbox
             type = type ?? instance.GetType();
             var name = this.GetRegistrationName(keyName);
 
+            var registrationInfo = new RegistrationInfo { TypeFrom = type, TypeTo = type };
+
             var registration = new ServiceRegistration(new TransientLifetime(),
-                new BuildUpObjectBuilder(instance, this.containerExtensionManager), this.builderContext);
+                new BuildUpObjectBuilder(instance, this.containerExtensionManager), this.builderContext, registrationInfo);
 
             this.registrationRepository.AddRegistration(type, registration, name);
-            this.NotifyAboutNewRegistration(new RegistrationInfo { TypeFrom = type, TypeTo = type });
+            this.NotifyAboutNewRegistration(registrationInfo);
         }
 
         private void RegisterInstanceInternal(object instance, string keyName, Type type = null)
@@ -93,11 +99,13 @@ namespace Stashbox
             type = type ?? instance.GetType();
             var name = this.GetRegistrationName(keyName);
 
+            var registrationInfo = new RegistrationInfo { TypeFrom = type, TypeTo = type };
+
             var registration = new ServiceRegistration(new TransientLifetime(),
-                new InstanceObjectBuilder(instance), this.builderContext);
+                new InstanceObjectBuilder(instance), this.builderContext, registrationInfo);
 
             this.registrationRepository.AddRegistration(type, registration, name);
-            this.NotifyAboutNewRegistration(new RegistrationInfo { TypeFrom = type, TypeTo = type });
+            this.NotifyAboutNewRegistration(registrationInfo);
         }
 
         private string GetRegistrationName(string nameKey = null)
@@ -127,6 +135,8 @@ namespace Stashbox
             if (threeParamsFactory != null)
                 return new FactoryObjectBuilder(threeParamsFactory, this.containerExtensionManager);
 
+            if (typeTo.GetTypeInfo().IsGenericTypeDefinition)
+                return new GenericTypeObjectBuilder(new MetaInfoProvider(this.builderContext, this.resolverSelector, typeTo));
 
             return new DefaultObjectBuilder(new MetaInfoProvider(this.builderContext, this.resolverSelector, typeTo),
                 this.containerExtensionManager, this.messagePublisher, injectionParameters);

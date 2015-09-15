@@ -44,9 +44,10 @@
     <Compile Include="BuildUp\DefaultObjectBuilder.cs" />
     <Compile Include="BuildUp\Expressions\ExpressionBuilder.cs" />
     <Compile Include="BuildUp\FactoryObjectBuilder.cs" />
+    <Compile Include="BuildUp\GenericTypeObjectBuilder.cs" />
     <Compile Include="BuildUp\InstanceObjectBuilder.cs" />
-    <Compile Include="BuildUp\Resolution\Container\ContainerResolver.cs" />
-    <Compile Include="BuildUp\Resolution\Container\ContainerResolverFactory.cs" />
+    <Compile Include="BuildUp\Resolution\ContainerResolver.cs" />
+    <Compile Include="BuildUp\Resolution\ContainerResolverFactory.cs" />
     <Compile Include="Entity\ConstructorInformation.cs" />
     <Compile Include="Entity\Events\RegistrationAdded.cs" />
     <Compile Include="Entity\Events\RegistrationRemoved.cs" />
@@ -104,8 +105,8 @@
       <HintPath>..\packages\Ronin.Common.1.0.13.0\lib\portable-net45+win+wpa81+wp80+MonoAndroid10+xamarinios10+MonoTouch10\Ronin.Common.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Sendstorm, Version=1.0.4.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Sendstorm.1.0.4.0\lib\portable-net45+win+wpa81+wp80+MonoAndroid10+xamarinios10+MonoTouch10\Sendstorm.dll</HintPath>
+    <Reference Include="Sendstorm, Version=1.0.5.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Sendstorm.1.0.5.0\lib\portable-net45+win+wpa81+wp80+MonoAndroid10+xamarinios10+MonoTouch10\Sendstorm.dll</HintPath>
       <Private>True</Private>
     </Reference>
   </ItemGroup>

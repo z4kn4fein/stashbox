@@ -1,6 +1,6 @@
 ﻿using Sendstorm;
 using Sendstorm.Infrastructure;
-using Stashbox.BuildUp.Resolution.Container;
+using Stashbox.BuildUp.Resolution;
 using Stashbox.Entity;
 using Stashbox.Extensions;
 using Stashbox.Infrastructure;
@@ -42,7 +42,9 @@ namespace Stashbox
         private void RegisterResolvers()
         {
             this.resolverSelector.AddResolverStrategy((context, typeInfo) =>
-            context.RegistrationRepository.ConstainsTypeKey(typeInfo.Type),
+            {
+                return context.RegistrationRepository.ConstainsTypeKey(typeInfo.Type);
+            },
             new ContainerResolverFactory());
         }
     }

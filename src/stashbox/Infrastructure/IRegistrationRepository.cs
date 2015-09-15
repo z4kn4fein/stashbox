@@ -9,5 +9,6 @@ namespace Stashbox.Infrastructure
         bool TryGetRegistration(Type typeKey, out IServiceRegistration registration, string nameKey = null);
         bool TryGetTypedRepositoryRegistrations(Type typeKey, out IDictionary<string, IServiceRegistration> registrations);
         bool ConstainsTypeKey(Type typeKey);
+        bool ConstainsTypeKeyWithoutGenericDefinitionExtraction(Type typeKey);
     }
 }

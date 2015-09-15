@@ -60,8 +60,9 @@ namespace Stashbox.MetaInfo
             if (overrideManager == null)
                 return constructors
                     .Where(constructor => constructor.Parameters
-                    .All(parameter => this.resolverSelector.CanResolve(this.builderContext, parameter) || (injectionParameters != null &&
-                         injectionParameters.Any(injectionParameter => injectionParameter.Name == parameter.ParameterInfo.Name))));
+                        .All(parameter => this.resolverSelector.CanResolve(this.builderContext, parameter) ||
+                                          (injectionParameters != null &&
+                                           injectionParameters.Any(injectionParameter => injectionParameter.Name == parameter.ParameterInfo.Name))));
 
             return constructors
                 .Where(constructor => constructor.Parameters
@@ -77,7 +78,6 @@ namespace Stashbox.MetaInfo
                 Constructor = constructorInformation,
                 Parameters = constructorInformation.Parameters.Select(parameter =>
                 {
-                    Resolver resolver;
                     var parameterValue = injectionParameters?.FirstOrDefault(injectionParameter => injectionParameter.Name == parameter.ParameterInfo.Name);
                     if (parameterValue != null)
                     {
@@ -89,6 +89,7 @@ namespace Stashbox.MetaInfo
                     }
                     else
                     {
+                        Resolver resolver;
                         this.resolverSelector.TryChooseResolver(this.builderContext, parameter, out resolver);
                         return new ResolutionParameter
                         {

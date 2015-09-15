@@ -2,7 +2,7 @@
 using Stashbox.Exceptions;
 using Stashbox.Infrastructure;
 
-namespace Stashbox.BuildUp.Resolution.Container
+namespace Stashbox.BuildUp.Resolution
 {
     internal class ContainerResolver : Resolver
     {

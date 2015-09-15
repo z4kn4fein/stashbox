@@ -9,11 +9,14 @@ namespace Stashbox.Registration
         private readonly IObjectBuilder objectBuilder;
         private readonly IBuilderContext builderContext;
 
-        public ServiceRegistration(ILifetime lifetimeManager, IObjectBuilder objectBuilder, IBuilderContext builderContext)
+        public RegistrationInfo RegistrationInfo { get; }
+
+        public ServiceRegistration(ILifetime lifetimeManager, IObjectBuilder objectBuilder, IBuilderContext builderContext, RegistrationInfo registrationInfo)
         {
             this.lifetimeManager = lifetimeManager;
             this.objectBuilder = objectBuilder;
             this.builderContext = builderContext;
+            this.RegistrationInfo = registrationInfo;
         }
 
         public object GetInstance(ResolutionInfo resolutionInfo)
