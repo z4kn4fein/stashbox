@@ -1,0 +1,29 @@
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Ronin.Common;
+using System;
+
+namespace Stashbox.Tests
+{
+    [TestClass]
+    public class LazyTests
+    {
+        [TestMethod]
+        public void LazyTests_Resolve()
+        {
+            var container = new StashboxContainer();
+            container.RegisterType<ITest, Test>();
+            var inst = container.Resolve<Lazy<ITest>>();
+
+            Assert.IsNotNull(inst);
+            Assert.IsInstanceOfType(inst, typeof(Lazy<ITest>));
+            Assert.IsInstanceOfType(inst.Value, typeof(Test));
+        }
+
+    }
+
+    public interface ITest
+    { }
+
+    public class Test : ITest
+    { }
+}

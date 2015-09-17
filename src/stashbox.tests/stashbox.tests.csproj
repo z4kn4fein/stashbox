@@ -54,7 +54,9 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="EnumerableTests.cs" />
     <Compile Include="GenericTests.cs" />
+    <Compile Include="LazyTests.cs" />
     <Compile Include="LifetimeTests.cs" />
     <Compile Include="OverrideTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -24,9 +24,9 @@ namespace Stashbox.Tests
             Assert.IsNotNull(test2);
             Assert.IsNotNull(test1);
 
-            Shield.EnsureTypeOf<Test1>(test1);
-            Shield.EnsureTypeOf<Test2>(test2);
-            Shield.EnsureTypeOf<Test3>(test3);
+            Assert.IsInstanceOfType(test1, typeof(Test1));
+            Assert.IsInstanceOfType(test2, typeof(Test2));
+            Assert.IsInstanceOfType(test3, typeof(Test3));
         }
 
         [TestMethod]
@@ -53,9 +53,9 @@ namespace Stashbox.Tests
                 Assert.IsNotNull(test2);
                 Assert.IsNotNull(test1);
 
-                Shield.EnsureTypeOf<Test1>(test1);
-                Shield.EnsureTypeOf<Test2>(test2);
-                Shield.EnsureTypeOf<Test3>(test3);
+                Assert.IsInstanceOfType(test1, typeof(Test1));
+                Assert.IsInstanceOfType(test2, typeof(Test2));
+                Assert.IsInstanceOfType(test3, typeof(Test3));
             });
         }
 

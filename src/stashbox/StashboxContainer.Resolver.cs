@@ -25,7 +25,7 @@ namespace Stashbox
         public IEnumerable<TKey> ResolveAll<TKey>(IEnumerable<object> factoryParameters = null, IEnumerable<Override> overrides = null) where TKey : class
         {
             var type = typeof(TKey);
-            var factoryParams = factoryParameters as object[] ?? factoryParameters.ToArray();
+            var factoryParams = factoryParameters as object[] ?? factoryParameters?.ToArray();
             IDictionary<string, IServiceRegistration> registrations;
             if (!this.registrationRepository.TryGetTypedRepositoryRegistrations(type, out registrations)) yield break;
             foreach (var registration in registrations)

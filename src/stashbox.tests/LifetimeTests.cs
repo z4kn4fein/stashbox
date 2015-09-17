@@ -10,7 +10,7 @@ namespace Stashbox.Tests
     public class LifetimeTests
     {
         [TestMethod]
-        public void LifetimeResolveTest()
+        public void LifetimeTests_Resolve()
         {
             IStashboxContainer container = new StashboxContainer();
             container.RegisterType<ITest1, Test1>(lifetime: new SingletonLifetime());

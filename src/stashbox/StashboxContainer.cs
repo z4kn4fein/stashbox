@@ -41,11 +41,17 @@ namespace Stashbox
 
         private void RegisterResolvers()
         {
+            this.resolverSelector.AddResolverStrategy((context, typeInfo) => context.RegistrationRepository.ConstainsTypeKey(typeInfo.Type),
+                new ContainerResolverFactory());
+
+            this.resolverSelector.AddResolverStrategy((context, typeInfo) => typeInfo.Type.IsConstructedGenericType && typeInfo.Type.GetGenericTypeDefinition() == typeof(Lazy<>),
+                new LazyResolverFactory());
+
             this.resolverSelector.AddResolverStrategy((context, typeInfo) =>
             {
-                return context.RegistrationRepository.ConstainsTypeKey(typeInfo.Type);
+                return typeInfo.Type.GetEnumerableType() != null && context.RegistrationRepository.ConstainsTypeKey(typeInfo.Type.GetEnumerableType());
             },
-            new ContainerResolverFactory());
+                new EnumerableResolverFactory());
         }
     }
 }

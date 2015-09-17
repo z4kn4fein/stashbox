@@ -1,5 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Ronin.Common;
 
 namespace Stashbox.Tests
 {
@@ -14,8 +13,8 @@ namespace Stashbox.Tests
             container.RegisterType(typeof(Test1<,>), typeof(ITest1<,>));
             var inst = container.Resolve<ITest1<int, string>>();
 
-            Shield.EnsureNotNull(inst);
-            Shield.EnsureTypeOf<Test1<int, string>>(inst);
+            Assert.IsNotNull(inst);
+            Assert.IsInstanceOfType(inst, typeof(Test1<int, string>));
         }
     }
 
