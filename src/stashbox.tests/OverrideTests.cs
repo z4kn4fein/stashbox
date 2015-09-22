@@ -1,7 +1,10 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Ronin.Common;
+using Stashbox.ContainerExtensions.MethodInjection;
 using Stashbox.Entity;
 using Stashbox.Infrastructure;
 using Stashbox.Overrides;
+using System;
 using System.Threading.Tasks;
 
 namespace Stashbox.Tests
@@ -13,6 +16,7 @@ namespace Stashbox.Tests
         public void OverrideTests_Resolve()
         {
             IStashboxContainer container = new StashboxContainer();
+            container.RegisterExtension(new MethodInjectionExtension());
             container.RegisterType<ITest1, Test1>();
             container.RegisterType<ITest2, Test2>(injectionParameters: new[] { new InjectionParameter { Value = new Test1 { Name = "fakeName" }, Name = "test1" } });
             var inst2 = container.Resolve<ITest2>();
@@ -27,13 +31,14 @@ namespace Stashbox.Tests
             var inst3 = container.Resolve<ITest3>(overrides: new[] { new TypeOverride(typeof(ITest1), inst1), new TypeOverride(typeof(ITest2), inst2) });
 
             Assert.IsInstanceOfType(inst3, typeof(Test3));
-            Assert.AreEqual("test1fakeName", inst3.Name);
+            Assert.AreEqual("test1fakeNametest1", inst3.Name);
         }
 
         [TestMethod]
         public void OverrideTests_Resolve_Parallel()
         {
             IStashboxContainer container = new StashboxContainer();
+            container.RegisterExtension(new MethodInjectionExtension());
             container.RegisterType<ITest1, Test1>();
             container.RegisterType<ITest2, Test2>(injectionParameters: new[] { new InjectionParameter { Value = new Test1 { Name = "fakeName" }, Name = "test1" } });
             var inst2 = container.Resolve<ITest2>();
@@ -50,7 +55,33 @@ namespace Stashbox.Tests
                 var inst3 = container.Resolve<ITest3>(overrides: new[] { new TypeOverride(typeof(ITest1), inst1), new TypeOverride(typeof(ITest2), inst2) });
 
                 Assert.IsInstanceOfType(inst3, typeof(Test3));
-                Assert.AreEqual("test1fakeName", inst3.Name);
+                Assert.AreEqual("test1fakeNametest1", inst3.Name);
+            });
+        }
+
+        [TestMethod]
+        public void OverrideTests_Resolve_Parallel_Lazy()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            container.RegisterExtension(new MethodInjectionExtension());
+            container.RegisterType<ITest1, Test1>();
+            container.RegisterType<ITest2, Test2>(injectionParameters: new[] { new InjectionParameter { Value = new Test1 { Name = "fakeName" }, Name = "test1" } });
+            var inst2 = container.Resolve<Lazy<ITest2>>();
+
+            Assert.IsInstanceOfType(inst2.Value, typeof(Test2));
+            Assert.AreEqual("fakeName", inst2.Value.Name);
+
+            container.RegisterType<ITest3, Test3>();
+
+            Parallel.For(0, 50000, (i) =>
+            {
+                var inst1 = container.Resolve<Lazy<ITest1>>();
+                inst1.Value.Name = "test1";
+                var inst3 = container.Resolve<Lazy<ITest3>>(overrides: new[] { new TypeOverride(typeof(ITest1), inst1.Value), new TypeOverride(typeof(ITest2), inst2.Value) });
+
+                Assert.IsInstanceOfType(inst3.Value, typeof(Test3));
+                Assert.AreEqual("test1fakeNametest1", inst3.Value.Name);
+                Assert.IsTrue(inst3.Value.MethodInvoked);
             });
         }
 
@@ -58,7 +89,7 @@ namespace Stashbox.Tests
 
         public interface ITest2 { string Name { get; set; } }
 
-        public interface ITest3 { string Name { get; set; } }
+        public interface ITest3 { string Name { get; set; } bool MethodInvoked { get; } }
 
         public class Test1 : ITest1
         {
@@ -79,9 +110,19 @@ namespace Stashbox.Tests
         {
             public string Name { get; set; }
 
+            public bool MethodInvoked { get; set; }
+
             public Test3(ITest1 test1, ITest2 test2)
             {
                 Name = test1.Name + test2.Name;
+            }
+
+            [InjectionMethod]
+            public void Inject(ITest1 test)
+            {
+                Shield.EnsureNotNull(test);
+                this.MethodInvoked = true;
+                Name += test.Name;
             }
         }
     }

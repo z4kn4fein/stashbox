@@ -37,7 +37,8 @@ namespace Stashbox
         public void RegisterType<TValue>(string name = null, ILifetime lifetime = null, Func<object> singleFactory = null, Func<object> oneParamsFactory = null,
             Func<object> twoParamsFactory = null, Func<object> threeParamsFactory = null, IEnumerable<InjectionParameter> injectionParameters = null) where TValue : class
         {
-            this.RegisterTypeInternal(typeof(TValue), null, name, lifetime, singleFactory, oneParamsFactory, twoParamsFactory, threeParamsFactory, injectionParameters);
+            var type = typeof(TValue);
+            this.RegisterTypeInternal(type, type, name, lifetime, singleFactory, oneParamsFactory, twoParamsFactory, threeParamsFactory, injectionParameters);
         }
 
         public void RegisterInstance<TKey>(object instance, string name = null) where TKey : class

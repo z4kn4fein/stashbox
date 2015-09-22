@@ -36,8 +36,7 @@
   <ItemGroup>
     <Compile Include="Attributes\DependencyAttribute.cs" />
     <Compile Include="Attributes\InjectionConstructorAttribute.cs" />
-    <Compile Include="Attributes\InjectionMethod.cs" />
-    <Compile Include="Attributes\InjectionPropertyAttribute.cs" />
+    <Compile Include="ContainerExtensions\MethodInjection\InjectionMethod.cs" />
     <Compile Include="BuilderContext.cs" />
     <Compile Include="BuildExtensionManager.cs" />
     <Compile Include="BuildUp\BuildUpObjectBuilder.cs" />
@@ -49,6 +48,11 @@
     <Compile Include="BuildUp\Resolution\EnumerableResolver.cs" />
     <Compile Include="BuildUp\Resolution\ContainerResolver.cs" />
     <Compile Include="BuildUp\Resolution\LazyResolver.cs" />
+    <Compile Include="ContainerExtensions\MethodInjection\MethodInfoCache.cs" />
+    <Compile Include="ContainerExtensions\MethodInjection\MethodInjectionExtension.cs" />
+    <Compile Include="ContainerExtensions\PropertyInjection\InjectionPropertyAttribute.cs" />
+    <Compile Include="ContainerExtensions\PropertyInjection\PropertyInfoCache.cs" />
+    <Compile Include="ContainerExtensions\PropertyInjection\PropertyInjectionExtension.cs" />
     <Compile Include="Entity\ConstructorInformation.cs" />
     <Compile Include="Entity\Events\RegistrationAdded.cs" />
     <Compile Include="Entity\Events\RegistrationRemoved.cs" />
@@ -63,7 +67,6 @@
     <Compile Include="Exceptions\InjectionConstructorNotFoundException.cs" />
     <Compile Include="Exceptions\RegistrationNotFoundException.cs" />
     <Compile Include="Exceptions\ResolutionFailedException.cs" />
-    <Compile Include="Extensions\Bag.cs" />
     <Compile Include="Extensions\PropertyInfoExtensions.cs" />
     <Compile Include="Extensions\TypeExtensions.cs" />
     <Compile Include="Infrastructure\ContainerExtension\IPostBuildExtension.cs" />
@@ -74,7 +77,6 @@
     <Compile Include="StashboxContainer.Registrator.cs" />
     <Compile Include="StashboxContainer.Resolver.cs" />
     <Compile Include="Infrastructure\ContainerExtension\IContainerExtension.cs" />
-    <Compile Include="Infrastructure\IBagItem.cs" />
     <Compile Include="Infrastructure\IBuilderContext.cs" />
     <Compile Include="Infrastructure\ContainerExtension\IContainerExtensionManager.cs" />
     <Compile Include="Infrastructure\IDependencyRegistrator.cs" />

@@ -3,6 +3,7 @@ using Stashbox.Entity;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.ContainerExtension;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace Stashbox
 {
@@ -18,7 +19,7 @@ namespace Stashbox
             this.prebuildExtensions = new HashSet<IPreBuildExtension>();
             this.postbuildExtensions = new HashSet<IPostBuildExtension>();
             this.registrationExtensions = new HashSet<IRegistrationExtension>();
-            this.readerWriterLock = new DisposableReaderWriterLock();
+            this.readerWriterLock = new DisposableReaderWriterLock(LockRecursionPolicy.SupportsRecursion);
         }
 
         public void AddExtension(IContainerExtension containerExtension)

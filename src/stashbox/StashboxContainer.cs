@@ -2,7 +2,6 @@
 using Sendstorm.Infrastructure;
 using Stashbox.BuildUp.Resolution;
 using Stashbox.Entity;
-using Stashbox.Extensions;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.ContainerExtension;
 using Stashbox.Registration;
@@ -24,7 +23,7 @@ namespace Stashbox
             this.resolverSelector = new ResolverSelector();
             this.registrationRepository = new RegistrationRepository();
             this.messagePublisher = new MessagePublisher();
-            this.builderContext = new BuilderContext(this.registrationRepository, this.messagePublisher, this, new Bag());
+            this.builderContext = new BuilderContext(this.registrationRepository, this.messagePublisher, this, this.resolverSelector);
 
             this.RegisterResolvers();
         }

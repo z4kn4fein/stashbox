@@ -2,6 +2,7 @@
 using Ronin.Common;
 using Stashbox.Infrastructure;
 using Stashbox.LifeTime;
+using System;
 using System.Threading.Tasks;
 
 namespace Stashbox.Tests
@@ -28,7 +29,7 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
-        public void LifetimeResolveTest_Parallel()
+        public void LifetimeTests_Resolve_Parallel()
         {
             IStashboxContainer container = new StashboxContainer();
             container.RegisterType<ITest1, Test1>(lifetime: new SingletonLifetime());
@@ -45,6 +46,27 @@ namespace Stashbox.Tests
                 Assert.IsNotNull(test1);
                 Assert.IsNotNull(test2);
                 Assert.IsNotNull(test3);
+            });
+        }
+
+        [TestMethod]
+        public void LifetimeTests_Resolve_Parallel_Lazy()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            container.RegisterType<ITest1, Test1>(lifetime: new SingletonLifetime());
+            container.RegisterType<ITest2, Test2>();
+            container.RegisterType<ITest3, Test3>();
+
+            Parallel.For(0, 50000, (i) =>
+            {
+                var test1 = container.Resolve<Lazy<ITest1>>();
+                test1.Value.Name = "test1";
+                var test2 = container.Resolve<Lazy<ITest2>>();
+                var test3 = container.Resolve<Lazy<ITest3>>();
+
+                Assert.IsNotNull(test1.Value);
+                Assert.IsNotNull(test2.Value);
+                Assert.IsNotNull(test3.Value);
             });
         }
 

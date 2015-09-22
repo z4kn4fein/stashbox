@@ -33,8 +33,8 @@ namespace Stashbox.BuildUp.Resolution
             {
                 ResolveType = new TypeInformation
                 {
-                    Type = resolutionInfo.ResolveType.Type.GenericTypeArguments[0],
-                    DependencyName = resolutionInfo.ResolveType.DependencyName
+                    Type = base.TypeInfo.Type.GenericTypeArguments[0],
+                    DependencyName = base.TypeInfo.DependencyName
                 },
                 FactoryParams = resolutionInfo.FactoryParams,
                 OverrideManager = resolutionInfo.OverrideManager

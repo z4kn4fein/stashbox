@@ -1,5 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Ronin.Common;
 using System;
 
 namespace Stashbox.Tests
@@ -19,11 +18,10 @@ namespace Stashbox.Tests
             Assert.IsInstanceOfType(inst.Value, typeof(Test));
         }
 
+        public interface ITest
+        { }
+
+        public class Test : ITest
+        { }
     }
-
-    public interface ITest
-    { }
-
-    public class Test : ITest
-    { }
 }

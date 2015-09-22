@@ -1,5 +1,4 @@
-﻿using Ronin.Common;
-using System;
+﻿using System;
 
 namespace Stashbox.Attributes
 {
@@ -8,9 +7,8 @@ namespace Stashbox.Attributes
     {
         public string Name { get; set; }
 
-        public DependencyAttribute(string name)
+        public DependencyAttribute(string name = null)
         {
-            Shield.EnsureNotNullOrEmpty(name);
             this.Name = name;
         }
     }

@@ -1,6 +1,9 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Ronin.Common;
+using Stashbox.Infrastructure;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Stashbox.Tests
 {
@@ -10,44 +13,71 @@ namespace Stashbox.Tests
         [TestMethod]
         public void EnumerableTests_Resolve()
         {
-            var container = new StashboxContainer();
-            container.RegisterType<ITest1, Test>();
+            IStashboxContainer container = new StashboxContainer();
             container.RegisterType<ITest1, Test1>();
-            container.RegisterType<ITest2, Test2>();
+            container.RegisterType<ITest1, Test11>();
+            container.RegisterType<ITest1, Test12>();
+            container.RegisterType<ITest2, Test2>("enumerable");
+            container.RegisterType<ITest2, Test22>("array");
 
-            var inst = container.Resolve<ITest2>();
+            var enumerable = container.Resolve<ITest2>("enumerable");
+            var array = container.Resolve<ITest2>("array");
 
-            Assert.IsNotNull(inst);
-            Assert.IsInstanceOfType(inst, typeof(Test2));
-            Assert.IsNotNull(inst.Tests);
-            Assert.IsNotNull(inst.Tests1);
+            var all = container.Resolve<IEnumerable<ITest2>>();
 
-            var instances = container.ResolveAll<ITest1>();
-            Assert.IsNotNull(instances);
-            Assert.AreEqual(2, instances.Count());
+            Assert.AreEqual(2, all.Count());
+        }
 
+        [TestMethod]
+        public void EnumerableTests_Parallel_Resolve()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            container.RegisterType<ITest1, Test1>();
+            container.RegisterType<ITest1, Test11>();
+            container.RegisterType<ITest1, Test12>();
+            container.RegisterType<ITest2, Test2>("enumerable");
+            container.RegisterType<ITest2, Test22>("array");
+
+            Parallel.For(0, 50000, (i) =>
+            {
+                var enumerable = container.Resolve<ITest2>("enumerable");
+                var array = container.Resolve<ITest2>("array");
+
+                var all = container.Resolve<IEnumerable<ITest2>>();
+
+                Assert.AreEqual(2, all.Count());
+            });
         }
 
         public interface ITest1 { }
-        public interface ITest2
-        {
-            IEnumerable<ITest1> Tests { get; }
-            ITest1[] Tests1 { get; }
-        }
 
-        public class Test : ITest1 { }
-        public class Test1 : ITest1 { }
+        public interface ITest2 { }
+
+        public class Test1 : ITest1
+        { }
+
+        public class Test11 : ITest1
+        { }
+
+        public class Test12 : ITest1
+        { }
 
         public class Test2 : ITest2
         {
-            public Test2(IEnumerable<ITest1> tests, ITest1[] tests1)
+            public Test2(IEnumerable<ITest1> tests)
             {
-                this.Tests = tests;
-                this.Tests1 = tests1;
+                Shield.EnsureNotNull(tests);
+                Assert.AreEqual(3, tests.Count());
             }
+        }
 
-            public IEnumerable<ITest1> Tests { get; }
-            public ITest1[] Tests1 { get; }
+        public class Test22 : ITest2
+        {
+            public Test22(ITest1[] tests)
+            {
+                Shield.EnsureNotNull(tests);
+                Assert.AreEqual(3, tests.Count());
+            }
         }
     }
 }

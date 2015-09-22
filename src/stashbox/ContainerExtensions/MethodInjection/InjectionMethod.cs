@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Stashbox.Attributes
+namespace Stashbox.ContainerExtensions.MethodInjection
 {
     [AttributeUsage(AttributeTargets.Method)]
     public sealed class InjectionMethodAttribute : Attribute

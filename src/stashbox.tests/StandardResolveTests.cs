@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ronin.Common;
 using Stashbox.Infrastructure;
+using System;
 using System.Threading.Tasks;
 
 namespace Stashbox.Tests
@@ -9,7 +10,7 @@ namespace Stashbox.Tests
     public class StandardResolveTests
     {
         [TestMethod]
-        public void ResolveTest()
+        public void StandardResolveTests_Resolve()
         {
             IStashboxContainer container = new StashboxContainer();
             container.RegisterType<ITest1, Test1>();
@@ -30,7 +31,7 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
-        public void ResolveTest_Parallel()
+        public void StandardResolveTests_Resolve_Parallel()
         {
             IStashboxContainer container = new StashboxContainer();
             container.RegisterType<ITest1, Test1>();
@@ -56,6 +57,32 @@ namespace Stashbox.Tests
                 Assert.IsInstanceOfType(test1, typeof(Test1));
                 Assert.IsInstanceOfType(test2, typeof(Test2));
                 Assert.IsInstanceOfType(test3, typeof(Test3));
+            });
+        }
+
+        [TestMethod]
+        public void StandardResolveTests_Resolve_Parallel_Lazy()
+        {
+            var container = new StashboxContainer();
+            container.RegisterType<ITest1, Test1>();
+            container.RegisterType<ITest2, Test2>();
+            container.RegisterType<ITest3, Test3>();
+
+            Parallel.For(0, 50000, (i) =>
+            {
+                if (i % 100 == 0)
+                {
+                    container.RegisterType<ITest1, Test1>();
+                    container.RegisterType<ITest3, Test3>();
+                }
+
+                var test3 = container.Resolve<Lazy<ITest3>>();
+                var test2 = container.Resolve<Lazy<ITest2>>();
+                var test1 = container.Resolve<Lazy<ITest1>>();
+
+                Assert.IsNotNull(test3.Value);
+                Assert.IsNotNull(test2.Value);
+                Assert.IsNotNull(test1.Value);
             });
         }
 

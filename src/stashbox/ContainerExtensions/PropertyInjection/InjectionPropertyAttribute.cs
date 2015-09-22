@@ -1,9 +1,9 @@
 ﻿using System;
 
-namespace Stashbox.Attributes
+namespace Stashbox.ContainerExtensions.PropertyInjection
 {
     [AttributeUsage(AttributeTargets.Property)]
-    public sealed class InjectionPropertyAttribute : Attribute
+    public class InjectionPropertyAttribute : Attribute
     {
         public string Name { get; set; }
 

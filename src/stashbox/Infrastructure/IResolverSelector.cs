@@ -3,7 +3,7 @@ using System;
 
 namespace Stashbox.Infrastructure
 {
-    internal interface IResolverSelector
+    public interface IResolverSelector
     {
         bool CanResolve(IBuilderContext builderContext, TypeInformation typeInfo);
         bool TryChooseResolver(IBuilderContext builderContext, TypeInformation typeInfo, out Resolver resolver);

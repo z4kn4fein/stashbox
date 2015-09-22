@@ -1,22 +1,22 @@
 ﻿using Sendstorm.Infrastructure;
-using Stashbox.Extensions;
 using Stashbox.Infrastructure;
 
 namespace Stashbox
 {
     public class BuilderContext : IBuilderContext
     {
-        public BuilderContext(IRegistrationRepository registrationRepository, IMessagePublisher messagePublisher, IStashboxContainer container, Bag bag)
+        public BuilderContext(IRegistrationRepository registrationRepository, IMessagePublisher messagePublisher,
+            IStashboxContainer container, IResolverSelector resolverSelector)
         {
             this.RegistrationRepository = registrationRepository;
             this.MessagePublisher = messagePublisher;
             this.Container = container;
-            this.Bag = bag;
+            this.ResolverSelector = resolverSelector;
         }
 
-        public Bag Bag { get; }
         public IRegistrationRepository RegistrationRepository { get; }
         public IMessagePublisher MessagePublisher { get; }
         public IStashboxContainer Container { get; }
+        public IResolverSelector ResolverSelector { get; }
     }
 }

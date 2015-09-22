@@ -6,7 +6,7 @@ namespace Stashbox.Tests
     public class GenericTests
     {
         [TestMethod]
-        public void GenericTests_ResolveTest()
+        public void GenericTests_Resolve()
         {
             var container = new StashboxContainer();
 
@@ -16,17 +16,17 @@ namespace Stashbox.Tests
             Assert.IsNotNull(inst);
             Assert.IsInstanceOfType(inst, typeof(Test1<int, string>));
         }
-    }
 
-    public interface ITest1<I, K>
-    {
-        I IProp { get; }
-        K KProp { get; }
-    }
+        public interface ITest1<I, K>
+        {
+            I IProp { get; }
+            K KProp { get; }
+        }
 
-    public class Test1<I, K> : ITest1<I, K>
-    {
-        public I IProp { get; }
-        public K KProp { get; }
+        public class Test1<I, K> : ITest1<I, K>
+        {
+            public I IProp { get; }
+            public K KProp { get; }
+        }
     }
 }
