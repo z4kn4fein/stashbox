@@ -8,6 +8,7 @@ using Stashbox.MetaInfo;
 using Stashbox.Registration;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace Stashbox
@@ -74,11 +75,12 @@ namespace Stashbox
 
             var registrationInfo = new RegistrationInfo { TypeFrom = typeFrom, TypeTo = typeTo };
 
+            var parameters = injectionParameters as InjectionParameter[] ?? injectionParameters?.ToArray();
             var registration = new ServiceRegistration(registrationLifetime,
-                this.CreateObjectBuilder(typeTo, singleFactory, oneParamsFactory, twoParamsFactory, threeParamsFactory, injectionParameters), this.builderContext, registrationInfo);
+                this.CreateObjectBuilder(typeTo, singleFactory, oneParamsFactory, twoParamsFactory, threeParamsFactory, parameters), this.builderContext, registrationInfo);
 
             this.registrationRepository.AddRegistration(typeFrom, registration, name);
-            this.NotifyAboutNewRegistration(registrationInfo);
+            this.NotifyAboutNewRegistration(registrationInfo, parameters == null ? null : new HashSet<InjectionParameter>(parameters));
         }
 
         private void BuildUpInternal(object instance, string keyName, Type type = null)
@@ -114,9 +116,9 @@ namespace Stashbox
             return string.IsNullOrWhiteSpace(nameKey) ? Guid.NewGuid().ToString() : nameKey;
         }
 
-        private void NotifyAboutNewRegistration(RegistrationInfo registrationInfo)
+        private void NotifyAboutNewRegistration(RegistrationInfo registrationInfo, HashSet<InjectionParameter> injectionParameters = null)
         {
-            this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.builderContext, registrationInfo);
+            this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.builderContext, registrationInfo, injectionParameters);
             this.messagePublisher.Broadcast(new RegistrationAdded { RegistrationInfo = registrationInfo });
         }
 

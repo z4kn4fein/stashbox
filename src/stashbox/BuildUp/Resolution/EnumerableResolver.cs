@@ -11,7 +11,7 @@ namespace Stashbox.BuildUp.Resolution
     {
         private readonly IEnumerable<IServiceRegistration> registrationCache;
         private delegate object ResolverDelegate(ResolutionInfo resolutionInfo);
-        private ResolverDelegate resolverDelegate;
+        private readonly ResolverDelegate resolverDelegate;
 
         internal EnumerableResolver(IBuilderContext builderContext, TypeInformation typeInfo)
             : base(builderContext, typeInfo)

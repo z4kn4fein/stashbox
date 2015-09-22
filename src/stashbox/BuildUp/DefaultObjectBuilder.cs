@@ -68,7 +68,7 @@ namespace Stashbox.BuildUp
                     {
                         if (this.metaInfoProvider.TryChooseConstructor(out this.constructor, resolutionInfo.OverrideManager, this.injectionParameters))
                         {
-                            this.containerExtensionManager.ExecutePreBuildExtensions(builderContext, resolutionInfo);
+                            this.containerExtensionManager.ExecutePreBuildExtensions(builderContext, resolutionInfo, this.injectionParameters);
 
                             this.constructorDelegate = ExpressionBuilder.BuildConstructorExpression(
                                 this.constructor.Constructor.Method,
@@ -84,14 +84,14 @@ namespace Stashbox.BuildUp
                     }
                     else
                     {
-                        this.containerExtensionManager.ExecutePreBuildExtensions(builderContext, resolutionInfo);
+                        this.containerExtensionManager.ExecutePreBuildExtensions(builderContext, resolutionInfo, this.injectionParameters);
                         return this.ResolveType(builderContext, resolutionInfo);
                     }
                 }
             }
             else
             {
-                this.containerExtensionManager.ExecutePreBuildExtensions(builderContext, resolutionInfo);
+                this.containerExtensionManager.ExecutePreBuildExtensions(builderContext, resolutionInfo, this.injectionParameters);
                 return this.ResolveType(builderContext, resolutionInfo);
             }
         }
@@ -109,7 +109,7 @@ namespace Stashbox.BuildUp
         private object ResolveType(IBuilderContext builderContext, ResolutionInfo resolutionInfo)
         {
             var parameters = this.EvaluateParameters(this.constructor.Parameters, resolutionInfo);
-            return this.containerExtensionManager.ExecutePostBuildExtensions(this.constructorDelegate(parameters), builderContext, resolutionInfo);
+            return this.containerExtensionManager.ExecutePostBuildExtensions(this.constructorDelegate(parameters), builderContext, resolutionInfo, this.injectionParameters);
         }
 
         private object[] EvaluateParameters(IEnumerable<ResolutionParameter> parameters, ResolutionInfo info)
