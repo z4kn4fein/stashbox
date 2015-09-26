@@ -9,11 +9,11 @@ namespace Stashbox.Entity
 
         public bool HasInjectionAttribute { get; set; }
 
-        public List<ParameterInformation> Parameters { get; set; }
+        public List<ResolutionTarget> Parameters { get; set; }
 
         public ConstructorInformation()
         {
-            Parameters = new List<ParameterInformation>();
+            Parameters = new List<ResolutionTarget>();
         }
     }
 }

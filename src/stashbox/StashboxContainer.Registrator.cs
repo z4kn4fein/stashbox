@@ -6,6 +6,7 @@ using Stashbox.Infrastructure;
 using Stashbox.Lifetime;
 using Stashbox.MetaInfo;
 using Stashbox.Registration;
+using Stashbox.Utils;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -14,77 +15,109 @@ namespace Stashbox
 {
     public partial class StashboxContainer
     {
-        public void RegisterType<TKey, TValue>(string name = null, ILifetime lifetime = null, Func<object> singleFactory = null, Func<object> oneParamsFactory = null,
-            Func<object> twoParamsFactory = null, Func<object> threeParamsFactory = null, IEnumerable<InjectionParameter> injectionParameters = null) where TKey : class where TValue : class, TKey
+        public IDependencyRegistrator RegisterType<TFrom, TTo>(string name = null) where TFrom : class where TTo : class, TFrom
         {
-            this.RegisterTypeInternal(typeof(TValue), typeof(TKey), name, lifetime, singleFactory, oneParamsFactory, twoParamsFactory, threeParamsFactory, injectionParameters);
+            this.RegisterTypeInternal(typeof(TTo), typeof(TFrom), name);
+            return this;
         }
 
-        public void RegisterType<TKey>(Type typeTo, string name = null, ILifetime lifetime = null, Func<object> singleFactory = null, Func<object> oneParamsFactory = null,
-            Func<object> twoParamsFactory = null, Func<object> threeParamsFactory = null, IEnumerable<InjectionParameter> injectionParameters = null) where TKey : class
-        {
-            Shield.EnsureNotNull(typeTo);
-            this.RegisterTypeInternal(typeTo, typeof(TKey), name, lifetime, singleFactory, oneParamsFactory, twoParamsFactory, threeParamsFactory, injectionParameters);
-        }
-
-        public void RegisterType(Type typeTo, Type typeFrom = null, string name = null, ILifetime lifetime = null, Func<object> singleFactory = null, Func<object> oneParamsFactory = null,
-            Func<object> twoParamsFactory = null, Func<object> threeParamsFactory = null, IEnumerable<InjectionParameter> injectionParameters = null)
+        public IDependencyRegistrator RegisterType<TTo>(Type typeTo, string name = null) where TTo : class
         {
             Shield.EnsureNotNull(typeTo);
-            this.RegisterTypeInternal(typeTo, typeFrom, name, lifetime, singleFactory, oneParamsFactory, twoParamsFactory, threeParamsFactory, injectionParameters);
+            this.RegisterTypeInternal(typeTo, typeof(TTo), name);
+            return this;
         }
 
-        public void RegisterType<TValue>(string name = null, ILifetime lifetime = null, Func<object> singleFactory = null, Func<object> oneParamsFactory = null,
-            Func<object> twoParamsFactory = null, Func<object> threeParamsFactory = null, IEnumerable<InjectionParameter> injectionParameters = null) where TValue : class
+        public IDependencyRegistrator RegisterType(Type typeFrom, Type typeTo, string name = null)
         {
-            var type = typeof(TValue);
-            this.RegisterTypeInternal(type, type, name, lifetime, singleFactory, oneParamsFactory, twoParamsFactory, threeParamsFactory, injectionParameters);
+            Shield.EnsureNotNull(typeTo);
+            this.RegisterTypeInternal(typeTo, typeFrom, name);
+            return this;
         }
 
-        public void RegisterInstance<TKey>(object instance, string name = null) where TKey : class
+        public IDependencyRegistrator RegisterType<TTo>(string name = null) where TTo : class
+        {
+            var type = typeof(TTo);
+            this.RegisterTypeInternal(type, type, name);
+            return this;
+        }
+
+        public IDependencyRegistrator RegisterInstance<TFrom>(object instance, string name = null) where TFrom : class
         {
             Shield.EnsureNotNull(instance);
-            this.RegisterInstanceInternal(instance, name, typeof(TKey));
+            this.RegisterInstanceInternal(instance, name, typeof(TFrom));
+            return this;
         }
 
-        public void RegisterInstance(object instance, Type type = null, string name = null)
+        public IDependencyRegistrator RegisterInstance(object instance, Type type = null, string name = null)
         {
             Shield.EnsureNotNull(instance);
             this.RegisterInstanceInternal(instance, name, type);
+            return this;
         }
 
-        public void BuildUp<TKey>(object instance, string name = null) where TKey : class
+        public IDependencyRegistrator BuildUp<TFrom>(object instance, string name = null) where TFrom : class
         {
             Shield.EnsureNotNull(instance);
-            this.BuildUpInternal(instance, name, typeof(TKey));
+            this.BuildUpInternal(instance, name, typeof(TFrom));
+            return this;
         }
 
-        public void BuildUp(object instance, Type type = null, string name = null)
+        public IDependencyRegistrator BuildUp(object instance, Type type = null, string name = null)
         {
             Shield.EnsureNotNull(instance);
             this.BuildUpInternal(instance, name, type);
+            return this;
         }
 
-        private void RegisterTypeInternal(Type typeTo, Type typeFrom, string keyName, ILifetime lifetime = null, Func<object> singleFactory = null,
-            Func<object> oneParamsFactory = null, Func<object> twoParamsFactory = null, Func<object> threeParamsFactory = null, IEnumerable<InjectionParameter> injectionParameters = null)
+        public IRegistrationContext PrepareType<TFrom, TTo>()
+            where TFrom : class
+            where TTo : class, TFrom
         {
-            var name = this.GetRegistrationName(keyName);
+            return new RegistrationContext(typeof(TFrom), typeof(TTo), this.builderContext, this.containerExtensionManager);
+        }
 
-            var registrationLifetime = lifetime ?? new TransientLifetime();
+        public IRegistrationContext PrepareType<TFrom>(Type typeTo)
+            where TFrom : class
+        {
+            return new RegistrationContext(typeof(TFrom), typeTo, this.builderContext, this.containerExtensionManager);
+        }
+
+        public IRegistrationContext PrepareType(Type typeFrom, Type typeTo)
+        {
+            return new RegistrationContext(typeFrom, typeTo, this.builderContext, this.containerExtensionManager);
+        }
+
+        public IRegistrationContext PrepareType<TTo>()
+             where TTo : class
+        {
+            var type = typeof(TTo);
+            return new RegistrationContext(type, type, this.builderContext, this.containerExtensionManager);
+        }
+
+        private void RegisterTypeInternal(Type typeTo, Type typeFrom, string name = null)
+        {
+            name = NameGenerator.GetRegistrationName(name);
 
             var registrationInfo = new RegistrationInfo { TypeFrom = typeFrom, TypeTo = typeTo };
 
-            var registration = new ServiceRegistration(registrationLifetime,
-                this.CreateObjectBuilder(typeTo, singleFactory, oneParamsFactory, twoParamsFactory, threeParamsFactory, injectionParameters), this.builderContext, registrationInfo);
+            IObjectBuilder objectBuilder;
+            if (typeTo.GetTypeInfo().IsGenericTypeDefinition)
+                objectBuilder = new GenericTypeObjectBuilder(new MetaInfoProvider(this.builderContext, typeTo));
+            else
+                objectBuilder = new DefaultObjectBuilder(new MetaInfoProvider(this.builderContext, typeTo), this.containerExtensionManager, this.messagePublisher);
+
+            var registration = new ServiceRegistration(new TransientLifetime(), objectBuilder, this.builderContext, registrationInfo);
 
             this.registrationRepository.AddRegistration(typeFrom, registration, name);
-            this.NotifyAboutNewRegistration(registrationInfo);
+            this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.builderContext, registrationInfo);
+            this.messagePublisher.Broadcast(new RegistrationAdded { RegistrationInfo = registrationInfo });
         }
 
         private void BuildUpInternal(object instance, string keyName, Type type = null)
         {
             type = type ?? instance.GetType();
-            var name = this.GetRegistrationName(keyName);
+            var name = NameGenerator.GetRegistrationName(keyName);
 
             var registrationInfo = new RegistrationInfo { TypeFrom = type, TypeTo = type };
 
@@ -92,13 +125,14 @@ namespace Stashbox
                 new BuildUpObjectBuilder(instance, this.containerExtensionManager), this.builderContext, registrationInfo);
 
             this.registrationRepository.AddRegistration(type, registration, name);
-            this.NotifyAboutNewRegistration(registrationInfo);
+            this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.builderContext, registrationInfo);
+            this.messagePublisher.Broadcast(new RegistrationAdded { RegistrationInfo = registrationInfo });
         }
 
         private void RegisterInstanceInternal(object instance, string keyName, Type type = null)
         {
             type = type ?? instance.GetType();
-            var name = this.GetRegistrationName(keyName);
+            var name = NameGenerator.GetRegistrationName(keyName);
 
             var registrationInfo = new RegistrationInfo { TypeFrom = type, TypeTo = type };
 
@@ -106,16 +140,6 @@ namespace Stashbox
                 new InstanceObjectBuilder(instance), this.builderContext, registrationInfo);
 
             this.registrationRepository.AddRegistration(type, registration, name);
-            this.NotifyAboutNewRegistration(registrationInfo);
-        }
-
-        private string GetRegistrationName(string nameKey = null)
-        {
-            return string.IsNullOrWhiteSpace(nameKey) ? Guid.NewGuid().ToString() : nameKey;
-        }
-
-        private void NotifyAboutNewRegistration(RegistrationInfo registrationInfo)
-        {
             this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.builderContext, registrationInfo);
             this.messagePublisher.Broadcast(new RegistrationAdded { RegistrationInfo = registrationInfo });
         }
@@ -137,9 +161,9 @@ namespace Stashbox
                 return new FactoryObjectBuilder(threeParamsFactory, this.containerExtensionManager);
 
             if (typeTo.GetTypeInfo().IsGenericTypeDefinition)
-                return new GenericTypeObjectBuilder(new MetaInfoProvider(this.builderContext, this.resolverSelector, typeTo));
+                return new GenericTypeObjectBuilder(new MetaInfoProvider(this.builderContext, typeTo));
 
-            return new DefaultObjectBuilder(new MetaInfoProvider(this.builderContext, this.resolverSelector, typeTo),
+            return new DefaultObjectBuilder(new MetaInfoProvider(this.builderContext, typeTo),
                 this.containerExtensionManager, this.messagePublisher, injectionParameters);
         }
     }

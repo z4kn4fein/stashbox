@@ -10,7 +10,7 @@ namespace Stashbox.Tests
         {
             var container = new StashboxContainer();
 
-            container.RegisterType(typeof(Test1<,>), typeof(ITest1<,>));
+            container.RegisterType(typeof(ITest1<,>), typeof(Test1<,>));
             var inst = container.Resolve<ITest1<int, string>>();
 
             Assert.IsNotNull(inst);

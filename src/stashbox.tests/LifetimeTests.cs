@@ -14,7 +14,7 @@ namespace Stashbox.Tests
         public void LifetimeTests_Resolve()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterType<ITest1, Test1>(lifetime: new SingletonLifetime());
+            container.PrepareType<ITest1, Test1>().WithLifetime(new SingletonLifetime()).Register();
             container.RegisterType<ITest2, Test2>();
             container.RegisterType<ITest3, Test3>();
 
@@ -32,7 +32,7 @@ namespace Stashbox.Tests
         public void LifetimeTests_Resolve_Parallel()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterType<ITest1, Test1>(lifetime: new SingletonLifetime());
+            container.PrepareType<ITest1, Test1>().WithLifetime(new SingletonLifetime()).Register();
             container.RegisterType<ITest2, Test2>();
             container.RegisterType<ITest3, Test3>();
 
@@ -53,7 +53,7 @@ namespace Stashbox.Tests
         public void LifetimeTests_Resolve_Parallel_Lazy()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterType<ITest1, Test1>(lifetime: new SingletonLifetime());
+            container.PrepareType<ITest1, Test1>().WithLifetime(new SingletonLifetime()).Register();
             container.RegisterType<ITest2, Test2>();
             container.RegisterType<ITest3, Test3>();
 

@@ -22,7 +22,7 @@ namespace Stashbox.BuildUp
         private ResolutionConstructor constructor;
         private readonly HashSet<InjectionParameter> injectionParameters;
 
-        public DefaultObjectBuilder(IMetaInfoProvider metaInfoProvider, IContainerExtensionManager containerExtensionManager, IMessagePublisher messagePublisher, IEnumerable<InjectionParameter> injectionParameters)
+        public DefaultObjectBuilder(IMetaInfoProvider metaInfoProvider, IContainerExtensionManager containerExtensionManager, IMessagePublisher messagePublisher, IEnumerable<InjectionParameter> injectionParameters = null)
         {
             Shield.EnsureNotNull(metaInfoProvider);
             Shield.EnsureNotNull(containerExtensionManager);
@@ -49,7 +49,7 @@ namespace Stashbox.BuildUp
                 {
                     this.constructorDelegate = ExpressionBuilder.BuildConstructorExpression(
                         this.constructor.Constructor.Method,
-                        this.constructor.Parameters.Select(parameter => parameter.ParameterInfo),
+                        this.constructor.Parameters.Select(parameter => parameter.TypeInformation),
                         this.metaInfoProvider.TypeTo);
                 }
             }
@@ -72,7 +72,7 @@ namespace Stashbox.BuildUp
 
                             this.constructorDelegate = ExpressionBuilder.BuildConstructorExpression(
                                 this.constructor.Constructor.Method,
-                                this.constructor.Parameters.Select(parameter => parameter.ParameterInfo),
+                                this.constructor.Parameters.Select(parameter => parameter.TypeInformation),
                                 this.metaInfoProvider.TypeTo);
 
                             return this.ResolveType(builderContext, resolutionInfo);
@@ -112,18 +112,18 @@ namespace Stashbox.BuildUp
             return this.containerExtensionManager.ExecutePostBuildExtensions(this.constructorDelegate(parameters), builderContext, resolutionInfo);
         }
 
-        private object[] EvaluateParameters(IEnumerable<ResolutionParameter> parameters, ResolutionInfo info)
+        private object[] EvaluateParameters(IEnumerable<ResolutionTarget> parameters, ResolutionInfo info)
         {
-            var resolutionParameters = parameters as ResolutionParameter[] ?? parameters.ToArray();
+            var resolutionParameters = parameters as ResolutionTarget[] ?? parameters.ToArray();
             var count = resolutionParameters.Count();
             var result = new object[count];
             for (var i = 0; i < count; i++)
             {
                 var parameter = resolutionParameters.ElementAt(i);
-                if (info.OverrideManager.ContainsValue(parameter.ParameterInfo))
-                    result[i] = info.OverrideManager.GetOverriddenValue(parameter.ParameterInfo.Type, parameter.ParameterInfo.DependencyName);
-                else if (parameter.ParameterValue != null)
-                    result[i] = parameter.ParameterValue;
+                if (info.OverrideManager.ContainsValue(parameter.TypeInformation))
+                    result[i] = info.OverrideManager.GetOverriddenValue(parameter.TypeInformation.Type, parameter.TypeInformation.DependencyName);
+                else if (parameter.ResolutionTargetValue != null)
+                    result[i] = parameter.ResolutionTargetValue;
                 else
                     result[i] = parameter.Resolver.Resolve(info);
             }

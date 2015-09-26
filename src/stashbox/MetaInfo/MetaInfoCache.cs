@@ -36,14 +36,17 @@ namespace Stashbox.MetaInfo
             }
         }
 
-        private IEnumerable<ParameterInformation> FillParameters(IEnumerable<ParameterInfo> parameters)
+        private IEnumerable<ResolutionTarget> FillParameters(IEnumerable<ParameterInfo> parameters)
         {
-            return parameters.Select(x => new ParameterInformation
+            return parameters.Select(parameterInfo => new ResolutionTarget
             {
-                Type = x.ParameterType,
-                ParameterInfo = x,
-                DependencyName = x.GetCustomAttribute<DependencyAttribute>() != null ?
-                    x.GetCustomAttribute<DependencyAttribute>().Name : null
+                TypeInformation = new TypeInformation
+                {
+                    Type = parameterInfo.ParameterType,
+                    DependencyName = parameterInfo.GetCustomAttribute<DependencyAttribute>() != null ?
+                                     parameterInfo.GetCustomAttribute<DependencyAttribute>().Name : null
+                },
+                ResolutionTargetName = parameterInfo.Name
             });
         }
     }

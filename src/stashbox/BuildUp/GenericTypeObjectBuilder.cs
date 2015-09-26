@@ -22,7 +22,7 @@ namespace Stashbox.BuildUp
                     if (!builderContext.RegistrationRepository.ConstainsTypeKeyWithoutGenericDefinitionExtraction(resolutionInfo.ResolveType.Type))
                     {
                         var genericType = this.metaInfoProvider.TypeTo.MakeGenericType(resolutionInfo.ResolveType.Type.GenericTypeArguments);
-                        builderContext.Container.RegisterType(genericType, resolutionInfo.ResolveType.Type);
+                        builderContext.Container.RegisterType(resolutionInfo.ResolveType.Type, genericType);
                     }
                 }
             }

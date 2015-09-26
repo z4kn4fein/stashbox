@@ -1,35 +1,41 @@
-﻿using Stashbox.Entity;
-using System;
-using System.Collections.Generic;
+﻿using System;
 
 namespace Stashbox.Infrastructure
 {
     public interface IDependencyRegistrator
     {
-        void RegisterType<TKey, TValue>(string name = null, ILifetime lifetime = null, Func<object> singleFactory = null, Func<object> oneParamsFactory = null,
-            Func<object> twoParamsFactory = null, Func<object> threeParamsFactory = null, IEnumerable<InjectionParameter> injectionParameters = null)
-            where TKey : class
-            where TValue : class, TKey;
+        IRegistrationContext PrepareType<TFrom, TTo>()
+            where TFrom : class
+            where TTo : class, TFrom;
 
-        void RegisterType<TKey>(Type typeTo, string name = null, ILifetime lifetime = null, Func<object> singleFactory = null, Func<object> oneParamsFactory = null,
-            Func<object> twoParamsFactory = null, Func<object> threeParamsFactory = null, IEnumerable<InjectionParameter> injectionParameters = null)
-            where TKey : class;
+        IRegistrationContext PrepareType<TFrom>(Type typeTo)
+            where TFrom : class;
 
-        void RegisterType(Type typeTo, Type typeFrom = null, string name = null, ILifetime lifetime = null, Func<object> singleFactory = null, Func<object> oneParamsFactory = null,
-            Func<object> twoParamsFactory = null, Func<object> threeParamsFactory = null, IEnumerable<InjectionParameter> injectionParameters = null);
+        IRegistrationContext PrepareType(Type typeFrom, Type typeTo);
 
-        void RegisterType<TValue>(string name = null, ILifetime lifetime = null, Func<object> singleFactory = null, Func<object> oneParamsFactory = null,
-            Func<object> twoParamsFactory = null, Func<object> threeParamsFactory = null, IEnumerable<InjectionParameter> injectionParameters = null)
-             where TValue : class;
+        IRegistrationContext PrepareType<TTo>()
+             where TTo : class;
 
-        void RegisterInstance<TKey>(object instance, string name = null)
-            where TKey : class;
+        IDependencyRegistrator RegisterType<TFrom, TTo>(string name = null)
+            where TFrom : class
+            where TTo : class, TFrom;
 
-        void RegisterInstance(object instance, Type type = null, string name = null);
+        IDependencyRegistrator RegisterType<TFrom>(Type typeTo, string name = null)
+            where TFrom : class;
 
-        void BuildUp<TKey>(object instance, string name = null)
-            where TKey : class;
+        IDependencyRegistrator RegisterType(Type typeFrom, Type typeTo, string name = null);
 
-        void BuildUp(object instance, Type type = null, string name = null);
+        IDependencyRegistrator RegisterType<TTo>(string name = null)
+             where TTo : class;
+
+        IDependencyRegistrator RegisterInstance<TFrom>(object instance, string name = null)
+            where TFrom : class;
+
+        IDependencyRegistrator RegisterInstance(object instance, Type type = null, string name = null);
+
+        IDependencyRegistrator BuildUp<TFrom>(object instance, string name = null)
+            where TFrom : class;
+
+        IDependencyRegistrator BuildUp(object instance, Type type = null, string name = null);
     }
 }

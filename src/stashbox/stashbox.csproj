@@ -57,11 +57,10 @@
     <Compile Include="Entity\Events\RegistrationAdded.cs" />
     <Compile Include="Entity\Events\RegistrationRemoved.cs" />
     <Compile Include="Entity\InjectionParameter.cs" />
-    <Compile Include="Entity\ParameterInformation.cs" />
     <Compile Include="Entity\RegistrationInfo.cs" />
     <Compile Include="Entity\ResolutionConstructor.cs" />
     <Compile Include="Entity\ResolutionInfo.cs" />
-    <Compile Include="Entity\ResolutionParameter.cs" />
+    <Compile Include="Entity\ResolutionTarget.cs" />
     <Compile Include="Entity\TypeInformation.cs" />
     <Compile Include="Exceptions\ExceptionBase.cs" />
     <Compile Include="Exceptions\InjectionConstructorNotFoundException.cs" />
@@ -72,7 +71,9 @@
     <Compile Include="Infrastructure\ContainerExtension\IPostBuildExtension.cs" />
     <Compile Include="Infrastructure\ContainerExtension\IPreBuildExtension.cs" />
     <Compile Include="Infrastructure\ContainerExtension\IRegistrationExtension.cs" />
+    <Compile Include="Infrastructure\IRegistrationContext.cs" />
     <Compile Include="LifeTime\SingletonLifetime.cs" />
+    <Compile Include="RegistrationContext.cs" />
     <Compile Include="StashboxContainer.cs" />
     <Compile Include="StashboxContainer.Registrator.cs" />
     <Compile Include="StashboxContainer.Resolver.cs" />
@@ -102,6 +103,7 @@
     <Compile Include="Registration\RegistrationRepository.cs" />
     <Compile Include="Registration\ServiceRegistration.cs" />
     <Compile Include="ResolverSelector.cs" />
+    <Compile Include="Utils\NameGenerator.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Ronin.Common, Version=1.0.13.0, Culture=neutral, processorArchitecture=MSIL">

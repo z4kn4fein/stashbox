@@ -42,7 +42,7 @@ namespace Stashbox.BuildUp.Expressions
             {
                 Expression index = Expression.Constant(i);
 
-                var parameterInformation = typeInformations.ElementAt(i) as ParameterInformation;
+                var parameterInformation = typeInformations.ElementAt(i) as TypeInformation;
 
                 if (parameterInformation == null) continue;
                 var paramType = parameterInformation.Type.IsGenericParameter ?

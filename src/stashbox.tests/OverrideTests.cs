@@ -18,7 +18,7 @@ namespace Stashbox.Tests
             IStashboxContainer container = new StashboxContainer();
             container.RegisterExtension(new MethodInjectionExtension());
             container.RegisterType<ITest1, Test1>();
-            container.RegisterType<ITest2, Test2>(injectionParameters: new[] { new InjectionParameter { Value = new Test1 { Name = "fakeName" }, Name = "test1" } });
+            container.PrepareType<ITest2, Test2>().WithInjectionParameters(new InjectionParameter { Value = new Test1 { Name = "fakeName" }, Name = "test1" }).Register();
             var inst2 = container.Resolve<ITest2>();
 
             Assert.IsInstanceOfType(inst2, typeof(Test2));
@@ -40,7 +40,7 @@ namespace Stashbox.Tests
             IStashboxContainer container = new StashboxContainer();
             container.RegisterExtension(new MethodInjectionExtension());
             container.RegisterType<ITest1, Test1>();
-            container.RegisterType<ITest2, Test2>(injectionParameters: new[] { new InjectionParameter { Value = new Test1 { Name = "fakeName" }, Name = "test1" } });
+            container.PrepareType<ITest2, Test2>().WithInjectionParameters(new InjectionParameter { Value = new Test1 { Name = "fakeName" }, Name = "test1" }).Register();
             var inst2 = container.Resolve<ITest2>();
 
             Assert.IsInstanceOfType(inst2, typeof(Test2));
@@ -65,7 +65,7 @@ namespace Stashbox.Tests
             IStashboxContainer container = new StashboxContainer();
             container.RegisterExtension(new MethodInjectionExtension());
             container.RegisterType<ITest1, Test1>();
-            container.RegisterType<ITest2, Test2>(injectionParameters: new[] { new InjectionParameter { Value = new Test1 { Name = "fakeName" }, Name = "test1" } });
+            container.PrepareType<ITest2, Test2>().WithInjectionParameters(new InjectionParameter { Value = new Test1 { Name = "fakeName" }, Name = "test1" }).Register();
             var inst2 = container.Resolve<Lazy<ITest2>>();
 
             Assert.IsInstanceOfType(inst2.Value, typeof(Test2));
