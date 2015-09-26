@@ -20,17 +20,17 @@ namespace Stashbox.ContainerExtensions.MethodInjection
             this.methodInfoRepository = new ConcurrentKeyValueStore<Type, MethodInfoCache>();
         }
 
-        public void OnRegistration(IBuilderContext builderContext, RegistrationInfo registrationInfo)
+        public void OnRegistration(IBuilderContext builderContext, RegistrationInfo registrationInfo, HashSet<InjectionParameter> injectionParameters = null)
         {
             var methods = registrationInfo.TypeTo.GetTypeInfo().DeclaredMethods
                .Where(methodInfo => methodInfo.GetCustomAttribute<InjectionMethodAttribute>() != null &&
-                      methodInfo.GetParameters() != null &&
-                      methodInfo.GetParameters().All(parameter =>
-                          builderContext.ResolverSelector.CanResolve(builderContext, new TypeInformation
-                          {
-                              DependencyName = parameter.GetCustomAttribute<DependencyAttribute>()?.Name,
-                              Type = parameter.ParameterType
-                          })))
+                                    methodInfo.GetParameters() != null &&
+                                    methodInfo.GetParameters().All(parameter =>
+                                        builderContext.ResolverSelector.CanResolve(builderContext, new TypeInformation
+                                        {
+                                            DependencyName = parameter.GetCustomAttribute<DependencyAttribute>()?.Name,
+                                            Type = parameter.ParameterType
+                                        }) || (injectionParameters != null && injectionParameters.Any(param => param.Name == parameter.Name))))
                .Select(methodInfo =>
                {
                    var parameters = methodInfo.GetParameters().Select(parameter =>
@@ -47,15 +47,17 @@ namespace Stashbox.ContainerExtensions.MethodInjection
                        return new ResolutionParameter
                        {
                            ParameterInfo = parameterInfo,
+                           ParameterValue = injectionParameters?.FirstOrDefault(param => param.Name == parameter.Name)?.Value,
                            Resolver = resolver
                        };
                    });
 
+                   var resolutionParameters = parameters as ResolutionParameter[] ?? parameters.ToArray();
                    return new MethodInfoItem
                    {
-                       Parameters = new HashSet<ResolutionParameter>(parameters),
+                       Parameters = new HashSet<ResolutionParameter>(resolutionParameters),
                        MethodDelegate = ExpressionBuilder.BuildMethodExpression(methodInfo,
-                                        parameters.Select(resolutionParameter => resolutionParameter.ParameterInfo), registrationInfo.TypeTo)
+                                        resolutionParameters.Select(resolutionParameter => resolutionParameter.ParameterInfo), registrationInfo.TypeTo)
                    };
                });
 
@@ -65,7 +67,7 @@ namespace Stashbox.ContainerExtensions.MethodInjection
             });
         }
 
-        public object PostBuild(object instance, IBuilderContext builderContext, ResolutionInfo resolutionInfo)
+        public object PostBuild(object instance, IBuilderContext builderContext, ResolutionInfo resolutionInfo, HashSet<InjectionParameter> injectionParameters = null)
         {
             MethodInfoCache methodCache;
             if (this.methodInfoRepository.TryGet(instance.GetType(), out methodCache))

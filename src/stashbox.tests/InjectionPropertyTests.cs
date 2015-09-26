@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Stashbox.ContainerExtensions.PropertyInjection;
+using Stashbox.Entity;
 
 namespace Stashbox.Tests
 {
@@ -22,6 +23,20 @@ namespace Stashbox.Tests
             Assert.IsInstanceOfType(inst.Test, typeof(Test));
         }
 
+        [TestMethod]
+        public void InjectionPropertyTests_Resolve_InjectionParameter()
+        {
+            var container = new StashboxContainer();
+            container.RegisterExtension(new PropertyInjectionExtension());
+            container.RegisterType<ITest2, Test2>(injectionParameters: new[] { new InjectionParameter { Name = "Name", Value = "test" } });
+
+            var inst = container.Resolve<ITest2>();
+
+            Assert.IsNotNull(inst);
+            Assert.IsInstanceOfType(inst, typeof(Test2));
+            Assert.AreEqual("test", inst.Name);
+        }
+
         public interface ITest { }
 
         public interface ITest1 { ITest Test { get; } }
@@ -32,6 +47,14 @@ namespace Stashbox.Tests
         {
             [InjectionProperty]
             public ITest Test { get; set; }
+        }
+
+        public interface ITest2 { string Name { get; set; } }
+
+        public class Test2 : ITest2
+        {
+            [InjectionProperty]
+            public string Name { get; set; }
         }
     }
 }

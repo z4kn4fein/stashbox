@@ -13,6 +13,7 @@ namespace Stashbox.ContainerExtensions.PropertyInjection
     {
         public Resolver Resolver { get; set; }
         public string DependencyName { get; set; }
+        public object PropertyValue { get; set; }
         public Type PropertyType { get; set; }
         public Action<object, object> PropertySetter { get; set; }
     }

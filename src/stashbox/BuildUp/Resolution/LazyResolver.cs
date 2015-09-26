@@ -9,7 +9,7 @@ namespace Stashbox.BuildUp.Resolution
     {
         private readonly IServiceRegistration registrationCache;
         private delegate object ResolverDelegate(ResolutionInfo resolutionInfo);
-        private ResolverDelegate resolverDelegate;
+        private readonly ResolverDelegate resolverDelegate;
 
         internal LazyResolver(IBuilderContext builderContext, TypeInformation typeInfo)
             : base(builderContext, typeInfo)

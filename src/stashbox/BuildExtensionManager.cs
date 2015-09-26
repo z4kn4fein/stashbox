@@ -40,38 +40,38 @@ namespace Stashbox
             }
         }
 
-        public object ExecutePostBuildExtensions(object instance, IBuilderContext builderContext, ResolutionInfo resolutionInfo)
+        public object ExecutePostBuildExtensions(object instance, IBuilderContext builderContext, ResolutionInfo resolutionInfo, HashSet<InjectionParameter> injectionParameters = null)
         {
             using (this.readerWriterLock.AquireReadLock())
             {
                 var result = instance;
                 foreach (var extension in this.postbuildExtensions)
                 {
-                    result = extension.PostBuild(instance, builderContext, resolutionInfo);
+                    result = extension.PostBuild(instance, builderContext, resolutionInfo, injectionParameters);
                 }
 
                 return result;
             }
         }
 
-        public void ExecutePreBuildExtensions(IBuilderContext builderContext, ResolutionInfo resolutionInfo)
+        public void ExecutePreBuildExtensions(IBuilderContext builderContext, ResolutionInfo resolutionInfo, HashSet<InjectionParameter> injectionParameters = null)
         {
             using (this.readerWriterLock.AquireReadLock())
             {
                 foreach (var extension in this.prebuildExtensions)
                 {
-                    extension.PreBuild(builderContext, resolutionInfo);
+                    extension.PreBuild(builderContext, resolutionInfo, injectionParameters);
                 }
             }
         }
 
-        public void ExecuteOnRegistrationExtensions(IBuilderContext builderContext, RegistrationInfo registrationInfo)
+        public void ExecuteOnRegistrationExtensions(IBuilderContext builderContext, RegistrationInfo registrationInfo, HashSet<InjectionParameter> injectionParameters = null)
         {
             using (this.readerWriterLock.AquireReadLock())
             {
                 foreach (var extension in this.registrationExtensions)
                 {
-                    extension.OnRegistration(builderContext, registrationInfo);
+                    extension.OnRegistration(builderContext, registrationInfo, injectionParameters);
                 }
             }
         }
