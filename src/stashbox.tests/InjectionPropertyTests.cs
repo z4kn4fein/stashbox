@@ -28,7 +28,7 @@ namespace Stashbox.Tests
         {
             var container = new StashboxContainer();
             container.RegisterExtension(new PropertyInjectionExtension());
-            container.RegisterType<ITest2, Test2>(injectionParameters: new[] { new InjectionParameter { Name = "Name", Value = "test" } });
+            container.PrepareType<ITest2, Test2>().WithInjectionParameters(new InjectionParameter { Name = "Name", Value = "test" }).Register();
 
             var inst = container.Resolve<ITest2>();
 

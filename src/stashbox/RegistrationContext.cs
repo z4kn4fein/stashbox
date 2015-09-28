@@ -53,7 +53,7 @@ namespace Stashbox
                 this.CreateObjectBuilder(), this.builderContext, registrationInfo);
 
             this.builderContext.RegistrationRepository.AddRegistration(typeFrom, registration, name);
-            this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.builderContext, registrationInfo);
+            this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.builderContext, registrationInfo, injectionParameters == null ? null : new HashSet<InjectionParameter>(injectionParameters));
             this.builderContext.MessagePublisher.Broadcast(new RegistrationAdded { RegistrationInfo = registrationInfo });
             return this.builderContext.Container;
         }
@@ -115,10 +115,10 @@ namespace Stashbox
                 return new FactoryObjectBuilder(this.oneParameterFactory, this.containerExtensionManager);
 
             if (this.typeTo.GetTypeInfo().IsGenericTypeDefinition)
-                return new GenericTypeObjectBuilder(new MetaInfoProvider(this.builderContext, typeTo));
+                return new GenericTypeObjectBuilder(new MetaInfoProvider(this.builderContext, this.typeTo));
 
-            return new DefaultObjectBuilder(new MetaInfoProvider(this.builderContext, typeTo),
-                this.containerExtensionManager, this.builderContext.MessagePublisher, injectionParameters);
+            return new DefaultObjectBuilder(new MetaInfoProvider(this.builderContext, this.typeTo),
+                this.containerExtensionManager, this.builderContext.MessagePublisher, this.injectionParameters);
         }
     }
 }

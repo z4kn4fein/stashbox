@@ -38,11 +38,19 @@ namespace Stashbox.ContainerExtensions.PropertyInjection
 
                     return new PropertyInfoItem
                     {
-                        Resolver = resolver,
-                        PropertyValue = injectionParameters?.FirstOrDefault(param => param.Name == propertyInfo.Name)?.Value,
-                        DependencyName = propertyInfo.GetCustomAttribute<InjectionPropertyAttribute>().Name,
+                        ResolutionTarget = new ResolutionTarget
+                        {
+                            Resolver = resolver,
+                            TypeInformation = new TypeInformation
+                            {
+                                DependencyName = propertyInfo.GetCustomAttribute<InjectionPropertyAttribute>().Name,
+                                Type = propertyInfo.PropertyType
+                            },
+                            ResolutionTargetValue = injectionParameters?.FirstOrDefault(param => param.Name == propertyInfo.Name)?.Value
+                        },
+
                         PropertySetter = propertyInfo.GetPropertySetter(),
-                        PropertyType = propertyInfo.PropertyType
+
                     };
                 });
 
@@ -59,24 +67,20 @@ namespace Stashbox.ContainerExtensions.PropertyInjection
             {
                 var evaluatedProperties = properties.Properties.ToDictionary(key => key, property =>
                 {
-                    if (resolutionInfo.OverrideManager.ContainsValue(new TypeInformation { DependencyName = property.DependencyName, Type = property.PropertyType }))
+                    if (resolutionInfo.OverrideManager.ContainsValue(new TypeInformation { DependencyName = property.ResolutionTarget.TypeInformation.DependencyName, Type = property.ResolutionTarget.TypeInformation.Type }))
                     {
-                        return resolutionInfo.OverrideManager.GetOverriddenValue(property.PropertyType, property.DependencyName);
+                        return resolutionInfo.OverrideManager.GetOverriddenValue(property.ResolutionTarget.TypeInformation.Type, property.ResolutionTarget.TypeInformation.DependencyName);
                     }
-                    else if (property.PropertyValue != null)
+                    else if (property.ResolutionTarget.ResolutionTargetValue != null)
                     {
-                        return property.PropertyValue;
+                        return property.ResolutionTarget.ResolutionTargetValue;
                     }
                     else
-                        return property.Resolver.Resolve(new ResolutionInfo
+                        return property.ResolutionTarget.Resolver.Resolve(new ResolutionInfo
                         {
                             FactoryParams = resolutionInfo.FactoryParams,
                             OverrideManager = resolutionInfo.OverrideManager,
-                            ResolveType = new TypeInformation
-                            {
-                                DependencyName = property.DependencyName,
-                                Type = property.PropertyType
-                            }
+                            ResolveType = property.ResolutionTarget.TypeInformation
                         });
                 });
 

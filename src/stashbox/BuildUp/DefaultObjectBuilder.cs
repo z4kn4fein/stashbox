@@ -66,7 +66,7 @@ namespace Stashbox.BuildUp
                 {
                     if (this.constructorDelegate == null)
                     {
-                        if (this.metaInfoProvider.TryChooseConstructor(out this.constructor, resolutionInfo.OverrideManager, this.injectionParameters))
+                        if (this.metaInfoProvider.TryChooseConstructor(out this.constructor, resolutionInfo, this.injectionParameters))
                         {
                             this.containerExtensionManager.ExecutePreBuildExtensions(builderContext, resolutionInfo, this.injectionParameters);
 

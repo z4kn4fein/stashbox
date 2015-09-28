@@ -11,7 +11,7 @@ namespace Stashbox.ContainerExtensions.MethodInjection
 
     public class MethodInfoItem
     {
-        public HashSet<ResolutionParameter> Parameters { get; set; }
+        public HashSet<ResolutionTarget> Parameters { get; set; }
         public Action<object, object[]> MethodDelegate { get; set; }
     }
 }

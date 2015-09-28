@@ -72,6 +72,7 @@
     <Compile Include="Infrastructure\ContainerExtension\IPreBuildExtension.cs" />
     <Compile Include="Infrastructure\ContainerExtension\IRegistrationExtension.cs" />
     <Compile Include="Infrastructure\IRegistrationContext.cs" />
+    <Compile Include="Infrastructure\IResolutionStrategy.cs" />
     <Compile Include="LifeTime\SingletonLifetime.cs" />
     <Compile Include="RegistrationContext.cs" />
     <Compile Include="StashboxContainer.cs" />

@@ -35,29 +35,29 @@ namespace Stashbox.ContainerExtensions.MethodInjection
                {
                    var parameters = methodInfo.GetParameters().Select(parameter =>
                    {
-                       var parameterInfo = new ParameterInformation
+                       var resolutionTarget = new ResolutionTarget
                        {
-                           DependencyName = parameter.GetCustomAttribute<DependencyAttribute>()?.Name,
-                           Type = parameter.ParameterType,
-                           ParameterInfo = parameter
+                           TypeInformation = new TypeInformation
+                           {
+                               DependencyName = parameter.GetCustomAttribute<DependencyAttribute>()?.Name,
+                               Type = parameter.ParameterType
+                           },
+                           ResolutionTargetValue = injectionParameters?.FirstOrDefault(param => param.Name == parameter.Name)?.Value,
+                           ResolutionTargetName = parameter.Name
                        };
 
                        Resolver resolver;
-                       builderContext.ResolverSelector.TryChooseResolver(builderContext, parameterInfo, out resolver);
-                       return new ResolutionParameter
-                       {
-                           ParameterInfo = parameterInfo,
-                           ParameterValue = injectionParameters?.FirstOrDefault(param => param.Name == parameter.Name)?.Value,
-                           Resolver = resolver
-                       };
+                       builderContext.ResolverSelector.TryChooseResolver(builderContext, resolutionTarget.TypeInformation, out resolver);
+                       resolutionTarget.Resolver = resolver;
+                       return resolutionTarget;
                    });
 
-                   var resolutionParameters = parameters as ResolutionParameter[] ?? parameters.ToArray();
+                   var resolutionParameters = parameters as ResolutionTarget[] ?? parameters.ToArray();
                    return new MethodInfoItem
                    {
-                       Parameters = new HashSet<ResolutionParameter>(resolutionParameters),
+                       Parameters = new HashSet<ResolutionTarget>(resolutionParameters),
                        MethodDelegate = ExpressionBuilder.BuildMethodExpression(methodInfo,
-                                        resolutionParameters.Select(resolutionParameter => resolutionParameter.ParameterInfo), registrationInfo.TypeTo)
+                                        resolutionParameters.Select(resolutionParameter => resolutionParameter.TypeInformation), registrationInfo.TypeTo)
                    };
                });
 
@@ -75,13 +75,13 @@ namespace Stashbox.ContainerExtensions.MethodInjection
                 var methods = methodCache.Methods.ToDictionary(key => key, method =>
                               method.Parameters.Select(parameter =>
                               {
-                                  if (resolutionInfo.OverrideManager.ContainsValue(parameter.ParameterInfo))
+                                  if (resolutionInfo.OverrideManager.ContainsValue(parameter.TypeInformation))
                                   {
-                                      return resolutionInfo.OverrideManager.GetOverriddenValue(parameter.ParameterInfo.Type, parameter.ParameterInfo.DependencyName);
+                                      return resolutionInfo.OverrideManager.GetOverriddenValue(parameter.TypeInformation.Type, parameter.TypeInformation.DependencyName);
                                   }
-                                  else if (parameter.ParameterValue != null)
+                                  else if (parameter.ResolutionTargetValue != null)
                                   {
-                                      return parameter.ParameterValue;
+                                      return parameter.ResolutionTargetValue;
                                   }
                                   else
                                       return parameter.Resolver.Resolve(new ResolutionInfo
@@ -90,8 +90,8 @@ namespace Stashbox.ContainerExtensions.MethodInjection
                                           OverrideManager = resolutionInfo.OverrideManager,
                                           ResolveType = new TypeInformation
                                           {
-                                              DependencyName = parameter.ParameterInfo.DependencyName,
-                                              Type = parameter.ParameterInfo.Type
+                                              DependencyName = parameter.TypeInformation.DependencyName,
+                                              Type = parameter.TypeInformation.Type
                                           }
                                       });
                               }));

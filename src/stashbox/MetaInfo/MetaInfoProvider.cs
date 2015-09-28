@@ -1,6 +1,5 @@
 ﻿using Stashbox.Entity;
 using Stashbox.Infrastructure;
-using Stashbox.Overrides;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,9 +22,9 @@ namespace Stashbox.MetaInfo
             this.BuildSensitivityList();
         }
 
-        public bool TryChooseConstructor(out ResolutionConstructor resolutionConstructor, OverrideManager overrideManager = null, IEnumerable<InjectionParameter> injectionParameters = null)
+        public bool TryChooseConstructor(out ResolutionConstructor resolutionConstructor, ResolutionInfo resolutionInfo = null, IEnumerable<InjectionParameter> injectionParameters = null)
         {
-            return this.TryGetBestConstructor(out resolutionConstructor, overrideManager, injectionParameters);
+            return this.TryGetBestConstructor(out resolutionConstructor, resolutionInfo, injectionParameters);
         }
 
         private void BuildSensitivityList()
@@ -33,15 +32,15 @@ namespace Stashbox.MetaInfo
             this.SensitivityList = this.metaInfoCache.Constructors.SelectMany(constructor => constructor.Parameters, (constructor, parameter) => parameter.TypeInformation.Type).ToArray();
         }
 
-        private bool TryGetBestConstructor(out ResolutionConstructor resolutionConstructor, OverrideManager overrideManager = null, IEnumerable<InjectionParameter> injectionParameters = null)
+        private bool TryGetBestConstructor(out ResolutionConstructor resolutionConstructor, ResolutionInfo resolutionInfo = null, IEnumerable<InjectionParameter> injectionParameters = null)
         {
-            return this.TryGetConstructor(this.metaInfoCache.Constructors.Where(constructor => constructor.HasInjectionAttribute), out resolutionConstructor, overrideManager, injectionParameters) ||
-                this.TryGetConstructor(this.metaInfoCache.Constructors.Where(constructor => !constructor.HasInjectionAttribute), out resolutionConstructor, overrideManager, injectionParameters);
+            return this.TryGetConstructor(this.metaInfoCache.Constructors.Where(constructor => constructor.HasInjectionAttribute), out resolutionConstructor, resolutionInfo, injectionParameters) ||
+                this.TryGetConstructor(this.metaInfoCache.Constructors.Where(constructor => !constructor.HasInjectionAttribute), out resolutionConstructor, resolutionInfo, injectionParameters);
         }
 
-        private bool TryGetConstructor(IEnumerable<ConstructorInformation> constructors, out ResolutionConstructor resolutionConstructor, OverrideManager overrideManager = null, IEnumerable<InjectionParameter> injectionParameters = null)
+        private bool TryGetConstructor(IEnumerable<ConstructorInformation> constructors, out ResolutionConstructor resolutionConstructor, ResolutionInfo resolutionInfo = null, IEnumerable<InjectionParameter> injectionParameters = null)
         {
-            var usableConstructors = this.GetUsableConstructors(constructors, overrideManager, injectionParameters).ToArray();
+            var usableConstructors = this.GetUsableConstructors(constructors, resolutionInfo, injectionParameters).ToArray();
 
             if (usableConstructors.Any())
             {
@@ -53,9 +52,9 @@ namespace Stashbox.MetaInfo
             return false;
         }
 
-        private IEnumerable<ConstructorInformation> GetUsableConstructors(IEnumerable<ConstructorInformation> constructors, OverrideManager overrideManager = null, IEnumerable<InjectionParameter> injectionParameters = null)
+        private IEnumerable<ConstructorInformation> GetUsableConstructors(IEnumerable<ConstructorInformation> constructors, ResolutionInfo resolutionInfo = null, IEnumerable<InjectionParameter> injectionParameters = null)
         {
-            if (overrideManager == null)
+            if (resolutionInfo == null || resolutionInfo.OverrideManager == null)
                 return constructors
                     .Where(constructor => constructor.Parameters
                         .All(parameter => this.builderContext.ResolverSelector.CanResolve(this.builderContext, parameter.TypeInformation) ||
@@ -65,7 +64,7 @@ namespace Stashbox.MetaInfo
             return constructors
                 .Where(constructor => constructor.Parameters
                     .All(parameter => this.builderContext.ResolverSelector.CanResolve(this.builderContext, parameter.TypeInformation) ||
-                         overrideManager.ContainsValue(parameter.TypeInformation) || (injectionParameters != null &&
+                         resolutionInfo.OverrideManager.ContainsValue(parameter.TypeInformation) || (injectionParameters != null &&
                          injectionParameters.Any(injectionParameter => injectionParameter.Name == parameter.ResolutionTargetName))));
         }
 
@@ -79,7 +78,7 @@ namespace Stashbox.MetaInfo
                     var parameterValue = injectionParameters?.FirstOrDefault(injectionParameter => injectionParameter.Name == parameter.ResolutionTargetName);
                     if (parameterValue != null)
                     {
-                        parameter.ResolutionTargetValue = parameterValue;
+                        parameter.ResolutionTargetValue = parameterValue.Value;
                         return parameter;
                     }
                     else

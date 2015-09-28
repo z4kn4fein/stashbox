@@ -1,4 +1,4 @@
-﻿using Stashbox.Infrastructure;
+﻿using Stashbox.Entity;
 using System;
 using System.Collections.Generic;
 
@@ -11,10 +11,7 @@ namespace Stashbox.ContainerExtensions.PropertyInjection
 
     public class PropertyInfoItem
     {
-        public Resolver Resolver { get; set; }
-        public string DependencyName { get; set; }
-        public object PropertyValue { get; set; }
-        public Type PropertyType { get; set; }
+        public ResolutionTarget ResolutionTarget { get; set; }
         public Action<object, object> PropertySetter { get; set; }
     }
 }
