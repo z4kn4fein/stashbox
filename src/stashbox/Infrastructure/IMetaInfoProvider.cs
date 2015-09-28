@@ -10,6 +10,6 @@ namespace Stashbox.Infrastructure
 
         Type TypeTo { get; }
 
-        bool TryChooseConstructor(out ResolutionConstructor constructor, ResolutionInfo resolutionInfo = null, IEnumerable<InjectionParameter> injectionParameters = null);
+        bool TryChooseConstructor(out ResolutionConstructor constructor, ResolutionInfo resolutionInfo = null, HashSet<InjectionParameter> injectionParameters = null);
     }
 }

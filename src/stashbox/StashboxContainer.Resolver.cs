@@ -42,7 +42,7 @@ namespace Stashbox
         private object ResolveInternal(Type typeFrom, IEnumerable<Override> overrides, string name = null, IEnumerable<object> factoryParameters = null)
         {
             Resolver resolver;
-            if (this.resolverSelector.TryChooseResolver(this.builderContext,
+            if (this.resolverSelector.TryChooseResolver(this.containerContext,
                 new TypeInformation { Type = typeFrom, DependencyName = name }, out resolver))
             {
                 return resolver.Resolve(new ResolutionInfo

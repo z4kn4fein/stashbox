@@ -3,20 +3,20 @@ using Stashbox.Infrastructure;
 
 namespace Stashbox
 {
-    public class BuilderContext : IBuilderContext
+    public class ContainerContext : IContainerContext
     {
-        public BuilderContext(IRegistrationRepository registrationRepository, IMessagePublisher messagePublisher,
-            IStashboxContainer container, IResolverSelector resolverSelector)
+        public ContainerContext(IRegistrationRepository registrationRepository, IMessagePublisher messagePublisher,
+            IStashboxContainer container, IResolutionStrategy resolutionStrategy)
         {
             this.RegistrationRepository = registrationRepository;
             this.MessagePublisher = messagePublisher;
             this.Container = container;
-            this.ResolverSelector = resolverSelector;
+            this.ResolutionStrategy = resolutionStrategy;
         }
 
         public IRegistrationRepository RegistrationRepository { get; }
         public IMessagePublisher MessagePublisher { get; }
         public IStashboxContainer Container { get; }
-        public IResolverSelector ResolverSelector { get; }
+        public IResolutionStrategy ResolutionStrategy { get; }
     }
 }

@@ -7,21 +7,21 @@ namespace Stashbox.Registration
     {
         private readonly ILifetime lifetimeManager;
         private readonly IObjectBuilder objectBuilder;
-        private readonly IBuilderContext builderContext;
+        private readonly IContainerContext containerContext;
 
         public RegistrationInfo RegistrationInfo { get; }
 
-        public ServiceRegistration(ILifetime lifetimeManager, IObjectBuilder objectBuilder, IBuilderContext builderContext, RegistrationInfo registrationInfo)
+        public ServiceRegistration(ILifetime lifetimeManager, IObjectBuilder objectBuilder, IContainerContext containerContext, RegistrationInfo registrationInfo)
         {
             this.lifetimeManager = lifetimeManager;
             this.objectBuilder = objectBuilder;
-            this.builderContext = builderContext;
+            this.containerContext = containerContext;
             this.RegistrationInfo = registrationInfo;
         }
 
         public object GetInstance(ResolutionInfo resolutionInfo)
         {
-            return this.lifetimeManager.GetInstance(this.objectBuilder, this.builderContext, resolutionInfo);
+            return this.lifetimeManager.GetInstance(this.objectBuilder, this.containerContext, resolutionInfo);
         }
 
         public void CleanUp()

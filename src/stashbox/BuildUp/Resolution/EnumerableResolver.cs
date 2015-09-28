@@ -13,10 +13,10 @@ namespace Stashbox.BuildUp.Resolution
         private delegate object ResolverDelegate(ResolutionInfo resolutionInfo);
         private readonly ResolverDelegate resolverDelegate;
 
-        internal EnumerableResolver(IBuilderContext builderContext, TypeInformation typeInfo)
-            : base(builderContext, typeInfo)
+        internal EnumerableResolver(IContainerContext containerContext, TypeInformation typeInfo)
+            : base(containerContext, typeInfo)
         {
-            builderContext.RegistrationRepository.TryGetAllRegistrations(typeInfo.Type.GetEnumerableType(),
+            containerContext.RegistrationRepository.TryGetAllRegistrations(typeInfo.Type.GetEnumerableType(),
                 out this.registrationCache);
 
             var genericLazyResolverMethod = this.GetType().GetTypeInfo().GetDeclaredMethod("ResolveArray");
@@ -37,9 +37,9 @@ namespace Stashbox.BuildUp.Resolution
 
     internal class EnumerableResolverFactory : ResolverFactory
     {
-        public override Resolver Create(IBuilderContext builderContext, TypeInformation typeInfo)
+        public override Resolver Create(IContainerContext containerContext, TypeInformation typeInfo)
         {
-            return new EnumerableResolver(builderContext, typeInfo);
+            return new EnumerableResolver(containerContext, typeInfo);
         }
     }
 }

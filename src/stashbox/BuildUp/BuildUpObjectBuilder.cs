@@ -22,17 +22,17 @@ namespace Stashbox.BuildUp
             this.containerExtensionManager = containerExtensionManager;
         }
 
-        public object BuildInstance(IBuilderContext builderContext, ResolutionInfo resolutionInfo)
+        public object BuildInstance(IContainerContext containerContext, ResolutionInfo resolutionInfo)
         {
-            Shield.EnsureNotNull(builderContext);
+            Shield.EnsureNotNull(containerContext);
             Shield.EnsureNotNull(resolutionInfo);
 
             if (this.builtInstance != null) return this.builtInstance;
             lock (this.syncObject)
             {
                 if (this.builtInstance != null) return this.builtInstance;
-                this.containerExtensionManager.ExecutePreBuildExtensions(builderContext, resolutionInfo);
-                this.builtInstance = this.containerExtensionManager.ExecutePostBuildExtensions(this.instance, builderContext, resolutionInfo);
+                this.containerExtensionManager.ExecutePreBuildExtensions(containerContext, resolutionInfo);
+                this.builtInstance = this.containerExtensionManager.ExecutePostBuildExtensions(this.instance, containerContext, resolutionInfo);
             }
 
             return this.builtInstance;

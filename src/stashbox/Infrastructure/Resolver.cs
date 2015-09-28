@@ -4,12 +4,12 @@ namespace Stashbox.Infrastructure
 {
     public abstract class Resolver
     {
-        protected readonly IBuilderContext BuilderContext;
+        protected readonly IContainerContext BuilderContext;
         protected readonly TypeInformation TypeInfo;
 
-        protected Resolver(IBuilderContext builderContext, TypeInformation typeInfo)
+        protected Resolver(IContainerContext containerContext, TypeInformation typeInfo)
         {
-            this.BuilderContext = builderContext;
+            this.BuilderContext = containerContext;
             this.TypeInfo = typeInfo;
         }
 

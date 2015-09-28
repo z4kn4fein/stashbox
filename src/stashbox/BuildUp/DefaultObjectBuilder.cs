@@ -22,7 +22,8 @@ namespace Stashbox.BuildUp
         private ResolutionConstructor constructor;
         private readonly HashSet<InjectionParameter> injectionParameters;
 
-        public DefaultObjectBuilder(IMetaInfoProvider metaInfoProvider, IContainerExtensionManager containerExtensionManager, IMessagePublisher messagePublisher, IEnumerable<InjectionParameter> injectionParameters = null)
+        public DefaultObjectBuilder(IMetaInfoProvider metaInfoProvider, IContainerExtensionManager containerExtensionManager,
+            IMessagePublisher messagePublisher, IEnumerable<InjectionParameter> injectionParameters = null)
         {
             Shield.EnsureNotNull(metaInfoProvider);
             Shield.EnsureNotNull(containerExtensionManager);
@@ -55,9 +56,9 @@ namespace Stashbox.BuildUp
             }
         }
 
-        public object BuildInstance(IBuilderContext builderContext, ResolutionInfo resolutionInfo)
+        public object BuildInstance(IContainerContext containerContext, ResolutionInfo resolutionInfo)
         {
-            Shield.EnsureNotNull(builderContext);
+            Shield.EnsureNotNull(containerContext);
             Shield.EnsureNotNull(resolutionInfo);
 
             if (this.constructorDelegate == null)
@@ -68,14 +69,14 @@ namespace Stashbox.BuildUp
                     {
                         if (this.metaInfoProvider.TryChooseConstructor(out this.constructor, resolutionInfo, this.injectionParameters))
                         {
-                            this.containerExtensionManager.ExecutePreBuildExtensions(builderContext, resolutionInfo, this.injectionParameters);
+                            this.containerExtensionManager.ExecutePreBuildExtensions(containerContext, resolutionInfo, this.injectionParameters);
 
                             this.constructorDelegate = ExpressionBuilder.BuildConstructorExpression(
                                 this.constructor.Constructor.Method,
                                 this.constructor.Parameters.Select(parameter => parameter.TypeInformation),
                                 this.metaInfoProvider.TypeTo);
 
-                            return this.ResolveType(builderContext, resolutionInfo);
+                            return this.ResolveType(containerContext, resolutionInfo);
                         }
                         else
                         {
@@ -84,15 +85,15 @@ namespace Stashbox.BuildUp
                     }
                     else
                     {
-                        this.containerExtensionManager.ExecutePreBuildExtensions(builderContext, resolutionInfo, this.injectionParameters);
-                        return this.ResolveType(builderContext, resolutionInfo);
+                        this.containerExtensionManager.ExecutePreBuildExtensions(containerContext, resolutionInfo, this.injectionParameters);
+                        return this.ResolveType(containerContext, resolutionInfo);
                     }
                 }
             }
             else
             {
-                this.containerExtensionManager.ExecutePreBuildExtensions(builderContext, resolutionInfo, this.injectionParameters);
-                return this.ResolveType(builderContext, resolutionInfo);
+                this.containerExtensionManager.ExecutePreBuildExtensions(containerContext, resolutionInfo, this.injectionParameters);
+                return this.ResolveType(containerContext, resolutionInfo);
             }
         }
 
@@ -106,13 +107,13 @@ namespace Stashbox.BuildUp
             this.CreateConstructorDelegate();
         }
 
-        private object ResolveType(IBuilderContext builderContext, ResolutionInfo resolutionInfo)
+        private object ResolveType(IContainerContext containerContext, ResolutionInfo resolutionInfo)
         {
-            var parameters = this.EvaluateParameters(this.constructor.Parameters, resolutionInfo);
-            return this.containerExtensionManager.ExecutePostBuildExtensions(this.constructorDelegate(parameters), builderContext, resolutionInfo, this.injectionParameters);
+            var parameters = this.EvaluateParameters(containerContext, this.constructor.Parameters, resolutionInfo);
+            return this.containerExtensionManager.ExecutePostBuildExtensions(this.constructorDelegate(parameters), containerContext, resolutionInfo, this.injectionParameters);
         }
 
-        private object[] EvaluateParameters(IEnumerable<ResolutionTarget> parameters, ResolutionInfo info)
+        private object[] EvaluateParameters(IContainerContext containerContext, IEnumerable<ResolutionTarget> parameters, ResolutionInfo info)
         {
             var resolutionParameters = parameters as ResolutionTarget[] ?? parameters.ToArray();
             var count = resolutionParameters.Count();
@@ -120,12 +121,7 @@ namespace Stashbox.BuildUp
             for (var i = 0; i < count; i++)
             {
                 var parameter = resolutionParameters.ElementAt(i);
-                if (info.OverrideManager.ContainsValue(parameter.TypeInformation))
-                    result[i] = info.OverrideManager.GetOverriddenValue(parameter.TypeInformation.Type, parameter.TypeInformation.DependencyName);
-                else if (parameter.ResolutionTargetValue != null)
-                    result[i] = parameter.ResolutionTargetValue;
-                else
-                    result[i] = parameter.Resolver.Resolve(info);
+                result[i] = containerContext.ResolutionStrategy.EvaluateResolutionTarget(containerContext, parameter, info);
             }
             return result;
         }

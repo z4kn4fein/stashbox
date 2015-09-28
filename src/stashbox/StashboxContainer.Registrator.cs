@@ -74,25 +74,25 @@ namespace Stashbox
             where TFrom : class
             where TTo : class, TFrom
         {
-            return new RegistrationContext(typeof(TFrom), typeof(TTo), this.builderContext, this.containerExtensionManager);
+            return new RegistrationContext(typeof(TFrom), typeof(TTo), this.containerContext, this.containerExtensionManager);
         }
 
         public IRegistrationContext PrepareType<TFrom>(Type typeTo)
             where TFrom : class
         {
-            return new RegistrationContext(typeof(TFrom), typeTo, this.builderContext, this.containerExtensionManager);
+            return new RegistrationContext(typeof(TFrom), typeTo, this.containerContext, this.containerExtensionManager);
         }
 
         public IRegistrationContext PrepareType(Type typeFrom, Type typeTo)
         {
-            return new RegistrationContext(typeFrom, typeTo, this.builderContext, this.containerExtensionManager);
+            return new RegistrationContext(typeFrom, typeTo, this.containerContext, this.containerExtensionManager);
         }
 
         public IRegistrationContext PrepareType<TTo>()
              where TTo : class
         {
             var type = typeof(TTo);
-            return new RegistrationContext(type, type, this.builderContext, this.containerExtensionManager);
+            return new RegistrationContext(type, type, this.containerContext, this.containerExtensionManager);
         }
 
         private void RegisterTypeInternal(Type typeTo, Type typeFrom, string name = null)
@@ -103,14 +103,14 @@ namespace Stashbox
 
             IObjectBuilder objectBuilder;
             if (typeTo.GetTypeInfo().IsGenericTypeDefinition)
-                objectBuilder = new GenericTypeObjectBuilder(new MetaInfoProvider(this.builderContext, typeTo));
+                objectBuilder = new GenericTypeObjectBuilder(new MetaInfoProvider(this.containerContext, typeTo));
             else
-                objectBuilder = new DefaultObjectBuilder(new MetaInfoProvider(this.builderContext, typeTo), this.containerExtensionManager, this.messagePublisher);
+                objectBuilder = new DefaultObjectBuilder(new MetaInfoProvider(this.containerContext, typeTo), this.containerExtensionManager, this.messagePublisher);
 
-            var registration = new ServiceRegistration(new TransientLifetime(), objectBuilder, this.builderContext, registrationInfo);
+            var registration = new ServiceRegistration(new TransientLifetime(), objectBuilder, this.containerContext, registrationInfo);
 
             this.registrationRepository.AddRegistration(typeFrom, registration, name);
-            this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.builderContext, registrationInfo);
+            this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.containerContext, registrationInfo);
             this.messagePublisher.Broadcast(new RegistrationAdded { RegistrationInfo = registrationInfo });
         }
 
@@ -122,10 +122,10 @@ namespace Stashbox
             var registrationInfo = new RegistrationInfo { TypeFrom = type, TypeTo = type };
 
             var registration = new ServiceRegistration(new TransientLifetime(),
-                new BuildUpObjectBuilder(instance, this.containerExtensionManager), this.builderContext, registrationInfo);
+                new BuildUpObjectBuilder(instance, this.containerExtensionManager), this.containerContext, registrationInfo);
 
             this.registrationRepository.AddRegistration(type, registration, name);
-            this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.builderContext, registrationInfo);
+            this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.containerContext, registrationInfo);
             this.messagePublisher.Broadcast(new RegistrationAdded { RegistrationInfo = registrationInfo });
         }
 
@@ -137,10 +137,10 @@ namespace Stashbox
             var registrationInfo = new RegistrationInfo { TypeFrom = type, TypeTo = type };
 
             var registration = new ServiceRegistration(new TransientLifetime(),
-                new InstanceObjectBuilder(instance), this.builderContext, registrationInfo);
+                new InstanceObjectBuilder(instance), this.containerContext, registrationInfo);
 
             this.registrationRepository.AddRegistration(type, registration, name);
-            this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.builderContext, registrationInfo);
+            this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.containerContext, registrationInfo);
             this.messagePublisher.Broadcast(new RegistrationAdded { RegistrationInfo = registrationInfo });
         }
 
@@ -161,9 +161,9 @@ namespace Stashbox
                 return new FactoryObjectBuilder(threeParamsFactory, this.containerExtensionManager);
 
             if (typeTo.GetTypeInfo().IsGenericTypeDefinition)
-                return new GenericTypeObjectBuilder(new MetaInfoProvider(this.builderContext, typeTo));
+                return new GenericTypeObjectBuilder(new MetaInfoProvider(this.containerContext, typeTo));
 
-            return new DefaultObjectBuilder(new MetaInfoProvider(this.builderContext, typeTo),
+            return new DefaultObjectBuilder(new MetaInfoProvider(this.containerContext, typeTo),
                 this.containerExtensionManager, this.messagePublisher, injectionParameters);
         }
     }

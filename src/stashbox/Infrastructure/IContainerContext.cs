@@ -2,11 +2,11 @@
 
 namespace Stashbox.Infrastructure
 {
-    public interface IBuilderContext
+    public interface IContainerContext
     {
         IRegistrationRepository RegistrationRepository { get; }
         IMessagePublisher MessagePublisher { get; }
         IStashboxContainer Container { get; }
-        IResolverSelector ResolverSelector { get; }
+        IResolutionStrategy ResolutionStrategy { get; }
     }
 }

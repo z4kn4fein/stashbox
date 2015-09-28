@@ -9,13 +9,13 @@ namespace Stashbox.LifeTime
         private object instance;
         private readonly object syncObject = new object();
 
-        public object GetInstance(IObjectBuilder objectBuilder, IBuilderContext builderContext, ResolutionInfo resolutionInfo)
+        public object GetInstance(IObjectBuilder objectBuilder, IContainerContext containerContext, ResolutionInfo resolutionInfo)
         {
             if (this.instance != null) return this.instance;
             lock (this.syncObject)
             {
                 if (this.instance != null) return this.instance;
-                this.instance = objectBuilder.BuildInstance(builderContext, resolutionInfo);
+                this.instance = objectBuilder.BuildInstance(containerContext, resolutionInfo);
             }
 
             return this.instance;

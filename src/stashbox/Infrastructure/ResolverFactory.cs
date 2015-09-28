@@ -5,6 +5,6 @@ namespace Stashbox.Infrastructure
 {
     public abstract class ResolverFactory
     {
-        public abstract Resolver Create(IBuilderContext builderContext, TypeInformation typeInfo);
+        public abstract Resolver Create(IContainerContext containerContext, TypeInformation typeInfo);
     }
 }

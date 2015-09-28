@@ -8,10 +8,10 @@ namespace Stashbox.BuildUp.Resolution
     {
         private readonly IServiceRegistration registrationCache;
 
-        internal ContainerResolver(IBuilderContext builderContext, TypeInformation typeInfo)
-            : base(builderContext, typeInfo)
+        internal ContainerResolver(IContainerContext containerContext, TypeInformation typeInfo)
+            : base(containerContext, typeInfo)
         {
-            builderContext.RegistrationRepository.TryGetRegistration(typeInfo.Type,
+            containerContext.RegistrationRepository.TryGetRegistration(typeInfo.Type,
                 out this.registrationCache, base.TypeInfo.DependencyName);
         }
 
@@ -31,9 +31,9 @@ namespace Stashbox.BuildUp.Resolution
 
     internal class ContainerResolverFactory : ResolverFactory
     {
-        public override Resolver Create(IBuilderContext builderContext, TypeInformation typeInfo)
+        public override Resolver Create(IContainerContext containerContext, TypeInformation typeInfo)
         {
-            return new ContainerResolver(builderContext, typeInfo);
+            return new ContainerResolver(containerContext, typeInfo);
         }
     }
 }

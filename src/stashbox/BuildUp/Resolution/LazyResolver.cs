@@ -11,10 +11,10 @@ namespace Stashbox.BuildUp.Resolution
         private delegate object ResolverDelegate(ResolutionInfo resolutionInfo);
         private readonly ResolverDelegate resolverDelegate;
 
-        internal LazyResolver(IBuilderContext builderContext, TypeInformation typeInfo)
-            : base(builderContext, typeInfo)
+        internal LazyResolver(IContainerContext containerContext, TypeInformation typeInfo)
+            : base(containerContext, typeInfo)
         {
-            builderContext.RegistrationRepository.TryGetRegistration(typeInfo.Type.GenericTypeArguments[0],
+            containerContext.RegistrationRepository.TryGetRegistration(typeInfo.Type.GenericTypeArguments[0],
                 out this.registrationCache, base.TypeInfo.DependencyName);
 
             var genericLazyResolverMethod = this.GetType().GetTypeInfo().GetDeclaredMethod("ResolveLazy");
@@ -44,9 +44,9 @@ namespace Stashbox.BuildUp.Resolution
 
     internal class LazyResolverFactory : ResolverFactory
     {
-        public override Resolver Create(IBuilderContext builderContext, TypeInformation typeInfo)
+        public override Resolver Create(IContainerContext containerContext, TypeInformation typeInfo)
         {
-            return new LazyResolver(builderContext, typeInfo);
+            return new LazyResolver(containerContext, typeInfo);
         }
     }
 }

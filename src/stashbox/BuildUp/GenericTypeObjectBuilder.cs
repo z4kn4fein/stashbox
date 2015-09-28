@@ -13,21 +13,21 @@ namespace Stashbox.BuildUp
             this.metaInfoProvider = metaInfoProvider;
         }
 
-        public object BuildInstance(IBuilderContext builderContext, ResolutionInfo resolutionInfo)
+        public object BuildInstance(IContainerContext containerContext, ResolutionInfo resolutionInfo)
         {
-            if (!builderContext.RegistrationRepository.ConstainsTypeKeyWithoutGenericDefinitionExtraction(resolutionInfo.ResolveType.Type))
+            if (!containerContext.RegistrationRepository.ConstainsTypeKeyWithoutGenericDefinitionExtraction(resolutionInfo.ResolveType.Type))
             {
                 lock (this.syncObject)
                 {
-                    if (!builderContext.RegistrationRepository.ConstainsTypeKeyWithoutGenericDefinitionExtraction(resolutionInfo.ResolveType.Type))
+                    if (!containerContext.RegistrationRepository.ConstainsTypeKeyWithoutGenericDefinitionExtraction(resolutionInfo.ResolveType.Type))
                     {
                         var genericType = this.metaInfoProvider.TypeTo.MakeGenericType(resolutionInfo.ResolveType.Type.GenericTypeArguments);
-                        builderContext.Container.RegisterType(resolutionInfo.ResolveType.Type, genericType);
+                        containerContext.Container.RegisterType(resolutionInfo.ResolveType.Type, genericType);
                     }
                 }
             }
 
-            return builderContext.Container.Resolve(resolutionInfo.ResolveType.Type);
+            return containerContext.Container.Resolve(resolutionInfo.ResolveType.Type);
         }
 
         public void CleanUp()

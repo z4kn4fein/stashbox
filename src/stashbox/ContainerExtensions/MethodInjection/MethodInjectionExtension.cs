@@ -20,36 +20,26 @@ namespace Stashbox.ContainerExtensions.MethodInjection
             this.methodInfoRepository = new ConcurrentKeyValueStore<Type, MethodInfoCache>();
         }
 
-        public void OnRegistration(IBuilderContext builderContext, RegistrationInfo registrationInfo, HashSet<InjectionParameter> injectionParameters = null)
+        public void OnRegistration(IContainerContext containerContext, RegistrationInfo registrationInfo, HashSet<InjectionParameter> injectionParameters = null)
         {
             var methods = registrationInfo.TypeTo.GetTypeInfo().DeclaredMethods
                .Where(methodInfo => methodInfo.GetCustomAttribute<InjectionMethodAttribute>() != null &&
                                     methodInfo.GetParameters() != null &&
                                     methodInfo.GetParameters().All(parameter =>
-                                        builderContext.ResolverSelector.CanResolve(builderContext, new TypeInformation
+                                        containerContext.ResolutionStrategy.CanResolve(containerContext, new TypeInformation
                                         {
                                             DependencyName = parameter.GetCustomAttribute<DependencyAttribute>()?.Name,
                                             Type = parameter.ParameterType
-                                        }) || (injectionParameters != null && injectionParameters.Any(param => param.Name == parameter.Name))))
+                                        }, injectionParameters, parameter.Name)))
                .Select(methodInfo =>
                {
                    var parameters = methodInfo.GetParameters().Select(parameter =>
                    {
-                       var resolutionTarget = new ResolutionTarget
+                       return containerContext.ResolutionStrategy.BuildResolutionTarget(containerContext, new TypeInformation
                        {
-                           TypeInformation = new TypeInformation
-                           {
-                               DependencyName = parameter.GetCustomAttribute<DependencyAttribute>()?.Name,
-                               Type = parameter.ParameterType
-                           },
-                           ResolutionTargetValue = injectionParameters?.FirstOrDefault(param => param.Name == parameter.Name)?.Value,
-                           ResolutionTargetName = parameter.Name
-                       };
-
-                       Resolver resolver;
-                       builderContext.ResolverSelector.TryChooseResolver(builderContext, resolutionTarget.TypeInformation, out resolver);
-                       resolutionTarget.Resolver = resolver;
-                       return resolutionTarget;
+                           DependencyName = parameter.GetCustomAttribute<DependencyAttribute>()?.Name,
+                           Type = parameter.ParameterType
+                       }, injectionParameters, parameter.Name);
                    });
 
                    var resolutionParameters = parameters as ResolutionTarget[] ?? parameters.ToArray();
@@ -67,7 +57,7 @@ namespace Stashbox.ContainerExtensions.MethodInjection
             });
         }
 
-        public object PostBuild(object instance, IBuilderContext builderContext, ResolutionInfo resolutionInfo, HashSet<InjectionParameter> injectionParameters = null)
+        public object PostBuild(object instance, IContainerContext containerContext, ResolutionInfo resolutionInfo, HashSet<InjectionParameter> injectionParameters = null)
         {
             MethodInfoCache methodCache;
             if (this.methodInfoRepository.TryGet(instance.GetType(), out methodCache))
@@ -75,25 +65,7 @@ namespace Stashbox.ContainerExtensions.MethodInjection
                 var methods = methodCache.Methods.ToDictionary(key => key, method =>
                               method.Parameters.Select(parameter =>
                               {
-                                  if (resolutionInfo.OverrideManager.ContainsValue(parameter.TypeInformation))
-                                  {
-                                      return resolutionInfo.OverrideManager.GetOverriddenValue(parameter.TypeInformation.Type, parameter.TypeInformation.DependencyName);
-                                  }
-                                  else if (parameter.ResolutionTargetValue != null)
-                                  {
-                                      return parameter.ResolutionTargetValue;
-                                  }
-                                  else
-                                      return parameter.Resolver.Resolve(new ResolutionInfo
-                                      {
-                                          FactoryParams = resolutionInfo.FactoryParams,
-                                          OverrideManager = resolutionInfo.OverrideManager,
-                                          ResolveType = new TypeInformation
-                                          {
-                                              DependencyName = parameter.TypeInformation.DependencyName,
-                                              Type = parameter.TypeInformation.Type
-                                          }
-                                      });
+                                  return containerContext.ResolutionStrategy.EvaluateResolutionTarget(containerContext, parameter, resolutionInfo);
                               }));
 
                 foreach (var method in methods)

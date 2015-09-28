@@ -8,25 +8,25 @@ namespace Stashbox
 {
     public class ResolverSelector : IResolverSelector
     {
-        private readonly ConcurrentKeyValueStore<Func<IBuilderContext, TypeInformation, bool>, ResolverFactory> resolverRepository;
+        private readonly ConcurrentKeyValueStore<Func<IContainerContext, TypeInformation, bool>, ResolverFactory> resolverRepository;
 
         public ResolverSelector()
         {
-            this.resolverRepository = new ConcurrentKeyValueStore<Func<IBuilderContext, TypeInformation, bool>, ResolverFactory>();
+            this.resolverRepository = new ConcurrentKeyValueStore<Func<IContainerContext, TypeInformation, bool>, ResolverFactory>();
         }
 
-        public bool CanResolve(IBuilderContext builderContext, TypeInformation typeInfo)
+        public bool CanResolve(IContainerContext containerContext, TypeInformation typeInfo)
         {
-            return this.resolverRepository.Keys.Any(predicate => predicate(builderContext, typeInfo));
+            return this.resolverRepository.Keys.Any(predicate => predicate(containerContext, typeInfo));
         }
 
-        public bool TryChooseResolver(IBuilderContext builderContext, TypeInformation typeInfo, out Resolver resolver)
+        public bool TryChooseResolver(IContainerContext containerContext, TypeInformation typeInfo, out Resolver resolver)
         {
-            var key = this.resolverRepository.Keys.FirstOrDefault(predicate => predicate(builderContext, typeInfo));
+            var key = this.resolverRepository.Keys.FirstOrDefault(predicate => predicate(containerContext, typeInfo));
             ResolverFactory resolverFactory;
             if (key != null && this.resolverRepository.TryGet(key, out resolverFactory))
             {
-                resolver = resolverFactory.Create(builderContext, typeInfo);
+                resolver = resolverFactory.Create(containerContext, typeInfo);
                 return true;
             }
 
@@ -34,7 +34,7 @@ namespace Stashbox
             return false;
         }
 
-        public void AddResolverStrategy(Func<IBuilderContext, TypeInformation, bool> resolverPredicate, ResolverFactory factory)
+        public void AddResolverStrategy(Func<IContainerContext, TypeInformation, bool> resolverPredicate, ResolverFactory factory)
         {
             this.resolverRepository.Add(resolverPredicate, factory);
         }

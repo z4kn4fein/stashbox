@@ -5,6 +5,6 @@ namespace Stashbox.Infrastructure.ContainerExtension
 {
     public interface IPreBuildExtension : IContainerExtension
     {
-        void PreBuild(IBuilderContext builderContext, ResolutionInfo resolutionInfo, HashSet<InjectionParameter> injectionParameters = null);
+        void PreBuild(IContainerContext containerContext, ResolutionInfo resolutionInfo, HashSet<InjectionParameter> injectionParameters = null);
     }
 }

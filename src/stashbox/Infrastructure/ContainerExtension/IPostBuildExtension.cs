@@ -5,6 +5,6 @@ namespace Stashbox.Infrastructure.ContainerExtension
 {
     public interface IPostBuildExtension : IContainerExtension
     {
-        object PostBuild(object instance, IBuilderContext builderContext, ResolutionInfo resolutionInfo, HashSet<InjectionParameter> injectionParameters = null);
+        object PostBuild(object instance, IContainerContext containerContext, ResolutionInfo resolutionInfo, HashSet<InjectionParameter> injectionParameters = null);
     }
 }

@@ -37,7 +37,7 @@
     <Compile Include="Attributes\DependencyAttribute.cs" />
     <Compile Include="Attributes\InjectionConstructorAttribute.cs" />
     <Compile Include="ContainerExtensions\MethodInjection\InjectionMethod.cs" />
-    <Compile Include="BuilderContext.cs" />
+    <Compile Include="ContainerContext.cs" />
     <Compile Include="BuildExtensionManager.cs" />
     <Compile Include="BuildUp\BuildUpObjectBuilder.cs" />
     <Compile Include="BuildUp\DefaultObjectBuilder.cs" />
@@ -75,11 +75,12 @@
     <Compile Include="Infrastructure\IResolutionStrategy.cs" />
     <Compile Include="LifeTime\SingletonLifetime.cs" />
     <Compile Include="RegistrationContext.cs" />
+    <Compile Include="ResolutionStrategy.cs" />
     <Compile Include="StashboxContainer.cs" />
     <Compile Include="StashboxContainer.Registrator.cs" />
     <Compile Include="StashboxContainer.Resolver.cs" />
     <Compile Include="Infrastructure\ContainerExtension\IContainerExtension.cs" />
-    <Compile Include="Infrastructure\IBuilderContext.cs" />
+    <Compile Include="Infrastructure\IContainerContext.cs" />
     <Compile Include="Infrastructure\ContainerExtension\IContainerExtensionManager.cs" />
     <Compile Include="Infrastructure\IDependencyRegistrator.cs" />
     <Compile Include="Infrastructure\IDependencyResolver.cs" />

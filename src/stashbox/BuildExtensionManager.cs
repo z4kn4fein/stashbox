@@ -40,38 +40,38 @@ namespace Stashbox
             }
         }
 
-        public object ExecutePostBuildExtensions(object instance, IBuilderContext builderContext, ResolutionInfo resolutionInfo, HashSet<InjectionParameter> injectionParameters = null)
+        public object ExecutePostBuildExtensions(object instance, IContainerContext containerContext, ResolutionInfo resolutionInfo, HashSet<InjectionParameter> injectionParameters = null)
         {
             using (this.readerWriterLock.AquireReadLock())
             {
                 var result = instance;
                 foreach (var extension in this.postbuildExtensions)
                 {
-                    result = extension.PostBuild(instance, builderContext, resolutionInfo, injectionParameters);
+                    result = extension.PostBuild(instance, containerContext, resolutionInfo, injectionParameters);
                 }
 
                 return result;
             }
         }
 
-        public void ExecutePreBuildExtensions(IBuilderContext builderContext, ResolutionInfo resolutionInfo, HashSet<InjectionParameter> injectionParameters = null)
+        public void ExecutePreBuildExtensions(IContainerContext containerContext, ResolutionInfo resolutionInfo, HashSet<InjectionParameter> injectionParameters = null)
         {
             using (this.readerWriterLock.AquireReadLock())
             {
                 foreach (var extension in this.prebuildExtensions)
                 {
-                    extension.PreBuild(builderContext, resolutionInfo, injectionParameters);
+                    extension.PreBuild(containerContext, resolutionInfo, injectionParameters);
                 }
             }
         }
 
-        public void ExecuteOnRegistrationExtensions(IBuilderContext builderContext, RegistrationInfo registrationInfo, HashSet<InjectionParameter> injectionParameters = null)
+        public void ExecuteOnRegistrationExtensions(IContainerContext containerContext, RegistrationInfo registrationInfo, HashSet<InjectionParameter> injectionParameters = null)
         {
             using (this.readerWriterLock.AquireReadLock())
             {
                 foreach (var extension in this.registrationExtensions)
                 {
-                    extension.OnRegistration(builderContext, registrationInfo, injectionParameters);
+                    extension.OnRegistration(containerContext, registrationInfo, injectionParameters);
                 }
             }
         }

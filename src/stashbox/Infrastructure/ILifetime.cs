@@ -4,7 +4,7 @@ namespace Stashbox.Infrastructure
 {
     public interface ILifetime
     {
-        object GetInstance(IObjectBuilder objectBuilder, IBuilderContext builderContext, ResolutionInfo resolutionInfo);
+        object GetInstance(IObjectBuilder objectBuilder, IContainerContext containerContext, ResolutionInfo resolutionInfo);
         void CleanUp();
     }
 }

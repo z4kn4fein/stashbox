@@ -6,10 +6,10 @@ namespace Stashbox.Lifetime
 {
     public class TransientLifetime : ILifetime
     {
-        public object GetInstance(IObjectBuilder objectBuilder, IBuilderContext builderContext, ResolutionInfo resolutionInfo)
+        public object GetInstance(IObjectBuilder objectBuilder, IContainerContext containerContext, ResolutionInfo resolutionInfo)
         {
             Shield.EnsureNotNull(objectBuilder);
-            return objectBuilder.BuildInstance(builderContext, resolutionInfo);
+            return objectBuilder.BuildInstance(containerContext, resolutionInfo);
         }
 
         public void CleanUp()

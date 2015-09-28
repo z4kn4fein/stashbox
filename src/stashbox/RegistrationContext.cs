@@ -18,7 +18,7 @@ namespace Stashbox
     {
         private readonly Type typeFrom;
         private readonly Type typeTo;
-        private readonly IBuilderContext builderContext;
+        private readonly IContainerContext containerContext;
         private readonly IContainerExtensionManager containerExtensionManager;
 
         private string name;
@@ -29,15 +29,15 @@ namespace Stashbox
         private HashSet<InjectionParameter> injectionParameters;
         private ILifetime lifetime;
 
-        public RegistrationContext(Type typeFrom, Type typeTo, IBuilderContext builderContext, IContainerExtensionManager containerExtensionManager)
+        public RegistrationContext(Type typeFrom, Type typeTo, IContainerContext containerContext, IContainerExtensionManager containerExtensionManager)
         {
             Shield.EnsureNotNull(typeTo);
-            Shield.EnsureNotNull(builderContext);
+            Shield.EnsureNotNull(containerContext);
             Shield.EnsureNotNull(containerExtensionManager);
 
             this.typeFrom = typeFrom ?? typeTo;
             this.typeTo = typeTo;
-            this.builderContext = builderContext;
+            this.containerContext = containerContext;
             this.containerExtensionManager = containerExtensionManager;
         }
 
@@ -50,12 +50,12 @@ namespace Stashbox
             var registrationInfo = new RegistrationInfo { TypeFrom = typeFrom, TypeTo = typeTo };
 
             var registration = new ServiceRegistration(registrationLifetime,
-                this.CreateObjectBuilder(), this.builderContext, registrationInfo);
+                this.CreateObjectBuilder(), this.containerContext, registrationInfo);
 
-            this.builderContext.RegistrationRepository.AddRegistration(typeFrom, registration, name);
-            this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.builderContext, registrationInfo, injectionParameters == null ? null : new HashSet<InjectionParameter>(injectionParameters));
-            this.builderContext.MessagePublisher.Broadcast(new RegistrationAdded { RegistrationInfo = registrationInfo });
-            return this.builderContext.Container;
+            this.containerContext.RegistrationRepository.AddRegistration(typeFrom, registration, name);
+            this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.containerContext, registrationInfo, injectionParameters == null ? null : new HashSet<InjectionParameter>(injectionParameters));
+            this.containerContext.MessagePublisher.Broadcast(new RegistrationAdded { RegistrationInfo = registrationInfo });
+            return this.containerContext.Container;
         }
 
         public IRegistrationContext WithFactoryParameters(Func<object, object, object, object> threeParametersFactory)
@@ -115,10 +115,10 @@ namespace Stashbox
                 return new FactoryObjectBuilder(this.oneParameterFactory, this.containerExtensionManager);
 
             if (this.typeTo.GetTypeInfo().IsGenericTypeDefinition)
-                return new GenericTypeObjectBuilder(new MetaInfoProvider(this.builderContext, this.typeTo));
+                return new GenericTypeObjectBuilder(new MetaInfoProvider(this.containerContext, this.typeTo));
 
-            return new DefaultObjectBuilder(new MetaInfoProvider(this.builderContext, this.typeTo),
-                this.containerExtensionManager, this.builderContext.MessagePublisher, this.injectionParameters);
+            return new DefaultObjectBuilder(new MetaInfoProvider(this.containerContext, this.typeTo),
+                this.containerExtensionManager, this.containerContext.MessagePublisher, this.injectionParameters);
         }
     }
 }

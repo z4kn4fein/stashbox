@@ -17,7 +17,7 @@ namespace Stashbox.BuildUp
             this.instance = instance;
         }
 
-        public object BuildInstance(IBuilderContext builderContext, ResolutionInfo resolutionInfo)
+        public object BuildInstance(IContainerContext containerContext, ResolutionInfo resolutionInfo)
         {
             return this.instance;
         }
