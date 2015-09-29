@@ -33,14 +33,11 @@ namespace Stashbox.ContainerExtensions.MethodInjection
                                         }, injectionParameters, parameter.Name)))
                .Select(methodInfo =>
                {
-                   var parameters = methodInfo.GetParameters().Select(parameter =>
+                   var parameters = methodInfo.GetParameters().Select(parameter => containerContext.ResolutionStrategy.BuildResolutionTarget(containerContext, new TypeInformation
                    {
-                       return containerContext.ResolutionStrategy.BuildResolutionTarget(containerContext, new TypeInformation
-                       {
-                           DependencyName = parameter.GetCustomAttribute<DependencyAttribute>()?.Name,
-                           Type = parameter.ParameterType
-                       }, injectionParameters, parameter.Name);
-                   });
+                       DependencyName = parameter.GetCustomAttribute<DependencyAttribute>()?.Name,
+                       Type = parameter.ParameterType
+                   }, injectionParameters, parameter.Name));
 
                    var resolutionParameters = parameters as ResolutionTarget[] ?? parameters.ToArray();
                    return new MethodInfoItem
@@ -60,18 +57,14 @@ namespace Stashbox.ContainerExtensions.MethodInjection
         public object PostBuild(object instance, IContainerContext containerContext, ResolutionInfo resolutionInfo, HashSet<InjectionParameter> injectionParameters = null)
         {
             MethodInfoCache methodCache;
-            if (this.methodInfoRepository.TryGet(instance.GetType(), out methodCache))
-            {
-                var methods = methodCache.Methods.ToDictionary(key => key, method =>
-                              method.Parameters.Select(parameter =>
-                              {
-                                  return containerContext.ResolutionStrategy.EvaluateResolutionTarget(containerContext, parameter, resolutionInfo);
-                              }));
+            if (!this.methodInfoRepository.TryGet(instance.GetType(), out methodCache)) return instance;
+            var methods = methodCache.Methods.ToDictionary(key => key, method =>
+                method.Parameters.Select(parameter =>
+                    containerContext.ResolutionStrategy.EvaluateResolutionTarget(containerContext, parameter, resolutionInfo)));
 
-                foreach (var method in methods)
-                {
-                    method.Key.MethodDelegate(instance, method.Value.ToArray());
-                }
+            foreach (var method in methods)
+            {
+                method.Key.MethodDelegate(instance, method.Value.ToArray());
             }
 
             return instance;

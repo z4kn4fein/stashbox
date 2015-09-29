@@ -27,18 +27,15 @@ namespace Stashbox.ContainerExtensions.PropertyInjection
                            DependencyName = propertyInfo.GetCustomAttribute<InjectionPropertyAttribute>().Name,
                            Type = propertyInfo.PropertyType
                        }, injectionParameters, propertyInfo.Name)))
-                .Select(propertyInfo =>
+                .Select(propertyInfo => new PropertyInfoItem
                 {
-                    return new PropertyInfoItem
+                    ResolutionTarget = containerContext.ResolutionStrategy.BuildResolutionTarget(containerContext, new TypeInformation
                     {
-                        ResolutionTarget = containerContext.ResolutionStrategy.BuildResolutionTarget(containerContext, new TypeInformation
-                        {
-                            DependencyName = propertyInfo.GetCustomAttribute<InjectionPropertyAttribute>().Name,
-                            Type = propertyInfo.PropertyType
-                        }, injectionParameters, propertyInfo.Name),
-                        PropertySetter = propertyInfo.GetPropertySetter(),
+                        DependencyName = propertyInfo.GetCustomAttribute<InjectionPropertyAttribute>().Name,
+                        Type = propertyInfo.PropertyType
+                    }, injectionParameters, propertyInfo.Name),
+                    PropertySetter = propertyInfo.GetPropertySetter(),
 
-                    };
                 });
 
             this.propertyInfoRepository.Add(registrationInfo.TypeTo, new PropertyInfoCache
@@ -50,17 +47,13 @@ namespace Stashbox.ContainerExtensions.PropertyInjection
         public object PostBuild(object instance, IContainerContext containerContext, ResolutionInfo resolutionInfo, HashSet<InjectionParameter> injectionParameters = null)
         {
             PropertyInfoCache properties;
-            if (this.propertyInfoRepository.TryGet(instance.GetType(), out properties))
-            {
-                var evaluatedProperties = properties.Properties.ToDictionary(key => key, property =>
-                {
-                    return containerContext.ResolutionStrategy.EvaluateResolutionTarget(containerContext, property.ResolutionTarget, resolutionInfo);
-                });
+            if (!this.propertyInfoRepository.TryGet(instance.GetType(), out properties)) return instance;
+            var evaluatedProperties = properties.Properties.ToDictionary(key => key, property =>
+                containerContext.ResolutionStrategy.EvaluateResolutionTarget(containerContext, property.ResolutionTarget, resolutionInfo));
 
-                foreach (var evaluatedProperty in evaluatedProperties)
-                {
-                    evaluatedProperty.Key.PropertySetter(instance, evaluatedProperty.Value);
-                }
+            foreach (var evaluatedProperty in evaluatedProperties)
+            {
+                evaluatedProperty.Key.PropertySetter(instance, evaluatedProperty.Value);
             }
 
             return instance;
