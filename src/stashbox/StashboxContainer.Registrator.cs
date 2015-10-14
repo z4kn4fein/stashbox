@@ -8,7 +8,6 @@ using Stashbox.MetaInfo;
 using Stashbox.Registration;
 using Stashbox.Utils;
 using System;
-using System.Collections.Generic;
 using System.Reflection;
 
 namespace Stashbox
@@ -107,7 +106,7 @@ namespace Stashbox
             else
                 objectBuilder = new DefaultObjectBuilder(new MetaInfoProvider(this.containerContext, typeTo), this.containerExtensionManager, this.messagePublisher);
 
-            var registration = new ServiceRegistration(new TransientLifetime(), objectBuilder, this.containerContext, registrationInfo);
+            var registration = new ServiceRegistration(new TransientLifetime(), objectBuilder, this.containerContext);
 
             this.registrationRepository.AddRegistration(typeFrom, registration, name);
             this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.containerContext, registrationInfo);
@@ -122,7 +121,7 @@ namespace Stashbox
             var registrationInfo = new RegistrationInfo { TypeFrom = type, TypeTo = type };
 
             var registration = new ServiceRegistration(new TransientLifetime(),
-                new BuildUpObjectBuilder(instance, this.containerExtensionManager), this.containerContext, registrationInfo);
+                new BuildUpObjectBuilder(instance, this.containerExtensionManager), this.containerContext);
 
             this.registrationRepository.AddRegistration(type, registration, name);
             this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.containerContext, registrationInfo);
@@ -137,34 +136,11 @@ namespace Stashbox
             var registrationInfo = new RegistrationInfo { TypeFrom = type, TypeTo = type };
 
             var registration = new ServiceRegistration(new TransientLifetime(),
-                new InstanceObjectBuilder(instance), this.containerContext, registrationInfo);
+                new InstanceObjectBuilder(instance), this.containerContext);
 
             this.registrationRepository.AddRegistration(type, registration, name);
             this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.containerContext, registrationInfo);
             this.messagePublisher.Broadcast(new RegistrationAdded { RegistrationInfo = registrationInfo });
-        }
-
-        private IObjectBuilder CreateObjectBuilder(Type typeTo, Func<object> singleFactory = null,
-            Func<object> oneParamsFactory = null, Func<object> twoParamsFactory = null,
-            Func<object> threeParamsFactory = null, IEnumerable<InjectionParameter> injectionParameters = null)
-        {
-            if (singleFactory != null)
-                return new FactoryObjectBuilder(singleFactory, this.containerExtensionManager);
-
-            if (oneParamsFactory != null)
-                return new FactoryObjectBuilder(oneParamsFactory, this.containerExtensionManager);
-
-            if (twoParamsFactory != null)
-                return new FactoryObjectBuilder(twoParamsFactory, this.containerExtensionManager);
-
-            if (threeParamsFactory != null)
-                return new FactoryObjectBuilder(threeParamsFactory, this.containerExtensionManager);
-
-            if (typeTo.GetTypeInfo().IsGenericTypeDefinition)
-                return new GenericTypeObjectBuilder(new MetaInfoProvider(this.containerContext, typeTo));
-
-            return new DefaultObjectBuilder(new MetaInfoProvider(this.containerContext, typeTo),
-                this.containerExtensionManager, this.messagePublisher, injectionParameters);
         }
     }
 }

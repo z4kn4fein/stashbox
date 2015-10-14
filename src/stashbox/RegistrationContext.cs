@@ -28,6 +28,8 @@ namespace Stashbox
         private Func<object, object, object, object> threeParametersFactory;
         private HashSet<InjectionParameter> injectionParameters;
         private ILifetime lifetime;
+        private Type targetTypeCondition;
+        private Func<ResolutionInfo, bool> resolutionCondition;
 
         public RegistrationContext(Type typeFrom, Type typeTo, IContainerContext containerContext, IContainerExtensionManager containerExtensionManager)
         {
@@ -43,16 +45,16 @@ namespace Stashbox
 
         public IStashboxContainer Register()
         {
-            var name = NameGenerator.GetRegistrationName(this.name);
+            var registrationName = NameGenerator.GetRegistrationName(this.name);
 
             var registrationLifetime = lifetime ?? new TransientLifetime();
 
             var registrationInfo = new RegistrationInfo { TypeFrom = typeFrom, TypeTo = typeTo };
 
             var registration = new ServiceRegistration(registrationLifetime,
-                this.CreateObjectBuilder(), this.containerContext, registrationInfo);
+                this.CreateObjectBuilder(), this.containerContext, this.targetTypeCondition, this.resolutionCondition);
 
-            this.containerContext.RegistrationRepository.AddRegistration(typeFrom, registration, name);
+            this.containerContext.RegistrationRepository.AddRegistration(typeFrom, registration, registrationName);
             this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.containerContext, registrationInfo, injectionParameters == null ? null : new HashSet<InjectionParameter>(injectionParameters));
             this.containerContext.MessagePublisher.Broadcast(new RegistrationAdded { RegistrationInfo = registrationInfo });
             return this.containerContext.Container;
@@ -61,6 +63,24 @@ namespace Stashbox
         public IRegistrationContext WithFactoryParameters(Func<object, object, object, object> threeParametersFactory)
         {
             this.threeParametersFactory = threeParametersFactory;
+            return this;
+        }
+
+        public IRegistrationContext WhenDependantIs<TTarget>(string dependencyName = null) where TTarget : class
+        {
+            this.targetTypeCondition = typeof(TTarget);
+            return this;
+        }
+
+        public IRegistrationContext WhenDependantIs(Type targetType, string dependencyName = null)
+        {
+            this.targetTypeCondition = targetType;
+            return this;
+        }
+
+        public IRegistrationContext When(Func<ResolutionInfo, bool> resolutionCondition)
+        {
+            this.resolutionCondition = resolutionCondition;
             return this;
         }
 

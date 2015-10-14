@@ -37,7 +37,8 @@ namespace Stashbox.BuildUp.Resolution
                     DependencyName = base.TypeInfo.DependencyName
                 },
                 FactoryParams = resolutionInfo.FactoryParams,
-                OverrideManager = resolutionInfo.OverrideManager
+                OverrideManager = resolutionInfo.OverrideManager,
+                ParentType = resolutionInfo.ResolveType
             }));
         }
     }

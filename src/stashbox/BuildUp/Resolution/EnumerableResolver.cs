@@ -31,7 +31,13 @@ namespace Stashbox.BuildUp.Resolution
 
         private object ResolveArray<T>(ResolutionInfo resolutionInfo) where T : class
         {
-            return registrationCache.Select(registration => (T)registration.GetInstance(resolutionInfo)).ToArray();
+            return registrationCache.Select(registration => (T)registration.GetInstance(new ResolutionInfo
+            {
+                ResolveType = base.TypeInfo,
+                FactoryParams = resolutionInfo.FactoryParams,
+                OverrideManager = resolutionInfo.OverrideManager,
+                ParentType = resolutionInfo.ResolveType
+            })).ToArray();
         }
     }
 

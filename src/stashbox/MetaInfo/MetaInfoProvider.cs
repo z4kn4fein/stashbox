@@ -54,7 +54,7 @@ namespace Stashbox.MetaInfo
 
         private IEnumerable<ConstructorInformation> GetUsableConstructors(IEnumerable<ConstructorInformation> constructors, ResolutionInfo resolutionInfo = null, HashSet<InjectionParameter> injectionParameters = null)
         {
-            if (resolutionInfo == null || resolutionInfo.OverrideManager == null)
+            if (resolutionInfo?.OverrideManager == null)
                 return constructors
                     .Where(constructor => constructor.Parameters
                         .All(parameter => this.containerContext.ResolutionStrategy.CanResolve(this.containerContext, parameter.TypeInformation,

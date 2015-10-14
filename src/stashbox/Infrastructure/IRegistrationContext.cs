@@ -11,6 +11,9 @@ namespace Stashbox.Infrastructure
         IRegistrationContext WithFactoryParameters(Func<object, object> singleParameterFactory);
         IRegistrationContext WithFactoryParameters(Func<object, object, object> twoParametersFactory);
         IRegistrationContext WithFactoryParameters(Func<object, object, object, object> threeParametersFactory);
+        IRegistrationContext WhenDependantIs<TTarget>(string dependencyName = null) where TTarget : class;
+        IRegistrationContext WhenDependantIs(Type targetType, string dependencyName = null);
+        IRegistrationContext When(Func<ResolutionInfo, bool> resolutionCondition);
         IStashboxContainer Register();
     }
 }
