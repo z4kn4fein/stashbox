@@ -95,12 +95,14 @@ namespace Stashbox.Registration
 
         public void CleanUp()
         {
-            using (this.readerWriterLockSlim.AquireReadLock())
+            using (this.readerWriterLockSlim.AquireWriteLock())
             {
-                foreach (var registration in serviceRepository.SelectMany(registrations => registrations.Value))
+                foreach (var registration in this.serviceRepository.SelectMany(registrations => registrations.Value))
                 {
                     registration.Value.CleanUp();
                 }
+
+                this.serviceRepository.Clear();
             }
         }
 
