@@ -93,6 +93,17 @@ namespace Stashbox.Registration
             }
         }
 
+        public void CleanUp()
+        {
+            using (this.readerWriterLockSlim.AquireReadLock())
+            {
+                foreach (var registration in serviceRepository.SelectMany(registrations => registrations.Value))
+                {
+                    registration.Value.CleanUp();
+                }
+            }
+        }
+
         private bool TryGetByTypeKey(TypeInformation typeInfo, out IServiceRegistration registration)
         {
             using (this.readerWriterLockSlim.AquireReadLock())

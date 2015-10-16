@@ -50,5 +50,17 @@ namespace Stashbox
                                               context.RegistrationRepository.ConstainsTypeKey(new TypeInformation { Type = typeInfo.Type.GetEnumerableType() }),
                 new EnumerableResolverFactory());
         }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposing) return;
+            this.registrationRepository.CleanUp();
+        }
     }
 }

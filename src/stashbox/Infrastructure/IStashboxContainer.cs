@@ -4,7 +4,7 @@ using System;
 
 namespace Stashbox.Infrastructure
 {
-    public interface IStashboxContainer : IDependencyRegistrator, IDependencyResolver
+    public interface IStashboxContainer : IDependencyRegistrator, IDependencyResolver, IDisposable
     {
         void RegisterExtension(IContainerExtension containerExtension);
         void RegisterResolver(Func<IContainerContext, TypeInformation, bool> resolverPredicate, ResolverFactory factory);

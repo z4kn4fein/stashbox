@@ -12,5 +12,6 @@ namespace Stashbox.Infrastructure
         bool TryGetTypedRepositoryRegistrations(TypeInformation typeInfo, out IDictionary<string, IServiceRegistration> registrations);
         bool ConstainsTypeKey(TypeInformation typeInfo);
         bool ConstainsTypeKeyWithoutGenericDefinitionExtraction(TypeInformation typeInfo);
+        void CleanUp();
     }
 }
