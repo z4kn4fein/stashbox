@@ -15,9 +15,8 @@ namespace Stashbox.MetaInfo
         public MetaInfoCache(Type typeTo)
         {
             this.Constructors = new HashSet<ConstructorInformation>();
-
-            this.AddConstructors(typeTo.GetTypeInfo().DeclaredConstructors);
             this.TypeTo = typeTo;
+            this.AddConstructors(typeTo.GetTypeInfo().DeclaredConstructors);
         }
 
         private void AddConstructors(IEnumerable<ConstructorInfo> infos)
