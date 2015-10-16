@@ -34,7 +34,7 @@ namespace Stashbox
             return false;
         }
 
-        public void AddResolverStrategy(Func<IContainerContext, TypeInformation, bool> resolverPredicate, ResolverFactory factory)
+        public void AddResolver(Func<IContainerContext, TypeInformation, bool> resolverPredicate, ResolverFactory factory)
         {
             this.resolverRepository.Add(resolverPredicate, factory);
         }

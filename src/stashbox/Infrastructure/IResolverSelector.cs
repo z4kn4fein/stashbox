@@ -7,6 +7,6 @@ namespace Stashbox.Infrastructure
     {
         bool CanResolve(IContainerContext containerContext, TypeInformation typeInfo);
         bool TryChooseResolver(IContainerContext containerContext, TypeInformation typeInfo, out Resolver resolver);
-        void AddResolverStrategy(Func<IContainerContext, TypeInformation, bool> resolverPredicate, ResolverFactory factory);
+        void AddResolver(Func<IContainerContext, TypeInformation, bool> resolverPredicate, ResolverFactory factory);
     }
 }

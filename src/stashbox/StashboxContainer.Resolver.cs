@@ -26,8 +26,9 @@ namespace Stashbox
         {
             var type = typeof(TKey);
             var factoryParams = factoryParameters as object[] ?? factoryParameters?.ToArray();
+            var typeInfo = new TypeInformation { Type = type };
             IDictionary<string, IServiceRegistration> registrations;
-            if (!this.registrationRepository.TryGetTypedRepositoryRegistrations(type, out registrations)) yield break;
+            if (!this.registrationRepository.TryGetTypedRepositoryRegistrations(typeInfo, out registrations)) yield break;
             var overridesEnumerated = overrides as Override[] ?? overrides.ToArray();
             foreach (var registration in registrations)
             {
@@ -35,22 +36,23 @@ namespace Stashbox
                 {
                     OverrideManager = new OverrideManager(overridesEnumerated),
                     FactoryParams = factoryParams,
-                    ResolveType = new TypeInformation { Type = type }
+                    ResolveType = typeInfo
                 }) as TKey;
             }
         }
 
         private object ResolveInternal(Type typeFrom, IEnumerable<Override> overrides, string name = null, IEnumerable<object> factoryParameters = null)
         {
+            var typeInfo = new TypeInformation { Type = typeFrom, DependencyName = name };
             Resolver resolver;
             if (this.resolverSelector.TryChooseResolver(this.containerContext,
-                new TypeInformation { Type = typeFrom, DependencyName = name }, out resolver))
+                typeInfo, out resolver))
             {
                 return resolver.Resolve(new ResolutionInfo
                 {
                     OverrideManager = new OverrideManager(overrides),
                     FactoryParams = factoryParameters,
-                    ResolveType = new TypeInformation { Type = typeFrom, DependencyName = name }
+                    ResolveType = typeInfo
                 });
             }
             throw new ResolutionFailedException(typeFrom.FullName);

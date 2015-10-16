@@ -25,14 +25,18 @@ namespace Stashbox.ContainerExtensions.PropertyInjection
                        (containerContext.ResolutionStrategy.CanResolve(containerContext, new TypeInformation
                        {
                            DependencyName = propertyInfo.GetCustomAttribute<InjectionPropertyAttribute>().Name,
-                           Type = propertyInfo.PropertyType
+                           Type = propertyInfo.PropertyType,
+                           ParentType = registrationInfo.TypeTo,
+                           CustomAttributes = new HashSet<Attribute>(propertyInfo.GetCustomAttributes())
                        }, injectionParameters, propertyInfo.Name)))
                 .Select(propertyInfo => new PropertyInfoItem
                 {
                     ResolutionTarget = containerContext.ResolutionStrategy.BuildResolutionTarget(containerContext, new TypeInformation
                     {
                         DependencyName = propertyInfo.GetCustomAttribute<InjectionPropertyAttribute>().Name,
-                        Type = propertyInfo.PropertyType
+                        Type = propertyInfo.PropertyType,
+                        ParentType = registrationInfo.TypeTo,
+                        CustomAttributes = new HashSet<Attribute>(propertyInfo.GetCustomAttributes())
                     }, injectionParameters, propertyInfo.Name),
                     PropertySetter = propertyInfo.GetPropertySetter(),
 

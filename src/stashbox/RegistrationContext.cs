@@ -29,7 +29,8 @@ namespace Stashbox
         private HashSet<InjectionParameter> injectionParameters;
         private ILifetime lifetime;
         private Type targetTypeCondition;
-        private Func<ResolutionInfo, bool> resolutionCondition;
+        private Func<TypeInformation, bool> resolutionCondition;
+        private HashSet<Type> attributeConditions;
 
         public RegistrationContext(Type typeFrom, Type typeTo, IContainerContext containerContext, IContainerExtensionManager containerExtensionManager)
         {
@@ -41,6 +42,7 @@ namespace Stashbox
             this.typeTo = typeTo;
             this.containerContext = containerContext;
             this.containerExtensionManager = containerExtensionManager;
+            this.attributeConditions = new HashSet<Type>();
         }
 
         public IStashboxContainer Register()
@@ -52,7 +54,7 @@ namespace Stashbox
             var registrationInfo = new RegistrationInfo { TypeFrom = typeFrom, TypeTo = typeTo };
 
             var registration = new ServiceRegistration(registrationLifetime,
-                this.CreateObjectBuilder(), this.containerContext, this.targetTypeCondition, this.resolutionCondition);
+                this.CreateObjectBuilder(), this.containerContext, this.attributeConditions, this.targetTypeCondition, this.resolutionCondition);
 
             this.containerContext.RegistrationRepository.AddRegistration(typeFrom, registration, registrationName);
             this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.containerContext, registrationInfo, injectionParameters == null ? null : new HashSet<InjectionParameter>(injectionParameters));
@@ -78,7 +80,19 @@ namespace Stashbox
             return this;
         }
 
-        public IRegistrationContext When(Func<ResolutionInfo, bool> resolutionCondition)
+        public IRegistrationContext WhenHas<TAttribute>() where TAttribute : Attribute
+        {
+            this.attributeConditions.Add(typeof(TAttribute));
+            return this;
+        }
+
+        public IRegistrationContext WhenHas(Type attributeType)
+        {
+            this.attributeConditions.Add(attributeType);
+            return this;
+        }
+
+        public IRegistrationContext When(Func<TypeInformation, bool> resolutionCondition)
         {
             this.resolutionCondition = resolutionCondition;
             return this;

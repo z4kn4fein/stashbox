@@ -55,6 +55,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="AttributeTests.cs" />
+    <Compile Include="ConditionalTests.cs" />
     <Compile Include="EnumerableTests.cs" />
     <Compile Include="GenericTests.cs" />
     <Compile Include="InjectionPropertyTests.cs" />

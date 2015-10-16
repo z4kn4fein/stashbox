@@ -10,12 +10,20 @@ namespace Stashbox.BuildUp.Resolution
         private readonly IServiceRegistration registrationCache;
         private delegate object ResolverDelegate(ResolutionInfo resolutionInfo);
         private readonly ResolverDelegate resolverDelegate;
+        private readonly TypeInformation lazyArgumentInfo;
 
         internal LazyResolver(IContainerContext containerContext, TypeInformation typeInfo)
             : base(containerContext, typeInfo)
         {
-            containerContext.RegistrationRepository.TryGetRegistration(typeInfo.Type.GenericTypeArguments[0],
-                out this.registrationCache, base.TypeInfo.DependencyName);
+            this.lazyArgumentInfo = new TypeInformation
+            {
+                Type = typeInfo.Type.GenericTypeArguments[0],
+                CustomAttributes = typeInfo.CustomAttributes,
+                ParentType = typeInfo.ParentType,
+                DependencyName = typeInfo.DependencyName
+            };
+
+            containerContext.RegistrationRepository.TryGetRegistration(this.lazyArgumentInfo, out this.registrationCache);
 
             var genericLazyResolverMethod = this.GetType().GetTypeInfo().GetDeclaredMethod("ResolveLazy");
             var resolver = genericLazyResolverMethod.MakeGenericMethod(typeInfo.Type.GenericTypeArguments[0]);
@@ -31,14 +39,9 @@ namespace Stashbox.BuildUp.Resolution
         {
             return new Lazy<T>(() => (T)registrationCache.GetInstance(new ResolutionInfo
             {
-                ResolveType = new TypeInformation
-                {
-                    Type = base.TypeInfo.Type.GenericTypeArguments[0],
-                    DependencyName = base.TypeInfo.DependencyName
-                },
+                ResolveType = this.lazyArgumentInfo,
                 FactoryParams = resolutionInfo.FactoryParams,
-                OverrideManager = resolutionInfo.OverrideManager,
-                ParentType = resolutionInfo.ResolveType
+                OverrideManager = resolutionInfo.OverrideManager
             }));
         }
     }

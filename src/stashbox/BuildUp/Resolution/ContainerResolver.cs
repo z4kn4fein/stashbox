@@ -11,8 +11,8 @@ namespace Stashbox.BuildUp.Resolution
         internal ContainerResolver(IContainerContext containerContext, TypeInformation typeInfo)
             : base(containerContext, typeInfo)
         {
-            containerContext.RegistrationRepository.TryGetRegistration(typeInfo.Type,
-                out this.registrationCache, base.TypeInfo.DependencyName);
+            containerContext.RegistrationRepository.TryGetRegistration(typeInfo,
+                out this.registrationCache);
         }
 
         public override object Resolve(ResolutionInfo resolutionInfo)
@@ -24,8 +24,7 @@ namespace Stashbox.BuildUp.Resolution
             {
                 ResolveType = base.TypeInfo,
                 FactoryParams = resolutionInfo.FactoryParams,
-                OverrideManager = resolutionInfo.OverrideManager,
-                ParentType = resolutionInfo.ResolveType
+                OverrideManager = resolutionInfo.OverrideManager
             });
         }
     }

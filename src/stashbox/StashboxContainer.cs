@@ -35,21 +35,19 @@ namespace Stashbox
 
         public void RegisterResolver(Func<IContainerContext, TypeInformation, bool> resolverPredicate, ResolverFactory factory)
         {
-            this.resolverSelector.AddResolverStrategy(resolverPredicate, factory);
+            this.resolverSelector.AddResolver(resolverPredicate, factory);
         }
 
         private void RegisterResolvers()
         {
-            this.resolverSelector.AddResolverStrategy((context, typeInfo) => context.RegistrationRepository.ConstainsTypeKey(typeInfo.Type),
+            this.resolverSelector.AddResolver((context, typeInfo) => context.RegistrationRepository.ConstainsTypeKey(typeInfo),
                 new ContainerResolverFactory());
 
-            this.resolverSelector.AddResolverStrategy((context, typeInfo) => typeInfo.Type.IsConstructedGenericType && typeInfo.Type.GetGenericTypeDefinition() == typeof(Lazy<>),
+            this.resolverSelector.AddResolver((context, typeInfo) => typeInfo.Type.IsConstructedGenericType && typeInfo.Type.GetGenericTypeDefinition() == typeof(Lazy<>),
                 new LazyResolverFactory());
 
-            this.resolverSelector.AddResolverStrategy((context, typeInfo) =>
-            {
-                return typeInfo.Type.GetEnumerableType() != null && context.RegistrationRepository.ConstainsTypeKey(typeInfo.Type.GetEnumerableType());
-            },
+            this.resolverSelector.AddResolver((context, typeInfo) => typeInfo.Type.GetEnumerableType() != null &&
+                                              context.RegistrationRepository.ConstainsTypeKey(new TypeInformation { Type = typeInfo.Type.GetEnumerableType() }),
                 new EnumerableResolverFactory());
         }
     }

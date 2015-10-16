@@ -22,14 +22,12 @@ namespace Stashbox.MetaInfo
 
         private void AddConstructors(IEnumerable<ConstructorInfo> infos)
         {
-            foreach (var info in infos)
+            foreach (var constructor in infos.Select(info => new ConstructorInformation
             {
-                var constructor = new ConstructorInformation
-                {
-                    Method = info,
-                    HasInjectionAttribute = info.GetCustomAttribute<InjectionConstructorAttribute>() != null
-                };
-
+                Method = info,
+                HasInjectionAttribute = info.GetCustomAttribute<InjectionConstructorAttribute>() != null
+            }))
+            {
                 constructor.Parameters.AddRange(this.FillParameters(constructor.Method.GetParameters()));
 
                 this.Constructors.Add(constructor);
@@ -44,7 +42,9 @@ namespace Stashbox.MetaInfo
                 {
                     Type = parameterInfo.ParameterType,
                     DependencyName = parameterInfo.GetCustomAttribute<DependencyAttribute>() != null ?
-                                     parameterInfo.GetCustomAttribute<DependencyAttribute>().Name : null
+                                     parameterInfo.GetCustomAttribute<DependencyAttribute>().Name : null,
+                    ParentType = this.TypeTo,
+                    CustomAttributes = new HashSet<Attribute>(parameterInfo.GetCustomAttributes())
                 },
                 ResolutionTargetName = parameterInfo.Name
             });

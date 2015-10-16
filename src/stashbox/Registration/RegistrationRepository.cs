@@ -1,7 +1,9 @@
 ﻿using Ronin.Common;
+using Stashbox.Entity;
 using Stashbox.Infrastructure;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 
 namespace Stashbox.Registration
@@ -17,18 +19,18 @@ namespace Stashbox.Registration
             this.readerWriterLockSlim = new DisposableReaderWriterLock(LockRecursionPolicy.SupportsRecursion);
         }
 
-        public bool TryGetRegistration(Type typeKey, out IServiceRegistration registration, string nameKey = null)
+        public bool TryGetRegistration(TypeInformation typeInfo, out IServiceRegistration registration)
         {
-            Shield.EnsureNotNull(typeKey);
+            Shield.EnsureNotNull(typeInfo);
 
-            return nameKey == null ? this.TryGetByTypeKey(typeKey, out registration) : this.TryGetByNamedKey(typeKey, nameKey, out registration);
+            return typeInfo.DependencyName == null ? this.TryGetByTypeKey(typeInfo, out registration) : this.TryGetByNamedKey(typeInfo, out registration);
         }
 
-        public bool TryGetAllRegistrations(Type typeKey, out IEnumerable<IServiceRegistration> registrations)
+        public bool TryGetAllRegistrations(TypeInformation typeInfo, out IEnumerable<IServiceRegistration> registrations)
         {
-            Shield.EnsureNotNull(typeKey);
+            Shield.EnsureNotNull(typeInfo);
 
-            return this.TryGetAllByTypedKey(typeKey, out registrations);
+            return this.TryGetAllByTypedKey(typeInfo, out registrations);
         }
 
         public void AddRegistration(Type typeKey, IServiceRegistration registration, string nameKey)
@@ -51,44 +53,55 @@ namespace Stashbox.Registration
             }
         }
 
-        public bool TryGetTypedRepositoryRegistrations(Type typeKey, out IDictionary<string, IServiceRegistration> registrations)
+        public bool TryGetTypedRepositoryRegistrations(TypeInformation typeInfo, out IDictionary<string, IServiceRegistration> registrations)
         {
             using (this.readerWriterLockSlim.AquireReadLock())
             {
                 Type genericTypeDefinition;
-                return this.serviceRepository.TryGetValue(typeKey, out registrations) ||
-                    (this.TryHandleOpenGenericType(typeKey, out genericTypeDefinition) &&
+                return this.serviceRepository.TryGetValue(typeInfo.Type, out registrations) ||
+                    (this.TryHandleOpenGenericType(typeInfo.Type, out genericTypeDefinition) &&
                     this.serviceRepository.TryGetValue(genericTypeDefinition, out registrations));
             }
         }
 
-        public bool ConstainsTypeKey(Type typeKey)
-        {
-            using (this.readerWriterLockSlim.AquireReadLock())
-            {
-                Type genericTypeDefinition;
-                return this.serviceRepository.ContainsKey(typeKey) ||
-                    (this.TryHandleOpenGenericType(typeKey, out genericTypeDefinition) && this.serviceRepository.ContainsKey(genericTypeDefinition));
-            }
-        }
-
-        public bool ConstainsTypeKeyWithoutGenericDefinitionExtraction(Type typeKey)
-        {
-            using (this.readerWriterLockSlim.AquireReadLock())
-            {
-                return this.serviceRepository.ContainsKey(typeKey);
-            }
-        }
-
-        private bool TryGetByTypeKey(Type typeKey, out IServiceRegistration registration)
+        public bool ConstainsTypeKey(TypeInformation typeInfo)
         {
             using (this.readerWriterLockSlim.AquireReadLock())
             {
                 IDictionary<string, IServiceRegistration> registrations;
-                if (!this.serviceRepository.TryGetValue(typeKey, out registrations))
+                Type genericTypeDefinition;
+                return this.TryGetTypedRepositoryRegistrations(typeInfo, out registrations) &&
+                    registrations.Any(registration => registration.Value.IsUsableForCurrentContext(typeInfo)) ||
+                    (this.TryHandleOpenGenericType(typeInfo.Type, out genericTypeDefinition) && this.TryGetTypedRepositoryRegistrations(typeInfo, out registrations) &&
+                    registrations.Any(registration => registration.Value.IsUsableForCurrentContext(new TypeInformation
+                    {
+                        Type = genericTypeDefinition,
+                        ParentType = typeInfo.ParentType,
+                        DependencyName = typeInfo.DependencyName,
+                        CustomAttributes = typeInfo.CustomAttributes
+                    })));
+            }
+        }
+
+        public bool ConstainsTypeKeyWithoutGenericDefinitionExtraction(TypeInformation typeInfo)
+        {
+            using (this.readerWriterLockSlim.AquireReadLock())
+            {
+                IDictionary<string, IServiceRegistration> registrations;
+                return this.serviceRepository.TryGetValue(typeInfo.Type, out registrations) &&
+                    registrations.Any(registration => registration.Value.IsUsableForCurrentContext(typeInfo));
+            }
+        }
+
+        private bool TryGetByTypeKey(TypeInformation typeInfo, out IServiceRegistration registration)
+        {
+            using (this.readerWriterLockSlim.AquireReadLock())
+            {
+                IDictionary<string, IServiceRegistration> registrations;
+                if (!this.serviceRepository.TryGetValue(typeInfo.Type, out registrations))
                 {
                     Type genericTypeDefinition;
-                    if (this.TryHandleOpenGenericType(typeKey, out genericTypeDefinition))
+                    if (this.TryHandleOpenGenericType(typeInfo.Type, out genericTypeDefinition))
                     {
                         if (!this.serviceRepository.TryGetValue(genericTypeDefinition, out registrations))
                         {
@@ -102,19 +115,23 @@ namespace Stashbox.Registration
                         return false;
                     }
                 }
-                var enumerator = registrations.GetEnumerator();
-                enumerator.MoveNext();
-                registration = enumerator.Current.Value;
-                return true;
+
+                if (registrations.Values.Any(reg => reg.HasCondition))
+                    registration = registrations.Values.Where(reg => reg.HasCondition)
+                                                       .FirstOrDefault(reg => reg.IsUsableForCurrentContext(typeInfo));
+                else
+                    registration = registrations.Values.FirstOrDefault(reg => reg.IsUsableForCurrentContext(typeInfo));
+
+                return registration != null;
             }
         }
 
-        private bool TryGetAllByTypedKey(Type typeKey, out IEnumerable<IServiceRegistration> registrations)
+        private bool TryGetAllByTypedKey(TypeInformation typeInfo, out IEnumerable<IServiceRegistration> registrations)
         {
             using (this.readerWriterLockSlim.AquireReadLock())
             {
-                IDictionary<string, IServiceRegistration> typedRegistrations = null;
-                if (this.TryGetTypedRepositoryRegistrations(typeKey, out typedRegistrations))
+                IDictionary<string, IServiceRegistration> typedRegistrations;
+                if (this.TryGetTypedRepositoryRegistrations(typeInfo, out typedRegistrations))
                 {
                     registrations = typedRegistrations.Values;
                     return true;
@@ -125,14 +142,14 @@ namespace Stashbox.Registration
             }
         }
 
-        private bool TryGetByNamedKey(Type typeKey, string nameKey, out IServiceRegistration registration)
+        private bool TryGetByNamedKey(TypeInformation typeInfo, out IServiceRegistration registration)
         {
             using (this.readerWriterLockSlim.AquireReadLock())
             {
-                IDictionary<string, IServiceRegistration> registrations = null;
-                if (this.TryGetTypedRepositoryRegistrations(typeKey, out registrations))
+                IDictionary<string, IServiceRegistration> registrations;
+                if (this.TryGetTypedRepositoryRegistrations(typeInfo, out registrations))
                 {
-                    registration = registrations[nameKey];
+                    registration = registrations[typeInfo.DependencyName];
                     return true;
                 }
 
