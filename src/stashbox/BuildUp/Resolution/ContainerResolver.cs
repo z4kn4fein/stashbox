@@ -11,7 +11,7 @@ namespace Stashbox.BuildUp.Resolution
         internal ContainerResolver(IContainerContext containerContext, TypeInformation typeInfo)
             : base(containerContext, typeInfo)
         {
-            containerContext.RegistrationRepository.TryGetRegistration(typeInfo,
+            containerContext.RegistrationRepository.TryGetRegistrationWithConditions(typeInfo,
                 out this.registrationCache);
         }
 

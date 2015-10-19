@@ -9,6 +9,7 @@ namespace Stashbox.BuildUp
     internal class BuildUpObjectBuilder : IObjectBuilder
     {
         private readonly object instance;
+        private readonly Type instanceType;
         private volatile object builtInstance;
         private readonly object syncObject = new object();
         private readonly IContainerExtensionManager containerExtensionManager;
@@ -19,6 +20,7 @@ namespace Stashbox.BuildUp
             Shield.EnsureNotNull(containerExtensionManager);
 
             this.instance = instance;
+            this.instanceType = instance.GetType();
             this.containerExtensionManager = containerExtensionManager;
         }
 
@@ -31,8 +33,7 @@ namespace Stashbox.BuildUp
             lock (this.syncObject)
             {
                 if (this.builtInstance != null) return this.builtInstance;
-                this.containerExtensionManager.ExecutePreBuildExtensions(containerContext, resolutionInfo);
-                this.builtInstance = this.containerExtensionManager.ExecutePostBuildExtensions(this.instance, containerContext, resolutionInfo);
+                this.builtInstance = this.containerExtensionManager.ExecutePostBuildExtensions(this.instance, this.instanceType, containerContext, resolutionInfo);
             }
 
             return this.builtInstance;

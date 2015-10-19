@@ -49,8 +49,6 @@ namespace Stashbox.BuildUp
 
         public object BuildInstance(IContainerContext containerContext, ResolutionInfo resolutionInfo)
         {
-            this.containerExtensionManager.ExecutePreBuildExtensions(containerContext, resolutionInfo);
-
             object instance = null;
 
             if (this.singleFactory != null)
@@ -68,7 +66,7 @@ namespace Stashbox.BuildUp
                     resolutionInfo.FactoryParams.ElementAt(1),
                     resolutionInfo.FactoryParams.ElementAt(2));
 
-            return this.containerExtensionManager.ExecutePostBuildExtensions(instance, containerContext, resolutionInfo);
+            return this.containerExtensionManager.ExecutePostBuildExtensions(instance, instance?.GetType(), containerContext, resolutionInfo);
         }
 
         public void CleanUp()

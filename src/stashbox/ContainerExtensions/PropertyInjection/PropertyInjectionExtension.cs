@@ -48,10 +48,10 @@ namespace Stashbox.ContainerExtensions.PropertyInjection
             });
         }
 
-        public object PostBuild(object instance, IContainerContext containerContext, ResolutionInfo resolutionInfo, HashSet<InjectionParameter> injectionParameters = null)
+        public object PostBuild(object instance, Type targetType, IContainerContext containerContext, ResolutionInfo resolutionInfo, HashSet<InjectionParameter> injectionParameters = null)
         {
             PropertyInfoCache properties;
-            if (!this.propertyInfoRepository.TryGet(instance.GetType(), out properties)) return instance;
+            if (!this.propertyInfoRepository.TryGet(targetType, out properties)) return instance;
             var evaluatedProperties = properties.Properties.ToDictionary(key => key, property =>
                 containerContext.ResolutionStrategy.EvaluateResolutionTarget(containerContext, property.ResolutionTarget, resolutionInfo));
 

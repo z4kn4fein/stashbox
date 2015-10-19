@@ -19,6 +19,13 @@ namespace Stashbox.Registration
             this.readerWriterLockSlim = new DisposableReaderWriterLock(LockRecursionPolicy.SupportsRecursion);
         }
 
+        public bool TryGetRegistrationWithConditions(TypeInformation typeInfo, out IServiceRegistration registration)
+        {
+            Shield.EnsureNotNull(typeInfo);
+
+            return typeInfo.DependencyName == null ? this.TryGetByTypeKeyWithConditions(typeInfo, out registration) : this.TryGetByNamedKey(typeInfo, out registration);
+        }
+
         public bool TryGetRegistration(TypeInformation typeInfo, out IServiceRegistration registration)
         {
             Shield.EnsureNotNull(typeInfo);
@@ -26,10 +33,9 @@ namespace Stashbox.Registration
             return typeInfo.DependencyName == null ? this.TryGetByTypeKey(typeInfo, out registration) : this.TryGetByNamedKey(typeInfo, out registration);
         }
 
-        public bool TryGetAllRegistrations(TypeInformation typeInfo, out IEnumerable<IServiceRegistration> registrations)
+        public bool TryGetAllRegistrations(TypeInformation typeInfo, out IServiceRegistration[] registrations)
         {
             Shield.EnsureNotNull(typeInfo);
-
             return this.TryGetAllByTypedKey(typeInfo, out registrations);
         }
 
@@ -68,6 +74,14 @@ namespace Stashbox.Registration
         {
             using (this.readerWriterLockSlim.AquireReadLock())
             {
+                return this.serviceRepository.ContainsKey(typeInfo.Type);
+            }
+        }
+
+        public bool ConstainsTypeKeyWithConditions(TypeInformation typeInfo)
+        {
+            using (this.readerWriterLockSlim.AquireReadLock())
+            {
                 IDictionary<string, IServiceRegistration> registrations;
                 Type genericTypeDefinition;
                 return this.TryGetTypedRepositoryRegistrations(typeInfo, out registrations) &&
@@ -83,7 +97,7 @@ namespace Stashbox.Registration
             }
         }
 
-        public bool ConstainsTypeKeyWithoutGenericDefinitionExtraction(TypeInformation typeInfo)
+        public bool ConstainsTypeKeyWithConditionsWithoutGenericDefinitionExtraction(TypeInformation typeInfo)
         {
             using (this.readerWriterLockSlim.AquireReadLock())
             {
@@ -111,22 +125,29 @@ namespace Stashbox.Registration
             using (this.readerWriterLockSlim.AquireReadLock())
             {
                 IDictionary<string, IServiceRegistration> registrations;
-                if (!this.serviceRepository.TryGetValue(typeInfo.Type, out registrations))
+                if (!this.TryGetRegistrationsByType(typeInfo.Type, out registrations))
                 {
-                    Type genericTypeDefinition;
-                    if (this.TryHandleOpenGenericType(typeInfo.Type, out genericTypeDefinition))
-                    {
-                        if (!this.serviceRepository.TryGetValue(genericTypeDefinition, out registrations))
-                        {
-                            registration = null;
-                            return false;
-                        }
-                    }
-                    else
-                    {
-                        registration = null;
-                        return false;
-                    }
+                    registration = null;
+                    return false;
+                }
+
+                var enumerator = registrations.Values.GetEnumerator();
+                enumerator.MoveNext();
+                registration = enumerator.Current;
+
+                return true;
+            }
+        }
+
+        private bool TryGetByTypeKeyWithConditions(TypeInformation typeInfo, out IServiceRegistration registration)
+        {
+            using (this.readerWriterLockSlim.AquireReadLock())
+            {
+                IDictionary<string, IServiceRegistration> registrations;
+                if (!this.TryGetRegistrationsByType(typeInfo.Type, out registrations))
+                {
+                    registration = null;
+                    return false;
                 }
 
                 if (registrations.Values.Any(reg => reg.HasCondition))
@@ -139,14 +160,22 @@ namespace Stashbox.Registration
             }
         }
 
-        private bool TryGetAllByTypedKey(TypeInformation typeInfo, out IEnumerable<IServiceRegistration> registrations)
+        private bool TryGetRegistrationsByType(Type type, out IDictionary<string, IServiceRegistration> registrations)
+        {
+            if (this.serviceRepository.TryGetValue(type, out registrations)) return true;
+            Type genericTypeDefinition;
+            return this.TryHandleOpenGenericType(type, out genericTypeDefinition) &&
+                   this.serviceRepository.TryGetValue(genericTypeDefinition, out registrations);
+        }
+
+        private bool TryGetAllByTypedKey(TypeInformation typeInfo, out IServiceRegistration[] registrations)
         {
             using (this.readerWriterLockSlim.AquireReadLock())
             {
                 IDictionary<string, IServiceRegistration> typedRegistrations;
                 if (this.TryGetTypedRepositoryRegistrations(typeInfo, out typedRegistrations))
                 {
-                    registrations = typedRegistrations.Values;
+                    registrations = typedRegistrations.Values.ToArray();
                     return true;
                 }
 

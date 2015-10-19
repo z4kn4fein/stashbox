@@ -61,6 +61,7 @@
     <Compile Include="Entity\ResolutionConstructor.cs" />
     <Compile Include="Entity\ResolutionInfo.cs" />
     <Compile Include="Entity\ResolutionTarget.cs" />
+    <Compile Include="Entity\ResolverRegistration.cs" />
     <Compile Include="Entity\TypeInformation.cs" />
     <Compile Include="Exceptions\ExceptionBase.cs" />
     <Compile Include="Exceptions\InjectionConstructorNotFoundException.cs" />

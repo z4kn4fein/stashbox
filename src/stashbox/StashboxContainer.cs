@@ -13,6 +13,7 @@ namespace Stashbox
     {
         private readonly IContainerExtensionManager containerExtensionManager;
         private readonly IResolverSelector resolverSelector;
+        private readonly IResolverSelector resolverSelectorContainerExcluded;
         private readonly IRegistrationRepository registrationRepository;
         private readonly IMessagePublisher messagePublisher;
         private readonly IContainerContext containerContext;
@@ -21,6 +22,7 @@ namespace Stashbox
         {
             this.containerExtensionManager = new BuildExtensionManager();
             this.resolverSelector = new ResolverSelector();
+            this.resolverSelectorContainerExcluded = new ResolverSelector();
             this.registrationRepository = new RegistrationRepository();
             this.messagePublisher = new MessagePublisher();
             this.containerContext = new ContainerContext(this.registrationRepository, this.messagePublisher, this, new ResolutionStrategy(this.resolverSelector));
@@ -35,20 +37,42 @@ namespace Stashbox
 
         public void RegisterResolver(Func<IContainerContext, TypeInformation, bool> resolverPredicate, ResolverFactory factory)
         {
-            this.resolverSelector.AddResolver(resolverPredicate, factory);
+            this.resolverSelector.AddResolver(new ResolverRegistration
+            {
+                ResolverFactory = factory,
+                Predicate = resolverPredicate
+            });
         }
 
         private void RegisterResolvers()
         {
-            this.resolverSelector.AddResolver((context, typeInfo) => context.RegistrationRepository.ConstainsTypeKey(typeInfo),
-                new ContainerResolverFactory());
+            var containerResolver = new ResolverRegistration
+            {
+                ResolverFactory = new ContainerResolverFactory(),
+                Predicate = (context, typeInfo) => context.RegistrationRepository.ConstainsTypeKeyWithConditions(typeInfo)
+            };
 
-            this.resolverSelector.AddResolver((context, typeInfo) => typeInfo.Type.IsConstructedGenericType && typeInfo.Type.GetGenericTypeDefinition() == typeof(Lazy<>),
-                new LazyResolverFactory());
+            var lazyResolver = new ResolverRegistration
+            {
+                ResolverFactory = new LazyResolverFactory(),
+                Predicate = (context, typeInfo) => typeInfo.Type.IsConstructedGenericType && typeInfo.Type.GetGenericTypeDefinition() == typeof(Lazy<>)
+            };
 
-            this.resolverSelector.AddResolver((context, typeInfo) => typeInfo.Type.GetEnumerableType() != null &&
-                                              context.RegistrationRepository.ConstainsTypeKey(new TypeInformation { Type = typeInfo.Type.GetEnumerableType() }),
-                new EnumerableResolverFactory());
+            var enumerableResolver = new ResolverRegistration
+            {
+                ResolverFactory = new EnumerableResolverFactory(),
+                Predicate = (context, typeInfo) => typeInfo.Type.GetEnumerableType() != null &&
+                             context.RegistrationRepository.ConstainsTypeKeyWithConditions(new TypeInformation
+                             {
+                                 Type = typeInfo.Type.GetEnumerableType()
+                             })
+            };
+
+            this.resolverSelector.AddResolver(containerResolver);
+            this.resolverSelector.AddResolver(lazyResolver);
+            this.resolverSelectorContainerExcluded.AddResolver(lazyResolver);
+            this.resolverSelector.AddResolver(enumerableResolver);
+            this.resolverSelectorContainerExcluded.AddResolver(enumerableResolver);
         }
 
         public void Dispose()

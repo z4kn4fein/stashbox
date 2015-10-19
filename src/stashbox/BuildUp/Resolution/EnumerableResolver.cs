@@ -1,15 +1,13 @@
 ﻿using Stashbox.Entity;
 using Stashbox.Infrastructure;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 
 namespace Stashbox.BuildUp.Resolution
 {
     internal class EnumerableResolver : Resolver
     {
-        private readonly IEnumerable<IServiceRegistration> registrationCache;
+        private readonly IServiceRegistration[] registrationCache;
         private delegate object ResolverDelegate(ResolutionInfo resolutionInfo);
         private readonly ResolverDelegate resolverDelegate;
 
@@ -31,12 +29,18 @@ namespace Stashbox.BuildUp.Resolution
 
         private object ResolveArray<T>(ResolutionInfo resolutionInfo) where T : class
         {
-            return registrationCache.Select(registration => (T)registration.GetInstance(new ResolutionInfo
+            var upper = registrationCache.Length;
+            var result = new T[upper];
+            for (var i = 0; i < upper; i++)
             {
-                ResolveType = base.TypeInfo,
-                FactoryParams = resolutionInfo.FactoryParams,
-                OverrideManager = resolutionInfo.OverrideManager
-            })).ToArray();
+                result[i] = (T)registrationCache[i].GetInstance(new ResolutionInfo
+                {
+                    ResolveType = base.TypeInfo,
+                    FactoryParams = resolutionInfo.FactoryParams,
+                    OverrideManager = resolutionInfo.OverrideManager
+                });
+            }
+            return result;
         }
     }
 

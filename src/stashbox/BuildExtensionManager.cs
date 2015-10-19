@@ -2,6 +2,7 @@
 using Stashbox.Entity;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.ContainerExtension;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 
@@ -9,14 +10,12 @@ namespace Stashbox
 {
     internal class BuildExtensionManager : IContainerExtensionManager
     {
-        private readonly HashSet<IPreBuildExtension> prebuildExtensions;
         private readonly HashSet<IPostBuildExtension> postbuildExtensions;
         private readonly HashSet<IRegistrationExtension> registrationExtensions;
         private readonly DisposableReaderWriterLock readerWriterLock;
 
         public BuildExtensionManager()
         {
-            this.prebuildExtensions = new HashSet<IPreBuildExtension>();
             this.postbuildExtensions = new HashSet<IPostBuildExtension>();
             this.registrationExtensions = new HashSet<IRegistrationExtension>();
             this.readerWriterLock = new DisposableReaderWriterLock(LockRecursionPolicy.SupportsRecursion);
@@ -26,10 +25,6 @@ namespace Stashbox
         {
             using (this.readerWriterLock.AquireWriteLock())
             {
-                var preBuildExtension = containerExtension as IPreBuildExtension;
-                if (preBuildExtension != null)
-                    this.prebuildExtensions.Add(preBuildExtension);
-
                 var postBuildExtension = containerExtension as IPostBuildExtension;
                 if (postBuildExtension != null)
                     this.postbuildExtensions.Add(postBuildExtension);
@@ -40,28 +35,17 @@ namespace Stashbox
             }
         }
 
-        public object ExecutePostBuildExtensions(object instance, IContainerContext containerContext, ResolutionInfo resolutionInfo, HashSet<InjectionParameter> injectionParameters = null)
+        public object ExecutePostBuildExtensions(object instance, Type targetType, IContainerContext containerContext, ResolutionInfo resolutionInfo, HashSet<InjectionParameter> injectionParameters = null)
         {
             using (this.readerWriterLock.AquireReadLock())
             {
                 var result = instance;
                 foreach (var extension in this.postbuildExtensions)
                 {
-                    result = extension.PostBuild(instance, containerContext, resolutionInfo, injectionParameters);
+                    result = extension.PostBuild(instance, targetType, containerContext, resolutionInfo, injectionParameters);
                 }
 
                 return result;
-            }
-        }
-
-        public void ExecutePreBuildExtensions(IContainerContext containerContext, ResolutionInfo resolutionInfo, HashSet<InjectionParameter> injectionParameters = null)
-        {
-            using (this.readerWriterLock.AquireReadLock())
-            {
-                foreach (var extension in this.prebuildExtensions)
-                {
-                    extension.PreBuild(containerContext, resolutionInfo, injectionParameters);
-                }
             }
         }
 

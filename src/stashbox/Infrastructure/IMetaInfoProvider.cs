@@ -6,10 +6,8 @@ namespace Stashbox.Infrastructure
 {
     public interface IMetaInfoProvider
     {
-        Type[] SensitivityList { get; }
-
+        HashSet<Type> SensitivityList { get; }
         Type TypeTo { get; }
-
         bool TryChooseConstructor(out ResolutionConstructor constructor, ResolutionInfo resolutionInfo = null, HashSet<InjectionParameter> injectionParameters = null);
     }
 }

@@ -5,11 +5,11 @@ using System.Linq;
 
 namespace Stashbox
 {
-    internal class ResolutionStrategy : IResolutionStrategy
+    public class ResolutionStrategy : IResolutionStrategy
     {
         private readonly IResolverSelector resolverSelector;
 
-        public ResolutionStrategy(IResolverSelector resolverSelector)
+        internal ResolutionStrategy(IResolverSelector resolverSelector)
         {
             this.resolverSelector = resolverSelector;
         }
@@ -39,12 +39,9 @@ namespace Stashbox
 
         public object EvaluateResolutionTarget(IContainerContext containerContext, ResolutionTarget resolutionTarget, ResolutionInfo resolutionInfo)
         {
-            if (resolutionInfo.OverrideManager.ContainsValue(resolutionTarget.TypeInformation))
+            if (resolutionInfo.OverrideManager != null && resolutionInfo.OverrideManager.ContainsValue(resolutionTarget.TypeInformation))
                 return resolutionInfo.OverrideManager.GetOverriddenValue(resolutionTarget.TypeInformation.Type, resolutionTarget.TypeInformation.DependencyName);
-            else if (resolutionTarget.ResolutionTargetValue != null)
-                return resolutionTarget.ResolutionTargetValue;
-            else
-                return resolutionTarget.Resolver.Resolve(resolutionInfo);
+            return resolutionTarget.ResolutionTargetValue ?? resolutionTarget.Resolver.Resolve(resolutionInfo);
         }
     }
 }

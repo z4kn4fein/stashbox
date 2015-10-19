@@ -1,42 +1,49 @@
 ﻿using Ronin.Common;
 using Stashbox.Entity;
 using Stashbox.Infrastructure;
-using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Stashbox
 {
-    public class ResolverSelector : IResolverSelector
+    internal class ResolverSelector : IResolverSelector
     {
-        private readonly ConcurrentKeyValueStore<Func<IContainerContext, TypeInformation, bool>, ResolverFactory> resolverRepository;
+        private readonly HashSet<ResolverRegistration> resolverRepository;
+        private readonly DisposableReaderWriterLock readerWriterLock;
 
         public ResolverSelector()
         {
-            this.resolverRepository = new ConcurrentKeyValueStore<Func<IContainerContext, TypeInformation, bool>, ResolverFactory>();
+            this.readerWriterLock = new DisposableReaderWriterLock();
+            this.resolverRepository = new HashSet<ResolverRegistration>();
         }
 
         public bool CanResolve(IContainerContext containerContext, TypeInformation typeInfo)
         {
-            return this.resolverRepository.Keys.Any(predicate => predicate(containerContext, typeInfo));
+            using (this.readerWriterLock.AquireReadLock())
+                return this.resolverRepository.Any(registration => registration.Predicate(containerContext, typeInfo));
         }
 
         public bool TryChooseResolver(IContainerContext containerContext, TypeInformation typeInfo, out Resolver resolver)
         {
-            var key = this.resolverRepository.Keys.FirstOrDefault(predicate => predicate(containerContext, typeInfo));
-            ResolverFactory resolverFactory;
-            if (key != null && this.resolverRepository.TryGet(key, out resolverFactory))
+            using (this.readerWriterLock.AquireReadLock())
             {
-                resolver = resolverFactory.Create(containerContext, typeInfo);
-                return true;
-            }
+                var resolverFactory = this.resolverRepository.FirstOrDefault(
+                    registration => registration.Predicate(containerContext, typeInfo));
+                if (resolverFactory != null)
+                {
+                    resolver = resolverFactory.ResolverFactory.Create(containerContext, typeInfo);
+                    return true;
+                }
 
-            resolver = null;
-            return false;
+                resolver = null;
+                return false;
+            }
         }
 
-        public void AddResolver(Func<IContainerContext, TypeInformation, bool> resolverPredicate, ResolverFactory factory)
+        public void AddResolver(ResolverRegistration resolverRegistration)
         {
-            this.resolverRepository.Add(resolverPredicate, factory);
+            using (this.readerWriterLock.AquireWriteLock())
+                this.resolverRepository.Add(resolverRegistration);
         }
     }
 }

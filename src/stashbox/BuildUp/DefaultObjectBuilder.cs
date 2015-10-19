@@ -20,6 +20,7 @@ namespace Stashbox.BuildUp
         private readonly object syncObject = new object();
         private volatile Func<object[], object> constructorDelegate;
         private ResolutionConstructor constructor;
+        private readonly Type instanceType;
         private readonly HashSet<InjectionParameter> injectionParameters;
 
         public DefaultObjectBuilder(IMetaInfoProvider metaInfoProvider, IContainerExtensionManager containerExtensionManager,
@@ -32,6 +33,7 @@ namespace Stashbox.BuildUp
             if (injectionParameters != null)
                 this.injectionParameters = new HashSet<InjectionParameter>(injectionParameters);
 
+            this.instanceType = metaInfoProvider.TypeTo;
             this.containerExtensionManager = containerExtensionManager;
             this.metaInfoProvider = metaInfoProvider;
             this.messagePublisher = messagePublisher;
@@ -69,8 +71,6 @@ namespace Stashbox.BuildUp
                     {
                         if (this.metaInfoProvider.TryChooseConstructor(out this.constructor, resolutionInfo, this.injectionParameters))
                         {
-                            this.containerExtensionManager.ExecutePreBuildExtensions(containerContext, resolutionInfo, this.injectionParameters);
-
                             this.constructorDelegate = ExpressionBuilder.BuildConstructorExpression(
                                 this.constructor.Constructor.Method,
                                 this.constructor.Parameters.Select(parameter => parameter.TypeInformation),
@@ -78,23 +78,12 @@ namespace Stashbox.BuildUp
 
                             return this.ResolveType(containerContext, resolutionInfo);
                         }
-                        else
-                        {
-                            throw new ResolutionFailedException(this.metaInfoProvider.TypeTo.FullName);
-                        }
+                        throw new ResolutionFailedException(this.metaInfoProvider.TypeTo.FullName);
                     }
-                    else
-                    {
-                        this.containerExtensionManager.ExecutePreBuildExtensions(containerContext, resolutionInfo, this.injectionParameters);
-                        return this.ResolveType(containerContext, resolutionInfo);
-                    }
+                    return this.ResolveType(containerContext, resolutionInfo);
                 }
             }
-            else
-            {
-                this.containerExtensionManager.ExecutePreBuildExtensions(containerContext, resolutionInfo, this.injectionParameters);
-                return this.ResolveType(containerContext, resolutionInfo);
-            }
+            return this.ResolveType(containerContext, resolutionInfo);
         }
 
         public void Receive(RegistrationAdded message)
@@ -110,7 +99,7 @@ namespace Stashbox.BuildUp
         private object ResolveType(IContainerContext containerContext, ResolutionInfo resolutionInfo)
         {
             var parameters = this.EvaluateParameters(containerContext, this.constructor.Parameters, resolutionInfo);
-            return this.containerExtensionManager.ExecutePostBuildExtensions(this.constructorDelegate(parameters), containerContext, resolutionInfo, this.injectionParameters);
+            return this.containerExtensionManager.ExecutePostBuildExtensions(this.constructorDelegate(parameters), this.instanceType, containerContext, resolutionInfo, this.injectionParameters);
         }
 
         private object[] EvaluateParameters(IContainerContext containerContext, IEnumerable<ResolutionTarget> parameters, ResolutionInfo info)

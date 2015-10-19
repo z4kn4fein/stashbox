@@ -11,7 +11,7 @@ namespace Stashbox.MetaInfo
         private readonly IContainerContext containerContext;
         private readonly MetaInfoCache metaInfoCache;
 
-        public Type[] SensitivityList { get; private set; }
+        public HashSet<Type> SensitivityList { get; private set; }
 
         public Type TypeTo => this.metaInfoCache.TypeTo;
 
@@ -29,7 +29,7 @@ namespace Stashbox.MetaInfo
 
         private void BuildSensitivityList()
         {
-            this.SensitivityList = this.metaInfoCache.Constructors.SelectMany(constructor => constructor.Parameters, (constructor, parameter) => parameter.TypeInformation.Type).ToArray();
+            this.SensitivityList = new HashSet<Type>(this.metaInfoCache.Constructors.SelectMany(constructor => constructor.Parameters, (constructor, parameter) => parameter.TypeInformation.Type));
         }
 
         private bool TryGetBestConstructor(out ResolutionConstructor resolutionConstructor, ResolutionInfo resolutionInfo = null, HashSet<InjectionParameter> injectionParameters = null)

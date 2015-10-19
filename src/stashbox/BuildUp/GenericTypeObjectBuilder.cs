@@ -15,11 +15,11 @@ namespace Stashbox.BuildUp
 
         public object BuildInstance(IContainerContext containerContext, ResolutionInfo resolutionInfo)
         {
-            if (!containerContext.RegistrationRepository.ConstainsTypeKeyWithoutGenericDefinitionExtraction(resolutionInfo.ResolveType))
+            if (!containerContext.RegistrationRepository.ConstainsTypeKeyWithConditionsWithoutGenericDefinitionExtraction(resolutionInfo.ResolveType))
             {
                 lock (this.syncObject)
                 {
-                    if (!containerContext.RegistrationRepository.ConstainsTypeKeyWithoutGenericDefinitionExtraction(resolutionInfo.ResolveType))
+                    if (!containerContext.RegistrationRepository.ConstainsTypeKeyWithConditionsWithoutGenericDefinitionExtraction(resolutionInfo.ResolveType))
                     {
                         var genericType = this.metaInfoProvider.TypeTo.MakeGenericType(resolutionInfo.ResolveType.Type.GenericTypeArguments);
                         containerContext.Container.RegisterType(resolutionInfo.ResolveType.Type, genericType);

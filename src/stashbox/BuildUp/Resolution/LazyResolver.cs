@@ -23,7 +23,7 @@ namespace Stashbox.BuildUp.Resolution
                 DependencyName = typeInfo.DependencyName
             };
 
-            containerContext.RegistrationRepository.TryGetRegistration(this.lazyArgumentInfo, out this.registrationCache);
+            containerContext.RegistrationRepository.TryGetRegistrationWithConditions(this.lazyArgumentInfo, out this.registrationCache);
 
             var genericLazyResolverMethod = this.GetType().GetTypeInfo().GetDeclaredMethod("ResolveLazy");
             var resolver = genericLazyResolverMethod.MakeGenericMethod(typeInfo.Type.GenericTypeArguments[0]);

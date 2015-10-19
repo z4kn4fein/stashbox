@@ -27,8 +27,7 @@ namespace Stashbox.MetaInfo
                 HasInjectionAttribute = info.GetCustomAttribute<InjectionConstructorAttribute>() != null
             }))
             {
-                constructor.Parameters.AddRange(this.FillParameters(constructor.Method.GetParameters()));
-
+                constructor.Parameters = new HashSet<ResolutionTarget>(this.FillParameters(constructor.Method.GetParameters()));
                 this.Constructors.Add(constructor);
             }
         }

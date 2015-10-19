@@ -58,10 +58,10 @@ namespace Stashbox.ContainerExtensions.MethodInjection
             });
         }
 
-        public object PostBuild(object instance, IContainerContext containerContext, ResolutionInfo resolutionInfo, HashSet<InjectionParameter> injectionParameters = null)
+        public object PostBuild(object instance, Type targetType, IContainerContext containerContext, ResolutionInfo resolutionInfo, HashSet<InjectionParameter> injectionParameters = null)
         {
             MethodInfoCache methodCache;
-            if (!this.methodInfoRepository.TryGet(instance.GetType(), out methodCache)) return instance;
+            if (!this.methodInfoRepository.TryGet(targetType, out methodCache)) return instance;
             var methods = methodCache.Methods.ToDictionary(key => key, method =>
                 method.Parameters.Select(parameter =>
                     containerContext.ResolutionStrategy.EvaluateResolutionTarget(containerContext, parameter, resolutionInfo)));

@@ -9,11 +9,6 @@ namespace Stashbox.Entity
 
         public bool HasInjectionAttribute { get; set; }
 
-        public List<ResolutionTarget> Parameters { get; set; }
-
-        public ConstructorInformation()
-        {
-            Parameters = new List<ResolutionTarget>();
-        }
+        public HashSet<ResolutionTarget> Parameters { get; set; }
     }
 }

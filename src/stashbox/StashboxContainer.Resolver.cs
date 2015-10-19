@@ -29,12 +29,12 @@ namespace Stashbox
             var typeInfo = new TypeInformation { Type = type };
             IDictionary<string, IServiceRegistration> registrations;
             if (!this.registrationRepository.TryGetTypedRepositoryRegistrations(typeInfo, out registrations)) yield break;
-            var overridesEnumerated = overrides as Override[] ?? overrides.ToArray();
+            var overridesEnumerated = overrides as Override[] ?? overrides?.ToArray();
             foreach (var registration in registrations)
             {
                 yield return registration.Value.GetInstance(new ResolutionInfo
                 {
-                    OverrideManager = new OverrideManager(overridesEnumerated),
+                    OverrideManager = overridesEnumerated == null ? null : new OverrideManager(overridesEnumerated),
                     FactoryParams = factoryParams,
                     ResolveType = typeInfo
                 }) as TKey;
@@ -44,16 +44,22 @@ namespace Stashbox
         private object ResolveInternal(Type typeFrom, IEnumerable<Override> overrides, string name = null, IEnumerable<object> factoryParameters = null)
         {
             var typeInfo = new TypeInformation { Type = typeFrom, DependencyName = name };
+            var resolutionInfo = new ResolutionInfo
+            {
+                OverrideManager = overrides == null ? null : new OverrideManager(overrides),
+                FactoryParams = factoryParameters,
+                ResolveType = typeInfo
+            };
+
+            IServiceRegistration registration;
+            if (this.registrationRepository.TryGetRegistration(typeInfo, out registration))
+                return registration.GetInstance(resolutionInfo);
+
             Resolver resolver;
-            if (this.resolverSelector.TryChooseResolver(this.containerContext,
+            if (this.resolverSelectorContainerExcluded.TryChooseResolver(this.containerContext,
                 typeInfo, out resolver))
             {
-                return resolver.Resolve(new ResolutionInfo
-                {
-                    OverrideManager = new OverrideManager(overrides),
-                    FactoryParams = factoryParameters,
-                    ResolveType = typeInfo
-                });
+                return resolver.Resolve(resolutionInfo);
             }
             throw new ResolutionFailedException(typeFrom.FullName);
         }
