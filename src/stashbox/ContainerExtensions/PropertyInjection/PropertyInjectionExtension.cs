@@ -27,8 +27,9 @@ namespace Stashbox.ContainerExtensions.PropertyInjection
                            DependencyName = propertyInfo.GetCustomAttribute<InjectionPropertyAttribute>().Name,
                            Type = propertyInfo.PropertyType,
                            ParentType = registrationInfo.TypeTo,
+                           MemberName = propertyInfo.Name,
                            CustomAttributes = new HashSet<Attribute>(propertyInfo.GetCustomAttributes())
-                       }, injectionParameters, propertyInfo.Name)))
+                       }, injectionParameters)))
                 .Select(propertyInfo => new PropertyInfoItem
                 {
                     ResolutionTarget = containerContext.ResolutionStrategy.BuildResolutionTarget(containerContext, new TypeInformation
@@ -36,8 +37,9 @@ namespace Stashbox.ContainerExtensions.PropertyInjection
                         DependencyName = propertyInfo.GetCustomAttribute<InjectionPropertyAttribute>().Name,
                         Type = propertyInfo.PropertyType,
                         ParentType = registrationInfo.TypeTo,
+                        MemberName = propertyInfo.Name,
                         CustomAttributes = new HashSet<Attribute>(propertyInfo.GetCustomAttributes())
-                    }, injectionParameters, propertyInfo.Name),
+                    }, injectionParameters),
                     PropertySetter = propertyInfo.GetPropertySetter(),
 
                 });

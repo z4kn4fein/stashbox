@@ -1,6 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ronin.Common;
-using Stashbox.ContainerExtensions.MethodInjection;
+using Stashbox.Attributes;
 using Stashbox.Entity;
 using Stashbox.Infrastructure;
 using Stashbox.Overrides;
@@ -16,7 +16,6 @@ namespace Stashbox.Tests
         public void OverrideTests_Resolve()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterExtension(new MethodInjectionExtension());
             container.RegisterType<ITest1, Test1>();
             container.PrepareType<ITest2, Test2>().WithInjectionParameters(new InjectionParameter { Value = new Test1 { Name = "fakeName" }, Name = "test1" }).Register();
             var inst2 = container.Resolve<ITest2>();
@@ -38,7 +37,6 @@ namespace Stashbox.Tests
         public void OverrideTests_Resolve_Parallel()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterExtension(new MethodInjectionExtension());
             container.RegisterType<ITest1, Test1>();
             container.PrepareType<ITest2, Test2>().WithInjectionParameters(new InjectionParameter { Value = new Test1 { Name = "fakeName" }, Name = "test1" }).Register();
             var inst2 = container.Resolve<ITest2>();
@@ -63,7 +61,6 @@ namespace Stashbox.Tests
         public void OverrideTests_Resolve_Parallel_Lazy()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterExtension(new MethodInjectionExtension());
             container.RegisterType<ITest1, Test1>();
             container.PrepareType<ITest2, Test2>().WithInjectionParameters(new InjectionParameter { Value = new Test1 { Name = "fakeName" }, Name = "test1" }).Register();
             var inst2 = container.Resolve<Lazy<ITest2>>();

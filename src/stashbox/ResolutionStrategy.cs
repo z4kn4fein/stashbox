@@ -1,4 +1,5 @@
 ﻿using Stashbox.Entity;
+using Stashbox.Entity.Resolution;
 using Stashbox.Infrastructure;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,15 +16,16 @@ namespace Stashbox
         }
 
         public bool CanResolve(IContainerContext containerContext, TypeInformation typeInformation,
-            HashSet<InjectionParameter> injectionParameters, string targetName)
+            HashSet<InjectionParameter> injectionParameters)
         {
             return this.resolverSelector.CanResolve(containerContext, typeInformation) ||
                                           (injectionParameters != null &&
                                            injectionParameters.Any(injectionParameter =>
-                                           injectionParameter.Name == targetName));
+                                           injectionParameter.Name == typeInformation.MemberName));
         }
 
-        public ResolutionTarget BuildResolutionTarget(IContainerContext containerContext, TypeInformation typeInformation, HashSet<InjectionParameter> injectionParameters, string targetName)
+        public ResolutionTarget BuildResolutionTarget(IContainerContext containerContext, TypeInformation typeInformation,
+            HashSet<InjectionParameter> injectionParameters)
         {
             Resolver resolver;
             this.resolverSelector.TryChooseResolver(containerContext, typeInformation, out resolver);
@@ -32,8 +34,7 @@ namespace Stashbox
             {
                 Resolver = resolver,
                 TypeInformation = typeInformation,
-                ResolutionTargetValue = injectionParameters?.FirstOrDefault(param => param.Name == targetName)?.Value,
-                ResolutionTargetName = targetName
+                ResolutionTargetValue = injectionParameters?.FirstOrDefault(param => param.Name == typeInformation.MemberName)?.Value
             };
         }
 

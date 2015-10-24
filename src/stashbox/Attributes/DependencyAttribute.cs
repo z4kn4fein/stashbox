@@ -2,7 +2,7 @@
 
 namespace Stashbox.Attributes
 {
-    [AttributeUsage(AttributeTargets.Parameter)]
+    [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Property)]
     public class DependencyAttribute : Attribute
     {
         public string Name { get; set; }

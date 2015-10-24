@@ -1,5 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Stashbox.ContainerExtensions.PropertyInjection;
+using Stashbox.Attributes;
 using System;
 
 namespace Stashbox.Tests
@@ -11,7 +11,6 @@ namespace Stashbox.Tests
         public void ConditionalTests_ParentTypeCondition_First()
         {
             var container = new StashboxContainer();
-            container.RegisterExtension(new PropertyInjectionExtension());
             container.PrepareType<ITest1, Test1>().WhenDependantIs<Test2>().Register();
             container.RegisterType<ITest1, Test11>();
             container.RegisterType<ITest1, Test12>();
@@ -27,7 +26,6 @@ namespace Stashbox.Tests
         public void ConditionalTests_ParentTypeCondition_Second()
         {
             var container = new StashboxContainer();
-            container.RegisterExtension(new PropertyInjectionExtension());
             container.RegisterType<ITest1, Test1>();
             container.PrepareType<ITest1, Test11>().WhenDependantIs<Test2>().Register();
             container.RegisterType<ITest1, Test12>();
@@ -43,7 +41,6 @@ namespace Stashbox.Tests
         public void ConditionalTests_ParentTypeCondition_Third()
         {
             var container = new StashboxContainer();
-            container.RegisterExtension(new PropertyInjectionExtension());
             container.RegisterType<ITest1, Test1>();
             container.RegisterType<ITest1, Test11>();
             container.PrepareType<ITest1, Test12>().WhenDependantIs<Test2>().Register();
@@ -59,7 +56,6 @@ namespace Stashbox.Tests
         public void ConditionalTests_AttributeCondition_First()
         {
             var container = new StashboxContainer();
-            container.RegisterExtension(new PropertyInjectionExtension());
             container.PrepareType<ITest1, Test1>().WhenHas<TestConditionAttribute>().Register();
             container.RegisterType<ITest1, Test11>();
             container.PrepareType<ITest1, Test12>().WhenHas<TestCondition2Attribute>().Register();
@@ -75,7 +71,6 @@ namespace Stashbox.Tests
         public void ConditionalTests_AttributeCondition_Second()
         {
             var container = new StashboxContainer();
-            container.RegisterExtension(new PropertyInjectionExtension());
             container.RegisterType<ITest1, Test1>();
             container.PrepareType<ITest1, Test11>().WhenHas<TestCondition2Attribute>().Register();
             container.PrepareType<ITest1, Test12>().WhenHas<TestConditionAttribute>().Register();
@@ -91,7 +86,6 @@ namespace Stashbox.Tests
         public void ConditionalTests_AttributeCondition_Third()
         {
             var container = new StashboxContainer();
-            container.RegisterExtension(new PropertyInjectionExtension());
             container.PrepareType<ITest1, Test1>().WhenHas<TestCondition2Attribute>().Register();
             container.PrepareType<ITest1, Test11>().WhenHas<TestConditionAttribute>().Register();
             container.RegisterType<ITest1, Test12>();
@@ -118,7 +112,7 @@ namespace Stashbox.Tests
 
         public class Test2 : ITest2
         {
-            [InjectionProperty]
+            [Dependency]
             public ITest1 test1 { get; set; }
             public ITest1 test12 { get; set; }
 
@@ -130,7 +124,7 @@ namespace Stashbox.Tests
 
         public class Test3 : ITest2
         {
-            [InjectionProperty, TestCondition]
+            [Dependency, TestCondition]
             public ITest1 test1 { get; set; }
 
             public ITest1 test12 { get; set; }

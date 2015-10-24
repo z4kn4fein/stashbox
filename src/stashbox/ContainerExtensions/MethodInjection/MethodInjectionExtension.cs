@@ -31,17 +31,19 @@ namespace Stashbox.ContainerExtensions.MethodInjection
                                             DependencyName = parameter.GetCustomAttribute<DependencyAttribute>()?.Name,
                                             Type = parameter.ParameterType,
                                             ParentType = registrationInfo.TypeTo,
+                                            MemberName = parameter.Name,
                                             CustomAttributes = new HashSet<Attribute>(parameter.GetCustomAttributes())
-                                        }, injectionParameters, parameter.Name)))
+                                        }, injectionParameters)))
                .Select(methodInfo =>
                {
                    var parameters = methodInfo.GetParameters().Select(parameter => containerContext.ResolutionStrategy.BuildResolutionTarget(containerContext, new TypeInformation
                    {
                        DependencyName = parameter.GetCustomAttribute<DependencyAttribute>()?.Name,
                        Type = parameter.ParameterType,
+                       MemberName = parameter.Name,
                        ParentType = registrationInfo.TypeTo,
                        CustomAttributes = new HashSet<Attribute>(parameter.GetCustomAttributes())
-                   }, injectionParameters, parameter.Name));
+                   }, injectionParameters));
 
                    var resolutionParameters = parameters as ResolutionTarget[] ?? parameters.ToArray();
                    return new MethodInfoItem

@@ -1,8 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ronin.Common;
 using Stashbox.Attributes;
-using Stashbox.ContainerExtensions.MethodInjection;
-using Stashbox.ContainerExtensions.PropertyInjection;
 using System;
 using System.Threading.Tasks;
 
@@ -15,8 +13,6 @@ namespace Stashbox.Tests
         public void AttributeTests_Resolve()
         {
             var container = new StashboxContainer();
-            container.RegisterExtension(new PropertyInjectionExtension());
-            container.RegisterExtension(new MethodInjectionExtension());
             container.RegisterType<ITest1, Test1>("test1");
             container.RegisterType<ITest1, Test11>("test11");
             container.RegisterType<ITest1, Test12>("test12");
@@ -48,8 +44,6 @@ namespace Stashbox.Tests
         public void AttributeTests_Parallel_Resolve()
         {
             var container = new StashboxContainer();
-            container.RegisterExtension(new PropertyInjectionExtension());
-            container.RegisterExtension(new MethodInjectionExtension());
             container.RegisterType<ITest1, Test1>("test1");
             container.RegisterType<ITest1, Test11>("test11");
             container.RegisterType<ITest1, Test12>("test12");
@@ -81,8 +75,6 @@ namespace Stashbox.Tests
         public void AttributeTests_Parallel_Lazy_Resolve()
         {
             var container = new StashboxContainer();
-            container.RegisterExtension(new PropertyInjectionExtension());
-            container.RegisterExtension(new MethodInjectionExtension());
             container.RegisterType<ITest1, Test1>("test1");
             container.RegisterType<ITest1, Test11>("test11");
             container.RegisterType<ITest1, Test12>("test12");
@@ -138,7 +130,7 @@ namespace Stashbox.Tests
 
         public class Test2 : ITest2
         {
-            [InjectionProperty]
+            [Dependency]
             public ITest1 test1 { get; set; }
 
             public Test2([Dependency("test11")]ITest1 test1)
@@ -150,10 +142,10 @@ namespace Stashbox.Tests
 
         public class Test3 : ITest3
         {
-            [InjectionProperty("test11")]
+            [Dependency("test11")]
             public ITest1 test1 { get; set; }
 
-            [InjectionProperty("test22")]
+            [Dependency("test22")]
             public ITest2 test2 { get; set; }
 
             public Test3()
@@ -184,10 +176,10 @@ namespace Stashbox.Tests
 
         public class Test4 : ITest4
         {
-            [InjectionProperty("test11")]
+            [Dependency("test11")]
             public Lazy<ITest1> test1 { get; set; }
 
-            [InjectionProperty("test22")]
+            [Dependency("test22")]
             public Lazy<ITest2> test2 { get; set; }
 
             public Test4()

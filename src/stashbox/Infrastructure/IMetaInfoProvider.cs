@@ -1,4 +1,5 @@
 ﻿using Stashbox.Entity;
+using Stashbox.Entity.Resolution;
 using System;
 using System.Collections.Generic;
 
@@ -8,6 +9,10 @@ namespace Stashbox.Infrastructure
     {
         HashSet<Type> SensitivityList { get; }
         Type TypeTo { get; }
+        bool HasInjectionMethod { get; }
+        bool HasInjectionProperty { get; }
         bool TryChooseConstructor(out ResolutionConstructor constructor, ResolutionInfo resolutionInfo = null, HashSet<InjectionParameter> injectionParameters = null);
+        IEnumerable<ResolutionMethod> GetResolutionMethods(ResolutionInfo resolutionInfo = null, HashSet<InjectionParameter> injectionParameters = null);
+        IEnumerable<ResolutionProperty> GetResolutionProperties(ResolutionInfo resolutionInfo = null, HashSet<InjectionParameter> injectionParameters = null);
     }
 }

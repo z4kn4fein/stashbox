@@ -136,23 +136,26 @@ namespace Stashbox
 
         private IObjectBuilder CreateObjectBuilder()
         {
+            var metainfoProvider = new MetaInfoProvider(this.containerContext, this.typeTo);
+            var objectExtender = new ObjectExtender(metainfoProvider, this.containerContext.MessagePublisher, this.injectionParameters);
+
             if (this.singleFactory != null)
-                return new FactoryObjectBuilder(this.singleFactory, this.containerExtensionManager);
+                return new FactoryObjectBuilder(this.singleFactory, this.containerExtensionManager, objectExtender);
 
             if (this.twoParametersFactory != null)
-                return new FactoryObjectBuilder(this.twoParametersFactory, this.containerExtensionManager);
+                return new FactoryObjectBuilder(this.twoParametersFactory, this.containerExtensionManager, objectExtender);
 
             if (this.threeParametersFactory != null)
-                return new FactoryObjectBuilder(this.threeParametersFactory, this.containerExtensionManager);
+                return new FactoryObjectBuilder(this.threeParametersFactory, this.containerExtensionManager, objectExtender);
 
             if (this.oneParameterFactory != null)
-                return new FactoryObjectBuilder(this.oneParameterFactory, this.containerExtensionManager);
+                return new FactoryObjectBuilder(this.oneParameterFactory, this.containerExtensionManager, objectExtender);
 
             if (this.typeTo.GetTypeInfo().IsGenericTypeDefinition)
                 return new GenericTypeObjectBuilder(new MetaInfoProvider(this.containerContext, this.typeTo));
 
             return new DefaultObjectBuilder(new MetaInfoProvider(this.containerContext, this.typeTo),
-                this.containerExtensionManager, this.containerContext.MessagePublisher, this.injectionParameters);
+                this.containerExtensionManager, objectExtender, this.containerContext.MessagePublisher, this.injectionParameters);
         }
     }
 }

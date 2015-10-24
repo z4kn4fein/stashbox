@@ -14,16 +14,19 @@ namespace Stashbox.BuildUp
         private readonly Func<object, object, object> twoParamsFactory;
         private readonly Func<object, object, object, object> threeParamsFactory;
         private readonly IContainerExtensionManager containerExtensionManager;
+        private readonly IObjectExtender objectExtender;
 
-        public FactoryObjectBuilder(Func<object> factory, IContainerExtensionManager containerExtensionManager)
+        public FactoryObjectBuilder(Func<object> factory, IContainerExtensionManager containerExtensionManager, IObjectExtender objectExtender)
         {
             Shield.EnsureNotNull(factory);
             Shield.EnsureNotNull(containerExtensionManager);
+            Shield.EnsureNotNull(objectExtender);
             this.containerExtensionManager = containerExtensionManager;
             this.singleFactory = factory;
+            this.objectExtender = objectExtender;
         }
 
-        public FactoryObjectBuilder(Func<object, object> oneParamsFactory, IContainerExtensionManager containerExtensionManager)
+        public FactoryObjectBuilder(Func<object, object> oneParamsFactory, IContainerExtensionManager containerExtensionManager, IObjectExtender objectExtender)
         {
             Shield.EnsureNotNull(oneParamsFactory);
             Shield.EnsureNotNull(containerExtensionManager);
@@ -31,7 +34,7 @@ namespace Stashbox.BuildUp
             this.oneParamsFactory = oneParamsFactory;
         }
 
-        public FactoryObjectBuilder(Func<object, object, object> twoParamsFactory, IContainerExtensionManager containerExtensionManager)
+        public FactoryObjectBuilder(Func<object, object, object> twoParamsFactory, IContainerExtensionManager containerExtensionManager, IObjectExtender objectExtender)
         {
             Shield.EnsureNotNull(twoParamsFactory);
             Shield.EnsureNotNull(containerExtensionManager);
@@ -39,7 +42,7 @@ namespace Stashbox.BuildUp
             this.twoParamsFactory = twoParamsFactory;
         }
 
-        public FactoryObjectBuilder(Func<object, object, object, object> threeParamsFactory, IContainerExtensionManager containerExtensionManager)
+        public FactoryObjectBuilder(Func<object, object, object, object> threeParamsFactory, IContainerExtensionManager containerExtensionManager, IObjectExtender objectExtender)
         {
             Shield.EnsureNotNull(threeParamsFactory);
             Shield.EnsureNotNull(containerExtensionManager);
@@ -66,7 +69,8 @@ namespace Stashbox.BuildUp
                     resolutionInfo.FactoryParams.ElementAt(1),
                     resolutionInfo.FactoryParams.ElementAt(2));
 
-            return this.containerExtensionManager.ExecutePostBuildExtensions(instance, instance?.GetType(), containerContext, resolutionInfo);
+            var builtInstance = this.objectExtender.ExtendObject(instance, containerContext, resolutionInfo);
+            return this.containerExtensionManager.ExecutePostBuildExtensions(builtInstance, builtInstance?.GetType(), containerContext, resolutionInfo);
         }
 
         public void CleanUp()

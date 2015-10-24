@@ -3,11 +3,9 @@ using System.Reflection;
 
 namespace Stashbox.Entity
 {
-    public class ConstructorInformation
+    public class MethodInformation
     {
-        public ConstructorInfo Constructor { get; set; }
-
-        public bool HasInjectionAttribute { get; set; }
+        public MethodInfo Method { get; set; }
 
         public HashSet<TypeInformation> Parameters { get; set; }
     }

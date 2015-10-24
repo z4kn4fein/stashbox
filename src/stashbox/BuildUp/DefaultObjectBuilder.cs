@@ -3,6 +3,7 @@ using Sendstorm.Infrastructure;
 using Stashbox.BuildUp.Expressions;
 using Stashbox.Entity;
 using Stashbox.Entity.Events;
+using Stashbox.Entity.Resolution;
 using Stashbox.Exceptions;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.ContainerExtension;
@@ -17,18 +18,20 @@ namespace Stashbox.BuildUp
         private readonly IContainerExtensionManager containerExtensionManager;
         private readonly IMetaInfoProvider metaInfoProvider;
         private readonly IMessagePublisher messagePublisher;
+        private readonly IObjectExtender objectExtender;
         private readonly object syncObject = new object();
         private volatile Func<object[], object> constructorDelegate;
         private ResolutionConstructor constructor;
         private readonly Type instanceType;
         private readonly HashSet<InjectionParameter> injectionParameters;
 
-        public DefaultObjectBuilder(IMetaInfoProvider metaInfoProvider, IContainerExtensionManager containerExtensionManager,
+        public DefaultObjectBuilder(IMetaInfoProvider metaInfoProvider, IContainerExtensionManager containerExtensionManager, IObjectExtender objectExtender,
             IMessagePublisher messagePublisher, IEnumerable<InjectionParameter> injectionParameters = null)
         {
             Shield.EnsureNotNull(metaInfoProvider);
             Shield.EnsureNotNull(containerExtensionManager);
             Shield.EnsureNotNull(messagePublisher);
+            Shield.EnsureNotNull(objectExtender);
 
             if (injectionParameters != null)
                 this.injectionParameters = new HashSet<InjectionParameter>(injectionParameters);
@@ -37,6 +40,7 @@ namespace Stashbox.BuildUp
             this.containerExtensionManager = containerExtensionManager;
             this.metaInfoProvider = metaInfoProvider;
             this.messagePublisher = messagePublisher;
+            this.objectExtender = objectExtender;
             this.CreateConstructorDelegate();
             this.messagePublisher.Subscribe<RegistrationAdded>(this, addedEvent => this.metaInfoProvider.SensitivityList.Contains(addedEvent.RegistrationInfo.TypeFrom));
             this.messagePublisher.Subscribe<RegistrationRemoved>(this, removedEvent => this.metaInfoProvider.SensitivityList.Contains(removedEvent.RegistrationInfo.TypeFrom));
@@ -51,7 +55,7 @@ namespace Stashbox.BuildUp
                 if (this.metaInfoProvider.TryChooseConstructor(out this.constructor, injectionParameters: this.injectionParameters))
                 {
                     this.constructorDelegate = ExpressionBuilder.BuildConstructorExpression(
-                        this.constructor.Constructor.Method,
+                        this.constructor.Constructor,
                         this.constructor.Parameters.Select(parameter => parameter.TypeInformation),
                         this.metaInfoProvider.TypeTo);
                 }
@@ -72,7 +76,7 @@ namespace Stashbox.BuildUp
                         if (this.metaInfoProvider.TryChooseConstructor(out this.constructor, resolutionInfo, this.injectionParameters))
                         {
                             this.constructorDelegate = ExpressionBuilder.BuildConstructorExpression(
-                                this.constructor.Constructor.Method,
+                                this.constructor.Constructor,
                                 this.constructor.Parameters.Select(parameter => parameter.TypeInformation),
                                 this.metaInfoProvider.TypeTo);
 
@@ -99,7 +103,8 @@ namespace Stashbox.BuildUp
         private object ResolveType(IContainerContext containerContext, ResolutionInfo resolutionInfo)
         {
             var parameters = this.EvaluateParameters(containerContext, this.constructor.Parameters, resolutionInfo);
-            return this.containerExtensionManager.ExecutePostBuildExtensions(this.constructorDelegate(parameters), this.instanceType, containerContext, resolutionInfo, this.injectionParameters);
+            var instance = this.objectExtender.ExtendObject(this.constructorDelegate(parameters), containerContext, resolutionInfo);
+            return this.containerExtensionManager.ExecutePostBuildExtensions(instance, this.instanceType, containerContext, resolutionInfo, this.injectionParameters);
         }
 
         private object[] EvaluateParameters(IContainerContext containerContext, IEnumerable<ResolutionTarget> parameters, ResolutionInfo info)

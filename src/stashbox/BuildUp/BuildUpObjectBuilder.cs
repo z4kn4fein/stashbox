@@ -13,15 +13,18 @@ namespace Stashbox.BuildUp
         private volatile object builtInstance;
         private readonly object syncObject = new object();
         private readonly IContainerExtensionManager containerExtensionManager;
+        private readonly IObjectExtender objectExtender;
 
-        public BuildUpObjectBuilder(object instance, IContainerExtensionManager containerExtensionManager)
+        public BuildUpObjectBuilder(object instance, IContainerExtensionManager containerExtensionManager, IObjectExtender objectExtender)
         {
             Shield.EnsureNotNull(instance);
             Shield.EnsureNotNull(containerExtensionManager);
+            Shield.EnsureNotNull(objectExtender);
 
             this.instance = instance;
             this.instanceType = instance.GetType();
             this.containerExtensionManager = containerExtensionManager;
+            this.objectExtender = objectExtender;
         }
 
         public object BuildInstance(IContainerContext containerContext, ResolutionInfo resolutionInfo)
@@ -33,7 +36,8 @@ namespace Stashbox.BuildUp
             lock (this.syncObject)
             {
                 if (this.builtInstance != null) return this.builtInstance;
-                this.builtInstance = this.containerExtensionManager.ExecutePostBuildExtensions(this.instance, this.instanceType, containerContext, resolutionInfo);
+                this.builtInstance = this.objectExtender.ExtendObject(this.instance, containerContext, resolutionInfo);
+                this.builtInstance = this.containerExtensionManager.ExecutePostBuildExtensions(this.builtInstance, this.instanceType, containerContext, resolutionInfo);
             }
 
             return this.builtInstance;

@@ -1,5 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Stashbox.ContainerExtensions.PropertyInjection;
+using Stashbox.Attributes;
 using Stashbox.Entity;
 
 namespace Stashbox.Tests
@@ -11,7 +11,6 @@ namespace Stashbox.Tests
         public void InjectionPropertyTests_Resolve()
         {
             var container = new StashboxContainer();
-            container.RegisterExtension(new PropertyInjectionExtension());
             container.RegisterType<ITest, Test>();
             container.RegisterType<ITest1, Test1>();
 
@@ -27,7 +26,6 @@ namespace Stashbox.Tests
         public void InjectionPropertyTests_Resolve_InjectionParameter()
         {
             var container = new StashboxContainer();
-            container.RegisterExtension(new PropertyInjectionExtension());
             container.PrepareType<ITest2, Test2>().WithInjectionParameters(new InjectionParameter { Name = "Name", Value = "test" }).Register();
 
             var inst = container.Resolve<ITest2>();
@@ -45,7 +43,7 @@ namespace Stashbox.Tests
 
         public class Test1 : ITest1
         {
-            [InjectionProperty]
+            [Dependency]
             public ITest Test { get; set; }
         }
 
@@ -53,7 +51,7 @@ namespace Stashbox.Tests
 
         public class Test2 : ITest2
         {
-            [InjectionProperty]
+            [Dependency]
             public string Name { get; set; }
         }
     }
