@@ -47,23 +47,20 @@ namespace Stashbox
             {
                 if (this.hasInjectionProperties)
                 {
-                    var evaluatedProperties = this.injectionProperties.ToDictionary(key => key, property =>
-                    containerContext.ResolutionStrategy.EvaluateResolutionTarget(containerContext, property.ResolutionTarget, resolutionInfo));
-                    foreach (var property in evaluatedProperties)
+                    foreach (var property in this.injectionProperties)
                     {
-                        property.Key.PropertySetter(instance, property.Value);
+                        var value = containerContext.ResolutionStrategy.EvaluateResolutionTarget(containerContext, property.ResolutionTarget, resolutionInfo);
+                        property.PropertySetter(instance, value);
                     }
                 }
 
                 if (this.hasInjectionMethods)
                 {
-                    var methods = this.injectionMethods.ToDictionary(key => key, method =>
-                                  method.Parameters.Select(parameter =>
-                    containerContext.ResolutionStrategy.EvaluateResolutionTarget(containerContext, parameter, resolutionInfo)));
-
-                    foreach (var method in methods)
+                    foreach (var method in this.injectionMethods)
                     {
-                        method.Key.MethodDelegate(instance, method.Value.ToArray());
+                        var parameters = method.Parameters.Select(parameter =>
+                        containerContext.ResolutionStrategy.EvaluateResolutionTarget(containerContext, parameter, resolutionInfo));
+                        method.MethodDelegate(instance, parameters.ToArray());
                     }
                 }
 
