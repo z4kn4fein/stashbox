@@ -5,9 +5,9 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace Stashbox.BuildUp.Expressions
+namespace Stashbox.BuildUp.DelegateFactory
 {
-    public class ExpressionBuilder
+    public class ExpressionDelegateFactory
     {
         public static Func<object[], object> BuildConstructorExpression(ConstructorInfo constructor,
             IEnumerable<TypeInformation> parameters, Type typeInfo)

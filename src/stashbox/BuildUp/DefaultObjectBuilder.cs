@@ -1,6 +1,6 @@
 ﻿using Ronin.Common;
 using Sendstorm.Infrastructure;
-using Stashbox.BuildUp.Expressions;
+using Stashbox.BuildUp.DelegateFactory;
 using Stashbox.Entity;
 using Stashbox.Entity.Events;
 using Stashbox.Entity.Resolution;
@@ -54,7 +54,7 @@ namespace Stashbox.BuildUp
                 if (this.constructorDelegate != null) return;
                 if (this.metaInfoProvider.TryChooseConstructor(out this.constructor, injectionParameters: this.injectionParameters))
                 {
-                    this.constructorDelegate = ExpressionBuilder.BuildConstructorExpression(
+                    this.constructorDelegate = ExpressionDelegateFactory.BuildConstructorExpression(
                         this.constructor.Constructor,
                         this.constructor.Parameters.Select(parameter => parameter.TypeInformation),
                         this.metaInfoProvider.TypeTo);
@@ -75,7 +75,7 @@ namespace Stashbox.BuildUp
                     {
                         if (this.metaInfoProvider.TryChooseConstructor(out this.constructor, resolutionInfo, this.injectionParameters))
                         {
-                            this.constructorDelegate = ExpressionBuilder.BuildConstructorExpression(
+                            this.constructorDelegate = ExpressionDelegateFactory.BuildConstructorExpression(
                                 this.constructor.Constructor,
                                 this.constructor.Parameters.Select(parameter => parameter.TypeInformation),
                                 this.metaInfoProvider.TypeTo);

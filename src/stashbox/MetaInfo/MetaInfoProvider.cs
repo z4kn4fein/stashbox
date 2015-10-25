@@ -1,4 +1,4 @@
-﻿using Stashbox.BuildUp.Expressions;
+﻿using Stashbox.BuildUp.DelegateFactory;
 using Stashbox.Entity;
 using Stashbox.Entity.Resolution;
 using Stashbox.Infrastructure;
@@ -48,7 +48,7 @@ namespace Stashbox.MetaInfo
                {
                    Method = methodInfo.Method,
                    Parameters = methodInfo.Parameters.Select(parameter => this.containerContext.ResolutionStrategy.BuildResolutionTarget(this.containerContext, parameter, injectionParameters)).ToArray(),
-                   MethodDelegate = ExpressionBuilder.BuildMethodExpression(methodInfo.Method, methodInfo.Parameters, this.metaInfoCache.TypeTo)
+                   MethodDelegate = ExpressionDelegateFactory.BuildMethodExpression(methodInfo.Method, methodInfo.Parameters, this.metaInfoCache.TypeTo)
                });
 
             return this.metaInfoCache.InjectionMethods
@@ -59,7 +59,7 @@ namespace Stashbox.MetaInfo
                 {
                     Method = methodInfo.Method,
                     Parameters = methodInfo.Parameters.Select(parameter => this.containerContext.ResolutionStrategy.BuildResolutionTarget(this.containerContext, parameter, injectionParameters)).ToArray(),
-                    MethodDelegate = ExpressionBuilder.BuildMethodExpression(methodInfo.Method, methodInfo.Parameters, this.metaInfoCache.TypeTo)
+                    MethodDelegate = ExpressionDelegateFactory.BuildMethodExpression(methodInfo.Method, methodInfo.Parameters, this.metaInfoCache.TypeTo)
                 });
         }
 

@@ -13,7 +13,7 @@ before_build:
 - nuget restore src\stashbox.sln
 build:
   publish_nuget: true
-  publish_nuget_symbols: true
+  publish_nuget_symbols: false
   include_nuget_references: true
   parallel: true
   verbosity: normal
