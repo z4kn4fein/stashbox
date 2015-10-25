@@ -27,12 +27,12 @@ namespace Stashbox
             var type = typeof(TKey);
             var factoryParams = factoryParameters as object[] ?? factoryParameters?.ToArray();
             var typeInfo = new TypeInformation { Type = type };
-            IDictionary<string, IServiceRegistration> registrations;
+            IServiceRegistration[] registrations;
             if (!this.registrationRepository.TryGetTypedRepositoryRegistrations(typeInfo, out registrations)) yield break;
             var overridesEnumerated = overrides as Override[] ?? overrides?.ToArray();
             foreach (var registration in registrations)
             {
-                yield return registration.Value.GetInstance(new ResolutionInfo
+                yield return registration.GetInstance(new ResolutionInfo
                 {
                     OverrideManager = overridesEnumerated == null ? null : new OverrideManager(overridesEnumerated),
                     FactoryParams = factoryParams,
