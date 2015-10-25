@@ -1,5 +1,4 @@
-﻿using Stashbox.Entity;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -7,20 +6,24 @@ using System.Reflection;
 
 namespace Stashbox.BuildUp.DelegateFactory
 {
+    public delegate object CreateInstance(params object[] args);
+    public delegate void InvokeMethod(object instance, params object[] args);
+    public delegate object InvokeMethodWithResult(object instance, params object[] args);
+
     public class ExpressionDelegateFactory
     {
-        public static Func<object[], object> BuildConstructorExpression(ConstructorInfo constructor,
-            IEnumerable<TypeInformation> parameters, Type typeInfo)
+        public static CreateInstance BuildConstructorExpression(ConstructorInfo constructor,
+            IEnumerable<Type> parameters, Type typeInfo)
         {
             var parameter = Expression.Parameter(typeof(object[]), "parameters");
             var parameterExpressions = CreateParameterExpressions(parameters, typeInfo, parameter);
             var newExpression = Expression.New(constructor, parameterExpressions);
 
-            return Expression.Lambda<Func<object[], object>>(newExpression, parameter).Compile();
+            return Expression.Lambda<CreateInstance>(newExpression, parameter).Compile();
         }
 
-        public static Action<object, object[]> BuildMethodExpression(MethodInfo method,
-            IEnumerable<TypeInformation> parameters, Type typeInfo)
+        public static InvokeMethod BuildMethodExpression(MethodInfo method,
+            IEnumerable<Type> parameters, Type typeInfo)
         {
             var parameter = Expression.Parameter(typeof(object[]), "parameters");
             var instanceParameter = Expression.Parameter(typeof(object), "instance");
@@ -28,13 +31,25 @@ namespace Stashbox.BuildUp.DelegateFactory
             var parameterExpressions = CreateParameterExpressions(parameters, typeInfo, parameter);
             var newExpression = Expression.Call(convertedInstance, method, parameterExpressions);
 
-            return Expression.Lambda<Action<object, object[]>>(newExpression, instanceParameter, parameter).Compile();
+            return Expression.Lambda<InvokeMethod>(newExpression, instanceParameter, parameter).Compile();
         }
 
-        private static Expression[] CreateParameterExpressions(IEnumerable<TypeInformation> parameters,
+        public static InvokeMethodWithResult BuildMethodWithResultExpression(MethodInfo method,
+            IEnumerable<Type> parameters, Type typeInfo)
+        {
+            var parameter = Expression.Parameter(typeof(object[]), "parameters");
+            var instanceParameter = Expression.Parameter(typeof(object), "instance");
+            var convertedInstance = Expression.Convert(instanceParameter, method.DeclaringType);
+            var parameterExpressions = CreateParameterExpressions(parameters, typeInfo, parameter);
+            var newExpression = Expression.Call(convertedInstance, method, parameterExpressions);
+
+            return Expression.Lambda<InvokeMethodWithResult>(newExpression, instanceParameter, parameter).Compile();
+        }
+
+        private static Expression[] CreateParameterExpressions(IEnumerable<Type> parameters,
             Type typeInfo, Expression parameter)
         {
-            var typeInformations = parameters as TypeInformation[] ?? parameters.ToArray();
+            var typeInformations = parameters as Type[] ?? parameters.ToArray();
             var count = typeInformations.Count();
             var parameterExpressions = new Expression[count];
 
@@ -42,12 +57,12 @@ namespace Stashbox.BuildUp.DelegateFactory
             {
                 Expression index = Expression.Constant(i);
 
-                var parameterInformation = typeInformations.ElementAt(i) as TypeInformation;
+                var parameterInformation = typeInformations.ElementAt(i) as Type;
 
                 if (parameterInformation == null) continue;
-                var paramType = parameterInformation.Type.IsGenericParameter ?
-                    typeInfo.GenericTypeArguments[parameterInformation.Type.GenericParameterPosition] :
-                    parameterInformation.Type;
+                var paramType = parameterInformation.IsGenericParameter ?
+                    typeInfo.GenericTypeArguments[parameterInformation.GenericParameterPosition] :
+                    parameterInformation;
 
                 Expression indexedParamExpression = Expression.ArrayIndex(parameter, index);
                 Expression castExpression = Expression.Convert(indexedParamExpression, paramType);

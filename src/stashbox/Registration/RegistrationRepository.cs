@@ -3,19 +3,16 @@ using Stashbox.Entity;
 using Stashbox.Infrastructure;
 using System;
 using System.Linq;
-using System.Threading;
 
 namespace Stashbox.Registration
 {
     public class RegistrationRepository : IRegistrationRepository
     {
         private readonly Ref<ImmutableTree<Type, Ref<ImmutableTree<string, IServiceRegistration>>>> serviceRepository;
-        private readonly DisposableReaderWriterLock readerWriterLockSlim;
 
         public RegistrationRepository()
         {
             this.serviceRepository = new Ref<ImmutableTree<Type, Ref<ImmutableTree<string, IServiceRegistration>>>>(ImmutableTree<Type, Ref<ImmutableTree<string, IServiceRegistration>>>.Empty);
-            this.readerWriterLockSlim = new DisposableReaderWriterLock(LockRecursionPolicy.SupportsRecursion);
         }
 
         public bool TryGetRegistrationWithConditions(TypeInformation typeInfo, out IServiceRegistration registration)
@@ -58,20 +55,6 @@ namespace Stashbox.Registration
 
             if (!this.serviceRepository.TrySwapIfStillCurrent(this.serviceRepository.Value, newRepository))
                 this.serviceRepository.Swap(_ => newRepository);
-
-            //using (this.readerWriterLockSlim.AquireWriteLock())
-            //{
-            //    IDictionary<string, IServiceRegistration> registrations;
-            //    if (this.serviceRepository.TryGetValue(typeKey, out registrations))
-            //    {
-            //        registrations.Add(nameKey, registration);
-            //    }
-            //    else
-            //    {
-            //        var repository = new Dictionary<string, IServiceRegistration> { { nameKey, registration } };
-            //        this.serviceRepository.Add(typeKey, repository);
-            //    }
-            //}
         }
 
         public bool TryGetTypedRepositoryRegistrations(TypeInformation typeInfo, out IServiceRegistration[] registrations)
@@ -93,23 +76,11 @@ namespace Stashbox.Registration
 
             registrations = serviceRegistrations?.Value?.Enumerate().Select(reg => reg.Value).ToArray();
             return registrations != null;
-            //using (this.readerWriterLockSlim.AquireReadLock())
-            //{
-            //    Type genericTypeDefinition;
-            //    return this.serviceRepository.TryGetValue(typeInfo.Type, out registrations) ||
-            //        (this.TryHandleOpenGenericType(typeInfo.Type, out genericTypeDefinition) &&
-            //        this.serviceRepository.TryGetValue(genericTypeDefinition, out registrations));
-            //}
         }
 
         public bool ConstainsTypeKey(TypeInformation typeInfo)
         {
             return this.serviceRepository.Value.GetValueOrDefault(typeInfo.Type) != null;
-
-            //using (this.readerWriterLockSlim.AquireReadLock())
-            //{
-            //    return this.serviceRepository.ContainsKey(typeInfo.Type);
-            //}
         }
 
         public bool ConstainsTypeKeyWithConditions(TypeInformation typeInfo)
@@ -134,21 +105,6 @@ namespace Stashbox.Registration
             }
             else
                 return registrations.Value != null && registrations.Value.Enumerate().Any(registration => registration.Value.IsUsableForCurrentContext(typeInfo));
-            //using (this.readerWriterLockSlim.AquireReadLock())
-            //{
-            //    IDictionary<string, IServiceRegistration> registrations;
-            //    Type genericTypeDefinition;
-            //    return this.TryGetTypedRepositoryRegistrations(typeInfo, out registrations) &&
-            //        registrations.Any(registration => registration.Value.IsUsableForCurrentContext(typeInfo)) ||
-            //        (this.TryHandleOpenGenericType(typeInfo.Type, out genericTypeDefinition) && this.TryGetTypedRepositoryRegistrations(typeInfo, out registrations) &&
-            //        registrations.Any(registration => registration.Value.IsUsableForCurrentContext(new TypeInformation
-            //        {
-            //            Type = genericTypeDefinition,
-            //            ParentType = typeInfo.ParentType,
-            //            DependencyName = typeInfo.DependencyName,
-            //            CustomAttributes = typeInfo.CustomAttributes
-            //        })));
-            //}
         }
 
         public bool ConstainsTypeKeyWithConditionsWithoutGenericDefinitionExtraction(TypeInformation typeInfo)
@@ -156,32 +112,20 @@ namespace Stashbox.Registration
             var registrations = this.serviceRepository.Value.GetValueOrDefault(typeInfo.Type);
             if (registrations == null) return false;
             return registrations.Value != null && registrations.Value.Enumerate().Any(registration => registration.Value.IsUsableForCurrentContext(typeInfo));
-
-            //using (this.readerWriterLockSlim.AquireReadLock())
-            //{
-            //    IDictionary<string, IServiceRegistration> registrations;
-            //    return this.serviceRepository.TryGetValue(typeInfo.Type, out registrations) &&
-            //        registrations.Any(registration => registration.Value.IsUsableForCurrentContext(typeInfo));
-            //}
         }
 
         public void CleanUp()
         {
-            //using (this.readerWriterLockSlim.AquireWriteLock())
-            //{
-            //    foreach (var registration in this.serviceRepository.SelectMany(registrations => registrations.Value))
-            //    {
-            //        registration.Value.CleanUp();
-            //    }
+            foreach (var registration in this.serviceRepository.Value.Enumerate().Select(reg => reg.Value).SelectMany(registrations => registrations.Value.Enumerate()))
+            {
+                registration.Value.CleanUp();
+            }
 
-            //    this.serviceRepository.Clear();
-            //}
+            this.serviceRepository.Swap(_ => null);
         }
 
         private bool TryGetByTypeKey(TypeInformation typeInfo, out IServiceRegistration registration)
         {
-            //using (this.readerWriterLockSlim.AquireReadLock())
-            //{
             ImmutableTree<string, IServiceRegistration> registrations;
             if (!this.TryGetRegistrationsByType(typeInfo.Type, out registrations))
             {
@@ -194,13 +138,10 @@ namespace Stashbox.Registration
             registration = enumerator.Current.Value;
 
             return true;
-            //}
         }
 
         private bool TryGetByTypeKeyWithConditions(TypeInformation typeInfo, out IServiceRegistration registration)
         {
-            //using (this.readerWriterLockSlim.AquireReadLock())
-            //{
             ImmutableTree<string, IServiceRegistration> registrations;
             if (!this.TryGetRegistrationsByType(typeInfo.Type, out registrations))
             {
@@ -217,7 +158,6 @@ namespace Stashbox.Registration
                 registration = enumeratedRegistrations.FirstOrDefault(reg => reg.IsUsableForCurrentContext(typeInfo));
 
             return registration != null;
-            //}
         }
 
         private bool TryGetRegistrationsByType(Type type, out ImmutableTree<string, IServiceRegistration> registrations)
@@ -239,24 +179,15 @@ namespace Stashbox.Registration
 
             registrations = serviceRegistrations?.Value;
             return registrations != null;
-            //if (this.serviceRepository.TryGetValue(type, out registrations)) return true;
-            //Type genericTypeDefinition;
-            //return this.TryHandleOpenGenericType(type, out genericTypeDefinition) &&
-            //       this.serviceRepository.TryGetValue(genericTypeDefinition, out registrations);
         }
 
         private bool TryGetAllByTypedKey(TypeInformation typeInfo, out IServiceRegistration[] registrations)
         {
-            //using (this.readerWriterLockSlim.AquireReadLock())
-            //{
             return this.TryGetTypedRepositoryRegistrations(typeInfo, out registrations);
-            //}
         }
 
         private bool TryGetByNamedKey(TypeInformation typeInfo, out IServiceRegistration registration)
         {
-            //using (this.readerWriterLockSlim.AquireReadLock())
-            //{
             ImmutableTree<string, IServiceRegistration> registrations;
             if (this.TryGetRegistrationsByType(typeInfo.Type, out registrations))
             {
@@ -266,7 +197,6 @@ namespace Stashbox.Registration
 
             registration = null;
             return false;
-            //}
         }
 
         private bool TryHandleOpenGenericType(Type type, out Type genericTypeDefinition)

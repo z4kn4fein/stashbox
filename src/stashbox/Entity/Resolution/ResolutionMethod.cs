@@ -1,4 +1,4 @@
-﻿using System;
+﻿using Stashbox.BuildUp.DelegateFactory;
 using System.Reflection;
 
 namespace Stashbox.Entity.Resolution
@@ -9,6 +9,6 @@ namespace Stashbox.Entity.Resolution
 
         public ResolutionTarget[] Parameters { get; set; }
 
-        public Action<object, object[]> MethodDelegate { get; set; }
+        public InvokeMethod MethodDelegate { get; set; }
     }
 }

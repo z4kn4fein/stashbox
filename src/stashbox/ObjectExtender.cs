@@ -94,5 +94,11 @@ namespace Stashbox
                 this.hasInjectionProperties = this.injectionProperties.Any();
             }
         }
+
+        public void CleanUp()
+        {
+            this.messagePublisher.UnSubscribe<RegistrationAdded>(this);
+            this.messagePublisher.UnSubscribe<RegistrationRemoved>(this);
+        }
     }
 }

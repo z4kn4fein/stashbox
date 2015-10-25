@@ -20,7 +20,7 @@ namespace Stashbox.BuildUp
         private readonly IMessagePublisher messagePublisher;
         private readonly IObjectExtender objectExtender;
         private readonly object syncObject = new object();
-        private volatile Func<object[], object> constructorDelegate;
+        private volatile CreateInstance constructorDelegate;
         private ResolutionConstructor constructor;
         private readonly Type instanceType;
         private readonly HashSet<InjectionParameter> injectionParameters;
@@ -56,7 +56,7 @@ namespace Stashbox.BuildUp
                 {
                     this.constructorDelegate = ExpressionDelegateFactory.BuildConstructorExpression(
                         this.constructor.Constructor,
-                        this.constructor.Parameters.Select(parameter => parameter.TypeInformation),
+                        this.constructor.Parameters.Select(parameter => parameter.TypeInformation.Type),
                         this.metaInfoProvider.TypeTo);
                 }
             }
@@ -77,7 +77,7 @@ namespace Stashbox.BuildUp
                         {
                             this.constructorDelegate = ExpressionDelegateFactory.BuildConstructorExpression(
                                 this.constructor.Constructor,
-                                this.constructor.Parameters.Select(parameter => parameter.TypeInformation),
+                                this.constructor.Parameters.Select(parameter => parameter.TypeInformation.Type),
                                 this.metaInfoProvider.TypeTo);
 
                             return this.ResolveType(containerContext, resolutionInfo);
@@ -122,6 +122,7 @@ namespace Stashbox.BuildUp
 
         public void CleanUp()
         {
+            this.objectExtender.CleanUp();
             this.messagePublisher.UnSubscribe<RegistrationAdded>(this);
             this.messagePublisher.UnSubscribe<RegistrationRemoved>(this);
             this.constructorDelegate = null;

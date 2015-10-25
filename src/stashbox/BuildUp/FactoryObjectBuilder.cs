@@ -75,6 +75,7 @@ namespace Stashbox.BuildUp
 
         public void CleanUp()
         {
+            this.objectExtender.CleanUp();
         }
     }
 }

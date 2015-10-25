@@ -1,4 +1,5 @@
-﻿using Stashbox.Entity;
+﻿using Stashbox.BuildUp.DelegateFactory;
+using Stashbox.Entity;
 using Stashbox.Infrastructure;
 using System;
 using System.Reflection;

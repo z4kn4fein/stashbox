@@ -53,6 +53,8 @@ namespace Stashbox.BuildUp
                 disposable?.Dispose();
                 this.builtInstance = null;
             }
+
+            this.objectExtender.CleanUp();
         }
     }
 }
