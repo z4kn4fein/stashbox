@@ -1,72 +1,88 @@
-﻿using Ronin.Common;
-using Stashbox.Entity;
+﻿using Stashbox.Entity;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.ContainerExtension;
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Threading;
 
 namespace Stashbox
 {
     internal class BuildExtensionManager : IContainerExtensionManager
     {
-        private readonly Ref<ImmutableHashSet<IPostBuildExtension>> postbuildExtensions;
-        private readonly Ref<ImmutableHashSet<IRegistrationExtension>> registrationExtensions;
-        private readonly DisposableReaderWriterLock readerWriterLock;
+        private readonly HashSet<IPostBuildExtension> postbuildExtensions;
+        private readonly HashSet<IRegistrationExtension> registrationExtensions;
+        private readonly ReaderWriterLockSlim readerWriterLock;
+
+        private bool hasPostBuildExtensions;
+        private bool hasRegistrationExtensions;
 
         public BuildExtensionManager()
         {
-            this.postbuildExtensions = new Ref<ImmutableHashSet<IPostBuildExtension>>(ImmutableHashSet<IPostBuildExtension>.Empty);
-            this.registrationExtensions = new Ref<ImmutableHashSet<IRegistrationExtension>>(ImmutableHashSet<IRegistrationExtension>.Empty);
-            this.readerWriterLock = new DisposableReaderWriterLock(LockRecursionPolicy.SupportsRecursion);
+            this.postbuildExtensions = new HashSet<IPostBuildExtension>();
+            this.registrationExtensions = new HashSet<IRegistrationExtension>();
+            this.readerWriterLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
         }
 
         public void AddExtension(IContainerExtension containerExtension)
         {
-            //using (this.readerWriterLock.AquireWriteLock())
-            //{
+            try
+            {
+                this.readerWriterLock.EnterWriteLock();
                 var postBuildExtension = containerExtension as IPostBuildExtension;
                 if (postBuildExtension != null)
                 {
-                    var newRepo = this.postbuildExtensions.Value.Add(postBuildExtension);
-                    if (!this.postbuildExtensions.TrySwapIfStillCurrent(this.postbuildExtensions.Value, newRepo))
-                        this.postbuildExtensions.Swap(_ => newRepo);
+                    this.postbuildExtensions.Add(postBuildExtension);
+                    this.hasPostBuildExtensions = true;
                 }
 
                 var registrationExtension = containerExtension as IRegistrationExtension;
                 if (registrationExtension != null)
                 {
-                    var newRepo = this.registrationExtensions.Value.Add(registrationExtension);
-                    if (!this.registrationExtensions.TrySwapIfStillCurrent(this.registrationExtensions.Value, newRepo))
-                        this.registrationExtensions.Swap(_ => newRepo);
+                    this.registrationExtensions.Add(registrationExtension);
+                    this.hasRegistrationExtensions = true;
                 }
-            //}
+            }
+            finally
+            {
+                this.readerWriterLock.ExitWriteLock();
+            }
         }
 
         public object ExecutePostBuildExtensions(object instance, Type targetType, IContainerContext containerContext, ResolutionInfo resolutionInfo, HashSet<InjectionParameter> injectionParameters = null)
         {
-            //using (this.readerWriterLock.AquireReadLock())
-            //{
+            if (!this.hasPostBuildExtensions) return instance;
+            try
+            {
+                this.readerWriterLock.EnterReadLock();
                 var result = instance;
-                foreach (var extension in this.postbuildExtensions.Value)
+                foreach (var extension in this.postbuildExtensions)
                 {
                     result = extension.PostBuild(instance, targetType, containerContext, resolutionInfo, injectionParameters);
                 }
 
                 return result;
-            //}
+            }
+            finally
+            {
+                this.readerWriterLock.ExitReadLock();
+            }
         }
 
         public void ExecuteOnRegistrationExtensions(IContainerContext containerContext, RegistrationInfo registrationInfo, HashSet<InjectionParameter> injectionParameters = null)
         {
-            //using (this.readerWriterLock.AquireReadLock())
-            //{
-                foreach (var extension in this.registrationExtensions.Value)
+            if (!this.hasRegistrationExtensions) return;
+            try
+            {
+                this.readerWriterLock.EnterReadLock();
+                foreach (var extension in this.registrationExtensions)
                 {
                     extension.OnRegistration(containerContext, registrationInfo, injectionParameters);
                 }
-            //}
+            }
+            finally
+            {
+                this.readerWriterLock.ExitReadLock();
+            }
         }
     }
 }

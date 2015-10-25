@@ -6,6 +6,7 @@ using Stashbox.Entity.Resolution;
 using Stashbox.Infrastructure;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace Stashbox
 {
@@ -14,7 +15,7 @@ namespace Stashbox
         private readonly IMetaInfoProvider metaInfoProvider;
         private readonly IMessagePublisher messagePublisher;
         private readonly HashSet<InjectionParameter> injectionParameters;
-        private readonly DisposableReaderWriterLock readerWriterLock;
+        private readonly ReaderWriterLockSlim readerWriterLock;
 
         private HashSet<ResolutionMethod> injectionMethods;
         private HashSet<ResolutionProperty> injectionProperties;
@@ -28,7 +29,7 @@ namespace Stashbox
             Shield.EnsureNotNull(metaInfoProvider);
             Shield.EnsureNotNull(messagePublisher);
 
-            this.readerWriterLock = new DisposableReaderWriterLock();
+            this.readerWriterLock = new ReaderWriterLockSlim();
 
             if (injectionParameters != null)
                 this.injectionParameters = new HashSet<InjectionParameter>(injectionParameters);
@@ -45,8 +46,9 @@ namespace Stashbox
         {
             if (this.hasInjectionProperties || this.hasInjectionMethods)
             {
-                using (this.readerWriterLock.AquireReadLock())
+                try
                 {
+                    this.readerWriterLock.EnterReadLock();
                     if (this.hasInjectionProperties)
                     {
                         foreach (var property in this.injectionProperties)
@@ -68,6 +70,10 @@ namespace Stashbox
 
                     return instance;
                 }
+                finally
+                {
+                    this.readerWriterLock.ExitReadLock();
+                }
             }
             else
                 return instance;
@@ -85,13 +91,18 @@ namespace Stashbox
 
         private void CollectInjectionMembers(ResolutionInfo resolutionInfo = null)
         {
-            using (this.readerWriterLock.AquireWriteLock())
+            try
             {
+                this.readerWriterLock.EnterWriteLock();
                 this.injectionMethods = new HashSet<ResolutionMethod>(this.metaInfoProvider.GetResolutionMethods(resolutionInfo, this.injectionParameters));
                 this.injectionProperties = new HashSet<ResolutionProperty>(this.metaInfoProvider.GetResolutionProperties(resolutionInfo, this.injectionParameters));
 
                 this.hasInjectionMethods = this.injectionMethods.Any();
                 this.hasInjectionProperties = this.injectionProperties.Any();
+            }
+            finally
+            {
+                this.readerWriterLock.ExitWriteLock();
             }
         }
 
