@@ -1,4 +1,5 @@
-﻿using Sendstorm;
+﻿using Ronin.Common;
+using Sendstorm;
 using Sendstorm.Infrastructure;
 using Stashbox.BuildUp.Resolution;
 using Stashbox.Entity;
@@ -17,9 +18,11 @@ namespace Stashbox
         private readonly IRegistrationRepository registrationRepository;
         private readonly IMessagePublisher messagePublisher;
         private readonly IContainerContext containerContext;
+        private readonly AtomicBool disposed;
 
         public StashboxContainer()
         {
+            this.disposed = new AtomicBool();
             this.containerExtensionManager = new BuildExtensionManager();
             this.resolverSelector = new ResolverSelector();
             this.resolverSelectorContainerExcluded = new ResolverSelector();
@@ -83,8 +86,11 @@ namespace Stashbox
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposing) return;
-            this.registrationRepository.CleanUp();
+            if (this.disposed.CompareExchange(false, true))
+            {
+                if (!disposing) return;
+                this.registrationRepository.CleanUp();
+            }
         }
     }
 }

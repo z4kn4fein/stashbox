@@ -42,8 +42,15 @@ namespace Stashbox.Tests
             {
                 if (i % 100 == 0)
                 {
-                    container.RegisterType<ITest1, Test1>();
-                    container.RegisterType<ITest3, Test3>();
+                    container.RegisterType<ITest1, Test1>(i.ToString());
+                    container.RegisterType<ITest3, Test3>($"ITest3{i.ToString()}");
+                    var test33 = container.Resolve<ITest3>($"ITest3{i.ToString()}");
+                    var test11 = container.Resolve<ITest1>(i.ToString());
+                    Assert.IsNotNull(test33);
+                    Assert.IsNotNull(test11);
+
+                    Assert.IsInstanceOfType(test11, typeof(Test1));
+                    Assert.IsInstanceOfType(test33, typeof(Test3));
                 }
 
                 var test3 = container.Resolve<ITest3>();

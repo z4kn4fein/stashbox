@@ -9,6 +9,7 @@ namespace Stashbox.Registration
     public class RegistrationRepository : IRegistrationRepository
     {
         private readonly Ref<ImmutableTree<Type, Ref<ImmutableTree<string, IServiceRegistration>>>> serviceRepository;
+        private readonly object syncObject = new object();
 
         public RegistrationRepository()
         {
@@ -43,18 +44,21 @@ namespace Stashbox.Registration
             var immutableTree = new Ref<ImmutableTree<string, IServiceRegistration>>(ImmutableTree<string, IServiceRegistration>.Empty);
             var newTree = new Ref<ImmutableTree<string, IServiceRegistration>>(immutableTree.Value.AddOrUpdate(nameKey, registration));
 
-            var newRepository = this.serviceRepository.Value.AddOrUpdate(typeKey, newTree, (oldValue, newValue) =>
+            lock (this.syncObject)
             {
-                var newRegistration = oldValue.Value.AddOrUpdate(nameKey, registration, (oldRegistration, newReg) => newReg);
+                var newRepository = this.serviceRepository.Value.AddOrUpdate(typeKey, newTree, (oldValue, newValue) =>
+                {
+                    var newRegistration = oldValue.Value.AddOrUpdate(nameKey, registration, (oldRegistration, newReg) => newReg);
 
-                if (!oldValue.TrySwapIfStillCurrent(oldValue.Value, newRegistration))
-                    oldValue.Swap(_ => newRegistration);
+                    if (!oldValue.TrySwapIfStillCurrent(oldValue.Value, newRegistration))
+                        oldValue.Swap(_ => newRegistration);
 
-                return oldValue;
-            });
+                    return oldValue;
+                });
 
-            if (!this.serviceRepository.TrySwapIfStillCurrent(this.serviceRepository.Value, newRepository))
-                this.serviceRepository.Swap(_ => newRepository);
+                if (!this.serviceRepository.TrySwapIfStillCurrent(this.serviceRepository.Value, newRepository))
+                    this.serviceRepository.Swap(_ => newRepository);
+            }
         }
 
         public bool TryGetTypedRepositoryRegistrations(TypeInformation typeInfo, out IServiceRegistration[] registrations)
@@ -133,10 +137,7 @@ namespace Stashbox.Registration
                 return false;
             }
 
-            var enumerator = registrations.Enumerate().GetEnumerator();
-            enumerator.MoveNext();
-            registration = enumerator.Current.Value;
-
+            registration = registrations.Value;
             return true;
         }
 

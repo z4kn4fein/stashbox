@@ -107,14 +107,13 @@ namespace Stashbox.BuildUp
             return this.containerExtensionManager.ExecutePostBuildExtensions(instance, this.instanceType, containerContext, resolutionInfo, this.injectionParameters);
         }
 
-        private object[] EvaluateParameters(IContainerContext containerContext, IEnumerable<ResolutionTarget> parameters, ResolutionInfo info)
+        private object[] EvaluateParameters(IContainerContext containerContext, ResolutionTarget[] parameters, ResolutionInfo info)
         {
-            var resolutionParameters = parameters as ResolutionTarget[] ?? parameters.ToArray();
-            var count = resolutionParameters.Count();
+            var count = parameters.Length;
             var result = new object[count];
             for (var i = 0; i < count; i++)
             {
-                var parameter = resolutionParameters.ElementAt(i);
+                var parameter = parameters[i];
                 result[i] = containerContext.ResolutionStrategy.EvaluateResolutionTarget(containerContext, parameter, info);
             }
             return result;
