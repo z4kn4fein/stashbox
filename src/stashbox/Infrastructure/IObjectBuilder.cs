@@ -4,7 +4,7 @@ namespace Stashbox.Infrastructure
 {
     public interface IObjectBuilder
     {
-        object BuildInstance(IContainerContext containerContext, ResolutionInfo resolutionInfo);
+        object BuildInstance(ResolutionInfo resolutionInfo);
         void CleanUp();
     }
 }

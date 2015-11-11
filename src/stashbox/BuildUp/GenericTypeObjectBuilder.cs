@@ -6,14 +6,16 @@ namespace Stashbox.BuildUp
     internal class GenericTypeObjectBuilder : IObjectBuilder
     {
         private readonly IMetaInfoProvider metaInfoProvider;
+        private readonly IContainerContext containerContext;
         private readonly object syncObject = new object();
 
-        public GenericTypeObjectBuilder(IMetaInfoProvider metaInfoProvider)
+        public GenericTypeObjectBuilder(IContainerContext containerContext, IMetaInfoProvider metaInfoProvider)
         {
             this.metaInfoProvider = metaInfoProvider;
+            this.containerContext = containerContext;
         }
 
-        public object BuildInstance(IContainerContext containerContext, ResolutionInfo resolutionInfo)
+        public object BuildInstance(ResolutionInfo resolutionInfo)
         {
             if (!containerContext.RegistrationRepository.ConstainsTypeKeyWithConditionsWithoutGenericDefinitionExtraction(resolutionInfo.ResolveType))
             {
@@ -22,7 +24,7 @@ namespace Stashbox.BuildUp
                     if (!containerContext.RegistrationRepository.ConstainsTypeKeyWithConditionsWithoutGenericDefinitionExtraction(resolutionInfo.ResolveType))
                     {
                         var genericType = this.metaInfoProvider.TypeTo.MakeGenericType(resolutionInfo.ResolveType.Type.GenericTypeArguments);
-                        containerContext.Container.RegisterType(resolutionInfo.ResolveType.Type, genericType);
+                        this.containerContext.Container.RegisterType(resolutionInfo.ResolveType.Type, genericType);
                     }
                 }
             }

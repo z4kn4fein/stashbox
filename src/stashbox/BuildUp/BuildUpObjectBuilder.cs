@@ -14,9 +14,11 @@ namespace Stashbox.BuildUp
         private readonly object syncObject = new object();
         private readonly IContainerExtensionManager containerExtensionManager;
         private readonly IObjectExtender objectExtender;
+        private readonly IContainerContext containerContext;
 
-        public BuildUpObjectBuilder(object instance, IContainerExtensionManager containerExtensionManager, IObjectExtender objectExtender)
+        public BuildUpObjectBuilder(object instance, IContainerContext containerContext, IContainerExtensionManager containerExtensionManager, IObjectExtender objectExtender)
         {
+            Shield.EnsureNotNull(containerContext);
             Shield.EnsureNotNull(instance);
             Shield.EnsureNotNull(containerExtensionManager);
             Shield.EnsureNotNull(objectExtender);
@@ -25,19 +27,19 @@ namespace Stashbox.BuildUp
             this.instanceType = instance.GetType();
             this.containerExtensionManager = containerExtensionManager;
             this.objectExtender = objectExtender;
+            this.containerContext = containerContext;
         }
 
-        public object BuildInstance(IContainerContext containerContext, ResolutionInfo resolutionInfo)
+        public object BuildInstance(ResolutionInfo resolutionInfo)
         {
-            Shield.EnsureNotNull(containerContext);
             Shield.EnsureNotNull(resolutionInfo);
 
             if (this.builtInstance != null) return this.builtInstance;
             lock (this.syncObject)
             {
                 if (this.builtInstance != null) return this.builtInstance;
-                this.builtInstance = this.objectExtender.ExtendObject(this.instance, containerContext, resolutionInfo);
-                this.builtInstance = this.containerExtensionManager.ExecutePostBuildExtensions(this.builtInstance, this.instanceType, containerContext, resolutionInfo);
+                this.builtInstance = this.objectExtender.ExtendObject(this.instance, this.containerContext, resolutionInfo);
+                this.builtInstance = this.containerExtensionManager.ExecutePostBuildExtensions(this.builtInstance, this.instanceType, this.containerContext, resolutionInfo);
             }
 
             return this.builtInstance;

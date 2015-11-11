@@ -9,6 +9,6 @@ namespace Stashbox.Entity
 
         public bool HasInjectionAttribute { get; set; }
 
-        public HashSet<TypeInformation> Parameters { get; set; }
+        public TypeInformation[] Parameters { get; set; }
     }
 }

@@ -5,6 +5,6 @@ namespace Stashbox.Infrastructure.ContainerExtension
 {
     public interface IRegistrationExtension : IContainerExtension
     {
-        void OnRegistration(IContainerContext containerContext, RegistrationInfo registrationInfo, HashSet<InjectionParameter> injectionParameters = null);
+        void OnRegistration(IContainerContext containerContext, RegistrationInfo registrationInfo, InjectionParameter[] injectionParameters = null);
     }
 }

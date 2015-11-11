@@ -15,42 +15,43 @@ namespace Stashbox.BuildUp
         private readonly Func<object, object, object, object> threeParamsFactory;
         private readonly IContainerExtensionManager containerExtensionManager;
         private readonly IObjectExtender objectExtender;
+        private readonly IContainerContext containerContext;
 
-        public FactoryObjectBuilder(Func<object> factory, IContainerExtensionManager containerExtensionManager, IObjectExtender objectExtender)
+        private FactoryObjectBuilder(IContainerContext containerContext, IContainerExtensionManager containerExtensionManager, IObjectExtender objectExtender)
         {
-            Shield.EnsureNotNull(factory);
             Shield.EnsureNotNull(containerExtensionManager);
             Shield.EnsureNotNull(objectExtender);
+            Shield.EnsureNotNull(containerContext);
             this.containerExtensionManager = containerExtensionManager;
-            this.singleFactory = factory;
             this.objectExtender = objectExtender;
+            this.containerContext = containerContext;
         }
 
-        public FactoryObjectBuilder(Func<object, object> oneParamsFactory, IContainerExtensionManager containerExtensionManager, IObjectExtender objectExtender)
+        public FactoryObjectBuilder(Func<object> factory, IContainerContext containerContext, IContainerExtensionManager containerExtensionManager, IObjectExtender objectExtender)
+            :this(containerContext, containerExtensionManager, objectExtender)
         {
-            Shield.EnsureNotNull(oneParamsFactory);
-            Shield.EnsureNotNull(containerExtensionManager);
-            this.containerExtensionManager = containerExtensionManager;
+            this.singleFactory = factory;
+        }
+
+        public FactoryObjectBuilder(Func<object, object> oneParamsFactory, IContainerContext containerContext, IContainerExtensionManager containerExtensionManager, IObjectExtender objectExtender)
+            : this(containerContext, containerExtensionManager, objectExtender)
+        {
             this.oneParamsFactory = oneParamsFactory;
         }
 
-        public FactoryObjectBuilder(Func<object, object, object> twoParamsFactory, IContainerExtensionManager containerExtensionManager, IObjectExtender objectExtender)
+        public FactoryObjectBuilder(Func<object, object, object> twoParamsFactory, IContainerContext containerContext, IContainerExtensionManager containerExtensionManager, IObjectExtender objectExtender)
+            : this(containerContext, containerExtensionManager, objectExtender)
         {
-            Shield.EnsureNotNull(twoParamsFactory);
-            Shield.EnsureNotNull(containerExtensionManager);
-            this.containerExtensionManager = containerExtensionManager;
             this.twoParamsFactory = twoParamsFactory;
         }
 
-        public FactoryObjectBuilder(Func<object, object, object, object> threeParamsFactory, IContainerExtensionManager containerExtensionManager, IObjectExtender objectExtender)
+        public FactoryObjectBuilder(Func<object, object, object, object> threeParamsFactory, IContainerContext containerContext, IContainerExtensionManager containerExtensionManager, IObjectExtender objectExtender)
+            : this(containerContext, containerExtensionManager, objectExtender)
         {
-            Shield.EnsureNotNull(threeParamsFactory);
-            Shield.EnsureNotNull(containerExtensionManager);
-            this.containerExtensionManager = containerExtensionManager;
             this.threeParamsFactory = threeParamsFactory;
         }
 
-        public object BuildInstance(IContainerContext containerContext, ResolutionInfo resolutionInfo)
+        public object BuildInstance(ResolutionInfo resolutionInfo)
         {
             object instance = null;
 

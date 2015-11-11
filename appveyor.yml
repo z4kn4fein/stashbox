@@ -17,12 +17,6 @@ build:
   include_nuget_references: true
   parallel: true
   verbosity: normal
-deploy:
-- provider: NuGet
-  api_key:
-    secure: doqtwSE1NadH7pf4jqYifDu4tcXzsNiJtPWOccnbUrhSnIJX+5js7m8z+kV9LNJ2
-  on:
-    branch: master
 notifications:
 - provider: Email
   to:

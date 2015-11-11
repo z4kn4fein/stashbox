@@ -16,7 +16,7 @@ namespace Stashbox
         }
 
         public bool CanResolve(IContainerContext containerContext, TypeInformation typeInformation,
-            HashSet<InjectionParameter> injectionParameters)
+            InjectionParameter[] injectionParameters)
         {
             return this.resolverSelector.CanResolve(containerContext, typeInformation) ||
                                           (injectionParameters != null &&
@@ -25,7 +25,7 @@ namespace Stashbox
         }
 
         public ResolutionTarget BuildResolutionTarget(IContainerContext containerContext, TypeInformation typeInformation,
-            HashSet<InjectionParameter> injectionParameters)
+            InjectionParameter[] injectionParameters)
         {
             Resolver resolver;
             this.resolverSelector.TryChooseResolver(containerContext, typeInformation, out resolver);

@@ -10,17 +10,15 @@ namespace Stashbox.Registration
     {
         private readonly ILifetime lifetimeManager;
         private readonly IObjectBuilder objectBuilder;
-        private readonly IContainerContext containerContext;
         private readonly HashSet<Type> attributeConditions;
         private readonly Type targetTypeCondition;
         private readonly Func<TypeInformation, bool> resolutionCondition;
 
-        public ServiceRegistration(ILifetime lifetimeManager, IObjectBuilder objectBuilder, IContainerContext containerContext, HashSet<Type> attributeConditions = null,
+        public ServiceRegistration(ILifetime lifetimeManager, IObjectBuilder objectBuilder, HashSet<Type> attributeConditions = null,
             Type targetTypeCondition = null, Func<TypeInformation, bool> resolutionCondition = null)
         {
             this.lifetimeManager = lifetimeManager;
             this.objectBuilder = objectBuilder;
-            this.containerContext = containerContext;
             this.attributeConditions = attributeConditions;
             this.targetTypeCondition = targetTypeCondition;
             this.resolutionCondition = resolutionCondition;
@@ -28,7 +26,7 @@ namespace Stashbox.Registration
 
         public object GetInstance(ResolutionInfo resolutionInfo)
         {
-            return this.lifetimeManager.GetInstance(this.objectBuilder, this.containerContext, resolutionInfo);
+            return this.lifetimeManager.GetInstance(this.objectBuilder, resolutionInfo);
         }
 
         public bool IsUsableForCurrentContext(TypeInformation typeInfo)

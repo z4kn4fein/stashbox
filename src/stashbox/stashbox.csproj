@@ -66,6 +66,7 @@
     <Compile Include="Exceptions\InjectionConstructorNotFoundException.cs" />
     <Compile Include="Exceptions\RegistrationNotFoundException.cs" />
     <Compile Include="Exceptions\ResolutionFailedException.cs" />
+    <Compile Include="Extensions\ArrayExtensions.cs" />
     <Compile Include="Extensions\PropertyInfoExtensions.cs" />
     <Compile Include="Extensions\TypeExtensions.cs" />
     <Compile Include="Infrastructure\ContainerExtension\IPostBuildExtension.cs" />

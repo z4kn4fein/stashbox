@@ -33,12 +33,12 @@ namespace Stashbox.MetaInfo
             this.BuildSensitivityList();
         }
 
-        public bool TryChooseConstructor(out ResolutionConstructor resolutionConstructor, ResolutionInfo resolutionInfo = null, HashSet<InjectionParameter> injectionParameters = null)
+        public bool TryChooseConstructor(out ResolutionConstructor resolutionConstructor, ResolutionInfo resolutionInfo = null, InjectionParameter[] injectionParameters = null)
         {
             return this.TryGetBestConstructor(out resolutionConstructor, resolutionInfo, injectionParameters);
         }
 
-        public IEnumerable<ResolutionMethod> GetResolutionMethods(ResolutionInfo resolutionInfo = null, HashSet<InjectionParameter> injectionParameters = null)
+        public IEnumerable<ResolutionMethod> GetResolutionMethods(ResolutionInfo resolutionInfo = null, InjectionParameter[] injectionParameters = null)
         {
             if (resolutionInfo?.OverrideManager == null)
                 return this.metaInfoCache.InjectionMethods
@@ -63,7 +63,7 @@ namespace Stashbox.MetaInfo
                 });
         }
 
-        public IEnumerable<ResolutionProperty> GetResolutionProperties(ResolutionInfo resolutionInfo = null, HashSet<InjectionParameter> injectionParameters = null)
+        public IEnumerable<ResolutionProperty> GetResolutionProperties(ResolutionInfo resolutionInfo = null, InjectionParameter[] injectionParameters = null)
         {
             if (resolutionInfo?.OverrideManager == null)
                 return this.metaInfoCache.InjectionProperties.Where(propertyInfo =>
@@ -86,19 +86,18 @@ namespace Stashbox.MetaInfo
 
         private void BuildSensitivityList()
         {
-            var types = this.metaInfoCache.Constructors.SelectMany(constructor => constructor.Parameters, (constructor, parameter) => parameter.Type)
+            this.SensitivityList = new HashSet<Type>(this.metaInfoCache.Constructors.SelectMany(constructor => constructor.Parameters, (constructor, parameter) => parameter.Type)
                         .Concat(this.metaInfoCache.InjectionMethods.SelectMany(method => method.Parameters, (method, parameter) => parameter.Type))
-                        .Concat(this.metaInfoCache.InjectionProperties.Select(property => property.TypeInformation.Type)).Distinct();
-            this.SensitivityList = new HashSet<Type>(types);
+                        .Concat(this.metaInfoCache.InjectionProperties.Select(property => property.TypeInformation.Type)).Distinct());
         }
 
-        private bool TryGetBestConstructor(out ResolutionConstructor resolutionConstructor, ResolutionInfo resolutionInfo = null, HashSet<InjectionParameter> injectionParameters = null)
+        private bool TryGetBestConstructor(out ResolutionConstructor resolutionConstructor, ResolutionInfo resolutionInfo = null, InjectionParameter[] injectionParameters = null)
         {
             return this.TryGetConstructor(this.metaInfoCache.Constructors.Where(constructor => constructor.HasInjectionAttribute), out resolutionConstructor, resolutionInfo, injectionParameters) ||
                 this.TryGetConstructor(this.metaInfoCache.Constructors.Where(constructor => !constructor.HasInjectionAttribute), out resolutionConstructor, resolutionInfo, injectionParameters);
         }
 
-        private bool TryGetConstructor(IEnumerable<ConstructorInformation> constructors, out ResolutionConstructor resolutionConstructor, ResolutionInfo resolutionInfo = null, HashSet<InjectionParameter> injectionParameters = null)
+        private bool TryGetConstructor(IEnumerable<ConstructorInformation> constructors, out ResolutionConstructor resolutionConstructor, ResolutionInfo resolutionInfo = null, InjectionParameter[] injectionParameters = null)
         {
             var usableConstructors = this.GetUsableConstructors(constructors, resolutionInfo, injectionParameters).ToArray();
 
@@ -112,7 +111,7 @@ namespace Stashbox.MetaInfo
             return false;
         }
 
-        private IEnumerable<ConstructorInformation> GetUsableConstructors(IEnumerable<ConstructorInformation> constructors, ResolutionInfo resolutionInfo = null, HashSet<InjectionParameter> injectionParameters = null)
+        private IEnumerable<ConstructorInformation> GetUsableConstructors(IEnumerable<ConstructorInformation> constructors, ResolutionInfo resolutionInfo = null, InjectionParameter[] injectionParameters = null)
         {
             if (resolutionInfo?.OverrideManager == null)
                 return constructors
@@ -127,7 +126,7 @@ namespace Stashbox.MetaInfo
                          resolutionInfo.OverrideManager.ContainsValue(parameter)));
         }
 
-        private ResolutionConstructor CreateResolutionConstructor(ConstructorInformation constructorInformation, HashSet<InjectionParameter> injectionParameters = null)
+        private ResolutionConstructor CreateResolutionConstructor(ConstructorInformation constructorInformation, InjectionParameter[] injectionParameters = null)
         {
             return new ResolutionConstructor
             {

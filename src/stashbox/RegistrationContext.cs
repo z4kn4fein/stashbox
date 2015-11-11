@@ -26,7 +26,7 @@ namespace Stashbox
         private Func<object, object> oneParameterFactory;
         private Func<object, object, object> twoParametersFactory;
         private Func<object, object, object, object> threeParametersFactory;
-        private HashSet<InjectionParameter> injectionParameters;
+        private InjectionParameter[] injectionParameters;
         private ILifetime lifetime;
         private Type targetTypeCondition;
         private Func<TypeInformation, bool> resolutionCondition;
@@ -54,10 +54,10 @@ namespace Stashbox
             var registrationInfo = new RegistrationInfo { TypeFrom = typeFrom, TypeTo = typeTo };
 
             var registration = new ServiceRegistration(registrationLifetime,
-                this.CreateObjectBuilder(), this.containerContext, this.attributeConditions, this.targetTypeCondition, this.resolutionCondition);
+                this.CreateObjectBuilder(), this.attributeConditions, this.targetTypeCondition, this.resolutionCondition);
 
             this.containerContext.RegistrationRepository.AddRegistration(typeFrom, registration, registrationName);
-            this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.containerContext, registrationInfo, injectionParameters == null ? null : new HashSet<InjectionParameter>(injectionParameters));
+            this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.containerContext, registrationInfo, this.injectionParameters == null ? null : this.injectionParameters);
             this.containerContext.MessagePublisher.Broadcast(new RegistrationAdded { RegistrationInfo = registrationInfo });
             return this.containerContext.Container;
         }
@@ -118,7 +118,7 @@ namespace Stashbox
 
         public IRegistrationContext WithInjectionParameters(params InjectionParameter[] injectionParameters)
         {
-            this.injectionParameters = new HashSet<InjectionParameter>(injectionParameters);
+            this.injectionParameters = injectionParameters;
             return this;
         }
 
@@ -140,21 +140,21 @@ namespace Stashbox
             var objectExtender = new ObjectExtender(metainfoProvider, this.containerContext.MessagePublisher, this.injectionParameters);
 
             if (this.singleFactory != null)
-                return new FactoryObjectBuilder(this.singleFactory, this.containerExtensionManager, objectExtender);
+                return new FactoryObjectBuilder(this.singleFactory, this.containerContext, this.containerExtensionManager, objectExtender);
 
             if (this.twoParametersFactory != null)
-                return new FactoryObjectBuilder(this.twoParametersFactory, this.containerExtensionManager, objectExtender);
+                return new FactoryObjectBuilder(this.twoParametersFactory, this.containerContext, this.containerExtensionManager, objectExtender);
 
             if (this.threeParametersFactory != null)
-                return new FactoryObjectBuilder(this.threeParametersFactory, this.containerExtensionManager, objectExtender);
+                return new FactoryObjectBuilder(this.threeParametersFactory, this.containerContext, this.containerExtensionManager, objectExtender);
 
             if (this.oneParameterFactory != null)
-                return new FactoryObjectBuilder(this.oneParameterFactory, this.containerExtensionManager, objectExtender);
+                return new FactoryObjectBuilder(this.oneParameterFactory, this.containerContext, this.containerExtensionManager, objectExtender);
 
             if (this.typeTo.GetTypeInfo().IsGenericTypeDefinition)
-                return new GenericTypeObjectBuilder(new MetaInfoProvider(this.containerContext, this.typeTo));
+                return new GenericTypeObjectBuilder(this.containerContext, new MetaInfoProvider(this.containerContext, this.typeTo));
 
-            return new DefaultObjectBuilder(new MetaInfoProvider(this.containerContext, this.typeTo),
+            return new DefaultObjectBuilder(this.containerContext, new MetaInfoProvider(this.containerContext, this.typeTo),
                 this.containerExtensionManager, objectExtender, this.containerContext.MessagePublisher, this.injectionParameters);
         }
     }

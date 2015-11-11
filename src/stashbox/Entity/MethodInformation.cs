@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Reflection;
+﻿using System.Reflection;
 
 namespace Stashbox.Entity
 {
@@ -7,6 +6,6 @@ namespace Stashbox.Entity
     {
         public MethodInfo Method { get; set; }
 
-        public HashSet<TypeInformation> Parameters { get; set; }
+        public TypeInformation[] Parameters { get; set; }
     }
 }

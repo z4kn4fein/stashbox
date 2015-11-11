@@ -8,7 +8,7 @@ namespace Stashbox.Entity
         public Type Type { get; set; }
         public Type ParentType { get; set; }
         public string DependencyName { get; set; }
-        public HashSet<Attribute> CustomAttributes { get; set; }
+        public Attribute[] CustomAttributes { get; set; }
         public string MemberName { get; set; }
     }
 }

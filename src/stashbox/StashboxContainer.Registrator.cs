@@ -105,11 +105,11 @@ namespace Stashbox
 
             IObjectBuilder objectBuilder;
             if (typeTo.GetTypeInfo().IsGenericTypeDefinition)
-                objectBuilder = new GenericTypeObjectBuilder(metaInfoProvider);
+                objectBuilder = new GenericTypeObjectBuilder(this.containerContext, metaInfoProvider);
             else
-                objectBuilder = new DefaultObjectBuilder(metaInfoProvider, this.containerExtensionManager, objectExtender, this.messagePublisher);
+                objectBuilder = new DefaultObjectBuilder(this.containerContext, metaInfoProvider, this.containerExtensionManager, objectExtender, this.messagePublisher);
 
-            var registration = new ServiceRegistration(new TransientLifetime(), objectBuilder, this.containerContext);
+            var registration = new ServiceRegistration(new TransientLifetime(), objectBuilder);
 
             this.registrationRepository.AddRegistration(typeFrom, registration, name);
             this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.containerContext, registrationInfo);
@@ -127,7 +127,7 @@ namespace Stashbox
             var objectExtender = new ObjectExtender(metaInfoProvider, this.messagePublisher);
 
             var registration = new ServiceRegistration(new TransientLifetime(),
-                new BuildUpObjectBuilder(instance, this.containerExtensionManager, objectExtender), this.containerContext);
+                new BuildUpObjectBuilder(instance, this.containerContext, this.containerExtensionManager, objectExtender));
 
             this.registrationRepository.AddRegistration(type, registration, name);
             this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.containerContext, registrationInfo);
@@ -142,7 +142,7 @@ namespace Stashbox
             var registrationInfo = new RegistrationInfo { TypeFrom = type, TypeTo = type };
 
             var registration = new ServiceRegistration(new TransientLifetime(),
-                new InstanceObjectBuilder(instance), this.containerContext);
+                new InstanceObjectBuilder(instance));
 
             this.registrationRepository.AddRegistration(type, registration, name);
             this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.containerContext, registrationInfo);

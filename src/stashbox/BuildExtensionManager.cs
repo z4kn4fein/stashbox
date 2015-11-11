@@ -48,7 +48,7 @@ namespace Stashbox
             }
         }
 
-        public object ExecutePostBuildExtensions(object instance, Type targetType, IContainerContext containerContext, ResolutionInfo resolutionInfo, HashSet<InjectionParameter> injectionParameters = null)
+        public object ExecutePostBuildExtensions(object instance, Type targetType, IContainerContext containerContext, ResolutionInfo resolutionInfo, InjectionParameter[] injectionParameters = null)
         {
             if (!this.hasPostBuildExtensions) return instance;
             try
@@ -68,7 +68,7 @@ namespace Stashbox
             }
         }
 
-        public void ExecuteOnRegistrationExtensions(IContainerContext containerContext, RegistrationInfo registrationInfo, HashSet<InjectionParameter> injectionParameters = null)
+        public void ExecuteOnRegistrationExtensions(IContainerContext containerContext, RegistrationInfo registrationInfo, InjectionParameter[] injectionParameters = null)
         {
             if (!this.hasRegistrationExtensions) return;
             try

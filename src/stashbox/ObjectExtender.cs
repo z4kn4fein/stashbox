@@ -3,10 +3,9 @@ using Sendstorm.Infrastructure;
 using Stashbox.Entity;
 using Stashbox.Entity.Events;
 using Stashbox.Entity.Resolution;
+using Stashbox.Extensions;
 using Stashbox.Infrastructure;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 
 namespace Stashbox
 {
@@ -14,25 +13,26 @@ namespace Stashbox
     {
         private readonly IMetaInfoProvider metaInfoProvider;
         private readonly IMessagePublisher messagePublisher;
-        private readonly HashSet<InjectionParameter> injectionParameters;
-        private readonly ReaderWriterLockSlim readerWriterLock;
+        private readonly InjectionParameter[] injectionParameters;
+        private readonly object syncObject = new object();
 
-        private HashSet<ResolutionMethod> injectionMethods;
-        private HashSet<ResolutionProperty> injectionProperties;
+        private Ref<ResolutionMethod[]> injectionMethods;
+        private Ref<ResolutionProperty[]> injectionProperties;
 
         private bool hasInjectionMethods;
         private bool hasInjectionProperties;
 
         public ObjectExtender(IMetaInfoProvider metaInfoProvider,
-            IMessagePublisher messagePublisher, IEnumerable<InjectionParameter> injectionParameters = null)
+            IMessagePublisher messagePublisher, InjectionParameter[] injectionParameters = null)
         {
             Shield.EnsureNotNull(metaInfoProvider);
             Shield.EnsureNotNull(messagePublisher);
 
-            this.readerWriterLock = new ReaderWriterLockSlim();
+            this.injectionMethods = new Ref<ResolutionMethod[]>();
+            this.injectionProperties = new Ref<ResolutionProperty[]>();
 
             if (injectionParameters != null)
-                this.injectionParameters = new HashSet<InjectionParameter>(injectionParameters);
+                this.injectionParameters = injectionParameters;
 
             this.metaInfoProvider = metaInfoProvider;
             this.messagePublisher = messagePublisher;
@@ -44,39 +44,28 @@ namespace Stashbox
 
         public object ExtendObject(object instance, IContainerContext containerContext, ResolutionInfo resolutionInfo)
         {
-            if (this.hasInjectionProperties || this.hasInjectionMethods)
+            if (this.hasInjectionProperties)
             {
-                try
+                var properties = this.injectionProperties.Value.CreateCopy();
+                for (int i = 0; i < properties.Count; i++)
                 {
-                    this.readerWriterLock.EnterReadLock();
-                    if (this.hasInjectionProperties)
-                    {
-                        foreach (var property in this.injectionProperties)
-                        {
-                            var value = containerContext.ResolutionStrategy.EvaluateResolutionTarget(containerContext, property.ResolutionTarget, resolutionInfo);
-                            property.PropertySetter(instance, value);
-                        }
-                    }
-
-                    if (this.hasInjectionMethods)
-                    {
-                        foreach (var method in this.injectionMethods)
-                        {
-                            var parameters = method.Parameters.Select(parameter =>
-                            containerContext.ResolutionStrategy.EvaluateResolutionTarget(containerContext, parameter, resolutionInfo));
-                            method.MethodDelegate(instance, parameters.ToArray());
-                        }
-                    }
-
-                    return instance;
-                }
-                finally
-                {
-                    this.readerWriterLock.ExitReadLock();
+                    var value = containerContext.ResolutionStrategy.EvaluateResolutionTarget(containerContext, properties[i].ResolutionTarget, resolutionInfo);
+                    properties[i].PropertySetter(instance, value);
                 }
             }
-            else
-                return instance;
+
+            if (this.hasInjectionMethods)
+            {
+                var methods = this.injectionMethods.Value.CreateCopy();
+                for (int i = 0; i < methods.Count; i++)
+                {
+                    var parameters = methods[i].Parameters.Select(parameter =>
+                    containerContext.ResolutionStrategy.EvaluateResolutionTarget(containerContext, parameter, resolutionInfo));
+                    methods[i].MethodDelegate(instance, parameters.ToArray());
+                }
+            }
+
+            return instance;
         }
 
         public void Receive(RegistrationRemoved message)
@@ -91,18 +80,18 @@ namespace Stashbox
 
         private void CollectInjectionMembers(ResolutionInfo resolutionInfo = null)
         {
-            try
+            lock (this.syncObject)
             {
-                this.readerWriterLock.EnterWriteLock();
-                this.injectionMethods = new HashSet<ResolutionMethod>(this.metaInfoProvider.GetResolutionMethods(resolutionInfo, this.injectionParameters));
-                this.injectionProperties = new HashSet<ResolutionProperty>(this.metaInfoProvider.GetResolutionProperties(resolutionInfo, this.injectionParameters));
+                var injectionMethods = this.metaInfoProvider.GetResolutionMethods(resolutionInfo, this.injectionParameters).ToArray();
+                if (!this.injectionMethods.TrySwapIfStillCurrent(this.injectionMethods.Value, injectionMethods))
+                    this.injectionMethods.Swap(_ => injectionMethods);
 
-                this.hasInjectionMethods = this.injectionMethods.Any();
-                this.hasInjectionProperties = this.injectionProperties.Any();
-            }
-            finally
-            {
-                this.readerWriterLock.ExitWriteLock();
+                var injectionProperties = this.metaInfoProvider.GetResolutionProperties(resolutionInfo, this.injectionParameters).ToArray();
+                if (!this.injectionProperties.TrySwapIfStillCurrent(this.injectionProperties.Value, injectionProperties))
+                    this.injectionProperties.Swap(_ => injectionProperties);
+
+                this.hasInjectionMethods = injectionMethods.Length > 0;
+                this.hasInjectionProperties = injectionProperties.Length > 0;
             }
         }
 
