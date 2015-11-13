@@ -107,7 +107,7 @@ namespace Stashbox
             if (typeTo.GetTypeInfo().IsGenericTypeDefinition)
                 objectBuilder = new GenericTypeObjectBuilder(this.containerContext, metaInfoProvider);
             else
-                objectBuilder = new DefaultObjectBuilder(this.containerContext, metaInfoProvider, this.containerExtensionManager, objectExtender, this.messagePublisher);
+                objectBuilder = new DefaultObjectBuilder(this.containerContext, metaInfoProvider, this.containerExtensionManager, this.messagePublisher);
 
             var registration = new ServiceRegistration(new TransientLifetime(), objectBuilder);
 

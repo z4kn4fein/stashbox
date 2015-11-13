@@ -1,26 +1,23 @@
-﻿using Stashbox.BuildUp.DelegateFactory;
-using Stashbox.Entity;
+﻿using Stashbox.Entity;
 using Stashbox.Infrastructure;
 using System;
-using System.Reflection;
+using System.Linq.Expressions;
 
 namespace Stashbox.BuildUp.Resolution
 {
     internal class EnumerableResolver : Resolver
     {
-        private readonly IServiceRegistration[] registrationCache;
         private delegate object ResolverDelegate(ResolutionInfo resolutionInfo);
-        private readonly ResolverDelegate resolverDelegate;
+        private ResolverDelegate resolverDelegate;
 
         internal EnumerableResolver(IContainerContext containerContext, TypeInformation typeInfo)
             : base(containerContext, typeInfo)
         {
+            IServiceRegistration[] registrationCache;
             containerContext.RegistrationRepository.TryGetAllRegistrations(new TypeInformation { Type = typeInfo.Type.GetEnumerableType() },
-                out this.registrationCache);
+                out registrationCache);
 
-            var genericLazyResolverMethod = this.GetType().GetTypeInfo().GetDeclaredMethod("ResolveArray");
-            var resolver = genericLazyResolverMethod.MakeGenericMethod(typeInfo.Type.GetEnumerableType());
-            resolverDelegate = (ResolverDelegate)resolver.CreateDelegate(typeof(ResolverDelegate), this);
+            this.GenerateEnumerableExpression(registrationCache);
         }
 
         public override object Resolve(ResolutionInfo resolutionInfo)
@@ -28,20 +25,28 @@ namespace Stashbox.BuildUp.Resolution
             return this.resolverDelegate(resolutionInfo);
         }
 
-        private object ResolveArray<T>(ResolutionInfo resolutionInfo) where T : class
+        private void GenerateEnumerableExpression(IServiceRegistration[] registrationCache)
         {
-            var upper = registrationCache.Length;
-            var result = new T[upper];
-            for (var i = 0; i < upper; i++)
+            var resolutionInfoParameter = Expression.Parameter(typeof(ResolutionInfo), "resolutionInfo");
+
+            var length = registrationCache.Length;
+            var enumerableItems = new Expression[length];
+            var enumerableType = base.TypeInfo.Type.GetEnumerableType();
+            for (int i = 0; i < length; i++)
             {
-                result[i] = (T)registrationCache[i].GetInstance(new ResolutionInfo
-                {
-                    ResolveType = base.TypeInfo,
-                    FactoryParams = resolutionInfo.FactoryParams,
-                    OverrideManager = resolutionInfo.OverrideManager
-                });
+                enumerableItems[i] = this.CreateSubscriptionExpression(registrationCache[i], resolutionInfoParameter, enumerableType);
             }
-            return result;
+
+            var arrayInit = Expression.NewArrayInit(enumerableType, enumerableItems);
+            this.resolverDelegate = Expression.Lambda<ResolverDelegate>(arrayInit, new ParameterExpression[] { resolutionInfoParameter }).Compile();
+        }
+
+        private Expression CreateSubscriptionExpression(IServiceRegistration registration, ParameterExpression resolutionInfoParameter, Type enumerableType)
+        {
+            var target = Expression.Constant(registration, typeof(IServiceRegistration));
+            var evaluate = Expression.Call(target, "GetInstance", null, new Expression[] { resolutionInfoParameter });
+            var call = Expression.Convert(evaluate, enumerableType);
+            return call;
         }
     }
 

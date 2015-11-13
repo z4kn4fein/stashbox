@@ -46,9 +46,10 @@ namespace Stashbox.MetaInfo
                                      containerContext.ResolutionStrategy.CanResolve(containerContext, parameter, injectionParameters)))
                .Select(methodInfo => new ResolutionMethod
                {
-                   Method = methodInfo.Method,
-                   Parameters = methodInfo.Parameters.Select(parameter => this.containerContext.ResolutionStrategy.BuildResolutionTarget(this.containerContext, parameter, injectionParameters)).ToArray(),
-                   MethodDelegate = ExpressionDelegateFactory.BuildMethodExpression(methodInfo.Method, methodInfo.Parameters.Select(param => param.Type), this.metaInfoCache.TypeTo)
+                   MethodDelegate = ExpressionDelegateFactory.CreateMethodExpression(this.containerContext,
+                     methodInfo.Parameters.Select(parameter =>
+                        this.containerContext.ResolutionStrategy.BuildResolutionTarget(this.containerContext, parameter, injectionParameters)).ToArray(),
+                    methodInfo.Method)
                });
 
             return this.metaInfoCache.InjectionMethods
@@ -57,9 +58,10 @@ namespace Stashbox.MetaInfo
                                      resolutionInfo.OverrideManager.ContainsValue(parameter)))
                 .Select(methodInfo => new ResolutionMethod
                 {
-                    Method = methodInfo.Method,
-                    Parameters = methodInfo.Parameters.Select(parameter => this.containerContext.ResolutionStrategy.BuildResolutionTarget(this.containerContext, parameter, injectionParameters)).ToArray(),
-                    MethodDelegate = ExpressionDelegateFactory.BuildMethodExpression(methodInfo.Method, methodInfo.Parameters.Select(param => param.Type), this.metaInfoCache.TypeTo)
+                    MethodDelegate = ExpressionDelegateFactory.CreateMethodExpression(this.containerContext,
+                     methodInfo.Parameters.Select(parameter =>
+                        this.containerContext.ResolutionStrategy.BuildResolutionTarget(this.containerContext, parameter, injectionParameters)).ToArray(),
+                    methodInfo.Method)
                 });
         }
 
@@ -71,7 +73,8 @@ namespace Stashbox.MetaInfo
                 .Select(propertyInfo => new ResolutionProperty
                 {
                     ResolutionTarget = containerContext.ResolutionStrategy.BuildResolutionTarget(containerContext, propertyInfo.TypeInformation, injectionParameters),
-                    PropertySetter = propertyInfo.PropertyInfo.GetPropertySetter()
+                    PropertySetter = propertyInfo.PropertyInfo.GetPropertySetter(),
+                    PropertyInfo = propertyInfo.PropertyInfo
                 });
 
             return this.metaInfoCache.InjectionProperties.Where(propertyInfo =>
@@ -80,7 +83,8 @@ namespace Stashbox.MetaInfo
                 .Select(propertyInfo => new ResolutionProperty
                 {
                     ResolutionTarget = containerContext.ResolutionStrategy.BuildResolutionTarget(containerContext, propertyInfo.TypeInformation, injectionParameters),
-                    PropertySetter = propertyInfo.PropertyInfo.GetPropertySetter()
+                    PropertySetter = propertyInfo.PropertyInfo.GetPropertySetter(),
+                    PropertyInfo = propertyInfo.PropertyInfo
                 });
         }
 

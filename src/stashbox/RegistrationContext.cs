@@ -155,7 +155,7 @@ namespace Stashbox
                 return new GenericTypeObjectBuilder(this.containerContext, new MetaInfoProvider(this.containerContext, this.typeTo));
 
             return new DefaultObjectBuilder(this.containerContext, new MetaInfoProvider(this.containerContext, this.typeTo),
-                this.containerExtensionManager, objectExtender, this.containerContext.MessagePublisher, this.injectionParameters);
+                this.containerExtensionManager, this.containerContext.MessagePublisher, this.injectionParameters);
         }
     }
 }
