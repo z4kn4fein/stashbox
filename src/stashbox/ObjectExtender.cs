@@ -74,10 +74,10 @@ namespace Stashbox
             this.CollectInjectionMembers();
         }
 
-        private void CollectInjectionMembers(ResolutionInfo resolutionInfo = null)
+        private void CollectInjectionMembers()
         {
-            this.injectionMethods = this.metaInfoProvider.GetResolutionMethods(resolutionInfo, this.injectionParameters).ToArray();
-            this.injectionProperties = this.metaInfoProvider.GetResolutionProperties(resolutionInfo, this.injectionParameters).ToArray();
+            this.injectionMethods = this.metaInfoProvider.GetResolutionMethods(this.injectionParameters).ToArray();
+            this.injectionProperties = this.metaInfoProvider.GetResolutionProperties(this.injectionParameters).ToArray();
 
             this.hasInjectionMethods = this.injectionMethods.Length > 0;
             this.hasInjectionProperties = this.injectionProperties.Length > 0;

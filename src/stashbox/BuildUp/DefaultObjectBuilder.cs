@@ -109,8 +109,8 @@ namespace Stashbox.BuildUp
 
         private void CollectInjectionMembers()
         {
-            this.resolutionProperties = this.metaInfoProvider.GetResolutionProperties(null, this.injectionParameters).ToArray();
-            this.resolutionMethods = this.metaInfoProvider.GetResolutionMethods(null, this.injectionParameters).ToArray();
+            this.resolutionProperties = this.metaInfoProvider.GetResolutionProperties(this.injectionParameters).ToArray();
+            this.resolutionMethods = this.metaInfoProvider.GetResolutionMethods(this.injectionParameters).ToArray();
             this.hasInjectionMethods = this.resolutionMethods.Length > 0;
         }
 

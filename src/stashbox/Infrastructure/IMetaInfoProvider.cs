@@ -12,7 +12,7 @@ namespace Stashbox.Infrastructure
         bool HasInjectionMethod { get; }
         bool HasInjectionProperty { get; }
         bool TryChooseConstructor(out ResolutionConstructor constructor, ResolutionInfo resolutionInfo = null, InjectionParameter[] injectionParameters = null);
-        IEnumerable<ResolutionMethod> GetResolutionMethods(ResolutionInfo resolutionInfo = null, InjectionParameter[] injectionParameters = null);
-        IEnumerable<ResolutionProperty> GetResolutionProperties(ResolutionInfo resolutionInfo = null, InjectionParameter[] injectionParameters = null);
+        IEnumerable<ResolutionMethod> GetResolutionMethods(InjectionParameter[] injectionParameters = null);
+        IEnumerable<ResolutionProperty> GetResolutionProperties(InjectionParameter[] injectionParameters = null);
     }
 }
