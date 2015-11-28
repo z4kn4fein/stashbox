@@ -11,30 +11,30 @@ namespace stashbox.performance
         {
             using (var container = new StashboxContainer())
             {
-                //container.PrepareType<IFirstService, FirstService>().WithLifetime(new SingletonLifetime()).Register();
-                //container.PrepareType<ISecondService, SecondService>().WithLifetime(new SingletonLifetime()).Register();
-                //container.PrepareType<IThirdService, ThirdService>().WithLifetime(new SingletonLifetime()).Register();
-                //container.RegisterType<ISubObjectOne, SubObjectOne>();
-                //container.RegisterType<ISubObjectTwo, SubObjectTwo>();
-                //container.RegisterType<ISubObjectThree, SubObjectThree>();
-                //container.RegisterType<IComplex1, Complex1>();
-                //container.RegisterType<IComplex2, Complex2>();
-                //container.RegisterType<IComplex3, Complex3>();
+                container.PrepareType<IFirstService, FirstService>().WithLifetime(new SingletonLifetime()).Register();
+                container.PrepareType<ISecondService, SecondService>().WithLifetime(new SingletonLifetime()).Register();
+                container.PrepareType<IThirdService, ThirdService>().WithLifetime(new SingletonLifetime()).Register();
+                container.RegisterType<ISubObjectOne, SubObjectOne>();
+                container.RegisterType<ISubObjectTwo, SubObjectTwo>();
+                container.RegisterType<ISubObjectThree, SubObjectThree>();
+                container.RegisterType<IComplex1, Complex1>();
+                container.RegisterType<IComplex2, Complex2>();
+                container.RegisterType<IComplex3, Complex3>();
 
                 for (int i = 0; i < 10000000; i++)
                 {
-                    //var complex1 = (IComplex1)container.Resolve(typeof(IComplex1));
-                    //var complex2 = (IComplex2)container.Resolve(typeof(IComplex2));
-                    //var complex3 = (IComplex3)container.Resolve(typeof(IComplex3));
-                    container.PrepareType<IFirstService, FirstService>().WithLifetime(new SingletonLifetime()).Register();
-                    container.PrepareType<ISecondService, SecondService>().WithLifetime(new SingletonLifetime()).Register();
-                    container.PrepareType<IThirdService, ThirdService>().WithLifetime(new SingletonLifetime()).Register();
-                    container.RegisterType<ISubObjectOne, SubObjectOne>();
-                    container.RegisterType<ISubObjectTwo, SubObjectTwo>();
-                    container.RegisterType<ISubObjectThree, SubObjectThree>();
-                    container.RegisterType<IComplex1, Complex1>();
-                    container.RegisterType<IComplex2, Complex2>();
-                    container.RegisterType<IComplex3, Complex3>();
+                    var complex1 = (IComplex1)container.Resolve(typeof(IComplex1));
+                    var complex2 = (IComplex2)container.Resolve(typeof(IComplex2));
+                    var complex3 = (IComplex3)container.Resolve(typeof(IComplex3));
+                    //container.PrepareType<IFirstService, FirstService>().WithLifetime(new SingletonLifetime()).Register();
+                    //container.PrepareType<ISecondService, SecondService>().WithLifetime(new SingletonLifetime()).Register();
+                    //container.PrepareType<IThirdService, ThirdService>().WithLifetime(new SingletonLifetime()).Register();
+                    //container.RegisterType<ISubObjectOne, SubObjectOne>();
+                    //container.RegisterType<ISubObjectTwo, SubObjectTwo>();
+                    //container.RegisterType<ISubObjectThree, SubObjectThree>();
+                    //container.RegisterType<IComplex1, Complex1>();
+                    //container.RegisterType<IComplex2, Complex2>();
+                    //container.RegisterType<IComplex3, Complex3>();
                 }
             }
             Console.Write("Done");

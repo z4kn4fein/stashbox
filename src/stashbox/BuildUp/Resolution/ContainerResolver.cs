@@ -1,6 +1,7 @@
 ﻿using Stashbox.Entity;
 using Stashbox.Exceptions;
 using Stashbox.Infrastructure;
+using System.Linq.Expressions;
 
 namespace Stashbox.BuildUp.Resolution
 {
@@ -13,6 +14,19 @@ namespace Stashbox.BuildUp.Resolution
         {
             containerContext.RegistrationRepository.TryGetRegistrationWithConditions(typeInfo,
                 out this.registrationCache);
+        }
+
+        public override Expression GetExpression(ResolutionInfo resolutionInfo)
+        {
+            if (this.registrationCache == null)
+                throw new ResolutionFailedException(base.TypeInfo.Type.FullName);
+
+            return registrationCache.GetExpression(new ResolutionInfo
+            {
+                ResolveType = base.TypeInfo,
+                FactoryParams = resolutionInfo.FactoryParams,
+                OverrideManager = resolutionInfo.OverrideManager
+            });
         }
 
         public override object Resolve(ResolutionInfo resolutionInfo)

@@ -10,6 +10,7 @@ using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.ContainerExtension;
 using System;
 using System.Linq;
+using System.Linq.Expressions;
 
 namespace Stashbox.BuildUp
 {
@@ -22,6 +23,8 @@ namespace Stashbox.BuildUp
         private volatile CreateInstance constructorDelegate;
         private ResolutionProperty[] resolutionProperties;
         private ResolutionMethod[] resolutionMethods;
+        private ResolutionConstructor resolutionConstructor;
+        private Func<object> createDelegate;
         private bool hasInjectionMethods;
         private readonly Type instanceType;
         private readonly InjectionParameter[] injectionParameters;
@@ -55,26 +58,49 @@ namespace Stashbox.BuildUp
             if (this.metaInfoProvider.TryChooseConstructor(out constructor, injectionParameters: this.injectionParameters))
             {
                 this.constructorDelegate = ExpressionDelegateFactory.CreateConstructorExpression(this.containerContext, constructor, this.resolutionProperties);
+                this.resolutionConstructor = constructor;
             }
         }
 
         public object BuildInstance(ResolutionInfo resolutionInfo)
         {
-            Shield.EnsureNotNull(containerContext);
             Shield.EnsureNotNull(resolutionInfo);
 
-            if (this.constructorDelegate == null)
+            if (resolutionInfo.OverrideManager != null)
             {
-                ResolutionConstructor constructor;
-                if (this.metaInfoProvider.TryChooseConstructor(out constructor, resolutionInfo, this.injectionParameters))
+                if (this.constructorDelegate == null)
                 {
-                    this.constructorDelegate = ExpressionDelegateFactory.CreateConstructorExpression(this.containerContext, constructor, this.resolutionProperties);
-
-                    return this.ResolveType(containerContext, resolutionInfo);
+                    ResolutionConstructor constructor;
+                    if (this.metaInfoProvider.TryChooseConstructor(out constructor, resolutionInfo, this.injectionParameters))
+                    {
+                        this.constructorDelegate = ExpressionDelegateFactory.CreateConstructorExpression(this.containerContext, constructor, this.resolutionProperties);
+                        this.resolutionConstructor = constructor;
+                        return this.ResolveType(containerContext, resolutionInfo);
+                    }
+                    throw new ResolutionFailedException(this.metaInfoProvider.TypeTo.FullName);
                 }
-                throw new ResolutionFailedException(this.metaInfoProvider.TypeTo.FullName);
+                return this.ResolveType(containerContext, resolutionInfo);
             }
-            return this.ResolveType(containerContext, resolutionInfo);
+            else
+            {
+                if (this.resolutionConstructor == null)
+                {
+                    ResolutionConstructor constructor;
+                    if (this.metaInfoProvider.TryChooseConstructor(out constructor, resolutionInfo, this.injectionParameters))
+                    {
+                        this.resolutionConstructor = constructor;
+                    }
+                }
+
+                if (this.createDelegate == null)
+                {
+                    var expression = this.GetExpression(resolutionInfo);
+                    this.createDelegate = Expression.Lambda<Func<object>>(expression).Compile();
+                    return this.createDelegate();
+                }
+
+                return this.createDelegate();
+            }
         }
 
         public void Receive(RegistrationAdded message)
@@ -105,6 +131,12 @@ namespace Stashbox.BuildUp
             }
 
             return this.containerExtensionManager.ExecutePostBuildExtensions(instance, this.instanceType, containerContext, resolutionInfo, this.injectionParameters);
+        }
+
+        public Expression GetExpression(ResolutionInfo resolutionInfo)
+        {
+            var instanceExpression = ExpressionDelegateFactory.CreateExpression(this.containerContext, this.resolutionConstructor, resolutionInfo, this.resolutionProperties);
+            return instanceExpression;
         }
 
         private void CollectInjectionMembers()

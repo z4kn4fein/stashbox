@@ -1,5 +1,6 @@
 ﻿using Stashbox.Entity;
 using Stashbox.Infrastructure;
+using System.Linq.Expressions;
 
 namespace Stashbox.BuildUp
 {
@@ -34,6 +35,11 @@ namespace Stashbox.BuildUp
 
         public void CleanUp()
         {
+        }
+
+        public Expression GetExpression(ResolutionInfo resolutionInfo)
+        {
+            return Expression.Constant(this.BuildInstance(resolutionInfo));
         }
     }
 }

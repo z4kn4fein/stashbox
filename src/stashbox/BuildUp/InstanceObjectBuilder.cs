@@ -2,6 +2,7 @@
 using Stashbox.Entity;
 using Stashbox.Infrastructure;
 using System;
+using System.Linq.Expressions;
 
 namespace Stashbox.BuildUp
 {
@@ -32,6 +33,11 @@ namespace Stashbox.BuildUp
                 disposable?.Dispose();
                 this.instance = null;
             }
+        }
+
+        public Expression GetExpression(ResolutionInfo resolutionInfo)
+        {
+            return Expression.Constant(this.instance);
         }
     }
 }

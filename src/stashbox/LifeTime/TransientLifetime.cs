@@ -1,6 +1,7 @@
 ﻿using Ronin.Common;
 using Stashbox.Entity;
 using Stashbox.Infrastructure;
+using System.Linq.Expressions;
 
 namespace Stashbox.Lifetime
 {
@@ -14,6 +15,11 @@ namespace Stashbox.Lifetime
 
         public void CleanUp()
         {
+        }
+
+        public Expression GetExpression(IObjectBuilder objectBuilder, ResolutionInfo resolutionInfo)
+        {
+            return objectBuilder.GetExpression(resolutionInfo);
         }
     }
 }

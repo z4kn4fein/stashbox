@@ -3,6 +3,7 @@ using Stashbox.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 
 namespace Stashbox.Registration
 {
@@ -45,6 +46,11 @@ namespace Stashbox.Registration
         {
             this.objectBuilder.CleanUp();
             this.lifetimeManager.CleanUp();
+        }
+
+        public Expression GetExpression(ResolutionInfo resolutionInfo)
+        {
+            return this.lifetimeManager.GetExpression(this.objectBuilder, resolutionInfo);
         }
     }
 }

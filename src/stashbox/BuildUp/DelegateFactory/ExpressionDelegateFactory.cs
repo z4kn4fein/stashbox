@@ -1,5 +1,6 @@
 ﻿using Stashbox.Entity;
 using Stashbox.Entity.Resolution;
+using Stashbox.Extensions;
 using Stashbox.Infrastructure;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -41,6 +42,40 @@ namespace Stashbox.BuildUp.DelegateFactory
             }
 
             return Expression.Lambda<CreateInstance>(newExpression, new ParameterExpression[] { resolutionInfoParameter }).Compile();
+        }
+
+        public static Expression CreateExpression(IContainerContext containerContext, ResolutionConstructor resolutionConstructor, ResolutionInfo resolutionInfo,
+            ResolutionProperty[] properties = null)
+        {
+            var copiedParameters = resolutionConstructor.Parameters.CreateCopy();
+            var length = copiedParameters.Count;
+            var arguments = new Expression[length];
+
+            for (var i = 0; i < length; i++)
+            {
+                var parameter = copiedParameters[i];
+                arguments[i] = containerContext.ResolutionStrategy.GetExpressionForResolutionTarget(parameter, resolutionInfo);
+            }
+
+            var newExpression = Expression.New(resolutionConstructor.Constructor, arguments);
+
+            if (properties != null)
+            {
+                var copiedProperties = properties.CreateCopy();
+                var propLength = copiedProperties.Count;
+                var propertyExpressions = new MemberAssignment[propLength];
+                for (int i = 0; i < propLength; i++)
+                {
+                    var property = copiedProperties[i];
+                    var propertyExpression = Expression.Bind(property.PropertyInfo,
+                        containerContext.ResolutionStrategy.GetExpressionForResolutionTarget(property.ResolutionTarget, resolutionInfo));
+                    propertyExpressions[i] = propertyExpression;
+                }
+
+                return Expression.MemberInit(newExpression, propertyExpressions);
+            }
+
+            return newExpression;
         }
 
         public static InvokeMethod CreateMethodExpression(IContainerContext containerContext, ResolutionTarget[] parameters, MethodInfo methodInfo)

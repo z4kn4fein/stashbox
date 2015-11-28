@@ -1,6 +1,7 @@
 ﻿using Stashbox.Entity;
 using Stashbox.Infrastructure;
 using System;
+using System.Linq.Expressions;
 
 namespace Stashbox.LifeTime
 {
@@ -31,6 +32,18 @@ namespace Stashbox.LifeTime
                 disposable?.Dispose();
                 this.instance = null;
             }
+        }
+
+        public Expression GetExpression(IObjectBuilder objectBuilder, ResolutionInfo resolutionInfo)
+        {
+            if (this.instance != null) return Expression.Constant(this.instance);
+            lock (this.syncObject)
+            {
+                if (this.instance != null) return Expression.Constant(this.instance);
+                this.instance = objectBuilder.BuildInstance(resolutionInfo);
+            }
+
+            return Expression.Constant(this.instance);
         }
     }
 }

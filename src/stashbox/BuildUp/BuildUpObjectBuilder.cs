@@ -3,6 +3,7 @@ using Stashbox.Entity;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.ContainerExtension;
 using System;
+using System.Linq.Expressions;
 
 namespace Stashbox.BuildUp
 {
@@ -57,6 +58,11 @@ namespace Stashbox.BuildUp
             }
 
             this.objectExtender.CleanUp();
+        }
+
+        public Expression GetExpression(ResolutionInfo resolutionInfo)
+        {
+            return Expression.Constant(this.BuildInstance(resolutionInfo));
         }
     }
 }

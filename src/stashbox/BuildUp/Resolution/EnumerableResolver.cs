@@ -8,12 +8,12 @@ namespace Stashbox.BuildUp.Resolution
     internal class EnumerableResolver : Resolver
     {
         private delegate object ResolverDelegate(ResolutionInfo resolutionInfo);
+        private readonly IServiceRegistration[] registrationCache;
         private ResolverDelegate resolverDelegate;
 
         internal EnumerableResolver(IContainerContext containerContext, TypeInformation typeInfo)
             : base(containerContext, typeInfo)
         {
-            IServiceRegistration[] registrationCache;
             containerContext.RegistrationRepository.TryGetAllRegistrations(new TypeInformation { Type = typeInfo.Type.GetEnumerableType() },
                 out registrationCache);
 
@@ -23,6 +23,19 @@ namespace Stashbox.BuildUp.Resolution
         public override object Resolve(ResolutionInfo resolutionInfo)
         {
             return this.resolverDelegate(resolutionInfo);
+        }
+
+        public override Expression GetExpression(ResolutionInfo resolutionInfo)
+        {
+            var length = registrationCache.Length;
+            var enumerableItems = new Expression[length];
+            var enumerableType = base.TypeInfo.Type.GetEnumerableType();
+            for (int i = 0; i < length; i++)
+            {
+                enumerableItems[i] = registrationCache[i].GetExpression(resolutionInfo);
+            }
+
+            return Expression.NewArrayInit(enumerableType, enumerableItems);
         }
 
         private void GenerateEnumerableExpression(IServiceRegistration[] registrationCache)

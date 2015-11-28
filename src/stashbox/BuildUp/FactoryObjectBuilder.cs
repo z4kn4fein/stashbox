@@ -4,6 +4,7 @@ using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.ContainerExtension;
 using System;
 using System.Linq;
+using System.Linq.Expressions;
 
 namespace Stashbox.BuildUp
 {
@@ -28,7 +29,7 @@ namespace Stashbox.BuildUp
         }
 
         public FactoryObjectBuilder(Func<object> factory, IContainerContext containerContext, IContainerExtensionManager containerExtensionManager, IObjectExtender objectExtender)
-            :this(containerContext, containerExtensionManager, objectExtender)
+            : this(containerContext, containerExtensionManager, objectExtender)
         {
             this.singleFactory = factory;
         }
@@ -77,6 +78,11 @@ namespace Stashbox.BuildUp
         public void CleanUp()
         {
             this.objectExtender.CleanUp();
+        }
+
+        public Expression GetExpression(ResolutionInfo resolutionInfo)
+        {
+            return Expression.Constant(this.BuildInstance(resolutionInfo));
         }
     }
 }
