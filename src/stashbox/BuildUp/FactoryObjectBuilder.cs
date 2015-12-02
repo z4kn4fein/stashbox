@@ -75,14 +75,14 @@ namespace Stashbox.BuildUp
             return this.containerExtensionManager.ExecutePostBuildExtensions(builtInstance, builtInstance?.GetType(), containerContext, resolutionInfo);
         }
 
-        public void CleanUp()
-        {
-            this.objectExtender.CleanUp();
-        }
-
         public Expression GetExpression(ResolutionInfo resolutionInfo)
         {
             return Expression.Constant(this.BuildInstance(resolutionInfo));
+        }
+
+        public void CleanUp()
+        {
+            this.objectExtender.CleanUp();
         }
     }
 }

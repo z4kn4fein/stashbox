@@ -18,6 +18,11 @@ namespace Stashbox.BuildUp
             this.instance = instance;
         }
 
+        public Expression GetExpression(ResolutionInfo resolutionInfo)
+        {
+            return Expression.Constant(this.instance);
+        }
+
         public object BuildInstance(ResolutionInfo resolutionInfo)
         {
             return this.instance;
@@ -33,11 +38,6 @@ namespace Stashbox.BuildUp
                 disposable?.Dispose();
                 this.instance = null;
             }
-        }
-
-        public Expression GetExpression(ResolutionInfo resolutionInfo)
-        {
-            return Expression.Constant(this.instance);
         }
     }
 }

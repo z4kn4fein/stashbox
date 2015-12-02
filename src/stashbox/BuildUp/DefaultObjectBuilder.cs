@@ -66,40 +66,45 @@ namespace Stashbox.BuildUp
         {
             Shield.EnsureNotNull(resolutionInfo);
 
-            if (resolutionInfo.OverrideManager != null)
+            if (resolutionInfo.OverrideManager != null || this.hasInjectionMethods || this.containerExtensionManager.HasPostBuildExtensions)
             {
-                if (this.constructorDelegate == null)
+                if (this.constructorDelegate != null) return this.ResolveType(containerContext, resolutionInfo);
                 {
-                    ResolutionConstructor constructor;
-                    if (this.metaInfoProvider.TryChooseConstructor(out constructor, resolutionInfo, this.injectionParameters))
+                    lock (this.syncObject)
                     {
-                        this.constructorDelegate = ExpressionDelegateFactory.CreateConstructorExpression(this.containerContext, constructor, this.resolutionProperties);
-                        this.resolutionConstructor = constructor;
-                        return this.ResolveType(containerContext, resolutionInfo);
+                        if (this.constructorDelegate != null) return this.ResolveType(containerContext, resolutionInfo);
+                        {
+                            ResolutionConstructor constructor;
+                            if (this.metaInfoProvider.TryChooseConstructor(out constructor, resolutionInfo, this.injectionParameters))
+                            {
+                                this.constructorDelegate = ExpressionDelegateFactory.CreateConstructorExpression(this.containerContext, constructor, this.resolutionProperties);
+                                this.resolutionConstructor = constructor;
+                                return this.ResolveType(containerContext, resolutionInfo);
+                            }
+                            throw new ResolutionFailedException(this.metaInfoProvider.TypeTo.FullName);
+                        }
                     }
-                    throw new ResolutionFailedException(this.metaInfoProvider.TypeTo.FullName);
                 }
-                return this.ResolveType(containerContext, resolutionInfo);
             }
             else
             {
-                if (this.resolutionConstructor == null)
+                if (this.createDelegate != null) return this.createDelegate();
                 {
-                    ResolutionConstructor constructor;
-                    if (this.metaInfoProvider.TryChooseConstructor(out constructor, resolutionInfo, this.injectionParameters))
+                    lock (this.syncObject)
                     {
-                        this.resolutionConstructor = constructor;
+                        if (this.createDelegate != null) return this.createDelegate();
+                        {
+                            ResolutionConstructor constructor;
+                            if (this.metaInfoProvider.TryChooseConstructor(out constructor, resolutionInfo, this.injectionParameters))
+                            {
+                                this.createDelegate = Expression.Lambda<Func<object>>(this.GetExpressionInternal(constructor, resolutionInfo)).Compile();
+                                this.resolutionConstructor = constructor;
+                                return this.createDelegate();
+                            }
+                            throw new ResolutionFailedException(this.metaInfoProvider.TypeTo.FullName);
+                        }
                     }
                 }
-
-                if (this.createDelegate == null)
-                {
-                    var expression = this.GetExpression(resolutionInfo);
-                    this.createDelegate = Expression.Lambda<Func<object>>(expression).Compile();
-                    return this.createDelegate();
-                }
-
-                return this.createDelegate();
             }
         }
 
@@ -135,8 +140,27 @@ namespace Stashbox.BuildUp
 
         public Expression GetExpression(ResolutionInfo resolutionInfo)
         {
-            var instanceExpression = ExpressionDelegateFactory.CreateExpression(this.containerContext, this.resolutionConstructor, resolutionInfo, this.resolutionProperties);
-            return instanceExpression;
+            if (this.resolutionConstructor != null) return this.GetExpressionInternal(this.resolutionConstructor, resolutionInfo);
+            {
+                lock (this.syncObject)
+                {
+                    if (this.resolutionConstructor != null) return this.GetExpressionInternal(this.resolutionConstructor, resolutionInfo);
+                    {
+                        ResolutionConstructor constructor;
+                        if (this.metaInfoProvider.TryChooseConstructor(out constructor, resolutionInfo, this.injectionParameters))
+                        {
+                            this.resolutionConstructor = constructor;
+                            return this.GetExpressionInternal(constructor, resolutionInfo);
+                        }
+                        throw new ResolutionFailedException(this.metaInfoProvider.TypeTo.FullName);
+                    }
+                }
+            }
+        }
+
+        private Expression GetExpressionInternal(ResolutionConstructor constructor, ResolutionInfo resolutionInfo)
+        {
+            return ExpressionDelegateFactory.CreateExpression(this.containerContext, constructor, resolutionInfo, this.resolutionProperties);
         }
 
         private void CollectInjectionMembers()

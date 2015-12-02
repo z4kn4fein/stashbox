@@ -33,13 +33,13 @@ namespace Stashbox.BuildUp
             return containerContext.Container.Resolve(resolutionInfo.ResolveType.Type);
         }
 
-        public void CleanUp()
-        {
-        }
-
         public Expression GetExpression(ResolutionInfo resolutionInfo)
         {
             return Expression.Constant(this.BuildInstance(resolutionInfo));
+        }
+
+        public void CleanUp()
+        {
         }
     }
 }

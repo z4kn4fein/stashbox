@@ -10,10 +10,19 @@ namespace Stashbox.BuildUp.Resolution
         private delegate object ResolverDelegate(ResolutionInfo resolutionInfo);
         private readonly IServiceRegistration[] registrationCache;
         private ResolverDelegate resolverDelegate;
+        private readonly TypeInformation enumerableType;
 
         internal EnumerableResolver(IContainerContext containerContext, TypeInformation typeInfo)
             : base(containerContext, typeInfo)
         {
+            this.enumerableType = new TypeInformation
+            {
+                Type = typeInfo.Type.GetEnumerableType(),
+                CustomAttributes = typeInfo.CustomAttributes,
+                ParentType = typeInfo.ParentType,
+                DependencyName = typeInfo.DependencyName
+            };
+
             containerContext.RegistrationRepository.TryGetAllRegistrations(new TypeInformation { Type = typeInfo.Type.GetEnumerableType() },
                 out registrationCache);
 
@@ -29,13 +38,17 @@ namespace Stashbox.BuildUp.Resolution
         {
             var length = registrationCache.Length;
             var enumerableItems = new Expression[length];
-            var enumerableType = base.TypeInfo.Type.GetEnumerableType();
             for (int i = 0; i < length; i++)
             {
-                enumerableItems[i] = registrationCache[i].GetExpression(resolutionInfo);
+                enumerableItems[i] = registrationCache[i].GetExpression(new ResolutionInfo
+                {
+                    ResolveType = this.enumerableType,
+                    FactoryParams = resolutionInfo.FactoryParams,
+                    OverrideManager = resolutionInfo.OverrideManager
+                });
             }
 
-            return Expression.NewArrayInit(enumerableType, enumerableItems);
+            return Expression.NewArrayInit(this.enumerableType.Type, enumerableItems);
         }
 
         private void GenerateEnumerableExpression(IServiceRegistration[] registrationCache)
@@ -44,13 +57,12 @@ namespace Stashbox.BuildUp.Resolution
 
             var length = registrationCache.Length;
             var enumerableItems = new Expression[length];
-            var enumerableType = base.TypeInfo.Type.GetEnumerableType();
             for (int i = 0; i < length; i++)
             {
-                enumerableItems[i] = this.CreateSubscriptionExpression(registrationCache[i], resolutionInfoParameter, enumerableType);
+                enumerableItems[i] = this.CreateSubscriptionExpression(registrationCache[i], resolutionInfoParameter, enumerableType.Type);
             }
 
-            var arrayInit = Expression.NewArrayInit(enumerableType, enumerableItems);
+            var arrayInit = Expression.NewArrayInit(enumerableType.Type, enumerableItems);
             this.resolverDelegate = Expression.Lambda<ResolverDelegate>(arrayInit, new ParameterExpression[] { resolutionInfoParameter }).Compile();
         }
 

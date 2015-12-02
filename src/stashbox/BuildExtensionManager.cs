@@ -13,6 +13,8 @@ namespace Stashbox
         private readonly HashSet<IRegistrationExtension> registrationExtensions;
         private readonly ReaderWriterLockSlim readerWriterLock;
 
+        public bool HasPostBuildExtensions => this.hasPostBuildExtensions;
+
         private bool hasPostBuildExtensions;
         private bool hasRegistrationExtensions;
 

@@ -48,7 +48,8 @@ namespace Stashbox.MetaInfo
                MethodDelegate = ExpressionDelegateFactory.CreateMethodExpression(this.containerContext,
                  methodInfo.Parameters.Select(parameter =>
                     this.containerContext.ResolutionStrategy.BuildResolutionTarget(this.containerContext, parameter, injectionParameters)).ToArray(),
-                methodInfo.Method)
+                methodInfo.Method),
+               Method = methodInfo.Method
            });
         }
 

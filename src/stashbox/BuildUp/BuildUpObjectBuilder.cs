@@ -46,6 +46,11 @@ namespace Stashbox.BuildUp
             return this.builtInstance;
         }
 
+        public Expression GetExpression(ResolutionInfo resolutionInfo)
+        {
+            return Expression.Constant(this.BuildInstance(resolutionInfo));
+        }
+
         public void CleanUp()
         {
             if (this.builtInstance == null) return;
@@ -58,11 +63,6 @@ namespace Stashbox.BuildUp
             }
 
             this.objectExtender.CleanUp();
-        }
-
-        public Expression GetExpression(ResolutionInfo resolutionInfo)
-        {
-            return Expression.Constant(this.BuildInstance(resolutionInfo));
         }
     }
 }
