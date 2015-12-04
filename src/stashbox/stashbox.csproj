@@ -110,12 +110,12 @@
     <Compile Include="Utils\NameGenerator.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Ronin.Common, Version=1.0.15.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Ronin.Common.1.0.15.0\lib\portable-net45+dnxcore50+win+wpa81+wp80+MonoAndroid10+xamarinios10+MonoTouch10\Ronin.Common.dll</HintPath>
+    <Reference Include="Ronin.Common, Version=1.0.24.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ronin.Common.1.0.24.0\lib\portable-net45+dnxcore50+win+wpa81+wp80+MonoAndroid10+xamarinios10+MonoTouch10\Ronin.Common.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Sendstorm, Version=1.0.12.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Sendstorm.1.0.12.0\lib\portable-net45+dnxcore50+win+wpa81+wp80+MonoAndroid10+xamarinios10+MonoTouch10\Sendstorm.dll</HintPath>
+    <Reference Include="Sendstorm, Version=1.0.14.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Sendstorm.1.0.14.0\lib\portable-net45+dnxcore50+win+wpa81+wp80+MonoAndroid10+xamarinios10+MonoTouch10\Sendstorm.dll</HintPath>
       <Private>True</Private>
     </Reference>
   </ItemGroup>

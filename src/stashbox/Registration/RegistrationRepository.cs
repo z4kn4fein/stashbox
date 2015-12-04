@@ -41,8 +41,8 @@ namespace Stashbox.Registration
             Shield.EnsureNotNull(typeKey);
             Shield.EnsureNotNull(registration);
 
-            var immutableTree = new Ref<ImmutableTree<string, IServiceRegistration>>(ImmutableTree<string, IServiceRegistration>.Empty);
-            var newTree = immutableTree.Value.AddOrUpdate(nameKey, registration);
+            var immutableTree = ImmutableTree<string, IServiceRegistration>.Empty;
+            var newTree = immutableTree.AddOrUpdate(nameKey, registration);
 
             lock (this.syncObject)
             {
