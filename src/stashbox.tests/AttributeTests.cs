@@ -31,6 +31,7 @@ namespace Stashbox.Tests
             Assert.IsNotNull(test1);
             Assert.IsNotNull(test2);
             Assert.IsNotNull(test3);
+            Assert.IsNotNull(test33);
             Assert.IsNotNull(test4.Value);
 
             Assert.IsTrue(test3.MethodInvoked);
@@ -62,6 +63,7 @@ namespace Stashbox.Tests
                 Assert.IsNotNull(test1);
                 Assert.IsNotNull(test2);
                 Assert.IsNotNull(test3);
+                Assert.IsNotNull(test33);
 
                 Assert.IsTrue(test3.MethodInvoked);
 

@@ -96,7 +96,7 @@ namespace Stashbox
 
         private void RegisterTypeInternal(Type typeTo, Type typeFrom, string name = null)
         {
-            name = NameGenerator.GetRegistrationName(name);
+            name = NameGenerator.GetRegistrationName(typeTo, name);
 
             var registrationInfo = new RegistrationInfo { TypeFrom = typeFrom, TypeTo = typeTo };
 
@@ -118,7 +118,7 @@ namespace Stashbox
         private void BuildUpInternal(object instance, string keyName, Type type = null)
         {
             type = type ?? instance.GetType();
-            var name = NameGenerator.GetRegistrationName(keyName);
+            keyName = NameGenerator.GetRegistrationName(type, keyName);
 
             var registrationInfo = new RegistrationInfo { TypeFrom = type, TypeTo = type };
 
@@ -128,7 +128,7 @@ namespace Stashbox
             var registration = new ServiceRegistration(new TransientLifetime(),
                 new BuildUpObjectBuilder(instance, this.containerContext, this.containerExtensionManager, objectExtender));
 
-            this.registrationRepository.AddRegistration(type, registration, name);
+            this.registrationRepository.AddRegistration(type, registration, keyName);
             this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.containerContext, registrationInfo);
             this.messagePublisher.Broadcast(new RegistrationAdded { RegistrationInfo = registrationInfo });
         }
@@ -136,14 +136,14 @@ namespace Stashbox
         private void RegisterInstanceInternal(object instance, string keyName, Type type = null)
         {
             type = type ?? instance.GetType();
-            var name = NameGenerator.GetRegistrationName(keyName);
+            keyName = NameGenerator.GetRegistrationName(type, keyName);
 
             var registrationInfo = new RegistrationInfo { TypeFrom = type, TypeTo = type };
 
             var registration = new ServiceRegistration(new TransientLifetime(),
                 new InstanceObjectBuilder(instance));
 
-            this.registrationRepository.AddRegistration(type, registration, name);
+            this.registrationRepository.AddRegistration(type, registration, keyName);
             this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.containerContext, registrationInfo);
             this.messagePublisher.Broadcast(new RegistrationAdded { RegistrationInfo = registrationInfo });
         }

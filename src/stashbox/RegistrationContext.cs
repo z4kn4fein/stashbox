@@ -47,7 +47,7 @@ namespace Stashbox
 
         public IStashboxContainer Register()
         {
-            var registrationName = NameGenerator.GetRegistrationName(this.name);
+            var registrationName = NameGenerator.GetRegistrationName(this.typeTo, this.name);
 
             var registrationLifetime = lifetime ?? new TransientLifetime();
 
