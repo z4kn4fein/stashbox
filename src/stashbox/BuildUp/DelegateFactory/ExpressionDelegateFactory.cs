@@ -1,4 +1,5 @@
-﻿using Stashbox.Entity;
+﻿using System.Collections.Generic;
+using Stashbox.Entity;
 using Stashbox.Entity.Resolution;
 using Stashbox.Extensions;
 using Stashbox.Infrastructure;
@@ -23,25 +24,23 @@ namespace Stashbox.BuildUp.DelegateFactory
 
             var newExpression = Expression.New(resolutionConstructor.Constructor, arguments);
 
-            if (properties != null)
+            if (properties == null)
+                return Expression.Lambda<CreateInstance>(newExpression, resolutionInfoParameter).Compile();
+
+            var length = properties.Length;
+            var propertyExpressions = new MemberBinding[length];
+            for (var i = 0; i < length; i++)
             {
-                var length = properties.Length;
-                var propertyExpressions = new MemberAssignment[length];
-                for (int i = 0; i < length; i++)
-                {
-                    var property = properties[i];
-                    var propertyExpression = Expression.Bind(property.PropertyInfo,
-                        CreateResolutionTargetExpression(property.ResolutionTarget, strategyParameter,
-                            containerContextParameter, resolutionInfoParameter));
-                    propertyExpressions[i] = propertyExpression;
+                var property = properties[i];
+                var propertyExpression = Expression.Bind(property.PropertyInfo,
+                    CreateResolutionTargetExpression(property.ResolutionTarget, strategyParameter,
+                        containerContextParameter, resolutionInfoParameter));
+                propertyExpressions[i] = propertyExpression;
 
-                }
-
-                var initExpression = Expression.MemberInit(newExpression, propertyExpressions);
-                return Expression.Lambda<CreateInstance>(initExpression, new ParameterExpression[] { resolutionInfoParameter }).Compile();
             }
 
-            return Expression.Lambda<CreateInstance>(newExpression, new ParameterExpression[] { resolutionInfoParameter }).Compile();
+            var initExpression = Expression.MemberInit(newExpression, propertyExpressions);
+            return Expression.Lambda<CreateInstance>(initExpression, resolutionInfoParameter).Compile();
         }
 
         public static Expression CreateExpression(IContainerContext containerContext, ResolutionConstructor resolutionConstructor, ResolutionInfo resolutionInfo,
@@ -92,10 +91,10 @@ namespace Stashbox.BuildUp.DelegateFactory
             return Expression.Lambda<InvokeMethod>(callExpression, resolutionInfoParameter, instanceParameter).Compile();
         }
 
-        private static Expression[] CreateExpressionFromResolutionTargets(ResolutionTarget[] resolutionTargets, ConstantExpression strategyParameter,
+        private static Expression[] CreateExpressionFromResolutionTargets(IReadOnlyList<ResolutionTarget> resolutionTargets, ConstantExpression strategyParameter,
             ConstantExpression containerContextParameter, ParameterExpression resolutionInfoParameter)
         {
-            var length = resolutionTargets.Length;
+            var length = resolutionTargets.Count;
             var arguments = new Expression[length];
 
             for (var i = 0; i < length; i++)
@@ -107,11 +106,11 @@ namespace Stashbox.BuildUp.DelegateFactory
             return arguments;
         }
 
-        private static Expression CreateResolutionTargetExpression(ResolutionTarget resolutionTarget, ConstantExpression strategyParameter,
-            ConstantExpression containerContextParameter, ParameterExpression resolutionInfoParameter)
+        private static Expression CreateResolutionTargetExpression(ResolutionTarget resolutionTarget, Expression strategyParameter,
+            ConstantExpression containerContextParameter, Expression resolutionInfoParameter)
         {
             var target = Expression.Constant(resolutionTarget, typeof(ResolutionTarget));
-            var evaluate = Expression.Call(strategyParameter, "EvaluateResolutionTarget", null, new Expression[] { containerContextParameter, target, resolutionInfoParameter });
+            var evaluate = Expression.Call(strategyParameter, "EvaluateResolutionTarget", null, containerContextParameter, target, resolutionInfoParameter);
             var call = Expression.Convert(evaluate, resolutionTarget.TypeInformation.Type);
             return call;
         }

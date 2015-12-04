@@ -12,14 +12,13 @@ namespace Stashbox.Lifetime
             Shield.EnsureNotNull(objectBuilder);
             return objectBuilder.BuildInstance(resolutionInfo);
         }
-
-        public void CleanUp()
-        {
-        }
-
         public Expression GetExpression(IObjectBuilder objectBuilder, ResolutionInfo resolutionInfo)
         {
             return objectBuilder.GetExpression(resolutionInfo);
+        }
+
+        public void CleanUp()
+        {
         }
     }
 }

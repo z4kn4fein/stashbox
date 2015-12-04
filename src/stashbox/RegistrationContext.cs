@@ -30,7 +30,7 @@ namespace Stashbox
         private ILifetime lifetime;
         private Type targetTypeCondition;
         private Func<TypeInformation, bool> resolutionCondition;
-        private HashSet<Type> attributeConditions;
+        private readonly HashSet<Type> attributeConditions;
 
         public RegistrationContext(Type typeFrom, Type typeTo, IContainerContext containerContext, IContainerExtensionManager containerExtensionManager)
         {

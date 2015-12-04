@@ -101,7 +101,6 @@ namespace Stashbox
             var registrationInfo = new RegistrationInfo { TypeFrom = typeFrom, TypeTo = typeTo };
 
             var metaInfoProvider = new MetaInfoProvider(this.containerContext, typeTo);
-            var objectExtender = new ObjectExtender(metaInfoProvider, this.messagePublisher);
 
             IObjectBuilder objectBuilder;
             if (typeTo.GetTypeInfo().IsGenericTypeDefinition)

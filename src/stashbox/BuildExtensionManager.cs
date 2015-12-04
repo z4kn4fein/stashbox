@@ -4,6 +4,7 @@ using Stashbox.Infrastructure.ContainerExtension;
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using Ronin.Common;
 
 namespace Stashbox
 {
@@ -11,7 +12,7 @@ namespace Stashbox
     {
         private readonly HashSet<IPostBuildExtension> postbuildExtensions;
         private readonly HashSet<IRegistrationExtension> registrationExtensions;
-        private readonly ReaderWriterLockSlim readerWriterLock;
+        private readonly DisposableReaderWriterLock readerWriterLock;
 
         public bool HasPostBuildExtensions => this.hasPostBuildExtensions;
 
@@ -22,14 +23,13 @@ namespace Stashbox
         {
             this.postbuildExtensions = new HashSet<IPostBuildExtension>();
             this.registrationExtensions = new HashSet<IRegistrationExtension>();
-            this.readerWriterLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
+            this.readerWriterLock = new DisposableReaderWriterLock(LockRecursionPolicy.SupportsRecursion);
         }
 
         public void AddExtension(IContainerExtension containerExtension)
         {
-            try
+            using (this.readerWriterLock.AquireWriteLock())
             {
-                this.readerWriterLock.EnterWriteLock();
                 var postBuildExtension = containerExtension as IPostBuildExtension;
                 if (postBuildExtension != null)
                 {
@@ -38,52 +38,32 @@ namespace Stashbox
                 }
 
                 var registrationExtension = containerExtension as IRegistrationExtension;
-                if (registrationExtension != null)
-                {
-                    this.registrationExtensions.Add(registrationExtension);
-                    this.hasRegistrationExtensions = true;
-                }
-            }
-            finally
-            {
-                this.readerWriterLock.ExitWriteLock();
+                if (registrationExtension == null) return;
+                this.registrationExtensions.Add(registrationExtension);
+                this.hasRegistrationExtensions = true;
             }
         }
 
         public object ExecutePostBuildExtensions(object instance, Type targetType, IContainerContext containerContext, ResolutionInfo resolutionInfo, InjectionParameter[] injectionParameters = null)
         {
             if (!this.hasPostBuildExtensions) return instance;
-            try
+            using (this.readerWriterLock.AquireReadLock())
             {
-                this.readerWriterLock.EnterReadLock();
                 var result = instance;
                 foreach (var extension in this.postbuildExtensions)
-                {
                     result = extension.PostBuild(instance, targetType, containerContext, resolutionInfo, injectionParameters);
-                }
 
                 return result;
-            }
-            finally
-            {
-                this.readerWriterLock.ExitReadLock();
             }
         }
 
         public void ExecuteOnRegistrationExtensions(IContainerContext containerContext, RegistrationInfo registrationInfo, InjectionParameter[] injectionParameters = null)
         {
             if (!this.hasRegistrationExtensions) return;
-            try
+            using (this.readerWriterLock.AquireReadLock())
             {
-                this.readerWriterLock.EnterReadLock();
                 foreach (var extension in this.registrationExtensions)
-                {
                     extension.OnRegistration(containerContext, registrationInfo, injectionParameters);
-                }
-            }
-            finally
-            {
-                this.readerWriterLock.ExitReadLock();
             }
         }
     }

@@ -7,7 +7,7 @@ namespace Stashbox.LifeTime
 {
     public class SingletonLifetime : ILifetime
     {
-        private object instance;
+        private volatile object instance;
         private readonly object syncObject = new object();
 
         public object GetInstance(IObjectBuilder objectBuilder, ResolutionInfo resolutionInfo)

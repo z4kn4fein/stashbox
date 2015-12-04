@@ -86,11 +86,9 @@ namespace Stashbox
 
         protected virtual void Dispose(bool disposing)
         {
-            if (this.disposed.CompareExchange(false, true))
-            {
-                if (!disposing) return;
-                this.registrationRepository.CleanUp();
-            }
+            if (!this.disposed.CompareExchange(false, true)) return;
+            if (!disposing) return;
+            this.registrationRepository.CleanUp();
         }
     }
 }

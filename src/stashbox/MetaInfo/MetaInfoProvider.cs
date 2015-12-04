@@ -18,18 +18,16 @@ namespace Stashbox.MetaInfo
 
         public Type TypeTo => this.metaInfoCache.TypeTo;
 
-        private readonly bool hasInjectionMethod;
-        public bool HasInjectionMethod => this.hasInjectionMethod;
+        public bool HasInjectionMethod { get; }
 
-        private readonly bool hasInjectionProperty;
-        public bool HasInjectionProperty => this.hasInjectionProperty;
+        public bool HasInjectionProperty { get; }
 
         public MetaInfoProvider(IContainerContext containerContext, Type typeTo)
         {
             this.containerContext = containerContext;
             this.metaInfoCache = new MetaInfoCache(typeTo);
-            this.hasInjectionMethod = this.metaInfoCache.InjectionMethods.Any();
-            this.hasInjectionProperty = this.metaInfoCache.InjectionProperties.Any();
+            this.HasInjectionMethod = this.metaInfoCache.InjectionMethods.Any();
+            this.HasInjectionProperty = this.metaInfoCache.InjectionProperties.Any();
             this.BuildSensitivityList();
         }
 

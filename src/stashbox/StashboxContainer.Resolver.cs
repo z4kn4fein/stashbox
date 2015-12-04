@@ -46,7 +46,7 @@ namespace Stashbox
             var typeInfo = new TypeInformation { Type = typeFrom, DependencyName = name };
             var resolutionInfo = new ResolutionInfo
             {
-                OverrideManager = overrides == null ? null : new OverrideManager(overrides),
+                OverrideManager = overrides == null ? null : new OverrideManager(overrides.ToArray()),
                 FactoryParams = factoryParameters,
                 ResolveType = typeInfo
             };

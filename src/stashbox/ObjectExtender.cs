@@ -44,18 +44,18 @@ namespace Stashbox
             {
                 var properties = this.injectionProperties.CreateCopy();
                 var count = properties.Count;
-                for (int i = 0; i < count; i++)
+                for (var i = 0; i < count; i++)
                 {
                     var value = containerContext.ResolutionStrategy.EvaluateResolutionTarget(containerContext, properties[i].ResolutionTarget, resolutionInfo);
                     properties[i].PropertySetter(instance, value);
                 }
             }
 
-            if (this.hasInjectionMethods)
+            if (!this.hasInjectionMethods) return instance;
             {
                 var methods = this.injectionMethods.CreateCopy();
                 var count = methods.Count;
-                for (int i = 0; i < count; i++)
+                for (var i = 0; i < count; i++)
                 {
                     methods[i].MethodDelegate(resolutionInfo, instance);
                 }
