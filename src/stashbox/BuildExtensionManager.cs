@@ -28,7 +28,7 @@ namespace Stashbox
 
         public void AddExtension(IContainerExtension containerExtension)
         {
-            using (this.readerWriterLock.AquireWriteLock())
+            using (this.readerWriterLock.AcquireWriteLock())
             {
                 var postBuildExtension = containerExtension as IPostBuildExtension;
                 if (postBuildExtension != null)
@@ -47,7 +47,7 @@ namespace Stashbox
         public object ExecutePostBuildExtensions(object instance, Type targetType, IContainerContext containerContext, ResolutionInfo resolutionInfo, InjectionParameter[] injectionParameters = null)
         {
             if (!this.hasPostBuildExtensions) return instance;
-            using (this.readerWriterLock.AquireReadLock())
+            using (this.readerWriterLock.AcquireReadLock())
             {
                 var result = instance;
                 foreach (var extension in this.postbuildExtensions)
@@ -60,7 +60,7 @@ namespace Stashbox
         public void ExecuteOnRegistrationExtensions(IContainerContext containerContext, RegistrationInfo registrationInfo, InjectionParameter[] injectionParameters = null)
         {
             if (!this.hasRegistrationExtensions) return;
-            using (this.readerWriterLock.AquireReadLock())
+            using (this.readerWriterLock.AcquireReadLock())
             {
                 foreach (var extension in this.registrationExtensions)
                     extension.OnRegistration(containerContext, registrationInfo, injectionParameters);
