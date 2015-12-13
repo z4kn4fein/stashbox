@@ -19,11 +19,6 @@ namespace Stashbox.BuildUp
 
         public BuildUpObjectBuilder(object instance, IContainerContext containerContext, IContainerExtensionManager containerExtensionManager, IObjectExtender objectExtender)
         {
-            Shield.EnsureNotNull(() => containerContext);
-            Shield.EnsureNotNull(() => instance);
-            Shield.EnsureNotNull(() => containerExtensionManager);
-            Shield.EnsureNotNull(() => objectExtender);
-
             this.instance = instance;
             this.instanceType = instance.GetType();
             this.containerExtensionManager = containerExtensionManager;
@@ -33,8 +28,6 @@ namespace Stashbox.BuildUp
 
         public object BuildInstance(ResolutionInfo resolutionInfo)
         {
-            Shield.EnsureNotNull(() => resolutionInfo);
-
             if (this.builtInstance != null) return this.builtInstance;
             lock (this.syncObject)
             {

@@ -22,14 +22,14 @@ namespace Stashbox
 
         public IDependencyRegistrator RegisterType<TTo>(Type typeTo, string name = null) where TTo : class
         {
-            Shield.EnsureNotNull(() => typeTo);
+            Shield.EnsureNotNull(typeTo, nameof(typeTo));
             this.RegisterTypeInternal(typeTo, typeof(TTo), name);
             return this;
         }
 
         public IDependencyRegistrator RegisterType(Type typeFrom, Type typeTo, string name = null)
         {
-            Shield.EnsureNotNull(() => typeTo);
+            Shield.EnsureNotNull(typeTo, nameof(typeTo));
             this.RegisterTypeInternal(typeTo, typeFrom, name);
             return this;
         }
@@ -43,28 +43,28 @@ namespace Stashbox
 
         public IDependencyRegistrator RegisterInstance<TFrom>(object instance, string name = null) where TFrom : class
         {
-            Shield.EnsureNotNull(() => instance);
+            Shield.EnsureNotNull(instance, nameof(instance));
             this.RegisterInstanceInternal(instance, name, typeof(TFrom));
             return this;
         }
 
         public IDependencyRegistrator RegisterInstance(object instance, Type type = null, string name = null)
         {
-            Shield.EnsureNotNull(() => instance);
+            Shield.EnsureNotNull(instance, nameof(instance));
             this.RegisterInstanceInternal(instance, name, type);
             return this;
         }
 
         public IDependencyRegistrator BuildUp<TFrom>(object instance, string name = null) where TFrom : class
         {
-            Shield.EnsureNotNull(() => instance);
+            Shield.EnsureNotNull(instance, nameof(instance));
             this.BuildUpInternal(instance, name, typeof(TFrom));
             return this;
         }
 
         public IDependencyRegistrator BuildUp(object instance, Type type = null, string name = null)
         {
-            Shield.EnsureNotNull(() => instance);
+            Shield.EnsureNotNull(instance, nameof(instance));
             this.BuildUpInternal(instance, name, type);
             return this;
         }

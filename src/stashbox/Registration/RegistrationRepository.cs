@@ -8,47 +8,39 @@ namespace Stashbox.Registration
 {
     public class RegistrationRepository : IRegistrationRepository
     {
-        private ImmutableTree<Type, ImmutableTree<string, IServiceRegistration>> serviceRepository;
+        private ImmutableTree<Type, ImmutableTree<IServiceRegistration>> serviceRepository;
         private readonly object syncObject = new object();
 
         public RegistrationRepository()
         {
-            this.serviceRepository = ImmutableTree<Type, ImmutableTree<string, IServiceRegistration>>.Empty;
+            this.serviceRepository = ImmutableTree<Type, ImmutableTree<IServiceRegistration>>.Empty;
         }
 
         public bool TryGetRegistrationWithConditions(TypeInformation typeInfo, out IServiceRegistration registration)
         {
-            Shield.EnsureNotNull(() => typeInfo);
-
             return typeInfo.DependencyName == null ? this.TryGetByTypeKeyWithConditions(typeInfo, out registration) : this.TryGetByNamedKey(typeInfo, out registration);
         }
 
         public bool TryGetRegistration(TypeInformation typeInfo, out IServiceRegistration registration)
         {
-            Shield.EnsureNotNull(() => typeInfo);
-
             return typeInfo.DependencyName == null ? this.TryGetByTypeKey(typeInfo, out registration) : this.TryGetByNamedKey(typeInfo, out registration);
         }
 
         public bool TryGetAllRegistrations(TypeInformation typeInfo, out IServiceRegistration[] registrations)
         {
-            Shield.EnsureNotNull(() => typeInfo);
             return this.TryGetAllByTypedKey(typeInfo, out registrations);
         }
 
         public void AddRegistration(Type typeKey, IServiceRegistration registration, string nameKey)
         {
-            Shield.EnsureNotNull(() => typeKey);
-            Shield.EnsureNotNull(() => registration);
-
-            var immutableTree = ImmutableTree<string, IServiceRegistration>.Empty;
-            var newTree = immutableTree.AddOrUpdate(nameKey, registration);
+            var immutableTree = ImmutableTree<IServiceRegistration>.Empty;
+            var newTree = immutableTree.AddOrUpdate(nameKey.GetHashCode(), registration);
 
             lock (this.syncObject)
             {
                 this.serviceRepository = this.serviceRepository.AddOrUpdate(typeKey, newTree, (oldValue, newValue) =>
                 {
-                    return oldValue.AddOrUpdate(nameKey, registration, (oldRegistration, newReg) => newReg);
+                    return oldValue.AddOrUpdate(nameKey.GetHashCode(), registration, (oldRegistration, newReg) => newReg);
                 });
             }
         }
@@ -122,7 +114,7 @@ namespace Stashbox.Registration
 
         private bool TryGetByTypeKey(TypeInformation typeInfo, out IServiceRegistration registration)
         {
-            ImmutableTree<string, IServiceRegistration> registrations;
+            ImmutableTree<IServiceRegistration> registrations;
             if (!this.TryGetRegistrationsByType(typeInfo.Type, out registrations))
             {
                 registration = null;
@@ -135,7 +127,7 @@ namespace Stashbox.Registration
 
         private bool TryGetByTypeKeyWithConditions(TypeInformation typeInfo, out IServiceRegistration registration)
         {
-            ImmutableTree<string, IServiceRegistration> registrations;
+            ImmutableTree<IServiceRegistration> registrations;
             if (!this.TryGetRegistrationsByType(typeInfo.Type, out registrations))
             {
                 registration = null;
@@ -152,7 +144,7 @@ namespace Stashbox.Registration
             return registration != null;
         }
 
-        private bool TryGetRegistrationsByType(Type type, out ImmutableTree<string, IServiceRegistration> registrations)
+        private bool TryGetRegistrationsByType(Type type, out ImmutableTree<IServiceRegistration> registrations)
         {
             registrations = this.serviceRepository.GetValueOrDefault(type);
             if (registrations != null) return true;
@@ -176,10 +168,10 @@ namespace Stashbox.Registration
 
         private bool TryGetByNamedKey(TypeInformation typeInfo, out IServiceRegistration registration)
         {
-            ImmutableTree<string, IServiceRegistration> registrations;
+            ImmutableTree<IServiceRegistration> registrations;
             if (this.TryGetRegistrationsByType(typeInfo.Type, out registrations))
             {
-                registration = registrations.GetValueOrDefault(typeInfo.DependencyName);
+                registration = registrations.GetValueOrDefault(typeInfo.DependencyName.GetHashCode());
                 return registration != null;
             }
 

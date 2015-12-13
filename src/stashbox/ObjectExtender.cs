@@ -24,9 +24,6 @@ namespace Stashbox
         public ObjectExtender(IMetaInfoProvider metaInfoProvider,
             IMessagePublisher messagePublisher, InjectionParameter[] injectionParameters = null)
         {
-            Shield.EnsureNotNull(() => metaInfoProvider);
-            Shield.EnsureNotNull(() => messagePublisher);
-
             if (injectionParameters != null)
                 this.injectionParameters = injectionParameters;
 

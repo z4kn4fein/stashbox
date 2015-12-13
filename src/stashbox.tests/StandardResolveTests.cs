@@ -110,7 +110,7 @@ namespace Stashbox.Tests
 
             public Test2(ITest1 test1)
             {
-                Shield.EnsureNotNull(() => test1);
+                Shield.EnsureNotNull(test1, nameof(test1));
                 Shield.EnsureTypeOf<Test1>(test1);
             }
         }
@@ -121,8 +121,8 @@ namespace Stashbox.Tests
 
             public Test3(ITest1 test1, ITest2 test2)
             {
-                Shield.EnsureNotNull(() => test1);
-                Shield.EnsureNotNull(() => test2);
+                Shield.EnsureNotNull(test1, nameof(test1));
+                Shield.EnsureNotNull(test2, nameof(test2));
                 Shield.EnsureTypeOf<Test1>(test1);
                 Shield.EnsureTypeOf<Test2>(test2);
             }
