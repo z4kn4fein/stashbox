@@ -64,7 +64,7 @@
     <Compile Include="ConditionalTests.cs" />
     <Compile Include="EnumerableTests.cs" />
     <Compile Include="GenericTests.cs" />
-    <Compile Include="InjectionPropertyTests.cs" />
+    <Compile Include="InjectionMemberTests.cs" />
     <Compile Include="LazyTests.cs" />
     <Compile Include="LifetimeTests.cs" />
     <Compile Include="OverrideTests.cs" />

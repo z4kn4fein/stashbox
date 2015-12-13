@@ -10,9 +10,9 @@ namespace Stashbox.Infrastructure
         HashSet<Type> SensitivityList { get; }
         Type TypeTo { get; }
         bool HasInjectionMethod { get; }
-        bool HasInjectionProperty { get; }
+        bool HasInjectionMembers { get; }
         bool TryChooseConstructor(out ResolutionConstructor constructor, ResolutionInfo resolutionInfo = null, InjectionParameter[] injectionParameters = null);
         IEnumerable<ResolutionMethod> GetResolutionMethods(InjectionParameter[] injectionParameters = null);
-        IEnumerable<ResolutionProperty> GetResolutionProperties(InjectionParameter[] injectionParameters = null);
+        IEnumerable<ResolutionMember> GetResolutionMembers(InjectionParameter[] injectionParameters = null);
     }
 }

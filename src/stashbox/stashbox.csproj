@@ -59,7 +59,7 @@
     <Compile Include="Entity\Events\RegistrationRemoved.cs" />
     <Compile Include="Entity\InjectionParameter.cs" />
     <Compile Include="Entity\MethodInformation.cs" />
-    <Compile Include="Entity\PropertyInformation.cs" />
+    <Compile Include="Entity\MemberInformation.cs" />
     <Compile Include="Entity\RegistrationInfo.cs" />
     <Compile Include="Entity\Resolution\ResolutionConstructor.cs" />
     <Compile Include="Entity\ResolutionInfo.cs" />

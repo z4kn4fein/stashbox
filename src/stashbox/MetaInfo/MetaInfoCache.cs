@@ -12,7 +12,7 @@ namespace Stashbox.MetaInfo
         public Type TypeTo { get; }
         public ConstructorInformation[] Constructors { get; private set; }
         public MethodInformation[] InjectionMethods { get; private set; }
-        public PropertyInformation[] InjectionProperties { get; private set; }
+        public MemberInformation[] InjectionMembers { get; private set; }
 
         public MetaInfoCache(Type typeTo)
         {
@@ -21,7 +21,7 @@ namespace Stashbox.MetaInfo
             var typeInfo = typeTo.GetTypeInfo();
             this.AddConstructors(typeInfo.DeclaredConstructors);
             this.AddMethods(typeInfo.DeclaredMethods);
-            this.InjectionProperties = this.FillProperties(typeInfo.DeclaredProperties).ToArray();
+            this.InjectionMembers = this.FillProperties(typeInfo).ToArray();
         }
 
         private void AddConstructors(IEnumerable<ConstructorInfo> infos)
@@ -56,10 +56,10 @@ namespace Stashbox.MetaInfo
             });
         }
 
-        private IEnumerable<PropertyInformation> FillProperties(IEnumerable<PropertyInfo> properties)
+        private IEnumerable<MemberInformation> FillProperties(TypeInfo typeInfo)
         {
-            return properties.Where(propertyInfo => propertyInfo.GetCustomAttribute<DependencyAttribute>() != null)
-                             .Select(propertyInfo => new PropertyInformation
+            var properties =  typeInfo.DeclaredProperties.Where(propertyInfo => propertyInfo.GetCustomAttribute<DependencyAttribute>() != null)
+                             .Select(propertyInfo => new MemberInformation
                              {
                                  TypeInformation = new TypeInformation
                                  {
@@ -70,8 +70,25 @@ namespace Stashbox.MetaInfo
                                      CustomAttributes = propertyInfo.GetCustomAttributes().ToArray(),
                                      MemberName = propertyInfo.Name
                                  },
-                                 PropertyInfo = propertyInfo
+                                 MemberInfo = propertyInfo
                              });
+
+            return properties.Concat(typeInfo.DeclaredFields.Where(
+                fieldInfo => fieldInfo.GetCustomAttribute<DependencyAttribute>() != null)
+                .Select(fieldInfo => new MemberInformation
+                {
+                    TypeInformation = new TypeInformation
+                    {
+                        Type = fieldInfo.FieldType,
+                        DependencyName = fieldInfo.GetCustomAttribute<DependencyAttribute>() != null
+                            ? fieldInfo.GetCustomAttribute<DependencyAttribute>().Name
+                            : null,
+                        ParentType = this.TypeTo,
+                        CustomAttributes = fieldInfo.GetCustomAttributes().ToArray(),
+                        MemberName = fieldInfo.Name
+                    },
+                    MemberInfo = fieldInfo
+                }));
         }
     }
 }

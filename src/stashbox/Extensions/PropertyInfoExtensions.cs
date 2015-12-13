@@ -4,19 +4,39 @@ namespace System.Reflection
 {
     public static class PropertyInfoExtensions
     {
-        public static Action<object, object> GetPropertySetter(this PropertyInfo propertyInfo)
+        public static Action<object, object> GetMemberSetter(this MemberInfo memberInfo)
         {
             var instance = Expression.Parameter(typeof(object), "instance");
             var value = Expression.Parameter(typeof(object), "value");
 
-            var propertyExpression = Expression.Property(
-                Expression.Convert(instance, propertyInfo.DeclaringType), propertyInfo.Name);
+            var prop = memberInfo as PropertyInfo;
+            if (prop != null)
+            {
+                var propertyExpression = Expression.Property(
+                    Expression.Convert(instance, prop.DeclaringType), prop.Name);
 
-            var setterExpression = Expression.Assign(propertyExpression,
-                Expression.Convert(value, propertyInfo.PropertyType));
+                var setterExpression = Expression.Assign(propertyExpression,
+                    Expression.Convert(value, prop.PropertyType));
 
-            return Expression.Lambda<Action<object, object>>(
-                setterExpression, instance, value).Compile();
+                return Expression.Lambda<Action<object, object>>(
+                    setterExpression, instance, value).Compile();
+            }
+            else
+            {
+                var field = memberInfo as FieldInfo;
+                if (field == null)
+                    throw new ArgumentException("Invalid argument, memberinfo must be a PropertyInfo or a FieldInfo type.",
+                        nameof(memberInfo));
+
+                var fieldExpression = Expression.Field(
+                    Expression.Convert(instance, field.DeclaringType), field.Name);
+
+                var setterExpression = Expression.Assign(fieldExpression,
+                    Expression.Convert(value, field.FieldType));
+
+                return Expression.Lambda<Action<object, object>>(
+                    setterExpression, instance, value).Compile();
+            }
         }
     }
 }

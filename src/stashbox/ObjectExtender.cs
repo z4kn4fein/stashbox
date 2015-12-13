@@ -16,7 +16,7 @@ namespace Stashbox
         private readonly InjectionParameter[] injectionParameters;
 
         private ResolutionMethod[] injectionMethods;
-        private ResolutionProperty[] injectionProperties;
+        private ResolutionMember[] injectionMembers;
 
         private bool hasInjectionMethods;
         private bool hasInjectionProperties;
@@ -42,12 +42,12 @@ namespace Stashbox
         {
             if (this.hasInjectionProperties)
             {
-                var properties = this.injectionProperties.CreateCopy();
-                var count = properties.Count;
+                var members = this.injectionMembers.CreateCopy();
+                var count = members.Count;
                 for (var i = 0; i < count; i++)
                 {
-                    var value = containerContext.ResolutionStrategy.EvaluateResolutionTarget(containerContext, properties[i].ResolutionTarget, resolutionInfo);
-                    properties[i].PropertySetter(instance, value);
+                    var value = containerContext.ResolutionStrategy.EvaluateResolutionTarget(containerContext, members[i].ResolutionTarget, resolutionInfo);
+                    members[i].MemberSetter(instance, value);
                 }
             }
 
@@ -77,10 +77,10 @@ namespace Stashbox
         private void CollectInjectionMembers()
         {
             this.injectionMethods = this.metaInfoProvider.GetResolutionMethods(this.injectionParameters).ToArray();
-            this.injectionProperties = this.metaInfoProvider.GetResolutionProperties(this.injectionParameters).ToArray();
+            this.injectionMembers = this.metaInfoProvider.GetResolutionMembers(this.injectionParameters).ToArray();
 
             this.hasInjectionMethods = this.injectionMethods.Length > 0;
-            this.hasInjectionProperties = this.injectionProperties.Length > 0;
+            this.hasInjectionProperties = this.injectionMembers.Length > 0;
         }
 
         public void CleanUp()

@@ -2,9 +2,9 @@
 
 namespace Stashbox.Entity
 {
-    public class PropertyInformation
+    public class MemberInformation
     {
-        public PropertyInfo PropertyInfo { get; set; }
+        public MemberInfo MemberInfo { get; set; }
         public TypeInformation TypeInformation { get; set; }
     }
 }

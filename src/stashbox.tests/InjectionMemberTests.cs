@@ -5,10 +5,10 @@ using Stashbox.Entity;
 namespace Stashbox.Tests
 {
     [TestClass]
-    public class InjectionPropertyTests
+    public class InjectionMemberTests
     {
         [TestMethod]
-        public void InjectionPropertyTests_Resolve()
+        public void InjectionMemberTests_Resolve()
         {
             var container = new StashboxContainer();
             container.RegisterType<ITest, Test>();
@@ -20,10 +20,13 @@ namespace Stashbox.Tests
             Assert.IsNotNull(inst.Test);
             Assert.IsInstanceOfType(inst, typeof(Test1));
             Assert.IsInstanceOfType(inst.Test, typeof(Test));
+
+            Assert.IsNotNull(((Test1)inst).TestFieldProperty);
+            Assert.IsInstanceOfType(((Test1)inst).TestFieldProperty, typeof(Test));
         }
 
         [TestMethod]
-        public void InjectionPropertyTests_Resolve_InjectionParameter()
+        public void InjectionMemberTests_Resolve_InjectionParameter()
         {
             var container = new StashboxContainer();
             container.PrepareType<ITest2, Test2>().WithInjectionParameters(new InjectionParameter { Name = "Name", Value = "test" }).Register();
@@ -43,6 +46,11 @@ namespace Stashbox.Tests
 
         public class Test1 : ITest1
         {
+            [Dependency]
+            private ITest testField;
+
+            public ITest TestFieldProperty => this.testField;
+
             [Dependency]
             public ITest Test { get; set; }
         }

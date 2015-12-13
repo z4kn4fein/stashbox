@@ -21,7 +21,7 @@ namespace Stashbox.BuildUp
         private readonly IMessagePublisher messagePublisher;
         private readonly object syncObject = new object();
         private volatile CreateInstance constructorDelegate;
-        private ResolutionProperty[] resolutionProperties;
+        private ResolutionMember[] resolutionMembers;
         private ResolutionMethod[] resolutionMethods;
         private ResolutionConstructor resolutionConstructor;
         private Func<object> createDelegate;
@@ -57,7 +57,7 @@ namespace Stashbox.BuildUp
             ResolutionConstructor constructor;
             if (!this.metaInfoProvider.TryChooseConstructor(out constructor,
                     injectionParameters: this.injectionParameters)) return;
-            this.constructorDelegate = ExpressionDelegateFactory.CreateConstructorExpression(this.containerContext, constructor, this.resolutionProperties);
+            this.constructorDelegate = ExpressionDelegateFactory.CreateConstructorExpression(this.containerContext, constructor, this.resolutionMembers);
             this.resolutionConstructor = constructor;
         }
 
@@ -77,7 +77,7 @@ namespace Stashbox.BuildUp
                             if (!this.metaInfoProvider.TryChooseConstructor(out constructor, resolutionInfo,
                                     this.injectionParameters))
                                 throw new ResolutionFailedException(this.metaInfoProvider.TypeTo.FullName);
-                            this.constructorDelegate = ExpressionDelegateFactory.CreateConstructorExpression(this.containerContext, constructor, this.resolutionProperties);
+                            this.constructorDelegate = ExpressionDelegateFactory.CreateConstructorExpression(this.containerContext, constructor, this.resolutionMembers);
                             this.resolutionConstructor = constructor;
                             return this.ResolveType(containerContext, resolutionInfo);
                         }
@@ -156,12 +156,12 @@ namespace Stashbox.BuildUp
 
         private Expression GetExpressionInternal(ResolutionConstructor constructor, ResolutionInfo resolutionInfo)
         {
-            return ExpressionDelegateFactory.CreateExpression(this.containerContext, constructor, resolutionInfo, this.resolutionProperties);
+            return ExpressionDelegateFactory.CreateExpression(this.containerContext, constructor, resolutionInfo, this.resolutionMembers);
         }
 
         private void CollectInjectionMembers()
         {
-            this.resolutionProperties = this.metaInfoProvider.GetResolutionProperties(this.injectionParameters).ToArray();
+            this.resolutionMembers = this.metaInfoProvider.GetResolutionMembers(this.injectionParameters).ToArray();
             this.resolutionMethods = this.metaInfoProvider.GetResolutionMethods(this.injectionParameters).ToArray();
             this.hasInjectionMethods = this.resolutionMethods.Length > 0;
         }
