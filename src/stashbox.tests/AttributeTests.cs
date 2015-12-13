@@ -137,7 +137,7 @@ namespace Stashbox.Tests
 
             public Test2([Dependency("test11")]ITest1 test1)
             {
-                Shield.EnsureNotNull(test1);
+                Shield.EnsureNotNull(() => test1);
                 Shield.EnsureTypeOf<Test11>(test1);
             }
         }
@@ -159,15 +159,15 @@ namespace Stashbox.Tests
             [InjectionMethod]
             public void MethodTest([Dependency("test22")]ITest2 test2)
             {
-                Shield.EnsureNotNull(test2);
+                Shield.EnsureNotNull(() => test2);
                 MethodInvoked = true;
             }
 
             [InjectionConstructor]
             public Test3([Dependency("test12")]ITest1 test1, [Dependency("test2")]ITest2 test2)
             {
-                Shield.EnsureNotNull(test1);
-                Shield.EnsureNotNull(test2);
+                Shield.EnsureNotNull(() => test1);
+                Shield.EnsureNotNull(() => test2);
 
                 Shield.EnsureTypeOf<Test12>(test1);
                 Shield.EnsureTypeOf<Test2>(test2);
@@ -193,15 +193,15 @@ namespace Stashbox.Tests
             [InjectionMethod]
             public void MethodTest([Dependency("test22")]Lazy<ITest2> test2)
             {
-                Shield.EnsureNotNull(test2.Value);
+                Shield.EnsureNotNull(() => test2.Value);
                 MethodInvoked = true;
             }
 
             [InjectionConstructor]
             public Test4([Dependency("test12")]Lazy<ITest1> test1, [Dependency("test2")]Lazy<ITest2> test2)
             {
-                Shield.EnsureNotNull(test1.Value);
-                Shield.EnsureNotNull(test2.Value);
+                Shield.EnsureNotNull(() => test1.Value);
+                Shield.EnsureNotNull(() => test2.Value);
 
                 Shield.EnsureTypeOf<Test12>(test1.Value);
                 Shield.EnsureTypeOf<Test2>(test2.Value);
@@ -220,7 +220,7 @@ namespace Stashbox.Tests
             [InjectionConstructor]
             public Test33(ITest1 test1)
             {
-                Shield.EnsureNotNull(test1);
+                Shield.EnsureNotNull(() => test1);
             }
         }
     }

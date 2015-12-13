@@ -66,7 +66,7 @@ namespace Stashbox.Tests
         {
             public Test2(IEnumerable<ITest1> tests)
             {
-                Shield.EnsureNotNull(tests);
+                Shield.EnsureNotNull(() => tests);
                 Assert.AreEqual(3, tests.Count());
             }
         }
@@ -75,7 +75,7 @@ namespace Stashbox.Tests
         {
             public Test22(ITest1[] tests)
             {
-                Shield.EnsureNotNull(tests);
+                Shield.EnsureNotNull(() => tests);
                 Assert.AreEqual(3, tests.Count());
             }
         }
