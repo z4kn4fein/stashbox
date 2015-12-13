@@ -33,10 +33,10 @@ namespace Stashbox.BuildUp
         public DefaultObjectBuilder(IContainerContext containerContext, IMetaInfoProvider metaInfoProvider, IContainerExtensionManager containerExtensionManager,
             IMessagePublisher messagePublisher, InjectionParameter[] injectionParameters = null)
         {
-            Shield.EnsureNotNull(metaInfoProvider);
-            Shield.EnsureNotNull(containerContext);
-            Shield.EnsureNotNull(containerExtensionManager);
-            Shield.EnsureNotNull(messagePublisher);
+            Shield.EnsureNotNull(() => metaInfoProvider);
+            Shield.EnsureNotNull(() => containerContext);
+            Shield.EnsureNotNull(() => containerExtensionManager);
+            Shield.EnsureNotNull(() => messagePublisher);
 
             if (injectionParameters != null)
                 this.injectionParameters = injectionParameters;
@@ -63,7 +63,7 @@ namespace Stashbox.BuildUp
 
         public object BuildInstance(ResolutionInfo resolutionInfo)
         {
-            Shield.EnsureNotNull(resolutionInfo);
+            Shield.EnsureNotNull(() => resolutionInfo);
 
             if (resolutionInfo.OverrideManager != null || this.hasInjectionMethods || this.containerExtensionManager.HasPostBuildExtensions)
             {

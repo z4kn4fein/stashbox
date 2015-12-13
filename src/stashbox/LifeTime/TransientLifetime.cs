@@ -9,7 +9,7 @@ namespace Stashbox.Lifetime
     {
         public object GetInstance(IObjectBuilder objectBuilder, ResolutionInfo resolutionInfo)
         {
-            Shield.EnsureNotNull(objectBuilder);
+            Shield.EnsureNotNull(() => objectBuilder);
             return objectBuilder.BuildInstance(resolutionInfo);
         }
         public Expression GetExpression(IObjectBuilder objectBuilder, ResolutionInfo resolutionInfo)

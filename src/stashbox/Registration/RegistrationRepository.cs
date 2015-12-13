@@ -18,28 +18,28 @@ namespace Stashbox.Registration
 
         public bool TryGetRegistrationWithConditions(TypeInformation typeInfo, out IServiceRegistration registration)
         {
-            Shield.EnsureNotNull(typeInfo);
+            Shield.EnsureNotNull(() => typeInfo);
 
             return typeInfo.DependencyName == null ? this.TryGetByTypeKeyWithConditions(typeInfo, out registration) : this.TryGetByNamedKey(typeInfo, out registration);
         }
 
         public bool TryGetRegistration(TypeInformation typeInfo, out IServiceRegistration registration)
         {
-            Shield.EnsureNotNull(typeInfo);
+            Shield.EnsureNotNull(() => typeInfo);
 
             return typeInfo.DependencyName == null ? this.TryGetByTypeKey(typeInfo, out registration) : this.TryGetByNamedKey(typeInfo, out registration);
         }
 
         public bool TryGetAllRegistrations(TypeInformation typeInfo, out IServiceRegistration[] registrations)
         {
-            Shield.EnsureNotNull(typeInfo);
+            Shield.EnsureNotNull(() => typeInfo);
             return this.TryGetAllByTypedKey(typeInfo, out registrations);
         }
 
         public void AddRegistration(Type typeKey, IServiceRegistration registration, string nameKey)
         {
-            Shield.EnsureNotNull(typeKey);
-            Shield.EnsureNotNull(registration);
+            Shield.EnsureNotNull(() => typeKey);
+            Shield.EnsureNotNull(() => registration);
 
             var immutableTree = ImmutableTree<string, IServiceRegistration>.Empty;
             var newTree = immutableTree.AddOrUpdate(nameKey, registration);

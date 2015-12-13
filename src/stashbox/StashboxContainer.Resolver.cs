@@ -18,7 +18,7 @@ namespace Stashbox
 
         public object Resolve(Type typeFrom, string name = null, IEnumerable<object> factoryParameters = null, IEnumerable<Override> overrides = null)
         {
-            Shield.EnsureNotNull(typeFrom);
+            Shield.EnsureNotNull(() => typeFrom);
             return this.ResolveInternal(typeFrom, overrides, name, factoryParameters);
         }
 

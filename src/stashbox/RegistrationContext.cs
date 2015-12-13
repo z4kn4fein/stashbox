@@ -34,9 +34,9 @@ namespace Stashbox
 
         public RegistrationContext(Type typeFrom, Type typeTo, IContainerContext containerContext, IContainerExtensionManager containerExtensionManager)
         {
-            Shield.EnsureNotNull(typeTo);
-            Shield.EnsureNotNull(containerContext);
-            Shield.EnsureNotNull(containerExtensionManager);
+            Shield.EnsureNotNull(() => typeTo);
+            Shield.EnsureNotNull(() => containerContext);
+            Shield.EnsureNotNull(() => containerExtensionManager);
 
             this.typeFrom = typeFrom ?? typeTo;
             this.typeTo = typeTo;

@@ -13,7 +13,7 @@ namespace Stashbox.BuildUp
 
         public InstanceObjectBuilder(object instance)
         {
-            Shield.EnsureNotNull(instance);
+            Shield.EnsureNotNull(() => instance);
 
             this.instance = instance;
         }

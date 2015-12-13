@@ -20,9 +20,9 @@ namespace Stashbox.BuildUp
 
         private FactoryObjectBuilder(IContainerContext containerContext, IContainerExtensionManager containerExtensionManager, IObjectExtender objectExtender)
         {
-            Shield.EnsureNotNull(containerExtensionManager);
-            Shield.EnsureNotNull(objectExtender);
-            Shield.EnsureNotNull(containerContext);
+            Shield.EnsureNotNull(() => containerExtensionManager);
+            Shield.EnsureNotNull(() => objectExtender);
+            Shield.EnsureNotNull(() => containerContext);
             this.containerExtensionManager = containerExtensionManager;
             this.objectExtender = objectExtender;
             this.containerContext = containerContext;
