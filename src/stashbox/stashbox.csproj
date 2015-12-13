@@ -124,8 +124,8 @@
       <HintPath>..\packages\Ronin.Common.1.0.33.0\lib\portable-net45+win+wpa81+wp80+MonoAndroid10+xamarinios10+MonoTouch10\Ronin.Common.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Sendstorm, Version=1.0.31.0, Culture=neutral, PublicKeyToken=9778e33426732b68, processorArchitecture=MSIL">
-      <HintPath>..\packages\Sendstorm.1.0.31.0\lib\portable-net45+win+wpa81+wp80+MonoAndroid10+xamarinios10+MonoTouch10\Sendstorm.dll</HintPath>
+    <Reference Include="Sendstorm, Version=1.0.49.0, Culture=neutral, PublicKeyToken=9778e33426732b68, processorArchitecture=MSIL">
+      <HintPath>..\packages\Sendstorm.1.0.49.0\lib\portable-net45+win+wpa81+wp80+MonoAndroid10+xamarinios10+MonoTouch10\Sendstorm.dll</HintPath>
       <Private>True</Private>
     </Reference>
   </ItemGroup>
