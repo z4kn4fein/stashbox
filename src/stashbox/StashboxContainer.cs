@@ -33,6 +33,19 @@ namespace Stashbox
             this.RegisterResolvers();
         }
 
+        internal StashboxContainer(IStashboxContainer parentContainer, IContainerExtensionManager containerExtensionManager,
+            IResolverSelector resolverSelector, IResolverSelector resolverSelectorContainerExcluded)
+        {
+            this.disposed = new AtomicBool();
+            this.ParentContainer = parentContainer;
+            this.containerExtensionManager = containerExtensionManager;
+            this.resolverSelector = resolverSelector;
+            this.resolverSelectorContainerExcluded = resolverSelectorContainerExcluded;
+            this.registrationRepository = new RegistrationRepository();
+            this.messagePublisher = new MessagePublisher();
+            this.containerContext = new ContainerContext(this.registrationRepository, this.messagePublisher, this, new ResolutionStrategy(this.resolverSelector));
+        }
+
         public void RegisterExtension(IContainerExtension containerExtension)
         {
             this.containerExtensionManager.AddExtension(containerExtension);
@@ -46,6 +59,13 @@ namespace Stashbox
                 Predicate = resolverPredicate
             });
         }
+
+        public IStashboxContainer CreateChildContainer()
+        {
+            return new StashboxContainer(this, this.containerExtensionManager.CreateCopy(), this.resolverSelector.CreateCopy(), this.resolverSelectorContainerExcluded.CreateCopy());
+        }
+
+        public IStashboxContainer ParentContainer { get; }
 
         private void RegisterResolvers()
         {

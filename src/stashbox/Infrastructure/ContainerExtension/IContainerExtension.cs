@@ -2,5 +2,6 @@
 {
     public interface IContainerExtension
     {
+        IContainerExtension CreateCopy();
     }
 }

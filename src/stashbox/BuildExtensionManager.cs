@@ -1,10 +1,11 @@
-﻿using Stashbox.Entity;
+﻿using Ronin.Common;
+using Stashbox.Entity;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.ContainerExtension;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
-using Ronin.Common;
 
 namespace Stashbox
 {
@@ -66,5 +67,16 @@ namespace Stashbox
                     extension.OnRegistration(containerContext, registrationInfo, injectionParameters);
             }
         }
+
+        public IContainerExtensionManager CreateCopy()
+        {
+            var extensionManager = new BuildExtensionManager();
+            using (this.readerWriterLock.AcquireReadLock())
+                foreach (var extension in this.postbuildExtensions.OfType<IContainerExtension>().Concat(this.registrationExtensions))
+                    extensionManager.AddExtension(extension.CreateCopy());
+
+            return extensionManager;
+        }
+
     }
 }

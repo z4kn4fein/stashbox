@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
-using Stashbox.Entity;
+﻿using Stashbox.Entity;
 using Stashbox.Entity.Resolution;
 using Stashbox.Extensions;
 using Stashbox.Infrastructure;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -24,7 +24,7 @@ namespace Stashbox.BuildUp.DelegateFactory
 
             var newExpression = Expression.New(resolutionConstructor.Constructor, arguments);
 
-            if (members == null)
+            if (members == null || members.Length == 0)
                 return Expression.Lambda<CreateInstance>(newExpression, resolutionInfoParameter).Compile();
 
             var length = members.Length;
@@ -58,12 +58,12 @@ namespace Stashbox.BuildUp.DelegateFactory
 
             var newExpression = Expression.New(resolutionConstructor.Constructor, arguments);
 
-            if (members != null)
+            if (members == null || members.Length == 0) return newExpression;
             {
                 var copiedProperties = members.CreateCopy();
                 var propLength = copiedProperties.Count;
-                var propertyExpressions = new MemberAssignment[propLength];
-                for (int i = 0; i < propLength; i++)
+                var propertyExpressions = new MemberBinding[propLength];
+                for (var i = 0; i < propLength; i++)
                 {
                     var member = copiedProperties[i];
                     var propertyExpression = Expression.Bind(member.MemberInfo,
@@ -73,8 +73,6 @@ namespace Stashbox.BuildUp.DelegateFactory
 
                 return Expression.MemberInit(newExpression, propertyExpressions);
             }
-
-            return newExpression;
         }
 
         public static InvokeMethod CreateMethodExpression(IContainerContext containerContext, ResolutionTarget[] parameters, MethodInfo methodInfo)

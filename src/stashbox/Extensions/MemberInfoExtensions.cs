@@ -2,7 +2,7 @@
 
 namespace System.Reflection
 {
-    public static class PropertyInfoExtensions
+    public static class MemberInfoExtensions
     {
         public static Action<object, object> GetMemberSetter(this MemberInfo memberInfo)
         {
@@ -25,7 +25,7 @@ namespace System.Reflection
             {
                 var field = memberInfo as FieldInfo;
                 if (field == null)
-                    throw new ArgumentException("Invalid argument, memberinfo must be a PropertyInfo or a FieldInfo type.",
+                    throw new ArgumentException("Invalid argument, it must be a PropertyInfo or a FieldInfo type.",
                         nameof(memberInfo));
 
                 var fieldExpression = Expression.Field(

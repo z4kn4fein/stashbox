@@ -45,5 +45,15 @@ namespace Stashbox
             using (this.readerWriterLock.AcquireWriteLock())
                 this.resolverRepository.Add(resolverRegistration);
         }
+
+        public IResolverSelector CreateCopy()
+        {
+            var selector = new ResolverSelector();
+            using (this.readerWriterLock.AcquireReadLock())
+                foreach (var resolverRegistration in resolverRepository)
+                    selector.AddResolver(resolverRegistration);
+
+            return selector;
+        }
     }
 }

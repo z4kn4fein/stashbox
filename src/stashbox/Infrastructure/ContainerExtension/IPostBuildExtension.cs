@@ -1,6 +1,5 @@
 ﻿using Stashbox.Entity;
 using System;
-using System.Collections.Generic;
 
 namespace Stashbox.Infrastructure.ContainerExtension
 {

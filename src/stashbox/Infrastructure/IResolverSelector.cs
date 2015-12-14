@@ -7,5 +7,6 @@ namespace Stashbox.Infrastructure
         bool CanResolve(IContainerContext containerContext, TypeInformation typeInfo);
         bool TryChooseResolver(IContainerContext containerContext, TypeInformation typeInfo, out Resolver resolver);
         void AddResolver(ResolverRegistration resolverRegistration);
+        IResolverSelector CreateCopy();
     }
 }

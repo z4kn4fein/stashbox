@@ -74,25 +74,22 @@ namespace Stashbox.Registration
         public bool ConstainsTypeKeyWithConditions(TypeInformation typeInfo)
         {
             var registrations = this.serviceRepository.GetValueOrDefault(typeInfo.Type);
-            if (registrations == null)
+            if (registrations != null)
+                return registrations.Value != null &&
+                       registrations.Enumerate()
+                           .Any(registration => registration.Value.IsUsableForCurrentContext(typeInfo));
             {
                 Type genericTypeDefinition;
-                if (this.TryHandleOpenGenericType(typeInfo.Type, out genericTypeDefinition))
+                if (!this.TryHandleOpenGenericType(typeInfo.Type, out genericTypeDefinition)) return false;
+                registrations = this.serviceRepository.GetValueOrDefault(genericTypeDefinition);
+                return registrations != null && registrations.Enumerate().Any(registration => registration.Value.IsUsableForCurrentContext(new TypeInformation
                 {
-                    registrations = this.serviceRepository.GetValueOrDefault(genericTypeDefinition);
-                    return registrations != null && registrations.Enumerate().Any(registration => registration.Value.IsUsableForCurrentContext(new TypeInformation
-                    {
-                        Type = genericTypeDefinition,
-                        ParentType = typeInfo.ParentType,
-                        DependencyName = typeInfo.DependencyName,
-                        CustomAttributes = typeInfo.CustomAttributes
-                    }));
-                }
-                else
-                    return false;
+                    Type = genericTypeDefinition,
+                    ParentType = typeInfo.ParentType,
+                    DependencyName = typeInfo.DependencyName,
+                    CustomAttributes = typeInfo.CustomAttributes
+                }));
             }
-            else
-                return registrations.Value != null && registrations.Enumerate().Any(registration => registration.Value.IsUsableForCurrentContext(typeInfo));
         }
 
         public bool ConstainsTypeKeyWithConditionsWithoutGenericDefinitionExtraction(TypeInformation typeInfo)

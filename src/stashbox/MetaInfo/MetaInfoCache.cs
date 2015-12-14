@@ -58,37 +58,37 @@ namespace Stashbox.MetaInfo
 
         private IEnumerable<MemberInformation> FillProperties(TypeInfo typeInfo)
         {
-            var properties =  typeInfo.DeclaredProperties.Where(propertyInfo => propertyInfo.GetCustomAttribute<DependencyAttribute>() != null)
-                             .Select(propertyInfo => new MemberInformation
-                             {
-                                 TypeInformation = new TypeInformation
-                                 {
-                                     Type = propertyInfo.PropertyType,
-                                     DependencyName = propertyInfo.GetCustomAttribute<DependencyAttribute>() != null ?
-                                                  propertyInfo.GetCustomAttribute<DependencyAttribute>().Name : null,
-                                     ParentType = this.TypeTo,
-                                     CustomAttributes = propertyInfo.GetCustomAttributes().ToArray(),
-                                     MemberName = propertyInfo.Name
-                                 },
-                                 MemberInfo = propertyInfo
-                             });
-
-            return properties.Concat(typeInfo.DeclaredFields.Where(
-                fieldInfo => fieldInfo.GetCustomAttribute<DependencyAttribute>() != null)
-                .Select(fieldInfo => new MemberInformation
-                {
-                    TypeInformation = new TypeInformation
-                    {
-                        Type = fieldInfo.FieldType,
-                        DependencyName = fieldInfo.GetCustomAttribute<DependencyAttribute>() != null
-                            ? fieldInfo.GetCustomAttribute<DependencyAttribute>().Name
-                            : null,
-                        ParentType = this.TypeTo,
-                        CustomAttributes = fieldInfo.GetCustomAttributes().ToArray(),
-                        MemberName = fieldInfo.Name
-                    },
-                    MemberInfo = fieldInfo
-                }));
+            return typeInfo.DeclaredProperties
+                   .Where(propertyInfo => propertyInfo.GetCustomAttribute<DependencyAttribute>() != null)
+                   .Select(propertyInfo => new MemberInformation
+                   {
+                       TypeInformation = new TypeInformation
+                       {
+                           Type = propertyInfo.PropertyType,
+                           DependencyName = propertyInfo.GetCustomAttribute<DependencyAttribute>() != null ?
+                                        propertyInfo.GetCustomAttribute<DependencyAttribute>().Name : null,
+                           ParentType = this.TypeTo,
+                           CustomAttributes = propertyInfo.GetCustomAttributes().ToArray(),
+                           MemberName = propertyInfo.Name
+                       },
+                       MemberInfo = propertyInfo
+                   })
+                   .Concat(typeInfo.DeclaredFields
+                           .Where(fieldInfo => fieldInfo.GetCustomAttribute<DependencyAttribute>() != null)
+                           .Select(fieldInfo => new MemberInformation
+                           {
+                               TypeInformation = new TypeInformation
+                               {
+                                   Type = fieldInfo.FieldType,
+                                   DependencyName = fieldInfo.GetCustomAttribute<DependencyAttribute>() != null
+                                       ? fieldInfo.GetCustomAttribute<DependencyAttribute>().Name
+                                       : null,
+                                   ParentType = this.TypeTo,
+                                   CustomAttributes = fieldInfo.GetCustomAttributes().ToArray(),
+                                   MemberName = fieldInfo.Name
+                               },
+                               MemberInfo = fieldInfo
+                           }));
         }
     }
 }

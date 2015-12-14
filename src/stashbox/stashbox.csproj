@@ -73,10 +73,9 @@
     <Compile Include="Exceptions\RegistrationNotFoundException.cs" />
     <Compile Include="Exceptions\ResolutionFailedException.cs" />
     <Compile Include="Extensions\ArrayExtensions.cs" />
-    <Compile Include="Extensions\PropertyInfoExtensions.cs" />
+    <Compile Include="Extensions\MemberInfoExtensions.cs" />
     <Compile Include="Extensions\TypeExtensions.cs" />
     <Compile Include="Infrastructure\ContainerExtension\IPostBuildExtension.cs" />
-    <Compile Include="Infrastructure\ContainerExtension\IPreBuildExtension.cs" />
     <Compile Include="Infrastructure\ContainerExtension\IRegistrationExtension.cs" />
     <Compile Include="Infrastructure\IObjectExtender.cs" />
     <Compile Include="Infrastructure\IRegistrationContext.cs" />
