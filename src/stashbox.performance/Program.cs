@@ -21,7 +21,7 @@ namespace stashbox.performance
                 container.RegisterType<IComplex2, Complex2>();
                 container.RegisterType<IComplex3, Complex3>();
 
-                for (int i = 0; i < 10000000; i++)
+                for (int i = 0; i < 1000000000; i++)
                 {
                     var complex1 = (IComplex1)container.Resolve(typeof(IComplex1));
                     var complex2 = (IComplex2)container.Resolve(typeof(IComplex2));

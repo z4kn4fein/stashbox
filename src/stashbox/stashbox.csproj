@@ -56,7 +56,6 @@
     <Compile Include="BuildUp\Resolution\LazyResolver.cs" />
     <Compile Include="Entity\ConstructorInformation.cs" />
     <Compile Include="Entity\Events\RegistrationAdded.cs" />
-    <Compile Include="Entity\Events\RegistrationRemoved.cs" />
     <Compile Include="Entity\InjectionParameter.cs" />
     <Compile Include="Entity\MethodInformation.cs" />
     <Compile Include="Entity\MemberInformation.cs" />
@@ -72,7 +71,6 @@
     <Compile Include="Exceptions\InjectionConstructorNotFoundException.cs" />
     <Compile Include="Exceptions\RegistrationNotFoundException.cs" />
     <Compile Include="Exceptions\ResolutionFailedException.cs" />
-    <Compile Include="Extensions\ArrayExtensions.cs" />
     <Compile Include="Extensions\MemberInfoExtensions.cs" />
     <Compile Include="Extensions\TypeExtensions.cs" />
     <Compile Include="Infrastructure\ContainerExtension\IPostBuildExtension.cs" />
@@ -120,12 +118,12 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Ronin.Common, Version=1.0.42.0, Culture=neutral, PublicKeyToken=9778e33426732b68, processorArchitecture=MSIL">
-      <HintPath>..\packages\Ronin.Common.1.0.42.0\lib\portable-net45+win+wpa81+wp80+MonoAndroid10+xamarinios10+MonoTouch10\Ronin.Common.dll</HintPath>
+    <Reference Include="Ronin.Common, Version=1.0.43.0, Culture=neutral, PublicKeyToken=9778e33426732b68, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ronin.Common.1.0.43.0\lib\portable-net45+win+wpa81+wp80+MonoAndroid10+xamarinios10+MonoTouch10\Ronin.Common.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Sendstorm, Version=1.0.52.0, Culture=neutral, PublicKeyToken=9778e33426732b68, processorArchitecture=MSIL">
-      <HintPath>..\packages\Sendstorm.1.0.52.0\lib\portable-net45+win+wpa81+wp80+MonoAndroid10+xamarinios10+MonoTouch10\Sendstorm.dll</HintPath>
+    <Reference Include="Sendstorm, Version=1.0.53.0, Culture=neutral, PublicKeyToken=9778e33426732b68, processorArchitecture=MSIL">
+      <HintPath>..\packages\Sendstorm.1.0.53.0\lib\portable-net45+win+wpa81+wp80+MonoAndroid10+xamarinios10+MonoTouch10\Sendstorm.dll</HintPath>
       <Private>True</Private>
     </Reference>
   </ItemGroup>

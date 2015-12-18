@@ -1,10 +1,10 @@
 ﻿using Stashbox.Entity;
 using Stashbox.Entity.Resolution;
-using Stashbox.Extensions;
 using Stashbox.Infrastructure;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
+using Ronin.Common;
 
 namespace Stashbox.BuildUp.DelegateFactory
 {
@@ -14,7 +14,7 @@ namespace Stashbox.BuildUp.DelegateFactory
     public class ExpressionDelegateFactory
     {
         public static CreateInstance CreateConstructorExpression(IContainerContext containerContext, ResolutionConstructor resolutionConstructor,
-            ResolutionMember[] members = null)
+            ImmutableArray<ResolutionMember> members)
         {
             var strategyParameter = Expression.Constant(containerContext.ResolutionStrategy, typeof(IResolutionStrategy));
             var containerContextParameter = Expression.Constant(containerContext, typeof(IContainerContext));
@@ -24,10 +24,10 @@ namespace Stashbox.BuildUp.DelegateFactory
 
             var newExpression = Expression.New(resolutionConstructor.Constructor, arguments);
 
-            if (members == null || members.Length == 0)
+            if (members.Count == 0)
                 return Expression.Lambda<CreateInstance>(newExpression, resolutionInfoParameter).Compile();
 
-            var length = members.Length;
+            var length = members.Count;
             var propertyExpressions = new MemberBinding[length];
             for (var i = 0; i < length; i++)
             {
@@ -44,28 +44,26 @@ namespace Stashbox.BuildUp.DelegateFactory
         }
 
         public static Expression CreateExpression(IContainerContext containerContext, ResolutionConstructor resolutionConstructor, ResolutionInfo resolutionInfo,
-            ResolutionMember[] members = null)
+            ImmutableArray<ResolutionMember> members)
         {
-            var copiedParameters = resolutionConstructor.Parameters.CreateCopy();
-            var length = copiedParameters.Count;
+            var length = resolutionConstructor.Parameters.Length;
             var arguments = new Expression[length];
 
             for (var i = 0; i < length; i++)
             {
-                var parameter = copiedParameters[i];
+                var parameter = resolutionConstructor.Parameters[i];
                 arguments[i] = containerContext.ResolutionStrategy.GetExpressionForResolutionTarget(parameter, resolutionInfo);
             }
 
             var newExpression = Expression.New(resolutionConstructor.Constructor, arguments);
 
-            if (members == null || members.Length == 0) return newExpression;
+            if (members.Count == 0) return newExpression;
             {
-                var copiedProperties = members.CreateCopy();
-                var propLength = copiedProperties.Count;
+                var propLength = members.Count;
                 var propertyExpressions = new MemberBinding[propLength];
                 for (var i = 0; i < propLength; i++)
                 {
-                    var member = copiedProperties[i];
+                    var member = members[i];
                     var propertyExpression = Expression.Bind(member.MemberInfo,
                         containerContext.ResolutionStrategy.GetExpressionForResolutionTarget(member.ResolutionTarget, resolutionInfo));
                     propertyExpressions[i] = propertyExpression;

@@ -8,12 +8,12 @@ namespace Stashbox.Registration
 {
     public class RegistrationRepository : IRegistrationRepository
     {
-        private ImmutableTree<Type, ImmutableTree<IServiceRegistration>> serviceRepository;
+        private ImmutableTree<ImmutableTree<IServiceRegistration>> serviceRepository;
         private readonly object syncObject = new object();
 
         public RegistrationRepository()
         {
-            this.serviceRepository = ImmutableTree<Type, ImmutableTree<IServiceRegistration>>.Empty;
+            this.serviceRepository = ImmutableTree<ImmutableTree<IServiceRegistration>>.Empty;
         }
 
         public bool TryGetRegistrationWithConditions(TypeInformation typeInfo, out IServiceRegistration registration)
@@ -38,7 +38,7 @@ namespace Stashbox.Registration
 
             lock (this.syncObject)
             {
-                this.serviceRepository = this.serviceRepository.AddOrUpdate(typeKey, newTree, (oldValue, newValue) =>
+                this.serviceRepository = this.serviceRepository.AddOrUpdate(typeKey.GetHashCode(), newTree, (oldValue, newValue) =>
                 {
                     return oldValue.AddOrUpdate(nameKey.GetHashCode(), registration, (oldRegistration, newReg) => newReg);
                 });
@@ -47,13 +47,13 @@ namespace Stashbox.Registration
 
         public bool TryGetTypedRepositoryRegistrations(TypeInformation typeInfo, out IServiceRegistration[] registrations)
         {
-            var serviceRegistrations = this.serviceRepository.GetValueOrDefault(typeInfo.Type);
+            var serviceRegistrations = this.serviceRepository.GetValueOrDefault(typeInfo.Type.GetHashCode());
             if (serviceRegistrations == null)
             {
                 Type genericTypeDefinition;
                 if (this.TryHandleOpenGenericType(typeInfo.Type, out genericTypeDefinition))
                 {
-                    serviceRegistrations = this.serviceRepository.GetValueOrDefault(genericTypeDefinition);
+                    serviceRegistrations = this.serviceRepository.GetValueOrDefault(genericTypeDefinition.GetHashCode());
                 }
                 else
                 {
@@ -68,12 +68,12 @@ namespace Stashbox.Registration
 
         public bool ConstainsTypeKey(TypeInformation typeInfo)
         {
-            return this.serviceRepository.GetValueOrDefault(typeInfo.Type) != null;
+            return this.serviceRepository.GetValueOrDefault(typeInfo.Type.GetHashCode()) != null;
         }
 
         public bool ConstainsTypeKeyWithConditions(TypeInformation typeInfo)
         {
-            var registrations = this.serviceRepository.GetValueOrDefault(typeInfo.Type);
+            var registrations = this.serviceRepository.GetValueOrDefault(typeInfo.Type.GetHashCode());
             if (registrations != null)
                 return registrations.Value != null &&
                        registrations.Enumerate()
@@ -81,7 +81,7 @@ namespace Stashbox.Registration
             {
                 Type genericTypeDefinition;
                 if (!this.TryHandleOpenGenericType(typeInfo.Type, out genericTypeDefinition)) return false;
-                registrations = this.serviceRepository.GetValueOrDefault(genericTypeDefinition);
+                registrations = this.serviceRepository.GetValueOrDefault(genericTypeDefinition.GetHashCode());
                 return registrations != null && registrations.Enumerate().Any(registration => registration.Value.IsUsableForCurrentContext(new TypeInformation
                 {
                     Type = genericTypeDefinition,
@@ -94,7 +94,7 @@ namespace Stashbox.Registration
 
         public bool ConstainsTypeKeyWithConditionsWithoutGenericDefinitionExtraction(TypeInformation typeInfo)
         {
-            var registrations = this.serviceRepository.GetValueOrDefault(typeInfo.Type);
+            var registrations = this.serviceRepository.GetValueOrDefault(typeInfo.Type.GetHashCode());
             if (registrations == null) return false;
             return registrations.Value != null && registrations.Enumerate().Any(registration => registration.Value.IsUsableForCurrentContext(typeInfo));
         }
@@ -143,12 +143,12 @@ namespace Stashbox.Registration
 
         private bool TryGetRegistrationsByType(Type type, out ImmutableTree<IServiceRegistration> registrations)
         {
-            registrations = this.serviceRepository.GetValueOrDefault(type);
+            registrations = this.serviceRepository.GetValueOrDefault(type.GetHashCode());
             if (registrations != null) return true;
             Type genericTypeDefinition;
             if (this.TryHandleOpenGenericType(type, out genericTypeDefinition))
             {
-                registrations = this.serviceRepository.GetValueOrDefault(genericTypeDefinition);
+                registrations = this.serviceRepository.GetValueOrDefault(genericTypeDefinition.GetHashCode());
             }
             else
             {
