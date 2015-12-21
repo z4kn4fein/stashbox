@@ -1,8 +1,8 @@
-﻿using Ronin.Common;
-using Stashbox.Entity;
+﻿using Stashbox.Entity;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.ContainerExtension;
 using System;
+using System.Linq.Expressions;
 
 namespace Stashbox.BuildUp
 {
@@ -18,11 +18,6 @@ namespace Stashbox.BuildUp
 
         public BuildUpObjectBuilder(object instance, IContainerContext containerContext, IContainerExtensionManager containerExtensionManager, IObjectExtender objectExtender)
         {
-            Shield.EnsureNotNull(containerContext);
-            Shield.EnsureNotNull(instance);
-            Shield.EnsureNotNull(containerExtensionManager);
-            Shield.EnsureNotNull(objectExtender);
-
             this.instance = instance;
             this.instanceType = instance.GetType();
             this.containerExtensionManager = containerExtensionManager;
@@ -32,17 +27,21 @@ namespace Stashbox.BuildUp
 
         public object BuildInstance(ResolutionInfo resolutionInfo)
         {
-            Shield.EnsureNotNull(resolutionInfo);
-
             if (this.builtInstance != null) return this.builtInstance;
             lock (this.syncObject)
             {
                 if (this.builtInstance != null) return this.builtInstance;
-                this.builtInstance = this.objectExtender.ExtendObject(this.instance, this.containerContext, resolutionInfo);
+                this.builtInstance = this.objectExtender.FillResolutionMembers(this.instance, this.containerContext, resolutionInfo);
+                this.builtInstance = this.objectExtender.FillResolutionMethods(this.builtInstance, this.containerContext, resolutionInfo);
                 this.builtInstance = this.containerExtensionManager.ExecutePostBuildExtensions(this.builtInstance, this.instanceType, this.containerContext, resolutionInfo);
             }
 
             return this.builtInstance;
+        }
+
+        public Expression GetExpression(ResolutionInfo resolutionInfo)
+        {
+            return Expression.Constant(this.BuildInstance(resolutionInfo));
         }
 
         public void CleanUp()
@@ -55,8 +54,6 @@ namespace Stashbox.BuildUp
                 disposable?.Dispose();
                 this.builtInstance = null;
             }
-
-            this.objectExtender.CleanUp();
         }
     }
 }

@@ -1,12 +1,13 @@
 ﻿using Stashbox.Entity;
 using Stashbox.Infrastructure;
 using System;
+using System.Linq.Expressions;
 
 namespace Stashbox.LifeTime
 {
     public class SingletonLifetime : ILifetime
     {
-        private object instance;
+        private volatile object instance;
         private readonly object syncObject = new object();
 
         public object GetInstance(IObjectBuilder objectBuilder, ResolutionInfo resolutionInfo)
@@ -19,6 +20,11 @@ namespace Stashbox.LifeTime
             }
 
             return this.instance;
+        }
+
+        public Expression GetExpression(IObjectBuilder objectBuilder, ResolutionInfo resolutionInfo)
+        {
+            return Expression.Constant(this.GetInstance(objectBuilder, resolutionInfo));
         }
 
         public void CleanUp()

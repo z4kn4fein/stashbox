@@ -1,5 +1,6 @@
 ﻿using Stashbox.Entity;
 using Stashbox.Infrastructure;
+using System.Linq.Expressions;
 
 namespace Stashbox.BuildUp
 {
@@ -17,19 +18,22 @@ namespace Stashbox.BuildUp
 
         public object BuildInstance(ResolutionInfo resolutionInfo)
         {
-            if (!containerContext.RegistrationRepository.ConstainsTypeKeyWithConditionsWithoutGenericDefinitionExtraction(resolutionInfo.ResolveType))
+            if (containerContext.RegistrationRepository.ConstainsTypeKeyWithConditionsWithoutGenericDefinitionExtraction(resolutionInfo.ResolveType))
+                return containerContext.Container.Resolve(resolutionInfo.ResolveType.Type);
+            lock (this.syncObject)
             {
-                lock (this.syncObject)
-                {
-                    if (!containerContext.RegistrationRepository.ConstainsTypeKeyWithConditionsWithoutGenericDefinitionExtraction(resolutionInfo.ResolveType))
-                    {
-                        var genericType = this.metaInfoProvider.TypeTo.MakeGenericType(resolutionInfo.ResolveType.Type.GenericTypeArguments);
-                        this.containerContext.Container.RegisterType(resolutionInfo.ResolveType.Type, genericType);
-                    }
-                }
+                if (containerContext.RegistrationRepository.ConstainsTypeKeyWithConditionsWithoutGenericDefinitionExtraction(resolutionInfo.ResolveType))
+                    return containerContext.Container.Resolve(resolutionInfo.ResolveType.Type);
+                var genericType = this.metaInfoProvider.TypeTo.MakeGenericType(resolutionInfo.ResolveType.Type.GenericTypeArguments);
+                this.containerContext.Container.RegisterType(resolutionInfo.ResolveType.Type, genericType);
             }
 
             return containerContext.Container.Resolve(resolutionInfo.ResolveType.Type);
+        }
+
+        public Expression GetExpression(ResolutionInfo resolutionInfo)
+        {
+            return Expression.Constant(this.BuildInstance(resolutionInfo));
         }
 
         public void CleanUp()

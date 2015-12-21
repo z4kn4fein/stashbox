@@ -19,13 +19,13 @@ namespace Stashbox
 
         public bool CanResolve(IContainerContext containerContext, TypeInformation typeInfo)
         {
-            using (this.readerWriterLock.AquireReadLock())
+            using (this.readerWriterLock.AcquireReadLock())
                 return this.resolverRepository.Any(registration => registration.Predicate(containerContext, typeInfo));
         }
 
         public bool TryChooseResolver(IContainerContext containerContext, TypeInformation typeInfo, out Resolver resolver)
         {
-            using (this.readerWriterLock.AquireReadLock())
+            using (this.readerWriterLock.AcquireReadLock())
             {
                 var resolverFactory = this.resolverRepository.FirstOrDefault(
                     registration => registration.Predicate(containerContext, typeInfo));
@@ -42,8 +42,18 @@ namespace Stashbox
 
         public void AddResolver(ResolverRegistration resolverRegistration)
         {
-            using (this.readerWriterLock.AquireWriteLock())
+            using (this.readerWriterLock.AcquireWriteLock())
                 this.resolverRepository.Add(resolverRegistration);
+        }
+
+        public IResolverSelector CreateCopy()
+        {
+            var selector = new ResolverSelector();
+            using (this.readerWriterLock.AcquireReadLock())
+                foreach (var resolverRegistration in resolverRepository)
+                    selector.AddResolver(resolverRegistration);
+
+            return selector;
         }
     }
 }

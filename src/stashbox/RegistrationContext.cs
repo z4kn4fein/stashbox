@@ -1,7 +1,5 @@
-﻿using Ronin.Common;
-using Stashbox.BuildUp;
+﻿using Stashbox.BuildUp;
 using Stashbox.Entity;
-using Stashbox.Entity.Events;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.ContainerExtension;
 using Stashbox.Lifetime;
@@ -30,14 +28,10 @@ namespace Stashbox
         private ILifetime lifetime;
         private Type targetTypeCondition;
         private Func<TypeInformation, bool> resolutionCondition;
-        private HashSet<Type> attributeConditions;
+        private readonly HashSet<Type> attributeConditions;
 
         public RegistrationContext(Type typeFrom, Type typeTo, IContainerContext containerContext, IContainerExtensionManager containerExtensionManager)
         {
-            Shield.EnsureNotNull(typeTo);
-            Shield.EnsureNotNull(containerContext);
-            Shield.EnsureNotNull(containerExtensionManager);
-
             this.typeFrom = typeFrom ?? typeTo;
             this.typeTo = typeTo;
             this.containerContext = containerContext;
@@ -47,7 +41,7 @@ namespace Stashbox
 
         public IStashboxContainer Register()
         {
-            var registrationName = NameGenerator.GetRegistrationName(this.name);
+            var registrationName = NameGenerator.GetRegistrationName(this.typeTo, this.name);
 
             var registrationLifetime = lifetime ?? new TransientLifetime();
 
@@ -57,8 +51,7 @@ namespace Stashbox
                 this.CreateObjectBuilder(), this.attributeConditions, this.targetTypeCondition, this.resolutionCondition);
 
             this.containerContext.RegistrationRepository.AddRegistration(typeFrom, registration, registrationName);
-            this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.containerContext, registrationInfo, this.injectionParameters == null ? null : this.injectionParameters);
-            this.containerContext.MessagePublisher.Broadcast(new RegistrationAdded { RegistrationInfo = registrationInfo });
+            this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.containerContext, registrationInfo, this.injectionParameters);
             return this.containerContext.Container;
         }
 
@@ -137,7 +130,7 @@ namespace Stashbox
         private IObjectBuilder CreateObjectBuilder()
         {
             var metainfoProvider = new MetaInfoProvider(this.containerContext, this.typeTo);
-            var objectExtender = new ObjectExtender(metainfoProvider, this.containerContext.MessagePublisher, this.injectionParameters);
+            var objectExtender = new ObjectExtender(metainfoProvider, this.injectionParameters);
 
             if (this.singleFactory != null)
                 return new FactoryObjectBuilder(this.singleFactory, this.containerContext, this.containerExtensionManager, objectExtender);
@@ -155,7 +148,7 @@ namespace Stashbox
                 return new GenericTypeObjectBuilder(this.containerContext, new MetaInfoProvider(this.containerContext, this.typeTo));
 
             return new DefaultObjectBuilder(this.containerContext, new MetaInfoProvider(this.containerContext, this.typeTo),
-                this.containerExtensionManager, this.containerContext.MessagePublisher, this.injectionParameters);
+                this.containerExtensionManager, this.injectionParameters);
         }
     }
 }

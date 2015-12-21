@@ -1,7 +1,7 @@
-﻿using Ronin.Common;
-using Stashbox.Entity;
+﻿using Stashbox.Entity;
 using Stashbox.Infrastructure;
 using System;
+using System.Linq.Expressions;
 
 namespace Stashbox.BuildUp
 {
@@ -12,9 +12,12 @@ namespace Stashbox.BuildUp
 
         public InstanceObjectBuilder(object instance)
         {
-            Shield.EnsureNotNull(instance);
-
             this.instance = instance;
+        }
+
+        public Expression GetExpression(ResolutionInfo resolutionInfo)
+        {
+            return Expression.Constant(this.instance);
         }
 
         public object BuildInstance(ResolutionInfo resolutionInfo)

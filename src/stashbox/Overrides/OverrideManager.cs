@@ -11,11 +11,9 @@ namespace Stashbox.Overrides
         private readonly NamedOverride[] nameOverrides;
         private readonly TypeOverride[] typeOverrides;
 
-        public OverrideManager(IEnumerable<Override> overrides)
+        public OverrideManager(Override[] overrides)
         {
-            var overridesArray = overrides as Override[] ?? overrides?.ToArray();
-
-            if (overridesArray == null || !overridesArray.Any()) return;
+            if (overrides == null || !overrides.Any()) return;
 
             this.nameOverrides = overrides.OfType<NamedOverride>().ToArray();
             this.typeOverrides = overrides.OfType<TypeOverride>().ToArray();

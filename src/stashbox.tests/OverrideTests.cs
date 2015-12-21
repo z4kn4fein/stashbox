@@ -117,7 +117,7 @@ namespace Stashbox.Tests
             [InjectionMethod]
             public void Inject(ITest1 test)
             {
-                Shield.EnsureNotNull(test);
+                Shield.EnsureNotNull(test, nameof(test));
                 this.MethodInvoked = true;
                 Name += test.Name;
             }

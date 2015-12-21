@@ -1,61 +1,52 @@
-﻿using Ronin.Common;
-using Sendstorm.Infrastructure;
-using Stashbox.Entity;
-using Stashbox.Entity.Events;
+﻿using Stashbox.Entity;
 using Stashbox.Entity.Resolution;
-using Stashbox.Extensions;
 using Stashbox.Infrastructure;
 using System.Linq;
 
 namespace Stashbox
 {
-    public class ObjectExtender : IObjectExtender, IMessageReceiver<RegistrationAdded>, IMessageReceiver<RegistrationRemoved>
+    public class ObjectExtender : IObjectExtender
     {
         private readonly IMetaInfoProvider metaInfoProvider;
-        private readonly IMessagePublisher messagePublisher;
         private readonly InjectionParameter[] injectionParameters;
+        private volatile ResolutionMethod[] injectionMethods;
+        private volatile ResolutionMember[] injectionMembers;
+        private readonly object resolutionMemberSyncObject = new object();
+        private readonly object resolutionMethodSyncObject = new object();
 
-        private ResolutionMethod[] injectionMethods;
-        private ResolutionProperty[] injectionProperties;
-
-        private bool hasInjectionMethods;
-        private bool hasInjectionProperties;
-
-        public ObjectExtender(IMetaInfoProvider metaInfoProvider,
-            IMessagePublisher messagePublisher, InjectionParameter[] injectionParameters = null)
+        public ObjectExtender(IMetaInfoProvider metaInfoProvider, InjectionParameter[] injectionParameters = null)
         {
-            Shield.EnsureNotNull(metaInfoProvider);
-            Shield.EnsureNotNull(messagePublisher);
-
             if (injectionParameters != null)
                 this.injectionParameters = injectionParameters;
 
             this.metaInfoProvider = metaInfoProvider;
-            this.messagePublisher = messagePublisher;
-
-            this.messagePublisher.Subscribe<RegistrationAdded>(this, addedEvent => this.metaInfoProvider.SensitivityList.Contains(addedEvent.RegistrationInfo.TypeFrom));
-            this.messagePublisher.Subscribe<RegistrationRemoved>(this, removedEvent => this.metaInfoProvider.SensitivityList.Contains(removedEvent.RegistrationInfo.TypeFrom));
-            this.CollectInjectionMembers();
         }
 
-        public object ExtendObject(object instance, IContainerContext containerContext, ResolutionInfo resolutionInfo)
+        public object FillResolutionMembers(object instance, IContainerContext containerContext, ResolutionInfo resolutionInfo)
         {
-            if (this.hasInjectionProperties)
+            if (!this.metaInfoProvider.HasInjectionMembers) return instance;
+
+            var members = this.GetResolutionMembers();
+
+            var count = members.Length;
+            for (var i = 0; i < count; i++)
             {
-                var properties = this.injectionProperties.CreateCopy();
-                var count = properties.Count;
-                for (int i = 0; i < count; i++)
-                {
-                    var value = containerContext.ResolutionStrategy.EvaluateResolutionTarget(containerContext, properties[i].ResolutionTarget, resolutionInfo);
-                    properties[i].PropertySetter(instance, value);
-                }
+                var value = containerContext.ResolutionStrategy.EvaluateResolutionTarget(containerContext,
+                    members[i].ResolutionTarget, resolutionInfo);
+                members[i].MemberSetter(instance, value);
             }
 
-            if (this.hasInjectionMethods)
+            return instance;
+        }
+
+        public object FillResolutionMethods(object instance, IContainerContext containerContext, ResolutionInfo resolutionInfo)
+        {
+            if (!this.metaInfoProvider.HasInjectionMethod) return instance;
             {
-                var methods = this.injectionMethods.CreateCopy();
-                var count = methods.Count;
-                for (int i = 0; i < count; i++)
+                var methods = this.GetResolutionMethods();
+
+                var count = methods.Length;
+                for (var i = 0; i < count; i++)
                 {
                     methods[i].MethodDelegate(resolutionInfo, instance);
                 }
@@ -64,29 +55,28 @@ namespace Stashbox
             return instance;
         }
 
-        public void Receive(RegistrationRemoved message)
+        public ResolutionMember[] GetResolutionMembers()
         {
-            this.CollectInjectionMembers();
+            if (!this.metaInfoProvider.HasInjectionMembers) return null;
+
+            if (this.injectionMembers != null) return this.injectionMembers;
+            lock (this.resolutionMemberSyncObject)
+            {
+                if (this.injectionMembers != null) return this.injectionMembers;
+                return this.injectionMembers = this.metaInfoProvider.GetResolutionMembers(this.injectionParameters).ToArray();
+            }
         }
 
-        public void Receive(RegistrationAdded message)
+        private ResolutionMethod[] GetResolutionMethods()
         {
-            this.CollectInjectionMembers();
-        }
+            if (!this.metaInfoProvider.HasInjectionMethod) return null;
 
-        private void CollectInjectionMembers()
-        {
-            this.injectionMethods = this.metaInfoProvider.GetResolutionMethods(this.injectionParameters).ToArray();
-            this.injectionProperties = this.metaInfoProvider.GetResolutionProperties(this.injectionParameters).ToArray();
-
-            this.hasInjectionMethods = this.injectionMethods.Length > 0;
-            this.hasInjectionProperties = this.injectionProperties.Length > 0;
-        }
-
-        public void CleanUp()
-        {
-            this.messagePublisher.UnSubscribe<RegistrationAdded>(this);
-            this.messagePublisher.UnSubscribe<RegistrationRemoved>(this);
+            if (this.injectionMethods != null) return this.injectionMethods;
+            lock (this.resolutionMethodSyncObject)
+            {
+                if (this.injectionMethods != null) return this.injectionMethods;
+                return this.injectionMethods = this.metaInfoProvider.GetResolutionMethods(this.injectionParameters).ToArray();
+            }
         }
     }
 }

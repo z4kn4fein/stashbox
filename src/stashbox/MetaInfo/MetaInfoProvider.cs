@@ -14,23 +14,18 @@ namespace Stashbox.MetaInfo
         private readonly IContainerContext containerContext;
         private readonly MetaInfoCache metaInfoCache;
 
-        public HashSet<Type> SensitivityList { get; private set; }
-
         public Type TypeTo => this.metaInfoCache.TypeTo;
 
-        private readonly bool hasInjectionMethod;
-        public bool HasInjectionMethod => this.hasInjectionMethod;
+        public bool HasInjectionMethod { get; }
 
-        private readonly bool hasInjectionProperty;
-        public bool HasInjectionProperty => this.hasInjectionProperty;
+        public bool HasInjectionMembers { get; }
 
         public MetaInfoProvider(IContainerContext containerContext, Type typeTo)
         {
             this.containerContext = containerContext;
             this.metaInfoCache = new MetaInfoCache(typeTo);
-            this.hasInjectionMethod = this.metaInfoCache.InjectionMethods.Any();
-            this.hasInjectionProperty = this.metaInfoCache.InjectionProperties.Any();
-            this.BuildSensitivityList();
+            this.HasInjectionMethod = this.metaInfoCache.InjectionMethods.Any();
+            this.HasInjectionMembers = this.metaInfoCache.InjectionMembers.Any();
         }
 
         public bool TryChooseConstructor(out ResolutionConstructor resolutionConstructor, ResolutionInfo resolutionInfo = null, InjectionParameter[] injectionParameters = null)
@@ -48,27 +43,21 @@ namespace Stashbox.MetaInfo
                MethodDelegate = ExpressionDelegateFactory.CreateMethodExpression(this.containerContext,
                  methodInfo.Parameters.Select(parameter =>
                     this.containerContext.ResolutionStrategy.BuildResolutionTarget(this.containerContext, parameter, injectionParameters)).ToArray(),
-                methodInfo.Method)
+                methodInfo.Method),
+               Method = methodInfo.Method
            });
         }
 
-        public IEnumerable<ResolutionProperty> GetResolutionProperties(InjectionParameter[] injectionParameters = null)
+        public IEnumerable<ResolutionMember> GetResolutionMembers(InjectionParameter[] injectionParameters = null)
         {
-            return this.metaInfoCache.InjectionProperties.Where(propertyInfo =>
-                   (containerContext.ResolutionStrategy.CanResolve(containerContext, propertyInfo.TypeInformation, injectionParameters)))
-                .Select(propertyInfo => new ResolutionProperty
+            return this.metaInfoCache.InjectionMembers.Where(propertyInfo =>
+                   containerContext.ResolutionStrategy.CanResolve(containerContext, propertyInfo.TypeInformation, injectionParameters))
+                .Select(memberInfo => new ResolutionMember
                 {
-                    ResolutionTarget = containerContext.ResolutionStrategy.BuildResolutionTarget(containerContext, propertyInfo.TypeInformation, injectionParameters),
-                    PropertySetter = propertyInfo.PropertyInfo.GetPropertySetter(),
-                    PropertyInfo = propertyInfo.PropertyInfo
+                    ResolutionTarget = containerContext.ResolutionStrategy.BuildResolutionTarget(containerContext, memberInfo.TypeInformation, injectionParameters),
+                    MemberSetter = memberInfo.MemberInfo.GetMemberSetter(),
+                    MemberInfo = memberInfo.MemberInfo
                 });
-        }
-
-        private void BuildSensitivityList()
-        {
-            this.SensitivityList = new HashSet<Type>(this.metaInfoCache.Constructors.SelectMany(constructor => constructor.Parameters, (constructor, parameter) => parameter.Type)
-                        .Concat(this.metaInfoCache.InjectionMethods.SelectMany(method => method.Parameters, (method, parameter) => parameter.Type))
-                        .Concat(this.metaInfoCache.InjectionProperties.Select(property => property.TypeInformation.Type)).Distinct());
         }
 
         private bool TryGetBestConstructor(out ResolutionConstructor resolutionConstructor, ResolutionInfo resolutionInfo = null, InjectionParameter[] injectionParameters = null)
@@ -117,7 +106,7 @@ namespace Stashbox.MetaInfo
 
         private ConstructorInformation SelectBestConstructor(IEnumerable<ConstructorInformation> constructors)
         {
-            return constructors.OrderBy(constructor => constructor.Parameters.Count()).First();
+            return constructors.OrderBy(constructor => constructor.Parameters.Length).First();
         }
     }
 }

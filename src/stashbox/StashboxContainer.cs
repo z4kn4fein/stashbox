@@ -1,6 +1,4 @@
 ﻿using Ronin.Common;
-using Sendstorm;
-using Sendstorm.Infrastructure;
 using Stashbox.BuildUp.Resolution;
 using Stashbox.Entity;
 using Stashbox.Infrastructure;
@@ -16,8 +14,6 @@ namespace Stashbox
         private readonly IResolverSelector resolverSelector;
         private readonly IResolverSelector resolverSelectorContainerExcluded;
         private readonly IRegistrationRepository registrationRepository;
-        private readonly IMessagePublisher messagePublisher;
-        private readonly IContainerContext containerContext;
         private readonly AtomicBool disposed;
 
         public StashboxContainer()
@@ -27,14 +23,26 @@ namespace Stashbox
             this.resolverSelector = new ResolverSelector();
             this.resolverSelectorContainerExcluded = new ResolverSelector();
             this.registrationRepository = new RegistrationRepository();
-            this.messagePublisher = new MessagePublisher();
-            this.containerContext = new ContainerContext(this.registrationRepository, this.messagePublisher, this, new ResolutionStrategy(this.resolverSelector));
+            this.ContainerContext = new ContainerContext(this.registrationRepository, this, new ResolutionStrategy(this.resolverSelector));
 
             this.RegisterResolvers();
         }
 
+        internal StashboxContainer(IStashboxContainer parentContainer, IContainerExtensionManager containerExtensionManager,
+            IResolverSelector resolverSelector, IResolverSelector resolverSelectorContainerExcluded)
+        {
+            this.disposed = new AtomicBool();
+            this.ParentContainer = parentContainer;
+            this.containerExtensionManager = containerExtensionManager;
+            this.resolverSelector = resolverSelector;
+            this.resolverSelectorContainerExcluded = resolverSelectorContainerExcluded;
+            this.registrationRepository = new RegistrationRepository();
+            this.ContainerContext = new ContainerContext(this.registrationRepository, this, new ResolutionStrategy(this.resolverSelector));
+        }
+
         public void RegisterExtension(IContainerExtension containerExtension)
         {
+            containerExtension.Initialize(this.ContainerContext);
             this.containerExtensionManager.AddExtension(containerExtension);
         }
 
@@ -46,6 +54,14 @@ namespace Stashbox
                 Predicate = resolverPredicate
             });
         }
+
+        public IStashboxContainer CreateChildContainer()
+        {
+            return new StashboxContainer(this, this.containerExtensionManager.CreateCopy(), this.resolverSelector.CreateCopy(), this.resolverSelectorContainerExcluded.CreateCopy());
+        }
+
+        public IStashboxContainer ParentContainer { get; }
+        public IContainerContext ContainerContext { get; }
 
         private void RegisterResolvers()
         {
@@ -86,11 +102,9 @@ namespace Stashbox
 
         protected virtual void Dispose(bool disposing)
         {
-            if (this.disposed.CompareExchange(false, true))
-            {
-                if (!disposing) return;
-                this.registrationRepository.CleanUp();
-            }
+            if (!this.disposed.CompareExchange(false, true)) return;
+            if (!disposing) return;
+            this.registrationRepository.CleanUp();
         }
     }
 }

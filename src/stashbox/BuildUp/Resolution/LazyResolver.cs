@@ -1,6 +1,7 @@
 ﻿using Stashbox.Entity;
 using Stashbox.Infrastructure;
 using System;
+using System.Linq.Expressions;
 using System.Reflection;
 
 namespace Stashbox.BuildUp.Resolution
@@ -33,6 +34,11 @@ namespace Stashbox.BuildUp.Resolution
         public override object Resolve(ResolutionInfo resolutionInfo)
         {
             return this.resolverDelegate(resolutionInfo);
+        }
+
+        public override Expression GetExpression(ResolutionInfo resolutionInfo)
+        {
+            return Expression.Constant(this.resolverDelegate(resolutionInfo));
         }
 
         private object ResolveLazy<T>(ResolutionInfo resolutionInfo) where T : class

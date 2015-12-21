@@ -18,7 +18,7 @@ namespace Stashbox
 
         public object Resolve(Type typeFrom, string name = null, IEnumerable<object> factoryParameters = null, IEnumerable<Override> overrides = null)
         {
-            Shield.EnsureNotNull(typeFrom);
+            Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
             return this.ResolveInternal(typeFrom, overrides, name, factoryParameters);
         }
 
@@ -46,7 +46,7 @@ namespace Stashbox
             var typeInfo = new TypeInformation { Type = typeFrom, DependencyName = name };
             var resolutionInfo = new ResolutionInfo
             {
-                OverrideManager = overrides == null ? null : new OverrideManager(overrides),
+                OverrideManager = overrides == null ? null : new OverrideManager(overrides.ToArray()),
                 FactoryParams = factoryParameters,
                 ResolveType = typeInfo
             };
@@ -56,11 +56,15 @@ namespace Stashbox
                 return registration.GetInstance(resolutionInfo);
 
             Resolver resolver;
-            if (this.resolverSelectorContainerExcluded.TryChooseResolver(this.containerContext,
+            if (this.resolverSelectorContainerExcluded.TryChooseResolver(this.ContainerContext,
                 typeInfo, out resolver))
             {
                 return resolver.Resolve(resolutionInfo);
             }
+
+            if (this.ParentContainer != null)
+                return this.ParentContainer.Resolve(typeFrom, name, factoryParameters, overrides);
+
             throw new ResolutionFailedException(typeFrom.FullName);
         }
     }

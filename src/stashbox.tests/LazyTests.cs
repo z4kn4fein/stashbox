@@ -14,6 +14,7 @@ namespace Stashbox.Tests
             var inst = container.Resolve<Lazy<ITest>>();
 
             Assert.IsNotNull(inst);
+            Assert.IsFalse(inst.IsValueCreated);
             Assert.IsInstanceOfType(inst, typeof(Lazy<ITest>));
             Assert.IsInstanceOfType(inst.Value, typeof(Test));
         }

@@ -1,4 +1,5 @@
 ﻿using Stashbox.Entity;
+using System.Linq.Expressions;
 
 namespace Stashbox.Infrastructure
 {
@@ -14,5 +15,6 @@ namespace Stashbox.Infrastructure
         }
 
         public abstract object Resolve(ResolutionInfo resolutionInfo);
+        public abstract Expression GetExpression(ResolutionInfo resolutionInfo);
     }
 }
