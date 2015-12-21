@@ -4,7 +4,6 @@ using Stashbox.Infrastructure;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
-using Ronin.Common;
 
 namespace Stashbox.BuildUp.DelegateFactory
 {
@@ -14,7 +13,7 @@ namespace Stashbox.BuildUp.DelegateFactory
     public class ExpressionDelegateFactory
     {
         public static CreateInstance CreateConstructorExpression(IContainerContext containerContext, ResolutionConstructor resolutionConstructor,
-            ImmutableArray<ResolutionMember> members)
+            ResolutionMember[] members = null)
         {
             var strategyParameter = Expression.Constant(containerContext.ResolutionStrategy, typeof(IResolutionStrategy));
             var containerContextParameter = Expression.Constant(containerContext, typeof(IContainerContext));
@@ -24,10 +23,10 @@ namespace Stashbox.BuildUp.DelegateFactory
 
             var newExpression = Expression.New(resolutionConstructor.Constructor, arguments);
 
-            if (members.Count == 0)
+            if (members == null || members.Length == 0)
                 return Expression.Lambda<CreateInstance>(newExpression, resolutionInfoParameter).Compile();
 
-            var length = members.Count;
+            var length = members.Length;
             var propertyExpressions = new MemberBinding[length];
             for (var i = 0; i < length; i++)
             {
@@ -44,7 +43,7 @@ namespace Stashbox.BuildUp.DelegateFactory
         }
 
         public static Expression CreateExpression(IContainerContext containerContext, ResolutionConstructor resolutionConstructor, ResolutionInfo resolutionInfo,
-            ImmutableArray<ResolutionMember> members)
+            ResolutionMember[] members = null)
         {
             var length = resolutionConstructor.Parameters.Length;
             var arguments = new Expression[length];
@@ -57,9 +56,9 @@ namespace Stashbox.BuildUp.DelegateFactory
 
             var newExpression = Expression.New(resolutionConstructor.Constructor, arguments);
 
-            if (members.Count == 0) return newExpression;
+            if (members == null || members.Length == 0) return newExpression;
             {
-                var propLength = members.Count;
+                var propLength = members.Length;
                 var propertyExpressions = new MemberBinding[propLength];
                 for (var i = 0; i < propLength; i++)
                 {

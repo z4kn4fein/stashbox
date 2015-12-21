@@ -56,11 +56,15 @@ namespace Stashbox
                 return registration.GetInstance(resolutionInfo);
 
             Resolver resolver;
-            if (this.resolverSelectorContainerExcluded.TryChooseResolver(this.containerContext,
+            if (this.resolverSelectorContainerExcluded.TryChooseResolver(this.ContainerContext,
                 typeInfo, out resolver))
             {
                 return resolver.Resolve(resolutionInfo);
             }
+
+            if (this.ParentContainer != null)
+                return this.ParentContainer.Resolve(typeFrom, name, factoryParameters, overrides);
+
             throw new ResolutionFailedException(typeFrom.FullName);
         }
     }

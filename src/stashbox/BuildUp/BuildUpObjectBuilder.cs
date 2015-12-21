@@ -31,7 +31,8 @@ namespace Stashbox.BuildUp
             lock (this.syncObject)
             {
                 if (this.builtInstance != null) return this.builtInstance;
-                this.builtInstance = this.objectExtender.ExtendObject(this.instance, this.containerContext, resolutionInfo);
+                this.builtInstance = this.objectExtender.FillResolutionMembers(this.instance, this.containerContext, resolutionInfo);
+                this.builtInstance = this.objectExtender.FillResolutionMethods(this.builtInstance, this.containerContext, resolutionInfo);
                 this.builtInstance = this.containerExtensionManager.ExecutePostBuildExtensions(this.builtInstance, this.instanceType, this.containerContext, resolutionInfo);
             }
 
@@ -53,8 +54,6 @@ namespace Stashbox.BuildUp
                 disposable?.Dispose();
                 this.builtInstance = null;
             }
-
-            this.objectExtender.CleanUp();
         }
     }
 }

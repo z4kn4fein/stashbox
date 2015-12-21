@@ -7,7 +7,6 @@ namespace Stashbox.Infrastructure
 {
     public interface IMetaInfoProvider
     {
-        HashSet<Type> SensitivityList { get; }
         Type TypeTo { get; }
         bool HasInjectionMethod { get; }
         bool HasInjectionMembers { get; }

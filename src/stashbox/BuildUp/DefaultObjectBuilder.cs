@@ -1,9 +1,5 @@
-﻿using Ronin.Common;
-using Sendstorm;
-using Sendstorm.Infrastructure;
-using Stashbox.BuildUp.DelegateFactory;
+﻿using Stashbox.BuildUp.DelegateFactory;
 using Stashbox.Entity;
-using Stashbox.Entity.Events;
 using Stashbox.Entity.Resolution;
 using Stashbox.Exceptions;
 using Stashbox.Infrastructure;
@@ -11,57 +7,40 @@ using Stashbox.Infrastructure.ContainerExtension;
 using System;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Threading;
 
 namespace Stashbox.BuildUp
 {
-    internal class DefaultObjectBuilder : IObjectBuilder, IMessageReceiver<RegistrationAdded>
+    internal class DefaultObjectBuilder : IObjectBuilder
     {
         private readonly IContainerExtensionManager containerExtensionManager;
         private readonly IMetaInfoProvider metaInfoProvider;
-        private readonly IMessagePublisher messagePublisher;
         private readonly object syncObject = new object();
+        private readonly object resolutionMemberSyncObject = new object();
+        private readonly object resolutionMethodSyncObject = new object();
         private volatile CreateInstance constructorDelegate;
-        private ImmutableArray<ResolutionMember> resolutionMembers;
-        private ImmutableArray<ResolutionMethod> resolutionMethods;
+        private volatile ResolutionMember[] resolutionMembers;
+        private volatile ResolutionMethod[] resolutionMethods;
         private ResolutionConstructor resolutionConstructor;
         private Func<object> createDelegate;
-        private bool hasInjectionMethods;
         private readonly Type instanceType;
         private readonly InjectionParameter[] injectionParameters;
         private readonly IContainerContext containerContext;
 
-        private SpinLock spinLock;
-
         public DefaultObjectBuilder(IContainerContext containerContext, IMetaInfoProvider metaInfoProvider, IContainerExtensionManager containerExtensionManager,
-            IMessagePublisher messagePublisher, InjectionParameter[] injectionParameters = null)
+            InjectionParameter[] injectionParameters = null)
         {
             if (injectionParameters != null)
                 this.injectionParameters = injectionParameters;
 
-            this.spinLock = new SpinLock();
             this.instanceType = metaInfoProvider.TypeTo;
             this.containerExtensionManager = containerExtensionManager;
             this.metaInfoProvider = metaInfoProvider;
             this.containerContext = containerContext;
-            this.messagePublisher = messagePublisher;
-            this.CollectInjectionMembers();
-            this.CreateConstructorDelegate();
-            this.messagePublisher.Subscribe<RegistrationAdded>(this, addedEvent => this.metaInfoProvider.SensitivityList.Contains(addedEvent.RegistrationInfo.TypeFrom), ExecutionTarget.BackgroundThread);
-        }
-
-        private void CreateConstructorDelegate()
-        {
-            ResolutionConstructor constructor;
-            if (!this.metaInfoProvider.TryChooseConstructor(out constructor,
-                    injectionParameters: this.injectionParameters)) return;
-            this.constructorDelegate = ExpressionDelegateFactory.CreateConstructorExpression(this.containerContext, constructor, this.resolutionMembers.CreateCopy());
-            this.resolutionConstructor = constructor;
         }
 
         public object BuildInstance(ResolutionInfo resolutionInfo)
         {
-            if (resolutionInfo.OverrideManager != null || this.hasInjectionMethods || this.containerExtensionManager.HasPostBuildExtensions)
+            if (resolutionInfo.OverrideManager != null || this.metaInfoProvider.HasInjectionMethod || this.containerExtensionManager.HasPostBuildExtensions)
             {
                 if (this.constructorDelegate != null) return this.ResolveType(containerContext, resolutionInfo);
                 {
@@ -73,69 +52,74 @@ namespace Stashbox.BuildUp
                             if (!this.metaInfoProvider.TryChooseConstructor(out constructor, resolutionInfo,
                                     this.injectionParameters))
                                 throw new ResolutionFailedException(this.metaInfoProvider.TypeTo.FullName);
-                            this.constructorDelegate = ExpressionDelegateFactory.CreateConstructorExpression(this.containerContext, constructor, this.resolutionMembers.CreateCopy());
+                            this.constructorDelegate = ExpressionDelegateFactory.CreateConstructorExpression(this.containerContext, constructor, this.GetResolutionMembers());
                             this.resolutionConstructor = constructor;
                             return this.ResolveType(containerContext, resolutionInfo);
                         }
                     }
                 }
             }
-            else
+
+            if (this.createDelegate != null) return this.createDelegate();
             {
-                if (this.createDelegate != null) return this.createDelegate();
+                lock (this.syncObject)
                 {
-                    lock (this.syncObject)
+                    if (this.createDelegate != null) return this.createDelegate();
                     {
-                        if (this.createDelegate != null) return this.createDelegate();
-                        {
-                            ResolutionConstructor constructor;
-                            if (!this.metaInfoProvider.TryChooseConstructor(out constructor, resolutionInfo,
-                                    this.injectionParameters))
-                                throw new ResolutionFailedException(this.metaInfoProvider.TypeTo.FullName);
-                            this.createDelegate = Expression.Lambda<Func<object>>(this.GetExpressionInternal(constructor, resolutionInfo)).Compile();
-                            this.resolutionConstructor = constructor;
-                            return this.createDelegate();
-                        }
+                        ResolutionConstructor constructor;
+                        if (!this.metaInfoProvider.TryChooseConstructor(out constructor, resolutionInfo,
+                            this.injectionParameters))
+                            throw new ResolutionFailedException(this.metaInfoProvider.TypeTo.FullName);
+                        this.createDelegate = Expression.Lambda<Func<object>>(this.GetExpressionInternal(constructor, resolutionInfo)).Compile();
+                        this.resolutionConstructor = constructor;
+                        return this.createDelegate();
                     }
                 }
             }
-        }
-
-        public void Receive(RegistrationAdded message)
-        {
-            this.CollectInjectionMembers();
-            if (this.constructorDelegate == null)
-                this.CreateConstructorDelegate();
         }
 
         private object ResolveType(IContainerContext containerContext, ResolutionInfo resolutionInfo)
         {
             var instance = this.constructorDelegate(resolutionInfo);
 
-            if (!this.hasInjectionMethods)
+            if (!this.metaInfoProvider.HasInjectionMethod)
                 return this.containerExtensionManager.ExecutePostBuildExtensions(instance, this.instanceType,
                     containerContext, resolutionInfo, this.injectionParameters);
 
-            var lockTaken = false;
-            try
-            {
-                this.spinLock.Enter(ref lockTaken);
-                var methods = this.resolutionMethods.CreateCopy();
-                if (lockTaken) this.spinLock.Exit();
 
-                var count = methods.Count;
-                for (var i = 0; i < count; i++)
-                {
-                    methods[i].MethodDelegate(resolutionInfo, instance);
-                }
-            }
-            finally
+            var methods = this.GetResolutionMethods();
+
+            var count = methods.Length;
+            for (var i = 0; i < count; i++)
             {
-                if (this.spinLock.IsHeldByCurrentThread)
-                    this.spinLock.Exit();
+                methods[i].MethodDelegate(resolutionInfo, instance);
             }
 
             return this.containerExtensionManager.ExecutePostBuildExtensions(instance, this.instanceType, containerContext, resolutionInfo, this.injectionParameters);
+        }
+
+        private ResolutionMember[] GetResolutionMembers()
+        {
+            if (!this.metaInfoProvider.HasInjectionMembers) return null;
+
+            if (this.resolutionMembers != null) return this.resolutionMembers;
+            lock (this.resolutionMemberSyncObject)
+            {
+                if (this.resolutionMembers != null) return this.resolutionMembers;
+                return this.resolutionMembers = this.metaInfoProvider.GetResolutionMembers(this.injectionParameters).ToArray();
+            }
+        }
+
+        private ResolutionMethod[] GetResolutionMethods()
+        {
+            if (!this.metaInfoProvider.HasInjectionMethod) return null;
+
+            if (this.resolutionMethods != null) return this.resolutionMethods;
+            lock (this.resolutionMethodSyncObject)
+            {
+                if (this.resolutionMethods != null) return this.resolutionMethods;
+                return this.resolutionMethods = this.metaInfoProvider.GetResolutionMethods(this.injectionParameters).ToArray();
+            }
         }
 
         public Expression GetExpression(ResolutionInfo resolutionInfo)
@@ -159,33 +143,11 @@ namespace Stashbox.BuildUp
 
         private Expression GetExpressionInternal(ResolutionConstructor constructor, ResolutionInfo resolutionInfo)
         {
-            return ExpressionDelegateFactory.CreateExpression(this.containerContext, constructor, resolutionInfo, this.resolutionMembers.CreateCopy());
-        }
-
-        private void CollectInjectionMembers()
-        {
-            var members = this.metaInfoProvider.GetResolutionMembers(this.injectionParameters).ToArray();
-            var methods = this.metaInfoProvider.GetResolutionMethods(this.injectionParameters).ToArray();
-
-            var lockTaken = false;
-            try
-            {
-                this.spinLock.Enter(ref lockTaken);
-                this.resolutionMembers = new ImmutableArray<ResolutionMember>(members);
-                this.resolutionMethods = new ImmutableArray<ResolutionMethod>(methods);
-                this.hasInjectionMethods = methods.Length > 0;
-
-            }
-            finally
-            {
-                if (lockTaken)
-                    this.spinLock.Exit();
-            }
+            return ExpressionDelegateFactory.CreateExpression(this.containerContext, constructor, resolutionInfo, this.GetResolutionMembers());
         }
 
         public void CleanUp()
         {
-            this.messagePublisher.UnSubscribe<RegistrationAdded>(this);
             this.constructorDelegate = null;
         }
     }

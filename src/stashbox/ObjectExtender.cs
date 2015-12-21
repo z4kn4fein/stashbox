@@ -1,123 +1,82 @@
-﻿using Ronin.Common;
-using Sendstorm;
-using Sendstorm.Infrastructure;
-using Stashbox.Entity;
-using Stashbox.Entity.Events;
+﻿using Stashbox.Entity;
 using Stashbox.Entity.Resolution;
 using Stashbox.Infrastructure;
 using System.Linq;
-using System.Threading;
 
 namespace Stashbox
 {
-    public class ObjectExtender : IObjectExtender, IMessageReceiver<RegistrationAdded>
+    public class ObjectExtender : IObjectExtender
     {
         private readonly IMetaInfoProvider metaInfoProvider;
-        private readonly IMessagePublisher messagePublisher;
         private readonly InjectionParameter[] injectionParameters;
-        private SpinLock spinLock;
+        private volatile ResolutionMethod[] injectionMethods;
+        private volatile ResolutionMember[] injectionMembers;
+        private readonly object resolutionMemberSyncObject = new object();
+        private readonly object resolutionMethodSyncObject = new object();
 
-        private ImmutableArray<ResolutionMethod> injectionMethods;
-        private ImmutableArray<ResolutionMember> injectionMembers;
-
-        private bool hasInjectionMethods;
-        private bool hasInjectionProperties;
-
-        public ObjectExtender(IMetaInfoProvider metaInfoProvider,
-            IMessagePublisher messagePublisher, InjectionParameter[] injectionParameters = null)
+        public ObjectExtender(IMetaInfoProvider metaInfoProvider, InjectionParameter[] injectionParameters = null)
         {
             if (injectionParameters != null)
                 this.injectionParameters = injectionParameters;
 
-            spinLock = new SpinLock();
-
             this.metaInfoProvider = metaInfoProvider;
-            this.messagePublisher = messagePublisher;
-
-            this.messagePublisher.Subscribe<RegistrationAdded>(this, addedEvent => this.metaInfoProvider.SensitivityList.Contains(addedEvent.RegistrationInfo.TypeFrom), ExecutionTarget.BackgroundThread);
-            this.CollectInjectionMembers();
         }
 
-        public object ExtendObject(object instance, IContainerContext containerContext, ResolutionInfo resolutionInfo)
+        public object FillResolutionMembers(object instance, IContainerContext containerContext, ResolutionInfo resolutionInfo)
         {
-            if (this.hasInjectionProperties)
-            {
-                var lockTaken = false;
-                try
-                {
-                    this.spinLock.Enter(ref lockTaken);
-                    var members = this.injectionMembers.CreateCopy();
-                    this.spinLock.Exit();
+            if (!this.metaInfoProvider.HasInjectionMembers) return instance;
 
-                    var count = members.Count;
-                    for (var i = 0; i < count; i++)
-                    {
-                        var value = containerContext.ResolutionStrategy.EvaluateResolutionTarget(containerContext,
-                            members[i].ResolutionTarget, resolutionInfo);
-                        members[i].MemberSetter(instance, value);
-                    }
-                }
-                finally
-                {
-                    if (this.spinLock.IsHeldByCurrentThread)
-                        this.spinLock.Exit();
-                }
+            var members = this.GetResolutionMembers();
+
+            var count = members.Length;
+            for (var i = 0; i < count; i++)
+            {
+                var value = containerContext.ResolutionStrategy.EvaluateResolutionTarget(containerContext,
+                    members[i].ResolutionTarget, resolutionInfo);
+                members[i].MemberSetter(instance, value);
             }
 
-            if (!this.hasInjectionMethods) return instance;
-            {
-                var lockTaken = false;
-                try
-                {
-                    this.spinLock.Enter(ref lockTaken);
-                    var methods = this.injectionMethods.CreateCopy();
-                    this.spinLock.Exit();
+            return instance;
+        }
 
-                    var count = methods.Count;
-                    for (var i = 0; i < count; i++)
-                    {
-                        methods[i].MethodDelegate(resolutionInfo, instance);
-                    }
-                }
-                finally
+        public object FillResolutionMethods(object instance, IContainerContext containerContext, ResolutionInfo resolutionInfo)
+        {
+            if (!this.metaInfoProvider.HasInjectionMethod) return instance;
+            {
+                var methods = this.GetResolutionMethods();
+
+                var count = methods.Length;
+                for (var i = 0; i < count; i++)
                 {
-                    if (this.spinLock.IsHeldByCurrentThread)
-                        this.spinLock.Exit();
+                    methods[i].MethodDelegate(resolutionInfo, instance);
                 }
             }
 
             return instance;
         }
 
-        public void Receive(RegistrationAdded message)
+        public ResolutionMember[] GetResolutionMembers()
         {
-            this.CollectInjectionMembers();
-        }
+            if (!this.metaInfoProvider.HasInjectionMembers) return null;
 
-        private void CollectInjectionMembers()
-        {
-            var methods = this.metaInfoProvider.GetResolutionMethods(this.injectionParameters).ToArray();
-            var members = this.metaInfoProvider.GetResolutionMembers(this.injectionParameters).ToArray();
-
-            var lockTaken = false;
-            try
+            if (this.injectionMembers != null) return this.injectionMembers;
+            lock (this.resolutionMemberSyncObject)
             {
-                this.spinLock.Enter(ref lockTaken);
-                this.injectionMembers = new ImmutableArray<ResolutionMember>(members);
-                this.injectionMethods = new ImmutableArray<ResolutionMethod>(methods);
-                this.hasInjectionMethods = methods.Length > 0;
-                this.hasInjectionProperties = members.Length > 0;
-            }
-            finally
-            {
-                if (lockTaken)
-                    this.spinLock.Exit();
+                if (this.injectionMembers != null) return this.injectionMembers;
+                return this.injectionMembers = this.metaInfoProvider.GetResolutionMembers(this.injectionParameters).ToArray();
             }
         }
 
-        public void CleanUp()
+        private ResolutionMethod[] GetResolutionMethods()
         {
-            this.messagePublisher.UnSubscribe<RegistrationAdded>(this);
+            if (!this.metaInfoProvider.HasInjectionMethod) return null;
+
+            if (this.injectionMethods != null) return this.injectionMethods;
+            lock (this.resolutionMethodSyncObject)
+            {
+                if (this.injectionMethods != null) return this.injectionMethods;
+                return this.injectionMethods = this.metaInfoProvider.GetResolutionMethods(this.injectionParameters).ToArray();
+            }
         }
     }
 }

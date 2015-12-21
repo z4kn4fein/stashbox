@@ -67,7 +67,8 @@ namespace Stashbox.BuildUp
                     resolutionInfo.FactoryParams.ElementAt(1),
                     resolutionInfo.FactoryParams.ElementAt(2));
 
-            var builtInstance = this.objectExtender.ExtendObject(instance, containerContext, resolutionInfo);
+            var builtInstance = this.objectExtender.FillResolutionMembers(instance, containerContext, resolutionInfo);
+            builtInstance = this.objectExtender.FillResolutionMembers(builtInstance, containerContext, resolutionInfo);
             return this.containerExtensionManager.ExecutePostBuildExtensions(builtInstance, builtInstance?.GetType(), containerContext, resolutionInfo);
         }
 
@@ -78,7 +79,6 @@ namespace Stashbox.BuildUp
 
         public void CleanUp()
         {
-            this.objectExtender.CleanUp();
         }
     }
 }

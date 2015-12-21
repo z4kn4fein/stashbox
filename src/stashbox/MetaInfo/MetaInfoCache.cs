@@ -21,7 +21,7 @@ namespace Stashbox.MetaInfo
             var typeInfo = typeTo.GetTypeInfo();
             this.AddConstructors(typeInfo.DeclaredConstructors);
             this.AddMethods(typeInfo.DeclaredMethods);
-            this.InjectionMembers = this.FillProperties(typeInfo).ToArray();
+            this.InjectionMembers = this.FillMembers(typeInfo).ToArray();
         }
 
         private void AddConstructors(IEnumerable<ConstructorInfo> infos)
@@ -56,7 +56,7 @@ namespace Stashbox.MetaInfo
             });
         }
 
-        private IEnumerable<MemberInformation> FillProperties(TypeInfo typeInfo)
+        private IEnumerable<MemberInformation> FillMembers(TypeInfo typeInfo)
         {
             return typeInfo.DeclaredProperties
                    .Where(propertyInfo => propertyInfo.GetCustomAttribute<DependencyAttribute>() != null)

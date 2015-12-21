@@ -24,7 +24,7 @@ namespace Stashbox.BuildUp.Resolution
                 DependencyName = typeInfo.DependencyName
             };
 
-            containerContext.RegistrationRepository.TryGetAllRegistrations(new TypeInformation { Type = typeInfo.Type.GetEnumerableType() },
+            containerContext.RegistrationRepository.TryGetAllRegistrations(this.enumerableType,
                 out registrationCache);
 
             this.GenerateEnumerableExpression(registrationCache);
@@ -34,7 +34,7 @@ namespace Stashbox.BuildUp.Resolution
         {
             return this.resolverDelegate(resolutionInfo);
         }
-        
+
         public override Expression GetExpression(ResolutionInfo resolutionInfo)
         {
             var length = registrationCache.Length;

@@ -10,5 +10,6 @@ namespace Stashbox.Infrastructure
         void RegisterResolver(Func<IContainerContext, TypeInformation, bool> resolverPredicate, ResolverFactory factory);
         IStashboxContainer CreateChildContainer();
         IStashboxContainer ParentContainer { get; }
+        IContainerContext ContainerContext { get; }
     }
 }
