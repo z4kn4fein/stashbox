@@ -1,8 +1,10 @@
 ﻿using Ronin.Common;
 using Stashbox.BuildUp.Resolution;
 using Stashbox.Entity;
+using Stashbox.Extensions;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.ContainerExtension;
+using Stashbox.MetaInfo;
 using Stashbox.Registration;
 using System;
 
@@ -14,30 +16,39 @@ namespace Stashbox
         private readonly IResolverSelector resolverSelector;
         private readonly IResolverSelector resolverSelectorContainerExcluded;
         private readonly IRegistrationRepository registrationRepository;
+        private readonly ExtendedImmutableTree<MetaInfoCache> metaInfoRepository;
+        private readonly ExtendedImmutableTree<Func<ResolutionInfo, object>> delegateRepository;
         private readonly AtomicBool disposed;
 
         public StashboxContainer()
         {
+            this.delegateRepository = new ExtendedImmutableTree<Func<ResolutionInfo, object>>();
+            this.metaInfoRepository = new ExtendedImmutableTree<MetaInfoCache>();
             this.disposed = new AtomicBool();
             this.containerExtensionManager = new BuildExtensionManager();
             this.resolverSelector = new ResolverSelector();
             this.resolverSelectorContainerExcluded = new ResolverSelector();
             this.registrationRepository = new RegistrationRepository();
-            this.ContainerContext = new ContainerContext(this.registrationRepository, this, new ResolutionStrategy(this.resolverSelector));
+            this.ContainerContext = new ContainerContext(this.registrationRepository, this,
+                new ResolutionStrategy(this.resolverSelector), this.metaInfoRepository, this.delegateRepository);
 
             this.RegisterResolvers();
         }
 
         internal StashboxContainer(IStashboxContainer parentContainer, IContainerExtensionManager containerExtensionManager,
-            IResolverSelector resolverSelector, IResolverSelector resolverSelectorContainerExcluded)
+            IResolverSelector resolverSelector, IResolverSelector resolverSelectorContainerExcluded, ExtendedImmutableTree<MetaInfoCache> metaInfoRepository,
+            ExtendedImmutableTree<Func<ResolutionInfo, object>> delegateRepository)
         {
+            this.metaInfoRepository = metaInfoRepository;
+            this.delegateRepository = delegateRepository;
             this.disposed = new AtomicBool();
             this.ParentContainer = parentContainer;
             this.containerExtensionManager = containerExtensionManager;
             this.resolverSelector = resolverSelector;
             this.resolverSelectorContainerExcluded = resolverSelectorContainerExcluded;
             this.registrationRepository = new RegistrationRepository();
-            this.ContainerContext = new ContainerContext(this.registrationRepository, this, new ResolutionStrategy(this.resolverSelector));
+            this.ContainerContext = new ContainerContext(this.registrationRepository, this,
+                new CheckParentResolutionStrategyDecorator(new ResolutionStrategy(this.resolverSelector)), this.metaInfoRepository, this.delegateRepository);
         }
 
         public void RegisterExtension(IContainerExtension containerExtension)
@@ -57,7 +68,8 @@ namespace Stashbox
 
         public IStashboxContainer CreateChildContainer()
         {
-            return new StashboxContainer(this, this.containerExtensionManager.CreateCopy(), this.resolverSelector.CreateCopy(), this.resolverSelectorContainerExcluded.CreateCopy());
+            return new StashboxContainer(this, this.containerExtensionManager.CreateCopy(), this.resolverSelector.CreateCopy(),
+                this.resolverSelectorContainerExcluded.CreateCopy(), this.metaInfoRepository, this.delegateRepository);
         }
 
         public IStashboxContainer ParentContainer { get; }

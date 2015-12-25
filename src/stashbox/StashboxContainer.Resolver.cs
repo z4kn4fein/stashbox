@@ -36,8 +36,7 @@ namespace Stashbox
                 {
                     OverrideManager = overridesEnumerated == null ? null : new OverrideManager(overridesEnumerated),
                     FactoryParams = factoryParams,
-                    ResolveType = typeInfo
-                }) as TKey;
+                }, typeInfo) as TKey;
             }
         }
 
@@ -48,12 +47,11 @@ namespace Stashbox
             {
                 OverrideManager = overrides == null ? null : new OverrideManager(overrides.ToArray()),
                 FactoryParams = factoryParameters,
-                ResolveType = typeInfo
             };
 
             IServiceRegistration registration;
             if (this.registrationRepository.TryGetRegistration(typeInfo, out registration))
-                return registration.GetInstance(resolutionInfo);
+                return registration.GetInstance(resolutionInfo, typeInfo);
 
             Resolver resolver;
             if (this.resolverSelectorContainerExcluded.TryChooseResolver(this.ContainerContext,

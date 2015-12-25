@@ -25,7 +25,7 @@ namespace Stashbox.BuildUp
             this.containerContext = containerContext;
         }
 
-        public object BuildInstance(ResolutionInfo resolutionInfo)
+        public object BuildInstance(ResolutionInfo resolutionInfo, TypeInformation resolveType)
         {
             if (this.builtInstance != null) return this.builtInstance;
             lock (this.syncObject)
@@ -39,9 +39,10 @@ namespace Stashbox.BuildUp
             return this.builtInstance;
         }
 
-        public Expression GetExpression(ResolutionInfo resolutionInfo)
+        public Expression GetExpression(Expression resolutionInfoExpression, TypeInformation resolveType)
         {
-            return Expression.Constant(this.BuildInstance(resolutionInfo));
+            var callExpression = Expression.Call(Expression.Constant(this), "BuildInstance", null, resolutionInfoExpression, Expression.Constant(resolveType));
+            return Expression.Convert(callExpression, resolveType.Type);
         }
 
         public void CleanUp()

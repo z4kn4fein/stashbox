@@ -48,7 +48,7 @@ namespace Stashbox.BuildUp
             this.threeParamsFactory = threeParamsFactory;
         }
 
-        public object BuildInstance(ResolutionInfo resolutionInfo)
+        public object BuildInstance(ResolutionInfo resolutionInfo, TypeInformation resolveType)
         {
             object instance = null;
 
@@ -72,9 +72,9 @@ namespace Stashbox.BuildUp
             return this.containerExtensionManager.ExecutePostBuildExtensions(builtInstance, builtInstance?.GetType(), containerContext, resolutionInfo);
         }
 
-        public Expression GetExpression(ResolutionInfo resolutionInfo)
+        public Expression GetExpression(Expression resolutionInfoExpression, TypeInformation resolveType)
         {
-            return Expression.Constant(this.BuildInstance(resolutionInfo));
+            throw new NotImplementedException("Not supported.");
         }
 
         public void CleanUp()

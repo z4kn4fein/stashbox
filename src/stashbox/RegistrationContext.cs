@@ -48,7 +48,7 @@ namespace Stashbox
             var registrationInfo = new RegistrationInfo { TypeFrom = typeFrom, TypeTo = typeTo };
 
             var registration = new ServiceRegistration(registrationLifetime,
-                this.CreateObjectBuilder(), this.attributeConditions, this.targetTypeCondition, this.resolutionCondition);
+                this.CreateObjectBuilder(registrationName), this.attributeConditions, this.targetTypeCondition, this.resolutionCondition);
 
             this.containerContext.RegistrationRepository.AddRegistration(typeFrom, registration, registrationName);
             this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.containerContext, registrationInfo, this.injectionParameters);
@@ -127,9 +127,9 @@ namespace Stashbox
             return this;
         }
 
-        private IObjectBuilder CreateObjectBuilder()
+        private IObjectBuilder CreateObjectBuilder(string name)
         {
-            var metainfoProvider = new MetaInfoProvider(this.containerContext, this.typeTo);
+            var metainfoProvider = new MetaInfoProvider(this.containerContext, this.containerContext.MetaInfoRepository.GetOrAdd(this.typeTo, () => new MetaInfoCache(this.typeTo)));
             var objectExtender = new ObjectExtender(metainfoProvider, this.injectionParameters);
 
             if (this.singleFactory != null)
@@ -145,10 +145,10 @@ namespace Stashbox
                 return new FactoryObjectBuilder(this.oneParameterFactory, this.containerContext, this.containerExtensionManager, objectExtender);
 
             if (this.typeTo.GetTypeInfo().IsGenericTypeDefinition)
-                return new GenericTypeObjectBuilder(this.containerContext, new MetaInfoProvider(this.containerContext, this.typeTo));
+                return new GenericTypeObjectBuilder(this.containerContext, new MetaInfoProvider(this.containerContext, this.containerContext.MetaInfoRepository.GetOrAdd(this.typeTo, () => new MetaInfoCache(this.typeTo))));
 
-            return new DefaultObjectBuilder(this.containerContext, new MetaInfoProvider(this.containerContext, this.typeTo),
-                this.containerExtensionManager, this.injectionParameters);
+            return new DefaultObjectBuilder(this.containerContext, new MetaInfoProvider(this.containerContext, this.containerContext.MetaInfoRepository.GetOrAdd(this.typeTo, () => new MetaInfoCache(this.typeTo))),
+                this.containerExtensionManager, name, this.injectionParameters);
         }
     }
 }

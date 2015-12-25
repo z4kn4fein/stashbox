@@ -15,12 +15,12 @@ namespace Stashbox.BuildUp
             this.instance = instance;
         }
 
-        public Expression GetExpression(ResolutionInfo resolutionInfo)
+        public Expression GetExpression(Expression resolutionInfoExpression, TypeInformation resolveType)
         {
             return Expression.Constant(this.instance);
         }
 
-        public object BuildInstance(ResolutionInfo resolutionInfo)
+        public object BuildInstance(ResolutionInfo resolutionInfo, TypeInformation resolveType)
         {
             return this.instance;
         }

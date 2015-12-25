@@ -93,6 +93,22 @@ namespace Stashbox.Tests
             });
         }
 
+        [TestMethod]
+        public void StandardResolveTests_ChildContainer()
+        {
+            var container = new StashboxContainer();
+            container.RegisterType<ITest1, Test1>();
+            container.RegisterType<ITest2, Test2>();
+
+            var child = container.CreateChildContainer();
+            child.RegisterType<ITest3, Test3>();
+
+            var test3 = child.Resolve<ITest3>();
+
+            Assert.IsNotNull(test3);
+            Assert.IsInstanceOfType(test3, typeof(Test3));
+        }
+
         public interface ITest1 { string Name { get; set; } }
 
         public interface ITest2 { string Name { get; set; } }

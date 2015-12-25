@@ -12,7 +12,7 @@ namespace Stashbox.Infrastructure
         ResolutionTarget BuildResolutionTarget(IContainerContext containerContext, TypeInformation typeInformation,
             InjectionParameter[] injectionParameters);
 
-        object EvaluateResolutionTarget(IContainerContext containerContext, ResolutionTarget resolutionTarget, ResolutionInfo resolutionInfo);
-        Expression GetExpressionForResolutionTarget(ResolutionTarget resolutionTarget, ResolutionInfo resolutionInfo);
+        object EvaluateResolutionTarget(ResolutionTarget resolutionTarget, ResolutionInfo resolutionInfo);
+        Expression GetExpressionForResolutionTarget(ResolutionTarget resolutionTarget, Expression resolutionInfoExpression);
     }
 }

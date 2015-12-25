@@ -25,9 +25,9 @@ namespace Stashbox.Registration
             this.resolutionCondition = resolutionCondition;
         }
 
-        public object GetInstance(ResolutionInfo resolutionInfo)
+        public object GetInstance(ResolutionInfo resolutionInfo, TypeInformation resolveType)
         {
-            return this.lifetimeManager.GetInstance(this.objectBuilder, resolutionInfo);
+            return this.lifetimeManager.GetInstance(this.objectBuilder, resolutionInfo, resolveType);
         }
 
         public bool IsUsableForCurrentContext(TypeInformation typeInfo)
@@ -48,9 +48,9 @@ namespace Stashbox.Registration
             this.lifetimeManager.CleanUp();
         }
 
-        public Expression GetExpression(ResolutionInfo resolutionInfo)
+        public Expression GetExpression(Expression resolutionInfoExpression, TypeInformation resolveType)
         {
-            return this.lifetimeManager.GetExpression(this.objectBuilder, resolutionInfo);
+            return this.lifetimeManager.GetExpression(this.objectBuilder, resolutionInfoExpression, resolveType);
         }
     }
 }

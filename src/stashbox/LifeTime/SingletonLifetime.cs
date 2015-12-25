@@ -10,21 +10,22 @@ namespace Stashbox.LifeTime
         private volatile object instance;
         private readonly object syncObject = new object();
 
-        public object GetInstance(IObjectBuilder objectBuilder, ResolutionInfo resolutionInfo)
+        public object GetInstance(IObjectBuilder objectBuilder, ResolutionInfo resolutionInfo, TypeInformation resolveType)
         {
             if (this.instance != null) return this.instance;
             lock (this.syncObject)
             {
                 if (this.instance != null) return this.instance;
-                this.instance = objectBuilder.BuildInstance(resolutionInfo);
+                this.instance = objectBuilder.BuildInstance(resolutionInfo, resolveType);
             }
 
             return this.instance;
         }
 
-        public Expression GetExpression(IObjectBuilder objectBuilder, ResolutionInfo resolutionInfo)
+        public Expression GetExpression(IObjectBuilder objectBuilder, Expression resolutionInfoExpression, TypeInformation resolveType)
         {
-            return Expression.Constant(this.GetInstance(objectBuilder, resolutionInfo));
+            var callExpression = Expression.Call(Expression.Constant(this), "GetInstance", null, Expression.Constant(objectBuilder), resolutionInfoExpression, Expression.Constant(resolveType));
+            return Expression.Convert(callExpression, resolveType.Type);
         }
 
         public void CleanUp()

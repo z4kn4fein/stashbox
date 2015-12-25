@@ -16,24 +16,25 @@ namespace Stashbox.BuildUp
             this.containerContext = containerContext;
         }
 
-        public object BuildInstance(ResolutionInfo resolutionInfo)
+        public object BuildInstance(ResolutionInfo resolutionInfo, TypeInformation resolveType)
         {
-            if (containerContext.RegistrationRepository.ConstainsTypeKeyWithConditionsWithoutGenericDefinitionExtraction(resolutionInfo.ResolveType))
-                return containerContext.Container.Resolve(resolutionInfo.ResolveType.Type);
+            if (containerContext.RegistrationRepository.ConstainsTypeKeyWithConditionsWithoutGenericDefinitionExtraction(resolveType))
+                return containerContext.Container.Resolve(resolveType.Type);
             lock (this.syncObject)
             {
-                if (containerContext.RegistrationRepository.ConstainsTypeKeyWithConditionsWithoutGenericDefinitionExtraction(resolutionInfo.ResolveType))
-                    return containerContext.Container.Resolve(resolutionInfo.ResolveType.Type);
-                var genericType = this.metaInfoProvider.TypeTo.MakeGenericType(resolutionInfo.ResolveType.Type.GenericTypeArguments);
-                this.containerContext.Container.RegisterType(resolutionInfo.ResolveType.Type, genericType);
+                if (containerContext.RegistrationRepository.ConstainsTypeKeyWithConditionsWithoutGenericDefinitionExtraction(resolveType))
+                    return containerContext.Container.Resolve(resolveType.Type);
+                var genericType = this.metaInfoProvider.TypeTo.MakeGenericType(resolveType.Type.GenericTypeArguments);
+                this.containerContext.Container.RegisterType(resolveType.Type, genericType);
             }
 
-            return containerContext.Container.Resolve(resolutionInfo.ResolveType.Type);
+            return containerContext.Container.Resolve(resolveType.Type);
         }
 
-        public Expression GetExpression(ResolutionInfo resolutionInfo)
+        public Expression GetExpression(Expression resolutionInfoExpression, TypeInformation resolveType)
         {
-            return Expression.Constant(this.BuildInstance(resolutionInfo));
+            var callExpression = Expression.Call(Expression.Constant(this), "BuildInstance", null, resolutionInfoExpression, Expression.Constant(resolveType));
+            return Expression.Convert(callExpression, resolveType.Type);
         }
 
         public void CleanUp()

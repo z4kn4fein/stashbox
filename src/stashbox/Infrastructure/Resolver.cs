@@ -15,6 +15,6 @@ namespace Stashbox.Infrastructure
         }
 
         public abstract object Resolve(ResolutionInfo resolutionInfo);
-        public abstract Expression GetExpression(ResolutionInfo resolutionInfo);
+        public abstract Expression GetExpression(Expression resolutionInfoExpression);
     }
 }

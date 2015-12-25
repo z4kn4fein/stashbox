@@ -98,13 +98,13 @@ namespace Stashbox
             name = NameGenerator.GetRegistrationName(typeTo, name);
 
             var registrationInfo = new RegistrationInfo { TypeFrom = typeFrom, TypeTo = typeTo };
-            var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, typeTo);
+            var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, this.ContainerContext.MetaInfoRepository.GetOrAdd(typeTo, () => new MetaInfoCache(typeTo)));
 
             IObjectBuilder objectBuilder;
             if (typeTo.GetTypeInfo().IsGenericTypeDefinition)
                 objectBuilder = new GenericTypeObjectBuilder(this.ContainerContext, metaInfoProvider);
             else
-                objectBuilder = new DefaultObjectBuilder(this.ContainerContext, metaInfoProvider, this.containerExtensionManager);
+                objectBuilder = new DefaultObjectBuilder(this.ContainerContext, metaInfoProvider, this.containerExtensionManager, name);
 
             var registration = new ServiceRegistration(new TransientLifetime(), objectBuilder);
 
@@ -119,7 +119,7 @@ namespace Stashbox
 
             var registrationInfo = new RegistrationInfo { TypeFrom = type, TypeTo = type };
 
-            var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, type);
+            var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, this.ContainerContext.MetaInfoRepository.GetOrAdd(type, () => new MetaInfoCache(type)));
             var objectExtender = new ObjectExtender(metaInfoProvider);
 
             var registration = new ServiceRegistration(new TransientLifetime(),

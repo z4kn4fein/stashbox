@@ -20,10 +20,10 @@ namespace Stashbox.MetaInfo
 
         public bool HasInjectionMembers { get; }
 
-        public MetaInfoProvider(IContainerContext containerContext, Type typeTo)
+        public MetaInfoProvider(IContainerContext containerContext, MetaInfoCache metaInfoCache)
         {
             this.containerContext = containerContext;
-            this.metaInfoCache = new MetaInfoCache(typeTo);
+            this.metaInfoCache = metaInfoCache;
             this.HasInjectionMethod = this.metaInfoCache.InjectionMethods.Any();
             this.HasInjectionMembers = this.metaInfoCache.InjectionMembers.Any();
         }

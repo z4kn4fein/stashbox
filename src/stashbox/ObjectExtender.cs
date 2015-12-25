@@ -31,8 +31,7 @@ namespace Stashbox
             var count = members.Length;
             for (var i = 0; i < count; i++)
             {
-                var value = containerContext.ResolutionStrategy.EvaluateResolutionTarget(containerContext,
-                    members[i].ResolutionTarget, resolutionInfo);
+                var value = containerContext.ResolutionStrategy.EvaluateResolutionTarget(members[i].ResolutionTarget, resolutionInfo);
                 members[i].MemberSetter(instance, value);
             }
 

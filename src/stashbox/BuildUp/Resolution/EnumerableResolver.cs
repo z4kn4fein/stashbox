@@ -35,18 +35,13 @@ namespace Stashbox.BuildUp.Resolution
             return this.resolverDelegate(resolutionInfo);
         }
 
-        public override Expression GetExpression(ResolutionInfo resolutionInfo)
+        public override Expression GetExpression(Expression resolutionInfoExpression)
         {
             var length = registrationCache.Length;
             var enumerableItems = new Expression[length];
             for (var i = 0; i < length; i++)
             {
-                enumerableItems[i] = registrationCache[i].GetExpression(new ResolutionInfo
-                {
-                    ResolveType = this.enumerableType,
-                    FactoryParams = resolutionInfo.FactoryParams,
-                    OverrideManager = resolutionInfo.OverrideManager
-                });
+                enumerableItems[i] = registrationCache[i].GetExpression(resolutionInfoExpression, this.enumerableType);
             }
 
             return Expression.NewArrayInit(this.enumerableType.Type, enumerableItems);
@@ -67,10 +62,10 @@ namespace Stashbox.BuildUp.Resolution
             this.resolverDelegate = Expression.Lambda<ResolverDelegate>(arrayInit, resolutionInfoParameter).Compile();
         }
 
-        private Expression CreateSubscriptionExpression(IServiceRegistration registration, ParameterExpression resolutionInfoParameter, Type enumerableType)
+        private Expression CreateSubscriptionExpression(IServiceRegistration registration, Expression resolutionInfoParameter, Type enumerableType)
         {
             var target = Expression.Constant(registration, typeof(IServiceRegistration));
-            var evaluate = Expression.Call(target, "GetInstance", null, resolutionInfoParameter);
+            var evaluate = Expression.Call(target, "GetInstance", null, resolutionInfoParameter, Expression.Constant(this.enumerableType));
             var call = Expression.Convert(evaluate, enumerableType);
             return call;
         }
