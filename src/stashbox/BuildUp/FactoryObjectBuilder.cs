@@ -72,9 +72,10 @@ namespace Stashbox.BuildUp
             return this.containerExtensionManager.ExecutePostBuildExtensions(builtInstance, builtInstance?.GetType(), containerContext, resolutionInfo);
         }
 
-        public Expression GetExpression(Expression resolutionInfoExpression, TypeInformation resolveType)
+        public Expression GetExpression(ResolutionInfo resolutionInfo, Expression resolutionInfoExpression, TypeInformation resolveType)
         {
-            throw new NotImplementedException("Not supported.");
+            var callExpression = Expression.Call(Expression.Constant(this), "BuildInstance", null, resolutionInfoExpression, Expression.Constant(resolveType));
+            return Expression.Convert(callExpression, resolveType.Type);
         }
 
         public void CleanUp()

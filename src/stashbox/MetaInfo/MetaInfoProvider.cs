@@ -28,7 +28,7 @@ namespace Stashbox.MetaInfo
             this.HasInjectionMembers = this.metaInfoCache.InjectionMembers.Any();
         }
 
-        public bool TryChooseConstructor(out ResolutionConstructor resolutionConstructor, ResolutionInfo resolutionInfo = null, InjectionParameter[] injectionParameters = null)
+        public bool TryChooseConstructor(out ResolutionConstructor resolutionConstructor, ResolutionInfo resolutionInfo, InjectionParameter[] injectionParameters = null)
         {
             return this.TryGetBestConstructor(out resolutionConstructor, resolutionInfo, injectionParameters);
         }
@@ -60,13 +60,15 @@ namespace Stashbox.MetaInfo
                 });
         }
 
-        private bool TryGetBestConstructor(out ResolutionConstructor resolutionConstructor, ResolutionInfo resolutionInfo = null, InjectionParameter[] injectionParameters = null)
+        private bool TryGetBestConstructor(out ResolutionConstructor resolutionConstructor, ResolutionInfo resolutionInfo,
+            InjectionParameter[] injectionParameters = null)
         {
             return this.TryGetConstructor(this.metaInfoCache.Constructors.Where(constructor => constructor.HasInjectionAttribute), out resolutionConstructor, resolutionInfo, injectionParameters) ||
                 this.TryGetConstructor(this.metaInfoCache.Constructors.Where(constructor => !constructor.HasInjectionAttribute), out resolutionConstructor, resolutionInfo, injectionParameters);
         }
 
-        private bool TryGetConstructor(IEnumerable<ConstructorInformation> constructors, out ResolutionConstructor resolutionConstructor, ResolutionInfo resolutionInfo = null, InjectionParameter[] injectionParameters = null)
+        private bool TryGetConstructor(IEnumerable<ConstructorInformation> constructors, out ResolutionConstructor resolutionConstructor,
+            ResolutionInfo resolutionInfo, InjectionParameter[] injectionParameters = null)
         {
             var usableConstructors = this.GetUsableConstructors(constructors, resolutionInfo, injectionParameters).ToArray();
 
@@ -80,7 +82,8 @@ namespace Stashbox.MetaInfo
             return false;
         }
 
-        private IEnumerable<ConstructorInformation> GetUsableConstructors(IEnumerable<ConstructorInformation> constructors, ResolutionInfo resolutionInfo = null, InjectionParameter[] injectionParameters = null)
+        private IEnumerable<ConstructorInformation> GetUsableConstructors(IEnumerable<ConstructorInformation> constructors, ResolutionInfo resolutionInfo,
+            InjectionParameter[] injectionParameters = null)
         {
             if (resolutionInfo?.OverrideManager == null)
                 return constructors

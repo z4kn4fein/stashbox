@@ -10,9 +10,9 @@ namespace Stashbox.Lifetime
         {
             return objectBuilder.BuildInstance(resolutionInfo, resolveType);
         }
-        public Expression GetExpression(IObjectBuilder objectBuilder, Expression resolutionInfoExpression, TypeInformation resolveType)
+        public Expression GetExpression(IObjectBuilder objectBuilder, ResolutionInfo resolutionInfo, Expression resolutionInfoExpression, TypeInformation resolveType)
         {
-            return objectBuilder.GetExpression(resolutionInfoExpression, resolveType);
+            return objectBuilder.GetExpression(resolutionInfo, resolutionInfoExpression, resolveType);
         }
 
         public void CleanUp()

@@ -13,6 +13,6 @@ namespace Stashbox.Infrastructure
             InjectionParameter[] injectionParameters);
 
         object EvaluateResolutionTarget(ResolutionTarget resolutionTarget, ResolutionInfo resolutionInfo);
-        Expression GetExpressionForResolutionTarget(ResolutionTarget resolutionTarget, Expression resolutionInfoExpression);
+        Expression GetExpressionForResolutionTarget(ResolutionTarget resolutionTarget, ResolutionInfo resolutionInfo, Expression resolutionInfoExpression);
     }
 }

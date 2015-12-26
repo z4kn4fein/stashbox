@@ -22,10 +22,9 @@ namespace Stashbox.LifeTime
             return this.instance;
         }
 
-        public Expression GetExpression(IObjectBuilder objectBuilder, Expression resolutionInfoExpression, TypeInformation resolveType)
+        public Expression GetExpression(IObjectBuilder objectBuilder, ResolutionInfo resolutionInfo, Expression resolutionInfoExpression, TypeInformation resolveType)
         {
-            var callExpression = Expression.Call(Expression.Constant(this), "GetInstance", null, Expression.Constant(objectBuilder), resolutionInfoExpression, Expression.Constant(resolveType));
-            return Expression.Convert(callExpression, resolveType.Type);
+            return Expression.Constant(this.GetInstance(objectBuilder, resolutionInfo, resolveType));
         }
 
         public void CleanUp()

@@ -36,19 +36,14 @@ namespace Stashbox.BuildUp.Resolution
             return this.resolverDelegate(resolutionInfo);
         }
 
-        public override Expression GetExpression(Expression resolutionInfoExpression)
+        public override Expression GetExpression(ResolutionInfo resolutionInfo, Expression resolutionInfoExpression)
         {
-            var callExpression = Expression.Call(Expression.Constant(this), "ResolveLazy", new[] { this.lazyArgumentInfo.Type }, resolutionInfoExpression);
-            return Expression.Convert(callExpression, this.lazyArgumentInfo.Type);
+            return Expression.Call(Expression.Constant(this), "ResolveLazy", new[] { this.lazyArgumentInfo.Type }, resolutionInfoExpression);
         }
 
-        private object ResolveLazy<T>(ResolutionInfo resolutionInfo) where T : class
+        private Lazy<T> ResolveLazy<T>(ResolutionInfo resolutionInfo) where T : class
         {
-            return new Lazy<T>(() => (T)registrationCache.GetInstance(new ResolutionInfo
-            {
-                FactoryParams = resolutionInfo.FactoryParams,
-                OverrideManager = resolutionInfo.OverrideManager
-            }, this.lazyArgumentInfo));
+            return new Lazy<T>(() => (T)registrationCache.GetInstance(resolutionInfo, this.lazyArgumentInfo));
         }
     }
 

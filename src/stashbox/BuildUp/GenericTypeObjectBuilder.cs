@@ -18,23 +18,48 @@ namespace Stashbox.BuildUp
 
         public object BuildInstance(ResolutionInfo resolutionInfo, TypeInformation resolveType)
         {
-            if (containerContext.RegistrationRepository.ConstainsTypeKeyWithConditionsWithoutGenericDefinitionExtraction(resolveType))
-                return containerContext.Container.Resolve(resolveType.Type);
+            IServiceRegistration registration;
+            if (this.containerContext.RegistrationRepository
+                .TryGetRegistrationWithConditionsWithoutGenericDefinitionExtraction(resolveType, out registration))
+                return registration.GetInstance(resolutionInfo, resolveType);
+
             lock (this.syncObject)
             {
-                if (containerContext.RegistrationRepository.ConstainsTypeKeyWithConditionsWithoutGenericDefinitionExtraction(resolveType))
-                    return containerContext.Container.Resolve(resolveType.Type);
+                if (this.containerContext.RegistrationRepository
+                    .TryGetRegistrationWithConditionsWithoutGenericDefinitionExtraction(resolveType, out registration))
+                    return registration.GetInstance(resolutionInfo, resolveType);
+
                 var genericType = this.metaInfoProvider.TypeTo.MakeGenericType(resolveType.Type.GenericTypeArguments);
                 this.containerContext.Container.RegisterType(resolveType.Type, genericType);
-            }
 
-            return containerContext.Container.Resolve(resolveType.Type);
+                this.containerContext.RegistrationRepository
+                    .TryGetRegistrationWithConditionsWithoutGenericDefinitionExtraction(resolveType, out registration);
+
+                return registration.GetInstance(resolutionInfo, resolveType);
+            }
         }
 
-        public Expression GetExpression(Expression resolutionInfoExpression, TypeInformation resolveType)
+        public Expression GetExpression(ResolutionInfo resolutionInfo, Expression resolutionInfoExpression, TypeInformation resolveType)
         {
-            var callExpression = Expression.Call(Expression.Constant(this), "BuildInstance", null, resolutionInfoExpression, Expression.Constant(resolveType));
-            return Expression.Convert(callExpression, resolveType.Type);
+            IServiceRegistration registration;
+            if (this.containerContext.RegistrationRepository
+                .TryGetRegistrationWithConditionsWithoutGenericDefinitionExtraction(resolveType, out registration))
+                return registration.GetExpression(resolutionInfo, resolutionInfoExpression, resolveType);
+
+            lock (this.syncObject)
+            {
+                if (this.containerContext.RegistrationRepository
+                    .TryGetRegistrationWithConditionsWithoutGenericDefinitionExtraction(resolveType, out registration))
+                    return registration.GetExpression(resolutionInfo, resolutionInfoExpression, resolveType);
+
+                var genericType = this.metaInfoProvider.TypeTo.MakeGenericType(resolveType.Type.GenericTypeArguments);
+                this.containerContext.Container.RegisterType(resolveType.Type, genericType);
+
+                this.containerContext.RegistrationRepository
+                    .TryGetRegistrationWithConditionsWithoutGenericDefinitionExtraction(resolveType, out registration);
+
+                return registration.GetExpression(resolutionInfo, resolutionInfoExpression, resolveType);
+            }
         }
 
         public void CleanUp()

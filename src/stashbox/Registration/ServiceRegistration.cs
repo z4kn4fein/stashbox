@@ -48,9 +48,9 @@ namespace Stashbox.Registration
             this.lifetimeManager.CleanUp();
         }
 
-        public Expression GetExpression(Expression resolutionInfoExpression, TypeInformation resolveType)
+        public Expression GetExpression(ResolutionInfo resolutionInfo, Expression resolutionInfoExpression, TypeInformation resolveType)
         {
-            return this.lifetimeManager.GetExpression(this.objectBuilder, resolutionInfoExpression, resolveType);
+            return this.lifetimeManager.GetExpression(this.objectBuilder, resolutionInfo, resolutionInfoExpression, resolveType);
         }
     }
 }

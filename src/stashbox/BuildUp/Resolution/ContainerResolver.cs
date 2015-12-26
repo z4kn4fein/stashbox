@@ -16,12 +16,12 @@ namespace Stashbox.BuildUp.Resolution
                 out this.registrationCache);
         }
 
-        public override Expression GetExpression(Expression resolutionInfoExpression)
+        public override Expression GetExpression(ResolutionInfo resolutionInfo, Expression resolutionInfoExpression)
         {
             if (this.registrationCache == null)
                 throw new ResolutionFailedException(base.TypeInfo.Type.FullName);
 
-            return registrationCache.GetExpression(resolutionInfoExpression, base.TypeInfo);
+            return registrationCache.GetExpression(resolutionInfo, resolutionInfoExpression, base.TypeInfo);
         }
 
         public override object Resolve(ResolutionInfo resolutionInfo)
@@ -29,11 +29,7 @@ namespace Stashbox.BuildUp.Resolution
             if (this.registrationCache == null)
                 throw new ResolutionFailedException(base.TypeInfo.Type.FullName);
 
-            return registrationCache.GetInstance(new ResolutionInfo
-            {
-                FactoryParams = resolutionInfo.FactoryParams,
-                OverrideManager = resolutionInfo.OverrideManager
-            }, base.TypeInfo);
+            return registrationCache.GetInstance(resolutionInfo, base.TypeInfo);
         }
     }
 

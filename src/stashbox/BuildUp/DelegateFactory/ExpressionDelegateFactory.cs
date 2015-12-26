@@ -41,8 +41,8 @@ namespace Stashbox.BuildUp.DelegateFactory
             return Expression.Lambda<CreateInstance>(initExpression, resolutionInfoParameter).Compile();
         }
 
-        public static Expression CreateExpression(IContainerContext containerContext, ResolutionConstructor resolutionConstructor, Expression resolutionInfoExpression,
-            ResolutionMember[] members = null)
+        public static Expression CreateExpression(IContainerContext containerContext, ResolutionConstructor resolutionConstructor, ResolutionInfo resolutionInfo,
+            Expression resolutionInfoExpression, ResolutionMember[] members = null)
         {
             var length = resolutionConstructor.Parameters.Length;
             var arguments = new Expression[length];
@@ -50,7 +50,7 @@ namespace Stashbox.BuildUp.DelegateFactory
             for (var i = 0; i < length; i++)
             {
                 var parameter = resolutionConstructor.Parameters[i];
-                arguments[i] = containerContext.ResolutionStrategy.GetExpressionForResolutionTarget(parameter, resolutionInfoExpression);
+                arguments[i] = containerContext.ResolutionStrategy.GetExpressionForResolutionTarget(parameter, resolutionInfo, resolutionInfoExpression);
             }
 
             var newExpression = Expression.New(resolutionConstructor.Constructor, arguments);
@@ -63,7 +63,7 @@ namespace Stashbox.BuildUp.DelegateFactory
                 {
                     var member = members[i];
                     var propertyExpression = Expression.Bind(member.MemberInfo,
-                        containerContext.ResolutionStrategy.GetExpressionForResolutionTarget(member.ResolutionTarget, resolutionInfoExpression));
+                        containerContext.ResolutionStrategy.GetExpressionForResolutionTarget(member.ResolutionTarget, resolutionInfo, resolutionInfoExpression));
                     propertyExpressions[i] = propertyExpression;
                 }
 

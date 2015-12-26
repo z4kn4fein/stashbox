@@ -21,6 +21,12 @@ namespace Stashbox.Registration
             return typeInfo.DependencyName == null ? this.TryGetByTypeKeyWithConditions(typeInfo, out registration) : this.TryGetByNamedKey(typeInfo, out registration);
         }
 
+        public bool TryGetRegistrationWithConditionsWithoutGenericDefinitionExtraction(TypeInformation typeInfo, out IServiceRegistration registration)
+        {
+            return typeInfo.DependencyName == null ? this.TryGetByTypeKeyWithConditionsWithoutGenericDefinitionExtraction(typeInfo, out registration) : 
+                this.TryGetByNamedKeyWithoutGenericDefinitionExtraction(typeInfo, out registration);
+        }
+
         public bool TryGetRegistration(TypeInformation typeInfo, out IServiceRegistration registration)
         {
             return typeInfo.DependencyName == null ? this.TryGetByTypeKey(typeInfo, out registration) : this.TryGetByNamedKey(typeInfo, out registration);
@@ -141,6 +147,25 @@ namespace Stashbox.Registration
             return registration != null;
         }
 
+        private bool TryGetByTypeKeyWithConditionsWithoutGenericDefinitionExtraction(TypeInformation typeInfo, out IServiceRegistration registration)
+        {
+            ImmutableTree<IServiceRegistration> registrations;
+            if (!this.TryGetRegistrationsByTypeWithoutGenericDefinitionExtraction(typeInfo.Type, out registrations))
+            {
+                registration = null;
+                return false;
+            }
+
+            var serviceRegistrations = registrations.Enumerate().Select(reg => reg.Value).ToArray();
+            if (serviceRegistrations.Any(reg => reg.HasCondition))
+                registration = serviceRegistrations.Where(reg => reg.HasCondition)
+                                                   .FirstOrDefault(reg => reg.IsUsableForCurrentContext(typeInfo));
+            else
+                registration = serviceRegistrations.FirstOrDefault(reg => reg.IsUsableForCurrentContext(typeInfo));
+
+            return registration != null;
+        }
+
         private bool TryGetRegistrationsByType(Type type, out ImmutableTree<IServiceRegistration> registrations)
         {
             registrations = this.serviceRepository.GetValueOrDefault(type.GetHashCode());
@@ -158,6 +183,12 @@ namespace Stashbox.Registration
             return registrations != null;
         }
 
+        private bool TryGetRegistrationsByTypeWithoutGenericDefinitionExtraction(Type type, out ImmutableTree<IServiceRegistration> registrations)
+        {
+            registrations = this.serviceRepository.GetValueOrDefault(type.GetHashCode());
+            return registrations != null;
+        }
+
         private bool TryGetAllByTypedKey(TypeInformation typeInfo, out IServiceRegistration[] registrations)
         {
             return this.TryGetTypedRepositoryRegistrations(typeInfo, out registrations);
@@ -167,6 +198,19 @@ namespace Stashbox.Registration
         {
             ImmutableTree<IServiceRegistration> registrations;
             if (this.TryGetRegistrationsByType(typeInfo.Type, out registrations))
+            {
+                registration = registrations.GetValueOrDefault(typeInfo.DependencyName.GetHashCode());
+                return registration != null;
+            }
+
+            registration = null;
+            return false;
+        }
+
+        private bool TryGetByNamedKeyWithoutGenericDefinitionExtraction(TypeInformation typeInfo, out IServiceRegistration registration)
+        {
+            ImmutableTree<IServiceRegistration> registrations;
+            if (this.TryGetRegistrationsByTypeWithoutGenericDefinitionExtraction(typeInfo.Type, out registrations))
             {
                 registration = registrations.GetValueOrDefault(typeInfo.DependencyName.GetHashCode());
                 return registration != null;

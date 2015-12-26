@@ -45,10 +45,10 @@ namespace Stashbox
             return resolutionTarget.ResolutionTargetValue ?? resolutionTarget.Resolver.Resolve(resolutionInfo);
         }
 
-        public Expression GetExpressionForResolutionTarget(ResolutionTarget resolutionTarget, Expression resolutionInfoExpression)
+        public Expression GetExpressionForResolutionTarget(ResolutionTarget resolutionTarget, ResolutionInfo resolutionInfo, Expression resolutionInfoExpression)
         {
             return resolutionTarget.ResolutionTargetValue != null ? Expression.Constant(resolutionTarget.ResolutionTargetValue) :
-                resolutionTarget.Resolver.GetExpression(resolutionInfoExpression);
+                resolutionTarget.Resolver.GetExpression(resolutionInfo, resolutionInfoExpression);
         }
     }
 
@@ -88,9 +88,9 @@ namespace Stashbox
             return this.resolutionStrategy.EvaluateResolutionTarget(resolutionTarget, resolutionInfo);
         }
 
-        public Expression GetExpressionForResolutionTarget(ResolutionTarget resolutionTarget, Expression resolutionInfoExpression)
+        public Expression GetExpressionForResolutionTarget(ResolutionTarget resolutionTarget, ResolutionInfo resolutionInfo, Expression resolutionInfoExpression)
         {
-            return this.resolutionStrategy.GetExpressionForResolutionTarget(resolutionTarget, resolutionInfoExpression);
+            return this.resolutionStrategy.GetExpressionForResolutionTarget(resolutionTarget, resolutionInfo, resolutionInfoExpression);
         }
     }
 }
