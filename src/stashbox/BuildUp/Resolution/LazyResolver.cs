@@ -13,7 +13,7 @@ namespace Stashbox.BuildUp.Resolution
         private readonly ResolverDelegate resolverDelegate;
         private readonly TypeInformation lazyArgumentInfo;
 
-        internal LazyResolver(IContainerContext containerContext, TypeInformation typeInfo)
+        public LazyResolver(IContainerContext containerContext, TypeInformation typeInfo)
             : base(containerContext, typeInfo)
         {
             this.lazyArgumentInfo = new TypeInformation

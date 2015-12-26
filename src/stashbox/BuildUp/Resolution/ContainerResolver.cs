@@ -9,7 +9,7 @@ namespace Stashbox.BuildUp.Resolution
     {
         private readonly IServiceRegistration registrationCache;
 
-        internal ContainerResolver(IContainerContext containerContext, TypeInformation typeInfo)
+        public ContainerResolver(IContainerContext containerContext, TypeInformation typeInfo)
             : base(containerContext, typeInfo)
         {
             containerContext.RegistrationRepository.TryGetRegistrationWithConditions(typeInfo,
