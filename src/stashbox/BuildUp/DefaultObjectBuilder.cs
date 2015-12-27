@@ -172,6 +172,7 @@ namespace Stashbox.BuildUp
         public void CleanUp()
         {
             this.constructorDelegate = null;
+            this.containerContext.MessagePublisher.UnSubscribe(this);
         }
     }
 }

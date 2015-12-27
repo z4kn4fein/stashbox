@@ -47,6 +47,7 @@ namespace Stashbox.BuildUp
 
         public void CleanUp()
         {
+            this.objectExtender.CleanUp();
             if (this.builtInstance == null) return;
             lock (this.syncObject)
             {

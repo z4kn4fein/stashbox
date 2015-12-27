@@ -1,25 +1,33 @@
-﻿using Stashbox.Entity;
+﻿using Sendstorm.Infrastructure;
+using Stashbox.Entity;
+using Stashbox.Entity.Events;
 using Stashbox.Entity.Resolution;
 using Stashbox.Infrastructure;
 using System.Linq;
 
 namespace Stashbox
 {
-    public class ObjectExtender : IObjectExtender
+    public class ObjectExtender : IObjectExtender, IMessageReceiver<ServiceUpdated>
     {
         private readonly IMetaInfoProvider metaInfoProvider;
+        private readonly IMessagePublisher messagePublisher;
         private readonly InjectionParameter[] injectionParameters;
         private volatile ResolutionMethod[] injectionMethods;
         private volatile ResolutionMember[] injectionMembers;
         private readonly object resolutionMemberSyncObject = new object();
         private readonly object resolutionMethodSyncObject = new object();
+        private bool isMembersDirty;
+        private bool isMethodDirty;
 
-        public ObjectExtender(IMetaInfoProvider metaInfoProvider, InjectionParameter[] injectionParameters = null)
+        public ObjectExtender(IMetaInfoProvider metaInfoProvider, IMessagePublisher messagePublisher, InjectionParameter[] injectionParameters = null)
         {
             if (injectionParameters != null)
                 this.injectionParameters = injectionParameters;
 
             this.metaInfoProvider = metaInfoProvider;
+            this.messagePublisher = messagePublisher;
+
+            this.messagePublisher.Subscribe(this);
         }
 
         public object FillResolutionMembers(object instance, IContainerContext containerContext, ResolutionInfo resolutionInfo)
@@ -58,24 +66,35 @@ namespace Stashbox
         {
             if (!this.metaInfoProvider.HasInjectionMembers) return null;
 
-            if (this.injectionMembers != null) return this.injectionMembers;
+            if (this.injectionMembers != null && !this.isMembersDirty) return this.injectionMembers;
             lock (this.resolutionMemberSyncObject)
             {
-                if (this.injectionMembers != null) return this.injectionMembers;
+                if (this.injectionMembers != null && !this.isMembersDirty) return this.injectionMembers;
                 return this.injectionMembers = this.metaInfoProvider.GetResolutionMembers(this.injectionParameters).ToArray();
             }
+        }
+
+        public void CleanUp()
+        {
+            this.messagePublisher.UnSubscribe(this);
         }
 
         private ResolutionMethod[] GetResolutionMethods()
         {
             if (!this.metaInfoProvider.HasInjectionMethod) return null;
 
-            if (this.injectionMethods != null) return this.injectionMethods;
+            if (this.injectionMethods != null && !this.isMethodDirty) return this.injectionMethods;
             lock (this.resolutionMethodSyncObject)
             {
-                if (this.injectionMethods != null) return this.injectionMethods;
+                if (this.injectionMethods != null && !this.isMethodDirty) return this.injectionMethods;
                 return this.injectionMethods = this.metaInfoProvider.GetResolutionMethods(this.injectionParameters).ToArray();
             }
+        }
+
+        public void Receive(ServiceUpdated message)
+        {
+            this.isMembersDirty = true;
+            this.isMethodDirty = true;
         }
     }
 }
