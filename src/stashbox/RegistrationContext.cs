@@ -47,10 +47,26 @@ namespace Stashbox
 
             var registrationInfo = new RegistrationInfo { TypeFrom = typeFrom, TypeTo = typeTo };
 
-            var registration = new ServiceRegistration(registrationLifetime,
-                this.CreateObjectBuilder(registrationName), this.attributeConditions, this.targetTypeCondition, this.resolutionCondition);
+            if (this.typeTo.GetTypeInfo().IsGenericTypeDefinition)
+            {
+                var objectBuilder = new GenericTypeObjectBuilder(this.containerContext,
+                    new MetaInfoProvider(this.containerContext,
+                        this.containerContext.MetaInfoRepository.GetOrAdd(this.typeTo,
+                            () => new MetaInfoCache(this.typeTo))));
 
-            this.containerContext.RegistrationRepository.AddRegistration(typeFrom, registration, registrationName);
+                var registration = new ServiceRegistration(registrationLifetime,
+                    objectBuilder, this.attributeConditions, this.targetTypeCondition, this.resolutionCondition);
+
+                this.containerContext.RegistrationRepository.AddGenericDefinition(typeFrom, registration, registrationName);
+            }
+            else
+            {
+                var registration = new ServiceRegistration(registrationLifetime,
+                    this.CreateObjectBuilder(registrationName), this.attributeConditions, this.targetTypeCondition, this.resolutionCondition);
+
+                this.containerContext.RegistrationRepository.AddRegistration(typeFrom, registration, registrationName);
+            }
+
             this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.containerContext, registrationInfo, this.injectionParameters);
             return this.containerContext.Container;
         }
@@ -143,9 +159,6 @@ namespace Stashbox
 
             if (this.oneParameterFactory != null)
                 return new FactoryObjectBuilder(this.oneParameterFactory, this.containerContext, this.containerExtensionManager, objectExtender);
-
-            if (this.typeTo.GetTypeInfo().IsGenericTypeDefinition)
-                return new GenericTypeObjectBuilder(this.containerContext, new MetaInfoProvider(this.containerContext, this.containerContext.MetaInfoRepository.GetOrAdd(this.typeTo, () => new MetaInfoCache(this.typeTo))));
 
             return new DefaultObjectBuilder(this.containerContext, new MetaInfoProvider(this.containerContext, this.containerContext.MetaInfoRepository.GetOrAdd(this.typeTo, () => new MetaInfoCache(this.typeTo))),
                 this.containerExtensionManager, name, this.injectionParameters);
