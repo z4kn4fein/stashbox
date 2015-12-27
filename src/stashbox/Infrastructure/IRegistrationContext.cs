@@ -17,5 +17,6 @@ namespace Stashbox.Infrastructure
         IRegistrationContext WhenHas(Type attributeType);
         IRegistrationContext When(Func<TypeInformation, bool> resolutionCondition);
         IStashboxContainer Register();
+        IStashboxContainer ReMap();
     }
 }

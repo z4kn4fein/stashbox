@@ -6,8 +6,9 @@ namespace Stashbox.Infrastructure
     public interface IRegistrationRepository
     {
         void AddRegistration(Type typeKey, IServiceRegistration registration, string nameKey);
+        void AddOrUpdateRegistration(Type typeKey, IServiceRegistration registration, string nameKey);
         void AddGenericDefinition(Type typeKey, IServiceRegistration registration, string nameKey);
-        bool TryGetAllRegistrations(TypeInformation typeInfo, out IServiceRegistration[] registrations);
+        void AddOrUpdateGenericDefinition(Type typeKey, IServiceRegistration registration, string nameKey);
         bool TryGetRegistrationWithConditions(TypeInformation typeInfo, out IServiceRegistration registration);
         bool TryGetRegistrationWithConditionsWithoutGenericDefinitionExtraction(TypeInformation typeInfo,
             out IServiceRegistration registration);

@@ -34,11 +34,6 @@ namespace Stashbox.Registration
             return typeInfo.DependencyName == null ? this.TryGetByTypeKey(typeInfo, out registration) : this.TryGetByNamedKey(typeInfo, out registration);
         }
 
-        public bool TryGetAllRegistrations(TypeInformation typeInfo, out IServiceRegistration[] registrations)
-        {
-            return this.TryGetAllByTypedKey(typeInfo, out registrations);
-        }
-
         public void AddRegistration(Type typeKey, IServiceRegistration registration, string nameKey)
         {
             var immutableTree = ImmutableTree<IServiceRegistration>.Empty;
@@ -48,8 +43,19 @@ namespace Stashbox.Registration
             {
                 this.serviceRepository = this.serviceRepository.AddOrUpdate(typeKey.GetHashCode(), newTree, (oldValue, newValue) =>
                 {
-                    return oldValue.AddOrUpdate(nameKey.GetHashCode(), registration, (oldRegistration, newReg) => newReg);
+                    return oldValue.AddOrUpdate(nameKey.GetHashCode(), registration, (oldRegistration, newReg) => oldRegistration);
                 });
+            }
+        }
+
+        public void AddOrUpdateRegistration(Type typeKey, IServiceRegistration registration, string nameKey)
+        {
+            var immutableTree = ImmutableTree<IServiceRegistration>.Empty;
+            var newTree = immutableTree.AddOrUpdate(nameKey.GetHashCode(), registration);
+
+            lock (this.syncObject)
+            {
+                this.serviceRepository = this.serviceRepository.AddOrUpdate(typeKey.GetHashCode(), newTree, (oldValue, newValue) => newValue);
             }
         }
 
@@ -62,8 +68,19 @@ namespace Stashbox.Registration
             {
                 this.genericDefinitionRepository = this.genericDefinitionRepository.AddOrUpdate(typeKey.GetHashCode(), newTree, (oldValue, newValue) =>
                 {
-                    return oldValue.AddOrUpdate(nameKey.GetHashCode(), registration, (oldRegistration, newReg) => newReg);
+                    return oldValue.AddOrUpdate(nameKey.GetHashCode(), registration, (oldRegistration, newReg) => oldRegistration);
                 });
+            }
+        }
+
+        public void AddOrUpdateGenericDefinition(Type typeKey, IServiceRegistration registration, string nameKey)
+        {
+            var immutableTree = ImmutableTree<IServiceRegistration>.Empty;
+            var newTree = immutableTree.AddOrUpdate(nameKey.GetHashCode(), registration);
+
+            lock (this.syncObject)
+            {
+                this.genericDefinitionRepository = this.genericDefinitionRepository.AddOrUpdate(typeKey.GetHashCode(), newTree, (oldValue, newValue) => newValue);
             }
         }
 
@@ -203,11 +220,6 @@ namespace Stashbox.Registration
         {
             registrations = this.serviceRepository.GetValueOrDefault(type.GetHashCode());
             return registrations != null;
-        }
-
-        private bool TryGetAllByTypedKey(TypeInformation typeInfo, out IServiceRegistration[] registrations)
-        {
-            return this.TryGetTypedRepositoryRegistrations(typeInfo, out registrations);
         }
 
         private bool TryGetByNamedKey(TypeInformation typeInfo, out IServiceRegistration registration)

@@ -1,5 +1,6 @@
 ﻿using Stashbox.BuildUp;
 using Stashbox.Entity;
+using Stashbox.Entity.Events;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.ContainerExtension;
 using Stashbox.Lifetime;
@@ -68,6 +69,39 @@ namespace Stashbox
             }
 
             this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.containerContext, registrationInfo, this.injectionParameters);
+            return this.containerContext.Container;
+        }
+
+        public IStashboxContainer ReMap()
+        {
+            var registrationName = NameGenerator.GetRegistrationName(this.typeTo, this.name);
+
+            var registrationLifetime = lifetime ?? new TransientLifetime();
+
+            var registrationInfo = new RegistrationInfo { TypeFrom = typeFrom, TypeTo = typeTo };
+
+            if (this.typeTo.GetTypeInfo().IsGenericTypeDefinition)
+            {
+                var objectBuilder = new GenericTypeObjectBuilder(this.containerContext,
+                    new MetaInfoProvider(this.containerContext,
+                        this.containerContext.MetaInfoRepository.GetOrAdd(this.typeTo,
+                            () => new MetaInfoCache(this.typeTo))));
+
+                var registration = new ServiceRegistration(registrationLifetime,
+                    objectBuilder, this.attributeConditions, this.targetTypeCondition, this.resolutionCondition);
+
+                this.containerContext.RegistrationRepository.AddOrUpdateGenericDefinition(typeFrom, registration, registrationName);
+            }
+            else
+            {
+                var registration = new ServiceRegistration(registrationLifetime,
+                    this.CreateObjectBuilder(registrationName), this.attributeConditions, this.targetTypeCondition, this.resolutionCondition);
+
+                this.containerContext.RegistrationRepository.AddOrUpdateRegistration(typeFrom, registration, registrationName);
+            }
+
+            this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.containerContext, registrationInfo, this.injectionParameters);
+            this.containerContext.MessagePublisher.Broadcast(new ServiceUpdated { RegistrationInfo = registrationInfo });
             return this.containerContext.Container;
         }
 

@@ -20,12 +20,15 @@ namespace Stashbox.MetaInfo
 
         public bool HasInjectionMembers { get; }
 
+        public HashSet<Type> SensitivityList { get; private set; }
+
         public MetaInfoProvider(IContainerContext containerContext, MetaInfoCache metaInfoCache)
         {
             this.containerContext = containerContext;
             this.metaInfoCache = metaInfoCache;
             this.HasInjectionMethod = this.metaInfoCache.InjectionMethods.Any();
             this.HasInjectionMembers = this.metaInfoCache.InjectionMembers.Any();
+            this.BuildSensitivityList();
         }
 
         public bool TryChooseConstructor(out ResolutionConstructor resolutionConstructor, ResolutionInfo resolutionInfo, InjectionParameter[] injectionParameters = null)
@@ -58,6 +61,13 @@ namespace Stashbox.MetaInfo
                     MemberSetter = memberInfo.MemberInfo.GetMemberSetter(),
                     MemberInfo = memberInfo.MemberInfo
                 });
+        }
+
+        private void BuildSensitivityList()
+        {
+            this.SensitivityList = new HashSet<Type>(this.metaInfoCache.Constructors.SelectMany(constructor => constructor.Parameters, (constructor, parameter) => parameter.Type)
+                        .Concat(this.metaInfoCache.InjectionMethods.SelectMany(method => method.Parameters, (method, parameter) => parameter.Type))
+                        .Concat(this.metaInfoCache.InjectionMembers.Select(members => members.TypeInformation.Type)).Distinct());
         }
 
         private bool TryGetBestConstructor(out ResolutionConstructor resolutionConstructor, ResolutionInfo resolutionInfo,

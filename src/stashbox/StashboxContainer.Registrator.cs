@@ -1,6 +1,7 @@
 ﻿using Ronin.Common;
 using Stashbox.BuildUp;
 using Stashbox.Entity;
+using Stashbox.Entity.Events;
 using Stashbox.Infrastructure;
 using Stashbox.Lifetime;
 using Stashbox.MetaInfo;
@@ -19,10 +20,10 @@ namespace Stashbox
             return this;
         }
 
-        public IDependencyRegistrator RegisterType<TTo>(Type typeTo, string name = null) where TTo : class
+        public IDependencyRegistrator RegisterType<TFrom>(Type typeTo, string name = null) where TFrom : class
         {
             Shield.EnsureNotNull(typeTo, nameof(typeTo));
-            this.RegisterTypeInternal(typeTo, typeof(TTo), name);
+            this.RegisterTypeInternal(typeTo, typeof(TFrom), name);
             return this;
         }
 
@@ -37,6 +38,37 @@ namespace Stashbox
         {
             var type = typeof(TTo);
             this.RegisterTypeInternal(type, type, name);
+            return this;
+        }
+
+        public IDependencyRegistrator ReMap<TFrom, TTo>(string name = null)
+            where TFrom : class
+            where TTo : class, TFrom
+        {
+            this.ReMapInternal(typeof(TTo), typeof(TFrom), name);
+            return this;
+        }
+
+        public IDependencyRegistrator ReMap<TFrom>(Type typeTo, string name = null)
+            where TFrom : class
+        {
+            Shield.EnsureNotNull(typeTo, nameof(typeTo));
+            this.ReMapInternal(typeTo, typeof(TFrom), name);
+            return this;
+        }
+
+        public IDependencyRegistrator ReMap(Type typeFrom, Type typeTo, string name = null)
+        {
+            Shield.EnsureNotNull(typeTo, nameof(typeTo));
+            this.ReMapInternal(typeTo, typeFrom, name);
+            return this;
+        }
+
+        public IDependencyRegistrator ReMap<TTo>(string name = null)
+            where TTo : class
+        {
+            var type = typeof(TTo);
+            this.ReMapInternal(type, type, name);
             return this;
         }
 
@@ -114,6 +146,30 @@ namespace Stashbox
             }
 
             this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.ContainerContext, registrationInfo);
+        }
+
+        private void ReMapInternal(Type typeTo, Type typeFrom, string name = null)
+        {
+            name = NameGenerator.GetRegistrationName(typeTo, name);
+
+            var registrationInfo = new RegistrationInfo { TypeFrom = typeFrom, TypeTo = typeTo };
+            var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, this.ContainerContext.MetaInfoRepository.GetOrAdd(typeTo, () => new MetaInfoCache(typeTo)));
+
+            if (typeTo.GetTypeInfo().IsGenericTypeDefinition)
+            {
+                var objectBuilder = new GenericTypeObjectBuilder(this.ContainerContext, metaInfoProvider);
+                var registration = new ServiceRegistration(new TransientLifetime(), objectBuilder);
+                this.registrationRepository.AddOrUpdateGenericDefinition(typeFrom, registration, name);
+            }
+            else
+            {
+                var objectBuilder = new DefaultObjectBuilder(this.ContainerContext, metaInfoProvider, this.containerExtensionManager, name);
+                var registration = new ServiceRegistration(new TransientLifetime(), objectBuilder);
+                this.registrationRepository.AddOrUpdateRegistration(typeFrom, registration, name);
+            }
+
+            this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.ContainerContext, registrationInfo);
+            this.messagePublisher.Broadcast(new ServiceUpdated { RegistrationInfo = registrationInfo });
         }
 
         private void BuildUpInternal(object instance, string keyName, Type type = null)

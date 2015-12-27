@@ -1,7 +1,8 @@
-﻿using Stashbox.Extensions;
+﻿using Sendstorm.Infrastructure;
+using Stashbox.Entity;
+using Stashbox.Extensions;
 using Stashbox.MetaInfo;
 using System;
-using Stashbox.Entity;
 
 namespace Stashbox.Infrastructure
 {
@@ -10,6 +11,7 @@ namespace Stashbox.Infrastructure
         IRegistrationRepository RegistrationRepository { get; }
         IStashboxContainer Container { get; }
         IResolutionStrategy ResolutionStrategy { get; }
+        IMessagePublisher MessagePublisher { get; }
         ExtendedImmutableTree<MetaInfoCache> MetaInfoRepository { get; }
         ExtendedImmutableTree<Func<ResolutionInfo, object>> DelegateRepository { get; }
     }

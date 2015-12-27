@@ -1,6 +1,6 @@
 ﻿namespace Stashbox.Entity.Events
 {
-    public class RegistrationAdded
+    public class ServiceUpdated
     {
         public RegistrationInfo RegistrationInfo { get; set; }
     }

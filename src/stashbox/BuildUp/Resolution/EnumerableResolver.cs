@@ -24,7 +24,7 @@ namespace Stashbox.BuildUp.Resolution
                 DependencyName = typeInfo.DependencyName
             };
 
-            containerContext.RegistrationRepository.TryGetAllRegistrations(this.enumerableType,
+            containerContext.RegistrationRepository.TryGetTypedRepositoryRegistrations(this.enumerableType,
                 out registrationCache);
         }
 
