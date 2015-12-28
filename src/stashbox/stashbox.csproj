@@ -55,7 +55,6 @@
     <Compile Include="BuildUp\Resolution\ContainerResolver.cs" />
     <Compile Include="BuildUp\Resolution\LazyResolver.cs" />
     <Compile Include="Entity\ConstructorInformation.cs" />
-    <Compile Include="Entity\Events\ServiceUpdated.cs" />
     <Compile Include="Entity\InjectionParameter.cs" />
     <Compile Include="Entity\MethodInformation.cs" />
     <Compile Include="Entity\MemberInformation.cs" />

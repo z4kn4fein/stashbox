@@ -1,5 +1,4 @@
 ﻿using Stashbox.Entity;
-using Stashbox.Entity.Events;
 using Stashbox.Entity.Resolution;
 using Stashbox.Infrastructure;
 using System.Linq;
@@ -90,12 +89,6 @@ namespace Stashbox
                 if (this.injectionMethods != null && !this.isMethodDirty) return this.injectionMethods;
                 return this.injectionMethods = this.metaInfoProvider.GetResolutionMethods(this.injectionParameters).ToArray();
             }
-        }
-
-        public void Receive(ServiceUpdated message)
-        {
-            this.isMembersDirty = true;
-            this.isMethodDirty = true;
         }
     }
 }

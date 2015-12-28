@@ -1,6 +1,5 @@
 ﻿using Stashbox.BuildUp.DelegateFactory;
 using Stashbox.Entity;
-using Stashbox.Entity.Events;
 using Stashbox.Entity.Resolution;
 using Stashbox.Exceptions;
 using Stashbox.Infrastructure;
@@ -68,23 +67,19 @@ namespace Stashbox.BuildUp
             }
 
             if (this.createDelegate != null && !this.isConstructorDirty) return this.createDelegate(resolutionInfo);
-            lock (this.syncObject)
+            this.createDelegate = this.containerContext.DelegateRepository.GetOrAdd(this.registrationName, () =>
             {
-                if (this.createDelegate != null && !this.isConstructorDirty) return this.createDelegate(resolutionInfo);
-                this.createDelegate = this.containerContext.DelegateRepository.GetOrAdd(this.registrationName, () =>
-                {
-                    ResolutionConstructor constructor;
-                    if (!this.metaInfoProvider.TryChooseConstructor(out constructor, resolutionInfo,
-                        this.injectionParameters))
-                        throw new ResolutionFailedException(this.metaInfoProvider.TypeTo.FullName);
+                ResolutionConstructor constructor;
+                if (!this.metaInfoProvider.TryChooseConstructor(out constructor, resolutionInfo,
+                    this.injectionParameters))
+                    throw new ResolutionFailedException(this.metaInfoProvider.TypeTo.FullName);
 
-                    var parameter = Expression.Parameter(typeof(ResolutionInfo));
-                    this.createDelegate = Expression.Lambda<Func<ResolutionInfo, object>>(this.GetExpressionInternal(constructor, resolutionInfo, parameter), parameter).Compile();
-                    this.resolutionConstructor = constructor;
-                    this.isConstructorDirty = false;
-                    return this.createDelegate;
-                });
-            }
+                var parameter = Expression.Parameter(typeof(ResolutionInfo));
+                this.createDelegate = Expression.Lambda<Func<ResolutionInfo, object>>(this.GetExpressionInternal(constructor, resolutionInfo, parameter), parameter).Compile();
+                this.resolutionConstructor = constructor;
+                this.isConstructorDirty = false;
+                return this.createDelegate;
+            });
 
             return this.createDelegate(resolutionInfo);
         }
@@ -166,7 +161,7 @@ namespace Stashbox.BuildUp
         {
             return ExpressionDelegateFactory.CreateExpression(this.containerContext, constructor, resolutionInfo, resolutionInfoExpression, this.GetResolutionMembers());
         }
-        
+
         public void CleanUp()
         {
             this.constructorDelegate = null;

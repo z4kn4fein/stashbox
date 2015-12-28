@@ -1,6 +1,5 @@
 ﻿using Stashbox.BuildUp;
 using Stashbox.Entity;
-using Stashbox.Entity.Events;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.ContainerExtension;
 using Stashbox.Lifetime;
@@ -104,7 +103,7 @@ namespace Stashbox
 
             foreach (var serviceRegistration in this.containerContext.RegistrationRepository.GetAllRegistrations())
                 serviceRegistration.ServiceUpdated(registrationInfo);
-            
+
             return this.containerContext.Container;
         }
 
