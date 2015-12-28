@@ -1,6 +1,4 @@
 ﻿using Ronin.Common;
-using Sendstorm;
-using Sendstorm.Infrastructure;
 using Stashbox.BuildUp.Resolution;
 using Stashbox.Entity;
 using Stashbox.Extensions;
@@ -18,7 +16,6 @@ namespace Stashbox
         private readonly IResolverSelector resolverSelector;
         private readonly IResolverSelector resolverSelectorContainerExcluded;
         private readonly IRegistrationRepository registrationRepository;
-        private readonly IMessagePublisher messagePublisher;
         private readonly ExtendedImmutableTree<MetaInfoCache> metaInfoRepository;
         private readonly ExtendedImmutableTree<Func<ResolutionInfo, object>> delegateRepository;
         private readonly AtomicBool disposed;
@@ -32,9 +29,8 @@ namespace Stashbox
             this.resolverSelector = new ResolverSelector();
             this.resolverSelectorContainerExcluded = new ResolverSelector();
             this.registrationRepository = new RegistrationRepository();
-            this.messagePublisher = new MessagePublisher();
             this.ContainerContext = new ContainerContext(this.registrationRepository, this,
-                new ResolutionStrategy(this.resolverSelector), this.messagePublisher, this.metaInfoRepository, this.delegateRepository);
+                new ResolutionStrategy(this.resolverSelector), this.metaInfoRepository, this.delegateRepository);
 
             this.RegisterResolvers();
         }
@@ -49,11 +45,10 @@ namespace Stashbox
             this.ParentContainer = parentContainer;
             this.containerExtensionManager = containerExtensionManager;
             this.resolverSelector = resolverSelector;
-            this.messagePublisher = new MessagePublisher();
             this.resolverSelectorContainerExcluded = resolverSelectorContainerExcluded;
             this.registrationRepository = new RegistrationRepository();
             this.ContainerContext = new ContainerContext(this.registrationRepository, this,
-                new CheckParentResolutionStrategyDecorator(new ResolutionStrategy(this.resolverSelector)), this.messagePublisher, this.metaInfoRepository, this.delegateRepository);
+                new CheckParentResolutionStrategyDecorator(new ResolutionStrategy(this.resolverSelector)), this.metaInfoRepository, this.delegateRepository);
         }
 
         public void RegisterExtension(IContainerExtension containerExtension)

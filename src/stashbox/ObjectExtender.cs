@@ -1,5 +1,4 @@
-﻿using Sendstorm.Infrastructure;
-using Stashbox.Entity;
+﻿using Stashbox.Entity;
 using Stashbox.Entity.Events;
 using Stashbox.Entity.Resolution;
 using Stashbox.Infrastructure;
@@ -7,10 +6,9 @@ using System.Linq;
 
 namespace Stashbox
 {
-    public class ObjectExtender : IObjectExtender, IMessageReceiver<ServiceUpdated>
+    public class ObjectExtender : IObjectExtender
     {
         private readonly IMetaInfoProvider metaInfoProvider;
-        private readonly IMessagePublisher messagePublisher;
         private readonly InjectionParameter[] injectionParameters;
         private volatile ResolutionMethod[] injectionMethods;
         private volatile ResolutionMember[] injectionMembers;
@@ -19,15 +17,12 @@ namespace Stashbox
         private bool isMembersDirty;
         private bool isMethodDirty;
 
-        public ObjectExtender(IMetaInfoProvider metaInfoProvider, IMessagePublisher messagePublisher, InjectionParameter[] injectionParameters = null)
+        public ObjectExtender(IMetaInfoProvider metaInfoProvider, InjectionParameter[] injectionParameters = null)
         {
             if (injectionParameters != null)
                 this.injectionParameters = injectionParameters;
 
             this.metaInfoProvider = metaInfoProvider;
-            this.messagePublisher = messagePublisher;
-
-            this.messagePublisher.Subscribe(this);
         }
 
         public object FillResolutionMembers(object instance, IContainerContext containerContext, ResolutionInfo resolutionInfo)
@@ -74,9 +69,15 @@ namespace Stashbox
             }
         }
 
+        public void ServiceUpdated(RegistrationInfo registrationInfo)
+        {
+            if (!this.metaInfoProvider.SensitivityList.Contains(registrationInfo.TypeFrom)) return;
+            this.isMembersDirty = true;
+            this.isMethodDirty = true;
+        }
+
         public void CleanUp()
         {
-            this.messagePublisher.UnSubscribe(this);
         }
 
         private ResolutionMethod[] GetResolutionMethods()

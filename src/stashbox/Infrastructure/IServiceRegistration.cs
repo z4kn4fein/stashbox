@@ -9,6 +9,7 @@ namespace Stashbox.Infrastructure
         Expression GetExpression(ResolutionInfo resolutionInfo, Expression resolutionInfoExpression, TypeInformation resolveType);
         bool IsUsableForCurrentContext(TypeInformation resolutionInfo);
         bool HasCondition { get; }
+        void ServiceUpdated(RegistrationInfo registrationInfo);
         void CleanUp();
     }
 }

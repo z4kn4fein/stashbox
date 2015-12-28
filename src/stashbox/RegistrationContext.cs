@@ -101,7 +101,10 @@ namespace Stashbox
             }
 
             this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.containerContext, registrationInfo, this.injectionParameters);
-            this.containerContext.MessagePublisher.Broadcast(new ServiceUpdated { RegistrationInfo = registrationInfo });
+
+            foreach (var serviceRegistration in this.containerContext.RegistrationRepository.GetAllRegistrations())
+                serviceRegistration.ServiceUpdated(registrationInfo);
+            
             return this.containerContext.Container;
         }
 
@@ -180,7 +183,7 @@ namespace Stashbox
         private IObjectBuilder CreateObjectBuilder(string name)
         {
             var metainfoProvider = new MetaInfoProvider(this.containerContext, this.containerContext.MetaInfoRepository.GetOrAdd(this.typeTo, () => new MetaInfoCache(this.typeTo)));
-            var objectExtender = new ObjectExtender(metainfoProvider, this.containerContext.MessagePublisher, this.injectionParameters);
+            var objectExtender = new ObjectExtender(metainfoProvider, this.injectionParameters);
 
             if (this.singleFactory != null)
                 return new FactoryObjectBuilder(this.singleFactory, this.containerContext, this.containerExtensionManager, objectExtender);

@@ -1,5 +1,4 @@
-﻿using Sendstorm.Infrastructure;
-using Stashbox.BuildUp.DelegateFactory;
+﻿using Stashbox.BuildUp.DelegateFactory;
 using Stashbox.Entity;
 using Stashbox.Entity.Events;
 using Stashbox.Entity.Resolution;
@@ -12,7 +11,7 @@ using System.Linq.Expressions;
 
 namespace Stashbox.BuildUp
 {
-    internal class DefaultObjectBuilder : IObjectBuilder, IMessageReceiver<ServiceUpdated>
+    internal class DefaultObjectBuilder : IObjectBuilder
     {
         private readonly IContainerExtensionManager containerExtensionManager;
         private readonly string registrationName;
@@ -44,8 +43,6 @@ namespace Stashbox.BuildUp
             this.registrationName = registrationName;
             this.metaInfoProvider = metaInfoProvider;
             this.containerContext = containerContext;
-
-            this.containerContext.MessagePublisher.Subscribe(this, message => this.metaInfoProvider.SensitivityList.Contains(message.RegistrationInfo.TypeFrom));
         }
 
         public object BuildInstance(ResolutionInfo resolutionInfo, TypeInformation resolveType)
@@ -157,22 +154,22 @@ namespace Stashbox.BuildUp
             }
         }
 
-        private Expression GetExpressionInternal(ResolutionConstructor constructor, ResolutionInfo resolutionInfo, Expression resolutionInfoExpression)
+        public void ServiceUpdated(RegistrationInfo registrationInfo)
         {
-            return ExpressionDelegateFactory.CreateExpression(this.containerContext, constructor, resolutionInfo, resolutionInfoExpression, this.GetResolutionMembers());
-        }
-
-        public void Receive(ServiceUpdated message)
-        {
+            if (!this.metaInfoProvider.SensitivityList.Contains(registrationInfo.TypeFrom)) return;
             this.isConstructorDirty = true;
             this.isMembersDirty = true;
             this.isMethodDirty = true;
         }
 
+        private Expression GetExpressionInternal(ResolutionConstructor constructor, ResolutionInfo resolutionInfo, Expression resolutionInfoExpression)
+        {
+            return ExpressionDelegateFactory.CreateExpression(this.containerContext, constructor, resolutionInfo, resolutionInfoExpression, this.GetResolutionMembers());
+        }
+        
         public void CleanUp()
         {
             this.constructorDelegate = null;
-            this.containerContext.MessagePublisher.UnSubscribe(this);
         }
     }
 }

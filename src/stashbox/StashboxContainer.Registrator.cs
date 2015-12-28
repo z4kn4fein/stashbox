@@ -169,7 +169,10 @@ namespace Stashbox
             }
 
             this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.ContainerContext, registrationInfo);
-            this.messagePublisher.Broadcast(new ServiceUpdated { RegistrationInfo = registrationInfo });
+
+            foreach (var serviceRegistration in this.registrationRepository.GetAllRegistrations())
+                serviceRegistration.ServiceUpdated(registrationInfo);
+
         }
 
         private void BuildUpInternal(object instance, string keyName, Type type = null)
@@ -180,7 +183,7 @@ namespace Stashbox
             var registrationInfo = new RegistrationInfo { TypeFrom = type, TypeTo = type };
 
             var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, this.ContainerContext.MetaInfoRepository.GetOrAdd(type, () => new MetaInfoCache(type)));
-            var objectExtender = new ObjectExtender(metaInfoProvider, this.messagePublisher);
+            var objectExtender = new ObjectExtender(metaInfoProvider);
 
             var registration = new ServiceRegistration(new TransientLifetime(),
                 new BuildUpObjectBuilder(instance, this.ContainerContext, this.containerExtensionManager, objectExtender));

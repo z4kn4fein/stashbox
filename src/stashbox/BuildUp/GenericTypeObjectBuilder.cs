@@ -62,6 +62,10 @@ namespace Stashbox.BuildUp
             }
         }
 
+        public void ServiceUpdated(RegistrationInfo registrationInfo)
+        {
+        }
+
         public void CleanUp()
         {
         }

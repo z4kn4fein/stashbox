@@ -1,5 +1,6 @@
 ﻿using Stashbox.Entity;
 using System;
+using System.Collections.Generic;
 
 namespace Stashbox.Infrastructure
 {
@@ -9,6 +10,7 @@ namespace Stashbox.Infrastructure
         void AddOrUpdateRegistration(Type typeKey, IServiceRegistration registration, string nameKey);
         void AddGenericDefinition(Type typeKey, IServiceRegistration registration, string nameKey);
         void AddOrUpdateGenericDefinition(Type typeKey, IServiceRegistration registration, string nameKey);
+        IEnumerable<IServiceRegistration> GetAllRegistrations();
         bool TryGetRegistrationWithConditions(TypeInformation typeInfo, out IServiceRegistration registration);
         bool TryGetRegistrationWithConditionsWithoutGenericDefinitionExtraction(TypeInformation typeInfo,
             out IServiceRegistration registration);

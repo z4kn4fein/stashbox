@@ -8,6 +8,7 @@ namespace Stashbox.Infrastructure
     {
         object BuildInstance(ResolutionInfo resolutionInfo, TypeInformation resolveType);
         Expression GetExpression(ResolutionInfo resolutionInfo, Expression resolutionInfoExpression, TypeInformation resolveType);
+        void ServiceUpdated(RegistrationInfo registrationInfo);
         void CleanUp();
     }
 }

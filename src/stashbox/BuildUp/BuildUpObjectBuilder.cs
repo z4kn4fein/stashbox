@@ -45,9 +45,14 @@ namespace Stashbox.BuildUp
             return Expression.Convert(callExpression, resolveType.Type);
         }
 
+        public void ServiceUpdated(RegistrationInfo registrationInfo)
+        {
+            this.objectExtender.ServiceUpdated(registrationInfo);
+        }
+
         public void CleanUp()
         {
-            this.objectExtender.CleanUp();
+            objectExtender.CleanUp();
             if (this.builtInstance == null) return;
             lock (this.syncObject)
             {

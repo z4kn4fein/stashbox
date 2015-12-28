@@ -2,6 +2,7 @@
 using Stashbox.Entity;
 using Stashbox.Infrastructure;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Stashbox.Registration
@@ -16,6 +17,12 @@ namespace Stashbox.Registration
         {
             this.serviceRepository = ImmutableTree<ImmutableTree<IServiceRegistration>>.Empty;
             this.genericDefinitionRepository = ImmutableTree<ImmutableTree<IServiceRegistration>>.Empty;
+        }
+
+        public IEnumerable<IServiceRegistration> GetAllRegistrations()
+        {
+            return this.serviceRepository.Enumerate().SelectMany(tree => tree.Value.Enumerate().Select(reg => reg.Value))
+                .Concat(this.genericDefinitionRepository.Enumerate().SelectMany(tree => tree.Value.Enumerate().Select(reg => reg.Value)));
         }
 
         public bool TryGetRegistrationWithConditions(TypeInformation typeInfo, out IServiceRegistration registration)

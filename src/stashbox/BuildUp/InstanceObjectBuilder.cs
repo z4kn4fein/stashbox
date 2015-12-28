@@ -20,6 +20,10 @@ namespace Stashbox.BuildUp
             return Expression.Constant(this.instance);
         }
 
+        public void ServiceUpdated(RegistrationInfo registrationInfo)
+        {
+        }
+
         public object BuildInstance(ResolutionInfo resolutionInfo, TypeInformation resolveType)
         {
             return this.instance;

@@ -42,6 +42,11 @@ namespace Stashbox.Registration
         public bool HasCondition => this.targetTypeCondition != null || this.resolutionCondition != null ||
             (this.attributeConditions != null && this.attributeConditions.Any());
 
+        public void ServiceUpdated(RegistrationInfo registrationInfo)
+        {
+            this.objectBuilder.ServiceUpdated(registrationInfo);
+        }
+
         public void CleanUp()
         {
             this.objectBuilder.CleanUp();
