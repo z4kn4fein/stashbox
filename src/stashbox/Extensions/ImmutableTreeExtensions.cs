@@ -9,11 +9,15 @@ namespace Stashbox.Extensions
         private readonly object syncObject = new object();
 
 
-        public TValue GetOrAdd<TKey>(TKey key, Func<TValue> valueFactory)
+        public TValue GetOrAdd<TKey>(TKey key, Func<TValue> valueFactory, bool forceUpdate = false)
         {
             var hash = key.GetHashCode();
-            var value = this.repository.GetValueOrDefault(hash);
-            if (value != null) return value;
+            TValue value;
+            if (!forceUpdate)
+            {
+                value = this.repository.GetValueOrDefault(hash);
+                if (value != null) return value;
+            }
 
             lock (this.syncObject)
             {

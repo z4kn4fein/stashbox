@@ -79,7 +79,7 @@ namespace Stashbox.BuildUp
                 this.resolutionConstructor = constructor;
                 this.isConstructorDirty = false;
                 return this.createDelegate;
-            });
+            }, this.isConstructorDirty);
 
             return this.createDelegate(resolutionInfo);
         }
