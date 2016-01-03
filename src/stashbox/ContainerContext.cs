@@ -1,4 +1,5 @@
-﻿using Stashbox.Entity;
+﻿using Ronin.Common;
+using Stashbox.Entity;
 using Stashbox.Extensions;
 using Stashbox.Infrastructure;
 using Stashbox.MetaInfo;
@@ -16,13 +17,17 @@ namespace Stashbox
             this.Container = container;
             this.ResolutionStrategy = resolutionStrategy;
             this.MetaInfoRepository = metaInfoRepository;
-            DelegateRepository = delegateRepository;
+            this.DelegateRepository = delegateRepository;
+            this.Bag = new ConcurrentKeyValueStore<object, object>();
         }
+
+
 
         public IRegistrationRepository RegistrationRepository { get; }
         public IStashboxContainer Container { get; }
         public IResolutionStrategy ResolutionStrategy { get; }
         public ExtendedImmutableTree<MetaInfoCache> MetaInfoRepository { get; }
         public ExtendedImmutableTree<Func<ResolutionInfo, object>> DelegateRepository { get; }
+        public ConcurrentKeyValueStore<object, object> Bag { get; }
     }
 }

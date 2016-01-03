@@ -78,5 +78,19 @@ namespace Stashbox
             return extensionManager;
         }
 
+        public void ReinitalizeExtensions(IContainerContext containerContext)
+        {
+            using (this.readerWriterLock.AcquireReadLock())
+                foreach (var extension in this.postbuildExtensions.OfType<IContainerExtension>().Concat(this.registrationExtensions))
+                    extension.Initialize(containerContext);
+        }
+
+
+        public void CleanUp()
+        {
+            using (this.readerWriterLock.AcquireWriteLock())
+                foreach (var extension in this.postbuildExtensions.OfType<IContainerExtension>().Concat(this.registrationExtensions))
+                    extension.CleanUp();
+        }
     }
 }

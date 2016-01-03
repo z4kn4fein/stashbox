@@ -5,6 +5,10 @@ namespace Stashbox.Infrastructure
 {
     public interface IRegistrationContext
     {
+        Type TypeFrom { get; }
+        Type TypeTo { get; }
+        IContainerContext ContainerContext { get; }
+
         IRegistrationContext WithLifetime(ILifetime lifetime);
         IRegistrationContext WithName(string name);
         IRegistrationContext WithInjectionParameters(params InjectionParameter[] injectionParameters);

@@ -1,4 +1,5 @@
-﻿using Stashbox.Entity;
+﻿using Ronin.Common;
+using Stashbox.Entity;
 using Stashbox.Extensions;
 using Stashbox.MetaInfo;
 using System;
@@ -12,5 +13,6 @@ namespace Stashbox.Infrastructure
         IResolutionStrategy ResolutionStrategy { get; }
         ExtendedImmutableTree<MetaInfoCache> MetaInfoRepository { get; }
         ExtendedImmutableTree<Func<ResolutionInfo, object>> DelegateRepository { get; }
+        ConcurrentKeyValueStore<object, object> Bag { get; }
     }
 }

@@ -41,12 +41,8 @@
     <AssemblyOriginatorKeyFile>..\..\sn.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Ronin.Common, Version=1.0.43.0, Culture=neutral, PublicKeyToken=9778e33426732b68, processorArchitecture=MSIL">
-      <HintPath>..\packages\Ronin.Common.1.0.43.0\lib\portable-net45+win+wpa81+wp80+MonoAndroid10+xamarinios10+MonoTouch10\Ronin.Common.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Sendstorm, Version=1.0.53.0, Culture=neutral, PublicKeyToken=9778e33426732b68, processorArchitecture=MSIL">
-      <HintPath>..\packages\Sendstorm.1.0.53.0\lib\portable-net45+win+wpa81+wp80+MonoAndroid10+xamarinios10+MonoTouch10\Sendstorm.dll</HintPath>
+    <Reference Include="Ronin.Common, Version=1.0.45.0, Culture=neutral, PublicKeyToken=9778e33426732b68, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ronin.Common.1.0.45.0\lib\portable-net45+win+wpa81+wp80+MonoAndroid10+xamarinios10+MonoTouch10\Ronin.Common.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />

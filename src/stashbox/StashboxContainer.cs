@@ -50,6 +50,8 @@ namespace Stashbox
             this.registrationRepository = new RegistrationRepository();
             this.ContainerContext = new ContainerContext(this.registrationRepository, this,
                 new CheckParentResolutionStrategyDecorator(new ResolutionStrategy(this.resolverSelector)), this.metaInfoRepository, this.delegateRepository);
+
+            this.containerExtensionManager.ReinitalizeExtensions(this.ContainerContext);
         }
 
         public void RegisterExtension(IContainerExtension containerExtension)
@@ -130,9 +132,9 @@ namespace Stashbox
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!this.disposed.CompareExchange(false, true)) return;
-            if (!disposing) return;
+            if (!this.disposed.CompareExchange(false, true) || !disposing) return;
             this.registrationRepository.CleanUp();
+            this.containerExtensionManager.CleanUp();
         }
     }
 }
