@@ -11,5 +11,7 @@ namespace Stashbox.Infrastructure
         IStashboxContainer CreateChildContainer();
         IStashboxContainer ParentContainer { get; }
         IContainerContext ContainerContext { get; }
+        bool IsRegistered<TFrom>(string name = null);
+        bool IsRegistered(Type typeFrom, string name = null);
     }
 }

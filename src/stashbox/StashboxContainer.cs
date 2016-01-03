@@ -6,6 +6,7 @@ using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.ContainerExtension;
 using Stashbox.MetaInfo;
 using Stashbox.Registration;
+using Stashbox.Utils;
 using System;
 
 namespace Stashbox
@@ -70,6 +71,21 @@ namespace Stashbox
         {
             return new StashboxContainer(this, this.containerExtensionManager.CreateCopy(), this.resolverSelector.CreateCopy(),
                 this.resolverSelectorContainerExcluded.CreateCopy(), this.metaInfoRepository, this.delegateRepository);
+        }
+
+        public bool IsRegistered<TFrom>(string name = null)
+        {
+            return this.IsRegistered(typeof(TFrom), name);
+        }
+
+        public bool IsRegistered(Type typeFrom, string name = null)
+        {
+            var registrationName = NameGenerator.GetRegistrationName(typeFrom, name);
+            return this.registrationRepository.ConstainsTypeKey(new TypeInformation
+            {
+                Type = typeFrom,
+                DependencyName = registrationName
+            });
         }
 
         public IStashboxContainer ParentContainer { get; }
