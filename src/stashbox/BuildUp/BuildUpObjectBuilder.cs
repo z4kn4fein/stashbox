@@ -33,7 +33,7 @@ namespace Stashbox.BuildUp
                 if (this.builtInstance != null) return this.builtInstance;
                 this.builtInstance = this.objectExtender.FillResolutionMembers(this.instance, this.containerContext, resolutionInfo);
                 this.builtInstance = this.objectExtender.FillResolutionMethods(this.builtInstance, this.containerContext, resolutionInfo);
-                this.builtInstance = this.containerExtensionManager.ExecutePostBuildExtensions(this.builtInstance, this.instanceType, this.containerContext, resolutionInfo);
+                this.builtInstance = this.containerExtensionManager.ExecutePostBuildExtensions(this.builtInstance, this.instanceType, this.containerContext, resolutionInfo, resolveType);
             }
 
             return this.builtInstance;

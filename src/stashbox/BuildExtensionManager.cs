@@ -45,14 +45,15 @@ namespace Stashbox
             }
         }
 
-        public object ExecutePostBuildExtensions(object instance, Type targetType, IContainerContext containerContext, ResolutionInfo resolutionInfo, InjectionParameter[] injectionParameters = null)
+        public object ExecutePostBuildExtensions(object instance, Type targetType, IContainerContext containerContext, ResolutionInfo resolutionInfo, 
+            TypeInformation resolveType, InjectionParameter[] injectionParameters = null)
         {
             if (!this.hasPostBuildExtensions) return instance;
             using (this.readerWriterLock.AcquireReadLock())
             {
                 var result = instance;
                 foreach (var extension in this.postbuildExtensions)
-                    result = extension.PostBuild(instance, targetType, containerContext, resolutionInfo, injectionParameters);
+                    result = extension.PostBuild(instance, targetType, containerContext, resolutionInfo, resolveType, injectionParameters);
 
                 return result;
             }
