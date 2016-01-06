@@ -3,6 +3,7 @@ using Stashbox.Entity.Resolution;
 using Stashbox.Infrastructure;
 using System.Linq;
 using System.Linq.Expressions;
+using Stashbox.Overrides;
 
 namespace Stashbox
 {
@@ -41,16 +42,24 @@ namespace Stashbox
         public object EvaluateResolutionTarget(ResolutionTarget resolutionTarget, ResolutionInfo resolutionInfo)
         {
             if (resolutionInfo.OverrideManager != null && resolutionInfo.OverrideManager.ContainsValue(resolutionTarget.TypeInformation))
-                return resolutionInfo.OverrideManager.GetOverriddenValue(resolutionTarget.TypeInformation.Type, resolutionTarget.TypeInformation.DependencyName);
+                return resolutionInfo.OverrideManager.GetOverriddenValue(resolutionTarget.TypeInformation);
             return resolutionTarget.ResolutionTargetValue ?? resolutionTarget.Resolver.Resolve(resolutionInfo);
         }
 
         public Expression GetExpressionForResolutionTarget(ResolutionTarget resolutionTarget, ResolutionInfo resolutionInfo, Expression resolutionInfoExpression)
         {
-            if (resolutionInfo.OverrideManager != null && resolutionInfo.OverrideManager.ContainsValue(resolutionTarget.TypeInformation))
-                return Expression.Constant(resolutionInfo.OverrideManager.GetOverriddenValue(resolutionTarget.TypeInformation.Type, resolutionTarget.TypeInformation.DependencyName));
+            if (resolutionInfo.OverrideManager != null &&
+                resolutionInfo.OverrideManager.ContainsValue(resolutionTarget.TypeInformation))
+                return this.CreateOverrideExpression(resolutionTarget, resolutionInfoExpression);
             return resolutionTarget.ResolutionTargetValue != null ? Expression.Constant(resolutionTarget.ResolutionTargetValue) :
                 resolutionTarget.Resolver.GetExpression(resolutionInfo, resolutionInfoExpression);
+        }
+
+        private Expression CreateOverrideExpression(ResolutionTarget resolutionTarget, Expression resolutionInfoExpression)
+        {
+            var overrideManagerExpression = Expression.Property(resolutionInfoExpression, "OverrideManager");
+            var callExpression = Expression.Call(overrideManagerExpression, "GetOverriddenValue", null, Expression.Constant(resolutionTarget.TypeInformation));
+            return Expression.Convert(callExpression, resolutionTarget.TypeInformation.Type);
         }
     }
 

@@ -1,6 +1,5 @@
 ﻿using Stashbox.Entity;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
@@ -19,11 +18,9 @@ namespace Stashbox.Overrides
             this.typeOverrides = overrides.OfType<TypeOverride>().ToArray();
         }
 
-        public object GetOverriddenValue(Type type, string name)
+        public object GetOverriddenValue(TypeInformation parameter)
         {
-            var overridden = GetTypedValue(type) ?? GetNamedValue(name);
-
-            return overridden;
+            return GetTypedValue(parameter.Type) ?? GetNamedValue(parameter.DependencyName);
         }
 
         public bool ContainsValue(TypeInformation parameter)
