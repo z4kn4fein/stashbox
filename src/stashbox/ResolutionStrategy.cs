@@ -47,6 +47,8 @@ namespace Stashbox
 
         public Expression GetExpressionForResolutionTarget(ResolutionTarget resolutionTarget, ResolutionInfo resolutionInfo, Expression resolutionInfoExpression)
         {
+            if (resolutionInfo.OverrideManager != null && resolutionInfo.OverrideManager.ContainsValue(resolutionTarget.TypeInformation))
+                return Expression.Constant(resolutionInfo.OverrideManager.GetOverriddenValue(resolutionTarget.TypeInformation.Type, resolutionTarget.TypeInformation.DependencyName));
             return resolutionTarget.ResolutionTargetValue != null ? Expression.Constant(resolutionTarget.ResolutionTargetValue) :
                 resolutionTarget.Resolver.GetExpression(resolutionInfo, resolutionInfoExpression);
         }
