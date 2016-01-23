@@ -23,11 +23,41 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void ConditionalTests_ParentTypeCondition_First_NonGeneric()
+        {
+            var container = new StashboxContainer();
+            container.PrepareType<ITest1, Test1>().WhenDependantIs(typeof(Test2)).Register();
+            container.RegisterType<ITest1, Test11>();
+            container.RegisterType<ITest1, Test12>();
+            container.RegisterType<ITest2, Test2>();
+
+            var test2 = container.Resolve<ITest2>();
+
+            Assert.IsInstanceOfType(test2.test1, typeof(Test1));
+            Assert.IsInstanceOfType(test2.test12, typeof(Test1));
+        }
+
+        [TestMethod]
         public void ConditionalTests_ParentTypeCondition_Second()
         {
             var container = new StashboxContainer();
             container.RegisterType<ITest1, Test1>();
             container.PrepareType<ITest1, Test11>().WhenDependantIs<Test2>().Register();
+            container.RegisterType<ITest1, Test12>();
+            container.RegisterType<ITest2, Test2>();
+
+            var test2 = container.Resolve<ITest2>();
+
+            Assert.IsInstanceOfType(test2.test1, typeof(Test11));
+            Assert.IsInstanceOfType(test2.test12, typeof(Test11));
+        }
+
+        [TestMethod]
+        public void ConditionalTests_ParentTypeCondition_Second_NonGeneric()
+        {
+            var container = new StashboxContainer();
+            container.RegisterType<ITest1, Test1>();
+            container.PrepareType<ITest1, Test11>().WhenDependantIs(typeof(Test2)).Register();
             container.RegisterType<ITest1, Test12>();
             container.RegisterType<ITest2, Test2>();
 
@@ -53,12 +83,42 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void ConditionalTests_ParentTypeCondition_Third_NonGeneric()
+        {
+            var container = new StashboxContainer();
+            container.RegisterType<ITest1, Test1>();
+            container.RegisterType<ITest1, Test11>();
+            container.PrepareType<ITest1, Test12>().WhenDependantIs(typeof(Test2)).Register();
+            container.RegisterType<ITest2, Test2>();
+
+            var test2 = container.Resolve<ITest2>();
+
+            Assert.IsInstanceOfType(test2.test1, typeof(Test12));
+            Assert.IsInstanceOfType(test2.test12, typeof(Test12));
+        }
+
+        [TestMethod]
         public void ConditionalTests_AttributeCondition_First()
         {
             var container = new StashboxContainer();
             container.PrepareType<ITest1, Test1>().WhenHas<TestConditionAttribute>().Register();
             container.RegisterType<ITest1, Test11>();
             container.PrepareType<ITest1, Test12>().WhenHas<TestCondition2Attribute>().Register();
+            container.RegisterType<ITest2, Test3>();
+
+            var test3 = container.Resolve<ITest2>();
+
+            Assert.IsInstanceOfType(test3.test1, typeof(Test1));
+            Assert.IsInstanceOfType(test3.test12, typeof(Test12));
+        }
+
+        [TestMethod]
+        public void ConditionalTests_AttributeCondition_First_NonGeneric()
+        {
+            var container = new StashboxContainer();
+            container.PrepareType<ITest1, Test1>().WhenHas(typeof(TestConditionAttribute)).Register();
+            container.RegisterType<ITest1, Test11>();
+            container.PrepareType<ITest1, Test12>().WhenHas(typeof(TestCondition2Attribute)).Register();
             container.RegisterType<ITest2, Test3>();
 
             var test3 = container.Resolve<ITest2>();
@@ -83,11 +143,41 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void ConditionalTests_AttributeCondition_Second_NonGeneric()
+        {
+            var container = new StashboxContainer();
+            container.RegisterType<ITest1, Test1>();
+            container.PrepareType<ITest1, Test11>().WhenHas(typeof(TestCondition2Attribute)).Register();
+            container.PrepareType<ITest1, Test12>().WhenHas(typeof(TestConditionAttribute)).Register();
+            container.RegisterType<ITest2, Test3>();
+
+            var test3 = container.Resolve<ITest2>();
+
+            Assert.IsInstanceOfType(test3.test1, typeof(Test12));
+            Assert.IsInstanceOfType(test3.test12, typeof(Test11));
+        }
+
+        [TestMethod]
         public void ConditionalTests_AttributeCondition_Third()
         {
             var container = new StashboxContainer();
             container.PrepareType<ITest1, Test1>().WhenHas<TestCondition2Attribute>().Register();
             container.PrepareType<ITest1, Test11>().WhenHas<TestConditionAttribute>().Register();
+            container.RegisterType<ITest1, Test12>();
+            container.RegisterType<ITest2, Test3>();
+
+            var test3 = container.Resolve<ITest2>();
+
+            Assert.IsInstanceOfType(test3.test1, typeof(Test11));
+            Assert.IsInstanceOfType(test3.test12, typeof(Test1));
+        }
+
+        [TestMethod]
+        public void ConditionalTests_AttributeCondition_Third_NonGeneric()
+        {
+            var container = new StashboxContainer();
+            container.PrepareType<ITest1, Test1>().WhenHas(typeof(TestCondition2Attribute)).Register();
+            container.PrepareType<ITest1, Test11>().WhenHas(typeof(TestConditionAttribute)).Register();
             container.RegisterType<ITest1, Test12>();
             container.RegisterType<ITest2, Test3>();
 

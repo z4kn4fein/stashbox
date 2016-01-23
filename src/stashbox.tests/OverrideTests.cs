@@ -34,6 +34,17 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void OverrideTests_Resolve_Named()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            container.RegisterType<ITest2, Test22>();
+            var inst2 = container.Resolve<ITest2>(overrides: new[] { new NamedOverride("test1", new Test1 { Name = "test1" }) });
+
+            Assert.IsInstanceOfType(inst2, typeof(Test22));
+            Assert.AreEqual("test1", inst2.Name);
+        }
+
+        [TestMethod]
         public void OverrideTests_Resolve_Parallel()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -93,11 +104,26 @@ namespace Stashbox.Tests
             public string Name { get; set; }
         }
 
+        public class Test12 : ITest1
+        {
+            public string Name { get; set; }
+        }
+
         public class Test2 : ITest2
         {
             public string Name { get; set; }
 
             public Test2(ITest1 test1)
+            {
+                this.Name = test1.Name;
+            }
+        }
+
+        public class Test22 : ITest2
+        {
+            public string Name { get; set; }
+
+            public Test22([Dependency("test1")]ITest1 test1)
             {
                 this.Name = test1.Name;
             }

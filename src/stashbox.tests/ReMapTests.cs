@@ -45,6 +45,26 @@ namespace Stashbox.Tests
             Assert.IsInstanceOfType(test22.Test1, typeof(Test11));
         }
 
+        [TestMethod]
+        public void ReMapTests_DependencyResolve_Fluent()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            container.RegisterType<ITest1, Test1>();
+            container.RegisterType<ITest2, Test2>();
+
+            var test2 = container.Resolve<ITest2>();
+
+            Assert.IsNotNull(test2.Test1);
+            Assert.IsInstanceOfType(test2.Test1, typeof(Test1));
+
+            container.PrepareType<ITest1, Test11>().ReMap();
+
+            var test22 = container.Resolve<ITest2>();
+
+            Assert.IsNotNull(test22.Test1);
+            Assert.IsInstanceOfType(test22.Test1, typeof(Test11));
+        }
+
         public interface ITest1 { }
 
         public interface ITest2

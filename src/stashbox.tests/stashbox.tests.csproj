@@ -41,6 +41,10 @@
     <AssemblyOriginatorKeyFile>..\..\sn.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Moq, Version=4.2.1510.2205, Culture=neutral, PublicKeyToken=69f491c39445e920, processorArchitecture=MSIL">
+      <HintPath>..\packages\Moq.4.2.1510.2205\lib\net40\Moq.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Ronin.Common, Version=1.0.45.0, Culture=neutral, PublicKeyToken=9778e33426732b68, processorArchitecture=MSIL">
       <HintPath>..\packages\Ronin.Common.1.0.45.0\lib\portable-net45+win+wpa81+wp80+MonoAndroid10+xamarinios10+MonoTouch10\Ronin.Common.dll</HintPath>
       <Private>True</Private>
@@ -61,10 +65,15 @@
   </Choose>
   <ItemGroup>
     <Compile Include="AttributeTests.cs" />
+    <Compile Include="BuildExtensionManagerTests.cs" />
+    <Compile Include="BuildUpTests.cs" />
     <Compile Include="ConditionalTests.cs" />
+    <Compile Include="ContainerTests.cs" />
     <Compile Include="EnumerableTests.cs" />
+    <Compile Include="FactoryBuildUpTests.cs" />
     <Compile Include="GenericTests.cs" />
     <Compile Include="InjectionMemberTests.cs" />
+    <Compile Include="InstanceBuilderTests.cs" />
     <Compile Include="LazyTests.cs" />
     <Compile Include="LifetimeTests.cs" />
     <Compile Include="OverrideTests.cs" />

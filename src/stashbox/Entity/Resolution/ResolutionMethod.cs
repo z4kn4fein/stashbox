@@ -7,8 +7,6 @@ namespace Stashbox.Entity.Resolution
     {
         public MethodInfo Method { get; set; }
 
-        public ResolutionTarget[] Parameters { get; set; }
-
         public InvokeMethod MethodDelegate { get; set; }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ronin.Common;
+using Stashbox.Exceptions;
 using Stashbox.Infrastructure;
 using System;
 using System.Threading.Tasks;
@@ -12,22 +13,35 @@ namespace Stashbox.Tests
         [TestMethod]
         public void StandardResolveTests_Resolve()
         {
-            IStashboxContainer container = new StashboxContainer();
-            container.RegisterType<ITest1, Test1>();
-            container.RegisterType<ITest2, Test2>();
-            container.RegisterType<ITest3, Test3>();
+            using (IStashboxContainer container = new StashboxContainer())
+            {
+                container.RegisterType<ITest1, Test1>();
+                container.RegisterType<ITest2, Test2>();
+                container.RegisterType<ITest3, Test3>();
 
-            var test3 = container.Resolve<ITest3>();
-            var test2 = container.Resolve<ITest2>();
-            var test1 = container.Resolve<ITest1>();
+                var test3 = container.Resolve<ITest3>();
+                var test2 = container.Resolve<ITest2>();
+                var test1 = container.Resolve<ITest1>();
 
-            Assert.IsNotNull(test3);
-            Assert.IsNotNull(test2);
-            Assert.IsNotNull(test1);
+                Assert.IsNotNull(test3);
+                Assert.IsNotNull(test2);
+                Assert.IsNotNull(test1);
 
-            Assert.IsInstanceOfType(test1, typeof(Test1));
-            Assert.IsInstanceOfType(test2, typeof(Test2));
-            Assert.IsInstanceOfType(test3, typeof(Test3));
+                Assert.IsInstanceOfType(test1, typeof(Test1));
+                Assert.IsInstanceOfType(test2, typeof(Test2));
+                Assert.IsInstanceOfType(test3, typeof(Test3));
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ResolutionFailedException))]
+        public void StandardResolveTests_Resolve_ResolutionFailed()
+        {
+            using (IStashboxContainer container = new StashboxContainer())
+            {
+                container.RegisterType<ITest2, Test2>();
+                var test2 = container.Resolve<ITest2>();
+            }
         }
 
         [TestMethod]
@@ -91,22 +105,6 @@ namespace Stashbox.Tests
                 Assert.IsNotNull(test2.Value);
                 Assert.IsNotNull(test1.Value);
             });
-        }
-
-        [TestMethod]
-        public void StandardResolveTests_ChildContainer()
-        {
-            var container = new StashboxContainer();
-            container.RegisterType<ITest1, Test1>();
-            container.RegisterType<ITest2, Test2>();
-
-            var child = container.CreateChildContainer();
-            child.RegisterType<ITest3, Test3>();
-
-            var test3 = child.Resolve<ITest3>();
-
-            Assert.IsNotNull(test3);
-            Assert.IsInstanceOfType(test3, typeof(Test3));
         }
 
         public interface ITest1 { string Name { get; set; } }

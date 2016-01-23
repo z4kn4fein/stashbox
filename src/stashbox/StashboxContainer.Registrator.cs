@@ -78,24 +78,25 @@ namespace Stashbox
             return this;
         }
 
-        public IDependencyRegistrator RegisterInstance(object instance, Type type = null, string name = null)
+        public IDependencyRegistrator RegisterInstance(object instance, string name = null)
         {
             Shield.EnsureNotNull(instance, nameof(instance));
-            this.RegisterInstanceInternal(instance, name, type);
+            this.RegisterInstanceInternal(instance, name, instance.GetType());
             return this;
         }
 
         public IDependencyRegistrator BuildUp<TFrom>(object instance, string name = null) where TFrom : class
         {
             Shield.EnsureNotNull(instance, nameof(instance));
-            this.BuildUpInternal(instance, name, typeof(TFrom));
+            this.BuildUpInternal(instance, name, typeof(TFrom), instance.GetType());
             return this;
         }
 
-        public IDependencyRegistrator BuildUp(object instance, Type type = null, string name = null)
+        public IDependencyRegistrator BuildUp(object instance, string name = null)
         {
             Shield.EnsureNotNull(instance, nameof(instance));
-            this.BuildUpInternal(instance, name, type);
+            var type = instance.GetType();
+            this.BuildUpInternal(instance, name, type, type);
             return this;
         }
 
@@ -174,26 +175,24 @@ namespace Stashbox
 
         }
 
-        private void BuildUpInternal(object instance, string keyName, Type type = null)
+        private void BuildUpInternal(object instance, string keyName, Type typeFrom, Type typeTo)
         {
-            type = type ?? instance.GetType();
-            keyName = NameGenerator.GetRegistrationName(type, keyName);
+            keyName = NameGenerator.GetRegistrationName(typeTo, keyName);
 
-            var registrationInfo = new RegistrationInfo { TypeFrom = type, TypeTo = type };
+            var registrationInfo = new RegistrationInfo { TypeFrom = typeFrom, TypeTo = typeTo };
 
-            var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, this.ContainerContext.MetaInfoRepository.GetOrAdd(type, () => new MetaInfoCache(type)));
+            var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, this.ContainerContext.MetaInfoRepository.GetOrAdd(typeTo, () => new MetaInfoCache(typeTo)));
             var objectExtender = new ObjectExtender(metaInfoProvider);
 
             var registration = new ServiceRegistration(new TransientLifetime(),
                 new BuildUpObjectBuilder(instance, this.ContainerContext, this.containerExtensionManager, objectExtender));
 
-            this.registrationRepository.AddRegistration(type, registration, keyName);
+            this.registrationRepository.AddRegistration(typeFrom, registration, keyName);
             this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.ContainerContext, registrationInfo);
         }
 
-        private void RegisterInstanceInternal(object instance, string keyName, Type type = null)
+        private void RegisterInstanceInternal(object instance, string keyName, Type type)
         {
-            type = type ?? instance.GetType();
             keyName = NameGenerator.GetRegistrationName(type, keyName);
 
             var registrationInfo = new RegistrationInfo { TypeFrom = type, TypeTo = type };

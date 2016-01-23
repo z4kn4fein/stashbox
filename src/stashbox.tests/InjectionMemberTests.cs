@@ -26,6 +26,28 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void InjectionMemberTests_BuildUp()
+        {
+            using (var container = new StashboxContainer())
+            {
+                container.RegisterType<ITest, Test>();
+
+                var test1 = new Test1();
+                container.BuildUp<ITest1>(test1);
+
+                var inst = container.Resolve<ITest1>();
+
+                Assert.IsNotNull(inst);
+                Assert.IsNotNull(inst.Test);
+                Assert.IsInstanceOfType(inst, typeof(Test1));
+                Assert.IsInstanceOfType(inst.Test, typeof(Test));
+
+                Assert.IsNotNull(((Test1)inst).TestFieldProperty);
+                Assert.IsInstanceOfType(((Test1)inst).TestFieldProperty, typeof(Test));
+            }
+        }
+
+        [TestMethod]
         public void InjectionMemberTests_Resolve_InjectionParameter()
         {
             var container = new StashboxContainer();

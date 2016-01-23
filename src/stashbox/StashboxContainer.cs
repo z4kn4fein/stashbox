@@ -6,7 +6,6 @@ using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.ContainerExtension;
 using Stashbox.MetaInfo;
 using Stashbox.Registration;
-using Stashbox.Utils;
 using System;
 
 namespace Stashbox
@@ -62,11 +61,13 @@ namespace Stashbox
 
         public void RegisterResolver(Func<IContainerContext, TypeInformation, bool> resolverPredicate, ResolverFactory factory)
         {
-            this.resolverSelector.AddResolver(new ResolverRegistration
+            var resolver = new ResolverRegistration
             {
                 ResolverFactory = factory,
                 Predicate = resolverPredicate
-            });
+            };
+            this.resolverSelector.AddResolver(resolver);
+            this.resolverSelectorContainerExcluded.AddResolver(resolver);
         }
 
         public IStashboxContainer CreateChildContainer()
@@ -82,12 +83,7 @@ namespace Stashbox
 
         public bool IsRegistered(Type typeFrom, string name = null)
         {
-            var registrationName = NameGenerator.GetRegistrationName(typeFrom, name);
-            return this.registrationRepository.ConstainsTypeKey(new TypeInformation
-            {
-                Type = typeFrom,
-                DependencyName = registrationName
-            });
+            return this.registrationRepository.Constains(typeFrom, name);
         }
 
         public IStashboxContainer ParentContainer { get; }

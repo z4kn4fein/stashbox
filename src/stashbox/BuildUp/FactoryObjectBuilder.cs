@@ -56,7 +56,7 @@ namespace Stashbox.BuildUp
                 instance = this.singleFactory.Invoke();
 
             if (this.oneParamsFactory != null)
-                instance = this.oneParamsFactory.Invoke(resolutionInfo.FactoryParams);
+                instance = this.oneParamsFactory.Invoke(resolutionInfo.FactoryParams.ElementAt(0));
 
             if (this.twoParamsFactory != null)
                 instance = this.twoParamsFactory.Invoke(resolutionInfo.FactoryParams.ElementAt(0), resolutionInfo.FactoryParams.ElementAt(1));

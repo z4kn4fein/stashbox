@@ -24,8 +24,10 @@ namespace Stashbox.Tests
             var array = container.Resolve<ITest2>("array");
 
             var all = container.Resolve<IEnumerable<ITest2>>();
+            var all2 = container.ResolveAll<ITest2>();
 
             Assert.AreEqual(2, all.Count());
+            Assert.AreEqual(2, all2.Count());
         }
 
         [TestMethod]

@@ -43,11 +43,11 @@ namespace Stashbox.Infrastructure
         IDependencyRegistrator RegisterInstance<TFrom>(object instance, string name = null)
             where TFrom : class;
 
-        IDependencyRegistrator RegisterInstance(object instance, Type type = null, string name = null);
+        IDependencyRegistrator RegisterInstance(object instance, string name = null);
 
         IDependencyRegistrator BuildUp<TFrom>(object instance, string name = null)
             where TFrom : class;
 
-        IDependencyRegistrator BuildUp(object instance, Type type = null, string name = null);
+        IDependencyRegistrator BuildUp(object instance, string name = null);
     }
 }

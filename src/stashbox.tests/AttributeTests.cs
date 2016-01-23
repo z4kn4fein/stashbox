@@ -17,7 +17,7 @@ namespace Stashbox.Tests
             container.RegisterType<ITest1, Test11>("test11");
             container.RegisterType<ITest1, Test12>("test12");
             container.RegisterType<ITest2, Test2>("test2");
-            container.RegisterType<ITest2, Test22>("test22");
+            container.PrepareType<ITest2, Test22>().WithName("test22").Register();
             container.RegisterType<ITest3, Test3>();
             container.RegisterType<ITest4, Test4>();
             container.RegisterType<Test33>();

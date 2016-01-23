@@ -112,9 +112,13 @@ namespace Stashbox.Registration
             return registrations != null;
         }
 
-        public bool ConstainsTypeKey(TypeInformation typeInfo)
+        public bool Constains(Type type, string name = null)
         {
-            return this.serviceRepository.GetValueOrDefault(typeInfo.Type.GetHashCode()) != null;
+            var regs = this.serviceRepository.GetValueOrDefault(type.GetHashCode());
+            if (name != null)
+                return regs != null && regs.GetValueOrDefault(name.GetHashCode()) != null;
+            else
+                return regs != null;
         }
 
         public bool ConstainsTypeKeyWithConditions(TypeInformation typeInfo)
