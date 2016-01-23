@@ -44,7 +44,8 @@ namespace Stashbox.Tests
         public void ContainerTests_ResolverTest()
         {
             var container = new StashboxContainer();
-            container.RegisterResolver((context, typeInfo) => typeInfo.Type == typeof(ITest1), new TestResolverFactory());
+            container.RegisterResolver((context, typeInfo) => typeInfo.Type == typeof(ITest1),
+                (context, typeInfo) => new TestResolver(context, typeInfo));
             var inst = container.Resolve<ITest1>();
 
             Assert.IsInstanceOfType(inst, typeof(Test1));
@@ -89,14 +90,6 @@ namespace Stashbox.Tests
             public override object Resolve(ResolutionInfo resolutionInfo)
             {
                 return new Test1();
-            }
-        }
-
-        public class TestResolverFactory : ResolverFactory
-        {
-            public override Resolver Create(IContainerContext containerContext, TypeInformation typeInfo)
-            {
-                return new TestResolver(containerContext, typeInfo);
             }
         }
     }

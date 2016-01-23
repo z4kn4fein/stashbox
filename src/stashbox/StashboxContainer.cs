@@ -59,7 +59,8 @@ namespace Stashbox
             this.containerExtensionManager.AddExtension(containerExtension);
         }
 
-        public void RegisterResolver(Func<IContainerContext, TypeInformation, bool> resolverPredicate, ResolverFactory factory)
+        public void RegisterResolver(Func<IContainerContext, TypeInformation, bool> resolverPredicate,
+            Func<IContainerContext, TypeInformation, Resolver> factory)
         {
             var resolver = new ResolverRegistration
             {
@@ -93,19 +94,19 @@ namespace Stashbox
         {
             var containerResolver = new ResolverRegistration
             {
-                ResolverFactory = new ContainerResolverFactory(),
+                ResolverFactory = (context, typeInfo) => new ContainerResolver(context, typeInfo),
                 Predicate = (context, typeInfo) => context.RegistrationRepository.ConstainsTypeKeyWithConditions(typeInfo)
             };
 
             var lazyResolver = new ResolverRegistration
             {
-                ResolverFactory = new LazyResolverFactory(),
+                ResolverFactory = (context, typeInfo) => new LazyResolver(context, typeInfo),
                 Predicate = (context, typeInfo) => typeInfo.Type.IsConstructedGenericType && typeInfo.Type.GetGenericTypeDefinition() == typeof(Lazy<>)
             };
 
             var enumerableResolver = new ResolverRegistration
             {
-                ResolverFactory = new EnumerableResolverFactory(),
+                ResolverFactory = (context, typeInfo) => new EnumerableResolver(context, typeInfo),
                 Predicate = (context, typeInfo) => typeInfo.Type.GetEnumerableType() != null &&
                              context.RegistrationRepository.ConstainsTypeKeyWithConditions(new TypeInformation
                              {

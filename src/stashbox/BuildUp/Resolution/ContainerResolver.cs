@@ -32,12 +32,4 @@ namespace Stashbox.BuildUp.Resolution
             return registrationCache.GetInstance(resolutionInfo, base.TypeInfo);
         }
     }
-
-    internal class ContainerResolverFactory : ResolverFactory
-    {
-        public override Resolver Create(IContainerContext containerContext, TypeInformation typeInfo)
-        {
-            return new ContainerResolver(containerContext, typeInfo);
-        }
-    }
 }

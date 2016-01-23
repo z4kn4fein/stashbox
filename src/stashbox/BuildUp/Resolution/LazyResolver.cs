@@ -46,12 +46,4 @@ namespace Stashbox.BuildUp.Resolution
             return new Lazy<T>(() => (T)registrationCache.GetInstance(resolutionInfo, this.lazyArgumentInfo));
         }
     }
-
-    internal class LazyResolverFactory : ResolverFactory
-    {
-        public override Resolver Create(IContainerContext containerContext, TypeInformation typeInfo)
-        {
-            return new LazyResolver(containerContext, typeInfo);
-        }
-    }
 }

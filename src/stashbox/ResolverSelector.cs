@@ -31,7 +31,7 @@ namespace Stashbox
                     registration => registration.Predicate(containerContext, typeInfo));
                 if (resolverFactory != null)
                 {
-                    resolver = resolverFactory.ResolverFactory.Create(containerContext, typeInfo);
+                    resolver = resolverFactory.ResolverFactory(containerContext, typeInfo);
                     return true;
                 }
 

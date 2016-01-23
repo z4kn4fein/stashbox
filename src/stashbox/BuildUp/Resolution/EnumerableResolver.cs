@@ -53,12 +53,4 @@ namespace Stashbox.BuildUp.Resolution
             return Expression.NewArrayInit(this.enumerableType.Type, enumerableItems);
         }
     }
-
-    internal class EnumerableResolverFactory : ResolverFactory
-    {
-        public override Resolver Create(IContainerContext containerContext, TypeInformation typeInfo)
-        {
-            return new EnumerableResolver(containerContext, typeInfo);
-        }
-    }
 }
