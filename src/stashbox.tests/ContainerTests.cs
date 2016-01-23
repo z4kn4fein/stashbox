@@ -62,10 +62,16 @@ namespace Stashbox.Tests
 
         public class Test2 : ITest2
         {
+            public Test2(ITest1 test1)
+            {
+            }
         }
 
         public class Test3 : ITest3
         {
+            public Test3(ITest1 test1, ITest2 test2)
+            {
+            }
         }
 
         public class TestResolver : Resolver
