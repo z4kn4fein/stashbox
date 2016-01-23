@@ -37,9 +37,6 @@ namespace Stashbox.Infrastructure
 
         IDependencyRegistrator ReMap(Type typeFrom, Type typeTo, string name = null);
 
-        IDependencyRegistrator ReMap<TTo>(string name = null)
-             where TTo : class;
-
         IDependencyRegistrator RegisterInstance<TFrom>(object instance, string name = null)
             where TFrom : class;
 

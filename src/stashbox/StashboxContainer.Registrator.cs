@@ -63,14 +63,6 @@ namespace Stashbox
             return this;
         }
 
-        public IDependencyRegistrator ReMap<TTo>(string name = null)
-            where TTo : class
-        {
-            var type = typeof(TTo);
-            this.ReMapInternal(type, type, name);
-            return this;
-        }
-
         public IDependencyRegistrator RegisterInstance<TFrom>(object instance, string name = null) where TFrom : class
         {
             Shield.EnsureNotNull(instance, nameof(instance));
