@@ -35,12 +35,22 @@ namespace Stashbox.Tests
 
         [TestMethod]
         [ExpectedException(typeof(ResolutionFailedException))]
-        public void StandardResolveTests_Resolve_ResolutionFailed()
+        public void StandardResolveTests_DependencyResolve_ResolutionFailed()
         {
             using (IStashboxContainer container = new StashboxContainer())
             {
                 container.RegisterType<ITest2, Test2>();
                 var test2 = container.Resolve<ITest2>();
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ResolutionFailedException))]
+        public void StandardResolveTests_Resolve_ResolutionFailed()
+        {
+            using (IStashboxContainer container = new StashboxContainer())
+            {
+                var test = container.Resolve<ITest1>();
             }
         }
 
