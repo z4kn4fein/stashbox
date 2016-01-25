@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Stashbox
 {
-    public class ObjectExtender : IObjectExtender
+    internal class ObjectExtender : IObjectExtender
     {
         private readonly IMetaInfoProvider metaInfoProvider;
         private readonly InjectionParameter[] injectionParameters;

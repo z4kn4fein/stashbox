@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace Stashbox.Entity.Resolution
 {
-    public class ResolutionMethod
+    internal class ResolutionMethod
     {
         public MethodInfo Method { get; set; }
 

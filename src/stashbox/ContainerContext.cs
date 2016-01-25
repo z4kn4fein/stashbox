@@ -9,7 +9,7 @@ namespace Stashbox
 {
     public class ContainerContext : IContainerContext
     {
-        public ContainerContext(IRegistrationRepository registrationRepository, IStashboxContainer container,
+        internal ContainerContext(IRegistrationRepository registrationRepository, IStashboxContainer container,
             IResolutionStrategy resolutionStrategy, ExtendedImmutableTree<MetaInfoCache> metaInfoRepository,
             ExtendedImmutableTree<Func<ResolutionInfo, object>> delegateRepository)
         {

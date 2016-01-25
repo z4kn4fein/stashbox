@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Stashbox.Infrastructure
 {
-    public interface IMetaInfoProvider
+    internal interface IMetaInfoProvider
     {
         Type TypeTo { get; }
         bool HasInjectionMethod { get; }

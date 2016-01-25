@@ -2,7 +2,7 @@
 
 namespace Stashbox.Entity.Resolution
 {
-    public class ResolutionConstructor
+    internal class ResolutionConstructor
     {
         public ConstructorInfo Constructor { get; set; }
 

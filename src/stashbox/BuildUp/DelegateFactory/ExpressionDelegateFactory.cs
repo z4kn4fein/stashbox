@@ -7,10 +7,10 @@ using System.Reflection;
 
 namespace Stashbox.BuildUp.DelegateFactory
 {
-    public delegate object CreateInstance(ResolutionInfo resolutionInfo);
-    public delegate void InvokeMethod(ResolutionInfo resolutionInfo, object instance);
+    internal delegate object CreateInstance(ResolutionInfo resolutionInfo);
+    internal delegate void InvokeMethod(ResolutionInfo resolutionInfo, object instance);
 
-    public class ExpressionDelegateFactory
+    internal class ExpressionDelegateFactory
     {
         public static CreateInstance CreateConstructorExpression(IContainerContext containerContext, ResolutionConstructor resolutionConstructor,
             ResolutionMember[] members = null)

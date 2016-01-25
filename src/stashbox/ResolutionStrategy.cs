@@ -3,11 +3,10 @@ using Stashbox.Entity.Resolution;
 using Stashbox.Infrastructure;
 using System.Linq;
 using System.Linq.Expressions;
-using Stashbox.Overrides;
 
 namespace Stashbox
 {
-    public class ResolutionStrategy : IResolutionStrategy
+    internal class ResolutionStrategy : IResolutionStrategy
     {
         private readonly IResolverSelector resolverSelector;
 
@@ -63,7 +62,7 @@ namespace Stashbox
         }
     }
 
-    public class CheckParentResolutionStrategyDecorator : IResolutionStrategy
+    internal class CheckParentResolutionStrategyDecorator : IResolutionStrategy
     {
         private readonly IResolutionStrategy resolutionStrategy;
 

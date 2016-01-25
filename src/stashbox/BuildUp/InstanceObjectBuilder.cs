@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 
 namespace Stashbox.BuildUp
 {
-    public class InstanceObjectBuilder : IObjectBuilder
+    internal class InstanceObjectBuilder : IObjectBuilder
     {
         private object instance;
         private readonly object syncObject = new object();
