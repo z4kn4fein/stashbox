@@ -19,7 +19,7 @@ namespace Stashbox.Infrastructure
         object GetInstance(IObjectBuilder objectBuilder, ResolutionInfo resolutionInfo, TypeInformation resolveType);
 
         /// <summary>
-        /// Gets the expression for getting the instance manager by the <see cref="ILifetime"/>
+        /// Gets the expression for getting the instance managed by the <see cref="ILifetime"/>
         /// </summary>
         /// <param name="objectBuilder">An <see cref="IObjectBuilder"/> implementation.</param>
         /// <param name="resolutionInfo">The info about the actual resolution.</param>

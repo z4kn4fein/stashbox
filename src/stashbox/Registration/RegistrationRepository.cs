@@ -7,40 +7,74 @@ using System.Linq;
 
 namespace Stashbox.Registration
 {
+    /// <summary>
+    /// Represents a registration repository.
+    /// </summary>
     public class RegistrationRepository : IRegistrationRepository
     {
         private ImmutableTree<ImmutableTree<IServiceRegistration>> serviceRepository;
         private ImmutableTree<ImmutableTree<IServiceRegistration>> genericDefinitionRepository;
         private readonly object syncObject = new object();
 
+        /// <summary>
+        /// Constructs a <see cref="RegistrationRepository"/>
+        /// </summary>
         public RegistrationRepository()
         {
             this.serviceRepository = ImmutableTree<ImmutableTree<IServiceRegistration>>.Empty;
             this.genericDefinitionRepository = ImmutableTree<ImmutableTree<IServiceRegistration>>.Empty;
         }
 
+        /// <summary>
+        /// Gets all registrations.
+        /// </summary>
+        /// <returns>A collection of the registrations.</returns>
         public IEnumerable<IServiceRegistration> GetAllRegistrations()
         {
             return this.serviceRepository.Enumerate().SelectMany(tree => tree.Value.Enumerate().Select(reg => reg.Value))
                 .Concat(this.genericDefinitionRepository.Enumerate().SelectMany(tree => tree.Value.Enumerate().Select(reg => reg.Value)));
         }
 
+        /// <summary>
+        /// Tries to retrieve a registration with conditions.
+        /// </summary>
+        /// <param name="typeInfo">The requested type information.</param>
+        /// <param name="registration">The retrieved registration.</param>
+        /// <returns>True if a registration was found, otherwise false.</returns>
         public bool TryGetRegistrationWithConditions(TypeInformation typeInfo, out IServiceRegistration registration)
         {
             return typeInfo.DependencyName == null ? this.TryGetByTypeKeyWithConditions(typeInfo, out registration) : this.TryGetByNamedKey(typeInfo, out registration);
         }
 
+        /// <summary>
+        /// Tries to retrieve a non generic definition registration with conditions.
+        /// </summary>
+        /// <param name="typeInfo">The requested type information.</param>
+        /// <param name="registration">The retrieved registration.</param>
+        /// <returns>True if a registration was found, otherwise false.</returns>
         public bool TryGetRegistrationWithConditionsWithoutGenericDefinitionExtraction(TypeInformation typeInfo, out IServiceRegistration registration)
         {
             return typeInfo.DependencyName == null ? this.TryGetByTypeKeyWithConditionsWithoutGenericDefinitionExtraction(typeInfo, out registration) :
                 this.TryGetByNamedKeyWithoutGenericDefinitionExtraction(typeInfo, out registration);
         }
 
+        /// <summary>
+        /// Tries to retrieve a registrations.
+        /// </summary>
+        /// <param name="typeInfo">The requested type information.</param>
+        /// <param name="registration">The retrieved registration.</param>
+        /// <returns>True if a registration was found, otherwise false.</returns>
         public bool TryGetRegistration(TypeInformation typeInfo, out IServiceRegistration registration)
         {
             return typeInfo.DependencyName == null ? this.TryGetByTypeKey(typeInfo, out registration) : this.TryGetByNamedKey(typeInfo, out registration);
         }
 
+        /// <summary>
+        /// Adds a new registration into the repository.
+        /// </summary>
+        /// <param name="typeKey">The key type.</param>
+        /// <param name="registration">The registration.</param>
+        /// <param name="nameKey">The name of the registration.</param>
         public void AddRegistration(Type typeKey, IServiceRegistration registration, string nameKey)
         {
             var immutableTree = ImmutableTree<IServiceRegistration>.Empty;
@@ -55,6 +89,12 @@ namespace Stashbox.Registration
             }
         }
 
+        /// <summary>
+        /// Adds or updates an element in the repository.
+        /// </summary>
+        /// <param name="typeKey">The key type.</param>
+        /// <param name="registration">The registration.</param>
+        /// <param name="nameKey">The name of the registration.</param>
         public void AddOrUpdateRegistration(Type typeKey, IServiceRegistration registration, string nameKey)
         {
             var immutableTree = ImmutableTree<IServiceRegistration>.Empty;
@@ -66,6 +106,12 @@ namespace Stashbox.Registration
             }
         }
 
+        /// <summary>
+        /// Adds a new generic definition into the repository.
+        /// </summary>
+        /// <param name="typeKey">The key type.</param>
+        /// <param name="registration">The registration.</param>
+        /// <param name="nameKey">The name of the registration.</param>
         public void AddGenericDefinition(Type typeKey, IServiceRegistration registration, string nameKey)
         {
             var immutableTree = ImmutableTree<IServiceRegistration>.Empty;
@@ -80,6 +126,12 @@ namespace Stashbox.Registration
             }
         }
 
+        /// <summary>
+        /// Adds or updates a generic definition in the repository.
+        /// </summary>
+        /// <param name="typeKey">The key type.</param>
+        /// <param name="registration">The registration.</param>
+        /// <param name="nameKey">The name of the registration.</param>
         public void AddOrUpdateGenericDefinition(Type typeKey, IServiceRegistration registration, string nameKey)
         {
             var immutableTree = ImmutableTree<IServiceRegistration>.Empty;
@@ -91,6 +143,12 @@ namespace Stashbox.Registration
             }
         }
 
+        /// <summary>
+        /// Tries to retrieve all registrations for a type.
+        /// </summary>
+        /// <param name="typeInfo">The requested type information.</param>
+        /// <param name="registrations">The retrieved registrations.</param>
+        /// <returns>True if registrations were found, otherwise false.</returns>
         public bool TryGetTypedRepositoryRegistrations(TypeInformation typeInfo, out IServiceRegistration[] registrations)
         {
             var serviceRegistrations = this.serviceRepository.GetValueOrDefault(typeInfo.Type.GetHashCode());
@@ -112,6 +170,12 @@ namespace Stashbox.Registration
             return registrations != null;
         }
 
+        /// <summary>
+        /// Checks a type exists in the repository.
+        /// </summary>
+        /// <param name="type">The requested type.</param>
+        /// <param name="name">The registration name.</param>
+        /// <returns>True if the registration found, otherwise false.</returns>
         public bool Constains(Type type, string name = null)
         {
             var regs = this.serviceRepository.GetValueOrDefault(type.GetHashCode());
@@ -121,6 +185,11 @@ namespace Stashbox.Registration
                 return regs != null;
         }
 
+        /// <summary>
+        /// Check a type exists with conditions.
+        /// </summary>
+        /// <param name="typeInfo">The type information.</param>
+        /// <returns>True if the registration found, otherwise false.</returns>
         public bool ConstainsTypeKeyWithConditions(TypeInformation typeInfo)
         {
             var registrations = this.serviceRepository.GetValueOrDefault(typeInfo.Type.GetHashCode());
@@ -142,6 +211,11 @@ namespace Stashbox.Registration
             }
         }
 
+        /// <summary>
+        /// Checks a non generic definition type exists in the repository.
+        /// </summary>
+        /// <param name="typeInfo">The type information.</param>
+        /// <returns>True if the registration found, otherwise false.</returns>
         public bool ConstainsTypeKeyWithConditionsWithoutGenericDefinitionExtraction(TypeInformation typeInfo)
         {
             var registrations = this.serviceRepository.GetValueOrDefault(typeInfo.Type.GetHashCode());
@@ -149,6 +223,9 @@ namespace Stashbox.Registration
             return registrations.Value != null && registrations.Enumerate().Any(registration => registration.Value.IsUsableForCurrentContext(typeInfo));
         }
 
+        /// <summary>
+        /// Cleans up the repository.
+        /// </summary>
         public void CleanUp()
         {
             foreach (var registration in this.serviceRepository.Enumerate().Select(reg => reg.Value).SelectMany(registrations => registrations.Enumerate()))

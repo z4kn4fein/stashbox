@@ -11,17 +11,40 @@ namespace Stashbox
 {
     public partial class StashboxContainer
     {
+        /// <summary>
+        /// Resolves an instance from the container.
+        /// </summary>
+        /// <typeparam name="TKey">The type of the requested instance.</typeparam>
+        /// <param name="name">The name of the requested registration.</param>
+        /// <param name="factoryParameters">The parameters for the registered factory delegate.</param>
+        /// <param name="overrides">Parameter overrides.</param>
+        /// <returns>The resolved object.</returns>
         public TKey Resolve<TKey>(string name = null, IEnumerable<object> factoryParameters = null, IEnumerable<Override> overrides = null) where TKey : class
         {
             return this.ResolveInternal(typeof(TKey), overrides, name, factoryParameters) as TKey;
         }
 
+        /// <summary>
+        /// Resolves an instance from the container.
+        /// </summary>
+        /// <param name="typeFrom">The type of the requested instance.</param>
+        /// <param name="name">The name of the requested registration.</param>
+        /// <param name="factoryParameters">The parameters for the registered factory delegate.</param>
+        /// <param name="overrides">Parameter overrides.</param>
+        /// <returns>The resolved object.</returns>
         public object Resolve(Type typeFrom, string name = null, IEnumerable<object> factoryParameters = null, IEnumerable<Override> overrides = null)
         {
             Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
             return this.ResolveInternal(typeFrom, overrides, name, factoryParameters);
         }
 
+        /// <summary>
+        /// Resolves all registered types of a service.
+        /// </summary>
+        /// <typeparam name="TKey">The type of the requested instance.</typeparam>
+        /// <param name="factoryParameters">The parameters for the registered factory delegate.</param>
+        /// <param name="overrides">Parameter overrides.</param>
+        /// <returns>The resolved object.</returns>
         public IEnumerable<TKey> ResolveAll<TKey>(IEnumerable<object> factoryParameters = null, IEnumerable<Override> overrides = null) where TKey : class
         {
             var type = typeof(TKey);

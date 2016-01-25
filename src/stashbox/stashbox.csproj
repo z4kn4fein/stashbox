@@ -99,7 +99,6 @@
     <Compile Include="Infrastructure\IResolverSelector.cs" />
     <Compile Include="Infrastructure\IServiceRegistration.cs" />
     <Compile Include="Infrastructure\Resolver.cs" />
-    <Compile Include="Infrastructure\ResolverFactory.cs" />
     <Compile Include="LifeTime\TransientLifetime.cs" />
     <Compile Include="MetaInfo\MetaInfoProvider.cs" />
     <Compile Include="Overrides\NamedOverride.cs" />

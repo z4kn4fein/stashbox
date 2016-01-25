@@ -7,13 +7,35 @@ using System.Reflection;
 
 namespace Stashbox.MetaInfo
 {
+    /// <summary>
+    /// Represents a store which contains metadata about the services.
+    /// </summary>
     public class MetaInfoCache
     {
+        /// <summary>
+        /// The type of the actual service implementation.
+        /// </summary>
         public Type TypeTo { get; }
+
+        /// <summary>
+        /// Stores the reflected constructor informations.
+        /// </summary>
         public ConstructorInformation[] Constructors { get; private set; }
+
+        /// <summary>
+        /// Stores the reflected injection method informations.
+        /// </summary>
         public MethodInformation[] InjectionMethods { get; private set; }
+
+        /// <summary>
+        /// Stores the reflected injection memeber informations.
+        /// </summary>
         public MemberInformation[] InjectionMembers { get; private set; }
 
+        /// <summary>
+        /// Constructs the <see cref="MetaInfoCache"/>
+        /// </summary>
+        /// <param name="typeTo">The type of the actual service implementation.</param>
         public MetaInfoCache(Type typeTo)
         {
             this.TypeTo = typeTo;

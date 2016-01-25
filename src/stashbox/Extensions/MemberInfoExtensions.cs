@@ -2,7 +2,7 @@
 
 namespace System.Reflection
 {
-    public static class MemberInfoExtensions
+    internal static class MemberInfoExtensions
     {
         public static Action<object, object> GetMemberSetter(this MemberInfo memberInfo)
         {
