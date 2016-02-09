@@ -128,7 +128,7 @@ container.RegisterType<IHuman, Catti>();
 //resolution
 var catti = container.Resolve<IHuman>(overrides: new[] { new TypeOverride(typeof(IWeapon), new Taulmaril()) });
 ```
-> The configuration above indicates that instead of the standard registration Stashbox will override Catti's weapon with Taulmaril.  
+> The configuration above indicates that instead of the standard registration, Stashbox will override Catti's weapon with Taulmaril.  
 
 Or by their name:
 ###Named overrides
@@ -154,7 +154,7 @@ class Bruenor : IDwarf
 	}
 }
 ```
-If you have multiple registration for a service, you can use the `Dependency` attribute to specify the which one you want to being injected.
+If you have multiple registrations for a service, you can use the `Dependency` attribute to specify the which one you want to being injected.
 ```c#
 class Drizzt : IDrow
 {
