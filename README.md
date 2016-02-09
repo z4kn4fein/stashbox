@@ -38,7 +38,7 @@ container.RegisterType<ICreature, Drow>("Drizzt");
 //resolution
 var creature = container.Resolve<ICreature>("Bruenor");
 ```
-> **Every registration type can be named.**
+> **Every registration can be named.**
 
 ###Instance
 In some cases, you may want to use already instantiated services as dependencies:
@@ -84,16 +84,16 @@ container.PrepareType<IDrow, Drizzt>().WithInjectionParameters(new InjectionPara
 > The configuration above indicates that Stashbox will inject the pre-evaluated *Icingdeath* object as Drizzt's right-hand weapon and the other one will be resolved through the standard registration.
 
 ##Lifetime
-Stashbox supports the lifetime management of the registrations, which means you can customize the way how Stashbox will manage the lifetime of your services.
+Stashbox supports the lifetime management of service registrations, which means you can customize the way how Stashbox will manage the lifetime of your services.
 ###Transient lifetime
-If you registers your service with transient lifetime, Stashbox will always create a new instance from it during resolution.
+If you register your service with transient lifetime, Stashbox will always create a new instance from it.
 ```c#
 container.PrepareType<IDrow, Drizzt>().WithLifetime(new TransientLifeTime()).Register();
 ```
-> Stashbox will use Transient lifetime by default if you don't specify any lifetime.
+> If you don't specify any lifetime manager, Stashbox will use TransientLifeTime by default.
 
 ###Singleton lifetime
-If you registers your service with singleton lifetime, Stashbox will create an instance first from the requested service at the first resolution and stores it for the further requests.
+If you register your service with singleton lifetime, Stashbox will create an instance from the requested service at the first resolution and stores it for the further requests.
 ```c#
 container.PrepareType<IDrow, Drizzt>().WithLifetime(new SingletonLifeTime()).Register();
 ```
