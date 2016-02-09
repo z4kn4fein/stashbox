@@ -88,14 +88,14 @@ Stashbox supports the lifetime management of service registrations, which means 
 ###Transient lifetime
 If you register your service with transient lifetime, Stashbox will always create a new instance from it.
 ```c#
-container.PrepareType<IDrow, Drizzt>().WithLifetime(new TransientLifeTime()).Register();
+container.PrepareType<IDrow, Drizzt>().WithLifetime(new TransientLifetime()).Register();
 ```
-> If you don't specify any lifetime manager, Stashbox will use TransientLifeTime by default.
+> If you don't specify any lifetime manager, Stashbox will use TransientLifetime by default.
 
 ###Singleton lifetime
 If you register your service with singleton lifetime, Stashbox will create an instance from the requested service at the first resolution and stores it for the further requests.
 ```c#
-container.PrepareType<IDrow, Drizzt>().WithLifetime(new SingletonLifeTime()).Register();
+container.PrepareType<IDrow, Drizzt>().WithLifetime(new SingletonLifetime()).Register();
 ```
 ###Custom lifetime
 If you'd like to use a custom lifetime then you can create your own by implementing the `ILifetime` interface and pass it to the `WithLifetime()` method.
