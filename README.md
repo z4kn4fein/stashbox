@@ -15,6 +15,7 @@ var creature = container.Resolve<ICreature>();
 var creature = container.Resolve(typeof(ICreature));
 ```
 > The container will resolve the *Elf* type as an *ICreature*.
+
 You can also register a service to itself, without specifying a base.
 ```c#
 container.RegisterType<Elf>();
@@ -27,6 +28,7 @@ var elf = container.Resolve<Elf>();
 var elf = container.Resolve(typeof(Elf));
 ```
 > **Every function on the container is available with generic parameters and with simple type arguments as well.**
+
 ###Named
 If you want to bind more implementations to a single service type then you can name your registration in the following way:
 ```c#
@@ -37,6 +39,7 @@ container.RegisterType<ICreature, Drow>("Drizzt");
 var creature = container.Resolve<ICreature>("Bruenor");
 ```
 > **Every registration type can be named.**
+
 ###Instance
 In some cases, you may want to use already instantiated services as dependencies:
 ```c#
@@ -44,6 +47,7 @@ var elf = new Elf();
 container.RegisterInstance<ICreature>(elf);
 ```
 > The container will return with the prepared instance every time when an ICreature is being resolved.
+
 ###ReMap
 Stashbox supports the remapping of already registered services:
 ```c#
@@ -131,7 +135,6 @@ Or by their name:
 ```c#
 var catti = container.Resolve<IHuman>(overrides: new[] { new NamedOverride("weapon", new Taulmaril()) });
 ```
-
 ##Attributes
 For a deeper customization you can use pre-defined attributes to achieve more control on the dependency resolution.
 ###Constructor injection
@@ -163,7 +166,7 @@ class Drizzt : IDrow
 
 container.RegisterType<IWeapon, Twinkle>("Twinkle");
 container.RegisterType<IWeapon, Icingdeath>("Icingdeath");
-```c#
+```
 ###Member injection
 Stashbox supports property and field injection again with the `Dependency` attribute.
 ```c#
@@ -178,7 +181,7 @@ class Drizzt : IDrow
 
 container.RegisterType<IWeapon, Twinkle>("Twinkle");
 container.RegisterType<IWeapon, Icingdeath>("Icingdeath");
-```c#
+```
 ###Injection method
 Stashbox supports the invocation of methods at resolve time which are decorated with the `InjectionMethod` attribute.
 > Just like at the constructor injection, Stashbox will resolve the parameters of the injection method and the `Dependency` attribute can be used as well.
@@ -192,7 +195,7 @@ class Drizzt : IDrow
 		//...
 	}
 }
-```c#
+```
 
 ======== Generics
 
