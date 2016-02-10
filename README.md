@@ -307,7 +307,13 @@ class CompanionsOfTheHall
 }
 ```
 ##Resolvers
-There are some cases, when you may want to specify a special rule to resolve services. To achieve this you can register a custom `Resolver` implementation into Stashbox:
+Stashbox internally maintains a resolution graph between the registered services with a `Resolver` instance assigned to each of them. For the faster resolution it also builds an Expression tree through all the dependencies.
+Stashbox contains three pre-defined Resolvers:
+* `ContainerResolver`: It mainly uses the container itself for resolving dependencies.
+* `EnumerableResolver`: It resolves every registered type of a service as an `IEnumerable` or array.
+* `LazyResolver`: It can resolve services registered into the container wrapped into a `Lazy<T>`.
+
+You can also specify a special rule to resolve services and extend the functionality of Stashbox. To achieve this you can register a custom `Resolver` implementation into Stashbox:
 ```c#
 class MagicalWeaponResolver : Resolver
 {
@@ -326,6 +332,9 @@ class MagicalWeaponResolver : Resolver
         //..
     }
 }
+The `TypeInformation` parameters holds information about the type which was actually requested from the container.
+The `ResolutionInfo` parameter holds information about the current resolution context (factory parameters, overrides, etc.)
+The `ResolutionInfoExpression` parameter represents an `ParameterExpression` which will be passed as a parameter to the lambda expression built by the resolution graph. 
 ```
 Then you can register your `Resolver`:
 ```c#
@@ -334,6 +343,96 @@ container.RegisterResolver((context, typeInfo) => new MagicalWeaponResolver(cont
 ```
 > The first parameter is a factory delegate for creating a resolver instance. The second parameter is a predicate delegate which can decide the actual type can be resolved by the resolver or not.
 
-======== Child container
+Stashbox will choose from the resolvers to accomplish the current resolution request in the following order:
+1. `ContainerResolver`
+2. `EnumerableResolver`
+3. `LazyResolver`
+4. Custom, external resolvers
+5. Parent container resolvers
 
-======== Extensions
+##Child container
+Stashbox supports the creation of child containers which you can use for separating scopes for your services. If you creates a new child container it will remain in a child-parent relationship with the original one, which means when you want to resolve something which is not available in the child, it will try to resolve it through it's parent.
+###Using a child container
+```c#
+class Drizzt : IDrow
+{
+	[Dependency("Icingdeath")]
+	public IWeapon RightHand { get; set; }
+	
+	[Dependency("Twinkle")]
+	public IWeapon LeftHand { get; set; }
+}
+
+container.RegisterType<IWeapon, Twinkle>("Twinkle");
+
+var child = container.CreateChildContainer();
+child.RegisterType<IWeapon, Icingdeath>("Icingdeath");
+child.RegisterType<IDrow, Drizzt>();
+
+var drizzt = child.Resolve<IDrow>();
+```
+> In the example below, `Twinkle` will be injected by the parent container, but if you registers a new service with the name Twinkle into the child, the child's one will be used.
+> The extensions and the resolvers are being copied to the child from the parent.
+
+##Extensions
+If you'd like to extend the functionality of Stashbox by your own custom logic you can use the container extensions.
+###RegistrationExtension
+With this type of extension you can inject your custom operations into the service registration flow.
+To create a `RegistrationExtension` you should implement the `IRegistrationExtension` interface:
+```c#
+public class ContainerExtension : IRegistrationExtension
+{
+	public void Initialize(IContainerContext containerContext)
+	{
+		//will be called when the extension is being registered into Stashbox.
+	}
+	
+	void OnRegistration(IContainerContext containerContext, RegistrationInfo registrationInfo, InjectionParameter[] injectionParameters = null)
+	{
+		//will be called when a service is being registered into Stashbox.
+	}
+	
+	public void CleanUp()
+	{
+		//will be called when Stashbox is going to be disposed.
+	}
+	
+	public IContainerExtension CreateCopy()
+	{
+		//will be called when a child container is being created from the container which holds the extension.
+	}
+}
+```
+###PostBuildExtension
+With this type of extension you can write custom operations to extend an object produced by the container.
+To create a `PostBuildExtension` you should implement the `IPostBuildExtension` interface:
+```c#
+public class ContainerExtension : IPostBuildExtension
+{
+	public void Initialize(IContainerContext containerContext)
+	{
+		//will be called when the extension is being registered into Stashbox.
+	}
+	
+	object PostBuild(object instance, Type targetType, IContainerContext containerContext, ResolutionInfo resolutionInfo,
+            TypeInformation resolveType, InjectionParameter[] injectionParameters = null);
+	{
+		//will be called when a service is constructed by the container.
+	}
+	
+	public void CleanUp()
+	{
+		//will be called when Stashbox is going to be disposed.
+	}
+	
+	public IContainerExtension CreateCopy()
+	{
+		//will be called when a child container is being created from the container which holds the extension.
+	}
+}
+```
+###Extension registration
+```c#
+container.RegisterExtension(new ContainerExtension());
+```
+> For a complete example you can check the [decorator extension](https://github.com/z4kn4fein/stashbox-decoratorextension) for Stashbox.
