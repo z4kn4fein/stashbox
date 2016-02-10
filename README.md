@@ -68,6 +68,8 @@ container.PrepareType<IDrow, Drizzt>().WithFactoryParameters(weapon => new Drizz
 //resolution
 container.Resolve<IDrow>(factoryParameters: new[] { MagicalWeapons.Twinkle });
 ```
+> Right now just the factory methods with only 0,1,2 or 3 parameters are supported.
+
 ###Injection parameters
 If you have some special parameters in your service's constructor which you'd like to set manually (primitive types for example, or some pre-evaluated values) you can use injection parameters.
 ```c#
@@ -305,7 +307,7 @@ class CompanionsOfTheHall
 }
 ```
 ##Resolvers
-There are some cases, when you may want to specify a special rule to resolve services. To achieve this you can register a custom `Resolver` implementation to Stashbox:
+There are some cases, when you may want to specify a special rule to resolve services. To achieve this you can register a custom `Resolver` implementation into Stashbox:
 ```c#
 class MagicalWeaponResolver : Resolver
 {
