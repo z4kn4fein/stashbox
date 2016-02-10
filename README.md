@@ -136,7 +136,7 @@ Or by their name:
 var catti = container.Resolve<IHuman>(overrides: new[] { new NamedOverride("weapon", new Taulmaril()) });
 ```
 ##Attributes
-For a deeper customization you can use pre-defined attributes to achieve more control on the dependency resolution.
+For a deeper customization you can use the following built-in attributes to get more control on the dependency resolution.
 ###Constructor injection
 If you'd like to specify your preferences about which constructor you want to use for resolution, you can use the `InjectionConstructor` attribute.
 ```c#
@@ -154,7 +154,7 @@ class Bruenor : IDwarf
 	}
 }
 ```
-If you have multiple registrations for a service, you can use the `Dependency` attribute to specify the which one you want to being injected.
+If you have multiple registrations for a service, you can use the `Dependency` attribute to specify which one you want to being injected.
 ```c#
 class Drizzt : IDrow
 {
@@ -168,7 +168,7 @@ container.RegisterType<IWeapon, Twinkle>("Twinkle");
 container.RegisterType<IWeapon, Icingdeath>("Icingdeath");
 ```
 ###Member injection
-Stashbox supports property and field injection again with the `Dependency` attribute.
+Stashbox supports property and field injection, again with the `Dependency` attribute.
 ```c#
 class Drizzt : IDrow
 {
@@ -183,29 +183,154 @@ container.RegisterType<IWeapon, Twinkle>("Twinkle");
 container.RegisterType<IWeapon, Icingdeath>("Icingdeath");
 ```
 ###Injection method
-Stashbox supports the invocation of methods at resolve time which are decorated with the `InjectionMethod` attribute.
-> Just like at the constructor injection, Stashbox will resolve the parameters of the injection method and the `Dependency` attribute can be used as well.
-
+Stashbox supports the invocation of methods at resolve time if you decorate them with the `InjectionMethod` attribute.
 ```c#
 class Drizzt : IDrow
 {
 	[InjectionMethod]
-	public void CallGuenhwyvar(IEnumerable<ICreature> targets)
+	public void CallGuenhwyvar([Dependency("orcs")]IEnumerable<ICreature> targets)
 	{
 		//...
 	}
 }
 ```
+##Generics
+Stashbox supports the registration of open generic types:
+```c#
+interface IDrow<TLeftHand, TRightHand> 
+{
+	//...
+}
 
-======== Generics
+class Drow<TLeftHand, TRightHand> : IDrow<TLeftHand, TRightHand> 
+{
+	public Drow(TLeftHand leftHand, TRightHand rightHand)
+	{
+		//...
+	}
+}
 
-======== Conditional resolution
+container.RegisterType(typeof(IDrow<,>), typeof(Drow<,>));
+container.RegisterType<Twinkle>();
+container.RegisterType<Icingdeath>();
 
-======== IEnumerable
+//resolution
+var drizzt = container.Resolve<IDrow<Twinkle, Icingdeath>>();
+```
+##Conditional resolution
+If you want to specify in which cases you want to inject some special dependencies, you can use the conditional resolution feature of Stashbox.
+###Parent type filter
+```c#
+class Wulfgar : IBarbarian
+{
+	[Dependency]
+	public IWeapon Weapon { get; set; }
+}
 
-======== `Lazy<T>`
+container.PrepareType<IWeapon, AegisFang>().WhenDependantIs<Wulfgar>().Register();
+```
+> The constraint above indicates that Stashbox will choose the `AegisFang` implementation of the `IWeapon` interface when `Wulfgar` is being resolved.
 
-======== Resolvers
+###Attribute filter
+If you set attribute filter for your registration, Stashbox will inject it only, if the dependency is decorated with that attribute:
+```c#
+class NeutralGoodAttribute : Attribute { }
+class ChaoticEvilAttribute : Attribute { }
+
+class Drizzt : IDrow
+{
+	[Dependency, NeutralGood]
+	public IPatron Patron { get; set; }
+}
+
+class Yvonnel : IDrow
+{
+	[Dependency, ChaoticEvil]
+	public IPatron Patron { get; set; }
+}
+
+container.PrepareType<IPatron, Mielikki>().WhenHas<NeutralGood>().Register();
+container.PrepareType<IPatron, Lolth>().WhenHas<ChaoticEvil>().Register();
+```
+##Multi resolution
+Stashbox allows you to resolve all the available services bound to an interface or base class.
+```c#
+container.RegisterType<ICreature, Dwarf>("Bruenor");
+container.RegisterType<ICreature, Drow>("Drizzt");
+container.RegisterType<ICreature, Human>("Catti-brie");
+container.RegisterType<ICreature, Barbarian>("Wulfgar");
+container.RegisterType<ICreature, Halfling>("Regis");
+
+//resolution
+var companionsOfTheHall = container.ResolveAll<ICreature>();
+
+//or
+class CompanionsOfTheHall
+{
+	public CompanionsOfTheHall(IEnumerable<ICreature> members)
+	{
+		//...
+	}
+	
+	//or
+	
+	public CompanionsOfTheHall(ICreature[] members)
+	{
+		//...
+	}
+}
+```
+##`Lazy<T>`
+Stashbox supports the lazy resolution of the services:
+```c#
+container.RegisterType<ICreature, Dwarf>("Bruenor");
+container.RegisterType<ICreature, Drow>("Drizzt");
+container.RegisterType<ICreature, Human>("Catti-brie");
+container.RegisterType<ICreature, Barbarian>("Wulfgar");
+container.RegisterType<ICreature, Halfling>("Regis");
+
+//resolution
+var lazyMemberOfTheCompanionsOfTheHall = container.Resolve<Lazy<ICreature>>("Regis");
+
+//or
+class CompanionsOfTheHall
+{
+	[Dependency("Regis")]
+	public Lazy<ICreature> Regis { get; set; }
+
+	public CompanionsOfTheHall([Dependency("Bruenor")]ICreature bruenor, [Dependency("Drizzt")]ICreature drizzt, [Dependency("Catti-brie")]ICreature cattibrie, [Dependency("Wulfgar")]ICreature wulfgar)
+	{
+		//...
+	}
+}
+```
+##Resolvers
+There are some cases, when you may want to specify a special rule to resolve services. To achieve this you can register a custom `Resolver` implementation to Stashbox:
+```c#
+class MagicalWeaponResolver : Resolver
+{
+	 public MagicalWeaponResolver(IContainerContext containerContext, TypeInformation typeInfo)
+            : base(containerContext, typeInfo)
+        {
+		}
+		
+	public override object Resolve(ResolutionInfo resolutionInfo)
+    {
+        //..
+    }
+
+    public override Expression GetExpression(ResolutionInfo resolutionInfo, Expression resolutionInfoExpression)
+    {
+        //..
+    }
+}
+```
+Then you can register your `Resolver`:
+```c#
+container.RegisterResolver((context, typeInfo) => new MagicalWeaponResolver(context, typeInfo),
+	(context, typeInfo) => Gauntlgrym.CanProduce(typeInfo));
+```
+> The first parameter is a factory delegate for creating a resolver instance. The second parameter is a predicate delegate which can decide the actual type can be resolved by the resolver or not.
 
 ======== Child container
 
