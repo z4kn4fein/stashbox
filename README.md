@@ -63,7 +63,7 @@ container.BuildUp<ICreature>(elf);
 ###Factory
 In some cases, you may want to use a specific factory method for creating an instance from your service. 
 ```c#
-container.PrepareType<IDrow, Drizzt>().WithFactoryParameters(weapon => new Drizzt(weapon)).Register();
+container.PrepareType<IDrow, Drizzt>().WithFactory(weapon => new Drizzt(weapon)).Register();
 
 //resolution
 container.Resolve<IDrow>(factoryParameters: new[] { MagicalWeapons.Twinkle });
@@ -254,6 +254,21 @@ class Yvonnel : IDrow
 container.PrepareType<IPatron, Mielikki>().WhenHas<NeutralGood>().Register();
 container.PrepareType<IPatron, Lolth>().WhenHas<ChaoticEvil>().Register();
 ```
+##Fluent registration
+As you may noticed from the several parts of the examples, there is a fluent way for configuring a service registration. The fluent api starts with the `PrepareType()` method and you can use the following operations:
+```c#
+container.PrepareType<IDrow, Drizzt>()
+	.WithName("Drizzt")
+	.WithLifetime(new ElvenLifetime())
+	.WhenHas<MeleeWarriorNeeded>()
+	.WhenHas<StealthFighterNeeded>()
+	.WhenDependantIs<CompanionsOfTheHall>()
+	.WhenDependantIs<ICompanion>()
+	.WithInjectionParameters(new InjectionParameter { Value = new Icingdeath(), Name = "rightHand" })
+	.WithFactory(() => new Drizzt())
+	.Register();
+```
+You always have to finish the fluent configuration with the `Register()` or the `ReMap()` method. This is neccessary because when registrations and resolutions are executed concurrently, a registration could easily get an inconsistent state if it's being registered into the container too early. To avoid this only the `Register()` or `ReMap()` call will finalize the actual configuration and registers it into the container. 
 ##Multi resolution
 Stashbox allows you to resolve all the available services bound to an interface or base class.
 ```c#
@@ -377,8 +392,7 @@ var drizzt = child.Resolve<IDrow>();
 ```
 > In the example above, `Twinkle` will be injected by the parent container, but if you registers a new service with the name Twinkle into the child, the child's one will be used.
 
-The extensions and the resolvers are being copied to the child from the parent.
-
+The extensions and the resolvers are being copied to the child from the parent during child creation.
 ##Extensions
 If you'd like to extend the functionality of Stashbox by your own custom logic you can use the container extensions.
 ###RegistrationExtension

@@ -49,28 +49,28 @@ namespace Stashbox.Infrastructure
         /// </summary>
         /// <param name="singleFactory">The factory delegate.</param>
         /// <returns>The <see cref="IRegistrationContext"/> which on this method was called.</returns>
-        IRegistrationContext WithFactoryParameters(Func<object> singleFactory);
+        IRegistrationContext WithFactory(Func<object> singleFactory);
 
         /// <summary>
         /// Sets a one parameter factory delegate for the registration.
         /// </summary>
         /// <param name="singleParameterFactory">The one parameter factory delegate.</param>
         /// <returns>The <see cref="IRegistrationContext"/> which on this method was called.</returns>
-        IRegistrationContext WithFactoryParameters(Func<object, object> singleParameterFactory);
+        IRegistrationContext WithFactory(Func<object, object> singleParameterFactory);
 
         /// <summary>
         /// Sets a two parameters factory delegate for the registration.
         /// </summary>
         /// <param name="twoParametersFactory">The two parameters factory delegate.</param>
         /// <returns>The <see cref="IRegistrationContext"/> which on this method was called.</returns>
-        IRegistrationContext WithFactoryParameters(Func<object, object, object> twoParametersFactory);
+        IRegistrationContext WithFactory(Func<object, object, object> twoParametersFactory);
 
         /// <summary>
         /// Sets a three parameters factory delegate for the registration.
         /// </summary>
         /// <param name="threeParametersFactory">The three parameters factory delegate.</param>
         /// <returns>The <see cref="IRegistrationContext"/> which on this method was called.</returns>
-        IRegistrationContext WithFactoryParameters(Func<object, object, object, object> threeParametersFactory);
+        IRegistrationContext WithFactory(Func<object, object, object, object> threeParametersFactory);
 
         /// <summary>
         /// Sets a dependant target condition for the registration.

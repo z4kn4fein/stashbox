@@ -107,7 +107,7 @@ namespace Stashbox
             return this.ContainerContext.Container;
         }
 
-        public IRegistrationContext WithFactoryParameters(Func<object, object, object, object> threeParametersFactory)
+        public IRegistrationContext WithFactory(Func<object, object, object, object> threeParametersFactory)
         {
             this.threeParametersFactory = threeParametersFactory;
             return this;
@@ -143,19 +143,19 @@ namespace Stashbox
             return this;
         }
 
-        public IRegistrationContext WithFactoryParameters(Func<object, object, object> twoParametersFactory)
+        public IRegistrationContext WithFactory(Func<object, object, object> twoParametersFactory)
         {
             this.twoParametersFactory = twoParametersFactory;
             return this;
         }
 
-        public IRegistrationContext WithFactoryParameters(Func<object, object> oneParameterFactory)
+        public IRegistrationContext WithFactory(Func<object, object> oneParameterFactory)
         {
             this.oneParameterFactory = oneParameterFactory;
             return this;
         }
 
-        public IRegistrationContext WithFactoryParameters(Func<object> singleFactory)
+        public IRegistrationContext WithFactory(Func<object> singleFactory)
         {
             this.singleFactory = singleFactory;
             return this;

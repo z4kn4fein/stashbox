@@ -11,7 +11,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.PrepareType<ITest, Test>().WithFactoryParameters(() => new Test("test")).Register();
+                container.PrepareType<ITest, Test>().WithFactory(() => new Test("test")).Register();
                 container.RegisterType<ITest1, Test12>();
 
                 var inst = container.Resolve<ITest1>();
@@ -26,9 +26,9 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.PrepareType<ITest, Test>().WithFactoryParameters(() => new Test("test")).Register();
+                container.PrepareType<ITest, Test>().WithFactory(() => new Test("test")).Register();
                 container.RegisterType<ITest2, Test2>();
-                container.PrepareType<ITest, Test>().WithFactoryParameters(() => new Test("test1")).ReMap();
+                container.PrepareType<ITest, Test>().WithFactory(() => new Test("test1")).ReMap();
                 var inst = container.Resolve<ITest2>();
 
                 Assert.IsInstanceOfType(inst.Test, typeof(Test));
@@ -41,7 +41,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.PrepareType<ITest, Test>().WithFactoryParameters(() => new Test("test")).Register();
+                container.PrepareType<ITest, Test>().WithFactory(() => new Test("test")).Register();
                 container.RegisterType<ITest1, Test1>();
 
                 var inst = container.Resolve<ITest1>();
@@ -56,7 +56,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.PrepareType<ITest, Test>().WithFactoryParameters((a) => new Test((string)a)).Register();
+                container.PrepareType<ITest, Test>().WithFactory((a) => new Test((string)a)).Register();
                 container.RegisterType<ITest1, Test1>();
 
                 var inst = container.Resolve<ITest1>(factoryParameters: new[] { "test" });
@@ -71,7 +71,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.PrepareType<ITest, Test>().WithFactoryParameters((a, b) => new Test((string)a + (string)b)).Register();
+                container.PrepareType<ITest, Test>().WithFactory((a, b) => new Test((string)a + (string)b)).Register();
                 container.RegisterType<ITest1, Test1>();
 
                 var inst = container.Resolve<ITest1>(factoryParameters: new[] { "test", "test1" });
@@ -86,7 +86,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.PrepareType<ITest, Test>().WithFactoryParameters((a, b, c) => new Test((string)a + (string)b + (string)c)).Register();
+                container.PrepareType<ITest, Test>().WithFactory((a, b, c) => new Test((string)a + (string)b + (string)c)).Register();
                 container.RegisterType<ITest1, Test1>();
 
                 var inst = container.Resolve<ITest1>(factoryParameters: new[] { "test", "test1", "test2" });

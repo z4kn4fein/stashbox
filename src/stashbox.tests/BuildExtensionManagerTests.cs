@@ -16,7 +16,7 @@ namespace Stashbox.Tests
             {
                 container.RegisterExtension(post.Object);
                 var obj = new object();
-                container.PrepareType<object>().WithFactoryParameters(() => obj).Register();
+                container.PrepareType<object>().WithFactory(() => obj).Register();
 
                 post.Setup(p => p.PostBuild(obj, obj.GetType(), container.ContainerContext, It.IsAny<ResolutionInfo>(),
                     It.IsAny<TypeInformation>(), null)).Returns(obj).Verifiable();
