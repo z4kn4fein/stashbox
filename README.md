@@ -311,7 +311,7 @@ Stashbox internally maintains a resolution graph between the registered services
 Stashbox contains three pre-defined Resolvers:
 * `ContainerResolver`: It mainly uses the container itself for resolving dependencies.
 * `EnumerableResolver`: It resolves every registered type of a service as an `IEnumerable` or array.
-* `LazyResolver`: It can resolve services registered into the container wrapped into a `Lazy<T>`.
+* `LazyResolver`: It can resolve services registered into the container wrapped by a `Lazy<T>`.
 
 You can also specify a special rule to resolve services and extend the functionality of Stashbox. To achieve this you can register a custom `Resolver` implementation into Stashbox:
 ```c#
@@ -332,11 +332,14 @@ class MagicalWeaponResolver : Resolver
         //..
     }
 }
-The `TypeInformation` parameters holds information about the type which was actually requested from the container.
-The `ResolutionInfo` parameter holds information about the current resolution context (factory parameters, overrides, etc.)
-The `ResolutionInfoExpression` parameter represents an `ParameterExpression` which will be passed as a parameter to the lambda expression built by the resolution graph. 
 ```
-Then you can register your `Resolver`:
+The `TypeInformation` parameters holds information about the type which was actually requested from the container.
+
+The `ResolutionInfo` parameter holds information about the current resolution context (factory parameters, overrides, etc.)
+
+The `ResolutionInfoExpression` parameter represents an `ParameterExpression` which will be passed as a parameter to the lambda expression built by the resolution graph. 
+
+###Resolver registration
 ```c#
 container.RegisterResolver((context, typeInfo) => new MagicalWeaponResolver(context, typeInfo),
 	(context, typeInfo) => Gauntlgrym.CanProduce(typeInfo));
@@ -344,6 +347,7 @@ container.RegisterResolver((context, typeInfo) => new MagicalWeaponResolver(cont
 > The first parameter is a factory delegate for creating a resolver instance. The second parameter is a predicate delegate which can decide the actual type can be resolved by the resolver or not.
 
 Stashbox will choose from the resolvers to accomplish the current resolution request in the following order:
+
 1. `ContainerResolver`
 2. `EnumerableResolver`
 3. `LazyResolver`
@@ -371,8 +375,9 @@ child.RegisterType<IDrow, Drizzt>();
 
 var drizzt = child.Resolve<IDrow>();
 ```
-> In the example below, `Twinkle` will be injected by the parent container, but if you registers a new service with the name Twinkle into the child, the child's one will be used.
-> The extensions and the resolvers are being copied to the child from the parent.
+> In the example above, `Twinkle` will be injected by the parent container, but if you registers a new service with the name Twinkle into the child, the child's one will be used.
+
+The extensions and the resolvers are being copied to the child from the parent.
 
 ##Extensions
 If you'd like to extend the functionality of Stashbox by your own custom logic you can use the container extensions.
