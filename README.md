@@ -24,7 +24,7 @@ Stashbox is a lightweight, portable dependency injection framework for .NET base
 ```c#
 class Wulfgar : IBarbarian
 {
-    public Drizzt(IWeapon weapon)
+    public Wulfgar(IWeapon weapon)
     {
         //...
     }
