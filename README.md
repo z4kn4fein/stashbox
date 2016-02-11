@@ -4,19 +4,13 @@ Stashbox is a lightweight, portable dependency injection framework for .NET base
 **Features**:
 
  - Fluent interface and attributes for easier configuration
- - Supports member injection and invocation of injection methods
- - Child container creation
+ - Child container
  - Lifetime scopes
  - Conditional resolution
- - IDisposable objects created by Stashbox will be disposed by the container automatically
- - Supports the resolution of IEnumerable, arrays
- - Supports the resolution of `Lazy<T>`
- - Supports open generic types
- - Resolution by custom factory delegates
- - Supports remapping
+ - IDisposable object tracking
+ - Special type resolution like IEnumerable, arrays, `Lazy<T>`, generics
  - Custom resolvers can be added
  - Can be extended by container extensions
- - Dependency overrides
 
 **Supported platforms**:
 
@@ -25,6 +19,21 @@ Stashbox is a lightweight, portable dependency injection framework for .NET base
  - Windows Phone Silverlight 8/8.1
  - Windows Phone 8.1
  - Xamarin (Android/iOS/iOS Classic)
- 
-**Documentation**
-* [Wiki](https://github.com/z4kn4fein/stashbox/wiki)
+
+## Sample usage
+```c#
+class Wulfgar : IBarbarian
+{
+    public Drizzt(IWeapon weapon)
+    {
+        //...
+    }
+}
+
+container.RegisterType<IWeapon, AegisFang>();
+container.RegisterType<IBarbarian, Wulfgar>();
+
+var wulfgar = container.Resolve<IBarbarian>();
+```
+##Documentation
+ - [Wiki](https://github.com/z4kn4fein/stashbox/wiki)
