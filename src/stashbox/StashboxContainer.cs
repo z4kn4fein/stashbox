@@ -17,7 +17,6 @@ namespace Stashbox
     {
         private readonly IContainerExtensionManager containerExtensionManager;
         private readonly IResolverSelector resolverSelector;
-        private readonly IResolverSelector resolverSelectorContainerExcluded;
         private readonly IRegistrationRepository registrationRepository;
         private readonly ExtendedImmutableTree<MetaInfoCache> metaInfoRepository;
         private readonly ExtendedImmutableTree<Func<ResolutionInfo, object>> delegateRepository;
@@ -33,7 +32,6 @@ namespace Stashbox
             this.disposed = new AtomicBool();
             this.containerExtensionManager = new BuildExtensionManager();
             this.resolverSelector = new ResolverSelector();
-            this.resolverSelectorContainerExcluded = new ResolverSelector();
             this.registrationRepository = new RegistrationRepository();
             this.ContainerContext = new ContainerContext(this.registrationRepository, this,
                 new ResolutionStrategy(this.resolverSelector), this.metaInfoRepository, this.delegateRepository);
@@ -42,7 +40,7 @@ namespace Stashbox
         }
 
         internal StashboxContainer(IStashboxContainer parentContainer, IContainerExtensionManager containerExtensionManager,
-            IResolverSelector resolverSelector, IResolverSelector resolverSelectorContainerExcluded, ExtendedImmutableTree<MetaInfoCache> metaInfoRepository,
+            IResolverSelector resolverSelector, ExtendedImmutableTree<MetaInfoCache> metaInfoRepository,
             ExtendedImmutableTree<Func<ResolutionInfo, object>> delegateRepository)
         {
             this.metaInfoRepository = metaInfoRepository;
@@ -51,7 +49,6 @@ namespace Stashbox
             this.ParentContainer = parentContainer;
             this.containerExtensionManager = containerExtensionManager;
             this.resolverSelector = resolverSelector;
-            this.resolverSelectorContainerExcluded = resolverSelectorContainerExcluded;
             this.registrationRepository = new RegistrationRepository();
             this.ContainerContext = new ContainerContext(this.registrationRepository, this,
                 new CheckParentResolutionStrategyDecorator(new ResolutionStrategy(this.resolverSelector)), this.metaInfoRepository, this.delegateRepository);
@@ -72,18 +69,37 @@ namespace Stashbox
         /// <summary>
         /// Registers a <see cref="Resolver"/> into the container.
         /// </summary>
+        /// <typeparam name="TResolverType">The resolver type.</typeparam>
         /// <param name="resolverPredicate">Predicate which decides that the resolver is can be used for an actual resolution.</param>
         /// <param name="factory">The factory which produces a new instance of the resolver.</param>
-        public void RegisterResolver(Func<IContainerContext, TypeInformation, bool> resolverPredicate,
+        public void RegisterResolver<TResolverType>(Func<IContainerContext, TypeInformation, bool> resolverPredicate,
             Func<IContainerContext, TypeInformation, Resolver> factory)
         {
             var resolver = new ResolverRegistration
             {
+                ResolverType = typeof(TResolverType),
                 ResolverFactory = factory,
                 Predicate = resolverPredicate
             };
             this.resolverSelector.AddResolver(resolver);
-            this.resolverSelectorContainerExcluded.AddResolver(resolver);
+        }
+
+        /// <summary>
+        /// Registers a <see cref="Resolver"/> into the container.
+        /// </summary>
+        /// <param name="resolverType">The type of the resolver.</param>
+        /// <param name="resolverPredicate">Predicate which decides that the resolver is can be used for an actual resolution.</param>
+        /// <param name="factory">The factory which produces a new instance of the resolver.</param>
+        public void RegisterResolver(Type resolverType, Func<IContainerContext, TypeInformation, bool> resolverPredicate,
+            Func<IContainerContext, TypeInformation, Resolver> factory)
+        {
+            var resolver = new ResolverRegistration
+            {
+                ResolverType = resolverType,
+                ResolverFactory = factory,
+                Predicate = resolverPredicate
+            };
+            this.resolverSelector.AddResolver(resolver);
         }
 
         /// <summary>
@@ -93,7 +109,7 @@ namespace Stashbox
         public IStashboxContainer CreateChildContainer()
         {
             return new StashboxContainer(this, this.containerExtensionManager.CreateCopy(), this.resolverSelector.CreateCopy(),
-                this.resolverSelectorContainerExcluded.CreateCopy(), this.metaInfoRepository, this.delegateRepository);
+                this.metaInfoRepository, this.delegateRepository);
         }
 
         /// <summary>
@@ -132,18 +148,21 @@ namespace Stashbox
         {
             var containerResolver = new ResolverRegistration
             {
+                ResolverType = typeof(ContainerResolver),
                 ResolverFactory = (context, typeInfo) => new ContainerResolver(context, typeInfo),
                 Predicate = (context, typeInfo) => context.RegistrationRepository.ConstainsTypeKeyWithConditions(typeInfo)
             };
 
             var lazyResolver = new ResolverRegistration
             {
+                ResolverType = typeof(LazyResolver),
                 ResolverFactory = (context, typeInfo) => new LazyResolver(context, typeInfo),
                 Predicate = (context, typeInfo) => typeInfo.Type.IsConstructedGenericType && typeInfo.Type.GetGenericTypeDefinition() == typeof(Lazy<>)
             };
 
             var enumerableResolver = new ResolverRegistration
             {
+                ResolverType = typeof(EnumerableResolver),
                 ResolverFactory = (context, typeInfo) => new EnumerableResolver(context, typeInfo),
                 Predicate = (context, typeInfo) => typeInfo.Type.GetEnumerableType() != null &&
                              context.RegistrationRepository.ConstainsTypeKeyWithConditions(new TypeInformation
@@ -154,9 +173,7 @@ namespace Stashbox
 
             this.resolverSelector.AddResolver(containerResolver);
             this.resolverSelector.AddResolver(lazyResolver);
-            this.resolverSelectorContainerExcluded.AddResolver(lazyResolver);
             this.resolverSelector.AddResolver(enumerableResolver);
-            this.resolverSelectorContainerExcluded.AddResolver(enumerableResolver);
         }
 
         /// <summary>

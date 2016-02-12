@@ -1,6 +1,7 @@
 ﻿using Ronin.Common;
 using Stashbox.Entity;
 using Stashbox.Infrastructure;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -23,11 +24,14 @@ namespace Stashbox
                 return this.resolverRepository.Any(registration => registration.Predicate(containerContext, typeInfo));
         }
 
-        public bool TryChooseResolver(IContainerContext containerContext, TypeInformation typeInfo, out Resolver resolver)
+        public bool TryChooseResolver(IContainerContext containerContext, TypeInformation typeInfo, out Resolver resolver, Func<ResolverRegistration, bool> filter = null)
         {
             using (this.readerWriterLock.AcquireReadLock())
             {
-                var resolverFactory = this.resolverRepository.FirstOrDefault(
+
+                var resolverFactory = filter == null ? this.resolverRepository.FirstOrDefault(
+                    registration => registration.Predicate(containerContext, typeInfo)) :
+                    this.resolverRepository.Where(filter).FirstOrDefault(
                     registration => registration.Predicate(containerContext, typeInfo));
                 if (resolverFactory != null)
                 {

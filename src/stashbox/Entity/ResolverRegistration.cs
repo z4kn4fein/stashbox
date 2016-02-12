@@ -7,5 +7,6 @@ namespace Stashbox.Entity
     {
         public Func<IContainerContext, TypeInformation, bool> Predicate { get; set; }
         public Func<IContainerContext, TypeInformation, Resolver> ResolverFactory { get; set; }
+        public Type ResolverType { get; set; }
     }
 }

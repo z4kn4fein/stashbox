@@ -1,4 +1,5 @@
 ﻿using Ronin.Common;
+using Stashbox.BuildUp.Resolution;
 using Stashbox.Entity;
 using Stashbox.Exceptions;
 using Stashbox.Infrastructure;
@@ -77,8 +78,8 @@ namespace Stashbox
                 return registration.GetInstance(resolutionInfo, typeInfo);
 
             Resolver resolver;
-            if (this.resolverSelectorContainerExcluded.TryChooseResolver(this.ContainerContext,
-                typeInfo, out resolver))
+            if (this.resolverSelector.TryChooseResolver(this.ContainerContext,
+                typeInfo, out resolver, res => res.ResolverType != typeof(ContainerResolver)))
             {
                 return resolver.Resolve(resolutionInfo);
             }

@@ -18,9 +18,19 @@ namespace Stashbox.Infrastructure
         /// <summary>
         /// Registers a <see cref="Resolver"/> into the container.
         /// </summary>
+        /// <typeparam name="TResolverType">The resolver type.</typeparam>
         /// <param name="resolverPredicate">Predicate which decides that the resolver is can be used for an actual resolution.</param>
         /// <param name="factory">The factory which produces a new instance of the resolver.</param>
-        void RegisterResolver(Func<IContainerContext, TypeInformation, bool> resolverPredicate,
+        void RegisterResolver<TResolverType>(Func<IContainerContext, TypeInformation, bool> resolverPredicate,
+            Func<IContainerContext, TypeInformation, Resolver> factory);
+
+        /// <summary>
+        /// Registers a <see cref="Resolver"/> into the container.
+        /// </summary>
+        /// <param name="resolverType">The type of the resolver.</param>
+        /// <param name="resolverPredicate">Predicate which decides that the resolver is can be used for an actual resolution.</param>
+        /// <param name="factory">The factory which produces a new instance of the resolver.</param>
+        void RegisterResolver(Type resolverType, Func<IContainerContext, TypeInformation, bool> resolverPredicate,
             Func<IContainerContext, TypeInformation, Resolver> factory);
 
         /// <summary>

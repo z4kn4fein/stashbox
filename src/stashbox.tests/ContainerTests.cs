@@ -44,7 +44,7 @@ namespace Stashbox.Tests
         public void ContainerTests_ResolverTest()
         {
             var container = new StashboxContainer();
-            container.RegisterResolver((context, typeInfo) => typeInfo.Type == typeof(ITest1),
+            container.RegisterResolver<TestResolver>((context, typeInfo) => typeInfo.Type == typeof(ITest1),
                 (context, typeInfo) => new TestResolver(context, typeInfo));
             var inst = container.Resolve<ITest1>();
 
