@@ -8,7 +8,7 @@ Stashbox is a lightweight, portable dependency injection framework for .NET base
  - *Lifetime scopes* - including singleton and transient scope, custom lifetimes also can be used.
  - *Conditional resolution* - attribute and parent-type based conditions can be specified.
  - *IDisposable object tracking* - disposable objects are being disposed by the container when needed.
- - *Special types* - including IEnumerable, arrays, `Lazy<T>` and open generic types.
+ - *Special types* - including `IEnumerable<T>`, arrays, `Lazy<T>`, `Func<T>` and open generic types.
  - *Custom resolvers* - the built-in resolution operations can be extended by custom resolvers.
  - *Container extensions* - the functionality of the container can be extended by custom extensions.
 
