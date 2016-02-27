@@ -171,9 +171,17 @@ namespace Stashbox
                              })
             };
 
+            var funcResolver = new ResolverRegistration
+            {
+                ResolverType = typeof(FuncResolver),
+                ResolverFactory = (context, typeInfo) => new FuncResolver(context, typeInfo),
+                Predicate = (context, typeInfo) => typeInfo.Type.IsConstructedGenericType && typeInfo.Type.GetGenericTypeDefinition() == typeof(Func<>)
+            };
+
             this.resolverSelector.AddResolver(containerResolver);
             this.resolverSelector.AddResolver(lazyResolver);
             this.resolverSelector.AddResolver(enumerableResolver);
+            this.resolverSelector.AddResolver(funcResolver);
         }
 
         /// <summary>

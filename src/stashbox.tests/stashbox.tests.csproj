@@ -71,6 +71,7 @@
     <Compile Include="ContainerTests.cs" />
     <Compile Include="EnumerableTests.cs" />
     <Compile Include="FactoryBuildUpTests.cs" />
+    <Compile Include="FuncTests.cs" />
     <Compile Include="GenericTests.cs" />
     <Compile Include="InjectionMemberTests.cs" />
     <Compile Include="InstanceBuilderTests.cs" />
