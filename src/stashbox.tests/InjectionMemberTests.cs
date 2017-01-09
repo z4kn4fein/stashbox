@@ -33,7 +33,7 @@ namespace Stashbox.Tests
                 container.RegisterType<ITest, Test>();
 
                 var test1 = new Test1();
-                container.BuildUp<ITest1>(test1);
+                container.WireUp<ITest1>(test1);
 
                 var inst = container.Resolve<ITest1>();
 

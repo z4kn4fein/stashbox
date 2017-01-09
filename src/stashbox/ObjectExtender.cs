@@ -74,11 +74,7 @@ namespace Stashbox
             this.isMembersDirty = true;
             this.isMethodDirty = true;
         }
-
-        public void CleanUp()
-        {
-        }
-
+        
         private ResolutionMethod[] GetResolutionMethods()
         {
             if (!this.metaInfoProvider.HasInjectionMethod) return null;

@@ -48,7 +48,7 @@
     <Compile Include="BuildUp\Resolution\FuncResolver.cs" />
     <Compile Include="ContainerContext.cs" />
     <Compile Include="BuildExtensionManager.cs" />
-    <Compile Include="BuildUp\BuildUpObjectBuilder.cs" />
+    <Compile Include="BuildUp\WireUpObjectBuilder.cs" />
     <Compile Include="BuildUp\DefaultObjectBuilder.cs" />
     <Compile Include="BuildUp\DelegateFactory\ExpressionDelegateFactory.cs" />
     <Compile Include="BuildUp\FactoryObjectBuilder.cs" />

@@ -6,7 +6,7 @@ using System.Linq.Expressions;
 
 namespace Stashbox.BuildUp
 {
-    internal class BuildUpObjectBuilder : IObjectBuilder
+    internal class WireUpObjectBuilder : IObjectBuilder
     {
         private readonly object instance;
         private readonly Type instanceType;
@@ -16,7 +16,7 @@ namespace Stashbox.BuildUp
         private readonly IObjectExtender objectExtender;
         private readonly IContainerContext containerContext;
 
-        public BuildUpObjectBuilder(object instance, IContainerContext containerContext, IContainerExtensionManager containerExtensionManager, IObjectExtender objectExtender)
+        public WireUpObjectBuilder(object instance, IContainerContext containerContext, IContainerExtensionManager containerExtensionManager, IObjectExtender objectExtender)
         {
             this.instance = instance;
             this.instanceType = instance.GetType();
@@ -52,7 +52,6 @@ namespace Stashbox.BuildUp
 
         public void CleanUp()
         {
-            objectExtender.CleanUp();
             if (this.builtInstance == null) return;
             lock (this.syncObject)
             {

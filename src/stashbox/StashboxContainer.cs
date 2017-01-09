@@ -56,22 +56,14 @@ namespace Stashbox
             this.containerExtensionManager.ReinitalizeExtensions(this.ContainerContext);
         }
 
-        /// <summary>
-        /// Registers a <see cref="IContainerExtension"/> into the container.
-        /// </summary>
-        /// <param name="containerExtension">The container extension.</param>
+        /// <inheritdoc />
         public void RegisterExtension(IContainerExtension containerExtension)
         {
             containerExtension.Initialize(this.ContainerContext);
             this.containerExtensionManager.AddExtension(containerExtension);
         }
 
-        /// <summary>
-        /// Registers a <see cref="Resolver"/> into the container.
-        /// </summary>
-        /// <typeparam name="TResolverType">The resolver type.</typeparam>
-        /// <param name="resolverPredicate">Predicate which decides that the resolver is can be used for an actual resolution.</param>
-        /// <param name="factory">The factory which produces a new instance of the resolver.</param>
+        /// <inheritdoc />
         public void RegisterResolver<TResolverType>(Func<IContainerContext, TypeInformation, bool> resolverPredicate,
             Func<IContainerContext, TypeInformation, Resolver> factory)
         {
@@ -84,12 +76,7 @@ namespace Stashbox
             this.resolverSelector.AddResolver(resolver);
         }
 
-        /// <summary>
-        /// Registers a <see cref="Resolver"/> into the container.
-        /// </summary>
-        /// <param name="resolverType">The type of the resolver.</param>
-        /// <param name="resolverPredicate">Predicate which decides that the resolver is can be used for an actual resolution.</param>
-        /// <param name="factory">The factory which produces a new instance of the resolver.</param>
+        /// <inheritdoc />
         public void RegisterResolver(Type resolverType, Func<IContainerContext, TypeInformation, bool> resolverPredicate,
             Func<IContainerContext, TypeInformation, Resolver> factory)
         {
@@ -102,46 +89,29 @@ namespace Stashbox
             this.resolverSelector.AddResolver(resolver);
         }
 
-        /// <summary>
-        /// Creates a child container.
-        /// </summary>
-        /// <returns>The child container.</returns>
+        /// <inheritdoc />
         public IStashboxContainer CreateChildContainer()
         {
             return new StashboxContainer(this, this.containerExtensionManager.CreateCopy(), this.resolverSelector.CreateCopy(),
                 this.metaInfoRepository, this.delegateRepository);
         }
 
-        /// <summary>
-        /// Checks a service is registered into the container.
-        /// </summary>
-        /// <typeparam name="TFrom">The service type.</typeparam>
-        /// <param name="name">The registration name.</param>
-        /// <returns>True if the service is registered, otherwise false.</returns>
+        /// <inheritdoc />
         public bool IsRegistered<TFrom>(string name = null)
         {
             return this.IsRegistered(typeof(TFrom), name);
         }
 
-        /// <summary>
-        /// Checks a service is registered into the container.
-        /// </summary>
-        /// <param name="typeFrom">The service type.</param>
-        /// <param name="name">The registration name.</param>
-        /// <returns>True if the service is registered, otherwise false.</returns>
+        /// <inheritdoc />
         public bool IsRegistered(Type typeFrom, string name = null)
         {
             return this.registrationRepository.Constains(typeFrom, name);
         }
 
-        /// <summary>
-        /// Stores the parent container object if has any, otherwise null.
-        /// </summary>
+        /// <inheritdoc />
         public IStashboxContainer ParentContainer { get; }
 
-        /// <summary>
-        /// Stores the container context.
-        /// </summary>
+        /// <inheritdoc />
         public IContainerContext ContainerContext { get; }
 
         private void RegisterResolvers()

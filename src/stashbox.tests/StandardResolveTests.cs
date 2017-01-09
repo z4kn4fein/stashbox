@@ -40,7 +40,7 @@ namespace Stashbox.Tests
             using (IStashboxContainer container = new StashboxContainer())
             {
                 container.RegisterType<ITest2, Test2>();
-                var test2 = container.Resolve<ITest2>();
+                container.Resolve<ITest2>();
             }
         }
 
@@ -50,7 +50,7 @@ namespace Stashbox.Tests
         {
             using (IStashboxContainer container = new StashboxContainer())
             {
-                var test = container.Resolve<ITest1>();
+                container.Resolve<ITest1>();
             }
         }
 

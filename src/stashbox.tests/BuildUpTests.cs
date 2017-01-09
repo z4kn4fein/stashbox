@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ronin.Common;
 using Stashbox.Attributes;
 
@@ -8,65 +9,24 @@ namespace Stashbox.Tests
     public class BuildUpTests
     {
         [TestMethod]
-        public void InjectionMemberTests_BuildUp()
+        public void BuildUpTests_BuildUp()
         {
             using (var container = new StashboxContainer())
             {
                 container.RegisterType<ITest, Test>();
 
                 var test1 = new Test1();
-                container.BuildUp<ITest1>(test1);
+                container.WireUp<ITest1>(test1);
 
-                container.RegisterType<Test2>();
+                var test2 = new Test2();
+                var inst = container.BuildUp(test2);
 
-                var inst = container.Resolve<Test2>();
-
+                Assert.AreEqual(test2, inst);
                 Assert.IsNotNull(inst);
                 Assert.IsNotNull(inst.Test1);
                 Assert.IsInstanceOfType(inst, typeof(Test2));
                 Assert.IsInstanceOfType(inst.Test1, typeof(Test1));
                 Assert.IsInstanceOfType(inst.Test1.Test, typeof(Test));
-            }
-        }
-
-        [TestMethod]
-        public void InjectionMemberTests_BuildUp_ServiceUpdated()
-        {
-            using (var container = new StashboxContainer())
-            {
-                container.RegisterType<ITest, Test>();
-
-                var test1 = new Test1();
-                container.BuildUp<ITest1>(test1);
-
-                container.ReMap<ITest, Test>();
-
-                container.RegisterType<Test2>();
-
-                var inst = container.Resolve<Test2>();
-
-                Assert.IsNotNull(inst);
-                Assert.IsNotNull(inst.Test1);
-                Assert.IsInstanceOfType(inst, typeof(Test2));
-                Assert.IsInstanceOfType(inst.Test1, typeof(Test1));
-                Assert.IsInstanceOfType(inst.Test1.Test, typeof(Test));
-            }
-        }
-
-        [TestMethod]
-        public void InjectionMemberTests_BuildUp_WithoutService()
-        {
-            using (var container = new StashboxContainer())
-            {
-                container.RegisterType<ITest, Test>();
-                var test1 = new Test1();
-                container.BuildUp(test1);
-                var inst = container.Resolve<Test1>();
-
-                Assert.IsNotNull(inst);
-                Assert.IsNotNull(inst.Test);
-                Assert.IsInstanceOfType(inst, typeof(Test1));
-                Assert.IsInstanceOfType(inst.Test, typeof(Test));
             }
         }
 
@@ -90,12 +50,8 @@ namespace Stashbox.Tests
 
         public class Test2
         {
+            [Dependency]
             public ITest1 Test1 { get; set; }
-
-            public Test2(ITest1 test1)
-            {
-                this.Test1 = test1;
-            }
         }
     }
 }

@@ -48,5 +48,13 @@ namespace Stashbox.Infrastructure
         /// <param name="overrides">Parameter overrides.</param>
         /// <returns>The resolved object.</returns>
         IEnumerable<object> ResolveAll(Type typeFrom, IEnumerable<object> factoryParameters = null, IEnumerable<Override> overrides = null);
+
+        /// <summary>
+        /// Builds up an instance, the container will perform injections and extensions on it.
+        /// </summary>
+        /// <typeparam name="TTo">The type of the requested instance.</typeparam>
+        /// <param name="instance">The instance to build up.</param>
+        /// <returns>The built object.</returns>
+        TTo BuildUp<TTo>(TTo instance);
     }
 }

@@ -9,6 +9,5 @@ namespace Stashbox.Infrastructure
         object FillResolutionMethods(object instance, IContainerContext containerContext, ResolutionInfo resolutionInfo);
         ResolutionMember[] GetResolutionMembers();
         void ServiceUpdated(RegistrationInfo registrationInfo);
-        void CleanUp();
     }
 }

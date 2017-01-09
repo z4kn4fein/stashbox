@@ -136,7 +136,7 @@ namespace Stashbox.Infrastructure
         /// <param name="instance">The constructed object.</param>
         /// <param name="name">The name of the registration.</param>
         /// <returns>The <see cref="IDependencyRegistrator"/> which on this method was called.</returns>
-        IDependencyRegistrator BuildUp<TFrom>(object instance, string name = null)
+        IDependencyRegistrator WireUp<TFrom>(object instance, string name = null)
             where TFrom : class;
 
         /// <summary>
@@ -145,6 +145,6 @@ namespace Stashbox.Infrastructure
         /// <param name="instance">The constructed object.</param>
         /// <param name="name">The name of the registration.</param>
         /// <returns>The <see cref="IDependencyRegistrator"/> which on this method was called.</returns>
-        IDependencyRegistrator BuildUp(object instance, string name = null);
+        IDependencyRegistrator WireUp(object instance, string name = null);
     }
 }
