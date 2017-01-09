@@ -31,6 +31,26 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void EnumerableTests_ResolveNonGeneric()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            container.RegisterType<ITest1, Test1>();
+            container.RegisterType<ITest1, Test11>();
+            container.RegisterType<ITest1, Test12>();
+            container.RegisterType<ITest2, Test2>("enumerable");
+            container.RegisterType<ITest2, Test22>("array");
+
+            var enumerable = container.Resolve<ITest2>("enumerable");
+            var array = container.Resolve<ITest2>("array");
+
+            var all = container.Resolve<IEnumerable<ITest2>>();
+            var all2 = container.ResolveAll(typeof(ITest2));
+
+            Assert.AreEqual(2, all.Count());
+            Assert.AreEqual(2, all2.Count());
+        }
+
+        [TestMethod]
         public void EnumerableTests_Parallel_Resolve()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -47,6 +67,29 @@ namespace Stashbox.Tests
 
                 var all = container.Resolve<IEnumerable<ITest2>>();
 
+                Assert.AreEqual(2, all.Count());
+            });
+        }
+
+        [TestMethod]
+        public void EnumerableTests_Parallel_Resolve_NonGeneric()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            container.RegisterType<ITest1, Test1>();
+            container.RegisterType<ITest1, Test11>();
+            container.RegisterType<ITest1, Test12>();
+            container.RegisterType<ITest2, Test2>("enumerable");
+            container.RegisterType<ITest2, Test22>("array");
+
+            Parallel.For(0, 50000, (i) =>
+            {
+                var enumerable = container.Resolve<ITest2>("enumerable");
+                var array = container.Resolve<ITest2>("array");
+
+                var all = container.Resolve<IEnumerable<ITest2>>();
+                var all2 = container.ResolveAll(typeof(ITest2));
+
+                Assert.AreEqual(2, all2.Count());
                 Assert.AreEqual(2, all.Count());
             });
         }

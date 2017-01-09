@@ -64,6 +64,30 @@ namespace Stashbox
             }
         }
 
+        /// <summary>
+        /// Resolves all registered types of a service.
+        /// </summary>
+        /// <param name="typeFrom">The type of the requested instances.</param>
+        /// <param name="factoryParameters">The parameters for the registered factory delegate.</param>
+        /// <param name="overrides">Parameter overrides.</param>
+        /// <returns>The resolved object.</returns>
+        public IEnumerable<object> ResolveAll(Type typeFrom, IEnumerable<object> factoryParameters = null, IEnumerable<Override> overrides = null)
+        {
+            var factoryParams = factoryParameters as object[] ?? factoryParameters?.ToArray();
+            var typeInfo = new TypeInformation { Type = typeFrom };
+            IServiceRegistration[] registrations;
+            if (!this.registrationRepository.TryGetTypedRepositoryRegistrations(typeInfo, out registrations)) yield break;
+            var overridesEnumerated = overrides as Override[] ?? overrides?.ToArray();
+            foreach (var registration in registrations)
+            {
+                yield return registration.GetInstance(new ResolutionInfo
+                {
+                    OverrideManager = overridesEnumerated == null ? null : new OverrideManager(overridesEnumerated),
+                    FactoryParams = factoryParams,
+                }, typeInfo);
+            }
+        }
+
         private object ResolveInternal(Type typeFrom, IEnumerable<Override> overrides, string name = null, IEnumerable<object> factoryParameters = null)
         {
             var typeInfo = new TypeInformation { Type = typeFrom, DependencyName = name };

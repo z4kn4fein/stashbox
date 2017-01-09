@@ -39,5 +39,14 @@ namespace Stashbox.Infrastructure
         /// <returns>The resolved object.</returns>
         IEnumerable<TKey> ResolveAll<TKey>(IEnumerable<object> factoryParameters = null, IEnumerable<Override> overrides = null)
              where TKey : class;
+
+        /// <summary>
+        /// Resolves all registered types of a service.
+        /// </summary>
+        /// <param name="typeFrom">The type of the requested instances.</param>
+        /// <param name="factoryParameters">The parameters for the registered factory delegate.</param>
+        /// <param name="overrides">Parameter overrides.</param>
+        /// <returns>The resolved object.</returns>
+        IEnumerable<object> ResolveAll(Type typeFrom, IEnumerable<object> factoryParameters = null, IEnumerable<Override> overrides = null);
     }
 }
