@@ -105,7 +105,7 @@ namespace Stashbox
         /// <inheritdoc />
         public bool IsRegistered(Type typeFrom, string name = null)
         {
-            return this.registrationRepository.Constains(typeFrom, name);
+            return this.registrationRepository.Contains(typeFrom, name);
         }
 
         /// <inheritdoc />

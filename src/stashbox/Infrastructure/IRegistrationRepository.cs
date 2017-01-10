@@ -86,7 +86,7 @@ namespace Stashbox.Infrastructure
         /// <param name="type">The requested type.</param>
         /// <param name="name">The registration name.</param>
         /// <returns>True if the registration found, otherwise false.</returns>
-        bool Constains(Type type, string name);
+        bool Contains(Type type, string name);
 
         /// <summary>
         /// Check a type exists with conditions.

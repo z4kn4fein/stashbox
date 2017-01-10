@@ -4,6 +4,7 @@ using Stashbox.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace Stashbox.Registration
 {
@@ -176,13 +177,13 @@ namespace Stashbox.Registration
         /// <param name="type">The requested type.</param>
         /// <param name="name">The registration name.</param>
         /// <returns>True if the registration found, otherwise false.</returns>
-        public bool Constains(Type type, string name = null)
+        public bool Contains(Type type, string name = null)
         {
-            var regs = this.serviceRepository.GetValueOrDefault(type.GetHashCode());
-            if (name != null)
-                return regs != null && regs.GetValueOrDefault(name.GetHashCode()) != null;
-            else
-                return regs != null;
+            IServiceRegistration reg;
+            var typeInfo = new TypeInformation { Type = type, DependencyName = name };
+            return string.IsNullOrWhiteSpace(name)
+                ? TryGetByTypeKey(typeInfo, out reg)
+                : TryGetByNamedKey(typeInfo, out reg);
         }
 
         /// <summary>
@@ -291,15 +292,13 @@ namespace Stashbox.Registration
         {
             registrations = this.serviceRepository.GetValueOrDefault(type.GetHashCode());
             if (registrations != null) return true;
+
             Type genericTypeDefinition;
             if (this.TryHandleOpenGenericType(type, out genericTypeDefinition))
-            {
                 registrations = this.genericDefinitionRepository.GetValueOrDefault(genericTypeDefinition.GetHashCode());
-            }
-            else
-            {
-                return false;
-            }
+
+            else if(type.GetTypeInfo().IsGenericTypeDefinition)
+                registrations = this.genericDefinitionRepository.GetValueOrDefault(type.GetHashCode());
 
             return registrations != null;
         }
