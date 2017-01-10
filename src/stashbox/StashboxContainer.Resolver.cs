@@ -69,7 +69,7 @@ namespace Stashbox
         /// <inheritdoc />
         public TTo BuildUp<TTo>(TTo instance)
         {
-            var typeTo = typeof(TTo);
+            var typeTo = instance.GetType();
             var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, this.ContainerContext.MetaInfoRepository.GetOrAdd(typeTo, () => new MetaInfoCache(typeTo)));
             var objectExtender = new ObjectExtender(metaInfoProvider);
 
