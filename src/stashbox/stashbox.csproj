@@ -110,11 +110,15 @@
     <Compile Include="Registration\RegistrationRepository.cs" />
     <Compile Include="Registration\ServiceRegistration.cs" />
     <Compile Include="ResolverSelector.cs" />
+    <Compile Include="Utils\AtomicBool.cs" />
+    <Compile Include="Utils\ConcurrentKeyValueStore.cs" />
+    <Compile Include="Utils\DisposableReaderWriterLock.cs" />
+    <Compile Include="Utils\ImmutableTree.cs" />
     <Compile Include="Utils\NameGenerator.cs" />
+    <Compile Include="Utils\Shield.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\sn.snk" />
-    <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
