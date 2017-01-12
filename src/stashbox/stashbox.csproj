@@ -119,7 +119,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\sn.snk" />
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Ronin.Common, Version=1.0.45.0, Culture=neutral, PublicKeyToken=9778e33426732b68, processorArchitecture=MSIL">
