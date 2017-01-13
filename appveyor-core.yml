@@ -9,9 +9,9 @@ assembly_info:
   assembly_file_version: '{version}'
   assembly_informational_version: '{version}'
 before_build:
-- nuget restore src\netcore\stashbox-core.sln
+- nuget restore src\netcore\stashbox.core.sln
 build:
-  project: src\netcore\stashbox-core.sln
+  project: src\netcore\stashbox.core.sln
   publish_nuget: true
   publish_nuget_symbols: false
   include_nuget_references: true
