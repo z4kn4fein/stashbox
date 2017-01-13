@@ -1,0 +1,28 @@
+version: 1.0.{build}
+pull_requests:
+  do_not_increment_build_number: true
+configuration: Release
+assembly_info:
+  patch: true
+  file: 'src\netcore\**\AssemblyInfo.*'
+  assembly_version: '{version}'
+  assembly_file_version: '{version}'
+  assembly_informational_version: '{version}'
+before_build:
+- nuget restore src\netcore\stashbox-core.sln
+build:
+  project: src\netcore\stashbox-core.sln
+  publish_nuget: true
+  publish_nuget_symbols: false
+  include_nuget_references: true
+  parallel: true
+  verbosity: normal
+test_script:
+- ps: . \test-core.ps1
+notifications:
+- provider: Email
+  to:
+  - peter.csajtai@outlook.com
+  on_build_success: false
+  on_build_failure: true
+  on_build_status_changed: true

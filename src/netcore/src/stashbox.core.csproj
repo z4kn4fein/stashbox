@@ -1,0 +1,133 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <MinimumVisualStudioVersion>14.0</MinimumVisualStudioVersion>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{21317234-0499-4178-BCA5-558FBA2CB9AC}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Stashbox</RootNamespace>
+    <AssemblyName>Stashbox.Core</AssemblyName>
+    <DefaultLanguage>en-US</DefaultLanguage>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+    <TargetFrameworkVersion>v5.0</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Debug\Stashbox.Core.xml</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Release\Stashbox.Core.xml</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>..\..\..\sn.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\..\stashbox\Attributes\DependencyAttribute.cs" />
+    <Compile Include="..\..\stashbox\Attributes\InjectionConstructorAttribute.cs" />
+    <Compile Include="..\..\stashbox\Attributes\InjectionMethodAttribute.cs" />
+    <Compile Include="..\..\stashbox\BuildUp\Resolution\FuncResolver.cs" />
+    <Compile Include="..\..\stashbox\ContainerContext.cs" />
+    <Compile Include="..\..\stashbox\BuildExtensionManager.cs" />
+    <Compile Include="..\..\stashbox\BuildUp\WireUpObjectBuilder.cs" />
+    <Compile Include="..\..\stashbox\BuildUp\DefaultObjectBuilder.cs" />
+    <Compile Include="..\..\stashbox\BuildUp\DelegateFactory\ExpressionDelegateFactory.cs" />
+    <Compile Include="..\..\stashbox\BuildUp\FactoryObjectBuilder.cs" />
+    <Compile Include="..\..\stashbox\BuildUp\GenericTypeObjectBuilder.cs" />
+    <Compile Include="..\..\stashbox\BuildUp\InstanceObjectBuilder.cs" />
+    <Compile Include="..\..\stashbox\BuildUp\Resolution\EnumerableResolver.cs" />
+    <Compile Include="..\..\stashbox\BuildUp\Resolution\ContainerResolver.cs" />
+    <Compile Include="..\..\stashbox\BuildUp\Resolution\LazyResolver.cs" />
+    <Compile Include="..\..\stashbox\Entity\ConstructorInformation.cs" />
+    <Compile Include="..\..\stashbox\Entity\InjectionParameter.cs" />
+    <Compile Include="..\..\stashbox\Entity\MethodInformation.cs" />
+    <Compile Include="..\..\stashbox\Entity\MemberInformation.cs" />
+    <Compile Include="..\..\stashbox\Entity\RegistrationInfo.cs" />
+    <Compile Include="..\..\stashbox\Entity\Resolution\ResolutionConstructor.cs" />
+    <Compile Include="..\..\stashbox\Entity\ResolutionInfo.cs" />
+    <Compile Include="..\..\stashbox\Entity\Resolution\ResolutionMethod.cs" />
+    <Compile Include="..\..\stashbox\Entity\Resolution\ResolutionMember.cs" />
+    <Compile Include="..\..\stashbox\Entity\Resolution\ResolutionTarget.cs" />
+    <Compile Include="..\..\stashbox\Entity\ResolverRegistration.cs" />
+    <Compile Include="..\..\stashbox\Entity\TypeInformation.cs" />
+    <Compile Include="..\..\stashbox\Exceptions\ExceptionBase.cs" />
+    <Compile Include="..\..\stashbox\Exceptions\ResolutionFailedException.cs" />
+    <Compile Include="..\..\stashbox\Extensions\ImmutableTreeExtensions.cs" />
+    <Compile Include="..\..\stashbox\Extensions\MemberInfoExtensions.cs" />
+    <Compile Include="..\..\stashbox\Extensions\TypeExtensions.cs" />
+    <Compile Include="..\..\stashbox\Infrastructure\ContainerExtension\IPostBuildExtension.cs" />
+    <Compile Include="..\..\stashbox\Infrastructure\ContainerExtension\IRegistrationExtension.cs" />
+    <Compile Include="..\..\stashbox\Infrastructure\IObjectExtender.cs" />
+    <Compile Include="..\..\stashbox\Infrastructure\IRegistrationContext.cs" />
+    <Compile Include="..\..\stashbox\Infrastructure\IResolutionStrategy.cs" />
+    <Compile Include="..\..\stashbox\LifeTime\SingletonLifetime.cs" />
+    <Compile Include="..\..\stashbox\MetaInfo\MetaInfoCache.cs" />
+    <Compile Include="..\..\stashbox\ObjectExtender.cs" />
+    <Compile Include="..\..\stashbox\RegistrationContext.cs" />
+    <Compile Include="..\..\stashbox\ResolutionStrategy.cs" />
+    <Compile Include="..\..\stashbox\StashboxContainer.cs" />
+    <Compile Include="..\..\stashbox\StashboxContainer.Registrator.cs" />
+    <Compile Include="..\..\stashbox\StashboxContainer.Resolver.cs" />
+    <Compile Include="..\..\stashbox\Infrastructure\ContainerExtension\IContainerExtension.cs" />
+    <Compile Include="..\..\stashbox\Infrastructure\IContainerContext.cs" />
+    <Compile Include="..\..\stashbox\Infrastructure\ContainerExtension\IContainerExtensionManager.cs" />
+    <Compile Include="..\..\stashbox\Infrastructure\IDependencyRegistrator.cs" />
+    <Compile Include="..\..\stashbox\Infrastructure\IDependencyResolver.cs" />
+    <Compile Include="..\..\stashbox\Infrastructure\IStashboxContainer.cs" />
+    <Compile Include="..\..\stashbox\Infrastructure\ILifetime.cs" />
+    <Compile Include="..\..\stashbox\Infrastructure\IMetaInfoProvider.cs" />
+    <Compile Include="..\..\stashbox\Infrastructure\IObjectBuilder.cs" />
+    <Compile Include="..\..\stashbox\Infrastructure\IRegistrationRepository.cs" />
+    <Compile Include="..\..\stashbox\Infrastructure\IResolverSelector.cs" />
+    <Compile Include="..\..\stashbox\Infrastructure\IServiceRegistration.cs" />
+    <Compile Include="..\..\stashbox\Infrastructure\Resolver.cs" />
+    <Compile Include="..\..\stashbox\LifeTime\TransientLifetime.cs" />
+    <Compile Include="..\..\stashbox\MetaInfo\MetaInfoProvider.cs" />
+    <Compile Include="..\..\stashbox\Overrides\NamedOverride.cs" />
+    <Compile Include="..\..\stashbox\Overrides\Override.cs" />
+    <Compile Include="..\..\stashbox\Overrides\OverrideManager.cs" />
+    <Compile Include="..\..\stashbox\Overrides\TypeOverride.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="..\..\stashbox\Registration\RegistrationRepository.cs" />
+    <Compile Include="..\..\stashbox\Registration\ServiceRegistration.cs" />
+    <Compile Include="..\..\stashbox\ResolverSelector.cs" />
+    <Compile Include="..\..\stashbox\Utils\AtomicBool.cs" />
+    <Compile Include="..\..\stashbox\Utils\ConcurrentKeyValueStore.cs" />
+    <Compile Include="..\..\stashbox\Utils\DisposableReaderWriterLock.cs" />
+    <Compile Include="..\..\stashbox\Utils\ImmutableTree.cs" />
+    <Compile Include="..\..\stashbox\Utils\NameGenerator.cs" />
+    <Compile Include="..\..\stashbox\Utils\Shield.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\sn.snk" />
+    <None Include="project.json" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
