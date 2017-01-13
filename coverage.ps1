@@ -5,7 +5,7 @@ $testDllPath = Join-Path $PSScriptRoot "src\stashbox.tests\bin\release\Stashbox.
 $vsTestPath = "c:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\IDE\CommonExtensions\Microsoft\TestWindow\vstest.console.exe"
 $coverageReportDir = Join-Path $PSScriptRoot "coverageresults"
 
-$arguments = "-register:user", "`"-filter:+[*]* -[Stashbox.Tests]*`"", "-target:$vsTestPath", "`"-targetargs:$testDllPath`"", "-output:coverage.xml"
+$arguments = "-register:user", "`"-filter:+[*]* -[Stashbox.Tests]* -[Stashbox.Utils]*`"", "-target:$vsTestPath", "`"-targetargs:$testDllPath`"", "-output:coverage.xml"
 . $openCoverPath $arguments
 . $coverallsPath --opencover coverage.xml
 . $reportGeneratorPath -verbosity:Info -reports:coverage.xml -targetdir:$coverageReportDir "-assemblyfilters:-Stashbox.Tests*"
