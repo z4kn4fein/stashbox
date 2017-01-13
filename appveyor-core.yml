@@ -1,24 +1,36 @@
 version: 1.0.{build}
+
 pull_requests:
   do_not_increment_build_number: true
+  
 configuration: Release
+
 assembly_info:
   patch: true
   file: 'src\netcore\**\AssemblyInfo.*'
   assembly_version: '{version}'
   assembly_file_version: '{version}'
   assembly_informational_version: '{version}'
+  
 before_build:
 - nuget restore src\netcore\stashbox.core.sln
+
 build:
   project: src\netcore\stashbox.core.sln
-  publish_nuget: true
-  publish_nuget_symbols: false
-  include_nuget_references: true
   parallel: true
   verbosity: normal
-test_script:
-- ps: . .\test-core.ps1
+  
+after_build:
+- nuget pack src\netcore\src\stashbox.core.csproj -Properties "Configuration=Release;Platform=AnyCPU" -IncludeReferencedProjects
+
+test:
+  assemblies:
+  - 'src\netcore\**\*.Tests.dll'
+  
+artifacts:
+- path: Stashbox.*.nupkg
+  name: Nuget Package
+
 notifications:
 - provider: Email
   to:
