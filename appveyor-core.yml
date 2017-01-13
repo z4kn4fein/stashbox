@@ -18,7 +18,7 @@ build:
   parallel: true
   verbosity: normal
 test_script:
-- ps: . \test-core.ps1
+- ps: . .\test-core.ps1
 notifications:
 - provider: Email
   to:
