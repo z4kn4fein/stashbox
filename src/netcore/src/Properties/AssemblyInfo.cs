@@ -9,7 +9,7 @@ using System.Resources;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Peter Csajtai")]
 [assembly: AssemblyProduct("Stashbox.Core")]
-[assembly: AssemblyCopyright("Copyright © Peter Csajtai 2015")]
+[assembly: AssemblyCopyright("Copyright © Peter Csajtai 2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: NeutralResourcesLanguage("en")]
