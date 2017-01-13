@@ -1,6 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Ronin.Common;
 using Stashbox.Attributes;
+using Stashbox.Utils;
 
 namespace Stashbox.Tests
 {
