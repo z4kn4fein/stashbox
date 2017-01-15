@@ -80,11 +80,16 @@
     <Compile Include="..\..\stashbox\Infrastructure\IObjectExtender.cs" />
     <Compile Include="..\..\stashbox\Infrastructure\IRegistrationContext.cs" />
     <Compile Include="..\..\stashbox\Infrastructure\IResolutionStrategy.cs" />
-    <Compile Include="..\..\stashbox\LifeTime\SingletonLifetime.cs" />
+    <Compile Include="..\..\stashbox\Lifetime\LifetimeBase.cs" />
+    <Compile Include="..\..\stashbox\Lifetime\SingletonLifetime.cs" />
+    <Compile Include="..\..\stashbox\Lifetime\TrackedTransientLifetime.cs" />
     <Compile Include="..\..\stashbox\MetaInfo\MetaInfoCache.cs" />
     <Compile Include="..\..\stashbox\ObjectExtender.cs" />
-    <Compile Include="..\..\stashbox\RegistrationContext.cs" />
+    <Compile Include="..\..\stashbox\Registration\RegistrationContext.cs" />
+    <Compile Include="..\..\stashbox\Registration\RegistrationContextBase.cs" />
     <Compile Include="..\..\stashbox\ResolutionStrategy.cs" />
+    <Compile Include="..\..\stashbox\Registration\RegistrationContextData.cs" />
+    <Compile Include="..\..\stashbox\Registration\ScopedRegistrationContext.cs" />
     <Compile Include="..\..\stashbox\StashboxContainer.cs" />
     <Compile Include="..\..\stashbox\StashboxContainer.Registrator.cs" />
     <Compile Include="..\..\stashbox\StashboxContainer.Resolver.cs" />
@@ -101,7 +106,7 @@
     <Compile Include="..\..\stashbox\Infrastructure\IResolverSelector.cs" />
     <Compile Include="..\..\stashbox\Infrastructure\IServiceRegistration.cs" />
     <Compile Include="..\..\stashbox\Infrastructure\Resolver.cs" />
-    <Compile Include="..\..\stashbox\LifeTime\TransientLifetime.cs" />
+    <Compile Include="..\..\stashbox\Lifetime\TransientLifetime.cs" />
     <Compile Include="..\..\stashbox\MetaInfo\MetaInfoProvider.cs" />
     <Compile Include="..\..\stashbox\Overrides\NamedOverride.cs" />
     <Compile Include="..\..\stashbox\Overrides\Override.cs" />
@@ -113,6 +118,7 @@
     <Compile Include="..\..\stashbox\ResolverSelector.cs" />
     <Compile Include="..\..\stashbox\Utils\AtomicBool.cs" />
     <Compile Include="..\..\stashbox\Utils\ConcurrentKeyValueStore.cs" />
+    <Compile Include="..\..\stashbox\Utils\ConcurrentStore.cs" />
     <Compile Include="..\..\stashbox\Utils\DisposableReaderWriterLock.cs" />
     <Compile Include="..\..\stashbox\Utils\ImmutableTree.cs" />
     <Compile Include="..\..\stashbox\Utils\NameGenerator.cs" />

@@ -12,6 +12,7 @@ namespace Stashbox.Registration
     /// </summary>
     public class ServiceRegistration : IServiceRegistration
     {
+        private readonly IContainerContext containerContext;
         private readonly ILifetime lifetimeManager;
         private readonly IObjectBuilder objectBuilder;
         private readonly HashSet<Type> attributeConditions;
@@ -21,14 +22,16 @@ namespace Stashbox.Registration
         /// <summary>
         /// Constructs a <see cref="ServiceRegistration"/>
         /// </summary>
+        /// <param name="containerContext">The container context.</param>
         /// <param name="lifetimeManager">The lifetime manager.</param>
         /// <param name="objectBuilder">THe object builder.</param>
         /// <param name="attributeConditions">The attribute conditions.</param>
         /// <param name="targetTypeCondition">The target type condition.</param>
         /// <param name="resolutionCondition">The resolution condition.</param>
-        public ServiceRegistration(ILifetime lifetimeManager, IObjectBuilder objectBuilder, HashSet<Type> attributeConditions = null,
+        public ServiceRegistration(IContainerContext containerContext, ILifetime lifetimeManager, IObjectBuilder objectBuilder, HashSet<Type> attributeConditions = null,
             Type targetTypeCondition = null, Func<TypeInformation, bool> resolutionCondition = null)
         {
+            this.containerContext = containerContext;
             this.lifetimeManager = lifetimeManager;
             this.objectBuilder = objectBuilder;
             this.attributeConditions = attributeConditions;
@@ -44,7 +47,7 @@ namespace Stashbox.Registration
         /// <returns>The created object.</returns>
         public object GetInstance(ResolutionInfo resolutionInfo, TypeInformation resolveType)
         {
-            return this.lifetimeManager.GetInstance(this.objectBuilder, resolutionInfo, resolveType);
+            return this.lifetimeManager.GetInstance(this.containerContext, this.objectBuilder, resolutionInfo, resolveType);
         }
 
         /// <summary>
@@ -94,7 +97,7 @@ namespace Stashbox.Registration
         /// <returns>The expression.</returns>
         public Expression GetExpression(ResolutionInfo resolutionInfo, Expression resolutionInfoExpression, TypeInformation resolveType)
         {
-            return this.lifetimeManager.GetExpression(this.objectBuilder, resolutionInfo, resolutionInfoExpression, resolveType);
+            return this.lifetimeManager.GetExpression(this.containerContext, this.objectBuilder, resolutionInfo, resolutionInfoExpression, resolveType);
         }
     }
 }

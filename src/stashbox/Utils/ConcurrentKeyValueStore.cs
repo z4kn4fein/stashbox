@@ -131,10 +131,19 @@ namespace Stashbox.Utils
         /// </summary>
         /// <param name="key">The key of the entry.</param>
         /// <param name="content">The value of the entry.</param>
-        public void Add(TKey key, TContent content)
+        /// <param name="throwIfExists">Indicates that an exception should be thrown or not when the key already exists.</param>
+        public void Add(TKey key, TContent content, bool throwIfExists = true)
         {
             using (this.ReaderWriterLock.AcquireWriteLock())
             {
+                if (!throwIfExists)
+                {
+                    if (!this.Repository.ContainsKey(key))
+                        this.Repository.Add(key, content);
+
+                    return;
+                }
+
                 this.Repository.Add(key, content);
             }
         }

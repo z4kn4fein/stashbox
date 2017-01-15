@@ -146,5 +146,43 @@ namespace Stashbox.Infrastructure
         /// <param name="name">The name of the registration.</param>
         /// <returns>The <see cref="IDependencyRegistrator"/> which on this method was called.</returns>
         IDependencyRegistrator WireUp(object instance, string name = null);
+
+        /// <summary>
+        /// Registers a type with singleton lifetime.
+        /// </summary>
+        /// <typeparam name="TFrom">Type that will be requested.</typeparam>
+        /// <typeparam name="TTo">Type that will be returned.</typeparam>
+        /// <returns>The <see cref="IDependencyRegistrator"/> which on this method was called.</returns>
+        IDependencyRegistrator RegisterSingleton<TFrom, TTo>(string name = null)
+            where TFrom : class
+            where TTo : class, TFrom;
+
+        /// <summary>
+        /// Registers a type with singleton lifetime.
+        /// </summary>
+        /// <param name="typeFrom">Type that will be requested.</param>
+        /// <param name="typeTo">Type that will be returned.</param>
+        /// <param name="name">The name of the registration.</param>
+        /// <returns>The <see cref="IDependencyRegistrator"/> which on this method was called.</returns>
+        IDependencyRegistrator RegisterSingleton(Type typeFrom, Type typeTo, string name = null);
+
+        /// <summary>
+        /// Registers a type with scoped lifetime.
+        /// </summary>
+        /// <typeparam name="TFrom">Type that will be requested.</typeparam>
+        /// <typeparam name="TTo">Type that will be returned.</typeparam>
+        /// <returns>The <see cref="IDependencyRegistrator"/> which on this method was called.</returns>
+        IDependencyRegistrator RegisterScoped<TFrom, TTo>(string name = null)
+            where TFrom : class
+            where TTo : class, TFrom;
+
+        /// <summary>
+        /// Registers a type with scoped lifetime.
+        /// </summary>
+        /// <param name="typeFrom">Type that will be requested.</param>
+        /// <param name="typeTo">Type that will be returned.</param>
+        /// <param name="name">The name of the registration.</param>
+        /// <returns>The <see cref="IDependencyRegistrator"/> which on this method was called.</returns>
+        IDependencyRegistrator RegisterScoped(Type typeFrom, Type typeTo, string name = null);
     }
 }

@@ -1,9 +1,9 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Stashbox.Infrastructure;
-using Stashbox.LifeTime;
+using Stashbox.Lifetime;
+using Stashbox.Utils;
 using System;
 using System.Threading.Tasks;
-using Stashbox.Utils;
 
 namespace Stashbox.Tests
 {

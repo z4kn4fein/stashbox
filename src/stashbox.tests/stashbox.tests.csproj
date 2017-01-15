@@ -65,6 +65,7 @@
     <Compile Include="AttributeTests.cs" />
     <Compile Include="BuildExtensionManagerTests.cs" />
     <Compile Include="BuildUpTests.cs" />
+    <Compile Include="DisposeTests.cs" />
     <Compile Include="WireUpTests.cs" />
     <Compile Include="ConditionalTests.cs" />
     <Compile Include="ContainerTests.cs" />

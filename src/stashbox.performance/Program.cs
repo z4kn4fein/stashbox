@@ -1,6 +1,5 @@
 ﻿using Stashbox;
 using Stashbox.Attributes;
-using Stashbox.LifeTime;
 using System;
 using System.Collections.Generic;
 
@@ -22,15 +21,15 @@ namespace stashbox.performance
                 //container.RegisterType<IComplex2, Complex2>();
                 //container.RegisterType<IComplex3, Complex3>();
 
-               container.RegisterType<ISimpleAdapter, SimpleAdapterOne>("one");
-               container.RegisterType<ISimpleAdapter, SimpleAdapterTwo>("two");
-               container.RegisterType<ISimpleAdapter, SimpleAdapterThree>("three");
-               container.RegisterType<ISimpleAdapter, SimpleAdapterFour>("four");
-               container.RegisterType<ISimpleAdapter, SimpleAdapterFive>("five");
+                container.RegisterType<ISimpleAdapter, SimpleAdapterOne>("one");
+                container.RegisterType<ISimpleAdapter, SimpleAdapterTwo>("two");
+                container.RegisterType<ISimpleAdapter, SimpleAdapterThree>("three");
+                container.RegisterType<ISimpleAdapter, SimpleAdapterFour>("four");
+                container.RegisterType<ISimpleAdapter, SimpleAdapterFive>("five");
 
-               container.RegisterType<ImportMultiple1>();
-               container.RegisterType<ImportMultiple2>();
-               container.RegisterType<ImportMultiple3>();
+                container.RegisterType<ImportMultiple1>();
+                container.RegisterType<ImportMultiple2>();
+                container.RegisterType<ImportMultiple3>();
 
                 for (int i = 0; i < 1000000000; i++)
                 {
@@ -343,7 +342,7 @@ namespace stashbox.performance
         public class ImportMultiple1
         {
             private static int counter;
-            
+
             public ImportMultiple1(IEnumerable<ISimpleAdapter> adapters)
             {
                 if (adapters == null)
@@ -376,11 +375,11 @@ namespace stashbox.performance
                 set { counter = value; }
             }
         }
-        
+
         public class ImportMultiple2
         {
             private static int counter;
-            
+
             public ImportMultiple2(IEnumerable<ISimpleAdapter> adapters)
             {
                 if (adapters == null)
@@ -413,11 +412,11 @@ namespace stashbox.performance
                 set { counter = value; }
             }
         }
-        
+
         public class ImportMultiple3
         {
             private static int counter;
-            
+
             public ImportMultiple3(IEnumerable<ISimpleAdapter> adapters)
             {
                 if (adapters == null)

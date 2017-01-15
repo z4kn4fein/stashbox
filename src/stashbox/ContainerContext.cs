@@ -2,8 +2,9 @@
 using Stashbox.Extensions;
 using Stashbox.Infrastructure;
 using Stashbox.MetaInfo;
-using System;
+using Stashbox.Registration;
 using Stashbox.Utils;
+using System;
 
 namespace Stashbox
 {
@@ -30,36 +31,35 @@ namespace Stashbox
             this.MetaInfoRepository = metaInfoRepository;
             this.DelegateRepository = delegateRepository;
             this.Bag = new ConcurrentKeyValueStore<object, object>();
+            this.ScopedRegistrations = new ConcurrentKeyValueStore<string, RegistrationContextData>();
+            this.TrackedTransientObjects = new ConcurrentStore<object>();
         }
 
-        /// <summary>
-        /// The repository of the registrations.
-        /// </summary>
+        /// <inheritdoc />
         public IRegistrationRepository RegistrationRepository { get; }
 
-        /// <summary>
-        /// The container itself.
-        /// </summary>
+        /// <inheritdoc />
         public IStashboxContainer Container { get; }
 
-        /// <summary>
-        /// The resolution strategy.
-        /// </summary>
+        /// <inheritdoc />
         public IResolutionStrategy ResolutionStrategy { get; }
 
-        /// <summary>
-        /// The meta information repository.
-        /// </summary>
+        /// <inheritdoc />
         public ExtendedImmutableTree<MetaInfoCache> MetaInfoRepository { get; }
 
-        /// <summary>
-        /// Repository of the compiled delegates.
-        /// </summary>
+        /// <inheritdoc />
         public ExtendedImmutableTree<Func<ResolutionInfo, object>> DelegateRepository { get; }
 
-        /// <summary>
-        /// A generic key-value store.
-        /// </summary>
+        /// <inheritdoc />
+        public ConcurrentKeyValueStore<string, RegistrationContextData> ScopedRegistrations { get; }
+
+        /// <inheritdoc />
         public ConcurrentKeyValueStore<object, object> Bag { get; }
+
+        /// <inheritdoc />
+        public ConcurrentStore<object> TrackedTransientObjects { get; }
+
+        /// <inheritdoc />
+        public bool TrackTransientsForDisposal { get; internal set; }
     }
 }

@@ -1,8 +1,9 @@
 ﻿using Stashbox.Entity;
 using Stashbox.Extensions;
 using Stashbox.MetaInfo;
-using System;
+using Stashbox.Registration;
 using Stashbox.Utils;
+using System;
 
 namespace Stashbox.Infrastructure
 {
@@ -37,8 +38,23 @@ namespace Stashbox.Infrastructure
         ExtendedImmutableTree<Func<ResolutionInfo, object>> DelegateRepository { get; }
 
         /// <summary>
+        /// Repository of scoped registrations.
+        /// </summary>
+        ConcurrentKeyValueStore<string, RegistrationContextData> ScopedRegistrations { get; }
+
+        /// <summary>
         /// A generic key-value store.
         /// </summary>
         ConcurrentKeyValueStore<object, object> Bag { get; }
+
+        /// <summary>
+        /// The transient objects which are tracked by the container for disposal.
+        /// </summary>
+        ConcurrentStore<object> TrackedTransientObjects { get; }
+
+        /// <summary>
+        /// Indicates that the container should track transient objects for disposal or not.
+        /// </summary>
+        bool TrackTransientsForDisposal { get; }
     }
 }

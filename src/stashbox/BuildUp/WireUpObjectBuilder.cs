@@ -8,13 +8,13 @@ namespace Stashbox.BuildUp
 {
     internal class WireUpObjectBuilder : IObjectBuilder
     {
-        private readonly object instance;
+        private object instance;
         private readonly Type instanceType;
-        private volatile object builtInstance;
         private readonly object syncObject = new object();
         private readonly IContainerExtensionManager containerExtensionManager;
         private readonly IObjectExtender objectExtender;
         private readonly IContainerContext containerContext;
+        private bool instanceBuilt = false;
 
         public WireUpObjectBuilder(object instance, IContainerContext containerContext, IContainerExtensionManager containerExtensionManager, IObjectExtender objectExtender)
         {
@@ -27,16 +27,17 @@ namespace Stashbox.BuildUp
 
         public object BuildInstance(ResolutionInfo resolutionInfo, TypeInformation resolveType)
         {
-            if (this.builtInstance != null) return this.builtInstance;
+            if (this.instanceBuilt) return this.instance;
             lock (this.syncObject)
             {
-                if (this.builtInstance != null) return this.builtInstance;
-                this.builtInstance = this.objectExtender.FillResolutionMembers(this.instance, this.containerContext, resolutionInfo);
-                this.builtInstance = this.objectExtender.FillResolutionMethods(this.builtInstance, this.containerContext, resolutionInfo);
-                this.builtInstance = this.containerExtensionManager.ExecutePostBuildExtensions(this.builtInstance, this.instanceType, this.containerContext, resolutionInfo, resolveType);
+                if (this.instanceBuilt) return this.instance;
+                this.instanceBuilt = true;
+                this.instance = this.objectExtender.FillResolutionMembers(this.instance, this.containerContext, resolutionInfo);
+                this.instance = this.objectExtender.FillResolutionMethods(this.instance, this.containerContext, resolutionInfo);
+                this.instance = this.containerExtensionManager.ExecutePostBuildExtensions(this.instance, this.instanceType, this.containerContext, resolutionInfo, resolveType);
             }
 
-            return this.builtInstance;
+            return this.instance;
         }
 
         public Expression GetExpression(ResolutionInfo resolutionInfo, Expression resolutionInfoExpression, TypeInformation resolveType)
@@ -52,13 +53,13 @@ namespace Stashbox.BuildUp
 
         public void CleanUp()
         {
-            if (this.builtInstance == null) return;
+            if (this.instance == null) return;
             lock (this.syncObject)
             {
-                if (this.builtInstance == null) return;
-                var disposable = this.builtInstance as IDisposable;
+                if (this.instance == null) return;
+                var disposable = this.instance as IDisposable;
                 disposable?.Dispose();
-                this.builtInstance = null;
+                this.instance = null;
             }
         }
     }

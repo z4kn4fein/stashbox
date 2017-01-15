@@ -40,6 +40,11 @@ namespace Stashbox.Infrastructure
         IStashboxContainer CreateChildContainer();
 
         /// <summary>
+        /// Begins a new scope.
+        /// </summary>
+        IStashboxContainer BeginScope();
+
+        /// <summary>
         /// Stores the parent container object if has any, otherwise null.
         /// </summary>
         IStashboxContainer ParentContainer { get; }

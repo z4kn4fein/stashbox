@@ -1,9 +1,9 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Stashbox.Exceptions;
 using Stashbox.Infrastructure;
+using Stashbox.Utils;
 using System;
 using System.Threading.Tasks;
-using Stashbox.Utils;
 
 namespace Stashbox.Tests
 {
@@ -115,6 +115,29 @@ namespace Stashbox.Tests
                 Assert.IsNotNull(test2.Value);
                 Assert.IsNotNull(test1.Value);
             });
+        }
+
+        [TestMethod]
+        public void StandardResolveTests_Resolve_Scoped()
+        {
+            using (IStashboxContainer container = new StashboxContainer())
+            {
+                container.RegisterScoped<ITest1, Test1>();
+
+                var inst = container.Resolve<ITest1>();
+                var inst2 = container.Resolve<ITest1>();
+
+                Assert.AreEqual(inst, inst2);
+
+                using (var child = container.BeginScope())
+                {
+                    var inst3 = child.Resolve<ITest1>();
+                    var inst4 = child.Resolve<ITest1>();
+
+                    Assert.AreNotEqual(inst, inst3);
+                    Assert.AreEqual(inst3, inst4);
+                }
+            }
         }
 
         public interface ITest1 { string Name { get; set; } }

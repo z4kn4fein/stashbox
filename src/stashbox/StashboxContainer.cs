@@ -5,8 +5,8 @@ using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.ContainerExtension;
 using Stashbox.MetaInfo;
 using Stashbox.Registration;
-using System;
 using Stashbox.Utils;
+using System;
 
 namespace Stashbox
 {
@@ -25,7 +25,7 @@ namespace Stashbox
         /// <summary>
         /// Constructs a <see cref="StashboxContainer"/>
         /// </summary>
-        public StashboxContainer()
+        public StashboxContainer(bool trackTransientsForDisposal = false)
         {
             this.delegateRepository = new ExtendedImmutableTree<Func<ResolutionInfo, object>>();
             this.metaInfoRepository = new ExtendedImmutableTree<MetaInfoCache>();
@@ -34,14 +34,15 @@ namespace Stashbox
             this.resolverSelector = new ResolverSelector();
             this.registrationRepository = new RegistrationRepository();
             this.ContainerContext = new ContainerContext(this.registrationRepository, this,
-                new ResolutionStrategy(this.resolverSelector), this.metaInfoRepository, this.delegateRepository);
+                new ResolutionStrategy(this.resolverSelector), this.metaInfoRepository, this.delegateRepository)
+            { TrackTransientsForDisposal = trackTransientsForDisposal };
 
             this.RegisterResolvers();
         }
 
         internal StashboxContainer(IStashboxContainer parentContainer, IContainerExtensionManager containerExtensionManager,
             IResolverSelector resolverSelector, ExtendedImmutableTree<MetaInfoCache> metaInfoRepository,
-            ExtendedImmutableTree<Func<ResolutionInfo, object>> delegateRepository)
+            ExtendedImmutableTree<Func<ResolutionInfo, object>> delegateRepository, bool trackTransientsForDisposal)
         {
             this.metaInfoRepository = metaInfoRepository;
             this.delegateRepository = delegateRepository;
@@ -92,8 +93,7 @@ namespace Stashbox
         /// <inheritdoc />
         public IStashboxContainer CreateChildContainer()
         {
-            return new StashboxContainer(this, this.containerExtensionManager.CreateCopy(), this.resolverSelector.CreateCopy(),
-                this.metaInfoRepository, this.delegateRepository);
+            return this.CreateChildStashboxContainer();
         }
 
         /// <inheritdoc />
@@ -113,6 +113,31 @@ namespace Stashbox
 
         /// <inheritdoc />
         public IContainerContext ContainerContext { get; }
+
+        /// <inheritdoc />
+        public IStashboxContainer BeginScope()
+        {
+            var child = this.CreateChildStashboxContainer();
+            child.OpenScope();
+            return child;
+        }
+
+        internal void OpenScope()
+        {
+            foreach (var registrationData in this.ParentContainer.ContainerContext.ScopedRegistrations.GetAll())
+            {
+                var registration = new ScopedRegistrationContext(registrationData.TypeFrom, registrationData.TypeTo,
+                    this.ContainerContext, this.containerExtensionManager);
+
+                registration.InitFromScope(registrationData);
+            }
+        }
+
+        private StashboxContainer CreateChildStashboxContainer()
+        {
+            return new StashboxContainer(this, this.containerExtensionManager.CreateCopy(), this.resolverSelector.CreateCopy(),
+                    this.metaInfoRepository, this.delegateRepository, this.ContainerContext.TrackTransientsForDisposal);
+        }
 
         private void RegisterResolvers()
         {
@@ -172,6 +197,13 @@ namespace Stashbox
             if (!this.disposed.CompareExchange(false, true) || !disposing) return;
             this.registrationRepository.CleanUp();
             this.containerExtensionManager.CleanUp();
+
+            var trackedObjects = this.ContainerContext.TrackedTransientObjects.GetAll();
+            foreach (var trackedObject in trackedObjects)
+            {
+                var disposable = trackedObject as IDisposable;
+                disposable?.Dispose();
+            }
         }
     }
 }

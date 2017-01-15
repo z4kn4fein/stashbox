@@ -79,11 +79,16 @@
     <Compile Include="Infrastructure\IObjectExtender.cs" />
     <Compile Include="Infrastructure\IRegistrationContext.cs" />
     <Compile Include="Infrastructure\IResolutionStrategy.cs" />
-    <Compile Include="LifeTime\SingletonLifetime.cs" />
+    <Compile Include="Lifetime\LifetimeBase.cs" />
+    <Compile Include="Lifetime\SingletonLifetime.cs" />
+    <Compile Include="Lifetime\TrackedTransientLifetime.cs" />
     <Compile Include="MetaInfo\MetaInfoCache.cs" />
     <Compile Include="ObjectExtender.cs" />
-    <Compile Include="RegistrationContext.cs" />
+    <Compile Include="Registration\RegistrationContext.cs" />
+    <Compile Include="Registration\RegistrationContextBase.cs" />
     <Compile Include="ResolutionStrategy.cs" />
+    <Compile Include="Registration\RegistrationContextData.cs" />
+    <Compile Include="Registration\ScopedRegistrationContext.cs" />
     <Compile Include="StashboxContainer.cs" />
     <Compile Include="StashboxContainer.Registrator.cs" />
     <Compile Include="StashboxContainer.Resolver.cs" />
@@ -100,7 +105,7 @@
     <Compile Include="Infrastructure\IResolverSelector.cs" />
     <Compile Include="Infrastructure\IServiceRegistration.cs" />
     <Compile Include="Infrastructure\Resolver.cs" />
-    <Compile Include="LifeTime\TransientLifetime.cs" />
+    <Compile Include="Lifetime\TransientLifetime.cs" />
     <Compile Include="MetaInfo\MetaInfoProvider.cs" />
     <Compile Include="Overrides\NamedOverride.cs" />
     <Compile Include="Overrides\Override.cs" />
@@ -112,6 +117,7 @@
     <Compile Include="ResolverSelector.cs" />
     <Compile Include="Utils\AtomicBool.cs" />
     <Compile Include="Utils\ConcurrentKeyValueStore.cs" />
+    <Compile Include="Utils\ConcurrentStore.cs" />
     <Compile Include="Utils\DisposableReaderWriterLock.cs" />
     <Compile Include="Utils\ImmutableTree.cs" />
     <Compile Include="Utils\NameGenerator.cs" />
