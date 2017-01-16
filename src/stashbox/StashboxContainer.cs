@@ -45,7 +45,7 @@ namespace Stashbox
             ExtendedImmutableTree<Func<ResolutionInfo, object>> delegateRepository, bool trackTransientsForDisposal)
         {
             this.metaInfoRepository = metaInfoRepository;
-            this.delegateRepository = new ExtendedImmutableTree<Func<ResolutionInfo, object>>();
+            this.delegateRepository = delegateRepository;
             this.disposed = new AtomicBool();
             this.ParentContainer = parentContainer;
             this.containerExtensionManager = containerExtensionManager;
