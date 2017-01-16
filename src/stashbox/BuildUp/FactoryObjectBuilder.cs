@@ -9,6 +9,7 @@ namespace Stashbox.BuildUp
 {
     internal class FactoryObjectBuilder : IObjectBuilder
     {
+        private readonly Func<IStashboxContainer, object> containerFactory;
         private readonly Func<object> singleFactory;
         private readonly Func<object, object> oneParamsFactory;
         private readonly Func<object, object, object> twoParamsFactory;
@@ -22,6 +23,12 @@ namespace Stashbox.BuildUp
             this.containerExtensionManager = containerExtensionManager;
             this.objectExtender = objectExtender;
             this.containerContext = containerContext;
+        }
+
+        public FactoryObjectBuilder(Func<IStashboxContainer, object> containerFactory, IContainerContext containerContext, IContainerExtensionManager containerExtensionManager, IObjectExtender objectExtender)
+            : this(containerContext, containerExtensionManager, objectExtender)
+        {
+            this.containerFactory = containerFactory;
         }
 
         public FactoryObjectBuilder(Func<object> factory, IContainerContext containerContext, IContainerExtensionManager containerExtensionManager, IObjectExtender objectExtender)
@@ -51,6 +58,9 @@ namespace Stashbox.BuildUp
         public object BuildInstance(ResolutionInfo resolutionInfo, TypeInformation resolveType)
         {
             object instance = null;
+
+            if (this.containerFactory != null)
+                instance = this.containerFactory.Invoke(this.containerContext.Container);
 
             if (this.singleFactory != null)
                 instance = this.singleFactory.Invoke();

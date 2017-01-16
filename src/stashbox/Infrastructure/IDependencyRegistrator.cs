@@ -43,6 +43,13 @@ namespace Stashbox.Infrastructure
              where TTo : class;
 
         /// <summary>
+        /// Prepares a type for registration.
+        /// </summary>
+        /// <param name="typeTo">Type that will be returned.</param>
+        /// <returns>The created <see cref="IRegistrationContext"/> which allows further configurations.</returns>
+        IRegistrationContext PrepareType(Type typeTo);
+
+        /// <summary>
         /// Registers a type into the container.
         /// </summary>
         /// <typeparam name="TFrom">Type that will be requested.</typeparam>

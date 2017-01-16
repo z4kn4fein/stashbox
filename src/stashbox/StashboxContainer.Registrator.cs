@@ -130,6 +130,12 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
+        public IRegistrationContext PrepareType(Type typeTo)
+        {
+            return new RegistrationContext(typeTo, typeTo, this.ContainerContext, this.containerExtensionManager);
+        }
+
+        /// <inheritdoc />
         public IDependencyRegistrator RegisterSingleton<TFrom, TTo>(string name = null)
             where TFrom : class
             where TTo : class, TFrom

@@ -77,6 +77,9 @@ namespace Stashbox.Registration
 
             var objectExtender = new ObjectExtender(metainfoProvider, this.RegistrationContextData.InjectionParameters);
 
+            if (this.RegistrationContextData.ContainerFactory != null)
+                return new FactoryObjectBuilder(this.RegistrationContextData.ContainerFactory, this.ContainerContext, containerExtensionManager, objectExtender);
+
             if (this.RegistrationContextData.SingleFactory != null)
                 return new FactoryObjectBuilder(this.RegistrationContextData.SingleFactory, this.ContainerContext, containerExtensionManager, objectExtender);
 

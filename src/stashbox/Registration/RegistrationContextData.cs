@@ -26,6 +26,11 @@ namespace Stashbox.Registration
         public string Name { get; set; }
 
         /// <summary>
+        /// Container factory of the registration.
+        /// </summary>
+        public Func<IStashboxContainer, object> ContainerFactory { get; set; }
+
+        /// <summary>
         /// Parameterless factory of the registration.
         /// </summary>
         public Func<object> SingleFactory { get; set; }

@@ -42,6 +42,13 @@ namespace Stashbox.Infrastructure
         IRegistrationContext WithFactory(Func<object> singleFactory);
 
         /// <summary>
+        /// Sets a container factory delegate for the registration.
+        /// </summary>
+        /// <param name="containerFactory">The container factory delegate.</param>
+        /// <returns>The <see cref="IRegistrationContext"/> which on this method was called.</returns>
+        IRegistrationContext WithFactory(Func<IStashboxContainer, object> containerFactory);
+
+        /// <summary>
         /// Sets a one parameter factory delegate for the registration.
         /// </summary>
         /// <param name="singleParameterFactory">The one parameter factory delegate.</param>
