@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Stashbox.Attributes;
 using Stashbox.Exceptions;
 using Stashbox.Infrastructure;
 using Stashbox.Utils;
@@ -140,11 +141,44 @@ namespace Stashbox.Tests
             }
         }
 
+        [TestMethod]
+        public void StandardResolveTests_Resolve_Scoped_Injection()
+        {
+            using (IStashboxContainer container = new StashboxContainer())
+            {
+                container.RegisterScoped(typeof(ITest1), typeof(Test1));
+                container.RegisterScoped<ITest4, Test4>();
+
+                var inst = container.Resolve<ITest4>();
+                var inst2 = container.Resolve<ITest4>();
+
+                Assert.AreEqual(inst.Test, inst2.Test);
+                Assert.AreEqual(inst.Test2, inst2.Test2);
+                Assert.AreEqual(inst.Test, inst2.Test2);
+
+                using (var child = container.BeginScope())
+                {
+                    var inst3 = child.Resolve<ITest4>();
+                    var inst4 = child.Resolve<ITest4>();
+
+                    Assert.AreNotEqual(inst.Test, inst4.Test);
+                    Assert.AreNotEqual(inst.Test2, inst4.Test2);
+                    Assert.AreNotEqual(inst.Test, inst4.Test2);
+
+                    Assert.AreEqual(inst3.Test, inst4.Test);
+                    Assert.AreEqual(inst3.Test2, inst4.Test2);
+                    Assert.AreEqual(inst3.Test, inst4.Test2);
+                }
+            }
+        }
+
         public interface ITest1 { string Name { get; set; } }
 
         public interface ITest2 { string Name { get; set; } }
 
         public interface ITest3 { string Name { get; set; } }
+
+        public interface ITest4 { ITest1 Test { get; } ITest1 Test2 { get; } }
 
         public class Test1 : ITest1
         {
@@ -172,6 +206,19 @@ namespace Stashbox.Tests
                 Shield.EnsureNotNull(test2, nameof(test2));
                 Shield.EnsureTypeOf<Test1>(test1);
                 Shield.EnsureTypeOf<Test2>(test2);
+            }
+        }
+
+        public class Test4 : ITest4
+        {
+            public ITest1 Test { get; }
+
+            [Dependency]
+            public ITest1 Test2 { get; set; }
+
+            public Test4(ITest1 test)
+            {
+                this.Test = test;
             }
         }
     }

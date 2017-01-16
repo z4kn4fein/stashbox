@@ -41,11 +41,10 @@ namespace Stashbox
         }
 
         internal StashboxContainer(IStashboxContainer parentContainer, IContainerExtensionManager containerExtensionManager,
-            IResolverSelector resolverSelector, ExtendedImmutableTree<MetaInfoCache> metaInfoRepository,
-            ExtendedImmutableTree<Func<ResolutionInfo, object>> delegateRepository, bool trackTransientsForDisposal)
+            IResolverSelector resolverSelector, ExtendedImmutableTree<MetaInfoCache> metaInfoRepository, bool trackTransientsForDisposal)
         {
             this.metaInfoRepository = metaInfoRepository;
-            this.delegateRepository = delegateRepository;
+            this.delegateRepository = new ExtendedImmutableTree<Func<ResolutionInfo, object>>();
             this.disposed = new AtomicBool();
             this.ParentContainer = parentContainer;
             this.containerExtensionManager = containerExtensionManager;
@@ -136,7 +135,7 @@ namespace Stashbox
         private StashboxContainer CreateChildStashboxContainer()
         {
             return new StashboxContainer(this, this.containerExtensionManager.CreateCopy(), this.resolverSelector.CreateCopy(),
-                    this.metaInfoRepository, this.delegateRepository, this.ContainerContext.TrackTransientsForDisposal);
+                    this.metaInfoRepository, this.ContainerContext.TrackTransientsForDisposal);
         }
 
         private void RegisterResolvers()

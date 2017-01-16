@@ -15,7 +15,7 @@ namespace Stashbox.Tests
         {
             using (IStashboxContainer container = new StashboxContainer())
             {
-                container.PrepareType<ITest1, Test1>().WithLifetime(new SingletonLifetime()).Register();
+                container.RegisterSingleton<ITest1, Test1>();
                 container.RegisterType<ITest2, Test2>();
                 container.RegisterType<ITest3, Test3>();
 

@@ -102,13 +102,24 @@ namespace Stashbox.Tests
             using (var container = new StashboxContainer())
             {
                 container.RegisterType<Test3>();
-                container.RegisterType<ITest1, Test12>();
                 container.PrepareType<ITest>().WithFactory(c => c.Resolve<Test3>()).Register();
 
                 var inst = container.Resolve<ITest>();
-                var test1 = container.Resolve<ITest1>();
 
                 Assert.IsInstanceOfType(inst, typeof(Test3));
+            }
+        }
+
+        [TestMethod]
+        public void FactoryBuildUpTests_Resolve_ContainerFactory_Constructor()
+        {
+            using (var container = new StashboxContainer())
+            {
+                container.RegisterType<Test3>();
+                container.RegisterType<ITest1, Test12>();
+                container.PrepareType(typeof(ITest)).WithFactory(c => c.Resolve<Test3>()).Register();
+
+                var test1 = container.Resolve<ITest1>();
                 Assert.IsInstanceOfType(test1.Test, typeof(Test3));
             }
         }

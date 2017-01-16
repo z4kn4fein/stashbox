@@ -72,6 +72,7 @@
     <Compile Include="..\..\stashbox.tests\WireUpTests.cs" />
     <Compile Include="..\..\stashbox.tests\ConditionalTests.cs" />
     <Compile Include="..\..\stashbox.tests\ContainerTests.cs" />
+    <Compile Include="..\..\stashbox.tests\DisposeTests.cs" />
     <Compile Include="..\..\stashbox.tests\EnumerableTests.cs" />
     <Compile Include="..\..\stashbox.tests\FactoryBuildUpTests.cs" />
     <Compile Include="..\..\stashbox.tests\FuncTests.cs" />
