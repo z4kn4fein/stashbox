@@ -89,14 +89,7 @@ namespace Stashbox
             };
             this.resolverSelector.AddResolver(resolver);
         }
-
-        /// <inheritdoc />
-        public IStashboxContainer CreateChildContainer()
-        {
-            return new StashboxContainer(this, this.containerExtensionManager.CreateCopy(), this.resolverSelector.CreateCopy(),
-                     this.metaInfoRepository, this.delegateRepository, this.ContainerContext.TrackTransientsForDisposal);
-        }
-
+        
         /// <inheritdoc />
         public bool IsRegistered<TFrom>(string name = null)
         {

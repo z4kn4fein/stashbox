@@ -32,13 +32,7 @@ namespace Stashbox.Infrastructure
         /// <param name="factory">The factory which produces a new instance of the resolver.</param>
         void RegisterResolver(Type resolverType, Func<IContainerContext, TypeInformation, bool> resolverPredicate,
             Func<IContainerContext, TypeInformation, Resolver> factory);
-
-        /// <summary>
-        /// Creates a child container.
-        /// </summary>
-        /// <returns>The child container.</returns>
-        IStashboxContainer CreateChildContainer();
-
+        
         /// <summary>
         /// Begins a new scope.
         /// </summary>
