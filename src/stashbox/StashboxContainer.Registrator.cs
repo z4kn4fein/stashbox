@@ -145,6 +145,14 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
+        public IDependencyRegistrator RegisterSingleton<TTo>(string name = null)
+            where TTo : class
+        {
+            this.PrepareType<TTo>().WithName(name).WithLifetime(new SingletonLifetime()).Register();
+            return this;
+        }
+
+        /// <inheritdoc />
         public IDependencyRegistrator RegisterSingleton(Type typeFrom, Type typeTo, string name = null)
         {
             Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
@@ -170,6 +178,14 @@ namespace Stashbox
             Shield.EnsureNotNull(typeTo, nameof(typeTo));
 
             this.PrepareType(typeFrom, typeTo).WithName(name).WithScopeManagement().Register();
+            return this;
+        }
+
+        /// <inheritdoc />
+        public IDependencyRegistrator RegisterScoped<TTo>(string name = null)
+            where TTo : class
+        {
+            this.PrepareType<TTo>().WithName(name).WithScopeManagement().Register();
             return this;
         }
 

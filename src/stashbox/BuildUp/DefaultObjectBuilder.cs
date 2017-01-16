@@ -48,11 +48,11 @@ namespace Stashbox.BuildUp
         {
             if (this.metaInfoProvider.HasInjectionMethod || this.containerExtensionManager.HasPostBuildExtensions)
             {
-                if (this.constructorDelegate != null && !this.isConstructorDirty) return this.ResolveType(containerContext, resolutionInfo, resolveType);
+                if (this.constructorDelegate != null && !this.isConstructorDirty) return this.ResolveType(resolutionInfo, resolveType);
 
                 lock (this.syncObject)
                 {
-                    if (this.constructorDelegate != null && !this.isConstructorDirty) return this.ResolveType(containerContext, resolutionInfo, resolveType);
+                    if (this.constructorDelegate != null && !this.isConstructorDirty) return this.ResolveType(resolutionInfo, resolveType);
 
                     ResolutionConstructor constructor;
                     if (!this.metaInfoProvider.TryChooseConstructor(out constructor, resolutionInfo,
@@ -61,7 +61,7 @@ namespace Stashbox.BuildUp
                     this.constructorDelegate = ExpressionDelegateFactory.CreateConstructorExpression(this.containerContext, constructor, this.GetResolutionMembers());
                     this.resolutionConstructor = constructor;
                     this.isConstructorDirty = false;
-                    return this.ResolveType(containerContext, resolutionInfo, resolveType);
+                    return this.ResolveType(resolutionInfo, resolveType);
                 }
 
             }
@@ -84,13 +84,13 @@ namespace Stashbox.BuildUp
             return this.createDelegate(resolutionInfo);
         }
 
-        private object ResolveType(IContainerContext containerContext, ResolutionInfo resolutionInfo, TypeInformation resolveType)
+        private object ResolveType(ResolutionInfo resolutionInfo, TypeInformation resolveType)
         {
             var instance = this.constructorDelegate(resolutionInfo);
 
             if (!this.metaInfoProvider.HasInjectionMethod)
                 return this.containerExtensionManager.ExecutePostBuildExtensions(instance, this.instanceType,
-                    containerContext, resolutionInfo, resolveType, this.injectionParameters);
+                    this.containerContext, resolutionInfo, resolveType, this.injectionParameters);
 
 
             var methods = this.GetResolutionMethods();
@@ -101,7 +101,7 @@ namespace Stashbox.BuildUp
                 methods[i].MethodDelegate(resolutionInfo, instance);
             }
 
-            return this.containerExtensionManager.ExecutePostBuildExtensions(instance, this.instanceType, containerContext, resolutionInfo, resolveType, this.injectionParameters);
+            return this.containerExtensionManager.ExecutePostBuildExtensions(instance, this.instanceType, this.containerContext, resolutionInfo, resolveType, this.injectionParameters);
         }
 
         private ResolutionMember[] GetResolutionMembers()

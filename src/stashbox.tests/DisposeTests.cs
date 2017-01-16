@@ -90,6 +90,43 @@ namespace Stashbox.Tests
             Assert.IsTrue(test3.Test1.Disposed);
         }
 
+        [TestMethod]
+        public void DisposeTests_TrackTransientDisposal_Scoped()
+        {
+            ITest1 test;
+            ITest2 test2;
+            Test3 test3;
+            using (IStashboxContainer container = new StashboxContainer(true))
+            {
+                ITest1 test4;
+                ITest2 test5;
+                Test3 test6;
+
+                container.RegisterScoped<ITest2, Test2>();
+                container.RegisterScoped<Test3>();
+                container.RegisterScoped<ITest1, Test1>();
+
+                test = container.Resolve<ITest1>();
+                test2 = container.Resolve<ITest2>();
+                test3 = container.Resolve<Test3>();
+
+                using (var child = container.BeginScope())
+                {
+                    test4 = child.Resolve<ITest1>();
+                    test5 = child.Resolve<ITest2>();
+                    test6 = child.Resolve<Test3>();
+                }
+
+                Assert.IsTrue(test4.Disposed);
+                Assert.IsTrue(test5.Test1.Disposed);
+                Assert.IsTrue(test6.Test1.Disposed);
+            }
+
+            Assert.IsTrue(test.Disposed);
+            Assert.IsTrue(test2.Test1.Disposed);
+            Assert.IsTrue(test3.Test1.Disposed);
+        }
+
         public interface ITest1 : IDisposable { bool Disposed { get; } }
 
         public interface ITest2 { ITest1 Test1 { get; } }
