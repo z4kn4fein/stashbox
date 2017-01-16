@@ -41,7 +41,8 @@ namespace Stashbox
         }
 
         internal StashboxContainer(IStashboxContainer parentContainer, IContainerExtensionManager containerExtensionManager,
-            IResolverSelector resolverSelector, ExtendedImmutableTree<MetaInfoCache> metaInfoRepository, bool trackTransientsForDisposal)
+            IResolverSelector resolverSelector, ExtendedImmutableTree<MetaInfoCache> metaInfoRepository,
+            ExtendedImmutableTree<Func<ResolutionInfo, object>> delegateRepository, bool trackTransientsForDisposal)
         {
             this.metaInfoRepository = metaInfoRepository;
             this.delegateRepository = new ExtendedImmutableTree<Func<ResolutionInfo, object>>();
@@ -92,7 +93,8 @@ namespace Stashbox
         /// <inheritdoc />
         public IStashboxContainer CreateChildContainer()
         {
-            return this.CreateChildStashboxContainer();
+            return new StashboxContainer(this, this.containerExtensionManager.CreateCopy(), this.resolverSelector.CreateCopy(),
+                     this.metaInfoRepository, this.delegateRepository, this.ContainerContext.TrackTransientsForDisposal);
         }
 
         /// <inheritdoc />
@@ -116,9 +118,10 @@ namespace Stashbox
         /// <inheritdoc />
         public IStashboxContainer BeginScope()
         {
-            var child = this.CreateChildStashboxContainer();
-            child.OpenScope();
-            return child;
+            var container = new StashboxContainer(this, this.containerExtensionManager.CreateCopy(), this.resolverSelector.CreateCopy(),
+                    this.metaInfoRepository, new ExtendedImmutableTree<Func<ResolutionInfo, object>>(), this.ContainerContext.TrackTransientsForDisposal);
+            container.OpenScope();
+            return container;
         }
 
         internal void OpenScope()
@@ -130,12 +133,6 @@ namespace Stashbox
 
                 registration.InitFromScope(registrationData);
             }
-        }
-
-        private StashboxContainer CreateChildStashboxContainer()
-        {
-            return new StashboxContainer(this, this.containerExtensionManager.CreateCopy(), this.resolverSelector.CreateCopy(),
-                    this.metaInfoRepository, this.ContainerContext.TrackTransientsForDisposal);
         }
 
         private void RegisterResolvers()
