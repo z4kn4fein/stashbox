@@ -19,7 +19,6 @@ namespace Stashbox
         private readonly IResolverSelector resolverSelector;
         private readonly IRegistrationRepository registrationRepository;
         private readonly ExtendedImmutableTree<MetaInfoCache> metaInfoRepository;
-        private readonly ExtendedImmutableTree<Func<ResolutionInfo, object>> delegateRepository;
         private readonly AtomicBool disposed;
 
         /// <summary>
@@ -27,14 +26,13 @@ namespace Stashbox
         /// </summary>
         public StashboxContainer(bool trackTransientsForDisposal = false)
         {
-            this.delegateRepository = new ExtendedImmutableTree<Func<ResolutionInfo, object>>();
             this.metaInfoRepository = new ExtendedImmutableTree<MetaInfoCache>();
             this.disposed = new AtomicBool();
             this.containerExtensionManager = new BuildExtensionManager();
             this.resolverSelector = new ResolverSelector();
             this.registrationRepository = new RegistrationRepository();
             this.ContainerContext = new ContainerContext(this.registrationRepository, this,
-                new ResolutionStrategy(this.resolverSelector), this.metaInfoRepository, this.delegateRepository)
+                new ResolutionStrategy(this.resolverSelector), this.metaInfoRepository, new ExtendedImmutableTree<Func<ResolutionInfo, object>>())
             { TrackTransientsForDisposal = trackTransientsForDisposal };
 
             this.RegisterResolvers();
@@ -45,16 +43,16 @@ namespace Stashbox
             ExtendedImmutableTree<Func<ResolutionInfo, object>> delegateRepository, bool trackTransientsForDisposal)
         {
             this.metaInfoRepository = metaInfoRepository;
-            this.delegateRepository = delegateRepository;
             this.disposed = new AtomicBool();
             this.ParentContainer = parentContainer;
             this.containerExtensionManager = containerExtensionManager;
             this.resolverSelector = resolverSelector;
             this.registrationRepository = new RegistrationRepository();
             this.ContainerContext = new ContainerContext(this.registrationRepository, this,
-                new CheckParentResolutionStrategyDecorator(new ResolutionStrategy(this.resolverSelector)), this.metaInfoRepository, this.delegateRepository)
-            { TrackTransientsForDisposal = trackTransientsForDisposal };
-
+                    new CheckParentResolutionStrategyDecorator(new ResolutionStrategy(this.resolverSelector)),
+                    this.metaInfoRepository, delegateRepository)
+                { TrackTransientsForDisposal = trackTransientsForDisposal };
+                
             this.containerExtensionManager.ReinitalizeExtensions(this.ContainerContext);
         }
 
