@@ -9,6 +9,16 @@ namespace Stashbox.Infrastructure
     public interface IRegistrationContext
     {
         /// <summary>
+        /// The type that will be requested.		
+        /// </summary>		
+        Type TypeFrom { get; }
+
+        /// <summary>		
+        /// The type that will be returned.		
+        /// </summary>		
+        Type TypeTo { get; }
+
+        /// <summary>
         /// The <see cref="IContainerContext"/> of the <see cref="StashboxContainer"/>
         /// </summary>
         IContainerContext ContainerContext { get; }
