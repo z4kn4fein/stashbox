@@ -43,6 +43,9 @@ namespace Stashbox.BuildUp.Resolution
 
         public override Expression GetExpression(ResolutionInfo resolutionInfo, Expression resolutionInfoExpression)
         {
+            if (registrationCache == null)
+                return Expression.NewArrayInit(this.enumerableType.Type);
+
             var length = registrationCache.Length;
             var enumerableItems = new Expression[length];
             for (var i = 0; i < length; i++)

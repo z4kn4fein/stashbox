@@ -31,6 +31,12 @@ namespace Stashbox.Infrastructure
         Expression GetExpression(IContainerContext containerContext, IObjectBuilder objectBuilder, ResolutionInfo resolutionInfo, Expression resolutionInfoExpression, TypeInformation resolveType);
 
         /// <summary>
+        /// Creates a new instance of this type.
+        /// </summary>
+        /// <returns>The new life time manager instance.</returns>
+        ILifetime Create();
+
+        /// <summary>
         /// Cleans up the lifetime manager.
         /// </summary>
         void CleanUp();

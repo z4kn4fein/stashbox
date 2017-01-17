@@ -9,9 +9,9 @@ namespace Stashbox.Registration
     {
         private readonly IContainerExtensionManager containerExtensionManager;
 
-        public Type TypeFrom => base.RegistrationContextData.TypeFrom;
+        public new Type TypeFrom => base.TypeFrom;
 
-        public Type TypeTo => base.RegistrationContextData.TypeTo;
+        public new Type TypeTo => base.TypeTo;
 
         public RegistrationContext(Type typeFrom, Type typeTo, IContainerContext containerContext, IContainerExtensionManager containerExtensionManager)
             : base(typeFrom, typeTo, containerContext)

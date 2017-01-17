@@ -48,7 +48,7 @@ namespace Stashbox.MetaInfo
 
         private void AddConstructors(IEnumerable<ConstructorInfo> infos)
         {
-            this.Constructors = infos.Select(info => new ConstructorInformation
+            this.Constructors = infos.Where(info => !info.IsStatic).Select(info => new ConstructorInformation
             {
                 Constructor = info,
                 HasInjectionAttribute = info.GetCustomAttribute<InjectionConstructorAttribute>() != null,

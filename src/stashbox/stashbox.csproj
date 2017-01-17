@@ -81,11 +81,12 @@
     <Compile Include="Infrastructure\IResolutionStrategy.cs" />
     <Compile Include="Lifetime\LifetimeBase.cs" />
     <Compile Include="Lifetime\SingletonLifetime.cs" />
-    <Compile Include="Lifetime\TrackedTransientLifetime.cs" />
+    <Compile Include="Lifetime\ContainerTrackedTransientLifetime.cs" />
     <Compile Include="MetaInfo\MetaInfoCache.cs" />
     <Compile Include="ObjectExtender.cs" />
     <Compile Include="Registration\RegistrationContext.cs" />
     <Compile Include="Registration\RegistrationContextBase.cs" />
+    <Compile Include="Registration\ScopedRegistrationItem.cs" />
     <Compile Include="ResolutionStrategy.cs" />
     <Compile Include="Registration\RegistrationContextData.cs" />
     <Compile Include="Registration\ScopedRegistrationContext.cs" />

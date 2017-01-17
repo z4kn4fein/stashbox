@@ -51,8 +51,8 @@ namespace Stashbox
             this.ContainerContext = new ContainerContext(this.registrationRepository, this,
                     new CheckParentResolutionStrategyDecorator(new ResolutionStrategy(this.resolverSelector)),
                     this.metaInfoRepository, delegateRepository)
-                { TrackTransientsForDisposal = trackTransientsForDisposal };
-                
+            { TrackTransientsForDisposal = trackTransientsForDisposal };
+
             this.containerExtensionManager.ReinitalizeExtensions(this.ContainerContext);
         }
 
@@ -88,7 +88,7 @@ namespace Stashbox
             };
             this.resolverSelector.AddResolver(resolver);
         }
-        
+
         /// <inheritdoc />
         public bool IsRegistered<TFrom>(string name = null)
         {
@@ -98,7 +98,8 @@ namespace Stashbox
         /// <inheritdoc />
         public bool IsRegistered(Type typeFrom, string name = null)
         {
-            return this.registrationRepository.Contains(typeFrom, name);
+            var typeInfo = new TypeInformation { Type = typeFrom, DependencyName = name };
+            return this.resolverSelector.CanResolve(this.ContainerContext, typeInfo);
         }
 
         /// <inheritdoc />
@@ -118,12 +119,12 @@ namespace Stashbox
 
         internal void OpenScope()
         {
-            foreach (var registrationData in this.ParentContainer.ContainerContext.ScopedRegistrations.GetAll())
+            foreach (var registrationItem in this.ParentContainer.ContainerContext.ScopedRegistrations.GetAll())
             {
-                var registration = new ScopedRegistrationContext(registrationData.TypeFrom, registrationData.TypeTo,
+                var registration = new ScopedRegistrationContext(registrationItem.TypeFrom, registrationItem.TypeTo,
                     this.ContainerContext, this.containerExtensionManager);
 
-                registration.InitFromScope(registrationData);
+                registration.InitFromScope(registrationItem.RegistrationContextData.CreateCopy());
             }
         }
 
@@ -133,7 +134,7 @@ namespace Stashbox
             {
                 ResolverType = typeof(ContainerResolver),
                 ResolverFactory = (context, typeInfo) => new ContainerResolver(context, typeInfo),
-                Predicate = (context, typeInfo) => context.RegistrationRepository.ConstainsTypeKeyWithConditions(typeInfo)
+                Predicate = (context, typeInfo) => context.RegistrationRepository.ConstainsRegistrationWithConditions(typeInfo)
             };
 
             var lazyResolver = new ResolverRegistration
@@ -147,11 +148,7 @@ namespace Stashbox
             {
                 ResolverType = typeof(EnumerableResolver),
                 ResolverFactory = (context, typeInfo) => new EnumerableResolver(context, typeInfo),
-                Predicate = (context, typeInfo) => typeInfo.Type.GetEnumerableType() != null &&
-                             context.RegistrationRepository.ConstainsTypeKeyWithConditions(new TypeInformation
-                             {
-                                 Type = typeInfo.Type.GetEnumerableType()
-                             })
+                Predicate = (context, typeInfo) => typeInfo.Type.GetEnumerableType() != null
             };
 
             var funcResolver = new ResolverRegistration

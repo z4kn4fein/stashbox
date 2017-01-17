@@ -1,19 +1,26 @@
 ﻿using Stashbox.Entity;
 using Stashbox.Infrastructure;
+using Stashbox.Infrastructure.ContainerExtension;
+using Stashbox.Registration;
 using System.Linq.Expressions;
 
 namespace Stashbox.BuildUp
 {
     internal class GenericTypeObjectBuilder : IObjectBuilder
     {
+        private readonly RegistrationContextData registrationContextData;
+        private readonly IContainerExtensionManager containerExtensionManager;
         private readonly IMetaInfoProvider metaInfoProvider;
         private readonly IContainerContext containerContext;
         private readonly object syncObject = new object();
 
-        public GenericTypeObjectBuilder(IContainerContext containerContext, IMetaInfoProvider metaInfoProvider)
+        public GenericTypeObjectBuilder(RegistrationContextData registrationContextData, IContainerContext containerContext,
+            IMetaInfoProvider metaInfoProvider, IContainerExtensionManager containerExtensionManager)
         {
+            this.registrationContextData = registrationContextData;
             this.metaInfoProvider = metaInfoProvider;
             this.containerContext = containerContext;
+            this.containerExtensionManager = containerExtensionManager;
         }
 
         public object BuildInstance(ResolutionInfo resolutionInfo, TypeInformation resolveType)
@@ -29,8 +36,7 @@ namespace Stashbox.BuildUp
                     .TryGetRegistrationWithConditionsWithoutGenericDefinitionExtraction(resolveType, out registration))
                     return registration.GetInstance(resolutionInfo, resolveType);
 
-                var genericType = this.metaInfoProvider.TypeTo.MakeGenericType(resolveType.Type.GenericTypeArguments);
-                this.containerContext.Container.RegisterType(resolveType.Type, genericType);
+                this.RegisterConcreteGenericType(resolveType);
 
                 this.containerContext.RegistrationRepository
                     .TryGetRegistrationWithConditionsWithoutGenericDefinitionExtraction(resolveType, out registration);
@@ -52,14 +58,22 @@ namespace Stashbox.BuildUp
                     .TryGetRegistrationWithConditionsWithoutGenericDefinitionExtraction(resolveType, out registration))
                     return registration.GetExpression(resolutionInfo, resolutionInfoExpression, resolveType);
 
-                var genericType = this.metaInfoProvider.TypeTo.MakeGenericType(resolveType.Type.GenericTypeArguments);
-                this.containerContext.Container.RegisterType(resolveType.Type, genericType);
+                this.RegisterConcreteGenericType(resolveType);
 
                 this.containerContext.RegistrationRepository
                     .TryGetRegistrationWithConditionsWithoutGenericDefinitionExtraction(resolveType, out registration);
 
                 return registration.GetExpression(resolutionInfo, resolutionInfoExpression, resolveType);
             }
+        }
+
+        private void RegisterConcreteGenericType(TypeInformation resolveType)
+        {
+            var genericType = this.metaInfoProvider.TypeTo.MakeGenericType(resolveType.Type.GenericTypeArguments);
+            var registrationContext = new ScopedRegistrationContext(resolveType.Type, genericType, this.containerContext, this.containerExtensionManager);
+            var newData = this.registrationContextData.CreateCopy();
+            newData.Name = null;
+            registrationContext.InitFromScope(newData);
         }
 
         public void ServiceUpdated(RegistrationInfo registrationInfo)

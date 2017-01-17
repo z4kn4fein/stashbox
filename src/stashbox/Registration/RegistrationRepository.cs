@@ -1,10 +1,10 @@
 ﻿using Stashbox.Entity;
 using Stashbox.Infrastructure;
+using Stashbox.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Stashbox.Utils;
 
 namespace Stashbox.Registration
 {
@@ -170,37 +170,23 @@ namespace Stashbox.Registration
             registrations = serviceRegistrations?.Enumerate().Select(reg => reg.Value).ToArray();
             return registrations != null;
         }
-
-        /// <summary>
-        /// Checks a type exists in the repository.
-        /// </summary>
-        /// <param name="type">The requested type.</param>
-        /// <param name="name">The registration name.</param>
-        /// <returns>True if the registration found, otherwise false.</returns>
-        public bool Contains(Type type, string name = null)
-        {
-            IServiceRegistration reg;
-            var typeInfo = new TypeInformation { Type = type, DependencyName = name };
-            return string.IsNullOrWhiteSpace(name)
-                ? TryGetByTypeKey(typeInfo, out reg)
-                : TryGetByNamedKey(typeInfo, out reg);
-        }
-
+        
         /// <summary>
         /// Check a type exists with conditions.
         /// </summary>
         /// <param name="typeInfo">The type information.</param>
         /// <returns>True if the registration found, otherwise false.</returns>
-        public bool ConstainsTypeKeyWithConditions(TypeInformation typeInfo)
+        public bool ConstainsRegistrationWithConditions(TypeInformation typeInfo)
         {
             var registrations = this.serviceRepository.GetValueOrDefault(typeInfo.Type.GetHashCode());
             if (registrations != null)
                 return registrations.Value != null &&
                        registrations.Enumerate()
-                           .Any(registration => registration.Value.IsUsableForCurrentContext(typeInfo));
+                           .Any(registration => registration.Value.IsUsableForCurrentContext(typeInfo) && this.CheckDependencyName(registration.Key, typeInfo.DependencyName));
+
+            Type genericTypeDefinition;
+            if (this.TryHandleOpenGenericType(typeInfo.Type, out genericTypeDefinition))
             {
-                Type genericTypeDefinition;
-                if (!this.TryHandleOpenGenericType(typeInfo.Type, out genericTypeDefinition)) return false;
                 registrations = this.genericDefinitionRepository.GetValueOrDefault(genericTypeDefinition.GetHashCode());
                 return registrations != null && registrations.Enumerate().Any(registration => registration.Value.IsUsableForCurrentContext(new TypeInformation
                 {
@@ -208,20 +194,20 @@ namespace Stashbox.Registration
                     ParentType = typeInfo.ParentType,
                     DependencyName = typeInfo.DependencyName,
                     CustomAttributes = typeInfo.CustomAttributes
-                }));
+                }) && this.CheckDependencyName(registration.Key, typeInfo.DependencyName));
             }
+
+            if (typeInfo.Type.GetTypeInfo().IsGenericTypeDefinition)
+                return this.genericDefinitionRepository.GetValueOrDefault(typeInfo.Type.GetHashCode()) != null;
+
+            return false;
         }
 
-        /// <summary>
-        /// Checks a non generic definition type exists in the repository.
-        /// </summary>
-        /// <param name="typeInfo">The type information.</param>
-        /// <returns>True if the registration found, otherwise false.</returns>
-        public bool ConstainsTypeKeyWithConditionsWithoutGenericDefinitionExtraction(TypeInformation typeInfo)
+        private bool CheckDependencyName(int key, string dependencyName)
         {
-            var registrations = this.serviceRepository.GetValueOrDefault(typeInfo.Type.GetHashCode());
-            if (registrations == null) return false;
-            return registrations.Value != null && registrations.Enumerate().Any(registration => registration.Value.IsUsableForCurrentContext(typeInfo));
+            if (dependencyName == null) return true;
+
+            return key == dependencyName.GetHashCode();
         }
 
         /// <summary>
@@ -297,7 +283,7 @@ namespace Stashbox.Registration
             if (this.TryHandleOpenGenericType(type, out genericTypeDefinition))
                 registrations = this.genericDefinitionRepository.GetValueOrDefault(genericTypeDefinition.GetHashCode());
 
-            else if(type.GetTypeInfo().IsGenericTypeDefinition)
+            else if (type.GetTypeInfo().IsGenericTypeDefinition)
                 registrations = this.genericDefinitionRepository.GetValueOrDefault(type.GetHashCode());
 
             return registrations != null;

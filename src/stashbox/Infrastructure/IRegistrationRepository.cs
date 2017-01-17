@@ -79,28 +79,13 @@ namespace Stashbox.Infrastructure
         /// <param name="registrations">The retrieved registrations.</param>
         /// <returns>True if registrations were found, otherwise false.</returns>
         bool TryGetTypedRepositoryRegistrations(TypeInformation typeInfo, out IServiceRegistration[] registrations);
-
-        /// <summary>
-        /// Checks a type exists in the repository.
-        /// </summary>
-        /// <param name="type">The requested type.</param>
-        /// <param name="name">The registration name.</param>
-        /// <returns>True if the registration found, otherwise false.</returns>
-        bool Contains(Type type, string name);
-
+        
         /// <summary>
         /// Check a type exists with conditions.
         /// </summary>
         /// <param name="typeInfo">The type information.</param>
         /// <returns>True if the registration found, otherwise false.</returns>
-        bool ConstainsTypeKeyWithConditions(TypeInformation typeInfo);
-
-        /// <summary>
-        /// Checks a non generic definition type exists in the repository.
-        /// </summary>
-        /// <param name="typeInfo">The type information.</param>
-        /// <returns>True if the registration found, otherwise false.</returns>
-        bool ConstainsTypeKeyWithConditionsWithoutGenericDefinitionExtraction(TypeInformation typeInfo);
+        bool ConstainsRegistrationWithConditions(TypeInformation typeInfo);
 
         /// <summary>
         /// Cleans up the repository.

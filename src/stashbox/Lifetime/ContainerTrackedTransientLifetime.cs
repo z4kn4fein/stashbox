@@ -34,6 +34,12 @@ namespace Stashbox.Lifetime
             return Expression.Convert(call, resolveType.Type);
         }
 
+        /// <inheritdoc />
+        public override ILifetime Create()
+        {
+            return new ContainerTrackedTransientLifetime();
+        }
+
         private object AddTransientObjectTracking(IContainerContext containerContext, object instance)
         {
             containerContext.TrackedTransientObjects.Add(instance);

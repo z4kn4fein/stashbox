@@ -1,5 +1,6 @@
 ﻿using Stashbox.Entity;
 using Stashbox.Infrastructure;
+using System;
 using System.Linq.Expressions;
 
 namespace Stashbox.Lifetime
@@ -19,6 +20,12 @@ namespace Stashbox.Lifetime
         public virtual object GetInstance(IContainerContext containerContext, IObjectBuilder objectBuilder, ResolutionInfo resolutionInfo, TypeInformation resolveType)
         {
             return objectBuilder.BuildInstance(resolutionInfo, resolveType);
+        }
+
+        /// <inheritdoc />
+        public virtual ILifetime Create()
+        {
+            throw new NotImplementedException();
         }
 
         /// <inheritdoc />

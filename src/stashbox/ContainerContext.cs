@@ -31,7 +31,7 @@ namespace Stashbox
             this.MetaInfoRepository = metaInfoRepository;
             this.DelegateRepository = delegateRepository;
             this.Bag = new ConcurrentKeyValueStore<object, object>();
-            this.ScopedRegistrations = new ConcurrentKeyValueStore<string, RegistrationContextData>();
+            this.ScopedRegistrations = new ConcurrentKeyValueStore<string, ScopedRegistrationItem>();
             this.TrackedTransientObjects = new ConcurrentStore<object>();
         }
 
@@ -51,7 +51,7 @@ namespace Stashbox
         public ExtendedImmutableTree<Func<ResolutionInfo, object>> DelegateRepository { get; }
 
         /// <inheritdoc />
-        public ConcurrentKeyValueStore<string, RegistrationContextData> ScopedRegistrations { get; }
+        public ConcurrentKeyValueStore<string, ScopedRegistrationItem> ScopedRegistrations { get; }
 
         /// <inheritdoc />
         public ConcurrentKeyValueStore<object, object> Bag { get; }

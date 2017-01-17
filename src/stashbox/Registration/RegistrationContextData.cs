@@ -11,16 +11,6 @@ namespace Stashbox.Registration
     public class RegistrationContextData
     {
         /// <summary>
-        /// Represents the type of the service the implementation bound to.
-        /// </summary>
-        public Type TypeFrom { get; set; }
-
-        /// <summary>
-        /// The type of the actual service implementation.
-        /// </summary>
-        public Type TypeTo { get; set; }
-
-        /// <summary>
         /// Name of the registration.
         /// </summary>
         public string Name { get; set; }
@@ -86,6 +76,17 @@ namespace Stashbox.Registration
         public RegistrationContextData()
         {
             this.AttributeConditions = new HashSet<Type>();
+        }
+
+        /// <summary>
+        /// Creates a copy of this object.
+        /// </summary>
+        /// <returns>The copy of this instance.</returns>
+        public RegistrationContextData CreateCopy()
+        {
+            var data = (RegistrationContextData)this.MemberwiseClone();
+            data.Lifetime = data.Lifetime?.Create();
+            return data;
         }
     }
 }
