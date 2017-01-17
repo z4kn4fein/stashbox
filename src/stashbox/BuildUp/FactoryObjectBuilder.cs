@@ -4,6 +4,7 @@ using Stashbox.Infrastructure.ContainerExtension;
 using System;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace Stashbox.BuildUp
 {
@@ -17,12 +18,14 @@ namespace Stashbox.BuildUp
         private readonly IContainerExtensionManager containerExtensionManager;
         private readonly IObjectExtender objectExtender;
         private readonly IContainerContext containerContext;
+        private readonly MethodInfo buildMethodInfo;
 
         private FactoryObjectBuilder(IContainerContext containerContext, IContainerExtensionManager containerExtensionManager, IObjectExtender objectExtender)
         {
             this.containerExtensionManager = containerExtensionManager;
             this.objectExtender = objectExtender;
             this.containerContext = containerContext;
+            this.buildMethodInfo = this.GetType().GetTypeInfo().GetDeclaredMethod("BuildInstance");
         }
 
         public FactoryObjectBuilder(Func<IStashboxContainer, object> containerFactory, IContainerContext containerContext, IContainerExtensionManager containerExtensionManager, IObjectExtender objectExtender)
@@ -84,7 +87,7 @@ namespace Stashbox.BuildUp
 
         public Expression GetExpression(ResolutionInfo resolutionInfo, Expression resolutionInfoExpression, TypeInformation resolveType)
         {
-            var callExpression = Expression.Call(Expression.Constant(this), "BuildInstance", null, resolutionInfoExpression, Expression.Constant(resolveType));
+            var callExpression = Expression.Call(Expression.Constant(this), this.buildMethodInfo, resolutionInfoExpression, Expression.Constant(resolveType));
             return Expression.Convert(callExpression, resolveType.Type);
         }
 

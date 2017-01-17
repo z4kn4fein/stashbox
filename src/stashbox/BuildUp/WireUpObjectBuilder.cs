@@ -3,6 +3,7 @@ using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.ContainerExtension;
 using System;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace Stashbox.BuildUp
 {
@@ -14,7 +15,8 @@ namespace Stashbox.BuildUp
         private readonly IContainerExtensionManager containerExtensionManager;
         private readonly IObjectExtender objectExtender;
         private readonly IContainerContext containerContext;
-        private bool instanceBuilt = false;
+        private readonly MethodInfo buildMethodInfo;
+        private bool instanceBuilt;
 
         public WireUpObjectBuilder(object instance, IContainerContext containerContext, IContainerExtensionManager containerExtensionManager, IObjectExtender objectExtender)
         {
@@ -23,6 +25,7 @@ namespace Stashbox.BuildUp
             this.containerExtensionManager = containerExtensionManager;
             this.objectExtender = objectExtender;
             this.containerContext = containerContext;
+            this.buildMethodInfo = this.GetType().GetTypeInfo().GetDeclaredMethod("BuildInstance");
         }
 
         public object BuildInstance(ResolutionInfo resolutionInfo, TypeInformation resolveType)
@@ -42,7 +45,7 @@ namespace Stashbox.BuildUp
 
         public Expression GetExpression(ResolutionInfo resolutionInfo, Expression resolutionInfoExpression, TypeInformation resolveType)
         {
-            var callExpression = Expression.Call(Expression.Constant(this), "BuildInstance", null, resolutionInfoExpression, Expression.Constant(resolveType));
+            var callExpression = Expression.Call(Expression.Constant(this), this.buildMethodInfo, resolutionInfoExpression, Expression.Constant(resolveType));
             return Expression.Convert(callExpression, resolveType.Type);
         }
 

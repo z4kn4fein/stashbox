@@ -27,17 +27,17 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
-        public void ContainerTests_IsRegistered()
+        public void ContainerTests_CanResolve()
         {
             var container = new StashboxContainer();
             container.RegisterType<ITest1, Test1>();
             container.RegisterType<ITest2, Test2>();
 
-            Assert.IsTrue(container.IsRegistered<ITest1>());
-            Assert.IsTrue(container.IsRegistered(typeof(ITest2)));
-            Assert.IsFalse(container.IsRegistered<ITest3>());
-            Assert.IsFalse(container.IsRegistered<ITest1>("test"));
-            Assert.IsFalse(container.IsRegistered(typeof(ITest1), "test"));
+            Assert.IsTrue(container.CanResolve<ITest1>());
+            Assert.IsTrue(container.CanResolve(typeof(ITest2)));
+            Assert.IsFalse(container.CanResolve<ITest3>());
+            Assert.IsFalse(container.CanResolve<ITest1>("test"));
+            Assert.IsFalse(container.CanResolve(typeof(ITest1), "test"));
         }
 
         [TestMethod]

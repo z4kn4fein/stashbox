@@ -12,6 +12,12 @@ namespace Stashbox.BuildUp.DelegateFactory
 
     internal class ExpressionDelegateFactory
     {
+        private static readonly MethodInfo evaluateMethodInfo;
+        static ExpressionDelegateFactory()
+        {
+            evaluateMethodInfo = typeof(IResolutionStrategy).GetTypeInfo().GetDeclaredMethod("EvaluateResolutionTarget");
+        }
+
         public static CreateInstance CreateConstructorExpression(IContainerContext containerContext, ResolutionConstructor resolutionConstructor,
             ResolutionMember[] members = null)
         {
@@ -103,7 +109,7 @@ namespace Stashbox.BuildUp.DelegateFactory
             Expression resolutionInfoParameter)
         {
             var target = Expression.Constant(resolutionTarget, typeof(ResolutionTarget));
-            var evaluate = Expression.Call(strategyParameter, "EvaluateResolutionTarget", null, target, resolutionInfoParameter);
+            var evaluate = Expression.Call(strategyParameter, evaluateMethodInfo, target, resolutionInfoParameter);
             return Expression.Convert(evaluate, resolutionTarget.TypeInformation.Type);
         }
     }

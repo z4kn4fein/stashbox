@@ -49,19 +49,19 @@ namespace Stashbox.Infrastructure
         IContainerContext ContainerContext { get; }
 
         /// <summary>
-        /// Checks a service is registered into the container.
+        /// Checks a type can be resolved by the container.
         /// </summary>
         /// <typeparam name="TFrom">The service type.</typeparam>
         /// <param name="name">The registration name.</param>
-        /// <returns>True if the service is registered, otherwise false.</returns>
-        bool IsRegistered<TFrom>(string name = null);
+        /// <returns>True if the service can be resolved, otherwise false.</returns>
+        bool CanResolve<TFrom>(string name = null);
 
         /// <summary>
-        /// Checks a service is registered into the container.
+        /// Checks a type can be resolved by the container.
         /// </summary>
         /// <param name="typeFrom">The service type.</param>
         /// <param name="name">The registration name.</param>
-        /// <returns>True if the service is registered, otherwise false.</returns>
-        bool IsRegistered(Type typeFrom, string name = null);
+        /// <returns>True if the service can be resolved, otherwise false.</returns>
+        bool CanResolve(Type typeFrom, string name = null);
     }
 }

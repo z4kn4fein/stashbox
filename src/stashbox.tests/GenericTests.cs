@@ -20,13 +20,13 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
-        public void GenericTests_IsRegistered()
+        public void GenericTests_CanResolve()
         {
             using (var container = new StashboxContainer())
             {
                 container.RegisterType(typeof(ITest1<,>), typeof(Test1<,>));
-                Assert.IsTrue(container.IsRegistered(typeof(ITest1<,>)));
-                Assert.IsTrue(container.IsRegistered(typeof(ITest1<int, int>)));
+                Assert.IsTrue(container.CanResolve(typeof(ITest1<,>)));
+                Assert.IsTrue(container.CanResolve(typeof(ITest1<int, int>)));
             }
         }
 

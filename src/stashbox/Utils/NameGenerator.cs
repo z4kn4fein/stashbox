@@ -12,13 +12,10 @@ namespace Stashbox.Utils
 
         private static string GenerateName(Type type)
         {
-            if (type.IsConstructedGenericType)
-            {
-                var parts = string.Join("+", type.GenericTypeArguments.Select(arg => arg.FullName));
-                return type.FullName + parts;
-            }
+            if (!type.IsConstructedGenericType) return type.FullName;
 
-            return type.FullName;
+            var parts = string.Join("+", type.GenericTypeArguments.Select(arg => arg.FullName));
+            return type.FullName + parts;
         }
     }
 }

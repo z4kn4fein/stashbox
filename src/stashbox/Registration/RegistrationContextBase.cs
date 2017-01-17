@@ -58,15 +58,14 @@ namespace Stashbox.Registration
                     this.ContainerContext.RegistrationRepository.AddOrUpdateRegistration(this.TypeFrom, registration, registrationName);
             }
 
-            if (this.RegistrationContextData.ScopeManagementEnabled)
-            {
-                var registrationItem = new ScopedRegistrationItem(this.TypeFrom, this.TypeTo, this.RegistrationContextData);
-                if (!update)
-                    this.ContainerContext.ScopedRegistrations.Add(this.RegistrationContextData.Name, registrationItem, false);
-                else
-                    this.ContainerContext.ScopedRegistrations.AddOrUpdate(this.RegistrationContextData.Name,
-                        () => registrationItem, (o, n) => registrationItem);
-            }
+            if (!this.RegistrationContextData.ScopeManagementEnabled) return registrationInfo;
+
+            var registrationItem = new ScopedRegistrationItem(this.TypeFrom, this.TypeTo, this.RegistrationContextData);
+            if (!update)
+                this.ContainerContext.ScopedRegistrations.Add(this.RegistrationContextData.Name, registrationItem, false);
+            else
+                this.ContainerContext.ScopedRegistrations.AddOrUpdate(this.RegistrationContextData.Name,
+                    () => registrationItem, (o, n) => registrationItem);
 
             return registrationInfo;
         }

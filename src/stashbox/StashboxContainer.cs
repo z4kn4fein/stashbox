@@ -90,13 +90,13 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public bool IsRegistered<TFrom>(string name = null)
+        public bool CanResolve<TFrom>(string name = null)
         {
-            return this.IsRegistered(typeof(TFrom), name);
+            return this.CanResolve(typeof(TFrom), name);
         }
 
         /// <inheritdoc />
-        public bool IsRegistered(Type typeFrom, string name = null)
+        public bool CanResolve(Type typeFrom, string name = null)
         {
             var typeInfo = new TypeInformation { Type = typeFrom, DependencyName = name };
             return this.resolverSelector.CanResolve(this.ContainerContext, typeInfo);

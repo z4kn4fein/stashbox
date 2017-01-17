@@ -12,6 +12,7 @@ namespace Stashbox.BuildUp.Resolution
         private delegate object ResolverDelegate(ResolutionInfo resolutionInfo);
         private readonly ResolverDelegate resolverDelegate;
         private readonly TypeInformation funcArgumentInfo;
+        private readonly MethodInfo resolverMethodInfo;
 
         public FuncResolver(IContainerContext containerContext, TypeInformation typeInfo)
             : base(containerContext, typeInfo)
@@ -27,8 +28,8 @@ namespace Stashbox.BuildUp.Resolution
             containerContext.RegistrationRepository.TryGetRegistrationWithConditions(this.funcArgumentInfo, out this.registrationCache);
 
             var genericLazyResolverMethod = this.GetType().GetTypeInfo().GetDeclaredMethod("ResolveFunc");
-            var resolver = genericLazyResolverMethod.MakeGenericMethod(typeInfo.Type.GenericTypeArguments[0]);
-            resolverDelegate = (ResolverDelegate)resolver.CreateDelegate(typeof(ResolverDelegate), this);
+            this.resolverMethodInfo = genericLazyResolverMethod.MakeGenericMethod(typeInfo.Type.GenericTypeArguments[0]);
+            this.resolverDelegate = (ResolverDelegate)resolverMethodInfo.CreateDelegate(typeof(ResolverDelegate), this);
         }
 
         public override object Resolve(ResolutionInfo resolutionInfo)
@@ -38,7 +39,7 @@ namespace Stashbox.BuildUp.Resolution
 
         public override Expression GetExpression(ResolutionInfo resolutionInfo, Expression resolutionInfoExpression)
         {
-            return Expression.Call(Expression.Constant(this), "ResolveFunc", new[] { this.funcArgumentInfo.Type }, resolutionInfoExpression);
+            return Expression.Call(Expression.Constant(this), this.resolverMethodInfo, resolutionInfoExpression);
         }
 
         private Func<T> ResolveFunc<T>(ResolutionInfo resolutionInfo) where T : class
