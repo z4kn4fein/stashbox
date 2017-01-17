@@ -115,7 +115,7 @@ namespace Stashbox.MetaInfo
 
         private ConstructorInformation SelectBestConstructor(IEnumerable<ConstructorInformation> constructors)
         {
-            return constructors.OrderBy(constructor => constructor.Parameters.Length).First();
+            return constructors.OrderByDescending(constructor => constructor.Parameters.Length).First();
         }
     }
 }

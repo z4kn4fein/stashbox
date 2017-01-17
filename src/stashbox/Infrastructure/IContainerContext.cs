@@ -56,5 +56,11 @@ namespace Stashbox.Infrastructure
         /// Indicates that the container should track transient objects for disposal or not.
         /// </summary>
         bool TrackTransientsForDisposal { get; }
+
+        /// <summary>
+        /// Reserves a new registration number.
+        /// </summary>
+        /// <returns>The registration number.</returns>
+        int ReserveRegistrationNumber();
     }
 }

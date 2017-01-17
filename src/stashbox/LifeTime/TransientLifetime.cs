@@ -8,6 +8,9 @@ namespace Stashbox.Lifetime
     public class TransientLifetime : LifetimeBase
     {
         /// <inheritdoc />
+        public override bool IsTransient => true;
+
+        /// <inheritdoc />
         public override ILifetime Create()
         {
             return new TransientLifetime();

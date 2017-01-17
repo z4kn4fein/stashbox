@@ -1,5 +1,6 @@
 ﻿using Stashbox.Entity;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
@@ -12,6 +13,7 @@ namespace Stashbox.Overrides
     {
         private readonly NamedOverride[] nameOverrides;
         private readonly TypeOverride[] typeOverrides;
+        private readonly Override[] overrides;
 
         /// <summary>
         /// Constructs an <see cref="OverrideManager"/>
@@ -21,6 +23,7 @@ namespace Stashbox.Overrides
         {
             if (overrides == null || !overrides.Any()) return;
 
+            this.overrides = overrides;
             this.nameOverrides = overrides.OfType<NamedOverride>().ToArray();
             this.typeOverrides = overrides.OfType<TypeOverride>().ToArray();
         }
@@ -33,6 +36,15 @@ namespace Stashbox.Overrides
         public object GetOverriddenValue(TypeInformation parameter)
         {
             return GetTypedValue(parameter.Type) ?? GetNamedValue(parameter.DependencyName);
+        }
+
+        /// <summary>
+        /// Returns all the overrides.
+        /// </summary>
+        /// <returns>The collection of the overrides.</returns>
+        public IEnumerable<Override> GetOverrides()
+        {
+            return this.overrides;
         }
 
         /// <summary>

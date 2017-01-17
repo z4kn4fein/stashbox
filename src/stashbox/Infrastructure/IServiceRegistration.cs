@@ -9,6 +9,11 @@ namespace Stashbox.Infrastructure
     public interface IServiceRegistration
     {
         /// <summary>
+        /// The registration number.
+        /// </summary>
+        int RegistrationNumber { get; }
+
+        /// <summary>
         /// Gets the resolved instance.
         /// </summary>
         /// <param name="resolutionInfo">The info about the current resolution.</param>

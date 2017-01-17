@@ -1,6 +1,7 @@
 ﻿using Stashbox.Entity;
 using Stashbox.Infrastructure;
 using System;
+using System.Linq;
 using System.Linq.Expressions;
 
 namespace Stashbox.BuildUp.Resolution
@@ -26,6 +27,8 @@ namespace Stashbox.BuildUp.Resolution
 
             containerContext.RegistrationRepository.TryGetTypedRepositoryRegistrations(this.enumerableType,
                 out registrationCache);
+
+            registrationCache = registrationCache?.OrderBy(c => c.RegistrationNumber).ToArray();
         }
 
         public override object Resolve(ResolutionInfo resolutionInfo)

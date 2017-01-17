@@ -11,6 +11,9 @@ namespace Stashbox.Lifetime
     public class LifetimeBase : ILifetime
     {
         /// <inheritdoc />
+        public virtual bool IsTransient => false;
+
+        /// <inheritdoc />
         public virtual Expression GetExpression(IContainerContext containerContext, IObjectBuilder objectBuilder, ResolutionInfo resolutionInfo, Expression resolutionInfoExpression, TypeInformation resolveType)
         {
             return objectBuilder.GetExpression(resolutionInfo, resolutionInfoExpression, resolveType);

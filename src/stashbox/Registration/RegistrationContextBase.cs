@@ -28,7 +28,7 @@ namespace Stashbox.Registration
 
         protected RegistrationInfo PrepareRegistration(IContainerExtensionManager containerExtensionManager, bool update = false)
         {
-            var registrationName = this.RegistrationContextData.Name = NameGenerator.GetRegistrationName(this.TypeTo, this.RegistrationContextData.Name);
+            var registrationName = this.RegistrationContextData.Name = NameGenerator.GetRegistrationName(this.TypeFrom, this.TypeTo, this.RegistrationContextData.Name);
 
             var registrationLifetime = RegistrationContextData.ScopeManagementEnabled ?
                 new SingletonLifetime() :
@@ -58,11 +58,15 @@ namespace Stashbox.Registration
                     this.ContainerContext.RegistrationRepository.AddOrUpdateRegistration(this.TypeFrom, registration, registrationName);
             }
 
-            if (!this.RegistrationContextData.ScopeManagementEnabled) return registrationInfo;
+            if (!this.RegistrationContextData.ScopeManagementEnabled &&
+                (!this.ContainerContext.TrackTransientsForDisposal || !registrationLifetime.IsTransient))
+                return registrationInfo;
 
-            var registrationItem = new ScopedRegistrationItem(this.TypeFrom, this.TypeTo, this.RegistrationContextData);
+            var registrationItem = new ScopedRegistrationItem(this.TypeFrom, this.TypeTo,
+                this.RegistrationContextData);
             if (!update)
-                this.ContainerContext.ScopedRegistrations.Add(this.RegistrationContextData.Name, registrationItem, false);
+                this.ContainerContext.ScopedRegistrations.Add(this.RegistrationContextData.Name, registrationItem,
+                    false);
             else
                 this.ContainerContext.ScopedRegistrations.AddOrUpdate(this.RegistrationContextData.Name,
                     () => registrationItem, (o, n) => registrationItem);

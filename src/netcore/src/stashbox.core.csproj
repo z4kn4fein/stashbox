@@ -58,6 +58,7 @@
     <Compile Include="..\..\stashbox\BuildUp\Resolution\EnumerableResolver.cs" />
     <Compile Include="..\..\stashbox\BuildUp\Resolution\ContainerResolver.cs" />
     <Compile Include="..\..\stashbox\BuildUp\Resolution\LazyResolver.cs" />
+    <Compile Include="..\..\stashbox\BuildUp\Resolution\ParentContainerResolver.cs" />
     <Compile Include="..\..\stashbox\Entity\ConstructorInformation.cs" />
     <Compile Include="..\..\stashbox\Entity\InjectionParameter.cs" />
     <Compile Include="..\..\stashbox\Entity\MethodInformation.cs" />

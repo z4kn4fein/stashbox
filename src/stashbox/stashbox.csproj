@@ -46,6 +46,7 @@
     <Compile Include="Attributes\InjectionConstructorAttribute.cs" />
     <Compile Include="Attributes\InjectionMethodAttribute.cs" />
     <Compile Include="BuildUp\Resolution\FuncResolver.cs" />
+    <Compile Include="BuildUp\Resolution\ParentContainerResolver.cs" />
     <Compile Include="ContainerContext.cs" />
     <Compile Include="BuildExtensionManager.cs" />
     <Compile Include="BuildUp\WireUpObjectBuilder.cs" />

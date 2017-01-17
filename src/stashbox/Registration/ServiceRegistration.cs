@@ -28,8 +28,9 @@ namespace Stashbox.Registration
         /// <param name="attributeConditions">The attribute conditions.</param>
         /// <param name="targetTypeCondition">The target type condition.</param>
         /// <param name="resolutionCondition">The resolution condition.</param>
-        public ServiceRegistration(IContainerContext containerContext, ILifetime lifetimeManager, IObjectBuilder objectBuilder, HashSet<Type> attributeConditions = null,
-            Type targetTypeCondition = null, Func<TypeInformation, bool> resolutionCondition = null)
+        public ServiceRegistration(IContainerContext containerContext, ILifetime lifetimeManager, 
+            IObjectBuilder objectBuilder, HashSet<Type> attributeConditions = null, Type targetTypeCondition = null, 
+            Func<TypeInformation, bool> resolutionCondition = null)
         {
             this.containerContext = containerContext;
             this.lifetimeManager = lifetimeManager;
@@ -37,24 +38,19 @@ namespace Stashbox.Registration
             this.attributeConditions = attributeConditions;
             this.targetTypeCondition = targetTypeCondition;
             this.resolutionCondition = resolutionCondition;
+            this.RegistrationNumber = this.containerContext.ReserveRegistrationNumber();
         }
 
-        /// <summary>
-        /// Gets the resolved instance.
-        /// </summary>
-        /// <param name="resolutionInfo">The info about the current resolution.</param>
-        /// <param name="resolveType">The resolve type.</param>
-        /// <returns>The created object.</returns>
+        /// <inheritdoc />
+        public int RegistrationNumber { get; }
+
+        /// <inheritdoc />
         public object GetInstance(ResolutionInfo resolutionInfo, TypeInformation resolveType)
         {
             return this.lifetimeManager.GetInstance(this.containerContext, this.objectBuilder, resolutionInfo, resolveType);
         }
 
-        /// <summary>
-        /// Checks whether the registration can be used for a current resolution.
-        /// </summary>
-        /// <param name="typeInfo">The type information.</param>
-        /// <returns>True if the registration can be used for the current resolution, otherwise false.</returns>
+        /// <inheritdoc />
         public bool IsUsableForCurrentContext(TypeInformation typeInfo)
         {
             return (this.targetTypeCondition == null && this.resolutionCondition == null && (this.attributeConditions == null || !this.attributeConditions.Any())) ||
@@ -64,37 +60,24 @@ namespace Stashbox.Registration
                    (this.resolutionCondition != null && this.resolutionCondition(typeInfo));
         }
 
-        /// <summary>
-        /// True if the registration contains any condition, otherwise false.
-        /// </summary>
+        /// <inheritdoc />
         public bool HasCondition => this.targetTypeCondition != null || this.resolutionCondition != null ||
             (this.attributeConditions != null && this.attributeConditions.Any());
 
-        /// <summary>
-        /// Indicates a service updated event when a ReMap occures on a tracked service.
-        /// </summary>
-        /// <param name="registrationInfo">The new service registration.</param>
+        /// <inheritdoc />
         public void ServiceUpdated(RegistrationInfo registrationInfo)
         {
             this.objectBuilder.ServiceUpdated(registrationInfo);
         }
 
-        /// <summary>
-        /// Cleans up the registration.
-        /// </summary>
+        /// <inheritdoc />
         public void CleanUp()
         {
             this.objectBuilder.CleanUp();
             this.lifetimeManager.CleanUp();
         }
 
-        /// <summary>
-        /// Creates an expression for creating the resolved instance.
-        /// </summary>
-        /// <param name="resolutionInfo">The info about the current resolution.</param>
-        /// <param name="resolutionInfoExpression">The expression of the info about the current resolution.</param>
-        /// <param name="resolveType">The resolve type.</param>
-        /// <returns>The expression.</returns>
+        /// <inheritdoc />
         public Expression GetExpression(ResolutionInfo resolutionInfo, Expression resolutionInfoExpression, TypeInformation resolveType)
         {
             return this.lifetimeManager.GetExpression(this.containerContext, this.objectBuilder, resolutionInfo, resolutionInfoExpression, resolveType);

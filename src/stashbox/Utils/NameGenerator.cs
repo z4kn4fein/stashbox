@@ -5,17 +5,17 @@ namespace Stashbox.Utils
 {
     internal static class NameGenerator
     {
-        public static string GetRegistrationName(Type type, string name = null)
+        public static string GetRegistrationName(Type typeFrom, Type typeTo, string name = null)
         {
-            return string.IsNullOrWhiteSpace(name) ? GenerateName(type) : name;
+            return string.IsNullOrWhiteSpace(name) ? GenerateName(typeFrom, typeTo) : name;
         }
 
-        private static string GenerateName(Type type)
+        private static string GenerateName(Type typeFrom, Type typeTo)
         {
-            if (!type.IsConstructedGenericType) return type.FullName;
+            if (!typeTo.IsConstructedGenericType) return typeFrom.Name + typeTo.Name;
 
-            var parts = string.Join("+", type.GenericTypeArguments.Select(arg => arg.FullName));
-            return type.FullName + parts;
+            var parts = string.Join("+", typeTo.GenericTypeArguments.Select(arg => arg.FullName));
+            return typeFrom.Name + typeTo.Name + parts;
         }
     }
 }

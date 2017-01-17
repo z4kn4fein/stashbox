@@ -158,10 +158,18 @@ namespace Stashbox
                 Predicate = (context, typeInfo) => typeInfo.Type.IsConstructedGenericType && typeInfo.Type.GetGenericTypeDefinition() == typeof(Func<>)
             };
 
+            var parentContainerResolver = new ResolverRegistration
+            {
+                ResolverType = typeof(ParentContainerResolver),
+                ResolverFactory = (context, typeInfo) => new ParentContainerResolver(context, typeInfo),
+                Predicate = (context, typeInfo) => context.Container.ParentContainer != null && context.Container.ParentContainer.CanResolve(typeInfo.Type, typeInfo.DependencyName)
+            };
+
             this.resolverSelector.AddResolver(containerResolver);
             this.resolverSelector.AddResolver(lazyResolver);
             this.resolverSelector.AddResolver(enumerableResolver);
             this.resolverSelector.AddResolver(funcResolver);
+            this.resolverSelector.AddResolver(parentContainerResolver);
         }
 
         /// <summary>

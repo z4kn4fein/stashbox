@@ -21,6 +21,9 @@ namespace Stashbox.Lifetime
         }
 
         /// <inheritdoc />
+        public override bool IsTransient => true;
+
+        /// <inheritdoc />
         public override object GetInstance(IContainerContext containerContext, IObjectBuilder objectBuilder, ResolutionInfo resolutionInfo, TypeInformation resolveType)
         {
             return this.AddTransientObjectTracking(containerContext, base.GetInstance(containerContext, objectBuilder, resolutionInfo, resolveType));

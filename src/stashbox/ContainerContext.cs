@@ -5,6 +5,7 @@ using Stashbox.MetaInfo;
 using Stashbox.Registration;
 using Stashbox.Utils;
 using System;
+using System.Threading;
 
 namespace Stashbox
 {
@@ -13,6 +14,8 @@ namespace Stashbox
     /// </summary>
     public class ContainerContext : IContainerContext
     {
+        private int registrationNumber;
+
         /// <summary>
         /// Constructs a <see cref="ContainerContext"/>
         /// </summary>
@@ -61,5 +64,11 @@ namespace Stashbox
 
         /// <inheritdoc />
         public bool TrackTransientsForDisposal { get; internal set; }
+
+        /// <inheritdoc />
+        public int ReserveRegistrationNumber()
+        {
+            return Interlocked.Increment(ref this.registrationNumber);
+        }
     }
 }

@@ -102,9 +102,6 @@ namespace Stashbox
                 return resolver.Resolve(resolutionInfo);
             }
 
-            if (this.ParentContainer != null)
-                return this.ParentContainer.Resolve(typeFrom, name, enumFactoryParameters, enumOverrides);
-
             throw new ResolutionFailedException(typeFrom.FullName);
         }
     }

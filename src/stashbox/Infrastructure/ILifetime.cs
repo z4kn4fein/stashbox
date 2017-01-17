@@ -10,6 +10,11 @@ namespace Stashbox.Infrastructure
     public interface ILifetime
     {
         /// <summary>
+        /// Indicates that this life time manager holds or doesn't hold any reference to the resolved object.
+        /// </summary>
+        bool IsTransient { get; }
+
+        /// <summary>
         /// Gets the instance managed by the <see cref="ILifetime"/>
         /// </summary>
         /// <param name="containerContext">The container context.</param>
