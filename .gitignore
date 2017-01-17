@@ -197,3 +197,5 @@ FakesAssemblies/
 
 coverageresults
 coverage.xml
+
+project.lock.json
