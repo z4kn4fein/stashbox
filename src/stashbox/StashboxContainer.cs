@@ -24,7 +24,7 @@ namespace Stashbox
         /// <summary>
         /// Constructs a <see cref="StashboxContainer"/>
         /// </summary>
-        public StashboxContainer(bool trackTransientsForDisposal = false)
+        public StashboxContainer(bool trackTransientsForDisposal = false, bool allowReplacingExistingRegistration = false)
         {
             this.metaInfoRepository = new ExtendedImmutableTree<MetaInfoCache>();
             this.disposed = new AtomicBool();
@@ -33,7 +33,7 @@ namespace Stashbox
             this.registrationRepository = new RegistrationRepository();
             this.ContainerContext = new ContainerContext(this.registrationRepository, this,
                 new ResolutionStrategy(this.resolverSelector), this.metaInfoRepository, new ExtendedImmutableTree<Func<ResolutionInfo, object>>())
-            { TrackTransientsForDisposal = trackTransientsForDisposal };
+            { TrackTransientsForDisposal = trackTransientsForDisposal, AllowReplacingExistingRegistration = allowReplacingExistingRegistration };
 
             this.RegisterResolvers();
         }

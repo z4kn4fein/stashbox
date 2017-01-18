@@ -58,6 +58,11 @@ namespace Stashbox.Infrastructure
         bool TrackTransientsForDisposal { get; }
 
         /// <summary>
+        /// Indicates that the replacing of the existing registrations is allowed or not.
+        /// </summary>
+        bool AllowReplacingExistingRegistration { get; }
+
+        /// <summary>
         /// Reserves a new registration number.
         /// </summary>
         /// <returns>The registration number.</returns>

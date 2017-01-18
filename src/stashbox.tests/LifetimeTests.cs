@@ -76,6 +76,22 @@ namespace Stashbox.Tests
             }
         }
 
+        [TestMethod]
+        public void LifetimeTests_StateCheck()
+        {
+            var transient = new TransientLifetime();
+            Assert.IsTrue(transient.IsTransient);
+            Assert.IsInstanceOfType(transient.Create(), typeof(TransientLifetime));
+
+            var controlledTransient = new ContainerTrackedTransientLifetime();
+            Assert.IsTrue(controlledTransient.IsTransient);
+            Assert.IsInstanceOfType(controlledTransient.Create(), typeof(ContainerTrackedTransientLifetime));
+
+            var singleton = new SingletonLifetime();
+            Assert.IsFalse(singleton.IsTransient);
+            Assert.IsInstanceOfType(singleton.Create(), typeof(SingletonLifetime));
+        }
+
         public interface ITest1 { string Name { get; set; } }
 
         public interface ITest2 { string Name { get; set; } }
