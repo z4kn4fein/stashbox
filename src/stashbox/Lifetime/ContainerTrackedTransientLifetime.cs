@@ -1,4 +1,5 @@
-﻿using Stashbox.Entity;
+﻿using System;
+using Stashbox.Entity;
 using Stashbox.Infrastructure;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -45,7 +46,8 @@ namespace Stashbox.Lifetime
 
         private object AddTransientObjectTracking(IContainerContext containerContext, object instance)
         {
-            containerContext.TrackedTransientObjects.Add(instance);
+            if (instance is IDisposable)
+                containerContext.TrackedTransientObjects.Add(instance);
             return instance;
         }
     }

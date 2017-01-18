@@ -75,7 +75,7 @@ namespace Stashbox.Tests
             ITest1 test;
             ITest2 test2;
             Test3 test3;
-            using (IStashboxContainer container = new StashboxContainer(true))
+            using (IStashboxContainer container = new StashboxContainer(config => config.WithDisposableTransientTracking()))
             {
                 container.RegisterType<ITest2, Test2>();
                 container.RegisterType<Test3>();
@@ -96,7 +96,7 @@ namespace Stashbox.Tests
             ITest1 test;
             ITest2 test2;
             Test3 test3;
-            using (IStashboxContainer container = new StashboxContainer(true))
+            using (IStashboxContainer container = new StashboxContainer(config => config.WithDisposableTransientTracking()))
             {
                 ITest1 test4;
                 ITest2 test5;
@@ -133,7 +133,7 @@ namespace Stashbox.Tests
             ITest1 test;
             ITest2 test2;
             Test3 test3;
-            using (IStashboxContainer container = new StashboxContainer(true))
+            using (IStashboxContainer container = new StashboxContainer(config => config.WithDisposableTransientTracking().WithParentContainerResolution()))
             {
                 ITest1 test4;
                 ITest2 test5;

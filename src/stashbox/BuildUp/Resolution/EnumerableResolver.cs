@@ -28,7 +28,8 @@ namespace Stashbox.BuildUp.Resolution
             containerContext.RegistrationRepository.TryGetTypedRepositoryRegistrations(this.enumerableType,
                 out registrationCache);
 
-            registrationCache = registrationCache?.OrderBy(c => c.RegistrationNumber).ToArray();
+            if(registrationCache != null)
+            registrationCache = base.BuilderContext.ContainerConfiguration.EnumerableOrderRule(registrationCache).ToArray();
         }
 
         public override object Resolve(ResolutionInfo resolutionInfo)

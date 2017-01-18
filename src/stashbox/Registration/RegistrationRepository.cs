@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Stashbox.Configuration;
 
 namespace Stashbox.Registration
 {
@@ -13,6 +14,7 @@ namespace Stashbox.Registration
     /// </summary>
     public class RegistrationRepository : IRegistrationRepository
     {
+        private readonly ContainerConfiguration containerConfiguration;
         private ImmutableTree<ImmutableTree<IServiceRegistration>> serviceRepository;
         private ImmutableTree<ImmutableTree<IServiceRegistration>> genericDefinitionRepository;
         private readonly object syncObject = new object();
@@ -20,8 +22,9 @@ namespace Stashbox.Registration
         /// <summary>
         /// Constructs a <see cref="RegistrationRepository"/>
         /// </summary>
-        public RegistrationRepository()
+        public RegistrationRepository(ContainerConfiguration containerConfiguration)
         {
+            this.containerConfiguration = containerConfiguration;
             this.serviceRepository = ImmutableTree<ImmutableTree<IServiceRegistration>>.Empty;
             this.genericDefinitionRepository = ImmutableTree<ImmutableTree<IServiceRegistration>>.Empty;
         }
@@ -183,10 +186,7 @@ namespace Stashbox.Registration
                 return false;
             }
 
-            if (registrations.Height > 1)
-                registration = registrations.Enumerate().OrderBy(r => r.Value.RegistrationNumber).LastOrDefault().Value;
-            else
-                registration = registrations.Value;
+            registration = registrations.Height > 1 ? this.containerConfiguration.DependencySelectionRule(registrations.Enumerate().Select(reg => reg.Value)) : registrations.Value;
 
             return true;
         }
@@ -204,14 +204,9 @@ namespace Stashbox.Registration
 
             if (serviceRegistrations.Length > 1)
             {
-                if (serviceRegistrations.Any(reg => reg.HasCondition))
-                    registration = serviceRegistrations.Where(reg => reg.HasCondition && reg.IsUsableForCurrentContext(typeInfo))
-                                                       .OrderBy(reg => reg.RegistrationNumber)
-                                                       .LastOrDefault();
-                else
-                    registration = serviceRegistrations.Where(reg => reg.IsUsableForCurrentContext(typeInfo))
-                                                       .OrderBy(reg => reg.RegistrationNumber)
-                                                       .LastOrDefault();
+                registration = this.containerConfiguration.DependencySelectionRule(serviceRegistrations.Any(reg => reg.HasCondition) ? 
+                    serviceRegistrations.Where(reg => reg.HasCondition && reg.IsUsableForCurrentContext(typeInfo)) : 
+                    serviceRegistrations.Where(reg => reg.IsUsableForCurrentContext(typeInfo)));
             }
             else
                 registration = serviceRegistrations[0];
@@ -232,14 +227,9 @@ namespace Stashbox.Registration
 
             if (serviceRegistrations.Length > 1)
             {
-                if (serviceRegistrations.Any(reg => reg.HasCondition))
-                    registration = serviceRegistrations.Where(reg => reg.HasCondition && reg.IsUsableForCurrentContext(typeInfo))
-                                                       .OrderBy(reg => reg.RegistrationNumber)
-                                                       .LastOrDefault();
-                else
-                    registration = serviceRegistrations.Where(reg => reg.IsUsableForCurrentContext(typeInfo))
-                                                       .OrderBy(reg => reg.RegistrationNumber)
-                                                       .LastOrDefault();
+                registration = this.containerConfiguration.DependencySelectionRule(serviceRegistrations.Any(reg => reg.HasCondition) ?
+                    serviceRegistrations.Where(reg => reg.HasCondition && reg.IsUsableForCurrentContext(typeInfo)) :
+                    serviceRegistrations.Where(reg => reg.IsUsableForCurrentContext(typeInfo)));
             }
             else
                 registration = serviceRegistrations[0];

@@ -4,6 +4,7 @@ using Stashbox.MetaInfo;
 using Stashbox.Registration;
 using Stashbox.Utils;
 using System;
+using Stashbox.Configuration;
 
 namespace Stashbox.Infrastructure
 {
@@ -55,7 +56,7 @@ namespace Stashbox.Infrastructure
         /// <summary>
         /// Indicates that the container should track transient objects for disposal or not.
         /// </summary>
-        bool TrackTransientsForDisposal { get; }
+        ContainerConfiguration ContainerConfiguration { get; }
 
         /// <summary>
         /// Reserves a new registration number.

@@ -47,6 +47,8 @@
     <Compile Include="Attributes\InjectionMethodAttribute.cs" />
     <Compile Include="BuildUp\Resolution\FuncResolver.cs" />
     <Compile Include="BuildUp\Resolution\ParentContainerResolver.cs" />
+    <Compile Include="Configuration\ContainerConfiguration.cs" />
+    <Compile Include="Configuration\Rules.cs" />
     <Compile Include="ContainerContext.cs" />
     <Compile Include="BuildExtensionManager.cs" />
     <Compile Include="BuildUp\WireUpObjectBuilder.cs" />
@@ -128,6 +130,7 @@
   <ItemGroup>
     <None Include="..\..\sn.snk" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

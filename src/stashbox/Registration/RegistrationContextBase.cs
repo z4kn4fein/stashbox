@@ -59,7 +59,7 @@ namespace Stashbox.Registration
             }
 
             if (!this.RegistrationContextData.ScopeManagementEnabled &&
-                (!this.ContainerContext.TrackTransientsForDisposal || !registrationLifetime.IsTransient))
+                (!this.ContainerContext.ContainerConfiguration.TrackTransientsForDisposal || !registrationLifetime.IsTransient))
                 return registrationInfo;
 
             var registrationItem = new ScopedRegistrationItem(this.TypeFrom, this.TypeTo,
@@ -109,7 +109,7 @@ namespace Stashbox.Registration
 
         private ILifetime GetTransientLifeTime()
         {
-            if (this.ContainerContext.TrackTransientsForDisposal) return new ContainerTrackedTransientLifetime(); else return new TransientLifetime();
+            if (this.ContainerContext.ContainerConfiguration.TrackTransientsForDisposal) return new ContainerTrackedTransientLifetime(); else return new TransientLifetime();
         }
     }
 }
