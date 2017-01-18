@@ -172,6 +172,39 @@ namespace Stashbox.Tests
             }
         }
 
+        [TestMethod]
+        public void StandardResolveTests_Resolve_LastService()
+        {
+            using (IStashboxContainer container = new StashboxContainer())
+            {
+                container.RegisterType(typeof(ITest1), typeof(Test1));
+                container.RegisterType(typeof(ITest1), typeof(Test11));
+                container.RegisterType(typeof(ITest1), typeof(Test12));
+
+                var inst = container.Resolve<ITest1>();
+
+                Assert.IsInstanceOfType(inst, typeof(Test12));
+            }
+        }
+
+        [TestMethod]
+        public void StandardResolveTests_Resolve_LastService_Parallel()
+        {
+            Parallel.For(0, 50000, (i) =>
+            {
+                using (IStashboxContainer container = new StashboxContainer())
+                {
+                    container.RegisterType(typeof(ITest1), typeof(Test1));
+                    container.RegisterType(typeof(ITest1), typeof(Test11));
+                    container.RegisterType(typeof(ITest1), typeof(Test12));
+
+                    var inst = container.Resolve<ITest1>();
+
+                    Assert.IsInstanceOfType(inst, typeof(Test12));
+                }
+            });
+        }
+
         public interface ITest1 { string Name { get; set; } }
 
         public interface ITest2 { string Name { get; set; } }
@@ -181,6 +214,16 @@ namespace Stashbox.Tests
         public interface ITest4 { ITest1 Test { get; } ITest1 Test2 { get; } }
 
         public class Test1 : ITest1
+        {
+            public string Name { get; set; }
+        }
+
+        public class Test11 : ITest1
+        {
+            public string Name { get; set; }
+        }
+
+        public class Test12 : ITest1
         {
             public string Name { get; set; }
         }

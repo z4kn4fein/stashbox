@@ -37,21 +37,6 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
-        public void FactoryBuildUpTests_DependencyResolve_ServiceUpdated_WithReplaceExistingAllowed()
-        {
-            using (var container = new StashboxContainer(allowReplacingExistingRegistration: true))
-            {
-                container.PrepareType<ITest, Test>().WithFactory(() => new Test("test")).Register();
-                container.RegisterType<ITest2, Test2>();
-                container.PrepareType<ITest, Test>().WithFactory(() => new Test("test1")).Register();
-                var inst = container.Resolve<ITest2>();
-
-                Assert.IsInstanceOfType(inst.Test, typeof(Test));
-                Assert.AreEqual("test1", inst.Test.Name);
-            }
-        }
-
-        [TestMethod]
         public void FactoryBuildUpTests_Resolve()
         {
             using (var container = new StashboxContainer())

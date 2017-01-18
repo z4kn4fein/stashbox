@@ -66,9 +66,6 @@ namespace Stashbox
         public bool TrackTransientsForDisposal { get; internal set; }
 
         /// <inheritdoc />
-        public bool AllowReplacingExistingRegistration { get; internal set; }
-
-        /// <inheritdoc />
         public int ReserveRegistrationNumber()
         {
             return Interlocked.Increment(ref this.registrationNumber);

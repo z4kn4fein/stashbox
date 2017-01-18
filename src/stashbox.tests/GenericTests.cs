@@ -86,20 +86,6 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
-        public void GenericTests_Resolve_WithReplaceExistingAllowed()
-        {
-            using (var container = new StashboxContainer(allowReplacingExistingRegistration: true))
-            {
-                container.RegisterType(typeof(ITest1<,>), typeof(Test1<,>));
-                container.RegisterType(typeof(ITest1<,>), typeof(Test12<,>));
-                var inst = container.Resolve<ITest1<int, string>>();
-
-                Assert.IsNotNull(inst);
-                Assert.IsInstanceOfType(inst, typeof(Test12<int, string>));
-            }
-        }
-
-        [TestMethod]
         public void GenericTests_Resolve_Parallel()
         {
             using (var container = new StashboxContainer())

@@ -25,10 +25,6 @@ namespace Stashbox.Registration
 
             this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.ContainerContext, registrationInfo, base.RegistrationContextData.InjectionParameters);
 
-            if (base.ContainerContext.AllowReplacingExistingRegistration)
-                foreach (var serviceRegistration in this.ContainerContext.RegistrationRepository.GetAllRegistrations())
-                    serviceRegistration.ServiceUpdated(registrationInfo);
-
             return this.ContainerContext.Container;
         }
 

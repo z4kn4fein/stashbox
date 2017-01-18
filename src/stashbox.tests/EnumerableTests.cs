@@ -1,9 +1,9 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Stashbox.Infrastructure;
+using Stashbox.Utils;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Stashbox.Utils;
 
 namespace Stashbox.Tests
 {
@@ -92,6 +92,21 @@ namespace Stashbox.Tests
                 Assert.AreEqual(2, all2.Count());
                 Assert.AreEqual(2, all.Count());
             });
+        }
+
+        [TestMethod]
+        public void EnumerableTests_Parallel_Resolve_PreserveOrder()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            container.RegisterType<ITest1, Test1>();
+            container.RegisterType<ITest1, Test11>();
+            container.RegisterType<ITest1, Test12>();
+
+            var services = container.Resolve<IEnumerable<ITest1>>().ToArray();
+
+            Assert.IsInstanceOfType(services[0], typeof(Test1));
+            Assert.IsInstanceOfType(services[1], typeof(Test11));
+            Assert.IsInstanceOfType(services[2], typeof(Test12));
         }
 
         public interface ITest1 { }

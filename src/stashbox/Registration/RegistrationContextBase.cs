@@ -44,7 +44,7 @@ namespace Stashbox.Registration
                             () => new MetaInfoCache(this.TypeTo))), containerExtensionManager);
 
                 var registration = this.CreateServiceRegistration(new TransientLifetime(), objectBuilder);
-                if (update || this.ContainerContext.AllowReplacingExistingRegistration)
+                if (update)
                     this.ContainerContext.RegistrationRepository.AddOrUpdateGenericDefinition(this.TypeFrom, registration, registrationName);
                 else
                     this.ContainerContext.RegistrationRepository.AddGenericDefinition(this.TypeFrom, registration, registrationName);
@@ -52,7 +52,7 @@ namespace Stashbox.Registration
             else
             {
                 var registration = this.CreateServiceRegistration(registrationLifetime, this.CreateObjectBuilder(registrationName, containerExtensionManager));
-                if (update || this.ContainerContext.AllowReplacingExistingRegistration)
+                if (update)
                     this.ContainerContext.RegistrationRepository.AddOrUpdateRegistration(this.TypeFrom, registration, registrationName);
                 else
                     this.ContainerContext.RegistrationRepository.AddRegistration(this.TypeFrom, registration, registrationName);
@@ -65,7 +65,7 @@ namespace Stashbox.Registration
             var registrationItem = new ScopedRegistrationItem(this.TypeFrom, this.TypeTo,
                 this.RegistrationContextData);
 
-            if (update || this.ContainerContext.AllowReplacingExistingRegistration)
+            if (update)
                 this.ContainerContext.ScopedRegistrations.AddOrUpdate(this.RegistrationContextData.Name,
                     () => registrationItem, (o, n) => registrationItem);
             else

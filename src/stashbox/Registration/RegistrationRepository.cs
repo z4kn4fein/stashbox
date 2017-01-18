@@ -183,7 +183,11 @@ namespace Stashbox.Registration
                 return false;
             }
 
-            registration = registrations.Value;
+            if (registrations.Height > 1)
+                registration = registrations.Enumerate().OrderBy(r => r.Value.RegistrationNumber).LastOrDefault().Value;
+            else
+                registration = registrations.Value;
+
             return true;
         }
 
@@ -197,11 +201,20 @@ namespace Stashbox.Registration
             }
 
             var serviceRegistrations = registrations.Enumerate().Select(reg => reg.Value).ToArray();
-            if (serviceRegistrations.Any(reg => reg.HasCondition))
-                registration = serviceRegistrations.Where(reg => reg.HasCondition)
-                                                   .FirstOrDefault(reg => reg.IsUsableForCurrentContext(typeInfo));
+
+            if (serviceRegistrations.Length > 1)
+            {
+                if (serviceRegistrations.Any(reg => reg.HasCondition))
+                    registration = serviceRegistrations.Where(reg => reg.HasCondition && reg.IsUsableForCurrentContext(typeInfo))
+                                                       .OrderBy(reg => reg.RegistrationNumber)
+                                                       .LastOrDefault();
+                else
+                    registration = serviceRegistrations.Where(reg => reg.IsUsableForCurrentContext(typeInfo))
+                                                       .OrderBy(reg => reg.RegistrationNumber)
+                                                       .LastOrDefault();
+            }
             else
-                registration = serviceRegistrations.FirstOrDefault(reg => reg.IsUsableForCurrentContext(typeInfo));
+                registration = serviceRegistrations[0];
 
             return registration != null;
         }
@@ -216,11 +229,20 @@ namespace Stashbox.Registration
             }
 
             var serviceRegistrations = registrations.Enumerate().Select(reg => reg.Value).ToArray();
-            if (serviceRegistrations.Any(reg => reg.HasCondition))
-                registration = serviceRegistrations.Where(reg => reg.HasCondition)
-                                                   .FirstOrDefault(reg => reg.IsUsableForCurrentContext(typeInfo));
+
+            if (serviceRegistrations.Length > 1)
+            {
+                if (serviceRegistrations.Any(reg => reg.HasCondition))
+                    registration = serviceRegistrations.Where(reg => reg.HasCondition && reg.IsUsableForCurrentContext(typeInfo))
+                                                       .OrderBy(reg => reg.RegistrationNumber)
+                                                       .LastOrDefault();
+                else
+                    registration = serviceRegistrations.Where(reg => reg.IsUsableForCurrentContext(typeInfo))
+                                                       .OrderBy(reg => reg.RegistrationNumber)
+                                                       .LastOrDefault();
+            }
             else
-                registration = serviceRegistrations.FirstOrDefault(reg => reg.IsUsableForCurrentContext(typeInfo));
+                registration = serviceRegistrations[0];
 
             return registration != null;
         }
