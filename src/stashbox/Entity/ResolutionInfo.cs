@@ -1,4 +1,5 @@
 ﻿using Stashbox.Overrides;
+using System;
 using System.Collections.Generic;
 
 namespace Stashbox.Entity
@@ -17,5 +18,15 @@ namespace Stashbox.Entity
         /// The factory parameters.
         /// </summary>
         public IEnumerable<object> FactoryParams { get; set; }
+
+        /// <summary>
+        /// The circular dependency tracker object.
+        /// </summary>
+        public ISet<Type> CircularDependencyBarrier { get; }
+
+        internal ResolutionInfo()
+        {
+            this.CircularDependencyBarrier = new HashSet<Type>();
+        }
     }
 }

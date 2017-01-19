@@ -33,6 +33,49 @@ namespace Stashbox.Tests
             }
         }
 
+        [TestMethod]
+        public void InstanceBuilderTests_Resolve_Fluent()
+        {
+            using (var container = new StashboxContainer())
+            {
+                var dep = new Test();
+                container.PrepareType<ITest>().WithInstance(dep).Register();
+                var inst = container.Resolve<ITest>();
+
+                Assert.AreSame(inst, dep);
+            }
+        }
+
+        [TestMethod]
+        public void InstanceBuilderTests_Resolve_Fluent_ReMap()
+        {
+            using (var container = new StashboxContainer())
+            {
+                var dep = new Test();
+                var dep1 = new Test();
+                container.PrepareType<ITest>().WithInstance(dep).Register();
+                container.PrepareType<ITest>().WithInstance(dep1).ReMap();
+                var inst = container.Resolve<ITest>();
+
+                Assert.AreSame(inst, dep1);
+            }
+        }
+
+        [TestMethod]
+        public void InstanceBuilderTests_DependencyResolve_Fluent()
+        {
+            using (var container = new StashboxContainer())
+            {
+                var dep = new Test();
+                container.PrepareType<ITest>().WithInstance(dep).Register();
+                container.RegisterType<ITest1, Test1>();
+
+                var inst = container.Resolve<ITest1>();
+
+                Assert.AreSame(inst.Test, dep);
+            }
+        }
+
         public interface ITest { }
 
         public interface ITest1 { ITest Test { get; } }

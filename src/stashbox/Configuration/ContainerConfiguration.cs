@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using Stashbox.Entity;
+﻿using Stashbox.Entity;
 using Stashbox.Infrastructure;
+using System;
+using System.Collections.Generic;
 
 namespace Stashbox.Configuration
 {
@@ -10,10 +10,13 @@ namespace Stashbox.Configuration
     /// </summary>
     public class ContainerConfiguration
     {
-        internal static ContainerConfiguration DefaultContainerConfiguration = new ContainerConfiguration()
-            .WithConstructorSelectionRule(Rules.ConstructorSelection.PreferLessParameters)
-            .WithDependencySelectionRule(Rules.DependencySelection.PreferFirstRegistered)
-            .WithEnumerableOrderRule(Rules.EnumerableOrder.ByPass);
+        internal static ContainerConfiguration DefaultContainerConfiguration()
+        {
+            return new ContainerConfiguration()
+              .WithConstructorSelectionRule(Rules.ConstructorSelection.PreferLessParameters)
+              .WithDependencySelectionRule(Rules.DependencySelection.PreferFirstRegistered)
+              .WithEnumerableOrderRule(Rules.EnumerableOrder.ByPass);
+        }
 
         /// <summary>
         /// If it's set to true the container will track the transient objects for disposal.
@@ -88,6 +91,12 @@ namespace Stashbox.Configuration
         {
             this.EnumerableOrderRule = selectionRule;
             return this;
+        }
+
+        internal ContainerConfiguration()
+        {
+            this.TrackTransientsForDisposal = false;
+            this.ParentContainerResolutionAllowed = false;
         }
     }
 }

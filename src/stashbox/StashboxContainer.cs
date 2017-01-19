@@ -1,4 +1,5 @@
 ﻿using Stashbox.BuildUp.Resolution;
+using Stashbox.Configuration;
 using Stashbox.Entity;
 using Stashbox.Extensions;
 using Stashbox.Infrastructure;
@@ -7,7 +8,6 @@ using Stashbox.MetaInfo;
 using Stashbox.Registration;
 using Stashbox.Utils;
 using System;
-using Stashbox.Configuration;
 
 namespace Stashbox
 {
@@ -32,14 +32,14 @@ namespace Stashbox
             this.containerExtensionManager = new BuildExtensionManager();
             this.resolverSelector = new ResolverSelector();
 
-            var configuration = ContainerConfiguration.DefaultContainerConfiguration;
+            var configuration = ContainerConfiguration.DefaultContainerConfiguration();
             config?.Invoke(configuration);
+
+            this.registrationRepository = new RegistrationRepository(configuration);
 
             this.ContainerContext = new ContainerContext(this.registrationRepository, this,
                 new ResolutionStrategy(this.resolverSelector), this.metaInfoRepository,
                 new ExtendedImmutableTree<Func<ResolutionInfo, object>>(), configuration);
-            
-            this.registrationRepository = new RegistrationRepository(configuration);
 
             this.RegisterResolvers();
         }
@@ -174,7 +174,9 @@ namespace Stashbox
             this.resolverSelector.AddResolver(lazyResolver);
             this.resolverSelector.AddResolver(enumerableResolver);
             this.resolverSelector.AddResolver(funcResolver);
-            this.resolverSelector.AddResolver(parentContainerResolver);
+
+            if (this.ContainerContext.ContainerConfiguration.ParentContainerResolutionAllowed)
+                this.resolverSelector.AddResolver(parentContainerResolver);
         }
 
         /// <summary>

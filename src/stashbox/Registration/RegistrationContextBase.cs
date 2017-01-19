@@ -28,7 +28,7 @@ namespace Stashbox.Registration
 
         protected RegistrationInfo PrepareRegistration(IContainerExtensionManager containerExtensionManager, bool update = false)
         {
-            var registrationName = this.RegistrationContextData.Name = NameGenerator.GetRegistrationName(this.TypeFrom, this.TypeTo, this.RegistrationContextData.Name);
+            var registrationName = this.RegistrationContextData.Name = NameGenerator.GetRegistrationName(this.TypeTo, this.RegistrationContextData.Name);
 
             var registrationLifetime = RegistrationContextData.ScopeManagementEnabled ?
                 new SingletonLifetime() :
@@ -76,6 +76,9 @@ namespace Stashbox.Registration
 
         private IObjectBuilder CreateObjectBuilder(string name, IContainerExtensionManager containerExtensionManager)
         {
+            if (this.RegistrationContextData.ExistingInstance != null)
+                return new InstanceObjectBuilder(this.RegistrationContextData.ExistingInstance);
+
             var metainfoProvider = new MetaInfoProvider(this.ContainerContext, this.ContainerContext.MetaInfoRepository.
                 GetOrAdd(this.TypeTo, () => new MetaInfoCache(this.TypeTo)));
 

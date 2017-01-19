@@ -71,6 +71,11 @@ namespace Stashbox.Registration
         public bool ScopeManagementEnabled { get; set; }
 
         /// <summary>
+        /// Indicates that the scope management enabled or not on this registration.
+        /// </summary>
+        public object ExistingInstance { get; set; }
+
+        /// <summary>
         /// Constructs a <see cref="RegistrationContextData"/>
         /// </summary>
         public RegistrationContextData()

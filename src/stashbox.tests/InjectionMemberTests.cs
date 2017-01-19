@@ -69,7 +69,7 @@ namespace Stashbox.Tests
         public class Test1 : ITest1
         {
             [Dependency]
-            private ITest testField;
+            private ITest testField = null;
 
             public ITest TestFieldProperty => this.testField;
 

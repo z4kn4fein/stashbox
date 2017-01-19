@@ -36,7 +36,7 @@ namespace Stashbox.Tests
 
             Assert.IsTrue(test3.MethodInvoked);
 
-            Assert.IsInstanceOfType(test2.test1, typeof(Test12));
+            Assert.IsInstanceOfType(test2.test1, typeof(Test1));
             Assert.IsInstanceOfType(test3.test1, typeof(Test11));
             Assert.IsInstanceOfType(test3.test2, typeof(Test22));
         }
@@ -67,7 +67,7 @@ namespace Stashbox.Tests
 
                 Assert.IsTrue(test3.MethodInvoked);
 
-                Assert.IsInstanceOfType(test2.test1, typeof(Test12));
+                Assert.IsInstanceOfType(test2.test1, typeof(Test1));
                 Assert.IsInstanceOfType(test3.test1, typeof(Test11));
                 Assert.IsInstanceOfType(test3.test2, typeof(Test22));
             });
@@ -102,7 +102,7 @@ namespace Stashbox.Tests
                 Assert.IsTrue(test3.Value.MethodInvoked);
                 Assert.IsTrue(test4.Value.MethodInvoked);
 
-                Assert.IsInstanceOfType(test2.Value.test1, typeof(Test12));
+                Assert.IsInstanceOfType(test2.Value.test1, typeof(Test1));
                 Assert.IsInstanceOfType(test3.Value.test1, typeof(Test11));
                 Assert.IsInstanceOfType(test3.Value.test2, typeof(Test22));
 

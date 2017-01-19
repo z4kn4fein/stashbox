@@ -191,7 +191,7 @@ namespace Stashbox
 
         private void WireUpInternal(object instance, string keyName, Type typeFrom, Type typeTo)
         {
-            keyName = NameGenerator.GetRegistrationName(typeFrom, typeTo, keyName);
+            keyName = NameGenerator.GetRegistrationName(typeTo, keyName);
 
             var registrationInfo = new RegistrationInfo { TypeFrom = typeFrom, TypeTo = typeTo };
 
@@ -207,7 +207,7 @@ namespace Stashbox
 
         private void RegisterInstanceInternal(object instance, string keyName, Type type)
         {
-            keyName = NameGenerator.GetRegistrationName(type, instance.GetType(), keyName);
+            keyName = NameGenerator.GetRegistrationName(instance.GetType(), keyName);
 
             var registrationInfo = new RegistrationInfo { TypeFrom = type, TypeTo = type };
 

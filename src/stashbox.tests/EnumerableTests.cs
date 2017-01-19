@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Stashbox.Configuration;
 using Stashbox.Infrastructure;
 using Stashbox.Utils;
 using System.Collections.Generic;
@@ -60,7 +61,7 @@ namespace Stashbox.Tests
             container.RegisterType<ITest2, Test2>("enumerable");
             container.RegisterType<ITest2, Test22>("array");
 
-            Parallel.For(0, 50000, (i) =>
+            Parallel.For(0, 10000, (i) =>
             {
                 var enumerable = container.Resolve<ITest2>("enumerable");
                 var array = container.Resolve<ITest2>("array");
@@ -81,7 +82,7 @@ namespace Stashbox.Tests
             container.RegisterType<ITest2, Test2>("enumerable");
             container.RegisterType<ITest2, Test22>("array");
 
-            Parallel.For(0, 50000, (i) =>
+            Parallel.For(0, 10000, (i) =>
             {
                 var enumerable = container.Resolve<ITest2>("enumerable");
                 var array = container.Resolve<ITest2>("array");
@@ -97,7 +98,7 @@ namespace Stashbox.Tests
         [TestMethod]
         public void EnumerableTests_Parallel_Resolve_PreserveOrder()
         {
-            IStashboxContainer container = new StashboxContainer();
+            IStashboxContainer container = new StashboxContainer(config => config.WithEnumerableOrderRule(Rules.EnumerableOrder.PreserveOrder));
             container.RegisterType<ITest1, Test1>();
             container.RegisterType<ITest1, Test11>();
             container.RegisterType<ITest1, Test12>();

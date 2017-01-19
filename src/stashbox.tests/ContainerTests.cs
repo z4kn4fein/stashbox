@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Stashbox.Entity;
+using Stashbox.Exceptions;
 using Stashbox.Infrastructure;
 using System;
 using System.Linq.Expressions;
@@ -24,6 +25,34 @@ namespace Stashbox.Tests
             Assert.IsNotNull(test3);
             Assert.IsInstanceOfType(test3, typeof(Test3));
             Assert.AreEqual(container, child.ParentContainer);
+        }
+
+        [TestMethod]
+        public void ContainerTests_ChildContainer_ResolveFromParent()
+        {
+            var container = new StashboxContainer(config => config.WithParentContainerResolution());
+            container.RegisterType<ITest1, Test1>();
+
+            var child = container.BeginScope();
+
+            var test1 = child.Resolve<ITest1>();
+
+            Assert.IsNotNull(test1);
+            Assert.IsInstanceOfType(test1, typeof(Test1));
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ResolutionFailedException))]
+        public void ContainerTests_ChildContainer_WithoutResolveFromParent()
+        {
+            using (var container = new StashboxContainer())
+            {
+                container.RegisterType<ITest1, Test1>();
+
+                var child = container.BeginScope();
+
+                var test1 = child.Resolve<ITest1>();
+            }
         }
 
         [TestMethod]

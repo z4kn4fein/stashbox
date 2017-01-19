@@ -80,6 +80,13 @@ namespace Stashbox.Infrastructure
         IRegistrationContext WithFactory(Func<object, object, object, object> threeParametersFactory);
 
         /// <summary>
+        /// Sets an instance as the resolution target of the registration.
+        /// </summary>
+        /// <param name="instance">The instance.</param>
+        /// <returns>The <see cref="IRegistrationContext"/> which on this method was called.</returns>
+        IRegistrationContext WithInstance(object instance);
+
+        /// <summary>
         /// Sets a dependant target condition for the registration.
         /// </summary>
         /// <typeparam name="TTarget">The type of the dependant.</typeparam>

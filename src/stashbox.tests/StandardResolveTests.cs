@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Stashbox.Attributes;
+using Stashbox.Configuration;
 using Stashbox.Exceptions;
 using Stashbox.Infrastructure;
 using Stashbox.Utils;
@@ -175,7 +176,7 @@ namespace Stashbox.Tests
         [TestMethod]
         public void StandardResolveTests_Resolve_LastService()
         {
-            using (IStashboxContainer container = new StashboxContainer())
+            using (IStashboxContainer container = new StashboxContainer(config => config.WithDependencySelectionRule(Rules.DependencySelection.PreferLastRegistered)))
             {
                 container.RegisterType(typeof(ITest1), typeof(Test1));
                 container.RegisterType(typeof(ITest1), typeof(Test11));

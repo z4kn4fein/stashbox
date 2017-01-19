@@ -72,6 +72,7 @@
     <Compile Include="Entity\Resolution\ResolutionTarget.cs" />
     <Compile Include="Entity\ResolverRegistration.cs" />
     <Compile Include="Entity\TypeInformation.cs" />
+    <Compile Include="Exceptions\CircularDependencyException.cs" />
     <Compile Include="Exceptions\ExceptionBase.cs" />
     <Compile Include="Exceptions\ResolutionFailedException.cs" />
     <Compile Include="Extensions\ImmutableTreeExtensions.cs" />
@@ -120,6 +121,7 @@
     <Compile Include="Registration\ServiceRegistration.cs" />
     <Compile Include="ResolverSelector.cs" />
     <Compile Include="Utils\AtomicBool.cs" />
+    <Compile Include="BuildUp\CircularDependencyBarrier.cs" />
     <Compile Include="Utils\ConcurrentKeyValueStore.cs" />
     <Compile Include="Utils\ConcurrentStore.cs" />
     <Compile Include="Utils\DisposableReaderWriterLock.cs" />

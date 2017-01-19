@@ -123,5 +123,11 @@ namespace Stashbox.Registration
             base.RegistrationContextData.ScopeManagementEnabled = true;
             return this;
         }
+
+        public IRegistrationContext WithInstance(object instance)
+        {
+            base.RegistrationContextData.ExistingInstance = instance;
+            return this;
+        }
     }
 }
