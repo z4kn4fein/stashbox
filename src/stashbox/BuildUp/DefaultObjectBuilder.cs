@@ -46,7 +46,7 @@ namespace Stashbox.BuildUp
 
         public object BuildInstance(ResolutionInfo resolutionInfo, TypeInformation resolveType)
         {
-            using (new CircularDependencyBarrier(resolutionInfo.CircularDependencyBarrier, this.metaInfoProvider.TypeTo))
+            using (new CircularDependencyBarrier(this.containerContext.ContainerConfiguration, resolutionInfo.CircularDependencyBarrier, this.metaInfoProvider.TypeTo))
             {
                 if (this.metaInfoProvider.HasInjectionMethod || this.containerExtensionManager.HasPostBuildExtensions)
                 {
@@ -135,7 +135,7 @@ namespace Stashbox.BuildUp
 
         public Expression GetExpression(ResolutionInfo resolutionInfo, Expression resolutionInfoExpression, TypeInformation resolveType)
         {
-            using (new CircularDependencyBarrier(resolutionInfo.CircularDependencyBarrier, this.metaInfoProvider.TypeTo))
+            using (new CircularDependencyBarrier(this.containerContext.ContainerConfiguration, resolutionInfo.CircularDependencyBarrier, this.metaInfoProvider.TypeTo))
             {
                 if (this.resolutionConstructor != null && !this.isConstructorDirty) return this.GetExpressionInternal(this.resolutionConstructor, resolutionInfo, resolutionInfoExpression);
                 {

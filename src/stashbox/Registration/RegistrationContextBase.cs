@@ -30,9 +30,9 @@ namespace Stashbox.Registration
         {
             var registrationName = this.RegistrationContextData.Name = NameGenerator.GetRegistrationName(this.TypeTo, this.RegistrationContextData.Name);
 
-            var registrationLifetime = RegistrationContextData.ScopeManagementEnabled ?
-                new SingletonLifetime() :
-                this.RegistrationContextData.Lifetime ?? this.GetTransientLifeTime();
+            var registrationLifetime = this.RegistrationContextData.ExistingInstance != null ? new TransientLifetime() : 
+                                            RegistrationContextData.ScopeManagementEnabled ? new SingletonLifetime() :
+                                                this.RegistrationContextData.Lifetime ?? this.GetTransientLifeTime();
 
             var registrationInfo = new RegistrationInfo { TypeFrom = this.TypeFrom, TypeTo = this.TypeTo };
 
@@ -59,7 +59,7 @@ namespace Stashbox.Registration
             }
 
             if (!this.RegistrationContextData.ScopeManagementEnabled &&
-                (!this.ContainerContext.ContainerConfiguration.TrackTransientsForDisposal || !registrationLifetime.IsTransient))
+                (!this.ContainerContext.ContainerConfiguration.TrackTransientsForDisposalEnabled || !registrationLifetime.IsTransient))
                 return registrationInfo;
 
             var registrationItem = new ScopedRegistrationItem(this.TypeFrom, this.TypeTo,
@@ -112,7 +112,7 @@ namespace Stashbox.Registration
 
         private ILifetime GetTransientLifeTime()
         {
-            if (this.ContainerContext.ContainerConfiguration.TrackTransientsForDisposal) return new ContainerTrackedTransientLifetime(); else return new TransientLifetime();
+            if (this.ContainerContext.ContainerConfiguration.TrackTransientsForDisposalEnabled) return new ContainerTrackedTransientLifetime(); else return new TransientLifetime();
         }
     }
 }

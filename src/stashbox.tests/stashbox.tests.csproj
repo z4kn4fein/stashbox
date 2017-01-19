@@ -67,6 +67,7 @@
     <Compile Include="BuildUpTests.cs" />
     <Compile Include="CircularDependencyTests.cs" />
     <Compile Include="DisposeTests.cs" />
+    <Compile Include="ResolverTests.cs" />
     <Compile Include="WireUpTests.cs" />
     <Compile Include="ConditionalTests.cs" />
     <Compile Include="ContainerTests.cs" />

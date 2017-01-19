@@ -8,6 +8,7 @@ using Stashbox.MetaInfo;
 using Stashbox.Registration;
 using Stashbox.Utils;
 using System;
+using System.Reflection;
 
 namespace Stashbox
 {
@@ -170,12 +171,32 @@ namespace Stashbox
                 Predicate = (context, typeInfo) => context.Container.ParentContainer != null && context.Container.ParentContainer.CanResolve(typeInfo.Type, typeInfo.DependencyName)
             };
 
+            var defaultValueResolver = new ResolverRegistration
+            {
+                ResolverType = typeof(DefaultValueResolver),
+                ResolverFactory = (context, typeInfo) => new DefaultValueResolver(context, typeInfo),
+                Predicate = (context, typeInfo) => typeInfo.HasDefaultValue || typeInfo.Type.GetTypeInfo().IsValueType || typeInfo.Type == typeof(string)
+            };
+
+            var unknownTypeResolver = new ResolverRegistration
+            {
+                ResolverType = typeof(UnknownTypeResolver),
+                ResolverFactory = (context, typeInfo) => new UnknownTypeResolver(context, typeInfo),
+                Predicate = (context, typeInfo) => !typeInfo.Type.GetTypeInfo().IsAbstract && !typeInfo.Type.GetTypeInfo().IsInterface
+            };
+
             this.resolverSelector.AddResolver(containerResolver);
             this.resolverSelector.AddResolver(lazyResolver);
             this.resolverSelector.AddResolver(enumerableResolver);
             this.resolverSelector.AddResolver(funcResolver);
 
-            if (this.ContainerContext.ContainerConfiguration.ParentContainerResolutionAllowed)
+            if(this.ContainerContext.ContainerConfiguration.OptionalAndDefaultValueInjectionEnabled)
+                this.resolverSelector.AddResolver(defaultValueResolver);
+
+            if (this.ContainerContext.ContainerConfiguration.UnknownTypeResolutionEnabled)
+                this.resolverSelector.AddResolver(unknownTypeResolver);
+
+            if (this.ContainerContext.ContainerConfiguration.ParentContainerResolutionEnabled)
                 this.resolverSelector.AddResolver(parentContainerResolver);
         }
 

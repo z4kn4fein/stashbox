@@ -74,7 +74,9 @@ namespace Stashbox.MetaInfo
                                  parameterInfo.GetCustomAttribute<DependencyAttribute>().Name : null,
                 ParentType = this.TypeTo,
                 CustomAttributes = parameterInfo.GetCustomAttributes().ToArray(),
-                MemberName = parameterInfo.Name
+                MemberName = parameterInfo.Name,
+                HasDefaultValue = parameterInfo.HasDefaultValue,
+                DefaultValue = parameterInfo.DefaultValue
             });
         }
 

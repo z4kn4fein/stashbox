@@ -17,31 +17,22 @@ namespace Stashbox.Configuration
               .WithDependencySelectionRule(Rules.DependencySelection.PreferFirstRegistered)
               .WithEnumerableOrderRule(Rules.EnumerableOrder.ByPass);
         }
-
-        /// <summary>
-        /// If it's set to true the container will track the transient objects for disposal.
-        /// </summary>
-        public bool TrackTransientsForDisposal { get; private set; }
-
-        /// <summary>
-        /// If it's set to true the container will use the parent container for resolving a service which is not present in it's scope.
-        /// </summary>
-        public bool ParentContainerResolutionAllowed { get; private set; }
-
-        /// <summary>
-        /// The constructor selection rule.
-        /// </summary>
-        public Func<IEnumerable<ConstructorInformation>, ConstructorInformation> ConstructorSelectionRule { get; private set; }
-
-        /// <summary>
-        /// The dependency selection rule.
-        /// </summary>
-        public Func<IEnumerable<IServiceRegistration>, IServiceRegistration> DependencySelectionRule { get; private set; }
-
-        /// <summary>
-        /// The enumerable ordering rule.
-        /// </summary>
-        public Func<IEnumerable<IServiceRegistration>, IEnumerable<IServiceRegistration>> EnumerableOrderRule { get; private set; }
+        
+        internal bool TrackTransientsForDisposalEnabled { get; private set; }
+        
+        internal bool ParentContainerResolutionEnabled { get; private set; }
+        
+        internal bool CircularDependencyTrackingEnabled { get; private set; }
+        
+        internal bool OptionalAndDefaultValueInjectionEnabled { get; private set; }
+        
+        internal bool UnknownTypeResolutionEnabled { get; private set; }
+        
+        internal Func<IEnumerable<ConstructorInformation>, ConstructorInformation> ConstructorSelectionRule { get; private set; }
+        
+        internal Func<IEnumerable<IServiceRegistration>, IServiceRegistration> DependencySelectionRule { get; private set; }
+        
+        internal Func<IEnumerable<IServiceRegistration>, IEnumerable<IServiceRegistration>> EnumerableOrderRule { get; private set; }
 
         /// <summary>
         /// Enables the tracking of disposable transient objects.
@@ -49,7 +40,7 @@ namespace Stashbox.Configuration
         /// <returns>The container configuration.</returns>
         public ContainerConfiguration WithDisposableTransientTracking()
         {
-            this.TrackTransientsForDisposal = true;
+            this.TrackTransientsForDisposalEnabled = true;
             return this;
         }
 
@@ -59,7 +50,37 @@ namespace Stashbox.Configuration
         /// <returns>The container configuration.</returns>
         public ContainerConfiguration WithParentContainerResolution()
         {
-            this.ParentContainerResolutionAllowed = true;
+            this.ParentContainerResolutionEnabled = true;
+            return this;
+        }
+
+        /// <summary>
+        /// Enables the circular dependency tracking.
+        /// </summary>
+        /// <returns>The container configuration.</returns>
+        public ContainerConfiguration WithCircularDependencyTracking()
+        {
+            this.CircularDependencyTrackingEnabled = true;
+            return this;
+        }
+
+        /// <summary>
+        /// Enables the optional and default value injection.
+        /// </summary>
+        /// <returns>The container configuration.</returns>
+        public ContainerConfiguration WithOptionalAndDefaultValueInjection()
+        {
+            this.OptionalAndDefaultValueInjectionEnabled = true;
+            return this;
+        }
+
+        /// <summary>
+        /// Enables the unknown type resolution.
+        /// </summary>
+        /// <returns>The container configuration.</returns>
+        public ContainerConfiguration WithUnknownTypeResolution()
+        {
+            this.UnknownTypeResolutionEnabled = true;
             return this;
         }
 
@@ -95,8 +116,11 @@ namespace Stashbox.Configuration
 
         internal ContainerConfiguration()
         {
-            this.TrackTransientsForDisposal = false;
-            this.ParentContainerResolutionAllowed = false;
+            this.TrackTransientsForDisposalEnabled = false;
+            this.ParentContainerResolutionEnabled = false;
+            this.CircularDependencyTrackingEnabled = false;
+            this.OptionalAndDefaultValueInjectionEnabled = false;
+            this.UnknownTypeResolutionEnabled = false;
         }
     }
 }

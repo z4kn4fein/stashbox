@@ -11,7 +11,7 @@ namespace Stashbox.Tests
         [ExpectedException(typeof(CircularDependencyException))]
         public void CircularDependencyTests_StandardResolve()
         {
-            using (var container = new StashboxContainer())
+            using (var container = new StashboxContainer(config => config.WithCircularDependencyTracking()))
             {
                 container.RegisterType<ITest1, Test1>();
                 container.Resolve<ITest1>();
@@ -22,7 +22,7 @@ namespace Stashbox.Tests
         [ExpectedException(typeof(CircularDependencyException))]
         public void CircularDependencyTests_DependencyProperty()
         {
-            using (var container = new StashboxContainer())
+            using (var container = new StashboxContainer(config => config.WithCircularDependencyTracking()))
             {
                 container.RegisterType<ITest1, Test2>();
                 container.Resolve<ITest1>();
@@ -33,7 +33,7 @@ namespace Stashbox.Tests
         [ExpectedException(typeof(CircularDependencyException))]
         public void CircularDependencyTests_InjectionMethod()
         {
-            using (var container = new StashboxContainer())
+            using (var container = new StashboxContainer(config => config.WithCircularDependencyTracking()))
             {
                 container.RegisterType<ITest1, Test3>();
                 container.Resolve<ITest1>();
@@ -44,7 +44,7 @@ namespace Stashbox.Tests
         [ExpectedException(typeof(CircularDependencyException))]
         public void CircularDependencyTests_Generic_StandardResolve()
         {
-            using (var container = new StashboxContainer())
+            using (var container = new StashboxContainer(config => config.WithCircularDependencyTracking()))
             {
                 container.RegisterType(typeof(ITest1<,>), typeof(Test1<,>));
                 container.Resolve<ITest1<int, int>>();
@@ -55,7 +55,7 @@ namespace Stashbox.Tests
         [ExpectedException(typeof(CircularDependencyException))]
         public void CircularDependencyTests_Generic_DependencyProperty()
         {
-            using (var container = new StashboxContainer())
+            using (var container = new StashboxContainer(config => config.WithCircularDependencyTracking()))
             {
                 container.RegisterType(typeof(ITest1<,>), typeof(Test2<,>));
                 container.Resolve<ITest1<int, int>>();
@@ -66,7 +66,7 @@ namespace Stashbox.Tests
         [ExpectedException(typeof(CircularDependencyException))]
         public void CircularDependencyTests_Generic_InjectionMethod()
         {
-            using (var container = new StashboxContainer())
+            using (var container = new StashboxContainer(config => config.WithCircularDependencyTracking()))
             {
                 container.RegisterType(typeof(ITest1<,>), typeof(Test3<,>));
                 container.Resolve<ITest1<int, int>>();

@@ -31,5 +31,15 @@ namespace Stashbox.Entity
         /// The member name of the dependency.
         /// </summary>
         public string MemberName { get; set; }
+
+        /// <summary>
+        /// It's true if the dependency has default value.
+        /// </summary>
+        public bool HasDefaultValue { get; set; }
+
+        /// <summary>
+        /// The default value of the dependency.
+        /// </summary>
+        public object DefaultValue { get; set; }
     }
 }

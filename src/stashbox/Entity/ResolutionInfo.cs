@@ -18,11 +18,8 @@ namespace Stashbox.Entity
         /// The factory parameters.
         /// </summary>
         public IEnumerable<object> FactoryParams { get; set; }
-
-        /// <summary>
-        /// The circular dependency tracker object.
-        /// </summary>
-        public ISet<Type> CircularDependencyBarrier { get; }
+        
+        internal ISet<Type> CircularDependencyBarrier { get; }
 
         internal ResolutionInfo()
         {
