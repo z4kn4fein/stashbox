@@ -202,10 +202,10 @@ namespace Stashbox.Registration
 
             if (registrations.Height > 1)
             {
-                var serviceRegistrations = registrations.Enumerate().Select(reg => reg.Value).ToArray();
-                registration = this.containerConfiguration.DependencySelectionRule(serviceRegistrations.Any(reg => reg.HasCondition) ? 
-                    serviceRegistrations.Where(reg => reg.HasCondition && reg.IsUsableForCurrentContext(typeInfo)) : 
-                    serviceRegistrations.Where(reg => reg.IsUsableForCurrentContext(typeInfo)));
+                var serviceRegistrations = registrations.Enumerate().ToArray();
+                registration = this.containerConfiguration.DependencySelectionRule(serviceRegistrations.Any(reg => reg.Value.HasCondition) ?
+                    serviceRegistrations.Where(reg => reg.Value.HasCondition && reg.Value.IsUsableForCurrentContext(typeInfo)).Select(r => r.Value) :
+                    serviceRegistrations.Where(reg => reg.Value.IsUsableForCurrentContext(typeInfo)).Select(r => r.Value));
             }
             else
                 registration = registrations.Value;
@@ -224,10 +224,10 @@ namespace Stashbox.Registration
 
             if (registrations.Height > 1)
             {
-                var serviceRegistrations = registrations.Enumerate().Select(reg => reg.Value).ToArray();
-                registration = this.containerConfiguration.DependencySelectionRule(serviceRegistrations.Any(reg => reg.HasCondition) ?
-                    serviceRegistrations.Where(reg => reg.HasCondition && reg.IsUsableForCurrentContext(typeInfo)) :
-                    serviceRegistrations.Where(reg => reg.IsUsableForCurrentContext(typeInfo)));
+                var serviceRegistrations = registrations.Enumerate().ToArray();
+                registration = this.containerConfiguration.DependencySelectionRule(serviceRegistrations.Any(reg => reg.Value.HasCondition) ?
+                    serviceRegistrations.Where(reg => reg.Value.HasCondition && reg.Value.IsUsableForCurrentContext(typeInfo)).Select(r => r.Value) :
+                    serviceRegistrations.Where(reg => reg.Value.IsUsableForCurrentContext(typeInfo)).Select(r => r.Value));
             }
             else
                 registration = registrations.Value;

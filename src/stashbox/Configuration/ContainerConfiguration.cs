@@ -13,8 +13,8 @@ namespace Stashbox.Configuration
         internal static ContainerConfiguration DefaultContainerConfiguration()
         {
             return new ContainerConfiguration()
-              .WithConstructorSelectionRule(Rules.ConstructorSelection.PreferLessParameters)
-              .WithDependencySelectionRule(Rules.DependencySelection.PreferFirstRegistered)
+              .WithConstructorSelectionRule(Rules.ConstructorSelection.ByPass)
+              .WithDependencySelectionRule(Rules.DependencySelection.ByPass)
               .WithEnumerableOrderRule(Rules.EnumerableOrder.ByPass);
         }
         
