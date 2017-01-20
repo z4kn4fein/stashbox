@@ -60,7 +60,7 @@ namespace Stashbox.BuildUp
                         if (!this.metaInfoProvider.TryChooseConstructor(out constructor, resolutionInfo,
                                 this.injectionParameters))
                             throw new ResolutionFailedException(this.metaInfoProvider.TypeTo.FullName);
-                        this.constructorDelegate = ExpressionDelegateFactory.CreateConstructorExpression(this.containerContext, constructor, this.GetResolutionMembers());
+                        this.constructorDelegate = ExpressionDelegateFactory.CreateConstructorExpression(this.containerContext, constructor, this.GetResolutionMembers(resolutionInfo));
                         this.resolutionConstructor = constructor;
                         this.isConstructorDirty = false;
                         return this.ResolveType(resolutionInfo, resolveType);
@@ -91,23 +91,22 @@ namespace Stashbox.BuildUp
         {
             var instance = this.constructorDelegate(resolutionInfo);
 
-            if (!this.metaInfoProvider.HasInjectionMethod)
-                return this.containerExtensionManager.ExecutePostBuildExtensions(instance, this.instanceType,
-                    this.containerContext, resolutionInfo, resolveType, this.injectionParameters);
-
-
-            var methods = this.GetResolutionMethods();
-
-            var count = methods.Length;
-            for (var i = 0; i < count; i++)
+            if (this.metaInfoProvider.HasInjectionMethod)
             {
-                methods[i].MethodDelegate(resolutionInfo, instance);
+                var methods = this.GetResolutionMethods(resolutionInfo);
+
+                var count = methods.Length;
+                for (var i = 0; i < count; i++)
+                {
+                    methods[i].MethodDelegate(resolutionInfo, instance);
+                }
+
             }
 
             return this.containerExtensionManager.ExecutePostBuildExtensions(instance, this.instanceType, this.containerContext, resolutionInfo, resolveType, this.injectionParameters);
         }
 
-        private ResolutionMember[] GetResolutionMembers()
+        private ResolutionMember[] GetResolutionMembers(ResolutionInfo resolutionInfo)
         {
             if (!this.metaInfoProvider.HasInjectionMembers) return null;
 
@@ -116,11 +115,11 @@ namespace Stashbox.BuildUp
             {
                 if (this.resolutionMembers != null && !this.isMembersDirty) return this.resolutionMembers;
                 this.isMembersDirty = false;
-                return this.resolutionMembers = this.metaInfoProvider.GetResolutionMembers(this.injectionParameters).ToArray();
+                return this.resolutionMembers = this.metaInfoProvider.GetResolutionMembers(resolutionInfo, this.injectionParameters).ToArray();
             }
         }
 
-        private ResolutionMethod[] GetResolutionMethods()
+        private ResolutionMethod[] GetResolutionMethods(ResolutionInfo resolutionInfo)
         {
             if (!this.metaInfoProvider.HasInjectionMethod) return null;
 
@@ -129,7 +128,7 @@ namespace Stashbox.BuildUp
             {
                 if (this.resolutionMethods != null && !this.isMethodDirty) return this.resolutionMethods;
                 this.isMethodDirty = false;
-                return this.resolutionMethods = this.metaInfoProvider.GetResolutionMethods(this.injectionParameters).ToArray();
+                return this.resolutionMethods = this.metaInfoProvider.GetResolutionMethods(resolutionInfo, this.injectionParameters).ToArray();
             }
         }
 
@@ -165,7 +164,7 @@ namespace Stashbox.BuildUp
 
         private Expression GetExpressionInternal(ResolutionConstructor constructor, ResolutionInfo resolutionInfo, Expression resolutionInfoExpression)
         {
-            return ExpressionDelegateFactory.CreateExpression(this.containerContext, constructor, resolutionInfo, resolutionInfoExpression, this.GetResolutionMembers());
+            return ExpressionDelegateFactory.CreateExpression(this.containerContext, constructor, resolutionInfo, resolutionInfoExpression, this.GetResolutionMembers(resolutionInfo));
         }
 
         public void CleanUp()

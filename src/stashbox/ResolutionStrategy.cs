@@ -15,10 +15,11 @@ namespace Stashbox
             this.resolverSelector = resolverSelector;
         }
 
-        public bool CanResolve(IContainerContext containerContext, TypeInformation typeInformation,
+        public bool CanResolve(ResolutionInfo resolutionInfo, IContainerContext containerContext, TypeInformation typeInformation,
             InjectionParameter[] injectionParameters)
         {
             return this.resolverSelector.CanResolve(containerContext, typeInformation) ||
+                                          (resolutionInfo?.OverrideManager != null && resolutionInfo.OverrideManager.ContainsValue(typeInformation)) ||
                                           (injectionParameters != null &&
                                            injectionParameters.Any(injectionParameter =>
                                            injectionParameter.Name == typeInformation.MemberName));
@@ -71,11 +72,11 @@ namespace Stashbox
             this.resolutionStrategy = resolutionStrategy;
         }
 
-        public bool CanResolve(IContainerContext containerContext, TypeInformation typeInformation,
+        public bool CanResolve(ResolutionInfo resolutionInfo, IContainerContext containerContext, TypeInformation typeInformation,
             InjectionParameter[] injectionParameters)
         {
-            return this.resolutionStrategy.CanResolve(containerContext, typeInformation, injectionParameters) ||
-                   this.resolutionStrategy.CanResolve(containerContext.Container.ParentContainer.ContainerContext, typeInformation,
+            return this.resolutionStrategy.CanResolve(resolutionInfo, containerContext, typeInformation, injectionParameters) ||
+                   this.resolutionStrategy.CanResolve(resolutionInfo, containerContext.Container.ParentContainer.ContainerContext, typeInformation,
                        injectionParameters);
         }
 

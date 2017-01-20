@@ -28,7 +28,7 @@ namespace Stashbox
         {
             if (!this.metaInfoProvider.HasInjectionMembers) return instance;
 
-            var members = this.GetResolutionMembers();
+            var members = this.GetResolutionMembers(resolutionInfo);
 
             var count = members.Length;
             for (var i = 0; i < count; i++)
@@ -44,7 +44,7 @@ namespace Stashbox
         {
             if (!this.metaInfoProvider.HasInjectionMethod) return instance;
             {
-                var methods = this.GetResolutionMethods();
+                var methods = this.GetResolutionMethods(resolutionInfo);
 
                 var count = methods.Length;
                 for (var i = 0; i < count; i++)
@@ -56,7 +56,7 @@ namespace Stashbox
             return instance;
         }
 
-        public ResolutionMember[] GetResolutionMembers()
+        public ResolutionMember[] GetResolutionMembers(ResolutionInfo resolutionInfo)
         {
             if (!this.metaInfoProvider.HasInjectionMembers) return null;
 
@@ -64,7 +64,7 @@ namespace Stashbox
             lock (this.resolutionMemberSyncObject)
             {
                 if (this.injectionMembers != null && !this.isMembersDirty) return this.injectionMembers;
-                return this.injectionMembers = this.metaInfoProvider.GetResolutionMembers(this.injectionParameters).ToArray();
+                return this.injectionMembers = this.metaInfoProvider.GetResolutionMembers(resolutionInfo, this.injectionParameters).ToArray();
             }
         }
 
@@ -75,7 +75,7 @@ namespace Stashbox
             this.isMethodDirty = true;
         }
         
-        private ResolutionMethod[] GetResolutionMethods()
+        private ResolutionMethod[] GetResolutionMethods(ResolutionInfo resolutionInfo)
         {
             if (!this.metaInfoProvider.HasInjectionMethod) return null;
 
@@ -83,7 +83,7 @@ namespace Stashbox
             lock (this.resolutionMethodSyncObject)
             {
                 if (this.injectionMethods != null && !this.isMethodDirty) return this.injectionMethods;
-                return this.injectionMethods = this.metaInfoProvider.GetResolutionMethods(this.injectionParameters).ToArray();
+                return this.injectionMethods = this.metaInfoProvider.GetResolutionMethods(resolutionInfo, this.injectionParameters).ToArray();
             }
         }
     }

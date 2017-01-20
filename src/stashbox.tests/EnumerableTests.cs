@@ -12,6 +12,87 @@ namespace Stashbox.Tests
     public class EnumerableTests
     {
         [TestMethod]
+        public void EnumerableTests_Resolve_IEnumerable_PreserveOrder()
+        {
+            IStashboxContainer container = new StashboxContainer(config => config.WithEnumerableOrderRule(Rules.EnumerableOrder.PreserveOrder));
+            container.RegisterType<ITest1, Test1>();
+            container.RegisterType<ITest1, Test11>();
+            container.RegisterType<ITest1, Test12>();
+
+            var all = container.Resolve<IEnumerable<ITest1>>().ToArray();
+
+            Assert.AreEqual(3, all.Count());
+            Assert.IsInstanceOfType(all[0], typeof(Test1));
+            Assert.IsInstanceOfType(all[1], typeof(Test11));
+            Assert.IsInstanceOfType(all[2], typeof(Test12));
+        }
+
+        [TestMethod]
+        public void EnumerableTests_Resolve_Array_PreserveOrder()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            container.RegisterType<ITest1, Test1>();
+            container.RegisterType<ITest1, Test11>();
+            container.RegisterType<ITest1, Test12>();
+
+            var all = container.Resolve<ITest1[]>();
+
+            Assert.AreEqual(3, all.Count());
+        }
+
+        [TestMethod]
+        public void EnumerableTests_Resolve_IList()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            container.RegisterType<ITest1, Test1>();
+            container.RegisterType<ITest1, Test11>();
+            container.RegisterType<ITest1, Test12>();
+
+            var all = container.Resolve<IList<ITest1>>();
+
+            Assert.AreEqual(3, all.Count());
+        }
+
+        [TestMethod]
+        public void EnumerableTests_Resolve_ICollection()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            container.RegisterType<ITest1, Test1>();
+            container.RegisterType<ITest1, Test11>();
+            container.RegisterType<ITest1, Test12>();
+
+            var all = container.Resolve<ICollection<ITest1>>();
+
+            Assert.AreEqual(3, all.Count());
+        }
+
+        [TestMethod]
+        public void EnumerableTests_Resolve_IReadonlyCollection()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            container.RegisterType<ITest1, Test1>();
+            container.RegisterType<ITest1, Test11>();
+            container.RegisterType<ITest1, Test12>();
+
+            var all = container.Resolve<IReadOnlyCollection<ITest1>>();
+
+            Assert.AreEqual(3, all.Count());
+        }
+
+        [TestMethod]
+        public void EnumerableTests_Resolve_IReadOnlyList()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            container.RegisterType<ITest1, Test1>();
+            container.RegisterType<ITest1, Test11>();
+            container.RegisterType<ITest1, Test12>();
+
+            var all = container.Resolve<IReadOnlyList<ITest1>>();
+
+            Assert.AreEqual(3, all.Count());
+        }
+
+        [TestMethod]
         public void EnumerableTests_Resolve()
         {
             IStashboxContainer container = new StashboxContainer();

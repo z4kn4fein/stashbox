@@ -7,7 +7,7 @@ namespace Stashbox.Infrastructure
     {
         object FillResolutionMembers(object instance, IContainerContext containerContext, ResolutionInfo resolutionInfo);
         object FillResolutionMethods(object instance, IContainerContext containerContext, ResolutionInfo resolutionInfo);
-        ResolutionMember[] GetResolutionMembers();
+        ResolutionMember[] GetResolutionMembers(ResolutionInfo resolutionInfo);
         void ServiceUpdated(RegistrationInfo registrationInfo);
     }
 }

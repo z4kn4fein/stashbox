@@ -12,11 +12,12 @@ namespace Stashbox.Infrastructure
         /// <summary>
         /// Checks whether a type can be resolved or not.
         /// </summary>
+        /// <param name="resolutionInfo">The resolution info.</param>
         /// <param name="containerContext">The <see cref="IContainerContext"/> of the <see cref="StashboxContainer"/></param>
         /// <param name="typeInformation">The type info of the requested service.</param>
         /// <param name="injectionParameters">The injection parameters.</param>
         /// <returns>True if the type can be resolved, otherwise false.</returns>
-        bool CanResolve(IContainerContext containerContext, TypeInformation typeInformation,
+        bool CanResolve(ResolutionInfo resolutionInfo, IContainerContext containerContext, TypeInformation typeInformation,
             InjectionParameter[] injectionParameters);
 
         /// <summary>

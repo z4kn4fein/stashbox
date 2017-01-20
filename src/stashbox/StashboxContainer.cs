@@ -8,6 +8,7 @@ using Stashbox.MetaInfo;
 using Stashbox.Registration;
 using Stashbox.Utils;
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 
 namespace Stashbox
@@ -154,14 +155,16 @@ namespace Stashbox
             {
                 ResolverType = typeof(EnumerableResolver),
                 ResolverFactory = (context, typeInfo) => new EnumerableResolver(context, typeInfo),
-                Predicate = (context, typeInfo) => typeInfo.Type.GetEnumerableType() != null
+                Predicate = (context, typeInfo) => (typeInfo.Type.GetEnumerableType() != null || EnumerableResolver.IsAssignableToGenericType(typeInfo.Type, typeof(IEnumerable<>))) &&
+                                                    typeInfo.Type != typeof(string)
             };
 
             var funcResolver = new ResolverRegistration
             {
                 ResolverType = typeof(FuncResolver),
                 ResolverFactory = (context, typeInfo) => new FuncResolver(context, typeInfo),
-                Predicate = (context, typeInfo) => typeInfo.Type.IsConstructedGenericType && typeInfo.Type.GetGenericTypeDefinition() == typeof(Func<>)
+                Predicate = (context, typeInfo) => typeInfo.Type.IsConstructedGenericType &&
+                                                   FuncResolver.SupportedTypes.Contains(typeInfo.Type.GetGenericTypeDefinition())
             };
 
             var parentContainerResolver = new ResolverRegistration
@@ -190,7 +193,7 @@ namespace Stashbox
             this.resolverSelector.AddResolver(enumerableResolver);
             this.resolverSelector.AddResolver(funcResolver);
 
-            if(this.ContainerContext.ContainerConfiguration.OptionalAndDefaultValueInjectionEnabled)
+            if (this.ContainerContext.ContainerConfiguration.OptionalAndDefaultValueInjectionEnabled)
                 this.resolverSelector.AddResolver(defaultValueResolver);
 
             if (this.ContainerContext.ContainerConfiguration.UnknownTypeResolutionEnabled)

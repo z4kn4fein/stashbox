@@ -39,11 +39,11 @@ namespace Stashbox.MetaInfo
             return this.TryGetBestConstructor(out resolutionConstructor, resolutionInfo, injectionParameters);
         }
 
-        public IEnumerable<ResolutionMethod> GetResolutionMethods(InjectionParameter[] injectionParameters = null)
+        public IEnumerable<ResolutionMethod> GetResolutionMethods(ResolutionInfo resolutionInfo, InjectionParameter[] injectionParameters = null)
         {
             return this.metaInfoCache.InjectionMethods
                 .Where(methodInfo => methodInfo.Parameters.All(parameter =>
-                                 containerContext.ResolutionStrategy.CanResolve(containerContext, parameter, injectionParameters)))
+                                 containerContext.ResolutionStrategy.CanResolve(resolutionInfo, containerContext, parameter, injectionParameters)))
            .Select(methodInfo => new ResolutionMethod
            {
                MethodDelegate = ExpressionDelegateFactory.CreateMethodExpression(this.containerContext,
@@ -54,10 +54,10 @@ namespace Stashbox.MetaInfo
            });
         }
 
-        public IEnumerable<ResolutionMember> GetResolutionMembers(InjectionParameter[] injectionParameters = null)
+        public IEnumerable<ResolutionMember> GetResolutionMembers(ResolutionInfo resolutionInfo, InjectionParameter[] injectionParameters = null)
         {
             return this.metaInfoCache.InjectionMembers.Where(propertyInfo =>
-                   containerContext.ResolutionStrategy.CanResolve(containerContext, propertyInfo.TypeInformation, injectionParameters))
+                   containerContext.ResolutionStrategy.CanResolve(resolutionInfo, containerContext, propertyInfo.TypeInformation, injectionParameters))
                 .Select(memberInfo => new ResolutionMember
                 {
                     ResolutionTarget = containerContext.ResolutionStrategy.BuildResolutionTarget(containerContext, memberInfo.TypeInformation, injectionParameters),
@@ -91,17 +91,10 @@ namespace Stashbox.MetaInfo
         private IEnumerable<ConstructorInformation> GetUsableConstructors(IEnumerable<ConstructorInformation> constructors, ResolutionInfo resolutionInfo,
             InjectionParameter[] injectionParameters = null)
         {
-            if (resolutionInfo?.OverrideManager == null)
-                return constructors
-                    .Where(constructor => constructor.Parameters
-                        .All(parameter => this.containerContext.ResolutionStrategy.CanResolve(this.containerContext, parameter,
-                        injectionParameters)));
-
             return constructors
                 .Where(constructor => constructor.Parameters
-                    .All(parameter => this.containerContext.ResolutionStrategy.CanResolve(this.containerContext, parameter,
-                        injectionParameters) ||
-                         resolutionInfo.OverrideManager.ContainsValue(parameter)));
+                    .All(parameter => this.containerContext.ResolutionStrategy.CanResolve(resolutionInfo, this.containerContext, parameter,
+                    injectionParameters)));
         }
 
         private ResolutionConstructor CreateResolutionConstructor(ConstructorInformation constructorInformation, InjectionParameter[] injectionParameters = null)

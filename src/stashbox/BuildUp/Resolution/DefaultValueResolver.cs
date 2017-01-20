@@ -1,9 +1,9 @@
-﻿using System;
-using System.Linq.Expressions;
-using System.Reflection;
-using Stashbox.Entity;
+﻿using Stashbox.Entity;
 using Stashbox.Exceptions;
 using Stashbox.Infrastructure;
+using System;
+using System.Linq.Expressions;
+using System.Reflection;
 
 namespace Stashbox.BuildUp.Resolution
 {
@@ -22,8 +22,8 @@ namespace Stashbox.BuildUp.Resolution
             if (base.TypeInfo.HasDefaultValue)
                 return base.TypeInfo.DefaultValue;
 
-            if(base.TypeInfo.Type.GetTypeInfo().IsValueType)
-                Activator.CreateInstance(base.TypeInfo.Type);
+            if (base.TypeInfo.Type.GetTypeInfo().IsValueType)
+                return Activator.CreateInstance(base.TypeInfo.Type);
 
             if (base.TypeInfo.Type == typeof(string))
                 return null;

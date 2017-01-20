@@ -1,4 +1,5 @@
 ﻿using Stashbox.Entity;
+using Stashbox.Exceptions;
 using Stashbox.Infrastructure;
 using System.Linq.Expressions;
 
@@ -11,8 +12,9 @@ namespace Stashbox.BuildUp.Resolution
         public ContainerResolver(IContainerContext containerContext, TypeInformation typeInfo)
             : base(containerContext, typeInfo)
         {
-            containerContext.RegistrationRepository.TryGetRegistrationWithConditions(typeInfo,
-                out this.registrationCache);
+            if (!containerContext.RegistrationRepository.TryGetRegistrationWithConditions(typeInfo,
+                out this.registrationCache))
+                throw new ResolutionFailedException(typeInfo.Type.FullName);
         }
 
         public override Expression GetExpression(ResolutionInfo resolutionInfo, Expression resolutionInfoExpression)

@@ -11,9 +11,8 @@ namespace Stashbox.Overrides
     /// </summary>
     public class OverrideManager
     {
-        private readonly NamedOverride[] nameOverrides;
-        private readonly TypeOverride[] typeOverrides;
-        private readonly Override[] overrides;
+        private ISet<NamedOverride> nameOverrides;
+        private ISet<TypeOverride> typeOverrides;
 
         /// <summary>
         /// Constructs an <see cref="OverrideManager"/>
@@ -23,9 +22,8 @@ namespace Stashbox.Overrides
         {
             if (overrides == null || !overrides.Any()) return;
 
-            this.overrides = overrides;
-            this.nameOverrides = overrides.OfType<NamedOverride>().ToArray();
-            this.typeOverrides = overrides.OfType<TypeOverride>().ToArray();
+            this.nameOverrides = new HashSet<NamedOverride>(overrides.OfType<NamedOverride>());
+            this.typeOverrides = new HashSet<TypeOverride>(overrides.OfType<TypeOverride>());
         }
 
         /// <summary>
@@ -44,7 +42,7 @@ namespace Stashbox.Overrides
         /// <returns>The collection of the overrides.</returns>
         public IEnumerable<Override> GetOverrides()
         {
-            return this.overrides;
+            return this.nameOverrides.Cast<Override>().Concat(this.typeOverrides);
         }
 
         /// <summary>
@@ -57,6 +55,12 @@ namespace Stashbox.Overrides
             return (this.typeOverrides != null && this.typeOverrides.Any(x => x.OverrideType == parameter.Type ||
                 x.OverrideType.GetTypeInfo().IsAssignableFrom(parameter.Type.GetTypeInfo()))) ||
                 (this.nameOverrides != null && this.nameOverrides.Any(x => x.OverrideName == parameter.DependencyName));
+        }
+
+        internal void AddTypedOverride(TypeOverride typeOverride)
+        {
+            if (typeOverrides == null) typeOverrides = new HashSet<TypeOverride>();
+            this.typeOverrides.Add(typeOverride);
         }
 
         private object GetTypedValue(Type type)

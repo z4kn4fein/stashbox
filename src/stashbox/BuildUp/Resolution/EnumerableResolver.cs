@@ -3,6 +3,7 @@ using Stashbox.Infrastructure;
 using System;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace Stashbox.BuildUp.Resolution
 {
@@ -19,7 +20,7 @@ namespace Stashbox.BuildUp.Resolution
         {
             this.enumerableType = new TypeInformation
             {
-                Type = typeInfo.Type.GetEnumerableType(),
+                Type = typeInfo.Type.GetEnumerableType() ?? typeInfo.Type.GenericTypeArguments[0],
                 CustomAttributes = typeInfo.CustomAttributes,
                 ParentType = typeInfo.ParentType,
                 DependencyName = typeInfo.DependencyName
@@ -28,8 +29,8 @@ namespace Stashbox.BuildUp.Resolution
             containerContext.RegistrationRepository.TryGetTypedRepositoryRegistrations(this.enumerableType,
                 out registrationCache);
 
-            if(registrationCache != null)
-            registrationCache = base.BuilderContext.ContainerConfiguration.EnumerableOrderRule(registrationCache).ToArray();
+            if (registrationCache != null)
+                registrationCache = base.BuilderContext.ContainerConfiguration.EnumerableOrderRule(registrationCache).ToArray();
         }
 
         public override object Resolve(ResolutionInfo resolutionInfo)
@@ -58,6 +59,30 @@ namespace Stashbox.BuildUp.Resolution
             }
 
             return Expression.NewArrayInit(this.enumerableType.Type, enumerableItems);
+        }
+
+        public static bool IsAssignableToGenericType(Type type, Type genericType)
+        {
+            if (type == null || genericType == null) return false;
+
+            return type == genericType
+              || MapsToGenericTypeDefinition(type, genericType)
+              || HasInterfaceThatMapsToGenericTypeDefinition(type, genericType)
+              || IsAssignableToGenericType(type.GetTypeInfo().BaseType, genericType);
+        }
+
+        private static bool HasInterfaceThatMapsToGenericTypeDefinition(Type type, Type genericType)
+        {
+            return type.GetTypeInfo().ImplementedInterfaces
+              .Where(it => it.GetTypeInfo().IsGenericType)
+              .Any(it => it.GetGenericTypeDefinition() == genericType);
+        }
+
+        private static bool MapsToGenericTypeDefinition(Type type, Type genericType)
+        {
+            return genericType.GetTypeInfo().IsGenericTypeDefinition
+              && type.GetTypeInfo().IsGenericType
+              && type.GetGenericTypeDefinition() == genericType;
         }
     }
 }

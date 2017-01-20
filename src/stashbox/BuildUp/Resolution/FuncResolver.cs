@@ -1,6 +1,10 @@
 ﻿using Stashbox.Entity;
+using Stashbox.Exceptions;
 using Stashbox.Infrastructure;
+using Stashbox.Overrides;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -8,6 +12,14 @@ namespace Stashbox.BuildUp.Resolution
 {
     internal class FuncResolver : Resolver
     {
+        public static ISet<Type> SupportedTypes = new HashSet<Type>
+        {
+            typeof(Func<>),
+            typeof(Func<,>),
+            typeof(Func<,,>),
+            typeof(Func<,,,>)
+        };
+
         private readonly IServiceRegistration registrationCache;
         private delegate object ResolverDelegate(ResolutionInfo resolutionInfo);
         private readonly ResolverDelegate resolverDelegate;
@@ -19,16 +31,19 @@ namespace Stashbox.BuildUp.Resolution
         {
             this.funcArgumentInfo = new TypeInformation
             {
-                Type = typeInfo.Type.GenericTypeArguments[0],
+                Type = typeInfo.Type.GenericTypeArguments.Last(),
                 CustomAttributes = typeInfo.CustomAttributes,
                 ParentType = typeInfo.ParentType,
                 DependencyName = typeInfo.DependencyName
             };
 
-            containerContext.RegistrationRepository.TryGetRegistrationWithConditions(this.funcArgumentInfo, out this.registrationCache);
+            if (!containerContext.RegistrationRepository.TryGetRegistrationWithConditions(this.funcArgumentInfo, out this.registrationCache))
+                throw new ResolutionFailedException(typeInfo.Type.FullName);
 
-            var genericLazyResolverMethod = this.GetType().GetTypeInfo().GetDeclaredMethod("ResolveFunc");
-            this.resolverMethodInfo = genericLazyResolverMethod.MakeGenericMethod(typeInfo.Type.GenericTypeArguments[0]);
+            var methodName = "ResolveFuncP" + (typeInfo.Type.GenericTypeArguments.Length - 1);
+
+            var resolverMethod = this.GetType().GetTypeInfo().GetDeclaredMethod(methodName);
+            this.resolverMethodInfo = resolverMethod.MakeGenericMethod(typeInfo.Type.GenericTypeArguments);
             this.resolverDelegate = (ResolverDelegate)resolverMethodInfo.CreateDelegate(typeof(ResolverDelegate), this);
         }
 
@@ -42,9 +57,52 @@ namespace Stashbox.BuildUp.Resolution
             return Expression.Call(Expression.Constant(this), this.resolverMethodInfo, resolutionInfoExpression);
         }
 
-        private Func<T> ResolveFunc<T>(ResolutionInfo resolutionInfo) where T : class
+        private Func<TResult> ResolveFuncP0<TResult>(ResolutionInfo resolutionInfo)
         {
-            return () => (T)registrationCache.GetInstance(resolutionInfo, this.funcArgumentInfo);
+            return () => (TResult)registrationCache.GetInstance(resolutionInfo, this.funcArgumentInfo);
+        }
+
+        private Func<T, TResult> ResolveFuncP1<T, TResult>(ResolutionInfo resolutionInfo)
+        {
+            return (t) =>
+            {
+                if (resolutionInfo.OverrideManager == null)
+                    resolutionInfo.OverrideManager = new OverrideManager(new[] { new TypeOverride(typeof(T), t) });
+                else
+                    resolutionInfo.OverrideManager.AddTypedOverride(new TypeOverride(typeof(T), t));
+                return (TResult)registrationCache.GetInstance(resolutionInfo, this.funcArgumentInfo);
+            };
+        }
+
+        private Func<T, T1, TResult> ResolveFuncP2<T, T1, TResult>(ResolutionInfo resolutionInfo)
+        {
+            return (t, t1) =>
+            {
+                if (resolutionInfo.OverrideManager == null)
+                    resolutionInfo.OverrideManager = new OverrideManager(new[] { new TypeOverride(typeof(T), t), new TypeOverride(typeof(T1), t1) });
+                else
+                {
+                    resolutionInfo.OverrideManager.AddTypedOverride(new TypeOverride(typeof(T), t));
+                    resolutionInfo.OverrideManager.AddTypedOverride(new TypeOverride(typeof(T1), t1));
+                }
+                return (TResult)registrationCache.GetInstance(resolutionInfo, this.funcArgumentInfo);
+            };
+        }
+
+        private Func<T, T1, T2, TResult> ResolveFuncP3<T, T1, T2, TResult>(ResolutionInfo resolutionInfo)
+        {
+            return (t, t1, t2) =>
+            {
+                if (resolutionInfo.OverrideManager == null)
+                    resolutionInfo.OverrideManager = new OverrideManager(new[] { new TypeOverride(typeof(T), t), new TypeOverride(typeof(T1), t1), new TypeOverride(typeof(T2), t2) });
+                else
+                {
+                    resolutionInfo.OverrideManager.AddTypedOverride(new TypeOverride(typeof(T), t));
+                    resolutionInfo.OverrideManager.AddTypedOverride(new TypeOverride(typeof(T1), t1));
+                    resolutionInfo.OverrideManager.AddTypedOverride(new TypeOverride(typeof(T2), t2));
+                }
+                return (TResult)registrationCache.GetInstance(resolutionInfo, this.funcArgumentInfo);
+            };
         }
     }
 }
