@@ -51,7 +51,6 @@ namespace Stashbox.MetaInfo
             this.Constructors = infos.Where(info => !info.IsStatic).Select(info => new ConstructorInformation
             {
                 Constructor = info,
-                HasInjectionAttribute = info.GetCustomAttribute<InjectionConstructorAttribute>() != null,
                 Parameters = this.FillParameters(info.GetParameters()).ToArray()
             }).ToArray();
         }

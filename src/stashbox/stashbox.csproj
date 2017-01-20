@@ -43,7 +43,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Attributes\DependencyAttribute.cs" />
-    <Compile Include="Attributes\InjectionConstructorAttribute.cs" />
     <Compile Include="Attributes\InjectionMethodAttribute.cs" />
     <Compile Include="BuildUp\Resolution\DefaultValueResolver.cs" />
     <Compile Include="BuildUp\Resolution\FuncResolver.cs" />

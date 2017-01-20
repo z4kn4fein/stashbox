@@ -10,10 +10,8 @@ namespace Stashbox.BuildUp
         private readonly ISet<Type> set;
         private readonly Type type;
 
-        public CircularDependencyBarrier(ContainerConfiguration containerConfiguration, ISet<Type> set, Type type)
+        public CircularDependencyBarrier(ISet<Type> set, Type type)
         {
-            if(!containerConfiguration.CircularDependencyTrackingEnabled) return;
-
             if (set.Contains(type))
                 throw new CircularDependencyException(type.FullName);
             else

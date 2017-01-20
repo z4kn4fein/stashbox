@@ -200,16 +200,15 @@ namespace Stashbox.Registration
                 return false;
             }
 
-            var serviceRegistrations = registrations.Enumerate().Select(reg => reg.Value).ToArray();
-
-            if (serviceRegistrations.Length > 1)
+            if (registrations.Height > 1)
             {
+                var serviceRegistrations = registrations.Enumerate().Select(reg => reg.Value).ToArray();
                 registration = this.containerConfiguration.DependencySelectionRule(serviceRegistrations.Any(reg => reg.HasCondition) ? 
                     serviceRegistrations.Where(reg => reg.HasCondition && reg.IsUsableForCurrentContext(typeInfo)) : 
                     serviceRegistrations.Where(reg => reg.IsUsableForCurrentContext(typeInfo)));
             }
             else
-                registration = serviceRegistrations[0];
+                registration = registrations.Value;
 
             return registration != null;
         }
@@ -223,16 +222,15 @@ namespace Stashbox.Registration
                 return false;
             }
 
-            var serviceRegistrations = registrations.Enumerate().Select(reg => reg.Value).ToArray();
-
-            if (serviceRegistrations.Length > 1)
+            if (registrations.Height > 1)
             {
+                var serviceRegistrations = registrations.Enumerate().Select(reg => reg.Value).ToArray();
                 registration = this.containerConfiguration.DependencySelectionRule(serviceRegistrations.Any(reg => reg.HasCondition) ?
                     serviceRegistrations.Where(reg => reg.HasCondition && reg.IsUsableForCurrentContext(typeInfo)) :
                     serviceRegistrations.Where(reg => reg.IsUsableForCurrentContext(typeInfo)));
             }
             else
-                registration = serviceRegistrations[0];
+                registration = registrations.Value;
 
             return registration != null;
         }
