@@ -22,7 +22,7 @@ namespace Stashbox
                                           (resolutionInfo?.OverrideManager != null && resolutionInfo.OverrideManager.ContainsValue(typeInformation)) ||
                                           (injectionParameters != null &&
                                            injectionParameters.Any(injectionParameter =>
-                                           injectionParameter.Name == typeInformation.MemberName));
+                                           injectionParameter.Name == typeInformation.ParameterName));
         }
 
         public ResolutionTarget BuildResolutionTarget(IContainerContext containerContext, TypeInformation typeInformation,
@@ -35,7 +35,7 @@ namespace Stashbox
             {
                 Resolver = resolver,
                 TypeInformation = typeInformation,
-                ResolutionTargetValue = injectionParameters?.FirstOrDefault(param => param.Name == typeInformation.MemberName)?.Value
+                ResolutionTargetValue = injectionParameters?.FirstOrDefault(param => param.Name == typeInformation.ParameterName)?.Value
             };
         }
 

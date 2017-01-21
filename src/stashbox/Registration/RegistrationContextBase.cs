@@ -39,7 +39,7 @@ namespace Stashbox.Registration
             if (this.TypeTo.GetTypeInfo().IsGenericTypeDefinition)
             {
                 var objectBuilder = new GenericTypeObjectBuilder(this.RegistrationContextData, this.ContainerContext,
-                    new MetaInfoProvider(this.ContainerContext, new MetaInfoCache(this.TypeTo)), containerExtensionManager);
+                    new MetaInfoProvider(this.ContainerContext, new MetaInfoCache(this.ContainerContext.ContainerConfiguration, this.TypeTo)), containerExtensionManager);
 
                 var registration = this.CreateServiceRegistration(new TransientLifetime(), objectBuilder);
                 if (update)
@@ -75,7 +75,7 @@ namespace Stashbox.Registration
             if (this.RegistrationContextData.ExistingInstance != null)
                 return new InstanceObjectBuilder(this.RegistrationContextData.ExistingInstance);
 
-            var metainfoProvider = new MetaInfoProvider(this.ContainerContext, new MetaInfoCache(this.TypeTo));
+            var metainfoProvider = new MetaInfoProvider(this.ContainerContext, new MetaInfoCache(this.ContainerContext.ContainerConfiguration, this.TypeTo));
 
             var objectExtender = new ObjectExtender(metainfoProvider, this.RegistrationContextData.InjectionParameters);
 
@@ -94,7 +94,7 @@ namespace Stashbox.Registration
             if (this.RegistrationContextData.OneParameterFactory != null)
                 return new FactoryObjectBuilder(this.RegistrationContextData.OneParameterFactory, this.ContainerContext, containerExtensionManager, objectExtender);
 
-            return new DefaultObjectBuilder(this.ContainerContext, new MetaInfoProvider(this.ContainerContext, new MetaInfoCache(this.TypeTo)),
+            return new DefaultObjectBuilder(this.ContainerContext, new MetaInfoProvider(this.ContainerContext, new MetaInfoCache(this.ContainerContext.ContainerConfiguration, this.TypeTo)),
                 containerExtensionManager, this.RegistrationContextData.InjectionParameters);
         }
 

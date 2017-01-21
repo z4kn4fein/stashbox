@@ -1,4 +1,5 @@
 ﻿using Stashbox.Attributes;
+using Stashbox.Configuration;
 using Stashbox.Entity;
 using System;
 using System.Collections.Generic;
@@ -12,6 +13,8 @@ namespace Stashbox.MetaInfo
     /// </summary>
     public class MetaInfoCache
     {
+        private readonly ContainerConfiguration containerConfiguration;
+
         /// <summary>
         /// The type of the actual service implementation.
         /// </summary>
@@ -35,10 +38,12 @@ namespace Stashbox.MetaInfo
         /// <summary>
         /// Constructs the <see cref="MetaInfoCache"/>
         /// </summary>
+        /// <param name="containerConfiguraton">The container configuration.</param>
         /// <param name="typeTo">The type of the actual service implementation.</param>
-        public MetaInfoCache(Type typeTo)
+        public MetaInfoCache(ContainerConfiguration containerConfiguraton, Type typeTo)
         {
             this.TypeTo = typeTo;
+            this.containerConfiguration = containerConfiguraton;
 
             var typeInfo = typeTo.GetTypeInfo();
             this.AddConstructors(typeInfo.DeclaredConstructors);
@@ -73,7 +78,7 @@ namespace Stashbox.MetaInfo
                                  parameterInfo.GetCustomAttribute<DependencyAttribute>().Name : null,
                 ParentType = this.TypeTo,
                 CustomAttributes = parameterInfo.GetCustomAttributes().ToArray(),
-                MemberName = parameterInfo.Name,
+                ParameterName = parameterInfo.Name,
                 HasDefaultValue = parameterInfo.HasDefaultValue,
                 DefaultValue = parameterInfo.DefaultValue
             });
@@ -81,8 +86,8 @@ namespace Stashbox.MetaInfo
 
         private IEnumerable<MemberInformation> FillMembers(TypeInfo typeInfo)
         {
-            return typeInfo.DeclaredProperties
-                   .Where(propertyInfo => propertyInfo.GetCustomAttribute<DependencyAttribute>() != null)
+            return this.SelectMembers(typeInfo.DeclaredProperties)
+                   .OfType<PropertyInfo>()
                    .Select(propertyInfo => new MemberInformation
                    {
                        TypeInformation = new TypeInformation
@@ -92,11 +97,13 @@ namespace Stashbox.MetaInfo
                                         propertyInfo.GetCustomAttribute<DependencyAttribute>().Name : null,
                            ParentType = this.TypeTo,
                            CustomAttributes = propertyInfo.GetCustomAttributes().ToArray(),
-                           MemberName = propertyInfo.Name
+                           ParameterName = propertyInfo.Name,
+                           IsMember = true
                        },
                        MemberInfo = propertyInfo
                    })
-                   .Concat(typeInfo.DeclaredFields
+                   .Concat(this.SelectMembers(typeInfo.DeclaredFields)
+                           .OfType<FieldInfo>()
                            .Where(fieldInfo => fieldInfo.GetCustomAttribute<DependencyAttribute>() != null)
                            .Select(fieldInfo => new MemberInformation
                            {
@@ -108,10 +115,19 @@ namespace Stashbox.MetaInfo
                                        : null,
                                    ParentType = this.TypeTo,
                                    CustomAttributes = fieldInfo.GetCustomAttributes().ToArray(),
-                                   MemberName = fieldInfo.Name
+                                   ParameterName = fieldInfo.Name,
+                                   IsMember = true
                                },
                                MemberInfo = fieldInfo
                            }));
+        }
+
+        private IEnumerable<MemberInfo> SelectMembers(IEnumerable<MemberInfo> members)
+        {
+            if (this.containerConfiguration.MemberInjectionWithoutAnnotationEnabled)
+                return members;
+            else
+                return members.Where(memberInfo => memberInfo.GetCustomAttribute<DependencyAttribute>() != null);
         }
     }
 }

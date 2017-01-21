@@ -25,7 +25,7 @@ namespace Stashbox.BuildUp.Resolution
             if (base.TypeInfo.Type.GetTypeInfo().IsValueType)
                 return Activator.CreateInstance(base.TypeInfo.Type);
 
-            if (base.TypeInfo.Type == typeof(string))
+            if (base.TypeInfo.Type == typeof(string) || base.TypeInfo.IsMember)
                 return null;
 
             throw new ResolutionFailedException(base.TypeInfo.Type.FullName);

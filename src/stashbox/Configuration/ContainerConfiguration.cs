@@ -17,21 +17,23 @@ namespace Stashbox.Configuration
               .WithDependencySelectionRule(Rules.DependencySelection.ByPass)
               .WithEnumerableOrderRule(Rules.EnumerableOrder.ByPass);
         }
-        
+
         internal bool TrackTransientsForDisposalEnabled { get; private set; }
-        
+
         internal bool ParentContainerResolutionEnabled { get; private set; }
-        
+
         internal bool CircularDependencyTrackingEnabled { get; private set; }
-        
+
         internal bool OptionalAndDefaultValueInjectionEnabled { get; private set; }
-        
+
         internal bool UnknownTypeResolutionEnabled { get; private set; }
-        
+
+        internal bool MemberInjectionWithoutAnnotationEnabled { get; private set; }
+
         internal Func<IEnumerable<ConstructorInformation>, ConstructorInformation> ConstructorSelectionRule { get; private set; }
-        
+
         internal Func<IEnumerable<IServiceRegistration>, IServiceRegistration> DependencySelectionRule { get; private set; }
-        
+
         internal Func<IEnumerable<IServiceRegistration>, IEnumerable<IServiceRegistration>> EnumerableOrderRule { get; private set; }
 
         /// <summary>
@@ -85,6 +87,16 @@ namespace Stashbox.Configuration
         }
 
         /// <summary>
+        /// Enables the member injection without annotation.
+        /// </summary>
+        /// <returns>The container configuration.</returns>
+        public ContainerConfiguration WithMemberInjectionWithoutAnnotation()
+        {
+            this.MemberInjectionWithoutAnnotationEnabled = true;
+            return this;
+        }
+
+        /// <summary>
         /// Sets the constructor selection rule.
         /// </summary>
         /// <returns>The container configuration.</returns>
@@ -121,6 +133,7 @@ namespace Stashbox.Configuration
             this.CircularDependencyTrackingEnabled = false;
             this.OptionalAndDefaultValueInjectionEnabled = false;
             this.UnknownTypeResolutionEnabled = false;
+            this.MemberInjectionWithoutAnnotationEnabled = false;
         }
     }
 }

@@ -28,9 +28,9 @@ namespace Stashbox.Entity
         public Attribute[] CustomAttributes { get; set; }
 
         /// <summary>
-        /// The member name of the dependency.
+        /// The variable name of the dependency.
         /// </summary>
-        public string MemberName { get; set; }
+        public string ParameterName { get; set; }
 
         /// <summary>
         /// It's true if the dependency has default value.
@@ -41,5 +41,10 @@ namespace Stashbox.Entity
         /// The default value of the dependency.
         /// </summary>
         public object DefaultValue { get; set; }
+
+        /// <summary>
+        /// Property or field.
+        /// </summary>
+        public bool IsMember { get; set; }
     }
 }

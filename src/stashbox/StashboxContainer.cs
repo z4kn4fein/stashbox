@@ -178,7 +178,7 @@ namespace Stashbox
             {
                 ResolverType = typeof(DefaultValueResolver),
                 ResolverFactory = (context, typeInfo) => new DefaultValueResolver(context, typeInfo),
-                Predicate = (context, typeInfo) => typeInfo.HasDefaultValue || typeInfo.Type.GetTypeInfo().IsValueType || typeInfo.Type == typeof(string)
+                Predicate = (context, typeInfo) => typeInfo.HasDefaultValue || typeInfo.Type.GetTypeInfo().IsValueType || typeInfo.Type == typeof(string) || typeInfo.IsMember
             };
 
             var unknownTypeResolver = new ResolverRegistration

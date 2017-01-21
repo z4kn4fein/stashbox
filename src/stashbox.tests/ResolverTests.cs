@@ -100,6 +100,18 @@ namespace Stashbox.Tests
             }
         }
 
+        [TestMethod]
+        public void ResolverTests_MemberInject_WithoutAnnotation()
+        {
+            using (var container = new StashboxContainer(config => config.WithMemberInjectionWithoutAnnotation().WithUnknownTypeResolution()))
+            {
+                container.RegisterType<Test5>();
+                var inst = container.Resolve<Test5>();
+
+                Assert.IsNotNull(inst.I);
+            }
+        }
+
         public class Test
         {
             public int I { get; set; }
@@ -148,6 +160,11 @@ namespace Stashbox.Tests
             {
                 this.I = i;
             }
+        }
+
+        public class Test5
+        {
+            public RefDep I { get; set; }
         }
 
         public class RefDep

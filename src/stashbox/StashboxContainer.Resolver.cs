@@ -67,7 +67,7 @@ namespace Stashbox
         public TTo BuildUp<TTo>(TTo instance)
         {
             var typeTo = instance.GetType();
-            var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, new MetaInfoCache(typeTo));
+            var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, new MetaInfoCache(this.ContainerContext.ContainerConfiguration, typeTo));
             var objectExtender = new ObjectExtender(metaInfoProvider);
 
             var resolutionInfo = new ResolutionInfo();
