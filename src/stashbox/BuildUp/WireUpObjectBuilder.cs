@@ -10,7 +10,6 @@ namespace Stashbox.BuildUp
     internal class WireUpObjectBuilder : IObjectBuilder
     {
         private object instance;
-        private readonly Type instanceType;
         private readonly object syncObject = new object();
         private readonly IContainerExtensionManager containerExtensionManager;
         private readonly IObjectExtender objectExtender;
@@ -21,7 +20,6 @@ namespace Stashbox.BuildUp
         public WireUpObjectBuilder(object instance, IContainerContext containerContext, IContainerExtensionManager containerExtensionManager, IObjectExtender objectExtender)
         {
             this.instance = instance;
-            this.instanceType = instance.GetType();
             this.containerExtensionManager = containerExtensionManager;
             this.objectExtender = objectExtender;
             this.containerContext = containerContext;
@@ -37,7 +35,7 @@ namespace Stashbox.BuildUp
                 this.instanceBuilt = true;
                 this.instance = this.objectExtender.FillResolutionMembers(this.instance, this.containerContext, resolutionInfo);
                 this.instance = this.objectExtender.FillResolutionMethods(this.instance, this.containerContext, resolutionInfo);
-                this.instance = this.containerExtensionManager.ExecutePostBuildExtensions(this.instance, this.instanceType, this.containerContext, resolutionInfo, resolveType);
+                this.instance = this.containerExtensionManager.ExecutePostBuildExtensions(this.instance, this.containerContext, resolutionInfo, resolveType);
             }
 
             return this.instance;

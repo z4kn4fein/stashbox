@@ -33,7 +33,6 @@ namespace Stashbox
             this.RegistrationRepository = registrationRepository;
             this.Container = container;
             this.ResolutionStrategy = resolutionStrategy;
-            this.MetaInfoRepository = metaInfoRepository;
             this.DelegateRepository = delegateRepository;
             this.Bag = new ConcurrentKeyValueStore<object, object>();
             this.ScopedRegistrations = new ConcurrentKeyValueStore<string, ScopedRegistrationItem>();
@@ -49,10 +48,7 @@ namespace Stashbox
 
         /// <inheritdoc />
         public IResolutionStrategy ResolutionStrategy { get; }
-
-        /// <inheritdoc />
-        public ExtendedImmutableTree<MetaInfoCache> MetaInfoRepository { get; }
-
+        
         /// <inheritdoc />
         public ExtendedImmutableTree<Func<ResolutionInfo, object>> DelegateRepository { get; }
 

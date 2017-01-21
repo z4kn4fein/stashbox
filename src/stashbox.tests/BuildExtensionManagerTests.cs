@@ -18,10 +18,32 @@ namespace Stashbox.Tests
                 var obj = new object();
                 container.PrepareType<object>().WithFactory(() => obj).Register();
 
-                post.Setup(p => p.PostBuild(obj, obj.GetType(), container.ContainerContext, It.IsAny<ResolutionInfo>(),
+                post.Setup(p => p.PostBuild(obj, container.ContainerContext, It.IsAny<ResolutionInfo>(),
                     It.IsAny<TypeInformation>(), null)).Returns(obj).Verifiable();
 
                 var inst = container.Resolve(typeof(object));
+                post.Verify(p => p.Initialize(container.ContainerContext));
+            }
+
+            post.Verify(p => p.CleanUp());
+        }
+
+        [TestMethod]
+        public void BuildExtensionManagerTests_AddPostBuildExtension_WithDefaultReg()
+        {
+            var post = new Mock<IPostBuildExtension>();
+            using (var container = new StashboxContainer())
+            {
+                container.RegisterExtension(post.Object);
+                container.RegisterType<Test>();
+
+                bool called = false;
+                post.Setup(p => p.PostBuild(It.IsAny<object>(), container.ContainerContext, It.IsAny<ResolutionInfo>(),
+                    It.IsAny<TypeInformation>(), null)).Returns(It.IsAny<object>()).Callback(() => called = true).Verifiable();
+
+                var inst = container.Resolve<Test>();
+                Assert.IsTrue(called);
+
                 post.Verify(p => p.Initialize(container.ContainerContext));
             }
 
@@ -69,5 +91,7 @@ namespace Stashbox.Tests
 
             post.Verify(p => p.CleanUp());
         }
+
+        public class Test { }
     }
 }

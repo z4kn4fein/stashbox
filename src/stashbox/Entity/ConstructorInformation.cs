@@ -1,5 +1,4 @@
-﻿using Stashbox.Attributes;
-using System.Reflection;
+﻿using System.Reflection;
 
 namespace Stashbox.Entity
 {
@@ -12,11 +11,6 @@ namespace Stashbox.Entity
         /// Stores the reflected constructor info.
         /// </summary>
         public ConstructorInfo Constructor { get; set; }
-
-        /// <summary>
-        /// True if the constructor is decorated with <see cref="InjectionConstructorAttribute"/>
-        /// </summary>
-        public bool HasInjectionAttribute { get; set; }
 
         /// <summary>
         /// The parameters of the constructor.

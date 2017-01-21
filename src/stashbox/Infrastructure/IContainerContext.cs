@@ -1,10 +1,6 @@
-﻿using Stashbox.Entity;
-using Stashbox.Extensions;
-using Stashbox.MetaInfo;
+﻿using Stashbox.Configuration;
 using Stashbox.Registration;
 using Stashbox.Utils;
-using System;
-using Stashbox.Configuration;
 
 namespace Stashbox.Infrastructure
 {
@@ -27,16 +23,6 @@ namespace Stashbox.Infrastructure
         /// The resolution strategy.
         /// </summary>
         IResolutionStrategy ResolutionStrategy { get; }
-
-        /// <summary>
-        /// The meta information repository.
-        /// </summary>
-        ExtendedImmutableTree<MetaInfoCache> MetaInfoRepository { get; }
-
-        /// <summary>
-        /// Repository of the compiled delegates.
-        /// </summary>
-        ExtendedImmutableTree<Func<ResolutionInfo, object>> DelegateRepository { get; }
 
         /// <summary>
         /// Repository of scoped registrations.

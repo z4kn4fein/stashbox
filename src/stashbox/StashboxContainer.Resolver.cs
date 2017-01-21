@@ -2,12 +2,12 @@
 using Stashbox.Entity;
 using Stashbox.Exceptions;
 using Stashbox.Infrastructure;
+using Stashbox.MetaInfo;
 using Stashbox.Overrides;
+using Stashbox.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Stashbox.MetaInfo;
-using Stashbox.Utils;
 
 namespace Stashbox
 {
@@ -67,14 +67,14 @@ namespace Stashbox
         public TTo BuildUp<TTo>(TTo instance)
         {
             var typeTo = instance.GetType();
-            var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, this.ContainerContext.MetaInfoRepository.GetOrAdd(typeTo, () => new MetaInfoCache(typeTo)));
+            var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, new MetaInfoCache(typeTo));
             var objectExtender = new ObjectExtender(metaInfoProvider);
 
             var resolutionInfo = new ResolutionInfo();
 
             objectExtender.FillResolutionMembers(instance, this.ContainerContext, resolutionInfo);
             objectExtender.FillResolutionMethods(instance, this.ContainerContext, resolutionInfo);
-            this.containerExtensionManager.ExecutePostBuildExtensions(instance, typeTo, this.ContainerContext,
+            this.containerExtensionManager.ExecutePostBuildExtensions(instance, this.ContainerContext,
                 resolutionInfo, new TypeInformation { Type = typeTo });
 
             return instance;

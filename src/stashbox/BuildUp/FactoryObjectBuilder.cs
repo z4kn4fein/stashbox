@@ -82,7 +82,7 @@ namespace Stashbox.BuildUp
 
             var builtInstance = this.objectExtender.FillResolutionMembers(instance, containerContext, resolutionInfo);
             builtInstance = this.objectExtender.FillResolutionMembers(builtInstance, containerContext, resolutionInfo);
-            return this.containerExtensionManager.ExecutePostBuildExtensions(builtInstance, builtInstance?.GetType(), containerContext, resolutionInfo, resolveType);
+            return this.containerExtensionManager.ExecutePostBuildExtensions(builtInstance, containerContext, resolutionInfo, resolveType);
         }
 
         public Expression GetExpression(ResolutionInfo resolutionInfo, Expression resolutionInfoExpression, TypeInformation resolveType)

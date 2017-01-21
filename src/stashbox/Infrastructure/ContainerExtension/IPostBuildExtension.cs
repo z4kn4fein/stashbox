@@ -12,13 +12,12 @@ namespace Stashbox.Infrastructure.ContainerExtension
         /// Executes the post build extension.
         /// </summary>
         /// <param name="instance">The resolved object.</param>
-        /// <param name="targetType">The type of the resolved object.</param>
         /// <param name="containerContext">The <see cref="IContainerContext"/> of the <see cref="StashboxContainer"/></param>
         /// <param name="resolutionInfo">Information about the actual resolution.</param>
         /// <param name="resolveType">The type information of the resolved type.</param>
         /// <param name="injectionParameters">The injection parameters.</param>
         /// <returns>The extended object.</returns>
-        object PostBuild(object instance, Type targetType, IContainerContext containerContext, ResolutionInfo resolutionInfo,
+        object PostBuild(object instance, IContainerContext containerContext, ResolutionInfo resolutionInfo,
             TypeInformation resolveType, InjectionParameter[] injectionParameters = null);
     }
 }

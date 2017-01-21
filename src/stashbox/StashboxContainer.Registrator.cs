@@ -195,7 +195,7 @@ namespace Stashbox
 
             var registrationInfo = new RegistrationInfo { TypeFrom = typeFrom, TypeTo = typeTo };
 
-            var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, this.ContainerContext.MetaInfoRepository.GetOrAdd(typeTo, () => new MetaInfoCache(typeTo)));
+            var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, new MetaInfoCache(typeTo));
             var objectExtender = new ObjectExtender(metaInfoProvider);
 
             var registration = new ServiceRegistration(this.ContainerContext, new TransientLifetime(),

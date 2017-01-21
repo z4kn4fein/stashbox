@@ -1,8 +1,8 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Stashbox.Attributes;
+using Stashbox.Utils;
 using System;
 using System.Threading.Tasks;
-using Stashbox.Utils;
 
 namespace Stashbox.Tests
 {
@@ -32,6 +32,7 @@ namespace Stashbox.Tests
             Assert.IsNotNull(test4.Value);
 
             Assert.IsTrue(test3.MethodInvoked);
+            Assert.IsTrue(test3.MethodInvoked2);
 
             Assert.IsInstanceOfType(test2.test1, typeof(Test1));
             Assert.IsInstanceOfType(test3.test1, typeof(Test11));
@@ -107,7 +108,7 @@ namespace Stashbox.Tests
 
         public interface ITest2 { ITest1 test1 { get; set; } }
 
-        public interface ITest3 { ITest2 test2 { get; set; } ITest1 test1 { get; set; } bool MethodInvoked { get; set; } }
+        public interface ITest3 { ITest2 test2 { get; set; } ITest1 test1 { get; set; } bool MethodInvoked { get; set; } bool MethodInvoked2 { get; set; } }
 
         public interface ITest4 { Lazy<ITest2> test2 { get; set; } Lazy<ITest1> test1 { get; set; } bool MethodInvoked { get; set; } }
 
@@ -141,14 +142,21 @@ namespace Stashbox.Tests
 
             [Dependency("test22")]
             public ITest2 test2 { get; set; }
-            
+
             [InjectionMethod]
             public void MethodTest([Dependency("test22")]ITest2 test2)
             {
                 Shield.EnsureNotNull(test2, nameof(test2));
                 MethodInvoked = true;
             }
-            
+
+            [InjectionMethod]
+            public void MethodTest2([Dependency("test22")]ITest2 test2)
+            {
+                Shield.EnsureNotNull(test2, nameof(test2));
+                MethodInvoked2 = true;
+            }
+
             public Test3([Dependency("test12")]ITest1 test1, [Dependency("test2")]ITest2 test2)
             {
                 Shield.EnsureNotNull(test1, nameof(test1));
@@ -159,6 +167,7 @@ namespace Stashbox.Tests
             }
 
             public bool MethodInvoked { get; set; }
+            public bool MethodInvoked2 { get; set; }
         }
 
         public class Test4 : ITest4
@@ -168,14 +177,14 @@ namespace Stashbox.Tests
 
             [Dependency("test22")]
             public Lazy<ITest2> test2 { get; set; }
-            
+
             [InjectionMethod]
             public void MethodTest([Dependency("test22")]Lazy<ITest2> test2)
             {
                 Shield.EnsureNotNull(test2.Value, nameof(test2.Value));
                 MethodInvoked = true;
             }
-            
+
             public Test4([Dependency("test12")]Lazy<ITest1> test1, [Dependency("test2")]Lazy<ITest2> test2)
             {
                 Shield.EnsureNotNull(test1.Value, nameof(test1.Value));

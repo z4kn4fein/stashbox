@@ -42,22 +42,20 @@ namespace Stashbox.MetaInfo
         public IEnumerable<ResolutionMethod> GetResolutionMethods(ResolutionInfo resolutionInfo, InjectionParameter[] injectionParameters = null)
         {
             return this.metaInfoCache.InjectionMethods
-                .Where(methodInfo => methodInfo.Parameters.All(parameter =>
-                                 containerContext.ResolutionStrategy.CanResolve(resolutionInfo, containerContext, parameter, injectionParameters)))
-           .Select(methodInfo => new ResolutionMethod
-           {
-               MethodDelegate = ExpressionDelegateFactory.CreateMethodExpression(this.containerContext,
-                 methodInfo.Parameters.Select(parameter =>
-                    this.containerContext.ResolutionStrategy.BuildResolutionTarget(this.containerContext, parameter, injectionParameters)).ToArray(),
-                methodInfo.Method),
-               Method = methodInfo.Method
-           });
+               .Select(methodInfo => new ResolutionMethod
+               {
+                   MethodDelegate = ExpressionDelegateFactory.CreateMethodExpression(this.containerContext,
+                     methodInfo.Parameters.Select(parameter =>
+                        this.containerContext.ResolutionStrategy.BuildResolutionTarget(this.containerContext, parameter, injectionParameters)).ToArray(),
+                    methodInfo.Method),
+                   Method = methodInfo.Method,
+                   Parameters = methodInfo.Parameters.Select(parameter => this.containerContext.ResolutionStrategy.BuildResolutionTarget(this.containerContext, parameter, injectionParameters)).ToArray()
+               });
         }
 
         public IEnumerable<ResolutionMember> GetResolutionMembers(ResolutionInfo resolutionInfo, InjectionParameter[] injectionParameters = null)
         {
-            return this.metaInfoCache.InjectionMembers.Where(propertyInfo =>
-                   containerContext.ResolutionStrategy.CanResolve(resolutionInfo, containerContext, propertyInfo.TypeInformation, injectionParameters))
+            return this.metaInfoCache.InjectionMembers
                 .Select(memberInfo => new ResolutionMember
                 {
                     ResolutionTarget = containerContext.ResolutionStrategy.BuildResolutionTarget(containerContext, memberInfo.TypeInformation, injectionParameters),
