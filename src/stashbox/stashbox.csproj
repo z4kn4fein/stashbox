@@ -123,6 +123,7 @@
     <Compile Include="ResolverSelector.cs" />
     <Compile Include="Utils\AtomicBool.cs" />
     <Compile Include="BuildUp\CircularDependencyBarrier.cs" />
+    <Compile Include="Utils\AvlTree.cs" />
     <Compile Include="Utils\ConcurrentKeyValueStore.cs" />
     <Compile Include="Utils\ConcurrentStore.cs" />
     <Compile Include="Utils\DisposableReaderWriterLock.cs" />
