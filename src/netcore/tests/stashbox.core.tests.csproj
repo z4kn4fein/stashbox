@@ -66,25 +66,27 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="..\..\stashbox.tests\AttributeTests.cs" />
-    <Compile Include="..\..\stashbox.tests\BuildExtensionManagerTests.cs" />
-    <Compile Include="..\..\stashbox.tests\BuildUpTests.cs" />
-    <Compile Include="..\..\stashbox.tests\WireUpTests.cs" />
-    <Compile Include="..\..\stashbox.tests\ConditionalTests.cs" />
-    <Compile Include="..\..\stashbox.tests\ContainerTests.cs" />
-    <Compile Include="..\..\stashbox.tests\DisposeTests.cs" />
-    <Compile Include="..\..\stashbox.tests\EnumerableTests.cs" />
-    <Compile Include="..\..\stashbox.tests\FactoryBuildUpTests.cs" />
-    <Compile Include="..\..\stashbox.tests\FuncTests.cs" />
-    <Compile Include="..\..\stashbox.tests\GenericTests.cs" />
-    <Compile Include="..\..\stashbox.tests\InjectionMemberTests.cs" />
-    <Compile Include="..\..\stashbox.tests\InstanceBuilderTests.cs" />
-    <Compile Include="..\..\stashbox.tests\LazyTests.cs" />
-    <Compile Include="..\..\stashbox.tests\LifetimeTests.cs" />
-    <Compile Include="..\..\stashbox.tests\OverrideTests.cs" />
-    <Compile Include="..\..\stashbox.tests\Properties\AssemblyInfo.cs" />
-    <Compile Include="..\..\stashbox.tests\ReMapTests.cs" />
-    <Compile Include="..\..\stashbox.tests\StandardResolveTests.cs" />
+      <Compile Include="..\..\stashbox.tests\AttributeTests.cs" />
+      <Compile Include="..\..\stashbox.tests\BuildExtensionManagerTests.cs" />
+      <Compile Include="..\..\stashbox.tests\BuildUpTests.cs" />
+      <Compile Include="..\..\stashbox.tests\CircularDependencyTests.cs" />
+      <Compile Include="..\..\stashbox.tests\DisposeTests.cs" />
+      <Compile Include="..\..\stashbox.tests\ResolverTests.cs" />
+      <Compile Include="..\..\stashbox.tests\WireUpTests.cs" />
+      <Compile Include="..\..\stashbox.tests\ConditionalTests.cs" />
+      <Compile Include="..\..\stashbox.tests\ContainerTests.cs" />
+      <Compile Include="..\..\stashbox.tests\EnumerableTests.cs" />
+      <Compile Include="..\..\stashbox.tests\FactoryBuildUpTests.cs" />
+      <Compile Include="..\..\stashbox.tests\FuncTests.cs" />
+      <Compile Include="..\..\stashbox.tests\GenericTests.cs" />
+      <Compile Include="..\..\stashbox.tests\InjectionMemberTests.cs" />
+      <Compile Include="..\..\stashbox.tests\InstanceBuilderTests.cs" />
+      <Compile Include="..\..\stashbox.tests\LazyTests.cs" />
+      <Compile Include="..\..\stashbox.tests\LifetimeTests.cs" />
+      <Compile Include="..\..\stashbox.tests\OverrideTests.cs" />
+      <Compile Include="..\..\stashbox.tests\Properties\AssemblyInfo.cs" />
+      <Compile Include="..\..\stashbox.tests\ReMapTests.cs" />
+      <Compile Include="..\..\stashbox.tests\StandardResolveTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\src\stashbox.core.csproj">
