@@ -14,6 +14,11 @@ namespace Stashbox.Infrastructure
         int RegistrationNumber { get; }
 
         /// <summary>
+        /// The registration name.
+        /// </summary>
+        string RegistrationName { get; }
+
+        /// <summary>
         /// Gets the resolved instance.
         /// </summary>
         /// <param name="resolutionInfo">The info about the current resolution.</param>

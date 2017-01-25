@@ -10,19 +10,22 @@ namespace Stashbox.Tests
         public void ReMapTests_SingleResolve()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterType<ITest1, Test1>();
+            container.RegisterType<ITest1, Test1>("teszt");
+            container.RegisterType<ITest1, Test12>("teszt2");
 
-            var test1 = container.Resolve<ITest1>();
+            var test1 = container.Resolve<ITest1>("teszt");
+            var test2 = container.Resolve<ITest1>("teszt2");
 
-            Assert.IsNotNull(test1);
             Assert.IsInstanceOfType(test1, typeof(Test1));
+            Assert.IsInstanceOfType(test2, typeof(Test12));
 
-            container.ReMap<ITest1, Test11>();
+            container.ReMap<ITest1, Test11>("teszt");
 
-            var test11 = container.Resolve<ITest1>();
+            var test11 = container.Resolve<ITest1>("teszt");
+            var test12 = container.Resolve<ITest1>("teszt2");
 
-            Assert.IsNotNull(test11);
             Assert.IsInstanceOfType(test11, typeof(Test11));
+            Assert.IsInstanceOfType(test12, typeof(Test12));
         }
 
         [TestMethod]
@@ -76,6 +79,9 @@ namespace Stashbox.Tests
         { }
 
         public class Test11 : ITest1
+        { }
+
+        public class Test12 : ITest1
         { }
 
         public class Test2 : ITest2

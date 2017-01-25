@@ -41,7 +41,7 @@ namespace Stashbox.Registration
                 var objectBuilder = new GenericTypeObjectBuilder(this.RegistrationContextData, this.ContainerContext,
                     new MetaInfoProvider(this.ContainerContext, new MetaInfoCache(this.ContainerContext.ContainerConfiguration, this.TypeTo)), containerExtensionManager);
 
-                var registration = this.CreateServiceRegistration(new TransientLifetime(), objectBuilder);
+                var registration = this.CreateServiceRegistration(registrationName, new TransientLifetime(), objectBuilder);
                 if (update)
                     this.ContainerContext.RegistrationRepository.AddOrUpdateGenericDefinition(this.TypeFrom, registration, registrationName);
                 else
@@ -49,7 +49,7 @@ namespace Stashbox.Registration
             }
             else
             {
-                var registration = this.CreateServiceRegistration(registrationLifetime, this.CreateObjectBuilder(registrationName, containerExtensionManager));
+                var registration = this.CreateServiceRegistration(registrationName, registrationLifetime, this.CreateObjectBuilder(registrationName, containerExtensionManager));
                 if (update)
                     this.ContainerContext.RegistrationRepository.AddOrUpdateRegistration(this.TypeFrom, registration, registrationName);
                 else
@@ -98,9 +98,9 @@ namespace Stashbox.Registration
                 containerExtensionManager, this.RegistrationContextData.InjectionParameters);
         }
 
-        private IServiceRegistration CreateServiceRegistration(ILifetime lifeTime, IObjectBuilder objectBuilder)
+        private IServiceRegistration CreateServiceRegistration(string name, ILifetime lifeTime, IObjectBuilder objectBuilder)
         {
-            return new ServiceRegistration(this.ContainerContext, lifeTime, objectBuilder, this.RegistrationContextData.AttributeConditions,
+            return new ServiceRegistration(name, this.ContainerContext, lifeTime, objectBuilder, this.RegistrationContextData.AttributeConditions,
                 this.RegistrationContextData.TargetTypeCondition, this.RegistrationContextData.ResolutionCondition);
         }
 

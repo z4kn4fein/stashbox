@@ -1,10 +1,8 @@
 ﻿using Stashbox.BuildUp.Resolution;
 using Stashbox.Configuration;
 using Stashbox.Entity;
-using Stashbox.Extensions;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.ContainerExtension;
-using Stashbox.MetaInfo;
 using Stashbox.Registration;
 using Stashbox.Utils;
 using System;
@@ -21,7 +19,6 @@ namespace Stashbox
         private readonly IContainerExtensionManager containerExtensionManager;
         private readonly IResolverSelector resolverSelector;
         private readonly IRegistrationRepository registrationRepository;
-        private readonly ExtendedImmutableTree<MetaInfoCache> metaInfoRepository;
         private readonly AtomicBool disposed;
 
         /// <summary>
@@ -29,7 +26,6 @@ namespace Stashbox
         /// </summary>
         public StashboxContainer(Action<ContainerConfiguration> config = null)
         {
-            this.metaInfoRepository = new ExtendedImmutableTree<MetaInfoCache>();
             this.disposed = new AtomicBool();
             this.containerExtensionManager = new BuildExtensionManager();
             this.resolverSelector = new ResolverSelector();
@@ -40,17 +36,14 @@ namespace Stashbox
             this.registrationRepository = new RegistrationRepository(configuration);
 
             this.ContainerContext = new ContainerContext(this.registrationRepository, this,
-                new ResolutionStrategy(this.resolverSelector), this.metaInfoRepository,
-                new ExtendedImmutableTree<Func<ResolutionInfo, object>>(), configuration);
+                new ResolutionStrategy(this.resolverSelector), configuration);
 
             this.RegisterResolvers();
         }
 
         internal StashboxContainer(IStashboxContainer parentContainer, IContainerExtensionManager containerExtensionManager,
-            IResolverSelector resolverSelector, ExtendedImmutableTree<MetaInfoCache> metaInfoRepository,
-            ExtendedImmutableTree<Func<ResolutionInfo, object>> delegateRepository)
+            IResolverSelector resolverSelector)
         {
-            this.metaInfoRepository = metaInfoRepository;
             this.disposed = new AtomicBool();
             this.ParentContainer = parentContainer;
             this.containerExtensionManager = containerExtensionManager;
@@ -58,7 +51,7 @@ namespace Stashbox
             this.registrationRepository = new RegistrationRepository(parentContainer.ContainerContext.ContainerConfiguration);
             this.ContainerContext = new ContainerContext(this.registrationRepository, this,
                 new CheckParentResolutionStrategyDecorator(new ResolutionStrategy(this.resolverSelector)),
-                this.metaInfoRepository, delegateRepository, parentContainer.ContainerContext.ContainerConfiguration);
+                parentContainer.ContainerContext.ContainerConfiguration);
 
             this.containerExtensionManager.ReinitalizeExtensions(this.ContainerContext);
         }
@@ -118,8 +111,7 @@ namespace Stashbox
         /// <inheritdoc />
         public IStashboxContainer BeginScope()
         {
-            var container = new StashboxContainer(this, this.containerExtensionManager.CreateCopy(), this.resolverSelector.CreateCopy(),
-                    this.metaInfoRepository, new ExtendedImmutableTree<Func<ResolutionInfo, object>>());
+            var container = new StashboxContainer(this, this.containerExtensionManager.CreateCopy(), this.resolverSelector.CreateCopy());
             container.OpenScope();
             return container;
         }

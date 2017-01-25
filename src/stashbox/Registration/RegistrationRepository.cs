@@ -1,11 +1,11 @@
-﻿using Stashbox.Entity;
+﻿using Stashbox.Configuration;
+using Stashbox.Entity;
 using Stashbox.Infrastructure;
 using Stashbox.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Stashbox.Configuration;
 
 namespace Stashbox.Registration
 {
@@ -15,8 +15,8 @@ namespace Stashbox.Registration
     public class RegistrationRepository : IRegistrationRepository
     {
         private readonly ContainerConfiguration containerConfiguration;
-        private ImmutableTree<ImmutableTree<IServiceRegistration>> serviceRepository;
-        private ImmutableTree<ImmutableTree<IServiceRegistration>> genericDefinitionRepository;
+        private ConcurrentTree<Type, ConcurrentTree<string, IServiceRegistration>> serviceRepository;
+        private ConcurrentTree<Type, ConcurrentTree<string, IServiceRegistration>> genericDefinitionRepository;
         private readonly object syncObject = new object();
 
         /// <summary>
@@ -25,15 +25,15 @@ namespace Stashbox.Registration
         public RegistrationRepository(ContainerConfiguration containerConfiguration)
         {
             this.containerConfiguration = containerConfiguration;
-            this.serviceRepository = ImmutableTree<ImmutableTree<IServiceRegistration>>.Empty;
-            this.genericDefinitionRepository = ImmutableTree<ImmutableTree<IServiceRegistration>>.Empty;
+            this.serviceRepository = new ConcurrentTree<Type, ConcurrentTree<string, IServiceRegistration>>();
+            this.genericDefinitionRepository = new ConcurrentTree<Type, ConcurrentTree<string, IServiceRegistration>>();
         }
 
         /// <inheritdoc />
         public IEnumerable<IServiceRegistration> GetAllRegistrations()
         {
-            return this.serviceRepository.Enumerate().SelectMany(tree => tree.Value.Enumerate().Select(reg => reg.Value))
-                .Concat(this.genericDefinitionRepository.Enumerate().SelectMany(tree => tree.Value.Enumerate().Select(reg => reg.Value)));
+            return this.serviceRepository.SelectMany(tree => tree)
+                .Concat(this.genericDefinitionRepository.SelectMany(tree => tree));
         }
 
         /// <inheritdoc />
@@ -58,68 +58,52 @@ namespace Stashbox.Registration
         /// <inheritdoc />
         public void AddRegistration(Type typeKey, IServiceRegistration registration, string nameKey)
         {
-            var immutableTree = ImmutableTree<IServiceRegistration>.Empty;
-            var newTree = immutableTree.AddOrUpdate(nameKey.GetHashCode(), registration);
+            var newTree = ConcurrentTree<string, IServiceRegistration>.Create();
+            newTree.AddOrUpdate(nameKey, registration);
 
-            lock (this.syncObject)
-            {
-                this.serviceRepository = this.serviceRepository.AddOrUpdate(typeKey.GetHashCode(), newTree, (oldValue, newValue) =>
-                {
-                    return oldValue.AddOrUpdate(nameKey.GetHashCode(), registration, (oldRegistration, newReg) => oldRegistration);
-                });
-            }
+            this.serviceRepository.AddOrUpdate(typeKey, newTree, (oldValue, newValue) => oldValue.AddOrUpdate(nameKey, registration));
         }
 
         /// <inheritdoc />
         public void AddOrUpdateRegistration(Type typeKey, IServiceRegistration registration, string nameKey)
         {
-            var immutableTree = ImmutableTree<IServiceRegistration>.Empty;
-            var newTree = immutableTree.AddOrUpdate(nameKey.GetHashCode(), registration);
+            var newTree = ConcurrentTree<string, IServiceRegistration>.Create();
+            newTree.AddOrUpdate(nameKey, registration);
 
-            lock (this.syncObject)
-            {
-                this.serviceRepository = this.serviceRepository.AddOrUpdate(typeKey.GetHashCode(), newTree, (oldValue, newValue) => newValue);
-            }
+            this.serviceRepository.AddOrUpdate(typeKey, newTree,
+                (oldValue, newValue) => oldValue.HasMultipleItems ? oldValue.AddOrUpdate(nameKey, registration,
+                    (oldReg, newReg) => newReg) : newValue);
         }
 
         /// <inheritdoc />
         public void AddGenericDefinition(Type typeKey, IServiceRegistration registration, string nameKey)
         {
-            var immutableTree = ImmutableTree<IServiceRegistration>.Empty;
-            var newTree = immutableTree.AddOrUpdate(nameKey.GetHashCode(), registration);
+            var newTree = ConcurrentTree<string, IServiceRegistration>.Create();
+            newTree.AddOrUpdate(nameKey, registration);
 
-            lock (this.syncObject)
-            {
-                this.genericDefinitionRepository = this.genericDefinitionRepository.AddOrUpdate(typeKey.GetHashCode(), newTree, (oldValue, newValue) =>
-                {
-                    return oldValue.AddOrUpdate(nameKey.GetHashCode(), registration, (oldRegistration, newReg) => oldRegistration);
-                });
-            }
+            this.genericDefinitionRepository.AddOrUpdate(typeKey, newTree, (oldValue, newValue) => oldValue.AddOrUpdate(nameKey, registration));
         }
 
         /// <inheritdoc />
         public void AddOrUpdateGenericDefinition(Type typeKey, IServiceRegistration registration, string nameKey)
         {
-            var immutableTree = ImmutableTree<IServiceRegistration>.Empty;
-            var newTree = immutableTree.AddOrUpdate(nameKey.GetHashCode(), registration);
+            var newTree = ConcurrentTree<string, IServiceRegistration>.Create();
+            newTree.AddOrUpdate(nameKey, registration);
 
-            lock (this.syncObject)
-            {
-                this.genericDefinitionRepository = this.genericDefinitionRepository.AddOrUpdate(typeKey.GetHashCode(), newTree, (oldValue, newValue) => newValue);
-            }
+            this.genericDefinitionRepository.AddOrUpdate(typeKey, newTree,
+                (oldValue, newValue) => oldValue.HasMultipleItems ? oldValue.AddOrUpdate(nameKey, registration,
+                    (oldReg, newReg) => newReg) : newValue);
         }
 
         /// <inheritdoc />
         public bool TryGetTypedRepositoryRegistrations(TypeInformation typeInfo, out IServiceRegistration[] registrations)
         {
-            var serviceRegistrations = this.serviceRepository.GetValueOrDefault(typeInfo.Type.GetHashCode());
+            var serviceRegistrations = this.serviceRepository.GetOrDefault(typeInfo.Type);
             if (serviceRegistrations == null)
             {
                 Type genericTypeDefinition;
                 if (this.TryHandleOpenGenericType(typeInfo.Type, out genericTypeDefinition))
-                {
-                    serviceRegistrations = this.genericDefinitionRepository.GetValueOrDefault(genericTypeDefinition.GetHashCode());
-                }
+                    serviceRegistrations = this.genericDefinitionRepository.GetOrDefault(genericTypeDefinition);
                 else
                 {
                     registrations = null;
@@ -127,51 +111,52 @@ namespace Stashbox.Registration
                 }
             }
 
-            registrations = serviceRegistrations?.Enumerate().Select(reg => reg.Value).ToArray();
+            registrations = serviceRegistrations?.ToArray();
             return registrations != null;
         }
 
         /// <inheritdoc />
         public bool ConstainsRegistrationWithConditions(TypeInformation typeInfo)
         {
-            var registrations = this.serviceRepository.GetValueOrDefault(typeInfo.Type.GetHashCode());
+            var registrations = this.serviceRepository.GetOrDefault(typeInfo.Type);
             if (registrations != null)
-                return registrations.Value != null &&
-                       registrations.Enumerate()
-                           .Any(registration => registration.Value.IsUsableForCurrentContext(typeInfo) && this.CheckDependencyName(registration.Key, typeInfo.DependencyName));
+                return registrations != null &&
+                       registrations
+                           .Any(registration => registration.IsUsableForCurrentContext(typeInfo) &&
+                           this.CheckDependencyName(registration.RegistrationName, typeInfo.DependencyName));
 
             Type genericTypeDefinition;
             if (this.TryHandleOpenGenericType(typeInfo.Type, out genericTypeDefinition))
             {
-                registrations = this.genericDefinitionRepository.GetValueOrDefault(genericTypeDefinition.GetHashCode());
-                return registrations != null && registrations.Enumerate().Any(registration => registration.Value.IsUsableForCurrentContext(new TypeInformation
+                registrations = this.genericDefinitionRepository.GetOrDefault(genericTypeDefinition);
+                return registrations != null && registrations.Any(registration => registration.IsUsableForCurrentContext(new TypeInformation
                 {
                     Type = genericTypeDefinition,
                     ParentType = typeInfo.ParentType,
                     DependencyName = typeInfo.DependencyName,
                     CustomAttributes = typeInfo.CustomAttributes
-                }) && this.CheckDependencyName(registration.Key, typeInfo.DependencyName));
+                }) && this.CheckDependencyName(registration.RegistrationName, typeInfo.DependencyName));
             }
 
             if (typeInfo.Type.GetTypeInfo().IsGenericTypeDefinition)
-                return this.genericDefinitionRepository.GetValueOrDefault(typeInfo.Type.GetHashCode()) != null;
+                return this.genericDefinitionRepository.GetOrDefault(typeInfo.Type) != null;
 
             return false;
         }
 
-        private bool CheckDependencyName(int key, string dependencyName)
+        private bool CheckDependencyName(string key, string dependencyName)
         {
             if (dependencyName == null) return true;
 
-            return key == dependencyName.GetHashCode();
+            return key == dependencyName;
         }
 
         /// <inheritdoc />
         public void CleanUp()
         {
-            foreach (var registration in this.serviceRepository.Enumerate().Select(reg => reg.Value).SelectMany(registrations => registrations.Enumerate()))
+            foreach (var registration in this.serviceRepository.SelectMany(registrations => registrations))
             {
-                registration.Value.CleanUp();
+                registration.CleanUp();
             }
 
             this.serviceRepository = null;
@@ -179,33 +164,33 @@ namespace Stashbox.Registration
 
         private bool TryGetByTypeKey(TypeInformation typeInfo, out IServiceRegistration registration)
         {
-            ImmutableTree<IServiceRegistration> registrations;
+            ConcurrentTree<string, IServiceRegistration> registrations;
             if (!this.TryGetRegistrationsByType(typeInfo.Type, out registrations))
             {
                 registration = null;
                 return false;
             }
 
-            registration = registrations.Height > 1 ? this.containerConfiguration.DependencySelectionRule(registrations.Enumerate().Select(reg => reg.Value)) : registrations.Value;
+            registration = registrations.HasMultipleItems ? this.containerConfiguration.DependencySelectionRule(registrations) : registrations.Value;
 
             return true;
         }
 
         private bool TryGetByTypeKeyWithConditions(TypeInformation typeInfo, out IServiceRegistration registration)
         {
-            ImmutableTree<IServiceRegistration> registrations;
+            ConcurrentTree<string, IServiceRegistration> registrations;
             if (!this.TryGetRegistrationsByType(typeInfo.Type, out registrations))
             {
                 registration = null;
                 return false;
             }
 
-            if (registrations.Height > 1)
+            if (registrations.HasMultipleItems)
             {
-                var serviceRegistrations = registrations.Enumerate().ToArray();
-                registration = this.containerConfiguration.DependencySelectionRule(serviceRegistrations.Any(reg => reg.Value.HasCondition) ?
-                    serviceRegistrations.Where(reg => reg.Value.HasCondition && reg.Value.IsUsableForCurrentContext(typeInfo)).Select(r => r.Value) :
-                    serviceRegistrations.Where(reg => reg.Value.IsUsableForCurrentContext(typeInfo)).Select(r => r.Value));
+                var serviceRegistrations = registrations.ToArray();
+                registration = this.containerConfiguration.DependencySelectionRule(serviceRegistrations.Any(reg => reg.HasCondition) ?
+                    serviceRegistrations.Where(reg => reg.HasCondition && reg.IsUsableForCurrentContext(typeInfo)) :
+                    serviceRegistrations.Where(reg => reg.IsUsableForCurrentContext(typeInfo)));
             }
             else
                 registration = registrations.Value;
@@ -215,19 +200,19 @@ namespace Stashbox.Registration
 
         private bool TryGetByTypeKeyWithConditionsWithoutGenericDefinitionExtraction(TypeInformation typeInfo, out IServiceRegistration registration)
         {
-            ImmutableTree<IServiceRegistration> registrations;
+            ConcurrentTree<string, IServiceRegistration> registrations;
             if (!this.TryGetRegistrationsByTypeWithoutGenericDefinitionExtraction(typeInfo.Type, out registrations))
             {
                 registration = null;
                 return false;
             }
 
-            if (registrations.Height > 1)
+            if (registrations.HasMultipleItems)
             {
-                var serviceRegistrations = registrations.Enumerate().ToArray();
-                registration = this.containerConfiguration.DependencySelectionRule(serviceRegistrations.Any(reg => reg.Value.HasCondition) ?
-                    serviceRegistrations.Where(reg => reg.Value.HasCondition && reg.Value.IsUsableForCurrentContext(typeInfo)).Select(r => r.Value) :
-                    serviceRegistrations.Where(reg => reg.Value.IsUsableForCurrentContext(typeInfo)).Select(r => r.Value));
+                var serviceRegistrations = registrations.ToArray();
+                registration = this.containerConfiguration.DependencySelectionRule(serviceRegistrations.Any(reg => reg.HasCondition) ?
+                    serviceRegistrations.Where(reg => reg.HasCondition && reg.IsUsableForCurrentContext(typeInfo)) :
+                    serviceRegistrations.Where(reg => reg.IsUsableForCurrentContext(typeInfo)));
             }
             else
                 registration = registrations.Value;
@@ -235,33 +220,33 @@ namespace Stashbox.Registration
             return registration != null;
         }
 
-        private bool TryGetRegistrationsByType(Type type, out ImmutableTree<IServiceRegistration> registrations)
+        private bool TryGetRegistrationsByType(Type type, out ConcurrentTree<string, IServiceRegistration> registrations)
         {
-            registrations = this.serviceRepository.GetValueOrDefault(type.GetHashCode());
+            registrations = this.serviceRepository.GetOrDefault(type);
             if (registrations != null) return true;
 
             Type genericTypeDefinition;
             if (this.TryHandleOpenGenericType(type, out genericTypeDefinition))
-                registrations = this.genericDefinitionRepository.GetValueOrDefault(genericTypeDefinition.GetHashCode());
+                registrations = this.genericDefinitionRepository.GetOrDefault(genericTypeDefinition);
 
             else if (type.GetTypeInfo().IsGenericTypeDefinition)
-                registrations = this.genericDefinitionRepository.GetValueOrDefault(type.GetHashCode());
+                registrations = this.genericDefinitionRepository.GetOrDefault(type);
 
             return registrations != null;
         }
 
-        private bool TryGetRegistrationsByTypeWithoutGenericDefinitionExtraction(Type type, out ImmutableTree<IServiceRegistration> registrations)
+        private bool TryGetRegistrationsByTypeWithoutGenericDefinitionExtraction(Type type, out ConcurrentTree<string, IServiceRegistration> registrations)
         {
-            registrations = this.serviceRepository.GetValueOrDefault(type.GetHashCode());
+            registrations = this.serviceRepository.GetOrDefault(type);
             return registrations != null;
         }
 
         private bool TryGetByNamedKey(TypeInformation typeInfo, out IServiceRegistration registration)
         {
-            ImmutableTree<IServiceRegistration> registrations;
+            ConcurrentTree<string, IServiceRegistration> registrations;
             if (this.TryGetRegistrationsByType(typeInfo.Type, out registrations))
             {
-                registration = registrations.GetValueOrDefault(typeInfo.DependencyName.GetHashCode());
+                registration = registrations.GetOrDefault(typeInfo.DependencyName);
                 return registration != null;
             }
 
@@ -271,10 +256,10 @@ namespace Stashbox.Registration
 
         private bool TryGetByNamedKeyWithoutGenericDefinitionExtraction(TypeInformation typeInfo, out IServiceRegistration registration)
         {
-            ImmutableTree<IServiceRegistration> registrations;
+            ConcurrentTree<string, IServiceRegistration> registrations;
             if (this.TryGetRegistrationsByTypeWithoutGenericDefinitionExtraction(typeInfo.Type, out registrations))
             {
-                registration = registrations.GetValueOrDefault(typeInfo.DependencyName.GetHashCode());
+                registration = registrations.GetOrDefault(typeInfo.DependencyName);
                 return registration != null;
             }
 

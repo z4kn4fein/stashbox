@@ -22,16 +22,18 @@ namespace Stashbox.Registration
         /// <summary>
         /// Constructs a <see cref="ServiceRegistration"/>
         /// </summary>
+        /// <param name="registrationName">The registration name.</param>
         /// <param name="containerContext">The container context.</param>
         /// <param name="lifetimeManager">The lifetime manager.</param>
         /// <param name="objectBuilder">THe object builder.</param>
         /// <param name="attributeConditions">The attribute conditions.</param>
         /// <param name="targetTypeCondition">The target type condition.</param>
         /// <param name="resolutionCondition">The resolution condition.</param>
-        public ServiceRegistration(IContainerContext containerContext, ILifetime lifetimeManager, 
-            IObjectBuilder objectBuilder, HashSet<Type> attributeConditions = null, Type targetTypeCondition = null, 
+        public ServiceRegistration(string registrationName, IContainerContext containerContext, ILifetime lifetimeManager,
+            IObjectBuilder objectBuilder, HashSet<Type> attributeConditions = null, Type targetTypeCondition = null,
             Func<TypeInformation, bool> resolutionCondition = null)
         {
+            this.RegistrationName = registrationName;
             this.containerContext = containerContext;
             this.lifetimeManager = lifetimeManager;
             this.objectBuilder = objectBuilder;
@@ -43,6 +45,9 @@ namespace Stashbox.Registration
 
         /// <inheritdoc />
         public int RegistrationNumber { get; }
+
+        /// <inheritdoc />
+        public string RegistrationName { get; }
 
         /// <inheritdoc />
         public object GetInstance(ResolutionInfo resolutionInfo, TypeInformation resolveType)

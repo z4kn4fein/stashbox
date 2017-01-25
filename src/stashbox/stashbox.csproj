@@ -76,7 +76,6 @@
     <Compile Include="Exceptions\CircularDependencyException.cs" />
     <Compile Include="Exceptions\ExceptionBase.cs" />
     <Compile Include="Exceptions\ResolutionFailedException.cs" />
-    <Compile Include="Extensions\ImmutableTreeExtensions.cs" />
     <Compile Include="Extensions\MemberInfoExtensions.cs" />
     <Compile Include="Extensions\TypeExtensions.cs" />
     <Compile Include="Infrastructure\ContainerExtension\IPostBuildExtension.cs" />
@@ -126,8 +125,8 @@
     <Compile Include="Utils\AvlTree.cs" />
     <Compile Include="Utils\ConcurrentKeyValueStore.cs" />
     <Compile Include="Utils\ConcurrentStore.cs" />
+    <Compile Include="Utils\ConcurrentTree.cs" />
     <Compile Include="Utils\DisposableReaderWriterLock.cs" />
-    <Compile Include="Utils\ImmutableTree.cs" />
     <Compile Include="Utils\NameGenerator.cs" />
     <Compile Include="Utils\Shield.cs" />
   </ItemGroup>
