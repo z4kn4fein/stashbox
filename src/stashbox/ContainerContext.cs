@@ -23,6 +23,7 @@ namespace Stashbox
         internal ContainerContext(IRegistrationRepository registrationRepository, IStashboxContainer container,
             IResolutionStrategy resolutionStrategy, ContainerConfiguration containerConfiguration)
         {
+            this.ResolutionStrategy = resolutionStrategy;
             this.RegistrationRepository = registrationRepository;
             this.Container = container;
             this.Bag = new ConcurrentKeyValueStore<object, object>();

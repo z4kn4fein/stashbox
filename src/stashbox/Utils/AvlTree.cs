@@ -108,6 +108,7 @@ namespace Stashbox.Utils
         private AvlTree<TKey, TValue> RotateLeftRight() => this.SelfCopy(this.leftNode.RotateLeft(), this.rightNode).RotateRight();
 
         private AvlTree<TKey, TValue> SelfCopy(AvlTree<TKey, TValue> left, AvlTree<TKey, TValue> right) =>
+            left == this.leftNode && right == this.rightNode ? this :
             new AvlTree<TKey, TValue>(this.storedHash, this.storedValue, left, right);
 
         private int GetBalance() => this.leftNode.height - this.rightNode.height;
