@@ -36,7 +36,7 @@ namespace Stashbox.MetaInfo
 
         public bool TryChooseConstructor(out ResolutionConstructor resolutionConstructor, ResolutionInfo resolutionInfo, InjectionParameter[] injectionParameters = null)
         {
-            return this.TryGetBestConstructor(out resolutionConstructor, resolutionInfo, injectionParameters);
+            return this.TryGetConstructor(this.metaInfoCache.Constructors, out resolutionConstructor, resolutionInfo, injectionParameters);
         }
 
         public IEnumerable<ResolutionMethod> GetResolutionMethods(ResolutionInfo resolutionInfo, InjectionParameter[] injectionParameters = null)
@@ -62,12 +62,6 @@ namespace Stashbox.MetaInfo
                     MemberSetter = memberInfo.MemberInfo.GetMemberSetter(),
                     MemberInfo = memberInfo.MemberInfo
                 });
-        }
-
-        private bool TryGetBestConstructor(out ResolutionConstructor resolutionConstructor, ResolutionInfo resolutionInfo,
-            InjectionParameter[] injectionParameters = null)
-        {
-            return this.TryGetConstructor(this.metaInfoCache.Constructors, out resolutionConstructor, resolutionInfo, injectionParameters);
         }
 
         private bool TryGetConstructor(IEnumerable<ConstructorInformation> constructors, out ResolutionConstructor resolutionConstructor,

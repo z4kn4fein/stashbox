@@ -4,12 +4,7 @@ using System.Collections.Generic;
 
 namespace Stashbox.Utils
 {
-    /// <summary>
-    /// Represents an immutable AVL Tree implementation
-    /// </summary>
-    /// <typeparam name="TKey">The type of the key.</typeparam>
-    /// <typeparam name="TValue">The type of the collection.</typeparam>
-    public class AvlTree<TKey, TValue> : IEnumerable<TValue>
+    internal class AvlTree<TKey, TValue> : IEnumerable<TValue>
     {
         private static readonly AvlTree<TKey, TValue> Empty = new AvlTree<TKey, TValue>();
 
@@ -39,30 +34,15 @@ namespace Stashbox.Utils
             : this(hash, value, Empty, Empty)
         { }
 
-        /// <summary>
-        /// Constructs an <see cref="AvlTree{TKey, TValue}"/>
-        /// </summary>
         public AvlTree()
         { }
 
-        /// <summary>
-        /// Adds a value to the tree.
-        /// </summary>
-        /// <param name="key">The key to add.</param>
-        /// <param name="value">The value to add.</param>
-        /// <param name="updateDelegate">The update delegate.</param>
-        /// <returns>The modified tree.</returns>
         public AvlTree<TKey, TValue> AddOrUpdate(TKey key, TValue value, Func<TValue, TValue, TValue> updateDelegate = null)
         {
             var hash = key.GetHashCode();
             return this.Add(hash, value, updateDelegate);
         }
 
-        /// <summary>
-        /// Retrieves an item from the tree or returns with the item's default value.
-        /// </summary>
-        /// <param name="key">The key.</param>
-        /// <returns>The value.</returns>
         public TValue GetOrDefault(TKey key)
         {
             var hash = key.GetHashCode();
@@ -113,17 +93,11 @@ namespace Stashbox.Utils
 
         private int GetBalance() => this.leftNode.height - this.rightNode.height;
 
-        public IEnumerator<TValue> GetEnumerator()
-        {
-            return new AvlTreeEnumerator<TKey, TValue>(this);
-        }
+        public IEnumerator<TValue> GetEnumerator() => new AvlTreeEnumerator(this);
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return this.GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 
-        public class AvlTreeEnumerator<TKey, TValue> : IEnumerator<TValue>
+        internal class AvlTreeEnumerator : IEnumerator<TValue>
         {
             private TValue current;
             private AvlTree<TKey, TValue> currentNode;
@@ -174,10 +148,7 @@ namespace Stashbox.Utils
                 return false;
             }
 
-            public void Reset()
-            {
-                this.Initialize();
-            }
+            public void Reset() => this.Initialize();
 
             public void Dispose()
             {

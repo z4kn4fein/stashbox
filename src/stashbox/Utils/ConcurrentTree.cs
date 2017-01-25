@@ -5,7 +5,7 @@ using System.Threading;
 
 namespace Stashbox.Utils
 {
-    public class ConcurrentTree<TKey, TValue> : IEnumerable<TValue>
+    internal class ConcurrentTree<TKey, TValue> : IEnumerable<TValue>
     {
         public static ConcurrentTree<TKey, TValue> Create() => new ConcurrentTree<TKey, TValue>();
 
@@ -32,10 +32,8 @@ namespace Stashbox.Utils
             return this;
         }
 
-        private bool TrySwapCurrentRepository(AvlTree<TKey, TValue> currentRepo, AvlTree<TKey, TValue> newRepo)
-        {
-            return Interlocked.CompareExchange(ref repository, newRepo, currentRepo) == currentRepo;
-        }
+        private bool TrySwapCurrentRepository(AvlTree<TKey, TValue> currentRepo, AvlTree<TKey, TValue> newRepo) =>
+            Interlocked.CompareExchange(ref repository, newRepo, currentRepo) == currentRepo;
 
         private void SwapCurrentRepository(Func<AvlTree<TKey, TValue>, AvlTree<TKey, TValue>> repoFactory)
         {
@@ -53,14 +51,8 @@ namespace Stashbox.Utils
             } while (Interlocked.CompareExchange(ref repository, newRepo, currentRepo) != currentRepo);
         }
 
-        public IEnumerator<TValue> GetEnumerator()
-        {
-            return this.repository.GetEnumerator();
-        }
+        public IEnumerator<TValue> GetEnumerator() => this.repository.GetEnumerator();
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return this.repository.GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => this.repository.GetEnumerator();
     }
 }

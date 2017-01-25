@@ -30,24 +30,17 @@ namespace Stashbox.Registration
         }
 
         /// <inheritdoc />
-        public IEnumerable<IServiceRegistration> GetAllRegistrations()
-        {
-            return this.serviceRepository.SelectMany(tree => tree)
+        public IEnumerable<IServiceRegistration> GetAllRegistrations() => this.serviceRepository.SelectMany(tree => tree)
                 .Concat(this.genericDefinitionRepository.SelectMany(tree => tree));
-        }
 
         /// <inheritdoc />
-        public bool TryGetRegistrationWithConditions(TypeInformation typeInfo, out IServiceRegistration registration)
-        {
-            return typeInfo.DependencyName == null ? this.TryGetByTypeKeyWithConditions(typeInfo, out registration) : this.TryGetByNamedKey(typeInfo, out registration);
-        }
+        public bool TryGetRegistrationWithConditions(TypeInformation typeInfo, out IServiceRegistration registration) =>
+            typeInfo.DependencyName == null ? this.TryGetByTypeKeyWithConditions(typeInfo, out registration) : this.TryGetByNamedKey(typeInfo, out registration);
 
         /// <inheritdoc />
-        public bool TryGetRegistrationWithConditionsWithoutGenericDefinitionExtraction(TypeInformation typeInfo, out IServiceRegistration registration)
-        {
-            return typeInfo.DependencyName == null ? this.TryGetByTypeKeyWithConditionsWithoutGenericDefinitionExtraction(typeInfo, out registration) :
+        public bool TryGetRegistrationWithConditionsWithoutGenericDefinitionExtraction(TypeInformation typeInfo, out IServiceRegistration registration) =>
+            typeInfo.DependencyName == null ? this.TryGetByTypeKeyWithConditionsWithoutGenericDefinitionExtraction(typeInfo, out registration) :
                 this.TryGetByNamedKeyWithoutGenericDefinitionExtraction(typeInfo, out registration);
-        }
 
         /// <inheritdoc />
         public bool TryGetRegistration(TypeInformation typeInfo, out IServiceRegistration registration)
@@ -155,9 +148,7 @@ namespace Stashbox.Registration
         public void CleanUp()
         {
             foreach (var registration in this.serviceRepository.SelectMany(registrations => registrations))
-            {
                 registration.CleanUp();
-            }
 
             this.serviceRepository = null;
         }
