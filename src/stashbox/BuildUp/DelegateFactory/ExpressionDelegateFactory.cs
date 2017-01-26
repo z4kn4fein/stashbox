@@ -21,7 +21,7 @@ namespace Stashbox.BuildUp.DelegateFactory
             evaluateMethodInfo = typeof(IResolutionStrategy).GetTypeInfo().GetDeclaredMethod("EvaluateResolutionTarget");
             buildExtensionMethod = typeof(IContainerExtensionManager).GetTypeInfo().GetDeclaredMethod("ExecutePostBuildExtensions");
         }
-        
+
         public static Expression CreateExpression(IContainerExtensionManager extensionManager, IContainerContext containerContext, ResolutionConstructor resolutionConstructor, ResolutionInfo resolutionInfo,
             Expression resolutionInfoExpression, TypeInformation typeInfo, InjectionParameter[] parameters, ResolutionMember[] members, ResolutionMethod[] methods)
         {
@@ -34,14 +34,23 @@ namespace Stashbox.BuildUp.DelegateFactory
                 arguments[i] = containerContext.ResolutionStrategy.GetExpressionForResolutionTarget(parameter, resolutionInfo, resolutionInfoExpression);
             }
 
-            var block = new List<Expression>();
-
             Expression initExpression = Expression.New(resolutionConstructor.Constructor, arguments);
 
             if (members != null && members.Length > 0)
                 initExpression = CreateMemberInitExpression(containerContext, members, resolutionInfo, resolutionInfoExpression, (NewExpression)initExpression);
 
-            var variable = Expression.Variable(resolutionConstructor.Constructor.DeclaringType);
+            if ((methods != null && methods.Length > 0) || extensionManager.HasPostBuildExtensions)
+                return CreatePostWorkExpressionIfAny(extensionManager, containerContext, resolutionInfo, resolutionInfoExpression, initExpression, typeInfo, parameters, methods);
+            else
+                return initExpression;
+        }
+
+        private static Expression CreatePostWorkExpressionIfAny(IContainerExtensionManager extensionManager, IContainerContext containerContext, ResolutionInfo resolutionInfo,
+            Expression resolutionInfoExpression, Expression initExpression, TypeInformation typeInfo, InjectionParameter[] parameters, ResolutionMethod[] methods)
+        {
+            var block = new List<Expression>();
+
+            var variable = Expression.Variable(typeInfo.Type);
             var assingExpr = Expression.Assign(variable, initExpression);
 
             block.Add(assingExpr);
@@ -50,8 +59,12 @@ namespace Stashbox.BuildUp.DelegateFactory
                 block.AddRange(CreateMethodExpressions(containerContext, methods, resolutionInfo, resolutionInfoExpression, variable));
 
             if (extensionManager.HasPostBuildExtensions)
-                block.Add(Expression.Call(Expression.Constant(extensionManager), buildExtensionMethod, variable, Expression.Constant(containerContext),
-                    resolutionInfoExpression, Expression.Constant(typeInfo), Expression.Constant(parameters, typeof(InjectionParameter[]))));
+            {
+                var call = Expression.Call(Expression.Constant(extensionManager), buildExtensionMethod, variable, Expression.Constant(containerContext),
+                      resolutionInfoExpression, Expression.Constant(typeInfo), Expression.Constant(parameters, typeof(InjectionParameter[])));
+
+                block.Add(Expression.Assign(variable, Expression.Convert(call, typeInfo.Type)));
+            }
 
             block.Add(variable); //return
 
@@ -78,6 +91,7 @@ namespace Stashbox.BuildUp.DelegateFactory
             Expression resolutionInfoExpression, Expression newExpression)
         {
             var lenght = methods.Length;
+            newExpression = Expression.Convert(newExpression, methods[0].Method.DeclaringType);
             var methodExpressions = new Expression[lenght];
             for (var i = 0; i < lenght; i++)
             {
