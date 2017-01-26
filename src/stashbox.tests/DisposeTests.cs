@@ -165,15 +165,39 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void DisposeTests_TrackTransientDisposal_Scoped_Transient_ChildContainer()
+        {
+            IStashboxContainer container = new StashboxContainer(config => config.WithDisposableTransientTracking().WithParentContainerResolution());
+            ITest1 test4;
+            ITest2 test5;
+            Test3 test6;
+
+            container.RegisterType<ITest2, Test2>();
+            container.RegisterType<Test3>();
+            container.RegisterType<ITest1, Test1>();
+
+            using (var child = container.BeginScope())
+            {
+                test4 = child.Resolve<ITest1>();
+                test5 = child.Resolve<ITest2>();
+                test6 = child.Resolve<Test3>();
+            }
+
+            Assert.IsTrue(test4.Disposed);
+            Assert.IsTrue(test5.Test1.Disposed);
+            Assert.IsTrue(test6.Test1.Disposed);
+        }
+
+        [TestMethod]
         public void DisposeTests_TrackTransientDisposal_Scoped_Transient_Singleton()
         {
             var container = new StashboxContainer(config => config.WithDisposableTransientTracking().WithParentContainerResolution());
-            
+
 
             container.RegisterType<ITest2, Test2>();
             container.RegisterType<Test3>();
             container.RegisterSingleton<ITest1, Test1>();
-            
+
             ITest1 test4;
             ITest2 test5;
             Test3 test6;
@@ -189,12 +213,22 @@ namespace Stashbox.Tests
                 Assert.IsFalse(test6.Test1.Disposed);
             }
 
+            Assert.IsFalse(test4.Disposed);
+            Assert.IsFalse(test5.Test1.Disposed);
+            Assert.IsFalse(test6.Test1.Disposed);
+
+            container.Dispose();
+
             Assert.IsTrue(test4.Disposed);
             Assert.IsTrue(test5.Test1.Disposed);
             Assert.IsTrue(test6.Test1.Disposed);
         }
 
-        public interface ITest1 : IDisposable { bool Disposed { get; } }
+        public interface ITest11 { }
+
+        public interface ITest12 { }
+
+        public interface ITest1 : ITest11, ITest12, IDisposable { bool Disposed { get; } }
 
         public interface ITest2 { ITest1 Test1 { get; } }
 

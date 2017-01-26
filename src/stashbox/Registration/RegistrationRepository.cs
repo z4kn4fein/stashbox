@@ -147,7 +147,7 @@ namespace Stashbox.Registration
         /// <inheritdoc />
         public void CleanUp()
         {
-            foreach (var registration in this.serviceRepository.SelectMany(registrations => registrations))
+            foreach (var registration in this.serviceRepository.SelectMany(tree => tree))
                 registration.CleanUp();
 
             this.serviceRepository = null;

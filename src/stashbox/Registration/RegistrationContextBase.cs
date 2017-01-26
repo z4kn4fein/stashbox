@@ -28,7 +28,7 @@ namespace Stashbox.Registration
 
         protected RegistrationInfo PrepareRegistration(IContainerExtensionManager containerExtensionManager, bool update = false)
         {
-            var registrationName = this.RegistrationContextData.Name = NameGenerator.GetRegistrationName(this.TypeTo, this.RegistrationContextData.Name);
+            var registrationName = this.RegistrationContextData.Name = NameGenerator.GetRegistrationName(this.TypeFrom, this.TypeTo, this.RegistrationContextData.Name);
 
             var registrationLifetime = this.RegistrationContextData.ExistingInstance != null ? new TransientLifetime() :
                                             RegistrationContextData.ScopeManagementEnabled ? new SingletonLifetime() :
