@@ -88,6 +88,7 @@ namespace Stashbox.MetaInfo
         {
             return this.SelectMembers(typeInfo.DeclaredProperties)
                    .OfType<PropertyInfo>()
+                   .Where(property => property.CanWrite)
                    .Select(propertyInfo => new MemberInformation
                    {
                        TypeInformation = new TypeInformation
@@ -104,6 +105,7 @@ namespace Stashbox.MetaInfo
                    })
                    .Concat(this.SelectMembers(typeInfo.DeclaredFields)
                            .OfType<FieldInfo>()
+                           .Where(field => !field.IsInitOnly)
                            .Where(fieldInfo => fieldInfo.GetCustomAttribute<DependencyAttribute>() != null)
                            .Select(fieldInfo => new MemberInformation
                            {
