@@ -119,8 +119,7 @@ namespace Stashbox.Tests
                 });
             }
         }
-
-        [Ignore]
+        
         [TestMethod]
         public void GenericTests_Resolve_Constraint()
         {
@@ -130,6 +129,7 @@ namespace Stashbox.Tests
                 container.RegisterType(typeof(IConstraintTest<>), typeof(ConstraintTest2<>));
 
                 var inst = container.ResolveAll<IConstraintTest<ConstraintArgument>>().ToArray();
+                Assert.AreEqual(1, inst.Length);
             }
         }
 

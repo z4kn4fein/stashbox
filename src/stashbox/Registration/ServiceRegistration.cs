@@ -62,16 +62,18 @@ namespace Stashbox.Registration
         /// <inheritdoc />
         public bool IsUsableForCurrentContext(TypeInformation typeInfo)
         {
-            return (this.targetTypeCondition == null && this.resolutionCondition == null && (this.attributeConditions == null || !this.attributeConditions.Any())) ||
+            return (this.targetTypeCondition == null && this.resolutionCondition == null && (this.attributeConditions == null || !this.attributeConditions.Any()) && !this.metaInfoCache.HasGenericTypeConstraints) ||
                    (this.targetTypeCondition != null && typeInfo.ParentType != null && this.targetTypeCondition == typeInfo.ParentType) ||
                    (this.attributeConditions != null && typeInfo.CustomAttributes != null &&
                     this.attributeConditions.Intersect(typeInfo.CustomAttributes.Select(attribute => attribute.GetType())).Any()) ||
-                   (this.resolutionCondition != null && this.resolutionCondition(typeInfo));
+                   (this.resolutionCondition != null && this.resolutionCondition(typeInfo)) ||
+                   (typeInfo.Type.IsConstructedGenericType && this.metaInfoCache.ValidateGenericContraints(typeInfo));
         }
 
         /// <inheritdoc />
         public bool HasCondition => this.targetTypeCondition != null || this.resolutionCondition != null ||
-            (this.attributeConditions != null && this.attributeConditions.Any());
+            (this.attributeConditions != null && this.attributeConditions.Any()) ||
+            this.metaInfoCache.HasGenericTypeConstraints;
 
         /// <inheritdoc />
         public void ServiceUpdated(RegistrationInfo registrationInfo)

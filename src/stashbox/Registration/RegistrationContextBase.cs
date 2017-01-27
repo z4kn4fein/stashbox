@@ -51,7 +51,7 @@ namespace Stashbox.Registration
             }
             else
             {
-                var registration = this.CreateServiceRegistration(registrationName, registrationLifetime, this.CreateObjectBuilder(registrationName, containerExtensionManager), cache);
+                var registration = this.CreateServiceRegistration(registrationName, registrationLifetime, this.CreateObjectBuilder(registrationName, containerExtensionManager, cache), cache);
                 if (update)
                     this.ContainerContext.RegistrationRepository.AddOrUpdateRegistration(this.TypeFrom, registration, registrationName);
                 else
@@ -72,12 +72,12 @@ namespace Stashbox.Registration
             return registrationInfo;
         }
 
-        private IObjectBuilder CreateObjectBuilder(string name, IContainerExtensionManager containerExtensionManager)
+        private IObjectBuilder CreateObjectBuilder(string name, IContainerExtensionManager containerExtensionManager, MetaInfoCache cache)
         {
             if (this.RegistrationContextData.ExistingInstance != null)
                 return new InstanceObjectBuilder(this.RegistrationContextData.ExistingInstance);
 
-            var metainfoProvider = new MetaInfoProvider(this.ContainerContext, new MetaInfoCache(this.ContainerContext.ContainerConfiguration, this.TypeTo));
+            var metainfoProvider = new MetaInfoProvider(this.ContainerContext, cache);
 
             var objectExtender = new ObjectExtender(metainfoProvider, this.RegistrationContextData.InjectionParameters);
 
@@ -96,7 +96,7 @@ namespace Stashbox.Registration
             if (this.RegistrationContextData.OneParameterFactory != null)
                 return new FactoryObjectBuilder(this.RegistrationContextData.OneParameterFactory, this.ContainerContext, containerExtensionManager, objectExtender);
 
-            return new DefaultObjectBuilder(this.ContainerContext, new MetaInfoProvider(this.ContainerContext, new MetaInfoCache(this.ContainerContext.ContainerConfiguration, this.TypeTo)),
+            return new DefaultObjectBuilder(this.ContainerContext, metainfoProvider,
                 containerExtensionManager, this.RegistrationContextData.InjectionParameters);
         }
 

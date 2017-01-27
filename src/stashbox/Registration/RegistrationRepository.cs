@@ -91,12 +91,12 @@ namespace Stashbox.Registration
         /// <inheritdoc />
         public bool TryGetTypedRepositoryRegistrations(TypeInformation typeInfo, out IServiceRegistration[] registrations)
         {
-            var serviceRegistrations = this.serviceRepository.GetOrDefault(typeInfo.Type);
+            var serviceRegistrations = this.serviceRepository.GetOrDefault(typeInfo.Type)?.ToArray();
             if (serviceRegistrations == null)
             {
                 Type genericTypeDefinition;
                 if (this.TryHandleOpenGenericType(typeInfo.Type, out genericTypeDefinition))
-                    serviceRegistrations = this.genericDefinitionRepository.GetOrDefault(genericTypeDefinition);
+                    serviceRegistrations = this.genericDefinitionRepository.GetOrDefault(genericTypeDefinition)?.Where(reg => reg.IsUsableForCurrentContext(typeInfo)).ToArray();
                 else
                 {
                     registrations = null;
@@ -104,7 +104,7 @@ namespace Stashbox.Registration
                 }
             }
 
-            registrations = serviceRegistrations?.ToArray();
+            registrations = serviceRegistrations;
             return registrations != null;
         }
 
@@ -113,8 +113,7 @@ namespace Stashbox.Registration
         {
             var registrations = this.serviceRepository.GetOrDefault(typeInfo.Type);
             if (registrations != null)
-                return registrations != null &&
-                       registrations
+                return registrations
                            .Any(registration => registration.IsUsableForCurrentContext(typeInfo) &&
                            this.CheckDependencyName(registration.RegistrationName, typeInfo.DependencyName));
 
@@ -179,9 +178,7 @@ namespace Stashbox.Registration
             if (registrations.HasMultipleItems)
             {
                 var serviceRegistrations = registrations.ToArray();
-                registration = this.containerConfiguration.DependencySelectionRule(serviceRegistrations.Any(reg => reg.HasCondition) ?
-                    serviceRegistrations.Where(reg => reg.HasCondition && reg.IsUsableForCurrentContext(typeInfo)) :
-                    serviceRegistrations.Where(reg => reg.IsUsableForCurrentContext(typeInfo)));
+                registration = this.containerConfiguration.DependencySelectionRule(this.ApplyConditionFilters(serviceRegistrations, typeInfo));
             }
             else
                 registration = registrations.Value;
@@ -201,14 +198,19 @@ namespace Stashbox.Registration
             if (registrations.HasMultipleItems)
             {
                 var serviceRegistrations = registrations.ToArray();
-                registration = this.containerConfiguration.DependencySelectionRule(serviceRegistrations.Any(reg => reg.HasCondition) ?
-                    serviceRegistrations.Where(reg => reg.HasCondition && reg.IsUsableForCurrentContext(typeInfo)) :
-                    serviceRegistrations.Where(reg => reg.IsUsableForCurrentContext(typeInfo)));
+                registration = this.containerConfiguration.DependencySelectionRule(this.ApplyConditionFilters(serviceRegistrations, typeInfo));
             }
             else
                 registration = registrations.Value;
 
             return registration != null;
+        }
+
+        private IEnumerable<IServiceRegistration> ApplyConditionFilters(IServiceRegistration[] registrations, TypeInformation typeInfo)
+        {
+            return registrations.Any(reg => reg.HasCondition)
+                ? registrations.Where(reg => reg.HasCondition && reg.IsUsableForCurrentContext(typeInfo))
+                : registrations.Where(reg => reg.IsUsableForCurrentContext(typeInfo));
         }
 
         private bool TryGetRegistrationsByType(Type type, out ConcurrentTree<string, IServiceRegistration> registrations)
