@@ -1,5 +1,6 @@
 ﻿using Stashbox.Entity;
 using Stashbox.Infrastructure;
+using Stashbox.MetaInfo;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,6 +19,7 @@ namespace Stashbox.Registration
         private readonly HashSet<Type> attributeConditions;
         private readonly Type targetTypeCondition;
         private readonly Func<TypeInformation, bool> resolutionCondition;
+        private readonly MetaInfoCache metaInfoCache;
 
         /// <summary>
         /// Constructs a <see cref="ServiceRegistration"/>
@@ -26,11 +28,12 @@ namespace Stashbox.Registration
         /// <param name="containerContext">The container context.</param>
         /// <param name="lifetimeManager">The lifetime manager.</param>
         /// <param name="objectBuilder">THe object builder.</param>
+        /// <param name="metaInfoCache">THe meta info cache.</param>
         /// <param name="attributeConditions">The attribute conditions.</param>
         /// <param name="targetTypeCondition">The target type condition.</param>
         /// <param name="resolutionCondition">The resolution condition.</param>
         public ServiceRegistration(string registrationName, IContainerContext containerContext, ILifetime lifetimeManager,
-            IObjectBuilder objectBuilder, HashSet<Type> attributeConditions = null, Type targetTypeCondition = null,
+            IObjectBuilder objectBuilder, MetaInfoCache metaInfoCache, HashSet<Type> attributeConditions = null, Type targetTypeCondition = null,
             Func<TypeInformation, bool> resolutionCondition = null)
         {
             this.RegistrationName = registrationName;
@@ -40,6 +43,7 @@ namespace Stashbox.Registration
             this.attributeConditions = attributeConditions;
             this.targetTypeCondition = targetTypeCondition;
             this.resolutionCondition = resolutionCondition;
+            this.metaInfoCache = metaInfoCache;
             this.RegistrationNumber = this.containerContext.ReserveRegistrationNumber();
         }
 

@@ -12,6 +12,28 @@ namespace Stashbox.Configuration
     public static class Rules
     {
         /// <summary>
+        /// Represents the rules for auto injecting members.
+        /// </summary>
+        [Flags]
+        public enum AutoMemberInjection
+        {
+            /// <summary>
+            /// With this flag the container will perform auto injection on properties which has a public setter.
+            /// </summary>
+            PropertiesWithPublicSetter,
+
+            /// <summary>
+            /// With this flag the container will perform auto injection on properties which has a non public setter as well.
+            /// </summary>
+            PropertiesWithLimitedAccess,
+
+            /// <summary>
+            /// With this flag the container will perform auto injection on private fields too.
+            /// </summary>
+            PrivateFields,
+        }
+
+        /// <summary>
         /// Represents a constructor selection rules.
         /// </summary>
         public static class ConstructorSelection

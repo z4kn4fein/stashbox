@@ -88,7 +88,7 @@ namespace Stashbox.BuildUp
                     if (this.resolutionConstructor != null && !this.isConstructorDirty) return this.CreateExpression(this.resolutionConstructor, resolutionInfo, resolveType, resolutionInfoExpression);
                     {
                         ResolutionConstructor constructor;
-                        if (!this.metaInfoProvider.TryChooseConstructor(out constructor, injectionParameters: this.injectionParameters))
+                        if (!this.metaInfoProvider.TryChooseConstructor(out constructor, resolutionInfo, this.injectionParameters))
                             throw new ResolutionFailedException(this.metaInfoProvider.TypeTo.FullName);
                         this.resolutionConstructor = constructor;
                         this.isConstructorDirty = false;

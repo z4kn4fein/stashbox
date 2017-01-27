@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Stashbox.Tests
@@ -118,6 +119,29 @@ namespace Stashbox.Tests
                 });
             }
         }
+
+        [Ignore]
+        [TestMethod]
+        public void GenericTests_Resolve_Constraint()
+        {
+            using (var container = new StashboxContainer())
+            {
+                container.RegisterType(typeof(IConstraintTest<>), typeof(ConstraintTest<>));
+                container.RegisterType(typeof(IConstraintTest<>), typeof(ConstraintTest2<>));
+
+                var inst = container.ResolveAll<IConstraintTest<ConstraintArgument>>().ToArray();
+            }
+        }
+
+        public interface Constraint { }
+
+        public interface IConstraintTest<T> { }
+
+        public class ConstraintTest<T> : IConstraintTest<T> { }
+
+        public class ConstraintTest2<T> : IConstraintTest<T> where T : Constraint { }
+
+        public class ConstraintArgument { }
 
         public interface ITest1<I, K>
         {

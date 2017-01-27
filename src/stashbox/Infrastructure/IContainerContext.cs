@@ -27,7 +27,7 @@ namespace Stashbox.Infrastructure
         /// <summary>
         /// Repository of scoped registrations.
         /// </summary>
-        ConcurrentKeyValueStore<string, ScopedRegistrationItem> ScopedRegistrations { get; }
+        ConcurrentTree<string, ScopedRegistrationItem> ScopedRegistrations { get; }
 
         /// <summary>
         /// A generic key-value store.

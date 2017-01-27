@@ -77,6 +77,40 @@ namespace Stashbox.Tests
             Assert.AreSame(t2, r.Test2);
         }
 
+        [TestMethod]
+        public void FuncTests_Resolve_ParameterInjection_SubDependency()
+        {
+            var container = new StashboxContainer();
+            container.RegisterType<FunctTest2>();
+            container.RegisterType<FuncTest>();
+            var inst = container.Resolve<Func<ITest, FuncTest>>();
+
+            var t = new Test();
+            var r = inst(t);
+
+            Assert.AreSame(t, r.Func2.Test);
+        }
+
+        public class FuncTest
+        {
+            public FunctTest2 Func2 { get; set; }
+
+            public FuncTest(FunctTest2 func2)
+            {
+                this.Func2 = func2;
+            }
+        }
+
+        public class FunctTest2
+        {
+            public ITest Test { get; set; }
+
+            public FunctTest2(ITest test)
+            {
+                this.Test = test;
+            }
+        }
+
         public interface ITest
         { }
 

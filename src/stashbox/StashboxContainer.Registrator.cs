@@ -195,11 +195,12 @@ namespace Stashbox
 
             var registrationInfo = new RegistrationInfo { TypeFrom = typeFrom, TypeTo = typeTo };
 
-            var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, new MetaInfoCache(this.ContainerContext.ContainerConfiguration, typeTo));
+            var cache = new MetaInfoCache(this.ContainerContext.ContainerConfiguration, typeTo);
+            var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, cache);
             var objectExtender = new ObjectExtender(metaInfoProvider);
 
             var registration = new ServiceRegistration(keyName, this.ContainerContext, new TransientLifetime(),
-                new WireUpObjectBuilder(instance, this.ContainerContext, this.containerExtensionManager, objectExtender));
+                new WireUpObjectBuilder(instance, this.ContainerContext, this.containerExtensionManager, objectExtender), cache);
 
             this.registrationRepository.AddRegistration(typeFrom, registration, keyName);
             this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.ContainerContext, registrationInfo);
@@ -211,9 +212,9 @@ namespace Stashbox
             keyName = NameGenerator.GetRegistrationName(insanceType, insanceType, keyName);
 
             var registrationInfo = new RegistrationInfo { TypeFrom = type, TypeTo = type };
-
+            var cache = new MetaInfoCache(this.ContainerContext.ContainerConfiguration, insanceType);
             var registration = new ServiceRegistration(keyName, this.ContainerContext, new TransientLifetime(),
-                new InstanceObjectBuilder(instance));
+                new InstanceObjectBuilder(instance), cache);
 
             this.registrationRepository.AddRegistration(type, registration, keyName);
             this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.ContainerContext, registrationInfo);

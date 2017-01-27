@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Stashbox.Configuration;
 using Stashbox.Exceptions;
 
 namespace Stashbox.Tests
@@ -21,12 +22,13 @@ namespace Stashbox.Tests
         [TestMethod]
         public void ResolverTests_DefaultValue_WithOptional()
         {
-            using (var container = new StashboxContainer(config => config.WithOptionalAndDefaultValueInjection()))
+            using (var container = new StashboxContainer(config => config.WithOptionalAndDefaultValueInjection()
+            .WithMemberInjectionWithoutAnnotation(Rules.AutoMemberInjection.PropertiesWithPublicSetter)))
             {
                 container.RegisterType<Test1>();
                 var inst = container.Resolve<Test1>();
 
-                Assert.AreEqual(inst.I, 5);
+                Assert.AreEqual(5, inst.I);
             }
         }
 
@@ -103,7 +105,9 @@ namespace Stashbox.Tests
         [TestMethod]
         public void ResolverTests_MemberInject_WithoutAnnotation()
         {
-            using (var container = new StashboxContainer(config => config.WithMemberInjectionWithoutAnnotation().WithUnknownTypeResolution()))
+            using (var container = new StashboxContainer(config => config
+            .WithMemberInjectionWithoutAnnotation(Rules.AutoMemberInjection.PropertiesWithPublicSetter)
+            .WithUnknownTypeResolution()))
             {
                 container.RegisterType<Test5>();
                 var inst = container.Resolve<Test5>();
@@ -124,7 +128,7 @@ namespace Stashbox.Tests
 
         public class Test1
         {
-            public int I { get; set; }
+            public int I { get; private set; }
 
             public Test1(int i = 5)
             {

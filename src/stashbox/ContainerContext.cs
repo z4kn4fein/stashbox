@@ -27,7 +27,7 @@ namespace Stashbox
             this.RegistrationRepository = registrationRepository;
             this.Container = container;
             this.Bag = new ConcurrentKeyValueStore<object, object>();
-            this.ScopedRegistrations = new ConcurrentKeyValueStore<string, ScopedRegistrationItem>();
+            this.ScopedRegistrations = new ConcurrentTree<string, ScopedRegistrationItem>();
             this.TrackedTransientObjects = new ConcurrentStore<object>();
             this.ContainerConfiguration = containerConfiguration;
         }
@@ -42,7 +42,7 @@ namespace Stashbox
         public IResolutionStrategy ResolutionStrategy { get; }
 
         /// <inheritdoc />
-        public ConcurrentKeyValueStore<string, ScopedRegistrationItem> ScopedRegistrations { get; }
+        public ConcurrentTree<string, ScopedRegistrationItem> ScopedRegistrations { get; }
 
         /// <inheritdoc />
         public ConcurrentKeyValueStore<object, object> Bag { get; }

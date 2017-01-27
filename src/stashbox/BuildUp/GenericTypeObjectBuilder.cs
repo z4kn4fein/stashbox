@@ -1,7 +1,10 @@
 ﻿using Stashbox.Entity;
+using Stashbox.Exceptions;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.ContainerExtension;
 using Stashbox.Registration;
+using Stashbox.Utils;
+using System;
 using System.Linq.Expressions;
 
 namespace Stashbox.BuildUp
@@ -25,51 +28,36 @@ namespace Stashbox.BuildUp
 
         public object BuildInstance(ResolutionInfo resolutionInfo, TypeInformation resolveType)
         {
+            var genericType = this.metaInfoProvider.TypeTo.MakeGenericType(resolveType.Type.GenericTypeArguments);
+            resolveType.DependencyName = NameGenerator.GetRegistrationName(resolveType.Type, genericType);
+
+            this.RegisterConcreteGenericType(resolveType, genericType);
+
             IServiceRegistration registration;
-            if (this.containerContext.RegistrationRepository
+            if (!this.containerContext.RegistrationRepository
                 .TryGetRegistrationWithConditionsWithoutGenericDefinitionExtraction(resolveType, out registration))
-                return registration.GetInstance(resolutionInfo, resolveType);
+                throw new ResolutionFailedException(genericType.FullName);
 
-            lock (this.syncObject)
-            {
-                if (this.containerContext.RegistrationRepository
-                    .TryGetRegistrationWithConditionsWithoutGenericDefinitionExtraction(resolveType, out registration))
-                    return registration.GetInstance(resolutionInfo, resolveType);
-
-                this.RegisterConcreteGenericType(resolveType);
-
-                this.containerContext.RegistrationRepository
-                    .TryGetRegistrationWithConditionsWithoutGenericDefinitionExtraction(resolveType, out registration);
-
-                return registration.GetInstance(resolutionInfo, resolveType);
-            }
+            return registration.GetInstance(resolutionInfo, resolveType);
         }
 
         public Expression GetExpression(ResolutionInfo resolutionInfo, Expression resolutionInfoExpression, TypeInformation resolveType)
         {
+            var genericType = this.metaInfoProvider.TypeTo.MakeGenericType(resolveType.Type.GenericTypeArguments);
+            resolveType.DependencyName = NameGenerator.GetRegistrationName(resolveType.Type, genericType);
+
+            this.RegisterConcreteGenericType(resolveType, genericType);
+
             IServiceRegistration registration;
-            if (this.containerContext.RegistrationRepository
+            if (!this.containerContext.RegistrationRepository
                 .TryGetRegistrationWithConditionsWithoutGenericDefinitionExtraction(resolveType, out registration))
-                return registration.GetExpression(resolutionInfo, resolutionInfoExpression, resolveType);
+                throw new ResolutionFailedException(genericType.FullName);
 
-            lock (this.syncObject)
-            {
-                if (this.containerContext.RegistrationRepository
-                    .TryGetRegistrationWithConditionsWithoutGenericDefinitionExtraction(resolveType, out registration))
-                    return registration.GetExpression(resolutionInfo, resolutionInfoExpression, resolveType);
-
-                this.RegisterConcreteGenericType(resolveType);
-
-                this.containerContext.RegistrationRepository
-                    .TryGetRegistrationWithConditionsWithoutGenericDefinitionExtraction(resolveType, out registration);
-
-                return registration.GetExpression(resolutionInfo, resolutionInfoExpression, resolveType);
-            }
+            return registration.GetExpression(resolutionInfo, resolutionInfoExpression, resolveType);
         }
 
-        private void RegisterConcreteGenericType(TypeInformation resolveType)
+        private void RegisterConcreteGenericType(TypeInformation resolveType, Type genericType)
         {
-            var genericType = this.metaInfoProvider.TypeTo.MakeGenericType(resolveType.Type.GenericTypeArguments);
             var registrationContext = new ScopedRegistrationContext(resolveType.Type, genericType, this.containerContext, this.containerExtensionManager);
             var newData = this.registrationContextData.CreateCopy();
             newData.Name = null;

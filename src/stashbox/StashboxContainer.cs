@@ -118,7 +118,7 @@ namespace Stashbox
 
         internal void OpenScope()
         {
-            foreach (var registrationItem in this.ParentContainer.ContainerContext.ScopedRegistrations.GetAll())
+            foreach (var registrationItem in this.ParentContainer.ContainerContext.ScopedRegistrations)
             {
                 var registration = new ScopedRegistrationContext(registrationItem.TypeFrom, registrationItem.TypeTo,
                     this.ContainerContext, this.containerExtensionManager);

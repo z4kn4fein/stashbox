@@ -2,6 +2,7 @@
 using Stashbox.Infrastructure;
 using System;
 using System.Collections.Generic;
+using static Stashbox.Configuration.Rules;
 
 namespace Stashbox.Configuration
 {
@@ -29,6 +30,8 @@ namespace Stashbox.Configuration
         internal bool UnknownTypeResolutionEnabled { get; private set; }
 
         internal bool MemberInjectionWithoutAnnotationEnabled { get; private set; }
+
+        internal AutoMemberInjection MemberInjectionWithoutAnnotationRule { get; private set; }
 
         internal Func<IEnumerable<ConstructorInformation>, ConstructorInformation> ConstructorSelectionRule { get; private set; }
 
@@ -90,9 +93,10 @@ namespace Stashbox.Configuration
         /// Enables the member injection without annotation.
         /// </summary>
         /// <returns>The container configuration.</returns>
-        public ContainerConfiguration WithMemberInjectionWithoutAnnotation()
+        public ContainerConfiguration WithMemberInjectionWithoutAnnotation(AutoMemberInjection rule)
         {
             this.MemberInjectionWithoutAnnotationEnabled = true;
+            this.MemberInjectionWithoutAnnotationRule = rule;
             return this;
         }
 
