@@ -96,7 +96,7 @@ namespace Stashbox.Registration
             {
                 Type genericTypeDefinition;
                 if (this.TryHandleOpenGenericType(typeInfo.Type, out genericTypeDefinition))
-                    serviceRegistrations = this.genericDefinitionRepository.GetOrDefault(genericTypeDefinition)?.Where(reg => reg.IsUsableForCurrentContext(typeInfo)).ToArray();
+                    serviceRegistrations = this.genericDefinitionRepository.GetOrDefault(genericTypeDefinition)?.Where(reg => reg.ValidateGenericContraints(typeInfo)).ToArray();
                 else
                 {
                     registrations = null;
@@ -155,7 +155,7 @@ namespace Stashbox.Registration
         private bool TryGetByTypeKey(TypeInformation typeInfo, out IServiceRegistration registration)
         {
             ConcurrentTree<string, IServiceRegistration> registrations;
-            if (!this.TryGetRegistrationsByType(typeInfo.Type, out registrations))
+            if (!this.TryGetRegistrationsByType(typeInfo, out registrations))
             {
                 registration = null;
                 return false;
@@ -169,7 +169,7 @@ namespace Stashbox.Registration
         private bool TryGetByTypeKeyWithConditions(TypeInformation typeInfo, out IServiceRegistration registration)
         {
             ConcurrentTree<string, IServiceRegistration> registrations;
-            if (!this.TryGetRegistrationsByType(typeInfo.Type, out registrations))
+            if (!this.TryGetRegistrationsByType(typeInfo, out registrations))
             {
                 registration = null;
                 return false;
@@ -213,8 +213,9 @@ namespace Stashbox.Registration
                 : registrations.Where(reg => reg.IsUsableForCurrentContext(typeInfo));
         }
 
-        private bool TryGetRegistrationsByType(Type type, out ConcurrentTree<string, IServiceRegistration> registrations)
+        private bool TryGetRegistrationsByType(TypeInformation typeInfo, out ConcurrentTree<string, IServiceRegistration> registrations)
         {
+            var type = typeInfo.Type;
             registrations = this.serviceRepository.GetOrDefault(type);
             if (registrations != null) return true;
 
@@ -237,7 +238,7 @@ namespace Stashbox.Registration
         private bool TryGetByNamedKey(TypeInformation typeInfo, out IServiceRegistration registration)
         {
             ConcurrentTree<string, IServiceRegistration> registrations;
-            if (this.TryGetRegistrationsByType(typeInfo.Type, out registrations))
+            if (this.TryGetRegistrationsByType(typeInfo, out registrations))
             {
                 registration = registrations.GetOrDefault(typeInfo.DependencyName);
                 return registration != null;

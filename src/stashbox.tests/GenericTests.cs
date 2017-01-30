@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -119,7 +120,7 @@ namespace Stashbox.Tests
                 });
             }
         }
-        
+
         [TestMethod]
         public void GenericTests_Resolve_Constraint_Array()
         {
@@ -133,14 +134,28 @@ namespace Stashbox.Tests
             }
         }
 
-        [Ignore]
         [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
         public void GenericTests_Resolve_Constraint()
         {
             using (var container = new StashboxContainer())
             {
                 container.RegisterType(typeof(IConstraintTest<>), typeof(ConstraintTest2<>));
                 container.Resolve<IConstraintTest<ConstraintArgument>>();
+            }
+        }
+
+        [TestMethod]
+        public void GenericTests_Resolve_Constraint_Constructor()
+        {
+            using (var container = new StashboxContainer())
+            {
+                container.RegisterType(typeof(IConstraintTest<>), typeof(ConstraintTest<>));
+                container.RegisterType(typeof(IConstraintTest<>), typeof(ConstraintTest2<>));
+                container.RegisterType<ConstraintTest3>();
+                var inst = container.Resolve<ConstraintTest3>();
+
+                Assert.IsInstanceOfType(inst.Test, typeof(ConstraintTest<ConstraintArgument>));
             }
         }
 
@@ -153,6 +168,16 @@ namespace Stashbox.Tests
         public class ConstraintTest2<T> : IConstraintTest<T> where T : Constraint { }
 
         public class ConstraintArgument { }
+
+        public class ConstraintTest3
+        {
+            public IConstraintTest<ConstraintArgument> Test { get; set; }
+
+            public ConstraintTest3(IConstraintTest<ConstraintArgument> test)
+            {
+                this.Test = test;
+            }
+        }
 
         public interface ITest1<I, K>
         {
