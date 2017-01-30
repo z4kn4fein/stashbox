@@ -67,7 +67,7 @@ namespace Stashbox.BuildUp.Resolution
             return (t) =>
             {
                 if (resolutionInfo.OverrideManager == null)
-                    resolutionInfo.OverrideManager = new OverrideManager(new[] { new TypeOverride(typeof(T), t) });
+                    resolutionInfo.OverrideManager = new OverrideManager(new Override[] { new TypeOverride(typeof(T), t) });
                 else
                     resolutionInfo.OverrideManager.AddTypedOverride(new TypeOverride(typeof(T), t));
                 return (TResult)registrationCache.GetInstance(resolutionInfo, this.funcArgumentInfo);
@@ -79,7 +79,7 @@ namespace Stashbox.BuildUp.Resolution
             return (t, t1) =>
             {
                 if (resolutionInfo.OverrideManager == null)
-                    resolutionInfo.OverrideManager = new OverrideManager(new[] { new TypeOverride(typeof(T), t), new TypeOverride(typeof(T1), t1) });
+                    resolutionInfo.OverrideManager = new OverrideManager(new Override[] { new TypeOverride(typeof(T), t), new TypeOverride(typeof(T1), t1) });
                 else
                 {
                     resolutionInfo.OverrideManager.AddTypedOverride(new TypeOverride(typeof(T), t));
@@ -94,7 +94,7 @@ namespace Stashbox.BuildUp.Resolution
             return (t, t1, t2) =>
             {
                 if (resolutionInfo.OverrideManager == null)
-                    resolutionInfo.OverrideManager = new OverrideManager(new[] { new TypeOverride(typeof(T), t), new TypeOverride(typeof(T1), t1), new TypeOverride(typeof(T2), t2) });
+                    resolutionInfo.OverrideManager = new OverrideManager(new Override[] { new TypeOverride(typeof(T), t), new TypeOverride(typeof(T1), t1), new TypeOverride(typeof(T2), t2) });
                 else
                 {
                     resolutionInfo.OverrideManager.AddTypedOverride(new TypeOverride(typeof(T), t));

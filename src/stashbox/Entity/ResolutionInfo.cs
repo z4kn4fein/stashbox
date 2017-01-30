@@ -1,6 +1,7 @@
 ﻿using Stashbox.Overrides;
 using System;
 using System.Collections.Generic;
+using Stashbox.Infrastructure;
 
 namespace Stashbox.Entity
 {
@@ -21,9 +22,12 @@ namespace Stashbox.Entity
         
         internal ISet<Type> CircularDependencyBarrier { get; }
 
-        internal ResolutionInfo()
+        internal IStashboxContainer RequestScope { get; }
+
+        internal ResolutionInfo(IStashboxContainer requestScope)
         {
             this.CircularDependencyBarrier = new HashSet<Type>();
+            this.RequestScope = requestScope;
         }
     }
 }

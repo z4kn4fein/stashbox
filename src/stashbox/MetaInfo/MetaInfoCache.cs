@@ -16,17 +16,15 @@ namespace Stashbox.MetaInfo
     {
         private readonly ContainerConfiguration containerConfiguration;
 
-        private IDictionary<int, Type[]> genericTypeConstraints;
+        /// <summary>
+        /// Contains the generic type contraints of the type if it has any.
+        /// </summary>
+        public readonly IDictionary<int, Type[]> GenericTypeConstraints;
 
         /// <summary>
         /// The type of the actual service implementation.
         /// </summary>
         public Type TypeTo { get; }
-
-        /// <summary>
-        /// Indicates that the type has generic type contraints or not.
-        /// </summary>
-        public bool HasGenericTypeConstraints { get; private set; }
 
         /// <summary>
         /// Stores the reflected constructor informations.
@@ -52,7 +50,7 @@ namespace Stashbox.MetaInfo
         {
             this.TypeTo = typeTo;
             this.containerConfiguration = containerConfiguraton;
-            this.genericTypeConstraints = new Dictionary<int, Type[]>();
+            this.GenericTypeConstraints = new Dictionary<int, Type[]>();
 
             var typeInfo = typeTo.GetTypeInfo();
             this.AddConstructors(typeInfo.DeclaredConstructors);
@@ -60,28 +58,11 @@ namespace Stashbox.MetaInfo
             this.InjectionMembers = this.FillMembers(typeInfo).ToArray();
             this.CollectGenericConstraints(typeInfo);
         }
-
-        /// <summary>
-        /// Validates that the given type's generic argument fullfills the generic constraint or not 
-        /// </summary>
-        /// <param name="typeInformation">The type information.</param>
-        /// <returns>True if the argument is valid.</returns>
-        public bool ValidateGenericContraints(TypeInformation typeInformation)
-        {
-            var typeInfo = typeInformation.Type.GetTypeInfo();
-            var length = typeInfo.GenericTypeArguments.Length;
-
-            for (var i = 0; i < length; i++)
-                if (this.genericTypeConstraints.ContainsKey(i) && !this.genericTypeConstraints[i].Contains(typeInfo.GenericTypeArguments[i]))
-                    return false;
-
-            return true;
-        }
-
+        
         private void CollectGenericConstraints(TypeInfo typeInfo)
         {
             if (!typeInfo.IsGenericType && !typeInfo.IsGenericTypeDefinition)
-                this.HasGenericTypeConstraints = false;
+                return;
 
             foreach (var typeInfoGenericTypeParameter in typeInfo.GenericTypeParameters)
             {
@@ -90,10 +71,8 @@ namespace Stashbox.MetaInfo
                 var cons = paramTypeInfo.GetGenericParameterConstraints();
 
                 if (cons.Length > 0)
-                    this.genericTypeConstraints.Add(pos, cons);
+                    this.GenericTypeConstraints.Add(pos, cons);
             }
-            
-            this.HasGenericTypeConstraints = this.genericTypeConstraints.Count > 0;
         }
 
         private void AddConstructors(IEnumerable<ConstructorInfo> infos)

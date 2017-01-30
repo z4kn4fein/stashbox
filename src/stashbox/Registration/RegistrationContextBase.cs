@@ -37,13 +37,14 @@ namespace Stashbox.Registration
             var registrationInfo = new RegistrationInfo { TypeFrom = this.TypeFrom, TypeTo = this.TypeTo };
 
             var cache = new MetaInfoCache(this.ContainerContext.ContainerConfiguration, this.TypeTo);
+            var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, cache);
 
             if (this.TypeTo.GetTypeInfo().IsGenericTypeDefinition)
             {
                 var objectBuilder = new GenericTypeObjectBuilder(this.RegistrationContextData, this.ContainerContext,
-                    new MetaInfoProvider(this.ContainerContext, cache), containerExtensionManager);
+                   metaInfoProvider, containerExtensionManager);
 
-                var registration = this.CreateServiceRegistration(registrationName, new TransientLifetime(), objectBuilder, cache);
+                var registration = this.CreateServiceRegistration(registrationName, new TransientLifetime(), objectBuilder, metaInfoProvider);
                 if (update)
                     this.ContainerContext.RegistrationRepository.AddOrUpdateGenericDefinition(this.TypeFrom, registration, registrationName);
                 else
@@ -51,7 +52,7 @@ namespace Stashbox.Registration
             }
             else
             {
-                var registration = this.CreateServiceRegistration(registrationName, registrationLifetime, this.CreateObjectBuilder(registrationName, containerExtensionManager, cache), cache);
+                var registration = this.CreateServiceRegistration(registrationName, registrationLifetime, this.CreateObjectBuilder(containerExtensionManager, metaInfoProvider), metaInfoProvider);
                 if (update)
                     this.ContainerContext.RegistrationRepository.AddOrUpdateRegistration(this.TypeFrom, registration, registrationName);
                 else
@@ -72,37 +73,35 @@ namespace Stashbox.Registration
             return registrationInfo;
         }
 
-        private IObjectBuilder CreateObjectBuilder(string name, IContainerExtensionManager containerExtensionManager, MetaInfoCache cache)
+        private IObjectBuilder CreateObjectBuilder(IContainerExtensionManager containerExtensionManager, MetaInfoProvider metaInfoProvider)
         {
             if (this.RegistrationContextData.ExistingInstance != null)
                 return new InstanceObjectBuilder(this.RegistrationContextData.ExistingInstance);
 
-            var metainfoProvider = new MetaInfoProvider(this.ContainerContext, cache);
-
-            var objectExtender = new ObjectExtender(metainfoProvider, this.RegistrationContextData.InjectionParameters);
+            var objectExtender = new ObjectExtender(metaInfoProvider, this.RegistrationContextData.InjectionParameters);
 
             if (this.RegistrationContextData.ContainerFactory != null)
-                return new FactoryObjectBuilder(this.RegistrationContextData.ContainerFactory, this.ContainerContext, containerExtensionManager, objectExtender);
+                return new FactoryObjectBuilder(this.RegistrationContextData.ContainerFactory, containerExtensionManager, objectExtender);
 
             if (this.RegistrationContextData.SingleFactory != null)
-                return new FactoryObjectBuilder(this.RegistrationContextData.SingleFactory, this.ContainerContext, containerExtensionManager, objectExtender);
+                return new FactoryObjectBuilder(this.RegistrationContextData.SingleFactory, containerExtensionManager, objectExtender);
 
             if (this.RegistrationContextData.TwoParametersFactory != null)
-                return new FactoryObjectBuilder(this.RegistrationContextData.TwoParametersFactory, this.ContainerContext, containerExtensionManager, objectExtender);
+                return new FactoryObjectBuilder(this.RegistrationContextData.TwoParametersFactory, containerExtensionManager, objectExtender);
 
             if (this.RegistrationContextData.ThreeParametersFactory != null)
-                return new FactoryObjectBuilder(this.RegistrationContextData.ThreeParametersFactory, this.ContainerContext, containerExtensionManager, objectExtender);
+                return new FactoryObjectBuilder(this.RegistrationContextData.ThreeParametersFactory,containerExtensionManager, objectExtender);
 
             if (this.RegistrationContextData.OneParameterFactory != null)
-                return new FactoryObjectBuilder(this.RegistrationContextData.OneParameterFactory, this.ContainerContext, containerExtensionManager, objectExtender);
+                return new FactoryObjectBuilder(this.RegistrationContextData.OneParameterFactory, containerExtensionManager, objectExtender);
 
-            return new DefaultObjectBuilder(this.ContainerContext, metainfoProvider,
+            return new DefaultObjectBuilder(this.ContainerContext, metaInfoProvider,
                 containerExtensionManager, this.RegistrationContextData.InjectionParameters);
         }
 
-        private IServiceRegistration CreateServiceRegistration(string name, ILifetime lifeTime, IObjectBuilder objectBuilder, MetaInfoCache cache)
+        private IServiceRegistration CreateServiceRegistration(string name, ILifetime lifeTime, IObjectBuilder objectBuilder, MetaInfoProvider metaInfoProvider)
         {
-            return new ServiceRegistration(name, this.ContainerContext, lifeTime, objectBuilder, cache, this.RegistrationContextData.AttributeConditions,
+            return new ServiceRegistration(name, this.ContainerContext, lifeTime, objectBuilder, metaInfoProvider, this.RegistrationContextData.AttributeConditions,
                 this.RegistrationContextData.TargetTypeCondition, this.RegistrationContextData.ResolutionCondition);
         }
 

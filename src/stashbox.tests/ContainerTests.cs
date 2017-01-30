@@ -13,7 +13,7 @@ namespace Stashbox.Tests
         [TestMethod]
         public void ContainerTests_ChildContainer()
         {
-            var container = new StashboxContainer();
+            var container = new StashboxContainer(config => config.WithParentContainerResolution());
             container.RegisterType<ITest1, Test1>();
             container.RegisterType<ITest2, Test2>();
 

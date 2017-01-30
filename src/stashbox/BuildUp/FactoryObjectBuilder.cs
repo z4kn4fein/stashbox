@@ -17,43 +17,41 @@ namespace Stashbox.BuildUp
         private readonly Func<object, object, object, object> threeParamsFactory;
         private readonly IContainerExtensionManager containerExtensionManager;
         private readonly IObjectExtender objectExtender;
-        private readonly IContainerContext containerContext;
         private readonly MethodInfo buildMethodInfo;
 
-        private FactoryObjectBuilder(IContainerContext containerContext, IContainerExtensionManager containerExtensionManager, IObjectExtender objectExtender)
+        private FactoryObjectBuilder(IContainerExtensionManager containerExtensionManager, IObjectExtender objectExtender)
         {
             this.containerExtensionManager = containerExtensionManager;
             this.objectExtender = objectExtender;
-            this.containerContext = containerContext;
             this.buildMethodInfo = this.GetType().GetTypeInfo().GetDeclaredMethod("BuildInstance");
         }
 
-        public FactoryObjectBuilder(Func<IStashboxContainer, object> containerFactory, IContainerContext containerContext, IContainerExtensionManager containerExtensionManager, IObjectExtender objectExtender)
-            : this(containerContext, containerExtensionManager, objectExtender)
+        public FactoryObjectBuilder(Func<IStashboxContainer, object> containerFactory, IContainerExtensionManager containerExtensionManager, IObjectExtender objectExtender)
+            : this(containerExtensionManager, objectExtender)
         {
             this.containerFactory = containerFactory;
         }
 
-        public FactoryObjectBuilder(Func<object> factory, IContainerContext containerContext, IContainerExtensionManager containerExtensionManager, IObjectExtender objectExtender)
-            : this(containerContext, containerExtensionManager, objectExtender)
+        public FactoryObjectBuilder(Func<object> factory, IContainerExtensionManager containerExtensionManager, IObjectExtender objectExtender)
+            : this(containerExtensionManager, objectExtender)
         {
             this.singleFactory = factory;
         }
 
-        public FactoryObjectBuilder(Func<object, object> oneParamsFactory, IContainerContext containerContext, IContainerExtensionManager containerExtensionManager, IObjectExtender objectExtender)
-            : this(containerContext, containerExtensionManager, objectExtender)
+        public FactoryObjectBuilder(Func<object, object> oneParamsFactory, IContainerExtensionManager containerExtensionManager, IObjectExtender objectExtender)
+            : this(containerExtensionManager, objectExtender)
         {
             this.oneParamsFactory = oneParamsFactory;
         }
 
-        public FactoryObjectBuilder(Func<object, object, object> twoParamsFactory, IContainerContext containerContext, IContainerExtensionManager containerExtensionManager, IObjectExtender objectExtender)
-            : this(containerContext, containerExtensionManager, objectExtender)
+        public FactoryObjectBuilder(Func<object, object, object> twoParamsFactory,IContainerExtensionManager containerExtensionManager, IObjectExtender objectExtender)
+            : this(containerExtensionManager, objectExtender)
         {
             this.twoParamsFactory = twoParamsFactory;
         }
 
-        public FactoryObjectBuilder(Func<object, object, object, object> threeParamsFactory, IContainerContext containerContext, IContainerExtensionManager containerExtensionManager, IObjectExtender objectExtender)
-            : this(containerContext, containerExtensionManager, objectExtender)
+        public FactoryObjectBuilder(Func<object, object, object, object> threeParamsFactory, IContainerExtensionManager containerExtensionManager, IObjectExtender objectExtender)
+            : this(containerExtensionManager, objectExtender)
         {
             this.threeParamsFactory = threeParamsFactory;
         }
@@ -63,7 +61,7 @@ namespace Stashbox.BuildUp
             object instance = null;
 
             if (this.containerFactory != null)
-                instance = this.containerFactory.Invoke(this.containerContext.Container);
+                instance = this.containerFactory.Invoke(resolutionInfo.RequestScope);
 
             if (this.singleFactory != null)
                 instance = this.singleFactory.Invoke();
@@ -80,9 +78,9 @@ namespace Stashbox.BuildUp
                     resolutionInfo.FactoryParams.ElementAt(1),
                     resolutionInfo.FactoryParams.ElementAt(2));
 
-            var builtInstance = this.objectExtender.FillResolutionMembers(instance, containerContext, resolutionInfo);
-            builtInstance = this.objectExtender.FillResolutionMembers(builtInstance, containerContext, resolutionInfo);
-            return this.containerExtensionManager.ExecutePostBuildExtensions(builtInstance, containerContext, resolutionInfo, resolveType);
+            var builtInstance = this.objectExtender.FillResolutionMembers(instance, resolutionInfo.RequestScope.ContainerContext, resolutionInfo);
+            builtInstance = this.objectExtender.FillResolutionMembers(builtInstance, resolutionInfo.RequestScope.ContainerContext, resolutionInfo);
+            return this.containerExtensionManager.ExecutePostBuildExtensions(builtInstance, resolutionInfo.RequestScope.ContainerContext, resolutionInfo, resolveType);
         }
 
         public Expression GetExpression(ResolutionInfo resolutionInfo, Expression resolutionInfoExpression, TypeInformation resolveType)

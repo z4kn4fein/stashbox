@@ -17,8 +17,7 @@ namespace Stashbox.BuildUp.Resolution
 
         public override object Resolve(ResolutionInfo resolutionInfo)
         {
-            return base.BuilderContext.Container.ParentContainer.Resolve(base.TypeInfo.Type, base.TypeInfo.DependencyName,
-                resolutionInfo.FactoryParams, resolutionInfo.OverrideManager?.GetOverrides());
+            return base.BuilderContext.Container.ParentContainer.Resolve(base.TypeInfo.Type, resolutionInfo, base.TypeInfo.DependencyName);
         }
 
         public override Expression GetExpression(ResolutionInfo resolutionInfo, Expression resolutionInfoExpression)

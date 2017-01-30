@@ -27,6 +27,13 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
+        public object Resolve(Type typeFrom, ResolutionInfo resolutionInfo, string name = null)
+        {
+            Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
+            return this.ResolveInternal(typeFrom, resolutionInfo, name);
+        }
+
+        /// <inheritdoc />
         public IEnumerable<TKey> ResolveAll<TKey>(IEnumerable<object> factoryParameters = null, IEnumerable<Override> overrides = null) where TKey : class
         {
             var type = typeof(TKey);
@@ -37,7 +44,7 @@ namespace Stashbox
             var overridesEnumerated = overrides as Override[] ?? overrides?.ToArray();
             foreach (var registration in registrations)
             {
-                yield return registration.GetInstance(new ResolutionInfo
+                yield return registration.GetInstance(new ResolutionInfo(this)
                 {
                     OverrideManager = overridesEnumerated == null ? null : new OverrideManager(overridesEnumerated),
                     FactoryParams = factoryParams,
@@ -55,7 +62,7 @@ namespace Stashbox
             var overridesEnumerated = overrides as Override[] ?? overrides?.ToArray();
             foreach (var registration in registrations)
             {
-                yield return registration.GetInstance(new ResolutionInfo
+                yield return registration.GetInstance(new ResolutionInfo(this)
                 {
                     OverrideManager = overridesEnumerated == null ? null : new OverrideManager(overridesEnumerated),
                     FactoryParams = factoryParams,
@@ -70,7 +77,7 @@ namespace Stashbox
             var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, new MetaInfoCache(this.ContainerContext.ContainerConfiguration, typeTo));
             var objectExtender = new ObjectExtender(metaInfoProvider);
 
-            var resolutionInfo = new ResolutionInfo();
+            var resolutionInfo = new ResolutionInfo(this);
 
             objectExtender.FillResolutionMembers(instance, this.ContainerContext, resolutionInfo);
             objectExtender.FillResolutionMethods(instance, this.ContainerContext, resolutionInfo);
@@ -80,12 +87,30 @@ namespace Stashbox
             return instance;
         }
 
-        private object ResolveInternal(Type typeFrom, IEnumerable<Override> overrides = null, string name = null, IEnumerable<object> factoryParameters = null)
+        private object ResolveInternal(Type typeFrom, ResolutionInfo resolutionInfo, string name = null)
+        {
+            var typeInfo = new TypeInformation { Type = typeFrom, DependencyName = name };
+
+            IServiceRegistration registration;
+            if (this.registrationRepository.TryGetRegistration(typeInfo, out registration))
+                return registration.GetInstance(resolutionInfo, typeInfo);
+
+            Resolver resolver;
+            if (this.resolverSelector.TryChooseResolver(this.ContainerContext,
+                typeInfo, out resolver, res => res.ResolverType != typeof(ContainerResolver)))
+            {
+                return resolver.Resolve(resolutionInfo);
+            }
+
+            throw new ResolutionFailedException(typeFrom.FullName);
+        }
+
+        private object ResolveInternal(Type typeFrom, IEnumerable<Override> overrides = null, string name = null, IEnumerable<object> factoryParameters = null, IStashboxContainer scope = null)
         {
             var typeInfo = new TypeInformation { Type = typeFrom, DependencyName = name };
             var enumOverrides = overrides?.ToArray();
             var enumFactoryParameters = factoryParameters?.ToArray();
-            var resolutionInfo = new ResolutionInfo
+            var resolutionInfo = new ResolutionInfo(scope ?? this)
             {
                 OverrideManager = overrides == null ? null : new OverrideManager(enumOverrides),
                 FactoryParams = enumFactoryParameters,

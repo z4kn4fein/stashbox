@@ -157,12 +157,12 @@ namespace Stashbox.Tests
                 MethodInvoked2 = true;
             }
 
-            public Test3([Dependency("test12")]ITest1 test1, [Dependency("test2")]ITest2 test2)
+            public Test3([Dependency("test12")]ITest1 test12, [Dependency("test2")]ITest2 test2)
             {
-                Shield.EnsureNotNull(test1, nameof(test1));
+                Shield.EnsureNotNull(test12, nameof(test12));
                 Shield.EnsureNotNull(test2, nameof(test2));
 
-                Shield.EnsureTypeOf<Test12>(test1);
+                Shield.EnsureTypeOf<Test12>(test12);
                 Shield.EnsureTypeOf<Test2>(test2);
             }
 

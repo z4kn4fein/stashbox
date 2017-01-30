@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Stashbox.Configuration;
 
 namespace Stashbox.MetaInfo
 {
@@ -21,6 +22,8 @@ namespace Stashbox.MetaInfo
 
         public bool HasInjectionMembers { get; }
 
+        public bool HasGenericTypeConstraints { get; }
+
         public HashSet<Type> SensitivityList => this.sensitivityList.Value;
 
         public MetaInfoProvider(IContainerContext containerContext, MetaInfoCache metaInfoCache)
@@ -32,6 +35,7 @@ namespace Stashbox.MetaInfo
             this.sensitivityList = new Lazy<HashSet<Type>>(() => new HashSet<Type>(this.metaInfoCache.Constructors.SelectMany(constructor => constructor.Parameters, (constructor, parameter) => parameter.Type)
                         .Concat(this.metaInfoCache.InjectionMethods.SelectMany(method => method.Parameters, (method, parameter) => parameter.Type))
                         .Concat(this.metaInfoCache.InjectionMembers.Select(members => members.TypeInformation.Type)).Distinct()));
+            this.HasGenericTypeConstraints = this.metaInfoCache.GenericTypeConstraints.Count > 0;
         }
 
         public bool TryChooseConstructor(out ResolutionConstructor resolutionConstructor, ResolutionInfo resolutionInfo, InjectionParameter[] injectionParameters = null)
@@ -49,7 +53,8 @@ namespace Stashbox.MetaInfo
                         this.containerContext.ResolutionStrategy.BuildResolutionTarget(this.containerContext, parameter, injectionParameters)).ToArray(),
                     methodInfo.Method),
                    Method = methodInfo.Method,
-                   Parameters = methodInfo.Parameters.Select(parameter => this.containerContext.ResolutionStrategy.BuildResolutionTarget(this.containerContext, parameter, injectionParameters)).ToArray()
+                   Parameters = methodInfo.Parameters.Select(parameter =>
+                   this.containerContext.ResolutionStrategy.BuildResolutionTarget(this.containerContext, parameter, injectionParameters)).ToArray()
                });
         }
 
@@ -58,10 +63,22 @@ namespace Stashbox.MetaInfo
             return this.metaInfoCache.InjectionMembers
                 .Select(memberInfo => new ResolutionMember
                 {
-                    ResolutionTarget = containerContext.ResolutionStrategy.BuildResolutionTarget(containerContext, memberInfo.TypeInformation, injectionParameters),
+                    ResolutionTarget = this.containerContext.ResolutionStrategy.BuildResolutionTarget(this.containerContext, memberInfo.TypeInformation, injectionParameters),
                     MemberSetter = memberInfo.MemberInfo.GetMemberSetter(),
                     MemberInfo = memberInfo.MemberInfo
                 });
+        }
+
+        public bool ValidateGenericContraints(TypeInformation typeInformation)
+        {
+            var typeInfo = typeInformation.Type.GetTypeInfo();
+            var length = typeInfo.GenericTypeArguments.Length;
+
+            for (var i = 0; i < length; i++)
+                if (this.metaInfoCache.GenericTypeConstraints.ContainsKey(i) && !this.metaInfoCache.GenericTypeConstraints[i].Contains(typeInfo.GenericTypeArguments[i]))
+                    return false;
+
+            return true;
         }
 
         private bool TryGetConstructor(IEnumerable<ConstructorInformation> constructors, out ResolutionConstructor resolutionConstructor,
@@ -71,7 +88,7 @@ namespace Stashbox.MetaInfo
 
             if (usableConstructors.Any())
             {
-                resolutionConstructor = this.CreateResolutionConstructor(this.SelectBestConstructor(usableConstructors), injectionParameters);
+                resolutionConstructor = this.CreateResolutionConstructor(this.SelectBestConstructor(usableConstructors), resolutionInfo, injectionParameters);
                 return true;
             }
 
@@ -88,7 +105,7 @@ namespace Stashbox.MetaInfo
                     injectionParameters)));
         }
 
-        private ResolutionConstructor CreateResolutionConstructor(ConstructorInformation constructorInformation, InjectionParameter[] injectionParameters = null)
+        private ResolutionConstructor CreateResolutionConstructor(ConstructorInformation constructorInformation, ResolutionInfo resolutionInfo, InjectionParameter[] injectionParameters = null)
         {
             return new ResolutionConstructor
             {

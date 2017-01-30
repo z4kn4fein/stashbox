@@ -1,5 +1,8 @@
-﻿using Stashbox.Entity;
+﻿using System;
+using System.Collections.Generic;
+using Stashbox.Entity;
 using System.Linq.Expressions;
+using Stashbox.MetaInfo;
 
 namespace Stashbox.Infrastructure
 {
@@ -34,7 +37,7 @@ namespace Stashbox.Infrastructure
         /// <param name="resolveType">The resolve type.</param>
         /// <returns>The expression.</returns>
         Expression GetExpression(ResolutionInfo resolutionInfo, Expression resolutionInfoExpression, TypeInformation resolveType);
-
+        
         /// <summary>
         /// Checks whether the registration can be used for a current resolution.
         /// </summary>

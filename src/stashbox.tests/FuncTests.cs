@@ -91,7 +91,7 @@ namespace Stashbox.Tests
             Assert.AreSame(t, r.Func2.Test);
         }
 
-        [Ignore]
+        //[Ignore]
         [TestMethod]
         public void FuncTests_Resolve_Scoped()
         {

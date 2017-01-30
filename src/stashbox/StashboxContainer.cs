@@ -49,8 +49,7 @@ namespace Stashbox
             this.containerExtensionManager = containerExtensionManager;
             this.resolverSelector = resolverSelector;
             this.registrationRepository = new RegistrationRepository(parentContainer.ContainerContext.ContainerConfiguration);
-            this.ContainerContext = new ContainerContext(this.registrationRepository, this,
-                new CheckParentResolutionStrategyDecorator(new ResolutionStrategy(this.resolverSelector)),
+            this.ContainerContext = new ContainerContext(this.registrationRepository, this, new ResolutionStrategy(this.resolverSelector),
                 parentContainer.ContainerContext.ContainerConfiguration);
 
             this.containerExtensionManager.ReinitalizeExtensions(this.ContainerContext);
