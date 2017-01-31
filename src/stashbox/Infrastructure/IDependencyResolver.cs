@@ -1,7 +1,6 @@
 ﻿using Stashbox.Overrides;
 using System;
 using System.Collections.Generic;
-using Stashbox.Entity;
 
 namespace Stashbox.Infrastructure
 {
@@ -30,15 +29,6 @@ namespace Stashbox.Infrastructure
         /// <param name="overrides">Parameter overrides.</param>
         /// <returns>The resolved object.</returns>
         object Resolve(Type typeFrom, string name = null, IEnumerable<object> factoryParameters = null, IEnumerable<Override> overrides = null);
-
-        /// <summary>
-        /// Resolves an instance from the container.
-        /// </summary>
-        /// <param name="typeFrom">The type of the requested instance.</param>
-        /// <param name="resolutionInfo">The explicitly set resolution info.</param>
-        /// <param name="name">The name of the requested registration.</param>
-        /// <returns>The resolved object.</returns>
-        object Resolve(Type typeFrom, ResolutionInfo resolutionInfo, string name = null);
 
         /// <summary>
         /// Resolves all registered types of a service.

@@ -1,7 +1,7 @@
-﻿using System.Linq.Expressions;
-using System.Reflection;
-using Stashbox.Entity;
+﻿using Stashbox.Entity;
 using Stashbox.Infrastructure;
+using System.Linq.Expressions;
+using System.Reflection;
 
 namespace Stashbox.BuildUp.Resolution
 {
@@ -17,7 +17,8 @@ namespace Stashbox.BuildUp.Resolution
 
         public override object Resolve(ResolutionInfo resolutionInfo)
         {
-            return base.BuilderContext.Container.ParentContainer.Resolve(base.TypeInfo.Type, resolutionInfo, base.TypeInfo.DependencyName);
+            return base.BuilderContext.Container.ParentContainer.Resolve(base.TypeInfo.Type, base.TypeInfo.DependencyName,
+                resolutionInfo.FactoryParams, resolutionInfo.OverrideManager?.GetOverrides());
         }
 
         public override Expression GetExpression(ResolutionInfo resolutionInfo, Expression resolutionInfoExpression)
