@@ -81,19 +81,19 @@ namespace Stashbox.Registration
             var objectExtender = new ObjectExtender(metaInfoProvider, this.RegistrationContextData.InjectionParameters);
 
             if (this.RegistrationContextData.ContainerFactory != null)
-                return new FactoryObjectBuilder(this.RegistrationContextData.ContainerFactory, containerExtensionManager, objectExtender);
+                return new FactoryObjectBuilder(this.RegistrationContextData.ContainerFactory, this.ContainerContext, containerExtensionManager, objectExtender);
 
             if (this.RegistrationContextData.SingleFactory != null)
-                return new FactoryObjectBuilder(this.RegistrationContextData.SingleFactory, containerExtensionManager, objectExtender);
+                return new FactoryObjectBuilder(this.RegistrationContextData.SingleFactory, this.ContainerContext, containerExtensionManager, objectExtender);
 
             if (this.RegistrationContextData.TwoParametersFactory != null)
-                return new FactoryObjectBuilder(this.RegistrationContextData.TwoParametersFactory, containerExtensionManager, objectExtender);
+                return new FactoryObjectBuilder(this.RegistrationContextData.TwoParametersFactory, this.ContainerContext, containerExtensionManager, objectExtender);
 
             if (this.RegistrationContextData.ThreeParametersFactory != null)
-                return new FactoryObjectBuilder(this.RegistrationContextData.ThreeParametersFactory,containerExtensionManager, objectExtender);
+                return new FactoryObjectBuilder(this.RegistrationContextData.ThreeParametersFactory, this.ContainerContext, containerExtensionManager, objectExtender);
 
             if (this.RegistrationContextData.OneParameterFactory != null)
-                return new FactoryObjectBuilder(this.RegistrationContextData.OneParameterFactory, containerExtensionManager, objectExtender);
+                return new FactoryObjectBuilder(this.RegistrationContextData.OneParameterFactory, this.ContainerContext, containerExtensionManager, objectExtender);
 
             return new DefaultObjectBuilder(this.ContainerContext, metaInfoProvider,
                 containerExtensionManager, this.RegistrationContextData.InjectionParameters);

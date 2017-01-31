@@ -3,9 +3,9 @@ using Stashbox.Attributes;
 using Stashbox.Entity;
 using Stashbox.Infrastructure;
 using Stashbox.Overrides;
+using Stashbox.Utils;
 using System;
 using System.Threading.Tasks;
-using Stashbox.Utils;
 
 namespace Stashbox.Tests
 {
@@ -27,7 +27,7 @@ namespace Stashbox.Tests
 
             var inst1 = container.Resolve<ITest1>();
             inst1.Name = "test1";
-            //TODO: fixme: container.Resolve<ITest3>();
+            container.Resolve<ITest3>();
             var inst3 = container.Resolve<ITest3>(overrides: new[] { new TypeOverride(typeof(ITest1), inst1), new TypeOverride(typeof(ITest2), inst2) });
 
             Assert.IsInstanceOfType(inst3, typeof(Test3));

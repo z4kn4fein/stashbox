@@ -1,10 +1,10 @@
 ﻿using Stashbox.Entity;
 using Stashbox.Entity.Resolution;
 using Stashbox.Infrastructure;
+using Stashbox.Overrides;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Stashbox.Overrides;
 
 namespace Stashbox
 {
@@ -55,45 +55,24 @@ namespace Stashbox
 
         public Expression GetExpressionForResolutionTarget(ResolutionTarget resolutionTarget, ResolutionInfo resolutionInfo, Expression resolutionInfoExpression)
         {
-            //var returnTarget = Expression.Label(resolutionTarget.TypeInformation.Type);
-            //var typeInfoConstant = Expression.Constant(resolutionTarget.TypeInformation);
-            //var nullExpr = Expression.Default(resolutionTarget.TypeInformation.Type);
+            var typeInfoConstant = Expression.Constant(resolutionTarget.TypeInformation);
+            var nullExpr = Expression.Default(resolutionTarget.TypeInformation.Type);
 
-            //var overrideManagerExpression = Expression.Property(resolutionInfoExpression, "OverrideManager");
-            //var nullCheck = Expression.NotEqual(overrideManagerExpression, Expression.Constant(null));
-            //var contains = Expression.Call(overrideManagerExpression, this.containsMethodInfo, typeInfoConstant);
-
-            //var condition = Expression.AndAlso(nullCheck, contains);
-
-            ////var trueCond = resolutionTarget.ResolutionTargetValue != null ? Expression.Return(returnTarget, Expression.Constant(resolutionTarget.ResolutionTargetValue)) :
-            ////        Expression.Return(returnTarget, resolutionTarget.Resolver.GetExpression(resolutionInfo, resolutionInfoExpression));
-
-            ////var falseCond = resolutionTarget.ResolutionTargetValue != null
-            ////    ? Expression.Return(returnTarget, Expression.Constant(resolutionTarget.ResolutionTargetValue))
-            ////    : Expression.Return(returnTarget,
-            ////        resolutionTarget.Resolver.GetExpression(resolutionInfo, resolutionInfoExpression));
-
-            //return Expression.Block(Expression.Condition(condition,
-            //        //true
-            //        Expression.Return(returnTarget, Expression.Convert(Expression.Call(overrideManagerExpression, this.getOverriddenValueMethodInfo,
-            //            Expression.Constant(resolutionTarget.TypeInformation)), resolutionTarget.TypeInformation.Type)),
-            //        //false
-            //        resolutionTarget.ResolutionTargetValue != null ? Expression.Return(returnTarget, Expression.Constant(resolutionTarget.ResolutionTargetValue)) :
-            //        Expression.Return(returnTarget, resolutionTarget.Resolver == null ? nullExpr : resolutionTarget.Resolver.GetExpression(resolutionInfo, resolutionInfoExpression))),
-            //    Expression.Label(returnTarget, nullExpr));
-
-            if (resolutionInfo.OverrideManager != null &&
-                resolutionInfo.OverrideManager.ContainsValue(resolutionTarget.TypeInformation))
-                return this.CreateOverrideExpression(resolutionTarget, resolutionInfoExpression);
-            return resolutionTarget.ResolutionTargetValue != null ? Expression.Constant(resolutionTarget.ResolutionTargetValue) :
-                resolutionTarget.Resolver.GetExpression(resolutionInfo, resolutionInfoExpression);
-        }
-
-        private Expression CreateOverrideExpression(ResolutionTarget resolutionTarget, Expression resolutionInfoExpression)
-        {
             var overrideManagerExpression = Expression.Property(resolutionInfoExpression, "OverrideManager");
-            var callExpression = Expression.Call(overrideManagerExpression, this.getOverriddenValueMethodInfo, Expression.Constant(resolutionTarget.TypeInformation));
-            return Expression.Convert(callExpression, resolutionTarget.TypeInformation.Type);
+            var nullCheck = Expression.NotEqual(overrideManagerExpression, Expression.Constant(null));
+            var contains = Expression.Call(overrideManagerExpression, this.containsMethodInfo, typeInfoConstant);
+
+            var condition = Expression.AndAlso(nullCheck, contains);
+
+            return Expression.Condition(condition,
+                 Expression.Convert(Expression.Call(overrideManagerExpression, this.getOverriddenValueMethodInfo,
+                        Expression.Constant(resolutionTarget.TypeInformation)), resolutionTarget.TypeInformation.Type),
+
+                 resolutionTarget.ResolutionTargetValue != null ? Expression.Constant(resolutionTarget.ResolutionTargetValue) :
+                    resolutionTarget.Resolver == null ? nullExpr : resolutionTarget.Resolver.GetExpression(resolutionInfo, resolutionInfoExpression),
+
+                 resolutionTarget.TypeInformation.Type
+            );
         }
     }
 }

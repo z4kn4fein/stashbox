@@ -1,7 +1,7 @@
-﻿using Stashbox.Overrides;
+﻿using Stashbox.Infrastructure;
+using Stashbox.Overrides;
 using System;
 using System.Collections.Generic;
-using Stashbox.Infrastructure;
 
 namespace Stashbox.Entity
 {
@@ -19,15 +19,12 @@ namespace Stashbox.Entity
         /// The factory parameters.
         /// </summary>
         public IEnumerable<object> FactoryParams { get; set; }
-        
-        internal ISet<Type> CircularDependencyBarrier { get; }
 
-        internal IStashboxContainer RequestScope { get; }
+        internal ISet<Type> CircularDependencyBarrier { get; }
 
         internal ResolutionInfo(IStashboxContainer requestScope)
         {
             this.CircularDependencyBarrier = new HashSet<Type>();
-            this.RequestScope = requestScope;
         }
     }
 }

@@ -91,31 +91,6 @@ namespace Stashbox.Tests
             Assert.AreSame(t, r.Func2.Test);
         }
 
-        //[Ignore]
-        [TestMethod]
-        public void FuncTests_Resolve_Scoped()
-        {
-            var container = new StashboxContainer();
-            container.RegisterScoped<ITest, Test>();
-            container.RegisterSingleton<ScopedFuncTest>();
-
-            var inst = container.Resolve<ScopedFuncTest>();
-
-            ITest test1;
-            using (container.BeginScope())
-            {
-                test1 = inst.Factory();
-            }
-
-            ITest test2;
-            using (container.BeginScope())
-            {
-                test2 = inst.Factory();
-            }
-
-            Assert.AreNotSame(test1, test2);
-        }
-
         public class ScopedFuncTest
         {
             public Func<ITest> Factory { get; set; }
