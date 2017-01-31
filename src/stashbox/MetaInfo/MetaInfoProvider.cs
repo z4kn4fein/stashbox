@@ -1,12 +1,11 @@
-﻿using Stashbox.BuildUp.DelegateFactory;
-using Stashbox.Entity;
+﻿using Stashbox.Entity;
 using Stashbox.Entity.Resolution;
 using Stashbox.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Stashbox.Configuration;
+using Stashbox.BuildUp.Expressions;
 
 namespace Stashbox.MetaInfo
 {

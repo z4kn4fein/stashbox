@@ -1,12 +1,12 @@
-﻿using Stashbox.Entity;
+﻿using System.Collections.Generic;
+using System.Linq.Expressions;
+using System.Reflection;
+using Stashbox.Entity;
 using Stashbox.Entity.Resolution;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.ContainerExtension;
-using System.Collections.Generic;
-using System.Linq.Expressions;
-using System.Reflection;
 
-namespace Stashbox.BuildUp.DelegateFactory
+namespace Stashbox.BuildUp.Expressions
 {
     internal delegate object CreateInstance(ResolutionInfo resolutionInfo);
     internal delegate void InvokeMethod(ResolutionInfo resolutionInfo, object instance);
@@ -41,8 +41,7 @@ namespace Stashbox.BuildUp.DelegateFactory
 
             if ((methods != null && methods.Length > 0) || extensionManager.HasPostBuildExtensions)
                 return CreatePostWorkExpressionIfAny(extensionManager, containerContext, resolutionInfo, resolutionInfoExpression, initExpression, typeInfo, parameters, methods);
-            else
-                return initExpression;
+            return initExpression;
         }
 
         private static Expression CreatePostWorkExpressionIfAny(IContainerExtensionManager extensionManager, IContainerContext containerContext, ResolutionInfo resolutionInfo,

@@ -44,6 +44,7 @@
   <ItemGroup>
     <Compile Include="Attributes\DependencyAttribute.cs" />
     <Compile Include="Attributes\InjectionMethodAttribute.cs" />
+    <Compile Include="BuildUp\Expressions\ResolutionInfoParameterVisitor.cs" />
     <Compile Include="BuildUp\Resolution\DefaultValueResolver.cs" />
     <Compile Include="BuildUp\Resolution\FuncResolver.cs" />
     <Compile Include="BuildUp\Resolution\ParentContainerResolver.cs" />
@@ -54,7 +55,7 @@
     <Compile Include="BuildExtensionManager.cs" />
     <Compile Include="BuildUp\WireUpObjectBuilder.cs" />
     <Compile Include="BuildUp\DefaultObjectBuilder.cs" />
-    <Compile Include="BuildUp\DelegateFactory\ExpressionDelegateFactory.cs" />
+    <Compile Include="BuildUp\Expressions\ExpressionDelegateFactory.cs" />
     <Compile Include="BuildUp\FactoryObjectBuilder.cs" />
     <Compile Include="BuildUp\GenericTypeObjectBuilder.cs" />
     <Compile Include="BuildUp\InstanceObjectBuilder.cs" />

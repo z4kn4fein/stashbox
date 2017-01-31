@@ -6,7 +6,6 @@ using Stashbox.Infrastructure.ContainerExtension;
 using Stashbox.Registration;
 using Stashbox.Utils;
 using System;
-using System.Collections.Generic;
 using System.Reflection;
 
 namespace Stashbox
@@ -146,8 +145,7 @@ namespace Stashbox
             {
                 ResolverType = typeof(EnumerableResolver),
                 ResolverFactory = (context, typeInfo) => new EnumerableResolver(context, typeInfo),
-                Predicate = (context, typeInfo) => (typeInfo.Type.GetEnumerableType() != null || EnumerableResolver.IsAssignableToGenericType(typeInfo.Type, typeof(IEnumerable<>))) &&
-                                                    typeInfo.Type != typeof(string)
+                Predicate = (context, typeInfo) => typeInfo.Type.GetEnumerableType() != null
             };
 
             var funcResolver = new ResolverRegistration

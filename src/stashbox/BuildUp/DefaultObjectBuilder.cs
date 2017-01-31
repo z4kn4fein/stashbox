@@ -1,5 +1,4 @@
-﻿using Stashbox.BuildUp.DelegateFactory;
-using Stashbox.Entity;
+﻿using Stashbox.Entity;
 using Stashbox.Entity.Resolution;
 using Stashbox.Exceptions;
 using Stashbox.Infrastructure;
@@ -7,6 +6,7 @@ using Stashbox.Infrastructure.ContainerExtension;
 using System;
 using System.Linq;
 using System.Linq.Expressions;
+using Stashbox.BuildUp.Expressions;
 
 namespace Stashbox.BuildUp
 {
@@ -14,17 +14,14 @@ namespace Stashbox.BuildUp
     {
         private readonly IContainerExtensionManager containerExtensionManager;
         private readonly IMetaInfoProvider metaInfoProvider;
-        private readonly object syncObject = new object();
-        private readonly object resolutionMemberSyncObject = new object();
-        private readonly object resolutionMethodSyncObject = new object();
         private volatile ResolutionMember[] resolutionMembers;
         private volatile ResolutionMethod[] resolutionMethods;
-        private ResolutionConstructor resolutionConstructor;
+        private Expression expression;
         private Func<ResolutionInfo, object> createDelegate;
         private readonly InjectionParameter[] injectionParameters;
         private readonly IContainerContext containerContext;
         private bool isDirty;
-
+        
         public DefaultObjectBuilder(IContainerContext containerContext, IMetaInfoProvider metaInfoProvider,
             IContainerExtensionManager containerExtensionManager, InjectionParameter[] injectionParameters = null)
         {
@@ -48,17 +45,10 @@ namespace Stashbox.BuildUp
         private object BuildInstanceInternal(ResolutionInfo resolutionInfo, TypeInformation resolveType)
         {
             if (this.createDelegate != null && !this.isDirty) return this.createDelegate(resolutionInfo);
-            ResolutionConstructor rConstructor;
-            if (!this.metaInfoProvider.TryChooseConstructor(out rConstructor, resolutionInfo,
-                this.injectionParameters))
-                throw new ResolutionFailedException(this.metaInfoProvider.TypeTo.FullName);
-
-            var parameter = Expression.Parameter(typeof(ResolutionInfo));
-            var expr = this.CreateExpression(rConstructor, resolutionInfo, resolveType, parameter);
+            var parameter = Expression.Parameter(typeof(ResolutionInfo), "resolutionInfo");
+            var expr = this.GetExpressionInternal(resolutionInfo, parameter, resolveType);
+            expr = new ResolutionInfoParameterVisitor(parameter).Visit(expr);
             this.createDelegate = Expression.Lambda<Func<ResolutionInfo, object>>(expr, parameter).Compile();
-
-            this.resolutionConstructor = rConstructor;
-            this.isDirty = false;
 
             return this.createDelegate(resolutionInfo);
         }
@@ -74,14 +64,14 @@ namespace Stashbox.BuildUp
 
         private Expression GetExpressionInternal(ResolutionInfo resolutionInfo, Expression resolutionInfoExpression, TypeInformation resolveType)
         {
-            if (this.resolutionConstructor != null && !this.isDirty) return this.CreateExpression(this.resolutionConstructor, resolutionInfo, resolveType, resolutionInfoExpression);
+            if (this.expression != null && !this.isDirty) return this.expression;
             {
                 ResolutionConstructor constructor;
                 if (!this.metaInfoProvider.TryChooseConstructor(out constructor, resolutionInfo, this.injectionParameters))
                     throw new ResolutionFailedException(this.metaInfoProvider.TypeTo.FullName);
-                this.resolutionConstructor = constructor;
                 this.isDirty = false;
-                return this.CreateExpression(constructor, resolutionInfo, resolveType, resolutionInfoExpression);
+                this.expression = this.CreateExpression(constructor, resolutionInfo, resolveType, resolutionInfoExpression);
+                return this.expression;
             }
         }
 

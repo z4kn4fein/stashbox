@@ -13,6 +13,7 @@ namespace Stashbox
         private readonly IResolverSelector resolverSelector;
         private readonly MethodInfo containsMethodInfo;
         private readonly MethodInfo getOverriddenValueMethodInfo;
+        private readonly MethodInfo propertyAccessor;
 
         internal ResolutionStrategy(IResolverSelector resolverSelector)
         {
@@ -20,6 +21,7 @@ namespace Stashbox
             var typeInfo = typeof(OverrideManager).GetTypeInfo();
             this.containsMethodInfo = typeInfo.GetDeclaredMethod("ContainsValue");
             this.getOverriddenValueMethodInfo = typeInfo.GetDeclaredMethod("GetOverriddenValue");
+            this.propertyAccessor = typeof(ResolutionInfo).GetRuntimeProperty("OverrideManager").SetMethod;
         }
 
         public bool CanResolve(ResolutionInfo resolutionInfo, IContainerContext containerContext, TypeInformation typeInformation,
@@ -58,7 +60,7 @@ namespace Stashbox
             var typeInfoConstant = Expression.Constant(resolutionTarget.TypeInformation);
             var nullExpr = Expression.Default(resolutionTarget.TypeInformation.Type);
 
-            var overrideManagerExpression = Expression.Property(resolutionInfoExpression, "OverrideManager");
+            var overrideManagerExpression = Expression.Property(resolutionInfoExpression, this.propertyAccessor);
             var nullCheck = Expression.NotEqual(overrideManagerExpression, Expression.Constant(null));
             var contains = Expression.Call(overrideManagerExpression, this.containsMethodInfo, typeInfoConstant);
 
@@ -73,19 +75,6 @@ namespace Stashbox
 
                  resolutionTarget.TypeInformation.Type
             );
-
-            //           if (resolutionInfo.OverrideManager != null &&
-            //resolutionInfo.OverrideManager.ContainsValue(resolutionTarget.TypeInformation))
-            //               return this.CreateOverrideExpression(resolutionTarget, resolutionInfoExpression);
-            //           return resolutionTarget.ResolutionTargetValue != null ? Expression.Constant(resolutionTarget.ResolutionTargetValue) :
-            //resolutionTarget.Resolver.GetExpression(resolutionInfo, resolutionInfoExpression);
         }
-
-        //private Expression CreateOverrideExpression(ResolutionTarget resolutionTarget, Expression resolutionInfoExpression)
-        //{
-        //    var overrideManagerExpression = Expression.Property(resolutionInfoExpression, "OverrideManager");
-        //    var callExpression = Expression.Call(overrideManagerExpression, this.getOverriddenValueMethodInfo, Expression.Constant(resolutionTarget.TypeInformation));
-        //    return Expression.Convert(callExpression, resolutionTarget.TypeInformation.Type);
-        //}
     }
 }

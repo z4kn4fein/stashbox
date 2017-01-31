@@ -4,6 +4,7 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Stashbox.BuildUp.Expressions;
 
 namespace Stashbox.BuildUp.Resolution
 {
@@ -13,14 +14,13 @@ namespace Stashbox.BuildUp.Resolution
         private readonly IServiceRegistration[] registrationCache;
         private ResolverDelegate resolverDelegate;
         private readonly TypeInformation enumerableType;
-        private readonly object syncObject = new object();
 
         public EnumerableResolver(IContainerContext containerContext, TypeInformation typeInfo)
             : base(containerContext, typeInfo)
         {
             this.enumerableType = new TypeInformation
             {
-                Type = typeInfo.Type.GetEnumerableType() ?? typeInfo.Type.GenericTypeArguments[0],
+                Type = typeInfo.Type.GetEnumerableType(),
                 CustomAttributes = typeInfo.CustomAttributes,
                 ParentType = typeInfo.ParentType,
                 DependencyName = typeInfo.DependencyName
@@ -36,12 +36,10 @@ namespace Stashbox.BuildUp.Resolution
         public override object Resolve(ResolutionInfo resolutionInfo)
         {
             if (this.resolverDelegate != null) return this.resolverDelegate(resolutionInfo);
-            lock (this.syncObject)
-            {
-                if (this.resolverDelegate != null) return this.resolverDelegate(resolutionInfo);
-                var parameter = Expression.Parameter(typeof(ResolutionInfo));
-                this.resolverDelegate = Expression.Lambda<ResolverDelegate>(this.GetExpression(resolutionInfo, parameter), parameter).Compile();
-            }
+            var parameter = Expression.Parameter(typeof(ResolutionInfo));
+            var expr = this.GetExpression(resolutionInfo, parameter);
+            expr = new ResolutionInfoParameterVisitor(parameter).Visit(expr);
+            this.resolverDelegate = Expression.Lambda<ResolverDelegate>(expr, parameter).Compile();
 
             return this.resolverDelegate(resolutionInfo);
         }

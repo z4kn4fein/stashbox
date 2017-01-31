@@ -30,47 +30,62 @@ namespace Stashbox.Registration
         {
             var registrationName = this.RegistrationContextData.Name = NameGenerator.GetRegistrationName(this.TypeFrom, this.TypeTo, this.RegistrationContextData.Name);
 
-            var registrationLifetime = this.RegistrationContextData.ExistingInstance != null ? new TransientLifetime() :
-                                            RegistrationContextData.ScopeManagementEnabled ? new SingletonLifetime() :
-                                                this.RegistrationContextData.Lifetime ?? this.GetTransientLifeTime();
+            var registrationLifetime = this.ChooseLifeTime();
 
             var registrationInfo = new RegistrationInfo { TypeFrom = this.TypeFrom, TypeTo = this.TypeTo };
 
             var cache = new MetaInfoCache(this.ContainerContext.ContainerConfiguration, this.TypeTo);
             var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, cache);
 
+            this.CompleteRegistration(containerExtensionManager, update, metaInfoProvider, registrationName, registrationLifetime);
+
+            this.CompleteScopeManagement(update, registrationLifetime);
+
+            return registrationInfo;
+        }
+
+        private void CompleteRegistration(IContainerExtensionManager containerExtensionManager, bool update,
+            MetaInfoProvider metaInfoProvider, string registrationName, ILifetime registrationLifetime)
+        {
             if (this.TypeTo.GetTypeInfo().IsGenericTypeDefinition)
             {
                 var objectBuilder = new GenericTypeObjectBuilder(this.RegistrationContextData, this.ContainerContext,
-                   metaInfoProvider, containerExtensionManager);
+                    metaInfoProvider, containerExtensionManager);
 
-                var registration = this.CreateServiceRegistration(registrationName, new TransientLifetime(), objectBuilder, metaInfoProvider);
+                var registration = this.CreateServiceRegistration(registrationName, new TransientLifetime(), objectBuilder,
+                    metaInfoProvider);
                 if (update)
-                    this.ContainerContext.RegistrationRepository.AddOrUpdateGenericDefinition(this.TypeFrom, registration, registrationName);
+                    this.ContainerContext.RegistrationRepository.AddOrUpdateGenericDefinition(this.TypeFrom, registration,
+                        registrationName);
                 else
-                    this.ContainerContext.RegistrationRepository.AddGenericDefinition(this.TypeFrom, registration, registrationName);
+                    this.ContainerContext.RegistrationRepository.AddGenericDefinition(this.TypeFrom, registration,
+                        registrationName);
             }
             else
             {
-                var registration = this.CreateServiceRegistration(registrationName, registrationLifetime, this.CreateObjectBuilder(containerExtensionManager, metaInfoProvider), metaInfoProvider);
+                var registration = this.CreateServiceRegistration(registrationName, registrationLifetime,
+                    this.CreateObjectBuilder(containerExtensionManager, metaInfoProvider), metaInfoProvider);
                 if (update)
-                    this.ContainerContext.RegistrationRepository.AddOrUpdateRegistration(this.TypeFrom, registration, registrationName);
+                    this.ContainerContext.RegistrationRepository.AddOrUpdateRegistration(this.TypeFrom, registration,
+                        registrationName);
                 else
                     this.ContainerContext.RegistrationRepository.AddRegistration(this.TypeFrom, registration, registrationName);
             }
+        }
 
+        private void CompleteScopeManagement(bool update, ILifetime registrationLifetime)
+        {
             if (!this.RegistrationContextData.ScopeManagementEnabled &&
-                (!this.ContainerContext.ContainerConfiguration.TrackTransientsForDisposalEnabled || !registrationLifetime.IsTransient))
-                return registrationInfo;
+                (!this.ContainerContext.ContainerConfiguration.TrackTransientsForDisposalEnabled ||
+                 !registrationLifetime.IsTransient)) return;
 
             var registrationItem = new ScopedRegistrationItem(this.TypeFrom, this.TypeTo, this.RegistrationContextData);
 
             if (update)
-                this.ContainerContext.ScopedRegistrations.AddOrUpdate(this.RegistrationContextData.Name, registrationItem, (oldValue, newValue) => newValue);
+                this.ContainerContext.ScopedRegistrations.AddOrUpdate(this.RegistrationContextData.Name, registrationItem,
+                    (oldValue, newValue) => newValue);
             else
                 this.ContainerContext.ScopedRegistrations.AddOrUpdate(this.RegistrationContextData.Name, registrationItem);
-
-            return registrationInfo;
         }
 
         private IObjectBuilder CreateObjectBuilder(IContainerExtensionManager containerExtensionManager, MetaInfoProvider metaInfoProvider)
@@ -105,9 +120,12 @@ namespace Stashbox.Registration
                 this.RegistrationContextData.TargetTypeCondition, this.RegistrationContextData.ResolutionCondition);
         }
 
-        private ILifetime GetTransientLifeTime()
-        {
-            if (this.ContainerContext.ContainerConfiguration.TrackTransientsForDisposalEnabled) return new ContainerTrackedTransientLifetime(); else return new TransientLifetime();
-        }
+        private ILifetime ChooseLifeTime() => this.RegistrationContextData.ExistingInstance != null ? new TransientLifetime() :
+                                            RegistrationContextData.ScopeManagementEnabled ? new SingletonLifetime() :
+                                                this.RegistrationContextData.Lifetime ?? this.GetTransientLifeTime();
+
+        private ILifetime GetTransientLifeTime() => this.ContainerContext.ContainerConfiguration.TrackTransientsForDisposalEnabled
+                ? (ILifetime) new ContainerTrackedTransientLifetime()
+                : new TransientLifetime();
     }
 }

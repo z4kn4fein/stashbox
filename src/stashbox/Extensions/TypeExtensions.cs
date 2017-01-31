@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
+using Stashbox.BuildUp.Resolution;
 
 namespace System
 {
@@ -9,14 +10,10 @@ namespace System
         {
             var typeInfo = type.GetTypeInfo();
             if (typeInfo.IsArray)
-            {
                 return type.GetElementType();
-            }
 
-            if (typeInfo.IsGenericType && typeInfo.GetGenericTypeDefinition() == typeof(IEnumerable<>))
-            {
+            if (EnumerableResolver.IsAssignableToGenericType(type, typeof(IEnumerable<>)) && type != typeof(string))
                 return typeInfo.GenericTypeArguments[0];
-            }
 
             return null;
         }
