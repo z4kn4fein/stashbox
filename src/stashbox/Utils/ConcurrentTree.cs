@@ -8,6 +8,22 @@ namespace Stashbox.Utils
     /// <summary>
     /// Represents an immutable AVL tree
     /// </summary>
+    /// <typeparam name="TValue">The type of the value.</typeparam>
+    public class ConcurrentTree<TValue> : ConcurrentTree<int, TValue>
+    {
+        /// <summary>
+        /// Inserts an item into the tree if it doesn't exist.
+        /// </summary>
+        /// <param name="value">The value which will be insertedt.</param>
+        public void Add(TValue value)
+        {
+            base.AddOrUpdate(value.GetHashCode(), value);
+        }
+    }
+
+    /// <summary>
+    /// Represents an immutable AVL tree
+    /// </summary>
     /// <typeparam name="TKey">The type of the key.</typeparam>
     /// <typeparam name="TValue">The type of the value.</typeparam>
     public class ConcurrentTree<TKey, TValue> : IEnumerable<TValue>
