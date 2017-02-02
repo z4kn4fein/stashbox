@@ -28,14 +28,7 @@ namespace Stashbox.Infrastructure
             this.BuilderContext = containerContext;
             this.TypeInfo = typeInfo;
         }
-
-        /// <summary>
-        /// Produces an instance.
-        /// </summary>
-        /// <param name="resolutionInfo">The info about the actual resolution.</param>
-        /// <returns>The resolved object.</returns>
-        public abstract object Resolve(ResolutionInfo resolutionInfo);
-
+        
         /// <summary>
         /// Produces an expression for creating an instance.
         /// </summary>

@@ -19,10 +19,5 @@ namespace Stashbox.BuildUp.Resolution
         {
             return registrationCache.GetExpression(resolutionInfo, base.TypeInfo);
         }
-
-        public override object Resolve(ResolutionInfo resolutionInfo)
-        {
-            return registrationCache.GetInstance(resolutionInfo, base.TypeInfo);
-        }
     }
 }

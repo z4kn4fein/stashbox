@@ -35,8 +35,8 @@ namespace Stashbox.BuildUp.Resolution
                 DependencyName = typeInfo.DependencyName
             };
 
-            registrationCache = containerContext.RegistrationRepository.GetRegistrationOrDefault(this.funcArgumentInfo);
-            if(registrationCache == null)
+            this.registrationCache = containerContext.RegistrationRepository.GetRegistrationOrDefault(this.funcArgumentInfo);
+            if(this.registrationCache == null)
                 throw new ResolutionFailedException(typeInfo.Type.FullName);
 
             var methodName = "ResolveFuncP" + (typeInfo.Type.GenericTypeArguments.Length - 1);
