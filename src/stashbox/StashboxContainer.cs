@@ -7,6 +7,7 @@ using Stashbox.Registration;
 using Stashbox.Utils;
 using System;
 using System.Reflection;
+using Stashbox.Resolution;
 
 namespace Stashbox
 {
@@ -18,6 +19,7 @@ namespace Stashbox
         private readonly IContainerExtensionManager containerExtensionManager;
         private readonly IResolverSelector resolverSelector;
         private readonly IRegistrationRepository registrationRepository;
+        private readonly IActivationContext activationContext;
         private readonly AtomicBool disposed;
 
         /// <summary>
@@ -33,9 +35,9 @@ namespace Stashbox
             config?.Invoke(configuration);
 
             this.registrationRepository = new RegistrationRepository(configuration);
-
-            this.ContainerContext = new ContainerContext(this.registrationRepository, this,
+            this.ContainerContext = new ContainerContext(this.registrationRepository, new DelegateRepository(this),  this,
                 new ResolutionStrategy(this.resolverSelector), configuration);
+            this.activationContext = new ActivationContext(this.resolverSelector, this.ContainerContext);
 
             this.RegisterResolvers();
         }
@@ -48,9 +50,9 @@ namespace Stashbox
             this.containerExtensionManager = containerExtensionManager;
             this.resolverSelector = resolverSelector;
             this.registrationRepository = new RegistrationRepository(parentContainer.ContainerContext.ContainerConfiguration);
-            this.ContainerContext = new ContainerContext(this.registrationRepository, this, new ResolutionStrategy(this.resolverSelector),
+            this.ContainerContext = new ContainerContext(this.registrationRepository, new DelegateRepository(this), this, new ResolutionStrategy(this.resolverSelector),
                 parentContainer.ContainerContext.ContainerConfiguration);
-
+            this.activationContext = new ActivationContext(this.resolverSelector, this.ContainerContext);
             this.containerExtensionManager.ReinitalizeExtensions(this.ContainerContext);
         }
 
@@ -127,11 +129,11 @@ namespace Stashbox
 
         private void RegisterResolvers()
         {
-            var containerResolver = new ResolverRegistration
+            var enumerableResolver = new ResolverRegistration
             {
-                ResolverType = typeof(ContainerResolver),
-                ResolverFactory = (context, typeInfo) => new ContainerResolver(context, typeInfo),
-                Predicate = (context, typeInfo) => context.RegistrationRepository.ConstainsRegistrationWithConditions(typeInfo)
+                ResolverType = typeof(EnumerableResolver),
+                ResolverFactory = (context, typeInfo) => new EnumerableResolver(context, typeInfo),
+                Predicate = (context, typeInfo) => typeInfo.Type.GetEnumerableType() != null
             };
 
             var lazyResolver = new ResolverRegistration
@@ -139,13 +141,6 @@ namespace Stashbox
                 ResolverType = typeof(LazyResolver),
                 ResolverFactory = (context, typeInfo) => new LazyResolver(context, typeInfo),
                 Predicate = (context, typeInfo) => typeInfo.Type.IsConstructedGenericType && typeInfo.Type.GetGenericTypeDefinition() == typeof(Lazy<>)
-            };
-
-            var enumerableResolver = new ResolverRegistration
-            {
-                ResolverType = typeof(EnumerableResolver),
-                ResolverFactory = (context, typeInfo) => new EnumerableResolver(context, typeInfo),
-                Predicate = (context, typeInfo) => typeInfo.Type.GetEnumerableType() != null
             };
 
             var funcResolver = new ResolverRegistration
@@ -176,10 +171,9 @@ namespace Stashbox
                 ResolverFactory = (context, typeInfo) => new UnknownTypeResolver(context, typeInfo),
                 Predicate = (context, typeInfo) => !typeInfo.Type.GetTypeInfo().IsAbstract && !typeInfo.Type.GetTypeInfo().IsInterface
             };
-
-            this.resolverSelector.AddResolver(containerResolver);
-            this.resolverSelector.AddResolver(lazyResolver);
+            
             this.resolverSelector.AddResolver(enumerableResolver);
+            this.resolverSelector.AddResolver(lazyResolver);
             this.resolverSelector.AddResolver(funcResolver);
 
             if (this.ContainerContext.ContainerConfiguration.OptionalAndDefaultValueInjectionEnabled)

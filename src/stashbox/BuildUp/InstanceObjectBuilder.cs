@@ -15,7 +15,7 @@ namespace Stashbox.BuildUp
             this.instance = instance;
         }
 
-        public Expression GetExpression(ResolutionInfo resolutionInfo, Expression resolutionInfoExpression, TypeInformation resolveType)
+        public Expression GetExpression(ResolutionInfo resolutionInfo, TypeInformation resolveType)
         {
             return Expression.Constant(this.instance);
         }

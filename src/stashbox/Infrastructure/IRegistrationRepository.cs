@@ -10,82 +10,41 @@ namespace Stashbox.Infrastructure
     public interface IRegistrationRepository
     {
         /// <summary>
-        /// Adds a new registration into the repository.
-        /// </summary>
-        /// <param name="typeKey">The key type.</param>
-        /// <param name="registration">The registration.</param>
-        /// <param name="nameKey">The name of the registration.</param>
-        void AddRegistration(Type typeKey, IServiceRegistration registration, string nameKey);
-
-        /// <summary>
         /// Adds or updates an element in the repository.
         /// </summary>
         /// <param name="typeKey">The key type.</param>
-        /// <param name="registration">The registration.</param>
         /// <param name="nameKey">The name of the registration.</param>
-        void AddOrUpdateRegistration(Type typeKey, IServiceRegistration registration, string nameKey);
+        /// <param name="canUpdate">Indicates that update is allowed</param>
+        /// <param name="registration">The registration.</param>
+        void AddOrUpdateRegistration(Type typeKey, string nameKey, bool canUpdate, IServiceRegistration registration);
 
         /// <summary>
-        /// Adds a new generic definition into the repository.
+        /// Retrieves a registration.
         /// </summary>
-        /// <param name="typeKey">The key type.</param>
-        /// <param name="registration">The registration.</param>
-        /// <param name="nameKey">The name of the registration.</param>
-        void AddGenericDefinition(Type typeKey, IServiceRegistration registration, string nameKey);
+        /// <param name="typeInfo">The type info.</param>
+        /// <param name="checkConditions">Indicates that the operation should check the registration conditions.</param>
+        /// <returns>The registration or null, if it doesn't exist.</returns>
+        IServiceRegistration GetRegistrationOrDefault(TypeInformation typeInfo, bool checkConditions = false);
 
         /// <summary>
-        /// Adds or updates a generic definition in the repository.
+        /// Retrieves all registrations for a type.
         /// </summary>
-        /// <param name="typeKey">The key type.</param>
-        /// <param name="registration">The registration.</param>
-        /// <param name="nameKey">The name of the registration.</param>
-        void AddOrUpdateGenericDefinition(Type typeKey, IServiceRegistration registration, string nameKey);
+        /// <param name="typeInfo">The requested type information.</param>
+        /// <returns>The registrations or null, if it doesn't exist.</returns>
+        IEnumerable<IServiceRegistration> GetRegistrationsOrDefault(TypeInformation typeInfo);
 
         /// <summary>
-        /// Gets all registrations.
+        /// Retrieves all registrations.
         /// </summary>
-        /// <returns>A collection of the registrations.</returns>
+        /// <returns>The registrations.</returns>
         IEnumerable<IServiceRegistration> GetAllRegistrations();
 
-        /// <summary>
-        /// Tries to retrieve a registration with conditions.
-        /// </summary>
-        /// <param name="typeInfo">The requested type information.</param>
-        /// <param name="registration">The retrieved registration.</param>
-        /// <returns>True if a registration was found, otherwise false.</returns>
-        bool TryGetRegistrationWithConditions(TypeInformation typeInfo, out IServiceRegistration registration);
-
-        /// <summary>
-        /// Tries to retrieve a non generic definition registration with conditions.
-        /// </summary>
-        /// <param name="typeInfo">The requested type information.</param>
-        /// <param name="registration">The retrieved registration.</param>
-        /// <returns>True if a registration was found, otherwise false.</returns>
-        bool TryGetRegistrationWithConditionsWithoutGenericDefinitionExtraction(TypeInformation typeInfo,
-            out IServiceRegistration registration);
-
-        /// <summary>
-        /// Tries to retrieve a registrations.
-        /// </summary>
-        /// <param name="typeInfo">The requested type information.</param>
-        /// <param name="registration">The retrieved registration.</param>
-        /// <returns>True if a registration was found, otherwise false.</returns>
-        bool TryGetRegistration(TypeInformation typeInfo, out IServiceRegistration registration);
-
-        /// <summary>
-        /// Tries to retrieve all registrations for a type.
-        /// </summary>
-        /// <param name="typeInfo">The requested type information.</param>
-        /// <param name="registrations">The retrieved registrations.</param>
-        /// <returns>True if registrations were found, otherwise false.</returns>
-        bool TryGetTypedRepositoryRegistrations(TypeInformation typeInfo, out IServiceRegistration[] registrations);
-        
         /// <summary>
         /// Check a type exists with conditions.
         /// </summary>
         /// <param name="typeInfo">The type information.</param>
         /// <returns>True if the registration found, otherwise false.</returns>
-        bool ConstainsRegistrationWithConditions(TypeInformation typeInfo);
+        bool ContainsRegistration(TypeInformation typeInfo);
 
         /// <summary>
         /// Cleans up the repository.

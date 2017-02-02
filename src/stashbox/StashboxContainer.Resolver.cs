@@ -1,6 +1,4 @@
-﻿using Stashbox.BuildUp.Resolution;
-using Stashbox.Entity;
-using Stashbox.Exceptions;
+﻿using Stashbox.Entity;
 using Stashbox.Infrastructure;
 using Stashbox.MetaInfo;
 using Stashbox.Overrides;
@@ -32,12 +30,15 @@ namespace Stashbox
             var type = typeof(TKey);
             var factoryParams = factoryParameters as object[] ?? factoryParameters?.ToArray();
             var typeInfo = new TypeInformation { Type = type };
-            IServiceRegistration[] registrations;
-            if (!this.registrationRepository.TryGetTypedRepositoryRegistrations(typeInfo, out registrations)) yield break;
+
+            var registrations = this.registrationRepository.GetRegistrationsOrDefault(typeInfo);
+            if (registrations == null)
+                yield break;
+
             var overridesEnumerated = overrides as Override[] ?? overrides?.ToArray();
             foreach (var registration in registrations)
             {
-                yield return registration.GetInstance(new ResolutionInfo()
+                yield return registration.GetInstance(new ResolutionInfo
                 {
                     OverrideManager = overridesEnumerated == null ? null : new OverrideManager(overridesEnumerated),
                     FactoryParams = factoryParams,
@@ -50,12 +51,15 @@ namespace Stashbox
         {
             var factoryParams = factoryParameters as object[] ?? factoryParameters?.ToArray();
             var typeInfo = new TypeInformation { Type = typeFrom };
-            IServiceRegistration[] registrations;
-            if (!this.registrationRepository.TryGetTypedRepositoryRegistrations(typeInfo, out registrations)) yield break;
+
+            var registrations = this.registrationRepository.GetRegistrationsOrDefault(typeInfo);
+            if (registrations == null)
+                yield break;
+
             var overridesEnumerated = overrides as Override[] ?? overrides?.ToArray();
             foreach (var registration in registrations)
             {
-                yield return registration.GetInstance(new ResolutionInfo()
+                yield return registration.GetInstance(new ResolutionInfo
                 {
                     OverrideManager = overridesEnumerated == null ? null : new OverrideManager(overridesEnumerated),
                     FactoryParams = factoryParams,
@@ -91,18 +95,7 @@ namespace Stashbox
                 FactoryParams = enumFactoryParameters,
             };
 
-            IServiceRegistration registration;
-            if (this.registrationRepository.TryGetRegistration(typeInfo, out registration))
-                return registration.GetInstance(resolutionInfo, typeInfo);
-
-            Resolver resolver;
-            if (this.resolverSelector.TryChooseResolver(this.ContainerContext,
-                typeInfo, out resolver, res => res.ResolverType != typeof(ContainerResolver)))
-            {
-                return resolver.Resolve(resolutionInfo);
-            }
-
-            throw new ResolutionFailedException(typeFrom.FullName);
+            return this.activationContext.Activate(resolutionInfo, typeInfo);
         }
     }
 }

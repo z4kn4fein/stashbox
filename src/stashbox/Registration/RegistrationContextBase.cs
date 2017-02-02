@@ -6,7 +6,6 @@ using Stashbox.Lifetime;
 using Stashbox.MetaInfo;
 using Stashbox.Utils;
 using System;
-using System.Reflection;
 
 namespace Stashbox.Registration
 {
@@ -47,30 +46,13 @@ namespace Stashbox.Registration
         private void CompleteRegistration(IContainerExtensionManager containerExtensionManager, bool update,
             MetaInfoProvider metaInfoProvider, string registrationName, ILifetime registrationLifetime)
         {
-            if (this.TypeTo.GetTypeInfo().IsGenericTypeDefinition)
-            {
-                var objectBuilder = new GenericTypeObjectBuilder(this.RegistrationContextData, this.ContainerContext,
-                    metaInfoProvider, containerExtensionManager);
+            var objectBuilder = this.TypeTo.IsOpenGenericType() ? new GenericTypeObjectBuilder(this.RegistrationContextData, this.ContainerContext,
+                    metaInfoProvider, containerExtensionManager) : this.CreateObjectBuilder(containerExtensionManager, metaInfoProvider);
 
-                var registration = this.CreateServiceRegistration(registrationName, new TransientLifetime(), objectBuilder,
+            var registration = this.CreateServiceRegistration(registrationName, this.TypeTo.IsOpenGenericType() ? new TransientLifetime() : registrationLifetime, objectBuilder,
                     metaInfoProvider);
-                if (update)
-                    this.ContainerContext.RegistrationRepository.AddOrUpdateGenericDefinition(this.TypeFrom, registration,
-                        registrationName);
-                else
-                    this.ContainerContext.RegistrationRepository.AddGenericDefinition(this.TypeFrom, registration,
-                        registrationName);
-            }
-            else
-            {
-                var registration = this.CreateServiceRegistration(registrationName, registrationLifetime,
-                    this.CreateObjectBuilder(containerExtensionManager, metaInfoProvider), metaInfoProvider);
-                if (update)
-                    this.ContainerContext.RegistrationRepository.AddOrUpdateRegistration(this.TypeFrom, registration,
-                        registrationName);
-                else
-                    this.ContainerContext.RegistrationRepository.AddRegistration(this.TypeFrom, registration, registrationName);
-            }
+
+            this.ContainerContext.RegistrationRepository.AddOrUpdateRegistration(this.TypeFrom, registrationName, update, registration);
         }
 
         private void CompleteScopeManagement(bool update, ILifetime registrationLifetime)
@@ -100,16 +82,7 @@ namespace Stashbox.Registration
 
             if (this.RegistrationContextData.SingleFactory != null)
                 return new FactoryObjectBuilder(this.RegistrationContextData.SingleFactory, this.ContainerContext, containerExtensionManager, objectExtender);
-
-            if (this.RegistrationContextData.TwoParametersFactory != null)
-                return new FactoryObjectBuilder(this.RegistrationContextData.TwoParametersFactory, this.ContainerContext, containerExtensionManager, objectExtender);
-
-            if (this.RegistrationContextData.ThreeParametersFactory != null)
-                return new FactoryObjectBuilder(this.RegistrationContextData.ThreeParametersFactory, this.ContainerContext, containerExtensionManager, objectExtender);
-
-            if (this.RegistrationContextData.OneParameterFactory != null)
-                return new FactoryObjectBuilder(this.RegistrationContextData.OneParameterFactory, this.ContainerContext, containerExtensionManager, objectExtender);
-
+            
             return new DefaultObjectBuilder(this.ContainerContext, metaInfoProvider,
                 containerExtensionManager, this.RegistrationContextData.InjectionParameters);
         }

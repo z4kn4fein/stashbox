@@ -15,15 +15,15 @@ namespace Stashbox.BuildUp.Resolution
             this.resolverMethodInfo = this.GetType().GetTypeInfo().GetDeclaredMethod("Resolve");
         }
 
-        public override object Resolve(ResolutionInfo resolutionInfo)
+        private object Resolve(ResolutionInfo resolutionInfo)
         {
             return base.BuilderContext.Container.ParentContainer.Resolve(base.TypeInfo.Type, base.TypeInfo.DependencyName,
                 resolutionInfo.FactoryParams, resolutionInfo.OverrideManager?.GetOverrides());
         }
 
-        public override Expression GetExpression(ResolutionInfo resolutionInfo, Expression resolutionInfoExpression)
+        public override Expression GetExpression(ResolutionInfo resolutionInfo)
         {
-            var callExpression = Expression.Call(Expression.Constant(this), resolverMethodInfo, resolutionInfoExpression);
+            var callExpression = Expression.Call(Expression.Constant(this), resolverMethodInfo);
             return Expression.Convert(callExpression, base.TypeInfo.Type);
         }
     }

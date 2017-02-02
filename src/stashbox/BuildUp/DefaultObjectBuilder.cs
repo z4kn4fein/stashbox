@@ -45,32 +45,30 @@ namespace Stashbox.BuildUp
         private object BuildInstanceInternal(ResolutionInfo resolutionInfo, TypeInformation resolveType)
         {
             if (this.createDelegate != null && !this.isDirty) return this.createDelegate(resolutionInfo);
-            var parameter = Expression.Parameter(typeof(ResolutionInfo), "resolutionInfo");
-            var expr = this.GetExpressionInternal(resolutionInfo, parameter, resolveType);
-            expr = new ResolutionInfoParameterVisitor(parameter).Visit(expr);
-            this.createDelegate = Expression.Lambda<Func<ResolutionInfo, object>>(expr, parameter).Compile();
+            var expr = this.GetExpressionInternal(resolutionInfo, resolveType);
+            this.createDelegate = Expression.Lambda<Func<ResolutionInfo, object>>(expr).Compile();
 
             return this.createDelegate(resolutionInfo);
         }
 
-        public Expression GetExpression(ResolutionInfo resolutionInfo, Expression resolutionInfoExpression, TypeInformation resolveType)
+        public Expression GetExpression(ResolutionInfo resolutionInfo, TypeInformation resolveType)
         {
             if (!this.containerContext.ContainerConfiguration.CircularDependencyTrackingEnabled)
-                return this.GetExpressionInternal(resolutionInfo, resolutionInfoExpression, resolveType);
+                return this.GetExpressionInternal(resolutionInfo, resolveType);
 
             using (new CircularDependencyBarrier(resolutionInfo.CircularDependencyBarrier, this.metaInfoProvider.TypeTo))
-                return this.GetExpressionInternal(resolutionInfo, resolutionInfoExpression, resolveType);
+                return this.GetExpressionInternal(resolutionInfo, resolveType);
         }
 
-        private Expression GetExpressionInternal(ResolutionInfo resolutionInfo, Expression resolutionInfoExpression, TypeInformation resolveType)
+        private Expression GetExpressionInternal(ResolutionInfo resolutionInfo, TypeInformation resolveType)
         {
             if (this.expression != null && !this.isDirty) return this.expression;
             {
                 ResolutionConstructor constructor;
-                if (!this.metaInfoProvider.TryChooseConstructor(out constructor, resolutionInfo, this.injectionParameters))
+                if (!this.metaInfoProvider.TryChooseConstructor(out constructor, this.injectionParameters))
                     throw new ResolutionFailedException(this.metaInfoProvider.TypeTo.FullName);
                 this.isDirty = false;
-                this.expression = this.CreateExpression(constructor, resolutionInfo, resolveType, resolutionInfoExpression);
+                this.expression = this.CreateExpression(constructor, resolutionInfo, resolveType);
                 return this.expression;
             }
         }
@@ -81,10 +79,10 @@ namespace Stashbox.BuildUp
             this.isDirty = true;
         }
 
-        private Expression CreateExpression(ResolutionConstructor constructor, ResolutionInfo resolutionInfo, TypeInformation resolveType, Expression resolutionInfoExpression)
+        private Expression CreateExpression(ResolutionConstructor constructor, ResolutionInfo resolutionInfo, TypeInformation resolveType)
         {
             return ExpressionDelegateFactory.CreateExpression(this.containerExtensionManager, this.containerContext,
-                    constructor, resolutionInfo, resolutionInfoExpression, resolveType, this.injectionParameters, this.GetResolutionMembers(resolutionInfo), this.GetResolutionMethods(resolutionInfo));
+                    constructor, resolutionInfo, resolveType, this.injectionParameters, this.GetResolutionMembers(resolutionInfo), this.GetResolutionMethods(resolutionInfo));
         }
 
         private ResolutionMember[] GetResolutionMembers(ResolutionInfo resolutionInfo)
@@ -92,7 +90,7 @@ namespace Stashbox.BuildUp
             if (!this.metaInfoProvider.HasInjectionMembers) return null;
 
             if (this.resolutionMembers != null && !this.isDirty) return this.resolutionMembers;
-            return this.resolutionMembers = this.metaInfoProvider.GetResolutionMembers(resolutionInfo, this.injectionParameters).ToArray();
+            return this.resolutionMembers = this.metaInfoProvider.GetResolutionMembers(this.injectionParameters).ToArray();
         }
 
         private ResolutionMethod[] GetResolutionMethods(ResolutionInfo resolutionInfo)
@@ -100,7 +98,7 @@ namespace Stashbox.BuildUp
             if (!this.metaInfoProvider.HasInjectionMethod) return null;
 
             if (this.resolutionMethods != null && !this.isDirty) return this.resolutionMethods;
-            return this.resolutionMethods = this.metaInfoProvider.GetResolutionMethods(resolutionInfo, this.injectionParameters).ToArray();
+            return this.resolutionMethods = this.metaInfoProvider.GetResolutionMethods(this.injectionParameters).ToArray();
         }
 
         public void CleanUp()

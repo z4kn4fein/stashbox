@@ -21,10 +21,8 @@ namespace Stashbox.BuildUp.Resolution
         };
 
         private readonly IServiceRegistration registrationCache;
-        private delegate object ResolverDelegate(ResolutionInfo resolutionInfo);
-        private readonly ResolverDelegate resolverDelegate;
+        private readonly Expression expression;
         private readonly TypeInformation funcArgumentInfo;
-        private readonly MethodInfo resolverMethodInfo;
 
         public FuncResolver(IContainerContext containerContext, TypeInformation typeInfo)
             : base(containerContext, typeInfo)
@@ -37,24 +35,20 @@ namespace Stashbox.BuildUp.Resolution
                 DependencyName = typeInfo.DependencyName
             };
 
-            if (!containerContext.RegistrationRepository.TryGetRegistrationWithConditions(this.funcArgumentInfo, out this.registrationCache))
+            registrationCache = containerContext.RegistrationRepository.GetRegistrationOrDefault(this.funcArgumentInfo);
+            if(registrationCache == null)
                 throw new ResolutionFailedException(typeInfo.Type.FullName);
 
             var methodName = "ResolveFuncP" + (typeInfo.Type.GenericTypeArguments.Length - 1);
 
             var resolverMethod = this.GetType().GetTypeInfo().GetDeclaredMethod(methodName);
-            this.resolverMethodInfo = resolverMethod.MakeGenericMethod(typeInfo.Type.GenericTypeArguments);
-            this.resolverDelegate = (ResolverDelegate)resolverMethodInfo.CreateDelegate(typeof(ResolverDelegate), this);
+            var method = resolverMethod.MakeGenericMethod(typeInfo.Type.GenericTypeArguments);
+            this.expression = Expression.Call(Expression.Constant(this), method);
         }
-
-        public override object Resolve(ResolutionInfo resolutionInfo)
+        
+        public override Expression GetExpression(ResolutionInfo resolutionInfo)
         {
-            return this.resolverDelegate(resolutionInfo);
-        }
-
-        public override Expression GetExpression(ResolutionInfo resolutionInfo, Expression resolutionInfoExpression)
-        {
-            return Expression.Call(Expression.Constant(this), this.resolverMethodInfo, resolutionInfoExpression);
+            return this.expression;
         }
 
         private Func<TResult> ResolveFuncP0<TResult>(ResolutionInfo resolutionInfo)

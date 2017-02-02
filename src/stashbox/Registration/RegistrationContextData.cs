@@ -26,21 +26,6 @@ namespace Stashbox.Registration
         public Func<object> SingleFactory { get; set; }
 
         /// <summary>
-        /// One parameter factory of the registration.
-        /// </summary>
-        public Func<object, object> OneParameterFactory { get; set; }
-
-        /// <summary>
-        /// Two parameters factory of the registration.
-        /// </summary>
-        public Func<object, object, object> TwoParametersFactory { get; set; }
-
-        /// <summary>
-        /// Three parameters factory of the registration.
-        /// </summary>
-        public Func<object, object, object, object> ThreeParametersFactory { get; set; }
-
-        /// <summary>
         /// Injection parameters of the registration.
         /// </summary>
         public InjectionParameter[] InjectionParameters { get; set; }

@@ -202,7 +202,7 @@ namespace Stashbox
             var registration = new ServiceRegistration(keyName, this.ContainerContext, new TransientLifetime(),
                 new WireUpObjectBuilder(instance, this.ContainerContext, this.containerExtensionManager, objectExtender), metaInfoProvider);
 
-            this.registrationRepository.AddRegistration(typeFrom, registration, keyName);
+            this.registrationRepository.AddOrUpdateRegistration(typeFrom, keyName, false, registration);
             this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.ContainerContext, registrationInfo);
         }
 
@@ -217,7 +217,7 @@ namespace Stashbox
             var registration = new ServiceRegistration(keyName, this.ContainerContext, new TransientLifetime(),
                 new InstanceObjectBuilder(instance), metaInfoProvider);
 
-            this.registrationRepository.AddRegistration(type, registration, keyName);
+            this.registrationRepository.AddOrUpdateRegistration(type, keyName, false, registration);
             this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.ContainerContext, registrationInfo);
         }
     }

@@ -10,9 +10,8 @@ namespace Stashbox.BuildUp.Resolution
 {
     internal class EnumerableResolver : Resolver
     {
-        private delegate object ResolverDelegate(ResolutionInfo resolutionInfo);
         private readonly IServiceRegistration[] registrationCache;
-        private ResolverDelegate resolverDelegate;
+        private Expression expression;
         private readonly TypeInformation enumerableType;
 
         public EnumerableResolver(IContainerContext containerContext, TypeInformation typeInfo)
@@ -20,43 +19,29 @@ namespace Stashbox.BuildUp.Resolution
         {
             this.enumerableType = new TypeInformation
             {
-                Type = typeInfo.Type.GetEnumerableType(),
-                CustomAttributes = typeInfo.CustomAttributes,
-                ParentType = typeInfo.ParentType,
-                DependencyName = typeInfo.DependencyName
+                Type = typeInfo.Type.GetEnumerableType()
             };
 
-            containerContext.RegistrationRepository.TryGetTypedRepositoryRegistrations(this.enumerableType,
-                out registrationCache);
+            var registrations = containerContext.RegistrationRepository.GetRegistrationsOrDefault(this.enumerableType);
 
-            if (registrationCache != null)
-                registrationCache = base.BuilderContext.ContainerConfiguration.EnumerableOrderRule(registrationCache).ToArray();
+            if (registrations != null)
+                registrationCache = base.BuilderContext.ContainerConfiguration.EnumerableOrderRule(registrations).ToArray();
         }
-
-        public override object Resolve(ResolutionInfo resolutionInfo)
+        
+        public override Expression GetExpression(ResolutionInfo resolutionInfo)
         {
-            if (this.resolverDelegate != null) return this.resolverDelegate(resolutionInfo);
-            var parameter = Expression.Parameter(typeof(ResolutionInfo));
-            var expr = this.GetExpression(resolutionInfo, parameter);
-            expr = new ResolutionInfoParameterVisitor(parameter).Visit(expr);
-            this.resolverDelegate = Expression.Lambda<ResolverDelegate>(expr, parameter).Compile();
+            if (expression != null && resolutionInfo.OverrideManager != null)
+                return expression;
 
-            return this.resolverDelegate(resolutionInfo);
-        }
-
-        public override Expression GetExpression(ResolutionInfo resolutionInfo, Expression resolutionInfoExpression)
-        {
             if (registrationCache == null)
-                return Expression.NewArrayInit(this.enumerableType.Type);
+                return this.expression = Expression.NewArrayInit(this.enumerableType.Type);
 
             var length = registrationCache.Length;
             var enumerableItems = new Expression[length];
             for (var i = 0; i < length; i++)
-            {
-                enumerableItems[i] = registrationCache[i].GetExpression(resolutionInfo, resolutionInfoExpression, this.enumerableType);
-            }
+                enumerableItems[i] = registrationCache[i].GetExpression(resolutionInfo, this.enumerableType);
 
-            return Expression.NewArrayInit(this.enumerableType.Type, enumerableItems);
+            return this.expression = Expression.NewArrayInit(this.enumerableType.Type, enumerableItems);
         }
 
         public static bool IsAssignableToGenericType(Type type, Type genericType)

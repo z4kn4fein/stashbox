@@ -67,6 +67,7 @@
     <Compile Include="Entity\MethodInformation.cs" />
     <Compile Include="Entity\MemberInformation.cs" />
     <Compile Include="Entity\RegistrationInfo.cs" />
+    <Compile Include="Entity\RegistrationType.cs" />
     <Compile Include="Entity\Resolution\ResolutionConstructor.cs" />
     <Compile Include="Entity\ResolutionInfo.cs" />
     <Compile Include="Entity\Resolution\ResolutionMethod.cs" />
@@ -81,6 +82,8 @@
     <Compile Include="Extensions\TypeExtensions.cs" />
     <Compile Include="Infrastructure\ContainerExtension\IPostBuildExtension.cs" />
     <Compile Include="Infrastructure\ContainerExtension\IRegistrationExtension.cs" />
+    <Compile Include="Infrastructure\IActivationContext.cs" />
+    <Compile Include="Infrastructure\IDelegateRepository.cs" />
     <Compile Include="Infrastructure\IObjectExtender.cs" />
     <Compile Include="Infrastructure\IRegistrationContext.cs" />
     <Compile Include="Infrastructure\IResolutionStrategy.cs" />
@@ -92,7 +95,9 @@
     <Compile Include="Registration\RegistrationContext.cs" />
     <Compile Include="Registration\RegistrationContextBase.cs" />
     <Compile Include="Registration\ScopedRegistrationItem.cs" />
-    <Compile Include="ResolutionStrategy.cs" />
+    <Compile Include="Resolution\ActivationContext.cs" />
+    <Compile Include="Resolution\DelegateRepository.cs" />
+    <Compile Include="Resolution\ResolutionStrategy.cs" />
     <Compile Include="Registration\RegistrationContextData.cs" />
     <Compile Include="Registration\ScopedRegistrationContext.cs" />
     <Compile Include="StashboxContainer.cs" />
@@ -120,7 +125,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Registration\RegistrationRepository.cs" />
     <Compile Include="Registration\ServiceRegistration.cs" />
-    <Compile Include="ResolverSelector.cs" />
+    <Compile Include="Resolution\ResolverSelector.cs" />
     <Compile Include="Utils\AtomicBool.cs" />
     <Compile Include="BuildUp\CircularDependencyBarrier.cs" />
     <Compile Include="Utils\AvlTree.cs" />
@@ -129,6 +134,7 @@
     <Compile Include="Utils\ConcurrentTree.cs" />
     <Compile Include="Utils\DisposableReaderWriterLock.cs" />
     <Compile Include="Utils\NameGenerator.cs" />
+    <Compile Include="Utils\RandomAccessArray.cs" />
     <Compile Include="Utils\Shield.cs" />
   </ItemGroup>
   <ItemGroup>

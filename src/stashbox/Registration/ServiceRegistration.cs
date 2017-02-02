@@ -59,7 +59,7 @@ namespace Stashbox.Registration
 
         /// <inheritdoc />
         public bool ValidateGenericContraints(TypeInformation typeInformation) =>
-            !this.metaInfoProvider.HasGenericTypeConstraints || this.metaInfoProvider.ValidateGenericContraints(typeInformation);
+            this.metaInfoProvider.HasGenericTypeConstraints && this.metaInfoProvider.ValidateGenericContraints(typeInformation);
 
         /// <inheritdoc />
         public void ServiceUpdated(RegistrationInfo registrationInfo) =>
@@ -73,7 +73,7 @@ namespace Stashbox.Registration
         }
 
         /// <inheritdoc />
-        public Expression GetExpression(ResolutionInfo resolutionInfo, Expression resolutionInfoExpression, TypeInformation resolveType) =>
-            this.lifetimeManager.GetExpression(this.containerContext, this.objectBuilder, resolutionInfo, resolutionInfoExpression, resolveType);
+        public Expression GetExpression(ResolutionInfo resolutionInfo, TypeInformation resolveType) =>
+            this.lifetimeManager.GetExpression(this.containerContext, this.objectBuilder, resolutionInfo, resolveType);
     }
 }

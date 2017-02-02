@@ -2,6 +2,7 @@
 using Stashbox.Infrastructure;
 using System;
 using System.Collections.Generic;
+using Stashbox.Entity.Resolution;
 using static Stashbox.Configuration.Rules;
 
 namespace Stashbox.Configuration
@@ -33,7 +34,7 @@ namespace Stashbox.Configuration
 
         internal AutoMemberInjection MemberInjectionWithoutAnnotationRule { get; private set; }
 
-        internal Func<IEnumerable<ConstructorInformation>, ConstructorInformation> ConstructorSelectionRule { get; private set; }
+        internal Func<IEnumerable<ResolutionConstructor>, ResolutionConstructor> ConstructorSelectionRule { get; private set; }
 
         internal Func<IEnumerable<IServiceRegistration>, IServiceRegistration> DependencySelectionRule { get; private set; }
 
@@ -104,7 +105,7 @@ namespace Stashbox.Configuration
         /// Sets the constructor selection rule.
         /// </summary>
         /// <returns>The container configuration.</returns>
-        public ContainerConfiguration WithConstructorSelectionRule(Func<IEnumerable<ConstructorInformation>, ConstructorInformation> selectionRule)
+        public ContainerConfiguration WithConstructorSelectionRule(Func<IEnumerable<ResolutionConstructor>, ResolutionConstructor> selectionRule)
         {
             this.ConstructorSelectionRule = selectionRule;
             return this;

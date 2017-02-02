@@ -1,11 +1,11 @@
-﻿using Stashbox.Entity;
-using Stashbox.Infrastructure;
-using Stashbox.Utils;
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading;
+using Stashbox.Entity;
+using Stashbox.Infrastructure;
+using Stashbox.Utils;
 
-namespace Stashbox
+namespace Stashbox.Resolution
 {
     internal class ResolverSelector : IResolverSelector
     {
@@ -21,11 +21,9 @@ namespace Stashbox
             return this.resolverRepository.Any(registration => registration.Predicate(containerContext, typeInfo));
         }
 
-        public bool TryChooseResolver(IContainerContext containerContext, TypeInformation typeInfo, out Resolver resolver, Func<ResolverRegistration, bool> filter = null)
+        public bool TryChooseResolver(IContainerContext containerContext, TypeInformation typeInfo, out Resolver resolver)
         {
-            var resolverFactory = filter == null ? this.resolverRepository.FirstOrDefault(
-                registration => registration.Predicate(containerContext, typeInfo)) :
-                this.resolverRepository.Where(filter).FirstOrDefault(
+            var resolverFactory = this.resolverRepository.FirstOrDefault(
                 registration => registration.Predicate(containerContext, typeInfo));
 
             if (resolverFactory != null)

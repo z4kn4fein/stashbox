@@ -12,19 +12,13 @@ namespace Stashbox
     public class ContainerContext : IContainerContext
     {
         private int registrationNumber;
-
-        /// <summary>
-        /// Constructs a <see cref="ContainerContext"/>
-        /// </summary>
-        /// <param name="registrationRepository">The repository of the registrations.</param>
-        /// <param name="container">The container itself.</param>
-        /// <param name="resolutionStrategy">The resolution strategy.</param>
-        /// <param name="containerConfiguration">The container configuration.</param>
-        internal ContainerContext(IRegistrationRepository registrationRepository, IStashboxContainer container,
+        
+        internal ContainerContext(IRegistrationRepository registrationRepository, IDelegateRepository delegateRepository, IStashboxContainer container,
             IResolutionStrategy resolutionStrategy, ContainerConfiguration containerConfiguration)
         {
             this.ResolutionStrategy = resolutionStrategy;
             this.RegistrationRepository = registrationRepository;
+            this.DelegateRepository = delegateRepository;
             this.Container = container;
             this.Bag = new ConcurrentKeyValueStore<object, object>();
             this.ScopedRegistrations = new ConcurrentTree<string, ScopedRegistrationItem>();
@@ -34,6 +28,9 @@ namespace Stashbox
 
         /// <inheritdoc />
         public IRegistrationRepository RegistrationRepository { get; }
+
+        /// <inheritdoc />
+        public IDelegateRepository DelegateRepository { get; }
 
         /// <inheritdoc />
         public IStashboxContainer Container { get; }

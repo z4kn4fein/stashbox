@@ -31,9 +31,9 @@ namespace Stashbox.Lifetime
         }
 
         /// <inheritdoc />
-        public override Expression GetExpression(IContainerContext containerContext, IObjectBuilder objectBuilder, ResolutionInfo resolutionInfo, Expression resolutionInfoExpression, TypeInformation resolveType)
+        public override Expression GetExpression(IContainerContext containerContext, IObjectBuilder objectBuilder, ResolutionInfo resolutionInfo, TypeInformation resolveType)
         {
-            var expression = base.GetExpression(containerContext, objectBuilder, resolutionInfo, resolutionInfoExpression, resolveType);
+            var expression = base.GetExpression(containerContext, objectBuilder, resolutionInfo, resolveType);
             var call = Expression.Call(Expression.Constant(this), this.trackMethodInfo, Expression.Constant(containerContext), expression);
             return Expression.Convert(call, resolveType.Type);
         }

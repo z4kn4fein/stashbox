@@ -17,5 +17,17 @@ namespace System
 
             return null;
         }
+
+        public static bool IsClosedGenericType(this Type type)
+        {
+            var typeInfo = type.GetTypeInfo();
+            return typeInfo.IsGenericType && !typeInfo.ContainsGenericParameters;
+        }
+
+        public static bool IsOpenGenericType(this Type type)
+        {
+            var typeInfo = type.GetTypeInfo();
+            return typeInfo.IsGenericType && typeInfo.ContainsGenericParameters;
+        }
     }
 }

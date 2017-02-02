@@ -16,25 +16,19 @@ namespace Stashbox.BuildUp.Resolution
         {
             this.resolverMethodInfo = this.GetType().GetTypeInfo().GetDeclaredMethod("Resolve");
         }
-
-        public override object Resolve(ResolutionInfo resolutionInfo)
+        
+        public override Expression GetExpression(ResolutionInfo resolutionInfo)
         {
             if (base.TypeInfo.HasDefaultValue)
-                return base.TypeInfo.DefaultValue;
+                return Expression.Constant(base.TypeInfo.DefaultValue);
 
             if (base.TypeInfo.Type.GetTypeInfo().IsValueType)
-                return Activator.CreateInstance(base.TypeInfo.Type);
+                return Expression.Constant(Activator.CreateInstance(base.TypeInfo.Type));
 
             if (base.TypeInfo.Type == typeof(string) || base.TypeInfo.IsMember)
-                return null;
+                return Expression.Constant(null);
 
             throw new ResolutionFailedException(base.TypeInfo.Type.FullName);
-        }
-
-        public override Expression GetExpression(ResolutionInfo resolutionInfo, Expression resolutionInfoExpression)
-        {
-            var callExpression = Expression.Call(Expression.Constant(this), resolverMethodInfo, resolutionInfoExpression);
-            return Expression.Convert(callExpression, base.TypeInfo.Type);
         }
     }
 }

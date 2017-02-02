@@ -64,7 +64,7 @@ namespace Stashbox
             lock (this.resolutionMemberSyncObject)
             {
                 if (this.injectionMembers != null && !this.isMembersDirty) return this.injectionMembers;
-                return this.injectionMembers = this.metaInfoProvider.GetResolutionMembers(resolutionInfo, this.injectionParameters).ToArray();
+                return this.injectionMembers = this.metaInfoProvider.GetResolutionMembers(this.injectionParameters).ToArray();
             }
         }
 
@@ -83,7 +83,7 @@ namespace Stashbox
             lock (this.resolutionMethodSyncObject)
             {
                 if (this.injectionMethods != null && !this.isMethodDirty) return this.injectionMethods;
-                return this.injectionMethods = this.metaInfoProvider.GetResolutionMethods(resolutionInfo, this.injectionParameters).ToArray();
+                return this.injectionMethods = this.metaInfoProvider.GetResolutionMethods(this.injectionParameters).ToArray();
             }
         }
     }

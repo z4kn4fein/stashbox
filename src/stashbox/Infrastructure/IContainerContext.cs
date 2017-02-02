@@ -15,6 +15,11 @@ namespace Stashbox.Infrastructure
         IRegistrationRepository RegistrationRepository { get; }
 
         /// <summary>
+        /// The delegate repository.
+        /// </summary>
+        IDelegateRepository DelegateRepository { get; }
+
+        /// <summary>
         /// The container itself.
         /// </summary>
         IStashboxContainer Container { get; }
@@ -23,7 +28,7 @@ namespace Stashbox.Infrastructure
         /// The resolution strategy.
         /// </summary>
         IResolutionStrategy ResolutionStrategy { get; }
-
+        
         /// <summary>
         /// Repository of scoped registrations.
         /// </summary>

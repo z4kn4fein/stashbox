@@ -33,10 +33,9 @@ namespace Stashbox.Infrastructure
         /// Creates an expression for creating the resolved instance.
         /// </summary>
         /// <param name="resolutionInfo">The info about the current resolution.</param>
-        /// <param name="resolutionInfoExpression">The expression of the info about the current resolution.</param>
         /// <param name="resolveType">The resolve type.</param>
         /// <returns>The expression.</returns>
-        Expression GetExpression(ResolutionInfo resolutionInfo, Expression resolutionInfoExpression, TypeInformation resolveType);
+        Expression GetExpression(ResolutionInfo resolutionInfo, TypeInformation resolveType);
         
         /// <summary>
         /// Checks whether the registration can be used for a current resolution.

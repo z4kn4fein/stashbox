@@ -40,12 +40,6 @@ namespace Stashbox.Registration
             return this.ContainerContext.Container;
         }
 
-        public IRegistrationContext WithFactory(Func<object, object, object, object> threeParametersFactory)
-        {
-            base.RegistrationContextData.ThreeParametersFactory = threeParametersFactory;
-            return this;
-        }
-
         public IRegistrationContext WhenDependantIs<TTarget>(string dependencyName = null) where TTarget : class
         {
             base.RegistrationContextData.TargetTypeCondition = typeof(TTarget);
@@ -81,19 +75,6 @@ namespace Stashbox.Registration
             base.RegistrationContextData.ContainerFactory = containerFactory;
             return this;
         }
-
-        public IRegistrationContext WithFactory(Func<object, object, object> twoParametersFactory)
-        {
-            base.RegistrationContextData.TwoParametersFactory = twoParametersFactory;
-            return this;
-        }
-
-        public IRegistrationContext WithFactory(Func<object, object> oneParameterFactory)
-        {
-            base.RegistrationContextData.OneParameterFactory = oneParameterFactory;
-            return this;
-        }
-
         public IRegistrationContext WithFactory(Func<object> singleFactory)
         {
             base.RegistrationContextData.SingleFactory = singleFactory;

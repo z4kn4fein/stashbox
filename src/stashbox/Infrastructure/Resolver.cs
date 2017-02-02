@@ -40,8 +40,7 @@ namespace Stashbox.Infrastructure
         /// Produces an expression for creating an instance.
         /// </summary>
         /// <param name="resolutionInfo">The info about the actual resolution.</param>
-        /// <param name="resolutionInfoExpression">The expression of the info about the actual resolution.</param>
         /// <returns>The expression.</returns>
-        public abstract Expression GetExpression(ResolutionInfo resolutionInfo, Expression resolutionInfoExpression);
+        public abstract Expression GetExpression(ResolutionInfo resolutionInfo);
     }
 }

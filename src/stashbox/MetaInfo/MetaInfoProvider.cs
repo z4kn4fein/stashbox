@@ -37,12 +37,10 @@ namespace Stashbox.MetaInfo
             this.HasGenericTypeConstraints = this.metaInfoCache.GenericTypeConstraints.Count > 0;
         }
 
-        public bool TryChooseConstructor(out ResolutionConstructor resolutionConstructor, ResolutionInfo resolutionInfo, InjectionParameter[] injectionParameters = null)
-        {
-            return this.TryGetConstructor(this.metaInfoCache.Constructors, out resolutionConstructor, resolutionInfo, injectionParameters);
-        }
+        public bool TryChooseConstructor(out ResolutionConstructor resolutionConstructor, InjectionParameter[] injectionParameters = null) =>
+            this.TryGetConstructor(this.metaInfoCache.Constructors, out resolutionConstructor, injectionParameters);
 
-        public IEnumerable<ResolutionMethod> GetResolutionMethods(ResolutionInfo resolutionInfo, InjectionParameter[] injectionParameters = null)
+        public IEnumerable<ResolutionMethod> GetResolutionMethods(InjectionParameter[] injectionParameters = null)
         {
             return this.metaInfoCache.InjectionMethods
                .Select(methodInfo => new ResolutionMethod
@@ -57,16 +55,14 @@ namespace Stashbox.MetaInfo
                });
         }
 
-        public IEnumerable<ResolutionMember> GetResolutionMembers(ResolutionInfo resolutionInfo, InjectionParameter[] injectionParameters = null)
-        {
-            return this.metaInfoCache.InjectionMembers
+        public IEnumerable<ResolutionMember> GetResolutionMembers(InjectionParameter[] injectionParameters = null) =>
+            this.metaInfoCache.InjectionMembers
                 .Select(memberInfo => new ResolutionMember
                 {
                     ResolutionTarget = this.containerContext.ResolutionStrategy.BuildResolutionTarget(this.containerContext, memberInfo.TypeInformation, injectionParameters),
                     MemberSetter = memberInfo.MemberInfo.GetMemberSetter(),
                     MemberInfo = memberInfo.MemberInfo
                 });
-        }
 
         public bool ValidateGenericContraints(TypeInformation typeInformation)
         {
@@ -81,41 +77,29 @@ namespace Stashbox.MetaInfo
         }
 
         private bool TryGetConstructor(IEnumerable<ConstructorInformation> constructors, out ResolutionConstructor resolutionConstructor,
-            ResolutionInfo resolutionInfo, InjectionParameter[] injectionParameters = null)
+            InjectionParameter[] injectionParameters = null)
         {
-            var usableConstructors = this.GetUsableConstructors(constructors, resolutionInfo, injectionParameters).ToArray();
+            var usableConstructors = this.CreateResolutionConstructors(constructors, injectionParameters).ToArray();
 
             if (usableConstructors.Any())
             {
-                resolutionConstructor = this.CreateResolutionConstructor(this.SelectBestConstructor(usableConstructors), resolutionInfo, injectionParameters);
+                resolutionConstructor = this.SelectBestConstructor(usableConstructors);
                 return true;
             }
 
             resolutionConstructor = null;
             return false;
         }
-
-        private IEnumerable<ConstructorInformation> GetUsableConstructors(IEnumerable<ConstructorInformation> constructors, ResolutionInfo resolutionInfo,
-            InjectionParameter[] injectionParameters = null)
-        {
-            return constructors
-                .Where(constructor => constructor.Parameters
-                    .All(parameter => this.containerContext.ResolutionStrategy.CanResolve(resolutionInfo, this.containerContext, parameter,
-                    injectionParameters)));
-        }
-
-        private ResolutionConstructor CreateResolutionConstructor(ConstructorInformation constructorInformation, ResolutionInfo resolutionInfo, InjectionParameter[] injectionParameters = null)
-        {
-            return new ResolutionConstructor
+        
+        private IEnumerable<ResolutionConstructor> CreateResolutionConstructors(IEnumerable<ConstructorInformation> constructorInformations, 
+            InjectionParameter[] injectionParameters = null) =>
+            constructorInformations.Select(constructorInformation =>  new ResolutionConstructor
             {
                 Constructor = constructorInformation.Constructor,
                 Parameters = constructorInformation.Parameters.Select(parameter => this.containerContext.ResolutionStrategy.BuildResolutionTarget(this.containerContext, parameter, injectionParameters)).ToArray()
-            };
-        }
+            });
 
-        private ConstructorInformation SelectBestConstructor(IEnumerable<ConstructorInformation> constructors)
-        {
-            return this.containerContext.ContainerConfiguration.ConstructorSelectionRule(constructors);
-        }
+        private ResolutionConstructor SelectBestConstructor(IEnumerable<ResolutionConstructor> constructors)=>
+            this.containerContext.ContainerConfiguration.ConstructorSelectionRule(constructors.Where(constructor => constructor.Parameters.All(param => param.IsValid())));
     }
 }
