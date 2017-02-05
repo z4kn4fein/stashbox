@@ -35,7 +35,7 @@ namespace Stashbox
             config?.Invoke(configuration);
 
             this.registrationRepository = new RegistrationRepository(configuration);
-            this.ContainerContext = new ContainerContext(this.registrationRepository, new ConcurrentTree<Type, Func<object>>(),  this,
+            this.ContainerContext = new ContainerContext(this.registrationRepository, new DelegateRepository(), this,
                 new ResolutionStrategy(this.resolverSelector), configuration);
             this.activationContext = new ActivationContext(this.resolverSelector, this.ContainerContext);
 
@@ -50,7 +50,7 @@ namespace Stashbox
             this.containerExtensionManager = containerExtensionManager;
             this.resolverSelector = resolverSelector;
             this.registrationRepository = new RegistrationRepository(parentContainer.ContainerContext.ContainerConfiguration);
-            this.ContainerContext = new ContainerContext(this.registrationRepository, new ConcurrentTree<Type, Func<object>>(), this, new ResolutionStrategy(this.resolverSelector),
+            this.ContainerContext = new ContainerContext(this.registrationRepository, new DelegateRepository(), this, new ResolutionStrategy(this.resolverSelector),
                 parentContainer.ContainerContext.ContainerConfiguration);
             this.activationContext = new ActivationContext(this.resolverSelector, this.ContainerContext);
             this.containerExtensionManager.ReinitalizeExtensions(this.ContainerContext);
@@ -171,7 +171,7 @@ namespace Stashbox
                 ResolverFactory = (context, typeInfo) => new UnknownTypeResolver(context, typeInfo),
                 Predicate = (context, typeInfo) => !typeInfo.Type.GetTypeInfo().IsAbstract && !typeInfo.Type.GetTypeInfo().IsInterface
             };
-            
+
             this.resolverSelector.AddResolver(enumerableResolver);
             this.resolverSelector.AddResolver(lazyResolver);
             this.resolverSelector.AddResolver(funcResolver);

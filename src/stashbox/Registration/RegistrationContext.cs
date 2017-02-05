@@ -37,7 +37,9 @@ namespace Stashbox.Registration
 
             foreach (var serviceRegistration in this.ContainerContext.RegistrationRepository.GetAllRegistrations())
                 serviceRegistration.ServiceUpdated(registrationInfo);
-            
+
+            this.ContainerContext.DelegateRepository.InvalidateServiceDelegate(new TypeInformation { Type = this.TypeFrom, DependencyName = dependencyName });
+
             return this.ContainerContext.Container;
         }
 

@@ -13,7 +13,7 @@ namespace Stashbox.Infrastructure
         /// </summary>
         /// <param name="typeInfo">The type info.</param>
         /// <returns>The activated object.</returns>
-        object ActivateFromDelegateCacheOrDefault(TypeInformation typeInfo);
+        Func<object> GetDelegateCacheOrDefault(TypeInformation typeInfo);
 
         /// <summary>
         /// Adds a service delegate into the repository.

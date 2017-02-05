@@ -14,7 +14,7 @@ namespace Stashbox
     {
         private int registrationNumber;
         
-        internal ContainerContext(IRegistrationRepository registrationRepository, ConcurrentTree<Type, Func<object>> delegateRepository, IStashboxContainer container,
+        internal ContainerContext(IRegistrationRepository registrationRepository, IDelegateRepository delegateRepository, IStashboxContainer container,
             IResolutionStrategy resolutionStrategy, ContainerConfiguration containerConfiguration)
         {
             this.ResolutionStrategy = resolutionStrategy;
@@ -31,7 +31,7 @@ namespace Stashbox
         public IRegistrationRepository RegistrationRepository { get; }
 
         /// <inheritdoc />
-        public ConcurrentTree<Type, Func<object>> DelegateRepository { get; }
+        public IDelegateRepository DelegateRepository { get; }
 
         /// <inheritdoc />
         public IStashboxContainer Container { get; }

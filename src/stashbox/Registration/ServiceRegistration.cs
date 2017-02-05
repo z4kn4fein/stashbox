@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace Stashbox.Registration
 {
@@ -13,6 +14,7 @@ namespace Stashbox.Registration
     /// </summary>
     public class ServiceRegistration : IServiceRegistration
     {
+        private readonly Type serviceType;
         private readonly IContainerContext containerContext;
         private readonly ILifetime lifetimeManager;
         private readonly IObjectBuilder objectBuilder;
@@ -24,10 +26,11 @@ namespace Stashbox.Registration
         private Expression expressionCache;
         private Func<object> delegateCache;
 
-        internal ServiceRegistration(string registrationName, IContainerContext containerContext, ILifetime lifetimeManager,
+        internal ServiceRegistration(string registrationName, Type serviceType, IContainerContext containerContext, ILifetime lifetimeManager,
             IObjectBuilder objectBuilder, MetaInfoProvider metaInfoProvider, HashSet<Type> attributeConditions = null, Type targetTypeCondition = null,
             Func<TypeInformation, bool> resolutionCondition = null)
         {
+            this.serviceType = serviceType;
             this.RegistrationName = registrationName;
             this.containerContext = containerContext;
             this.lifetimeManager = lifetimeManager;
@@ -51,7 +54,13 @@ namespace Stashbox.Registration
             if (this.delegateCache == null || this.IsCacheInvalid(resolutionInfo))
             {
                 var expr = this.GetExpression(resolutionInfo, resolveType);
-                this.delegateCache = Expression.Lambda<Func<object>>(expr).Compile();
+                if (expr.NodeType == ExpressionType.Constant)
+                {
+                    var value = ((ConstantExpression)expr).Value;
+                    this.delegateCache = () => value;
+                }
+                else
+                    this.delegateCache = Expression.Lambda<Func<object>>(expr).Compile();
             }
 
             return this.delegateCache;
@@ -76,7 +85,10 @@ namespace Stashbox.Registration
         public void ServiceUpdated(RegistrationInfo registrationInfo)
         {
             if (this.metaInfoProvider.SensitivityList.Contains(registrationInfo.TypeFrom))
+            {
+                this.containerContext.DelegateRepository.InvalidateServiceDelegate(new TypeInformation { Type = this.serviceType, DependencyName = this.RegistrationName });
                 this.isDirty = true;
+            }
         }
 
         /// <inheritdoc />

@@ -37,7 +37,7 @@ namespace Stashbox.Registration
             var cache = new MetaInfoCache(this.ContainerContext.ContainerConfiguration, this.TypeTo);
             var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, cache);
 
-            this.CompleteRegistration(containerExtensionManager, update, metaInfoProvider, registrationName, registrationLifetime);
+            this.CompleteRegistration(containerExtensionManager, update, metaInfoProvider, registrationName, originalDependencyName, registrationLifetime);
 
             this.CompleteScopeManagement(update, registrationLifetime);
 
@@ -45,12 +45,12 @@ namespace Stashbox.Registration
         }
 
         private void CompleteRegistration(IContainerExtensionManager containerExtensionManager, bool update,
-            MetaInfoProvider metaInfoProvider, string registrationName, ILifetime registrationLifetime)
+            MetaInfoProvider metaInfoProvider, string registrationName, string dependencyName, ILifetime registrationLifetime)
         {
             var objectBuilder = this.TypeTo.IsOpenGenericType() ? new GenericTypeObjectBuilder(this.RegistrationContextData, this.ContainerContext,
                     metaInfoProvider, containerExtensionManager) : this.CreateObjectBuilder(containerExtensionManager, metaInfoProvider);
 
-            var registration = this.CreateServiceRegistration(registrationName, this.TypeTo.IsOpenGenericType() ? new TransientLifetime() : registrationLifetime, objectBuilder,
+            var registration = this.CreateServiceRegistration(dependencyName, this.TypeTo.IsOpenGenericType() ? new TransientLifetime() : registrationLifetime, objectBuilder,
                     metaInfoProvider);
 
             this.ContainerContext.RegistrationRepository.AddOrUpdateRegistration(this.TypeFrom, registrationName, update, registration);
@@ -89,7 +89,7 @@ namespace Stashbox.Registration
 
         private IServiceRegistration CreateServiceRegistration(string name, ILifetime lifeTime, IObjectBuilder objectBuilder, MetaInfoProvider metaInfoProvider)
         {
-            return new ServiceRegistration(name, this.ContainerContext, lifeTime, objectBuilder, metaInfoProvider, this.RegistrationContextData.AttributeConditions,
+            return new ServiceRegistration(name, this.TypeFrom, this.ContainerContext, lifeTime, objectBuilder, metaInfoProvider, this.RegistrationContextData.AttributeConditions,
                 this.RegistrationContextData.TargetTypeCondition, this.RegistrationContextData.ResolutionCondition);
         }
 

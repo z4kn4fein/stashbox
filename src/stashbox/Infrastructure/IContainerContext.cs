@@ -18,7 +18,7 @@ namespace Stashbox.Infrastructure
         /// <summary>
         /// The delegate repository.
         /// </summary>
-        ConcurrentTree<Type, Func<object>> DelegateRepository { get; }
+        IDelegateRepository DelegateRepository { get; }
 
         /// <summary>
         /// The container itself.
