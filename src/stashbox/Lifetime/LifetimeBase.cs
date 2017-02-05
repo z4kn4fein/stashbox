@@ -20,12 +20,6 @@ namespace Stashbox.Lifetime
         }
 
         /// <inheritdoc />
-        public virtual object GetInstance(IContainerContext containerContext, IObjectBuilder objectBuilder, ResolutionInfo resolutionInfo, TypeInformation resolveType)
-        {
-            return objectBuilder.BuildInstance(resolutionInfo, resolveType);
-        }
-
-        /// <inheritdoc />
         public virtual ILifetime Create()
         {
             throw new NotImplementedException();

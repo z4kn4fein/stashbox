@@ -11,29 +11,26 @@ namespace Stashbox.Overrides
     /// </summary>
     public class OverrideManager
     {
-        private ISet<NamedOverride> nameOverrides;
-        private ISet<TypeOverride> typeOverrides;
+        private readonly TypeOverride[] typeOverrides;
 
         /// <summary>
         /// Constructs an <see cref="OverrideManager"/>
         /// </summary>
         /// <param name="overrides">The initial overrides.</param>
-        public OverrideManager(Override[] overrides)
+        public OverrideManager(TypeOverride[] overrides)
         {
             if (overrides == null || !overrides.Any()) return;
-
-            this.nameOverrides = new HashSet<NamedOverride>(overrides.OfType<NamedOverride>());
-            this.typeOverrides = new HashSet<TypeOverride>(overrides.OfType<TypeOverride>());
+            this.typeOverrides = overrides;
         }
 
         /// <summary>
         /// Gets an overridden value if has any.
         /// </summary>
-        /// <param name="parameter">The type information.</param>
+        /// <param name="type">The type information.</param>
         /// <returns>The overridden value.</returns>
-        public object GetOverriddenValue(TypeInformation parameter)
+        public object GetOverriddenValue(Type type)
         {
-            return GetTypedValue(parameter.Type) ?? GetNamedValue(parameter.DependencyName);
+            return GetTypedValue(type);
         }
 
         /// <summary>
@@ -42,7 +39,7 @@ namespace Stashbox.Overrides
         /// <returns>The collection of the overrides.</returns>
         public IEnumerable<Override> GetOverrides()
         {
-            return this.nameOverrides.Cast<Override>().Concat(this.typeOverrides);
+            return this.typeOverrides;
         }
 
         /// <summary>
@@ -52,25 +49,13 @@ namespace Stashbox.Overrides
         /// <returns>True if an override already exists for a service, otherwise false.</returns>
         public bool ContainsValue(TypeInformation parameter)
         {
-            return (this.typeOverrides != null && this.typeOverrides.Any(x => x.OverrideType == parameter.Type ||
-                x.OverrideType.GetTypeInfo().IsAssignableFrom(parameter.Type.GetTypeInfo()))) ||
-                (this.nameOverrides != null && this.nameOverrides.Any(x => x.OverrideName == parameter.DependencyName));
+            return this.typeOverrides != null && this.typeOverrides.Any(x => x.OverrideType == parameter.Type ||
+                                                                             x.OverrideType.GetTypeInfo().IsAssignableFrom(parameter.Type.GetTypeInfo()));
         }
-
-        internal void AddTypedOverride(TypeOverride typeOverride)
-        {
-            if (typeOverrides == null) typeOverrides = new HashSet<TypeOverride>();
-            this.typeOverrides.Add(typeOverride);
-        }
-
+        
         private object GetTypedValue(Type type)
         {
             return this.typeOverrides?.FirstOrDefault(t => t.OverrideType == type)?.Value;
-        }
-
-        private object GetNamedValue(string name)
-        {
-            return this.nameOverrides?.FirstOrDefault(t => t.OverrideName.Equals(name))?.Value;
         }
     }
 }

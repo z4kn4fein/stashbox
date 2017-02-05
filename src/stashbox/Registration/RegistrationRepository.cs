@@ -5,7 +5,6 @@ using Stashbox.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 
 namespace Stashbox.Registration
 {
@@ -56,7 +55,8 @@ namespace Stashbox.Registration
 
         public void CleanUp()
         {
-            
+            foreach (var serviceRegistration in this.GetAllRegistrations())
+                serviceRegistration.CleanUp();
         }
 
         private bool ContainsRegistration(TypeInformation typeInfo, ConcurrentTree<Type, ConcurrentTree<string, IServiceRegistration>> repository)
@@ -71,7 +71,7 @@ namespace Stashbox.Registration
                 return registrations?.Any(reg => reg.ValidateGenericContraints(typeInfo)) ?? false;
             }
 
-            return true;
+            return registrations != null;
         }
 
         private void AddOrUpdateRegistration(Type typeKey, string nameKey, bool canUpdate, IServiceRegistration registration, ConcurrentTree<Type, ConcurrentTree<string, IServiceRegistration>> repository)
@@ -96,7 +96,7 @@ namespace Stashbox.Registration
         private IServiceRegistration GetMatchingRegistrationOrDefault(TypeInformation typeInfo)
         {
             var registrations = this.GetDefaultRegistrationsOrDefault(typeInfo, this.conditionalRepository);
-            if (registrations == null) return null;
+            if (registrations == null) return GetDefaultRegistrationOrDefault(typeInfo);
 
             return registrations.HasMultipleItems ?
                 this.containerConfiguration.DependencySelectionRule(registrations.Where(reg => reg.IsUsableForCurrentContext(typeInfo))) :

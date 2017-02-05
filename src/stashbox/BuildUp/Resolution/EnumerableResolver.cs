@@ -4,14 +4,12 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Stashbox.BuildUp.Expressions;
 
 namespace Stashbox.BuildUp.Resolution
 {
     internal class EnumerableResolver : Resolver
     {
         private readonly IServiceRegistration[] registrationCache;
-        private Expression expression;
         private readonly TypeInformation enumerableType;
 
         public EnumerableResolver(IContainerContext containerContext, TypeInformation typeInfo)
@@ -27,21 +25,18 @@ namespace Stashbox.BuildUp.Resolution
             if (registrations != null)
                 registrationCache = base.BuilderContext.ContainerConfiguration.EnumerableOrderRule(registrations).ToArray();
         }
-        
+
         public override Expression GetExpression(ResolutionInfo resolutionInfo)
         {
-            if (expression != null && resolutionInfo.OverrideManager != null)
-                return expression;
-
             if (registrationCache == null)
-                return this.expression = Expression.NewArrayInit(this.enumerableType.Type);
+                return Expression.NewArrayInit(this.enumerableType.Type);
 
             var length = registrationCache.Length;
             var enumerableItems = new Expression[length];
             for (var i = 0; i < length; i++)
                 enumerableItems[i] = registrationCache[i].GetExpression(resolutionInfo, this.enumerableType);
 
-            return this.expression = Expression.NewArrayInit(this.enumerableType.Type, enumerableItems);
+            return Expression.NewArrayInit(this.enumerableType.Type, enumerableItems);
         }
 
         public static bool IsAssignableToGenericType(Type type, Type genericType)

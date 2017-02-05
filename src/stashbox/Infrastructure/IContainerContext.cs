@@ -1,4 +1,5 @@
-﻿using Stashbox.Configuration;
+﻿using System;
+using Stashbox.Configuration;
 using Stashbox.Registration;
 using Stashbox.Utils;
 
@@ -17,7 +18,7 @@ namespace Stashbox.Infrastructure
         /// <summary>
         /// The delegate repository.
         /// </summary>
-        IDelegateRepository DelegateRepository { get; }
+        ConcurrentTree<Type, Func<object>> DelegateRepository { get; }
 
         /// <summary>
         /// The container itself.

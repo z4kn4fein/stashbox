@@ -25,20 +25,6 @@ namespace Stashbox.BuildUp
             this.containerExtensionManager = containerExtensionManager;
         }
 
-        public object BuildInstance(ResolutionInfo resolutionInfo, TypeInformation resolveType)
-        {
-            var genericType = this.metaInfoProvider.TypeTo.MakeGenericType(resolveType.Type.GenericTypeArguments);
-            resolveType.DependencyName = NameGenerator.GetRegistrationName(resolveType.Type, genericType);
-
-            this.RegisterConcreteGenericType(resolveType, genericType);
-
-            var registration = this.containerContext.RegistrationRepository.GetRegistrationOrDefault(resolveType);
-            if (registration == null)
-                throw new ResolutionFailedException(genericType.FullName);
-
-            return registration.GetInstance(resolutionInfo, resolveType);
-        }
-
         public Expression GetExpression(ResolutionInfo resolutionInfo, TypeInformation resolveType)
         {
             var genericType = this.metaInfoProvider.TypeTo.MakeGenericType(resolveType.Type.GenericTypeArguments);
@@ -60,11 +46,7 @@ namespace Stashbox.BuildUp
             newData.Name = null;
             registrationContext.InitFromScope(newData);
         }
-
-        public void ServiceUpdated(RegistrationInfo registrationInfo)
-        {
-        }
-
+        
         public void CleanUp()
         {
         }

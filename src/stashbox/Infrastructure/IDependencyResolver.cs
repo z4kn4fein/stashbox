@@ -14,10 +14,9 @@ namespace Stashbox.Infrastructure
         /// </summary>
         /// <typeparam name="TKey">The type of the requested instance.</typeparam>
         /// <param name="name">The name of the requested registration.</param>
-        /// <param name="factoryParameters">The parameters for the registered factory delegate.</param>
         /// <param name="overrides">Parameter overrides.</param>
         /// <returns>The resolved object.</returns>
-        TKey Resolve<TKey>(string name = null, IEnumerable<object> factoryParameters = null, IEnumerable<Override> overrides = null)
+        TKey Resolve<TKey>(string name = null, params TypeOverride[] overrides)
            where TKey : class;
 
         /// <summary>
@@ -25,29 +24,26 @@ namespace Stashbox.Infrastructure
         /// </summary>
         /// <param name="typeFrom">The type of the requested instance.</param>
         /// <param name="name">The name of the requested registration.</param>
-        /// <param name="factoryParameters">The parameters for the registered factory delegate.</param>
         /// <param name="overrides">Parameter overrides.</param>
         /// <returns>The resolved object.</returns>
-        object Resolve(Type typeFrom, string name = null, IEnumerable<object> factoryParameters = null, IEnumerable<Override> overrides = null);
+        object Resolve(Type typeFrom, string name = null, params TypeOverride[] overrides);
 
         /// <summary>
         /// Resolves all registered types of a service.
         /// </summary>
         /// <typeparam name="TKey">The type of the requested instance.</typeparam>
-        /// <param name="factoryParameters">The parameters for the registered factory delegate.</param>
         /// <param name="overrides">Parameter overrides.</param>
         /// <returns>The resolved object.</returns>
-        IEnumerable<TKey> ResolveAll<TKey>(IEnumerable<object> factoryParameters = null, IEnumerable<Override> overrides = null)
+        IEnumerable<TKey> ResolveAll<TKey>(params TypeOverride[] overrides)
              where TKey : class;
 
         /// <summary>
         /// Resolves all registered types of a service.
         /// </summary>
         /// <param name="typeFrom">The type of the requested instances.</param>
-        /// <param name="factoryParameters">The parameters for the registered factory delegate.</param>
         /// <param name="overrides">Parameter overrides.</param>
         /// <returns>The resolved object.</returns>
-        IEnumerable<object> ResolveAll(Type typeFrom, IEnumerable<object> factoryParameters = null, IEnumerable<Override> overrides = null);
+        IEnumerable<object> ResolveAll(Type typeFrom, params TypeOverride[] overrides);
 
         /// <summary>
         /// Builds up an instance, the container will perform injections and extensions on it.

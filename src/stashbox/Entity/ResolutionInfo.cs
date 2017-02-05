@@ -1,6 +1,7 @@
 ﻿using Stashbox.Overrides;
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 
 namespace Stashbox.Entity
 {
@@ -13,11 +14,8 @@ namespace Stashbox.Entity
         /// The override manager.
         /// </summary>
         public OverrideManager OverrideManager { get; set; }
-
-        /// <summary>
-        /// The factory parameters.
-        /// </summary>
-        public IEnumerable<object> FactoryParams { get; set; }
+        
+        internal ParameterExpression[] ParameterExpressions { get; set; }
 
         internal ISet<Type> CircularDependencyBarrier { get; }
 

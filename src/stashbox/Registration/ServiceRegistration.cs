@@ -20,6 +20,9 @@ namespace Stashbox.Registration
         private readonly Type targetTypeCondition;
         private readonly Func<TypeInformation, bool> resolutionCondition;
         private readonly MetaInfoProvider metaInfoProvider;
+        private bool isDirty;
+        private Expression expressionCache;
+        private Func<object> delegateCache;
 
         internal ServiceRegistration(string registrationName, IContainerContext containerContext, ILifetime lifetimeManager,
             IObjectBuilder objectBuilder, MetaInfoProvider metaInfoProvider, HashSet<Type> attributeConditions = null, Type targetTypeCondition = null,
@@ -43,8 +46,16 @@ namespace Stashbox.Registration
         public string RegistrationName { get; }
 
         /// <inheritdoc />
-        public object GetInstance(ResolutionInfo resolutionInfo, TypeInformation resolveType) =>
-            this.lifetimeManager.GetInstance(this.containerContext, this.objectBuilder, resolutionInfo, resolveType);
+        public Func<object> GetFactory(ResolutionInfo resolutionInfo, TypeInformation resolveType)
+        {
+            if (this.delegateCache == null || this.IsCacheInvalid(resolutionInfo))
+            {
+                var expr = this.GetExpression(resolutionInfo, resolveType);
+                this.delegateCache = Expression.Lambda<Func<object>>(expr).Compile();
+            }
+
+            return this.delegateCache;
+        }
 
         /// <inheritdoc />
         public bool IsUsableForCurrentContext(TypeInformation typeInfo) => (this.targetTypeCondition == null && this.resolutionCondition == null && (this.attributeConditions == null || !this.attributeConditions.Any())) ||
@@ -58,12 +69,15 @@ namespace Stashbox.Registration
             (this.attributeConditions != null && this.attributeConditions.Any());
 
         /// <inheritdoc />
-        public bool ValidateGenericContraints(TypeInformation typeInformation) =>
+        public bool ValidateGenericContraints(TypeInformation typeInformation) => !this.metaInfoProvider.HasGenericTypeConstraints ||
             this.metaInfoProvider.HasGenericTypeConstraints && this.metaInfoProvider.ValidateGenericContraints(typeInformation);
 
         /// <inheritdoc />
-        public void ServiceUpdated(RegistrationInfo registrationInfo) =>
-            this.objectBuilder.ServiceUpdated(registrationInfo);
+        public void ServiceUpdated(RegistrationInfo registrationInfo)
+        {
+            if (this.metaInfoProvider.SensitivityList.Contains(registrationInfo.TypeFrom))
+                this.isDirty = true;
+        }
 
         /// <inheritdoc />
         public void CleanUp()
@@ -73,7 +87,18 @@ namespace Stashbox.Registration
         }
 
         /// <inheritdoc />
-        public Expression GetExpression(ResolutionInfo resolutionInfo, TypeInformation resolveType) =>
-            this.lifetimeManager.GetExpression(this.containerContext, this.objectBuilder, resolutionInfo, resolveType);
+        public Expression GetExpression(ResolutionInfo resolutionInfo, TypeInformation resolveType)
+        {
+            if (this.expressionCache == null || this.IsCacheInvalid(resolutionInfo))
+            {
+                this.expressionCache = this.lifetimeManager.GetExpression(this.containerContext, this.objectBuilder, resolutionInfo, resolveType);
+                this.isDirty = false;
+                return this.expressionCache;
+            }
+            return this.expressionCache;
+        }
+
+        private bool IsCacheInvalid(ResolutionInfo resolutionInfo) =>
+            this.isDirty || resolutionInfo.OverrideManager != null || this.metaInfoProvider.TypeTo.IsOpenGenericType();
     }
 }

@@ -35,7 +35,7 @@ namespace Stashbox
             config?.Invoke(configuration);
 
             this.registrationRepository = new RegistrationRepository(configuration);
-            this.ContainerContext = new ContainerContext(this.registrationRepository, new DelegateRepository(this),  this,
+            this.ContainerContext = new ContainerContext(this.registrationRepository, new ConcurrentTree<Type, Func<object>>(),  this,
                 new ResolutionStrategy(this.resolverSelector), configuration);
             this.activationContext = new ActivationContext(this.resolverSelector, this.ContainerContext);
 
@@ -50,7 +50,7 @@ namespace Stashbox
             this.containerExtensionManager = containerExtensionManager;
             this.resolverSelector = resolverSelector;
             this.registrationRepository = new RegistrationRepository(parentContainer.ContainerContext.ContainerConfiguration);
-            this.ContainerContext = new ContainerContext(this.registrationRepository, new DelegateRepository(this), this, new ResolutionStrategy(this.resolverSelector),
+            this.ContainerContext = new ContainerContext(this.registrationRepository, new ConcurrentTree<Type, Func<object>>(), this, new ResolutionStrategy(this.resolverSelector),
                 parentContainer.ContainerContext.ContainerConfiguration);
             this.activationContext = new ActivationContext(this.resolverSelector, this.ContainerContext);
             this.containerExtensionManager.ReinitalizeExtensions(this.ContainerContext);
@@ -99,7 +99,7 @@ namespace Stashbox
         public bool CanResolve(Type typeFrom, string name = null)
         {
             var typeInfo = new TypeInformation { Type = typeFrom, DependencyName = name };
-            return this.resolverSelector.CanResolve(this.ContainerContext, typeInfo);
+            return this.registrationRepository.ContainsRegistration(typeInfo) || this.resolverSelector.CanResolve(this.ContainerContext, typeInfo);
         }
 
         /// <inheritdoc />

@@ -11,7 +11,8 @@ namespace Stashbox.BuildUp.Resolution
     {
         private readonly IServiceRegistration registrationCache;
         private readonly TypeInformation lazyArgumentInfo;
-        private readonly Expression expression;
+
+        private readonly ConstructorInfo lazyConstructor;
 
         public LazyResolver(IContainerContext containerContext, TypeInformation typeInfo)
             : base(containerContext, typeInfo)
@@ -24,23 +25,18 @@ namespace Stashbox.BuildUp.Resolution
                 DependencyName = typeInfo.DependencyName
             };
 
-            this.registrationCache = containerContext.RegistrationRepository.GetRegistrationOrDefault(this.lazyArgumentInfo);
+            this.registrationCache = containerContext.RegistrationRepository.GetRegistrationOrDefault(this.lazyArgumentInfo, true);
             if (this.registrationCache == null)
                 throw new ResolutionFailedException(typeInfo.Type.FullName);
 
-            var genericLazyResolverMethod = this.GetType().GetTypeInfo().GetDeclaredMethod("ResolveLazy");
-            var method = genericLazyResolverMethod.MakeGenericMethod(typeInfo.Type.GenericTypeArguments[0]);
-            this.expression = Expression.Call(Expression.Constant(this), method);
+            var ctorParamType = typeof(Func<>).MakeGenericType(this.lazyArgumentInfo.Type);
+            this.lazyConstructor = base.TypeInfo.Type.GetConstructor(ctorParamType);
         }
         
         public override Expression GetExpression(ResolutionInfo resolutionInfo)
         {
-            return this.expression;
-        }
-
-        private Lazy<T> ResolveLazy<T>(ResolutionInfo resolutionInfo) where T : class
-        {
-            return new Lazy<T>(() => (T)registrationCache.GetInstance(resolutionInfo, this.lazyArgumentInfo));
+            var expr = Expression.Lambda(registrationCache.GetExpression(resolutionInfo, this.lazyArgumentInfo));
+            return Expression.New(this.lazyConstructor, expr);
         }
     }
 }

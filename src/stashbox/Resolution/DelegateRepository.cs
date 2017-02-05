@@ -7,34 +7,29 @@ namespace Stashbox.Resolution
 {
     internal class DelegateRepository : IDelegateRepository
     {
-        private readonly IStashboxContainer container;
-        private readonly RandomAccessArray<string, Func<object>> serviceDelegates;
-        private readonly RandomAccessArray<string, Func<IStashboxContainer, object>> containerDelegate;
+        private readonly ConcurrentTree<string, Func<object>> serviceDelegates;
 
-        public DelegateRepository(IStashboxContainer container)
+        public DelegateRepository()
         {
-            this.container = container;
-            this.serviceDelegates = new RandomAccessArray<string, Func<object>>();
-            this.containerDelegate = new RandomAccessArray<string, Func<IStashboxContainer, object>>();
+            this.serviceDelegates = new ConcurrentTree<string, Func<object>>();
         }
 
         public object ActivateFromDelegateCacheOrDefault(TypeInformation typeInfo)
         {
-            var key = this.GetKey(typeInfo);
-            var factory = this.serviceDelegates.Load(key);
-            return factory == null ? this.containerDelegate.Load(key)?.Invoke(this.container) : factory.Invoke();
+            var key = GetKey(typeInfo);
+            return this.serviceDelegates.GetOrDefault(key);
         }
 
         public void AddServiceDelegate(TypeInformation typeInfo, Func<object> factory)
         {
-            var key = this.GetKey(typeInfo);
-            this.serviceDelegates.Store(key, factory);
+            var key = GetKey(typeInfo);
+            this.serviceDelegates.AddOrUpdate(key, factory);
         }
 
-        public void AddContainereDelegate(TypeInformation typeInfo, Func<IStashboxContainer, object> factory)
+        public void InvalidateServiceDelegate(TypeInformation typeInfo)
         {
-            var key = this.GetKey(typeInfo);
-            this.containerDelegate.Store(key, factory);
+            var key = GetKey(typeInfo);
+            this.serviceDelegates.AddOrUpdate(key, null, (old, newVal) => newVal);
         }
 
         private string GetKey(TypeInformation typeInfo) => typeInfo.Type.FullName + typeInfo.DependencyName;

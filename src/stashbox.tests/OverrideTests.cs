@@ -33,18 +33,7 @@ namespace Stashbox.Tests
             Assert.IsInstanceOfType(inst3, typeof(Test3));
             Assert.AreEqual("test1fakeNametest1", inst3.Name);
         }
-
-        [TestMethod]
-        public void OverrideTests_Resolve_Named()
-        {
-            IStashboxContainer container = new StashboxContainer();
-            container.RegisterType<ITest2, Test22>();
-            var inst2 = container.Resolve<ITest2>(overrides: new[] { new NamedOverride("test1", new Test1 { Name = "test1" }) });
-
-            Assert.IsInstanceOfType(inst2, typeof(Test22));
-            Assert.AreEqual("test1", inst2.Name);
-        }
-
+        
         [TestMethod]
         public void OverrideTests_Resolve_Parallel()
         {

@@ -8,12 +8,12 @@ namespace Stashbox.Utils
 {
     internal class RandomAccessArray<TKey, TValue>
     {
-        private readonly int arraySize;
+        protected readonly int ArraySize;
         private readonly TValue[] array;
 
         public RandomAccessArray(int arraySize = 64)
         {
-            this.arraySize = arraySize;
+            this.ArraySize = arraySize;
             this.array = new TValue[arraySize];
         }
 
@@ -21,6 +21,11 @@ namespace Stashbox.Utils
 
         public TValue Load(TKey key) => this.array[GetIndex(key)];
 
-        private int GetIndex(TKey key) => key.GetHashCode() & (this.arraySize - 1);
+        protected virtual int GetIndex(TKey key) => key.GetHashCode() & (this.ArraySize - 1);
+    }
+
+    internal class IntRandomAccessArray<TValue> : RandomAccessArray<int, TValue>
+    {
+        protected override int GetIndex(int key) => key & (this.ArraySize - 1);
     }
 }

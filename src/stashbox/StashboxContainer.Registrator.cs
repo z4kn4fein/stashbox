@@ -191,33 +191,32 @@ namespace Stashbox
 
         private void WireUpInternal(object instance, string keyName, Type typeFrom, Type typeTo)
         {
-            keyName = NameGenerator.GetRegistrationName(typeFrom, typeTo, keyName);
+            var regName = NameGenerator.GetRegistrationName(typeFrom, typeTo, keyName);
 
             var registrationInfo = new RegistrationInfo { TypeFrom = typeFrom, TypeTo = typeTo };
 
             var cache = new MetaInfoCache(this.ContainerContext.ContainerConfiguration, typeTo);
             var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, cache);
-            var objectExtender = new ObjectExtender(metaInfoProvider);
 
-            var registration = new ServiceRegistration(keyName, this.ContainerContext, new TransientLifetime(),
-                new WireUpObjectBuilder(instance, this.ContainerContext, this.containerExtensionManager, objectExtender), metaInfoProvider);
+            var registration = new ServiceRegistration(regName, this.ContainerContext, new TransientLifetime(),
+                new WireUpObjectBuilder(instance, this.containerExtensionManager, this.ContainerContext,  metaInfoProvider), metaInfoProvider);
 
-            this.registrationRepository.AddOrUpdateRegistration(typeFrom, keyName, false, registration);
+            this.registrationRepository.AddOrUpdateRegistration(typeFrom, regName, false, registration);
             this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.ContainerContext, registrationInfo);
         }
 
         private void RegisterInstanceInternal(object instance, string keyName, Type type)
         {
             var insanceType = instance.GetType();
-            keyName = NameGenerator.GetRegistrationName(insanceType, insanceType, keyName);
+            var regName = NameGenerator.GetRegistrationName(insanceType, insanceType, keyName);
 
             var registrationInfo = new RegistrationInfo { TypeFrom = type, TypeTo = type };
             var cache = new MetaInfoCache(this.ContainerContext.ContainerConfiguration, insanceType);
             var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, cache);
-            var registration = new ServiceRegistration(keyName, this.ContainerContext, new TransientLifetime(),
+            var registration = new ServiceRegistration(regName, this.ContainerContext, new TransientLifetime(),
                 new InstanceObjectBuilder(instance), metaInfoProvider);
 
-            this.registrationRepository.AddOrUpdateRegistration(type, keyName, false, registration);
+            this.registrationRepository.AddOrUpdateRegistration(type, regName, false, registration);
             this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.ContainerContext, registrationInfo);
         }
     }

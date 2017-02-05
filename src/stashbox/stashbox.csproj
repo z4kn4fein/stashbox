@@ -44,9 +44,9 @@
   <ItemGroup>
     <Compile Include="Attributes\DependencyAttribute.cs" />
     <Compile Include="Attributes\InjectionMethodAttribute.cs" />
-    <Compile Include="BuildUp\Expressions\ResolutionInfoParameterVisitor.cs" />
     <Compile Include="BuildUp\Resolution\DefaultValueResolver.cs" />
     <Compile Include="BuildUp\Resolution\FuncResolver.cs" />
+    <Compile Include="BuildUp\Resolution\ParameterExpressionResolver.cs" />
     <Compile Include="BuildUp\Resolution\ParentContainerResolver.cs" />
     <Compile Include="BuildUp\Resolution\UnknownTypeResolver.cs" />
     <Compile Include="Configuration\ContainerConfiguration.cs" />
@@ -84,14 +84,12 @@
     <Compile Include="Infrastructure\ContainerExtension\IRegistrationExtension.cs" />
     <Compile Include="Infrastructure\IActivationContext.cs" />
     <Compile Include="Infrastructure\IDelegateRepository.cs" />
-    <Compile Include="Infrastructure\IObjectExtender.cs" />
     <Compile Include="Infrastructure\IRegistrationContext.cs" />
     <Compile Include="Infrastructure\IResolutionStrategy.cs" />
     <Compile Include="Lifetime\LifetimeBase.cs" />
     <Compile Include="Lifetime\SingletonLifetime.cs" />
     <Compile Include="Lifetime\ContainerTrackedTransientLifetime.cs" />
     <Compile Include="MetaInfo\MetaInfoCache.cs" />
-    <Compile Include="ObjectExtender.cs" />
     <Compile Include="Registration\RegistrationContext.cs" />
     <Compile Include="Registration\RegistrationContextBase.cs" />
     <Compile Include="Registration\ScopedRegistrationItem.cs" />

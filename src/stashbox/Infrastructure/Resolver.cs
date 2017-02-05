@@ -1,4 +1,5 @@
-﻿using Stashbox.Entity;
+﻿using System;
+using Stashbox.Entity;
 using System.Linq.Expressions;
 
 namespace Stashbox.Infrastructure
@@ -28,7 +29,7 @@ namespace Stashbox.Infrastructure
             this.BuilderContext = containerContext;
             this.TypeInfo = typeInfo;
         }
-        
+
         /// <summary>
         /// Produces an expression for creating an instance.
         /// </summary>

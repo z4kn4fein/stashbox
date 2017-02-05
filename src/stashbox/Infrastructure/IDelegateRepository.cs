@@ -23,10 +23,9 @@ namespace Stashbox.Infrastructure
         void AddServiceDelegate(TypeInformation typeInfo, Func<object> factory);
 
         /// <summary>
-        /// Adds a factory delegate which gets the <see cref="IStashboxContainer"/> as a parameter into the repository.
+        /// Invalidates a service delegate in the repository.
         /// </summary>
-        /// <param name="typeInfo"></param>
-        /// <param name="factory"></param>
-        void AddContainereDelegate(TypeInformation typeInfo, Func<IStashboxContainer, object> factory);
+        /// <param name="typeInfo">The type info.</param>
+        void InvalidateServiceDelegate(TypeInformation typeInfo);
     }
 }
