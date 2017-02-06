@@ -20,6 +20,11 @@ namespace Stashbox.Infrastructure
         protected readonly TypeInformation TypeInfo;
 
         /// <summary>
+        /// The wrapped type.
+        /// </summary>
+        public virtual Type WrappedType => this.TypeInfo.Type;
+
+        /// <summary>
         /// Constructs the <see cref="Resolver"/>
         /// </summary>
         /// <param name="containerContext">The <see cref="IContainerContext"/> of the <see cref="StashboxContainer"/></param>

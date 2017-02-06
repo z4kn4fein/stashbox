@@ -26,6 +26,8 @@ namespace Stashbox.BuildUp.Resolution
                 registrationCache = base.BuilderContext.ContainerConfiguration.EnumerableOrderRule(registrations).ToArray();
         }
 
+        public override Type WrappedType => this.enumerableType.Type;
+
         public override Expression GetExpression(ResolutionInfo resolutionInfo)
         {
             if (registrationCache == null)

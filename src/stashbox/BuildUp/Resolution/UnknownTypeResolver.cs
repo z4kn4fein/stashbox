@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq.Expressions;
-using System.Reflection;
+﻿using System.Linq.Expressions;
 using Stashbox.Entity;
 using Stashbox.Exceptions;
 using Stashbox.Infrastructure;
@@ -9,8 +7,6 @@ namespace Stashbox.BuildUp.Resolution
 {
     internal class UnknownTypeResolver : Resolver
     {
-        private readonly MethodInfo resolverMethodInfo;
-
         public UnknownTypeResolver(IContainerContext containerContext, TypeInformation typeInfo) 
             :base(containerContext, typeInfo)
         {

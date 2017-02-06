@@ -1,4 +1,7 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Stashbox.Infrastructure;
 
 namespace Stashbox.Tests
@@ -26,6 +29,117 @@ namespace Stashbox.Tests
 
             Assert.IsInstanceOfType(test11, typeof(Test11));
             Assert.IsInstanceOfType(test12, typeof(Test12));
+        }
+
+        [TestMethod]
+        public void ReMapTests_Enumerable_Named()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            container.RegisterType<ITest1, Test1>("teszt");
+            container.RegisterType<ITest1, Test12>("teszt2");
+
+            var coll = container.Resolve<IEnumerable<ITest1>>().ToArray();
+
+            Assert.IsInstanceOfType(coll[0], typeof(Test1));
+            Assert.IsInstanceOfType(coll[1], typeof(Test12));
+
+            container.ReMap<ITest1, Test11>("teszt");
+
+            var coll2 = container.Resolve<IEnumerable<ITest1>>().ToArray();
+
+            Assert.IsInstanceOfType(coll2[0], typeof(Test11));
+            Assert.IsInstanceOfType(coll2[1], typeof(Test12));
+        }
+
+        [TestMethod]
+        public void ReMapTests_Func_Named()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            container.RegisterType<ITest1, Test12>("teszt2");
+            container.RegisterType<ITest1, Test1>("teszt");
+
+            container.Resolve<Func<ITest1>>("teszt2");
+
+            var func = container.Resolve<Func<ITest1>>("teszt");
+
+            Assert.IsInstanceOfType(func(), typeof(Test1));
+
+            container.ReMap<ITest1, Test11>("teszt");
+
+            var func2 = container.Resolve<Func<ITest1>>("teszt");
+
+            Assert.IsInstanceOfType(func2(), typeof(Test11));
+        }
+
+        [TestMethod]
+        public void ReMapTests_Lazy_Named()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            container.RegisterType<ITest1, Test12>("teszt2");
+            container.RegisterType<ITest1, Test1>("teszt");
+
+            container.Resolve<Lazy<ITest1>>("teszt2");
+
+            var lazy = container.Resolve<Lazy<ITest1>>("teszt");
+
+            Assert.IsInstanceOfType(lazy.Value, typeof(Test1));
+
+            container.ReMap<ITest1, Test11>("teszt");
+
+            var lazy2 = container.Resolve<Lazy<ITest1>>("teszt");
+
+            Assert.IsInstanceOfType(lazy2.Value, typeof(Test11));
+        }
+
+        [TestMethod]
+        public void ReMapTests_Enumerable()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            container.RegisterType<ITest1, Test1>();
+
+            var coll = container.Resolve<IEnumerable<ITest1>>().ToArray();
+
+            Assert.IsInstanceOfType(coll[0], typeof(Test1));
+
+            container.ReMap<ITest1, Test11>();
+
+            var coll2 = container.Resolve<IEnumerable<ITest1>>().ToArray();
+
+            Assert.IsInstanceOfType(coll2[0], typeof(Test11));
+        }
+
+        [TestMethod]
+        public void ReMapTests_Func()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            container.RegisterType<ITest1, Test1>();
+            
+            var func = container.Resolve<Func<ITest1>>();
+
+            Assert.IsInstanceOfType(func(), typeof(Test1));
+
+            container.ReMap<ITest1, Test11>();
+
+            var func2 = container.Resolve<Func<ITest1>>();
+
+            Assert.IsInstanceOfType(func2(), typeof(Test11));
+        }
+
+        [TestMethod]
+        public void ReMapTests_Lazy()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            container.RegisterType<ITest1, Test1>();
+            
+            var lazy = container.Resolve<Lazy<ITest1>>();
+
+            Assert.IsInstanceOfType(lazy.Value, typeof(Test1));
+
+            container.ReMap<ITest1, Test11>();
+
+            var lazy2 = container.Resolve<Lazy<ITest1>>();
+
+            Assert.IsInstanceOfType(lazy2.Value, typeof(Test11));
         }
 
         [TestMethod]

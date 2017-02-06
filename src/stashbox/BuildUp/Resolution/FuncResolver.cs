@@ -36,7 +36,9 @@ namespace Stashbox.BuildUp.Resolution
             if(this.registrationCache == null)
                 throw new ResolutionFailedException(typeInfo.Type.FullName);
         }
-        
+
+        public override Type WrappedType => this.funcArgumentInfo.Type;
+
         public override Expression GetExpression(ResolutionInfo resolutionInfo)
         {
             var args = base.TypeInfo.Type.GenericTypeArguments;

@@ -32,7 +32,9 @@ namespace Stashbox.BuildUp.Resolution
             var ctorParamType = typeof(Func<>).MakeGenericType(this.lazyArgumentInfo.Type);
             this.lazyConstructor = base.TypeInfo.Type.GetConstructor(ctorParamType);
         }
-        
+
+        public override Type WrappedType => this.lazyArgumentInfo.Type;
+
         public override Expression GetExpression(ResolutionInfo resolutionInfo)
         {
             var expr = Expression.Lambda(registrationCache.GetExpression(resolutionInfo, this.lazyArgumentInfo));

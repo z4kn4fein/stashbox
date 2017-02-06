@@ -86,7 +86,11 @@ namespace Stashbox.Registration
         {
             if (this.metaInfoProvider.SensitivityList.Contains(registrationInfo.TypeFrom))
             {
-                this.containerContext.DelegateRepository.InvalidateServiceDelegate(new TypeInformation { Type = this.serviceType, DependencyName = this.RegistrationName });
+                this.containerContext.DelegateRepository.InvalidateDelegateCache(new TypeInformation
+                {
+                    Type = this.serviceType,
+                    DependencyName = this.RegistrationName
+                });
                 this.isDirty = true;
             }
         }

@@ -9,12 +9,9 @@ namespace Stashbox.BuildUp.Resolution
 {
     internal class DefaultValueResolver : Resolver
     {
-        private readonly MethodInfo resolverMethodInfo;
-
         public DefaultValueResolver(IContainerContext containerContext, TypeInformation typeInfo)
             : base(containerContext, typeInfo)
         {
-            this.resolverMethodInfo = this.GetType().GetTypeInfo().GetDeclaredMethod("Resolve");
         }
         
         public override Expression GetExpression(ResolutionInfo resolutionInfo)
