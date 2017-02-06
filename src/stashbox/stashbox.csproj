@@ -131,6 +131,7 @@
     <Compile Include="Utils\ConcurrentStore.cs" />
     <Compile Include="Utils\ConcurrentTree.cs" />
     <Compile Include="Utils\DisposableReaderWriterLock.cs" />
+    <Compile Include="Utils\HashMap.cs" />
     <Compile Include="Utils\NameGenerator.cs" />
     <Compile Include="Utils\RandomAccessArray.cs" />
     <Compile Include="Utils\Shield.cs" />

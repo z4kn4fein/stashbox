@@ -3,7 +3,6 @@ using System.Linq.Expressions;
 using Stashbox.Entity;
 using Stashbox.Exceptions;
 using Stashbox.Infrastructure;
-using Stashbox.Utils;
 
 namespace Stashbox.Resolution
 {
@@ -40,7 +39,15 @@ namespace Stashbox.Resolution
 
         private object CompileAndStoreExpression(Expression expression, TypeInformation typeInfo)
         {
-            var factory = Expression.Lambda<Func<object>>(expression).Compile();
+            Func<object> factory;
+            if (expression.NodeType == ExpressionType.Constant)
+            {
+                var instance = ((ConstantExpression)expression).Value;
+                factory = () => instance;
+            }
+            else
+                factory = Expression.Lambda<Func<object>>(expression).Compile();
+
             this.containerContext.DelegateRepository.AddServiceDelegate(typeInfo, factory);
             return factory();
         }

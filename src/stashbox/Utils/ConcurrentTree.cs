@@ -8,22 +8,6 @@ namespace Stashbox.Utils
     /// <summary>
     /// Represents an immutable AVL tree
     /// </summary>
-    /// <typeparam name="TValue">The type of the value.</typeparam>
-    public class ConcurrentTree<TValue> : ConcurrentTree<int, TValue>
-    {
-        /// <summary>
-        /// Inserts an item into the tree if it doesn't exist.
-        /// </summary>
-        /// <param name="value">The value which will be insertedt.</param>
-        public void Add(TValue value)
-        {
-            base.AddOrUpdate(value.GetHashCode(), value);
-        }
-    }
-
-    /// <summary>
-    /// Represents an immutable AVL tree
-    /// </summary>
     /// <typeparam name="TKey">The type of the key.</typeparam>
     /// <typeparam name="TValue">The type of the value.</typeparam>
     public class ConcurrentTree<TKey, TValue> : IEnumerable<TValue>
@@ -34,7 +18,7 @@ namespace Stashbox.Utils
         /// <returns>A new tree instance</returns>
         public static ConcurrentTree<TKey, TValue> Create() => new ConcurrentTree<TKey, TValue>();
 
-        private AvlTree<TKey, TValue> repository;
+        private AvlTree<TValue> repository;
 
         /// <summary>
         /// The current root value of the tree,
@@ -51,15 +35,19 @@ namespace Stashbox.Utils
         /// </summary>
         public ConcurrentTree()
         {
-            this.repository = new AvlTree<TKey, TValue>();
+            this.repository = new AvlTree<TValue>();
         }
-
+        
         /// <summary>
         /// Returns with the value specified by the given key if it's exist, otherwise it's default value will be returned.
         /// </summary>
         /// <param name="key">The key of the entry.</param>
         /// <returns>The found or the default value.</returns>
-        public TValue GetOrDefault(TKey key) => this.repository.GetOrDefault(key);
+        public TValue GetOrDefault(TKey key)
+        {
+            var hash = key.GetHashCode();
+            return this.repository.GetOrDefault(hash);
+        }
 
         /// <summary>
         /// Inserts an item into the tree if it doesn't exist, otherwise the existing item will be replaced if the update delegate is set.
@@ -70,22 +58,24 @@ namespace Stashbox.Utils
         /// <returns>The modified tree.</returns>
         public ConcurrentTree<TKey, TValue> AddOrUpdate(TKey key, TValue value, Func<TValue, TValue, TValue> updateDelegate = null)
         {
+            var hash = key.GetHashCode();
+
             var currentRepo = this.repository;
-            var newRepo = this.repository.AddOrUpdate(key, value, updateDelegate);
+            var newRepo = this.repository.AddOrUpdate(hash, value, updateDelegate);
 
             if (!this.TrySwapCurrentRepository(currentRepo, newRepo))
-                this.SwapCurrentRepository(repo => repo.AddOrUpdate(key, value, updateDelegate));
+                this.SwapCurrentRepository(repo => repo.AddOrUpdate(hash, value, updateDelegate));
 
             return this;
         }
 
-        private bool TrySwapCurrentRepository(AvlTree<TKey, TValue> currentRepo, AvlTree<TKey, TValue> newRepo) =>
+        private bool TrySwapCurrentRepository(AvlTree<TValue> currentRepo, AvlTree<TValue> newRepo) =>
             Interlocked.CompareExchange(ref repository, newRepo, currentRepo) == currentRepo;
 
-        private void SwapCurrentRepository(Func<AvlTree<TKey, TValue>, AvlTree<TKey, TValue>> repoFactory)
+        private void SwapCurrentRepository(Func<AvlTree<TValue>, AvlTree<TValue>> repoFactory)
         {
-            AvlTree<TKey, TValue> currentRepo;
-            AvlTree<TKey, TValue> newRepo;
+            AvlTree<TValue> currentRepo;
+            AvlTree<TValue> newRepo;
             int counter = 0;
 
             do

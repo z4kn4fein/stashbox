@@ -10,20 +10,26 @@ namespace Stashbox.Lifetime
     /// </summary>
     public class SingletonLifetime : LifetimeBase
     {
+        private volatile Expression expression;
         private object instance;
         private readonly object syncObject = new object();
-       
+
         /// <inheritdoc />
         public override Expression GetExpression(IContainerContext containerContext, IObjectBuilder objectBuilder, ResolutionInfo resolutionInfo, TypeInformation resolveType)
         {
-            if (this.instance != null) return Expression.Constant(this.instance);
+            if (this.expression != null) return this.expression;
             lock (this.syncObject)
             {
-                if (this.instance != null) return Expression.Constant(this.instance);
+                if (this.expression != null) return this.expression;
                 var expr = base.GetExpression(containerContext, objectBuilder, resolutionInfo, resolveType);
-                this.instance = Expression.Lambda<Func<object>>(expr).Compile()();
-                return Expression.Constant(this.instance);
+                if (expr.NodeType == ExpressionType.New && ((NewExpression)expr).Arguments.Count == 0)
+                    this.instance = Activator.CreateInstance(expr.Type);
+                else
+                    this.instance = Expression.Lambda<Func<object>>(expr).Compile()();
+                this.expression = Expression.Constant(this.instance);
             }
+
+            return this.expression;
         }
 
         /// <inheritdoc />

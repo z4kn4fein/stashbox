@@ -7,13 +7,13 @@ namespace Stashbox.Resolution
 {
     internal class DelegateRepository : IDelegateRepository
     {
-        private readonly ConcurrentTree<Type, Func<object>> serviceDelegates;
-        private readonly ConcurrentTree<string, Func<object>> keyedServiceDelegates;
+        private readonly HashMap<Type, Func<object>> serviceDelegates;
+        private readonly HashMap<string, Func<object>> keyedServiceDelegates;
 
         public DelegateRepository()
         {
-            this.serviceDelegates = new ConcurrentTree<Type, Func<object>>();
-            this.keyedServiceDelegates = new ConcurrentTree<string, Func<object>>();
+            this.serviceDelegates = new HashMap<Type, Func<object>>();
+            this.keyedServiceDelegates = new HashMap<string, Func<object>>();
         }
 
         public Func<object> GetDelegateCacheOrDefault(TypeInformation typeInfo)
@@ -33,7 +33,7 @@ namespace Stashbox.Resolution
         {
             if (typeInfo.DependencyName == null)
                 this.serviceDelegates.AddOrUpdate(typeInfo.Type, null, (old, newVal) => newVal);
-            
+
             this.keyedServiceDelegates.AddOrUpdate(this.GetKey(typeInfo), null, (old, newVal) => newVal);
         }
 

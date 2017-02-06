@@ -1,31 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Stashbox.Utils
+﻿namespace Stashbox.Utils
 {
-    internal class RandomAccessArray<TKey, TValue>
+    internal class RandomAccessArray<TValue>
     {
-        protected readonly int ArraySize;
+        private readonly int arraySize;
+        protected readonly int IndexBound;
         private readonly TValue[] array;
 
         public RandomAccessArray(int arraySize = 64)
         {
-            this.ArraySize = arraySize;
+            this.arraySize = arraySize;
+            this.IndexBound = arraySize - 1;
             this.array = new TValue[arraySize];
         }
 
-        public void Store(TKey key, TValue value) => this.array[GetIndex(key)] = value;
+        public void Store(int key, TValue value) => this.array[key & this.IndexBound] = value;
 
-        public TValue Load(TKey key) => this.array[GetIndex(key)];
-
-        protected virtual int GetIndex(TKey key) => key.GetHashCode() & (this.ArraySize - 1);
-    }
-
-    internal class IntRandomAccessArray<TValue> : RandomAccessArray<int, TValue>
-    {
-        protected override int GetIndex(int key) => key & (this.ArraySize - 1);
+        public TValue Load(int key) => this.array[key & this.IndexBound];
     }
 }
