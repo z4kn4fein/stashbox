@@ -34,7 +34,7 @@ namespace Stashbox.Tests
             Assert.IsInstanceOfType(inst3, typeof(Test3));
             Assert.AreEqual("test1fakeNametest1", inst3.Name);
         }
-        
+
         [TestMethod]
         public void OverrideTests_Resolve_Parallel()
         {
@@ -123,11 +123,56 @@ namespace Stashbox.Tests
             });
         }
 
+        [TestMethod]
+        public void OverrideTests_Resolve_Multiple()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            container.RegisterType<ITest2, Test2>();
+            container.RegisterType<ITest4, Test4>();
+            container.RegisterType<ITest6, Test6>();
+
+            var inst4 = container.Resolve<ITest4>();
+
+            Assert.IsInstanceOfType(inst4, typeof(Test4));
+            Assert.AreEqual("test2Test6", inst4.Name);
+        }
+
         public interface ITest1 { string Name { get; set; } }
 
         public interface ITest2 { string Name { get; set; } }
 
         public interface ITest3 { string Name { get; set; } bool MethodInvoked { get; } }
+
+        public interface ITest4 { string Name { get; set; } }
+
+        public interface ITest5 { string Name { get; set; } }
+
+        public interface ITest6 { string Name { get; set; } }
+
+        public class Test4 : ITest4
+        {
+            public string Name { get; set; }
+
+            public Test4(Func<ITest1, ITest2> test1, Func<ITest5, ITest6> test2)
+            {
+                this.Name = test1(new Test1 { Name = "test2" }).Name + test2(new Test5 { Name = "Test6" }).Name;
+            }
+        }
+
+        public class Test5 : ITest5
+        {
+            public string Name { get; set; }
+        }
+
+        public class Test6 : ITest6
+        {
+            public string Name { get; set; }
+
+            public Test6(ITest5 test1)
+            {
+                this.Name = test1.Name;
+            }
+        }
 
         public class Test1 : ITest1
         {
