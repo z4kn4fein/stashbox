@@ -1,6 +1,7 @@
 ﻿using System.Linq.Expressions;
 using Stashbox.Entity;
 using Stashbox.Infrastructure;
+using Stashbox.Infrastructure.Resolution;
 
 namespace Stashbox.BuildUp.Resolution
 {

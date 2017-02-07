@@ -1,10 +1,11 @@
 ﻿using Stashbox.Entity;
-using Stashbox.Exceptions;
 using Stashbox.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Stashbox.Exceptions;
+using Stashbox.Infrastructure.Resolution;
 
 namespace Stashbox.BuildUp.Resolution
 {
@@ -18,7 +19,6 @@ namespace Stashbox.BuildUp.Resolution
             typeof(Func<,,,>)
         };
 
-        private readonly IServiceRegistration registrationCache;
         private readonly TypeInformation funcArgumentInfo;
 
         public FuncResolver(IContainerContext containerContext, TypeInformation typeInfo)
@@ -31,15 +31,58 @@ namespace Stashbox.BuildUp.Resolution
                 ParentType = typeInfo.ParentType,
                 DependencyName = typeInfo.DependencyName
             };
-
-            this.registrationCache = containerContext.RegistrationRepository.GetRegistrationOrDefault(this.funcArgumentInfo, true);
-            if(this.registrationCache == null)
-                throw new ResolutionFailedException(typeInfo.Type.FullName);
         }
 
         public override Type WrappedType => this.funcArgumentInfo.Type;
 
+        public override bool CanUseForEnumerableArgumentResolution => true;
+
         public override Expression GetExpression(ResolutionInfo resolutionInfo)
+        {
+            this.PrepareExtraParameters(resolutionInfo);
+            var registration = this.BuilderContext.RegistrationRepository.GetRegistrationOrDefault(this.funcArgumentInfo, true);
+
+            if (registration != null)
+                return Expression.Lambda(registration.GetExpression(resolutionInfo, this.funcArgumentInfo), resolutionInfo.ParameterExpressions);
+
+            Resolver resolver;
+            if (!this.BuilderContext.ResolverSelector.TryChooseResolver(this.BuilderContext, this.funcArgumentInfo, out resolver))
+                throw new ResolutionFailedException(base.TypeInfo.Type.FullName);
+
+            return Expression.Lambda(resolver.GetExpression(resolutionInfo), resolutionInfo.ParameterExpressions);
+        }
+
+        public override Expression[] GetEnumerableArgumentExpressions(ResolutionInfo resolutionInfo)
+        {
+            this.PrepareExtraParameters(resolutionInfo);
+            var registrations = this.BuilderContext.RegistrationRepository.GetRegistrationsOrDefault(this.funcArgumentInfo);
+            if (registrations != null)
+            {
+                var serviceRegistrations = base.BuilderContext.ContainerConfiguration.EnumerableOrderRule(registrations).ToArray();
+                var length = serviceRegistrations.Length;
+                var expressions = new Expression[length];
+                for (var i = 0; i < length; i++)
+                    expressions[i] = Expression.Lambda(serviceRegistrations[i].GetExpression(resolutionInfo, this.funcArgumentInfo), resolutionInfo.ParameterExpressions);
+
+                return expressions;
+            }
+
+            Resolver resolver;
+            if (this.BuilderContext.ResolverSelector.TryChooseResolver(this.BuilderContext, this.funcArgumentInfo, out resolver) && resolver.CanUseForEnumerableArgumentResolution)
+            {
+                var exprs = resolver.GetEnumerableArgumentExpressions(resolutionInfo);
+                var length = exprs.Length;
+                var expressions = new Expression[length];
+                for (var i = 0; i < length; i++)
+                    expressions[i] = Expression.Lambda(exprs[i], resolutionInfo.ParameterExpressions);
+
+                return expressions;
+            }
+
+            return null;
+        }
+
+        private void PrepareExtraParameters(ResolutionInfo resolutionInfo)
         {
             var args = base.TypeInfo.Type.GenericTypeArguments;
             var length = args.Length - 1;
@@ -55,8 +98,6 @@ namespace Stashbox.BuildUp.Resolution
 
                 resolutionInfo.ParameterExpressions = parameters;
             }
-            var expr = registrationCache.GetExpression(resolutionInfo, this.funcArgumentInfo);
-            return Expression.Lambda(expr, parameters);
         }
     }
 }

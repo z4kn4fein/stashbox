@@ -2,7 +2,6 @@
 using Stashbox.Attributes;
 using Stashbox.Entity;
 using Stashbox.Infrastructure;
-using Stashbox.Overrides;
 using Stashbox.Utils;
 using System;
 using System.Threading.Tasks;
@@ -28,7 +27,9 @@ namespace Stashbox.Tests
             var inst1 = container.Resolve<ITest1>();
             inst1.Name = "test1";
             container.Resolve<ITest3>();
-            var inst3 = container.Resolve<ITest3>(overrides: new[] { new TypeOverride(typeof(ITest1), inst1), new TypeOverride(typeof(ITest2), inst2) });
+
+            var factory = container.Resolve<Func<ITest1, ITest2, ITest3>>();
+            var inst3 = factory(inst1, inst2);
 
             Assert.IsInstanceOfType(inst3, typeof(Test3));
             Assert.AreEqual("test1fakeNametest1", inst3.Name);
@@ -51,11 +52,48 @@ namespace Stashbox.Tests
             {
                 var inst1 = container.Resolve<ITest1>();
                 inst1.Name = "test1";
-                var inst3 = container.Resolve<ITest3>(overrides: new[] { new TypeOverride(typeof(ITest1), inst1), new TypeOverride(typeof(ITest2), inst2) });
+                var factory = container.Resolve<Func<ITest1, ITest2, ITest3>>();
+                var inst3 = factory(inst1, inst2);
 
                 Assert.IsInstanceOfType(inst3, typeof(Test3));
                 Assert.AreEqual("test1fakeNametest1", inst3.Name);
             });
+        }
+
+        [TestMethod]
+        public void OverrideTests_Resolve_NonGeneric()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            container.RegisterType<ITest1, Test1>();
+            container.RegisterType<ITest2, Test2>();
+
+            var inst1 = container.Resolve<ITest1>();
+            inst1.Name = "test1";
+            container.Resolve<ITest2>();
+
+            var factory = container.ResolveFactory(typeof(ITest2), typeof(ITest1));
+            var inst2 = ((Func<ITest1, ITest2>)factory)(inst1);
+
+            Assert.IsInstanceOfType(inst2, typeof(Test2));
+            Assert.AreEqual("test1", inst2.Name);
+        }
+
+        [TestMethod]
+        public void OverrideTests_Resolve_NonGeneric_Lazy()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            container.RegisterType<ITest1, Test1>();
+            container.RegisterType<ITest2, Test2>();
+
+            var inst1 = container.Resolve<ITest1>();
+            inst1.Name = "test1";
+            container.Resolve<ITest2>();
+
+            var factory = container.ResolveFactory(typeof(Lazy<ITest2>), typeof(ITest1));
+            var inst2 = ((Func<ITest1, Lazy<ITest2>>)factory)(inst1);
+
+            Assert.IsInstanceOfType(inst2, typeof(Lazy<ITest2>));
+            Assert.AreEqual("test1", inst2.Value.Name);
         }
 
         [TestMethod]
@@ -75,7 +113,9 @@ namespace Stashbox.Tests
             {
                 var inst1 = container.Resolve<Lazy<ITest1>>();
                 inst1.Value.Name = "test1";
-                var inst3 = container.Resolve<Lazy<ITest3>>(overrides: new[] { new TypeOverride(typeof(ITest1), inst1.Value), new TypeOverride(typeof(ITest2), inst2.Value) });
+
+                var factory = container.Resolve<Func<ITest1, ITest2, Lazy<ITest3>>>();
+                var inst3 = factory(inst1.Value, inst2.Value);
 
                 Assert.IsInstanceOfType(inst3.Value, typeof(Test3));
                 Assert.AreEqual("test1fakeNametest1", inst3.Value.Name);

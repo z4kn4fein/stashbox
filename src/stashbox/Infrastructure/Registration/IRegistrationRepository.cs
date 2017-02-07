@@ -1,8 +1,8 @@
-﻿using Stashbox.Entity;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using Stashbox.Entity;
 
-namespace Stashbox.Infrastructure
+namespace Stashbox.Infrastructure.Registration
 {
     /// <summary>
     /// Represents a registration repository.

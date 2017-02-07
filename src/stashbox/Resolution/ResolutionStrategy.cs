@@ -4,6 +4,7 @@ using Stashbox.BuildUp.Resolution;
 using Stashbox.Entity;
 using Stashbox.Entity.Resolution;
 using Stashbox.Infrastructure;
+using Stashbox.Infrastructure.Resolution;
 
 namespace Stashbox.Resolution
 {
@@ -25,14 +26,7 @@ namespace Stashbox.Resolution
                     TypeInformation = typeInformation,
                     Resolver = new ParameterExpressionResolver(containerContext, typeInformation, resolutionInfo.ParameterExpressions.First(p => p.Type == typeInformation.Type))
                 };
-
-            if (resolutionInfo.OverrideManager != null && resolutionInfo.OverrideManager.ContainsValue(typeInformation))
-                return new ResolutionTarget
-                {
-                    TypeInformation = typeInformation,
-                    ResolutionTargetValue = resolutionInfo.OverrideManager.GetOverriddenValue(typeInformation.Type)
-                };
-
+            
             var matchingParam = injectionParameters?.FirstOrDefault(param => param.Name == typeInformation.ParameterName);
             if (matchingParam != null)
                 return new ResolutionTarget

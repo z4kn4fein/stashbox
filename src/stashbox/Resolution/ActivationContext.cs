@@ -3,6 +3,7 @@ using System.Linq.Expressions;
 using Stashbox.Entity;
 using Stashbox.Exceptions;
 using Stashbox.Infrastructure;
+using Stashbox.Infrastructure.Resolution;
 
 namespace Stashbox.Resolution
 {
@@ -19,13 +20,10 @@ namespace Stashbox.Resolution
 
         public object Activate(ResolutionInfo resolutionInfo, TypeInformation typeInfo)
         {
-            if (resolutionInfo.OverrideManager == null)
-            {
-                var factory = this.containerContext.DelegateRepository.GetDelegateCacheOrDefault(typeInfo) ??
-                    this.containerContext.DelegateRepository.GetWrapperDelegateCacheOrDefault(typeInfo);
-                if (factory != null)
-                    return factory();
-            }
+            var cachedFactory = this.containerContext.DelegateRepository.GetDelegateCacheOrDefault(typeInfo) ??
+                this.containerContext.DelegateRepository.GetWrapperDelegateCacheOrDefault(typeInfo);
+            if (cachedFactory != null)
+                return cachedFactory();
 
             var registration = this.containerContext.RegistrationRepository.GetRegistrationOrDefault(typeInfo);
             if (registration != null)
@@ -49,6 +47,31 @@ namespace Stashbox.Resolution
             }
 
             throw new ResolutionFailedException(typeInfo.Type.FullName);
+        }
+
+        public Delegate ActivateFactory(ResolutionInfo resolutionInfo, TypeInformation typeInfo, Type parameterType)
+        {
+            var cachedFactory = this.containerContext.DelegateRepository.GetFactoryDelegateCacheOrDefault(typeInfo, parameterType);
+            if (cachedFactory != null)
+                return cachedFactory;
+
+            Expression initExpression;
+            var registration = containerContext.RegistrationRepository.GetRegistrationOrDefault(typeInfo);
+            if (registration == null)
+            {
+                Resolver resolver;
+                if (!this.resolverSelector.TryChooseResolver(this.containerContext, typeInfo, out resolver))
+                    throw new ResolutionFailedException(typeInfo.Type.FullName);
+
+                initExpression = resolver.GetExpression(resolutionInfo);
+            }
+            else
+                initExpression = registration.GetExpression(resolutionInfo, typeInfo);
+            
+            var delegateType = typeof(Func<,>).MakeGenericType(parameterType, typeInfo.Type);
+            var factory = Expression.Lambda(delegateType, initExpression, resolutionInfo.ParameterExpressions).Compile();
+            this.containerContext.DelegateRepository.AddFactoryDelegate(typeInfo, parameterType, factory);
+            return factory;
         }
 
         private Func<object> CompileExpression(Expression expression)

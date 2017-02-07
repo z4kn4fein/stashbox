@@ -6,6 +6,7 @@ using Stashbox.MetaInfo;
 using Stashbox.Registration;
 using Stashbox.Utils;
 using System;
+using Stashbox.Infrastructure.Registration;
 
 namespace Stashbox
 {

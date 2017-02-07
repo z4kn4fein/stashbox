@@ -1,11 +1,8 @@
 ﻿using Stashbox.Entity;
-using Stashbox.Infrastructure;
 using Stashbox.MetaInfo;
-using Stashbox.Overrides;
 using Stashbox.Utils;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using Stashbox.BuildUp.Expressions;
 
@@ -14,53 +11,44 @@ namespace Stashbox
     public partial class StashboxContainer
     {
         /// <inheritdoc />
-        public TKey Resolve<TKey>(string name = null, params TypeOverride[] overrides) where TKey : class
+        public TKey Resolve<TKey>(string name = null) where TKey : class
         {
-            return this.ResolveInternal(typeof(TKey), overrides, name) as TKey;
+            return this.ResolveInternal(typeof(TKey), name) as TKey;
         }
 
         /// <inheritdoc />
-        public object Resolve(Type typeFrom, string name = null, params TypeOverride[] overrides)
+        public object Resolve(Type typeFrom, string name = null)
         {
             Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
-            return this.ResolveInternal(typeFrom, overrides, name);
+            return this.ResolveInternal(typeFrom, name);
         }
 
         /// <inheritdoc />
-        public IEnumerable<TKey> ResolveAll<TKey>(params TypeOverride[] overrides) where TKey : class
+        public IEnumerable<TKey> ResolveAll<TKey>() where TKey : class
         {
-            var type = typeof(TKey);
-            var typeInfo = new TypeInformation { Type = type };
-
-            var registrations = this.registrationRepository.GetRegistrationsOrDefault(typeInfo);
-            if (registrations == null)
-                yield break;
-
-            foreach (var registration in registrations)
-            {
-                yield return registration.GetFactory(new ResolutionInfo
-                {
-                    OverrideManager = overrides.Length == 0 ? null : new OverrideManager(overrides)
-                }, typeInfo)() as TKey;
-            }
+            return this.Resolve<IEnumerable<TKey>>();
         }
 
         /// <inheritdoc />
-        public IEnumerable<object> ResolveAll(Type typeFrom, params TypeOverride[] overrides)
+        public object ResolveAll(Type typeFrom)
         {
-            var typeInfo = new TypeInformation { Type = typeFrom };
+            var type = typeof(IEnumerable<>).MakeGenericType(typeFrom);
+            return this.Resolve(type);
+        }
 
-            var registrations = this.registrationRepository.GetRegistrationsOrDefault(typeInfo);
-            if (registrations == null)
-                yield break;
+        /// <inheritdoc />
+        public Delegate ResolveFactory(Type typeFrom, Type parameterType, string name = null)
+        {
+            Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
+            Shield.EnsureNotNull(parameterType, nameof(parameterType));
 
-            foreach (var registration in registrations)
+            var typeInfo = new TypeInformation { Type = typeFrom, DependencyName = name };
+            var resolutionInfo = new ResolutionInfo
             {
-                yield return registration.GetFactory(new ResolutionInfo
-                {
-                    OverrideManager = overrides.Length == 0 ? null : new OverrideManager(overrides)
-                }, typeInfo)();
-            }
+                ParameterExpressions = new[] { Expression.Parameter(parameterType) }
+            };
+
+            return this.activationContext.ActivateFactory(resolutionInfo, typeInfo, parameterType);
         }
 
         /// <inheritdoc />
@@ -79,15 +67,10 @@ namespace Stashbox
             return factory();
         }
 
-        private object ResolveInternal(Type typeFrom, TypeOverride[] overrides, string name = null)
+        private object ResolveInternal(Type typeFrom, string name = null)
         {
             var typeInfo = new TypeInformation { Type = typeFrom, DependencyName = name };
-            var resolutionInfo = new ResolutionInfo
-            {
-                OverrideManager = overrides.Length == 0 ? null : new OverrideManager(overrides)
-            };
-
-            return this.activationContext.Activate(resolutionInfo, typeInfo);
+            return this.activationContext.Activate(new ResolutionInfo(), typeInfo);
         }
     }
 }

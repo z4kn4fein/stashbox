@@ -2,6 +2,7 @@
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.ContainerExtension;
 using System;
+using Stashbox.Infrastructure.Registration;
 
 namespace Stashbox.Registration
 {

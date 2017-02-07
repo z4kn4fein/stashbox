@@ -1,4 +1,4 @@
-﻿using Stashbox.Infrastructure;
+﻿using Stashbox.Infrastructure.Resolution;
 
 namespace Stashbox.Entity.Resolution
 {

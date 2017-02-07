@@ -1,9 +1,10 @@
-﻿using System;
-using Stashbox.Configuration;
+﻿using Stashbox.Configuration;
 using Stashbox.Infrastructure;
 using Stashbox.Registration;
 using Stashbox.Utils;
 using System.Threading;
+using Stashbox.Infrastructure.Registration;
+using Stashbox.Infrastructure.Resolution;
 
 namespace Stashbox
 {
@@ -15,8 +16,9 @@ namespace Stashbox
         private int registrationNumber;
         
         internal ContainerContext(IRegistrationRepository registrationRepository, IDelegateRepository delegateRepository, IStashboxContainer container,
-            IResolutionStrategy resolutionStrategy, ContainerConfiguration containerConfiguration)
+            IResolutionStrategy resolutionStrategy, IResolverSelector resolverSelector, ContainerConfiguration containerConfiguration)
         {
+            this.ResolverSelector = resolverSelector;
             this.ResolutionStrategy = resolutionStrategy;
             this.RegistrationRepository = registrationRepository;
             this.DelegateRepository = delegateRepository;
@@ -38,6 +40,9 @@ namespace Stashbox
 
         /// <inheritdoc />
         public IResolutionStrategy ResolutionStrategy { get; }
+
+        /// <inheritdoc />
+        public IResolverSelector ResolverSelector { get; }
 
         /// <inheritdoc />
         public ConcurrentTree<string, ScopedRegistrationItem> ScopedRegistrations { get; }

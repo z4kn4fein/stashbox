@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Stashbox.Configuration;
 using Stashbox.Infrastructure;
 using Stashbox.Utils;
@@ -11,22 +12,6 @@ namespace Stashbox.Tests
     [TestClass]
     public class EnumerableTests
     {
-        [TestMethod]
-        public void EnumerableTests_Resolve_IEnumerable_PreserveOrder()
-        {
-            IStashboxContainer container = new StashboxContainer(config => config.WithEnumerableOrderRule(Rules.EnumerableOrder.PreserveOrder));
-            container.RegisterType<ITest1, Test1>();
-            container.RegisterType<ITest1, Test11>();
-            container.RegisterType<ITest1, Test12>();
-
-            var all = container.Resolve<IEnumerable<ITest1>>().ToArray();
-
-            Assert.AreEqual(3, all.Count());
-            Assert.IsInstanceOfType(all[0], typeof(Test1));
-            Assert.IsInstanceOfType(all[1], typeof(Test11));
-            Assert.IsInstanceOfType(all[2], typeof(Test12));
-        }
-
         [TestMethod]
         public void EnumerableTests_Resolve_Array_PreserveOrder()
         {
@@ -102,14 +87,85 @@ namespace Stashbox.Tests
             container.RegisterType<ITest2, Test2>("enumerable");
             container.RegisterType<ITest2, Test22>("array");
 
-            var enumerable = container.Resolve<ITest2>("enumerable");
-            var array = container.Resolve<ITest2>("array");
+            container.Resolve<ITest2>("enumerable");
+            container.Resolve<ITest2>("array");
 
             var all = container.Resolve<IEnumerable<ITest2>>();
             var all2 = container.ResolveAll<ITest2>();
 
             Assert.AreEqual(2, all.Count());
             Assert.AreEqual(2, all2.Count());
+        }
+
+        [TestMethod]
+        public void EnumerableTests_Resolve_Parent()
+        {
+            IStashboxContainer container = new StashboxContainer(config => config.WithParentContainerResolution());
+            container.RegisterType<ITest1, Test1>();
+            container.RegisterType<ITest1, Test11>();
+            container.RegisterType<ITest1, Test12>();
+
+            var child = container.BeginScope();
+
+            var all = child.Resolve<IEnumerable<ITest1>>();
+
+            Assert.AreEqual(3, all.Count());
+        }
+
+        [TestMethod]
+        public void EnumerableTests_Resolve_Parent_Lazy()
+        {
+            IStashboxContainer container = new StashboxContainer(config => config.WithParentContainerResolution());
+            container.RegisterType<ITest1, Test1>();
+            container.RegisterType<ITest1, Test11>();
+            container.RegisterType<ITest1, Test12>();
+
+            var child = container.BeginScope();
+
+            var all = child.Resolve<IEnumerable<Lazy<ITest1>>>();
+
+            Assert.AreEqual(3, all.Count());
+        }
+
+        [TestMethod]
+        public void EnumerableTests_Resolve_Parent_Func()
+        {
+            IStashboxContainer container = new StashboxContainer(config => config.WithParentContainerResolution());
+            container.RegisterType<ITest1, Test1>();
+            container.RegisterType<ITest1, Test11>();
+            container.RegisterType<ITest1, Test12>();
+
+            var child = container.BeginScope();
+
+            var all = child.Resolve<IEnumerable<Func<ITest1>>>();
+
+            Assert.AreEqual(3, all.Count());
+        }
+
+        [TestMethod]
+        public void EnumerableTests_Resolve_Lazy()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            container.RegisterType<ITest1, Test1>();
+            container.RegisterType<ITest1, Test11>();
+            container.RegisterType<ITest1, Test12>();
+
+            var all = container.Resolve<IEnumerable<Lazy<ITest1>>>();
+
+            Assert.AreEqual(3, all.Count());
+        }
+
+        [TestMethod]
+        public void EnumerableTests_Resolve_Func()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            container.RegisterType<ITest1, Test1>();
+            container.RegisterType<ITest1, Test11>();
+            container.RegisterType<ITest1, Test12>();
+
+            var all = container.Resolve<IEnumerable<Func<ITest1>>>();
+
+            Assert.AreEqual(3, all.Count());
         }
 
         [TestMethod]
@@ -122,11 +178,11 @@ namespace Stashbox.Tests
             container.RegisterType<ITest2, Test2>("enumerable");
             container.RegisterType<ITest2, Test22>("array");
 
-            var enumerable = container.Resolve<ITest2>("enumerable");
-            var array = container.Resolve<ITest2>("array");
+            container.Resolve<ITest2>("enumerable");
+            container.Resolve<ITest2>("array");
 
             var all = container.Resolve<IEnumerable<ITest2>>();
-            var all2 = container.ResolveAll(typeof(ITest2));
+            var all2 = (IEnumerable<ITest2>)container.ResolveAll(typeof(ITest2));
 
             Assert.AreEqual(2, all.Count());
             Assert.AreEqual(2, all2.Count());
@@ -144,9 +200,8 @@ namespace Stashbox.Tests
 
             Parallel.For(0, 10000, (i) =>
             {
-                var enumerable = container.Resolve<ITest2>("enumerable");
-                var array = container.Resolve<ITest2>("array");
-
+                container.Resolve<ITest2>("enumerable");
+                container.Resolve<ITest2>("array");
                 var all = container.Resolve<IEnumerable<ITest2>>();
 
                 Assert.AreEqual(2, all.Count());
@@ -165,11 +220,11 @@ namespace Stashbox.Tests
 
             Parallel.For(0, 10000, (i) =>
             {
-                var enumerable = container.Resolve<ITest2>("enumerable");
-                var array = container.Resolve<ITest2>("array");
+                container.Resolve<ITest2>("enumerable");
+                container.Resolve<ITest2>("array");
 
                 var all = container.Resolve<IEnumerable<ITest2>>();
-                var all2 = container.ResolveAll(typeof(ITest2));
+                var all2 = (IEnumerable<ITest2>)container.ResolveAll(typeof(ITest2));
 
                 Assert.AreEqual(2, all2.Count());
                 Assert.AreEqual(2, all.Count());
@@ -177,7 +232,7 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
-        public void EnumerableTests_Parallel_Resolve_PreserveOrder()
+        public void EnumerableTests_Resolve_PreserveOrder()
         {
             IStashboxContainer container = new StashboxContainer(config => config.WithEnumerableOrderRule(Rules.EnumerableOrder.PreserveOrder));
             container.RegisterType<ITest1, Test1>();
@@ -189,6 +244,111 @@ namespace Stashbox.Tests
             Assert.IsInstanceOfType(services[0], typeof(Test1));
             Assert.IsInstanceOfType(services[1], typeof(Test11));
             Assert.IsInstanceOfType(services[2], typeof(Test12));
+        }
+
+        [TestMethod]
+        public void EnumerableTests_ResolveAll_PreserveOrder()
+        {
+            IStashboxContainer container = new StashboxContainer(config => config.WithEnumerableOrderRule(Rules.EnumerableOrder.PreserveOrder));
+            container.RegisterType<ITest1, Test1>();
+            container.RegisterType<ITest1, Test11>();
+            container.RegisterType<ITest1, Test12>();
+
+            var services = container.ResolveAll<ITest1>().ToArray();
+
+            Assert.IsInstanceOfType(services[0], typeof(Test1));
+            Assert.IsInstanceOfType(services[1], typeof(Test11));
+            Assert.IsInstanceOfType(services[2], typeof(Test12));
+        }
+
+        [TestMethod]
+        public void EnumerableTests_Resolve_PreserveOrder_Parent()
+        {
+            IStashboxContainer container = new StashboxContainer(config =>
+                config.WithEnumerableOrderRule(Rules.EnumerableOrder.PreserveOrder)
+                .WithParentContainerResolution());
+
+            container.RegisterType<ITest1, Test1>();
+            container.RegisterType<ITest1, Test11>();
+            container.RegisterType<ITest1, Test12>();
+
+            var child = container.BeginScope();
+
+            var services = child.Resolve<IEnumerable<ITest1>>().ToArray();
+
+            Assert.IsInstanceOfType(services[0], typeof(Test1));
+            Assert.IsInstanceOfType(services[1], typeof(Test11));
+            Assert.IsInstanceOfType(services[2], typeof(Test12));
+        }
+
+        [TestMethod]
+        public void EnumerableTests_Resolve_PreserveOrder_Parent_Lazy()
+        {
+            IStashboxContainer container = new StashboxContainer(config => 
+                config.WithEnumerableOrderRule(Rules.EnumerableOrder.PreserveOrder)
+                .WithParentContainerResolution());
+
+            container.RegisterType<ITest1, Test1>();
+            container.RegisterType<ITest1, Test11>();
+            container.RegisterType<ITest1, Test12>();
+
+            var child = container.BeginScope();
+
+            var services = child.Resolve<IEnumerable<Lazy<ITest1>>>().ToArray();
+
+            Assert.IsInstanceOfType(services[0].Value, typeof(Test1));
+            Assert.IsInstanceOfType(services[1].Value, typeof(Test11));
+            Assert.IsInstanceOfType(services[2].Value, typeof(Test12));
+        }
+
+        [TestMethod]
+        public void EnumerableTests_Resolve_PreserveOrder_Parent_Func()
+        {
+            IStashboxContainer container = new StashboxContainer(config =>
+                config.WithEnumerableOrderRule(Rules.EnumerableOrder.PreserveOrder)
+                .WithParentContainerResolution());
+
+            container.RegisterType<ITest1, Test1>();
+            container.RegisterType<ITest1, Test11>();
+            container.RegisterType<ITest1, Test12>();
+
+            var child = container.BeginScope();
+
+            var services = child.Resolve<IEnumerable<Func<ITest1>>>().ToArray();
+
+            Assert.IsInstanceOfType(services[0](), typeof(Test1));
+            Assert.IsInstanceOfType(services[1](), typeof(Test11));
+            Assert.IsInstanceOfType(services[2](), typeof(Test12));
+        }
+
+        [TestMethod]
+        public void EnumerableTests_Resolve_PreserveOrder_Lazy()
+        {
+            IStashboxContainer container = new StashboxContainer(config => config.WithEnumerableOrderRule(Rules.EnumerableOrder.PreserveOrder));
+            container.RegisterType<ITest1, Test1>();
+            container.RegisterType<ITest1, Test11>();
+            container.RegisterType<ITest1, Test12>();
+
+            var services = container.Resolve<IEnumerable<Lazy<ITest1>>>().ToArray();
+
+            Assert.IsInstanceOfType(services[0].Value, typeof(Test1));
+            Assert.IsInstanceOfType(services[1].Value, typeof(Test11));
+            Assert.IsInstanceOfType(services[2].Value, typeof(Test12));
+        }
+
+        [TestMethod]
+        public void EnumerableTests_Resolve_PreserveOrder_Func()
+        {
+            IStashboxContainer container = new StashboxContainer(config => config.WithEnumerableOrderRule(Rules.EnumerableOrder.PreserveOrder));
+            container.RegisterType<ITest1, Test1>();
+            container.RegisterType<ITest1, Test11>();
+            container.RegisterType<ITest1, Test12>();
+
+            var services = container.Resolve<IEnumerable<Func<ITest1>>>().ToArray();
+
+            Assert.IsInstanceOfType(services[0](), typeof(Test1));
+            Assert.IsInstanceOfType(services[1](), typeof(Test11));
+            Assert.IsInstanceOfType(services[2](), typeof(Test12));
         }
 
         public interface ITest1 { }

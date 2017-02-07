@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Linq.Expressions;
 using Stashbox.Entity;
-using System.Linq.Expressions;
-using Stashbox.MetaInfo;
 
-namespace Stashbox.Infrastructure
+namespace Stashbox.Infrastructure.Registration
 {
     /// <summary>
     /// Represents a service registration.
@@ -28,14 +25,7 @@ namespace Stashbox.Infrastructure
         /// <param name="resolveType">The resolve type.</param>
         /// <returns>The expression.</returns>
         Expression GetExpression(ResolutionInfo resolutionInfo, TypeInformation resolveType);
-
-        /// <summary>
-        /// Creates a delegate for resolving the registered service.
-        /// </summary>
-        /// <param name="resolutionInfo">The info about the current resolution.</param>
-        /// <param name="resolveType">The resolve type.</param>
-        /// <returns>The delegate.</returns>
-        Func<object> GetFactory(ResolutionInfo resolutionInfo, TypeInformation resolveType);
+        
         /// <summary>
         /// Checks whether the registration can be used for a current resolution.
         /// </summary>

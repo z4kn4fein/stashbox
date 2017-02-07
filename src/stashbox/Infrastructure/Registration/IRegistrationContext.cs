@@ -1,7 +1,7 @@
-﻿using Stashbox.Entity;
-using System;
+﻿using System;
+using Stashbox.Entity;
 
-namespace Stashbox.Infrastructure
+namespace Stashbox.Infrastructure.Registration
 {
     /// <summary>
     /// Represents a registration context. Allows a fluent registration configuration.

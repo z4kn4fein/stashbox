@@ -1,4 +1,5 @@
 ﻿using System;
+using Stashbox.Infrastructure.Registration;
 
 namespace Stashbox.Infrastructure
 {

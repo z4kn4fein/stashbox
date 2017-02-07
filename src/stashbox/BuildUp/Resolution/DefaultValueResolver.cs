@@ -4,6 +4,7 @@ using Stashbox.Infrastructure;
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
+using Stashbox.Infrastructure.Resolution;
 
 namespace Stashbox.BuildUp.Resolution
 {
@@ -11,8 +12,7 @@ namespace Stashbox.BuildUp.Resolution
     {
         public DefaultValueResolver(IContainerContext containerContext, TypeInformation typeInfo)
             : base(containerContext, typeInfo)
-        {
-        }
+        { }
         
         public override Expression GetExpression(ResolutionInfo resolutionInfo)
         {

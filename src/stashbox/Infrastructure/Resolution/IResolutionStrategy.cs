@@ -1,8 +1,8 @@
-﻿using Stashbox.Entity;
+﻿using System.Linq.Expressions;
+using Stashbox.Entity;
 using Stashbox.Entity.Resolution;
-using System.Linq.Expressions;
 
-namespace Stashbox.Infrastructure
+namespace Stashbox.Infrastructure.Resolution
 {
     /// <summary>
     /// Represents a resolution strategy.

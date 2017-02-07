@@ -1,5 +1,6 @@
-﻿using System;
-using Stashbox.Configuration;
+﻿using Stashbox.Configuration;
+using Stashbox.Infrastructure.Registration;
+using Stashbox.Infrastructure.Resolution;
 using Stashbox.Registration;
 using Stashbox.Utils;
 
@@ -29,6 +30,11 @@ namespace Stashbox.Infrastructure
         /// The resolution strategy.
         /// </summary>
         IResolutionStrategy ResolutionStrategy { get; }
+
+        /// <summary>
+        /// The resolver selector.
+        /// </summary>
+        IResolverSelector ResolverSelector { get; }
         
         /// <summary>
         /// Repository of scoped registrations.

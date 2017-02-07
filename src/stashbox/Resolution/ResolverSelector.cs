@@ -1,8 +1,8 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading;
 using Stashbox.Entity;
 using Stashbox.Infrastructure;
+using Stashbox.Infrastructure.Resolution;
 using Stashbox.Utils;
 
 namespace Stashbox.Resolution

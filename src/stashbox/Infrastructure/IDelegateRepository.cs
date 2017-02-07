@@ -9,18 +9,26 @@ namespace Stashbox.Infrastructure
     public interface IDelegateRepository
     {
         /// <summary>
-        /// Activates a type with a cached factory method.
+        /// Gets a cached factory method for a type.
         /// </summary>
         /// <param name="typeInfo">The type info.</param>
-        /// <returns>The activated object.</returns>
+        /// <returns>The cached factory delegate.</returns>
         Func<object> GetDelegateCacheOrDefault(TypeInformation typeInfo);
 
         /// <summary>
-        /// Activates a type with a cached factory method.
+        /// Gets a cached factory method for a wrapper type.
         /// </summary>
         /// <param name="typeInfo">The type info.</param>
-        /// <returns>The activated object.</returns>
+        /// <returns>The cached factory delegate.</returns>
         Func<object> GetWrapperDelegateCacheOrDefault(TypeInformation typeInfo);
+
+        /// <summary>
+        /// Gets a cached factory method.
+        /// </summary>
+        /// <param name="typeInfo">The type info.</param>
+        /// <param name="parameterType">The parameter type.</param>
+        /// <returns>The cached factory delegate.</returns>
+        Delegate GetFactoryDelegateCacheOrDefault(TypeInformation typeInfo, Type parameterType);
 
         /// <summary>
         /// Adds a service delegate into the repository.
@@ -35,6 +43,14 @@ namespace Stashbox.Infrastructure
         /// <param name="typeInfo">The type info.</param>
         /// <param name="factory">The factory delegate.</param>
         void AddWrapperDelegate(WrappedDelegateInformation typeInfo, Func<object> factory);
+
+        /// <summary>
+        /// Adds a factory delegate into the repository.
+        /// </summary>
+        /// <param name="typeInfo">The type info.</param>
+        /// <param name="parameterType">The parameter type.</param>
+        /// <param name="factory">The factory delegate.</param>
+        void AddFactoryDelegate(TypeInformation typeInfo, Type parameterType, Delegate factory);
 
         /// <summary>
         /// Invalidates a service delegate in the repository.

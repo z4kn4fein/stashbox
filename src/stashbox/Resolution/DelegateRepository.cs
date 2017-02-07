@@ -11,12 +11,14 @@ namespace Stashbox.Resolution
         private readonly HashMap<string, Func<object>> keyedServiceDelegates;
         private readonly RandomAccessArray<Type> typeMap;
         private readonly HashMap<Type, string, Func<object>> wrapperDelegates;
+        private readonly HashMap<Type, string, Delegate> factoryDelegates;
 
         public DelegateRepository()
         {
             this.serviceDelegates = new HashMap<Type, Func<object>>();
             this.wrapperDelegates = new HashMap<Type, string, Func<object>>();
             this.keyedServiceDelegates = new HashMap<string, Func<object>>();
+            this.factoryDelegates = new HashMap<Type, string, Delegate>();
             this.typeMap = new RandomAccessArray<Type>();
         }
 
@@ -28,6 +30,12 @@ namespace Stashbox.Resolution
 
             var key = this.GetKey(typeInfo.Type, typeInfo.DependencyName);
             return this.wrapperDelegates.GetOrDefault(wrappedType, key);
+        }
+
+        public Delegate GetFactoryDelegateCacheOrDefault(TypeInformation typeInfo, Type parameterType)
+        {
+            var key = this.GetKey(parameterType, typeInfo.DependencyName);
+            return this.factoryDelegates.GetOrDefault(typeInfo.Type, key);
         }
 
         public Func<object> GetDelegateCacheOrDefault(TypeInformation typeInfo)
@@ -42,6 +50,12 @@ namespace Stashbox.Resolution
             this.typeMap.Store(typeInfo.DelegateReturnType.GetHashCode(), typeInfo.WrappedType);
             this.wrapperDelegates.AddOrUpdate(typeInfo.WrappedType, key, factory);
         }
+
+        public void AddFactoryDelegate(TypeInformation typeInfo, Type parameterType, Delegate factory)
+        {
+            var key = this.GetKey(parameterType, typeInfo.DependencyName);
+            this.factoryDelegates.AddOrUpdate(typeInfo.Type, key, factory);
+        }
         public void AddServiceDelegate(TypeInformation typeInfo, Func<object> factory)
         {
             if (typeInfo.DependencyName == null)
@@ -54,6 +68,7 @@ namespace Stashbox.Resolution
         {
             this.serviceDelegates.Clear(typeInfo.Type);
             this.wrapperDelegates.Clear(typeInfo.Type);
+            this.factoryDelegates.Clear(typeInfo.Type);
             this.keyedServiceDelegates.Clear(this.GetKey(typeInfo.Type, typeInfo.DependencyName));
         }
 

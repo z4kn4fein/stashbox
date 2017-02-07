@@ -3,6 +3,7 @@ using Stashbox.Infrastructure;
 using System;
 using System.Collections.Generic;
 using Stashbox.Entity.Resolution;
+using Stashbox.Infrastructure.Registration;
 using static Stashbox.Configuration.Rules;
 
 namespace Stashbox.Configuration

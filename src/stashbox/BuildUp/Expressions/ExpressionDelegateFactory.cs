@@ -5,6 +5,7 @@ using Stashbox.Entity;
 using Stashbox.Entity.Resolution;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.ContainerExtension;
+using Stashbox.Infrastructure.Resolution;
 
 namespace Stashbox.BuildUp.Expressions
 {

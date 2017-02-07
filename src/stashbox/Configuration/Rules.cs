@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Stashbox.Entity.Resolution;
+using Stashbox.Infrastructure.Registration;
 
 namespace Stashbox.Configuration
 {

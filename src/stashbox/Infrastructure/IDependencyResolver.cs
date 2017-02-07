@@ -1,5 +1,4 @@
-﻿using Stashbox.Overrides;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace Stashbox.Infrastructure
@@ -14,9 +13,8 @@ namespace Stashbox.Infrastructure
         /// </summary>
         /// <typeparam name="TKey">The type of the requested instance.</typeparam>
         /// <param name="name">The name of the requested registration.</param>
-        /// <param name="overrides">Parameter overrides.</param>
         /// <returns>The resolved object.</returns>
-        TKey Resolve<TKey>(string name = null, params TypeOverride[] overrides)
+        TKey Resolve<TKey>(string name = null)
            where TKey : class;
 
         /// <summary>
@@ -24,26 +22,32 @@ namespace Stashbox.Infrastructure
         /// </summary>
         /// <param name="typeFrom">The type of the requested instance.</param>
         /// <param name="name">The name of the requested registration.</param>
-        /// <param name="overrides">Parameter overrides.</param>
         /// <returns>The resolved object.</returns>
-        object Resolve(Type typeFrom, string name = null, params TypeOverride[] overrides);
+        object Resolve(Type typeFrom, string name = null);
 
         /// <summary>
         /// Resolves all registered types of a service.
         /// </summary>
         /// <typeparam name="TKey">The type of the requested instance.</typeparam>
-        /// <param name="overrides">Parameter overrides.</param>
         /// <returns>The resolved object.</returns>
-        IEnumerable<TKey> ResolveAll<TKey>(params TypeOverride[] overrides)
+        IEnumerable<TKey> ResolveAll<TKey>()
              where TKey : class;
 
         /// <summary>
         /// Resolves all registered types of a service.
         /// </summary>
         /// <param name="typeFrom">The type of the requested instances.</param>
-        /// <param name="overrides">Parameter overrides.</param>
         /// <returns>The resolved object.</returns>
-        IEnumerable<object> ResolveAll(Type typeFrom, params TypeOverride[] overrides);
+        object ResolveAll(Type typeFrom);
+
+        /// <summary>
+        /// Returns with a factory method which can be used to activate a type.
+        /// </summary>
+        /// <param name="typeFrom">The type of the requested instances.</param>
+        /// <param name="parameterType">The parameter type.</param>
+        /// <param name="name">The name of the requested registration.</param>
+        /// <returns>The factory delegate.</returns>
+        Delegate ResolveFactory(Type typeFrom, Type parameterType, string name = null);
 
         /// <summary>
         /// Builds up an instance, the container will perform injections and extensions on it.

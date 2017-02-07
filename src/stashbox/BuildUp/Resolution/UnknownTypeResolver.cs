@@ -2,6 +2,7 @@
 using Stashbox.Entity;
 using Stashbox.Exceptions;
 using Stashbox.Infrastructure;
+using Stashbox.Infrastructure.Resolution;
 
 namespace Stashbox.BuildUp.Resolution
 {
@@ -9,8 +10,7 @@ namespace Stashbox.BuildUp.Resolution
     {
         public UnknownTypeResolver(IContainerContext containerContext, TypeInformation typeInfo) 
             :base(containerContext, typeInfo)
-        {
-        }
+        { }
 
         public override Expression GetExpression(ResolutionInfo resolutionInfo)
         {
