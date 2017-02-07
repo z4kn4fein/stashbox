@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Stashbox.BuildUp.Expressions;
 
 namespace Stashbox.MetaInfo
 {
@@ -74,9 +73,10 @@ namespace Stashbox.MetaInfo
         private bool TryGetConstructor(IEnumerable<ConstructorInformation> constructors, out ResolutionConstructor resolutionConstructor,
             ResolutionInfo resolutionInfo, InjectionParameter[] injectionParameters = null)
         {
-            var usableConstructors = this.CreateResolutionConstructors(constructors, resolutionInfo, injectionParameters).ToArray();
+            var usableConstructors = this.CreateResolutionConstructors(constructors, resolutionInfo, injectionParameters)
+                .Where(ctor => ctor.Parameters.All(param => param.IsValid())).ToArray();
 
-            if (usableConstructors.Any(constructor => constructor.Parameters.All(param => param.IsValid())))
+            if (usableConstructors.Any())
             {
                 resolutionConstructor = this.SelectBestConstructor(usableConstructors);
                 return true;

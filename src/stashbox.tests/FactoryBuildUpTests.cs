@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Stashbox.Attributes;
+using Stashbox.Entity;
 
 namespace Stashbox.Tests
 {
@@ -48,6 +49,25 @@ namespace Stashbox.Tests
 
                 Assert.IsInstanceOfType(inst.Test, typeof(Test));
                 Assert.AreEqual("test", inst.Test.Name);
+            }
+        }
+
+        [TestMethod]
+        public void FactoryBuildUpTests_Resolve_NotSame()
+        {
+            using (var container = new StashboxContainer())
+            {
+                container.PrepareType<ITest, Test>().WithInjectionParameters(new InjectionParameter { Value = "test", Name = "name" }).Register();
+                container.PrepareType<ITest1>().WithFactory(cont =>
+                {
+                    var test1 = cont.Resolve<ITest>();
+                    return new Test12(test1);
+                }).Register();
+
+                var inst1 = container.Resolve<ITest1>();
+                var inst2 = container.Resolve<ITest1>();
+
+                Assert.AreNotSame(inst1.Test, inst2.Test);
             }
         }
 

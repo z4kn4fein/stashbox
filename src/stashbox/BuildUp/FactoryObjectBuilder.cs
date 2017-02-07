@@ -2,7 +2,6 @@
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.ContainerExtension;
 using System;
-using System.Linq;
 using System.Linq.Expressions;
 using Stashbox.BuildUp.Expressions;
 
@@ -42,7 +41,13 @@ namespace Stashbox.BuildUp
         
         public Expression GetExpression(ResolutionInfo resolutionInfo, TypeInformation resolveType)
         {
-            var expr = this.containerFactory == null ? Expression.Constant(this.singleFactory()) : Expression.Constant(this.containerFactory(this.containerContext.Container));
+            Expression<Func<object>> lamdba;
+            if (this.containerFactory != null)
+                lamdba = () => this.containerFactory(this.containerContext.Container);
+            else
+                lamdba = () => this.singleFactory();
+
+            var expr = Expression.Invoke(lamdba);
             
             return ExpressionDelegateFactory.CreateFillExpression(this.containerExtensionManager, this.containerContext,
                    expr, resolutionInfo, resolveType, this.injectionParameters,
