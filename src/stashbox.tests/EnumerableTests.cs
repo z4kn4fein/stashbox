@@ -183,9 +183,11 @@ namespace Stashbox.Tests
 
             var all = container.Resolve<IEnumerable<ITest2>>();
             var all2 = (IEnumerable<ITest2>)container.ResolveAll(typeof(ITest2));
+            var all3 = container.ResolveAll(typeof(ITest2));
 
             Assert.AreEqual(2, all.Count());
             Assert.AreEqual(2, all2.Count());
+            Assert.AreEqual(2, all3.Count());
         }
 
         [TestMethod]

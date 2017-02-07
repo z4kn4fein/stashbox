@@ -30,10 +30,10 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public object ResolveAll(Type typeFrom)
+        public IEnumerable<object> ResolveAll(Type typeFrom)
         {
             var type = typeof(IEnumerable<>).MakeGenericType(typeFrom);
-            return this.Resolve(type);
+            return (IEnumerable<object>)this.Resolve(type);
         }
 
         /// <inheritdoc />

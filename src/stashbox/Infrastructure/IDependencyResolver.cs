@@ -38,7 +38,7 @@ namespace Stashbox.Infrastructure
         /// </summary>
         /// <param name="typeFrom">The type of the requested instances.</param>
         /// <returns>The resolved object.</returns>
-        object ResolveAll(Type typeFrom);
+        IEnumerable<object> ResolveAll(Type typeFrom);
 
         /// <summary>
         /// Returns with a factory method which can be used to activate a type.
