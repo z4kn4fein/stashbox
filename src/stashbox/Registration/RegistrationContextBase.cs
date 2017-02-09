@@ -38,14 +38,14 @@ namespace Stashbox.Registration
             var cache = new MetaInfoCache(this.ContainerContext.ContainerConfiguration, this.TypeTo);
             var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, cache);
 
-            this.CompleteRegistration(containerExtensionManager, update, metaInfoProvider, registrationName, originalDependencyName, registrationLifetime);
+            var objectBuilder = this.CompleteRegistration(containerExtensionManager, update, metaInfoProvider, registrationName, originalDependencyName, registrationLifetime);
 
-            this.CompleteScopeManagement(update, registrationLifetime);
+            this.CompleteScopeManagement(update, registrationLifetime, objectBuilder);
 
             return registrationInfo;
         }
 
-        private void CompleteRegistration(IContainerExtensionManager containerExtensionManager, bool update,
+        private IObjectBuilder CompleteRegistration(IContainerExtensionManager containerExtensionManager, bool update,
             MetaInfoProvider metaInfoProvider, string registrationName, string dependencyName, ILifetime registrationLifetime)
         {
             var objectBuilder = this.TypeTo.IsOpenGenericType() ? new GenericTypeObjectBuilder(this.RegistrationContextData, this.ContainerContext,
@@ -55,14 +55,15 @@ namespace Stashbox.Registration
                     metaInfoProvider);
 
             this.ContainerContext.RegistrationRepository.AddOrUpdateRegistration(this.TypeFrom, registrationName, update, registration);
-                
+
+            return objectBuilder;
         }
 
-        private void CompleteScopeManagement(bool update, ILifetime registrationLifetime)
+        private void CompleteScopeManagement(bool update, ILifetime registrationLifetime, IObjectBuilder objectBuilder)
         {
-            if (!this.RegistrationContextData.ScopeManagementEnabled &&
+            if (!registrationLifetime.IsScoped &&
                 (!this.ContainerContext.ContainerConfiguration.TrackTransientsForDisposalEnabled ||
-                 !registrationLifetime.IsTransient)) return;
+                 !registrationLifetime.IsTransient || objectBuilder.HandlesObjectDisposal)) return;
 
             var registrationItem = new ScopedRegistrationItem(this.TypeFrom, this.TypeTo, this.RegistrationContextData);
 
@@ -95,11 +96,6 @@ namespace Stashbox.Registration
         }
 
         private ILifetime ChooseLifeTime() => this.RegistrationContextData.ExistingInstance != null ? new TransientLifetime() :
-                                            RegistrationContextData.ScopeManagementEnabled ? new SingletonLifetime() :
-                                                this.RegistrationContextData.Lifetime ?? this.GetTransientLifeTime();
-
-        private ILifetime GetTransientLifeTime() => this.ContainerContext.ContainerConfiguration.TrackTransientsForDisposalEnabled
-                ? (ILifetime) new ContainerTrackedTransientLifetime()
-                : new TransientLifetime();
+                                                this.RegistrationContextData.Lifetime ?? new TransientLifetime();
     }
 }

@@ -106,13 +106,7 @@ namespace Stashbox.Registration
             base.RegistrationContextData.Name = name;
             return this;
         }
-
-        public IRegistrationContext WithScopeManagement()
-        {
-            base.RegistrationContextData.ScopeManagementEnabled = true;
-            return this;
-        }
-
+        
         public IRegistrationContext WithInstance(object instance)
         {
             base.RegistrationContextData.ExistingInstance = instance;

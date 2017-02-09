@@ -168,7 +168,7 @@ namespace Stashbox
             where TFrom : class
             where TTo : class, TFrom
         {
-            this.PrepareType<TFrom, TTo>().WithName(name).WithScopeManagement().Register();
+            this.PrepareType<TFrom, TTo>().WithName(name).WithLifetime(new ScopedLifetime()).Register();
             return this;
         }
 
@@ -178,7 +178,7 @@ namespace Stashbox
             Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
             Shield.EnsureNotNull(typeTo, nameof(typeTo));
 
-            this.PrepareType(typeFrom, typeTo).WithName(name).WithScopeManagement().Register();
+            this.PrepareType(typeFrom, typeTo).WithName(name).WithLifetime(new ScopedLifetime()).Register();
             return this;
         }
 
@@ -186,7 +186,7 @@ namespace Stashbox
         public IDependencyRegistrator RegisterScoped<TTo>(string name = null)
             where TTo : class
         {
-            this.PrepareType<TTo>().WithName(name).WithScopeManagement().Register();
+            this.PrepareType<TTo>().WithName(name).WithLifetime(new ScopedLifetime()).Register();
             return this;
         }
 

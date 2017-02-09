@@ -46,7 +46,9 @@ namespace Stashbox.BuildUp
             newData.Name = null;
             registrationContext.InitFromScope(newData);
         }
-        
+
+        public bool HandlesObjectDisposal => false;
+
         public void CleanUp()
         {
         }

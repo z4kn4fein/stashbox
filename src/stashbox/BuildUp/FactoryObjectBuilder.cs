@@ -54,7 +54,9 @@ namespace Stashbox.BuildUp
                    this.metaInfoProvider.GetResolutionMembers(resolutionInfo, this.injectionParameters), 
                    this.metaInfoProvider.GetResolutionMethods(resolutionInfo, this.injectionParameters));
         }
-        
+
+        public bool HandlesObjectDisposal => false;
+
         public void CleanUp()
         { }
     }

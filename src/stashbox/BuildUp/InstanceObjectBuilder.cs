@@ -19,6 +19,8 @@ namespace Stashbox.BuildUp
             return Expression.Constant(this.instance);
         }
 
+        public bool HandlesObjectDisposal => true;
+
         public void CleanUp()
         {
             if (this.instance == null) return;

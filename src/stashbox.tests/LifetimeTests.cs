@@ -81,14 +81,17 @@ namespace Stashbox.Tests
         {
             var transient = new TransientLifetime();
             Assert.IsTrue(transient.IsTransient);
+            Assert.IsFalse(transient.IsScoped);
             Assert.IsInstanceOfType(transient.Create(), typeof(TransientLifetime));
 
-            var controlledTransient = new ContainerTrackedTransientLifetime();
-            Assert.IsTrue(controlledTransient.IsTransient);
-            Assert.IsInstanceOfType(controlledTransient.Create(), typeof(ContainerTrackedTransientLifetime));
+            var scoped = new ScopedLifetime();
+            Assert.IsFalse(scoped.IsTransient);
+            Assert.IsTrue(scoped.IsScoped);
+            Assert.IsInstanceOfType(scoped.Create(), typeof(ScopedLifetime));
 
             var singleton = new SingletonLifetime();
             Assert.IsFalse(singleton.IsTransient);
+            Assert.IsFalse(singleton.IsScoped);
             Assert.IsInstanceOfType(singleton.Create(), typeof(SingletonLifetime));
         }
 

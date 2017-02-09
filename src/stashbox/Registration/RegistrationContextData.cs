@@ -51,12 +51,7 @@ namespace Stashbox.Registration
         public HashSet<Type> AttributeConditions { get; set; }
 
         /// <summary>
-        /// Indicates that the scope management enabled or not on this registration.
-        /// </summary>
-        public bool ScopeManagementEnabled { get; set; }
-
-        /// <summary>
-        /// Indicates that the scope management enabled or not on this registration.
+        /// The stored instance.
         /// </summary>
         public object ExistingInstance { get; set; }
 

@@ -101,13 +101,7 @@ namespace Stashbox.Infrastructure.Registration
         /// <param name="resolutionCondition">The predicate.</param>
         /// <returns>The <see cref="IRegistrationContext"/> which on this method was called.</returns>
         IRegistrationContext When(Func<TypeInformation, bool> resolutionCondition);
-
-        /// <summary>
-        /// Enables scope management on the registration.
-        /// </summary>
-        /// <returns>The <see cref="IRegistrationContext"/> which on this method was called.</returns>
-        IRegistrationContext WithScopeManagement();
-
+        
         /// <summary>
         /// Registers the registration into the container.
         /// </summary>

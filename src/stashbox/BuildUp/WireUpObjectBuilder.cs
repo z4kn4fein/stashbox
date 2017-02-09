@@ -45,6 +45,8 @@ namespace Stashbox.BuildUp
             }
         }
 
+        public bool HandlesObjectDisposal => true;
+
         public void CleanUp()
         {
             if (this.instance == null) return;

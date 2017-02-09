@@ -90,7 +90,7 @@
         <Compile Include="..\..\stashbox\Infrastructure\Resolution\IResolutionStrategy.cs" />
         <Compile Include="..\..\stashbox\Lifetime\LifetimeBase.cs" />
         <Compile Include="..\..\stashbox\Lifetime\SingletonLifetime.cs" />
-        <Compile Include="..\..\stashbox\Lifetime\ContainerTrackedTransientLifetime.cs" />
+        <Compile Include="..\..\stashbox\Lifetime\ScopedLifetime.cs" />
         <Compile Include="..\..\stashbox\MetaInfo\MetaInfoCache.cs" />
         <Compile Include="..\..\stashbox\Registration\RegistrationContext.cs" />
         <Compile Include="..\..\stashbox\Registration\RegistrationContextBase.cs" />

@@ -35,6 +35,8 @@ namespace Stashbox.BuildUp
                 return this.GetExpressionInternal(resolutionInfo, resolveType);
         }
 
+        public bool HandlesObjectDisposal => false;
+
         private Expression GetExpressionInternal(ResolutionInfo resolutionInfo, TypeInformation resolveType)
         {
             ResolutionConstructor constructor;

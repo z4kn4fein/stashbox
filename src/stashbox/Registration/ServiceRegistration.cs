@@ -44,7 +44,7 @@ namespace Stashbox.Registration
 
         /// <inheritdoc />
         public string RegistrationName { get; }
-        
+
         /// <inheritdoc />
         public bool IsUsableForCurrentContext(TypeInformation typeInfo) => (this.targetTypeCondition == null && this.resolutionCondition == null && (this.attributeConditions == null || !this.attributeConditions.Any())) ||
                    (this.targetTypeCondition != null && typeInfo.ParentType != null && this.targetTypeCondition == typeInfo.ParentType) ||
@@ -81,7 +81,21 @@ namespace Stashbox.Registration
         }
 
         /// <inheritdoc />
-        public Expression GetExpression(ResolutionInfo resolutionInfo, TypeInformation resolveType) =>
-                this.lifetimeManager.GetExpression(this.containerContext, this.objectBuilder, resolutionInfo, resolveType);
+        public Expression GetExpression(ResolutionInfo resolutionInfo, TypeInformation resolveType)
+        {
+            var expr = this.lifetimeManager.GetExpression(this.containerContext, this.objectBuilder, resolutionInfo, resolveType);
+            if (!this.containerContext.ContainerConfiguration.TrackTransientsForDisposalEnabled ||
+                !this.lifetimeManager.IsTransient || this.objectBuilder.HandlesObjectDisposal) return expr;
+
+            var call = Expression.Call(Expression.Constant(this), "AddTransientObjectTracking", null, expr);
+            return Expression.Convert(call, resolveType.Type);
+        }
+
+        private object AddTransientObjectTracking(object instance)
+        {
+            if (instance is IDisposable)
+                this.containerContext.TrackedTransientObjects.Add(instance);
+            return instance;
+        }
     }
 }

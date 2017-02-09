@@ -10,9 +10,15 @@ namespace Stashbox.Infrastructure
     public interface ILifetime
     {
         /// <summary>
-        /// Indicates that this life time manager holds or doesn't hold any reference to the resolved object.
+        /// Indicates that the lifetime manager stores or doesn't store any reference to the resolved object.
+        /// If it's set to true and the tracking for transient disposal objects is enabled, the registration will be copied between scopes and the output will be tracked for disposal.
         /// </summary>
         bool IsTransient { get; }
+
+        /// <summary>
+        /// Indicates that the registration which is registered with this lifetime should be copied between scopes and will produce a new instance in every scope.
+        /// </summary>
+        bool IsScoped { get; }
 
         /// <summary>
         /// Gets the expression for getting the instance managed by the <see cref="ILifetime"/>

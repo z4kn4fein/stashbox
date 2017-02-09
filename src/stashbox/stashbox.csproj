@@ -88,8 +88,8 @@
     <Compile Include="Infrastructure\Registration\IRegistrationContext.cs" />
     <Compile Include="Infrastructure\Resolution\IResolutionStrategy.cs" />
     <Compile Include="Lifetime\LifetimeBase.cs" />
+    <Compile Include="Lifetime\ScopedLifetime.cs" />
     <Compile Include="Lifetime\SingletonLifetime.cs" />
-    <Compile Include="Lifetime\ContainerTrackedTransientLifetime.cs" />
     <Compile Include="MetaInfo\MetaInfoCache.cs" />
     <Compile Include="Registration\RegistrationContext.cs" />
     <Compile Include="Registration\RegistrationContextBase.cs" />
