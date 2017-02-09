@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using Stashbox.Entity;
@@ -18,6 +19,20 @@ namespace Stashbox.BuildUp.Expressions
         static ExpressionDelegateFactory()
         {
             buildExtensionMethod = typeof(IContainerExtensionManager).GetTypeInfo().GetDeclaredMethod("ExecutePostBuildExtensions");
+        }
+        
+        public static Func<object> CompileObjectExpression(Expression expression)
+        {
+            Func<object> factory;
+            if (expression.NodeType == ExpressionType.Constant)
+            {
+                var instance = ((ConstantExpression)expression).Value;
+                factory = () => instance;
+            }
+            else
+                factory = Expression.Lambda<Func<object>>(expression).Compile();
+
+            return factory;
         }
 
         public static Expression CreateFillExpression(IContainerExtensionManager extensionManager, IContainerContext containerContext, Expression instance,

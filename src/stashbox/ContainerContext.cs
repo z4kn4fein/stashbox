@@ -28,7 +28,7 @@ namespace Stashbox
             this.TrackedTransientObjects = new ConcurrentStore<object>();
             this.ContainerConfiguration = containerConfiguration;
         }
-
+        
         /// <inheritdoc />
         public IRegistrationRepository RegistrationRepository { get; }
 

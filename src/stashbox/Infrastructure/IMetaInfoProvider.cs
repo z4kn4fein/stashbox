@@ -8,8 +8,6 @@ namespace Stashbox.Infrastructure
     internal interface IMetaInfoProvider
     {
         Type TypeTo { get; }
-        bool HasInjectionMethod { get; }
-        bool HasInjectionMembers { get; }
         bool HasGenericTypeConstraints { get; }
         HashSet<Type> SensitivityList { get; }
         bool TryChooseConstructor(out ResolutionConstructor constructor, ResolutionInfo resolutionInfo, InjectionParameter[] injectionParameters = null);

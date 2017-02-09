@@ -14,17 +14,15 @@ namespace Stashbox.BuildUp
         {
             if (set.Contains(type))
                 throw new CircularDependencyException(type.FullName);
-            else
-            {
-                set.Add(type);
-                this.set = set;
-                this.type = type;
-            }
+
+            set.Add(type);
+            this.set = set;
+            this.type = type;
         }
 
         public void Dispose()
         {
-            this.set?.Remove(type);
+            this.set?.Remove(this.type);
         }
     }
 }

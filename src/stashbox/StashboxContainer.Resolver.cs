@@ -3,6 +3,7 @@ using Stashbox.MetaInfo;
 using Stashbox.Utils;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using Stashbox.BuildUp.Expressions;
 
@@ -37,18 +38,17 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public Delegate ResolveFactory(Type typeFrom, Type parameterType, string name = null)
+        public Delegate ResolveFactory(Type typeFrom, string name = null, params Type[] parameterTypes)
         {
             Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
-            Shield.EnsureNotNull(parameterType, nameof(parameterType));
 
             var typeInfo = new TypeInformation { Type = typeFrom, DependencyName = name };
             var resolutionInfo = new ResolutionInfo
             {
-                ParameterExpressions = new[] { Expression.Parameter(parameterType) }
+                ParameterExpressions = parameterTypes.Length == 0 ? null : parameterTypes.Select(Expression.Parameter).ToArray()
             };
 
-            return this.activationContext.ActivateFactory(resolutionInfo, typeInfo, parameterType);
+            return this.activationContext.ActivateFactory(resolutionInfo, typeInfo, parameterTypes);
         }
 
         /// <inheritdoc />

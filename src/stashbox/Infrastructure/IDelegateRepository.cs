@@ -26,9 +26,9 @@ namespace Stashbox.Infrastructure
         /// Gets a cached factory method.
         /// </summary>
         /// <param name="typeInfo">The type info.</param>
-        /// <param name="parameterType">The parameter type.</param>
+        /// <param name="parameterTypes">The parameter types.</param>
         /// <returns>The cached factory delegate.</returns>
-        Delegate GetFactoryDelegateCacheOrDefault(TypeInformation typeInfo, Type parameterType);
+        Delegate GetFactoryDelegateCacheOrDefault(TypeInformation typeInfo, Type[] parameterTypes);
 
         /// <summary>
         /// Adds a service delegate into the repository.
@@ -48,9 +48,9 @@ namespace Stashbox.Infrastructure
         /// Adds a factory delegate into the repository.
         /// </summary>
         /// <param name="typeInfo">The type info.</param>
-        /// <param name="parameterType">The parameter type.</param>
+        /// <param name="parameterTypes">The parameter type.</param>
         /// <param name="factory">The factory delegate.</param>
-        void AddFactoryDelegate(TypeInformation typeInfo, Type parameterType, Delegate factory);
+        void AddFactoryDelegate(TypeInformation typeInfo, Type[] parameterTypes, Delegate factory);
 
         /// <summary>
         /// Invalidates a service delegate in the repository.

@@ -44,10 +44,10 @@ namespace Stashbox.Infrastructure
         /// Returns with a factory method which can be used to activate a type.
         /// </summary>
         /// <param name="typeFrom">The type of the requested instances.</param>
-        /// <param name="parameterType">The parameter type.</param>
         /// <param name="name">The name of the requested registration.</param>
+        /// <param name="parameterTypes">The parameter type.</param>
         /// <returns>The factory delegate.</returns>
-        Delegate ResolveFactory(Type typeFrom, Type parameterType, string name = null);
+        Delegate ResolveFactory(Type typeFrom, string name = null, params Type[] parameterTypes);
 
         /// <summary>
         /// Builds up an instance, the container will perform injections and extensions on it.

@@ -71,7 +71,7 @@ namespace Stashbox.Tests
             inst1.Name = "test1";
             container.Resolve<ITest2>();
 
-            var factory = container.ResolveFactory(typeof(ITest2), typeof(ITest1));
+            var factory = container.ResolveFactory(typeof(ITest2), parameterTypes: typeof(ITest1));
             var inst2 = ((Func<ITest1, ITest2>)factory)(inst1);
 
             Assert.IsInstanceOfType(inst2, typeof(Test2));
@@ -89,7 +89,7 @@ namespace Stashbox.Tests
             inst1.Name = "test1";
             container.Resolve<ITest2>();
 
-            var factory = container.ResolveFactory(typeof(Lazy<ITest2>), typeof(ITest1));
+            var factory = container.ResolveFactory(typeof(Lazy<ITest2>), parameterTypes: typeof(ITest1));
             var inst2 = ((Func<ITest1, Lazy<ITest2>>)factory)(inst1);
 
             Assert.IsInstanceOfType(inst2, typeof(Lazy<ITest2>));

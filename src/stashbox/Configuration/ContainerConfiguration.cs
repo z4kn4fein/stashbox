@@ -1,10 +1,7 @@
-﻿using Stashbox.Entity;
-using Stashbox.Infrastructure;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Stashbox.Entity.Resolution;
 using Stashbox.Infrastructure.Registration;
-using static Stashbox.Configuration.Rules;
 
 namespace Stashbox.Configuration
 {
@@ -33,7 +30,9 @@ namespace Stashbox.Configuration
 
         internal bool MemberInjectionWithoutAnnotationEnabled { get; private set; }
 
-        internal AutoMemberInjection MemberInjectionWithoutAnnotationRule { get; private set; }
+        internal bool CircularDependenciesWithLazyEnabled { get; private set; }
+
+        internal Rules.AutoMemberInjection MemberInjectionWithoutAnnotationRule { get; private set; }
 
         internal Func<IEnumerable<ResolutionConstructor>, ResolutionConstructor> ConstructorSelectionRule { get; private set; }
 
@@ -72,6 +71,16 @@ namespace Stashbox.Configuration
         }
 
         /// <summary>
+        /// Enables the circular dependency tracking.
+        /// </summary>
+        /// <returns>The container configuration.</returns>
+        public ContainerConfiguration WithCircularDependencyWithLazy()
+        {
+            this.CircularDependenciesWithLazyEnabled = true;
+            return this;
+        }
+
+        /// <summary>
         /// Enables the optional and default value injection.
         /// </summary>
         /// <returns>The container configuration.</returns>
@@ -95,7 +104,7 @@ namespace Stashbox.Configuration
         /// Enables the member injection without annotation.
         /// </summary>
         /// <returns>The container configuration.</returns>
-        public ContainerConfiguration WithMemberInjectionWithoutAnnotation(AutoMemberInjection rule)
+        public ContainerConfiguration WithMemberInjectionWithoutAnnotation(Rules.AutoMemberInjection rule)
         {
             this.MemberInjectionWithoutAnnotationEnabled = true;
             this.MemberInjectionWithoutAnnotationRule = rule;
@@ -140,6 +149,7 @@ namespace Stashbox.Configuration
             this.OptionalAndDefaultValueInjectionEnabled = false;
             this.UnknownTypeResolutionEnabled = false;
             this.MemberInjectionWithoutAnnotationEnabled = false;
+            this.CircularDependenciesWithLazyEnabled = false;
         }
     }
 }

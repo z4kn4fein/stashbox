@@ -39,7 +39,7 @@ namespace Stashbox
             this.registrationRepository = new RegistrationRepository(configuration);
             this.ContainerContext = new ContainerContext(this.registrationRepository, new DelegateRepository(), this,
                 new ResolutionStrategy(this.resolverSelector), this.resolverSelector, configuration);
-            this.activationContext = new ActivationContext(this.resolverSelector, this.ContainerContext);
+            this.activationContext = new ActivationContext(this.ContainerContext, this.resolverSelector);
 
             this.RegisterResolvers();
         }
@@ -54,7 +54,7 @@ namespace Stashbox
             this.registrationRepository = new RegistrationRepository(parentContainer.ContainerContext.ContainerConfiguration);
             this.ContainerContext = new ContainerContext(this.registrationRepository, new DelegateRepository(), this, new ResolutionStrategy(this.resolverSelector),
                 this.resolverSelector, parentContainer.ContainerContext.ContainerConfiguration);
-            this.activationContext = new ActivationContext(this.resolverSelector, this.ContainerContext);
+            this.activationContext = new ActivationContext(this.ContainerContext, this.resolverSelector);
             this.containerExtensionManager.ReinitalizeExtensions(this.ContainerContext);
         }
 

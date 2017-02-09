@@ -14,11 +14,10 @@ namespace Stashbox.MetaInfo
         private readonly MetaInfoCache metaInfoCache;
         private readonly Lazy<HashSet<Type>> sensitivityList;
 
+        private readonly bool hasInjectionMethod;
+        private readonly bool hasInjectionMembers;
+
         public Type TypeTo => this.metaInfoCache.TypeTo;
-
-        public bool HasInjectionMethod { get; }
-
-        public bool HasInjectionMembers { get; }
 
         public bool HasGenericTypeConstraints { get; }
 
@@ -28,8 +27,8 @@ namespace Stashbox.MetaInfo
         {
             this.containerContext = containerContext;
             this.metaInfoCache = metaInfoCache;
-            this.HasInjectionMethod = this.metaInfoCache.InjectionMethods.Any();
-            this.HasInjectionMembers = this.metaInfoCache.InjectionMembers.Any();
+            this.hasInjectionMethod = this.metaInfoCache.InjectionMethods.Any();
+            this.hasInjectionMembers = this.metaInfoCache.InjectionMembers.Any();
             this.sensitivityList = new Lazy<HashSet<Type>>(() => new HashSet<Type>(this.metaInfoCache.Constructors.SelectMany(constructor => constructor.Parameters, (constructor, parameter) => parameter.Type)
                         .Concat(this.metaInfoCache.InjectionMethods.SelectMany(method => method.Parameters, (method, parameter) => parameter.Type))
                         .Concat(this.metaInfoCache.InjectionMembers.Select(members => members.TypeInformation.Type)).Distinct()));
@@ -41,6 +40,8 @@ namespace Stashbox.MetaInfo
 
         public ResolutionMethod[] GetResolutionMethods(ResolutionInfo resolutionInfo, InjectionParameter[] injectionParameters = null)
         {
+            if (!this.hasInjectionMethod) return null;
+
             return this.metaInfoCache.InjectionMethods
                .Select(methodInfo => new ResolutionMethod
                {
@@ -50,13 +51,17 @@ namespace Stashbox.MetaInfo
                }).ToArray();
         }
 
-        public ResolutionMember[] GetResolutionMembers(ResolutionInfo resolutionInfo, InjectionParameter[] injectionParameters = null) =>
-            this.metaInfoCache.InjectionMembers
+        public ResolutionMember[] GetResolutionMembers(ResolutionInfo resolutionInfo, InjectionParameter[] injectionParameters = null)
+        {
+            if (!this.hasInjectionMembers) return null;
+
+            return this.metaInfoCache.InjectionMembers
                 .Select(memberInfo => new ResolutionMember
                 {
                     ResolutionTarget = this.containerContext.ResolutionStrategy.BuildResolutionTarget(this.containerContext, resolutionInfo, memberInfo.TypeInformation, injectionParameters),
                     MemberInfo = memberInfo.MemberInfo
                 }).ToArray();
+        }
 
         public bool ValidateGenericContraints(TypeInformation typeInformation)
         {
