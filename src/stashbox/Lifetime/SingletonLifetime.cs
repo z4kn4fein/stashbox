@@ -10,26 +10,26 @@ namespace Stashbox.Lifetime
     /// </summary>
     public class SingletonLifetime : LifetimeBase
     {
-        private volatile object instance;
+        private volatile Expression expression;
+        private object instance;
         private readonly object syncObject = new object();
 
         /// <inheritdoc />
-        public override object GetInstance(IContainerContext containerContext, IObjectBuilder objectBuilder, ResolutionInfo resolutionInfo, TypeInformation resolveType)
+        public override Expression GetExpression(IContainerContext containerContext, IObjectBuilder objectBuilder, ResolutionInfo resolutionInfo, TypeInformation resolveType)
         {
-            if (this.instance != null) return this.instance;
+            if (this.expression != null) return this.expression;
             lock (this.syncObject)
             {
-                if (this.instance != null) return this.instance;
-                this.instance = base.GetInstance(containerContext, objectBuilder, resolutionInfo, resolveType);
+                if (this.expression != null) return this.expression;
+                var expr = base.GetExpression(containerContext, objectBuilder, resolutionInfo, resolveType);
+                if (expr.NodeType == ExpressionType.New && ((NewExpression)expr).Arguments.Count == 0)
+                    this.instance = Activator.CreateInstance(expr.Type);
+                else
+                    this.instance = Expression.Lambda<Func<object>>(expr).Compile()();
+                this.expression = Expression.Constant(this.instance);
             }
 
-            return this.instance;
-        }
-
-        /// <inheritdoc />
-        public override Expression GetExpression(IContainerContext containerContext, IObjectBuilder objectBuilder, ResolutionInfo resolutionInfo, Expression resolutionInfoExpression, TypeInformation resolveType)
-        {
-            return Expression.Constant(this.GetInstance(containerContext, objectBuilder, resolutionInfo, resolveType));
+            return this.expression;
         }
 
         /// <inheritdoc />

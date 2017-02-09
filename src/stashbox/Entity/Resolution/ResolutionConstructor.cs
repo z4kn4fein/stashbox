@@ -2,10 +2,19 @@
 
 namespace Stashbox.Entity.Resolution
 {
-    internal class ResolutionConstructor
+    /// <summary>
+    /// Represents a resolution constructor
+    /// </summary>
+    public class ResolutionConstructor
     {
+        /// <summary>
+        /// The constructor info.
+        /// </summary>
         public ConstructorInfo Constructor { get; set; }
 
+        /// <summary>
+        /// The parameters of the constructor.
+        /// </summary>
         public ResolutionTarget[] Parameters { get; set; }
     }
 }

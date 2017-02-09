@@ -15,7 +15,6 @@ namespace Stashbox.BuildUp
         private readonly IContainerExtensionManager containerExtensionManager;
         private readonly IMetaInfoProvider metaInfoProvider;
         private readonly IContainerContext containerContext;
-        private readonly object syncObject = new object();
 
         public GenericTypeObjectBuilder(RegistrationContextData registrationContextData, IContainerContext containerContext,
             IMetaInfoProvider metaInfoProvider, IContainerExtensionManager containerExtensionManager)
@@ -26,34 +25,18 @@ namespace Stashbox.BuildUp
             this.containerExtensionManager = containerExtensionManager;
         }
 
-        public object BuildInstance(ResolutionInfo resolutionInfo, TypeInformation resolveType)
+        public Expression GetExpression(ResolutionInfo resolutionInfo, TypeInformation resolveType)
         {
             var genericType = this.metaInfoProvider.TypeTo.MakeGenericType(resolveType.Type.GenericTypeArguments);
             resolveType.DependencyName = NameGenerator.GetRegistrationName(resolveType.Type, genericType);
 
             this.RegisterConcreteGenericType(resolveType, genericType);
 
-            IServiceRegistration registration;
-            if (!this.containerContext.RegistrationRepository
-                .TryGetRegistrationWithConditionsWithoutGenericDefinitionExtraction(resolveType, out registration))
+            var registration = this.containerContext.RegistrationRepository.GetRegistrationOrDefault(resolveType);
+            if(registration == null)
                 throw new ResolutionFailedException(genericType.FullName);
 
-            return registration.GetInstance(resolutionInfo, resolveType);
-        }
-
-        public Expression GetExpression(ResolutionInfo resolutionInfo, Expression resolutionInfoExpression, TypeInformation resolveType)
-        {
-            var genericType = this.metaInfoProvider.TypeTo.MakeGenericType(resolveType.Type.GenericTypeArguments);
-            resolveType.DependencyName = NameGenerator.GetRegistrationName(resolveType.Type, genericType);
-
-            this.RegisterConcreteGenericType(resolveType, genericType);
-
-            IServiceRegistration registration;
-            if (!this.containerContext.RegistrationRepository
-                .TryGetRegistrationWithConditionsWithoutGenericDefinitionExtraction(resolveType, out registration))
-                throw new ResolutionFailedException(genericType.FullName);
-
-            return registration.GetExpression(resolutionInfo, resolutionInfoExpression, resolveType);
+            return registration.GetExpression(resolutionInfo, resolveType);
         }
 
         private void RegisterConcreteGenericType(TypeInformation resolveType, Type genericType)
@@ -63,11 +46,7 @@ namespace Stashbox.BuildUp
             newData.Name = null;
             registrationContext.InitFromScope(newData);
         }
-
-        public void ServiceUpdated(RegistrationInfo registrationInfo)
-        {
-        }
-
+        
         public void CleanUp()
         {
         }

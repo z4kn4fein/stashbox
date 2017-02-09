@@ -1,4 +1,4 @@
-﻿using Stashbox.Infrastructure;
+﻿using Stashbox.Infrastructure.Resolution;
 
 namespace Stashbox.Entity.Resolution
 {
@@ -21,5 +21,11 @@ namespace Stashbox.Entity.Resolution
         /// Storing an already set value for the target.
         /// </summary>
         public object ResolutionTargetValue { get; set; }
+
+        /// <summary>
+        /// Validates the resolution target.
+        /// </summary>
+        /// <returns>True if it's valid, otherwise false.</returns>
+        public bool IsValid() => this.Resolver != null || this.ResolutionTargetValue != null;
     }
 }

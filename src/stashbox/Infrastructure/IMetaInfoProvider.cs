@@ -8,13 +8,11 @@ namespace Stashbox.Infrastructure
     internal interface IMetaInfoProvider
     {
         Type TypeTo { get; }
-        bool HasInjectionMethod { get; }
-        bool HasInjectionMembers { get; }
         bool HasGenericTypeConstraints { get; }
         HashSet<Type> SensitivityList { get; }
-        bool TryChooseConstructor(out ResolutionConstructor constructor, ResolutionInfo resolutionInfo = null, InjectionParameter[] injectionParameters = null);
-        IEnumerable<ResolutionMethod> GetResolutionMethods(ResolutionInfo resolutionInfo = null, InjectionParameter[] injectionParameters = null);
-        IEnumerable<ResolutionMember> GetResolutionMembers(ResolutionInfo resolutionInfo = null, InjectionParameter[] injectionParameters = null);
+        bool TryChooseConstructor(out ResolutionConstructor constructor, ResolutionInfo resolutionInfo, InjectionParameter[] injectionParameters = null);
+        ResolutionMethod[] GetResolutionMethods(ResolutionInfo resolutionInfo, InjectionParameter[] injectionParameters = null);
+        ResolutionMember[] GetResolutionMembers(ResolutionInfo resolutionInfo, InjectionParameter[] injectionParameters = null);
         bool ValidateGenericContraints(TypeInformation typeInformation);
     }
 }

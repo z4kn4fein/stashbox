@@ -1,7 +1,8 @@
 ﻿using Stashbox.Entity;
-using Stashbox.Exceptions;
 using Stashbox.Infrastructure;
 using System.Linq.Expressions;
+using Stashbox.Infrastructure.Registration;
+using Stashbox.Infrastructure.Resolution;
 
 namespace Stashbox.BuildUp.Resolution
 {
@@ -9,22 +10,15 @@ namespace Stashbox.BuildUp.Resolution
     {
         private readonly IServiceRegistration registrationCache;
 
-        public ContainerResolver(IContainerContext containerContext, TypeInformation typeInfo)
+        public ContainerResolver(IContainerContext containerContext, TypeInformation typeInfo, IServiceRegistration serviceRegistration)
             : base(containerContext, typeInfo)
         {
-            if (!containerContext.RegistrationRepository.TryGetRegistrationWithConditions(typeInfo,
-                out this.registrationCache))
-                throw new ResolutionFailedException(typeInfo.Type.FullName);
+            this.registrationCache = serviceRegistration;
         }
 
-        public override Expression GetExpression(ResolutionInfo resolutionInfo, Expression resolutionInfoExpression)
+        public override Expression GetExpression(ResolutionInfo resolutionInfo)
         {
-            return registrationCache.GetExpression(resolutionInfo, resolutionInfoExpression, base.TypeInfo);
-        }
-
-        public override object Resolve(ResolutionInfo resolutionInfo)
-        {
-            return registrationCache.GetInstance(resolutionInfo, base.TypeInfo);
+            return registrationCache.GetExpression(resolutionInfo, base.TypeInfo);
         }
     }
 }

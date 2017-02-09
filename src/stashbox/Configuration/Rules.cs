@@ -3,6 +3,8 @@ using Stashbox.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Stashbox.Entity.Resolution;
+using Stashbox.Infrastructure.Registration;
 
 namespace Stashbox.Configuration
 {
@@ -41,19 +43,19 @@ namespace Stashbox.Configuration
             /// <summary>
             /// Prefers the constructor which has the longest parameter list.
             /// </summary>
-            public static readonly Func<IEnumerable<ConstructorInformation>, ConstructorInformation> PreferMostParameters =
+            public static readonly Func<IEnumerable<ResolutionConstructor>, ResolutionConstructor> PreferMostParameters =
                 constructors => constructors.OrderByDescending(constructor => constructor.Parameters.Length).First();
 
             /// <summary>
             /// Prefers the constructor which has the shortest parameter list.
             /// </summary>
-            public static readonly Func<IEnumerable<ConstructorInformation>, ConstructorInformation> PreferLessParameters =
+            public static readonly Func<IEnumerable<ResolutionConstructor>, ResolutionConstructor> PreferLessParameters =
                 constructors => constructors.OrderBy(constructor => constructor.Parameters.Length).First();
 
             /// <summary>
             /// Doesn't change the constructor order, it'll use the first usable constructor.
             /// </summary>
-            public static readonly Func<IEnumerable<ConstructorInformation>, ConstructorInformation> ByPass =
+            public static readonly Func<IEnumerable<ResolutionConstructor>, ResolutionConstructor> ByPass =
                 constructors => constructors.First();
         }
 

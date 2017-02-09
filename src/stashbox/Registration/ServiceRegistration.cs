@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Stashbox.Infrastructure.Registration;
 
 namespace Stashbox.Registration
 {
@@ -13,6 +14,7 @@ namespace Stashbox.Registration
     /// </summary>
     public class ServiceRegistration : IServiceRegistration
     {
+        private readonly Type serviceType;
         private readonly IContainerContext containerContext;
         private readonly ILifetime lifetimeManager;
         private readonly IObjectBuilder objectBuilder;
@@ -21,10 +23,11 @@ namespace Stashbox.Registration
         private readonly Func<TypeInformation, bool> resolutionCondition;
         private readonly MetaInfoProvider metaInfoProvider;
 
-        internal ServiceRegistration(string registrationName, IContainerContext containerContext, ILifetime lifetimeManager,
+        internal ServiceRegistration(string registrationName, Type serviceType, IContainerContext containerContext, ILifetime lifetimeManager,
             IObjectBuilder objectBuilder, MetaInfoProvider metaInfoProvider, HashSet<Type> attributeConditions = null, Type targetTypeCondition = null,
             Func<TypeInformation, bool> resolutionCondition = null)
         {
+            this.serviceType = serviceType;
             this.RegistrationName = registrationName;
             this.containerContext = containerContext;
             this.lifetimeManager = lifetimeManager;
@@ -41,11 +44,7 @@ namespace Stashbox.Registration
 
         /// <inheritdoc />
         public string RegistrationName { get; }
-
-        /// <inheritdoc />
-        public object GetInstance(ResolutionInfo resolutionInfo, TypeInformation resolveType) =>
-            this.lifetimeManager.GetInstance(this.containerContext, this.objectBuilder, resolutionInfo, resolveType);
-
+        
         /// <inheritdoc />
         public bool IsUsableForCurrentContext(TypeInformation typeInfo) => (this.targetTypeCondition == null && this.resolutionCondition == null && (this.attributeConditions == null || !this.attributeConditions.Any())) ||
                    (this.targetTypeCondition != null && typeInfo.ParentType != null && this.targetTypeCondition == typeInfo.ParentType) ||
@@ -58,12 +57,21 @@ namespace Stashbox.Registration
             (this.attributeConditions != null && this.attributeConditions.Any());
 
         /// <inheritdoc />
-        public bool ValidateGenericContraints(TypeInformation typeInformation) =>
-            !this.metaInfoProvider.HasGenericTypeConstraints || this.metaInfoProvider.ValidateGenericContraints(typeInformation);
+        public bool ValidateGenericContraints(TypeInformation typeInformation) => !this.metaInfoProvider.HasGenericTypeConstraints ||
+            this.metaInfoProvider.HasGenericTypeConstraints && this.metaInfoProvider.ValidateGenericContraints(typeInformation);
 
         /// <inheritdoc />
-        public void ServiceUpdated(RegistrationInfo registrationInfo) =>
-            this.objectBuilder.ServiceUpdated(registrationInfo);
+        public void ServiceUpdated(RegistrationInfo registrationInfo)
+        {
+            if (this.metaInfoProvider.SensitivityList.Contains(registrationInfo.TypeFrom))
+            {
+                this.containerContext.DelegateRepository.InvalidateDelegateCache(new TypeInformation
+                {
+                    Type = this.serviceType,
+                    DependencyName = this.RegistrationName
+                });
+            }
+        }
 
         /// <inheritdoc />
         public void CleanUp()
@@ -73,7 +81,7 @@ namespace Stashbox.Registration
         }
 
         /// <inheritdoc />
-        public Expression GetExpression(ResolutionInfo resolutionInfo, Expression resolutionInfoExpression, TypeInformation resolveType) =>
-            this.lifetimeManager.GetExpression(this.containerContext, this.objectBuilder, resolutionInfo, resolutionInfoExpression, resolveType);
+        public Expression GetExpression(ResolutionInfo resolutionInfo, TypeInformation resolveType) =>
+                this.lifetimeManager.GetExpression(this.containerContext, this.objectBuilder, resolutionInfo, resolveType);
     }
 }

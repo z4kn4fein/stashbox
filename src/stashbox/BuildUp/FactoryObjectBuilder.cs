@@ -2,9 +2,8 @@
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.ContainerExtension;
 using System;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
+using Stashbox.BuildUp.Expressions;
 
 namespace Stashbox.BuildUp
 {
@@ -12,90 +11,50 @@ namespace Stashbox.BuildUp
     {
         private readonly Func<IStashboxContainer, object> containerFactory;
         private readonly Func<object> singleFactory;
-        private readonly Func<object, object> oneParamsFactory;
-        private readonly Func<object, object, object> twoParamsFactory;
-        private readonly Func<object, object, object, object> threeParamsFactory;
         private readonly IContainerExtensionManager containerExtensionManager;
-        private readonly IObjectExtender objectExtender;
-        private readonly MethodInfo buildMethodInfo;
+        private readonly IMetaInfoProvider metaInfoProvider;
+        private readonly InjectionParameter[] injectionParameters;
         private readonly IContainerContext containerContext;
 
-        private FactoryObjectBuilder(IContainerContext containerContext, IContainerExtensionManager containerExtensionManager, IObjectExtender objectExtender)
+        private FactoryObjectBuilder(IContainerContext containerContext, IContainerExtensionManager containerExtensionManager,
+            IMetaInfoProvider metaInfoProvider, InjectionParameter[] injectionParameters = null)
         {
             this.containerContext = containerContext;
             this.containerExtensionManager = containerExtensionManager;
-            this.objectExtender = objectExtender;
-            this.buildMethodInfo = this.GetType().GetTypeInfo().GetDeclaredMethod("BuildInstance");
+            this.metaInfoProvider = metaInfoProvider;
+            this.injectionParameters = injectionParameters;
         }
 
-        public FactoryObjectBuilder(Func<IStashboxContainer, object> containerFactory, IContainerContext containerContext, IContainerExtensionManager containerExtensionManager, IObjectExtender objectExtender)
-            : this(containerContext, containerExtensionManager, objectExtender)
+        public FactoryObjectBuilder(Func<IStashboxContainer, object> containerFactory, IContainerContext containerContext,
+            IContainerExtensionManager containerExtensionManager, IMetaInfoProvider metaInfoProvider, InjectionParameter[] injectionParameters = null)
+            : this(containerContext, containerExtensionManager, metaInfoProvider, injectionParameters)
         {
             this.containerFactory = containerFactory;
         }
 
-        public FactoryObjectBuilder(Func<object> factory, IContainerContext containerContext, IContainerExtensionManager containerExtensionManager, IObjectExtender objectExtender)
-            : this(containerContext, containerExtensionManager, objectExtender)
+        public FactoryObjectBuilder(Func<object> factory, IContainerContext containerContext, IContainerExtensionManager containerExtensionManager,
+            IMetaInfoProvider metaInfoProvider, InjectionParameter[] injectionParameters = null)
+            : this(containerContext, containerExtensionManager, metaInfoProvider, injectionParameters)
         {
             this.singleFactory = factory;
         }
-
-        public FactoryObjectBuilder(Func<object, object> oneParamsFactory, IContainerContext containerContext, IContainerExtensionManager containerExtensionManager, IObjectExtender objectExtender)
-            : this(containerContext, containerExtensionManager, objectExtender)
+        
+        public Expression GetExpression(ResolutionInfo resolutionInfo, TypeInformation resolveType)
         {
-            this.oneParamsFactory = oneParamsFactory;
-        }
-
-        public FactoryObjectBuilder(Func<object, object, object> twoParamsFactory, IContainerContext containerContext, IContainerExtensionManager containerExtensionManager, IObjectExtender objectExtender)
-            : this(containerContext, containerExtensionManager, objectExtender)
-        {
-            this.twoParamsFactory = twoParamsFactory;
-        }
-
-        public FactoryObjectBuilder(Func<object, object, object, object> threeParamsFactory, IContainerContext containerContext, IContainerExtensionManager containerExtensionManager, IObjectExtender objectExtender)
-            : this(containerContext, containerExtensionManager, objectExtender)
-        {
-            this.threeParamsFactory = threeParamsFactory;
-        }
-
-        public object BuildInstance(ResolutionInfo resolutionInfo, TypeInformation resolveType)
-        {
-            object instance = null;
-
+            Expression<Func<object>> lamdba;
             if (this.containerFactory != null)
-                instance = this.containerFactory.Invoke(this.containerContext.Container);
+                lamdba = () => this.containerFactory(this.containerContext.Container);
+            else
+                lamdba = () => this.singleFactory();
 
-            if (this.singleFactory != null)
-                instance = this.singleFactory.Invoke();
-
-            if (this.oneParamsFactory != null)
-                instance = this.oneParamsFactory.Invoke(resolutionInfo.FactoryParams.ElementAt(0));
-
-            if (this.twoParamsFactory != null)
-                instance = this.twoParamsFactory.Invoke(resolutionInfo.FactoryParams.ElementAt(0), resolutionInfo.FactoryParams.ElementAt(1));
-
-            if (this.threeParamsFactory != null)
-                instance = this.threeParamsFactory.Invoke(
-                    resolutionInfo.FactoryParams.ElementAt(0),
-                    resolutionInfo.FactoryParams.ElementAt(1),
-                    resolutionInfo.FactoryParams.ElementAt(2));
-
-            var builtInstance = this.objectExtender.FillResolutionMembers(instance, this.containerContext, resolutionInfo);
-            builtInstance = this.objectExtender.FillResolutionMembers(builtInstance, this.containerContext, resolutionInfo);
-            return this.containerExtensionManager.ExecutePostBuildExtensions(builtInstance, this.containerContext, resolutionInfo, resolveType);
+            var expr = Expression.Invoke(lamdba);
+            
+            return ExpressionDelegateFactory.CreateFillExpression(this.containerExtensionManager, this.containerContext,
+                   expr, resolutionInfo, resolveType, this.injectionParameters,
+                   this.metaInfoProvider.GetResolutionMembers(resolutionInfo, this.injectionParameters), 
+                   this.metaInfoProvider.GetResolutionMethods(resolutionInfo, this.injectionParameters));
         }
-
-        public Expression GetExpression(ResolutionInfo resolutionInfo, Expression resolutionInfoExpression, TypeInformation resolveType)
-        {
-            var callExpression = Expression.Call(Expression.Constant(this), this.buildMethodInfo, resolutionInfoExpression, Expression.Constant(resolveType));
-            return Expression.Convert(callExpression, resolveType.Type);
-        }
-
-        public void ServiceUpdated(RegistrationInfo registrationInfo)
-        {
-            this.objectExtender.ServiceUpdated(registrationInfo);
-        }
-
+        
         public void CleanUp()
         { }
     }

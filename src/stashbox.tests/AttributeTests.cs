@@ -40,6 +40,29 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void AttributeTests_Named_Resolution()
+        {
+            var container = new StashboxContainer();
+            container.RegisterType<ITest1, Test1>("test1");
+            container.RegisterType<ITest1, Test11>("test11");
+            container.RegisterType<ITest1, Test12>("test12");
+            container.RegisterType<ITest2, Test2>("test2");
+            container.PrepareType<ITest2, Test22>().WithName("test22").Register();
+
+            var test1 = container.Resolve<ITest1>("test1");
+            var test11 = container.Resolve<ITest1>("test11");
+            var test12 = container.Resolve<ITest1>("test12");
+            var test2 = container.Resolve<ITest2>("test2");
+            var test22 = container.Resolve<ITest2>("test22");
+            
+            Assert.IsInstanceOfType(test1, typeof(Test1));
+            Assert.IsInstanceOfType(test11, typeof(Test11));
+            Assert.IsInstanceOfType(test12, typeof(Test12));
+            Assert.IsInstanceOfType(test2, typeof(Test2));
+            Assert.IsInstanceOfType(test22, typeof(Test22));
+        }
+
+        [TestMethod]
         public void AttributeTests_Parallel_Resolve()
         {
             var container = new StashboxContainer();

@@ -2,6 +2,7 @@
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.ContainerExtension;
 using System;
+using Stashbox.Infrastructure.Registration;
 
 namespace Stashbox.Registration
 {
@@ -30,6 +31,7 @@ namespace Stashbox.Registration
 
         public IStashboxContainer ReMap()
         {
+            var dependencyName = this.RegistrationContextData.Name;
             var registrationInfo = base.PrepareRegistration(this.containerExtensionManager, true);
 
             this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.ContainerContext, registrationInfo, base.RegistrationContextData.InjectionParameters);
@@ -37,13 +39,13 @@ namespace Stashbox.Registration
             foreach (var serviceRegistration in this.ContainerContext.RegistrationRepository.GetAllRegistrations())
                 serviceRegistration.ServiceUpdated(registrationInfo);
 
-            return this.ContainerContext.Container;
-        }
+            this.ContainerContext.DelegateRepository.InvalidateDelegateCache(new TypeInformation
+            {
+                Type = this.TypeFrom,
+                DependencyName = dependencyName
+            });
 
-        public IRegistrationContext WithFactory(Func<object, object, object, object> threeParametersFactory)
-        {
-            base.RegistrationContextData.ThreeParametersFactory = threeParametersFactory;
-            return this;
+            return this.ContainerContext.Container;
         }
 
         public IRegistrationContext WhenDependantIs<TTarget>(string dependencyName = null) where TTarget : class
@@ -81,19 +83,6 @@ namespace Stashbox.Registration
             base.RegistrationContextData.ContainerFactory = containerFactory;
             return this;
         }
-
-        public IRegistrationContext WithFactory(Func<object, object, object> twoParametersFactory)
-        {
-            base.RegistrationContextData.TwoParametersFactory = twoParametersFactory;
-            return this;
-        }
-
-        public IRegistrationContext WithFactory(Func<object, object> oneParameterFactory)
-        {
-            base.RegistrationContextData.OneParameterFactory = oneParameterFactory;
-            return this;
-        }
-
         public IRegistrationContext WithFactory(Func<object> singleFactory)
         {
             base.RegistrationContextData.SingleFactory = singleFactory;

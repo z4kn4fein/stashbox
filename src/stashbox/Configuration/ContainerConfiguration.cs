@@ -1,8 +1,7 @@
-﻿using Stashbox.Entity;
-using Stashbox.Infrastructure;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using static Stashbox.Configuration.Rules;
+using Stashbox.Entity.Resolution;
+using Stashbox.Infrastructure.Registration;
 
 namespace Stashbox.Configuration
 {
@@ -31,9 +30,11 @@ namespace Stashbox.Configuration
 
         internal bool MemberInjectionWithoutAnnotationEnabled { get; private set; }
 
-        internal AutoMemberInjection MemberInjectionWithoutAnnotationRule { get; private set; }
+        internal bool CircularDependenciesWithLazyEnabled { get; private set; }
 
-        internal Func<IEnumerable<ConstructorInformation>, ConstructorInformation> ConstructorSelectionRule { get; private set; }
+        internal Rules.AutoMemberInjection MemberInjectionWithoutAnnotationRule { get; private set; }
+
+        internal Func<IEnumerable<ResolutionConstructor>, ResolutionConstructor> ConstructorSelectionRule { get; private set; }
 
         internal Func<IEnumerable<IServiceRegistration>, IServiceRegistration> DependencySelectionRule { get; private set; }
 
@@ -70,6 +71,16 @@ namespace Stashbox.Configuration
         }
 
         /// <summary>
+        /// Enables the circular dependency tracking.
+        /// </summary>
+        /// <returns>The container configuration.</returns>
+        public ContainerConfiguration WithCircularDependencyWithLazy()
+        {
+            this.CircularDependenciesWithLazyEnabled = true;
+            return this;
+        }
+
+        /// <summary>
         /// Enables the optional and default value injection.
         /// </summary>
         /// <returns>The container configuration.</returns>
@@ -93,7 +104,7 @@ namespace Stashbox.Configuration
         /// Enables the member injection without annotation.
         /// </summary>
         /// <returns>The container configuration.</returns>
-        public ContainerConfiguration WithMemberInjectionWithoutAnnotation(AutoMemberInjection rule)
+        public ContainerConfiguration WithMemberInjectionWithoutAnnotation(Rules.AutoMemberInjection rule)
         {
             this.MemberInjectionWithoutAnnotationEnabled = true;
             this.MemberInjectionWithoutAnnotationRule = rule;
@@ -104,7 +115,7 @@ namespace Stashbox.Configuration
         /// Sets the constructor selection rule.
         /// </summary>
         /// <returns>The container configuration.</returns>
-        public ContainerConfiguration WithConstructorSelectionRule(Func<IEnumerable<ConstructorInformation>, ConstructorInformation> selectionRule)
+        public ContainerConfiguration WithConstructorSelectionRule(Func<IEnumerable<ResolutionConstructor>, ResolutionConstructor> selectionRule)
         {
             this.ConstructorSelectionRule = selectionRule;
             return this;
@@ -138,6 +149,7 @@ namespace Stashbox.Configuration
             this.OptionalAndDefaultValueInjectionEnabled = false;
             this.UnknownTypeResolutionEnabled = false;
             this.MemberInjectionWithoutAnnotationEnabled = false;
+            this.CircularDependenciesWithLazyEnabled = false;
         }
     }
 }

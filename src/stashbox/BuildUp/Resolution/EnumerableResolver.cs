@@ -4,59 +4,50 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Stashbox.BuildUp.Expressions;
+using Stashbox.Infrastructure.Registration;
+using Stashbox.Infrastructure.Resolution;
 
 namespace Stashbox.BuildUp.Resolution
 {
     internal class EnumerableResolver : Resolver
     {
-        private delegate object ResolverDelegate(ResolutionInfo resolutionInfo);
         private readonly IServiceRegistration[] registrationCache;
-        private ResolverDelegate resolverDelegate;
         private readonly TypeInformation enumerableType;
+        private readonly Resolver resolver;
 
         public EnumerableResolver(IContainerContext containerContext, TypeInformation typeInfo)
             : base(containerContext, typeInfo)
         {
-            this.enumerableType = new TypeInformation
-            {
-                Type = typeInfo.Type.GetEnumerableType(),
-                CustomAttributes = typeInfo.CustomAttributes,
-                ParentType = typeInfo.ParentType,
-                DependencyName = typeInfo.DependencyName
-            };
+            this.enumerableType = new TypeInformation { Type = typeInfo.Type.GetEnumerableType() };
 
-            containerContext.RegistrationRepository.TryGetTypedRepositoryRegistrations(this.enumerableType,
-                out registrationCache);
-
-            if (registrationCache != null)
-                registrationCache = base.BuilderContext.ContainerConfiguration.EnumerableOrderRule(registrationCache).ToArray();
+            var registrations = containerContext.RegistrationRepository.GetRegistrationsOrDefault(this.enumerableType);
+            if (registrations == null)
+                this.BuilderContext.ResolverSelector.TryChooseResolver(this.BuilderContext, this.enumerableType, out this.resolver);
+            else
+                registrationCache = containerContext.ContainerConfiguration.EnumerableOrderRule(registrations).ToArray();
         }
 
-        public override object Resolve(ResolutionInfo resolutionInfo)
+        public override Type WrappedType => this.enumerableType.Type;
+
+        public override Expression GetExpression(ResolutionInfo resolutionInfo)
         {
-            if (this.resolverDelegate != null) return this.resolverDelegate(resolutionInfo);
-            var parameter = Expression.Parameter(typeof(ResolutionInfo));
-            var expr = this.GetExpression(resolutionInfo, parameter);
-            expr = new ResolutionInfoParameterVisitor(parameter).Visit(expr);
-            this.resolverDelegate = Expression.Lambda<ResolverDelegate>(expr, parameter).Compile();
-
-            return this.resolverDelegate(resolutionInfo);
-        }
-
-        public override Expression GetExpression(ResolutionInfo resolutionInfo, Expression resolutionInfoExpression)
-        {
-            if (registrationCache == null)
-                return Expression.NewArrayInit(this.enumerableType.Type);
-
-            var length = registrationCache.Length;
-            var enumerableItems = new Expression[length];
-            for (var i = 0; i < length; i++)
+            if(registrationCache != null)
             {
-                enumerableItems[i] = registrationCache[i].GetExpression(resolutionInfo, resolutionInfoExpression, this.enumerableType);
+                var length = registrationCache.Length;
+                var enumerableItems = new Expression[length];
+                for (var i = 0; i < length; i++)
+                    enumerableItems[i] = registrationCache[i].GetExpression(resolutionInfo, this.enumerableType);
+
+                return Expression.NewArrayInit(this.enumerableType.Type, enumerableItems);
             }
 
-            return Expression.NewArrayInit(this.enumerableType.Type, enumerableItems);
+            if (this.resolver != null && this.resolver.CanUseForEnumerableArgumentResolution)
+            {
+                var enumerableItems = this.resolver.GetEnumerableArgumentExpressions(resolutionInfo) ?? new Expression[] { };
+                return Expression.NewArrayInit(this.enumerableType.Type, enumerableItems);
+            }
+
+            return Expression.NewArrayInit(this.enumerableType.Type);
         }
 
         public static bool IsAssignableToGenericType(Type type, Type genericType)

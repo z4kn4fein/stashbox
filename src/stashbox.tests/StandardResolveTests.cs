@@ -188,6 +188,34 @@ namespace Stashbox.Tests
             }
         }
 
+        [TestMethod]
+        public void StandardResolveTests_Resolve_MostParametersConstructor_WithoutDefault()
+        {
+            using (IStashboxContainer container = new StashboxContainer(config => 
+            config.WithConstructorSelectionRule(Rules.ConstructorSelection.PreferMostParameters)))
+            {
+                container.RegisterType(typeof(ITest1), typeof(Test1));
+                container.RegisterType(typeof(ITest2), typeof(Test22));
+
+                var inst = container.Resolve<ITest2>();
+            }
+        }
+
+        [TestMethod]
+        public void StandardResolveTests_Resolve_MostParametersConstructor()
+        {
+            using (IStashboxContainer container = new StashboxContainer(config =>
+            config.WithConstructorSelectionRule(Rules.ConstructorSelection.PreferMostParameters)
+            .WithDependencySelectionRule(Rules.DependencySelection.PreferFirstRegistered)))
+            {
+                container.RegisterType(typeof(ITest1), typeof(Test1));
+                container.RegisterType(typeof(ITest1), typeof(Test12), "test12");
+                container.RegisterType(typeof(ITest2), typeof(Test222));
+
+                var inst = container.Resolve<ITest2>();
+            }
+        }
+
         public interface ITest1 { string Name { get; set; } }
 
         public interface ITest2 { string Name { get; set; } }
@@ -219,6 +247,40 @@ namespace Stashbox.Tests
             {
                 Shield.EnsureNotNull(test1, nameof(test1));
                 Shield.EnsureTypeOf<Test1>(test1);
+            }
+        }
+
+        public class Test22 : ITest2
+        {
+            public string Name { get; set; }
+
+            public Test22(ITest1 test1)
+            {
+                Shield.EnsureNotNull(test1, nameof(test1));
+                Shield.EnsureTypeOf<Test1>(test1);
+            }
+
+            public Test22(ITest1 test1, int index)
+            {
+                Assert.Fail("Wrong constructor selected.");
+            }
+        }
+
+        public class Test222 : ITest2
+        {
+            public string Name { get; set; }
+
+            public Test222(ITest1 test1)
+            {
+                Assert.Fail("Wrong constructor selected.");
+            }
+
+            public Test222(ITest1 test1, [Dependency("test12")]ITest1 test2)
+            {
+                Shield.EnsureNotNull(test1, nameof(test1));
+                Shield.EnsureNotNull(test2, nameof(test2));
+                Shield.EnsureTypeOf<Test1>(test1);
+                Shield.EnsureTypeOf<Test12>(test2);
             }
         }
 

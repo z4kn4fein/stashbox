@@ -1,66 +1,55 @@
-﻿using Stashbox.BuildUp.Resolution;
-using Stashbox.Entity;
-using Stashbox.Exceptions;
-using Stashbox.Infrastructure;
+﻿using Stashbox.Entity;
 using Stashbox.MetaInfo;
-using Stashbox.Overrides;
 using Stashbox.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
+using Stashbox.BuildUp.Expressions;
 
 namespace Stashbox
 {
     public partial class StashboxContainer
     {
         /// <inheritdoc />
-        public TKey Resolve<TKey>(string name = null, IEnumerable<object> factoryParameters = null, IEnumerable<Override> overrides = null) where TKey : class
+        public TKey Resolve<TKey>(string name = null) where TKey : class
         {
-            return this.ResolveInternal(typeof(TKey), overrides, name, factoryParameters) as TKey;
+            return this.ResolveInternal(typeof(TKey), name) as TKey;
         }
 
         /// <inheritdoc />
-        public object Resolve(Type typeFrom, string name = null, IEnumerable<object> factoryParameters = null, IEnumerable<Override> overrides = null)
+        public object Resolve(Type typeFrom, string name = null)
         {
             Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
-            return this.ResolveInternal(typeFrom, overrides, name, factoryParameters);
+            return this.ResolveInternal(typeFrom, name);
         }
 
         /// <inheritdoc />
-        public IEnumerable<TKey> ResolveAll<TKey>(IEnumerable<object> factoryParameters = null, IEnumerable<Override> overrides = null) where TKey : class
+        public IEnumerable<TKey> ResolveAll<TKey>() where TKey : class
         {
-            var type = typeof(TKey);
-            var factoryParams = factoryParameters as object[] ?? factoryParameters?.ToArray();
-            var typeInfo = new TypeInformation { Type = type };
-            IServiceRegistration[] registrations;
-            if (!this.registrationRepository.TryGetTypedRepositoryRegistrations(typeInfo, out registrations)) yield break;
-            var overridesEnumerated = overrides as Override[] ?? overrides?.ToArray();
-            foreach (var registration in registrations)
-            {
-                yield return registration.GetInstance(new ResolutionInfo()
-                {
-                    OverrideManager = overridesEnumerated == null ? null : new OverrideManager(overridesEnumerated),
-                    FactoryParams = factoryParams,
-                }, typeInfo) as TKey;
-            }
+            return this.Resolve<IEnumerable<TKey>>();
         }
 
         /// <inheritdoc />
-        public IEnumerable<object> ResolveAll(Type typeFrom, IEnumerable<object> factoryParameters = null, IEnumerable<Override> overrides = null)
+        public IEnumerable<object> ResolveAll(Type typeFrom)
         {
-            var factoryParams = factoryParameters as object[] ?? factoryParameters?.ToArray();
-            var typeInfo = new TypeInformation { Type = typeFrom };
-            IServiceRegistration[] registrations;
-            if (!this.registrationRepository.TryGetTypedRepositoryRegistrations(typeInfo, out registrations)) yield break;
-            var overridesEnumerated = overrides as Override[] ?? overrides?.ToArray();
-            foreach (var registration in registrations)
+            Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
+            var type = typeof(IEnumerable<>).MakeGenericType(typeFrom);
+            return (IEnumerable<object>)this.Resolve(type);
+        }
+
+        /// <inheritdoc />
+        public Delegate ResolveFactory(Type typeFrom, string name = null, params Type[] parameterTypes)
+        {
+            Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
+
+            var typeInfo = new TypeInformation { Type = typeFrom, DependencyName = name };
+            var resolutionInfo = new ResolutionInfo
             {
-                yield return registration.GetInstance(new ResolutionInfo()
-                {
-                    OverrideManager = overridesEnumerated == null ? null : new OverrideManager(overridesEnumerated),
-                    FactoryParams = factoryParams,
-                }, typeInfo);
-            }
+                ParameterExpressions = parameterTypes.Length == 0 ? null : parameterTypes.Select(Expression.Parameter).ToArray()
+            };
+
+            return this.activationContext.ActivateFactory(resolutionInfo, typeInfo, parameterTypes);
         }
 
         /// <inheritdoc />
@@ -68,41 +57,21 @@ namespace Stashbox
         {
             var typeTo = instance.GetType();
             var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, new MetaInfoCache(this.ContainerContext.ContainerConfiguration, typeTo));
-            var objectExtender = new ObjectExtender(metaInfoProvider);
 
             var resolutionInfo = new ResolutionInfo();
+            var typeInfo = new TypeInformation { Type = typeTo };
 
-            objectExtender.FillResolutionMembers(instance, this.ContainerContext, resolutionInfo);
-            objectExtender.FillResolutionMethods(instance, this.ContainerContext, resolutionInfo);
-            this.containerExtensionManager.ExecutePostBuildExtensions(instance, this.ContainerContext,
-                resolutionInfo, new TypeInformation { Type = typeTo });
+            var expr = ExpressionDelegateFactory.CreateFillExpression(this.containerExtensionManager, this.ContainerContext,
+                Expression.Constant(instance), resolutionInfo, typeInfo, null, metaInfoProvider.GetResolutionMembers(resolutionInfo), metaInfoProvider.GetResolutionMethods(resolutionInfo));
 
-            return instance;
+            var factory = Expression.Lambda<Func<TTo>>(expr).Compile();
+            return factory();
         }
 
-        private object ResolveInternal(Type typeFrom, IEnumerable<Override> overrides = null, string name = null, IEnumerable<object> factoryParameters = null)
+        private object ResolveInternal(Type typeFrom, string name = null)
         {
             var typeInfo = new TypeInformation { Type = typeFrom, DependencyName = name };
-            var enumOverrides = overrides?.ToArray();
-            var enumFactoryParameters = factoryParameters?.ToArray();
-            var resolutionInfo = new ResolutionInfo()
-            {
-                OverrideManager = overrides == null ? null : new OverrideManager(enumOverrides),
-                FactoryParams = enumFactoryParameters,
-            };
-
-            IServiceRegistration registration;
-            if (this.registrationRepository.TryGetRegistration(typeInfo, out registration))
-                return registration.GetInstance(resolutionInfo, typeInfo);
-
-            Resolver resolver;
-            if (this.resolverSelector.TryChooseResolver(this.ContainerContext,
-                typeInfo, out resolver, res => res.ResolverType != typeof(ContainerResolver)))
-            {
-                return resolver.Resolve(resolutionInfo);
-            }
-
-            throw new ResolutionFailedException(typeFrom.FullName);
+            return this.activationContext.Activate(new ResolutionInfo(), typeInfo);
         }
     }
 }

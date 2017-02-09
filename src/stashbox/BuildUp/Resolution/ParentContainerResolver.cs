@@ -1,30 +1,44 @@
-﻿using Stashbox.Entity;
+﻿using System.Linq;
+using Stashbox.Entity;
 using Stashbox.Infrastructure;
 using System.Linq.Expressions;
-using System.Reflection;
+using Stashbox.Exceptions;
+using Stashbox.Infrastructure.Resolution;
 
 namespace Stashbox.BuildUp.Resolution
 {
     internal class ParentContainerResolver : Resolver
     {
-        private readonly MethodInfo resolverMethodInfo;
-
+        private readonly IContainerContext parentContainerContext;
         public ParentContainerResolver(IContainerContext containerContext, TypeInformation typeInfo)
             : base(containerContext, typeInfo)
         {
-            this.resolverMethodInfo = this.GetType().GetTypeInfo().GetDeclaredMethod("Resolve");
+            this.parentContainerContext = containerContext.Container.ParentContainer.ContainerContext;
         }
 
-        public override object Resolve(ResolutionInfo resolutionInfo)
+        public override bool CanUseForEnumerableArgumentResolution => true;
+
+        public override Expression GetExpression(ResolutionInfo resolutionInfo)
         {
-            return base.BuilderContext.Container.ParentContainer.Resolve(base.TypeInfo.Type, base.TypeInfo.DependencyName,
-                resolutionInfo.FactoryParams, resolutionInfo.OverrideManager?.GetOverrides());
+            var registration = this.parentContainerContext.RegistrationRepository.GetRegistrationOrDefault(base.TypeInfo, true);
+            if (registration == null)
+                throw new ResolutionFailedException(base.TypeInfo.Type.FullName);
+
+            return registration.GetExpression(resolutionInfo, base.TypeInfo);
         }
 
-        public override Expression GetExpression(ResolutionInfo resolutionInfo, Expression resolutionInfoExpression)
+        public override Expression[] GetEnumerableArgumentExpressions(ResolutionInfo resolutionInfo)
         {
-            var callExpression = Expression.Call(Expression.Constant(this), resolverMethodInfo, resolutionInfoExpression);
-            return Expression.Convert(callExpression, base.TypeInfo.Type);
+            var registrations = this.parentContainerContext.RegistrationRepository.GetRegistrationsOrDefault(base.TypeInfo);
+            if (registrations == null) return null;
+
+            var serviceRegistrations = this.parentContainerContext.ContainerConfiguration.EnumerableOrderRule(registrations).ToArray();
+            var lenght = serviceRegistrations.Length;
+            var expressions = new Expression[lenght];
+            for (int i = 0; i < lenght; i++)
+                expressions[i] = serviceRegistrations[i].GetExpression(resolutionInfo, base.TypeInfo);
+
+            return expressions;
         }
     }
 }

@@ -4,6 +4,7 @@ using Stashbox.Exceptions;
 using Stashbox.Infrastructure;
 using System;
 using System.Linq.Expressions;
+using Stashbox.Infrastructure.Resolution;
 
 namespace Stashbox.Tests
 {
@@ -73,7 +74,7 @@ namespace Stashbox.Tests
         public void ContainerTests_ResolverTest()
         {
             var container = new StashboxContainer();
-            container.RegisterResolver<TestResolver>((context, typeInfo) => typeInfo.Type == typeof(ITest1),
+            container.RegisterResolver((context, typeInfo) => typeInfo.Type == typeof(ITest1),
                 (context, typeInfo) => new TestResolver(context, typeInfo));
             var inst = container.Resolve<ITest1>();
 
@@ -111,14 +112,9 @@ namespace Stashbox.Tests
             {
             }
 
-            public override Expression GetExpression(ResolutionInfo resolutionInfo, Expression resolutionInfoExpression)
+            public override Expression GetExpression(ResolutionInfo resolutionInfo)
             {
-                throw new NotImplementedException();
-            }
-
-            public override object Resolve(ResolutionInfo resolutionInfo)
-            {
-                return new Test1();
+                return Expression.New(typeof(Test1).GetConstructor(new Type[] { }));
             }
         }
     }

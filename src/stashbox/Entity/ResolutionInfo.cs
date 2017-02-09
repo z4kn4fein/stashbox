@@ -1,6 +1,6 @@
-﻿using Stashbox.Overrides;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 
 namespace Stashbox.Entity
 {
@@ -10,14 +10,9 @@ namespace Stashbox.Entity
     public class ResolutionInfo
     {
         /// <summary>
-        /// The override manager.
+        /// The extra parameter expressions.
         /// </summary>
-        public OverrideManager OverrideManager { get; set; }
-
-        /// <summary>
-        /// The factory parameters.
-        /// </summary>
-        public IEnumerable<object> FactoryParams { get; set; }
+        public ParameterExpression[] ParameterExpressions { get; set; }
 
         internal ISet<Type> CircularDependencyBarrier { get; }
 

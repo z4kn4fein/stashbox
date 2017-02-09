@@ -1,4 +1,6 @@
 ﻿using Stashbox.Configuration;
+using Stashbox.Infrastructure.Registration;
+using Stashbox.Infrastructure.Resolution;
 using Stashbox.Registration;
 using Stashbox.Utils;
 
@@ -15,6 +17,11 @@ namespace Stashbox.Infrastructure
         IRegistrationRepository RegistrationRepository { get; }
 
         /// <summary>
+        /// The delegate repository.
+        /// </summary>
+        IDelegateRepository DelegateRepository { get; }
+
+        /// <summary>
         /// The container itself.
         /// </summary>
         IStashboxContainer Container { get; }
@@ -24,6 +31,11 @@ namespace Stashbox.Infrastructure
         /// </summary>
         IResolutionStrategy ResolutionStrategy { get; }
 
+        /// <summary>
+        /// The resolver selector.
+        /// </summary>
+        IResolverSelector ResolverSelector { get; }
+        
         /// <summary>
         /// Repository of scoped registrations.
         /// </summary>

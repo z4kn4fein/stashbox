@@ -1,12 +1,11 @@
 ﻿using Stashbox.Entity;
-using Stashbox.Exceptions;
 using Stashbox.Infrastructure;
-using Stashbox.Overrides;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
+using Stashbox.Exceptions;
+using Stashbox.Infrastructure.Resolution;
 
 namespace Stashbox.BuildUp.Resolution
 {
@@ -20,11 +19,7 @@ namespace Stashbox.BuildUp.Resolution
             typeof(Func<,,,>)
         };
 
-        private readonly IServiceRegistration registrationCache;
-        private delegate object ResolverDelegate(ResolutionInfo resolutionInfo);
-        private readonly ResolverDelegate resolverDelegate;
         private readonly TypeInformation funcArgumentInfo;
-        private readonly MethodInfo resolverMethodInfo;
 
         public FuncResolver(IContainerContext containerContext, TypeInformation typeInfo)
             : base(containerContext, typeInfo)
@@ -36,73 +31,73 @@ namespace Stashbox.BuildUp.Resolution
                 ParentType = typeInfo.ParentType,
                 DependencyName = typeInfo.DependencyName
             };
-
-            if (!containerContext.RegistrationRepository.TryGetRegistrationWithConditions(this.funcArgumentInfo, out this.registrationCache))
-                throw new ResolutionFailedException(typeInfo.Type.FullName);
-
-            var methodName = "ResolveFuncP" + (typeInfo.Type.GenericTypeArguments.Length - 1);
-
-            var resolverMethod = this.GetType().GetTypeInfo().GetDeclaredMethod(methodName);
-            this.resolverMethodInfo = resolverMethod.MakeGenericMethod(typeInfo.Type.GenericTypeArguments);
-            this.resolverDelegate = (ResolverDelegate)resolverMethodInfo.CreateDelegate(typeof(ResolverDelegate), this);
         }
 
-        public override object Resolve(ResolutionInfo resolutionInfo)
+        public override Type WrappedType => this.funcArgumentInfo.Type;
+
+        public override bool CanUseForEnumerableArgumentResolution => true;
+
+        public override Expression GetExpression(ResolutionInfo resolutionInfo)
         {
-            return this.resolverDelegate(resolutionInfo);
+            this.PrepareExtraParameters(resolutionInfo);
+            var registration = this.BuilderContext.RegistrationRepository.GetRegistrationOrDefault(this.funcArgumentInfo, true);
+
+            if (registration != null)
+                return Expression.Lambda(registration.GetExpression(resolutionInfo, this.funcArgumentInfo), resolutionInfo.ParameterExpressions);
+
+            Resolver resolver;
+            if (!this.BuilderContext.ResolverSelector.TryChooseResolver(this.BuilderContext, this.funcArgumentInfo, out resolver))
+                throw new ResolutionFailedException(base.TypeInfo.Type.FullName);
+
+            return Expression.Lambda(resolver.GetExpression(resolutionInfo), resolutionInfo.ParameterExpressions);
         }
 
-        public override Expression GetExpression(ResolutionInfo resolutionInfo, Expression resolutionInfoExpression)
+        public override Expression[] GetEnumerableArgumentExpressions(ResolutionInfo resolutionInfo)
         {
-            return Expression.Call(Expression.Constant(this), this.resolverMethodInfo, resolutionInfoExpression);
-        }
-
-        private Func<TResult> ResolveFuncP0<TResult>(ResolutionInfo resolutionInfo)
-        {
-            return () => (TResult)registrationCache.GetInstance(resolutionInfo, this.funcArgumentInfo);
-        }
-
-        private Func<T, TResult> ResolveFuncP1<T, TResult>(ResolutionInfo resolutionInfo)
-        {
-            return (t) =>
+            this.PrepareExtraParameters(resolutionInfo);
+            var registrations = this.BuilderContext.RegistrationRepository.GetRegistrationsOrDefault(this.funcArgumentInfo);
+            if (registrations != null)
             {
-                if (resolutionInfo.OverrideManager == null)
-                    resolutionInfo.OverrideManager = new OverrideManager(new Override[] { new TypeOverride(typeof(T), t) });
-                else
-                    resolutionInfo.OverrideManager.AddTypedOverride(new TypeOverride(typeof(T), t));
-                return (TResult)registrationCache.GetInstance(resolutionInfo, this.funcArgumentInfo);
-            };
+                var serviceRegistrations = base.BuilderContext.ContainerConfiguration.EnumerableOrderRule(registrations).ToArray();
+                var length = serviceRegistrations.Length;
+                var expressions = new Expression[length];
+                for (var i = 0; i < length; i++)
+                    expressions[i] = Expression.Lambda(serviceRegistrations[i].GetExpression(resolutionInfo, this.funcArgumentInfo), resolutionInfo.ParameterExpressions);
+
+                return expressions;
+            }
+
+            Resolver resolver;
+            if (this.BuilderContext.ResolverSelector.TryChooseResolver(this.BuilderContext, this.funcArgumentInfo, out resolver) && resolver.CanUseForEnumerableArgumentResolution)
+            {
+                var exprs = resolver.GetEnumerableArgumentExpressions(resolutionInfo);
+                var length = exprs.Length;
+                var expressions = new Expression[length];
+                for (var i = 0; i < length; i++)
+                    expressions[i] = Expression.Lambda(exprs[i], resolutionInfo.ParameterExpressions);
+
+                return expressions;
+            }
+
+            return null;
         }
 
-        private Func<T, T1, TResult> ResolveFuncP2<T, T1, TResult>(ResolutionInfo resolutionInfo)
+        private void PrepareExtraParameters(ResolutionInfo resolutionInfo)
         {
-            return (t, t1) =>
+            var args = base.TypeInfo.Type.GenericTypeArguments;
+            var length = args.Length - 1;
+            var parameters = new ParameterExpression[length];
+            if (length > 0)
             {
-                if (resolutionInfo.OverrideManager == null)
-                    resolutionInfo.OverrideManager = new OverrideManager(new Override[] { new TypeOverride(typeof(T), t), new TypeOverride(typeof(T1), t1) });
-                else
+                for (var i = 0; i < length; i++)
                 {
-                    resolutionInfo.OverrideManager.AddTypedOverride(new TypeOverride(typeof(T), t));
-                    resolutionInfo.OverrideManager.AddTypedOverride(new TypeOverride(typeof(T1), t1));
+                    var argType = args[i];
+                    var argName = argType.Name + i;
+                    parameters[i] = Expression.Parameter(argType, argName);
                 }
-                return (TResult)registrationCache.GetInstance(resolutionInfo, this.funcArgumentInfo);
-            };
-        }
 
-        private Func<T, T1, T2, TResult> ResolveFuncP3<T, T1, T2, TResult>(ResolutionInfo resolutionInfo)
-        {
-            return (t, t1, t2) =>
-            {
-                if (resolutionInfo.OverrideManager == null)
-                    resolutionInfo.OverrideManager = new OverrideManager(new Override[] { new TypeOverride(typeof(T), t), new TypeOverride(typeof(T1), t1), new TypeOverride(typeof(T2), t2) });
-                else
-                {
-                    resolutionInfo.OverrideManager.AddTypedOverride(new TypeOverride(typeof(T), t));
-                    resolutionInfo.OverrideManager.AddTypedOverride(new TypeOverride(typeof(T1), t1));
-                    resolutionInfo.OverrideManager.AddTypedOverride(new TypeOverride(typeof(T2), t2));
-                }
-                return (TResult)registrationCache.GetInstance(resolutionInfo, this.funcArgumentInfo);
-            };
+                resolutionInfo.ParameterExpressions = parameters;
+            }
         }
     }
 }
