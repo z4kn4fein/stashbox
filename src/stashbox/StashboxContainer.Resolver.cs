@@ -44,7 +44,7 @@ namespace Stashbox
             Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
 
             var typeInfo = new TypeInformation { Type = typeFrom, DependencyName = name };
-            var resolutionInfo = new ResolutionInfo
+            var resolutionInfo = new ResolutionInfo(this)
             {
                 ParameterExpressions = parameterTypes.Length == 0 ? null : parameterTypes.Select(Expression.Parameter).ToArray()
             };
@@ -58,7 +58,7 @@ namespace Stashbox
             var typeTo = instance.GetType();
             var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, new MetaInfoCache(this.ContainerContext.ContainerConfiguration, typeTo));
 
-            var resolutionInfo = new ResolutionInfo();
+            var resolutionInfo = new ResolutionInfo(this);
             var typeInfo = new TypeInformation { Type = typeTo };
 
             var expr = ExpressionDelegateFactory.CreateFillExpression(this.containerExtensionManager, this.ContainerContext,
@@ -71,7 +71,7 @@ namespace Stashbox
         private object ResolveInternal(Type typeFrom, string name = null)
         {
             var typeInfo = new TypeInformation { Type = typeFrom, DependencyName = name };
-            return this.activationContext.Activate(new ResolutionInfo(), typeInfo);
+            return this.activationContext.Activate(new ResolutionInfo(this), typeInfo);
         }
     }
 }
