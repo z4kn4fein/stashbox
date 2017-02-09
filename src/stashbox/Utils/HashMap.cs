@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Stashbox.Utils
+﻿namespace Stashbox.Utils
 {
     internal class HashMap<TKey, TValue>
     {

@@ -33,6 +33,7 @@ namespace Stashbox
         /// <inheritdoc />
         public IEnumerable<object> ResolveAll(Type typeFrom)
         {
+            Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
             var type = typeof(IEnumerable<>).MakeGenericType(typeFrom);
             return (IEnumerable<object>)this.Resolve(type);
         }
