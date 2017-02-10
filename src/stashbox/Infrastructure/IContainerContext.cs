@@ -1,5 +1,4 @@
-﻿using Stashbox.Configuration;
-using Stashbox.Infrastructure.Registration;
+﻿using Stashbox.Infrastructure.Registration;
 using Stashbox.Infrastructure.Resolution;
 using Stashbox.Registration;
 using Stashbox.Utils;
@@ -54,7 +53,7 @@ namespace Stashbox.Infrastructure
         /// <summary>
         /// Indicates that the container should track transient objects for disposal or not.
         /// </summary>
-        ContainerConfiguration ContainerConfiguration { get; }
+        IContainerConfigurator ContainerConfigurator { get; }
 
         /// <summary>
         /// Reserves a new registration number.

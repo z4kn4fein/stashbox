@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Stashbox.Infrastructure;
 using static Stashbox.Configuration.Rules;
 
 namespace Stashbox.MetaInfo
@@ -14,7 +15,7 @@ namespace Stashbox.MetaInfo
     /// </summary>
     public class MetaInfoCache
     {
-        private readonly ContainerConfiguration containerConfiguration;
+        private readonly IContainerConfigurator containerConfigurator;
 
         /// <summary>
         /// Contains the generic type contraints of the type if it has any.
@@ -44,12 +45,12 @@ namespace Stashbox.MetaInfo
         /// <summary>
         /// Constructs the <see cref="MetaInfoCache"/>
         /// </summary>
-        /// <param name="containerConfiguraton">The container configuration.</param>
+        /// <param name="containerConfigurator">The container configurator.</param>
         /// <param name="typeTo">The type of the actual service implementation.</param>
-        public MetaInfoCache(ContainerConfiguration containerConfiguraton, Type typeTo)
+        public MetaInfoCache(IContainerConfigurator containerConfigurator, Type typeTo)
         {
             this.TypeTo = typeTo;
-            this.containerConfiguration = containerConfiguraton;
+            this.containerConfigurator = containerConfigurator;
             this.GenericTypeConstraints = new Dictionary<int, Type[]>();
 
             var typeInfo = typeTo.GetTypeInfo();
@@ -146,19 +147,19 @@ namespace Stashbox.MetaInfo
 
         private IEnumerable<FieldInfo> SelectFields(IEnumerable<FieldInfo> fields)
         {
-            if (this.containerConfiguration.MemberInjectionWithoutAnnotationEnabled)
+            if (this.containerConfigurator.ContainerConfiguration.MemberInjectionWithoutAnnotationEnabled)
                 return fields.Where(fieldInfo => fieldInfo.GetCustomAttribute<DependencyAttribute>() != null ||
-                    this.containerConfiguration.MemberInjectionWithoutAnnotationRule.HasFlag(AutoMemberInjection.PrivateFields));
+                    this.containerConfigurator.ContainerConfiguration.MemberInjectionWithoutAnnotationRule.HasFlag(AutoMemberInjection.PrivateFields));
             else
                 return fields.Where(fieldInfo => fieldInfo.GetCustomAttribute<DependencyAttribute>() != null);
         }
 
         private IEnumerable<PropertyInfo> SelectProperties(IEnumerable<PropertyInfo> properties)
         {
-            if (this.containerConfiguration.MemberInjectionWithoutAnnotationEnabled)
+            if (this.containerConfigurator.ContainerConfiguration.MemberInjectionWithoutAnnotationEnabled)
                 return properties.Where(property => property.GetCustomAttribute<DependencyAttribute>() != null ||
-                    (this.containerConfiguration.MemberInjectionWithoutAnnotationRule.HasFlag(AutoMemberInjection.PropertiesWithPublicSetter) && property.SetMethod.IsPublic) ||
-                     this.containerConfiguration.MemberInjectionWithoutAnnotationRule.HasFlag(AutoMemberInjection.PropertiesWithLimitedAccess));
+                    (this.containerConfigurator.ContainerConfiguration.MemberInjectionWithoutAnnotationRule.HasFlag(AutoMemberInjection.PropertiesWithPublicSetter) && property.SetMethod.IsPublic) ||
+                     this.containerConfigurator.ContainerConfiguration.MemberInjectionWithoutAnnotationRule.HasFlag(AutoMemberInjection.PropertiesWithLimitedAccess));
             else
                 return properties.Where(property => property.GetCustomAttribute<DependencyAttribute>() != null);
         }

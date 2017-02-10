@@ -28,7 +28,7 @@ namespace Stashbox.BuildUp
         
         public Expression GetExpression(ResolutionInfo resolutionInfo, TypeInformation resolveType)
         {
-            if (!this.containerContext.ContainerConfiguration.CircularDependencyTrackingEnabled)
+            if (!this.containerContext.ContainerConfigurator.ContainerConfiguration.CircularDependencyTrackingEnabled)
                 return this.GetExpressionInternal(resolutionInfo, resolveType);
 
             using (new CircularDependencyBarrier(resolutionInfo.CircularDependencyBarrier, this.metaInfoProvider.TypeTo))

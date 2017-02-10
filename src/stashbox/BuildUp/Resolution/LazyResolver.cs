@@ -41,7 +41,7 @@ namespace Stashbox.BuildUp.Resolution
         {
             var registration = this.BuilderContext.RegistrationRepository.GetRegistrationOrDefault(this.lazyArgumentInfo, true);
             if (registration != null)
-                return !base.BuilderContext.ContainerConfiguration.CircularDependenciesWithLazyEnabled ? 
+                return !base.BuilderContext.ContainerConfigurator.ContainerConfiguration.CircularDependenciesWithLazyEnabled ? 
                             Expression.New(this.lazyConstructor, Expression.Lambda(registration.GetExpression(resolutionInfo, this.lazyArgumentInfo))) :
                                 this.CreateLazyExpressionCall(registration, resolutionInfo);
 
@@ -57,11 +57,11 @@ namespace Stashbox.BuildUp.Resolution
             var registrations = this.BuilderContext.RegistrationRepository.GetRegistrationsOrDefault(this.lazyArgumentInfo);
             if (registrations != null)
             {
-                var serviceRegistrations = base.BuilderContext.ContainerConfiguration.EnumerableOrderRule(registrations).ToArray();
+                var serviceRegistrations = base.BuilderContext.ContainerConfigurator.ContainerConfiguration.EnumerableOrderRule(registrations).ToArray();
                 var length = serviceRegistrations.Length;
                 var expressions = new Expression[length];
                 for (var i = 0; i < length; i++)
-                    if(!base.BuilderContext.ContainerConfiguration.CircularDependenciesWithLazyEnabled)
+                    if(!base.BuilderContext.ContainerConfigurator.ContainerConfiguration.CircularDependenciesWithLazyEnabled)
                         expressions[i] = Expression.New(this.lazyConstructor,
                             Expression.Lambda(serviceRegistrations[i].GetExpression(resolutionInfo, this.lazyArgumentInfo)));
                     else

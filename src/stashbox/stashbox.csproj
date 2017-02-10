@@ -50,6 +50,7 @@
     <Compile Include="BuildUp\Resolution\ParentContainerResolver.cs" />
     <Compile Include="BuildUp\Resolution\UnknownTypeResolver.cs" />
     <Compile Include="Configuration\ContainerConfiguration.cs" />
+    <Compile Include="Configuration\ContainerConfigurator.cs" />
     <Compile Include="Configuration\Rules.cs" />
     <Compile Include="ContainerContext.cs" />
     <Compile Include="BuildExtensionManager.cs" />
@@ -83,6 +84,7 @@
     <Compile Include="Extensions\TypeExtensions.cs" />
     <Compile Include="Infrastructure\ContainerExtension\IPostBuildExtension.cs" />
     <Compile Include="Infrastructure\ContainerExtension\IRegistrationExtension.cs" />
+    <Compile Include="Infrastructure\IContainerConfigurator.cs" />
     <Compile Include="Infrastructure\Resolution\IActivationContext.cs" />
     <Compile Include="Infrastructure\IDelegateRepository.cs" />
     <Compile Include="Infrastructure\Registration\IRegistrationContext.cs" />

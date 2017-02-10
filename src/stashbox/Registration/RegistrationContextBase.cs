@@ -35,7 +35,7 @@ namespace Stashbox.Registration
 
             var registrationInfo = new RegistrationInfo { TypeFrom = this.TypeFrom, TypeTo = this.TypeTo };
 
-            var cache = new MetaInfoCache(this.ContainerContext.ContainerConfiguration, this.TypeTo);
+            var cache = new MetaInfoCache(this.ContainerContext.ContainerConfigurator, this.TypeTo);
             var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, cache);
 
             var objectBuilder = this.CompleteRegistration(containerExtensionManager, update, metaInfoProvider, registrationName, originalDependencyName, registrationLifetime);
@@ -62,7 +62,7 @@ namespace Stashbox.Registration
         private void CompleteScopeManagement(bool update, ILifetime registrationLifetime, IObjectBuilder objectBuilder)
         {
             if (!registrationLifetime.IsScoped &&
-                (!this.ContainerContext.ContainerConfiguration.TrackTransientsForDisposalEnabled ||
+                (!this.ContainerContext.ContainerConfigurator.ContainerConfiguration.TrackTransientsForDisposalEnabled ||
                  !registrationLifetime.IsTransient || objectBuilder.HandlesObjectDisposal)) return;
 
             var registrationItem = new ScopedRegistrationItem(this.TypeFrom, this.TypeTo, this.RegistrationContextData);

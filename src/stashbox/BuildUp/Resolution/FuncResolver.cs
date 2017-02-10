@@ -58,7 +58,7 @@ namespace Stashbox.BuildUp.Resolution
             var registrations = this.BuilderContext.RegistrationRepository.GetRegistrationsOrDefault(this.funcArgumentInfo);
             if (registrations != null)
             {
-                var serviceRegistrations = base.BuilderContext.ContainerConfiguration.EnumerableOrderRule(registrations).ToArray();
+                var serviceRegistrations = base.BuilderContext.ContainerConfigurator.ContainerConfiguration.EnumerableOrderRule(registrations).ToArray();
                 var length = serviceRegistrations.Length;
                 var expressions = new Expression[length];
                 for (var i = 0; i < length; i++)

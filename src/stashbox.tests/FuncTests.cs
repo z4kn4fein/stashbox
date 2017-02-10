@@ -90,31 +90,7 @@ namespace Stashbox.Tests
 
             Assert.AreSame(t, r.Func2.Test);
         }
-
-        [TestMethod]
-        public void FuncTests_Resolve_ParameterInjection_SubDependency_Singleton_Factory()
-        {
-            var container = new StashboxContainer();
-            container.RegisterScoped<ITest, Test>();
-            container.RegisterSingleton<ScopedFuncTest>();
-
-            var inst = container.Resolve<ScopedFuncTest>();
-
-            ITest service1;
-            ITest service2;
-            using (container.BeginScope())
-            {
-                service1 = inst.Factory();
-            }
-
-            using (container.BeginScope())
-            {
-                service2 = inst.Factory();
-            }
-
-            Assert.AreNotSame(service1, service2);
-        }
-
+        
         public class ScopedFuncTest
         {
             public Func<ITest> Factory { get; set; }

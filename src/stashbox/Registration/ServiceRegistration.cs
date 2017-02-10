@@ -84,7 +84,7 @@ namespace Stashbox.Registration
         public Expression GetExpression(ResolutionInfo resolutionInfo, TypeInformation resolveType)
         {
             var expr = this.lifetimeManager.GetExpression(this.containerContext, this.objectBuilder, resolutionInfo, resolveType);
-            if (!this.containerContext.ContainerConfiguration.TrackTransientsForDisposalEnabled ||
+            if (!this.containerContext.ContainerConfigurator.ContainerConfiguration.TrackTransientsForDisposalEnabled ||
                 !this.lifetimeManager.IsTransient || this.objectBuilder.HandlesObjectDisposal) return expr;
 
             var call = Expression.Call(Expression.Constant(this), "AddTransientObjectTracking", null, expr);

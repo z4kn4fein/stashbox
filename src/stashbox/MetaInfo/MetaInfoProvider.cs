@@ -101,6 +101,6 @@ namespace Stashbox.MetaInfo
             });
 
         private ResolutionConstructor SelectBestConstructor(IEnumerable<ResolutionConstructor> constructors)=>
-            this.containerContext.ContainerConfiguration.ConstructorSelectionRule(constructors);
+            this.containerContext.ContainerConfigurator.ContainerConfiguration.ConstructorSelectionRule(constructors);
     }
 }

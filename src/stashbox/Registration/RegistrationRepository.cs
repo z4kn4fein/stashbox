@@ -4,19 +4,20 @@ using Stashbox.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.Registration;
 
 namespace Stashbox.Registration
 {
     internal class RegistrationRepository : IRegistrationRepository
     {
-        private readonly ContainerConfiguration containerConfiguration;
+        private readonly IContainerConfigurator containerConfigurator;
         private readonly ConcurrentTree<Type, ConcurrentTree<string, IServiceRegistration>> serviceRepository;
         private readonly ConcurrentTree<Type, ConcurrentTree<string, IServiceRegistration>> conditionalRepository;
 
-        public RegistrationRepository(ContainerConfiguration containerConfiguration)
+        public RegistrationRepository(IContainerConfigurator containerConfigurator)
         {
-            this.containerConfiguration = containerConfiguration;
+            this.containerConfigurator = containerConfigurator;
             this.serviceRepository = new ConcurrentTree<Type, ConcurrentTree<string, IServiceRegistration>>();
             this.conditionalRepository = new ConcurrentTree<Type, ConcurrentTree<string, IServiceRegistration>>();
         }
@@ -99,7 +100,7 @@ namespace Stashbox.Registration
             if (registrations == null) return GetDefaultRegistrationOrDefault(typeInfo);
 
             return registrations.HasMultipleItems ?
-                this.containerConfiguration.DependencySelectionRule(registrations.Where(reg => reg.IsUsableForCurrentContext(typeInfo))) :
+                this.containerConfigurator.ContainerConfiguration.DependencySelectionRule(registrations.Where(reg => reg.IsUsableForCurrentContext(typeInfo))) :
                     registrations.Value;
         }
 
@@ -109,7 +110,7 @@ namespace Stashbox.Registration
             if (registrations == null) return null;
 
             return registrations.HasMultipleItems ?
-                this.containerConfiguration.DependencySelectionRule(registrations) :
+                this.containerConfigurator.ContainerConfiguration.DependencySelectionRule(registrations) :
                     registrations.Value;
         }
 

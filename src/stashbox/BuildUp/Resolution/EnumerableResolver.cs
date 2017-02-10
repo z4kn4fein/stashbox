@@ -24,7 +24,7 @@ namespace Stashbox.BuildUp.Resolution
             if (registrations == null)
                 this.BuilderContext.ResolverSelector.TryChooseResolver(this.BuilderContext, this.enumerableType, out this.resolver);
             else
-                registrationCache = containerContext.ContainerConfiguration.EnumerableOrderRule(registrations).ToArray();
+                registrationCache = containerContext.ContainerConfigurator.ContainerConfiguration.EnumerableOrderRule(registrations).ToArray();
         }
 
         public override Type WrappedType => this.enumerableType.Type;
