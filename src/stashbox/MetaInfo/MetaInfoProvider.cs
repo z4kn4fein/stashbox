@@ -90,13 +90,13 @@ namespace Stashbox.MetaInfo
             resolutionConstructor = null;
             return false;
         }
-        
-        private IEnumerable<ResolutionConstructor> CreateResolutionConstructors(IEnumerable<ConstructorInformation> constructorInformations, 
+
+        private IEnumerable<ResolutionConstructor> CreateResolutionConstructors(IEnumerable<ConstructorInformation> constructorInformations,
             ResolutionInfo resolutionInfo, InjectionParameter[] injectionParameters = null) =>
-            constructorInformations.Select(constructorInformation =>  new ResolutionConstructor
+            constructorInformations.Select(constructorInformation => new ResolutionConstructor
             {
                 Constructor = constructorInformation.Constructor,
-                Parameters = constructorInformation.Parameters.Select(parameter => 
+                Parameters = constructorInformation.Parameters.Select(parameter =>
                     this.containerContext.ResolutionStrategy.BuildResolutionTarget(this.containerContext, resolutionInfo, parameter, injectionParameters)).ToArray()
             });
 

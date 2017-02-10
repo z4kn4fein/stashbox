@@ -1,7 +1,8 @@
-﻿using Stashbox.Entity;
+﻿using Stashbox.Configuration;
+using Stashbox.Entity;
 using Stashbox.Infrastructure.ContainerExtension;
-using System;
 using Stashbox.Infrastructure.Resolution;
+using System;
 
 namespace Stashbox.Infrastructure
 {
@@ -15,7 +16,7 @@ namespace Stashbox.Infrastructure
         /// </summary>
         /// <param name="containerExtension">The container extension.</param>
         void RegisterExtension(IContainerExtension containerExtension);
-        
+
         /// <summary>
         /// Registers a <see cref="Resolver"/> into the container.
         /// </summary>
@@ -23,7 +24,7 @@ namespace Stashbox.Infrastructure
         /// <param name="factory">The factory which produces a new instance of the resolver.</param>
         void RegisterResolver(Func<IContainerContext, TypeInformation, bool> resolverPredicate,
             Func<IContainerContext, TypeInformation, Resolver> factory);
-        
+
         /// <summary>
         /// Begins a new scope.
         /// </summary>
@@ -38,6 +39,11 @@ namespace Stashbox.Infrastructure
         /// Stores the container context.
         /// </summary>
         IContainerContext ContainerContext { get; }
+
+        /// <summary>
+        /// The activation context.
+        /// </summary>
+        IActivationContext ActivationContext { get; }
 
         /// <summary>
         /// Checks a type can be resolved by the container.

@@ -34,7 +34,7 @@ namespace Stashbox.Infrastructure
         /// The resolver selector.
         /// </summary>
         IResolverSelector ResolverSelector { get; }
-        
+
         /// <summary>
         /// Repository of scoped registrations.
         /// </summary>

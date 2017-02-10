@@ -1,12 +1,11 @@
 ﻿using Stashbox.Attributes;
-using Stashbox.Configuration;
 using Stashbox.Entity;
+using Stashbox.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Stashbox.Infrastructure;
-using static Stashbox.Configuration.Rules;
+using Stashbox.Configuration;
 
 namespace Stashbox.MetaInfo
 {
@@ -59,7 +58,7 @@ namespace Stashbox.MetaInfo
             this.InjectionMembers = this.FillMembers(typeInfo).ToArray();
             this.CollectGenericConstraints(typeInfo);
         }
-        
+
         private void CollectGenericConstraints(TypeInfo typeInfo)
         {
             if (!typeInfo.IsGenericType && !typeInfo.IsGenericTypeDefinition)
@@ -149,7 +148,7 @@ namespace Stashbox.MetaInfo
         {
             if (this.containerConfigurator.ContainerConfiguration.MemberInjectionWithoutAnnotationEnabled)
                 return fields.Where(fieldInfo => fieldInfo.GetCustomAttribute<DependencyAttribute>() != null ||
-                    this.containerConfigurator.ContainerConfiguration.MemberInjectionWithoutAnnotationRule.HasFlag(AutoMemberInjection.PrivateFields));
+                    this.containerConfigurator.ContainerConfiguration.MemberInjectionWithoutAnnotationRule.HasFlag(Rules.AutoMemberInjection.PrivateFields));
             else
                 return fields.Where(fieldInfo => fieldInfo.GetCustomAttribute<DependencyAttribute>() != null);
         }
@@ -158,8 +157,8 @@ namespace Stashbox.MetaInfo
         {
             if (this.containerConfigurator.ContainerConfiguration.MemberInjectionWithoutAnnotationEnabled)
                 return properties.Where(property => property.GetCustomAttribute<DependencyAttribute>() != null ||
-                    (this.containerConfigurator.ContainerConfiguration.MemberInjectionWithoutAnnotationRule.HasFlag(AutoMemberInjection.PropertiesWithPublicSetter) && property.SetMethod.IsPublic) ||
-                     this.containerConfigurator.ContainerConfiguration.MemberInjectionWithoutAnnotationRule.HasFlag(AutoMemberInjection.PropertiesWithLimitedAccess));
+                    (this.containerConfigurator.ContainerConfiguration.MemberInjectionWithoutAnnotationRule.HasFlag(Rules.AutoMemberInjection.PropertiesWithPublicSetter) && property.SetMethod.IsPublic) ||
+                     this.containerConfigurator.ContainerConfiguration.MemberInjectionWithoutAnnotationRule.HasFlag(Rules.AutoMemberInjection.PropertiesWithLimitedAccess));
             else
                 return properties.Where(property => property.GetCustomAttribute<DependencyAttribute>() != null);
         }

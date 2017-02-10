@@ -1,11 +1,11 @@
 ﻿using Stashbox.Entity;
+using Stashbox.Exceptions;
 using Stashbox.Infrastructure;
+using Stashbox.Infrastructure.Resolution;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using Stashbox.Exceptions;
-using Stashbox.Infrastructure.Resolution;
 
 namespace Stashbox.BuildUp.Resolution
 {

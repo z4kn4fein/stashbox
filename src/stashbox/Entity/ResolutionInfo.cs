@@ -17,11 +17,8 @@ namespace Stashbox.Entity
 
         internal ISet<Type> CircularDependencyBarrier { get; }
 
-        internal IStashboxContainer RequestScope { get; }
-
-        internal ResolutionInfo(IStashboxContainer requestScope)
+        internal ResolutionInfo()
         {
-            this.RequestScope = requestScope;
             this.CircularDependencyBarrier = new HashSet<Type>();
         }
     }
