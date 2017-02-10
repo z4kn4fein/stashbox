@@ -3,13 +3,13 @@ using Stashbox.Configuration;
 using Stashbox.Entity;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.ContainerExtension;
+using Stashbox.Infrastructure.Registration;
+using Stashbox.Infrastructure.Resolution;
 using Stashbox.Registration;
+using Stashbox.Resolution;
 using Stashbox.Utils;
 using System;
 using System.Reflection;
-using Stashbox.Infrastructure.Registration;
-using Stashbox.Infrastructure.Resolution;
-using Stashbox.Resolution;
 
 namespace Stashbox
 {
@@ -21,7 +21,6 @@ namespace Stashbox
         private readonly IContainerExtensionManager containerExtensionManager;
         private readonly IResolverSelector resolverSelector;
         private readonly IRegistrationRepository registrationRepository;
-        private readonly IActivationContext activationContext;
         private readonly AtomicBool disposed;
 
         /// <summary>
@@ -39,7 +38,7 @@ namespace Stashbox
             this.registrationRepository = new RegistrationRepository(configuration);
             this.ContainerContext = new ContainerContext(this.registrationRepository, new DelegateRepository(), this,
                 new ResolutionStrategy(this.resolverSelector), this.resolverSelector, configuration);
-            this.activationContext = new ActivationContext(this.ContainerContext, this.resolverSelector);
+            this.ActivationContext = new ActivationContext(this.ContainerContext, this.resolverSelector);
 
             this.RegisterResolvers();
         }
@@ -54,7 +53,7 @@ namespace Stashbox
             this.registrationRepository = new RegistrationRepository(parentContainer.ContainerContext.ContainerConfiguration);
             this.ContainerContext = new ContainerContext(this.registrationRepository, new DelegateRepository(), this, new ResolutionStrategy(this.resolverSelector),
                 this.resolverSelector, parentContainer.ContainerContext.ContainerConfiguration);
-            this.activationContext = new ActivationContext(this.ContainerContext, this.resolverSelector);
+            this.ActivationContext = new ActivationContext(this.ContainerContext, this.resolverSelector);
             this.containerExtensionManager.ReinitalizeExtensions(this.ContainerContext);
         }
 
@@ -95,6 +94,9 @@ namespace Stashbox
 
         /// <inheritdoc />
         public IContainerContext ContainerContext { get; }
+
+        /// <inheritdoc />
+        public IActivationContext ActivationContext { get; }
 
         /// <inheritdoc />
         public IStashboxContainer BeginScope()

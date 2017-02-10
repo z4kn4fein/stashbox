@@ -49,7 +49,7 @@ namespace Stashbox
                 ParameterExpressions = parameterTypes.Length == 0 ? null : parameterTypes.Select(Expression.Parameter).ToArray()
             };
 
-            return this.activationContext.ActivateFactory(resolutionInfo, typeInfo, parameterTypes);
+            return this.ActivationContext.ActivateFactory(resolutionInfo, typeInfo, parameterTypes);
         }
 
         /// <inheritdoc />
@@ -71,7 +71,7 @@ namespace Stashbox
         private object ResolveInternal(Type typeFrom, string name = null)
         {
             var typeInfo = new TypeInformation { Type = typeFrom, DependencyName = name };
-            return this.activationContext.Activate(new ResolutionInfo(), typeInfo);
+            return this.ActivationContext.Activate(new ResolutionInfo(), typeInfo);
         }
     }
 }
