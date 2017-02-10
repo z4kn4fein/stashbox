@@ -1,4 +1,5 @@
-﻿using Stashbox.Entity;
+﻿using Stashbox.Configuration;
+using Stashbox.Entity;
 using Stashbox.Infrastructure.ContainerExtension;
 using Stashbox.Infrastructure.Resolution;
 using System;
@@ -43,6 +44,11 @@ namespace Stashbox.Infrastructure
         /// The activation context.
         /// </summary>
         IActivationContext ActivationContext { get; }
+
+        /// <summary>
+        /// The container configuration.
+        /// </summary>
+        ContainerConfiguration ContainerConfiguration { get; }
 
         /// <summary>
         /// Checks a type can be resolved by the container.

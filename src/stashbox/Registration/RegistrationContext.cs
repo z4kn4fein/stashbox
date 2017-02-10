@@ -1,8 +1,8 @@
 ﻿using Stashbox.Entity;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.ContainerExtension;
-using System;
 using Stashbox.Infrastructure.Registration;
+using System;
 
 namespace Stashbox.Registration
 {
@@ -23,9 +23,7 @@ namespace Stashbox.Registration
         public IStashboxContainer Register()
         {
             var registrationInfo = base.PrepareRegistration(this.containerExtensionManager);
-
             this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.ContainerContext, registrationInfo, base.RegistrationContextData.InjectionParameters);
-
             return this.ContainerContext.Container;
         }
 
@@ -106,7 +104,7 @@ namespace Stashbox.Registration
             base.RegistrationContextData.Name = name;
             return this;
         }
-        
+
         public IRegistrationContext WithInstance(object instance)
         {
             base.RegistrationContextData.ExistingInstance = instance;

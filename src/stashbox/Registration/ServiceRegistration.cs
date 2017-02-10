@@ -1,11 +1,11 @@
 ﻿using Stashbox.Entity;
 using Stashbox.Infrastructure;
+using Stashbox.Infrastructure.Registration;
 using Stashbox.MetaInfo;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using Stashbox.Infrastructure.Registration;
 
 namespace Stashbox.Registration
 {
@@ -23,9 +23,9 @@ namespace Stashbox.Registration
         private readonly Func<TypeInformation, bool> resolutionCondition;
         private readonly MetaInfoProvider metaInfoProvider;
 
-        internal ServiceRegistration(string registrationName, Type serviceType, IContainerContext containerContext, ILifetime lifetimeManager,
-            IObjectBuilder objectBuilder, MetaInfoProvider metaInfoProvider, HashSet<Type> attributeConditions = null, Type targetTypeCondition = null,
-            Func<TypeInformation, bool> resolutionCondition = null)
+        internal ServiceRegistration(string registrationName, Type serviceType, IContainerContext containerContext,
+            ILifetime lifetimeManager, IObjectBuilder objectBuilder, MetaInfoProvider metaInfoProvider, HashSet<Type> attributeConditions = null,
+            Type targetTypeCondition = null, Func<TypeInformation, bool> resolutionCondition = null)
         {
             this.serviceType = serviceType;
             this.RegistrationName = registrationName;
@@ -84,7 +84,7 @@ namespace Stashbox.Registration
         public Expression GetExpression(ResolutionInfo resolutionInfo, TypeInformation resolveType)
         {
             var expr = this.lifetimeManager.GetExpression(this.containerContext, this.objectBuilder, resolutionInfo, resolveType);
-            if (!this.containerContext.ContainerConfiguration.TrackTransientsForDisposalEnabled ||
+            if (!this.containerContext.Container.ContainerConfiguration.TrackTransientsForDisposalEnabled ||
                 !this.lifetimeManager.IsTransient || this.objectBuilder.HandlesObjectDisposal) return expr;
 
             var call = Expression.Call(Expression.Constant(this), "AddTransientObjectTracking", null, expr);

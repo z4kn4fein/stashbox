@@ -1,9 +1,9 @@
-﻿using System.Linq;
-using Stashbox.Entity;
-using Stashbox.Infrastructure;
-using System.Linq.Expressions;
+﻿using Stashbox.Entity;
 using Stashbox.Exceptions;
+using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.Resolution;
+using System.Linq;
+using System.Linq.Expressions;
 
 namespace Stashbox.BuildUp.Resolution
 {
@@ -32,7 +32,7 @@ namespace Stashbox.BuildUp.Resolution
             var registrations = this.parentContainerContext.RegistrationRepository.GetRegistrationsOrDefault(base.TypeInfo);
             if (registrations == null) return null;
 
-            var serviceRegistrations = this.parentContainerContext.ContainerConfiguration.EnumerableOrderRule(registrations).ToArray();
+            var serviceRegistrations = this.parentContainerContext.Container.ContainerConfiguration.EnumerableOrderRule(registrations).ToArray();
             var lenght = serviceRegistrations.Length;
             var expressions = new Expression[lenght];
             for (int i = 0; i < lenght; i++)

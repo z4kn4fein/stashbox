@@ -32,27 +32,28 @@ namespace Stashbox
             this.containerExtensionManager = new BuildExtensionManager();
             this.resolverSelector = new ResolverSelector();
 
-            var configuration = ContainerConfiguration.DefaultContainerConfiguration();
-            config?.Invoke(configuration);
+            this.ContainerConfiguration = ContainerConfiguration.DefaultContainerConfiguration();
+            config?.Invoke(this.ContainerConfiguration);
 
-            this.registrationRepository = new RegistrationRepository(configuration);
+            this.registrationRepository = new RegistrationRepository(this);
             this.ContainerContext = new ContainerContext(this.registrationRepository, new DelegateRepository(), this,
-                new ResolutionStrategy(this.resolverSelector), this.resolverSelector, configuration);
+                new ResolutionStrategy(this.resolverSelector), this.resolverSelector);
             this.ActivationContext = new ActivationContext(this.ContainerContext, this.resolverSelector);
 
             this.RegisterResolvers();
         }
 
         internal StashboxContainer(IStashboxContainer parentContainer, IContainerExtensionManager containerExtensionManager,
-            IResolverSelector resolverSelector)
+            IResolverSelector resolverSelector, ContainerConfiguration containerConfiguration)
         {
             this.disposed = new AtomicBool();
             this.ParentContainer = parentContainer;
+            this.ContainerConfiguration = containerConfiguration;
             this.containerExtensionManager = containerExtensionManager;
             this.resolverSelector = resolverSelector;
-            this.registrationRepository = new RegistrationRepository(parentContainer.ContainerContext.ContainerConfiguration);
-            this.ContainerContext = new ContainerContext(this.registrationRepository, new DelegateRepository(), this, new ResolutionStrategy(this.resolverSelector),
-                this.resolverSelector, parentContainer.ContainerContext.ContainerConfiguration);
+            this.registrationRepository = new RegistrationRepository(this);
+            this.ContainerContext = new ContainerContext(this.registrationRepository, new DelegateRepository(), this,
+                new ResolutionStrategy(this.resolverSelector), this.resolverSelector);
             this.ActivationContext = new ActivationContext(this.ContainerContext, this.resolverSelector);
             this.containerExtensionManager.ReinitalizeExtensions(this.ContainerContext);
         }
@@ -99,9 +100,13 @@ namespace Stashbox
         public IActivationContext ActivationContext { get; }
 
         /// <inheritdoc />
+        public ContainerConfiguration ContainerConfiguration { get; }
+
+        /// <inheritdoc />
         public IStashboxContainer BeginScope()
         {
-            var container = new StashboxContainer(this, this.containerExtensionManager.CreateCopy(), this.resolverSelector.CreateCopy());
+            var container = new StashboxContainer(this, this.containerExtensionManager.CreateCopy(),
+                this.resolverSelector.CreateCopy(), this.ContainerConfiguration);
             container.OpenScope();
             return container;
         }
@@ -160,13 +165,13 @@ namespace Stashbox
             this.resolverSelector.AddResolver(lazyResolver);
             this.resolverSelector.AddResolver(funcResolver);
 
-            if (this.ContainerContext.ContainerConfiguration.OptionalAndDefaultValueInjectionEnabled)
+            if (this.ContainerConfiguration.OptionalAndDefaultValueInjectionEnabled)
                 this.resolverSelector.AddResolver(defaultValueResolver);
 
-            if (this.ContainerContext.ContainerConfiguration.UnknownTypeResolutionEnabled)
+            if (this.ContainerConfiguration.UnknownTypeResolutionEnabled)
                 this.resolverSelector.AddResolver(unknownTypeResolver);
 
-            if (this.ContainerContext.ContainerConfiguration.ParentContainerResolutionEnabled)
+            if (this.ContainerConfiguration.ParentContainerResolutionEnabled)
                 this.resolverSelector.AddResolver(parentContainerResolver);
         }
 

@@ -1,5 +1,4 @@
-﻿using Stashbox.Configuration;
-using Stashbox.Infrastructure.Registration;
+﻿using Stashbox.Infrastructure.Registration;
 using Stashbox.Infrastructure.Resolution;
 using Stashbox.Registration;
 using Stashbox.Utils;
@@ -35,7 +34,7 @@ namespace Stashbox.Infrastructure
         /// The resolver selector.
         /// </summary>
         IResolverSelector ResolverSelector { get; }
-        
+
         /// <summary>
         /// Repository of scoped registrations.
         /// </summary>
@@ -50,11 +49,6 @@ namespace Stashbox.Infrastructure
         /// The transient objects which are tracked by the container for disposal.
         /// </summary>
         ConcurrentStore<object> TrackedTransientObjects { get; }
-
-        /// <summary>
-        /// Indicates that the container should track transient objects for disposal or not.
-        /// </summary>
-        ContainerConfiguration ContainerConfiguration { get; }
 
         /// <summary>
         /// Reserves a new registration number.

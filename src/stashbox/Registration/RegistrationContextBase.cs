@@ -2,11 +2,11 @@
 using Stashbox.Entity;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.ContainerExtension;
+using Stashbox.Infrastructure.Registration;
 using Stashbox.Lifetime;
 using Stashbox.MetaInfo;
 using Stashbox.Utils;
 using System;
-using Stashbox.Infrastructure.Registration;
 
 namespace Stashbox.Registration
 {
@@ -35,7 +35,7 @@ namespace Stashbox.Registration
 
             var registrationInfo = new RegistrationInfo { TypeFrom = this.TypeFrom, TypeTo = this.TypeTo };
 
-            var cache = new MetaInfoCache(this.ContainerContext.ContainerConfiguration, this.TypeTo);
+            var cache = new MetaInfoCache(this.ContainerContext.Container, this.TypeTo);
             var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, cache);
 
             var objectBuilder = this.CompleteRegistration(containerExtensionManager, update, metaInfoProvider, registrationName, originalDependencyName, registrationLifetime);
@@ -62,7 +62,7 @@ namespace Stashbox.Registration
         private void CompleteScopeManagement(bool update, ILifetime registrationLifetime, IObjectBuilder objectBuilder)
         {
             if (!registrationLifetime.IsScoped &&
-                (!this.ContainerContext.ContainerConfiguration.TrackTransientsForDisposalEnabled ||
+                (!this.ContainerContext.Container.ContainerConfiguration.TrackTransientsForDisposalEnabled ||
                  !registrationLifetime.IsTransient || objectBuilder.HandlesObjectDisposal)) return;
 
             var registrationItem = new ScopedRegistrationItem(this.TypeFrom, this.TypeTo, this.RegistrationContextData);
@@ -84,7 +84,7 @@ namespace Stashbox.Registration
 
             if (this.RegistrationContextData.SingleFactory != null)
                 return new FactoryObjectBuilder(this.RegistrationContextData.SingleFactory, this.ContainerContext, containerExtensionManager, metaInfoProvider, this.RegistrationContextData.InjectionParameters);
-            
+
             return new DefaultObjectBuilder(this.ContainerContext, metaInfoProvider,
                 containerExtensionManager, this.RegistrationContextData.InjectionParameters);
         }
