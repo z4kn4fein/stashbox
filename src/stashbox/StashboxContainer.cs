@@ -97,7 +97,7 @@ namespace Stashbox
 
         /// <inheritdoc />
         public IActivationContext ActivationContext { get; }
-        
+
 
         /// <inheritdoc />
         public IStashboxContainer BeginScope()
@@ -142,33 +142,30 @@ namespace Stashbox
             var parentContainerResolver = new ResolverRegistration
             {
                 ResolverFactory = (context, typeInfo) => new ParentContainerResolver(context, typeInfo),
-                Predicate = (context, typeInfo) => context.Container.ParentContainer != null && context.Container.ParentContainer.CanResolve(typeInfo.Type, typeInfo.DependencyName)
+                Predicate = (context, typeInfo) => context.ContainerConfigurator.ContainerConfiguration.ParentContainerResolutionEnabled &&
+                                context.Container.ParentContainer != null && context.Container.ParentContainer.CanResolve(typeInfo.Type, typeInfo.DependencyName)
             };
 
             var defaultValueResolver = new ResolverRegistration
             {
                 ResolverFactory = (context, typeInfo) => new DefaultValueResolver(context, typeInfo),
-                Predicate = (context, typeInfo) => typeInfo.HasDefaultValue || typeInfo.Type.GetTypeInfo().IsValueType || typeInfo.Type == typeof(string) || typeInfo.IsMember
+                Predicate = (context, typeInfo) => context.ContainerConfigurator.ContainerConfiguration.OptionalAndDefaultValueInjectionEnabled &&
+                                (typeInfo.HasDefaultValue || typeInfo.Type.GetTypeInfo().IsValueType || typeInfo.Type == typeof(string) || typeInfo.IsMember)
             };
 
             var unknownTypeResolver = new ResolverRegistration
             {
                 ResolverFactory = (context, typeInfo) => new UnknownTypeResolver(context, typeInfo),
-                Predicate = (context, typeInfo) => !typeInfo.Type.GetTypeInfo().IsAbstract && !typeInfo.Type.GetTypeInfo().IsInterface
+                Predicate = (context, typeInfo) => context.ContainerConfigurator.ContainerConfiguration.UnknownTypeResolutionEnabled &&
+                                !typeInfo.Type.GetTypeInfo().IsAbstract && !typeInfo.Type.GetTypeInfo().IsInterface
             };
 
             this.resolverSelector.AddResolver(enumerableResolver);
             this.resolverSelector.AddResolver(lazyResolver);
             this.resolverSelector.AddResolver(funcResolver);
-
-            if (this.ContainerContext.ContainerConfigurator.ContainerConfiguration.OptionalAndDefaultValueInjectionEnabled)
-                this.resolverSelector.AddResolver(defaultValueResolver);
-
-            if (this.ContainerContext.ContainerConfigurator.ContainerConfiguration.UnknownTypeResolutionEnabled)
-                this.resolverSelector.AddResolver(unknownTypeResolver);
-
-            if (this.ContainerContext.ContainerConfigurator.ContainerConfiguration.ParentContainerResolutionEnabled)
-                this.resolverSelector.AddResolver(parentContainerResolver);
+            this.resolverSelector.AddResolver(defaultValueResolver);
+            this.resolverSelector.AddResolver(unknownTypeResolver);
+            this.resolverSelector.AddResolver(parentContainerResolver);
         }
 
         /// <summary>
