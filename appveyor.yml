@@ -3,14 +3,14 @@ version: 2.0.{build}
 environment:
   COVERALLS_REPO_TOKEN:
     secure: Q9gcbZnzJ5a0YYF6mkr4QoQylIzeQmVytMnIe4WL7aPtb30SdNes7brLkvnXOirt
-	
+
 pull_requests:
   do_not_increment_build_number: true
-  
+
 image: Visual Studio 2017 RC
-  
+
 configuration: Release
-  
+
 before_build:
 - ps: . .\patch-version.ps1
 - dotnet restore src\stashbox.sln
@@ -21,7 +21,7 @@ build:
   include_nuget_references: true
   parallel: true
   verbosity: normal
-  
+
 test_script:
 - ps: . .\coverage.ps1
 
