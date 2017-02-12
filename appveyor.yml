@@ -1,27 +1,30 @@
 version: 2.0.{build}
+
 environment:
   COVERALLS_REPO_TOKEN:
     secure: Q9gcbZnzJ5a0YYF6mkr4QoQylIzeQmVytMnIe4WL7aPtb30SdNes7brLkvnXOirt
+	
 pull_requests:
   do_not_increment_build_number: true
+  
+image: Visual Studio 2017 RC
+  
 configuration: Release
-assembly_info:
-  patch: true
-  file: 'src\stashbox\**\AssemblyInfo.*'
-  assembly_version: '{version}'
-  assembly_file_version: '{version}'
-  assembly_informational_version: '{version}'
+  
 before_build:
-- nuget restore src\stashbox.sln
+- ps: . .\patch-version.ps1
+- dotnet restore src\stashbox.sln
+
 build:
   project: src\stashbox.sln
   publish_nuget: true
-  publish_nuget_symbols: false
   include_nuget_references: true
   parallel: true
   verbosity: normal
+  
 test_script:
 - ps: . .\coverage.ps1
+
 notifications:
 - provider: Email
   to:
