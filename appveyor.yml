@@ -13,7 +13,8 @@ configuration: Release
 
 before_build:
 - ps: . .\patch-version.ps1
-- nuget restore src\stashbox.sln
+- dotnet restore src\stashbox.sln
+- nuget restore src\stashbox.tests\stashbox.tests.csproj
 
 build:
   project: src\stashbox.sln
