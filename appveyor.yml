@@ -18,8 +18,17 @@ build_script:
 - msbuild /t:Restore /p:Configuration=%CONFIGURATION% src\stashbox.sln
 - msbuild /t:Build /p:Configuration=%CONFIGURATION% src\stashbox.sln
 
+after_build:
+- dotnet pack src\stashbox\stashbox.csproj -c %CONFIGURATION% --no-build -o artifacts
+
 test_script:
+- dotnet test src\stashbox.tests\stashbox.tests.csproj  -f net45 -c %CONFIGURATION%
+- dotnet test src\stashbox.tests\stashbox.tests.csproj  -f netcoreapp1.0 -c %CONFIGURATION%
 - ps: . .\coverage.ps1
+
+artifacts:
+- path: artifacts\Stashbox.*.nupkg
+  name: NuGet
 
 notifications:
 - provider: Email

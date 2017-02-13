@@ -8,10 +8,10 @@ $reportGeneratorPath = Join-Path $PSScriptRoot "tools\ReportGenerator.2.5.2\tool
 $testPath = Join-Path $PSScriptRoot "src\stashbox.tests\stashbox.tests.csproj"
 $coverageReportDir = Join-Path $PSScriptRoot "coverageresults"
 
-$arguments = "-oldStyle", "-returntargetcode", "-register:user", "`"-filter:+[*]* -[Stashbox.Tests]* -[Stashbox]*.Utils*`"", "-target:dotnet.exe", "`"-targetargs:test $testPath --no-build`"", "-output:coverage.xml", "-skipautoprops", "-hideskipped:All"
+$arguments = "-oldStyle", "-returntargetcode", "-register:user", "`"-filter:+[*]Stashbox.* -[Stashbox.Tests]* -[Stashbox]*.Utils*`"", "-target:dotnet.exe", "`"-targetargs:test $testPath -f net45 -c Debug`"", "-output:coverage.xml", "-skipautoprops", "-hideskipped:All"
 . $openCoverPath $arguments
 
 dir
 
-. $coverallsPath --serviceName appveyor --opencover -i .\coverage.xml
+#. $coverallsPath --serviceName appveyor --opencover -i .\coverage.xml
 . $reportGeneratorPath -verbosity:Info -reports:coverage.xml -targetdir:$coverageReportDir "-assemblyfilters:-Stashbox.Tests*"

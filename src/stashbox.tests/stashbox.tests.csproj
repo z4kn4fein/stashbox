@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>    
-    <TargetFramework>netcoreapp1.0</TargetFramework>    
+    <TargetFrameworks>net45;netcoreapp1.0</TargetFrameworks>    
     <AssemblyName>Stashbox.Tests</AssemblyName>    
     <RootNamespace>Stashbox.Tests</RootNamespace>
     <SignAssembly>true</SignAssembly>
