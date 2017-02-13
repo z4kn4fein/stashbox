@@ -13,15 +13,10 @@ configuration: Release
 
 before_build:
 - ps: . .\patch-version.ps1
-- dotnet restore src\stashbox.sln
-- nuget restore src\stashbox.tests\stashbox.tests.csproj -PackagesDirectory src\packages
 
-build:
-  project: src\stashbox.sln
-  publish_nuget: true
-  include_nuget_references: true
-  parallel: true
-  verbosity: normal
+build_script:
+- msbuild /t:Restore /p:Configuration=%CONFIGURATION% src\stashbox.sln
+- msbuild /t:Build /p:Configuration=%CONFIGURATION% src\stashbox.sln
 
 test_script:
 - ps: . .\coverage.ps1

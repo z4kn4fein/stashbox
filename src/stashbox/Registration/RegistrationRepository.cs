@@ -99,7 +99,7 @@ namespace Stashbox.Registration
             if (registrations == null) return GetDefaultRegistrationOrDefault(typeInfo);
 
             return registrations.HasMultipleItems ?
-                this.containerConfigurator.ContainerConfiguration.DependencySelectionRule(registrations.Where(reg => reg.IsUsableForCurrentContext(typeInfo))) :
+                this.containerConfigurator.ContainerConfiguration.DependencySelectionRule(registrations.Where(reg => reg.IsUsableForCurrentContext(typeInfo) && reg.ValidateGenericContraints(typeInfo))) :
                     registrations.Value;
         }
 
@@ -109,7 +109,7 @@ namespace Stashbox.Registration
             if (registrations == null) return null;
 
             return registrations.HasMultipleItems ?
-                this.containerConfigurator.ContainerConfiguration.DependencySelectionRule(registrations) :
+                this.containerConfigurator.ContainerConfiguration.DependencySelectionRule(registrations.Where(reg => reg.ValidateGenericContraints(typeInfo))) :
                     registrations.Value;
         }
 
