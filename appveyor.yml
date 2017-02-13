@@ -19,7 +19,7 @@ build_script:
 - msbuild /t:Build /p:Configuration=%CONFIGURATION% src\stashbox.sln
 
 after_build:
-- dotnet pack src\stashbox\stashbox.csproj -c %CONFIGURATION% --no-build -o artifacts
+- msbuild /t:Pack /p:IncludeSymbols=true /p:Configuration=%CONFIGURATION% /p:PackageOutputPath=artifacts
 
 test_script:
 - dotnet test src\stashbox.tests\stashbox.tests.csproj  -f net45 -c %CONFIGURATION%

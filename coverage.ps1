@@ -10,8 +10,5 @@ $coverageReportDir = Join-Path $PSScriptRoot "coverageresults"
 
 $arguments = "-oldStyle", "-returntargetcode", "-register:user", "`"-filter:+[*]Stashbox.* -[Stashbox.Tests]* -[Stashbox]*.Utils*`"", "-target:dotnet.exe", "`"-targetargs:test $testPath -f net45 -c Debug`"", "-output:coverage.xml", "-skipautoprops", "-hideskipped:All"
 . $openCoverPath $arguments
-
-dir
-
-#. $coverallsPath --serviceName appveyor --opencover -i .\coverage.xml
+. $coverallsPath --serviceName appveyor --opencover -i .\coverage.xml
 . $reportGeneratorPath -verbosity:Info -reports:coverage.xml -targetdir:$coverageReportDir "-assemblyfilters:-Stashbox.Tests*"
