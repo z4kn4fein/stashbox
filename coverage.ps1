@@ -1,4 +1,4 @@
-﻿nuget install coveralls.net -Version 0.412.0 -OutputDirectory .\tools
+﻿nuget install coveralls.net -Version 0.7.0 -OutputDirectory .\tools
 nuget install OpenCover -Version 4.6.519 -OutputDirectory .\tools
 nuget install ReportGenerator -Version 2.5.2 -OutputDirectory .\tools
 
@@ -10,5 +10,5 @@ $coverageReportDir = Join-Path $PSScriptRoot "coverageresults"
 
 $arguments = "-returntargetcode", "-register:user", "`"-filter:+[*]Stashbox.* -[Stashbox.Tests]* -[Stashbox]*.Utils*`"", "-target:dotnet.exe", "`"-targetargs:test $testPath -f net45 -c Release`"", "-output:coverage.xml", "-skipautoprops", "-hideskipped:All"
 . $openCoverPath $arguments
-. $coverallsPath --serviceName appveyor --opencover -i .\coverage.xml
+. $coverallsPath --opencover -i coverage.xml
 . $reportGeneratorPath -verbosity:Info -reports:coverage.xml -targetdir:$coverageReportDir "-assemblyfilters:-Stashbox.Tests*"
