@@ -23,6 +23,7 @@
     <AssemblyOriginatorKeyFile>..\..\sn.snk</AssemblyOriginatorKeyFile>
     <Version>1.0.0</Version>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+    <DebugType>portable</DebugType>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.0'">
     <AssemblyTitle>Stashbox .NET Standard 1.0</AssemblyTitle>
@@ -33,9 +34,5 @@
     <TargetFrameworkProfile>Profile259</TargetFrameworkProfile>
     <NugetTargetMoniker>.NETPortable,Version=v0.0,Profile=Profile259</NugetTargetMoniker>
     <LanguageTargets>$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets</LanguageTargets>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net45|AnyCPU'">
-    <DebugType>full</DebugType>
-    <DebugSymbols>True</DebugSymbols>
   </PropertyGroup>
 </Project>
