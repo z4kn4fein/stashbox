@@ -1,27 +1,36 @@
 version: 2.0.{build}
+
 environment:
   COVERALLS_REPO_TOKEN:
     secure: Q9gcbZnzJ5a0YYF6mkr4QoQylIzeQmVytMnIe4WL7aPtb30SdNes7brLkvnXOirt
+
 pull_requests:
   do_not_increment_build_number: true
+
+image: Visual Studio 2017 RC
+
 configuration: Release
-assembly_info:
-  patch: true
-  file: 'src\stashbox\**\AssemblyInfo.*'
-  assembly_version: '{version}'
-  assembly_file_version: '{version}'
-  assembly_informational_version: '{version}'
+
 before_build:
-- nuget restore src\stashbox.sln
-build:
-  project: src\stashbox.sln
-  publish_nuget: true
-  publish_nuget_symbols: false
-  include_nuget_references: true
-  parallel: true
-  verbosity: normal
+- ps: . .\patch-version.ps1 "src\stashbox\stashbox.csproj"
+
+build_script:
+- msbuild /t:Restore /p:Configuration=%CONFIGURATION% src\stashbox.sln
+- msbuild /t:Build /p:Configuration=%CONFIGURATION% src\stashbox.sln
+
+after_build:
+- msbuild /t:Pack /p:IncludeSymbols=true /p:Configuration=%CONFIGURATION% /p:PackageOutputPath=..\..\artifacts src\stashbox\stashbox.csproj
+
 test_script:
+- ps: . .\set-debug-type.ps1 "src\stashbox\stashbox.csproj"
+- dotnet test src\stashbox.tests\stashbox.tests.csproj  -f net45 -c %CONFIGURATION% --no-build
+- dotnet test src\stashbox.tests\stashbox.tests.csproj  -f netcoreapp1.0 -c %CONFIGURATION% --no-build
 - ps: . .\coverage.ps1
+
+artifacts:
+- path: artifacts\Stashbox.*.nupkg
+  name: NuGet
+
 notifications:
 - provider: Email
   to:

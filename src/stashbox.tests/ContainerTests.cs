@@ -114,7 +114,7 @@ namespace Stashbox.Tests
 
             public override Expression GetExpression(ResolutionInfo resolutionInfo)
             {
-                return Expression.New(typeof(Test1).GetConstructor(new Type[] { }));
+                return Expression.Constant(new Test1());
             }
         }
     }
