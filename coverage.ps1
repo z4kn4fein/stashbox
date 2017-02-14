@@ -3,7 +3,7 @@ nuget install OpenCover -Version 4.6.519 -OutputDirectory .\tools
 nuget install ReportGenerator -Version 2.5.2 -OutputDirectory .\tools
 
 $openCoverPath = Join-Path $PSScriptRoot "tools\OpenCover.4.6.519\tools\OpenCover.Console.exe"
-$coverallsPath = Join-Path $PSScriptRoot "tools\coveralls.net.0.412\tools\csmacnz.Coveralls.exe"
+$coverallsPath = Join-Path $PSScriptRoot "tools\coveralls.net.0.7.0\tools\csmacnz.Coveralls.exe"
 $reportGeneratorPath = Join-Path $PSScriptRoot "tools\ReportGenerator.2.5.2\tools\ReportGenerator.exe"
 $testPath = Join-Path $PSScriptRoot "src\stashbox.tests\stashbox.tests.csproj"
 $coverageReportDir = Join-Path $PSScriptRoot "coverageresults"

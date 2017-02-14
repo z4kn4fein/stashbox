@@ -23,8 +23,8 @@ after_build:
 
 test_script:
 - ps: . .\set-debug-type.ps1 "src\stashbox\stashbox.csproj"
-- dotnet test src\stashbox.tests\stashbox.tests.csproj  -f net45 -c %CONFIGURATION%
-- dotnet test src\stashbox.tests\stashbox.tests.csproj  -f netcoreapp1.0 -c %CONFIGURATION%
+- dotnet test src\stashbox.tests\stashbox.tests.csproj  -f net45 -c %CONFIGURATION% --no-build
+- dotnet test src\stashbox.tests\stashbox.tests.csproj  -f netcoreapp1.0 -c %CONFIGURATION% --no-build
 - ps: . .\coverage.ps1
 
 artifacts:
