@@ -12,7 +12,7 @@ image: Visual Studio 2017 RC
 configuration: Release
 
 before_build:
-- ps: . .\patch-version.ps1
+- ps: . .\patch-version.ps1 "src\stashbox\stashbox.csproj"
 
 build_script:
 - msbuild /t:Restore /p:Configuration=%CONFIGURATION% src\stashbox.sln
@@ -22,6 +22,7 @@ after_build:
 - msbuild /t:Pack /p:IncludeSymbols=true /p:Configuration=%CONFIGURATION% /p:PackageOutputPath=..\..\artifacts src\stashbox\stashbox.csproj
 
 test_script:
+- ps: . .\set-debug-type.ps1 "src\stashbox\stashbox.csproj"
 - dotnet test src\stashbox.tests\stashbox.tests.csproj  -f net45 -c %CONFIGURATION%
 - dotnet test src\stashbox.tests\stashbox.tests.csproj  -f netcoreapp1.0 -c %CONFIGURATION%
 - ps: . .\coverage.ps1
