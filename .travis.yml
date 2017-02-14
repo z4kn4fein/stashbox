@@ -34,7 +34,7 @@ install:
   - export PATH="$DOTNET_INSTALL_DIR:$PATH"
   
 before_script:
-  - dotnet restore src\stashbox.sln
+  - dotnet restore src/
 
 script:
-  - dotnet test src\stashbox.tests\stashbox.tests.csproj -c Release -f netcoreapp1.0
+  - dotnet test src/stashbox.tests/stashbox.tests.csproj -c Release -f netcoreapp1.0
