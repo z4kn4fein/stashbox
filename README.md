@@ -9,8 +9,8 @@ Stashbox is a lightweight, portable dependency injection framework for .NET base
  - **Resolution via delegates** - any number of parameters can be injected, they will be reused for subdenpendency resolution as well.
  - **Registering with name** - multiple registration with the same service type, can be addressed at resolution time via attributes as well.
  - **Multiple service resolution** - all registered type of a service can be obtained as an `IEnumerable<T>` or `IEnumerable<object>` with the `ResolveAll()` method.
- - **Unknown type resolution** - Unregistered services can be resolved or injected.
- - **Default and optional value injection** - Primitive types or dependencies with default or optional value can be injected.
+ - **Unknown type resolution** - unregistered services can be resolved or injected.
+ - **Default and optional value injection** - primitive types or dependencies with default or optional value can be injected.
  - **Open generic type resolution** - concrete generic types can be resolved from open generic definitions, constraint checking and nested generic definitions also supported.
  - **Constructor, property and field injection** - supports attribute driven injection and attributeless injection as well, where there is no chance to decorate members with attributes.
  - **Resolution method** - methods decorated with `InjectionMethod` attribute will be called at resolution time.
@@ -21,10 +21,10 @@ Stashbox is a lightweight, portable dependency injection framework for .NET base
  - **Conditional resolution** - attribute, parent-type and custom user defined conditions can be specified.
  - **IDisposable object tracking** - `IDisposable` objects are being disposed by the container.
  - **Special types** - generic wrappers:
-  - Collections: everything assignable to `IEnumerable<T>`, `T[]`, `ICollection<T>`, `IReadOnlyCollection<T>` etc.
-  - `Lazy<T>`, `Func<T>`, `Tuple<T>`
+  - Collections: everything assignable to `IEnumerable<T>` e.g. `T[]`, `ICollection<T>`, `IReadOnlyCollection<T>`, `IList<T>` etc.
+  - `Lazy<T>`, `Func<T>`
   - Parameter injection over factory method arguments e.g. `Func<TParam, TService>`, `Func<TParam1, TParam2, TService>`, etc. applied to subdependencies as well.
-  - Nesting support e.g. `IEnumerable<Func<TParam, Lazy<Tuple<TService>>>>`.
+  - Nesting support e.g. `IEnumerable<Func<TParam, Lazy<TService>>>`.
  - **Custom resolvers** - the existing resolution operations can be extended by custom resolvers.
  - **Container extensions** - the functionality of the container can be extended by custom extensions, e.g. [Decorator extension](https://github.com/z4kn4fein/stashbox-decoratorextension)
 
