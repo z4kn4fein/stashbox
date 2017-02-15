@@ -46,11 +46,6 @@ namespace Stashbox.Infrastructure
         IActivationContext ActivationContext { get; }
 
         /// <summary>
-        /// The container configuration.
-        /// </summary>
-        ContainerConfiguration ContainerConfiguration { get; }
-
-        /// <summary>
         /// Checks a type can be resolved by the container.
         /// </summary>
         /// <typeparam name="TFrom">The service type.</typeparam>

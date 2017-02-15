@@ -100,7 +100,7 @@ namespace Stashbox.MetaInfo
                     this.containerContext.ResolutionStrategy.BuildResolutionTarget(this.containerContext, resolutionInfo, parameter, injectionParameters)).ToArray()
             });
 
-        private ResolutionConstructor SelectBestConstructor(IEnumerable<ResolutionConstructor> constructors) =>
-            this.containerContext.Container.ContainerConfiguration.ConstructorSelectionRule(constructors);
+        private ResolutionConstructor SelectBestConstructor(IEnumerable<ResolutionConstructor> constructors)=>
+            this.containerContext.ContainerConfigurator.ContainerConfiguration.ConstructorSelectionRule(constructors);
     }
 }

@@ -51,6 +51,11 @@ namespace Stashbox.Infrastructure
         ConcurrentStore<object> TrackedTransientObjects { get; }
 
         /// <summary>
+        /// Indicates that the container should track transient objects for disposal or not.
+        /// </summary>
+        IContainerConfigurator ContainerConfigurator { get; }
+
+        /// <summary>
         /// Reserves a new registration number.
         /// </summary>
         /// <returns>The registration number.</returns>

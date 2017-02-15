@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Stashbox.Infrastructure;
+using Stashbox.Configuration;
 
 namespace Stashbox.Tests
 {
@@ -34,7 +35,7 @@ namespace Stashbox.Tests
         [TestMethod]
         public void ReMapTests_Enumerable_Named()
         {
-            IStashboxContainer container = new StashboxContainer();
+            IStashboxContainer container = new StashboxContainer(config => config.WithEnumerableOrderRule(Rules.EnumerableOrder.PreserveOrder));
             container.RegisterType<ITest1, Test1>("teszt");
             container.RegisterType<ITest1, Test12>("teszt2");
 
@@ -47,8 +48,8 @@ namespace Stashbox.Tests
 
             var coll2 = container.Resolve<IEnumerable<ITest1>>().ToArray();
 
-            Assert.IsInstanceOfType(coll2[0], typeof(Test11));
-            Assert.IsInstanceOfType(coll2[1], typeof(Test12));
+            Assert.IsInstanceOfType(coll2[0], typeof(Test12));
+            Assert.IsInstanceOfType(coll2[1], typeof(Test11));
         }
 
         [TestMethod]

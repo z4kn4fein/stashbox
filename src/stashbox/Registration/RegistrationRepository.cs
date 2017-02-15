@@ -10,13 +10,13 @@ namespace Stashbox.Registration
 {
     internal class RegistrationRepository : IRegistrationRepository
     {
-        private readonly IStashboxContainer stashboxContainer;
+        private readonly IContainerConfigurator containerConfigurator;
         private readonly ConcurrentTree<Type, ConcurrentTree<string, IServiceRegistration>> serviceRepository;
         private readonly ConcurrentTree<Type, ConcurrentTree<string, IServiceRegistration>> conditionalRepository;
 
-        public RegistrationRepository(IStashboxContainer stashboxContainer)
+        public RegistrationRepository(IContainerConfigurator containerConfigurator)
         {
-            this.stashboxContainer = stashboxContainer;
+            this.containerConfigurator = containerConfigurator;
             this.serviceRepository = new ConcurrentTree<Type, ConcurrentTree<string, IServiceRegistration>>();
             this.conditionalRepository = new ConcurrentTree<Type, ConcurrentTree<string, IServiceRegistration>>();
         }
@@ -99,7 +99,7 @@ namespace Stashbox.Registration
             if (registrations == null) return GetDefaultRegistrationOrDefault(typeInfo);
 
             return registrations.HasMultipleItems ?
-                this.stashboxContainer.ContainerConfiguration.DependencySelectionRule(registrations.Where(reg => reg.IsUsableForCurrentContext(typeInfo))) :
+                this.containerConfigurator.ContainerConfiguration.DependencySelectionRule(registrations.Where(reg => reg.IsUsableForCurrentContext(typeInfo) && reg.ValidateGenericContraints(typeInfo))) :
                     registrations.Value;
         }
 
@@ -109,7 +109,7 @@ namespace Stashbox.Registration
             if (registrations == null) return null;
 
             return registrations.HasMultipleItems ?
-                this.stashboxContainer.ContainerConfiguration.DependencySelectionRule(registrations) :
+                this.containerConfigurator.ContainerConfiguration.DependencySelectionRule(registrations.Where(reg => reg.ValidateGenericContraints(typeInfo))) :
                     registrations.Value;
         }
 

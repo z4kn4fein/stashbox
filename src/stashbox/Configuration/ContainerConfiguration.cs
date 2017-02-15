@@ -1,145 +1,80 @@
 ﻿using System;
 using System.Collections.Generic;
+using Stashbox.Attributes;
 using Stashbox.Entity.Resolution;
 using Stashbox.Infrastructure.Registration;
 
 namespace Stashbox.Configuration
 {
     /// <summary>
-    /// Represents the configuration of the <see cref="StashboxContainer"/>.
+    /// Represents a container configuration
     /// </summary>
     public class ContainerConfiguration
     {
         internal static ContainerConfiguration DefaultContainerConfiguration()
         {
-            return new ContainerConfiguration()
-              .WithConstructorSelectionRule(Rules.ConstructorSelection.ByPass)
-              .WithDependencySelectionRule(Rules.DependencySelection.ByPass)
-              .WithEnumerableOrderRule(Rules.EnumerableOrder.ByPass);
-        }
-
-        internal bool TrackTransientsForDisposalEnabled { get; private set; }
-
-        internal bool ParentContainerResolutionEnabled { get; private set; }
-
-        internal bool CircularDependencyTrackingEnabled { get; private set; }
-
-        internal bool OptionalAndDefaultValueInjectionEnabled { get; private set; }
-
-        internal bool UnknownTypeResolutionEnabled { get; private set; }
-
-        internal bool MemberInjectionWithoutAnnotationEnabled { get; private set; }
-
-        internal bool CircularDependenciesWithLazyEnabled { get; private set; }
-
-        internal Rules.AutoMemberInjection MemberInjectionWithoutAnnotationRule { get; private set; }
-
-        internal Func<IEnumerable<ResolutionConstructor>, ResolutionConstructor> ConstructorSelectionRule { get; private set; }
-
-        internal Func<IEnumerable<IServiceRegistration>, IServiceRegistration> DependencySelectionRule { get; private set; }
-
-        internal Func<IEnumerable<IServiceRegistration>, IEnumerable<IServiceRegistration>> EnumerableOrderRule { get; private set; }
-
-        /// <summary>
-        /// Enables the tracking of disposable transient objects.
-        /// </summary>
-        /// <returns>The container configuration.</returns>
-        public ContainerConfiguration WithDisposableTransientTracking()
-        {
-            this.TrackTransientsForDisposalEnabled = true;
-            return this;
+            return new ContainerConfiguration
+            {
+                ConstructorSelectionRule = Rules.ConstructorSelection.ByPass,
+                DependencySelectionRule = Rules.DependencySelection.ByPass,
+                EnumerableOrderRule = Rules.EnumerableOrder.ByPass
+            };
         }
 
         /// <summary>
-        /// Enables the resolution through the parent container.
+        /// If it's set to true the container will track transient objects for disposal.
         /// </summary>
-        /// <returns>The container configuration.</returns>
-        public ContainerConfiguration WithParentContainerResolution()
-        {
-            this.ParentContainerResolutionEnabled = true;
-            return this;
-        }
+        public bool TrackTransientsForDisposalEnabled { get; internal set; }
 
         /// <summary>
-        /// Enables the circular dependency tracking.
+        /// If it's set to true the container will use the parent container for missing registration resolution.
         /// </summary>
-        /// <returns>The container configuration.</returns>
-        public ContainerConfiguration WithCircularDependencyTracking()
-        {
-            this.CircularDependencyTrackingEnabled = true;
-            return this;
-        }
+        public bool ParentContainerResolutionEnabled { get; internal set; }
 
         /// <summary>
-        /// Enables the circular dependency tracking.
+        /// If it's set to true the container will track circular dependencies in the dependency graph and will throw an exception if any of it found.
         /// </summary>
-        /// <returns>The container configuration.</returns>
-        public ContainerConfiguration WithCircularDependencyWithLazy()
-        {
-            this.CircularDependenciesWithLazyEnabled = true;
-            return this;
-        }
+        public bool CircularDependencyTrackingEnabled { get; internal set; }
 
         /// <summary>
-        /// Enables the optional and default value injection.
+        /// If it's set to true, the container will inject optional and default values for missing dependencies and primitive types.
         /// </summary>
-        /// <returns>The container configuration.</returns>
-        public ContainerConfiguration WithOptionalAndDefaultValueInjection()
-        {
-            this.OptionalAndDefaultValueInjectionEnabled = true;
-            return this;
-        }
+        public bool OptionalAndDefaultValueInjectionEnabled { get; internal set; }
 
         /// <summary>
-        /// Enables the unknown type resolution.
+        /// If it's set to true the container will try to register the unknown type during the activation.
         /// </summary>
-        /// <returns>The container configuration.</returns>
-        public ContainerConfiguration WithUnknownTypeResolution()
-        {
-            this.UnknownTypeResolutionEnabled = true;
-            return this;
-        }
+        public bool UnknownTypeResolutionEnabled { get; internal set; }
 
         /// <summary>
-        /// Enables the member injection without annotation.
+        /// If it's set to true, the container will wither inject members whithout the <see cref="DependencyAttribute"/>.
         /// </summary>
-        /// <returns>The container configuration.</returns>
-        public ContainerConfiguration WithMemberInjectionWithoutAnnotation(Rules.AutoMemberInjection rule)
-        {
-            this.MemberInjectionWithoutAnnotationEnabled = true;
-            this.MemberInjectionWithoutAnnotationRule = rule;
-            return this;
-        }
+        public bool MemberInjectionWithoutAnnotationEnabled { get; internal set; }
 
         /// <summary>
-        /// Sets the constructor selection rule.
+        /// If it's set to true, the container will not track circular dependencies performed with <see cref="Lazy{T}"/>.
         /// </summary>
-        /// <returns>The container configuration.</returns>
-        public ContainerConfiguration WithConstructorSelectionRule(Func<IEnumerable<ResolutionConstructor>, ResolutionConstructor> selectionRule)
-        {
-            this.ConstructorSelectionRule = selectionRule;
-            return this;
-        }
+        public bool CircularDependenciesWithLazyEnabled { get; internal set; }
 
         /// <summary>
-        /// Sets the dependency selection rule.
+        /// The annotationless member injection rule.
         /// </summary>
-        /// <returns>The container configuration.</returns>
-        public ContainerConfiguration WithDependencySelectionRule(Func<IEnumerable<IServiceRegistration>, IServiceRegistration> selectionRule)
-        {
-            this.DependencySelectionRule = selectionRule;
-            return this;
-        }
+        public Rules.AutoMemberInjection MemberInjectionWithoutAnnotationRule { get; internal set; }
 
         /// <summary>
-        /// Sets the enumerable ordering rule.
+        /// The constructor selection rule.
         /// </summary>
-        /// <returns>The container configuration.</returns>
-        public ContainerConfiguration WithEnumerableOrderRule(Func<IEnumerable<IServiceRegistration>, IEnumerable<IServiceRegistration>> selectionRule)
-        {
-            this.EnumerableOrderRule = selectionRule;
-            return this;
-        }
+        public Func<IEnumerable<ResolutionConstructor>, ResolutionConstructor> ConstructorSelectionRule { get; internal set; }
+
+        /// <summary>
+        /// The dependency selection rule.
+        /// </summary>
+        public Func<IEnumerable<IServiceRegistration>, IServiceRegistration> DependencySelectionRule { get; internal set; }
+
+        /// <summary>
+        /// The enumerable order rule.
+        /// </summary>
+        public Func<IEnumerable<IServiceRegistration>, IEnumerable<IServiceRegistration>> EnumerableOrderRule { get; internal set; }
 
         internal ContainerConfiguration()
         {

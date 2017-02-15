@@ -1,148 +1,39 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <MinimumVisualStudioVersion>11.0</MinimumVisualStudioVersion>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{21317234-0499-4178-BCA5-558FBA2CB9AC}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Stashbox</RootNamespace>
+    <TargetFrameworks>net45;netstandard1.0;portable-net45+win8+wpa81+wp8</TargetFrameworks>
     <AssemblyName>Stashbox</AssemblyName>
-    <DefaultLanguage>en-US</DefaultLanguage>
-    <FileAlignment>512</FileAlignment>
-    <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <TargetFrameworkProfile>Profile259</TargetFrameworkProfile>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Debug\Stashbox.XML</DocumentationFile>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Release\Stashbox.XML</DocumentationFile>
-  </PropertyGroup>
-  <PropertyGroup>
+    <AssemblyTitle>Stashbox</AssemblyTitle>
+    <RootNamespace>Stashbox</RootNamespace>
+    <PackageId>Stashbox</PackageId>
+    <Authors>Peter Csajtai</Authors>
+    <Company>Peter Csajtai</Company>
+    <Product>Stashbox</Product>
+    <Copyright>Copyright © Peter Csajtai 2017</Copyright>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/z4kn4fein/stashbox/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/z4kn4fein/stashbox</PackageProjectUrl>
+    <PackageIconUrl>https://goo.gl/I3hRfL</PackageIconUrl>
+    <RepositoryUrl>https://github.com/z4kn4fein/stashbox</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>Stashbox di dependencyinjection ioc</PackageTags>
+    <Description>Stashbox dependency injection library.</Description>
+    <WarningsAsErrors>true</WarningsAsErrors>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>../../sn.snk</AssemblyOriginatorKeyFile>
+    <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
+    <Version>1.0.0</Version>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+    <DebugType>portable</DebugType>
   </PropertyGroup>
-  <PropertyGroup>
-    <AssemblyOriginatorKeyFile>..\..\sn.snk</AssemblyOriginatorKeyFile>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.0'">
+    <AssemblyTitle>Stashbox .NET Standard 1.0</AssemblyTitle>
   </PropertyGroup>
-  <ItemGroup>
-    <Compile Include="Attributes\DependencyAttribute.cs" />
-    <Compile Include="Attributes\InjectionMethodAttribute.cs" />
-    <Compile Include="BuildUp\Resolution\DefaultValueResolver.cs" />
-    <Compile Include="BuildUp\Resolution\FuncResolver.cs" />
-    <Compile Include="BuildUp\Resolution\ParameterExpressionResolver.cs" />
-    <Compile Include="BuildUp\Resolution\ParentContainerResolver.cs" />
-    <Compile Include="BuildUp\Resolution\UnknownTypeResolver.cs" />
-    <Compile Include="Configuration\ContainerConfiguration.cs" />
-    <Compile Include="Configuration\Rules.cs" />
-    <Compile Include="ContainerContext.cs" />
-    <Compile Include="BuildExtensionManager.cs" />
-    <Compile Include="BuildUp\WireUpObjectBuilder.cs" />
-    <Compile Include="BuildUp\DefaultObjectBuilder.cs" />
-    <Compile Include="BuildUp\Expressions\ExpressionDelegateFactory.cs" />
-    <Compile Include="BuildUp\FactoryObjectBuilder.cs" />
-    <Compile Include="BuildUp\GenericTypeObjectBuilder.cs" />
-    <Compile Include="BuildUp\InstanceObjectBuilder.cs" />
-    <Compile Include="BuildUp\Resolution\EnumerableResolver.cs" />
-    <Compile Include="BuildUp\Resolution\ContainerResolver.cs" />
-    <Compile Include="BuildUp\Resolution\LazyResolver.cs" />
-    <Compile Include="Entity\ConstructorInformation.cs" />
-    <Compile Include="Entity\DelegateInformation.cs" />
-    <Compile Include="Entity\InjectionParameter.cs" />
-    <Compile Include="Entity\MethodInformation.cs" />
-    <Compile Include="Entity\MemberInformation.cs" />
-    <Compile Include="Entity\RegistrationInfo.cs" />
-    <Compile Include="Entity\RegistrationType.cs" />
-    <Compile Include="Entity\Resolution\ResolutionConstructor.cs" />
-    <Compile Include="Entity\ResolutionInfo.cs" />
-    <Compile Include="Entity\Resolution\ResolutionMethod.cs" />
-    <Compile Include="Entity\Resolution\ResolutionMember.cs" />
-    <Compile Include="Entity\Resolution\ResolutionTarget.cs" />
-    <Compile Include="Entity\ResolverRegistration.cs" />
-    <Compile Include="Entity\TypeInformation.cs" />
-    <Compile Include="Exceptions\CircularDependencyException.cs" />
-    <Compile Include="Exceptions\ExceptionBase.cs" />
-    <Compile Include="Exceptions\ResolutionFailedException.cs" />
-    <Compile Include="Extensions\MemberInfoExtensions.cs" />
-    <Compile Include="Extensions\TypeExtensions.cs" />
-    <Compile Include="Infrastructure\ContainerExtension\IPostBuildExtension.cs" />
-    <Compile Include="Infrastructure\ContainerExtension\IRegistrationExtension.cs" />
-    <Compile Include="Infrastructure\Resolution\IActivationContext.cs" />
-    <Compile Include="Infrastructure\IDelegateRepository.cs" />
-    <Compile Include="Infrastructure\Registration\IRegistrationContext.cs" />
-    <Compile Include="Infrastructure\Resolution\IResolutionStrategy.cs" />
-    <Compile Include="Lifetime\LifetimeBase.cs" />
-    <Compile Include="Lifetime\ScopedLifetime.cs" />
-    <Compile Include="Lifetime\SingletonLifetime.cs" />
-    <Compile Include="MetaInfo\MetaInfoCache.cs" />
-    <Compile Include="Registration\RegistrationContext.cs" />
-    <Compile Include="Registration\RegistrationContextBase.cs" />
-    <Compile Include="Registration\ScopedRegistrationItem.cs" />
-    <Compile Include="Resolution\ActivationContext.cs" />
-    <Compile Include="Resolution\DelegateRepository.cs" />
-    <Compile Include="Resolution\ResolutionStrategy.cs" />
-    <Compile Include="Registration\RegistrationContextData.cs" />
-    <Compile Include="Registration\ScopedRegistrationContext.cs" />
-    <Compile Include="StashboxContainer.cs" />
-    <Compile Include="StashboxContainer.Registrator.cs" />
-    <Compile Include="StashboxContainer.Resolver.cs" />
-    <Compile Include="Infrastructure\ContainerExtension\IContainerExtension.cs" />
-    <Compile Include="Infrastructure\IContainerContext.cs" />
-    <Compile Include="Infrastructure\ContainerExtension\IContainerExtensionManager.cs" />
-    <Compile Include="Infrastructure\IDependencyRegistrator.cs" />
-    <Compile Include="Infrastructure\IDependencyResolver.cs" />
-    <Compile Include="Infrastructure\IStashboxContainer.cs" />
-    <Compile Include="Infrastructure\ILifetime.cs" />
-    <Compile Include="Infrastructure\IMetaInfoProvider.cs" />
-    <Compile Include="Infrastructure\IObjectBuilder.cs" />
-    <Compile Include="Infrastructure\Registration\IRegistrationRepository.cs" />
-    <Compile Include="Infrastructure\Resolution\IResolverSelector.cs" />
-    <Compile Include="Infrastructure\Registration\IServiceRegistration.cs" />
-    <Compile Include="Infrastructure\Resolution\Resolver.cs" />
-    <Compile Include="Lifetime\TransientLifetime.cs" />
-    <Compile Include="MetaInfo\MetaInfoProvider.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Registration\RegistrationRepository.cs" />
-    <Compile Include="Registration\ServiceRegistration.cs" />
-    <Compile Include="Resolution\ResolverSelector.cs" />
-    <Compile Include="Utils\AtomicBool.cs" />
-    <Compile Include="BuildUp\CircularDependencyBarrier.cs" />
-    <Compile Include="Utils\AvlTree.cs" />
-    <Compile Include="Utils\ConcurrentKeyValueStore.cs" />
-    <Compile Include="Utils\ConcurrentStore.cs" />
-    <Compile Include="Utils\ConcurrentTree.cs" />
-    <Compile Include="Utils\DisposableReaderWriterLock.cs" />
-    <Compile Include="Utils\HashMap.cs" />
-    <Compile Include="Utils\NameGenerator.cs" />
-    <Compile Include="Utils\RandomAccessArray.cs" />
-    <Compile Include="Utils\Shield.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\sn.snk" />
-  </ItemGroup>
-  <ItemGroup />
-  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+  <PropertyGroup Condition="'$(TargetFramework)' == 'portable-net45+win8+wpa81+wp8'">
+    <TargetFrameworkIdentifier>.NETPortable</TargetFrameworkIdentifier>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Profile259</TargetFrameworkProfile>
+    <NugetTargetMoniker>.NETPortable,Version=v0.0,Profile=Profile259</NugetTargetMoniker>
+    <LanguageTargets>$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets</LanguageTargets>
+  </PropertyGroup>
 </Project>

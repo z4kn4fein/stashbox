@@ -33,6 +33,21 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void ResolverTests_DefaultValue_WithOptional_LateConfig()
+        {
+            using (var container = new StashboxContainer())
+            {
+                container.ContainerContext.ContainerConfigurator.WithOptionalAndDefaultValueInjection()
+                    .WithMemberInjectionWithoutAnnotation(Rules.AutoMemberInjection.PropertiesWithPublicSetter);
+
+                container.RegisterType<Test1>();
+                var inst = container.Resolve<Test1>();
+
+                Assert.AreEqual(5, inst.I);
+            }
+        }
+
+        [TestMethod]
         public void ResolverTests_DefaultValue_RefType_WithOptional()
         {
             using (var container = new StashboxContainer(config => config.WithOptionalAndDefaultValueInjection()))

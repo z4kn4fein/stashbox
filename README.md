@@ -1,4 +1,4 @@
-# stashbox [![Build status](https://ci.appveyor.com/api/projects/status/0849ee6awjyxohei/branch/master?svg=true)](https://ci.appveyor.com/project/pcsajtai/stashbox/branch/master) [![Coverage Status](https://coveralls.io/repos/github/z4kn4fein/stashbox/badge.svg?branch=master)](https://coveralls.io/github/z4kn4fein/stashbox?branch=master) [![Join the chat at https://gitter.im/z4kn4fein/stashbox](https://img.shields.io/badge/gitter-join%20chat-1dce73.svg)](https://gitter.im/z4kn4fein/stashbox?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![NuGet Version](https://buildstats.info/nuget/Stashbox)](https://www.nuget.org/packages/Stashbox/)
+# stashbox [![Appveyor build status](https://img.shields.io/appveyor/ci/pcsajtai/stashbox/master.svg?label=appveyor)](https://ci.appveyor.com/project/pcsajtai/stashbox/branch/master) [![Travis CI build status](https://img.shields.io/travis/z4kn4fein/stashbox/master.svg?label=travis-ci)](https://travis-ci.org/z4kn4fein/stashbox) [![Coverage Status](https://coveralls.io/repos/github/z4kn4fein/stashbox/badge.svg?branch=master)](https://coveralls.io/github/z4kn4fein/stashbox?branch=master) [![Join the chat at https://gitter.im/z4kn4fein/stashbox](https://img.shields.io/badge/gitter-join%20chat-1dce73.svg)](https://gitter.im/z4kn4fein/stashbox?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![NuGet Version](https://buildstats.info/nuget/Stashbox)](https://www.nuget.org/packages/Stashbox/)
 
 Stashbox is a lightweight, portable dependency injection framework for .NET based solutions.
 
@@ -20,7 +20,7 @@ Stashbox is a lightweight, portable dependency injection framework for .NET base
  - Windows Phone Silverlight 8/8.1
  - Windows Phone 8.1
  - Xamarin (Android/iOS/iOS Classic)
- - .NET core [![Build status](https://ci.appveyor.com/api/projects/status/ls3wijdu88x9ymcn/branch/master?svg=true)](https://ci.appveyor.com/project/pcsajtai/stashbox-core/branch/master) [![NuGet Version](https://buildstats.info/nuget/Stashbox.Core)](https://www.nuget.org/packages/Stashbox.Core/)
+ - .NET Standard 1.0
 
 ## Sample usage
 ```c#

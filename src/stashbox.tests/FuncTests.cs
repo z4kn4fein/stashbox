@@ -90,7 +90,7 @@ namespace Stashbox.Tests
 
             Assert.AreSame(t, r.Func2.Test);
         }
-
+        
         public class ScopedFuncTest
         {
             public Func<ITest> Factory { get; set; }
