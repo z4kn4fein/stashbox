@@ -35,7 +35,7 @@ namespace Stashbox.Infrastructure
         IContainerConfigurator WithCircularDependencyTracking();
 
         /// <summary>
-        /// Enables the circular dependency tracking.
+        /// Allows circular dependencies through Lazy<> objects.
         /// </summary>
         /// <returns>The container configurator.</returns>
         IContainerConfigurator WithCircularDependencyWithLazy();
