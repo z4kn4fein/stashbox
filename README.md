@@ -20,6 +20,7 @@ Stashbox is a lightweight, portable dependency injection framework for .NET base
  - **Lifetime management** - including `Singleton`, `Transient` and `Scoped` lifetime, custom user defined lifetimes also can be used.
  - **Conditional resolution** - attribute, parent-type and custom user defined conditions can be specified.
  - **IDisposable object tracking** - `IDisposable` objects are being disposed by the container.
+ - **Circular dependency tracking** - the container checks the dependency graph for circular dependencies, specific excpetion will be thrown if found any.
  - **Special types** - generic wrappers:
   - Collections: everything assignable to `IEnumerable<T>` e.g. `T[]`, `ICollection<T>`, `IReadOnlyCollection<T>`, `IList<T>` etc.
   - `Lazy<T>`, `Func<T>`
@@ -27,6 +28,7 @@ Stashbox is a lightweight, portable dependency injection framework for .NET base
   - Nesting support e.g. `IEnumerable<Func<TParam, Lazy<TService>>>`.
  - **Custom resolvers** - the existing resolution operations can be extended by custom resolvers.
  - **Container extensions** - the functionality of the container can be extended by custom extensions, e.g. [Decorator extension](https://github.com/z4kn4fein/stashbox-decoratorextension)
+ - **Custom configuration** - the behavior of the container can be controlled by custom configuration.
 
 ## Supported platforms
 
