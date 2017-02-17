@@ -1,6 +1,4 @@
-﻿using Stashbox.Entity;
-using Stashbox.Infrastructure;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Stashbox.Entity.Resolution;
@@ -77,7 +75,7 @@ namespace Stashbox.Configuration
                 serviceRegistrations => serviceRegistrations.OrderByDescending(reg => reg.RegistrationNumber).Last();
 
             /// <summary>
-            /// Doesn't change the dependency order, it fill use the first usable dependency.
+            /// Doesn't change the dependency order, it'll use the first usable dependency.
             /// </summary>
             public static readonly Func<IEnumerable<IServiceRegistration>, IServiceRegistration> ByPass =
                 serviceRegistrations => serviceRegistrations.First();
