@@ -1,5 +1,4 @@
 ﻿using Stashbox.Entity;
-using System;
 
 namespace Stashbox.Infrastructure.ContainerExtension
 {
