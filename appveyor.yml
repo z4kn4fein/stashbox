@@ -1,40 +1,113 @@
-version: 2.0.{build}
+# master branch
+-
+  branches:
+    only:
+      - master
 
-environment:
-  COVERALLS_REPO_TOKEN:
-    secure: Q9gcbZnzJ5a0YYF6mkr4QoQylIzeQmVytMnIe4WL7aPtb30SdNes7brLkvnXOirt
+  deploy:
+  - provider: NuGet
+    api_key:
+      secure: doqtwSE1NadH7pf4jqYifDu4tcXzsNiJtPWOccnbUrhSnIJX+5js7m8z+kV9LNJ2
 
-pull_requests:
-  do_not_increment_build_number: true
+  - provider: GitHub
+    tag: $(appveyor_build_version)
+    release: Stashbox v$(appveyor_build_version)
+    auth_token:
+      secure: TaIug8cHioxT2qDznFpGtDinZiDi+20pEMQZUVAATWCvGLG9Y5LrjaxDUQtGyt38
+    artifact: /.*\.nupkg/
 
-image: Visual Studio 2017 RC
+  environment:
+    build_version: 2.1.0
+    COVERALLS_REPO_TOKEN:
+      secure: Q9gcbZnzJ5a0YYF6mkr4QoQylIzeQmVytMnIe4WL7aPtb30SdNes7brLkvnXOirt
 
-configuration: Release
+  version: $(build_version)-{build}
 
-before_build:
-- ps: . .\patch-version.ps1 "src\stashbox\stashbox.csproj"
+  pull_requests:
+    do_not_increment_build_number: true
+  
+  image: Visual Studio 2017 RC
+  
+  configuration: Release
+  
+  before_build:
+  - ps: . .\patch-version.ps1 "src\stashbox\stashbox.csproj" $($env:build_version)
+  
+  build_script:
+  - msbuild /t:Restore /p:Configuration=%CONFIGURATION% src\stashbox.sln
+  - msbuild /t:Build /p:Configuration=%CONFIGURATION% src\stashbox.sln
+  
+  after_build:
+  - msbuild /t:Pack /p:IncludeSymbols=true /p:Configuration=%CONFIGURATION% /p:PackageOutputPath=..\..\artifacts src\stashbox\stashbox.csproj
+  
+  test_script:
+  - ps: . .\set-debug-type.ps1 "src\stashbox\stashbox.csproj"
+  - dotnet test src\stashbox.tests\stashbox.tests.csproj  -f net45 -c %CONFIGURATION% --no-build
+  - dotnet test src\stashbox.tests\stashbox.tests.csproj  -f netcoreapp1.0 -c %CONFIGURATION% --no-build
+  - ps: . .\coverage.ps1
+  
+  artifacts:
+  - path: artifacts\Stashbox.*.nupkg
+    name: NuGet
+  
+  notifications:
+  - provider: Email
+    to:
+    - peter.csajtai@outlook.com
+    on_build_success: false
+    on_build_failure: true
+    on_build_status_changed: true
 
-build_script:
-- msbuild /t:Restore /p:Configuration=%CONFIGURATION% src\stashbox.sln
-- msbuild /t:Build /p:Configuration=%CONFIGURATION% src\stashbox.sln
+# every branch except master
+-
+  branches:
+    except:
+      - master
 
-after_build:
-- msbuild /t:Pack /p:IncludeSymbols=true /p:Configuration=%CONFIGURATION% /p:PackageOutputPath=..\..\artifacts src\stashbox\stashbox.csproj
+  deploy:
+  - provider: NuGet
+    server: https://ci.appveyor.com/nuget/dfulop-47k22fwevogt/api/v2/package
+    api_key:
+      secure: TkNCeoNPtr9F/Lsrbz81MYdIPj/mTptApAp+P6WfqlY=
 
-test_script:
-- ps: . .\set-debug-type.ps1 "src\stashbox\stashbox.csproj"
-- dotnet test src\stashbox.tests\stashbox.tests.csproj  -f net45 -c %CONFIGURATION% --no-build
-- dotnet test src\stashbox.tests\stashbox.tests.csproj  -f netcoreapp1.0 -c %CONFIGURATION% --no-build
-- ps: . .\coverage.ps1
+  environment:
+    build_version: 2.1.0
+    COVERALLS_REPO_TOKEN:
+      secure: Q9gcbZnzJ5a0YYF6mkr4QoQylIzeQmVytMnIe4WL7aPtb30SdNes7brLkvnXOirt
 
-artifacts:
-- path: artifacts\Stashbox.*.nupkg
-  name: NuGet
+  version: $(build_version)-preview-{build}
 
-notifications:
-- provider: Email
-  to:
-  - peter.csajtai@outlook.com
-  on_build_success: false
-  on_build_failure: true
-  on_build_status_changed: true
+  pull_requests:
+    do_not_increment_build_number: true
+  
+  image: Visual Studio 2017 RC
+  
+  configuration: Release
+  
+  before_build:
+  - ps: . .\patch-version.ps1 "src\stashbox\stashbox.csproj" $($env:APPVEYOR_BUILD_VERSION)
+  
+  build_script:
+  - msbuild /t:Restore /p:Configuration=%CONFIGURATION% src\stashbox.sln
+  - msbuild /t:Build /p:Configuration=%CONFIGURATION% src\stashbox.sln
+  
+  after_build:
+  - msbuild /t:Pack /p:IncludeSymbols=true /p:Configuration=%CONFIGURATION% /p:PackageOutputPath=..\..\artifacts src\stashbox\stashbox.csproj
+  
+  test_script:
+  - ps: . .\set-debug-type.ps1 "src\stashbox\stashbox.csproj"
+  - dotnet test src\stashbox.tests\stashbox.tests.csproj  -f net45 -c %CONFIGURATION% --no-build
+  - dotnet test src\stashbox.tests\stashbox.tests.csproj  -f netcoreapp1.0 -c %CONFIGURATION% --no-build
+  - ps: . .\coverage.ps1
+  
+  artifacts:
+  - path: artifacts\Stashbox.*.nupkg
+    name: NuGet
+  
+  notifications:
+  - provider: Email
+    to:
+    - peter.csajtai@outlook.com
+    on_build_success: false
+    on_build_failure: true
+    on_build_status_changed: true
