@@ -67,6 +67,7 @@
   deploy:
   - provider: NuGet
     server: https://ci.appveyor.com/nuget/dfulop-47k22fwevogt/api/v2/package
+    skip_symbols: true
     api_key:
       secure: TkNCeoNPtr9F/Lsrbz81MYdIPj/mTptApAp+P6WfqlY=
 
