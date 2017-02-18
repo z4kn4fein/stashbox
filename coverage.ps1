@@ -1,4 +1,8 @@
-﻿nuget install coveralls.net -Version 0.7.0 -OutputDirectory .\tools
+﻿if($env:APPVEYOR_PULL_REQUEST_NUMBER) {
+	exit 0
+} 
+
+nuget install coveralls.net -Version 0.7.0 -OutputDirectory .\tools
 nuget install OpenCover -Version 4.6.519 -OutputDirectory .\tools
 nuget install ReportGenerator -Version 2.5.2 -OutputDirectory .\tools
 
