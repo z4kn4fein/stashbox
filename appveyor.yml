@@ -10,18 +10,20 @@
       secure: doqtwSE1NadH7pf4jqYifDu4tcXzsNiJtPWOccnbUrhSnIJX+5js7m8z+kV9LNJ2
 
   - provider: GitHub
-    tag: $(appveyor_build_version)
-    release: Stashbox v$(appveyor_build_version)
+    tag: $(build_version)
+    release: Stashbox v$(build_version)
     auth_token:
       secure: TaIug8cHioxT2qDznFpGtDinZiDi+20pEMQZUVAATWCvGLG9Y5LrjaxDUQtGyt38
     artifact: /.*\.nupkg/
 
   environment:
-    build_version: 2.1.0
+    build_version: 2.1.1
     COVERALLS_REPO_TOKEN:
       secure: Q9gcbZnzJ5a0YYF6mkr4QoQylIzeQmVytMnIe4WL7aPtb30SdNes7brLkvnXOirt
 
   version: $(build_version)-{build}
+  
+  skip_tags: true
 
   pull_requests:
     do_not_increment_build_number: true
@@ -72,7 +74,7 @@
       secure: TkNCeoNPtr9F/Lsrbz81MYdIPj/mTptApAp+P6WfqlY=
 
   environment:
-    build_version: 2.1.0
+    build_version: 2.1.1
     COVERALLS_REPO_TOKEN:
       secure: Q9gcbZnzJ5a0YYF6mkr4QoQylIzeQmVytMnIe4WL7aPtb30SdNes7brLkvnXOirt
 
