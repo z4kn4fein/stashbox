@@ -68,10 +68,10 @@
 
   deploy:
   - provider: NuGet
-    server: https://ci.appveyor.com/nuget/dfulop-47k22fwevogt/api/v2/package
+    server: https://www.myget.org/F/pcsajtai/api/v2/package
     skip_symbols: true
     api_key:
-      secure: TkNCeoNPtr9F/Lsrbz81MYdIPj/mTptApAp+P6WfqlY=
+      secure: 2bITagXOj2s3bTJaGXh8/iyWtST8OQOFaMM+0GAKgZts9OjCVCiV7C+E/0SYsM6M
 
   environment:
     build_version: 2.1.1
