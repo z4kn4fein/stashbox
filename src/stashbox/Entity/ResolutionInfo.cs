@@ -15,11 +15,6 @@ namespace Stashbox.Entity
         /// </summary>
         public ParameterExpression[] ParameterExpressions { get; set; }
 
-        /// <summary>
-        /// The resolved type.
-        /// </summary>
-        public Type ResolvedType { get; set; }
-
         internal ISet<Type> CircularDependencyBarrier { get; }
 
         internal ResolutionInfo()

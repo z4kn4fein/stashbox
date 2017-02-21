@@ -114,7 +114,6 @@ namespace Stashbox.Tests
 
             public override Expression GetExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo)
             {
-                resolutionInfo.ResolvedType = typeInfo.Type;
                 return Expression.Constant(new Test1());
             }
         }

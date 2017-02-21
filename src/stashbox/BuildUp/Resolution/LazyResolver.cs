@@ -36,12 +36,9 @@ namespace Stashbox.BuildUp.Resolution
 
             var registration = containerContext.RegistrationRepository.GetRegistrationOrDefault(lazyArgumentInfo, true);
             if (registration != null)
-            {
-                resolutionInfo.ResolvedType = lazyArgumentInfo.Type;
                 return !containerContext.ContainerConfigurator.ContainerConfiguration.CircularDependenciesWithLazyEnabled ?
                            Expression.New(lazyConstructor, Expression.Lambda(registration.GetExpression(resolutionInfo, lazyArgumentInfo))) :
                             this.CreateLazyExpressionCall(registration, lazyArgumentInfo, lazyConstructor, resolutionInfo);
-            }
 
             var expression = this.resolverSelector.GetResolverExpression(containerContext, lazyArgumentInfo, resolutionInfo);
             return Expression.New(lazyConstructor, Expression.Lambda(expression));
@@ -73,8 +70,7 @@ namespace Stashbox.BuildUp.Resolution
                             Expression.Lambda(serviceRegistrations[i].GetExpression(resolutionInfo, lazyArgumentInfo)));
                     else
                         regExpressions[i] = this.CreateLazyExpressionCall(serviceRegistrations[i], lazyArgumentInfo, lazyConstructor, resolutionInfo);
-
-                resolutionInfo.ResolvedType = lazyArgumentInfo.Type;
+                
                 return regExpressions;
             }
 
