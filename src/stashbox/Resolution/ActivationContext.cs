@@ -21,9 +21,7 @@ namespace Stashbox.Resolution
 
         public object Activate(ResolutionInfo resolutionInfo, TypeInformation typeInfo)
         {
-            var cachedFactory = this.containerContext.DelegateRepository.GetDelegateCacheOrDefault(typeInfo) ??
-                this.containerContext.DelegateRepository.GetWrapperDelegateCacheOrDefault(typeInfo);
-
+            var cachedFactory = this.containerContext.DelegateRepository.GetDelegateCacheOrDefault(typeInfo);
             return cachedFactory != null ? cachedFactory() : this.ActivateType(resolutionInfo, typeInfo);
         }
 
@@ -48,12 +46,7 @@ namespace Stashbox.Resolution
                 throw new ResolutionFailedException(typeInfo.Type.FullName);
 
             var factory = ExpressionDelegateFactory.CompileObjectExpression(expr);
-            this.containerContext.DelegateRepository.AddWrapperDelegate(new WrappedDelegateInformation
-            {
-                DependencyName = typeInfo.DependencyName,
-                WrappedType = resolutionInfo.ResolvedType,
-                DelegateReturnType = typeInfo.Type
-            }, factory);
+            this.containerContext.DelegateRepository.AddServiceDelegate(typeInfo, factory);
             return factory();
         }
 

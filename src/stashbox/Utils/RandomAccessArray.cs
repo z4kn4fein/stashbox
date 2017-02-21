@@ -4,7 +4,7 @@
     {
         private readonly int arraySize;
         protected readonly int IndexBound;
-        private readonly TValue[] array;
+        private TValue[] array;
 
         public RandomAccessArray(int arraySize = 64)
         {
@@ -16,5 +16,7 @@
         public void Store(int key, TValue value) => this.array[key & this.IndexBound] = value;
 
         public TValue Load(int key) => this.array[key & this.IndexBound];
+
+        public void Clear() => this.array = new TValue[this.arraySize];
     }
 }

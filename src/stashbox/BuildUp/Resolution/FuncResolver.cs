@@ -1,5 +1,4 @@
 ﻿using Stashbox.Entity;
-using Stashbox.Entity.Resolution;
 using Stashbox.Exceptions;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.Resolution;
@@ -53,17 +52,15 @@ namespace Stashbox.BuildUp.Resolution
             this.PrepareExtraParameters(typeInfo, resolutionInfo);
             var expressions = containerContext.ResolutionStrategy.BuildResolutionExpressions(containerContext, resolutionInfo, funcArgumentInfo);
 
-            if (expressions != null)
-            {
-                var length = expressions.Length;
-                var funcExpressions = new Expression[length];
-                for (var i = 0; i < length; i++)
-                    funcExpressions[i] = Expression.Lambda(expressions[i], resolutionInfo.ParameterExpressions);
+            if (expressions == null)
+                return null;
 
-                return funcExpressions;
-            }
+            var length = expressions.Length;
+            var funcExpressions = new Expression[length];
+            for (var i = 0; i < length; i++)
+                funcExpressions[i] = Expression.Lambda(expressions[i], resolutionInfo.ParameterExpressions);
 
-            return null;
+            return funcExpressions;
         }
 
         public override bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo) =>

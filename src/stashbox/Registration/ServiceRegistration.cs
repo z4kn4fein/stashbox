@@ -59,20 +59,7 @@ namespace Stashbox.Registration
         /// <inheritdoc />
         public bool ValidateGenericContraints(TypeInformation typeInformation) => !this.metaInfoProvider.HasGenericTypeConstraints ||
             this.metaInfoProvider.HasGenericTypeConstraints && this.metaInfoProvider.ValidateGenericContraints(typeInformation);
-
-        /// <inheritdoc />
-        public void ServiceUpdated(RegistrationInfo registrationInfo)
-        {
-            if (this.metaInfoProvider.SensitivityList.Contains(registrationInfo.TypeFrom))
-            {
-                this.containerContext.DelegateRepository.InvalidateDelegateCache(new TypeInformation
-                {
-                    Type = this.serviceType,
-                    DependencyName = this.RegistrationName
-                });
-            }
-        }
-
+        
         /// <inheritdoc />
         public void CleanUp()
         {

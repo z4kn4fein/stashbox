@@ -44,13 +44,7 @@ namespace Stashbox.Infrastructure.Registration
         /// <param name="typeInformation">The type information.</param>
         /// <returns>True if the argument is valid.</returns>
         bool ValidateGenericContraints(TypeInformation typeInformation);
-
-        /// <summary>
-        /// Indicates a service updated event when a ReMap occures on a tracked service.
-        /// </summary>
-        /// <param name="registrationInfo">The new service registration.</param>
-        void ServiceUpdated(RegistrationInfo registrationInfo);
-
+        
         /// <summary>
         /// Cleans up the registration.
         /// </summary>

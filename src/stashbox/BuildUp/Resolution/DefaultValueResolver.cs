@@ -14,12 +14,14 @@ namespace Stashbox.BuildUp.Resolution
         {
             if (typeInfo.HasDefaultValue)
                 return Expression.Constant(typeInfo.DefaultValue, typeInfo.Type);
-            else if (typeInfo.Type.GetTypeInfo().IsValueType)
+
+            if (typeInfo.Type.GetTypeInfo().IsValueType)
                 return Expression.Constant(Activator.CreateInstance(typeInfo.Type), typeInfo.Type);
-            else if (typeInfo.Type == typeof(string) || typeInfo.IsMember)
+
+            if (typeInfo.Type == typeof(string) || typeInfo.IsMember)
                 return Expression.Constant(null, typeInfo.Type);
-            else
-                throw new ResolutionFailedException(typeInfo.Type.FullName);
+
+            throw new ResolutionFailedException(typeInfo.Type.FullName);
         }
 
         public override bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo) =>

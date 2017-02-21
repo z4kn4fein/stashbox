@@ -27,14 +27,7 @@
             return this;
         }
 
-        public void Clear(TKey key)
-        {
-            var hash = key.GetHashCode();
-
-            var tree = this.repository.Load(hash) ?? new AvlTree<TValue>();
-            var newTree = tree.AddOrUpdate(hash, default(TValue), (oldValue, newValue) => newValue);
-            this.repository.Store(hash, newTree);
-        }
+        public void Clear() => this.repository.Clear();
     }
 
     internal class HashMap<TKey, TNestedKey, TValue>
@@ -66,12 +59,6 @@
             return this;
         }
 
-        public HashMap<TKey, TNestedKey, TValue> Clear(TKey key)
-        {
-            var hash = key.GetHashCode();
-            
-            this.repository.Store(hash, null);
-            return this;
-        }
+        public void Clear() => this.repository.Clear();
     }
 }

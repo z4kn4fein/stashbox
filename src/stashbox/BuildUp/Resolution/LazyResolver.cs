@@ -6,7 +6,6 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Stashbox.Infrastructure.Registration;
 using Stashbox.Infrastructure.Resolution;
-using Stashbox.Entity.Resolution;
 
 namespace Stashbox.BuildUp.Resolution
 {
@@ -66,31 +65,29 @@ namespace Stashbox.BuildUp.Resolution
             if (registrations != null)
             {
                 var serviceRegistrations = containerContext.ContainerConfigurator.ContainerConfiguration.EnumerableOrderRule(registrations).ToArray();
-                var length = serviceRegistrations.Length;
-                var expressions = new Expression[length];
-                for (var i = 0; i < length; i++)
+                var regLenght = serviceRegistrations.Length;
+                var regExpressions = new Expression[regLenght];
+                for (var i = 0; i < regLenght; i++)
                     if (!containerContext.ContainerConfigurator.ContainerConfiguration.CircularDependenciesWithLazyEnabled)
-                        expressions[i] = Expression.New(lazyConstructor,
+                        regExpressions[i] = Expression.New(lazyConstructor,
                             Expression.Lambda(serviceRegistrations[i].GetExpression(resolutionInfo, lazyArgumentInfo)));
                     else
-                        expressions[i] = this.CreateLazyExpressionCall(serviceRegistrations[i], lazyArgumentInfo, lazyConstructor, resolutionInfo);
+                        regExpressions[i] = this.CreateLazyExpressionCall(serviceRegistrations[i], lazyArgumentInfo, lazyConstructor, resolutionInfo);
 
                 resolutionInfo.ResolvedType = lazyArgumentInfo.Type;
-                return expressions;
+                return regExpressions;
             }
 
             var exprs = this.resolverSelector.GetResolverExpressions(containerContext, lazyArgumentInfo, resolutionInfo);
-            if (exprs != null)
-            {
-                var length = exprs.Length;
-                var expressions = new Expression[length];
-                for (var i = 0; i < length; i++)
-                    expressions[i] = Expression.New(lazyConstructor, Expression.Lambda(exprs[i]));
+            if (exprs == null)
+                return null;
 
-                return expressions;
-            }
+            var length = exprs.Length;
+            var expressions = new Expression[length];
+            for (var i = 0; i < length; i++)
+                expressions[i] = Expression.New(lazyConstructor, Expression.Lambda(exprs[i]));
 
-            return null;
+            return expressions;
         }
 
         private Expression CreateLazyExpressionCall(IServiceRegistration serviceRegistration, TypeInformation typeInfo, ConstructorInfo constructor, ResolutionInfo resolutionInfo)

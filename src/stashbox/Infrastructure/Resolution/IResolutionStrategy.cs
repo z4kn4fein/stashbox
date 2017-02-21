@@ -10,7 +10,7 @@ namespace Stashbox.Infrastructure.Resolution
     public interface IResolutionStrategy
     {
         /// <summary>
-        /// Builds a <see cref="ResolutionTarget"/> for a dependency.
+        /// Builds a resolution expression for a dependency.
         /// </summary>
         /// <param name="containerContext">The <see cref="IContainerContext"/> of the <see cref="StashboxContainer"/></param>
         /// <param name="resolutionInfo">The resolution info.</param>
@@ -21,7 +21,7 @@ namespace Stashbox.Infrastructure.Resolution
             InjectionParameter[] injectionParameters);
 
         /// <summary>
-        /// Builds a <see cref="ResolutionTarget"/> for a dependency.
+        /// Builds resolution expressions for an enumerable dependency.
         /// </summary>
         /// <param name="containerContext">The <see cref="IContainerContext"/> of the <see cref="StashboxContainer"/></param>
         /// <param name="resolutionInfo">The resolution info.</param>

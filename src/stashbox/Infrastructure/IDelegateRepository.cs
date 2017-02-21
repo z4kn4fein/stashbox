@@ -16,13 +16,6 @@ namespace Stashbox.Infrastructure
         Func<object> GetDelegateCacheOrDefault(TypeInformation typeInfo);
 
         /// <summary>
-        /// Gets a cached factory method for a wrapper type.
-        /// </summary>
-        /// <param name="typeInfo">The type info.</param>
-        /// <returns>The cached factory delegate.</returns>
-        Func<object> GetWrapperDelegateCacheOrDefault(TypeInformation typeInfo);
-
-        /// <summary>
         /// Gets a cached factory method.
         /// </summary>
         /// <param name="typeInfo">The type info.</param>
@@ -38,13 +31,6 @@ namespace Stashbox.Infrastructure
         void AddServiceDelegate(TypeInformation typeInfo, Func<object> factory);
 
         /// <summary>
-        /// Adds a wrapper delegate into the repository.
-        /// </summary>
-        /// <param name="typeInfo">The type info.</param>
-        /// <param name="factory">The factory delegate.</param>
-        void AddWrapperDelegate(WrappedDelegateInformation typeInfo, Func<object> factory);
-
-        /// <summary>
         /// Adds a factory delegate into the repository.
         /// </summary>
         /// <param name="typeInfo">The type info.</param>
@@ -55,7 +41,6 @@ namespace Stashbox.Infrastructure
         /// <summary>
         /// Invalidates a service delegate in the repository.
         /// </summary>
-        /// <param name="typeInfo">The type info.</param>
-        void InvalidateDelegateCache(TypeInformation typeInfo);
+        void InvalidateDelegateCache();
     }
 }

@@ -31,18 +31,9 @@ namespace Stashbox.Registration
         {
             var dependencyName = this.RegistrationContextData.Name;
             var registrationInfo = base.PrepareRegistration(this.containerExtensionManager, true);
-
             this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.ContainerContext, registrationInfo, base.RegistrationContextData.InjectionParameters);
 
-            foreach (var serviceRegistration in this.ContainerContext.RegistrationRepository.GetAllRegistrations())
-                serviceRegistration.ServiceUpdated(registrationInfo);
-
-            this.ContainerContext.DelegateRepository.InvalidateDelegateCache(new TypeInformation
-            {
-                Type = this.TypeFrom,
-                DependencyName = dependencyName
-            });
-
+            this.ContainerContext.DelegateRepository.InvalidateDelegateCache();
             return this.ContainerContext.Container;
         }
 
