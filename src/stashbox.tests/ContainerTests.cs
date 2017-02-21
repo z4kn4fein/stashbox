@@ -2,10 +2,8 @@
 using Stashbox.Entity;
 using Stashbox.Exceptions;
 using Stashbox.Infrastructure;
-using System;
 using System.Linq.Expressions;
 using Stashbox.Infrastructure.Resolution;
-using Stashbox.Entity.Resolution;
 
 namespace Stashbox.Tests
 {

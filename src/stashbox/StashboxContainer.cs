@@ -116,6 +116,7 @@ namespace Stashbox
             this.resolverSelector.AddResolver(new EnumerableResolver());
             this.resolverSelector.AddResolver(new LazyResolver(this.resolverSelector));
             this.resolverSelector.AddResolver(new FuncResolver());
+            this.resolverSelector.AddResolver(new TupleResolver());
             this.resolverSelector.AddResolver(new DefaultValueResolver());
             this.resolverSelector.AddResolver(new UnknownTypeResolver());
             this.resolverSelector.AddResolver(new ParentContainerResolver());

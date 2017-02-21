@@ -16,7 +16,11 @@ namespace Stashbox.BuildUp.Resolution
             typeof(Func<>),
             typeof(Func<,>),
             typeof(Func<,,>),
-            typeof(Func<,,,>)
+            typeof(Func<,,,>),
+            typeof(Func<,,,,>),
+            typeof(Func<,,,,,>),
+            typeof(Func<,,,,,,>),
+            typeof(Func<,,,,,,,>)
         };
 
         public override bool SupportsMany => true;

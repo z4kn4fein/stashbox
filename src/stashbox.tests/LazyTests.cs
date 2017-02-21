@@ -22,6 +22,32 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void LazyTests_Resolve_Func()
+        {
+            var container = new StashboxContainer();
+            container.RegisterType<ITest, Test>();
+            var inst = container.Resolve<Lazy<Func<ITest>>>();
+
+            Assert.IsNotNull(inst);
+            Assert.IsFalse(inst.IsValueCreated);
+            Assert.IsInstanceOfType(inst, typeof(Lazy<Func<ITest>>));
+            Assert.IsInstanceOfType(inst.Value(), typeof(Test));
+        }
+
+        [TestMethod]
+        public void LazyTests_Resolve_Enumerable()
+        {
+            var container = new StashboxContainer();
+            container.RegisterType<ITest, Test>();
+            var inst = container.Resolve<Lazy<IEnumerable<ITest>>>();
+
+            Assert.IsNotNull(inst);
+            Assert.IsFalse(inst.IsValueCreated);
+            Assert.IsInstanceOfType(inst, typeof(Lazy<IEnumerable<ITest>>));
+            Assert.IsInstanceOfType(inst.Value.First(), typeof(Test));
+        }
+
+        [TestMethod]
         public void LazyTests_Resolve_ConstructorDependency()
         {
             var container = new StashboxContainer();

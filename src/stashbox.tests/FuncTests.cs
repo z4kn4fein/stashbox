@@ -1,6 +1,8 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Stashbox.Attributes;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Stashbox.Tests
 {
@@ -29,6 +31,18 @@ namespace Stashbox.Tests
             Assert.IsNotNull(inst);
             Assert.IsInstanceOfType(inst, typeof(Func<Lazy<ITest>>));
             Assert.IsInstanceOfType(inst().Value, typeof(Test));
+        }
+
+        [TestMethod]
+        public void FuncTests_Resolve_Enumerable()
+        {
+            var container = new StashboxContainer();
+            container.RegisterType<ITest, Test>();
+            var inst = container.Resolve<Func<IEnumerable<ITest>>>();
+
+            Assert.IsNotNull(inst);
+            Assert.IsInstanceOfType(inst, typeof(Func<IEnumerable<ITest>>));
+            Assert.IsInstanceOfType(inst().First(), typeof(Test));
         }
 
         [TestMethod]
