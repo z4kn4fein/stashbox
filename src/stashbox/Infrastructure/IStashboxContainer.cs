@@ -20,10 +20,8 @@ namespace Stashbox.Infrastructure
         /// <summary>
         /// Registers a <see cref="Resolver"/> into the container.
         /// </summary>
-        /// <param name="resolverPredicate">Predicate which decides that the resolver is can be used for an actual resolution.</param>
-        /// <param name="factory">The factory which produces a new instance of the resolver.</param>
-        void RegisterResolver(Func<IContainerContext, TypeInformation, bool> resolverPredicate,
-            Func<IContainerContext, TypeInformation, Resolver> factory);
+        /// <param name="resolver">The resolver.</param>
+        void RegisterResolver(Resolver resolver);
 
         /// <summary>
         /// Begins a new scope.

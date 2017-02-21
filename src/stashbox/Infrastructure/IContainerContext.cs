@@ -31,11 +31,6 @@ namespace Stashbox.Infrastructure
         IResolutionStrategy ResolutionStrategy { get; }
 
         /// <summary>
-        /// The resolver selector.
-        /// </summary>
-        IResolverSelector ResolverSelector { get; }
-
-        /// <summary>
         /// Repository of scoped registrations.
         /// </summary>
         ConcurrentTree<string, ScopedRegistrationItem> ScopedRegistrations { get; }

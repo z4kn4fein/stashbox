@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Linq.Expressions;
+using System.Reflection;
 
 namespace Stashbox.Entity.Resolution
 {
@@ -15,6 +16,6 @@ namespace Stashbox.Entity.Resolution
         /// <summary>
         /// The parameters of the constructor.
         /// </summary>
-        public ResolutionTarget[] Parameters { get; set; }
+        public Expression[] Parameters { get; set; }
     }
 }

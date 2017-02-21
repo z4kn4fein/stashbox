@@ -62,16 +62,7 @@ namespace Stashbox.BuildUp.Expressions
         public static Expression CreateExpression(IContainerExtensionManager extensionManager, IContainerContext containerContext, ResolutionConstructor resolutionConstructor, ResolutionInfo resolutionInfo,
             TypeInformation typeInfo, InjectionParameter[] parameters, ResolutionMember[] members, ResolutionMethod[] methods)
         {
-            var length = resolutionConstructor.Parameters.Length;
-            var arguments = new Expression[length];
-
-            for (var i = 0; i < length; i++)
-            {
-                var parameter = resolutionConstructor.Parameters[i];
-                arguments[i] = containerContext.ResolutionStrategy.GetExpressionForResolutionTarget(parameter, resolutionInfo);
-            }
-
-            Expression initExpression = Expression.New(resolutionConstructor.Constructor, arguments);
+            Expression initExpression = Expression.New(resolutionConstructor.Constructor, resolutionConstructor.Parameters);
 
             if (members != null && members.Length > 0)
                 initExpression = CreateMemberInitExpression(containerContext, members, resolutionInfo, (NewExpression)initExpression);
@@ -123,13 +114,13 @@ namespace Stashbox.BuildUp.Expressions
                 if (prop != null)
                 {
                     var propExpression = Expression.Property(instance, prop);
-                    expressions[i] = Expression.Assign(propExpression, containerContext.ResolutionStrategy.GetExpressionForResolutionTarget(member.ResolutionTarget, resolutionInfo));
+                    expressions[i] = Expression.Assign(propExpression, member.Expression);
                 }
                 else
                 {
                     var field = member.MemberInfo as FieldInfo;
                     var propExpression = Expression.Field(instance, field);
-                    expressions[i] = Expression.Assign(propExpression, containerContext.ResolutionStrategy.GetExpressionForResolutionTarget(member.ResolutionTarget, resolutionInfo));
+                    expressions[i] = Expression.Assign(propExpression, member.Expression);
                 }
             }
 
@@ -144,8 +135,7 @@ namespace Stashbox.BuildUp.Expressions
             for (var i = 0; i < propLength; i++)
             {
                 var member = members[i];
-                var propertyExpression = Expression.Bind(member.MemberInfo,
-                    containerContext.ResolutionStrategy.GetExpressionForResolutionTarget(member.ResolutionTarget, resolutionInfo));
+                var propertyExpression = Expression.Bind(member.MemberInfo, member.Expression);
                 propertyExpressions[i] = propertyExpression;
             }
 
@@ -161,15 +151,7 @@ namespace Stashbox.BuildUp.Expressions
             for (var i = 0; i < lenght; i++)
             {
                 var method = methods[i];
-                var pLength = method.Parameters.Length;
-                var arguments = new Expression[pLength];
-                for (int j = 0; j < pLength; j++)
-                {
-                    var parameter = method.Parameters[j];
-                    arguments[j] = containerContext.ResolutionStrategy.GetExpressionForResolutionTarget(parameter, resolutionInfo);
-                }
-
-                methodExpressions[i] = Expression.Call(newExpression, method.Method, arguments);
+                methodExpressions[i] = Expression.Call(newExpression, method.Method, method.Parameters);
             }
 
             return methodExpressions;

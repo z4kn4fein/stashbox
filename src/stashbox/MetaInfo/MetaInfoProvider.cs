@@ -47,7 +47,7 @@ namespace Stashbox.MetaInfo
                {
                    Method = methodInfo.Method,
                    Parameters = methodInfo.Parameters.Select(parameter =>
-                   this.containerContext.ResolutionStrategy.BuildResolutionTarget(this.containerContext, resolutionInfo, parameter, injectionParameters)).ToArray()
+                   this.containerContext.ResolutionStrategy.BuildResolutionExpression(this.containerContext, resolutionInfo, parameter, injectionParameters)).ToArray()
                }).ToArray();
         }
 
@@ -58,7 +58,8 @@ namespace Stashbox.MetaInfo
             return this.metaInfoCache.InjectionMembers
                 .Select(memberInfo => new ResolutionMember
                 {
-                    ResolutionTarget = this.containerContext.ResolutionStrategy.BuildResolutionTarget(this.containerContext, resolutionInfo, memberInfo.TypeInformation, injectionParameters),
+                    Expression = this.containerContext.ResolutionStrategy
+                        .BuildResolutionExpression(this.containerContext, resolutionInfo, memberInfo.TypeInformation, injectionParameters),
                     MemberInfo = memberInfo.MemberInfo
                 }).ToArray();
         }
@@ -79,7 +80,7 @@ namespace Stashbox.MetaInfo
             ResolutionInfo resolutionInfo, InjectionParameter[] injectionParameters = null)
         {
             var usableConstructors = this.CreateResolutionConstructors(constructors, resolutionInfo, injectionParameters)
-                .Where(ctor => ctor.Parameters.All(param => param.IsValid())).ToArray();
+                .Where(ctor => ctor.Parameters.All(param => param != null)).ToArray();
 
             if (usableConstructors.Any())
             {
@@ -97,7 +98,7 @@ namespace Stashbox.MetaInfo
             {
                 Constructor = constructorInformation.Constructor,
                 Parameters = constructorInformation.Parameters.Select(parameter =>
-                    this.containerContext.ResolutionStrategy.BuildResolutionTarget(this.containerContext, resolutionInfo, parameter, injectionParameters)).ToArray()
+                    this.containerContext.ResolutionStrategy.BuildResolutionExpression(this.containerContext, resolutionInfo, parameter, injectionParameters)).ToArray()
             });
 
         private ResolutionConstructor SelectBestConstructor(IEnumerable<ResolutionConstructor> constructors)=>

@@ -5,6 +5,7 @@ using Stashbox.Infrastructure;
 using System;
 using System.Linq.Expressions;
 using Stashbox.Infrastructure.Resolution;
+using Stashbox.Entity.Resolution;
 
 namespace Stashbox.Tests
 {
@@ -74,8 +75,7 @@ namespace Stashbox.Tests
         public void ContainerTests_ResolverTest()
         {
             var container = new StashboxContainer();
-            container.RegisterResolver((context, typeInfo) => typeInfo.Type == typeof(ITest1),
-                (context, typeInfo) => new TestResolver(context, typeInfo));
+            container.RegisterResolver(new TestResolver());
             var inst = container.Resolve<ITest1>();
 
             Assert.IsInstanceOfType(inst, typeof(Test1));
@@ -107,13 +107,14 @@ namespace Stashbox.Tests
 
         public class TestResolver : Resolver
         {
-            public TestResolver(IContainerContext containerContext, TypeInformation typeInfo)
-            : base(containerContext, typeInfo)
+            public override bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo)
             {
+                return typeInfo.Type == typeof(ITest1);
             }
 
-            public override Expression GetExpression(ResolutionInfo resolutionInfo)
+            public override Expression GetExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo)
             {
+                resolutionInfo.ResolvedType = typeInfo.Type;
                 return Expression.Constant(new Test1());
             }
         }

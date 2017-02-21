@@ -1,4 +1,5 @@
 ﻿using Stashbox.Entity;
+using Stashbox.Entity.Resolution;
 using Stashbox.Exceptions;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.Resolution;
@@ -11,7 +12,7 @@ namespace Stashbox.BuildUp.Resolution
 {
     internal class FuncResolver : Resolver
     {
-        public static ISet<Type> SupportedTypes = new HashSet<Type>
+        private readonly ISet<Type> supportedTypes = new HashSet<Type>
         {
             typeof(Func<>),
             typeof(Func<,>),
@@ -19,72 +20,58 @@ namespace Stashbox.BuildUp.Resolution
             typeof(Func<,,,>)
         };
 
-        private readonly TypeInformation funcArgumentInfo;
+        public override bool SupportsMany => true;
 
-        public FuncResolver(IContainerContext containerContext, TypeInformation typeInfo)
-            : base(containerContext, typeInfo)
+        public override Expression GetExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo)
         {
-            this.funcArgumentInfo = new TypeInformation
+            var funcArgumentInfo = new TypeInformation
             {
                 Type = typeInfo.Type.GenericTypeArguments.Last(),
                 CustomAttributes = typeInfo.CustomAttributes,
                 ParentType = typeInfo.ParentType,
                 DependencyName = typeInfo.DependencyName
             };
+
+            this.PrepareExtraParameters(typeInfo, resolutionInfo);
+            var expression = containerContext.ResolutionStrategy.BuildResolutionExpression(containerContext, resolutionInfo, funcArgumentInfo, null);
+            if (expression == null)
+                throw new ResolutionFailedException(typeInfo.Type.FullName);
+
+            return Expression.Lambda(expression, resolutionInfo.ParameterExpressions);
         }
 
-        public override Type WrappedType => this.funcArgumentInfo.Type;
-
-        public override bool CanUseForEnumerableArgumentResolution => true;
-
-        public override Expression GetExpression(ResolutionInfo resolutionInfo)
+        public override Expression[] GetExpressions(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo)
         {
-            this.PrepareExtraParameters(resolutionInfo);
-            var registration = this.BuilderContext.RegistrationRepository.GetRegistrationOrDefault(this.funcArgumentInfo, true);
-
-            if (registration != null)
-                return Expression.Lambda(registration.GetExpression(resolutionInfo, this.funcArgumentInfo), resolutionInfo.ParameterExpressions);
-
-            Resolver resolver;
-            if (!this.BuilderContext.ResolverSelector.TryChooseResolver(this.BuilderContext, this.funcArgumentInfo, out resolver))
-                throw new ResolutionFailedException(base.TypeInfo.Type.FullName);
-
-            return Expression.Lambda(resolver.GetExpression(resolutionInfo), resolutionInfo.ParameterExpressions);
-        }
-
-        public override Expression[] GetEnumerableArgumentExpressions(ResolutionInfo resolutionInfo)
-        {
-            this.PrepareExtraParameters(resolutionInfo);
-            var registrations = this.BuilderContext.RegistrationRepository.GetRegistrationsOrDefault(this.funcArgumentInfo);
-            if (registrations != null)
+            var funcArgumentInfo = new TypeInformation
             {
-                var serviceRegistrations = base.BuilderContext.ContainerConfigurator.ContainerConfiguration.EnumerableOrderRule(registrations).ToArray();
-                var length = serviceRegistrations.Length;
-                var expressions = new Expression[length];
-                for (var i = 0; i < length; i++)
-                    expressions[i] = Expression.Lambda(serviceRegistrations[i].GetExpression(resolutionInfo, this.funcArgumentInfo), resolutionInfo.ParameterExpressions);
+                Type = typeInfo.Type.GenericTypeArguments.Last(),
+                CustomAttributes = typeInfo.CustomAttributes,
+                ParentType = typeInfo.ParentType,
+                DependencyName = typeInfo.DependencyName
+            };
 
-                return expressions;
-            }
+            this.PrepareExtraParameters(typeInfo, resolutionInfo);
+            var expressions = containerContext.ResolutionStrategy.BuildResolutionExpressions(containerContext, resolutionInfo, funcArgumentInfo);
 
-            Resolver resolver;
-            if (this.BuilderContext.ResolverSelector.TryChooseResolver(this.BuilderContext, this.funcArgumentInfo, out resolver) && resolver.CanUseForEnumerableArgumentResolution)
+            if (expressions != null)
             {
-                var exprs = resolver.GetEnumerableArgumentExpressions(resolutionInfo);
-                var length = exprs.Length;
-                var expressions = new Expression[length];
+                var length = expressions.Length;
+                var funcExpressions = new Expression[length];
                 for (var i = 0; i < length; i++)
-                    expressions[i] = Expression.Lambda(exprs[i], resolutionInfo.ParameterExpressions);
+                    funcExpressions[i] = Expression.Lambda(expressions[i], resolutionInfo.ParameterExpressions);
 
-                return expressions;
+                return funcExpressions;
             }
 
             return null;
         }
 
-        private void PrepareExtraParameters(ResolutionInfo resolutionInfo)
+        public override bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo) =>
+            typeInfo.Type.IsConstructedGenericType && this.supportedTypes.Contains(typeInfo.Type.GetGenericTypeDefinition());
+
+        private void PrepareExtraParameters(TypeInformation typeInfo, ResolutionInfo resolutionInfo)
         {
-            var args = base.TypeInfo.Type.GenericTypeArguments;
+            var args = typeInfo.Type.GenericTypeArguments;
             var length = args.Length - 1;
             var parameters = new ParameterExpression[length];
             if (length > 0)

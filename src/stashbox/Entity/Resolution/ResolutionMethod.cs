@@ -1,12 +1,11 @@
 ﻿using System.Reflection;
-using Stashbox.BuildUp.Expressions;
+using System.Linq.Expressions;
 
 namespace Stashbox.Entity.Resolution
 {
     internal class ResolutionMethod
     {
         public MethodInfo Method { get; set; }
-
-        public ResolutionTarget[] Parameters { get; set; }
+        public Expression[] Parameters { get; set; }
     }
 }

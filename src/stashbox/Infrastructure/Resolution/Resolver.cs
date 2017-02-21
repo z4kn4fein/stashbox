@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Linq.Expressions;
 using Stashbox.Entity;
+using System.Linq.Expressions;
 
 namespace Stashbox.Infrastructure.Resolution
 {
@@ -10,51 +10,35 @@ namespace Stashbox.Infrastructure.Resolution
     public abstract class Resolver
     {
         /// <summary>
-        /// The <see cref="IContainerContext"/> of the <see cref="StashboxContainer"/>
+        /// Indicates that the resolver can be used for resolve enumerable arguments, if it's set to true the container will call the <see cref="GetExpressions" /> method.
         /// </summary>
-        protected readonly IContainerContext BuilderContext;
+        public virtual bool SupportsMany => false;
 
-        /// <summary>
-        /// The type information about the resolved service.
-        /// </summary>
-        protected readonly TypeInformation TypeInfo;
-
-        /// <summary>
-        /// The wrapped type.
-        /// </summary>
-        public virtual Type WrappedType => this.TypeInfo.Type;
-
-        /// <summary>
-        /// Indicates that the resolver can be used for resolve enumerable arguments, if it's set to true the container will call the <see cref="GetEnumerableArgumentExpressions" /> method.
-        /// </summary>
-        public virtual bool CanUseForEnumerableArgumentResolution => false;
-
-        /// <summary>
-        /// Constructs the <see cref="Resolver"/>
-        /// </summary>
-        /// <param name="containerContext">The <see cref="IContainerContext"/> of the <see cref="StashboxContainer"/></param>
-        /// <param name="typeInfo">The type information about the resolved service.</param>
-        protected Resolver(IContainerContext containerContext, TypeInformation typeInfo)
-        {
-            this.BuilderContext = containerContext;
-            this.TypeInfo = typeInfo;
-        }
-        
         /// <summary>
         /// Produces an expression for creating an instance.
         /// </summary>
+        /// <param name="containerContext">The container context.</param>
+        /// <param name="typeInfo">The type info.</param>
         /// <param name="resolutionInfo">The info about the actual resolution.</param>
         /// <returns>The expression.</returns>
-        public abstract Expression GetExpression(ResolutionInfo resolutionInfo);
+        public abstract Expression GetExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo);
 
         /// <summary>
-        /// If <see cref="CanUseForEnumerableArgumentResolution"/> is set to true, this method will be called to collect the enumerable item expressions.
+        /// If <see cref="SupportsMany"/> is set to true, this method will be called to collect the enumerable item expressions.
         /// </summary>
+        /// <param name="containerContext">The container context.</param>
+        /// <param name="typeInfo">The type info.</param>
         /// <param name="resolutionInfo">The resolution info.</param>
         /// <returns>The enumerable item expressions.</returns>
-        public virtual Expression[] GetEnumerableArgumentExpressions(ResolutionInfo resolutionInfo)
-        {
-            throw new NotImplementedException("The CanUseForEnumerableArgumentResolution property is set to true, but the GetEnumerableArgumentExpressions method is not implemented.");
-        }
+        public virtual Expression[] GetExpressions(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo) =>
+            throw new NotImplementedException("The SupportsMany property is set to true, but the GetManyExpression method is not implemented.");
+
+        /// <summary>
+        /// Returns true, if the resolver can be used to activate the requested service, otherwise false.
+        /// </summary>
+        /// <param name="containerContext">The container context.</param>
+        /// <param name="typeInfo">The type info.</param>
+        /// <returns>Returns true, if the resolver can be used to activate the requested service, otherwise false.</returns>
+        public abstract bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo);
     }
 }

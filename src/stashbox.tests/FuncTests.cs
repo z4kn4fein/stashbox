@@ -20,6 +20,18 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void FuncTests_Resolve_Lazy()
+        {
+            var container = new StashboxContainer();
+            container.RegisterType<ITest, Test>();
+            var inst = container.Resolve<Func<Lazy<ITest>>>();
+
+            Assert.IsNotNull(inst);
+            Assert.IsInstanceOfType(inst, typeof(Func<Lazy<ITest>>));
+            Assert.IsInstanceOfType(inst().Value, typeof(Test));
+        }
+
+        [TestMethod]
         public void FuncTests_Resolve_ConstructorDependency()
         {
             var container = new StashboxContainer();

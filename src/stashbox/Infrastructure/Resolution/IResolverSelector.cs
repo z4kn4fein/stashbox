@@ -1,4 +1,5 @@
 ﻿using Stashbox.Entity;
+using System.Linq.Expressions;
 
 namespace Stashbox.Infrastructure.Resolution
 {
@@ -16,24 +17,27 @@ namespace Stashbox.Infrastructure.Resolution
         bool CanResolve(IContainerContext containerContext, TypeInformation typeInfo);
 
         /// <summary>
-        /// Tries to get a resolver for a given type.
+        /// Gets an expression built by a selected <see cref="Resolver"/>.
         /// </summary>
         /// <param name="containerContext">The container context.</param>
         /// <param name="typeInfo">The type info.</param>
-        /// <param name="resolver">The selected resolver.</param>
-        /// <returns>True if a resolver is selected.</returns>
-        bool TryChooseResolver(IContainerContext containerContext, TypeInformation typeInfo, out Resolver resolver);
+        /// <param name="resolutionInfo">The resolution info.</param>
+        /// <returns>The expression.</returns>
+        Expression GetResolverExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo);
+
+        /// <summary>
+        /// Gets the expressions built by a selected <see cref="Resolver"/>.
+        /// </summary>
+        /// <param name="containerContext">The container context.</param>
+        /// <param name="typeInfo">The type info.</param>
+        /// <param name="resolutionInfo">The resolution info.</param>
+        /// <returns>The expressions.</returns>
+        Expression[] GetResolverExpressions(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo);
 
         /// <summary>
         /// Adds a resolver to the selector.
         /// </summary>
-        /// <param name="resolverRegistration">The resolver registration.</param>
-        void AddResolver(ResolverRegistration resolverRegistration);
-
-        /// <summary>
-        /// Creates a copy from the selector.
-        /// </summary>
-        /// <returns>The copied selector.</returns>
-        IResolverSelector CreateCopy();
+        /// <param name="resolver">The resolver.</param>
+        void AddResolver(Resolver resolver);
     }
 }

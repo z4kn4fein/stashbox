@@ -43,15 +43,15 @@ namespace Stashbox.Resolution
                 return ragistrationFactory();
             }
 
-            Resolver resolver;
-            if (!this.resolverSelector.TryChooseResolver(this.containerContext, typeInfo, out resolver))
+            var expr = this.resolverSelector.GetResolverExpression(containerContext, typeInfo, resolutionInfo);
+            if (expr == null)
                 throw new ResolutionFailedException(typeInfo.Type.FullName);
 
-            var factory = ExpressionDelegateFactory.CompileObjectExpression(resolver.GetExpression(resolutionInfo));
+            var factory = ExpressionDelegateFactory.CompileObjectExpression(expr);
             this.containerContext.DelegateRepository.AddWrapperDelegate(new WrappedDelegateInformation
             {
                 DependencyName = typeInfo.DependencyName,
-                WrappedType = resolver.WrappedType,
+                WrappedType = resolutionInfo.ResolvedType,
                 DelegateReturnType = typeInfo.Type
             }, factory);
             return factory();
@@ -62,16 +62,13 @@ namespace Stashbox.Resolution
             Expression initExpression;
             var registration = this.containerContext.RegistrationRepository.GetRegistrationOrDefault(typeInfo);
             if (registration == null)
-            {
-                Resolver resolver;
-                if (!this.resolverSelector.TryChooseResolver(this.containerContext, typeInfo, out resolver))
-                    throw new ResolutionFailedException(typeInfo.Type.FullName);
-
-                initExpression = resolver.GetExpression(resolutionInfo);
-            }
+                initExpression = this.resolverSelector.GetResolverExpression(containerContext, typeInfo, resolutionInfo);
             else
                 initExpression = registration.GetExpression(resolutionInfo, typeInfo);
-            
+
+            if (initExpression == null)
+                throw new ResolutionFailedException(typeInfo.Type.FullName);
+
             var factory = Expression.Lambda(initExpression, resolutionInfo.ParameterExpressions).Compile();
             this.containerContext.DelegateRepository.AddFactoryDelegate(typeInfo, parameterTypes, factory);
             return factory;

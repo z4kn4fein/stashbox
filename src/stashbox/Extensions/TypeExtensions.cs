@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Stashbox.BuildUp.Resolution;
 
 namespace System
 {
@@ -13,7 +12,7 @@ namespace System
             if (typeInfo.IsArray)
                 return type.GetElementType();
 
-            if (EnumerableResolver.IsAssignableToGenericType(type, typeof(IEnumerable<>)) && type != typeof(string))
+            if (IsAssignableToGenericType(type, typeof(IEnumerable<>)) && type != typeof(string))
                 return typeInfo.GenericTypeArguments[0];
 
             return null;
@@ -39,6 +38,30 @@ namespace System
         public static ConstructorInfo GetConstructor(this Type type, params Type[] args)
         {
             return type.GetAllConstructors().FirstOrDefault(c => c.GetParameters().Select(p => p.ParameterType).SequenceEqual(args));
+        }
+
+        private static bool IsAssignableToGenericType(Type type, Type genericType)
+        {
+            if (type == null || genericType == null) return false;
+
+            return type == genericType
+              || MapsToGenericTypeDefinition(type, genericType)
+              || HasInterfaceThatMapsToGenericTypeDefinition(type, genericType)
+              || IsAssignableToGenericType(type.GetTypeInfo().BaseType, genericType);
+        }
+
+        private static bool HasInterfaceThatMapsToGenericTypeDefinition(Type type, Type genericType)
+        {
+            return type.GetTypeInfo().ImplementedInterfaces
+              .Where(it => it.GetTypeInfo().IsGenericType)
+              .Any(it => it.GetGenericTypeDefinition() == genericType);
+        }
+
+        private static bool MapsToGenericTypeDefinition(Type type, Type genericType)
+        {
+            return genericType.GetTypeInfo().IsGenericTypeDefinition
+              && type.GetTypeInfo().IsGenericType
+              && type.GetGenericTypeDefinition() == genericType;
         }
     }
 }

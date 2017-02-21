@@ -16,9 +16,8 @@ namespace Stashbox
         private int registrationNumber;
         
         internal ContainerContext(IRegistrationRepository registrationRepository, IDelegateRepository delegateRepository, IStashboxContainer container,
-            IResolutionStrategy resolutionStrategy, IResolverSelector resolverSelector, IContainerConfigurator containerConfigurator)
+            IResolutionStrategy resolutionStrategy, IContainerConfigurator containerConfigurator)
         {
-            this.ResolverSelector = resolverSelector;
             this.ResolutionStrategy = resolutionStrategy;
             this.RegistrationRepository = registrationRepository;
             this.DelegateRepository = delegateRepository;
@@ -40,9 +39,6 @@ namespace Stashbox
 
         /// <inheritdoc />
         public IResolutionStrategy ResolutionStrategy { get; }
-
-        /// <inheritdoc />
-        public IResolverSelector ResolverSelector { get; }
 
         /// <inheritdoc />
         public ConcurrentTree<string, ScopedRegistrationItem> ScopedRegistrations { get; }

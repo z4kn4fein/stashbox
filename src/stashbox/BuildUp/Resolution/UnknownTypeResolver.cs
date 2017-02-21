@@ -1,25 +1,21 @@
-﻿using System.Linq.Expressions;
-using Stashbox.Entity;
-using Stashbox.Exceptions;
+﻿using Stashbox.Entity;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.Resolution;
+using System.Reflection;
+using System.Linq.Expressions;
 
 namespace Stashbox.BuildUp.Resolution
 {
     internal class UnknownTypeResolver : Resolver
     {
-        public UnknownTypeResolver(IContainerContext containerContext, TypeInformation typeInfo) 
-            :base(containerContext, typeInfo)
-        { }
+        public override bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo) =>
+            containerContext.ContainerConfigurator.ContainerConfiguration.UnknownTypeResolutionEnabled &&
+                       !typeInfo.Type.GetTypeInfo().IsAbstract && !typeInfo.Type.GetTypeInfo().IsInterface;
 
-        public override Expression GetExpression(ResolutionInfo resolutionInfo)
+        public override Expression GetExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo)
         {
-            base.BuilderContext.Container.RegisterType(base.TypeInfo.Type, base.TypeInfo.Type, base.TypeInfo.DependencyName);
-            var reg = base.BuilderContext.RegistrationRepository.GetRegistrationOrDefault(base.TypeInfo);
-            if(reg == null)
-                throw new ResolutionFailedException(base.TypeInfo.Type.FullName);
-
-            return reg.GetExpression(resolutionInfo, base.TypeInfo);
+            containerContext.Container.RegisterType(typeInfo.Type, typeInfo.Type, typeInfo.DependencyName);
+            return containerContext.ResolutionStrategy.BuildResolutionExpression(containerContext, resolutionInfo, typeInfo, null);
         }
     }
 }

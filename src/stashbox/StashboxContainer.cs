@@ -9,7 +9,6 @@ using Stashbox.Registration;
 using Stashbox.Resolution;
 using Stashbox.Utils;
 using System;
-using System.Reflection;
 
 namespace Stashbox
 {
@@ -37,7 +36,7 @@ namespace Stashbox
 
             this.registrationRepository = new RegistrationRepository(configurator);
             this.ContainerContext = new ContainerContext(this.registrationRepository, new DelegateRepository(), this,
-                new ResolutionStrategy(this.resolverSelector), this.resolverSelector, configurator);
+                new ResolutionStrategy(this.resolverSelector), configurator);
             this.ActivationContext = new Resolution.ActivationContext(this.ContainerContext, this.resolverSelector);
 
             this.RegisterResolvers();
@@ -52,7 +51,7 @@ namespace Stashbox
             this.resolverSelector = resolverSelector;
             this.registrationRepository = new RegistrationRepository(parentContainer.ContainerContext.ContainerConfigurator);
             this.ContainerContext = new ContainerContext(this.registrationRepository, new DelegateRepository(), this, new ResolutionStrategy(this.resolverSelector),
-                this.resolverSelector, parentContainer.ContainerContext.ContainerConfigurator);
+                parentContainer.ContainerContext.ContainerConfigurator);
             this.ActivationContext = new Resolution.ActivationContext(this.ContainerContext, this.resolverSelector);
             this.containerExtensionManager.ReinitalizeExtensions(this.ContainerContext);
         }
@@ -65,14 +64,8 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public void RegisterResolver(Func<IContainerContext, TypeInformation, bool> resolverPredicate,
-            Func<IContainerContext, TypeInformation, Resolver> factory)
+        public void RegisterResolver(Resolver resolver)
         {
-            var resolver = new ResolverRegistration
-            {
-                ResolverFactory = factory,
-                Predicate = resolverPredicate
-            };
             this.resolverSelector.AddResolver(resolver);
         }
 
@@ -102,7 +95,7 @@ namespace Stashbox
         /// <inheritdoc />
         public IStashboxContainer BeginScope()
         {
-            var container = new StashboxContainer(this, this.containerExtensionManager.CreateCopy(), this.resolverSelector.CreateCopy());
+            var container = new StashboxContainer(this, this.containerExtensionManager.CreateCopy(), this.resolverSelector);
             container.OpenScope();
             return container;
         }
@@ -120,52 +113,12 @@ namespace Stashbox
 
         private void RegisterResolvers()
         {
-            var enumerableResolver = new ResolverRegistration
-            {
-                ResolverFactory = (context, typeInfo) => new EnumerableResolver(context, typeInfo),
-                Predicate = (context, typeInfo) => typeInfo.Type.GetEnumerableType() != null
-            };
-
-            var lazyResolver = new ResolverRegistration
-            {
-                ResolverFactory = (context, typeInfo) => new LazyResolver(context, typeInfo),
-                Predicate = (context, typeInfo) => typeInfo.Type.IsConstructedGenericType && typeInfo.Type.GetGenericTypeDefinition() == typeof(Lazy<>)
-            };
-
-            var funcResolver = new ResolverRegistration
-            {
-                ResolverFactory = (context, typeInfo) => new FuncResolver(context, typeInfo),
-                Predicate = (context, typeInfo) => typeInfo.Type.IsConstructedGenericType &&
-                                                   FuncResolver.SupportedTypes.Contains(typeInfo.Type.GetGenericTypeDefinition())
-            };
-
-            var parentContainerResolver = new ResolverRegistration
-            {
-                ResolverFactory = (context, typeInfo) => new ParentContainerResolver(context, typeInfo),
-                Predicate = (context, typeInfo) => context.ContainerConfigurator.ContainerConfiguration.ParentContainerResolutionEnabled &&
-                                context.Container.ParentContainer != null && context.Container.ParentContainer.CanResolve(typeInfo.Type, typeInfo.DependencyName)
-            };
-
-            var defaultValueResolver = new ResolverRegistration
-            {
-                ResolverFactory = (context, typeInfo) => new DefaultValueResolver(context, typeInfo),
-                Predicate = (context, typeInfo) => context.ContainerConfigurator.ContainerConfiguration.OptionalAndDefaultValueInjectionEnabled &&
-                                (typeInfo.HasDefaultValue || typeInfo.Type.GetTypeInfo().IsValueType || typeInfo.Type == typeof(string) || typeInfo.IsMember)
-            };
-
-            var unknownTypeResolver = new ResolverRegistration
-            {
-                ResolverFactory = (context, typeInfo) => new UnknownTypeResolver(context, typeInfo),
-                Predicate = (context, typeInfo) => context.ContainerConfigurator.ContainerConfiguration.UnknownTypeResolutionEnabled &&
-                                !typeInfo.Type.GetTypeInfo().IsAbstract && !typeInfo.Type.GetTypeInfo().IsInterface
-            };
-
-            this.resolverSelector.AddResolver(enumerableResolver);
-            this.resolverSelector.AddResolver(lazyResolver);
-            this.resolverSelector.AddResolver(funcResolver);
-            this.resolverSelector.AddResolver(defaultValueResolver);
-            this.resolverSelector.AddResolver(unknownTypeResolver);
-            this.resolverSelector.AddResolver(parentContainerResolver);
+            this.resolverSelector.AddResolver(new EnumerableResolver());
+            this.resolverSelector.AddResolver(new LazyResolver(this.resolverSelector));
+            this.resolverSelector.AddResolver(new FuncResolver());
+            this.resolverSelector.AddResolver(new DefaultValueResolver());
+            this.resolverSelector.AddResolver(new UnknownTypeResolver());
+            this.resolverSelector.AddResolver(new ParentContainerResolver());
         }
 
         /// <summary>

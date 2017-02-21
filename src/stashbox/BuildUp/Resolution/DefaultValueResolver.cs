@@ -1,31 +1,29 @@
 ﻿using Stashbox.Entity;
 using Stashbox.Exceptions;
-using Stashbox.Infrastructure;
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
 using Stashbox.Infrastructure.Resolution;
+using Stashbox.Infrastructure;
 
 namespace Stashbox.BuildUp.Resolution
 {
     internal class DefaultValueResolver : Resolver
     {
-        public DefaultValueResolver(IContainerContext containerContext, TypeInformation typeInfo)
-            : base(containerContext, typeInfo)
-        { }
-        
-        public override Expression GetExpression(ResolutionInfo resolutionInfo)
+        public override Expression GetExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo)
         {
-            if (base.TypeInfo.HasDefaultValue)
-                return Expression.Constant(base.TypeInfo.DefaultValue, base.TypeInfo.Type);
-
-            if (base.TypeInfo.Type.GetTypeInfo().IsValueType)
-                return Expression.Constant(Activator.CreateInstance(base.TypeInfo.Type), base.TypeInfo.Type);
-
-            if (base.TypeInfo.Type == typeof(string) || base.TypeInfo.IsMember)
-                return Expression.Constant(null, base.TypeInfo.Type);
-
-            throw new ResolutionFailedException(base.TypeInfo.Type.FullName);
+            if (typeInfo.HasDefaultValue)
+                return Expression.Constant(typeInfo.DefaultValue, typeInfo.Type);
+            else if (typeInfo.Type.GetTypeInfo().IsValueType)
+                return Expression.Constant(Activator.CreateInstance(typeInfo.Type), typeInfo.Type);
+            else if (typeInfo.Type == typeof(string) || typeInfo.IsMember)
+                return Expression.Constant(null, typeInfo.Type);
+            else
+                throw new ResolutionFailedException(typeInfo.Type.FullName);
         }
+
+        public override bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo) =>
+            containerContext.ContainerConfigurator.ContainerConfiguration.OptionalAndDefaultValueInjectionEnabled &&
+                 (typeInfo.HasDefaultValue || typeInfo.Type.GetTypeInfo().IsValueType || typeInfo.Type == typeof(string) || typeInfo.IsMember);
     }
 }
