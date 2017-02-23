@@ -42,6 +42,21 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void ContainerTests_ChildContainer_ResolveFromParent_WithConfigure()
+        {
+            var container = new StashboxContainer();
+            container.RegisterType<ITest1, Test1>();
+
+            var child = container.BeginScope();
+
+            container.Configure(config => config.WithParentContainerResolution());
+            var test1 = child.Resolve<ITest1>();
+
+            Assert.IsNotNull(test1);
+            Assert.IsInstanceOfType(test1, typeof(Test1));
+        }
+
+        [TestMethod]
         [ExpectedException(typeof(ResolutionFailedException))]
         public void ContainerTests_ChildContainer_WithoutResolveFromParent()
         {

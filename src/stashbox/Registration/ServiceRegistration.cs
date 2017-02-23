@@ -23,12 +23,11 @@ namespace Stashbox.Registration
         private readonly Func<TypeInformation, bool> resolutionCondition;
         private readonly MetaInfoProvider metaInfoProvider;
 
-        internal ServiceRegistration(string registrationName, Type serviceType, IContainerContext containerContext,
+        internal ServiceRegistration(Type serviceType, IContainerContext containerContext,
             ILifetime lifetimeManager, IObjectBuilder objectBuilder, MetaInfoProvider metaInfoProvider, HashSet<Type> attributeConditions = null,
             Type targetTypeCondition = null, Func<TypeInformation, bool> resolutionCondition = null)
         {
             this.serviceType = serviceType;
-            this.RegistrationName = registrationName;
             this.containerContext = containerContext;
             this.lifetimeManager = lifetimeManager;
             this.objectBuilder = objectBuilder;
@@ -41,9 +40,6 @@ namespace Stashbox.Registration
 
         /// <inheritdoc />
         public int RegistrationNumber { get; }
-
-        /// <inheritdoc />
-        public string RegistrationName { get; }
 
         /// <inheritdoc />
         public bool IsUsableForCurrentContext(TypeInformation typeInfo) => (this.targetTypeCondition == null && this.resolutionCondition == null && (this.attributeConditions == null || !this.attributeConditions.Any())) ||

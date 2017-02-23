@@ -28,30 +28,26 @@ namespace Stashbox.Registration
 
         protected RegistrationInfo PrepareRegistration(IContainerExtensionManager containerExtensionManager, bool update = false)
         {
-            var originalDependencyName = this.RegistrationContextData.Name;
             var registrationName = this.RegistrationContextData.Name = NameGenerator.GetRegistrationName(this.TypeFrom, this.TypeTo, this.RegistrationContextData.Name);
 
             var registrationLifetime = this.ChooseLifeTime();
-
-            var registrationInfo = new RegistrationInfo { TypeFrom = this.TypeFrom, TypeTo = this.TypeTo };
-
             var cache = new MetaInfoCache(this.ContainerContext.ContainerConfigurator, this.RegistrationContextData, this.TypeTo);
             var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, cache);
 
-            var objectBuilder = this.CompleteRegistration(containerExtensionManager, update, metaInfoProvider, registrationName, originalDependencyName, registrationLifetime);
+            var objectBuilder = this.CompleteRegistration(containerExtensionManager, update, metaInfoProvider, registrationName, registrationLifetime);
 
             this.CompleteScopeManagement(update, registrationLifetime, objectBuilder);
 
-            return registrationInfo;
+            return new RegistrationInfo { TypeFrom = this.TypeFrom, TypeTo = this.TypeTo };
         }
 
         private IObjectBuilder CompleteRegistration(IContainerExtensionManager containerExtensionManager, bool update,
-            MetaInfoProvider metaInfoProvider, string registrationName, string dependencyName, ILifetime registrationLifetime)
+            MetaInfoProvider metaInfoProvider, string registrationName, ILifetime registrationLifetime)
         {
             var objectBuilder = this.TypeTo.IsOpenGenericType() ? new GenericTypeObjectBuilder(this.RegistrationContextData, this.ContainerContext,
                     metaInfoProvider, containerExtensionManager) : this.CreateObjectBuilder(containerExtensionManager, metaInfoProvider);
 
-            var registration = this.CreateServiceRegistration(dependencyName, this.TypeTo.IsOpenGenericType() ? new TransientLifetime() : registrationLifetime, objectBuilder,
+            var registration = this.CreateServiceRegistration(this.TypeTo.IsOpenGenericType() ? new TransientLifetime() : registrationLifetime, objectBuilder,
                     metaInfoProvider);
 
             this.ContainerContext.RegistrationRepository.AddOrUpdateRegistration(this.TypeFrom, registrationName, update, registration);
@@ -89,9 +85,9 @@ namespace Stashbox.Registration
                 containerExtensionManager, this.RegistrationContextData.InjectionParameters);
         }
 
-        private IServiceRegistration CreateServiceRegistration(string name, ILifetime lifeTime, IObjectBuilder objectBuilder, MetaInfoProvider metaInfoProvider)
+        private IServiceRegistration CreateServiceRegistration(ILifetime lifeTime, IObjectBuilder objectBuilder, MetaInfoProvider metaInfoProvider)
         {
-            return new ServiceRegistration(name, this.TypeFrom, this.ContainerContext, lifeTime, objectBuilder, metaInfoProvider, this.RegistrationContextData.AttributeConditions,
+            return new ServiceRegistration(this.TypeFrom, this.ContainerContext, lifeTime, objectBuilder, metaInfoProvider, this.RegistrationContextData.AttributeConditions,
                 this.RegistrationContextData.TargetTypeCondition, this.RegistrationContextData.ResolutionCondition);
         }
 

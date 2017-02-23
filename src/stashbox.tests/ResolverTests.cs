@@ -23,7 +23,7 @@ namespace Stashbox.Tests
         public void ResolverTests_DefaultValue_WithOptional()
         {
             using (var container = new StashboxContainer(config => config.WithOptionalAndDefaultValueInjection()
-            .WithMemberInjectionWithoutAnnotation(Rules.AutoMemberInjection.PropertiesWithPublicSetter)))
+            .WithMemberInjectionWithoutAnnotation()))
             {
                 container.RegisterType<Test1>();
                 var inst = container.Resolve<Test1>();
@@ -37,10 +37,9 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.ContainerContext.ContainerConfigurator.WithOptionalAndDefaultValueInjection()
-                    .WithMemberInjectionWithoutAnnotation(Rules.AutoMemberInjection.PropertiesWithPublicSetter);
-
                 container.RegisterType<Test1>();
+                container.Configure(config => config
+                    .WithOptionalAndDefaultValueInjection());
                 var inst = container.Resolve<Test1>();
 
                 Assert.AreEqual(5, inst.I);
@@ -58,7 +57,7 @@ namespace Stashbox.Tests
                 Assert.AreEqual(inst.I, null);
             }
         }
-
+        
         [TestMethod]
         [ExpectedException(typeof(ResolutionFailedException))]
         public void ResolverTests_DefaultValue_RefType_WithOutOptional()
@@ -121,13 +120,26 @@ namespace Stashbox.Tests
         public void ResolverTests_MemberInject_WithoutAnnotation()
         {
             using (var container = new StashboxContainer(config => config
-            .WithMemberInjectionWithoutAnnotation(Rules.AutoMemberInjection.PropertiesWithPublicSetter)
+            .WithMemberInjectionWithoutAnnotation()
             .WithUnknownTypeResolution()))
             {
                 container.RegisterType<Test5>();
                 var inst = container.Resolve<Test5>();
 
                 Assert.IsNotNull(inst.I);
+            }
+        }
+
+        [TestMethod]
+        public void ResolverTests_MemberInject_WithoutAnnotation_LateConfig()
+        {
+            using (var container = new StashboxContainer())
+            {
+                container.RegisterType<Test5>();
+                container.Configure(config => config.WithUnknownTypeResolution().WithMemberInjectionWithoutAnnotation());
+                var inst = container.Resolve<Test5>();
+
+                Assert.IsNull(inst.I);
             }
         }
 
@@ -297,7 +309,7 @@ namespace Stashbox.Tests
         {
             public RefDep I { get { return this.i; } }
 
-            private RefDep i;
+            private RefDep i = null;
         }
 
         public class Test7
@@ -311,7 +323,7 @@ namespace Stashbox.Tests
 
             public RefDep I { get { return this.i; } }
 
-            private RefDep i;
+            private RefDep i = null;
         }
 
         public class RefDep
