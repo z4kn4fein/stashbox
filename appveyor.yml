@@ -17,7 +17,7 @@
     artifact: /.*\.nupkg/
 
   environment:
-    build_version: 2.1.2
+    build_version: 2.2.0
     COVERALLS_REPO_TOKEN:
       secure: Q9gcbZnzJ5a0YYF6mkr4QoQylIzeQmVytMnIe4WL7aPtb30SdNes7brLkvnXOirt
 
@@ -74,7 +74,7 @@
       secure: 2bITagXOj2s3bTJaGXh8/iyWtST8OQOFaMM+0GAKgZts9OjCVCiV7C+E/0SYsM6M
 
   environment:
-    build_version: 2.1.2
+    build_version: 2.2.0
     COVERALLS_REPO_TOKEN:
       secure: Q9gcbZnzJ5a0YYF6mkr4QoQylIzeQmVytMnIe4WL7aPtb30SdNes7brLkvnXOirt
 

@@ -3,6 +3,7 @@ using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.ContainerExtension;
 using Stashbox.Infrastructure.Registration;
 using System;
+using Stashbox.Configuration;
 
 namespace Stashbox.Registration
 {
@@ -99,6 +100,13 @@ namespace Stashbox.Registration
         public IRegistrationContext WithInstance(object instance)
         {
             base.RegistrationContextData.ExistingInstance = instance;
+            return this;
+        }
+
+        public IRegistrationContext WithAutoMemberInjection(Rules.AutoMemberInjection rule = Rules.AutoMemberInjection.PropertiesWithPublicSetter)
+        {
+            this.RegistrationContextData.AutoMemberInjectionEnabled = true;
+            this.RegistrationContextData.AutoMemberInjectionRule = rule;
             return this;
         }
     }

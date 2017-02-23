@@ -100,6 +100,9 @@ namespace Stashbox
             return container;
         }
 
+        /// <inheritdoc />
+        public void Configure(Action<IContainerConfigurator> config) => config?.Invoke(this.ContainerContext.ContainerConfigurator);
+
         internal void OpenScope()
         {
             foreach (var registrationItem in this.ParentContainer.ContainerContext.ScopedRegistrations)

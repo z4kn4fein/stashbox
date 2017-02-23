@@ -1,5 +1,6 @@
 ﻿using System;
 using Stashbox.Entity;
+using Stashbox.Configuration;
 
 namespace Stashbox.Infrastructure.Registration
 {
@@ -57,6 +58,13 @@ namespace Stashbox.Infrastructure.Registration
         /// <param name="containerFactory">The container factory delegate.</param>
         /// <returns>The <see cref="IRegistrationContext"/> which on this method was called.</returns>
         IRegistrationContext WithFactory(Func<IStashboxContainer, object> containerFactory);
+
+        /// <summary>
+        /// Enables auto member injection on the registration.
+        /// </summary>
+        /// <param name="rule">The auto member injection rule.</param>
+        /// <returns>The <see cref="IRegistrationContext"/> which on this method was called.</returns>
+        IRegistrationContext WithAutoMemberInjection(Rules.AutoMemberInjection rule = Rules.AutoMemberInjection.PropertiesWithPublicSetter);
 
         /// <summary>
         /// Sets an instance as the resolution target of the registration.

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Stashbox.BuildUp.Expressions;
+using Stashbox.Registration;
 
 namespace Stashbox
 {
@@ -56,7 +57,7 @@ namespace Stashbox
         public TTo BuildUp<TTo>(TTo instance)
         {
             var typeTo = instance.GetType();
-            var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, new MetaInfoCache(this.ContainerContext.ContainerConfigurator, typeTo));
+            var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, new MetaInfoCache(this.ContainerContext.ContainerConfigurator, RegistrationContextData.Empty, typeTo));
 
             var resolutionInfo = new ResolutionInfo();
             var typeInfo = new TypeInformation { Type = typeTo };

@@ -35,7 +35,7 @@ namespace Stashbox.Registration
 
             var registrationInfo = new RegistrationInfo { TypeFrom = this.TypeFrom, TypeTo = this.TypeTo };
 
-            var cache = new MetaInfoCache(this.ContainerContext.ContainerConfigurator, this.TypeTo);
+            var cache = new MetaInfoCache(this.ContainerContext.ContainerConfigurator, this.RegistrationContextData, this.TypeTo);
             var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, cache);
 
             var objectBuilder = this.CompleteRegistration(containerExtensionManager, update, metaInfoProvider, registrationName, originalDependencyName, registrationLifetime);

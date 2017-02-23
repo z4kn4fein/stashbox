@@ -131,6 +131,113 @@ namespace Stashbox.Tests
             }
         }
 
+        [TestMethod]
+        public void ResolverTests_MemberInject_WithAutoMemberInjection()
+        {
+            using (var container = new StashboxContainer(config => config.WithUnknownTypeResolution()))
+            {
+                container.PrepareType<Test5>().WithAutoMemberInjection().Register();
+                var inst = container.Resolve<Test5>();
+
+                Assert.IsNotNull(inst.I);
+            }
+        }
+        
+        [TestMethod]
+        public void ResolverTests_MemberInject_WithAutoMemberInjection_Field()
+        {
+            using (var container = new StashboxContainer(config => config.WithUnknownTypeResolution()))
+            {
+                container.PrepareType<Test6>().WithName("fail").WithAutoMemberInjection().Register();
+                var inst = container.Resolve<Test6>("fail");
+
+                Assert.IsNull(inst.I);
+
+                container.PrepareType<Test6>().WithName("success").WithAutoMemberInjection(Rules.AutoMemberInjection.PrivateFields).Register();
+                var inst1 = container.Resolve<Test6>("success");
+
+                Assert.IsNotNull(inst1.I);
+            }
+        }
+
+        [TestMethod]
+        public void ResolverTests_MemberInject_WithAutoMemberInjection_PrivateSetter()
+        {
+            using (var container = new StashboxContainer(config => config.WithUnknownTypeResolution()))
+            {
+                container.PrepareType<Test7>().WithName("fail").WithAutoMemberInjection().Register();
+                var inst = container.Resolve<Test7>("fail");
+
+                Assert.IsNull(inst.I);
+
+                container.PrepareType<Test7>().WithName("success").WithAutoMemberInjection(Rules.AutoMemberInjection.PropertiesWithLimitedAccess).Register();
+                var inst1 = container.Resolve<Test7>("success");
+
+                Assert.IsNotNull(inst1.I);
+            }
+        }
+
+        [TestMethod]
+        public void ResolverTests_MemberInject_WithAutoMemberInjection_Mixed()
+        {
+            using (var container = new StashboxContainer(config => config.WithUnknownTypeResolution()))
+            {
+                container.PrepareType<Test8>().WithName("justfield").WithAutoMemberInjection(Rules.AutoMemberInjection.PrivateFields).Register();
+                var inst = container.Resolve<Test8>("justfield");
+
+                Assert.IsNotNull(inst.I);
+                Assert.IsNull(inst.I1);
+
+                container.PrepareType<Test8>().WithName("justprivatesetter").WithAutoMemberInjection(Rules.AutoMemberInjection.PropertiesWithLimitedAccess).Register();
+                var inst1 = container.Resolve<Test8>("justprivatesetter");
+
+                Assert.IsNotNull(inst1.I1);
+                Assert.IsNull(inst1.I);
+
+                container.PrepareType<Test8>().WithName("mixed")
+                    .WithAutoMemberInjection(Rules.AutoMemberInjection.PropertiesWithLimitedAccess | Rules.AutoMemberInjection.PrivateFields)
+                    .Register();
+                var inst2 = container.Resolve<Test8>("mixed");
+
+                Assert.IsNotNull(inst2.I1);
+                Assert.IsNotNull(inst2.I);
+            }
+        }
+
+        [TestMethod]
+        public void ResolverTests_MemberInject_WithAutoMemberInjection_Mixed_ContainerConfig()
+        {
+            using (var container = new StashboxContainer(config => config
+                .WithUnknownTypeResolution()
+                .WithMemberInjectionWithoutAnnotation(Rules.AutoMemberInjection.PropertiesWithLimitedAccess | Rules.AutoMemberInjection.PrivateFields)))
+            {
+                container.PrepareType<Test8>()
+                    .WithAutoMemberInjection(Rules.AutoMemberInjection.PropertiesWithLimitedAccess | Rules.AutoMemberInjection.PrivateFields)
+                    .Register();
+                var inst2 = container.Resolve<Test8>();
+
+                Assert.IsNotNull(inst2.I1);
+                Assert.IsNotNull(inst2.I);
+            }
+        }
+
+        [TestMethod]
+        public void ResolverTests_MemberInject_WithAutoMemberInjection_Mixed_PreferRegistrationRuleOverContainerRule()
+        {
+            using (var container = new StashboxContainer(config => config
+                .WithUnknownTypeResolution()
+                .WithMemberInjectionWithoutAnnotation(Rules.AutoMemberInjection.PropertiesWithLimitedAccess | Rules.AutoMemberInjection.PrivateFields)))
+            {
+                container.PrepareType<Test8>()
+                    .WithAutoMemberInjection(Rules.AutoMemberInjection.PrivateFields)
+                    .Register();
+                var inst2 = container.Resolve<Test8>();
+
+                Assert.IsNull(inst2.I1);
+                Assert.IsNotNull(inst2.I);
+            }
+        }
+
         public class Test
         {
             public int I { get; set; }
@@ -184,6 +291,27 @@ namespace Stashbox.Tests
         public class Test5
         {
             public RefDep I { get; set; }
+        }
+
+        public class Test6
+        {
+            public RefDep I { get { return this.i; } }
+
+            private RefDep i;
+        }
+
+        public class Test7
+        {
+            public RefDep I { get; private set; }
+        }
+
+        public class Test8
+        {
+            public RefDep I1 { get; private set; }
+
+            public RefDep I { get { return this.i; } }
+
+            private RefDep i;
         }
 
         public class RefDep

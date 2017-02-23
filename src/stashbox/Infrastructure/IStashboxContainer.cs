@@ -58,5 +58,11 @@ namespace Stashbox.Infrastructure
         /// <param name="name">The registration name.</param>
         /// <returns>True if the service can be resolved, otherwise false.</returns>
         bool CanResolve(Type typeFrom, string name = null);
+
+        /// <summary>
+        /// Configures the container.
+        /// </summary>
+        /// <param name="config">The action delegate which will configure the container.</param>
+        void Configure(Action<IContainerConfigurator> config);
     }
 }

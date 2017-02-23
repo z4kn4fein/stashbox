@@ -9,7 +9,6 @@ namespace Stashbox.Infrastructure
     {
         Type TypeTo { get; }
         bool HasGenericTypeConstraints { get; }
-        HashSet<Type> SensitivityList { get; }
         bool TryChooseConstructor(out ResolutionConstructor constructor, ResolutionInfo resolutionInfo, InjectionParameter[] injectionParameters = null);
         ResolutionMethod[] GetResolutionMethods(ResolutionInfo resolutionInfo, InjectionParameter[] injectionParameters = null);
         ResolutionMember[] GetResolutionMembers(ResolutionInfo resolutionInfo, InjectionParameter[] injectionParameters = null);

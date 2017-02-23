@@ -29,16 +29,18 @@ namespace System
             var typeInfo = type.GetTypeInfo();
             return typeInfo.IsGenericType && typeInfo.ContainsGenericParameters;
         }
-        
-        public static IEnumerable<ConstructorInfo> GetAllConstructors(this Type type)
-        {
-            return type.GetTypeInfo().DeclaredConstructors.Where(c => !c.IsStatic);
-        }
-        
-        public static ConstructorInfo GetConstructor(this Type type, params Type[] args)
-        {
-            return type.GetAllConstructors().FirstOrDefault(c => c.GetParameters().Select(p => p.ParameterType).SequenceEqual(args));
-        }
+
+        public static IEnumerable<ConstructorInfo> GetAllConstructors(this Type type) =>
+            type.GetTypeInfo().DeclaredConstructors.Where(c => !c.IsStatic);
+
+        public static ConstructorInfo GetConstructor(this Type type, params Type[] args) =>
+            type.GetAllConstructors().FirstOrDefault(c => c.GetParameters().Select(p => p.ParameterType).SequenceEqual(args));
+
+        public static bool IsBackingField(this FieldInfo field) =>
+            field.Name[0] == '<';
+
+        public static bool IsIndexer(this PropertyInfo property) =>
+            property.GetIndexParameters().Length != 0;
 
         private static bool IsAssignableToGenericType(Type type, Type genericType)
         {

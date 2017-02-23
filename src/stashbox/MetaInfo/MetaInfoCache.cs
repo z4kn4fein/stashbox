@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Stashbox.Configuration;
+using Stashbox.Registration;
 
 namespace Stashbox.MetaInfo
 {
@@ -14,7 +15,8 @@ namespace Stashbox.MetaInfo
     /// </summary>
     public class MetaInfoCache
     {
-        private readonly IContainerConfigurator containerConfigurator;
+        private readonly bool autoMemberInjectionEnabled;
+        private readonly Rules.AutoMemberInjection autoMemberInjectionRule;
 
         /// <summary>
         /// Contains the generic type contraints of the type if it has any.
@@ -45,12 +47,16 @@ namespace Stashbox.MetaInfo
         /// Constructs the <see cref="MetaInfoCache"/>
         /// </summary>
         /// <param name="containerConfigurator">The container configurator.</param>
+        /// <param name="registrationData">The registration context data.</param>
         /// <param name="typeTo">The type of the actual service implementation.</param>
-        public MetaInfoCache(IContainerConfigurator containerConfigurator, Type typeTo)
+        public MetaInfoCache(IContainerConfigurator containerConfigurator, RegistrationContextData registrationData, Type typeTo)
         {
             this.TypeTo = typeTo;
-            this.containerConfigurator = containerConfigurator;
             this.GenericTypeConstraints = new Dictionary<int, Type[]>();
+
+            this.autoMemberInjectionEnabled = containerConfigurator.ContainerConfiguration.MemberInjectionWithoutAnnotationEnabled || registrationData.AutoMemberInjectionEnabled;
+            this.autoMemberInjectionRule = registrationData.AutoMemberInjectionEnabled ? registrationData.AutoMemberInjectionRule :
+                containerConfigurator.ContainerConfiguration.MemberInjectionWithoutAnnotationRule;
 
             var typeInfo = typeTo.GetTypeInfo();
             this.AddConstructors(typeInfo.DeclaredConstructors);
@@ -98,8 +104,7 @@ namespace Stashbox.MetaInfo
             return parameters.Select(parameterInfo => new TypeInformation
             {
                 Type = parameterInfo.ParameterType,
-                DependencyName = parameterInfo.GetCustomAttribute<DependencyAttribute>() != null ?
-                                 parameterInfo.GetCustomAttribute<DependencyAttribute>().Name : null,
+                DependencyName = parameterInfo.GetCustomAttribute<DependencyAttribute>()?.Name,
                 ParentType = this.TypeTo,
                 CustomAttributes = parameterInfo.GetCustomAttributes().ToArray(),
                 ParameterName = parameterInfo.Name,
@@ -110,14 +115,13 @@ namespace Stashbox.MetaInfo
 
         private IEnumerable<MemberInformation> FillMembers(TypeInfo typeInfo)
         {
-            return this.SelectProperties(typeInfo.DeclaredProperties.Where(property => property.CanWrite))
+            return this.SelectProperties(typeInfo.DeclaredProperties.Where(property => property.CanWrite && !property.IsIndexer()))
                    .Select(propertyInfo => new MemberInformation
                    {
                        TypeInformation = new TypeInformation
                        {
                            Type = propertyInfo.PropertyType,
-                           DependencyName = propertyInfo.GetCustomAttribute<DependencyAttribute>() != null ?
-                                        propertyInfo.GetCustomAttribute<DependencyAttribute>().Name : null,
+                           DependencyName = propertyInfo.GetCustomAttribute<DependencyAttribute>()?.Name,
                            ParentType = this.TypeTo,
                            CustomAttributes = propertyInfo.GetCustomAttributes().ToArray(),
                            ParameterName = propertyInfo.Name,
@@ -125,16 +129,13 @@ namespace Stashbox.MetaInfo
                        },
                        MemberInfo = propertyInfo
                    })
-                   .Concat(this.SelectFields(typeInfo.DeclaredFields.Where(field => !field.IsInitOnly))
-                           .Where(fieldInfo => fieldInfo.GetCustomAttribute<DependencyAttribute>() != null)
+                   .Concat(this.SelectFields(typeInfo.DeclaredFields.Where(field => !field.IsInitOnly && !field.IsBackingField()))
                            .Select(fieldInfo => new MemberInformation
                            {
                                TypeInformation = new TypeInformation
                                {
                                    Type = fieldInfo.FieldType,
-                                   DependencyName = fieldInfo.GetCustomAttribute<DependencyAttribute>() != null
-                                       ? fieldInfo.GetCustomAttribute<DependencyAttribute>().Name
-                                       : null,
+                                   DependencyName = fieldInfo.GetCustomAttribute<DependencyAttribute>()?.Name,
                                    ParentType = this.TypeTo,
                                    CustomAttributes = fieldInfo.GetCustomAttributes().ToArray(),
                                    ParameterName = fieldInfo.Name,
@@ -146,19 +147,19 @@ namespace Stashbox.MetaInfo
 
         private IEnumerable<FieldInfo> SelectFields(IEnumerable<FieldInfo> fields)
         {
-            if (this.containerConfigurator.ContainerConfiguration.MemberInjectionWithoutAnnotationEnabled)
+            if (this.autoMemberInjectionEnabled)
                 return fields.Where(fieldInfo => fieldInfo.GetCustomAttribute<DependencyAttribute>() != null ||
-                    this.containerConfigurator.ContainerConfiguration.MemberInjectionWithoutAnnotationRule.HasFlag(Rules.AutoMemberInjection.PrivateFields));
+                    this.autoMemberInjectionRule.HasFlag(Rules.AutoMemberInjection.PrivateFields));
             else
                 return fields.Where(fieldInfo => fieldInfo.GetCustomAttribute<DependencyAttribute>() != null);
         }
 
         private IEnumerable<PropertyInfo> SelectProperties(IEnumerable<PropertyInfo> properties)
         {
-            if (this.containerConfigurator.ContainerConfiguration.MemberInjectionWithoutAnnotationEnabled)
+            if (this.autoMemberInjectionEnabled)
                 return properties.Where(property => property.GetCustomAttribute<DependencyAttribute>() != null ||
-                    (this.containerConfigurator.ContainerConfiguration.MemberInjectionWithoutAnnotationRule.HasFlag(Rules.AutoMemberInjection.PropertiesWithPublicSetter) && property.SetMethod.IsPublic) ||
-                     this.containerConfigurator.ContainerConfiguration.MemberInjectionWithoutAnnotationRule.HasFlag(Rules.AutoMemberInjection.PropertiesWithLimitedAccess));
+                    (this.autoMemberInjectionRule.HasFlag(Rules.AutoMemberInjection.PropertiesWithPublicSetter) && property.SetMethod.IsPublic) ||
+                     this.autoMemberInjectionRule.HasFlag(Rules.AutoMemberInjection.PropertiesWithLimitedAccess));
             else
                 return properties.Where(property => property.GetCustomAttribute<DependencyAttribute>() != null);
         }

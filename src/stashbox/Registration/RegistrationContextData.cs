@@ -1,4 +1,5 @@
-﻿using Stashbox.Entity;
+﻿using Stashbox.Configuration;
+using Stashbox.Entity;
 using Stashbox.Infrastructure;
 using System;
 using System.Collections.Generic;
@@ -10,6 +11,11 @@ namespace Stashbox.Registration
     /// </summary>
     public class RegistrationContextData
     {
+        /// <summary>
+        /// Empty registration data.
+        /// </summary>
+        public static RegistrationContextData Empty = new RegistrationContextData();
+
         /// <summary>
         /// Name of the registration.
         /// </summary>
@@ -56,11 +62,22 @@ namespace Stashbox.Registration
         public object ExistingInstance { get; set; }
 
         /// <summary>
+        /// The auto memeber injection rule for the registration.
+        /// </summary>
+        public Rules.AutoMemberInjection AutoMemberInjectionRule { get; set; }
+
+        /// <summary>
+        /// True if auto member injection is enabled on this instance.
+        /// </summary>
+        public bool AutoMemberInjectionEnabled { get; set; }
+
+        /// <summary>
         /// Constructs a <see cref="RegistrationContextData"/>
         /// </summary>
         public RegistrationContextData()
         {
             this.AttributeConditions = new HashSet<Type>();
+            this.AutoMemberInjectionEnabled = false;
         }
 
         /// <summary>

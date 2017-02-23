@@ -12,7 +12,6 @@ namespace Stashbox.MetaInfo
     {
         private readonly IContainerContext containerContext;
         private readonly MetaInfoCache metaInfoCache;
-        private readonly Lazy<HashSet<Type>> sensitivityList;
 
         private readonly bool hasInjectionMethod;
         private readonly bool hasInjectionMembers;
@@ -21,17 +20,13 @@ namespace Stashbox.MetaInfo
 
         public bool HasGenericTypeConstraints { get; }
 
-        public HashSet<Type> SensitivityList => this.sensitivityList.Value;
-
         public MetaInfoProvider(IContainerContext containerContext, MetaInfoCache metaInfoCache)
         {
             this.containerContext = containerContext;
             this.metaInfoCache = metaInfoCache;
             this.hasInjectionMethod = this.metaInfoCache.InjectionMethods.Any();
             this.hasInjectionMembers = this.metaInfoCache.InjectionMembers.Any();
-            this.sensitivityList = new Lazy<HashSet<Type>>(() => new HashSet<Type>(this.metaInfoCache.Constructors.SelectMany(constructor => constructor.Parameters, (constructor, parameter) => parameter.Type)
-                        .Concat(this.metaInfoCache.InjectionMethods.SelectMany(method => method.Parameters, (method, parameter) => parameter.Type))
-                        .Concat(this.metaInfoCache.InjectionMembers.Select(members => members.TypeInformation.Type)).Distinct()));
+            
             this.HasGenericTypeConstraints = this.metaInfoCache.GenericTypeConstraints.Count > 0;
         }
 
