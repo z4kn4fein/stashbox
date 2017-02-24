@@ -1,4 +1,5 @@
 ﻿using Stashbox.BuildUp;
+using Stashbox.BuildUp.Expressions;
 using Stashbox.Entity;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.ContainerExtension;
@@ -12,28 +13,28 @@ namespace Stashbox.Registration
 {
     internal class RegistrationContextBase
     {
+        private readonly IExpressionBuilder expressionBuilder;
+
         protected Type TypeFrom { get; }
         protected Type TypeTo { get; }
 
         public IContainerContext ContainerContext { get; }
         public RegistrationContextData RegistrationContextData { get; protected set; }
 
-        public RegistrationContextBase(Type typeFrom, Type typeTo, IContainerContext containerContext)
+        public RegistrationContextBase(Type typeFrom, Type typeTo, IContainerContext containerContext, IExpressionBuilder expressionBuilder)
         {
             this.RegistrationContextData = new RegistrationContextData();
             this.TypeFrom = typeFrom ?? typeTo;
             this.TypeTo = typeTo;
             this.ContainerContext = containerContext;
+            this.expressionBuilder = expressionBuilder;
         }
 
         protected RegistrationInfo PrepareRegistration(IContainerExtensionManager containerExtensionManager, bool update = false)
         {
             var registrationName = this.RegistrationContextData.Name = NameGenerator.GetRegistrationName(this.TypeFrom, this.TypeTo, this.RegistrationContextData.Name);
-
             var registrationLifetime = this.ChooseLifeTime();
-            var cache = new MetaInfoCache(this.ContainerContext.ContainerConfigurator, this.RegistrationContextData, this.TypeTo);
-            var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, cache);
-
+            var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, this.RegistrationContextData, this.TypeTo);
             var objectBuilder = this.CompleteRegistration(containerExtensionManager, update, metaInfoProvider, registrationName, registrationLifetime);
 
             this.CompleteScopeManagement(update, registrationLifetime, objectBuilder);
@@ -45,7 +46,7 @@ namespace Stashbox.Registration
             MetaInfoProvider metaInfoProvider, string registrationName, ILifetime registrationLifetime)
         {
             var objectBuilder = this.TypeTo.IsOpenGenericType() ? new GenericTypeObjectBuilder(this.RegistrationContextData, this.ContainerContext,
-                    metaInfoProvider, containerExtensionManager) : this.CreateObjectBuilder(containerExtensionManager, metaInfoProvider);
+                    metaInfoProvider, containerExtensionManager, this.expressionBuilder) : this.CreateObjectBuilder(containerExtensionManager, metaInfoProvider);
 
             var registration = this.CreateServiceRegistration(this.TypeTo.IsOpenGenericType() ? new TransientLifetime() : registrationLifetime, objectBuilder,
                     metaInfoProvider);
@@ -76,13 +77,15 @@ namespace Stashbox.Registration
                 return new InstanceObjectBuilder(this.RegistrationContextData.ExistingInstance);
 
             if (this.RegistrationContextData.ContainerFactory != null)
-                return new FactoryObjectBuilder(this.RegistrationContextData.ContainerFactory, this.ContainerContext, containerExtensionManager, metaInfoProvider, this.RegistrationContextData.InjectionParameters);
+                return new FactoryObjectBuilder(this.RegistrationContextData.ContainerFactory, this.ContainerContext, containerExtensionManager, metaInfoProvider, 
+                    this.expressionBuilder, this.RegistrationContextData.InjectionParameters);
 
             if (this.RegistrationContextData.SingleFactory != null)
-                return new FactoryObjectBuilder(this.RegistrationContextData.SingleFactory, this.ContainerContext, containerExtensionManager, metaInfoProvider, this.RegistrationContextData.InjectionParameters);
+                return new FactoryObjectBuilder(this.RegistrationContextData.SingleFactory, this.ContainerContext, containerExtensionManager, metaInfoProvider, 
+                    this.expressionBuilder, this.RegistrationContextData.InjectionParameters);
 
             return new DefaultObjectBuilder(this.ContainerContext, metaInfoProvider,
-                containerExtensionManager, this.RegistrationContextData.InjectionParameters);
+                containerExtensionManager, this.expressionBuilder, this.RegistrationContextData.InjectionParameters);
         }
 
         private IServiceRegistration CreateServiceRegistration(ILifetime lifeTime, IObjectBuilder objectBuilder, MetaInfoProvider metaInfoProvider)

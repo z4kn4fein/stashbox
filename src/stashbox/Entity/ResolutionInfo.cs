@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using Stashbox.Infrastructure;
 
 namespace Stashbox.Entity
 {
@@ -10,6 +9,8 @@ namespace Stashbox.Entity
     /// </summary>
     public class ResolutionInfo
     {
+        internal static ResolutionInfo Empty = new ResolutionInfo();
+
         /// <summary>
         /// The extra parameter expressions.
         /// </summary>

@@ -12,11 +12,13 @@ namespace Stashbox.Resolution
     {
         private readonly IContainerContext containerContext;
         private readonly IResolverSelector resolverSelector;
+        private readonly IExpressionBuilder expressionBuilder;
 
-        public ActivationContext(IContainerContext containerContext, IResolverSelector resolverSelector)
+        public ActivationContext(IContainerContext containerContext, IResolverSelector resolverSelector, IExpressionBuilder expressionBuilder)
         {
             this.containerContext = containerContext;
             this.resolverSelector = resolverSelector;
+            this.expressionBuilder = expressionBuilder;
         }
 
         public object Activate(ResolutionInfo resolutionInfo, TypeInformation typeInfo)
@@ -36,7 +38,7 @@ namespace Stashbox.Resolution
             var registration = this.containerContext.RegistrationRepository.GetRegistrationOrDefault(typeInfo);
             if (registration != null)
             {
-                var ragistrationFactory = ExpressionDelegateFactory.CompileObjectExpression(registration.GetExpression(resolutionInfo, typeInfo));
+                var ragistrationFactory = this.expressionBuilder.CompileExpression(registration.GetExpression(resolutionInfo, typeInfo));
                 this.containerContext.DelegateRepository.AddServiceDelegate(typeInfo, ragistrationFactory);
                 return ragistrationFactory();
             }
@@ -45,7 +47,7 @@ namespace Stashbox.Resolution
             if (expr == null)
                 throw new ResolutionFailedException(typeInfo.Type.FullName);
 
-            var factory = ExpressionDelegateFactory.CompileObjectExpression(expr);
+            var factory = this.expressionBuilder.CompileExpression(expr);
             this.containerContext.DelegateRepository.AddServiceDelegate(typeInfo, factory);
             return factory();
         }

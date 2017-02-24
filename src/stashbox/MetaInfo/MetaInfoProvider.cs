@@ -1,6 +1,7 @@
 ﻿using Stashbox.Entity;
 using Stashbox.Entity.Resolution;
 using Stashbox.Infrastructure;
+using Stashbox.Registration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,10 +21,10 @@ namespace Stashbox.MetaInfo
 
         public bool HasGenericTypeConstraints { get; }
 
-        public MetaInfoProvider(IContainerContext containerContext, MetaInfoCache metaInfoCache)
+        public MetaInfoProvider(IContainerContext containerContext, RegistrationContextData registrationData, Type typeTo)
         {
+            this.metaInfoCache = new MetaInfoCache(containerContext.ContainerConfigurator, registrationData, typeTo);
             this.containerContext = containerContext;
-            this.metaInfoCache = metaInfoCache;
             this.hasInjectionMethod = this.metaInfoCache.InjectionMethods.Any();
             this.hasInjectionMembers = this.metaInfoCache.InjectionMembers.Any();
             

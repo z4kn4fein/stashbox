@@ -15,26 +15,28 @@ namespace Stashbox.BuildUp
         private readonly IMetaInfoProvider metaInfoProvider;
         private readonly InjectionParameter[] injectionParameters;
         private readonly IContainerContext containerContext;
+        private readonly IExpressionBuilder expressionBuilder;
 
         private FactoryObjectBuilder(IContainerContext containerContext, IContainerExtensionManager containerExtensionManager,
-            IMetaInfoProvider metaInfoProvider, InjectionParameter[] injectionParameters = null)
+            IMetaInfoProvider metaInfoProvider, IExpressionBuilder expressionBuilder, InjectionParameter[] injectionParameters = null)
         {
             this.containerContext = containerContext;
             this.containerExtensionManager = containerExtensionManager;
             this.metaInfoProvider = metaInfoProvider;
             this.injectionParameters = injectionParameters;
+            this.expressionBuilder = expressionBuilder;
         }
 
         public FactoryObjectBuilder(Func<IStashboxContainer, object> containerFactory, IContainerContext containerContext,
-            IContainerExtensionManager containerExtensionManager, IMetaInfoProvider metaInfoProvider, InjectionParameter[] injectionParameters = null)
-            : this(containerContext, containerExtensionManager, metaInfoProvider, injectionParameters)
+            IContainerExtensionManager containerExtensionManager, IMetaInfoProvider metaInfoProvider, IExpressionBuilder expressionBuilder, InjectionParameter[] injectionParameters = null)
+            : this(containerContext, containerExtensionManager, metaInfoProvider, expressionBuilder, injectionParameters)
         {
             this.containerFactory = containerFactory;
         }
 
         public FactoryObjectBuilder(Func<object> factory, IContainerContext containerContext, IContainerExtensionManager containerExtensionManager,
-            IMetaInfoProvider metaInfoProvider, InjectionParameter[] injectionParameters = null)
-            : this(containerContext, containerExtensionManager, metaInfoProvider, injectionParameters)
+            IMetaInfoProvider metaInfoProvider, IExpressionBuilder expressionBuilder, InjectionParameter[] injectionParameters = null)
+            : this(containerContext, containerExtensionManager, metaInfoProvider, expressionBuilder, injectionParameters)
         {
             this.singleFactory = factory;
         }
@@ -49,7 +51,7 @@ namespace Stashbox.BuildUp
 
             var expr = Expression.Invoke(lamdba);
             
-            return ExpressionDelegateFactory.CreateFillExpression(this.containerExtensionManager, this.containerContext,
+            return this.expressionBuilder.CreateFillExpression(this.containerExtensionManager, this.containerContext,
                    expr, resolutionInfo, resolveType, this.injectionParameters,
                    this.metaInfoProvider.GetResolutionMembers(resolutionInfo, this.injectionParameters), 
                    this.metaInfoProvider.GetResolutionMethods(resolutionInfo, this.injectionParameters));

@@ -4,6 +4,7 @@ using Stashbox.Infrastructure.ContainerExtension;
 using Stashbox.Infrastructure.Registration;
 using System;
 using Stashbox.Configuration;
+using Stashbox.BuildUp.Expressions;
 
 namespace Stashbox.Registration
 {
@@ -15,8 +16,9 @@ namespace Stashbox.Registration
 
         public new Type TypeTo => base.TypeTo;
 
-        public RegistrationContext(Type typeFrom, Type typeTo, IContainerContext containerContext, IContainerExtensionManager containerExtensionManager)
-            : base(typeFrom, typeTo, containerContext)
+        public RegistrationContext(Type typeFrom, Type typeTo, IContainerContext containerContext, 
+            IExpressionBuilder expressionBuilder, IContainerExtensionManager containerExtensionManager)
+            : base(typeFrom, typeTo, containerContext, expressionBuilder)
         {
             this.containerExtensionManager = containerExtensionManager;
         }

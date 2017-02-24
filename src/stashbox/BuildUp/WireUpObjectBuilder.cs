@@ -15,16 +15,18 @@ namespace Stashbox.BuildUp
         private readonly IContainerContext containerContext;
         private readonly IMetaInfoProvider metaInfoProvider;
         private readonly InjectionParameter[] injectionParameters;
+        private readonly IExpressionBuilder expressionBuilder;
         private bool instanceBuilt;
 
         public WireUpObjectBuilder(object instance, IContainerExtensionManager containerExtensionManager, IContainerContext containerContext,
-            IMetaInfoProvider metaInfoProvider, InjectionParameter[] injectionParameters = null)
+            IMetaInfoProvider metaInfoProvider, IExpressionBuilder expressionBuilder, InjectionParameter[] injectionParameters = null)
         {
             this.instance = instance;
             this.containerExtensionManager = containerExtensionManager;
             this.containerContext = containerContext;
             this.metaInfoProvider = metaInfoProvider;
             this.injectionParameters = injectionParameters;
+            this.expressionBuilder = expressionBuilder;
         }
 
         public Expression GetExpression(ResolutionInfo resolutionInfo, TypeInformation resolveType)
@@ -35,7 +37,7 @@ namespace Stashbox.BuildUp
                 if (this.instanceBuilt) return Expression.Constant(this.instance);
                 this.instanceBuilt = true;
 
-                var expr = ExpressionDelegateFactory.CreateFillExpression(this.containerExtensionManager, this.containerContext,
+                var expr = this.expressionBuilder.CreateFillExpression(this.containerExtensionManager, this.containerContext,
                     Expression.Constant(this.instance), resolutionInfo, new TypeInformation { Type = this.metaInfoProvider.TypeTo }, this.injectionParameters,
                     this.metaInfoProvider.GetResolutionMembers(resolutionInfo, this.injectionParameters),
                     this.metaInfoProvider.GetResolutionMethods(resolutionInfo, this.injectionParameters));

@@ -1,27 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq.Expressions;
-using System.Reflection;
-using Stashbox.Entity;
+﻿using Stashbox.Entity;
 using Stashbox.Entity.Resolution;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.ContainerExtension;
+using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
+using System.Reflection;
 
 namespace Stashbox.BuildUp.Expressions
 {
-    internal delegate object CreateInstance(ResolutionInfo resolutionInfo);
-    internal delegate void InvokeMethod(ResolutionInfo resolutionInfo, object instance);
-
-    internal class ExpressionDelegateFactory
+    internal class ExpressionBuilder : IExpressionBuilder
     {
-        private static readonly MethodInfo buildExtensionMethod;
+        private readonly MethodInfo buildExtensionMethod;
 
-        static ExpressionDelegateFactory()
+        public ExpressionBuilder()
         {
-            buildExtensionMethod = typeof(IContainerExtensionManager).GetTypeInfo().GetDeclaredMethod("ExecutePostBuildExtensions");
+            this.buildExtensionMethod = typeof(IContainerExtensionManager).GetTypeInfo().GetDeclaredMethod("ExecutePostBuildExtensions");
         }
-        
-        public static Func<object> CompileObjectExpression(Expression expression)
+
+        public Func<object> CompileExpression(Expression expression)
         {
             Func<object> factory;
             if (expression.NodeType == ExpressionType.Constant)
@@ -35,7 +32,7 @@ namespace Stashbox.BuildUp.Expressions
             return factory;
         }
 
-        public static Expression CreateFillExpression(IContainerExtensionManager extensionManager, IContainerContext containerContext, Expression instance,
+        public Expression CreateFillExpression(IContainerExtensionManager extensionManager, IContainerContext containerContext, Expression instance,
             ResolutionInfo resolutionInfo, TypeInformation typeInfo, InjectionParameter[] parameters, ResolutionMember[] members, ResolutionMethod[] methods)
         {
             var block = new List<Expression>();
@@ -59,7 +56,8 @@ namespace Stashbox.BuildUp.Expressions
             return Expression.Block(new[] { variable }, block);
         }
 
-        public static Expression CreateExpression(IContainerExtensionManager extensionManager, IContainerContext containerContext, ResolutionConstructor resolutionConstructor, ResolutionInfo resolutionInfo,
+        public Expression CreateExpression(IContainerExtensionManager extensionManager, IContainerContext containerContext, 
+            ResolutionConstructor resolutionConstructor, ResolutionInfo resolutionInfo,
             TypeInformation typeInfo, InjectionParameter[] parameters, ResolutionMember[] members, ResolutionMethod[] methods)
         {
             Expression initExpression = Expression.New(resolutionConstructor.Constructor, resolutionConstructor.Parameters);
@@ -69,13 +67,15 @@ namespace Stashbox.BuildUp.Expressions
 
             if ((methods != null && methods.Length > 0) || extensionManager.HasPostBuildExtensions)
                 return CreatePostWorkExpressionIfAny(extensionManager, containerContext, resolutionInfo, initExpression, typeInfo, parameters, methods);
+
             return initExpression;
         }
 
 
 
-        private static Expression CreatePostWorkExpressionIfAny(IContainerExtensionManager extensionManager, IContainerContext containerContext, ResolutionInfo resolutionInfo,
-            Expression initExpression, TypeInformation typeInfo, InjectionParameter[] parameters, ResolutionMethod[] methods, List<Expression> block = null, ParameterExpression variable = null)
+        private Expression CreatePostWorkExpressionIfAny(IContainerExtensionManager extensionManager, IContainerContext containerContext, ResolutionInfo resolutionInfo,
+            Expression initExpression, TypeInformation typeInfo, InjectionParameter[] parameters, ResolutionMethod[] methods, 
+            List<Expression> block = null, ParameterExpression variable = null)
         {
             block = block ?? new List<Expression>();
 
@@ -102,7 +102,7 @@ namespace Stashbox.BuildUp.Expressions
             return Expression.Block(new[] { newVariable }, block);
         }
 
-        private static Expression[] FillMembersExpression(IContainerContext containerContext, ResolutionMember[] members, ResolutionInfo resolutionInfo, Expression instance)
+        private Expression[] FillMembersExpression(IContainerContext containerContext, ResolutionMember[] members, ResolutionInfo resolutionInfo, Expression instance)
         {
             var propLength = members.Length;
             var expressions = new Expression[propLength];
@@ -127,7 +127,7 @@ namespace Stashbox.BuildUp.Expressions
             return expressions;
         }
 
-        private static Expression CreateMemberInitExpression(IContainerContext containerContext, ResolutionMember[] members, ResolutionInfo resolutionInfo,
+        private Expression CreateMemberInitExpression(IContainerContext containerContext, ResolutionMember[] members, ResolutionInfo resolutionInfo,
             NewExpression newExpression)
         {
             var propLength = members.Length;
@@ -142,7 +142,7 @@ namespace Stashbox.BuildUp.Expressions
             return Expression.MemberInit(newExpression, propertyExpressions);
         }
 
-        private static Expression[] CreateMethodExpressions(IContainerContext containerContext, ResolutionMethod[] methods, ResolutionInfo resolutionInfo,
+        private Expression[] CreateMethodExpressions(IContainerContext containerContext, ResolutionMethod[] methods, ResolutionInfo resolutionInfo,
             Expression newExpression)
         {
             var lenght = methods.Length;

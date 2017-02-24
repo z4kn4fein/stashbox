@@ -1,4 +1,5 @@
-﻿using Stashbox.BuildUp.Resolution;
+﻿using Stashbox.BuildUp.Expressions;
+using Stashbox.BuildUp.Resolution;
 using Stashbox.Configuration;
 using Stashbox.Entity;
 using Stashbox.Infrastructure;
@@ -20,6 +21,8 @@ namespace Stashbox
         private readonly IContainerExtensionManager containerExtensionManager;
         private readonly IResolverSelector resolverSelector;
         private readonly IRegistrationRepository registrationRepository;
+        private readonly IExpressionBuilder expressionBuilder;
+        private readonly IActivationContext activationContext;
         private readonly AtomicBool disposed;
 
         /// <summary>
@@ -30,6 +33,7 @@ namespace Stashbox
             this.disposed = new AtomicBool();
             this.containerExtensionManager = new BuildExtensionManager();
             this.resolverSelector = new ResolverSelector();
+            this.expressionBuilder = new ExpressionBuilder();
 
             var configurator = new ContainerConfigurator();
             config?.Invoke(configurator);
@@ -37,22 +41,23 @@ namespace Stashbox
             this.registrationRepository = new RegistrationRepository(configurator);
             this.ContainerContext = new ContainerContext(this.registrationRepository, new DelegateRepository(), this,
                 new ResolutionStrategy(this.resolverSelector), configurator);
-            this.ActivationContext = new Resolution.ActivationContext(this.ContainerContext, this.resolverSelector);
+            this.activationContext = new Resolution.ActivationContext(this.ContainerContext, this.resolverSelector, this.expressionBuilder);
 
             this.RegisterResolvers();
         }
 
         internal StashboxContainer(IStashboxContainer parentContainer, IContainerExtensionManager containerExtensionManager,
-            IResolverSelector resolverSelector)
+            IResolverSelector resolverSelector, IExpressionBuilder expressionBuilder)
         {
             this.disposed = new AtomicBool();
             this.ParentContainer = parentContainer;
             this.containerExtensionManager = containerExtensionManager;
             this.resolverSelector = resolverSelector;
+            this.expressionBuilder = expressionBuilder;
             this.registrationRepository = new RegistrationRepository(parentContainer.ContainerContext.ContainerConfigurator);
             this.ContainerContext = new ContainerContext(this.registrationRepository, new DelegateRepository(), this, new ResolutionStrategy(this.resolverSelector),
                 parentContainer.ContainerContext.ContainerConfigurator);
-            this.ActivationContext = new Resolution.ActivationContext(this.ContainerContext, this.resolverSelector);
+            this.activationContext = new Resolution.ActivationContext(this.ContainerContext, this.resolverSelector, this.expressionBuilder);
             this.containerExtensionManager.ReinitalizeExtensions(this.ContainerContext);
         }
 
@@ -89,13 +94,9 @@ namespace Stashbox
         public IContainerContext ContainerContext { get; }
 
         /// <inheritdoc />
-        public IActivationContext ActivationContext { get; }
-
-
-        /// <inheritdoc />
         public IStashboxContainer BeginScope()
         {
-            var container = new StashboxContainer(this, this.containerExtensionManager.CreateCopy(), this.resolverSelector);
+            var container = new StashboxContainer(this, this.containerExtensionManager.CreateCopy(), this.resolverSelector, this.expressionBuilder);
             container.OpenScope();
             return container;
         }
@@ -108,7 +109,7 @@ namespace Stashbox
             foreach (var registrationItem in this.ParentContainer.ContainerContext.ScopedRegistrations)
             {
                 var registration = new ScopedRegistrationContext(registrationItem.TypeFrom, registrationItem.TypeTo,
-                    this.ContainerContext, this.containerExtensionManager);
+                    this.ContainerContext, this.expressionBuilder, this.containerExtensionManager);
 
                 registration.InitFromScope(registrationItem.RegistrationContextData.CreateCopy());
             }

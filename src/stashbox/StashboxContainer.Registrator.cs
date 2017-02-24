@@ -106,20 +106,20 @@ namespace Stashbox
             where TFrom : class
             where TTo : class, TFrom
         {
-            return new RegistrationContext(typeof(TFrom), typeof(TTo), this.ContainerContext, this.containerExtensionManager);
+            return new RegistrationContext(typeof(TFrom), typeof(TTo), this.ContainerContext, this.expressionBuilder, this.containerExtensionManager);
         }
 
         /// <inheritdoc />
         public IRegistrationContext PrepareType<TFrom>(Type typeTo)
             where TFrom : class
         {
-            return new RegistrationContext(typeof(TFrom), typeTo, this.ContainerContext, this.containerExtensionManager);
+            return new RegistrationContext(typeof(TFrom), typeTo, this.ContainerContext, this.expressionBuilder, this.containerExtensionManager);
         }
 
         /// <inheritdoc />
         public IRegistrationContext PrepareType(Type typeFrom, Type typeTo)
         {
-            return new RegistrationContext(typeFrom, typeTo, this.ContainerContext, this.containerExtensionManager);
+            return new RegistrationContext(typeFrom, typeTo, this.ContainerContext, this.expressionBuilder, this.containerExtensionManager);
         }
 
         /// <inheritdoc />
@@ -127,13 +127,13 @@ namespace Stashbox
              where TTo : class
         {
             var type = typeof(TTo);
-            return new RegistrationContext(type, type, this.ContainerContext, this.containerExtensionManager);
+            return new RegistrationContext(type, type, this.ContainerContext, this.expressionBuilder, this.containerExtensionManager);
         }
 
         /// <inheritdoc />
         public IRegistrationContext PrepareType(Type typeTo)
         {
-            return new RegistrationContext(typeTo, typeTo, this.ContainerContext, this.containerExtensionManager);
+            return new RegistrationContext(typeTo, typeTo, this.ContainerContext, this.expressionBuilder, this.containerExtensionManager);
         }
 
         /// <inheritdoc />
@@ -193,14 +193,11 @@ namespace Stashbox
         private void WireUpInternal(object instance, string keyName, Type typeFrom, Type typeTo)
         {
             var regName = NameGenerator.GetRegistrationName(typeFrom, typeTo, keyName);
-
             var registrationInfo = new RegistrationInfo { TypeFrom = typeFrom, TypeTo = typeTo };
-
-            var cache = new MetaInfoCache(this.ContainerContext.ContainerConfigurator, RegistrationContextData.Empty, typeTo);
-            var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, cache);
+            var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, RegistrationContextData.Empty, typeTo);
 
             var registration = new ServiceRegistration(typeFrom, this.ContainerContext, new TransientLifetime(),
-                new WireUpObjectBuilder(instance, this.containerExtensionManager, this.ContainerContext, metaInfoProvider), metaInfoProvider);
+                new WireUpObjectBuilder(instance, this.containerExtensionManager, this.ContainerContext, metaInfoProvider, this.expressionBuilder), metaInfoProvider);
 
             this.registrationRepository.AddOrUpdateRegistration(typeFrom, regName, false, registration);
             this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.ContainerContext, registrationInfo);
@@ -212,8 +209,7 @@ namespace Stashbox
             var regName = NameGenerator.GetRegistrationName(insanceType, insanceType, keyName);
 
             var registrationInfo = new RegistrationInfo { TypeFrom = type, TypeTo = type };
-            var cache = new MetaInfoCache(this.ContainerContext.ContainerConfigurator, RegistrationContextData.Empty, insanceType);
-            var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, cache);
+            var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, RegistrationContextData.Empty, insanceType);
             var registration = new ServiceRegistration(type, this.ContainerContext, new TransientLifetime(),
                 new InstanceObjectBuilder(instance), metaInfoProvider);
 

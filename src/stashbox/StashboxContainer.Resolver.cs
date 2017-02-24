@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using Stashbox.BuildUp.Expressions;
 using Stashbox.Registration;
 
 namespace Stashbox
@@ -50,20 +49,19 @@ namespace Stashbox
                 ParameterExpressions = parameterTypes.Length == 0 ? null : parameterTypes.Select(Expression.Parameter).ToArray()
             };
 
-            return this.ActivationContext.ActivateFactory(resolutionInfo, typeInfo, parameterTypes);
+            return this.activationContext.ActivateFactory(resolutionInfo, typeInfo, parameterTypes);
         }
 
         /// <inheritdoc />
         public TTo BuildUp<TTo>(TTo instance)
         {
             var typeTo = instance.GetType();
-            var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, new MetaInfoCache(this.ContainerContext.ContainerConfigurator, RegistrationContextData.Empty, typeTo));
-
-            var resolutionInfo = new ResolutionInfo();
+            var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, RegistrationContextData.Empty, typeTo);
             var typeInfo = new TypeInformation { Type = typeTo };
 
-            var expr = ExpressionDelegateFactory.CreateFillExpression(this.containerExtensionManager, this.ContainerContext,
-                Expression.Constant(instance), resolutionInfo, typeInfo, null, metaInfoProvider.GetResolutionMembers(resolutionInfo), metaInfoProvider.GetResolutionMethods(resolutionInfo));
+            var expr = this.expressionBuilder.CreateFillExpression(this.containerExtensionManager, this.ContainerContext,
+                Expression.Constant(instance), ResolutionInfo.Empty, typeInfo, null, metaInfoProvider.GetResolutionMembers(ResolutionInfo.Empty),
+                metaInfoProvider.GetResolutionMethods(ResolutionInfo.Empty));
 
             var factory = Expression.Lambda<Func<TTo>>(expr).Compile();
             return factory();
@@ -72,7 +70,7 @@ namespace Stashbox
         private object ResolveInternal(Type typeFrom, string name = null)
         {
             var typeInfo = new TypeInformation { Type = typeFrom, DependencyName = name };
-            return this.ActivationContext.Activate(new ResolutionInfo(), typeInfo);
+            return this.activationContext.Activate(new ResolutionInfo(), typeInfo);
         }
     }
 }

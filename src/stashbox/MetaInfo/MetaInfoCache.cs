@@ -10,45 +10,17 @@ using Stashbox.Registration;
 
 namespace Stashbox.MetaInfo
 {
-    /// <summary>
-    /// Represents a store which contains metadata about the services.
-    /// </summary>
-    public class MetaInfoCache
+    internal class MetaInfoCache
     {
         private readonly bool autoMemberInjectionEnabled;
         private readonly Rules.AutoMemberInjection autoMemberInjectionRule;
 
-        /// <summary>
-        /// Contains the generic type contraints of the type if it has any.
-        /// </summary>
         public readonly IDictionary<int, Type[]> GenericTypeConstraints;
-
-        /// <summary>
-        /// The type of the actual service implementation.
-        /// </summary>
         public Type TypeTo { get; }
-
-        /// <summary>
-        /// Stores the reflected constructor informations.
-        /// </summary>
         public ConstructorInformation[] Constructors { get; private set; }
-
-        /// <summary>
-        /// Stores the reflected injection method informations.
-        /// </summary>
         public MethodInformation[] InjectionMethods { get; private set; }
-
-        /// <summary>
-        /// Stores the reflected injection memeber informations.
-        /// </summary>
         public MemberInformation[] InjectionMembers { get; private set; }
-
-        /// <summary>
-        /// Constructs the <see cref="MetaInfoCache"/>
-        /// </summary>
-        /// <param name="containerConfigurator">The container configurator.</param>
-        /// <param name="registrationData">The registration context data.</param>
-        /// <param name="typeTo">The type of the actual service implementation.</param>
+        
         public MetaInfoCache(IContainerConfigurator containerConfigurator, RegistrationContextData registrationData, Type typeTo)
         {
             this.TypeTo = typeTo;

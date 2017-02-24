@@ -1,4 +1,5 @@
-﻿using Stashbox.Infrastructure;
+﻿using Stashbox.BuildUp.Expressions;
+using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.ContainerExtension;
 using System;
 
@@ -8,8 +9,9 @@ namespace Stashbox.Registration
     {
         private readonly IContainerExtensionManager containerExtensionManager;
 
-        public ScopedRegistrationContext(Type typeFrom, Type typeTo, IContainerContext containerContext, IContainerExtensionManager containerExtensionManager)
-            : base(typeFrom, typeTo, containerContext)
+        public ScopedRegistrationContext(Type typeFrom, Type typeTo, IContainerContext containerContext, 
+            IExpressionBuilder expressionBuilder, IContainerExtensionManager containerExtensionManager)
+            : base(typeFrom, typeTo, containerContext, expressionBuilder)
         {
             this.containerExtensionManager = containerExtensionManager;
         }
