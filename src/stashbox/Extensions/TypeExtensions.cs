@@ -1,6 +1,57 @@
-﻿using System.Collections.Generic;
+﻿using Stashbox.Exceptions;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+
+#if NET40 || NET35
+namespace System.Reflection
+{
+    internal static class TypeExtensions
+    {
+        public static TypeInfo GetTypeInfo(this Type type)
+        {
+            return new TypeInfo(type);
+        }
+
+        public static TAttribute GetCustomAttribute<TAttribute>(this MethodInfo method) where TAttribute : Attribute
+        {
+            var attrType = typeof(TAttribute);
+            var attributes = method.GetCustomAttributes(attrType, false);
+            return (TAttribute)attributes.FirstOrDefault();
+        }
+
+        public static TAttribute GetCustomAttribute<TAttribute>(this ParameterInfo parameter) where TAttribute : Attribute
+        {
+            var attrType = typeof(TAttribute);
+            var attributes = parameter.GetCustomAttributes(attrType, false);
+            return (TAttribute)attributes.FirstOrDefault();
+        }
+
+        public static TAttribute GetCustomAttribute<TAttribute>(this PropertyInfo property) where TAttribute : Attribute
+        {
+            var attrType = typeof(TAttribute);
+            var attributes = property.GetCustomAttributes(attrType, false);
+            return (TAttribute)attributes.FirstOrDefault();
+        }
+
+        public static TAttribute GetCustomAttribute<TAttribute>(this FieldInfo field) where TAttribute : Attribute
+        {
+            var attrType = typeof(TAttribute);
+            var attributes = field.GetCustomAttributes(attrType, false);
+            return (TAttribute)attributes.FirstOrDefault();
+        }
+
+        public static IEnumerable<Attribute> GetCustomAttributes(this ParameterInfo parameter) =>
+            parameter.GetCustomAttributes(false).Cast<Attribute>();
+
+        public static IEnumerable<Attribute> GetCustomAttributes(this PropertyInfo property) =>
+            property.GetCustomAttributes(false).Cast<Attribute>();
+
+        public static IEnumerable<Attribute> GetCustomAttributes(this FieldInfo field) =>
+            field.GetCustomAttributes(false).Cast<Attribute>();
+    }
+}
+#endif
 
 namespace System
 {
@@ -30,6 +81,9 @@ namespace System
             return typeInfo.IsGenericType && typeInfo.ContainsGenericParameters;
         }
 
+        public static Type[] GetGenericArguments(this Type type) =>
+            type.GetTypeInfo().GenericTypeArguments;
+
         public static IEnumerable<ConstructorInfo> GetAllConstructors(this Type type) =>
             type.GetTypeInfo().DeclaredConstructors.Where(c => !c.IsStatic);
 
@@ -41,6 +95,30 @@ namespace System
 
         public static bool IsIndexer(this PropertyInfo property) =>
             property.GetIndexParameters().Length != 0;
+
+        public static bool HasDefaultValue(this ParameterInfo parameter) =>
+            parameter.IsOptional;
+
+        public static MethodInfo GetSingleMethod(this Type type, string name, bool includeNonPublic = false)
+        {
+            var found = type.GetTypeInfo().DeclaredMethods.Where(method => (includeNonPublic || method.IsPublic) && method.Name == name).FirstOrDefault();
+            if (found == null)
+                throw new MethodNotFoundException(type.FullName, name);
+
+            return found;
+        }
+
+        public static MethodInfo GetSingleMethodOrDefault(this Type type, string name, bool includeNonPublic = false) =>
+            type.GetTypeInfo().DeclaredMethods.Where(method => (includeNonPublic || method.IsPublic) && method.Name == name).FirstOrDefault();
+        
+        public static bool HasSingleMethod(this Type type, string name, bool includeNonPublic = false) =>
+            type.GetSingleMethodOrDefault(name, includeNonPublic) != null;
+
+        public static MethodInfo GetSetMethod(this PropertyInfo property, bool includeNonPublic = false) => 
+            property.DeclaringType.GetSingleMethod("set_" + property.Name, includeNonPublic);
+
+        public static bool HasSetMethod(this PropertyInfo property, bool includeNonPublic = false) =>
+            property.DeclaringType.GetSingleMethodOrDefault("set_" + property.Name, includeNonPublic) != null;
 
         private static bool IsAssignableToGenericType(Type type, Type genericType)
         {

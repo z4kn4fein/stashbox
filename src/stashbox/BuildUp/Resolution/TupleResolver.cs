@@ -10,7 +10,7 @@ namespace Stashbox.BuildUp.Resolution
 {
     internal class TupleResolver : Resolver
     {
-        private readonly ISet<Type> supportedTypes = new HashSet<Type>
+        private readonly HashSet<Type> supportedTypes = new HashSet<Type>
         {
             typeof(Tuple<>),
             typeof(Tuple<,>),
@@ -23,16 +23,17 @@ namespace Stashbox.BuildUp.Resolution
         };
 
         public override bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo) =>
-            typeInfo.Type.IsConstructedGenericType && this.supportedTypes.Contains(typeInfo.Type.GetGenericTypeDefinition());
+            typeInfo.Type.IsClosedGenericType() && this.supportedTypes.Contains(typeInfo.Type.GetGenericTypeDefinition());
 
         public override Expression GetExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo)
         {
-            var tupleConstructor = typeInfo.Type.GetConstructor(typeInfo.Type.GenericTypeArguments);
-            var length = typeInfo.Type.GenericTypeArguments.Length;
+            var args = typeInfo.Type.GetGenericArguments();
+            var tupleConstructor = typeInfo.Type.GetConstructor(args);
+            var length = args.Length;
             var expressions = new Expression[length];
             for (int i = 0; i < length; i++)
             {
-                var argumentInfo = new TypeInformation { Type = typeInfo.Type.GenericTypeArguments[i] };
+                var argumentInfo = new TypeInformation { Type = args[i] };
                 var expr = containerContext.ResolutionStrategy.BuildResolutionExpression(containerContext, resolutionInfo, argumentInfo, null);
                 expressions[i] = expr ?? throw new ResolutionFailedException(typeInfo.Type.FullName);
             }

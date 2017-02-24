@@ -16,7 +16,7 @@ namespace Stashbox.Entity
         /// </summary>
         public ParameterExpression[] ParameterExpressions { get; set; }
 
-        internal ISet<Type> CircularDependencyBarrier { get; }
+        internal HashSet<Type> CircularDependencyBarrier { get; }
 
         internal ResolutionInfo()
         {

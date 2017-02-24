@@ -12,9 +12,9 @@ namespace Stashbox.Utils
 
         private static string GenerateName(Type typeFrom, Type typeTo)
         {
-            if (!typeTo.IsConstructedGenericType) return typeFrom.Name + typeTo.Name;
+            if (!typeTo.IsClosedGenericType()) return typeFrom.Name + typeTo.Name;
 
-            var parts = string.Join("+", typeTo.GenericTypeArguments.Select(arg => arg.Name));
+            var parts = string.Join("+", typeTo.GetGenericArguments().Select(arg => arg.Name));
             return typeFrom.Name + typeTo.Name + parts;
         }
     }

@@ -80,7 +80,7 @@ namespace Stashbox.MetaInfo
                 ParentType = this.TypeTo,
                 CustomAttributes = parameterInfo.GetCustomAttributes().ToArray(),
                 ParameterName = parameterInfo.Name,
-                HasDefaultValue = parameterInfo.HasDefaultValue,
+                HasDefaultValue = parameterInfo.HasDefaultValue(),
                 DefaultValue = parameterInfo.DefaultValue
             });
         }
@@ -130,7 +130,7 @@ namespace Stashbox.MetaInfo
         {
             if (this.autoMemberInjectionEnabled)
                 return properties.Where(property => property.GetCustomAttribute<DependencyAttribute>() != null ||
-                    (this.autoMemberInjectionRule.HasFlag(Rules.AutoMemberInjection.PropertiesWithPublicSetter) && property.SetMethod.IsPublic) ||
+                    (this.autoMemberInjectionRule.HasFlag(Rules.AutoMemberInjection.PropertiesWithPublicSetter) && property.HasSetMethod()) ||
                      this.autoMemberInjectionRule.HasFlag(Rules.AutoMemberInjection.PropertiesWithLimitedAccess));
             else
                 return properties.Where(property => property.GetCustomAttribute<DependencyAttribute>() != null);

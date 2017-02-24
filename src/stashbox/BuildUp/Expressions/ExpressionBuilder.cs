@@ -15,7 +15,7 @@ namespace Stashbox.BuildUp.Expressions
 
         public ExpressionBuilder()
         {
-            this.buildExtensionMethod = typeof(IContainerExtensionManager).GetTypeInfo().GetDeclaredMethod("ExecutePostBuildExtensions");
+            this.buildExtensionMethod = typeof(IContainerExtensionManager).GetSingleMethod("ExecutePostBuildExtensions");
         }
 
         public Func<object> CompileExpression(Expression expression)

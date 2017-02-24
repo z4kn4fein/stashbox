@@ -11,7 +11,7 @@ namespace Stashbox.BuildUp.Resolution
 {
     internal class FuncResolver : Resolver
     {
-        private readonly ISet<Type> supportedTypes = new HashSet<Type>
+        private readonly HashSet<Type> supportedTypes = new HashSet<Type>
         {
             typeof(Func<>),
             typeof(Func<,>),
@@ -27,15 +27,16 @@ namespace Stashbox.BuildUp.Resolution
 
         public override Expression GetExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo)
         {
+            var args = typeInfo.Type.GetGenericArguments();
             var funcArgumentInfo = new TypeInformation
             {
-                Type = typeInfo.Type.GenericTypeArguments.Last(),
+                Type = args.Last(),
                 CustomAttributes = typeInfo.CustomAttributes,
                 ParentType = typeInfo.ParentType,
                 DependencyName = typeInfo.DependencyName
             };
 
-            this.PrepareExtraParameters(typeInfo, resolutionInfo);
+            this.PrepareExtraParameters(typeInfo, resolutionInfo, args);
             var expression = containerContext.ResolutionStrategy.BuildResolutionExpression(containerContext, resolutionInfo, funcArgumentInfo, null);
             if (expression == null)
                 throw new ResolutionFailedException(typeInfo.Type.FullName);
@@ -45,15 +46,16 @@ namespace Stashbox.BuildUp.Resolution
 
         public override Expression[] GetExpressions(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo)
         {
+            var args = typeInfo.Type.GetGenericArguments();
             var funcArgumentInfo = new TypeInformation
             {
-                Type = typeInfo.Type.GenericTypeArguments.Last(),
+                Type = args.Last(),
                 CustomAttributes = typeInfo.CustomAttributes,
                 ParentType = typeInfo.ParentType,
                 DependencyName = typeInfo.DependencyName
             };
 
-            this.PrepareExtraParameters(typeInfo, resolutionInfo);
+            this.PrepareExtraParameters(typeInfo, resolutionInfo, args);
             var expressions = containerContext.ResolutionStrategy.BuildResolutionExpressions(containerContext, resolutionInfo, funcArgumentInfo);
 
             if (expressions == null)
@@ -68,11 +70,10 @@ namespace Stashbox.BuildUp.Resolution
         }
 
         public override bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo) =>
-            typeInfo.Type.IsConstructedGenericType && this.supportedTypes.Contains(typeInfo.Type.GetGenericTypeDefinition());
+            typeInfo.Type.IsClosedGenericType() && this.supportedTypes.Contains(typeInfo.Type.GetGenericTypeDefinition());
 
-        private void PrepareExtraParameters(TypeInformation typeInfo, ResolutionInfo resolutionInfo)
+        private void PrepareExtraParameters(TypeInformation typeInfo, ResolutionInfo resolutionInfo, Type[] args)
         {
-            var args = typeInfo.Type.GenericTypeArguments;
             var length = args.Length - 1;
             var parameters = new ParameterExpression[length];
             if (length > 0)

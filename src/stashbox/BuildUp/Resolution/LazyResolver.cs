@@ -24,7 +24,7 @@ namespace Stashbox.BuildUp.Resolution
         {
             var lazyArgumentInfo = new TypeInformation
             {
-                Type = typeInfo.Type.GenericTypeArguments[0],
+                Type = typeInfo.Type.GetGenericArguments()[0],
                 CustomAttributes = typeInfo.CustomAttributes,
                 ParentType = typeInfo.ParentType,
                 DependencyName = typeInfo.DependencyName
@@ -48,7 +48,7 @@ namespace Stashbox.BuildUp.Resolution
         {
             var lazyArgumentInfo = new TypeInformation
             {
-                Type = typeInfo.Type.GenericTypeArguments[0],
+                Type = typeInfo.Type.GetGenericArguments()[0],
                 CustomAttributes = typeInfo.CustomAttributes,
                 ParentType = typeInfo.ParentType,
                 DependencyName = typeInfo.DependencyName
@@ -100,7 +100,7 @@ namespace Stashbox.BuildUp.Resolution
         }
 
         public override bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo) =>
-            typeInfo.Type.IsConstructedGenericType && typeInfo.Type.GetGenericTypeDefinition() == typeof(Lazy<>);
+            typeInfo.Type.IsClosedGenericType() && typeInfo.Type.GetGenericTypeDefinition() == typeof(Lazy<>);
 
         private class DelegateCache
         {

@@ -7,10 +7,10 @@ namespace Stashbox.BuildUp
 {
     internal sealed class CircularDependencyBarrier : IDisposable
     {
-        private readonly ISet<Type> set;
+        private readonly HashSet<Type> set;
         private readonly Type type;
 
-        public CircularDependencyBarrier(ISet<Type> set, Type type)
+        public CircularDependencyBarrier(HashSet<Type> set, Type type)
         {
             if (set.Contains(type))
                 throw new CircularDependencyException(type.FullName);

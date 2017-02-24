@@ -30,7 +30,7 @@ namespace Stashbox.BuildUp
 
         public Expression GetExpression(ResolutionInfo resolutionInfo, TypeInformation resolveType)
         {
-            var genericType = this.metaInfoProvider.TypeTo.MakeGenericType(resolveType.Type.GenericTypeArguments);
+            var genericType = this.metaInfoProvider.TypeTo.MakeGenericType(resolveType.Type.GetGenericArguments());
             resolveType.DependencyName = NameGenerator.GetRegistrationName(resolveType.Type, genericType);
 
             this.RegisterConcreteGenericType(resolveType, genericType);
