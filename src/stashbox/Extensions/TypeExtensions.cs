@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-#if NET40 || NET35
+#if NET40
 namespace System.Reflection
 {
     internal static class TypeExtensions
@@ -83,12 +83,9 @@ namespace System
 
         public static Type[] GetGenericArguments(this Type type) =>
             type.GetTypeInfo().GenericTypeArguments;
-
-        public static IEnumerable<ConstructorInfo> GetAllConstructors(this Type type) =>
-            type.GetTypeInfo().DeclaredConstructors.Where(c => !c.IsStatic);
-
+        
         public static ConstructorInfo GetConstructor(this Type type, params Type[] args) =>
-            type.GetAllConstructors().FirstOrDefault(c => c.GetParameters().Select(p => p.ParameterType).SequenceEqual(args));
+            type.GetTypeInfo().DeclaredConstructors.FirstOrDefault(c => c.GetParameters().Select(p => p.ParameterType).SequenceEqual(args));
 
         public static bool IsBackingField(this FieldInfo field) =>
             field.Name[0] == '<';
@@ -110,12 +107,6 @@ namespace System
 
         public static MethodInfo GetSingleMethodOrDefault(this Type type, string name, bool includeNonPublic = false) =>
             type.GetTypeInfo().DeclaredMethods.Where(method => (includeNonPublic || method.IsPublic) && method.Name == name).FirstOrDefault();
-        
-        public static bool HasSingleMethod(this Type type, string name, bool includeNonPublic = false) =>
-            type.GetSingleMethodOrDefault(name, includeNonPublic) != null;
-
-        public static MethodInfo GetSetMethod(this PropertyInfo property, bool includeNonPublic = false) => 
-            property.DeclaringType.GetSingleMethod("set_" + property.Name, includeNonPublic);
 
         public static bool HasSetMethod(this PropertyInfo property, bool includeNonPublic = false) =>
             property.DeclaringType.GetSingleMethodOrDefault("set_" + property.Name, includeNonPublic) != null;

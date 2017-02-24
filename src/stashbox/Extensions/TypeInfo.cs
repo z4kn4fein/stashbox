@@ -1,4 +1,4 @@
-﻿#if NET40 || NET35
+﻿#if NET40
 using System.Collections.Generic;
 using System.Linq;
 
@@ -14,10 +14,10 @@ namespace System.Reflection
         }
 
         public Assembly Assembly => this.type.Assembly;
-        public IEnumerable<ConstructorInfo> DeclaredConstructors => this.type.GetConstructors(ALL_DECLARED ^ BindingFlags.Static);
-        public IEnumerable<MethodInfo> DeclaredMethods => this.type.GetMethods(ALL_DECLARED);
-        public IEnumerable<FieldInfo> DeclaredFields => this.type.GetFields(ALL_DECLARED); 
-        public IEnumerable<PropertyInfo> DeclaredProperties => this.type.GetProperties(ALL_DECLARED);
+        public IEnumerable<ConstructorInfo> DeclaredConstructors => this.type.GetConstructors(All ^ BindingFlags.Static);
+        public IEnumerable<MethodInfo> DeclaredMethods => this.type.GetMethods(All);
+        public IEnumerable<FieldInfo> DeclaredFields => this.type.GetFields(All); 
+        public IEnumerable<PropertyInfo> DeclaredProperties => this.type.GetProperties(All);
         public IEnumerable<Type> ImplementedInterfaces  => this.type.GetInterfaces();
         public IEnumerable<Attribute> GetCustomAttributes(Type attributeType, bool inherit) => this.type.GetCustomAttributes(attributeType, inherit).Cast<Attribute>();
         public Type BaseType => this.type.BaseType;
@@ -40,11 +40,7 @@ namespace System.Reflection
         public bool IsSealed => this.type.IsSealed; 
         public bool IsEnum => this.type.IsEnum; 
 
-        //public Type GetElementType() { return _type.GetElementType(); }
-
-        //public bool IsAssignableFrom(TypeInfo typeInfo) { return _type.IsAssignableFrom(typeInfo.AsType()); }
-
-        private const BindingFlags ALL_DECLARED =
+        private const BindingFlags All =
             BindingFlags.Instance | BindingFlags.Static |
             BindingFlags.Public | BindingFlags.NonPublic |
             BindingFlags.DeclaredOnly;
