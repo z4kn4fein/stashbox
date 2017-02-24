@@ -9,7 +9,7 @@ namespace Stashbox.Entity
     /// </summary>
     public class ResolutionInfo
     {
-        internal static ResolutionInfo Empty = new ResolutionInfo();
+        internal static ResolutionInfo New() => new ResolutionInfo();
 
         /// <summary>
         /// The extra parameter expressions.

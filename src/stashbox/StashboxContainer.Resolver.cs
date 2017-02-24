@@ -59,9 +59,10 @@ namespace Stashbox
             var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, RegistrationContextData.Empty, typeTo);
             var typeInfo = new TypeInformation { Type = typeTo };
 
+            var resolutionInfo = ResolutionInfo.New();
             var expr = this.expressionBuilder.CreateFillExpression(this.containerExtensionManager, this.ContainerContext,
-                Expression.Constant(instance), ResolutionInfo.Empty, typeInfo, null, metaInfoProvider.GetResolutionMembers(ResolutionInfo.Empty),
-                metaInfoProvider.GetResolutionMethods(ResolutionInfo.Empty));
+                Expression.Constant(instance), resolutionInfo, typeInfo, null, metaInfoProvider.GetResolutionMembers(resolutionInfo),
+                metaInfoProvider.GetResolutionMethods(resolutionInfo));
 
             var factory = Expression.Lambda<Func<TTo>>(expr).Compile();
             return factory();
@@ -70,7 +71,7 @@ namespace Stashbox
         private object ResolveInternal(Type typeFrom, string name = null)
         {
             var typeInfo = new TypeInformation { Type = typeFrom, DependencyName = name };
-            return this.activationContext.Activate(new ResolutionInfo(), typeInfo);
+            return this.activationContext.Activate(ResolutionInfo.New(), typeInfo);
         }
     }
 }
