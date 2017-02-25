@@ -9,8 +9,6 @@ namespace Stashbox.BuildUp.Expressions
 {
     internal interface IExpressionBuilder
     {
-        Func<object> CompileExpression(Expression expression);
-
         Expression CreateFillExpression(IContainerExtensionManager extensionManager, IContainerContext containerContext, Expression instance,
             ResolutionInfo resolutionInfo, TypeInformation typeInfo, InjectionParameter[] parameters, ResolutionMember[] members, ResolutionMethod[] methods);
 

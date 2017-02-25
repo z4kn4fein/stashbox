@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Linq.Expressions;
-using Stashbox.BuildUp.Expressions;
 using Stashbox.Entity;
 using Stashbox.Exceptions;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.Resolution;
+using System.Linq;
 
 namespace Stashbox.Resolution
 {
@@ -12,48 +12,52 @@ namespace Stashbox.Resolution
     {
         private readonly IContainerContext containerContext;
         private readonly IResolverSelector resolverSelector;
-        private readonly IExpressionBuilder expressionBuilder;
 
-        public ActivationContext(IContainerContext containerContext, IResolverSelector resolverSelector, IExpressionBuilder expressionBuilder)
+        public ActivationContext(IContainerContext containerContext, IResolverSelector resolverSelector)
         {
             this.containerContext = containerContext;
             this.resolverSelector = resolverSelector;
-            this.expressionBuilder = expressionBuilder;
         }
 
-        public object Activate(ResolutionInfo resolutionInfo, TypeInformation typeInfo)
+        public object Activate(Type type, string name = null)
         {
-            var cachedFactory = this.containerContext.DelegateRepository.GetDelegateCacheOrDefault(typeInfo);
-            return cachedFactory != null ? cachedFactory() : this.ActivateType(resolutionInfo, typeInfo);
+            var cachedFactory = this.containerContext.DelegateRepository.GetDelegateCacheOrDefault(type, name);
+            return cachedFactory != null ? cachedFactory() : this.ActivateType(type, name);
         }
 
-        public Delegate ActivateFactory(ResolutionInfo resolutionInfo, TypeInformation typeInfo, Type[] parameterTypes)
+        public Delegate ActivateFactory(Type type, Type[] parameterTypes, string name = null)
         {
-            var cachedFactory = this.containerContext.DelegateRepository.GetFactoryDelegateCacheOrDefault(typeInfo, parameterTypes);
-            return cachedFactory ?? ActivateFactoryDelegate(resolutionInfo, typeInfo, parameterTypes);
+            var cachedFactory = this.containerContext.DelegateRepository.GetFactoryDelegateCacheOrDefault(type, parameterTypes, name);
+            return cachedFactory ?? ActivateFactoryDelegate(type, parameterTypes, name);
         }
         
-        private object ActivateType(ResolutionInfo resolutionInfo, TypeInformation typeInfo)
+        private object ActivateType(Type type, string name = null)
         {
+            var typeInfo = new TypeInformation { Type = type, DependencyName = name };
             var registration = this.containerContext.RegistrationRepository.GetRegistrationOrDefault(typeInfo);
             if (registration != null)
             {
-                var ragistrationFactory = this.expressionBuilder.CompileExpression(registration.GetExpression(resolutionInfo, typeInfo));
-                this.containerContext.DelegateRepository.AddServiceDelegate(typeInfo, ragistrationFactory);
+                var ragistrationFactory = registration.GetExpression(ResolutionInfo.New(), typeInfo).CompileDelegate();
+                this.containerContext.DelegateRepository.AddServiceDelegate(type, ragistrationFactory, name);
                 return ragistrationFactory();
             }
 
-            var expr = this.resolverSelector.GetResolverExpression(containerContext, typeInfo, resolutionInfo);
+            var expr = this.resolverSelector.GetResolverExpression(containerContext, typeInfo, ResolutionInfo.New());
             if (expr == null)
                 throw new ResolutionFailedException(typeInfo.Type.FullName);
 
-            var factory = this.expressionBuilder.CompileExpression(expr);
-            this.containerContext.DelegateRepository.AddServiceDelegate(typeInfo, factory);
+            var factory = expr.CompileDelegate();
+            this.containerContext.DelegateRepository.AddServiceDelegate(type, factory, name);
             return factory();
         }
 
-        private Delegate ActivateFactoryDelegate(ResolutionInfo resolutionInfo, TypeInformation typeInfo, Type[] parameterTypes)
+        private Delegate ActivateFactoryDelegate(Type type, Type[] parameterTypes, string name = null)
         {
+            var resolutionInfo = new ResolutionInfo
+            {
+                ParameterExpressions = parameterTypes.Length == 0 ? null : parameterTypes.Select(Expression.Parameter).ToArray()
+            };
+            var typeInfo = new TypeInformation { Type = type, DependencyName = name };
             Expression initExpression;
             var registration = this.containerContext.RegistrationRepository.GetRegistrationOrDefault(typeInfo);
             if (registration == null)
@@ -65,7 +69,7 @@ namespace Stashbox.Resolution
                 throw new ResolutionFailedException(typeInfo.Type.FullName);
 
             var factory = Expression.Lambda(initExpression, resolutionInfo.ParameterExpressions).Compile();
-            this.containerContext.DelegateRepository.AddFactoryDelegate(typeInfo, parameterTypes, factory);
+            this.containerContext.DelegateRepository.AddFactoryDelegate(type, parameterTypes, factory, name);
             return factory;
         }
     }

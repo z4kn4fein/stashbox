@@ -17,21 +17,7 @@ namespace Stashbox.BuildUp.Expressions
         {
             this.buildExtensionMethod = typeof(IContainerExtensionManager).GetSingleMethod("ExecutePostBuildExtensions");
         }
-
-        public Func<object> CompileExpression(Expression expression)
-        {
-            Func<object> factory;
-            if (expression.NodeType == ExpressionType.Constant)
-            {
-                var instance = ((ConstantExpression)expression).Value;
-                factory = () => instance;
-            }
-            else
-                factory = Expression.Lambda<Func<object>>(expression).Compile();
-
-            return factory;
-        }
-
+        
         public Expression CreateFillExpression(IContainerExtensionManager extensionManager, IContainerContext containerContext, Expression instance,
             ResolutionInfo resolutionInfo, TypeInformation typeInfo, InjectionParameter[] parameters, ResolutionMember[] members, ResolutionMethod[] methods)
         {

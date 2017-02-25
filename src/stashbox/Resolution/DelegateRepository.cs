@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using Stashbox.Entity;
 using Stashbox.Infrastructure;
 using Stashbox.Utils;
 
@@ -19,29 +18,29 @@ namespace Stashbox.Resolution
             this.factoryDelegates = new HashMap<Type, string, Delegate>();
         }
         
-        public Delegate GetFactoryDelegateCacheOrDefault(TypeInformation typeInfo, Type[] parameterTypes)
+        public Delegate GetFactoryDelegateCacheOrDefault(Type type, Type[] parameterTypes, string name = null)
         {
-            var key = this.GetFactoryKey(parameterTypes, typeInfo.DependencyName);
-            return this.factoryDelegates.GetOrDefault(typeInfo.Type, key);
+            var key = this.GetFactoryKey(parameterTypes, name);
+            return this.factoryDelegates.GetOrDefault(type, key);
         }
 
-        public Func<object> GetDelegateCacheOrDefault(TypeInformation typeInfo)
+        public Func<object> GetDelegateCacheOrDefault(Type type, string name = null)
         {
-            return typeInfo.DependencyName == null ? this.serviceDelegates.GetOrDefault(typeInfo.Type)
-                : this.keyedServiceDelegates.GetOrDefault(this.GetKey(typeInfo.Type, typeInfo.DependencyName));
+            return name == null ? this.serviceDelegates.GetOrDefault(type)
+                : this.keyedServiceDelegates.GetOrDefault(this.GetKey(type, name));
         }
         
-        public void AddFactoryDelegate(TypeInformation typeInfo, Type[] parameterTypes, Delegate factory)
+        public void AddFactoryDelegate(Type type, Type[] parameterTypes, Delegate factory, string name = null)
         {
-            var key = this.GetFactoryKey(parameterTypes, typeInfo.DependencyName);
-            this.factoryDelegates.AddOrUpdate(typeInfo.Type, key, factory);
+            var key = this.GetFactoryKey(parameterTypes, name);
+            this.factoryDelegates.AddOrUpdate(type, key, factory);
         }
-        public void AddServiceDelegate(TypeInformation typeInfo, Func<object> factory)
+        public void AddServiceDelegate(Type type, Func<object> factory, string name = null)
         {
-            if (typeInfo.DependencyName == null)
-                this.serviceDelegates.AddOrUpdate(typeInfo.Type, factory);
+            if (name == null)
+                this.serviceDelegates.AddOrUpdate(type, factory);
             else
-                this.keyedServiceDelegates.AddOrUpdate(this.GetKey(typeInfo.Type, typeInfo.DependencyName), factory);
+                this.keyedServiceDelegates.AddOrUpdate(this.GetKey(type, name), factory);
         }
 
         public void InvalidateDelegateCache()

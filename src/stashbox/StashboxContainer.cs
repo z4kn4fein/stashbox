@@ -41,7 +41,7 @@ namespace Stashbox
             this.registrationRepository = new RegistrationRepository(configurator);
             this.ContainerContext = new ContainerContext(this.registrationRepository, new DelegateRepository(), this,
                 new ResolutionStrategy(this.resolverSelector), configurator);
-            this.activationContext = new Resolution.ActivationContext(this.ContainerContext, this.resolverSelector, this.expressionBuilder);
+            this.activationContext = new Resolution.ActivationContext(this.ContainerContext, this.resolverSelector);
 
             this.RegisterResolvers();
         }
@@ -57,7 +57,7 @@ namespace Stashbox
             this.registrationRepository = new RegistrationRepository(parentContainer.ContainerContext.ContainerConfigurator);
             this.ContainerContext = new ContainerContext(this.registrationRepository, new DelegateRepository(), this, new ResolutionStrategy(this.resolverSelector),
                 parentContainer.ContainerContext.ContainerConfigurator);
-            this.activationContext = new Resolution.ActivationContext(this.ContainerContext, this.resolverSelector, this.expressionBuilder);
+            this.activationContext = new Resolution.ActivationContext(this.ContainerContext, this.resolverSelector);
             this.containerExtensionManager.ReinitalizeExtensions(this.ContainerContext);
         }
 
@@ -69,16 +69,12 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public void RegisterResolver(Resolver resolver)
-        {
+        public void RegisterResolver(Resolver resolver) =>
             this.resolverSelector.AddResolver(resolver);
-        }
 
         /// <inheritdoc />
-        public bool CanResolve<TFrom>(string name = null)
-        {
-            return this.CanResolve(typeof(TFrom), name);
-        }
+        public bool CanResolve<TFrom>(string name = null) =>
+            this.CanResolve(typeof(TFrom), name);
 
         /// <inheritdoc />
         public bool CanResolve(Type typeFrom, string name = null)
@@ -102,7 +98,8 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public void Configure(Action<IContainerConfigurator> config) => config?.Invoke(this.ContainerContext.ContainerConfigurator);
+        public void Configure(Action<IContainerConfigurator> config) => 
+            config?.Invoke(this.ContainerContext.ContainerConfigurator);
 
         internal void OpenScope()
         {

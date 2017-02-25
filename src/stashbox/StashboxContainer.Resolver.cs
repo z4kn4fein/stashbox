@@ -12,23 +12,16 @@ namespace Stashbox
     public partial class StashboxContainer
     {
         /// <inheritdoc />
-        public TKey Resolve<TKey>(string name = null) where TKey : class
-        {
-            return this.ResolveInternal(typeof(TKey), name) as TKey;
-        }
+        public TKey Resolve<TKey>(string name = null) where TKey : class =>
+            this.activationContext.Activate(typeof(TKey), name) as TKey;
 
         /// <inheritdoc />
-        public object Resolve(Type typeFrom, string name = null)
-        {
-            Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
-            return this.ResolveInternal(typeFrom, name);
-        }
+        public object Resolve(Type typeFrom, string name = null) =>
+            this.activationContext.Activate(typeFrom, name);
 
         /// <inheritdoc />
-        public IEnumerable<TKey> ResolveAll<TKey>() where TKey : class
-        {
-            return this.Resolve<IEnumerable<TKey>>();
-        }
+        public IEnumerable<TKey> ResolveAll<TKey>() where TKey : class =>
+            this.Resolve<IEnumerable<TKey>>();
 
         /// <inheritdoc />
         public IEnumerable<object> ResolveAll(Type typeFrom)
@@ -39,18 +32,8 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public Delegate ResolveFactory(Type typeFrom, string name = null, params Type[] parameterTypes)
-        {
-            Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
-
-            var typeInfo = new TypeInformation { Type = typeFrom, DependencyName = name };
-            var resolutionInfo = new ResolutionInfo
-            {
-                ParameterExpressions = parameterTypes.Length == 0 ? null : parameterTypes.Select(Expression.Parameter).ToArray()
-            };
-
-            return this.activationContext.ActivateFactory(resolutionInfo, typeInfo, parameterTypes);
-        }
+        public Delegate ResolveFactory(Type typeFrom, string name = null, params Type[] parameterTypes) =>
+            this.activationContext.ActivateFactory(typeFrom, parameterTypes, name);
 
         /// <inheritdoc />
         public TTo BuildUp<TTo>(TTo instance)
@@ -66,12 +49,6 @@ namespace Stashbox
 
             var factory = Expression.Lambda<Func<TTo>>(expr).Compile();
             return factory();
-        }
-
-        private object ResolveInternal(Type typeFrom, string name = null)
-        {
-            var typeInfo = new TypeInformation { Type = typeFrom, DependencyName = name };
-            return this.activationContext.Activate(ResolutionInfo.New(), typeInfo);
         }
     }
 }
