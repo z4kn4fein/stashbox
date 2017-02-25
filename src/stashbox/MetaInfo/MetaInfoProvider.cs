@@ -57,7 +57,7 @@ namespace Stashbox.MetaInfo
                     Expression = this.containerContext.ResolutionStrategy
                         .BuildResolutionExpression(this.containerContext, resolutionInfo, memberInfo.TypeInformation, injectionParameters),
                     MemberInfo = memberInfo.MemberInfo
-                }).ToArray();
+                }).Where(info => info.Expression != null).ToArray();
         }
 
         public bool ValidateGenericContraints(TypeInformation typeInformation)

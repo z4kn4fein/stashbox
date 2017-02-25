@@ -9,22 +9,13 @@ namespace System.Linq.Expressions
             Func<object> factory;
             if (expression.NodeType == ExpressionType.Constant)
             {
-                var instance = ((ConstantExpression)expression.Optimize()).Value;
+                var instance = ((ConstantExpression)expression).Value;
                 factory = () => instance;
             }
             else
-                factory = Expression.Lambda<Func<object>>(expression.Optimize()).Compile();
+                factory = Expression.Lambda<Func<object>>(expression).Compile();
 
             return factory;
-        }
-
-        public static Expression Optimize(this Expression expression)
-        {
-            if (expression.NodeType == ExpressionType.Convert)
-                expression = ((UnaryExpression)expression).Operand;
-            else if (expression.Type.GetTypeInfo().IsValueType)
-                expression = Expression.Convert(expression, typeof(object));
-            return expression;
         }
     }
 }
