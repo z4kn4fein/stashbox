@@ -19,7 +19,7 @@ namespace Stashbox.Resolution
             InjectionParameter[] injectionParameters)
         {
             if (resolutionInfo.ParameterExpressions != null && resolutionInfo.ParameterExpressions.Any(p => p.Type == typeInformation.Type))
-                return resolutionInfo.ParameterExpressions.First(p => p.Type == typeInformation.Type);
+                return resolutionInfo.ParameterExpressions.Last(p => p.Type == typeInformation.Type);
 
             var matchingParam = injectionParameters?.FirstOrDefault(param => param.Name == typeInformation.ParameterName);
             if (matchingParam != null)

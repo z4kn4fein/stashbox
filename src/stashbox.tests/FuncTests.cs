@@ -116,7 +116,49 @@ namespace Stashbox.Tests
 
             Assert.AreSame(t, r.Func2.Test);
         }
-        
+
+        [TestMethod]
+        public void FuncTests_Resolve_ParameterInjection_Mixed()
+        {
+            var container = new StashboxContainer();
+            container.RegisterType<FuncTest3>();
+            container.RegisterType<FuncTest4>();
+            container.RegisterType<Dep2>();
+            container.RegisterType<Dep4>();
+            var inst = container.Resolve<FuncTest3>();
+
+            var d1 = new Dep1();
+            var d3 = new Dep3();
+
+            var d = inst.Dep(d1, d3);
+
+            var d12 = new Dep1();
+            var d32 = new Dep3();
+
+            Assert.AreNotSame(d1, d.Dep(d12).Dep);
+            Assert.AreSame(d12, d.Dep(d12).Dep);
+        }
+
+        [TestMethod]
+        public void FuncTests_Resolve_ParameterInjection_Mixed2()
+        {
+            var container = new StashboxContainer();
+            container.RegisterType<FuncTest5>();
+            container.RegisterType<FuncTest6>();
+            container.RegisterType<Dep2>();
+            container.RegisterType<Dep4>();
+            var inst = container.Resolve<FuncTest5>();
+            
+            var d3 = new Dep3();
+
+            var d = inst.Dep(d3);
+
+            var d32 = new Dep3();
+
+            Assert.AreNotSame(d3, d.Dep(d32).Dep);
+            Assert.AreSame(d3, d.Dep1);
+        }
+
         public class ScopedFuncTest
         {
             public Func<ITest> Factory { get; set; }
@@ -144,6 +186,80 @@ namespace Stashbox.Tests
             public FunctTest2(ITest test)
             {
                 this.Test = test;
+            }
+        }
+
+        public class FuncTest3
+        {
+            public Func<Dep1, Dep3, FuncTest4> Dep { get; set; }
+
+            public FuncTest3(Func<Dep1, Dep3, FuncTest4> dep)
+            {
+                Dep = dep;
+            }
+        }
+
+        public class FuncTest4
+        {
+            public Func<Dep1, Dep2> Dep { get; set; }
+            public Func<Dep3, Dep4> Dep1 { get; set; }
+
+            public FuncTest4(Func<Dep1, Dep2> dep, Func<Dep3, Dep4> dep1)
+            {
+                Dep = dep;
+                Dep1 = dep1;
+            }
+        }
+
+        public class FuncTest5
+        {
+            public Func<Dep3, FuncTest6> Dep { get; set; }
+
+            public FuncTest5(Func<Dep3, FuncTest6> dep)
+            {
+                Dep = dep;
+            }
+        }
+
+        public class FuncTest6
+        {
+            public Dep3 Dep1 { get; set; }
+            public Func<Dep3, Dep4> Dep { get; set; }
+
+            public FuncTest6(Dep3 dep1, Func<Dep3, Dep4> dep)
+            {
+                Dep1 = dep1;
+                Dep = dep;
+            }
+        }
+
+        public class Dep1
+        {
+
+        }
+
+        public class Dep2
+        {
+            public Dep1 Dep { get; set; }
+
+            public Dep2(Dep1 dep)
+            {
+                Dep = dep;
+            }
+        }
+
+        public class Dep3
+        {
+
+        }
+
+        public class Dep4
+        {
+            public Dep3 Dep { get; set; }
+
+            public Dep4(Dep3 dep)
+            {
+                Dep = dep;
             }
         }
 
