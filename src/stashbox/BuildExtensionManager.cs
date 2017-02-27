@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Stashbox.Utils;
+using System;
 
 namespace Stashbox
 {
@@ -58,13 +59,13 @@ namespace Stashbox
             }
         }
 
-        public void ExecuteOnRegistrationExtensions(IContainerContext containerContext, RegistrationInfo registrationInfo, InjectionParameter[] injectionParameters = null)
+        public void ExecuteOnRegistrationExtensions(IContainerContext containerContext, Type typeTo, Type typeFrom, InjectionParameter[] injectionParameters = null)
         {
             if (!this.hasRegistrationExtensions) return;
             using (this.readerWriterLock.AcquireReadLock())
             {
                 foreach (var extension in this.registrationExtensions)
-                    extension.OnRegistration(containerContext, registrationInfo, injectionParameters);
+                    extension.OnRegistration(containerContext, typeTo, typeFrom, injectionParameters);
             }
         }
 

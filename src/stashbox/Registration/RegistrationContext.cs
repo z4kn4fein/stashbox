@@ -25,16 +25,15 @@ namespace Stashbox.Registration
 
         public IStashboxContainer Register()
         {
-            var registrationInfo = base.PrepareRegistration(this.containerExtensionManager);
-            this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.ContainerContext, registrationInfo, base.RegistrationContextData.InjectionParameters);
+            base.PrepareRegistration(this.containerExtensionManager);
+            this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.ContainerContext, base.TypeTo, base.TypeFrom, base.RegistrationContextData.InjectionParameters);
             return this.ContainerContext.Container;
         }
 
         public IStashboxContainer ReMap()
         {
-            var dependencyName = this.RegistrationContextData.Name;
-            var registrationInfo = base.PrepareRegistration(this.containerExtensionManager, true);
-            this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.ContainerContext, registrationInfo, base.RegistrationContextData.InjectionParameters);
+            base.PrepareRegistration(this.containerExtensionManager, true);
+            this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.ContainerContext, base.TypeTo, base.TypeFrom, base.RegistrationContextData.InjectionParameters);
 
             this.ContainerContext.DelegateRepository.InvalidateDelegateCache();
             return this.ContainerContext.Container;

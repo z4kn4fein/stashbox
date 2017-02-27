@@ -30,7 +30,7 @@ namespace Stashbox.Registration
             this.expressionBuilder = expressionBuilder;
         }
 
-        protected RegistrationInfo PrepareRegistration(IContainerExtensionManager containerExtensionManager, bool update = false)
+        protected void PrepareRegistration(IContainerExtensionManager containerExtensionManager, bool update = false)
         {
             var registrationName = this.RegistrationContextData.Name = NameGenerator.GetRegistrationName(this.TypeFrom, this.TypeTo, this.RegistrationContextData.Name);
             var registrationLifetime = this.ChooseLifeTime();
@@ -38,8 +38,6 @@ namespace Stashbox.Registration
             var objectBuilder = this.CompleteRegistration(containerExtensionManager, update, metaInfoProvider, registrationName, registrationLifetime);
 
             this.CompleteScopeManagement(update, registrationLifetime, objectBuilder);
-
-            return new RegistrationInfo { TypeFrom = this.TypeFrom, TypeTo = this.TypeTo };
         }
 
         private IObjectBuilder CompleteRegistration(IContainerExtensionManager containerExtensionManager, bool update,

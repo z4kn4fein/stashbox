@@ -25,8 +25,8 @@ namespace Stashbox.Registration
         {
             if (registration.HasCondition)
                 this.AddOrUpdateRegistration(typeKey, nameKey, canUpdate, registration, this.conditionalRepository);
-
-            this.AddOrUpdateRegistration(typeKey, nameKey, canUpdate, registration, this.serviceRepository);
+            else
+                this.AddOrUpdateRegistration(typeKey, nameKey, canUpdate, registration, this.serviceRepository);
         }
 
         public IServiceRegistration GetRegistrationOrDefault(TypeInformation typeInfo, bool checkConditions = false)
@@ -83,8 +83,8 @@ namespace Stashbox.Registration
                 repository.AddOrUpdate(typeKey, newRepository,
                     (oldValue, newValue) => oldValue.HasMultipleItems ? oldValue.AddOrUpdate(nameKey, registration,
                         (oldReg, newReg) => newReg) : newValue);
-
-            repository.AddOrUpdate(typeKey, newRepository, (oldValue, newValue) => oldValue.AddOrUpdate(nameKey, registration));
+            else
+                repository.AddOrUpdate(typeKey, newRepository, (oldValue, newValue) => oldValue.AddOrUpdate(nameKey, registration));
         }
 
         private IServiceRegistration GetNamedRegistrationOrDefault(TypeInformation typeInfo)

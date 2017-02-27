@@ -193,28 +193,24 @@ namespace Stashbox
         private void WireUpInternal(object instance, string keyName, Type typeFrom, Type typeTo)
         {
             var regName = NameGenerator.GetRegistrationName(typeFrom, typeTo, keyName);
-            var registrationInfo = new RegistrationInfo { TypeFrom = typeFrom, TypeTo = typeTo };
             var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, RegistrationContextData.Empty, typeTo);
-
             var registration = new ServiceRegistration(typeFrom, this.ContainerContext, new TransientLifetime(),
                 new WireUpObjectBuilder(instance, this.containerExtensionManager, this.ContainerContext, metaInfoProvider, this.expressionBuilder), metaInfoProvider);
 
             this.registrationRepository.AddOrUpdateRegistration(typeFrom, regName, false, registration);
-            this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.ContainerContext, registrationInfo);
+            this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.ContainerContext, typeTo, typeFrom);
         }
 
         private void RegisterInstanceInternal(object instance, string keyName, Type type)
         {
-            var insanceType = instance.GetType();
-            var regName = NameGenerator.GetRegistrationName(insanceType, insanceType, keyName);
-
-            var registrationInfo = new RegistrationInfo { TypeFrom = type, TypeTo = type };
-            var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, RegistrationContextData.Empty, insanceType);
+            var instanceType = instance.GetType();
+            var regName = NameGenerator.GetRegistrationName(instanceType, instanceType, keyName);
+            var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, RegistrationContextData.Empty, instanceType);
             var registration = new ServiceRegistration(type, this.ContainerContext, new TransientLifetime(),
                 new InstanceObjectBuilder(instance), metaInfoProvider);
 
             this.registrationRepository.AddOrUpdateRegistration(type, regName, false, registration);
-            this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.ContainerContext, registrationInfo);
+            this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.ContainerContext, instanceType, type);
         }
     }
 }

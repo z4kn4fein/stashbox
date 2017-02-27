@@ -2,6 +2,7 @@
 using Moq;
 using Stashbox.Entity;
 using Stashbox.Infrastructure.ContainerExtension;
+using System;
 
 namespace Stashbox.Tests
 {
@@ -60,7 +61,7 @@ namespace Stashbox.Tests
                 container.RegisterInstance(new object());
                 post.Verify(p => p.Initialize(container.ContainerContext));
                 post.Verify(p => p.OnRegistration(container.ContainerContext,
-                    It.IsAny<RegistrationInfo>(), null));
+                    It.IsAny<Type>(), It.IsAny<Type>(), null));
             }
 
             post.Verify(p => p.CleanUp());
@@ -83,7 +84,7 @@ namespace Stashbox.Tests
 
                     post2.Verify(p => p.Initialize(child.ContainerContext));
                     post2.Verify(p => p.OnRegistration(child.ContainerContext,
-                        It.IsAny<RegistrationInfo>(), null));
+                        It.IsAny<Type>(), It.IsAny<Type>(), null));
                 }
 
                 post2.Verify(p => p.CleanUp());
