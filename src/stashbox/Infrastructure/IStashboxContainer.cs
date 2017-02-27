@@ -1,6 +1,4 @@
-﻿using Stashbox.Configuration;
-using Stashbox.Entity;
-using Stashbox.Infrastructure.ContainerExtension;
+﻿using Stashbox.Infrastructure.ContainerExtension;
 using Stashbox.Infrastructure.Resolution;
 using System;
 
@@ -27,6 +25,11 @@ namespace Stashbox.Infrastructure
         /// Begins a new scope.
         /// </summary>
         IStashboxContainer BeginScope();
+
+        /// <summary>
+        /// The activation context.
+        /// </summary>
+        IActivationContext ActivationContext { get; }
 
         /// <summary>
         /// Stores the parent container object if has any, otherwise null.

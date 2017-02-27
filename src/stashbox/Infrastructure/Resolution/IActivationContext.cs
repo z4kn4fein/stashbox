@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Stashbox.Entity;
+using System;
 
 namespace Stashbox.Infrastructure.Resolution
 {
@@ -14,6 +15,14 @@ namespace Stashbox.Infrastructure.Resolution
         /// <param name="name">The service name.</param>
         /// <returns>The resolved object.</returns>
         object Activate(Type type, string name = null);
+
+        /// <summary>
+        /// Activates a type.
+        /// </summary>
+        /// <param name="resolutionInfo">The resolution info.</param>
+        /// <param name="typeInfo">The type info.</param>
+        /// <returns>The resolved object.</returns>
+        object Activate(ResolutionInfo resolutionInfo, TypeInformation typeInfo);
 
         /// <summary>
         /// Activates a type via a delegate.

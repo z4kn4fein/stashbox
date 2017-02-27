@@ -3,7 +3,6 @@ using Stashbox.MetaInfo;
 using Stashbox.Utils;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using Stashbox.Registration;
 
@@ -13,11 +12,11 @@ namespace Stashbox
     {
         /// <inheritdoc />
         public TKey Resolve<TKey>(string name = null) where TKey : class =>
-            this.activationContext.Activate(typeof(TKey), name) as TKey;
+            this.ActivationContext.Activate(typeof(TKey), name) as TKey;
 
         /// <inheritdoc />
         public object Resolve(Type typeFrom, string name = null) =>
-            this.activationContext.Activate(typeFrom, name);
+            this.ActivationContext.Activate(typeFrom, name);
 
         /// <inheritdoc />
         public IEnumerable<TKey> ResolveAll<TKey>() where TKey : class =>
@@ -33,7 +32,7 @@ namespace Stashbox
 
         /// <inheritdoc />
         public Delegate ResolveFactory(Type typeFrom, string name = null, params Type[] parameterTypes) =>
-            this.activationContext.ActivateFactory(typeFrom, parameterTypes, name);
+            this.ActivationContext.ActivateFactory(typeFrom, parameterTypes, name);
 
         /// <inheritdoc />
         public TTo BuildUp<TTo>(TTo instance)

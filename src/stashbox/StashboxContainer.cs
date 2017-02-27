@@ -22,7 +22,6 @@ namespace Stashbox
         private readonly IResolverSelector resolverSelector;
         private readonly IRegistrationRepository registrationRepository;
         private readonly IExpressionBuilder expressionBuilder;
-        private readonly IActivationContext activationContext;
         private readonly AtomicBool disposed;
 
         /// <summary>
@@ -41,7 +40,7 @@ namespace Stashbox
             this.registrationRepository = new RegistrationRepository(configurator);
             this.ContainerContext = new ContainerContext(this.registrationRepository, new DelegateRepository(), this,
                 new ResolutionStrategy(this.resolverSelector), configurator);
-            this.activationContext = new Resolution.ActivationContext(this.ContainerContext, this.resolverSelector);
+            this.ActivationContext = new Resolution.ActivationContext(this.ContainerContext, this.resolverSelector);
 
             this.RegisterResolvers();
         }
@@ -57,7 +56,7 @@ namespace Stashbox
             this.registrationRepository = new RegistrationRepository(parentContainer.ContainerContext.ContainerConfigurator);
             this.ContainerContext = new ContainerContext(this.registrationRepository, new DelegateRepository(), this, new ResolutionStrategy(this.resolverSelector),
                 parentContainer.ContainerContext.ContainerConfigurator);
-            this.activationContext = new Resolution.ActivationContext(this.ContainerContext, this.resolverSelector);
+            this.ActivationContext = new Resolution.ActivationContext(this.ContainerContext, this.resolverSelector);
             this.containerExtensionManager.ReinitalizeExtensions(this.ContainerContext);
         }
 
@@ -88,6 +87,9 @@ namespace Stashbox
 
         /// <inheritdoc />
         public IContainerContext ContainerContext { get; }
+
+        /// <inheritdoc />
+        public IActivationContext ActivationContext { get; }
 
         /// <inheritdoc />
         public IStashboxContainer BeginScope()

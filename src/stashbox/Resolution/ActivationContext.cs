@@ -30,24 +30,32 @@ namespace Stashbox.Resolution
             var cachedFactory = this.containerContext.DelegateRepository.GetFactoryDelegateCacheOrDefault(type, parameterTypes, name);
             return cachedFactory ?? ActivateFactoryDelegate(type, parameterTypes, name);
         }
-        
+
+        public object Activate(ResolutionInfo resolutionInfo, TypeInformation typeInfo) =>
+            this.ActivateType(resolutionInfo, typeInfo);
+
         private object ActivateType(Type type, string name = null)
         {
             var typeInfo = new TypeInformation { Type = type, DependencyName = name };
+            return this.ActivateType(ResolutionInfo.New(), typeInfo);
+        }
+
+        private object ActivateType(ResolutionInfo resolutionInfo, TypeInformation typeInfo)
+        {
             var registration = this.containerContext.RegistrationRepository.GetRegistrationOrDefault(typeInfo);
             if (registration != null)
             {
-                var ragistrationFactory = registration.GetExpression(ResolutionInfo.New(), typeInfo).CompileDelegate();
-                this.containerContext.DelegateRepository.AddServiceDelegate(type, ragistrationFactory, name);
+                var ragistrationFactory = registration.GetExpression(resolutionInfo, typeInfo).CompileDelegate();
+                this.containerContext.DelegateRepository.AddServiceDelegate(typeInfo.Type, ragistrationFactory, typeInfo.DependencyName);
                 return ragistrationFactory();
             }
 
-            var expr = this.resolverSelector.GetResolverExpression(containerContext, typeInfo, ResolutionInfo.New());
+            var expr = this.resolverSelector.GetResolverExpression(containerContext, typeInfo, resolutionInfo);
             if (expr == null)
                 throw new ResolutionFailedException(typeInfo.Type.FullName);
 
             var factory = expr.CompileDelegate();
-            this.containerContext.DelegateRepository.AddServiceDelegate(type, factory, name);
+            this.containerContext.DelegateRepository.AddServiceDelegate(typeInfo.Type, factory, typeInfo.DependencyName);
             return factory();
         }
 
