@@ -33,10 +33,7 @@ namespace Stashbox.Lifetime
         }
 
         /// <inheritdoc />
-        public override ILifetime Create()
-        {
-            return new SingletonLifetime();
-        }
+        public override ILifetime Create() => new SingletonLifetime();
 
         /// <inheritdoc />
         public override void CleanUp()

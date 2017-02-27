@@ -11,9 +11,6 @@ namespace Stashbox.Lifetime
         public override bool IsTransient => true;
 
         /// <inheritdoc />
-        public override ILifetime Create()
-        {
-            return new TransientLifetime();
-        }
+        public override ILifetime Create() => new TransientLifetime();
     }
 }

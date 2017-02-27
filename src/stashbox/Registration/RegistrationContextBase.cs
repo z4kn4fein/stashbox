@@ -1,6 +1,5 @@
 ﻿using Stashbox.BuildUp;
 using Stashbox.BuildUp.Expressions;
-using Stashbox.Entity;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.ContainerExtension;
 using Stashbox.Infrastructure.Registration;
@@ -15,10 +14,12 @@ namespace Stashbox.Registration
     {
         private readonly IExpressionBuilder expressionBuilder;
 
-        protected Type TypeFrom { get; }
-        protected Type TypeTo { get; }
+        public Type TypeFrom { get; }
+
+        public Type TypeTo { get; }
 
         public IContainerContext ContainerContext { get; }
+
         public RegistrationContextData RegistrationContextData { get; protected set; }
 
         public RegistrationContextBase(Type typeFrom, Type typeTo, IContainerContext containerContext, IExpressionBuilder expressionBuilder)
@@ -75,11 +76,11 @@ namespace Stashbox.Registration
                 return new InstanceObjectBuilder(this.RegistrationContextData.ExistingInstance);
 
             if (this.RegistrationContextData.ContainerFactory != null)
-                return new FactoryObjectBuilder(this.RegistrationContextData.ContainerFactory, this.ContainerContext, containerExtensionManager, metaInfoProvider, 
+                return new FactoryObjectBuilder(this.RegistrationContextData.ContainerFactory, this.ContainerContext, containerExtensionManager, metaInfoProvider,
                     this.expressionBuilder, this.RegistrationContextData.InjectionParameters);
 
             if (this.RegistrationContextData.SingleFactory != null)
-                return new FactoryObjectBuilder(this.RegistrationContextData.SingleFactory, this.ContainerContext, containerExtensionManager, metaInfoProvider, 
+                return new FactoryObjectBuilder(this.RegistrationContextData.SingleFactory, this.ContainerContext, containerExtensionManager, metaInfoProvider,
                     this.expressionBuilder, this.RegistrationContextData.InjectionParameters);
 
             return new DefaultObjectBuilder(this.ContainerContext, metaInfoProvider,

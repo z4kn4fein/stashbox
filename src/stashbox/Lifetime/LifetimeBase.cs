@@ -8,7 +8,7 @@ namespace Stashbox.Lifetime
     /// <summary>
     /// Represents a lifetime manager.
     /// </summary>
-    public class LifetimeBase : ILifetime
+    public abstract class LifetimeBase : ILifetime
     {
         /// <inheritdoc />
         public virtual bool IsTransient => false;
@@ -17,19 +17,14 @@ namespace Stashbox.Lifetime
         public virtual bool IsScoped => false;
 
         /// <inheritdoc />
-        public virtual Expression GetExpression(IContainerContext containerContext, IObjectBuilder objectBuilder, ResolutionInfo resolutionInfo, TypeInformation resolveType)
-        {
-            return objectBuilder.GetExpression(resolutionInfo, resolveType);
-        }
+        public virtual Expression GetExpression(IContainerContext containerContext, IObjectBuilder objectBuilder,
+            ResolutionInfo resolutionInfo, TypeInformation resolveType) =>
+                objectBuilder.GetExpression(resolutionInfo, resolveType);
 
         /// <inheritdoc />
-        public virtual ILifetime Create()
-        {
-            throw new NotImplementedException();
-        }
+        public abstract ILifetime Create();
 
         /// <inheritdoc />
-        public virtual void CleanUp()
-        { }
+        public virtual void CleanUp() { }
     }
 }

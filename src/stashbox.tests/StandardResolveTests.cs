@@ -216,6 +216,19 @@ namespace Stashbox.Tests
             }
         }
 
+        [TestMethod]
+        public void StandardResolveTests_Resolve_LessParametersConstructor()
+        {
+            using (IStashboxContainer container = new StashboxContainer(config =>
+            config.WithConstructorSelectionRule(Rules.ConstructorSelection.PreferLessParameters)))
+            {
+                container.RegisterType(typeof(ITest1), typeof(Test1));
+                container.RegisterType(typeof(ITest2), typeof(Test2222));
+
+                var inst = container.Resolve<ITest2>();
+            }
+        }
+
         public interface ITest1 { string Name { get; set; } }
 
         public interface ITest2 { string Name { get; set; } }
@@ -281,6 +294,22 @@ namespace Stashbox.Tests
                 Shield.EnsureNotNull(test2, nameof(test2));
                 Shield.EnsureTypeOf<Test1>(test1);
                 Shield.EnsureTypeOf<Test12>(test2);
+            }
+        }
+
+        public class Test2222 : ITest2
+        {
+            public string Name { get; set; }
+
+            public Test2222(ITest1 test1)
+            {
+                Shield.EnsureNotNull(test1, nameof(test1));
+                Shield.EnsureTypeOf<Test1>(test1);
+            }
+
+            public Test2222(ITest1 test1, [Dependency("test12")]ITest1 test2)
+            {
+                Assert.Fail("Wrong constructor selected.");
             }
         }
 

@@ -11,11 +11,7 @@ namespace Stashbox.Registration
     internal class RegistrationContext : RegistrationContextBase, IRegistrationContext
     {
         private readonly IContainerExtensionManager containerExtensionManager;
-
-        public new Type TypeFrom => base.TypeFrom;
-
-        public new Type TypeTo => base.TypeTo;
-
+        
         public RegistrationContext(Type typeFrom, Type typeTo, IContainerContext containerContext, 
             IExpressionBuilder expressionBuilder, IContainerExtensionManager containerExtensionManager)
             : base(typeFrom, typeTo, containerContext, expressionBuilder)

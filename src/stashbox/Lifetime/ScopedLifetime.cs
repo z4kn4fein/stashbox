@@ -11,9 +11,6 @@ namespace Stashbox.Lifetime
         public override bool IsScoped => true;
 
         /// <inheritdoc />
-        public override ILifetime Create()
-        {
-            return new ScopedLifetime();
-        }
+        public override ILifetime Create() => new ScopedLifetime();
     }
 }

@@ -23,6 +23,21 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void ConditionalTests_ParentTypeCondition_When_First()
+        {
+            var container = new StashboxContainer();
+            container.PrepareType<ITest1, Test1>().When(type => type.ParentType == typeof(Test2)).Register();
+            container.RegisterType<ITest1, Test11>();
+            container.RegisterType<ITest1, Test12>();
+            container.RegisterType<ITest2, Test2>();
+
+            var test2 = container.Resolve<ITest2>();
+
+            Assert.IsInstanceOfType(test2.test1, typeof(Test1));
+            Assert.IsInstanceOfType(test2.test12, typeof(Test1));
+        }
+
+        [TestMethod]
         public void ConditionalTests_ParentTypeCondition_First_NonGeneric()
         {
             var container = new StashboxContainer();
