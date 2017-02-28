@@ -14,26 +14,42 @@ namespace Stashbox.Registration
     /// </summary>
     public class ServiceRegistration : IServiceRegistration
     {
-        private readonly Type serviceType;
-        private readonly IContainerContext containerContext;
-        private readonly ILifetime lifetimeManager;
-        private readonly IObjectBuilder objectBuilder;
-        private readonly HashSet<Type> attributeConditions;
-        private readonly Type targetTypeCondition;
-        private readonly Func<TypeInformation, bool> resolutionCondition;
         private readonly MetaInfoProvider metaInfoProvider;
+        private readonly IContainerContext containerContext;
 
-        internal ServiceRegistration(Type serviceType, IContainerContext containerContext,
+        /// <inheritdoc />
+        public Type ServiceType { get; private set; }
+
+        /// <inheritdoc />
+        public Type ImplementationType { get; private set; }
+
+        /// <inheritdoc />
+        public ILifetime LifetimeManager { get; private set; }
+
+        /// <inheritdoc />
+        public IObjectBuilder ObjectBuilder { get; private set; }
+
+        /// <inheritdoc />
+        public HashSet<Type> AttributeConditions { get; private set; }
+
+        /// <inheritdoc />
+        public Type TargetTypeCondition { get; private set; }
+
+        /// <inheritdoc />
+        public Func<TypeInformation, bool> ResolutionCondition { get; private set; }
+
+        internal ServiceRegistration(Type serviceType, Type implementationType, IContainerContext containerContext,
             ILifetime lifetimeManager, IObjectBuilder objectBuilder, MetaInfoProvider metaInfoProvider, HashSet<Type> attributeConditions = null,
             Type targetTypeCondition = null, Func<TypeInformation, bool> resolutionCondition = null)
         {
-            this.serviceType = serviceType;
+            this.ImplementationType = implementationType;
+            this.ServiceType = serviceType;
             this.containerContext = containerContext;
-            this.lifetimeManager = lifetimeManager;
-            this.objectBuilder = objectBuilder;
-            this.attributeConditions = attributeConditions;
-            this.targetTypeCondition = targetTypeCondition;
-            this.resolutionCondition = resolutionCondition;
+            this.LifetimeManager = lifetimeManager;
+            this.ObjectBuilder = objectBuilder;
+            this.AttributeConditions = attributeConditions;
+            this.TargetTypeCondition = targetTypeCondition;
+            this.ResolutionCondition = resolutionCondition;
             this.metaInfoProvider = metaInfoProvider;
             this.RegistrationNumber = containerContext.ReserveRegistrationNumber();
         }
@@ -42,15 +58,15 @@ namespace Stashbox.Registration
         public int RegistrationNumber { get; }
 
         /// <inheritdoc />
-        public bool IsUsableForCurrentContext(TypeInformation typeInfo) => (this.targetTypeCondition == null && this.resolutionCondition == null && (this.attributeConditions == null || !this.attributeConditions.Any())) ||
-                   (this.targetTypeCondition != null && typeInfo.ParentType != null && this.targetTypeCondition == typeInfo.ParentType) ||
-                   (this.attributeConditions != null && typeInfo.CustomAttributes != null &&
-                    this.attributeConditions.Intersect(typeInfo.CustomAttributes.Select(attribute => attribute.GetType())).Any()) ||
-                   (this.resolutionCondition != null && this.resolutionCondition(typeInfo));
+        public bool IsUsableForCurrentContext(TypeInformation typeInfo) => (this.TargetTypeCondition == null && this.ResolutionCondition == null && (this.AttributeConditions == null || !this.AttributeConditions.Any())) ||
+                   (this.TargetTypeCondition != null && typeInfo.ParentType != null && this.TargetTypeCondition == typeInfo.ParentType) ||
+                   (this.AttributeConditions != null && typeInfo.CustomAttributes != null &&
+                    this.AttributeConditions.Intersect(typeInfo.CustomAttributes.Select(attribute => attribute.GetType())).Any()) ||
+                   (this.ResolutionCondition != null && this.ResolutionCondition(typeInfo));
 
         /// <inheritdoc />
-        public bool HasCondition => this.targetTypeCondition != null || this.resolutionCondition != null ||
-            (this.attributeConditions != null && this.attributeConditions.Any());
+        public bool HasCondition => this.TargetTypeCondition != null || this.ResolutionCondition != null ||
+            (this.AttributeConditions != null && this.AttributeConditions.Any());
 
         /// <inheritdoc />
         public bool ValidateGenericContraints(TypeInformation typeInformation) => !this.metaInfoProvider.HasGenericTypeConstraints ||
@@ -59,16 +75,16 @@ namespace Stashbox.Registration
         /// <inheritdoc />
         public void CleanUp()
         {
-            this.objectBuilder.CleanUp();
-            this.lifetimeManager.CleanUp();
+            this.ObjectBuilder.CleanUp();
+            this.LifetimeManager.CleanUp();
         }
 
         /// <inheritdoc />
         public Expression GetExpression(ResolutionInfo resolutionInfo, TypeInformation resolveType)
         {
-            var expr = this.lifetimeManager.GetExpression(this.containerContext, this.objectBuilder, resolutionInfo, resolveType);
+            var expr = this.LifetimeManager.GetExpression(this.containerContext, this.ObjectBuilder, resolutionInfo, resolveType);
             if (!this.containerContext.ContainerConfigurator.ContainerConfiguration.TrackTransientsForDisposalEnabled ||
-                !this.lifetimeManager.IsTransient || this.objectBuilder.HandlesObjectDisposal) return expr;
+                !this.LifetimeManager.IsTransient || this.ObjectBuilder.HandlesObjectDisposal) return expr;
 
             var call = Expression.Call(Expression.Constant(this), "AddTransientObjectTracking", null, expr);
             return Expression.Convert(call, resolveType.Type);

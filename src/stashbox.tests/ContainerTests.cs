@@ -4,6 +4,8 @@ using Stashbox.Exceptions;
 using Stashbox.Infrastructure;
 using System.Linq.Expressions;
 using Stashbox.Infrastructure.Resolution;
+using System.Linq;
+using Stashbox.Lifetime;
 
 namespace Stashbox.Tests
 {
@@ -67,6 +69,24 @@ namespace Stashbox.Tests
                 var child = container.BeginScope();
 
                 var test1 = child.Resolve<ITest1>();
+            }
+        }
+
+        [TestMethod]
+        public void ContainerTests_CheckRegistration()
+        {
+            using (var container = new StashboxContainer())
+            {
+                container.RegisterType<ITest1, Test1>();
+
+                var reg = container.ContainerContext.RegistrationRepository.GetAllRegistrations().FirstOrDefault(r => r.ServiceType == typeof(ITest1));
+
+                Assert.IsNotNull(reg);
+
+                reg = container.ContainerContext.RegistrationRepository.GetAllRegistrations().FirstOrDefault(r => r.ImplementationType == typeof(Test1));
+
+                Assert.IsNotNull(reg);
+                Assert.IsInstanceOfType(reg.LifetimeManager, typeof(TransientLifetime));
             }
         }
 

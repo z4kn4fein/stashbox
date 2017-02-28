@@ -1,5 +1,7 @@
 ﻿using System.Linq.Expressions;
 using Stashbox.Entity;
+using System;
+using System.Collections.Generic;
 
 namespace Stashbox.Infrastructure.Registration
 {
@@ -8,6 +10,41 @@ namespace Stashbox.Infrastructure.Registration
     /// </summary>
     public interface IServiceRegistration
     {
+        /// <summary>
+        /// The service type.
+        /// </summary>
+        Type ServiceType { get;  }
+
+        /// <summary>
+        /// The implementation type.
+        /// </summary>
+        Type ImplementationType { get;  }
+
+        /// <summary>
+        /// The lifetime manager.
+        /// </summary>
+        ILifetime LifetimeManager { get;  }
+
+        /// <summary>
+        /// The object builder.
+        /// </summary>
+        IObjectBuilder ObjectBuilder { get;  }
+
+        /// <summary>
+        /// The attribute conditions.
+        /// </summary>
+        HashSet<Type> AttributeConditions { get;  }
+
+        /// <summary>
+        /// The target type condition.
+        /// </summary>
+        Type TargetTypeCondition { get;  }
+
+        /// <summary>
+        /// The resolution condition.
+        /// </summary>
+        Func<TypeInformation, bool> ResolutionCondition { get; }
+
         /// <summary>
         /// The registration number.
         /// </summary>

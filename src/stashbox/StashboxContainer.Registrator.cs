@@ -1,5 +1,4 @@
 ﻿using Stashbox.BuildUp;
-using Stashbox.Entity;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.Registration;
 using Stashbox.Lifetime;
@@ -194,7 +193,7 @@ namespace Stashbox
         {
             var regName = NameGenerator.GetRegistrationName(typeFrom, typeTo, keyName);
             var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, RegistrationContextData.Empty, typeTo);
-            var registration = new ServiceRegistration(typeFrom, this.ContainerContext, new TransientLifetime(),
+            var registration = new ServiceRegistration(typeFrom, typeTo, this.ContainerContext, new TransientLifetime(),
                 new WireUpObjectBuilder(instance, this.containerExtensionManager, this.ContainerContext, metaInfoProvider, this.expressionBuilder), metaInfoProvider);
 
             this.registrationRepository.AddOrUpdateRegistration(typeFrom, regName, false, registration);
@@ -206,7 +205,7 @@ namespace Stashbox
             var instanceType = instance.GetType();
             var regName = NameGenerator.GetRegistrationName(instanceType, instanceType, keyName);
             var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, RegistrationContextData.Empty, instanceType);
-            var registration = new ServiceRegistration(type, this.ContainerContext, new TransientLifetime(),
+            var registration = new ServiceRegistration(type, instanceType, this.ContainerContext, new TransientLifetime(),
                 new InstanceObjectBuilder(instance), metaInfoProvider);
 
             this.registrationRepository.AddOrUpdateRegistration(type, regName, false, registration);
