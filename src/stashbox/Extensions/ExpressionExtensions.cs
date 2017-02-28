@@ -1,4 +1,6 @@
-﻿using System.Reflection;
+﻿#if NET45 || NET40
+using Stashbox.BuildUp.Expressions.Compile;
+#endif
 
 namespace System.Linq.Expressions
 {
@@ -13,8 +15,14 @@ namespace System.Linq.Expressions
                 factory = () => instance;
             }
             else
+            {
+#if NET45 || NET40
+                if (!ExpressionEmitter.TryEmit(expression, out factory))
+                    factory = Expression.Lambda<Func<object>>(expression).Compile();
+#else
                 factory = Expression.Lambda<Func<object>>(expression).Compile();
-
+#endif
+            }
             return factory;
         }
     }
