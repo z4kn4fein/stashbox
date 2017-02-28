@@ -185,8 +185,6 @@ namespace Stashbox.BuildUp.Expressions.Compile
                     return TryGetConstantsFromArguments(((NewArrayExpression)expression).Expressions, constants);
                 case ExpressionType.Convert:
                     return TryCollectConstants(((UnaryExpression)expression).Operand, constants);
-                case ExpressionType.Parameter:
-                    return true;
             }
 
             return false;
