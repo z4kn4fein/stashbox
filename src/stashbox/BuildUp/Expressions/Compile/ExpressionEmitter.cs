@@ -22,7 +22,8 @@ namespace Stashbox.BuildUp.Expressions.Compile
             if (targetInfo == null)
                 return false;
 
-            var returnType = targetInfo.Target.GetType();
+            var returnTarget = targetInfo.NestedTarget ?? targetInfo;
+            var returnType = returnTarget.GetType();
             var method = new DynamicMethod(string.Empty, typeof(object), new Type[] { returnType }, returnType, true);
             var generator = method.GetILGenerator();
 
@@ -30,7 +31,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
                 return false;
 
             generator.Emit(OpCodes.Ret);
-            resultDelegate = method.CreateDelegate(typeof(TValue), targetInfo.Target) as TValue;
+            resultDelegate = method.CreateDelegate(typeof(TValue), returnTarget) as TValue;
             return true;
         }
 
@@ -40,6 +41,8 @@ namespace Stashbox.BuildUp.Expressions.Compile
             {
                 case ExpressionType.Call:
                     return ((MethodCallExpression)expression).TryEmit(target, generator);
+                case ExpressionType.Convert:
+                    return ((UnaryExpression)expression).TryEmit(target, generator);
                 case ExpressionType.Constant:
                     return ((ConstantExpression)expression).TryEmit(target, generator);
                 case ExpressionType.MemberInit:
@@ -63,20 +66,17 @@ namespace Stashbox.BuildUp.Expressions.Compile
             generator.EmitInteger(expression.Expressions.Count);
             generator.Emit(OpCodes.Newarr, itemType);
             generator.Emit(OpCodes.Stloc, instance);
-
-            var index = 0;
-
-            foreach (var itemExpression in expression.Expressions)
+            
+            var length = expression.Expressions.Count();
+            for (var i = 0; i < length; i++)
             {
                 generator.Emit(OpCodes.Ldloc, instance);
-                generator.EmitInteger(index);
-
-                index++;
+                generator.EmitInteger(i);
 
                 if (type.IsValueType)
                     generator.Emit(OpCodes.Ldelema, itemType);
 
-                if (!itemExpression.TryEmit(target, generator))
+                if (!expression.Expressions[i].TryEmit(target, generator))
                     return false;
 
                 if (type.IsValueType)
@@ -95,7 +95,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
             if (!expression.Object.TryEmit(target, generator))
                 return false;
 
-            if (expression.Arguments.Any(argument => !argument.TryEmit(target, generator)))
+            if (!expression.Arguments.All(argument => argument.TryEmit(target, generator)))
                 return false;
 
             generator.Emit(expression.Method.IsVirtual ? OpCodes.Callvirt : OpCodes.Call, expression.Method);
@@ -105,7 +105,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
 
         private static bool TryEmit(this NewExpression expression, DelegateTargetInformation target, ILGenerator generator)
         {
-            if (expression.Arguments.Any(argument => !argument.TryEmit(target, generator)))
+            if (!expression.Arguments.All(argument => argument.TryEmit(target, generator)))
                 return false;
 
             generator.Emit(OpCodes.Newobj, expression.Constructor);
@@ -148,7 +148,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
 
                 if (binding.Member is PropertyInfo property)
                 {
-                    var setMethod = property.GetSetMethod();
+                    var setMethod = property.GetSetMethod(true);
                     if (setMethod == null)
                         return false;
                     generator.Emit(setMethod.IsVirtual ? OpCodes.Callvirt : OpCodes.Call, setMethod);
@@ -188,7 +188,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
                 if (constantIndex < 0)
                     return false;
 
-                var field = target.Target.GetType().GetField("Constants");
+                var field = target.GetType().GetField("Constants");
                 generator.Emit(OpCodes.Ldarg_0);
                 generator.Emit(OpCodes.Ldfld, field);
                 generator.EmitInteger(constantIndex);

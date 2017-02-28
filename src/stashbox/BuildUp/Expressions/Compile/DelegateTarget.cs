@@ -101,28 +101,64 @@ namespace Stashbox.BuildUp.Expressions.Compile
             V6 = t6;
         }
     }
-    
+
+    internal class DelegateTarget<T1, T2, T3, T4, T5, T6, T7>
+    {
+        public T1 V1;
+        public T2 V2;
+        public T3 V3;
+        public T4 V4;
+        public T5 V5;
+        public T6 V6;
+        public T7 V7;
+
+        public DelegateTarget(T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, T7 t7)
+        {
+            V1 = t1;
+            V2 = t2;
+            V3 = t3;
+            V4 = t4;
+            V5 = t5;
+            V6 = t6;
+            V7 = t7;
+        }
+    }
+
+    internal class DelegateTarget<T1, T2, T3, T4, T5, T6, T7, T8>
+    {
+        public T1 V1;
+        public T2 V2;
+        public T3 V3;
+        public T4 V4;
+        public T5 V5;
+        public T6 V6;
+        public T7 V7;
+        public T8 V8;
+
+        public DelegateTarget(T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, T7 t7, T8 t8)
+        {
+            V1 = t1;
+            V2 = t2;
+            V3 = t3;
+            V4 = t4;
+            V5 = t5;
+            V6 = t6;
+            V7 = t7;
+            V8 = t8;
+        }
+    }
+
     internal class DelegateTargetInformation
     {
-        public readonly object Target;
+        public readonly object NestedTarget;
         public readonly FieldInfo[] ConstantFields;
         public readonly object[] Constants;
 
         public DelegateTargetInformation(object target, object[] constants, FieldInfo[] constantFields)
         {
-            this.Target = target;
+            this.NestedTarget = target;
             this.Constants = constants;
             this.ConstantFields = constantFields;
-        }
-    }
-
-    internal class ArrayDelegateTarget
-    {
-        public readonly object[] Constants;
-
-        public ArrayDelegateTarget(object[] constants)
-        {
-            this.Constants = constants;
         }
     }
 
@@ -131,8 +167,8 @@ namespace Stashbox.BuildUp.Expressions.Compile
         public static DelegateTargetInformation GetDelegateTarget(Expression expression, List<object> constants)
         {
             Type targetType = null;
-            var count = constants.Count;
             var consts = constants.ToArray();
+            var count = consts.Length;
 
             switch (count)
             {
@@ -157,8 +193,14 @@ namespace Stashbox.BuildUp.Expressions.Compile
                 case 6:
                     targetType = typeof(DelegateTarget<,,,,,>);
                     break;
+                case 7:
+                    targetType = typeof(DelegateTarget<,,,,,,>);
+                    break;
+                case 8:
+                    targetType = typeof(DelegateTarget<,,,,,,,>);
+                    break;
                 default:
-                    return new DelegateTargetInformation(new ArrayDelegateTarget(consts), consts, null);
+                    return new DelegateTargetInformation(null, consts, null);
             }
 
             targetType = count > 0 ? targetType.MakeGenericType(constants.Select(c => c.GetType()).ToArray()) : targetType;
@@ -172,25 +214,27 @@ namespace Stashbox.BuildUp.Expressions.Compile
             switch (expression.NodeType)
             {
                 case ExpressionType.Constant:
-                    return TryGetConstantsFromConstant((ConstantExpression)expression, constants);
+                    return TryCollectConstantsFromConstant((ConstantExpression)expression, constants);
                 case ExpressionType.New:
-                    return TryGetConstantsFromArguments(((NewExpression)expression).Arguments, constants);
+                    return TryCollectConstantsFromArguments(((NewExpression)expression).Arguments, constants);
                 case ExpressionType.MemberInit:
-                    return TryGetConstantsFromMemberInit(expression, constants);
+                    return TryCollectConstantsFromMemberInit(expression, constants);
                 case ExpressionType.Call:
                     var call = (MethodCallExpression)expression;
                     return TryCollectConstants(call.Object, constants) &&
-                           TryGetConstantsFromArguments(call.Arguments, constants);
+                           TryCollectConstantsFromArguments(call.Arguments, constants);
                 case ExpressionType.NewArrayInit:
-                    return TryGetConstantsFromArguments(((NewArrayExpression)expression).Expressions, constants);
-                case ExpressionType.Convert:
-                    return TryCollectConstants(((UnaryExpression)expression).Operand, constants);
+                    return TryCollectConstantsFromArguments(((NewArrayExpression)expression).Expressions, constants);
+                default:
+                    if (expression is UnaryExpression unaryExpression)
+                        return TryCollectConstants(unaryExpression.Operand, constants);
+                    break;
             }
 
             return false;
         }
 
-        private static bool TryGetConstantsFromMemberInit(Expression expression, List<object> constants)
+        private static bool TryCollectConstantsFromMemberInit(Expression expression, List<object> constants)
         {
             var memberInit = (MemberInitExpression)expression;
             if (!TryCollectConstants(memberInit.NewExpression, constants))
@@ -203,7 +247,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
             return true;
         }
 
-        private static bool TryGetConstantsFromArguments(ReadOnlyCollection<Expression> arguments, List<object> constants)
+        private static bool TryCollectConstantsFromArguments(ReadOnlyCollection<Expression> arguments, List<object> constants)
         {
             foreach (var expression in arguments)
                 if (!TryCollectConstants(expression, constants))
@@ -212,7 +256,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
             return true;
         }
 
-        private static bool TryGetConstantsFromConstant(ConstantExpression expression, List<object> constants)
+        private static bool TryCollectConstantsFromConstant(ConstantExpression expression, List<object> constants)
         {
             if (expression.Value != null)
             {
