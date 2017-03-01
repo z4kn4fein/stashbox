@@ -261,11 +261,14 @@ namespace Stashbox.BuildUp.Expressions.Compile
             if (expression.Value != null)
             {
                 var type = expression.Value.GetType();
-                if (type == typeof(Delegate))
-                    return false;
-
-                if (type != typeof(int) && type != typeof(double) && type != typeof(bool) && type != typeof(string) && !type.IsEnum)
-                    constants.Add(expression.Value);
+                if (type != typeof(int) && 
+                    type != typeof(double) && 
+                    type != typeof(bool) && 
+                    type != typeof(string) && 
+                    type != typeof(Type) && 
+                    !type.IsEnum && 
+                    expression.Value != null)
+                        constants.Add(expression.Value);
             }
 
             return true;
