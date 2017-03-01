@@ -4,41 +4,41 @@ using System.Linq.Expressions;
 using System.Reflection.Emit;
 using System.Reflection;
 using System.Linq;
-using System.Collections.Generic;
 
 namespace Stashbox.BuildUp.Expressions.Compile
 {
     internal static class ExpressionEmitter
     {
-        private static readonly FieldInfo constantsFieldInfo = typeof(DelegateTargetInformation).GetField("Constants");
+        private static readonly FieldInfo constantsFieldInfo = typeof(ArrayDelegateTarget).GetField("Constants");
+        private static readonly MethodInfo delegateTargetProperty = typeof(Delegate).GetProperty("Target").GetGetMethod();
 
         public static bool TryEmit<TValue>(this Expression expression, out TValue resultDelegate) where TValue : class
         {
-            return expression.TryEmitInternal(out resultDelegate);
+            return expression.TryEmit(typeof(TValue), typeof(object), out resultDelegate, out DelegateTargetInformation delegateTarget);
         }
 
-        private static bool TryEmitInternal<TValue>(this Expression expression, out TValue resultDelegate, params ParameterExpression[] parameters) where TValue : class
+        public static bool TryEmit<TValue>(this Expression expression, Type delegateType, Type returnType, out TValue resultDelegate, out DelegateTargetInformation delegateTarget, params ParameterExpression[] parameters) where TValue : class
         {
             resultDelegate = null;
-            var constants = new List<object>();
+            delegateTarget = null;
+            var constants = new Constants();
 
             if (!DelegateTargetSelector.TryCollectConstants(expression, constants))
                 return false;
 
-            var targetInfo = DelegateTargetSelector.GetDelegateTarget(expression, constants);
-            if (targetInfo == null)
+            delegateTarget = DelegateTargetSelector.GetDelegateTarget(expression, constants);
+            if (delegateTarget == null)
                 return false;
 
-            var returnTarget = targetInfo.NestedTarget ?? targetInfo;
-            var returnType = returnTarget.GetType();
-            var method = new DynamicMethod(string.Empty, typeof(object), new Type[] { returnType }, returnType, true);
+            var targetType = delegateTarget.Target.GetType();
+            var method = new DynamicMethod(string.Empty, returnType, new Type[] { targetType }.Concat(parameters.Select(p => p.Type)).ToArray(), targetType, true);
             var generator = method.GetILGenerator();
 
-            if (!expression.TryEmit(targetInfo, generator, parameters))
+            if (!expression.TryEmit(delegateTarget, generator, parameters))
                 return false;
 
             generator.Emit(OpCodes.Ret);
-            resultDelegate = method.CreateDelegate(typeof(TValue), returnTarget) as TValue;
+            resultDelegate = method.CreateDelegate(delegateType, delegateTarget.Target) as TValue;
             return true;
         }
 
@@ -50,6 +50,8 @@ namespace Stashbox.BuildUp.Expressions.Compile
                     return ((MethodCallExpression)expression).TryEmit(target, generator, parameters);
                 case ExpressionType.Parameter:
                     return ((ParameterExpression)expression).TryEmit(target, generator, parameters);
+                case ExpressionType.Lambda:
+                    return ((LambdaExpression)expression).TryEmit(target, generator, parameters);
                 case ExpressionType.Convert:
                     return ((UnaryExpression)expression).TryEmit(target, generator, parameters);
                 case ExpressionType.Constant:
@@ -103,31 +105,14 @@ namespace Stashbox.BuildUp.Expressions.Compile
         {
             var index = Array.IndexOf(parameters, expression);
             if (index == -1)
-                return false;
-
-            switch (index)
             {
-                case 0:
-                    generator.Emit(OpCodes.Ldarg_0);
-                    break;
-                case 1:
-                    generator.Emit(OpCodes.Ldarg_1);
-                    break;
-                case 2:
-                    generator.Emit(OpCodes.Ldarg_2);
-                    break;
-                case 3:
-                    generator.Emit(OpCodes.Ldarg_3);
-                    break;
-                default:
-                    if (index <= byte.MaxValue)
-                        generator.Emit(OpCodes.Ldarg_S, (byte)index);
-                    else
-                        generator.Emit(OpCodes.Ldarg, index);
-                    break;
+                var constantIndex = Array.IndexOf(target.Constants, expression);
+                if (constantIndex == -1) return false;
+
+                return generator.LoadConstantFromField(target, constantIndex, expression.Type);
             }
 
-            return true;
+            return generator.LoadParameter(index + 1); //The delegate target is the first parameter, so shit it by 1
         }
 
         private static bool TryEmit(this MethodCallExpression expression, DelegateTargetInformation target, ILGenerator generator, params ParameterExpression[] parameters)
@@ -138,9 +123,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
             if (!expression.Arguments.All(argument => argument.TryEmit(target, generator, parameters)))
                 return false;
 
-            generator.Emit(expression.Method.IsVirtual ? OpCodes.Callvirt : OpCodes.Call, expression.Method);
-
-            return true;
+            return generator.EmitMethod(expression.Method);
         }
 
         private static bool TryEmit(this NewExpression expression, DelegateTargetInformation target, ILGenerator generator, params ParameterExpression[] parameters)
@@ -162,6 +145,55 @@ namespace Stashbox.BuildUp.Expressions.Compile
             if (type == typeof(object))
                 return false;
             generator.Emit(OpCodes.Castclass, type);
+
+            return true;
+        }
+
+        private static bool TryEmit(this LambdaExpression expression, DelegateTargetInformation target, ILGenerator generator, params ParameterExpression[] parameters)
+        {
+            var constantIndex = Array.IndexOf(target.Constants, expression);
+            if (constantIndex == -1) return false;
+
+            generator.LoadConstantFromField(target, constantIndex, expression.Type);
+
+            var lambda = target.Lambdas.SingleOrDefault(l => l.LambdaExpression.Equals(expression));
+            if (lambda == null) return false;
+
+            var notFoundParameters = lambda.DelegateTargetInfo.Constants.OfType<ParameterExpression>().ToArray();
+            if (notFoundParameters.Length <= 0) return true;
+
+            var length = notFoundParameters.Length;
+            for (int i = 0; i < length; i++)
+            {
+                var param = notFoundParameters[i];
+
+                generator.Emit(OpCodes.Dup);
+                generator.EmitMethod(delegateTargetProperty);
+
+                var lambdaParamConstantIndex = Array.IndexOf(lambda.DelegateTargetInfo.Constants, param);
+
+                if (target.ConstantFields == null)
+                {
+                    generator.Emit(OpCodes.Ldfld, constantsFieldInfo);
+                    generator.EmitInteger(lambdaParamConstantIndex);
+                }
+
+                var paramIndex = Array.IndexOf(parameters, param);
+                if (paramIndex == -1)
+                {
+                    var paramConstantIndex = Array.IndexOf(target.Constants, param);
+                    if (paramConstantIndex == -1) return false;
+
+                    generator.LoadConstantFromField(target, paramConstantIndex, param.Type);
+                }
+                else
+                    generator.LoadParameter(paramIndex + 1);
+
+                if (target.ConstantFields == null)
+                    generator.Emit(OpCodes.Stelem_Ref);
+                else
+                    generator.Emit(OpCodes.Stfld, lambda.DelegateTargetInfo.ConstantFields[lambdaParamConstantIndex]);
+            }
 
             return true;
         }
@@ -191,7 +223,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
                     var setMethod = property.GetSetMethod(true);
                     if (setMethod == null)
                         return false;
-                    generator.Emit(setMethod.IsVirtual ? OpCodes.Callvirt : OpCodes.Call, setMethod);
+                    generator.EmitMethod(setMethod);
                 }
                 else if (binding.Member is FieldInfo field)
                 {
@@ -223,18 +255,18 @@ namespace Stashbox.BuildUp.Expressions.Compile
                 generator.Emit(OpCodes.Ldc_R8, (double)expression.Value);
             else
             {
-                var constantIndex = Array.IndexOf(target.Constants, expression.Value);
+                var constantIndex = Array.IndexOf(target.Constants, expression);
 
                 if (constantIndex == -1)
                     return false;
 
-                return LoadConstantFromField(target, generator, constantIndex, expression.Type);
+                return generator.LoadConstantFromField(target, constantIndex, expression.Type);
             }
 
             return true;
         }
 
-        private static bool LoadConstantFromField(DelegateTargetInformation target, ILGenerator generator, int constantIndex, Type type)
+        private static bool LoadConstantFromField(this ILGenerator generator, DelegateTargetInformation target, int constantIndex, Type type)
         {
             if (target.ConstantFields == null)
             {
@@ -245,16 +277,47 @@ namespace Stashbox.BuildUp.Expressions.Compile
 
                 if (type != typeof(object))
                     generator.Emit(OpCodes.Castclass, type);
-
-                return true;
             }
             else
             {
                 generator.Emit(OpCodes.Ldarg_0);
                 generator.Emit(OpCodes.Ldfld, target.ConstantFields[constantIndex]);
-
-                return true;
             }
+
+            return true;
+        }
+
+        private static bool LoadParameter(this ILGenerator generator, int index)
+        {
+            switch (index)
+            {
+                case 0:
+                    generator.Emit(OpCodes.Ldarg_0);
+                    break;
+                case 1:
+                    generator.Emit(OpCodes.Ldarg_1);
+                    break;
+                case 2:
+                    generator.Emit(OpCodes.Ldarg_2);
+                    break;
+                case 3:
+                    generator.Emit(OpCodes.Ldarg_3);
+                    break;
+                default:
+                    if (index <= byte.MaxValue)
+                        generator.Emit(OpCodes.Ldarg_S, (byte)index);
+                    else
+                        generator.Emit(OpCodes.Ldarg, index);
+                    break;
+            }
+
+            return true;
+        }
+
+        private static bool EmitMethod(this ILGenerator generator, MethodInfo info)
+        {
+            generator.Emit(info.IsVirtual ? OpCodes.Callvirt : OpCodes.Call, info);
+            return true;
         }
 
         private static void EmitInteger(this ILGenerator generator, int intValue)

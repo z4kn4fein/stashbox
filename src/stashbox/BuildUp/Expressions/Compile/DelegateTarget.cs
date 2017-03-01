@@ -148,26 +148,66 @@ namespace Stashbox.BuildUp.Expressions.Compile
         }
     }
 
+    internal class Constants
+    {
+        public List<object> ConstantObjects { get; private set; }
+        public List<Expression> ConstantExpressions { get; private set; }
+        public List<LambdaTargetInformation> Lambdas { get; private set; }
+
+        public Constants()
+        {
+            this.ConstantObjects = new List<object>();
+            this.ConstantExpressions = new List<Expression>();
+            this.Lambdas = new List<LambdaTargetInformation>();
+        }
+    }
+
+    internal class LambdaTargetInformation
+    {
+        public LambdaExpression LambdaExpression { get; private set; }
+        public DelegateTargetInformation DelegateTargetInfo { get; private set; }
+
+        public LambdaTargetInformation(LambdaExpression lambdaExpression, DelegateTargetInformation delegateTargetInfo)
+        {
+            this.LambdaExpression = lambdaExpression;
+            this.DelegateTargetInfo = delegateTargetInfo;
+        }
+    }
+
     internal class DelegateTargetInformation
     {
-        public readonly object NestedTarget;
+        public readonly object Target;
         public readonly FieldInfo[] ConstantFields;
+        public readonly Expression[] Constants;
+        public readonly LambdaTargetInformation[] Lambdas;
+
+        public DelegateTargetInformation(object target, FieldInfo[] constantFields, Expression[] constants, LambdaTargetInformation[] lambdas)
+        {
+            this.Target = target;
+            this.ConstantFields = constantFields;
+            this.Constants = constants;
+            this.Lambdas = lambdas;
+        }
+    }
+
+    internal class ArrayDelegateTarget
+    {
         public readonly object[] Constants;
 
-        public DelegateTargetInformation(object target, object[] constants, FieldInfo[] constantFields)
+        public ArrayDelegateTarget(object[] constants)
         {
-            this.NestedTarget = target;
             this.Constants = constants;
-            this.ConstantFields = constantFields;
         }
     }
 
     internal static class DelegateTargetSelector
     {
-        public static DelegateTargetInformation GetDelegateTarget(Expression expression, List<object> constants)
+        public static DelegateTargetInformation GetDelegateTarget(Expression expression, Constants constants)
         {
             Type targetType = null;
-            var consts = constants.ToArray();
+            var consts = constants.ConstantObjects.ToArray();
+            var constsExprs = constants.ConstantExpressions.ToArray();
+            var lambdas = constants.Lambdas.ToArray();
             var count = consts.Length;
 
             switch (count)
@@ -200,75 +240,116 @@ namespace Stashbox.BuildUp.Expressions.Compile
                     targetType = typeof(DelegateTarget<,,,,,,,>);
                     break;
                 default:
-                    return new DelegateTargetInformation(null, consts, null);
+                    return new DelegateTargetInformation(new ArrayDelegateTarget(consts), null, constsExprs, lambdas);
             }
 
-            targetType = count > 0 ? targetType.MakeGenericType(constants.Select(c => c.GetType()).ToArray()) : targetType;
+            targetType = count > 0 ? targetType.MakeGenericType(constsExprs.Select(c => c.Type).ToArray()) : targetType;
             var target = Activator.CreateInstance(targetType, consts);
 
-            return new DelegateTargetInformation(target, consts, targetType.GetTypeInfo().DeclaredFields.ToArray());
+            return new DelegateTargetInformation(target, targetType.GetTypeInfo().DeclaredFields.ToArray(), constsExprs, lambdas);
         }
 
-        public static bool TryCollectConstants(Expression expression, List<object> constants)
+        public static bool TryCollectConstants(this Expression expression, Constants constants, params ParameterExpression[] parameters)
         {
             switch (expression.NodeType)
             {
+                case ExpressionType.Parameter:
+                    return ((ParameterExpression)expression).TryCollectConstants(constants, parameters);
+                case ExpressionType.Lambda:
+                    return ((LambdaExpression)expression).TryCollectConstants(constants, parameters);
                 case ExpressionType.Constant:
-                    return TryCollectConstantsFromConstant((ConstantExpression)expression, constants);
+                    return ((ConstantExpression)expression).TryCollectConstants(constants, parameters);
                 case ExpressionType.New:
-                    return TryCollectConstantsFromArguments(((NewExpression)expression).Arguments, constants);
+                    return ((NewExpression)expression).Arguments.TryCollectConstants(constants, parameters);
                 case ExpressionType.MemberInit:
-                    return TryCollectConstantsFromMemberInit(expression, constants);
+                    return ((MemberInitExpression)expression).TryCollectConstants(constants, parameters);
                 case ExpressionType.Call:
                     var call = (MethodCallExpression)expression;
-                    return TryCollectConstants(call.Object, constants) &&
-                           TryCollectConstantsFromArguments(call.Arguments, constants);
+                    return call.Object.TryCollectConstants(constants, parameters) &&
+                           call.Arguments.TryCollectConstants(constants, parameters);
                 case ExpressionType.NewArrayInit:
-                    return TryCollectConstantsFromArguments(((NewArrayExpression)expression).Expressions, constants);
+                    return ((NewArrayExpression)expression).Expressions.TryCollectConstants(constants, parameters);
                 default:
                     if (expression is UnaryExpression unaryExpression)
-                        return TryCollectConstants(unaryExpression.Operand, constants);
+                        return unaryExpression.Operand.TryCollectConstants(constants, parameters);
                     break;
             }
 
             return false;
         }
 
-        private static bool TryCollectConstantsFromMemberInit(Expression expression, List<object> constants)
+        private static bool TryCollectConstants(this MemberInitExpression expression, Constants constants, params ParameterExpression[] parameters)
         {
-            var memberInit = (MemberInitExpression)expression;
-            if (!TryCollectConstants(memberInit.NewExpression, constants))
+            if (!expression.NewExpression.TryCollectConstants(constants, parameters))
                 return false;
 
-            foreach (var binding in memberInit.Bindings)
-                if (binding.BindingType == MemberBindingType.Assignment && !TryCollectConstants(((MemberAssignment)binding).Expression, constants))
+            foreach (var binding in expression.Bindings)
+                if (binding.BindingType == MemberBindingType.Assignment && !((MemberAssignment)binding).Expression.TryCollectConstants(constants, parameters))
                     return false;
 
             return true;
         }
 
-        private static bool TryCollectConstantsFromArguments(ReadOnlyCollection<Expression> arguments, List<object> constants)
+        private static bool TryCollectConstants(this ReadOnlyCollection<Expression> arguments, Constants constants, params ParameterExpression[] parameters)
         {
             foreach (var expression in arguments)
-                if (!TryCollectConstants(expression, constants))
+                if (!expression.TryCollectConstants(constants, parameters))
                     return false;
 
             return true;
         }
 
-        private static bool TryCollectConstantsFromConstant(ConstantExpression expression, List<object> constants)
+        private static bool TryCollectConstants(this ParameterExpression expression, Constants constants, params ParameterExpression[] parameters)
+        {
+            if(Array.IndexOf(parameters, expression) == -1)
+            {
+                constants.ConstantExpressions.Add(expression);
+                constants.ConstantObjects.Add(null);
+            }
+
+            return true;
+        }
+
+        private static bool TryCollectConstants(this LambdaExpression expression, Constants constants, params ParameterExpression[] parameters)
+        {
+            if (!expression.Body.TryEmit(expression.Type, expression.Body.Type, out object lambda, out DelegateTargetInformation lambdaTarget, expression.Parameters.ToArray()))
+                return false;
+
+            constants.ConstantObjects.Add(lambda);
+            constants.ConstantExpressions.Add(expression);
+            constants.Lambdas.Add(new LambdaTargetInformation(expression, lambdaTarget));
+
+            var notFoundParameters = lambdaTarget.Constants.OfType<ParameterExpression>().ToArray();
+            var length = notFoundParameters.Length;
+            for (int i = 0; i < length; i++)
+            {
+                var currentNotFoundParam = notFoundParameters[i];
+                if(Array.IndexOf(parameters, currentNotFoundParam) == -1)
+                {
+                    constants.ConstantExpressions.Add(currentNotFoundParam);
+                    constants.ConstantObjects.Add(null);
+                }
+            }
+
+            return true;
+        }
+
+        private static bool TryCollectConstants(this ConstantExpression expression, Constants constants, params ParameterExpression[] parameters)
         {
             if (expression.Value != null)
             {
                 var type = expression.Value.GetType();
-                if (type != typeof(int) && 
-                    type != typeof(double) && 
-                    type != typeof(bool) && 
-                    type != typeof(string) && 
-                    type != typeof(Type) && 
-                    !type.IsEnum && 
+                if (type != typeof(int) &&
+                    type != typeof(double) &&
+                    type != typeof(bool) &&
+                    type != typeof(string) &&
+                    type != typeof(Type) &&
+                    !type.IsEnum &&
                     expression.Value != null)
-                        constants.Add(expression.Value);
+                {
+                    constants.ConstantExpressions.Add(expression);
+                    constants.ConstantObjects.Add(expression.Value);
+                }
             }
 
             return true;

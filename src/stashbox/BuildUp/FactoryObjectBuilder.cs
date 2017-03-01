@@ -43,13 +43,13 @@ namespace Stashbox.BuildUp
         
         public Expression GetExpression(ResolutionInfo resolutionInfo, TypeInformation resolveType)
         {
-            Expression<Func<object>> lamdba;
+            Expression<Func<object>> lambda;
             if (this.containerFactory != null)
-                lamdba = () => this.containerFactory(this.containerContext.Container);
+                lambda = () => this.containerFactory(this.containerContext.Container);
             else
-                lamdba = () => this.singleFactory();
+                lambda = () => this.singleFactory();
 
-            var expr = Expression.Invoke(lamdba);
+            var expr = Expression.Invoke(lambda);
             
             return this.expressionBuilder.CreateFillExpression(this.containerExtensionManager, this.containerContext,
                    expr, resolutionInfo, resolveType, this.injectionParameters,
