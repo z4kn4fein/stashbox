@@ -46,8 +46,6 @@ namespace Stashbox.BuildUp.Expressions.Compile
             {
                 case ExpressionType.Call:
                     return ((MethodCallExpression)expression).TryEmit(target, generator, parameters);
-                case ExpressionType.Block:
-                    return ((BlockExpression)expression).TryEmit(target, generator, parameters);
                 case ExpressionType.MemberAccess:
                     return ((MemberExpression)expression).TryEmit(target, generator, parameters);
                 case ExpressionType.Invoke:
@@ -66,8 +64,6 @@ namespace Stashbox.BuildUp.Expressions.Compile
                     return ((NewExpression)expression).TryEmit(target, generator, parameters);
                 case ExpressionType.NewArrayInit:
                     return ((NewArrayExpression)expression).TryEmit(target, generator, parameters);
-                case ExpressionType.Assign:
-                    return ((BinaryExpression)expression).TryEmit(target, generator, parameters);
             }
 
             return false;
@@ -148,8 +144,6 @@ namespace Stashbox.BuildUp.Expressions.Compile
                 return false;
 
             var type = expression.Type;
-            if (type == typeof(object))
-                return false;
             generator.Emit(OpCodes.Castclass, type);
 
             return true;
@@ -211,8 +205,8 @@ namespace Stashbox.BuildUp.Expressions.Compile
             if (!expression.NewExpression.TryEmit(target, generator, parameters))
                 return false;
 
-            var obj = generator.DeclareLocal(expression.Type);
-            generator.Emit(OpCodes.Stloc, obj);
+            var result = generator.DeclareLocal(expression.Type);
+            generator.Emit(OpCodes.Stloc, result);
 
             var length = expression.Bindings.Count();
             for (int i = 0; i < length; i++)
@@ -221,7 +215,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
                 if (binding.BindingType != MemberBindingType.Assignment)
                     return false;
 
-                generator.Emit(OpCodes.Ldloc, obj);
+                generator.Emit(OpCodes.Ldloc, result);
 
                 if (!((MemberAssignment)binding).Expression.TryEmit(target, generator, parameters))
                     return false;
@@ -237,7 +231,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
                     generator.Emit(OpCodes.Stfld, field);
             }
 
-            generator.Emit(OpCodes.Ldloc, obj);
+            generator.Emit(OpCodes.Ldloc, result);
             return true;
         }
 
@@ -275,34 +269,6 @@ namespace Stashbox.BuildUp.Expressions.Compile
             generator.EmitMethod(invokeMethod);
 
             return true;
-        }
-
-        private static bool TryEmit(this BinaryExpression expression, DelegateTargetInformation target, ILGenerator generator, params ParameterExpression[] parameters)
-        {
-            if (!expression.Left.TryEmit(target, generator, parameters) || !expression.Right.TryEmit(target, generator, parameters))
-                return false;
-
-            switch (expression.NodeType)
-            {
-                case ExpressionType.Assign:
-                    if (target.ConstantFields == null)
-                        generator.Emit(OpCodes.Stelem_Ref);
-                    else
-                    {
-                        var constIndex = target.Constants.IndexOf(expression.Left);
-                        if (constIndex == -1) return false;
-
-                        generator.Emit(OpCodes.Stfld, target.ConstantFields[constIndex]);
-                    }
-                    break;
-            }
-
-            return true;
-        }
-
-        private static bool TryEmit(this BlockExpression expression, DelegateTargetInformation target, ILGenerator generator, params ParameterExpression[] parameters)
-        {
-            return expression.Expressions.All(expr => expr.TryEmit(target, generator, parameters));
         }
 
         private static bool TryEmit(this ConstantExpression expression, DelegateTargetInformation target, ILGenerator generator, params ParameterExpression[] parameters)

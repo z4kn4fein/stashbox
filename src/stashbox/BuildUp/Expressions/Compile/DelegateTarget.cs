@@ -265,8 +265,6 @@ namespace Stashbox.BuildUp.Expressions.Compile
         {
             switch (expression.NodeType)
             {
-                case ExpressionType.Block:
-                    return ((BlockExpression)expression).TryCollectConstants(constants, parameters);
                 case ExpressionType.Parameter:
                     return ((ParameterExpression)expression).TryCollectConstants(constants, parameters);
                 case ExpressionType.Lambda:
@@ -292,11 +290,6 @@ namespace Stashbox.BuildUp.Expressions.Compile
                 default:
                     if (expression is UnaryExpression unaryExpression)
                         return unaryExpression.Operand.TryCollectConstants(constants, parameters);
-                    
-                    if (expression is BinaryExpression binaryExpression)
-                        return binaryExpression.Left.TryCollectConstants(constants, parameters)
-                            && binaryExpression.Right.TryCollectConstants(constants, parameters);
-
                     break;
             }
 
@@ -314,15 +307,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
 
             return true;
         }
-
-        private static bool TryCollectConstants(this BlockExpression expression, Constants constants, params ParameterExpression[] parameters)
-        {
-            if (!expression.Variables.All(variable => variable.TryCollectConstants(constants, parameters)))
-                return false;
-
-            return expression.Expressions.TryCollectConstants(constants, parameters);
-        }
-
+        
         private static bool TryCollectConstants(this MemberExpression expression, Constants constants, params ParameterExpression[] parameters) =>
             expression.Expression.TryCollectConstants(constants, parameters);
 
@@ -339,6 +324,8 @@ namespace Stashbox.BuildUp.Expressions.Compile
         {
             if (Array.IndexOf(parameters, expression) == -1)
             {
+                if (constants.Parameters.Contains(expression)) return true;
+
                 constants.Parameters.Add(expression);
                 constants.ConstantExpressions.Add(expression);
                 constants.ConstantObjects.Add(null);
