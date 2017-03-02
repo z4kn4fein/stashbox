@@ -56,9 +56,7 @@ namespace Stashbox.BuildUp.Expressions
 
             return initExpression;
         }
-
-
-
+        
         private Expression CreatePostWorkExpressionIfAny(IContainerExtensionManager extensionManager, IContainerContext containerContext, ResolutionInfo resolutionInfo,
             Expression initExpression, TypeInformation typeInfo, InjectionParameter[] parameters, ResolutionMethod[] methods, 
             List<Expression> block = null, ParameterExpression variable = null)

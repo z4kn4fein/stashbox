@@ -153,12 +153,14 @@ namespace Stashbox.BuildUp.Expressions.Compile
         public List<object> ConstantObjects { get; private set; }
         public List<Expression> ConstantExpressions { get; private set; }
         public List<LambdaTargetInformation> Lambdas { get; private set; }
+        public List<ParameterExpression> Parameters { get; private set; }
 
         public Constants()
         {
             this.ConstantObjects = new List<object>();
             this.ConstantExpressions = new List<Expression>();
             this.Lambdas = new List<LambdaTargetInformation>();
+            this.Parameters = new List<ParameterExpression>();
         }
     }
 
@@ -178,15 +180,18 @@ namespace Stashbox.BuildUp.Expressions.Compile
     {
         public readonly object Target;
         public readonly FieldInfo[] ConstantFields;
-        public readonly Expression[] Constants;
-        public readonly LambdaTargetInformation[] Lambdas;
+        public readonly List<Expression> Constants;
+        public readonly List<LambdaTargetInformation> Lambdas;
+        public readonly List<ParameterExpression> Parameters;
 
-        public DelegateTargetInformation(object target, FieldInfo[] constantFields, Expression[] constants, LambdaTargetInformation[] lambdas)
+        public DelegateTargetInformation(object target, FieldInfo[] constantFields, List<Expression> constants,
+            List<LambdaTargetInformation> lambdas, List<ParameterExpression> parameters)
         {
             this.Target = target;
             this.ConstantFields = constantFields;
             this.Constants = constants;
             this.Lambdas = lambdas;
+            this.Parameters = parameters;
         }
     }
 
@@ -205,12 +210,17 @@ namespace Stashbox.BuildUp.Expressions.Compile
         public static DelegateTargetInformation GetDelegateTarget(Expression expression, Constants constants)
         {
             Type targetType = null;
-            var consts = constants.ConstantObjects.ToArray();
-            var constsExprs = constants.ConstantExpressions.ToArray();
-            var lambdas = constants.Lambdas.ToArray();
-            var count = consts.Length;
+            var length = constants.ConstantExpressions.Count;
+            var types = new Type[length];
+            var consts = new object[length];
 
-            switch (count)
+            for (int i = 0; i < length; i++)
+            {
+                types[i] = constants.ConstantExpressions[i].Type;
+                consts[i] = constants.ConstantObjects[i];
+            }
+
+            switch (length)
             {
                 case 0:
                     targetType = typeof(DelegateTarget);
@@ -240,23 +250,29 @@ namespace Stashbox.BuildUp.Expressions.Compile
                     targetType = typeof(DelegateTarget<,,,,,,,>);
                     break;
                 default:
-                    return new DelegateTargetInformation(new ArrayDelegateTarget(consts), null, constsExprs, lambdas);
+                    return new DelegateTargetInformation(new ArrayDelegateTarget(consts), null, constants.ConstantExpressions,
+                        constants.Lambdas, constants.Parameters);
             }
 
-            targetType = count > 0 ? targetType.MakeGenericType(constsExprs.Select(c => c.Type).ToArray()) : targetType;
+            targetType = length > 0 ? targetType.MakeGenericType(types) : targetType;
             var target = Activator.CreateInstance(targetType, consts);
 
-            return new DelegateTargetInformation(target, targetType.GetTypeInfo().DeclaredFields.ToArray(), constsExprs, lambdas);
+            return new DelegateTargetInformation(target, targetType.GetTypeInfo().DeclaredFields as FieldInfo[], constants.ConstantExpressions,
+                constants.Lambdas, constants.Parameters);
         }
 
         public static bool TryCollectConstants(this Expression expression, Constants constants, params ParameterExpression[] parameters)
         {
             switch (expression.NodeType)
             {
+                case ExpressionType.Block:
+                    return ((BlockExpression)expression).TryCollectConstants(constants, parameters);
                 case ExpressionType.Parameter:
                     return ((ParameterExpression)expression).TryCollectConstants(constants, parameters);
                 case ExpressionType.Lambda:
                     return ((LambdaExpression)expression).TryCollectConstants(constants, parameters);
+                case ExpressionType.MemberAccess:
+                    return ((MemberExpression)expression).TryCollectConstants(constants, parameters);
                 case ExpressionType.Constant:
                     return ((ConstantExpression)expression).TryCollectConstants(constants, parameters);
                 case ExpressionType.New:
@@ -267,11 +283,20 @@ namespace Stashbox.BuildUp.Expressions.Compile
                     var call = (MethodCallExpression)expression;
                     return call.Object.TryCollectConstants(constants, parameters) &&
                            call.Arguments.TryCollectConstants(constants, parameters);
+                case ExpressionType.Invoke:
+                    var invoke = (InvocationExpression)expression;
+                    return invoke.Expression.TryCollectConstants(constants, parameters) &&
+                           invoke.Arguments.TryCollectConstants(constants, parameters);
                 case ExpressionType.NewArrayInit:
                     return ((NewArrayExpression)expression).Expressions.TryCollectConstants(constants, parameters);
                 default:
                     if (expression is UnaryExpression unaryExpression)
                         return unaryExpression.Operand.TryCollectConstants(constants, parameters);
+                    
+                    if (expression is BinaryExpression binaryExpression)
+                        return binaryExpression.Left.TryCollectConstants(constants, parameters)
+                            && binaryExpression.Right.TryCollectConstants(constants, parameters);
+
                     break;
             }
 
@@ -290,9 +315,20 @@ namespace Stashbox.BuildUp.Expressions.Compile
             return true;
         }
 
-        private static bool TryCollectConstants(this ReadOnlyCollection<Expression> arguments, Constants constants, params ParameterExpression[] parameters)
+        private static bool TryCollectConstants(this BlockExpression expression, Constants constants, params ParameterExpression[] parameters)
         {
-            foreach (var expression in arguments)
+            if (!expression.Variables.All(variable => variable.TryCollectConstants(constants, parameters)))
+                return false;
+
+            return expression.Expressions.TryCollectConstants(constants, parameters);
+        }
+
+        private static bool TryCollectConstants(this MemberExpression expression, Constants constants, params ParameterExpression[] parameters) =>
+            expression.Expression.TryCollectConstants(constants, parameters);
+
+        private static bool TryCollectConstants(this ReadOnlyCollection<Expression> expressions, Constants constants, params ParameterExpression[] parameters)
+        {
+            foreach (var expression in expressions)
                 if (!expression.TryCollectConstants(constants, parameters))
                     return false;
 
@@ -301,8 +337,9 @@ namespace Stashbox.BuildUp.Expressions.Compile
 
         private static bool TryCollectConstants(this ParameterExpression expression, Constants constants, params ParameterExpression[] parameters)
         {
-            if(Array.IndexOf(parameters, expression) == -1)
+            if (Array.IndexOf(parameters, expression) == -1)
             {
+                constants.Parameters.Add(expression);
                 constants.ConstantExpressions.Add(expression);
                 constants.ConstantObjects.Add(null);
             }
@@ -319,12 +356,11 @@ namespace Stashbox.BuildUp.Expressions.Compile
             constants.ConstantExpressions.Add(expression);
             constants.Lambdas.Add(new LambdaTargetInformation(expression, lambdaTarget));
 
-            var notFoundParameters = lambdaTarget.Constants.OfType<ParameterExpression>().ToArray();
-            var length = notFoundParameters.Length;
+            var length = lambdaTarget.Parameters.Count;
             for (int i = 0; i < length; i++)
             {
-                var currentNotFoundParam = notFoundParameters[i];
-                if(Array.IndexOf(parameters, currentNotFoundParam) == -1)
+                var currentNotFoundParam = lambdaTarget.Parameters[i];
+                if (Array.IndexOf(parameters, currentNotFoundParam) == -1)
                 {
                     constants.ConstantExpressions.Add(currentNotFoundParam);
                     constants.ConstantObjects.Add(null);

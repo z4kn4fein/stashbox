@@ -17,7 +17,7 @@ namespace System.Linq.Expressions
             else
             {
 #if NET45 || NET40
-                if (!ExpressionEmitter.TryEmit(expression, out factory))
+                //if (!expression.TryEmit(out factory))
                     factory = Expression.Lambda<Func<object>>(expression).Compile();
 #else
                 factory = Expression.Lambda<Func<object>>(expression).Compile();
