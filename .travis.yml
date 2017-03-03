@@ -38,3 +38,6 @@ before_script:
 
 script:
   - dotnet test src/stashbox.tests/stashbox.tests.csproj -c Release -f netcoreapp1.0
+
+notifications:
+  slack: stashbox-container:h2wOfP7OIteSvf9KJ3j64gZD
