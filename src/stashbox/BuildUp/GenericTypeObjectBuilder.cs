@@ -53,7 +53,6 @@ namespace Stashbox.BuildUp
         public bool HandlesObjectDisposal => false;
 
         public void CleanUp()
-        {
-        }
+        { }
     }
 }

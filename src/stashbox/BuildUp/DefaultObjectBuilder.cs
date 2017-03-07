@@ -41,9 +41,9 @@ namespace Stashbox.BuildUp
 
         private Expression GetExpressionInternal(ResolutionInfo resolutionInfo, TypeInformation resolveType)
         {
-            ResolutionConstructor constructor;
-            if (!this.metaInfoProvider.TryChooseConstructor(out constructor, resolutionInfo, this.injectionParameters))
-                throw new ResolutionFailedException(this.metaInfoProvider.TypeTo.FullName);
+            if (!this.metaInfoProvider.TryChooseConstructor(out ResolutionConstructor constructor, 
+                resolutionInfo, this.injectionParameters))
+                    throw new ResolutionFailedException(this.metaInfoProvider.TypeTo.FullName);
             return this.CreateExpression(constructor, resolutionInfo, resolveType);
         }
 
@@ -56,7 +56,6 @@ namespace Stashbox.BuildUp
         }
 
         public void CleanUp()
-        {
-        }
+        { }
     }
 }

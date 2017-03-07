@@ -1,7 +1,6 @@
 ﻿#if NET45 || NET40
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -150,10 +149,10 @@ namespace Stashbox.BuildUp.Expressions.Compile
 
     internal class Constants
     {
-        public List<object> ConstantObjects { get; private set; }
-        public List<Expression> ConstantExpressions { get; private set; }
-        public List<LambdaTargetInformation> Lambdas { get; private set; }
-        public List<ParameterExpression> Parameters { get; private set; }
+        public List<object> ConstantObjects { get; }
+        public List<Expression> ConstantExpressions { get; }
+        public List<LambdaTargetInformation> Lambdas { get; }
+        public List<ParameterExpression> Parameters { get; }
 
         public Constants()
         {
@@ -207,14 +206,14 @@ namespace Stashbox.BuildUp.Expressions.Compile
 
     internal static class DelegateTargetSelector
     {
-        public static DelegateTargetInformation GetDelegateTarget(Expression expression, Constants constants)
+        public static DelegateTargetInformation GetDelegateTarget(Constants constants)
         {
-            Type targetType = null;
+            Type targetType;
             var length = constants.ConstantExpressions.Count;
             var types = new Type[length];
             var consts = new object[length];
 
-            for (int i = 0; i < length; i++)
+            for (var i = 0; i < length; i++)
             {
                 types[i] = constants.ConstantExpressions[i].Type;
                 consts[i] = constants.ConstantObjects[i];
@@ -272,7 +271,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
                 case ExpressionType.MemberAccess:
                     return ((MemberExpression)expression).TryCollectConstants(constants, parameters);
                 case ExpressionType.Constant:
-                    return ((ConstantExpression)expression).TryCollectConstants(constants, parameters);
+                    return ((ConstantExpression)expression).TryCollectConstants(constants);
                 case ExpressionType.New:
                     return ((NewExpression)expression).Arguments.TryCollectConstants(constants, parameters);
                 case ExpressionType.MemberInit:
@@ -301,35 +300,26 @@ namespace Stashbox.BuildUp.Expressions.Compile
             if (!expression.NewExpression.TryCollectConstants(constants, parameters))
                 return false;
 
-            foreach (var binding in expression.Bindings)
-                if (binding.BindingType == MemberBindingType.Assignment && !((MemberAssignment)binding).Expression.TryCollectConstants(constants, parameters))
-                    return false;
-
-            return true;
+            return expression.Bindings.All(binding => binding.BindingType != MemberBindingType.Assignment || 
+                ((MemberAssignment) binding).Expression.TryCollectConstants(constants, parameters));
         }
         
         private static bool TryCollectConstants(this MemberExpression expression, Constants constants, params ParameterExpression[] parameters) =>
             expression.Expression.TryCollectConstants(constants, parameters);
 
-        private static bool TryCollectConstants(this ReadOnlyCollection<Expression> expressions, Constants constants, params ParameterExpression[] parameters)
+        private static bool TryCollectConstants(this IEnumerable<Expression> expressions, Constants constants, params ParameterExpression[] parameters)
         {
-            foreach (var expression in expressions)
-                if (!expression.TryCollectConstants(constants, parameters))
-                    return false;
-
-            return true;
+            return expressions.All(expression => expression.TryCollectConstants(constants, parameters));
         }
 
         private static bool TryCollectConstants(this ParameterExpression expression, Constants constants, params ParameterExpression[] parameters)
         {
-            if (Array.IndexOf(parameters, expression) == -1)
-            {
-                if (constants.Parameters.Contains(expression)) return true;
+            if (Array.IndexOf(parameters, expression) != -1) return true;
+            if (constants.Parameters.Contains(expression)) return true;
 
-                constants.Parameters.Add(expression);
-                constants.ConstantExpressions.Add(expression);
-                constants.ConstantObjects.Add(null);
-            }
+            constants.Parameters.Add(expression);
+            constants.ConstantExpressions.Add(expression);
+            constants.ConstantObjects.Add(null);
 
             return true;
         }
@@ -344,36 +334,25 @@ namespace Stashbox.BuildUp.Expressions.Compile
             constants.Lambdas.Add(new LambdaTargetInformation(expression, lambdaTarget));
 
             var length = lambdaTarget.Parameters.Count;
-            for (int i = 0; i < length; i++)
+            for (var i = 0; i < length; i++)
             {
                 var currentNotFoundParam = lambdaTarget.Parameters[i];
-                if (Array.IndexOf(parameters, currentNotFoundParam) == -1)
-                {
-                    constants.ConstantExpressions.Add(currentNotFoundParam);
-                    constants.ConstantObjects.Add(null);
-                }
+                if (Array.IndexOf(parameters, currentNotFoundParam) != -1) continue;
+                constants.ConstantExpressions.Add(currentNotFoundParam);
+                constants.ConstantObjects.Add(null);
             }
 
             return true;
         }
 
-        private static bool TryCollectConstants(this ConstantExpression expression, Constants constants, params ParameterExpression[] parameters)
+        private static bool TryCollectConstants(this ConstantExpression expression, Constants constants)
         {
-            if (expression.Value != null)
-            {
-                var type = expression.Value.GetType();
-                if (type != typeof(int) &&
-                    type != typeof(double) &&
-                    type != typeof(bool) &&
-                    type != typeof(string) &&
-                    type != typeof(Type) &&
-                    !type.IsEnum &&
-                    expression.Value != null)
-                {
-                    constants.ConstantExpressions.Add(expression);
-                    constants.ConstantObjects.Add(expression.Value);
-                }
-            }
+            if (expression.Value == null) return true;
+            var type = expression.Value.GetType();
+            if (type == typeof(int) || type == typeof(double) || type == typeof(bool) || type == typeof(string) ||
+                type == typeof(Type) || type.IsEnum || expression.Value == null) return true;
+            constants.ConstantExpressions.Add(expression);
+            constants.ConstantObjects.Add(expression.Value);
 
             return true;
         }

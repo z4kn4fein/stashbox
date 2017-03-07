@@ -70,7 +70,7 @@ namespace Stashbox.Registration
                 this.ContainerContext.ScopedRegistrations.AddOrUpdate(this.RegistrationContextData.Name, registrationItem);
         }
 
-        private IObjectBuilder CreateObjectBuilder(IContainerExtensionManager containerExtensionManager, MetaInfoProvider metaInfoProvider)
+        private IObjectBuilder CreateObjectBuilder(IContainerExtensionManager containerExtensionManager, IMetaInfoProvider metaInfoProvider)
         {
             if (this.RegistrationContextData.ExistingInstance != null)
                 return new InstanceObjectBuilder(this.RegistrationContextData.ExistingInstance);

@@ -1,7 +1,6 @@
 ﻿using Stashbox.Exceptions;
 using System;
 using System.Collections.Generic;
-using Stashbox.Configuration;
 
 namespace Stashbox.BuildUp
 {

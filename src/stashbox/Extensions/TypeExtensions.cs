@@ -98,7 +98,7 @@ namespace System
 
         public static MethodInfo GetSingleMethod(this Type type, string name, bool includeNonPublic = false)
         {
-            var found = type.GetTypeInfo().DeclaredMethods.Where(method => (includeNonPublic || method.IsPublic) && method.Name == name).FirstOrDefault();
+            var found = type.GetTypeInfo().DeclaredMethods.FirstOrDefault(method => (includeNonPublic || method.IsPublic) && method.Name == name);
             if (found == null)
                 throw new MethodNotFoundException(type.FullName, name);
 
@@ -106,7 +106,7 @@ namespace System
         }
 
         public static MethodInfo GetSingleMethodOrDefault(this Type type, string name, bool includeNonPublic = false) =>
-            type.GetTypeInfo().DeclaredMethods.Where(method => (includeNonPublic || method.IsPublic) && method.Name == name).FirstOrDefault();
+            type.GetTypeInfo().DeclaredMethods.FirstOrDefault(method => (includeNonPublic || method.IsPublic) && method.Name == name);
 
         public static bool HasSetMethod(this PropertyInfo property, bool includeNonPublic = false) =>
             property.DeclaringType.GetSingleMethodOrDefault("set_" + property.Name, includeNonPublic) != null;

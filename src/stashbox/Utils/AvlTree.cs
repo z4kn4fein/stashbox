@@ -148,8 +148,7 @@ namespace Stashbox.Utils
             public void Reset() => this.Initialize();
 
             public void Dispose()
-            {
-            }
+            { }
         }
     }
 }

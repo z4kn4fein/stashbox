@@ -29,8 +29,7 @@ namespace Stashbox.BuildUp.Resolution
                 ParentType = typeInfo.ParentType,
                 DependencyName = typeInfo.DependencyName
             };
-
-            var delegateCache = new DelegateCache(lazyArgumentInfo);
+            
             var ctorParamType = typeof(Func<>).MakeGenericType(lazyArgumentInfo.Type);
             var lazyConstructor = typeInfo.Type.GetConstructor(ctorParamType);
 
@@ -53,8 +52,7 @@ namespace Stashbox.BuildUp.Resolution
                 ParentType = typeInfo.ParentType,
                 DependencyName = typeInfo.DependencyName
             };
-
-            var delegateCache = new DelegateCache(lazyArgumentInfo);
+            
             var ctorParamType = typeof(Func<>).MakeGenericType(lazyArgumentInfo.Type);
             var lazyConstructor = typeInfo.Type.GetConstructor(ctorParamType);
 

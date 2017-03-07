@@ -31,7 +31,7 @@ namespace Stashbox.BuildUp.Resolution
             var tupleConstructor = typeInfo.Type.GetConstructor(args);
             var length = args.Length;
             var expressions = new Expression[length];
-            for (int i = 0; i < length; i++)
+            for (var i = 0; i < length; i++)
             {
                 var argumentInfo = new TypeInformation { Type = args[i] };
                 var expr = containerContext.ResolutionStrategy.BuildResolutionExpression(containerContext, resolutionInfo, argumentInfo, null);

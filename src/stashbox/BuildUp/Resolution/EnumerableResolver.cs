@@ -13,7 +13,7 @@ namespace Stashbox.BuildUp.Resolution
             var enumerableType = new TypeInformation { Type = typeInfo.Type.GetEnumerableType() };
             var expressions = containerContext.ResolutionStrategy.BuildResolutionExpressions(containerContext, resolutionInfo, enumerableType);
 
-            return expressions == null ? Expression.NewArrayInit(enumerableType.Type, new Expression[] { }) :
+            return expressions == null ? Expression.NewArrayInit(enumerableType.Type) :
                     Expression.NewArrayInit(enumerableType.Type, expressions);
         }
         

@@ -1,5 +1,4 @@
-﻿using Stashbox.Configuration;
-using Stashbox.Infrastructure;
+﻿using Stashbox.Infrastructure;
 using Stashbox.Registration;
 using Stashbox.Utils;
 using System.Threading;
@@ -53,9 +52,7 @@ namespace Stashbox
         public IContainerConfigurator ContainerConfigurator { get; internal set; }
 
         /// <inheritdoc />
-        public int ReserveRegistrationNumber()
-        {
-            return Interlocked.Increment(ref this.registrationNumber);
-        }
+        public int ReserveRegistrationNumber() =>
+            Interlocked.Increment(ref this.registrationNumber);
     }
 }

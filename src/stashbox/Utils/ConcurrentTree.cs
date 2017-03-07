@@ -76,7 +76,7 @@ namespace Stashbox.Utils
         {
             AvlTree<TValue> currentRepo;
             AvlTree<TValue> newRepo;
-            int counter = 0;
+            var counter = 0;
 
             do
             {

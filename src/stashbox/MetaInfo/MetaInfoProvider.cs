@@ -24,7 +24,7 @@ namespace Stashbox.MetaInfo
         private readonly IDictionary<int, Type[]> genericTypeConstraints;
         private ConstructorInformation[] constructors;
         private MethodInformation[] injectionMethods;
-        private MemberInformation[] injectionMembers;
+        private readonly MemberInformation[] injectionMembers;
 
         public Type TypeTo { get; private set; }
 

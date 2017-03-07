@@ -49,8 +49,8 @@ namespace Stashbox.Utils
         /// <returns></returns>
         public bool CompareExchange(bool expectedValue, bool newValue)
         {
-            int expectedVal = this.BoolToInt(expectedValue);
-            int newVal = this.BoolToInt(newValue);
+            var expectedVal = this.BoolToInt(expectedValue);
+            var newVal = this.BoolToInt(newValue);
             return Interlocked.CompareExchange(ref this.currentValue, newVal, expectedVal) == expectedVal;
         }
     }

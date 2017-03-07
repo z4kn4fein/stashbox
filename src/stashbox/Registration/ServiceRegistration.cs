@@ -1,7 +1,6 @@
 ﻿using Stashbox.Entity;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.Registration;
-using Stashbox.MetaInfo;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,32 +13,32 @@ namespace Stashbox.Registration
     /// </summary>
     public class ServiceRegistration : IServiceRegistration
     {
-        private readonly MetaInfoProvider metaInfoProvider;
+        private readonly IMetaInfoProvider metaInfoProvider;
         private readonly IContainerContext containerContext;
 
         /// <inheritdoc />
-        public Type ServiceType { get; private set; }
+        public Type ServiceType { get; }
 
         /// <inheritdoc />
-        public Type ImplementationType { get; private set; }
+        public Type ImplementationType { get; }
 
         /// <inheritdoc />
-        public ILifetime LifetimeManager { get; private set; }
+        public ILifetime LifetimeManager { get; }
 
         /// <inheritdoc />
-        public IObjectBuilder ObjectBuilder { get; private set; }
+        public IObjectBuilder ObjectBuilder { get; }
 
         /// <inheritdoc />
-        public HashSet<Type> AttributeConditions { get; private set; }
+        public HashSet<Type> AttributeConditions { get; }
 
         /// <inheritdoc />
-        public Type TargetTypeCondition { get; private set; }
+        public Type TargetTypeCondition { get; }
 
         /// <inheritdoc />
-        public Func<TypeInformation, bool> ResolutionCondition { get; private set; }
+        public Func<TypeInformation, bool> ResolutionCondition { get; }
 
         internal ServiceRegistration(Type serviceType, Type implementationType, IContainerContext containerContext,
-            ILifetime lifetimeManager, IObjectBuilder objectBuilder, MetaInfoProvider metaInfoProvider, HashSet<Type> attributeConditions = null,
+            ILifetime lifetimeManager, IObjectBuilder objectBuilder, IMetaInfoProvider metaInfoProvider, HashSet<Type> attributeConditions = null,
             Type targetTypeCondition = null, Func<TypeInformation, bool> resolutionCondition = null)
         {
             this.ImplementationType = implementationType;
@@ -58,15 +57,15 @@ namespace Stashbox.Registration
         public int RegistrationNumber { get; }
 
         /// <inheritdoc />
-        public bool IsUsableForCurrentContext(TypeInformation typeInfo) => (this.TargetTypeCondition == null && this.ResolutionCondition == null && (this.AttributeConditions == null || !this.AttributeConditions.Any())) ||
-                   (this.TargetTypeCondition != null && typeInfo.ParentType != null && this.TargetTypeCondition == typeInfo.ParentType) ||
-                   (this.AttributeConditions != null && typeInfo.CustomAttributes != null &&
-                    this.AttributeConditions.Intersect(typeInfo.CustomAttributes.Select(attribute => attribute.GetType())).Any()) ||
-                   (this.ResolutionCondition != null && this.ResolutionCondition(typeInfo));
+        public bool IsUsableForCurrentContext(TypeInformation typeInfo) => this.TargetTypeCondition == null && this.ResolutionCondition == null && (this.AttributeConditions == null || !this.AttributeConditions.Any()) ||
+                   this.TargetTypeCondition != null && typeInfo.ParentType != null && this.TargetTypeCondition == typeInfo.ParentType ||
+                   this.AttributeConditions != null && typeInfo.CustomAttributes != null &&
+                   this.AttributeConditions.Intersect(typeInfo.CustomAttributes.Select(attribute => attribute.GetType())).Any() ||
+                   this.ResolutionCondition != null && this.ResolutionCondition(typeInfo);
 
         /// <inheritdoc />
         public bool HasCondition => this.TargetTypeCondition != null || this.ResolutionCondition != null ||
-            (this.AttributeConditions != null && this.AttributeConditions.Any());
+            this.AttributeConditions != null && this.AttributeConditions.Any();
 
         /// <inheritdoc />
         public bool ValidateGenericContraints(TypeInformation typeInformation) => !this.metaInfoProvider.HasGenericTypeConstraints ||

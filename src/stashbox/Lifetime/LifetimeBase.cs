@@ -1,6 +1,5 @@
 ﻿using Stashbox.Entity;
 using Stashbox.Infrastructure;
-using System;
 using System.Linq.Expressions;
 
 namespace Stashbox.Lifetime

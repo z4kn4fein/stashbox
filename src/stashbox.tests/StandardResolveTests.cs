@@ -36,6 +36,19 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void StandardResolveTests_Factory()
+        {
+            using (IStashboxContainer container = new StashboxContainer())
+            {
+                container.RegisterType<ITest1, Test1>();
+                var test1 = container.ResolveFactory(typeof(ITest1)).DynamicInvoke();
+                
+                Assert.IsNotNull(test1);
+                Assert.IsInstanceOfType(test1, typeof(Test1));
+            }
+        }
+
+        [TestMethod]
         [ExpectedException(typeof(ResolutionFailedException))]
         public void StandardResolveTests_DependencyResolve_ResolutionFailed()
         {

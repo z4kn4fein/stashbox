@@ -1,5 +1,4 @@
-﻿
-using Stashbox.Entity;
+﻿using Stashbox.Entity;
 using System.Linq.Expressions;
 
 namespace Stashbox.Infrastructure

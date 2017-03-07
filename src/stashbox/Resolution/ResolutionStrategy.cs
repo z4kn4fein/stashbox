@@ -26,27 +26,23 @@ namespace Stashbox.Resolution
                 return Expression.Constant(matchingParam.Value);
 
             var registration = containerContext.RegistrationRepository.GetRegistrationOrDefault(typeInformation, true);
-            if (registration != null)
-                return registration.GetExpression(resolutionInfo, typeInformation);
-
-            return this.resolverSelector.GetResolverExpression(containerContext, typeInformation, resolutionInfo);
+            return registration != null ? registration.GetExpression(resolutionInfo, typeInformation) : 
+                this.resolverSelector.GetResolverExpression(containerContext, typeInformation, resolutionInfo);
         }
 
         public Expression[] BuildResolutionExpressions(IContainerContext containerContext, ResolutionInfo resolutionInfo, TypeInformation typeInformation)
         {
             var registrations = containerContext.RegistrationRepository.GetRegistrationsOrDefault(typeInformation);
-            if (registrations != null)
-            {
-                var serviceRegistrations = containerContext.ContainerConfigurator.ContainerConfiguration.EnumerableOrderRule(registrations).ToArray();
-                var lenght = serviceRegistrations.Length;
-                var expressions = new Expression[lenght];
-                for (int i = 0; i < lenght; i++)
-                    expressions[i] = serviceRegistrations[i].GetExpression(resolutionInfo, typeInformation);
-                
-                return expressions;
-            }
+            if (registrations == null)
+                return this.resolverSelector.GetResolverExpressions(containerContext, typeInformation, resolutionInfo);
 
-            return this.resolverSelector.GetResolverExpressions(containerContext, typeInformation, resolutionInfo);
+            var serviceRegistrations = containerContext.ContainerConfigurator.ContainerConfiguration.EnumerableOrderRule(registrations).ToArray();
+            var lenght = serviceRegistrations.Length;
+            var expressions = new Expression[lenght];
+            for (var i = 0; i < lenght; i++)
+                expressions[i] = serviceRegistrations[i].GetExpression(resolutionInfo, typeInformation);
+                
+            return expressions;
         }
     }
 }

@@ -1,7 +1,6 @@
 ﻿using Stashbox.Entity;
 using Stashbox.Entity.Resolution;
 using System;
-using System.Collections.Generic;
 
 namespace Stashbox.Infrastructure
 {

@@ -32,9 +32,9 @@ namespace Stashbox.BuildUp.Expressions
             block.Add(assingExpr);
 
             if (members != null && members.Length > 0)
-                block.AddRange(FillMembersExpression(containerContext, members, resolutionInfo, variable));
+                block.AddRange(FillMembersExpression(members, variable));
 
-            if ((methods != null && methods.Length > 0) || extensionManager.HasPostBuildExtensions)
+            if (methods != null && methods.Length > 0 || extensionManager.HasPostBuildExtensions)
                 return CreatePostWorkExpressionIfAny(extensionManager, containerContext, resolutionInfo, variable, typeInfo, parameters, methods, block, variable);
 
             block.Add(variable); //return
@@ -49,7 +49,7 @@ namespace Stashbox.BuildUp.Expressions
             Expression initExpression = Expression.New(resolutionConstructor.Constructor, resolutionConstructor.Parameters);
 
             if (members != null && members.Length > 0)
-                initExpression = CreateMemberInitExpression(containerContext, members, resolutionInfo, (NewExpression)initExpression);
+                initExpression = CreateMemberInitExpression(members, (NewExpression)initExpression);
 
             if ((methods != null && methods.Length > 0) || extensionManager.HasPostBuildExtensions)
                 return CreatePostWorkExpressionIfAny(extensionManager, containerContext, resolutionInfo, initExpression, typeInfo, parameters, methods);
@@ -71,7 +71,7 @@ namespace Stashbox.BuildUp.Expressions
             }
 
             if (methods != null && methods.Length > 0)
-                block.AddRange(CreateMethodExpressions(containerContext, methods, resolutionInfo, newVariable));
+                block.AddRange(CreateMethodExpressions(methods, newVariable));
 
             if (extensionManager.HasPostBuildExtensions)
             {
@@ -86,7 +86,7 @@ namespace Stashbox.BuildUp.Expressions
             return Expression.Block(new[] { newVariable }, block);
         }
 
-        private Expression[] FillMembersExpression(IContainerContext containerContext, ResolutionMember[] members, ResolutionInfo resolutionInfo, Expression instance)
+        private Expression[] FillMembersExpression(ResolutionMember[] members, Expression instance)
         {
             var propLength = members.Length;
             var expressions = new Expression[propLength];
@@ -94,8 +94,7 @@ namespace Stashbox.BuildUp.Expressions
             {
                 var member = members[i];
 
-                var prop = member.MemberInfo as PropertyInfo;
-                if (prop != null)
+                if (member.MemberInfo is PropertyInfo prop)
                 {
                     var propExpression = Expression.Property(instance, prop);
                     expressions[i] = Expression.Assign(propExpression, member.Expression);
@@ -111,8 +110,7 @@ namespace Stashbox.BuildUp.Expressions
             return expressions;
         }
 
-        private Expression CreateMemberInitExpression(IContainerContext containerContext, ResolutionMember[] members, ResolutionInfo resolutionInfo,
-            NewExpression newExpression)
+        private Expression CreateMemberInitExpression(ResolutionMember[] members, NewExpression newExpression)
         {
             var propLength = members.Length;
             var propertyExpressions = new MemberBinding[propLength];
@@ -126,8 +124,7 @@ namespace Stashbox.BuildUp.Expressions
             return Expression.MemberInit(newExpression, propertyExpressions);
         }
 
-        private Expression[] CreateMethodExpressions(IContainerContext containerContext, ResolutionMethod[] methods, ResolutionInfo resolutionInfo,
-            Expression newExpression)
+        private Expression[] CreateMethodExpressions(ResolutionMethod[] methods, Expression newExpression)
         {
             var lenght = methods.Length;
             newExpression = Expression.Convert(newExpression, methods[0].Method.DeclaringType);

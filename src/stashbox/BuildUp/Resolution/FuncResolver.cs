@@ -78,20 +78,16 @@ namespace Stashbox.BuildUp.Resolution
         {
             var length = args.Length - 1;
             var parameters = new ParameterExpression[length];
-            if (length > 0)
-            {
-                for (var i = 0; i < length; i++)
-                {
-                    var argType = args[i];
-                    var argName = wrappedType.Name + argType.Name + i;
-                    parameters[i] = Expression.Parameter(argType, argName);
-                }
+            if (length <= 0) return parameters;
 
-                if (resolutionInfo.ParameterExpressions == null)
-                    resolutionInfo.ParameterExpressions = parameters;
-                else
-                    resolutionInfo.ParameterExpressions = resolutionInfo.ParameterExpressions.Concat(parameters).ToArray();
+            for (var i = 0; i < length; i++)
+            {
+                var argType = args[i];
+                var argName = wrappedType.Name + argType.Name + i;
+                parameters[i] = Expression.Parameter(argType, argName);
             }
+
+            resolutionInfo.ParameterExpressions = resolutionInfo.ParameterExpressions?.Concat(parameters).ToArray() ?? parameters;
 
             return parameters;
         }

@@ -23,10 +23,8 @@ namespace Stashbox.Registration
 
         public void AddOrUpdateRegistration(Type typeKey, string nameKey, bool canUpdate, IServiceRegistration registration)
         {
-            if (registration.HasCondition)
-                this.AddOrUpdateRegistration(typeKey, nameKey, canUpdate, registration, this.conditionalRepository);
-            else
-                this.AddOrUpdateRegistration(typeKey, nameKey, canUpdate, registration, this.serviceRepository);
+            this.AddOrUpdateRegistration(typeKey, nameKey, canUpdate, registration,
+                registration.HasCondition ? this.conditionalRepository : this.serviceRepository);
         }
 
         public IServiceRegistration GetRegistrationOrDefault(TypeInformation typeInfo, bool checkConditions = false)
@@ -65,13 +63,10 @@ namespace Stashbox.Registration
             if (typeInfo.DependencyName != null && registrations != null)
                 return registrations.GetOrDefault(typeInfo.DependencyName) != null;
 
-            if (registrations == null && typeInfo.Type.IsClosedGenericType())
-            {
-                registrations = repository.GetOrDefault(typeInfo.Type.GetGenericTypeDefinition());
-                return registrations?.Any(reg => reg.ValidateGenericContraints(typeInfo)) ?? false;
-            }
+            if (registrations != null || !typeInfo.Type.IsClosedGenericType()) return registrations != null;
 
-            return registrations != null;
+            registrations = repository.GetOrDefault(typeInfo.Type.GetGenericTypeDefinition());
+            return registrations?.Any(reg => reg.ValidateGenericContraints(typeInfo)) ?? false;
         }
 
         private void AddOrUpdateRegistration(Type typeKey, string nameKey, bool canUpdate, IServiceRegistration registration, ConcurrentTree<Type, ConcurrentTree<string, IServiceRegistration>> repository)

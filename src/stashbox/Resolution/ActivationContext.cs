@@ -66,17 +66,15 @@ namespace Stashbox.Resolution
                 ParameterExpressions = parameterTypes.Length == 0 ? null : parameterTypes.Select(Expression.Parameter).ToArray()
             };
             var typeInfo = new TypeInformation { Type = type, DependencyName = name };
-            Expression initExpression;
             var registration = this.containerContext.RegistrationRepository.GetRegistrationOrDefault(typeInfo);
-            if (registration == null)
-                initExpression = this.resolverSelector.GetResolverExpression(containerContext, typeInfo, resolutionInfo);
-            else
-                initExpression = registration.GetExpression(resolutionInfo, typeInfo);
+            var initExpression = registration == null ?
+                this.resolverSelector.GetResolverExpression(containerContext, typeInfo, resolutionInfo) :
+                registration.GetExpression(resolutionInfo, typeInfo);
 
             if (initExpression == null)
                 throw new ResolutionFailedException(typeInfo.Type.FullName);
 
-            var factory = Expression.Lambda(initExpression, resolutionInfo.ParameterExpressions).Compile();
+            var factory = Expression.Lambda(initExpression, resolutionInfo.ParameterExpressions).CompileDelegate();
             this.containerContext.DelegateRepository.AddFactoryDelegate(type, parameterTypes, factory, name);
             return factory;
         }

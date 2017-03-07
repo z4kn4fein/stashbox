@@ -7,16 +7,18 @@ namespace Stashbox.BuildUp
 {
     internal class InstanceObjectBuilder : IObjectBuilder
     {
+        private readonly Expression expression;
         private object instance;
 
         public InstanceObjectBuilder(object instance)
         {
+            this.expression = Expression.Constant(instance);
             this.instance = instance;
         }
 
         public Expression GetExpression(ResolutionInfo resolutionInfo, TypeInformation resolveType)
         {
-            return Expression.Constant(this.instance);
+            return this.expression;
         }
 
         public bool HandlesObjectDisposal => true;

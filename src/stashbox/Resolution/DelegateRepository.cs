@@ -20,7 +20,7 @@ namespace Stashbox.Resolution
         
         public Delegate GetFactoryDelegateCacheOrDefault(Type type, Type[] parameterTypes, string name = null)
         {
-            var key = this.GetFactoryKey(parameterTypes, name);
+            var key = this.GetFactoryKey(type, parameterTypes, name);
             return this.factoryDelegates.GetOrDefault(type, key);
         }
 
@@ -32,7 +32,7 @@ namespace Stashbox.Resolution
         
         public void AddFactoryDelegate(Type type, Type[] parameterTypes, Delegate factory, string name = null)
         {
-            var key = this.GetFactoryKey(parameterTypes, name);
+            var key = this.GetFactoryKey(type, parameterTypes, name);
             this.factoryDelegates.AddOrUpdate(type, key, factory);
         }
         public void AddServiceDelegate(Type type, Func<object> factory, string name = null)
@@ -53,7 +53,11 @@ namespace Stashbox.Resolution
         private string GetKey(Type type, string name) =>
             NameGenerator.GetRegistrationName(type, type, name);
 
-        private string GetFactoryKey(Type[] types, string name) => types.Select(type => NameGenerator.GetRegistrationName(type, type))
-            .Aggregate((current, next) => current + next) + name;
+        private string GetFactoryKey(Type returnType, Type[] types, string name)
+        {
+            name = this.GetKey(returnType, name);
+            return types.Any() ? types.Select(type => NameGenerator.GetRegistrationName(type, type))
+                .Aggregate((current, next) => current + next) + name : name;
+        }
     }
 }
