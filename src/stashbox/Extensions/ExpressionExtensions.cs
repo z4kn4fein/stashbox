@@ -20,7 +20,7 @@ namespace System.Linq.Expressions
 
             return (Func<object>)factory;
 #else
-                return Expression.Lambda<Func<object>>(expression).Compile();
+            return Expression.Lambda<Func<object>>(expression).Compile();
 #endif
         }
 
@@ -32,7 +32,7 @@ namespace System.Linq.Expressions
 
             return (Delegate)factory;
 #else
-            return Expression.Lambda(expression).Compile();
+            return expression.Compile();
 #endif
         }
     }
