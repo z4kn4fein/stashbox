@@ -1,4 +1,6 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+using System.Collections.Generic;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Stashbox.Entity;
 using Stashbox.Exceptions;
 using Stashbox.Infrastructure;
@@ -114,6 +116,25 @@ namespace Stashbox.Tests
             Assert.IsInstanceOfType(inst, typeof(Test1));
         }
 
+        [TestMethod]
+        [ExpectedException(typeof(NotImplementedException))]
+        public void ContainerTests_ResolverTest_SupportsMany_Throw()
+        {
+            var container = new StashboxContainer();
+            container.RegisterResolver(new TestResolver());
+            container.Resolve<IEnumerable<ITest1>>();
+        }
+
+        [TestMethod]
+        public void ContainerTests_ResolverTest_SupportsMany()
+        {
+            var container = new StashboxContainer();
+            container.RegisterResolver(new TestResolver2());
+            var inst = container.Resolve<IEnumerable<ITest1>>();
+
+            Assert.IsInstanceOfType(inst.First(), typeof(Test1));
+        }
+
         public interface ITest1 { }
 
         public interface ITest2 { }
@@ -140,6 +161,8 @@ namespace Stashbox.Tests
 
         public class TestResolver : Resolver
         {
+            public override bool SupportsMany => true;
+
             public override bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo)
             {
                 return typeInfo.Type == typeof(ITest1);
@@ -148,6 +171,26 @@ namespace Stashbox.Tests
             public override Expression GetExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo)
             {
                 return Expression.Constant(new Test1());
+            }
+        }
+
+        public class TestResolver2 : Resolver
+        {
+            public override bool SupportsMany => true;
+
+            public override bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo)
+            {
+                return typeInfo.Type == typeof(ITest1);
+            }
+
+            public override Expression GetExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo)
+            {
+                return Expression.Constant(new Test1());
+            }
+
+            public override Expression[] GetExpressions(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo)
+            {
+                return new Expression[] { Expression.Constant(new Test1()) };
             }
         }
     }

@@ -1,5 +1,4 @@
-﻿using Stashbox.Exceptions;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
@@ -100,7 +99,7 @@ namespace System
         {
             var found = type.GetTypeInfo().DeclaredMethods.FirstOrDefault(method => (includeNonPublic || method.IsPublic) && method.Name == name);
             if (found == null)
-                throw new MethodNotFoundException(type.FullName, name);
+                throw new InvalidOperationException($"'{name}' method not found on {type.FullName}.");
 
             return found;
         }
