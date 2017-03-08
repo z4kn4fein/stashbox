@@ -326,7 +326,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
 
         private static bool TryCollectConstants(this LambdaExpression expression, Constants constants, params ParameterExpression[] parameters)
         {
-            if (!expression.Body.TryEmit(expression.Type, expression.Body.Type, out object lambda, out DelegateTargetInformation lambdaTarget, expression.Parameters.ToArray()))
+            if (!expression.Body.TryEmit(expression.Type, expression.Body.Type, out Delegate lambda, out DelegateTargetInformation lambdaTarget, expression.Parameters.ToArray()))
                 return false;
 
             constants.ConstantObjects.Add(lambda);

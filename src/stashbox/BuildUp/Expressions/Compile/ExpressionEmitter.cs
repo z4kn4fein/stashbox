@@ -12,15 +12,15 @@ namespace Stashbox.BuildUp.Expressions.Compile
         private static readonly FieldInfo constantsFieldInfo = typeof(ArrayDelegateTarget).GetField("Constants");
         private static readonly MethodInfo delegateTargetProperty = typeof(Delegate).GetProperty("Target").GetGetMethod();
 
-        public static bool TryEmit<TValue>(this Expression expression, out object resultDelegate) =>
-            expression.TryEmit(typeof(TValue), typeof(object), out resultDelegate, out DelegateTargetInformation delegateTarget);
+        public static bool TryEmit(this Expression expression, out Delegate resultDelegate) =>
+            expression.TryEmit(typeof(Func<object>), typeof(object), out resultDelegate, out DelegateTargetInformation delegateTarget);
 
-        public static bool TryEmit(this LambdaExpression expression, out object resultDelegate) =>
+        public static bool TryEmit(this LambdaExpression expression, out Delegate resultDelegate) =>
             expression.Body.TryEmit(expression.Type, expression.Body.Type, out resultDelegate, 
                 out DelegateTargetInformation delegateTarget, expression.Parameters.ToArray());
 
         public static bool TryEmit(this Expression expression, Type delegateType, Type returnType, 
-            out object resultDelegate, out DelegateTargetInformation delegateTarget, params ParameterExpression[] parameters) 
+            out Delegate resultDelegate, out DelegateTargetInformation delegateTarget, params ParameterExpression[] parameters) 
         {
             resultDelegate = null;
             delegateTarget = null;

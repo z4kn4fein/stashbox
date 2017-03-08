@@ -15,8 +15,8 @@ namespace System.Linq.Expressions
             }
 
 #if NET45 || NET40
-            if (!expression.TryEmit<Func<object>>(out object factory))
-                factory = Expression.Lambda<Func<object>>(expression).Compile();
+            if (!expression.TryEmit(out Delegate factory))
+                factory = Expression.Lambda(expression).Compile();
 
             return (Func<object>)factory;
 #else
@@ -27,10 +27,10 @@ namespace System.Linq.Expressions
         public static Delegate CompileDelegate(this LambdaExpression expression)
         {
 #if NET45 || NET40
-            if (!expression.TryEmit(out object factory))
+            if (!expression.TryEmit(out Delegate factory))
                 factory = expression.Compile();
 
-            return (Delegate)factory;
+            return factory;
 #else
             return expression.Compile();
 #endif
