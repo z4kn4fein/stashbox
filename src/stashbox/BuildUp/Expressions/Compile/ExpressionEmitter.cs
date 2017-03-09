@@ -9,18 +9,17 @@ namespace Stashbox.BuildUp.Expressions.Compile
 {
     internal static class ExpressionEmitter
     {
-        private static readonly FieldInfo constantsFieldInfo = typeof(ArrayDelegateTarget).GetField("Constants");
         private static readonly MethodInfo delegateTargetProperty = typeof(Delegate).GetProperty("Target").GetGetMethod();
 
         public static bool TryEmit(this Expression expression, out Delegate resultDelegate) =>
             expression.TryEmit(typeof(Func<object>), typeof(object), out resultDelegate, out DelegateTargetInformation delegateTarget);
 
         public static bool TryEmit(this LambdaExpression expression, out Delegate resultDelegate) =>
-            expression.Body.TryEmit(expression.Type, expression.Body.Type, out resultDelegate, 
+            expression.Body.TryEmit(expression.Type, expression.Body.Type, out resultDelegate,
                 out DelegateTargetInformation delegateTarget, expression.Parameters.ToArray());
 
-        public static bool TryEmit(this Expression expression, Type delegateType, Type returnType, 
-            out Delegate resultDelegate, out DelegateTargetInformation delegateTarget, params ParameterExpression[] parameters) 
+        public static bool TryEmit(this Expression expression, Type delegateType, Type returnType,
+            out Delegate resultDelegate, out DelegateTargetInformation delegateTarget, params ParameterExpression[] parameters)
         {
             resultDelegate = null;
             delegateTarget = null;
@@ -121,7 +120,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
             if (!expression.Object.TryEmit(target, generator, parameters))
                 return false;
 
-            return expression.Arguments.All(argument => argument.TryEmit(target, generator, parameters)) && 
+            return expression.Arguments.All(argument => argument.TryEmit(target, generator, parameters)) &&
                 generator.EmitMethod(expression.Method);
         }
 
@@ -171,12 +170,6 @@ namespace Stashbox.BuildUp.Expressions.Compile
 
                 var lambdaParamConstantIndex = lambda.DelegateTargetInfo.Constants.IndexOf(param);
 
-                if (target.ConstantFields == null)
-                {
-                    generator.Emit(OpCodes.Ldfld, constantsFieldInfo);
-                    generator.EmitInteger(lambdaParamConstantIndex);
-                }
-
                 var paramIndex = Array.IndexOf(parameters, param);
                 if (paramIndex == -1)
                 {
@@ -188,10 +181,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
                 else
                     generator.LoadParameter(paramIndex + 1);
 
-                if (target.ConstantFields == null)
-                    generator.Emit(OpCodes.Stelem_Ref);
-                else
-                    generator.Emit(OpCodes.Stfld, lambda.DelegateTargetInfo.ConstantFields[lambdaParamConstantIndex]);
+                generator.Emit(OpCodes.Stfld, lambda.DelegateTargetInfo.ConstantFields[lambdaParamConstantIndex]);
             }
 
             return true;
@@ -296,26 +286,13 @@ namespace Stashbox.BuildUp.Expressions.Compile
 
         private static bool LoadConstantFromField(this ILGenerator generator, DelegateTargetInformation target, int constantIndex, Type type)
         {
-            if (target.ConstantFields == null)
-            {
-                generator.Emit(OpCodes.Ldarg_0);
-                generator.Emit(OpCodes.Ldfld, constantsFieldInfo);
-                generator.EmitInteger(constantIndex);
-                generator.Emit(OpCodes.Ldelem_Ref);
-
-                if (type != typeof(object))
-                    generator.Emit(OpCodes.Castclass, type);
-            }
-            else
-            {
-                generator.Emit(OpCodes.Ldarg_0);
-                generator.Emit(OpCodes.Ldfld, target.ConstantFields[constantIndex]);
-            }
+            generator.Emit(OpCodes.Ldarg_0);
+            generator.Emit(OpCodes.Ldfld, target.ConstantFields[constantIndex]);
 
             return true;
         }
 
-        private static bool LoadParameter(this ILGenerator generator, int index)
+        public static bool LoadParameter(this ILGenerator generator, int index)
         {
             switch (index)
             {

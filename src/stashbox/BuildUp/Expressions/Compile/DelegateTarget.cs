@@ -4,149 +4,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Reflection.Emit;
+using System.Threading;
+using Stashbox.Utils;
 
 namespace Stashbox.BuildUp.Expressions.Compile
 {
-    internal class DelegateTarget
-    {
-    }
-
-    internal class DelegateTarget<T1>
-    {
-        public T1 V1;
-
-        public DelegateTarget(T1 t1)
-        {
-            V1 = t1;
-        }
-    }
-
-    internal class DelegateTarget<T1, T2>
-    {
-        public T1 V1;
-        public T2 V2;
-
-        public DelegateTarget(T1 t1, T2 t2)
-        {
-            V1 = t1;
-            V2 = t2;
-        }
-    }
-
-    internal class DelegateTarget<T1, T2, T3>
-    {
-        public T1 V1;
-        public T2 V2;
-        public T3 V3;
-
-        public DelegateTarget(T1 t1, T2 t2, T3 t3)
-        {
-            V1 = t1;
-            V2 = t2;
-            V3 = t3;
-        }
-    }
-
-    internal class DelegateTarget<T1, T2, T3, T4>
-    {
-        public T1 V1;
-        public T2 V2;
-        public T3 V3;
-        public T4 V4;
-
-        public DelegateTarget(T1 t1, T2 t2, T3 t3, T4 t4)
-        {
-            V1 = t1;
-            V2 = t2;
-            V3 = t3;
-            V4 = t4;
-        }
-    }
-
-    internal class DelegateTarget<T1, T2, T3, T4, T5>
-    {
-        public T1 V1;
-        public T2 V2;
-        public T3 V3;
-        public T4 V4;
-        public T5 V5;
-
-        public DelegateTarget(T1 t1, T2 t2, T3 t3, T4 t4, T5 t5)
-        {
-            V1 = t1;
-            V2 = t2;
-            V3 = t3;
-            V4 = t4;
-            V5 = t5;
-        }
-    }
-
-    internal class DelegateTarget<T1, T2, T3, T4, T5, T6>
-    {
-        public T1 V1;
-        public T2 V2;
-        public T3 V3;
-        public T4 V4;
-        public T5 V5;
-        public T6 V6;
-
-        public DelegateTarget(T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6)
-        {
-            V1 = t1;
-            V2 = t2;
-            V3 = t3;
-            V4 = t4;
-            V5 = t5;
-            V6 = t6;
-        }
-    }
-
-    internal class DelegateTarget<T1, T2, T3, T4, T5, T6, T7>
-    {
-        public T1 V1;
-        public T2 V2;
-        public T3 V3;
-        public T4 V4;
-        public T5 V5;
-        public T6 V6;
-        public T7 V7;
-
-        public DelegateTarget(T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, T7 t7)
-        {
-            V1 = t1;
-            V2 = t2;
-            V3 = t3;
-            V4 = t4;
-            V5 = t5;
-            V6 = t6;
-            V7 = t7;
-        }
-    }
-
-    internal class DelegateTarget<T1, T2, T3, T4, T5, T6, T7, T8>
-    {
-        public T1 V1;
-        public T2 V2;
-        public T3 V3;
-        public T4 V4;
-        public T5 V5;
-        public T6 V6;
-        public T7 V7;
-        public T8 V8;
-
-        public DelegateTarget(T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, T7 t7, T8 t8)
-        {
-            V1 = t1;
-            V2 = t2;
-            V3 = t3;
-            V4 = t4;
-            V5 = t5;
-            V6 = t6;
-            V7 = t7;
-            V8 = t8;
-        }
-    }
-
     internal class Constants
     {
         public List<object> ConstantObjects { get; }
@@ -194,69 +57,78 @@ namespace Stashbox.BuildUp.Expressions.Compile
         }
     }
 
-    internal class ArrayDelegateTarget
-    {
-        public readonly object[] Constants;
-
-        public ArrayDelegateTarget(object[] constants)
-        {
-            this.Constants = constants;
-        }
-    }
-
     internal static class DelegateTargetSelector
     {
-        public static DelegateTargetInformation GetDelegateTarget(Constants constants)
+        private static readonly Lazy<ModuleBuilder> ModuleBuilder = new Lazy<ModuleBuilder>(() =>
+            AppDomain.CurrentDomain.DefineDynamicAssembly(
+                new AssemblyName("Stashbox.Dynamic"),
+                AssemblyBuilderAccess.Run)
+                .DefineDynamicModule("Stashbox.DynamicModule"));
+
+        private static int TypeCounter;
+
+        private static readonly ConcurrentTree<int, Type> TargetTypes = new ConcurrentTree<int, Type>();
+
+        private static Type GetOrAddTargetType(Constants constants)
         {
-            Type targetType;
             var length = constants.ConstantExpressions.Count;
             var types = new Type[length];
-            var consts = new object[length];
 
-            for (var i = 0; i < length; i++)
+            var foundType = TargetTypes.GetOrDefault(length);
+            if (foundType != null)
             {
-                types[i] = constants.ConstantExpressions[i].Type;
-                consts[i] = constants.ConstantObjects[i];
+                if (length <= 0) return foundType;
+                
+                for (var i = 0; i < length; i++)
+                    types[i] = constants.ConstantExpressions[i].Type;
+
+                return foundType.MakeGenericType(types);
             }
 
-            switch (length)
+            var fields = new FieldInfo[length];
+            var typeBuilder = ModuleBuilder.Value.DefineType("DT" + Interlocked.Increment(ref TypeCounter), TypeAttributes.Public);
+
+            if (length > 0)
             {
-                case 0:
-                    targetType = typeof(DelegateTarget);
-                    break;
-                case 1:
-                    targetType = typeof(DelegateTarget<>);
-                    break;
-                case 2:
-                    targetType = typeof(DelegateTarget<,>);
-                    break;
-                case 3:
-                    targetType = typeof(DelegateTarget<,,>);
-                    break;
-                case 4:
-                    targetType = typeof(DelegateTarget<,,,>);
-                    break;
-                case 5:
-                    targetType = typeof(DelegateTarget<,,,,>);
-                    break;
-                case 6:
-                    targetType = typeof(DelegateTarget<,,,,,>);
-                    break;
-                case 7:
-                    targetType = typeof(DelegateTarget<,,,,,,>);
-                    break;
-                case 8:
-                    targetType = typeof(DelegateTarget<,,,,,,,>);
-                    break;
-                default:
-                    return new DelegateTargetInformation(new ArrayDelegateTarget(consts), null, constants.ConstantExpressions,
-                        constants.Lambdas, constants.Parameters);
+                var typeParamNames = new string[length];
+                for (var i = 0; i < length; i++)
+                    typeParamNames[i] = "T" + i;
+
+                var typeParams = typeBuilder.DefineGenericParameters(typeParamNames);
+
+                for (var i = 0; i < length; i++)
+                {
+                    types[i] = constants.ConstantExpressions[i].Type;
+                    fields[i] = typeBuilder.DefineField("F" + i, typeParams[i], FieldAttributes.Public);
+                }
+
+
+                var constructor = typeBuilder.DefineConstructor(MethodAttributes.Public, CallingConventions.HasThis, typeParams);
+                var generator = constructor.GetILGenerator();
+
+                generator.Emit(OpCodes.Ldarg_0);
+                generator.Emit(OpCodes.Call, typeof(object).GetConstructor(Type.EmptyTypes));
+
+                for (var i = 0; i < length; i++)
+                {
+                    generator.Emit(OpCodes.Ldarg_0);
+                    generator.LoadParameter(i + 1);
+                    generator.Emit(OpCodes.Stfld, fields[i]);
+                }
+
+                generator.Emit(OpCodes.Ret);
             }
 
-            targetType = length > 0 ? targetType.MakeGenericType(types) : targetType;
-            var target = Activator.CreateInstance(targetType, consts);
+            var type = typeBuilder.CreateType();
+            TargetTypes.AddOrUpdate(length, type);
+            return length > 0 ? type.MakeGenericType(types) : type;
+        }
 
-            return new DelegateTargetInformation(target, targetType.GetTypeInfo().DeclaredFields as FieldInfo[], constants.ConstantExpressions,
+        public static DelegateTargetInformation GetDelegateTarget(Constants constants)
+        {
+            var type = GetOrAddTargetType(constants);
+            var target = Activator.CreateInstance(type, constants.ConstantObjects.ToArray());
+            return new DelegateTargetInformation(target, type.GetTypeInfo().DeclaredFields as FieldInfo[], constants.ConstantExpressions,
                 constants.Lambdas, constants.Parameters);
         }
 
@@ -300,10 +172,10 @@ namespace Stashbox.BuildUp.Expressions.Compile
             if (!expression.NewExpression.TryCollectConstants(constants, parameters))
                 return false;
 
-            return expression.Bindings.All(binding => binding.BindingType != MemberBindingType.Assignment || 
-                ((MemberAssignment) binding).Expression.TryCollectConstants(constants, parameters));
+            return expression.Bindings.All(binding => binding.BindingType != MemberBindingType.Assignment ||
+                ((MemberAssignment)binding).Expression.TryCollectConstants(constants, parameters));
         }
-        
+
         private static bool TryCollectConstants(this MemberExpression expression, Constants constants, params ParameterExpression[] parameters) =>
             expression.Expression.TryCollectConstants(constants, parameters);
 
