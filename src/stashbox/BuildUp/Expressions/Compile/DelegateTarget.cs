@@ -67,7 +67,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
     {
         private static int TypeCounter;
 
-        private static readonly ConcurrentTree<int, Type> TargetTypes = new ConcurrentTree<int, Type>();
+        private static readonly ConcurrentTree<Type> TargetTypes = new ConcurrentTree<Type>();
 
         private static Type GetOrAddTargetType(Constants constants)
         {
