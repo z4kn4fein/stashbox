@@ -1,4 +1,4 @@
-﻿#if NET45 || NET40
+﻿#if NET45 || NET40 || NETSTANDARD11
 using Stashbox.BuildUp.Expressions.Compile;
 #endif
 
@@ -14,7 +14,7 @@ namespace System.Linq.Expressions
                 return () => instance;
             }
 
-#if NET45 || NET40
+#if NET45 || NET40 || NETSTANDARD11
             if (!expression.TryEmit(out Delegate factory))
                 factory = Expression.Lambda(expression).Compile();
 
@@ -26,7 +26,7 @@ namespace System.Linq.Expressions
 
         public static Delegate CompileDelegate(this LambdaExpression expression)
         {
-#if NET45 || NET40
+#if NET45 || NET40 || NETSTANDARD11
             if (!expression.TryEmit(out Delegate factory))
                 factory = expression.Compile();
 

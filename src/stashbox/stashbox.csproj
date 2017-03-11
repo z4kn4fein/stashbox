@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net40;net45;netstandard1.0;portable-net45+win8+wpa81+wp8</TargetFrameworks>
+    <TargetFrameworks>net40;net45;netstandard1.0;netstandard1.1;portable-net45+win8+wpa81+wp8</TargetFrameworks>
     <AssemblyName>Stashbox</AssemblyName>
     <AssemblyTitle>Stashbox</AssemblyTitle>
     <RootNamespace>Stashbox</RootNamespace>
