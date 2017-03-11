@@ -31,6 +31,7 @@ namespace Stashbox.Tests
             var factory = container.Resolve<Func<ITest1, ITest2, ITest3>>();
             var inst3 = factory(inst1, inst2);
 
+            Assert.IsNotNull(inst3);
             Assert.IsInstanceOfType(inst3, typeof(Test3));
             Assert.AreEqual("test1fakeNametest1", inst3.Name);
         }
@@ -55,6 +56,7 @@ namespace Stashbox.Tests
                 var factory = container.Resolve<Func<ITest1, ITest2, ITest3>>();
                 var inst3 = factory(inst1, inst2);
 
+                Assert.IsNotNull(inst3);
                 Assert.IsInstanceOfType(inst3, typeof(Test3));
                 Assert.AreEqual("test1fakeNametest1", inst3.Name);
             });
@@ -74,6 +76,7 @@ namespace Stashbox.Tests
             var factory = container.ResolveFactory(typeof(ITest2), parameterTypes: typeof(ITest1));
             var inst2 = ((Func<ITest1, ITest2>)factory)(inst1);
 
+            Assert.IsNotNull(inst2);
             Assert.IsInstanceOfType(inst2, typeof(Test2));
             Assert.AreEqual("test1", inst2.Name);
         }
@@ -92,6 +95,7 @@ namespace Stashbox.Tests
             var factory = container.ResolveFactory(typeof(Lazy<ITest2>), parameterTypes: typeof(ITest1));
             var inst2 = ((Func<ITest1, Lazy<ITest2>>)factory)(inst1);
 
+            Assert.IsNotNull(inst2);
             Assert.IsInstanceOfType(inst2, typeof(Lazy<ITest2>));
             Assert.AreEqual("test1", inst2.Value.Name);
         }
@@ -117,6 +121,7 @@ namespace Stashbox.Tests
                 var factory = container.Resolve<Func<ITest1, ITest2, Lazy<ITest3>>>();
                 var inst3 = factory(inst1.Value, inst2.Value);
 
+                Assert.IsNotNull(inst3);
                 Assert.IsInstanceOfType(inst3.Value, typeof(Test3));
                 Assert.AreEqual("test1fakeNametest1", inst3.Value.Name);
                 Assert.IsTrue(inst3.Value.MethodInvoked);
@@ -133,6 +138,7 @@ namespace Stashbox.Tests
 
             var inst4 = container.Resolve<ITest4>();
 
+            Assert.IsNotNull(inst4);
             Assert.IsInstanceOfType(inst4, typeof(Test4));
             Assert.AreEqual("test2Test6", inst4.Name);
         }

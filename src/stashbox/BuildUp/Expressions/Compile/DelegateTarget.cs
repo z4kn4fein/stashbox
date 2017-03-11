@@ -16,6 +16,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
         public List<Expression> ConstantExpressions { get; }
         public List<LambdaTargetInformation> Lambdas { get; }
         public List<ParameterExpression> Parameters { get; }
+        public List<ParameterExpression> Locals { get; }
 
         public Constants()
         {
@@ -23,6 +24,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
             this.ConstantExpressions = new List<Expression>();
             this.Lambdas = new List<LambdaTargetInformation>();
             this.Parameters = new List<ParameterExpression>();
+            this.Locals = new List<ParameterExpression>();
         }
     }
 
@@ -45,26 +47,24 @@ namespace Stashbox.BuildUp.Expressions.Compile
         public readonly List<Expression> Constants;
         public readonly List<LambdaTargetInformation> Lambdas;
         public readonly List<ParameterExpression> Parameters;
+        public readonly List<LocalBuilder> LocalBuilders;
+        public readonly List<ParameterExpression> Locals;
 
         public DelegateTargetInformation(object target, FieldInfo[] constantFields, List<Expression> constants,
-            List<LambdaTargetInformation> lambdas, List<ParameterExpression> parameters)
+            List<LambdaTargetInformation> lambdas, List<ParameterExpression> parameters, List<ParameterExpression> locals)
         {
+            this.Locals = locals;
             this.Target = target;
             this.ConstantFields = constantFields;
             this.Constants = constants;
             this.Lambdas = lambdas;
             this.Parameters = parameters;
+            this.LocalBuilders = new List<LocalBuilder>();
         }
     }
 
     internal static class DelegateTargetSelector
     {
-        private static readonly Lazy<ModuleBuilder> ModuleBuilder = new Lazy<ModuleBuilder>(() =>
-            AppDomain.CurrentDomain.DefineDynamicAssembly(
-                new AssemblyName("Stashbox.Dynamic"),
-                AssemblyBuilderAccess.Run)
-                .DefineDynamicModule("Stashbox.DynamicModule"));
-
         private static int TypeCounter;
 
         private static readonly ConcurrentTree<int, Type> TargetTypes = new ConcurrentTree<int, Type>();
@@ -78,7 +78,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
             if (foundType != null)
             {
                 if (length <= 0) return foundType;
-                
+
                 for (var i = 0; i < length; i++)
                     types[i] = constants.ConstantExpressions[i].Type;
 
@@ -86,7 +86,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
             }
 
             var fields = new FieldInfo[length];
-            var typeBuilder = ModuleBuilder.Value.DefineType("DT" + Interlocked.Increment(ref TypeCounter), TypeAttributes.Public);
+            var typeBuilder = ExpressionEmitter.ModuleBuilder.Value.DefineType("DT" + Interlocked.Increment(ref TypeCounter), TypeAttributes.Public);
 
             if (length > 0)
             {
@@ -129,7 +129,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
             var type = GetOrAddTargetType(constants);
             var target = Activator.CreateInstance(type, constants.ConstantObjects.ToArray());
             return new DelegateTargetInformation(target, type.GetTypeInfo().DeclaredFields as FieldInfo[], constants.ConstantExpressions,
-                constants.Lambdas, constants.Parameters);
+                constants.Lambdas, constants.Parameters, constants.Locals);
         }
 
         public static bool TryCollectConstants(this Expression expression, Constants constants, params ParameterExpression[] parameters)
@@ -148,6 +148,8 @@ namespace Stashbox.BuildUp.Expressions.Compile
                     return ((NewExpression)expression).Arguments.TryCollectConstants(constants, parameters);
                 case ExpressionType.MemberInit:
                     return ((MemberInitExpression)expression).TryCollectConstants(constants, parameters);
+                case ExpressionType.Block:
+                    return ((BlockExpression)expression).TryCollectConstants(constants, parameters);
                 case ExpressionType.Call:
                     var call = (MethodCallExpression)expression;
                     return call.Object.TryCollectConstants(constants, parameters) &&
@@ -161,6 +163,11 @@ namespace Stashbox.BuildUp.Expressions.Compile
                 default:
                     if (expression is UnaryExpression unaryExpression)
                         return unaryExpression.Operand.TryCollectConstants(constants, parameters);
+
+                    if (expression is BinaryExpression binaryExpression)
+                        return binaryExpression.Left.TryCollectConstants(constants, parameters) &&
+                            binaryExpression.Right.TryCollectConstants(constants, parameters);
+
                     break;
             }
 
@@ -179,15 +186,20 @@ namespace Stashbox.BuildUp.Expressions.Compile
         private static bool TryCollectConstants(this MemberExpression expression, Constants constants, params ParameterExpression[] parameters) =>
             expression.Expression.TryCollectConstants(constants, parameters);
 
-        private static bool TryCollectConstants(this IEnumerable<Expression> expressions, Constants constants, params ParameterExpression[] parameters)
+        private static bool TryCollectConstants(this IEnumerable<Expression> expressions, Constants constants, params ParameterExpression[] parameters) =>
+            expressions.All(expression => expression.TryCollectConstants(constants, parameters));
+
+        private static bool TryCollectConstants(this BlockExpression expression, Constants constants, params ParameterExpression[] parameters)
         {
-            return expressions.All(expression => expression.TryCollectConstants(constants, parameters));
+            constants.Locals.AddRange(expression.Variables);
+
+            return expression.Expressions.TryCollectConstants(constants, parameters);
         }
 
         private static bool TryCollectConstants(this ParameterExpression expression, Constants constants, params ParameterExpression[] parameters)
         {
             if (Array.IndexOf(parameters, expression) != -1) return true;
-            if (constants.Parameters.Contains(expression)) return true;
+            if (constants.Parameters.Contains(expression) || constants.Locals.Contains(expression)) return true;
 
             constants.Parameters.Add(expression);
             constants.ConstantExpressions.Add(expression);
