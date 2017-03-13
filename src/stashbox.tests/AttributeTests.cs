@@ -49,7 +49,7 @@ namespace Stashbox.Tests
             container.RegisterType<ITest1, Test11>("test11");
             container.RegisterType<ITest1, Test12>("test12");
 
-            var inst = container.ActivationContext.Activate(ResolutionInfo.New(), new TypeInformation { Type = typeof(ITest1), DependencyName = "test12" });
+            var inst = container.ActivationContext.Activate(ResolutionInfo.New(), typeof(ITest1), "test12");
             Assert.IsNotNull(inst);
             Assert.IsInstanceOfType(inst, typeof(Test12));
         }
@@ -62,7 +62,7 @@ namespace Stashbox.Tests
             container.RegisterType<ITest1, Test11>("test11");
             container.RegisterType<ITest1, Test12>("test12");
 
-            var inst = container.ActivationContext.Activate(ResolutionInfo.New(), new TypeInformation { Type = typeof(IEnumerable<ITest1>) });
+            var inst = container.ActivationContext.Activate(ResolutionInfo.New(), typeof(IEnumerable<ITest1>));
             Assert.IsNotNull(inst);
             Assert.IsInstanceOfType(inst, typeof(IEnumerable<ITest1>));
             Assert.AreEqual(3, ((IEnumerable<ITest1>)inst).Count());

@@ -12,11 +12,11 @@ namespace Stashbox.Infrastructure.Registration
         /// <summary>
         /// Adds or updates an element in the repository.
         /// </summary>
-        /// <param name="typeKey">The key type.</param>
-        /// <param name="nameKey">The name of the registration.</param>
+        /// <param name="type">The type.</param>
+        /// <param name="name">The name of the registration.</param>
         /// <param name="canUpdate">Indicates that update is allowed</param>
         /// <param name="registration">The registration.</param>
-        void AddOrUpdateRegistration(Type typeKey, string nameKey, bool canUpdate, IServiceRegistration registration);
+        void AddOrUpdateRegistration(Type type, string name, bool canUpdate, IServiceRegistration registration);
 
         /// <summary>
         /// Retrieves a registration.
@@ -24,7 +24,7 @@ namespace Stashbox.Infrastructure.Registration
         /// <param name="type">The requested type.</param>
         /// <param name="name">The requested name.</param>
         /// <returns>The registration or null, if it doesn't exist.</returns>
-        IServiceRegistration GetRegistrationOrDefault(Type type, string name);
+        IServiceRegistration GetRegistrationOrDefault(Type type, string name = null);
 
         /// <summary>
         /// Retrieves a registration.

@@ -20,9 +20,10 @@ namespace Stashbox.Infrastructure.Resolution
         /// Activates a type.
         /// </summary>
         /// <param name="resolutionInfo">The resolution info.</param>
-        /// <param name="typeInfo">The type info.</param>
+        /// <param name="type">The type.</param>
+        /// <param name="name">The service name.</param>
         /// <returns>The resolved object.</returns>
-        object Activate(ResolutionInfo resolutionInfo, TypeInformation typeInfo);
+        object Activate(ResolutionInfo resolutionInfo, Type type, string name = null);
 
         /// <summary>
         /// Activates a type via a delegate.

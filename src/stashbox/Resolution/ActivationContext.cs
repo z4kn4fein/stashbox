@@ -22,7 +22,7 @@ namespace Stashbox.Resolution
         public object Activate(Type type, string name = null)
         {
             var cachedFactory = this.containerContext.DelegateRepository.GetDelegateCacheOrDefault(type, name);
-            return cachedFactory != null ? cachedFactory() : this.ActivateType(ResolutionInfo.New(), type, name);
+            return cachedFactory != null ? cachedFactory() : this.Activate(ResolutionInfo.New(), type, name);
         }
 
         public Delegate ActivateFactory(Type type, Type[] parameterTypes, string name = null)
@@ -30,11 +30,8 @@ namespace Stashbox.Resolution
             var cachedFactory = this.containerContext.DelegateRepository.GetFactoryDelegateCacheOrDefault(type, parameterTypes, name);
             return cachedFactory ?? ActivateFactoryDelegate(type, parameterTypes, name);
         }
-
-        public object Activate(ResolutionInfo resolutionInfo, TypeInformation typeInfo) =>
-            this.ActivateType(resolutionInfo, typeInfo);
-
-        private object ActivateType(ResolutionInfo resolutionInfo, Type type, string name)
+        
+        public object Activate(ResolutionInfo resolutionInfo, Type type, string name)
         {
             var registration = this.containerContext.RegistrationRepository.GetRegistrationOrDefault(type, name);
             if (registration != null)
@@ -51,19 +48,6 @@ namespace Stashbox.Resolution
             var factory = expr.CompileDelegate();
             this.containerContext.DelegateRepository.AddServiceDelegate(type, factory, name);
             return factory();
-        }
-
-        private object ActivateType(ResolutionInfo resolutionInfo, TypeInformation typeInformation)
-        {
-            var registration = this.containerContext.RegistrationRepository.GetRegistrationOrDefault(typeInformation);
-            if (registration != null)
-                return registration.GetExpression(resolutionInfo, typeInformation.Type).CompileDelegate()();
-
-            var expr = this.resolverSelector.GetResolverExpression(containerContext, typeInformation, resolutionInfo);
-            if (expr == null)
-                throw new ResolutionFailedException(typeInformation.Type.FullName);
-
-            return expr.CompileDelegate()();
         }
 
         private Delegate ActivateFactoryDelegate(Type type, Type[] parameterTypes, string name = null)

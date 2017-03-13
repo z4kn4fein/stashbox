@@ -21,13 +21,13 @@ namespace Stashbox.Registration
             this.conditionalRepository = new ConcurrentTree<Type, ConcurrentTree<string, IServiceRegistration>>();
         }
 
-        public void AddOrUpdateRegistration(Type typeKey, string nameKey, bool canUpdate, IServiceRegistration registration)
+        public void AddOrUpdateRegistration(Type type, string name, bool canUpdate, IServiceRegistration registration)
         {
-            this.AddOrUpdateRegistration(typeKey, nameKey, canUpdate, registration,
+            this.AddOrUpdateRegistration(type, name, canUpdate, registration,
                 registration.HasCondition ? this.conditionalRepository : this.serviceRepository);
         }
 
-        public IServiceRegistration GetRegistrationOrDefault(Type type, string name) =>
+        public IServiceRegistration GetRegistrationOrDefault(Type type, string name = null) =>
             name != null ? this.GetNamedRegistrationOrDefault(type, name) : this.GetDefaultRegistrationOrDefault(type);
 
         public IServiceRegistration GetRegistrationOrDefault(TypeInformation typeInfo, bool checkConditions = false)
