@@ -86,7 +86,7 @@ namespace Stashbox.Registration
                 !this.LifetimeManager.IsTransient || this.ObjectBuilder.HandlesObjectDisposal) return expr;
 
             var call = Expression.Call(Expression.Constant(this), "AddTransientObjectTracking", null, expr);
-            return Expression.Convert(call, this.metaInfoProvider.TypeTo);
+            return Expression.Convert(call, resolveType);
         }
 
         private object AddTransientObjectTracking(object instance)

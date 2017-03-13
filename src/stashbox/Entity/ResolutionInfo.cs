@@ -9,7 +9,11 @@ namespace Stashbox.Entity
     /// </summary>
     public class ResolutionInfo
     {
-        internal static ResolutionInfo New() => new ResolutionInfo();
+        /// <summary>
+        /// Static factory for <see cref="ResolutionInfo"/>.
+        /// </summary>
+        /// <returns>A new <see cref="ResolutionInfo"/> instance.</returns>
+        public static ResolutionInfo New() => new ResolutionInfo();
 
         /// <summary>
         /// The extra parameter expressions.

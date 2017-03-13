@@ -2,7 +2,10 @@
 using Stashbox.Attributes;
 using Stashbox.Utils;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using Stashbox.Entity;
 
 namespace Stashbox.Tests
 {
@@ -33,9 +36,36 @@ namespace Stashbox.Tests
 
             Assert.IsTrue(test3.MethodInvoked);
             Assert.IsTrue(test3.MethodInvoked2);
-            
+
             Assert.IsInstanceOfType(test3.test1, typeof(Test11));
             Assert.IsInstanceOfType(test3.test2, typeof(Test22));
+        }
+
+        [TestMethod]
+        public void AttributeTests_Resolve_Activator()
+        {
+            var container = new StashboxContainer();
+            container.RegisterType<ITest1, Test1>("test1");
+            container.RegisterType<ITest1, Test11>("test11");
+            container.RegisterType<ITest1, Test12>("test12");
+
+            var inst = container.ActivationContext.Activate(ResolutionInfo.New(), new TypeInformation { Type = typeof(ITest1), DependencyName = "test12" });
+            Assert.IsNotNull(inst);
+            Assert.IsInstanceOfType(inst, typeof(Test12));
+        }
+
+        [TestMethod]
+        public void AttributeTests_Resolve_Activator_Resolver()
+        {
+            var container = new StashboxContainer();
+            container.RegisterType<ITest1, Test1>("test1");
+            container.RegisterType<ITest1, Test11>("test11");
+            container.RegisterType<ITest1, Test12>("test12");
+
+            var inst = container.ActivationContext.Activate(ResolutionInfo.New(), new TypeInformation { Type = typeof(IEnumerable<ITest1>) });
+            Assert.IsNotNull(inst);
+            Assert.IsInstanceOfType(inst, typeof(IEnumerable<ITest1>));
+            Assert.AreEqual(3, ((IEnumerable<ITest1>)inst).Count());
         }
 
         [TestMethod]
@@ -53,7 +83,7 @@ namespace Stashbox.Tests
             var test12 = container.Resolve<ITest1>("test12");
             var test2 = container.Resolve<ITest2>("test2");
             var test22 = container.Resolve<ITest2>("test22");
-            
+
             Assert.IsInstanceOfType(test1, typeof(Test1));
             Assert.IsInstanceOfType(test11, typeof(Test11));
             Assert.IsInstanceOfType(test12, typeof(Test12));
@@ -83,7 +113,7 @@ namespace Stashbox.Tests
                 Assert.IsNotNull(test3);
 
                 Assert.IsTrue(test3.MethodInvoked);
-                
+
                 Assert.IsInstanceOfType(test3.test1, typeof(Test11));
                 Assert.IsInstanceOfType(test3.test2, typeof(Test22));
             });
@@ -115,7 +145,7 @@ namespace Stashbox.Tests
 
                 Assert.IsTrue(test3.Value.MethodInvoked);
                 Assert.IsTrue(test4.Value.MethodInvoked);
-                
+
                 Assert.IsInstanceOfType(test3.Value.test1, typeof(Test11));
                 Assert.IsInstanceOfType(test3.Value.test2, typeof(Test22));
 
