@@ -133,7 +133,6 @@ namespace Stashbox.Tests
             var d = inst.Dep(d1, d3);
 
             var d12 = new Dep1();
-            var d32 = new Dep3();
 
             Assert.AreNotSame(d1, d.Dep(d12).Dep);
             Assert.AreSame(d12, d.Dep(d12).Dep);
@@ -155,6 +154,7 @@ namespace Stashbox.Tests
 
             var d32 = new Dep3();
 
+            Assert.IsNotNull(d.Dep(d32).Dep);
             Assert.AreNotSame(d3, d.Dep(d32).Dep);
             Assert.AreSame(d3, d.Dep1);
         }
