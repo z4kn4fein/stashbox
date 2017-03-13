@@ -12,6 +12,7 @@ namespace Stashbox.Resolution
     {
         private readonly ConcurrentTree<int, Resolver> resolverRepository;
         private int resolverCounter;
+
         public ResolverSelector()
         {
             this.resolverRepository = new ConcurrentTree<int, Resolver>();

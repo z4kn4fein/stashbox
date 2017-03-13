@@ -76,11 +76,9 @@ namespace Stashbox
             this.CanResolve(typeof(TFrom), name);
 
         /// <inheritdoc />
-        public bool CanResolve(Type typeFrom, string name = null)
-        {
-            return this.registrationRepository.ContainsRegistration(typeFrom, name) || 
+        public bool CanResolve(Type typeFrom, string name = null) =>
+            this.registrationRepository.ContainsRegistration(typeFrom, name) || 
                 this.resolverSelector.CanResolve(this.ContainerContext, new TypeInformation { Type = typeFrom, DependencyName = name });
-        }
 
         /// <inheritdoc />
         public void Validate()

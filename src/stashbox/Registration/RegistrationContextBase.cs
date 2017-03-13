@@ -42,7 +42,7 @@ namespace Stashbox.Registration
         }
 
         private IObjectBuilder CompleteRegistration(IContainerExtensionManager containerExtensionManager, bool update,
-            MetaInfoProvider metaInfoProvider, string registrationName, ILifetime registrationLifetime)
+            IMetaInfoProvider metaInfoProvider, string registrationName, ILifetime registrationLifetime)
         {
             var objectBuilder = this.TypeTo.IsOpenGenericType() ? new GenericTypeObjectBuilder(this.RegistrationContextData, this.ContainerContext,
                     metaInfoProvider, containerExtensionManager, this.expressionBuilder) : this.CreateObjectBuilder(containerExtensionManager, metaInfoProvider);
@@ -87,13 +87,13 @@ namespace Stashbox.Registration
                 containerExtensionManager, this.expressionBuilder, this.RegistrationContextData.InjectionParameters);
         }
 
-        private IServiceRegistration CreateServiceRegistration(ILifetime lifeTime, IObjectBuilder objectBuilder, MetaInfoProvider metaInfoProvider)
+        private IServiceRegistration CreateServiceRegistration(ILifetime lifeTime, IObjectBuilder objectBuilder, IMetaInfoProvider metaInfoProvider)
         {
             return new ServiceRegistration(this.TypeFrom, this.TypeTo, this.ContainerContext, lifeTime, objectBuilder, metaInfoProvider, this.RegistrationContextData.AttributeConditions,
                 this.RegistrationContextData.TargetTypeCondition, this.RegistrationContextData.ResolutionCondition);
         }
 
         private ILifetime ChooseLifeTime() => this.RegistrationContextData.ExistingInstance != null ? new TransientLifetime() :
-                                                this.RegistrationContextData.Lifetime ?? new TransientLifetime();
+            this.RegistrationContextData.Lifetime ?? new TransientLifetime();
     }
 }
