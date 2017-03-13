@@ -26,13 +26,13 @@ namespace Stashbox.Resolution
                 return Expression.Constant(matchingParam.Value);
 
             var registration = containerContext.RegistrationRepository.GetRegistrationOrDefault(typeInformation, true);
-            return registration != null ? registration.GetExpression(resolutionInfo, typeInformation) : 
+            return registration != null ? registration.GetExpression(resolutionInfo, typeInformation.Type) :
                 this.resolverSelector.GetResolverExpression(containerContext, typeInformation, resolutionInfo);
         }
 
         public Expression[] BuildResolutionExpressions(IContainerContext containerContext, ResolutionInfo resolutionInfo, TypeInformation typeInformation)
         {
-            var registrations = containerContext.RegistrationRepository.GetRegistrationsOrDefault(typeInformation);
+            var registrations = containerContext.RegistrationRepository.GetRegistrationsOrDefault(typeInformation.Type);
             if (registrations == null)
                 return this.resolverSelector.GetResolverExpressions(containerContext, typeInformation, resolutionInfo);
 
@@ -40,8 +40,8 @@ namespace Stashbox.Resolution
             var lenght = serviceRegistrations.Length;
             var expressions = new Expression[lenght];
             for (var i = 0; i < lenght; i++)
-                expressions[i] = serviceRegistrations[i].GetExpression(resolutionInfo, typeInformation);
-                
+                expressions[i] = serviceRegistrations[i].GetExpression(resolutionInfo, typeInformation.Type);
+
             return expressions;
         }
     }

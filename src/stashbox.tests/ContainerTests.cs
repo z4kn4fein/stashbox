@@ -75,6 +75,29 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        [ExpectedException(typeof(ResolutionFailedException))]
+        public void ContainerTests_Validate_MissingDependency()
+        {
+            using (var container = new StashboxContainer())
+            {
+                container.RegisterType<ITest2, Test2>();
+                container.Validate();
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(CircularDependencyException))]
+        public void ContainerTests_Validate_CircularDependency()
+        {
+            using (var container = new StashboxContainer(config => config.WithCircularDependencyTracking()))
+            {
+                container.RegisterType<ITest1, Test4>();
+                container.RegisterType<ITest3, Test3>();
+                container.Validate();
+            }
+        }
+
+        [TestMethod]
         public void ContainerTests_CheckRegistration()
         {
             using (var container = new StashboxContainer())
@@ -156,6 +179,14 @@ namespace Stashbox.Tests
         {
             public Test3(ITest1 test1, ITest2 test2)
             {
+            }
+        }
+
+        public class Test4 : ITest1
+        {
+            public Test4(ITest3 test3)
+            {
+                
             }
         }
 

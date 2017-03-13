@@ -150,14 +150,37 @@ namespace Stashbox.BuildUp.Expressions.Compile
                 if (expr.NodeType == ExpressionType.Assign)
                 {
                     var binary = (BinaryExpression)expr;
-                    var localIndex = target.Locals.IndexOf((ParameterExpression)binary.Left);
-                    if (localIndex == -1)
-                        return false;
-                    
-                    if (!binary.Right.TryEmit(target, generator, parameters))
-                        return false;
 
-                    generator.Emit(OpCodes.Stloc, target.LocalBuilders[localIndex]);
+                    if (binary.Left is ParameterExpression parameterExpression)
+                    {
+                        var localIndex = target.Locals.IndexOf(parameterExpression);
+                        if (localIndex == -1)
+                            return false;
+
+                        if (!binary.Right.TryEmit(target, generator, parameters))
+                            return false;
+
+                        generator.Emit(OpCodes.Stloc, target.LocalBuilders[localIndex]);
+                    }
+
+                    if (binary.Left is MemberExpression memberExpression)
+                    {
+                        if (!memberExpression.Expression.TryEmit(target, generator, parameters))
+                            return false;
+                        
+                        if (!binary.Right.TryEmit(target, generator, parameters))
+                            return false;
+
+                        if (memberExpression.Member is PropertyInfo property)
+                        {
+                            var setMethod = property.GetSetMethod(true);
+                            if (setMethod == null)
+                                return false;
+                            generator.EmitMethod(setMethod);
+                        }
+                        else if (memberExpression.Member is FieldInfo field)
+                            generator.Emit(OpCodes.Stfld, field);
+                    }
                 }
                 else if (!expr.TryEmit(target, generator, parameters))
                     return false;

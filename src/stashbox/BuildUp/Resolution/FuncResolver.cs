@@ -34,7 +34,10 @@ namespace Stashbox.BuildUp.Resolution
                 Type = wrappedType,
                 CustomAttributes = typeInfo.CustomAttributes,
                 ParentType = typeInfo.ParentType,
-                DependencyName = typeInfo.DependencyName
+                DependencyName = typeInfo.DependencyName,
+                HasDependencyAttribute = typeInfo.HasDependencyAttribute,
+                ParameterName = typeInfo.ParameterName,
+                IsMember = typeInfo.IsMember
             };
 
             var parameters = this.PrepareExtraParameters(wrappedType, resolutionInfo, args);
@@ -54,7 +57,10 @@ namespace Stashbox.BuildUp.Resolution
                 Type = wrappedType,
                 CustomAttributes = typeInfo.CustomAttributes,
                 ParentType = typeInfo.ParentType,
-                DependencyName = typeInfo.DependencyName
+                DependencyName = typeInfo.DependencyName,
+                HasDependencyAttribute = typeInfo.HasDependencyAttribute,
+                ParameterName = typeInfo.ParameterName,
+                IsMember = typeInfo.IsMember
             };
 
             var parameters = this.PrepareExtraParameters(wrappedType, resolutionInfo, args);

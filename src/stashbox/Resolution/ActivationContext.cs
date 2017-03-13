@@ -22,7 +22,7 @@ namespace Stashbox.Resolution
         public object Activate(Type type, string name = null)
         {
             var cachedFactory = this.containerContext.DelegateRepository.GetDelegateCacheOrDefault(type, name);
-            return cachedFactory != null ? cachedFactory() : this.ActivateType(type, name);
+            return cachedFactory != null ? cachedFactory() : this.ActivateType(ResolutionInfo.New(), type, name);
         }
 
         public Delegate ActivateFactory(Type type, Type[] parameterTypes, string name = null)
@@ -34,29 +34,36 @@ namespace Stashbox.Resolution
         public object Activate(ResolutionInfo resolutionInfo, TypeInformation typeInfo) =>
             this.ActivateType(resolutionInfo, typeInfo);
 
-        private object ActivateType(Type type, string name = null)
+        private object ActivateType(ResolutionInfo resolutionInfo, Type type, string name)
         {
-            var typeInfo = new TypeInformation { Type = type, DependencyName = name };
-            return this.ActivateType(ResolutionInfo.New(), typeInfo);
-        }
-
-        private object ActivateType(ResolutionInfo resolutionInfo, TypeInformation typeInfo)
-        {
-            var registration = this.containerContext.RegistrationRepository.GetRegistrationOrDefault(typeInfo);
+            var registration = this.containerContext.RegistrationRepository.GetRegistrationOrDefault(type, name);
             if (registration != null)
             {
-                var ragistrationFactory = registration.GetExpression(resolutionInfo, typeInfo).CompileDelegate();
-                this.containerContext.DelegateRepository.AddServiceDelegate(typeInfo.Type, ragistrationFactory, typeInfo.DependencyName);
+                var ragistrationFactory = registration.GetExpression(resolutionInfo, type).CompileDelegate();
+                this.containerContext.DelegateRepository.AddServiceDelegate(type, ragistrationFactory, name);
                 return ragistrationFactory();
             }
 
-            var expr = this.resolverSelector.GetResolverExpression(containerContext, typeInfo, resolutionInfo);
+            var expr = this.resolverSelector.GetResolverExpression(containerContext, new TypeInformation { Type = type, DependencyName = name }, resolutionInfo);
             if (expr == null)
-                throw new ResolutionFailedException(typeInfo.Type.FullName);
+                throw new ResolutionFailedException(type.FullName);
 
             var factory = expr.CompileDelegate();
-            this.containerContext.DelegateRepository.AddServiceDelegate(typeInfo.Type, factory, typeInfo.DependencyName);
+            this.containerContext.DelegateRepository.AddServiceDelegate(type, factory, name);
             return factory();
+        }
+
+        private object ActivateType(ResolutionInfo resolutionInfo, TypeInformation typeInformation)
+        {
+            var registration = this.containerContext.RegistrationRepository.GetRegistrationOrDefault(typeInformation);
+            if (registration != null)
+                return registration.GetExpression(resolutionInfo, typeInformation.Type).CompileDelegate()();
+
+            var expr = this.resolverSelector.GetResolverExpression(containerContext, typeInformation, resolutionInfo);
+            if (expr == null)
+                throw new ResolutionFailedException(typeInformation.Type.FullName);
+
+            return expr.CompileDelegate()();
         }
 
         private Delegate ActivateFactoryDelegate(Type type, Type[] parameterTypes, string name = null)
@@ -69,7 +76,7 @@ namespace Stashbox.Resolution
             var registration = this.containerContext.RegistrationRepository.GetRegistrationOrDefault(typeInfo);
             var initExpression = registration == null ?
                 this.resolverSelector.GetResolverExpression(containerContext, typeInfo, resolutionInfo) :
-                registration.GetExpression(resolutionInfo, typeInfo);
+                registration.GetExpression(resolutionInfo, type);
 
             if (initExpression == null)
                 throw new ResolutionFailedException(typeInfo.Type.FullName);

@@ -11,6 +11,6 @@ namespace Stashbox.Infrastructure
         bool TryChooseConstructor(out ResolutionConstructor constructor, ResolutionInfo resolutionInfo, InjectionParameter[] injectionParameters = null);
         ResolutionMethod[] GetResolutionMethods(ResolutionInfo resolutionInfo, InjectionParameter[] injectionParameters = null);
         ResolutionMember[] GetResolutionMembers(ResolutionInfo resolutionInfo, InjectionParameter[] injectionParameters = null);
-        bool ValidateGenericContraints(TypeInformation typeInformation);
+        bool ValidateGenericContraints(Type type);
     }
 }

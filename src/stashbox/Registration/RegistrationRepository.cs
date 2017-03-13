@@ -27,20 +27,23 @@ namespace Stashbox.Registration
                 registration.HasCondition ? this.conditionalRepository : this.serviceRepository);
         }
 
+        public IServiceRegistration GetRegistrationOrDefault(Type type, string name) =>
+            name != null ? this.GetNamedRegistrationOrDefault(type, name) : this.GetDefaultRegistrationOrDefault(type);
+
         public IServiceRegistration GetRegistrationOrDefault(TypeInformation typeInfo, bool checkConditions = false)
         {
             if (typeInfo.DependencyName != null)
-                return this.GetNamedRegistrationOrDefault(typeInfo);
+                return this.GetNamedRegistrationOrDefault(typeInfo.Type, typeInfo.DependencyName);
 
             return checkConditions ?
                 this.GetMatchingRegistrationOrDefault(typeInfo) :
-                    this.GetDefaultRegistrationOrDefault(typeInfo);
+                    this.GetDefaultRegistrationOrDefault(typeInfo.Type);
         }
 
-        public IEnumerable<IServiceRegistration> GetRegistrationsOrDefault(TypeInformation typeInfo)
+        public IEnumerable<IServiceRegistration> GetRegistrationsOrDefault(Type type)
         {
-            var conditional = this.GetRegistrationsOrDefault(typeInfo, this.conditionalRepository);
-            var registrations = this.GetRegistrationsOrDefault(typeInfo, this.serviceRepository);
+            var conditional = this.GetRegistrationsOrDefault(type, this.conditionalRepository);
+            var registrations = this.GetRegistrationsOrDefault(type, this.serviceRepository);
 
             return conditional != null ? conditional.Concat(registrations) : registrations;
         }
@@ -48,8 +51,8 @@ namespace Stashbox.Registration
         public IEnumerable<IServiceRegistration> GetAllRegistrations() =>
             this.conditionalRepository.SelectMany(reg => reg).Concat(this.serviceRepository.SelectMany(reg => reg));
 
-        public bool ContainsRegistration(TypeInformation typeInfo) =>
-            this.ContainsRegistration(typeInfo, this.serviceRepository) || this.ContainsRegistration(typeInfo, this.conditionalRepository);
+        public bool ContainsRegistration(Type type, string name) =>
+            this.ContainsRegistration(type, name, this.serviceRepository) || this.ContainsRegistration(type, name, this.conditionalRepository);
 
         public void CleanUp()
         {
@@ -57,71 +60,72 @@ namespace Stashbox.Registration
                 serviceRegistration.CleanUp();
         }
 
-        private bool ContainsRegistration(TypeInformation typeInfo, ConcurrentTree<Type, ConcurrentTree<string, IServiceRegistration>> repository)
+        private bool ContainsRegistration(Type type, string name, ConcurrentTree<Type, ConcurrentTree<string, IServiceRegistration>> repository)
         {
-            var registrations = repository.GetOrDefault(typeInfo.Type);
-            if (typeInfo.DependencyName != null && registrations != null)
-                return registrations.GetOrDefault(typeInfo.DependencyName) != null;
+            var registrations = repository.GetOrDefault(type);
+            if (name != null && registrations != null)
+                return registrations.GetOrDefault(name) != null;
 
-            if (registrations != null || !typeInfo.Type.IsClosedGenericType()) return registrations != null;
+            if (registrations != null || !type.IsClosedGenericType()) return registrations != null;
 
-            registrations = repository.GetOrDefault(typeInfo.Type.GetGenericTypeDefinition());
-            return registrations?.Any(reg => reg.ValidateGenericContraints(typeInfo)) ?? false;
+            registrations = repository.GetOrDefault(type.GetGenericTypeDefinition());
+            return registrations?.Any(reg => reg.ValidateGenericContraints(type)) ?? false;
         }
 
-        private void AddOrUpdateRegistration(Type typeKey, string nameKey, bool canUpdate, IServiceRegistration registration, ConcurrentTree<Type, ConcurrentTree<string, IServiceRegistration>> repository)
+        private void AddOrUpdateRegistration(Type type, string name, bool canUpdate, IServiceRegistration registration, ConcurrentTree<Type, ConcurrentTree<string, IServiceRegistration>> repository)
         {
             var newRepository = ConcurrentTree<string, IServiceRegistration>.Create();
-            newRepository.AddOrUpdate(nameKey, registration);
+            newRepository.AddOrUpdate(name, registration);
 
             if (canUpdate)
-                repository.AddOrUpdate(typeKey, newRepository,
-                    (oldValue, newValue) => oldValue.HasMultipleItems ? oldValue.AddOrUpdate(nameKey, registration,
+                repository.AddOrUpdate(type, newRepository,
+                    (oldValue, newValue) => oldValue.HasMultipleItems ? oldValue.AddOrUpdate(name, registration,
                         (oldReg, newReg) => newReg) : newValue);
             else
-                repository.AddOrUpdate(typeKey, newRepository, (oldValue, newValue) => oldValue.AddOrUpdate(nameKey, registration));
+                repository.AddOrUpdate(type, newRepository, (oldValue, newValue) => oldValue.AddOrUpdate(name, registration));
         }
 
-        private IServiceRegistration GetNamedRegistrationOrDefault(TypeInformation typeInfo)
+        private IServiceRegistration GetNamedRegistrationOrDefault(Type type, string dependencyName)
         {
-            var registrations = this.GetDefaultRegistrationsOrDefault(typeInfo, this.serviceRepository);
-            return registrations?.GetOrDefault(typeInfo.DependencyName);
+            var registrations = this.GetDefaultRegistrationsOrDefault(type, this.serviceRepository);
+            return registrations?.GetOrDefault(dependencyName);
         }
 
         private IServiceRegistration GetMatchingRegistrationOrDefault(TypeInformation typeInfo)
         {
-            var registrations = this.GetDefaultRegistrationsOrDefault(typeInfo, this.conditionalRepository);
-            if (registrations == null) return GetDefaultRegistrationOrDefault(typeInfo);
+            var type = typeInfo.Type;
+            var registrations = this.GetDefaultRegistrationsOrDefault(type, this.conditionalRepository);
+            if (registrations == null) return GetDefaultRegistrationOrDefault(type);
 
             return registrations.HasMultipleItems ?
-                this.containerConfigurator.ContainerConfiguration.DependencySelectionRule(registrations.Where(reg => reg.IsUsableForCurrentContext(typeInfo) && reg.ValidateGenericContraints(typeInfo))) :
+                this.containerConfigurator.ContainerConfiguration.DependencySelectionRule(registrations.Where(reg => reg.IsUsableForCurrentContext(typeInfo) && reg.ValidateGenericContraints(type))) :
                     registrations.Value;
         }
 
-        private IServiceRegistration GetDefaultRegistrationOrDefault(TypeInformation typeInfo)
+        private IServiceRegistration GetDefaultRegistrationOrDefault(Type type)
         {
-            var registrations = this.GetDefaultRegistrationsOrDefault(typeInfo, this.serviceRepository);
+            var registrations = this.GetDefaultRegistrationsOrDefault(type, this.serviceRepository);
             if (registrations == null) return null;
 
             return registrations.HasMultipleItems ?
-                this.containerConfigurator.ContainerConfiguration.DependencySelectionRule(registrations.Where(reg => reg.ValidateGenericContraints(typeInfo))) :
+                this.containerConfigurator.ContainerConfiguration.DependencySelectionRule(registrations.Where(reg => reg.ValidateGenericContraints(type))) :
                     registrations.Value;
         }
 
-        private ConcurrentTree<string, IServiceRegistration> GetDefaultRegistrationsOrDefault(TypeInformation typeInfo, ConcurrentTree<Type, ConcurrentTree<string, IServiceRegistration>> repository)
+        private ConcurrentTree<string, IServiceRegistration> GetDefaultRegistrationsOrDefault(Type type, ConcurrentTree<Type, ConcurrentTree<string, IServiceRegistration>> repository)
         {
-            var registrations = repository.GetOrDefault(typeInfo.Type);
-            if (registrations == null && typeInfo.Type.IsClosedGenericType())
-                return repository.GetOrDefault(typeInfo.Type.GetGenericTypeDefinition());
+            var registrations = repository.GetOrDefault(type);
+            if (registrations == null && type.IsClosedGenericType())
+                return repository.GetOrDefault(type.GetGenericTypeDefinition());
 
             return registrations;
         }
 
-        private IEnumerable<IServiceRegistration> GetRegistrationsOrDefault(TypeInformation typeInfo, ConcurrentTree<Type, ConcurrentTree<string, IServiceRegistration>> repository)
+        private IEnumerable<IServiceRegistration> GetRegistrationsOrDefault(Type type, ConcurrentTree<Type, ConcurrentTree<string, IServiceRegistration>> repository)
         {
-            var registrations = repository.GetOrDefault(typeInfo.Type);
-            if (registrations == null && typeInfo.Type.IsClosedGenericType())
-                return repository.GetOrDefault(typeInfo.Type.GetGenericTypeDefinition())?.Where(reg => reg.ValidateGenericContraints(typeInfo));
+            var registrations = repository.GetOrDefault(type);
+            if (registrations == null && type.IsClosedGenericType())
+                return repository.GetOrDefault(type.GetGenericTypeDefinition())?.Where(reg => reg.ValidateGenericContraints(type));
 
             return registrations;
         }

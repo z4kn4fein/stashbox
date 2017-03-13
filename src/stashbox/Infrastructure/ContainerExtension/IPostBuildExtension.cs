@@ -1,4 +1,5 @@
-﻿using Stashbox.Entity;
+﻿using System;
+using Stashbox.Entity;
 
 namespace Stashbox.Infrastructure.ContainerExtension
 {
@@ -17,6 +18,6 @@ namespace Stashbox.Infrastructure.ContainerExtension
         /// <param name="injectionParameters">The injection parameters.</param>
         /// <returns>The extended object.</returns>
         object PostBuild(object instance, IContainerContext containerContext, ResolutionInfo resolutionInfo,
-            TypeInformation resolveType, InjectionParameter[] injectionParameters = null);
+            Type resolveType, InjectionParameter[] injectionParameters = null);
     }
 }

@@ -7,7 +7,7 @@ namespace Stashbox.Infrastructure.ContainerExtension
     {
         void AddExtension(IContainerExtension containerExtension);
         object ExecutePostBuildExtensions(object instance, IContainerContext containerContext, ResolutionInfo resolutionInfo,
-            TypeInformation resolveType, InjectionParameter[] injectionParameters = null);
+            Type resolveType, InjectionParameter[] injectionParameters = null);
         void ExecuteOnRegistrationExtensions(IContainerContext containerContext, Type typeTo, Type typeFrom, InjectionParameter[] injectionParameters = null);
         IContainerExtensionManager CreateCopy();
         void ReinitalizeExtensions(IContainerContext containerContext);

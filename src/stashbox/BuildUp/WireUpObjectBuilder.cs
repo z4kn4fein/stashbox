@@ -29,7 +29,7 @@ namespace Stashbox.BuildUp
             this.expressionBuilder = expressionBuilder;
         }
 
-        public Expression GetExpression(ResolutionInfo resolutionInfo, TypeInformation resolveType)
+        public Expression GetExpression(ResolutionInfo resolutionInfo, Type resolveType)
         {
             if (this.instanceBuilt) return Expression.Constant(this.instance);
             lock (this.syncObject)
@@ -38,10 +38,10 @@ namespace Stashbox.BuildUp
                 this.instanceBuilt = true;
 
                 var expr = this.expressionBuilder.CreateFillExpression(this.containerExtensionManager, this.containerContext,
-                    Expression.Constant(this.instance), resolutionInfo, new TypeInformation { Type = this.metaInfoProvider.TypeTo }, this.injectionParameters,
+                    Expression.Constant(this.instance), resolutionInfo, this.metaInfoProvider.TypeTo, this.injectionParameters,
                     this.metaInfoProvider.GetResolutionMembers(resolutionInfo, this.injectionParameters),
                     this.metaInfoProvider.GetResolutionMethods(resolutionInfo, this.injectionParameters));
-                var factory = Expression.Lambda<Func<object>>(expr).Compile();
+                var factory = expr.CompileDelegate();
                 this.instance = factory();
                 return Expression.Constant(this.instance);
             }

@@ -35,19 +35,18 @@ namespace Stashbox
             this.ActivationContext.ActivateFactory(typeFrom, parameterTypes, name);
 
         /// <inheritdoc />
-        public TTo BuildUp<TTo>(TTo instance)
+        public TTo BuildUp<TTo>(TTo instance) where TTo : class
         {
             var typeTo = instance.GetType();
             var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, RegistrationContextData.Empty, typeTo);
-            var typeInfo = new TypeInformation { Type = typeTo };
 
             var resolutionInfo = ResolutionInfo.New();
             var expr = this.expressionBuilder.CreateFillExpression(this.containerExtensionManager, this.ContainerContext,
-                Expression.Constant(instance), resolutionInfo, typeInfo, null, metaInfoProvider.GetResolutionMembers(resolutionInfo),
+                Expression.Constant(instance), resolutionInfo, typeTo, null, metaInfoProvider.GetResolutionMembers(resolutionInfo),
                 metaInfoProvider.GetResolutionMethods(resolutionInfo));
 
-            var factory = Expression.Lambda<Func<TTo>>(expr).Compile();
-            return factory();
+            var factory = expr.CompileDelegate();
+            return factory() as TTo;
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Stashbox.Entity;
+﻿using System;
+using Stashbox.Entity;
 using Stashbox.Infrastructure;
 using System.Linq.Expressions;
 
@@ -17,7 +18,7 @@ namespace Stashbox.Lifetime
 
         /// <inheritdoc />
         public virtual Expression GetExpression(IContainerContext containerContext, IObjectBuilder objectBuilder,
-            ResolutionInfo resolutionInfo, TypeInformation resolveType) =>
+            ResolutionInfo resolutionInfo, Type resolveType) =>
                 objectBuilder.GetExpression(resolutionInfo, resolveType);
 
         /// <inheritdoc />

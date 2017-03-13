@@ -68,8 +68,8 @@ namespace Stashbox.Registration
             this.AttributeConditions != null && this.AttributeConditions.Any();
 
         /// <inheritdoc />
-        public bool ValidateGenericContraints(TypeInformation typeInformation) => !this.metaInfoProvider.HasGenericTypeConstraints ||
-            this.metaInfoProvider.ValidateGenericContraints(typeInformation);
+        public bool ValidateGenericContraints(Type type) => !this.metaInfoProvider.HasGenericTypeConstraints ||
+            this.metaInfoProvider.ValidateGenericContraints(type);
         
         /// <inheritdoc />
         public void CleanUp()
@@ -79,14 +79,14 @@ namespace Stashbox.Registration
         }
 
         /// <inheritdoc />
-        public Expression GetExpression(ResolutionInfo resolutionInfo, TypeInformation resolveType)
+        public Expression GetExpression(ResolutionInfo resolutionInfo, Type resolveType)
         {
             var expr = this.LifetimeManager.GetExpression(this.containerContext, this.ObjectBuilder, resolutionInfo, resolveType);
             if (!this.containerContext.ContainerConfigurator.ContainerConfiguration.TrackTransientsForDisposalEnabled ||
                 !this.LifetimeManager.IsTransient || this.ObjectBuilder.HandlesObjectDisposal) return expr;
 
             var call = Expression.Call(Expression.Constant(this), "AddTransientObjectTracking", null, expr);
-            return Expression.Convert(call, resolveType.Type);
+            return Expression.Convert(call, this.metaInfoProvider.TypeTo);
         }
 
         private object AddTransientObjectTracking(object instance)

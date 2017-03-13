@@ -38,16 +38,6 @@ namespace Stashbox.MetaInfo
             this.containerContext = containerContext;
         }
 
-        private static MetaInformation GetOrCreateMetaInfo(Type typeTo)
-        {
-            var found = MetaRepository.GetOrDefault(typeTo);
-            if (found != null) return found;
-
-            var meta = new MetaInformation(typeTo);
-            MetaRepository.AddOrUpdate(typeTo, meta);
-            return meta;
-        }
-
         public bool TryChooseConstructor(out ResolutionConstructor resolutionConstructor, ResolutionInfo resolutionInfo, InjectionParameter[] injectionParameters = null) =>
             this.TryGetConstructor(out resolutionConstructor, resolutionInfo, injectionParameters);
 
@@ -77,9 +67,9 @@ namespace Stashbox.MetaInfo
                 }).Where(info => info.Expression != null).ToArray();
         }
 
-        public bool ValidateGenericContraints(TypeInformation typeInformation)
+        public bool ValidateGenericContraints(Type type)
         {
-            var typeInfo = typeInformation.Type.GetTypeInfo();
+            var typeInfo = type.GetTypeInfo();
             var length = typeInfo.GenericTypeArguments.Length;
 
             for (var i = 0; i < length; i++)
@@ -88,12 +78,21 @@ namespace Stashbox.MetaInfo
 
             return true;
         }
+        
+        private static MetaInformation GetOrCreateMetaInfo(Type typeTo)
+        {
+            var found = MetaRepository.GetOrDefault(typeTo);
+            if (found != null) return found;
+
+            var meta = new MetaInformation(typeTo);
+            MetaRepository.AddOrUpdate(typeTo, meta);
+            return meta;
+        }
 
         private bool TryGetConstructor(out ResolutionConstructor resolutionConstructor,
             ResolutionInfo resolutionInfo, InjectionParameter[] injectionParameters = null)
         {
-            var usableConstructors = this.CreateResolutionConstructors(resolutionInfo, injectionParameters)
-                .Where(ctor => ctor.Parameters.All(param => param != null)).ToArray();
+            var usableConstructors = this.CreateResolutionConstructors(resolutionInfo, injectionParameters).ToArray();
 
             if (usableConstructors.Any())
             {
@@ -111,7 +110,7 @@ namespace Stashbox.MetaInfo
                 Constructor = constructorInformation.Constructor,
                 Parameters = constructorInformation.Parameters.Select(parameter =>
                     this.containerContext.ResolutionStrategy.BuildResolutionExpression(this.containerContext, resolutionInfo, parameter, injectionParameters)).ToArray()
-            });
+            }).Where(ctor => ctor.Parameters.All(param => param != null));
 
         private ResolutionConstructor SelectBestConstructor(IEnumerable<ResolutionConstructor> constructors) =>
             this.containerContext.ContainerConfigurator.ContainerConfiguration.ConstructorSelectionRule(constructors);

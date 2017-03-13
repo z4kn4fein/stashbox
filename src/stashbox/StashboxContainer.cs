@@ -78,8 +78,15 @@ namespace Stashbox
         /// <inheritdoc />
         public bool CanResolve(Type typeFrom, string name = null)
         {
-            var typeInfo = new TypeInformation { Type = typeFrom, DependencyName = name };
-            return this.registrationRepository.ContainsRegistration(typeInfo) || this.resolverSelector.CanResolve(this.ContainerContext, typeInfo);
+            return this.registrationRepository.ContainsRegistration(typeFrom, name) || 
+                this.resolverSelector.CanResolve(this.ContainerContext, new TypeInformation { Type = typeFrom, DependencyName = name });
+        }
+
+        /// <inheritdoc />
+        public void Validate()
+        {
+            foreach (var serviceRegistration in this.registrationRepository.GetAllRegistrations())
+                serviceRegistration.GetExpression(ResolutionInfo.New(), serviceRegistration.ServiceType);
         }
 
         /// <inheritdoc />

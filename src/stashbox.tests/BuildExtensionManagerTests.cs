@@ -20,7 +20,7 @@ namespace Stashbox.Tests
                 container.PrepareType<object>().WithFactory(() => obj).Register();
 
                 post.Setup(p => p.PostBuild(obj, container.ContainerContext, It.IsAny<ResolutionInfo>(),
-                    It.IsAny<TypeInformation>(), null)).Returns(obj).Verifiable();
+                    It.IsAny<Type>(), null)).Returns(obj).Verifiable();
 
                 var inst = container.Resolve(typeof(object));
                 post.Verify(p => p.Initialize(container.ContainerContext));
@@ -40,7 +40,7 @@ namespace Stashbox.Tests
 
                 bool called = false;
                 post.Setup(p => p.PostBuild(It.IsAny<object>(), container.ContainerContext, It.IsAny<ResolutionInfo>(),
-                    It.IsAny<TypeInformation>(), null)).Returns(It.IsAny<object>()).Callback(() => called = true).Verifiable();
+                    It.IsAny<Type>(), null)).Returns(It.IsAny<object>()).Callback(() => called = true).Verifiable();
 
                 var inst = container.Resolve<Test>();
                 Assert.IsTrue(called);

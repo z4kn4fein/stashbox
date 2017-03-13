@@ -21,6 +21,14 @@ namespace Stashbox.Infrastructure.Registration
         /// <summary>
         /// Retrieves a registration.
         /// </summary>
+        /// <param name="type">The requested type.</param>
+        /// <param name="name">The requested name.</param>
+        /// <returns>The registration or null, if it doesn't exist.</returns>
+        IServiceRegistration GetRegistrationOrDefault(Type type, string name);
+
+        /// <summary>
+        /// Retrieves a registration.
+        /// </summary>
         /// <param name="typeInfo">The type info.</param>
         /// <param name="checkConditions">Indicates that the operation should check the registration conditions.</param>
         /// <returns>The registration or null, if it doesn't exist.</returns>
@@ -29,9 +37,9 @@ namespace Stashbox.Infrastructure.Registration
         /// <summary>
         /// Retrieves all registrations for a type.
         /// </summary>
-        /// <param name="typeInfo">The requested type information.</param>
+        /// <param name="type">The requested type.</param>
         /// <returns>The registrations or null, if it doesn't exist.</returns>
-        IEnumerable<IServiceRegistration> GetRegistrationsOrDefault(TypeInformation typeInfo);
+        IEnumerable<IServiceRegistration> GetRegistrationsOrDefault(Type type);
 
         /// <summary>
         /// Retrieves all registrations.
@@ -42,9 +50,10 @@ namespace Stashbox.Infrastructure.Registration
         /// <summary>
         /// Check a type exists with conditions.
         /// </summary>
-        /// <param name="typeInfo">The type information.</param>
+        /// <param name="type">The requested type.</param>
+        /// <param name="name">The requested name.</param>
         /// <returns>True if the registration found, otherwise false.</returns>
-        bool ContainsRegistration(TypeInformation typeInfo);
+        bool ContainsRegistration(Type type, string name);
 
         /// <summary>
         /// Cleans up the repository.

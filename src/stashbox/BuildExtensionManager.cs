@@ -45,8 +45,8 @@ namespace Stashbox
             }
         }
 
-        public object ExecutePostBuildExtensions(object instance, IContainerContext containerContext, ResolutionInfo resolutionInfo, 
-            TypeInformation resolveType, InjectionParameter[] injectionParameters = null)
+        public object ExecutePostBuildExtensions(object instance, IContainerContext containerContext, ResolutionInfo resolutionInfo,
+            Type resolveType, InjectionParameter[] injectionParameters = null)
         {
             if (!this.hasPostBuildExtensions) return instance;
             using (this.readerWriterLock.AcquireReadLock())

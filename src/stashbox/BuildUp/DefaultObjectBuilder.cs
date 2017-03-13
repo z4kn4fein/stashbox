@@ -1,4 +1,5 @@
-﻿using Stashbox.BuildUp.Expressions;
+﻿using System;
+using Stashbox.BuildUp.Expressions;
 using Stashbox.Entity;
 using Stashbox.Entity.Resolution;
 using Stashbox.Exceptions;
@@ -28,7 +29,7 @@ namespace Stashbox.BuildUp
             this.expressionBuilder = expressionBuilder;
         }
 
-        public Expression GetExpression(ResolutionInfo resolutionInfo, TypeInformation resolveType)
+        public Expression GetExpression(ResolutionInfo resolutionInfo, Type resolveType)
         {
             if (!this.containerContext.ContainerConfigurator.ContainerConfiguration.CircularDependencyTrackingEnabled)
                 return this.GetExpressionInternal(resolutionInfo, resolveType);
@@ -39,7 +40,7 @@ namespace Stashbox.BuildUp
 
         public bool HandlesObjectDisposal => false;
 
-        private Expression GetExpressionInternal(ResolutionInfo resolutionInfo, TypeInformation resolveType)
+        private Expression GetExpressionInternal(ResolutionInfo resolutionInfo, Type resolveType)
         {
             if (!this.metaInfoProvider.TryChooseConstructor(out ResolutionConstructor constructor, 
                 resolutionInfo, this.injectionParameters))
@@ -47,7 +48,7 @@ namespace Stashbox.BuildUp
             return this.CreateExpression(constructor, resolutionInfo, resolveType);
         }
 
-        private Expression CreateExpression(ResolutionConstructor constructor, ResolutionInfo resolutionInfo, TypeInformation resolveType)
+        private Expression CreateExpression(ResolutionConstructor constructor, ResolutionInfo resolutionInfo, Type resolveType)
         {
             return this.expressionBuilder.CreateExpression(this.containerExtensionManager, this.containerContext,
                     constructor, resolutionInfo, resolveType, this.injectionParameters,

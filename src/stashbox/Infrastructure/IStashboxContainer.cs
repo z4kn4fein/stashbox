@@ -62,5 +62,10 @@ namespace Stashbox.Infrastructure
         /// </summary>
         /// <param name="config">The action delegate which will configure the container.</param>
         void Configure(Action<IContainerConfigurator> config);
+
+        /// <summary>
+        /// Validates the current state of the container.
+        /// </summary>
+        void Validate();
     }
 }

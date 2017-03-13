@@ -1,4 +1,5 @@
-﻿using Stashbox.Entity;
+﻿using System;
+using Stashbox.Entity;
 using System.Linq.Expressions;
 
 namespace Stashbox.Infrastructure
@@ -25,9 +26,9 @@ namespace Stashbox.Infrastructure
         /// <param name="containerContext">The container context.</param>
         /// <param name="objectBuilder">An <see cref="IObjectBuilder"/> implementation.</param>
         /// <param name="resolutionInfo">The info about the actual resolution.</param>
-        /// <param name="resolveType">The type info about the resolved type.</param>
+        /// <param name="resolveType">The requested type.</param>
         /// <returns>The lifetime managed object.</returns>
-        Expression GetExpression(IContainerContext containerContext, IObjectBuilder objectBuilder, ResolutionInfo resolutionInfo, TypeInformation resolveType);
+        Expression GetExpression(IContainerContext containerContext, IObjectBuilder objectBuilder, ResolutionInfo resolutionInfo, Type resolveType);
 
         /// <summary>
         /// Creates a new instance of this type.

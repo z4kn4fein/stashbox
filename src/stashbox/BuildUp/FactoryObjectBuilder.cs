@@ -41,7 +41,7 @@ namespace Stashbox.BuildUp
             this.singleFactory = factory;
         }
         
-        public Expression GetExpression(ResolutionInfo resolutionInfo, TypeInformation resolveType)
+        public Expression GetExpression(ResolutionInfo resolutionInfo, Type resolveType)
         {
             Expression<Func<object>> lambda;
             if (this.containerFactory != null)

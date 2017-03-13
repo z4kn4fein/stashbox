@@ -28,23 +28,27 @@ namespace Stashbox.BuildUp
             this.expressionBuilder = expressionBuilder;
         }
 
-        public Expression GetExpression(ResolutionInfo resolutionInfo, TypeInformation resolveType)
+        public Expression GetExpression(ResolutionInfo resolutionInfo, Type resolveType)
         {
-            var genericType = this.metaInfoProvider.TypeTo.MakeGenericType(resolveType.Type.GetGenericArguments());
-            resolveType.DependencyName = NameGenerator.GetRegistrationName(resolveType.Type, genericType);
+            var genericType = this.metaInfoProvider.TypeTo.MakeGenericType(resolveType.GetGenericArguments());
+            var typeInfo = new TypeInformation
+            {
+                Type = resolveType,
+                DependencyName = NameGenerator.GetRegistrationName(resolveType, genericType)
+            };
 
             this.RegisterConcreteGenericType(resolveType, genericType);
 
-            var registration = this.containerContext.RegistrationRepository.GetRegistrationOrDefault(resolveType);
-            if(registration == null)
+            var registration = this.containerContext.RegistrationRepository.GetRegistrationOrDefault(typeInfo);
+            if (registration == null)
                 throw new ResolutionFailedException(genericType.FullName);
 
             return registration.GetExpression(resolutionInfo, resolveType);
         }
 
-        private void RegisterConcreteGenericType(TypeInformation resolveType, Type genericType)
+        private void RegisterConcreteGenericType(Type resolveType, Type genericType)
         {
-            var registrationContext = new ScopedRegistrationContext(resolveType.Type, genericType, this.containerContext, this.expressionBuilder, this.containerExtensionManager);
+            var registrationContext = new ScopedRegistrationContext(resolveType, genericType, this.containerContext, this.expressionBuilder, this.containerExtensionManager);
             var newData = this.registrationContextData.CreateCopy();
             newData.Name = null;
             registrationContext.InitFromScope(newData);

@@ -19,14 +19,14 @@ namespace Stashbox.BuildUp.Expressions
         }
         
         public Expression CreateFillExpression(IContainerExtensionManager extensionManager, IContainerContext containerContext, Expression instance,
-            ResolutionInfo resolutionInfo, TypeInformation typeInfo, InjectionParameter[] parameters, ResolutionMember[] members, ResolutionMethod[] methods)
+            ResolutionInfo resolutionInfo, Type serviceType, InjectionParameter[] parameters, ResolutionMember[] members, ResolutionMethod[] methods)
         {
             var block = new List<Expression>();
 
-            if (instance.Type != typeInfo.Type)
-                instance = Expression.Convert(instance, typeInfo.Type);
+            if (instance.Type != serviceType)
+                instance = Expression.Convert(instance, serviceType);
 
-            var variable = Expression.Variable(typeInfo.Type);
+            var variable = Expression.Variable(serviceType);
             var assingExpr = Expression.Assign(variable, instance);
 
             block.Add(assingExpr);
@@ -35,7 +35,7 @@ namespace Stashbox.BuildUp.Expressions
                 block.AddRange(FillMembersExpression(members, variable));
 
             if (methods != null && methods.Length > 0 || extensionManager.HasPostBuildExtensions)
-                return CreatePostWorkExpressionIfAny(extensionManager, containerContext, resolutionInfo, variable, typeInfo, parameters, methods, block, variable);
+                return CreatePostWorkExpressionIfAny(extensionManager, containerContext, resolutionInfo, variable, serviceType, parameters, methods, block, variable);
 
             block.Add(variable); //return
 
@@ -44,7 +44,7 @@ namespace Stashbox.BuildUp.Expressions
 
         public Expression CreateExpression(IContainerExtensionManager extensionManager, IContainerContext containerContext, 
             ResolutionConstructor resolutionConstructor, ResolutionInfo resolutionInfo,
-            TypeInformation typeInfo, InjectionParameter[] parameters, ResolutionMember[] members, ResolutionMethod[] methods)
+            Type serviceType, InjectionParameter[] parameters, ResolutionMember[] members, ResolutionMethod[] methods)
         {
             Expression initExpression = Expression.New(resolutionConstructor.Constructor, resolutionConstructor.Parameters);
 
@@ -52,18 +52,18 @@ namespace Stashbox.BuildUp.Expressions
                 initExpression = CreateMemberInitExpression(members, (NewExpression)initExpression);
 
             if ((methods != null && methods.Length > 0) || extensionManager.HasPostBuildExtensions)
-                return CreatePostWorkExpressionIfAny(extensionManager, containerContext, resolutionInfo, initExpression, typeInfo, parameters, methods);
+                return CreatePostWorkExpressionIfAny(extensionManager, containerContext, resolutionInfo, initExpression, serviceType, parameters, methods);
 
             return initExpression;
         }
         
         private Expression CreatePostWorkExpressionIfAny(IContainerExtensionManager extensionManager, IContainerContext containerContext, ResolutionInfo resolutionInfo,
-            Expression initExpression, TypeInformation typeInfo, InjectionParameter[] parameters, ResolutionMethod[] methods, 
+            Expression initExpression, Type serviceType, InjectionParameter[] parameters, ResolutionMethod[] methods, 
             List<Expression> block = null, ParameterExpression variable = null)
         {
             block = block ?? new List<Expression>();
 
-            var newVariable = variable ?? Expression.Variable(typeInfo.Type);
+            var newVariable = variable ?? Expression.Variable(serviceType);
             if (variable == null)
             {
                 var assingExpr = Expression.Assign(newVariable, initExpression);
@@ -76,9 +76,9 @@ namespace Stashbox.BuildUp.Expressions
             if (extensionManager.HasPostBuildExtensions)
             {
                 var call = Expression.Call(Expression.Constant(extensionManager), buildExtensionMethod, newVariable, Expression.Constant(containerContext),
-                      Expression.Constant(resolutionInfo), Expression.Constant(typeInfo), Expression.Constant(parameters, typeof(InjectionParameter[])));
+                      Expression.Constant(resolutionInfo), Expression.Constant(serviceType), Expression.Constant(parameters, typeof(InjectionParameter[])));
 
-                block.Add(Expression.Assign(newVariable, Expression.Convert(call, typeInfo.Type)));
+                block.Add(Expression.Assign(newVariable, Expression.Convert(call, serviceType)));
             }
 
             block.Add(newVariable); //return

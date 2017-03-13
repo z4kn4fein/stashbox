@@ -15,7 +15,7 @@ namespace Stashbox.Lifetime
         private readonly object syncObject = new object();
 
         /// <inheritdoc />
-        public override Expression GetExpression(IContainerContext containerContext, IObjectBuilder objectBuilder, ResolutionInfo resolutionInfo, TypeInformation resolveType)
+        public override Expression GetExpression(IContainerContext containerContext, IObjectBuilder objectBuilder, ResolutionInfo resolutionInfo, Type resolveType)
         {
             if (this.expression != null) return this.expression;
             lock (this.syncObject)
@@ -25,7 +25,7 @@ namespace Stashbox.Lifetime
                 if (expr.NodeType == ExpressionType.New && ((NewExpression)expr).Arguments.Count == 0)
                     this.instance = Activator.CreateInstance(expr.Type);
                 else
-                    this.instance = Expression.Lambda<Func<object>>(expr).Compile()();
+                    this.instance = expr.CompileDelegate()();
                 this.expression = Expression.Constant(this.instance);
             }
 
