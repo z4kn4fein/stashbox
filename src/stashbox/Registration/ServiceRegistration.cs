@@ -69,7 +69,7 @@ namespace Stashbox.Registration
 
         /// <inheritdoc />
         public bool ValidateGenericContraints(TypeInformation typeInformation) => !this.metaInfoProvider.HasGenericTypeConstraints ||
-            this.metaInfoProvider.HasGenericTypeConstraints && this.metaInfoProvider.ValidateGenericContraints(typeInformation);
+            this.metaInfoProvider.ValidateGenericContraints(typeInformation);
         
         /// <inheritdoc />
         public void CleanUp()

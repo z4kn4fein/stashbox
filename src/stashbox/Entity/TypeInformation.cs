@@ -1,4 +1,5 @@
 ﻿using System;
+using Stashbox.Attributes;
 
 namespace Stashbox.Entity
 {
@@ -46,5 +47,10 @@ namespace Stashbox.Entity
         /// Property or field.
         /// </summary>
         public bool IsMember { get; set; }
+
+        /// <summary>
+        /// True if the type has <see cref="DependencyAttribute"/>.
+        /// </summary>
+        public bool HasDependencyAttribute { get; set; }
     }
 }
