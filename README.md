@@ -14,7 +14,7 @@ Stashbox is a lightweight, portable dependency injection framework for .NET base
  - **Unknown type resolution** - unregistered services can be resolved or injected.
  - **Default and optional value injection** - primitive types or dependencies with default or optional value can be injected.
  - **Open generic type resolution** - concrete generic types can be resolved from open generic definitions, constraint checking and nested generic definitions also supported.
- - **Constructor, property and field injection** - supports attribute driven injection and attributeless injection as well, where there is no chance to decorate members with attributes.
+ - **Constructor, property and field injection** - supports attribute driven injection and auto injection as well, where there is no chance to decorate members with attributes.
  - **Injection method** - methods decorated with `InjectionMethod` attribute will be called at resolution time.
  - **Wiring into container** - member injection can be executed on existing instance with every resolve call.
  - **Building up existing instance** - member injection can be executed on existing instance without registering it into the container.
@@ -28,9 +28,9 @@ Stashbox is a lightweight, portable dependency injection framework for .NET base
   - `Lazy<>`, `Func<>`, `Tuple<>`
   - Parameter injection over factory method arguments e.g. `Func<TParam, TService>`, `Func<TParam1, TParam2, TService>`, etc. applied to subdependencies as well.
   - Nesting support e.g. `Tuple<TService, IEnumerable<Func<TParam, Lazy<TService1>>>>`.
- - **Custom resolvers** - the existing resolution operations can be extended by custom resolvers.
- - **Container extensions** - the functionality of the container can be extended by custom extensions, e.g. [Decorator extension](https://github.com/z4kn4fein/stashbox-decoratorextension)
- - **Custom configuration** - the behavior of the container can be controlled by custom configuration.
+ - **Custom resolvers** - the existing resolution operations can be extended with custom resolvers.
+ - **Container extensions** - the functionality of the container can be extended with custom extensions, e.g. [Decorator extension](https://github.com/z4kn4fein/stashbox-decoratorextension)
+ - **Custom configuration** - the behavior of the container can be controlled with custom configurations.
  - **Container validation** - the resolution graph can be validated by calling the `Validate()` function.
 
 ## Supported platforms
