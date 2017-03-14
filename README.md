@@ -31,6 +31,7 @@ Stashbox is a lightweight, portable dependency injection framework for .NET base
  - **Custom resolvers** - the existing resolution operations can be extended by custom resolvers.
  - **Container extensions** - the functionality of the container can be extended by custom extensions, e.g. [Decorator extension](https://github.com/z4kn4fein/stashbox-decoratorextension)
  - **Custom configuration** - the behavior of the container can be controlled by custom configuration.
+ - **Container validation** - the resolution graph can be validated by calling the `Validate()` function.
 
 ## Supported platforms
 
