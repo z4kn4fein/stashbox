@@ -73,7 +73,7 @@ namespace Stashbox.Registration
         private IObjectBuilder CreateObjectBuilder(IContainerExtensionManager containerExtensionManager, IMetaInfoProvider metaInfoProvider)
         {
             if (this.RegistrationContextData.ExistingInstance != null)
-                return new InstanceObjectBuilder(this.RegistrationContextData.ExistingInstance);
+                return new InstanceObjectBuilder(this.RegistrationContextData.ExistingInstance, this.ContainerContext);
 
             if (this.RegistrationContextData.ContainerFactory != null)
                 return new FactoryObjectBuilder(this.RegistrationContextData.ContainerFactory, this.ContainerContext, containerExtensionManager, metaInfoProvider,

@@ -18,7 +18,7 @@ namespace Stashbox.Utils
         /// <returns>A new tree instance</returns>
         public static ConcurrentTree<TKey, TValue> Create() => new ConcurrentTree<TKey, TValue>();
 
-        private ConcurrentTree<TValue> repository;
+        private readonly ConcurrentTree<TValue> repository;
 
         /// <summary>
         /// The current root value of the tree,
@@ -29,6 +29,11 @@ namespace Stashbox.Utils
         /// Inidicates that the tree has more nodes than the root one.
         /// </summary>
         public bool HasMultipleItems => this.repository.HasMultipleItems;
+
+        /// <summary>
+        /// True if the tree is empty, otherwise false.
+        /// </summary>
+        public bool IsEmpty => this.repository.IsEmpty;
 
         /// <summary>
         /// Constructs the <see cref="ConcurrentTree{TKey, TValue}"/>
@@ -63,6 +68,13 @@ namespace Stashbox.Utils
             return this;
         }
 
+        /// <summary>
+        /// Returns the stored items in reversed order.
+        /// </summary>
+        /// <returns>The reversed collection.</returns>
+        public IEnumerable<TValue> ReverseTraversal() =>
+            this.repository.ReverseTraversal();
+
         /// <inheritdoc />
         public IEnumerator<TValue> GetEnumerator() => this.repository.GetEnumerator();
 
@@ -94,6 +106,11 @@ namespace Stashbox.Utils
         public bool HasMultipleItems => this.repository.HasMultipleItems;
 
         /// <summary>
+        /// True if the tree is empty, otherwise false.
+        /// </summary>
+        public bool IsEmpty => this.repository.IsEmpty;
+
+        /// <summary>
         /// Constructs the <see cref="ConcurrentTree{TKey, TValue}"/>
         /// </summary>
         public ConcurrentTree()
@@ -108,6 +125,7 @@ namespace Stashbox.Utils
         /// <returns>The found or the default value.</returns>
         public TValue GetOrDefault(int key) =>
             this.repository.GetOrDefault(key);
+
 
         /// <summary>
         /// Inserts an item into the tree if it doesn't exist, otherwise the existing item will be replaced if the update delegate is set.
@@ -126,6 +144,13 @@ namespace Stashbox.Utils
 
             return this;
         }
+
+        /// <summary>
+        /// Returns the stored items in reversed order.
+        /// </summary>
+        /// <returns>The reversed collection.</returns>
+        public IEnumerable<TValue> ReverseTraversal() =>
+            this.repository.ReverseTraversal();
 
         private bool TrySwapCurrentRepository(AvlTree<TValue> currentRepo, AvlTree<TValue> newRepo) =>
             Interlocked.CompareExchange(ref repository, newRepo, currentRepo) == currentRepo;

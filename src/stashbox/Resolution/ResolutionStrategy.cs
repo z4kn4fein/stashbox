@@ -25,6 +25,10 @@ namespace Stashbox.Resolution
             if (matchingParam != null)
                 return Expression.Constant(matchingParam.Value);
 
+            var exprOverride = resolutionInfo.ExpressionOverrides.GetOrDefault(typeInformation.Type);
+            if (exprOverride != null)
+                return exprOverride;
+
             var registration = containerContext.RegistrationRepository.GetRegistrationOrDefault(typeInformation, true);
             return registration != null ? registration.GetExpression(resolutionInfo, typeInformation.Type) :
                 this.resolverSelector.GetResolverExpression(containerContext, typeInformation, resolutionInfo);

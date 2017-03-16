@@ -7,7 +7,7 @@ using Stashbox.BuildUp.Expressions;
 
 namespace Stashbox.BuildUp
 {
-    internal class WireUpObjectBuilder : IObjectBuilder
+    internal class WireUpObjectBuilder : ObjectBuilderBase
     {
         private object instance;
         private readonly IContainerExtensionManager containerExtensionManager;
@@ -20,6 +20,7 @@ namespace Stashbox.BuildUp
 
         public WireUpObjectBuilder(object instance, IContainerExtensionManager containerExtensionManager, IContainerContext containerContext,
             IMetaInfoProvider metaInfoProvider, IExpressionBuilder expressionBuilder, InjectionParameter[] injectionParameters = null)
+            : base(containerContext)
         {
             this.instance = instance;
             this.containerExtensionManager = containerExtensionManager;
@@ -29,7 +30,7 @@ namespace Stashbox.BuildUp
             this.expressionBuilder = expressionBuilder;
         }
 
-        public Expression GetExpression(ResolutionInfo resolutionInfo, Type resolveType)
+        protected override Expression GetExpressionInternal(ResolutionInfo resolutionInfo, Type resolveType)
         {
             if (this.instanceBuilt) return Expression.Constant(this.instance);
             lock (this.syncObject)
@@ -47,9 +48,9 @@ namespace Stashbox.BuildUp
             }
         }
 
-        public bool HandlesObjectDisposal => true;
+        public override bool HandlesObjectDisposal => true;
 
-        public void CleanUp()
+        public override void CleanUp()
         {
             if (this.instance == null) return;
             lock (this.syncObject)

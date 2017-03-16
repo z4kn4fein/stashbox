@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using Stashbox.Utils;
 
 namespace Stashbox.Entity
 {
@@ -22,9 +23,12 @@ namespace Stashbox.Entity
 
         internal HashSet<Type> CircularDependencyBarrier { get; }
 
+        internal ConcurrentTree<Type, Expression> ExpressionOverrides { get; }
+
         internal ResolutionInfo()
         {
             this.CircularDependencyBarrier = new HashSet<Type>();
+            this.ExpressionOverrides = new ConcurrentTree<Type, Expression>();
         }
     }
 }

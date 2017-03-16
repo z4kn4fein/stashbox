@@ -21,6 +21,11 @@ namespace Stashbox.Infrastructure
         IDelegateRepository DelegateRepository { get; }
 
         /// <summary>
+        /// The decorator repository.
+        /// </summary>
+        IDecoratorRepository DecoratorRepository { get; }
+
+        /// <summary>
         /// The container itself.
         /// </summary>
         IStashboxContainer Container { get; }

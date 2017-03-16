@@ -10,7 +10,7 @@ using System.Linq.Expressions;
 
 namespace Stashbox.BuildUp
 {
-    internal class GenericTypeObjectBuilder : IObjectBuilder
+    internal class GenericTypeObjectBuilder : ObjectBuilderBase
     {
         private readonly RegistrationContextData registrationContextData;
         private readonly IContainerExtensionManager containerExtensionManager;
@@ -20,6 +20,7 @@ namespace Stashbox.BuildUp
 
         public GenericTypeObjectBuilder(RegistrationContextData registrationContextData, IContainerContext containerContext,
             IMetaInfoProvider metaInfoProvider, IContainerExtensionManager containerExtensionManager, IExpressionBuilder expressionBuilder)
+            : base(containerContext)
         {
             this.registrationContextData = registrationContextData;
             this.metaInfoProvider = metaInfoProvider;
@@ -28,7 +29,7 @@ namespace Stashbox.BuildUp
             this.expressionBuilder = expressionBuilder;
         }
 
-        public Expression GetExpression(ResolutionInfo resolutionInfo, Type resolveType)
+        protected override Expression GetExpressionInternal(ResolutionInfo resolutionInfo, Type resolveType)
         {
             var genericType = this.metaInfoProvider.TypeTo.MakeGenericType(resolveType.GetGenericArguments());
             var typeInfo = new TypeInformation
@@ -53,10 +54,5 @@ namespace Stashbox.BuildUp
             newData.Name = null;
             registrationContext.InitFromScope(newData);
         }
-
-        public bool HandlesObjectDisposal => false;
-
-        public void CleanUp()
-        { }
     }
 }

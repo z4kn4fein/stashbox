@@ -206,7 +206,7 @@ namespace Stashbox
             var regName = NameGenerator.GetRegistrationName(instanceType, instanceType, keyName);
             var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, RegistrationContextData.Empty, instanceType);
             var registration = new ServiceRegistration(type, instanceType, this.ContainerContext, new TransientLifetime(),
-                new InstanceObjectBuilder(instance), metaInfoProvider);
+                new InstanceObjectBuilder(instance, this.ContainerContext), metaInfoProvider);
 
             this.registrationRepository.AddOrUpdateRegistration(type, regName, false, registration);
             this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.ContainerContext, instanceType, type);

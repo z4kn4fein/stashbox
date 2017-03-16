@@ -7,7 +7,7 @@ using Stashbox.BuildUp.Expressions;
 
 namespace Stashbox.BuildUp
 {
-    internal class FactoryObjectBuilder : IObjectBuilder
+    internal class FactoryObjectBuilder : ObjectBuilderBase
     {
         private readonly Func<IStashboxContainer, object> containerFactory;
         private readonly Func<object> singleFactory;
@@ -19,6 +19,7 @@ namespace Stashbox.BuildUp
 
         private FactoryObjectBuilder(IContainerContext containerContext, IContainerExtensionManager containerExtensionManager,
             IMetaInfoProvider metaInfoProvider, IExpressionBuilder expressionBuilder, InjectionParameter[] injectionParameters = null)
+            : base(containerContext)
         {
             this.containerContext = containerContext;
             this.containerExtensionManager = containerExtensionManager;
@@ -40,8 +41,8 @@ namespace Stashbox.BuildUp
         {
             this.singleFactory = factory;
         }
-        
-        public Expression GetExpression(ResolutionInfo resolutionInfo, Type resolveType)
+
+        protected override Expression GetExpressionInternal(ResolutionInfo resolutionInfo, Type resolveType)
         {
             Expression<Func<object>> lambda;
             if (this.containerFactory != null)
@@ -50,16 +51,11 @@ namespace Stashbox.BuildUp
                 lambda = () => this.singleFactory();
 
             var expr = Expression.Invoke(lambda);
-            
+
             return this.expressionBuilder.CreateFillExpression(this.containerExtensionManager, this.containerContext,
                    expr, resolutionInfo, resolveType, this.injectionParameters,
-                   this.metaInfoProvider.GetResolutionMembers(resolutionInfo, this.injectionParameters), 
+                   this.metaInfoProvider.GetResolutionMembers(resolutionInfo, this.injectionParameters),
                    this.metaInfoProvider.GetResolutionMethods(resolutionInfo, this.injectionParameters));
         }
-
-        public bool HandlesObjectDisposal => false;
-
-        public void CleanUp()
-        { }
     }
 }

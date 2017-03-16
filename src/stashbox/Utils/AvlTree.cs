@@ -19,6 +19,7 @@ namespace Stashbox.Utils
 
         public TValue Value => this.storedValue;
         public bool HasMultipleItems => this.height > 1;
+        public bool IsEmpty => this.isEmpty;
 
         private AvlTree(int hash, TValue value, AvlTree<TValue> left, AvlTree<TValue> right)
         {
@@ -48,6 +49,31 @@ namespace Stashbox.Utils
             while (!node.isEmpty && node.storedHash != key)
                 node = key < node.storedHash ? node.leftNode : node.rightNode;
             return !node.isEmpty ? node.storedValue : default(TValue);
+        }
+
+        public IEnumerable<TValue> ReverseTraversal()
+        {
+            if(this.height == 0)
+                yield break;
+
+            var nodes = new AvlTree<TValue>[this.height];
+            var index = -1;
+            var currentNode = this;
+
+            while(!currentNode.isEmpty || index != -1)
+            {
+                if(!currentNode.isEmpty)
+                {
+                    nodes[++index] = currentNode;
+                    currentNode = currentNode.rightNode;
+                }
+                else
+                {
+                    currentNode = nodes[index--];
+                    yield return currentNode.Value;
+                    currentNode = currentNode.leftNode;
+                }
+            }
         }
         
         private AvlTree<TValue> Add(int hash, TValue value, Func<TValue, TValue, TValue> updateDelegate)

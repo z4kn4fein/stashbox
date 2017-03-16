@@ -15,7 +15,7 @@ namespace Stashbox
         private int registrationNumber;
         
         internal ContainerContext(IRegistrationRepository registrationRepository, IDelegateRepository delegateRepository, IStashboxContainer container,
-            IResolutionStrategy resolutionStrategy, IContainerConfigurator containerConfigurator)
+            IResolutionStrategy resolutionStrategy, IContainerConfigurator containerConfigurator, IDecoratorRepository decoratorRepository)
         {
             this.ResolutionStrategy = resolutionStrategy;
             this.RegistrationRepository = registrationRepository;
@@ -25,6 +25,7 @@ namespace Stashbox
             this.ScopedRegistrations = new ConcurrentTree<string, ScopedRegistrationItem>();
             this.TrackedTransientObjects = new ConcurrentStore<object>();
             this.ContainerConfigurator = containerConfigurator;
+            this.DecoratorRepository = decoratorRepository;
         }
         
         /// <inheritdoc />
@@ -32,6 +33,9 @@ namespace Stashbox
 
         /// <inheritdoc />
         public IDelegateRepository DelegateRepository { get; }
+
+        /// <inheritdoc />
+        public IDecoratorRepository DecoratorRepository { get; }
 
         /// <inheritdoc />
         public IStashboxContainer Container { get; }
