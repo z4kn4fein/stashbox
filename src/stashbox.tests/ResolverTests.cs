@@ -139,7 +139,7 @@ namespace Stashbox.Tests
                 container.Configure(config => config.WithUnknownTypeResolution().WithMemberInjectionWithoutAnnotation());
                 var inst = container.Resolve<Test5>();
 
-                Assert.IsNull(inst.I);
+                Assert.IsNotNull(inst.I);
             }
         }
 

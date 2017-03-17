@@ -19,8 +19,9 @@ namespace Stashbox.BuildUp
         private readonly IExpressionBuilder expressionBuilder;
 
         public GenericTypeObjectBuilder(RegistrationContextData registrationContextData, IContainerContext containerContext,
-            IMetaInfoProvider metaInfoProvider, IContainerExtensionManager containerExtensionManager, IExpressionBuilder expressionBuilder)
-            : base(containerContext)
+            IMetaInfoProvider metaInfoProvider, IContainerExtensionManager containerExtensionManager, 
+            IExpressionBuilder expressionBuilder, bool isDecorator = false)
+            : base(containerContext, isDecorator)
         {
             this.registrationContextData = registrationContextData;
             this.metaInfoProvider = metaInfoProvider;

@@ -42,14 +42,15 @@ namespace Stashbox.Registration
             this.CompleteScopeManagement(update, registration.LifetimeManager, registration.ObjectBuilder);
         }
 
-        protected IServiceRegistration CreateServiceRegistration()
+        protected IServiceRegistration CreateServiceRegistration(bool isDecorator = false)
         {
             this.RegistrationContextData.Name = NameGenerator.GetRegistrationName(this.TypeFrom, this.TypeTo, this.RegistrationContextData.Name);
             var registrationLifetime = this.ChooseLifeTime();
             var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, this.RegistrationContextData, this.TypeTo);
 
             var objectBuilder = this.TypeTo.IsOpenGenericType() ? new GenericTypeObjectBuilder(this.RegistrationContextData, this.ContainerContext,
-                    metaInfoProvider, this.ContainerExtensionManager, this.expressionBuilder) : this.CreateObjectBuilder(this.ContainerExtensionManager, metaInfoProvider);
+                    metaInfoProvider, this.ContainerExtensionManager, this.expressionBuilder, isDecorator) : 
+                    this.CreateObjectBuilder(this.ContainerExtensionManager, metaInfoProvider, isDecorator);
 
             return this.ProduceServiceRegistration(this.TypeTo.IsOpenGenericType() ? new TransientLifetime() : registrationLifetime, objectBuilder,
                     metaInfoProvider);
@@ -70,21 +71,21 @@ namespace Stashbox.Registration
                 this.ContainerContext.ScopedRegistrations.AddOrUpdate(this.RegistrationContextData.Name, registrationItem);
         }
 
-        private IObjectBuilder CreateObjectBuilder(IContainerExtensionManager containerExtensionManager, IMetaInfoProvider metaInfoProvider)
+        private IObjectBuilder CreateObjectBuilder(IContainerExtensionManager containerExtensionManager, IMetaInfoProvider metaInfoProvider, bool isDecorator = false)
         {
             if (this.RegistrationContextData.ExistingInstance != null)
-                return new InstanceObjectBuilder(this.RegistrationContextData.ExistingInstance, this.ContainerContext);
+                return new InstanceObjectBuilder(this.RegistrationContextData.ExistingInstance, this.ContainerContext, isDecorator);
 
             if (this.RegistrationContextData.ContainerFactory != null)
                 return new FactoryObjectBuilder(this.RegistrationContextData.ContainerFactory, this.ContainerContext, containerExtensionManager, metaInfoProvider,
-                    this.expressionBuilder, this.RegistrationContextData.InjectionParameters);
+                    this.expressionBuilder, this.RegistrationContextData.InjectionParameters, isDecorator);
 
             if (this.RegistrationContextData.SingleFactory != null)
                 return new FactoryObjectBuilder(this.RegistrationContextData.SingleFactory, this.ContainerContext, containerExtensionManager, metaInfoProvider,
-                    this.expressionBuilder, this.RegistrationContextData.InjectionParameters);
+                    this.expressionBuilder, this.RegistrationContextData.InjectionParameters, isDecorator);
 
             return new DefaultObjectBuilder(this.ContainerContext, metaInfoProvider,
-                containerExtensionManager, this.expressionBuilder, this.RegistrationContextData.InjectionParameters);
+                containerExtensionManager, this.expressionBuilder, this.RegistrationContextData.InjectionParameters, isDecorator);
         }
 
         private IServiceRegistration ProduceServiceRegistration(ILifetime lifeTime, IObjectBuilder objectBuilder, IMetaInfoProvider metaInfoProvider)

@@ -36,21 +36,6 @@ namespace Stashbox.Infrastructure
         IDecoratorRegistrationContext PrepareDecorator(Type typeFrom, Type typeTo);
 
         /// <summary>
-        /// Prepares a decorator type for registration.
-        /// </summary>
-        /// <typeparam name="TTo">Type that will be returned.</typeparam>
-        /// <returns>The created <see cref="IDecoratorRegistrationContext"/> which allows further configurations.</returns>
-        IDecoratorRegistrationContext PrepareDecorator<TTo>()
-             where TTo : class;
-
-        /// <summary>
-        /// Prepares a decorator type for registration.
-        /// </summary>
-        /// <param name="typeTo">Type that will be returned.</param>
-        /// <returns>The created <see cref="IDecoratorRegistrationContext"/> which allows further configurations.</returns>
-        IDecoratorRegistrationContext PrepareDecorator(Type typeTo);
-
-        /// <summary>
         /// Registers a decorator type into the container.
         /// </summary>
         /// <typeparam name="TFrom">Type that will be requested.</typeparam>
@@ -76,13 +61,5 @@ namespace Stashbox.Infrastructure
         /// <param name="typeTo">Type that will be returned.</param>
         /// <returns>The <see cref="IDecoratorRegistrator"/> which on this method was called.</returns>
         IDecoratorRegistrator RegisterDecorator(Type typeFrom, Type typeTo);
-
-        /// <summary>
-        /// Registers a decorator type into the container.
-        /// </summary>
-        /// <typeparam name="TTo">Type that will be returned.</typeparam>
-        /// <returns>The <see cref="IDecoratorRegistrator"/> which on this method was called.</returns>
-        IDecoratorRegistrator RegisterDecorator<TTo>()
-             where TTo : class;
     }
 }

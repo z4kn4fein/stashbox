@@ -19,20 +19,6 @@ namespace Stashbox.Infrastructure.Registration
         IDecoratorRegistrationContext WithInjectionParameters(params InjectionParameter[] injectionParameters);
 
         /// <summary>
-        /// Sets a parameterless factory delegate for the registration.
-        /// </summary>
-        /// <param name="singleFactory">The factory delegate.</param>
-        /// <returns>The <see cref="IDecoratorRegistrationContext"/> which on this method was called.</returns>
-        IDecoratorRegistrationContext WithFactory(Func<object> singleFactory);
-
-        /// <summary>
-        /// Sets a container factory delegate for the registration.
-        /// </summary>
-        /// <param name="containerFactory">The container factory delegate.</param>
-        /// <returns>The <see cref="IDecoratorRegistrationContext"/> which on this method was called.</returns>
-        IDecoratorRegistrationContext WithFactory(Func<IStashboxContainer, object> containerFactory);
-
-        /// <summary>
         /// Enables auto member injection on the registration.
         /// </summary>
         /// <param name="rule">The auto member injection rule.</param>
@@ -45,14 +31,7 @@ namespace Stashbox.Infrastructure.Registration
         /// <param name="rule">The constructor selection rule.</param>
         /// <returns>The <see cref="IDecoratorRegistrationContext"/> which on this method was called.</returns>
         IDecoratorRegistrationContext WithConstructorSelectionRule(Func<IEnumerable<ResolutionConstructor>, ResolutionConstructor> rule);
-
-        /// <summary>
-        /// Sets an instance as the resolution target of the registration.
-        /// </summary>
-        /// <param name="instance">The instance.</param>
-        /// <returns>The <see cref="IDecoratorRegistrationContext"/> which on this method was called.</returns>
-        IDecoratorRegistrationContext WithInstance(object instance);
-
+        
         /// <summary>
         /// Registers the registration into the container.
         /// </summary>

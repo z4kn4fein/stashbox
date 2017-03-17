@@ -111,6 +111,6 @@ namespace Stashbox.Registration
             return this;
         }
 
-        public new IServiceRegistration CreateServiceRegistration() => base.CreateServiceRegistration();
+        public new IServiceRegistration CreateServiceRegistration(bool isDecorator = false) => base.CreateServiceRegistration(isDecorator);
     }
 }

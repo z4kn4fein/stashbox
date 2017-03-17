@@ -16,8 +16,7 @@ namespace Stashbox.MetaInfo
         private static readonly ConcurrentTree<Type, MetaInformation> MetaRepository = new ConcurrentTree<Type, MetaInformation>();
 
         private readonly IContainerContext containerContext;
-        private readonly bool autoMemberInjectionEnabled;
-        private readonly Rules.AutoMemberInjection autoMemberInjectionRule;
+        private readonly RegistrationContextData registrationData;
 
         public Type TypeTo { get; }
 
@@ -30,12 +29,9 @@ namespace Stashbox.MetaInfo
             this.metaInformation = GetOrCreateMetaInfo(typeTo);
 
             this.TypeTo = typeTo;
-
-            this.autoMemberInjectionEnabled = containerContext.ContainerConfigurator.ContainerConfiguration.MemberInjectionWithoutAnnotationEnabled || registrationData.AutoMemberInjectionEnabled;
-            this.autoMemberInjectionRule = registrationData.AutoMemberInjectionEnabled ? registrationData.AutoMemberInjectionRule :
-                containerContext.ContainerConfigurator.ContainerConfiguration.MemberInjectionWithoutAnnotationRule;
-
+            
             this.containerContext = containerContext;
+            this.registrationData = registrationData;
         }
 
         public bool TryChooseConstructor(out ResolutionConstructor resolutionConstructor, ResolutionInfo resolutionInfo, InjectionParameter[] injectionParameters = null) =>
@@ -112,16 +108,23 @@ namespace Stashbox.MetaInfo
                     this.containerContext.ResolutionStrategy.BuildResolutionExpression(this.containerContext, resolutionInfo, parameter, injectionParameters)).ToArray()
             }).Where(ctor => ctor.Parameters.All(param => param != null));
 
-        private ResolutionConstructor SelectBestConstructor(IEnumerable<ResolutionConstructor> constructors) =>
-            this.containerContext.ContainerConfigurator.ContainerConfiguration.ConstructorSelectionRule(constructors);
+        private ResolutionConstructor SelectBestConstructor(IEnumerable<ResolutionConstructor> constructors)
+        {
+            var rule = this.registrationData.ConstructorSelectionRule ?? this.containerContext.ContainerConfigurator.ContainerConfiguration.ConstructorSelectionRule;
+            return rule(constructors);
+        }
 
         private IEnumerable<MemberInformation> SelectFieldsAndProperties(IEnumerable<MemberInformation> members)
         {
-            if (this.autoMemberInjectionEnabled)
+            var autoMemberInjectionEnabled = this.containerContext.ContainerConfigurator.ContainerConfiguration.MemberInjectionWithoutAnnotationEnabled || this.registrationData.AutoMemberInjectionEnabled;
+            var autoMemberInjectionRule = this.registrationData.AutoMemberInjectionEnabled ? this.registrationData.AutoMemberInjectionRule :
+                this.containerContext.ContainerConfigurator.ContainerConfiguration.MemberInjectionWithoutAnnotationRule;
+
+            if (autoMemberInjectionEnabled)
                 return members.Where(member => member.TypeInformation.HasDependencyAttribute ||
-                    member.MemberInfo is FieldInfo && this.autoMemberInjectionRule.HasFlag(Rules.AutoMemberInjection.PrivateFields) ||
-                    member.MemberInfo is PropertyInfo && (this.autoMemberInjectionRule.HasFlag(Rules.AutoMemberInjection.PropertiesWithPublicSetter) && ((PropertyInfo)member.MemberInfo).HasSetMethod() ||
-                     this.autoMemberInjectionRule.HasFlag(Rules.AutoMemberInjection.PropertiesWithLimitedAccess)));
+                    member.MemberInfo is FieldInfo && autoMemberInjectionRule.HasFlag(Rules.AutoMemberInjection.PrivateFields) ||
+                    member.MemberInfo is PropertyInfo && (autoMemberInjectionRule.HasFlag(Rules.AutoMemberInjection.PropertiesWithPublicSetter) && ((PropertyInfo)member.MemberInfo).HasSetMethod() ||
+                     autoMemberInjectionRule.HasFlag(Rules.AutoMemberInjection.PropertiesWithLimitedAccess)));
 
             return members.Where(member => member.TypeInformation.HasDependencyAttribute);
         }

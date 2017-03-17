@@ -19,8 +19,9 @@ namespace Stashbox.BuildUp
         private bool instanceBuilt;
 
         public WireUpObjectBuilder(object instance, IContainerExtensionManager containerExtensionManager, IContainerContext containerContext,
-            IMetaInfoProvider metaInfoProvider, IExpressionBuilder expressionBuilder, InjectionParameter[] injectionParameters = null)
-            : base(containerContext)
+            IMetaInfoProvider metaInfoProvider, IExpressionBuilder expressionBuilder, 
+            InjectionParameter[] injectionParameters = null, bool isDecorator = false)
+            : base(containerContext, isDecorator)
         {
             this.instance = instance;
             this.containerExtensionManager = containerExtensionManager;

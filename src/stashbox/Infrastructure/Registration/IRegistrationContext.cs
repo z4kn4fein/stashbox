@@ -118,13 +118,13 @@ namespace Stashbox.Infrastructure.Registration
         /// <param name="resolutionCondition">The predicate.</param>
         /// <returns>The <see cref="IRegistrationContext"/> which on this method was called.</returns>
         IRegistrationContext When(Func<TypeInformation, bool> resolutionCondition);
-
-
+        
         /// <summary>
         /// Creates a service registration from the registration context.
         /// </summary>
+        /// <param name="isDecorator">True if we are requesting a decorator registration, otherwise false.</param>
         /// <returns>The created service registration.</returns>
-        IServiceRegistration CreateServiceRegistration();
+        IServiceRegistration CreateServiceRegistration(bool isDecorator = false);
 
         /// <summary>
         /// Registers the registration into the container.

@@ -53,7 +53,7 @@ namespace Stashbox.MetaInfo
                 DependencyName = parameterInfo.GetCustomAttribute<DependencyAttribute>()?.Name,
                 HasDependencyAttribute = parameterInfo.GetCustomAttribute<DependencyAttribute>() != null,
                 ParentType = this.typeTo,
-                CustomAttributes = parameterInfo.GetCustomAttributes().ToArray(),
+                CustomAttributes = parameterInfo.GetCustomAttributes()?.ToArray(),
                 ParameterName = parameterInfo.Name,
                 HasDefaultValue = parameterInfo.HasDefaultValue(),
                 DefaultValue = parameterInfo.DefaultValue
@@ -71,7 +71,7 @@ namespace Stashbox.MetaInfo
                            DependencyName = propertyInfo.GetCustomAttribute<DependencyAttribute>()?.Name,
                            HasDependencyAttribute = propertyInfo.GetCustomAttribute<DependencyAttribute>() != null,
                            ParentType = this.typeTo,
-                           CustomAttributes = propertyInfo.GetCustomAttributes().ToArray(),
+                           CustomAttributes = propertyInfo.GetCustomAttributes()?.ToArray(),
                            ParameterName = propertyInfo.Name,
                            IsMember = true
                        },
@@ -86,7 +86,7 @@ namespace Stashbox.MetaInfo
                                    DependencyName = fieldInfo.GetCustomAttribute<DependencyAttribute>()?.Name,
                                    HasDependencyAttribute = fieldInfo.GetCustomAttribute<DependencyAttribute>() != null,
                                    ParentType = this.typeTo,
-                                   CustomAttributes = fieldInfo.GetCustomAttributes().ToArray(),
+                                   CustomAttributes = fieldInfo.GetCustomAttributes()?.ToArray(),
                                    ParameterName = fieldInfo.Name,
                                    IsMember = true
                                },

@@ -18,8 +18,9 @@ namespace Stashbox.BuildUp
         private readonly IExpressionBuilder expressionBuilder;
 
         public DefaultObjectBuilder(IContainerContext containerContext, IMetaInfoProvider metaInfoProvider,
-            IContainerExtensionManager containerExtensionManager, IExpressionBuilder expressionBuilder, InjectionParameter[] injectionParameters = null)
-            : base(containerContext)
+            IContainerExtensionManager containerExtensionManager, IExpressionBuilder expressionBuilder, 
+            InjectionParameter[] injectionParameters = null, bool isDecorator = false)
+            : base(containerContext, isDecorator)
         {
             if (injectionParameters != null)
                 this.injectionParameters = injectionParameters;
@@ -50,6 +51,5 @@ namespace Stashbox.BuildUp
                     this.metaInfoProvider.GetResolutionMembers(resolutionInfo, this.injectionParameters),
                     this.metaInfoProvider.GetResolutionMethods(resolutionInfo, this.injectionParameters));
         }
-
     }
 }

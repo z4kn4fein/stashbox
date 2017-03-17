@@ -10,8 +10,8 @@ namespace Stashbox.BuildUp
         private readonly Expression expression;
         private object instance;
 
-        public InstanceObjectBuilder(object instance, IContainerContext containerContext)
-            : base(containerContext)
+        public InstanceObjectBuilder(object instance, IContainerContext containerContext, bool isDecorator = false)
+            : base(containerContext, isDecorator)
         {
             this.expression = Expression.Constant(instance);
             this.instance = instance;

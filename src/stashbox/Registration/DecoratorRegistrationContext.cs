@@ -23,18 +23,6 @@ namespace Stashbox.Registration
             return this;
         }
 
-        public IDecoratorRegistrationContext WithFactory(Func<object> singleFactory)
-        {
-            this.registrationContext.WithFactory(singleFactory);
-            return this;
-        }
-
-        public IDecoratorRegistrationContext WithFactory(Func<IStashboxContainer, object> containerFactory)
-        {
-            this.registrationContext.WithFactory(containerFactory);
-            return this;
-        }
-
         public IDecoratorRegistrationContext WithAutoMemberInjection(
             Rules.AutoMemberInjection rule = Rules.AutoMemberInjection.PropertiesWithPublicSetter)
         {
@@ -48,16 +36,11 @@ namespace Stashbox.Registration
             return this;
         }
 
-        public IDecoratorRegistrationContext WithInstance(object instance)
-        {
-            this.registrationContext.WithInstance(instance);
-            return this;
-        }
-
         public IStashboxContainer Register()
         {
             this.registrationContext.ContainerContext.DecoratorRepository
-                .AddDecorator(this.registrationContext.TypeFrom, this.registrationContext.CreateServiceRegistration());
+                .AddDecorator(this.registrationContext.TypeFrom, this.registrationContext.CreateServiceRegistration(isDecorator: true));
+            this.registrationContext.ContainerContext.DelegateRepository.InvalidateDelegateCache();
 
             return this.registrationContext.ContainerContext.Container;
         }

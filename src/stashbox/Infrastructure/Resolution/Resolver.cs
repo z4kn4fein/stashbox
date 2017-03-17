@@ -30,8 +30,10 @@ namespace Stashbox.Infrastructure.Resolution
         /// <param name="typeInfo">The type info.</param>
         /// <param name="resolutionInfo">The resolution info.</param>
         /// <returns>The enumerable item expressions.</returns>
-        public virtual Expression[] GetExpressions(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo) =>
+        public virtual Expression[] GetExpressions(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo)
+        {
             throw new NotImplementedException("The SupportsMany property is set to true, but the GetManyExpression method is not implemented.");
+        }
 
         /// <summary>
         /// Returns true, if the resolver can be used to activate the requested service, otherwise false.
