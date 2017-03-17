@@ -32,6 +32,7 @@ Stashbox is a lightweight, portable dependency injection framework for .NET base
  - **Container extensions** - the functionality of the container can be extended with custom extensions, e.g. [Decorator extension](https://github.com/z4kn4fein/stashbox-decoratorextension)
  - **Custom configuration** - the behavior of the container can be controlled with custom configurations.
  - **Container validation** - the resolution graph can be validated by calling the `Validate()` function.
+ - **Decorator support** - service decorators can be registered into the container.
 
 ## Supported platforms
 
@@ -58,7 +59,7 @@ container.RegisterType<IBarbarian, Wulfgar>();
 var wulfgar = container.Resolve<IBarbarian>();
 ```
 ## Extensions
- - [Decorator extension](https://github.com/z4kn4fein/stashbox-decoratorextension)
+ - [Decorator extension](https://github.com/z4kn4fein/stashbox-decoratorextension) (obsolate, the decorator pattern support is a built-in feature from version 2.3.0)
  - [Stashbox.Web.WebApi](https://github.com/z4kn4fein/stashbox-web-webapi)
  - [Stashbox.Web.Mvc](https://github.com/z4kn4fein/stashbox-web-mvc)
  - [Stashbox.Extension.Wcf](https://github.com/devworker55/stashbox-extension-wcf)
