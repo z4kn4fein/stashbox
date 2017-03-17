@@ -174,6 +174,31 @@ namespace Stashbox.Tests
             }
         }
 
+        [TestMethod]
+        public void DecoratorTests_Multiple_Scoped()
+        {
+            using (var container = new StashboxContainer())
+            {
+                container.RegisterScoped<ITest1, Test1>();
+                container.RegisterDecorator<ITest1, TestDecorator1>();
+                container.RegisterDecorator<ITest1, TestDecorator2>();
+
+                using (var child = container.BeginScope())
+                {
+                    var test = child.Resolve<ITest1>();
+
+                    Assert.IsNotNull(test);
+                    Assert.IsInstanceOfType(test, typeof(TestDecorator2));
+
+                    Assert.IsNotNull(test.Test);
+                    Assert.IsInstanceOfType(test.Test, typeof(TestDecorator1));
+
+                    Assert.IsNotNull(test.Test.Test);
+                    Assert.IsInstanceOfType(test.Test.Test, typeof(Test1));
+                }
+            }
+        }
+
         public interface ITest1 { ITest1 Test { get; } }
 
         public class Test1 : ITest1

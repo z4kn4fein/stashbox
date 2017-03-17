@@ -224,6 +224,26 @@ namespace Stashbox.Tests
             Assert.IsTrue(test6.Test1.Disposed);
         }
 
+        [TestMethod]
+        public void DisposeTests_Instance_TrackTransient()
+        {
+            ITest1 test = new Test1();
+            using (var container = new StashboxContainer(config => config.WithDisposableTransientTracking()))
+                container.RegisterInstance(test);
+
+            Assert.IsTrue(test.Disposed);
+        }
+
+        [TestMethod]
+        public void DisposeTests_WireUp_TrackTransient()
+        {
+            ITest1 test = new Test1();
+            using (var container = new StashboxContainer(config => config.WithDisposableTransientTracking()))
+                container.WireUp(test);
+
+            Assert.IsTrue(test.Disposed);
+        }
+
         public interface ITest11 { }
 
         public interface ITest12 { }
