@@ -17,7 +17,7 @@
     artifact: /.*\.nupkg/
 
   environment:
-    build_version: 2.2.3
+    build_version: 2.3.0
     COVERALLS_REPO_TOKEN:
       secure: Q9gcbZnzJ5a0YYF6mkr4QoQylIzeQmVytMnIe4WL7aPtb30SdNes7brLkvnXOirt
 
@@ -28,7 +28,7 @@
   pull_requests:
     do_not_increment_build_number: true
   
-  image: Visual Studio 2017
+  image: Visual Studio 2017 RC
   
   configuration: Release
   
@@ -79,7 +79,7 @@
       secure: 2bITagXOj2s3bTJaGXh8/iyWtST8OQOFaMM+0GAKgZts9OjCVCiV7C+E/0SYsM6M
 
   environment:
-    build_version: 2.2.3
+    build_version: 2.3.0
     COVERALLS_REPO_TOKEN:
       secure: Q9gcbZnzJ5a0YYF6mkr4QoQylIzeQmVytMnIe4WL7aPtb30SdNes7brLkvnXOirt
 
@@ -88,7 +88,7 @@
   pull_requests:
     do_not_increment_build_number: true
   
-  image: Visual Studio 2017
+  image: Visual Studio 2017 RC
   
   configuration: Release
   

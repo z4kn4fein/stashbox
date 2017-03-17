@@ -3,33 +3,31 @@ using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.ContainerExtension;
 using Stashbox.Infrastructure.Registration;
 using System;
+using System.Collections.Generic;
 using Stashbox.Configuration;
 using Stashbox.BuildUp.Expressions;
+using Stashbox.Entity.Resolution;
 
 namespace Stashbox.Registration
 {
     internal class RegistrationContext : RegistrationContextBase, IRegistrationContext
     {
-        private readonly IContainerExtensionManager containerExtensionManager;
-        
-        public RegistrationContext(Type typeFrom, Type typeTo, IContainerContext containerContext, 
+        public RegistrationContext(Type typeFrom, Type typeTo, IContainerContext containerContext,
             IExpressionBuilder expressionBuilder, IContainerExtensionManager containerExtensionManager)
-            : base(typeFrom, typeTo, containerContext, expressionBuilder)
-        {
-            this.containerExtensionManager = containerExtensionManager;
-        }
+            : base(typeFrom, typeTo, containerContext, expressionBuilder, containerExtensionManager)
+        { }
 
         public IStashboxContainer Register()
         {
-            base.PrepareRegistration(this.containerExtensionManager);
-            this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.ContainerContext, base.TypeTo, base.TypeFrom, base.RegistrationContextData.InjectionParameters);
+            base.CompleteRegistration();
+            base.ContainerExtensionManager.ExecuteOnRegistrationExtensions(this.ContainerContext, base.TypeTo, base.TypeFrom, base.RegistrationContextData.InjectionParameters);
             return this.ContainerContext.Container;
         }
 
         public IStashboxContainer ReMap()
         {
-            base.PrepareRegistration(this.containerExtensionManager, true);
-            this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.ContainerContext, base.TypeTo, base.TypeFrom, base.RegistrationContextData.InjectionParameters);
+            base.CompleteRegistration(true);
+            base.ContainerExtensionManager.ExecuteOnRegistrationExtensions(this.ContainerContext, base.TypeTo, base.TypeFrom, base.RegistrationContextData.InjectionParameters);
 
             this.ContainerContext.DelegateRepository.InvalidateDelegateCache();
             return this.ContainerContext.Container;
@@ -102,9 +100,17 @@ namespace Stashbox.Registration
 
         public IRegistrationContext WithAutoMemberInjection(Rules.AutoMemberInjection rule = Rules.AutoMemberInjection.PropertiesWithPublicSetter)
         {
-            this.RegistrationContextData.AutoMemberInjectionEnabled = true;
-            this.RegistrationContextData.AutoMemberInjectionRule = rule;
+            base.RegistrationContextData.AutoMemberInjectionEnabled = true;
+            base.RegistrationContextData.AutoMemberInjectionRule = rule;
             return this;
         }
+
+        public IRegistrationContext WithConstructorSelectionRule(Func<IEnumerable<ResolutionConstructor>, ResolutionConstructor> rule)
+        {
+            base.RegistrationContextData.ConstructorSelectionRule = rule;
+            return this;
+        }
+
+        public new IServiceRegistration CreateServiceRegistration() => base.CreateServiceRegistration();
     }
 }

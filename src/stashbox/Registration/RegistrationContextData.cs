@@ -3,6 +3,7 @@ using Stashbox.Entity;
 using Stashbox.Infrastructure;
 using System;
 using System.Collections.Generic;
+using Stashbox.Entity.Resolution;
 
 namespace Stashbox.Registration
 {
@@ -70,6 +71,11 @@ namespace Stashbox.Registration
         /// True if auto member injection is enabled on this instance.
         /// </summary>
         public bool AutoMemberInjectionEnabled { get; set; }
+
+        /// <summary>
+        /// The constructor selection rule.
+        /// </summary>
+        public Func<IEnumerable<ResolutionConstructor>, ResolutionConstructor> ConstructorSelectionRule { get; set; }
 
         /// <summary>
         /// Constructs a <see cref="RegistrationContextData"/>

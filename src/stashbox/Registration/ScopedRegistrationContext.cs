@@ -7,19 +7,15 @@ namespace Stashbox.Registration
 {
     internal class ScopedRegistrationContext : RegistrationContextBase
     {
-        private readonly IContainerExtensionManager containerExtensionManager;
-
         public ScopedRegistrationContext(Type typeFrom, Type typeTo, IContainerContext containerContext, 
             IExpressionBuilder expressionBuilder, IContainerExtensionManager containerExtensionManager)
-            : base(typeFrom, typeTo, containerContext, expressionBuilder)
-        {
-            this.containerExtensionManager = containerExtensionManager;
-        }
+            : base(typeFrom, typeTo, containerContext, expressionBuilder, containerExtensionManager)
+        { }
 
         public void InitFromScope(RegistrationContextData scopeData)
         {
             base.RegistrationContextData = scopeData;
-            base.PrepareRegistration(this.containerExtensionManager);
+            base.CompleteRegistration();
         }
     }
 }

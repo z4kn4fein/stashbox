@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using Stashbox.Entity;
 using Stashbox.Configuration;
+using Stashbox.Entity.Resolution;
 
 namespace Stashbox.Infrastructure.Registration
 {
@@ -67,6 +69,13 @@ namespace Stashbox.Infrastructure.Registration
         IRegistrationContext WithAutoMemberInjection(Rules.AutoMemberInjection rule = Rules.AutoMemberInjection.PropertiesWithPublicSetter);
 
         /// <summary>
+        /// The constructor selection rule.
+        /// </summary>
+        /// <param name="rule">The constructor selection rule.</param>
+        /// <returns>The <see cref="IRegistrationContext"/> which on this method was called.</returns>
+        IRegistrationContext WithConstructorSelectionRule(Func<IEnumerable<ResolutionConstructor>, ResolutionConstructor> rule);
+
+        /// <summary>
         /// Sets an instance as the resolution target of the registration.
         /// </summary>
         /// <param name="instance">The instance.</param>
@@ -109,17 +118,24 @@ namespace Stashbox.Infrastructure.Registration
         /// <param name="resolutionCondition">The predicate.</param>
         /// <returns>The <see cref="IRegistrationContext"/> which on this method was called.</returns>
         IRegistrationContext When(Func<TypeInformation, bool> resolutionCondition);
-        
+
+
+        /// <summary>
+        /// Creates a service registration from the registration context.
+        /// </summary>
+        /// <returns>The created service registration.</returns>
+        IServiceRegistration CreateServiceRegistration();
+
         /// <summary>
         /// Registers the registration into the container.
         /// </summary>
-        /// <returns>The <see cref="IRegistrationContext"/> which on this method was called.</returns>
+        /// <returns>The container.</returns>
         IStashboxContainer Register();
 
         /// <summary>
         /// Replaces an already registered service.
         /// </summary>
-        /// <returns>The <see cref="IRegistrationContext"/> which on this method was called.</returns>
+        /// <returns>The container.</returns>
         IStashboxContainer ReMap();
     }
 }
