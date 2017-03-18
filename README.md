@@ -24,15 +24,15 @@ Stashbox is a lightweight, portable dependency injection framework for .NET base
  - **IDisposable object tracking** - `IDisposable` objects are being disposed by the container.
  - **Circular dependency tracking** - the container checks the dependency graph for circular dependencies, specific excpetion will be thrown if found any.
  - **Special types** - generic wrappers:
-  - Collections: everything assignable to `IEnumerable<T>` e.g. `T[]`, `ICollection<T>`, `IReadOnlyCollection<T>`, `IList<T>` etc.
-  - `Lazy<>`, `Func<>`, `Tuple<>`
-  - Parameter injection over factory method arguments e.g. `Func<TParam, TService>`, `Func<TParam1, TParam2, TService>`, etc. applied to subdependencies as well.
-  - Nesting support e.g. `Tuple<TService, IEnumerable<Func<TParam, Lazy<TService1>>>>`.
+     - Collections: everything assignable to `IEnumerable<T>` e.g. `T[]`, `ICollection<T>`, `IReadOnlyCollection<T>`, `IList<T>` etc.
+     - `Lazy<>`, `Func<>`, `Tuple<>`
+     - Parameter injection over factory method arguments e.g. `Func<TParam, TService>`, `Func<TParam1, TParam2, TService>`, etc. applied to subdependencies as well.
+     - Nested wrappers e.g. `Tuple<TService, IEnumerable<Func<TParam, Lazy<TService1>>>>`.
  - **Custom resolvers** - the existing resolution operations can be extended with custom resolvers.
  - **Container extensions** - the functionality of the container can be extended with custom extensions, e.g. [Decorator extension](https://github.com/z4kn4fein/stashbox-decoratorextension)
  - **Custom configuration** - the behavior of the container can be controlled with custom configurations.
  - **Container validation** - the resolution graph can be validated by calling the `Validate()` function.
- - **Decorator support** - service decorators can be registered into the container, also can used for intercepting with Castle DynamicProxy
+ - **Decorator support / Interception** - service decorators can be registered into the container and also can used for interception with Castle DynamicProxy
 
 ## Supported platforms
 
