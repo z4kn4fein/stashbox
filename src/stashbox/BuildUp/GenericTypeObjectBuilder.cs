@@ -1,12 +1,11 @@
 ﻿using Stashbox.BuildUp.Expressions;
 using Stashbox.Entity;
-using Stashbox.Exceptions;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.ContainerExtension;
 using Stashbox.Registration;
-using Stashbox.Utils;
 using System;
 using System.Linq.Expressions;
+using Stashbox.Infrastructure.Registration;
 
 namespace Stashbox.BuildUp
 {
@@ -17,6 +16,7 @@ namespace Stashbox.BuildUp
         private readonly IMetaInfoProvider metaInfoProvider;
         private readonly IContainerContext containerContext;
         private readonly IExpressionBuilder expressionBuilder;
+        private readonly bool isDecorator;
 
         public GenericTypeObjectBuilder(RegistrationContextData registrationContextData, IContainerContext containerContext,
             IMetaInfoProvider metaInfoProvider, IContainerExtensionManager containerExtensionManager, 
@@ -28,32 +28,27 @@ namespace Stashbox.BuildUp
             this.containerContext = containerContext;
             this.containerExtensionManager = containerExtensionManager;
             this.expressionBuilder = expressionBuilder;
+            this.isDecorator = isDecorator;
         }
 
         protected override Expression GetExpressionInternal(ResolutionInfo resolutionInfo, Type resolveType)
         {
             var genericType = this.metaInfoProvider.TypeTo.MakeGenericType(resolveType.GetGenericArguments());
-            var typeInfo = new TypeInformation
-            {
-                Type = resolveType,
-                DependencyName = NameGenerator.GetRegistrationName(resolveType, genericType)
-            };
-
-            this.RegisterConcreteGenericType(resolveType, genericType);
-
-            var registration = this.containerContext.RegistrationRepository.GetRegistrationOrDefault(typeInfo);
-            if (registration == null)
-                throw new ResolutionFailedException(genericType.FullName);
-
+            var registration = this.RegisterConcreteGenericType(resolveType, genericType);
             return registration.GetExpression(resolutionInfo, resolveType);
         }
 
-        private void RegisterConcreteGenericType(Type resolveType, Type genericType)
+        private IServiceRegistration RegisterConcreteGenericType(Type resolveType, Type genericType)
         {
             var registrationContext = new ScopedRegistrationContext(resolveType, genericType, this.containerContext, this.expressionBuilder, this.containerExtensionManager);
             var newData = this.registrationContextData.CreateCopy();
             newData.Name = null;
-            registrationContext.InitFromScope(newData);
+
+            if (!this.isDecorator) return registrationContext.InitFromScope(newData);
+
+            var registration = registrationContext.CreateRegistration(newData, this.isDecorator);
+            this.containerContext.DecoratorRepository.AddDecorator(resolveType, registration);
+            return registration;
         }
     }
 }

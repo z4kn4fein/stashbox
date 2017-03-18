@@ -18,19 +18,32 @@ namespace Stashbox.BuildUp
 
         public Expression GetExpression(ResolutionInfo resolutionInfo, Type resolveType)
         {
-            if (this.isDecorator) return this.GetExpressionInternal(resolutionInfo, resolveType);
+            if (this.isDecorator || resolutionInfo.CurrentlyDecoratingTypes.Contains(resolveType))
+                return this.GetExpressionInternal(resolutionInfo, resolveType);
 
             var decorators = this.containerContext.DecoratorRepository.GetDecoratorsOrDefault(resolveType);
-            if (decorators == null) return this.GetExpressionInternal(resolutionInfo, resolveType);
+            if (decorators == null)
+            {
+                if (resolveType.IsClosedGenericType())
+                {
+                    decorators = this.containerContext.DecoratorRepository.GetDecoratorsOrDefault(resolveType.GetGenericTypeDefinition());
+                    if (decorators == null)
+                        return this.GetExpressionInternal(resolutionInfo, resolveType);
+                }
+                else
+                    return this.GetExpressionInternal(resolutionInfo, resolveType);
+            }
 
+            resolutionInfo.CurrentlyDecoratingTypes.Add(resolveType);
             var expression = this.GetExpressionInternal(resolutionInfo, resolveType);
 
             foreach (var decoratorRegistration in decorators)
             {
-                resolutionInfo.ExpressionOverrides.AddOrUpdate(resolveType, expression, (oldValue,newValue) => newValue);
+                resolutionInfo.ExpressionOverrides.AddOrUpdate(resolveType, expression, (oldValue, newValue) => newValue);
                 expression = decoratorRegistration.GetExpression(resolutionInfo, resolveType);
             }
 
+            resolutionInfo.CurrentlyDecoratingTypes.Remove(resolveType);
             return expression;
         }
 

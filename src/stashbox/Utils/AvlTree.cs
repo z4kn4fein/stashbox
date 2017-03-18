@@ -4,6 +4,34 @@ using System.Collections.Generic;
 
 namespace Stashbox.Utils
 {
+    internal class AvlTree<TKey, TValue> : IEnumerable<TValue>
+    {
+        private AvlTree<TValue> repository;
+
+        public AvlTree()
+        {
+            this.repository = new AvlTree<TValue>();
+        }
+
+        public TValue GetOrDefault(TKey key)
+        {
+            var hash = key.GetHashCode();
+            return this.repository.GetOrDefault(hash);
+        }
+
+        public void AddOrUpdate(TKey key, TValue value,
+            Func<TValue, TValue, TValue> updateDelegate = null)
+        {
+            var hash = key.GetHashCode();
+            this.repository = this.repository.AddOrUpdate(hash, value, updateDelegate);
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() => this.repository.GetEnumerator();
+
+        public IEnumerator<TValue> GetEnumerator() => this.repository.GetEnumerator();
+    }
+
+
     internal class AvlTree<TValue> : IEnumerable<TValue>
     {
         private static readonly AvlTree<TValue> Empty = new AvlTree<TValue>();
@@ -38,10 +66,8 @@ namespace Stashbox.Utils
         public AvlTree()
         { }
 
-        public virtual AvlTree<TValue> AddOrUpdate(int key, TValue value, Func<TValue, TValue, TValue> updateDelegate = null)
-        {
-            return this.Add(key, value, updateDelegate);
-        }
+        public AvlTree<TValue> AddOrUpdate(int key, TValue value, Func<TValue, TValue, TValue> updateDelegate = null) =>
+            this.Add(key, value, updateDelegate);
 
         public TValue GetOrDefault(int key)
         {

@@ -10,8 +10,7 @@ namespace Stashbox.BuildUp.Resolution
         public override bool SupportsMany => true;
 
         public override bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo) =>
-            containerContext.ContainerConfigurator.ContainerConfiguration.ParentContainerResolutionEnabled &&
-                     containerContext.Container.ParentContainer != null && containerContext.Container.ParentContainer.CanResolve(typeInfo.Type, typeInfo.DependencyName);
+            containerContext.Container.ParentContainer != null && containerContext.Container.ParentContainer.CanResolve(typeInfo.Type, typeInfo.DependencyName);
 
         public override Expression GetExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo) =>
             containerContext.Container.ParentContainer.ContainerContext.ResolutionStrategy

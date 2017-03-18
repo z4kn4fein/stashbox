@@ -23,12 +23,15 @@ namespace Stashbox.Entity
 
         internal HashSet<Type> CircularDependencyBarrier { get; }
 
-        internal ConcurrentTree<Type, Expression> ExpressionOverrides { get; }
+        internal AvlTree<Type, Expression> ExpressionOverrides { get; }
+
+        internal HashSet<Type> CurrentlyDecoratingTypes { get; }
 
         internal ResolutionInfo()
         {
             this.CircularDependencyBarrier = new HashSet<Type>();
-            this.ExpressionOverrides = new ConcurrentTree<Type, Expression>();
+            this.ExpressionOverrides = new AvlTree<Type, Expression>();
+            this.CurrentlyDecoratingTypes = new HashSet<Type>();
         }
     }
 }

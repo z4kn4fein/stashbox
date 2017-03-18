@@ -35,11 +35,13 @@ namespace Stashbox.Registration
             this.expressionBuilder = expressionBuilder;
         }
 
-        protected void CompleteRegistration(bool update = false)
+        protected IServiceRegistration CompleteRegistration(bool update = false)
         {
             var registration = this.CreateServiceRegistration();
             this.ContainerContext.RegistrationRepository.AddOrUpdateRegistration(this.TypeFrom, this.RegistrationContextData.Name, update, registration);
             this.CompleteScopeManagement(update, registration.LifetimeManager, registration.ObjectBuilder);
+
+            return registration;
         }
 
         protected IServiceRegistration CreateServiceRegistration(bool isDecorator = false)

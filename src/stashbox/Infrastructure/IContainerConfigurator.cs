@@ -23,12 +23,6 @@ namespace Stashbox.Infrastructure
         IContainerConfigurator WithDisposableTransientTracking();
 
         /// <summary>
-        /// Enables the resolution through the parent container.
-        /// </summary>
-        /// <returns>The container configurator.</returns>
-        IContainerConfigurator WithParentContainerResolution();
-
-        /// <summary>
         /// Enables the circular dependency tracking.
         /// </summary>
         /// <returns>The container configurator.</returns>
