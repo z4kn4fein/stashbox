@@ -25,12 +25,7 @@ namespace Stashbox.Configuration
         /// If it's set to true the container will track transient objects for disposal.
         /// </summary>
         public bool TrackTransientsForDisposalEnabled { get; internal set; }
-
-        /// <summary>
-        /// If it's set to true the container will use the parent container for missing registration resolution.
-        /// </summary>
-        public bool ParentContainerResolutionEnabled { get; internal set; }
-
+        
         /// <summary>
         /// If it's set to true the container will track circular dependencies in the dependency graph and will throw an exception if any of it found.
         /// </summary>
@@ -79,7 +74,6 @@ namespace Stashbox.Configuration
         internal ContainerConfiguration()
         {
             this.TrackTransientsForDisposalEnabled = false;
-            this.ParentContainerResolutionEnabled = false;
             this.CircularDependencyTrackingEnabled = false;
             this.OptionalAndDefaultValueInjectionEnabled = false;
             this.UnknownTypeResolutionEnabled = false;

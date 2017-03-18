@@ -2,6 +2,7 @@
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.ContainerExtension;
 using System;
+using Stashbox.Infrastructure.Registration;
 
 namespace Stashbox.Registration
 {
@@ -12,10 +13,16 @@ namespace Stashbox.Registration
             : base(typeFrom, typeTo, containerContext, expressionBuilder, containerExtensionManager)
         { }
 
-        public void InitFromScope(RegistrationContextData scopeData)
+        public IServiceRegistration InitFromScope(RegistrationContextData scopeData)
         {
             base.RegistrationContextData = scopeData;
-            base.CompleteRegistration();
+            return base.CompleteRegistration();
+        }
+
+        public IServiceRegistration CreateRegistration(RegistrationContextData scopeData, bool isDecorator = false)
+        {
+            base.RegistrationContextData = scopeData;
+            return base.CreateServiceRegistration(isDecorator);
         }
     }
 }

@@ -29,13 +29,6 @@ namespace Stashbox.Configuration
         }
 
         /// <inheritdoc />
-        public IContainerConfigurator WithParentContainerResolution()
-        {
-            this.ContainerConfiguration.ParentContainerResolutionEnabled = true;
-            return this;
-        }
-
-        /// <inheritdoc />
         public IContainerConfigurator WithCircularDependencyTracking()
         {
             this.ContainerConfiguration.CircularDependencyTrackingEnabled = true;
