@@ -274,6 +274,11 @@ namespace Stashbox.Tests
 
             public void Dispose()
             {
+                if (Disposed)
+                {
+                    throw new ObjectDisposedException(nameof(Test1));
+                }
+
                 this.Disposed = true;
             }
         }
@@ -300,6 +305,11 @@ namespace Stashbox.Tests
 
             public void Dispose()
             {
+                if (Disposed)
+                {
+                    throw new ObjectDisposedException(nameof(Test4));
+                }
+
                 this.Disposed = true;
             }
         }

@@ -82,7 +82,8 @@ namespace Stashbox.Registration
         /// <inheritdoc />
         public Expression GetExpression(ResolutionInfo resolutionInfo, Type resolveType)
         {
-            var expr = this.LifetimeManager == null ? this.ObjectBuilder.GetExpression(resolutionInfo, resolveType) :
+            var expr = this.LifetimeManager == null || this.ServiceType.IsOpenGenericType() ? 
+                this.ObjectBuilder.GetExpression(resolutionInfo, resolveType) :
                 this.LifetimeManager.GetExpression(this.containerContext, this.ObjectBuilder, resolutionInfo, resolveType);
 
             if (expr == null)
