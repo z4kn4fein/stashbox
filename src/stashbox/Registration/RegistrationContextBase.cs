@@ -34,6 +34,18 @@ namespace Stashbox.Registration
             this.expressionBuilder = expressionBuilder;
         }
 
+        public IServiceRegistration InitWithExistingData(RegistrationContextData data)
+        {
+            this.RegistrationContextData = data;
+            return this.CompleteRegistration();
+        }
+
+        public IServiceRegistration CreateServiceRegistration(RegistrationContextData data, bool isDecorator = false)
+        {
+            this.RegistrationContextData = data;
+            return this.CreateServiceRegistration(isDecorator);
+        }
+
         protected IServiceRegistration CompleteRegistration(bool update = false)
         {
             var registration = this.CreateServiceRegistration();
