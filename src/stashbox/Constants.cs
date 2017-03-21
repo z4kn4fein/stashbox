@@ -11,7 +11,7 @@ namespace Stashbox
     {
         public static ParameterExpression ScopeExpression = Expression.Parameter(typeof(IResolutionScope));
 
-        public static MethodInfo AddDisposalMethod = typeof(IResolutionScope).GetSingleMethod("AddDisposableTracking");
+        public static MethodInfo AddDisposalMethod = typeof(IDisposableHandler).GetSingleMethod("AddDisposableTracking");
 
         public static MethodInfo BuildExtensionMethod = typeof(IContainerExtensionManager).GetSingleMethod("ExecutePostBuildExtensions");
 

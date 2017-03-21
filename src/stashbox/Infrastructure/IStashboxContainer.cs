@@ -22,19 +22,9 @@ namespace Stashbox.Infrastructure
         void RegisterResolver(Resolver resolver);
 
         /// <summary>
-        /// Begins a new scope.
-        /// </summary>
-        IDependencyResolver BeginScope();
-
-        /// <summary>
         /// Creates a child container.
         /// </summary>
         IStashboxContainer CreateChildContainer();
-
-        /// <summary>
-        /// The activation context.
-        /// </summary>
-        IActivationContext ActivationContext { get; }
 
         /// <summary>
         /// Stores the parent container object if has any, otherwise null.
