@@ -57,7 +57,7 @@ namespace Stashbox.Tests
                 Assert.AreEqual(inst.I, null);
             }
         }
-        
+
         [TestMethod]
         [ExpectedException(typeof(ResolutionFailedException))]
         public void ResolverTests_DefaultValue_RefType_WithOutOptional()
@@ -66,6 +66,18 @@ namespace Stashbox.Tests
             {
                 container.RegisterType<Test3>();
                 container.Resolve<Test3>();
+            }
+        }
+
+        [TestMethod]
+        public void ResolverTests_DefaultValue_RefType_WithOutOptional_AllowNull()
+        {
+            using (var container = new StashboxContainer(config => config.WithOptionalAndDefaultValueInjection()))
+            {
+                container.RegisterType<Test3>();
+                var result = container.Resolve<Test3>(nullResultAllowed: true);
+
+                Assert.IsNull(result);
             }
         }
 
@@ -154,7 +166,7 @@ namespace Stashbox.Tests
                 Assert.IsNotNull(inst.I);
             }
         }
-        
+
         [TestMethod]
         public void ResolverTests_MemberInject_WithAutoMemberInjection_Field()
         {

@@ -1,5 +1,6 @@
 ﻿using Stashbox.Entity;
 using System;
+using Stashbox.Exceptions;
 
 namespace Stashbox.Infrastructure.Resolution
 {
@@ -14,8 +15,9 @@ namespace Stashbox.Infrastructure.Resolution
         /// <param name="type">The service type.</param>
         /// <param name="resolutionScope">The resolution scope.</param>
         /// <param name="name">The service name.</param>
+        /// <param name="nullResultAllowed">If true, the container will return with null instead of throwing <see cref="ResolutionFailedException"/>.</param>
         /// <returns>The resolved object.</returns>
-        object Activate(Type type, IResolutionScope resolutionScope, string name = null);
+        object Activate(Type type, IResolutionScope resolutionScope, string name = null, bool nullResultAllowed = false);
 
         /// <summary>
         /// Activates a type.
@@ -33,7 +35,8 @@ namespace Stashbox.Infrastructure.Resolution
         /// <param name="parameterTypes">The parameter types.</param>
         /// <param name="resolutionScope">The resolution scope.</param>
         /// <param name="name">The service name.</param>
+        /// <param name="nullResultAllowed">If true, the container will return with null instead of throwing <see cref="ResolutionFailedException"/>.</param>
         /// <returns>The delegate which can be used for activate a type.</returns>
-        Delegate ActivateFactory(Type type, Type[] parameterTypes, IResolutionScope resolutionScope, string name = null);
+        Delegate ActivateFactory(Type type, Type[] parameterTypes, IResolutionScope resolutionScope, string name = null, bool nullResultAllowed = false);
     }
 }

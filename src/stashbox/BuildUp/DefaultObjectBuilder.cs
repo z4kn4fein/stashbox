@@ -2,7 +2,6 @@
 using Stashbox.BuildUp.Expressions;
 using Stashbox.Entity;
 using Stashbox.Entity.Resolution;
-using Stashbox.Exceptions;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.ContainerExtension;
 using System.Linq.Expressions;

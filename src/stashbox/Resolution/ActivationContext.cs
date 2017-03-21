@@ -19,16 +19,16 @@ namespace Stashbox.Resolution
             this.resolverSelector = resolverSelector;
         }
 
-        public object Activate(Type type, IResolutionScope resolutionScope, string name = null)
+        public object Activate(Type type, IResolutionScope resolutionScope, string name = null, bool nullResultAllowed = false)
         {
             var cachedFactory = this.containerContext.DelegateRepository.GetDelegateCacheOrDefault(type, name);
-            return cachedFactory != null ? cachedFactory(resolutionScope) : this.Activate(ResolutionInfo.New(resolutionScope), type, name);
+            return cachedFactory != null ? cachedFactory(resolutionScope) : this.Activate(ResolutionInfo.New(resolutionScope, nullResultAllowed), type, name);
         }
 
-        public Delegate ActivateFactory(Type type, Type[] parameterTypes, IResolutionScope resolutionScope, string name = null)
+        public Delegate ActivateFactory(Type type, Type[] parameterTypes, IResolutionScope resolutionScope, string name = null, bool nullResultAllowed = false)
         {
             var cachedFactory = this.containerContext.DelegateRepository.GetFactoryDelegateCacheOrDefault(type, parameterTypes, name);
-            return cachedFactory != null ? cachedFactory(resolutionScope) : ActivateFactoryDelegate(type, parameterTypes, resolutionScope, name);
+            return cachedFactory != null ? cachedFactory(resolutionScope) : ActivateFactoryDelegate(type, parameterTypes, resolutionScope, name, nullResultAllowed);
         }
 
         public object Activate(ResolutionInfo resolutionInfo, Type type, string name = null)
@@ -59,9 +59,9 @@ namespace Stashbox.Resolution
             return factory(resolutionInfo.ResolutionScope);
         }
 
-        private Delegate ActivateFactoryDelegate(Type type, Type[] parameterTypes, IResolutionScope resolutionScope, string name = null)
+        private Delegate ActivateFactoryDelegate(Type type, Type[] parameterTypes, IResolutionScope resolutionScope, string name, bool nullResultAllowed)
         {
-            var resolutionInfo = new ResolutionInfo(resolutionScope)
+            var resolutionInfo = new ResolutionInfo(resolutionScope, nullResultAllowed)
             {
                 ParameterExpressions = parameterTypes.Length == 0 ? null : parameterTypes.Select(Expression.Parameter).ToArray()
             };

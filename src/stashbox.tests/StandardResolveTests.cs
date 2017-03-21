@@ -60,12 +60,35 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void StandardResolveTests_DependencyResolve_ResolutionFailed_AllowNull()
+        {
+            using (IStashboxContainer container = new StashboxContainer())
+            {
+                container.RegisterType<ITest2, Test2>();
+                var result = container.Resolve<ITest2>(nullResultAllowed: true);
+
+                Assert.IsNull(result);
+            }
+        }
+
+        [TestMethod]
         [ExpectedException(typeof(ResolutionFailedException))]
         public void StandardResolveTests_Resolve_ResolutionFailed()
         {
             using (IStashboxContainer container = new StashboxContainer())
             {
                 container.Resolve<ITest1>();
+            }
+        }
+
+        [TestMethod]
+        public void StandardResolveTests_Resolve_ResolutionFailed_AllowNull()
+        {
+            using (IStashboxContainer container = new StashboxContainer())
+            {
+                var result = container.Resolve<ITest1>(nullResultAllowed: true);
+
+                Assert.IsNull(result);
             }
         }
 

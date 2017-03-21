@@ -1,19 +1,18 @@
 ﻿using Stashbox.Utils;
 using System;
 using System.Collections.Generic;
-using Stashbox.Infrastructure;
 
 namespace Stashbox
 {
     public partial class StashboxContainer
     {
         /// <inheritdoc />
-        public TKey Resolve<TKey>(string name = null) where TKey : class =>
-            this.ActivationContext.Activate(typeof(TKey), this, name) as TKey;
+        public TKey Resolve<TKey>(string name = null, bool nullResultAllowed = false) where TKey : class =>
+            this.ActivationContext.Activate(typeof(TKey), this, name, nullResultAllowed) as TKey;
 
         /// <inheritdoc />
-        public object Resolve(Type typeFrom, string name = null) =>
-            this.ActivationContext.Activate(typeFrom, this, name);
+        public object Resolve(Type typeFrom, string name = null, bool nullResultAllowed = false) =>
+            this.ActivationContext.Activate(typeFrom, this, name, nullResultAllowed);
 
         /// <inheritdoc />
         public IEnumerable<TKey> ResolveAll<TKey>() where TKey : class =>
@@ -28,7 +27,7 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public Delegate ResolveFactory(Type typeFrom, string name = null, params Type[] parameterTypes) =>
-            this.ActivationContext.ActivateFactory(typeFrom, parameterTypes, this, name);
+        public Delegate ResolveFactory(Type typeFrom, string name = null, bool nullResultAllowed = false, params Type[] parameterTypes) =>
+            this.ActivationContext.ActivateFactory(typeFrom, parameterTypes, this, name, nullResultAllowed);
     }
 }

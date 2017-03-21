@@ -4,7 +4,6 @@ using Stashbox.Entity;
 using Stashbox.Infrastructure;
 using System.Linq.Expressions;
 using System.Collections.Generic;
-using Stashbox.Exceptions;
 
 namespace Stashbox.BuildUp.Resolution
 {

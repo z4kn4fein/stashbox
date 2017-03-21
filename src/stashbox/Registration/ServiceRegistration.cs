@@ -90,9 +90,9 @@ namespace Stashbox.Registration
                 this.ObjectBuilder.HandlesObjectDisposal ||
                 !this.ImplementationType.GetTypeInfo().ImplementedInterfaces.Contains(Constants.DisposableType)) return expr;
             
-            var method = Constants.AddDisposalMethod.MakeGenericMethod(resolveType);
+            var method = Constants.AddDisposalMethod.MakeGenericMethod(this.ImplementationType);
 
-            return Expression.Call(Constants.ScopeExpression, method, expr);
+            return Expression.Call(Constants.ScopeExpression, method, Expression.Convert(expr, this.ImplementationType));
         }
     }
 }

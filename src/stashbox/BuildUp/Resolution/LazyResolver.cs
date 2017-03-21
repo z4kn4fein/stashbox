@@ -33,7 +33,7 @@ namespace Stashbox.BuildUp.Resolution
                 IsMember = typeInfo.IsMember
             };
             
-            var ctorParamType = typeof(Func<>).MakeGenericType(lazyArgumentInfo.Type);
+            var ctorParamType = Constants.FuncType.MakeGenericType(lazyArgumentInfo.Type);
             var lazyConstructor = typeInfo.Type.GetConstructor(ctorParamType);
 
             var registration = containerContext.RegistrationRepository.GetRegistrationOrDefault(lazyArgumentInfo, true);
@@ -59,7 +59,7 @@ namespace Stashbox.BuildUp.Resolution
                 IsMember = typeInfo.IsMember
             };
             
-            var ctorParamType = typeof(Func<>).MakeGenericType(lazyArgumentInfo.Type);
+            var ctorParamType = Constants.FuncType.MakeGenericType(lazyArgumentInfo.Type);
             var lazyConstructor = typeInfo.Type.GetConstructor(ctorParamType);
 
             var registrations = containerContext.RegistrationRepository.GetRegistrationsOrDefault(lazyArgumentInfo.Type);

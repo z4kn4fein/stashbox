@@ -225,6 +225,22 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void DisposeTests_TrackTransientDisposal_Implementation_Has_Disposable()
+        {
+            IStashboxContainer container = new StashboxContainer(config => config.WithDisposableTransientTracking());
+            ITest11 test1;
+
+            container.RegisterType<ITest11, Test4>();
+
+            using (var child = container.BeginScope())
+            {
+                test1 = child.Resolve<ITest11>();
+            }
+
+            Assert.IsTrue(((Test4)test1).Disposed);
+        }
+
+        [TestMethod]
         public void DisposeTests_Instance_TrackTransient()
         {
             ITest1 test = new Test1();
@@ -276,6 +292,16 @@ namespace Stashbox.Tests
         {
             [Dependency]
             public ITest1 Test1 { get; set; }
+        }
+
+        public class Test4 : ITest11, IDisposable
+        {
+            public bool Disposed { get; private set; }
+
+            public void Dispose()
+            {
+                this.Disposed = true;
+            }
         }
     }
 }

@@ -22,12 +22,12 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public TKey Resolve<TKey>(string name = null) where TKey : class =>
-            this.activationContext.Activate(typeof(TKey), this, name) as TKey;
+        public TKey Resolve<TKey>(string name = null, bool nullResultAllowed = false) where TKey : class =>
+            this.activationContext.Activate(typeof(TKey), this, name, nullResultAllowed) as TKey;
 
         /// <inheritdoc />
-        public object Resolve(Type typeFrom, string name = null) =>
-            this.activationContext.Activate(typeFrom, this, name);
+        public object Resolve(Type typeFrom, string name = null, bool nullResultAllowed = false) =>
+            this.activationContext.Activate(typeFrom, this, name, nullResultAllowed);
 
         /// <inheritdoc />
         public IEnumerable<TKey> ResolveAll<TKey>() where TKey : class =>
@@ -41,7 +41,7 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public Delegate ResolveFactory(Type typeFrom, string name = null, params Type[] parameterTypes) =>
-            this.activationContext.ActivateFactory(typeFrom, parameterTypes, this, name);
+        public Delegate ResolveFactory(Type typeFrom, string name = null, bool nullResultAllowed = false, params Type[] parameterTypes) =>
+            this.activationContext.ActivateFactory(typeFrom, parameterTypes, this, name, nullResultAllowed);
     }
 }

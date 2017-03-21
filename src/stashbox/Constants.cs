@@ -18,5 +18,7 @@ namespace Stashbox
         public static MethodInfo GetScopedValueMethod = typeof(ScopedLifetime).GetSingleMethod("GetScopedValue", true);
 
         public static Type DisposableType = typeof(IDisposable);
+
+        public static Type FuncType = typeof(Func<>);
     }
 }
