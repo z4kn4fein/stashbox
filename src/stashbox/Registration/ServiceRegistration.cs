@@ -85,6 +85,9 @@ namespace Stashbox.Registration
             var expr = this.LifetimeManager == null ? this.ObjectBuilder.GetExpression(resolutionInfo, resolveType) :
                 this.LifetimeManager.GetExpression(this.containerContext, this.ObjectBuilder, resolutionInfo, resolveType);
 
+            if (expr == null)
+                return null;
+
             if (!this.containerContext.ContainerConfigurator.ContainerConfiguration.TrackTransientsForDisposalEnabled ||
                 this.LifetimeManager != null && this.LifetimeManager.HandlesObjectDisposal ||
                 this.ObjectBuilder.HandlesObjectDisposal ||
