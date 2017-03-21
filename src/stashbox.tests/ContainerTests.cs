@@ -7,7 +7,6 @@ using Stashbox.Infrastructure;
 using System.Linq.Expressions;
 using Stashbox.Infrastructure.Resolution;
 using System.Linq;
-using Stashbox.Lifetime;
 
 namespace Stashbox.Tests
 {

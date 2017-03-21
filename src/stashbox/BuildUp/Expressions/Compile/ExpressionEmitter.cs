@@ -16,8 +16,8 @@ namespace Stashbox.BuildUp.Expressions.Compile
 
         private static readonly MethodInfo delegateTargetProperty = typeof(Delegate).GetProperty("Target").GetGetMethod();
 
-        public static bool TryEmit(this Expression expression, out Delegate resultDelegate, Type delegateType, params ParameterExpression[] parameters) =>
-            expression.TryEmit(delegateType, typeof(object), out resultDelegate, out DelegateTargetInformation delegateTarget, parameters);
+        public static bool TryEmit(this Expression expression, out Delegate resultDelegate, Type delegateType, Type returnType, params ParameterExpression[] parameters) =>
+            expression.TryEmit(delegateType, returnType, out resultDelegate, out DelegateTargetInformation delegateTarget, parameters);
         
         public static bool TryEmit(this Expression expression, Type delegateType, Type returnType,
             out Delegate resultDelegate, out DelegateTargetInformation delegateTarget, params ParameterExpression[] parameters)
