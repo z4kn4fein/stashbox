@@ -30,11 +30,11 @@ namespace System.Linq.Expressions
         {
 #if NET45 || NET40
             if (!expression.TryEmit(out Delegate factory, typeof(Func<IResolutionScope, Delegate>), typeof(Delegate), scopeParameter))
-                factory = expression.Compile();
+                factory = Expression.Lambda<Func<IResolutionScope, Delegate>>(expression, scopeParameter).Compile();
 
             return (Func<IResolutionScope, Delegate>)factory;
 #else
-            return (Func<IResolutionScope, Delegate>)expression.Compile();
+            return Expression.Lambda<Func<IResolutionScope, Delegate>>(expression, scopeParameter).Compile();
 #endif
         }
     }
