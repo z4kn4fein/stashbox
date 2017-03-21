@@ -12,9 +12,10 @@ namespace Stashbox.Infrastructure.Resolution
         /// Activates a type.
         /// </summary>
         /// <param name="type">The service type.</param>
+        /// <param name="resolutionScope">The resolution scope.</param>
         /// <param name="name">The service name.</param>
         /// <returns>The resolved object.</returns>
-        object Activate(Type type, string name = null);
+        object Activate(Type type, IResolutionScope resolutionScope, string name = null);
 
         /// <summary>
         /// Activates a type.
@@ -30,8 +31,9 @@ namespace Stashbox.Infrastructure.Resolution
         /// </summary>
         /// <param name="type">The service type.</param>
         /// <param name="parameterTypes">The parameter types.</param>
+        /// <param name="resolutionScope">The resolution scope.</param>
         /// <param name="name">The service name.</param>
         /// <returns>The delegate which can be used for activate a type.</returns>
-        Delegate ActivateFactory(Type type, Type[] parameterTypes, string name = null);
+        Delegate ActivateFactory(Type type, Type[] parameterTypes, IResolutionScope resolutionScope, string name = null);
     }
 }

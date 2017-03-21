@@ -142,15 +142,15 @@ namespace Stashbox.Tests
                 var inst = container.Resolve<ITest1>();
                 var inst2 = container.Resolve<ITest1>();
 
-                Assert.AreEqual(inst, inst2);
+                Assert.AreSame(inst, inst2);
 
                 using (var child = container.BeginScope())
                 {
                     var inst3 = child.Resolve<ITest1>();
                     var inst4 = child.Resolve<ITest1>();
 
-                    Assert.AreNotEqual(inst, inst3);
-                    Assert.AreEqual(inst3, inst4);
+                    Assert.AreNotSame(inst, inst3);
+                    Assert.AreSame(inst3, inst4);
                 }
             }
         }
@@ -166,22 +166,22 @@ namespace Stashbox.Tests
                 var inst = container.Resolve<ITest4>();
                 var inst2 = container.Resolve<ITest4>();
 
-                Assert.AreEqual(inst.Test, inst2.Test);
-                Assert.AreEqual(inst.Test2, inst2.Test2);
-                Assert.AreEqual(inst.Test, inst2.Test2);
+                Assert.AreSame(inst.Test, inst2.Test);
+                Assert.AreSame(inst.Test2, inst2.Test2);
+                Assert.AreSame(inst.Test, inst2.Test2);
 
                 using (var child = container.BeginScope())
                 {
                     var inst3 = child.Resolve<ITest4>();
                     var inst4 = child.Resolve<ITest4>();
 
-                    Assert.AreNotEqual(inst.Test, inst4.Test);
-                    Assert.AreNotEqual(inst.Test2, inst4.Test2);
-                    Assert.AreNotEqual(inst.Test, inst4.Test2);
+                    Assert.AreNotSame(inst.Test, inst4.Test);
+                    Assert.AreNotSame(inst.Test2, inst4.Test2);
+                    Assert.AreNotSame(inst.Test, inst4.Test2);
 
-                    Assert.AreEqual(inst3.Test, inst4.Test);
-                    Assert.AreEqual(inst3.Test2, inst4.Test2);
-                    Assert.AreEqual(inst3.Test, inst4.Test2);
+                    Assert.AreSame(inst3.Test, inst4.Test);
+                    Assert.AreSame(inst3.Test2, inst4.Test2);
+                    Assert.AreSame(inst3.Test, inst4.Test2);
                 }
             }
         }

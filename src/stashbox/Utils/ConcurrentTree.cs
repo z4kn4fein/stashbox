@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Threading;
 
 namespace Stashbox.Utils
 {
@@ -93,29 +92,29 @@ namespace Stashbox.Utils
         /// <returns>A new tree instance</returns>
         public static ConcurrentTree<TValue> Create() => new ConcurrentTree<TValue>();
 
-        private AvlTree<TValue> repository;
+        private Swap<AvlTree<TValue>> repository;
 
         /// <summary>
         /// The current root value of the tree,
         /// </summary>
-        public TValue Value => this.repository.Value;
+        public TValue Value => this.repository.Value.Value;
 
         /// <summary>
         /// Inidicates that the tree has more nodes than the root one.
         /// </summary>
-        public bool HasMultipleItems => this.repository.HasMultipleItems;
+        public bool HasMultipleItems => this.repository.Value.HasMultipleItems;
 
         /// <summary>
         /// True if the tree is empty, otherwise false.
         /// </summary>
-        public bool IsEmpty => this.repository.IsEmpty;
+        public bool IsEmpty => this.repository.Value.IsEmpty;
 
         /// <summary>
         /// Constructs the <see cref="ConcurrentTree{TKey, TValue}"/>
         /// </summary>
         public ConcurrentTree()
         {
-            this.repository = new AvlTree<TValue>();
+            this.repository = new Swap<AvlTree<TValue>>(new AvlTree<TValue>());
         }
 
         /// <summary>
@@ -124,7 +123,7 @@ namespace Stashbox.Utils
         /// <param name="key">The key of the entry.</param>
         /// <returns>The found or the default value.</returns>
         public TValue GetOrDefault(int key) =>
-            this.repository.GetOrDefault(key);
+            this.repository.Value.GetOrDefault(key);
 
 
         /// <summary>
@@ -136,11 +135,11 @@ namespace Stashbox.Utils
         /// <returns>The modified tree.</returns>
         public ConcurrentTree<TValue> AddOrUpdate(int key, TValue value, Func<TValue, TValue, TValue> updateDelegate = null)
         {
-            var currentRepo = this.repository;
-            var newRepo = this.repository.AddOrUpdate(key, value, updateDelegate);
+            var currentRepo = this.repository.Value;
+            var newRepo = this.repository.Value.AddOrUpdate(key, value, updateDelegate);
 
-            if (!this.TrySwapCurrentRepository(currentRepo, newRepo))
-                this.SwapCurrentRepository(repo => repo.AddOrUpdate(key, value, updateDelegate));
+            if (!this.repository.TrySwapCurrent(currentRepo, newRepo))
+                this.repository.SwapCurrent(repo => repo.AddOrUpdate(key, value, updateDelegate));
 
             return this;
         }
@@ -150,30 +149,11 @@ namespace Stashbox.Utils
         /// </summary>
         /// <returns>The reversed collection.</returns>
         public IEnumerable<TValue> ReverseTraversal() =>
-            this.repository.ReverseTraversal();
-
-        private bool TrySwapCurrentRepository(AvlTree<TValue> currentRepo, AvlTree<TValue> newRepo) =>
-            Interlocked.CompareExchange(ref repository, newRepo, currentRepo) == currentRepo;
-
-        private void SwapCurrentRepository(Func<AvlTree<TValue>, AvlTree<TValue>> repoFactory)
-        {
-            AvlTree<TValue> currentRepo;
-            AvlTree<TValue> newRepo;
-            var counter = 0;
-
-            do
-            {
-                if (++counter > 20)
-                    throw new InvalidOperationException("Swap quota exceeded.");
-
-                currentRepo = this.repository;
-                newRepo = repoFactory(currentRepo);
-            } while (Interlocked.CompareExchange(ref repository, newRepo, currentRepo) != currentRepo);
-        }
+            this.repository.Value.ReverseTraversal();
 
         /// <inheritdoc />
-        public IEnumerator<TValue> GetEnumerator() => this.repository.GetEnumerator();
+        public IEnumerator<TValue> GetEnumerator() => this.repository.Value.GetEnumerator();
 
-        IEnumerator IEnumerable.GetEnumerator() => this.repository.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => this.repository.Value.GetEnumerator();
     }
 }

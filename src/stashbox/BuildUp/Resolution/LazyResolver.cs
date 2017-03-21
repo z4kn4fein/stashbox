@@ -109,7 +109,7 @@ namespace Stashbox.BuildUp.Resolution
         private class DelegateCache
         {
             private readonly Type type;
-            private Delegate cache;
+            private Func<IResolutionScope, Delegate> cache;
 
             public DelegateCache(Type type)
             {
@@ -119,11 +119,11 @@ namespace Stashbox.BuildUp.Resolution
             public object CreateLazyDelegate(IServiceRegistration serviceRegistration, ResolutionInfo resolutionInfo, object[] arguments)
             {
                 if (this.cache != null)
-                    return this.cache.DynamicInvoke(arguments);
+                    return this.cache(resolutionInfo.ResolutionScope).DynamicInvoke(arguments);
 
                 var expr = serviceRegistration.GetExpression(resolutionInfo, this.type);
-                this.cache = Expression.Lambda(expr, resolutionInfo.ParameterExpressions).CompileDelegate();
-                return this.cache.DynamicInvoke(arguments);
+                this.cache = Expression.Lambda(expr, resolutionInfo.ParameterExpressions).CompileDelegate(Constants.ScopeExpression);
+                return this.cache(resolutionInfo.ResolutionScope).DynamicInvoke(arguments);
             }
         }
     }

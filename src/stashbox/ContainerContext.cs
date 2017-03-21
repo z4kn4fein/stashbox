@@ -22,8 +22,6 @@ namespace Stashbox
             this.DelegateRepository = delegateRepository;
             this.Container = container;
             this.Bag = new ConcurrentKeyValueStore<object, object>();
-            this.ScopedRegistrations = new ConcurrentTree<string, ScopedRegistrationItem>();
-            this.TrackedTransientObjects = new ConcurrentStore<object>();
             this.ContainerConfigurator = containerConfigurator;
             this.DecoratorRepository = decoratorRepository;
         }
@@ -44,13 +42,7 @@ namespace Stashbox
         public IResolutionStrategy ResolutionStrategy { get; }
 
         /// <inheritdoc />
-        public ConcurrentTree<string, ScopedRegistrationItem> ScopedRegistrations { get; }
-
-        /// <inheritdoc />
         public ConcurrentKeyValueStore<object, object> Bag { get; }
-
-        /// <inheritdoc />
-        public ConcurrentStore<object> TrackedTransientObjects { get; }
 
         /// <inheritdoc />
         public IContainerConfigurator ContainerConfigurator { get; internal set; }

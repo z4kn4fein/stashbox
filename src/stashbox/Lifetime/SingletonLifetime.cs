@@ -22,15 +22,21 @@ namespace Stashbox.Lifetime
             {
                 if (this.expression != null) return this.expression;
                 var expr = base.GetExpression(containerContext, objectBuilder, resolutionInfo, resolveType);
+                if (expr == null)
+                    return null;
+
                 if (expr.NodeType == ExpressionType.New && ((NewExpression)expr).Arguments.Count == 0)
                     this.instance = Activator.CreateInstance(expr.Type);
                 else
-                    this.instance = expr.CompileDelegate()();
+                    this.instance = expr.CompileDelegate(Constants.ScopeExpression)(resolutionInfo.ResolutionScope);
                 this.expression = Expression.Constant(this.instance);
             }
 
             return this.expression;
         }
+
+        /// <inheritdoc />
+        public override bool HandlesObjectDisposal => true;
 
         /// <inheritdoc />
         public override ILifetime Create() => new SingletonLifetime();

@@ -7,7 +7,7 @@ namespace Stashbox.Infrastructure
     /// <summary>
     /// Represents a dependency injection container.
     /// </summary>
-    public interface IStashboxContainer : IDependencyRegistrator, IDependencyResolver, IDecoratorRegistrator, IDisposable
+    public interface IStashboxContainer : IDependencyRegistrator, IDependencyResolver, IDecoratorRegistrator
     {
         /// <summary>
         /// Registers a <see cref="IContainerExtension"/> into the container.
@@ -24,7 +24,12 @@ namespace Stashbox.Infrastructure
         /// <summary>
         /// Begins a new scope.
         /// </summary>
-        IStashboxContainer BeginScope();
+        IDependencyResolver BeginScope();
+
+        /// <summary>
+        /// Creates a child container.
+        /// </summary>
+        IStashboxContainer CreateChildContainer();
 
         /// <summary>
         /// The activation context.
@@ -56,6 +61,14 @@ namespace Stashbox.Infrastructure
         /// <param name="name">The registration name.</param>
         /// <returns>True if the service can be resolved, otherwise false.</returns>
         bool CanResolve(Type typeFrom, string name = null);
+
+        /// <summary>
+        /// Builds up an instance, the container will perform injections and extensions on it.
+        /// </summary>
+        /// <typeparam name="TTo">The type of the requested instance.</typeparam>
+        /// <param name="instance">The instance to build up.</param>
+        /// <returns>The built object.</returns>
+        TTo BuildUp<TTo>(TTo instance) where TTo : class;
 
         /// <summary>
         /// Configures the container.

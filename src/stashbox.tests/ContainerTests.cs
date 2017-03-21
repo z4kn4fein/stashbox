@@ -21,7 +21,7 @@ namespace Stashbox.Tests
             container.RegisterType<ITest1, Test1>();
             container.RegisterType<ITest2, Test2>();
 
-            var child = container.BeginScope();
+            var child = container.CreateChildContainer();
             child.RegisterType<ITest3, Test3>();
 
             var test3 = child.Resolve<ITest3>();
@@ -82,7 +82,6 @@ namespace Stashbox.Tests
                 reg = container.ContainerContext.RegistrationRepository.GetAllRegistrations().FirstOrDefault(r => r.ImplementationType == typeof(Test1));
 
                 Assert.IsNotNull(reg);
-                Assert.IsInstanceOfType(reg.LifetimeManager, typeof(TransientLifetime));
             }
         }
 

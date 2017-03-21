@@ -11,10 +11,7 @@ namespace Stashbox.Lifetime
     public abstract class LifetimeBase : ILifetime
     {
         /// <inheritdoc />
-        public virtual bool IsTransient => false;
-
-        /// <inheritdoc />
-        public virtual bool IsScoped => false;
+        public virtual bool HandlesObjectDisposal => false;
 
         /// <inheritdoc />
         public virtual Expression GetExpression(IContainerContext containerContext, IObjectBuilder objectBuilder,

@@ -43,8 +43,8 @@ namespace Stashbox.BuildUp
                     Expression.Constant(this.instance), resolutionInfo, this.metaInfoProvider.TypeTo, this.injectionParameters,
                     this.metaInfoProvider.GetResolutionMembers(resolutionInfo, this.injectionParameters),
                     this.metaInfoProvider.GetResolutionMethods(resolutionInfo, this.injectionParameters));
-                var factory = expr.CompileDelegate();
-                this.instance = factory();
+                var factory = expr.CompileDelegate(Constants.ScopeExpression);
+                this.instance = factory(resolutionInfo.ResolutionScope);
                 return Expression.Constant(this.instance);
             }
         }

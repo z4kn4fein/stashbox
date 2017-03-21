@@ -7,35 +7,35 @@ namespace Stashbox.Resolution
 {
     internal class DelegateRepository : IDelegateRepository
     {
-        private readonly HashMap<Type, Func<object>> serviceDelegates;
-        private readonly HashMap<string, Func<object>> keyedServiceDelegates;
-        private readonly HashMap<Type, string, Delegate> factoryDelegates;
+        private readonly HashMap<Type, Func<IResolutionScope, object>> serviceDelegates;
+        private readonly HashMap<string, Func<IResolutionScope, object>> keyedServiceDelegates;
+        private readonly HashMap<Type, string, Func<IResolutionScope, Delegate>> factoryDelegates;
 
         public DelegateRepository()
         {
-            this.serviceDelegates = new HashMap<Type, Func<object>>();
-            this.keyedServiceDelegates = new HashMap<string, Func<object>>();
-            this.factoryDelegates = new HashMap<Type, string, Delegate>();
+            this.serviceDelegates = new HashMap<Type, Func<IResolutionScope, object>>();
+            this.keyedServiceDelegates = new HashMap<string, Func<IResolutionScope, object>>();
+            this.factoryDelegates = new HashMap<Type, string, Func<IResolutionScope, Delegate>>();
         }
         
-        public Delegate GetFactoryDelegateCacheOrDefault(Type type, Type[] parameterTypes, string name = null)
+        public Func<IResolutionScope, Delegate> GetFactoryDelegateCacheOrDefault(Type type, Type[] parameterTypes, string name = null)
         {
             var key = this.GetFactoryKey(type, parameterTypes, name);
             return this.factoryDelegates.GetOrDefault(type, key);
         }
 
-        public Func<object> GetDelegateCacheOrDefault(Type type, string name = null)
+        public Func<IResolutionScope, object> GetDelegateCacheOrDefault(Type type, string name = null)
         {
             return name == null ? this.serviceDelegates.GetOrDefault(type)
                 : this.keyedServiceDelegates.GetOrDefault(this.GetKey(type, name));
         }
         
-        public void AddFactoryDelegate(Type type, Type[] parameterTypes, Delegate factory, string name = null)
+        public void AddFactoryDelegate(Type type, Type[] parameterTypes, Func<IResolutionScope, Delegate> factory, string name = null)
         {
             var key = this.GetFactoryKey(type, parameterTypes, name);
             this.factoryDelegates.AddOrUpdate(type, key, factory);
         }
-        public void AddServiceDelegate(Type type, Func<object> factory, string name = null)
+        public void AddServiceDelegate(Type type, Func<IResolutionScope, object> factory, string name = null)
         {
             if (name == null)
                 this.serviceDelegates.AddOrUpdate(type, factory);

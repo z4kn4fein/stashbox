@@ -6,7 +6,7 @@ namespace Stashbox.Infrastructure
     /// <summary>
     /// Represents a dependency resolver.
     /// </summary>
-    public interface IDependencyResolver
+    public interface IDependencyResolver : IDisposable
     {
         /// <summary>
         /// Resolves an instance from the container.
@@ -48,13 +48,5 @@ namespace Stashbox.Infrastructure
         /// <param name="parameterTypes">The parameter type.</param>
         /// <returns>The factory delegate.</returns>
         Delegate ResolveFactory(Type typeFrom, string name = null, params Type[] parameterTypes);
-
-        /// <summary>
-        /// Builds up an instance, the container will perform injections and extensions on it.
-        /// </summary>
-        /// <typeparam name="TTo">The type of the requested instance.</typeparam>
-        /// <param name="instance">The instance to build up.</param>
-        /// <returns>The built object.</returns>
-        TTo BuildUp<TTo>(TTo instance) where TTo : class;
     }
 }

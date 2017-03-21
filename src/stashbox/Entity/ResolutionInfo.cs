@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using Stashbox.Infrastructure;
 using Stashbox.Utils;
 
 namespace Stashbox.Entity
@@ -14,24 +15,33 @@ namespace Stashbox.Entity
         /// Static factory for <see cref="ResolutionInfo"/>.
         /// </summary>
         /// <returns>A new <see cref="ResolutionInfo"/> instance.</returns>
-        public static ResolutionInfo New() => new ResolutionInfo();
+        public static ResolutionInfo New(IResolutionScope scope, bool nullResultAllowed = false) => new ResolutionInfo(scope, nullResultAllowed);
 
         /// <summary>
         /// The extra parameter expressions.
         /// </summary>
         public ParameterExpression[] ParameterExpressions { get; set; }
 
-        internal HashSet<Type> CircularDependencyBarrier { get; }
+        /// <summary>
+        /// True if null result is allowed, otherwise false.
+        /// </summary>
+        public bool NullResultAllowed { get; }
 
-        internal AvlTree<Type, Expression> ExpressionOverrides { get; }
+        internal SyncTree<Type> CircularDependencyBarrier { get; }
 
-        internal HashSet<Type> CurrentlyDecoratingTypes { get; }
+        internal SyncTree<Type, Expression> ExpressionOverrides { get; }
 
-        internal ResolutionInfo()
+        internal SyncTree<Type> CurrentlyDecoratingTypes { get; }
+
+        internal IResolutionScope ResolutionScope { get; }
+
+        internal ResolutionInfo(IResolutionScope scope, bool nullResultAllowed = false)
         {
-            this.CircularDependencyBarrier = new HashSet<Type>();
-            this.ExpressionOverrides = new AvlTree<Type, Expression>();
-            this.CurrentlyDecoratingTypes = new HashSet<Type>();
+            this.CircularDependencyBarrier = new SyncTree<Type>();
+            this.ExpressionOverrides = new SyncTree<Type, Expression>();
+            this.CurrentlyDecoratingTypes = new SyncTree<Type>();
+            this.NullResultAllowed = nullResultAllowed;
+            this.ResolutionScope = scope;
         }
     }
 }

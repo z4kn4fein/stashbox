@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace Stashbox.Registration
 {
@@ -75,25 +76,23 @@ namespace Stashbox.Registration
         public void CleanUp()
         {
             this.ObjectBuilder.CleanUp();
-            this.LifetimeManager.CleanUp();
+            this.LifetimeManager?.CleanUp();
         }
 
         /// <inheritdoc />
         public Expression GetExpression(ResolutionInfo resolutionInfo, Type resolveType)
         {
-            var expr = this.LifetimeManager.GetExpression(this.containerContext, this.ObjectBuilder, resolutionInfo, resolveType);
+            var expr = this.LifetimeManager == null ? this.ObjectBuilder.GetExpression(resolutionInfo, resolveType) :
+                this.LifetimeManager.GetExpression(this.containerContext, this.ObjectBuilder, resolutionInfo, resolveType);
+
             if (!this.containerContext.ContainerConfigurator.ContainerConfiguration.TrackTransientsForDisposalEnabled ||
-                !this.LifetimeManager.IsTransient || this.ObjectBuilder.HandlesObjectDisposal) return expr;
+                this.LifetimeManager != null && this.LifetimeManager.HandlesObjectDisposal ||
+                this.ObjectBuilder.HandlesObjectDisposal ||
+                !this.ImplementationType.GetTypeInfo().ImplementedInterfaces.Contains(Constants.DisposableType)) return expr;
+            
+            var method = Constants.AddDisposalMethod.MakeGenericMethod(resolveType);
 
-            var call = Expression.Call(Expression.Constant(this), "AddTransientObjectTracking", null, expr);
-            return Expression.Convert(call, resolveType);
-        }
-
-        private object AddTransientObjectTracking(object instance)
-        {
-            if (instance is IDisposable)
-                this.containerContext.TrackedTransientObjects.Add(instance);
-            return instance;
+            return Expression.Call(Constants.ScopeExpression, method, expr);
         }
     }
 }
