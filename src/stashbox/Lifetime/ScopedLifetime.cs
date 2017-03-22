@@ -12,14 +12,14 @@ namespace Stashbox.Lifetime
     {
         private volatile Expression expression;
         private readonly object syncObject = new object();
-        private readonly string id;
+        private readonly string scopeId;
 
         /// <summary>
         /// Constructs a <see cref="ScopedLifetime"/>.
         /// </summary>
         public ScopedLifetime()
         {
-            this.id = Guid.NewGuid().ToString();
+            this.scopeId = Guid.NewGuid().ToString();
         }
 
         /// <inheritdoc />
@@ -43,7 +43,7 @@ namespace Stashbox.Lifetime
 
                 this.expression = Expression.Call(method,
                     Constants.ScopeExpression,
-                    Expression.Constant(factory), Expression.Constant(this.id));
+                    Expression.Constant(factory), Expression.Constant(this.scopeId));
             }
 
             return this.expression;
@@ -52,13 +52,13 @@ namespace Stashbox.Lifetime
         /// <inheritdoc />
         public override bool HandlesObjectDisposal => true;
 
-        private static TValue GetScopedValue<TValue>(IResolutionScope scope, Func<IResolutionScope, object> factory, string lifeTimeId)
+        private static TValue GetScopedValue<TValue>(IResolutionScope scope, Func<IResolutionScope, object> factory, string scopeId)
         {
-            var value = scope.GetScopedItemOrDefault(lifeTimeId);
+            var value = scope.GetScopedItemOrDefault(scopeId);
             if(value == null)
             {
                 value = factory(scope);
-                scope.AddOrUpdateScopedItem(lifeTimeId, value);
+                scope.AddOrUpdateScopedItem(scopeId, value);
 
                 if (value is IDisposable disposable)
                     scope.AddDisposableTracking(disposable);
