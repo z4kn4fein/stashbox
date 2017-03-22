@@ -43,7 +43,8 @@ namespace Stashbox.BuildUp.Resolution
                             this.CreateLazyExpressionCall(registration, lazyArgumentInfo.Type, lazyConstructor, resolutionInfo);
 
             var expression = this.resolverSelector.GetResolverExpression(containerContext, lazyArgumentInfo, resolutionInfo);
-            return Expression.New(lazyConstructor, Expression.Lambda(expression));
+
+            return expression == null ? null : Expression.New(lazyConstructor, Expression.Lambda(expression));
         }
 
         public override Expression[] GetExpressions(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo)

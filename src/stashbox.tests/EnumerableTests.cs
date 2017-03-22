@@ -22,7 +22,7 @@ namespace Stashbox.Tests
 
             var all = container.Resolve<ITest1[]>();
 
-            Assert.AreEqual(3, all.Count());
+            Assert.AreEqual(3, all.Length);
         }
 
         [TestMethod]
@@ -35,7 +35,7 @@ namespace Stashbox.Tests
 
             var all = container.Resolve<IList<ITest1>>();
 
-            Assert.AreEqual(3, all.Count());
+            Assert.AreEqual(3, all.Count);
         }
 
         [TestMethod]
@@ -48,7 +48,7 @@ namespace Stashbox.Tests
 
             var all = container.Resolve<ICollection<ITest1>>();
 
-            Assert.AreEqual(3, all.Count());
+            Assert.AreEqual(3, all.Count);
         }
 
         [TestMethod]
@@ -61,7 +61,7 @@ namespace Stashbox.Tests
 
             var all = container.Resolve<IReadOnlyCollection<ITest1>>();
 
-            Assert.AreEqual(3, all.Count());
+            Assert.AreEqual(3, all.Count);
         }
 
         [TestMethod]
@@ -74,7 +74,7 @@ namespace Stashbox.Tests
 
             var all = container.Resolve<IReadOnlyList<ITest1>>();
 
-            Assert.AreEqual(3, all.Count());
+            Assert.AreEqual(3, all.Count);
         }
 
         [TestMethod]
@@ -98,6 +98,18 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void EnumerableTests_Resolve_Null()
+        {
+            IStashboxContainer container = new StashboxContainer();
+
+            var all = container.Resolve<IEnumerable<ITest2>>();
+            var all2 = container.ResolveAll<ITest2>();
+
+            Assert.AreEqual(0, all.Count());
+            Assert.AreEqual(0, all2.Count());
+        }
+
+        [TestMethod]
         public void EnumerableTests_Resolve_Parent()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -110,6 +122,18 @@ namespace Stashbox.Tests
             var all = child.Resolve<IEnumerable<ITest1>>();
 
             Assert.AreEqual(3, all.Count());
+        }
+
+        [TestMethod]
+        public void EnumerableTests_Resolve_Parent_Null()
+        {
+            IStashboxContainer container = new StashboxContainer();
+
+            var child = container.BeginScope();
+
+            var all = child.Resolve<IEnumerable<ITest1>>();
+
+            Assert.AreEqual(0, all.Count());
         }
 
         [TestMethod]
@@ -128,6 +152,18 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void EnumerableTests_Resolve_Parent_Lazy_Null()
+        {
+            IStashboxContainer container = new StashboxContainer();
+
+            var child = container.BeginScope();
+
+            var all = child.Resolve<IEnumerable<Lazy<ITest1>>>();
+
+            Assert.AreEqual(0, all.Count());
+        }
+
+        [TestMethod]
         public void EnumerableTests_Resolve_Parent_Func()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -140,6 +176,18 @@ namespace Stashbox.Tests
             var all = child.Resolve<IEnumerable<Func<ITest1>>>();
 
             Assert.AreEqual(3, all.Count());
+        }
+
+        [TestMethod]
+        public void EnumerableTests_Resolve_Parent_Func_Null()
+        {
+            IStashboxContainer container = new StashboxContainer();
+
+            var child = container.BeginScope();
+
+            var all = child.Resolve<IEnumerable<Func<ITest1>>>();
+
+            Assert.AreEqual(0, all.Count());
         }
 
         [TestMethod]
@@ -156,6 +204,16 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void EnumerableTests_Resolve_Lazy_Null()
+        {
+            IStashboxContainer container = new StashboxContainer();
+
+            var all = container.Resolve<IEnumerable<Lazy<ITest1>>>();
+
+            Assert.AreEqual(0, all.Count());
+        }
+
+        [TestMethod]
         public void EnumerableTests_Resolve_Func()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -169,11 +227,11 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
-        public void EnumerableTests_ResolveAll_Empty()
+        public void EnumerableTests_Resolve_Func_Null()
         {
             IStashboxContainer container = new StashboxContainer();
-            
-            var all = container.ResolveAll<ITest1>();
+
+            var all = container.Resolve<IEnumerable<Func<ITest1>>>();
 
             Assert.AreEqual(0, all.Count());
         }

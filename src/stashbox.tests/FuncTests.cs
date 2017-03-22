@@ -22,6 +22,15 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void FuncTests_Resolve_Null()
+        {
+            var container = new StashboxContainer();
+            var inst = container.Resolve<Func<ITest>>(nullResultAllowed: true);
+
+            Assert.IsNull(inst);
+        }
+
+        [TestMethod]
         public void FuncTests_Resolve_Lazy()
         {
             var container = new StashboxContainer();
@@ -31,6 +40,15 @@ namespace Stashbox.Tests
             Assert.IsNotNull(inst);
             Assert.IsInstanceOfType(inst, typeof(Func<Lazy<ITest>>));
             Assert.IsInstanceOfType(inst().Value, typeof(Test));
+        }
+
+        [TestMethod]
+        public void FuncTests_Resolve_Lazy_Null()
+        {
+            var container = new StashboxContainer();
+            var inst = container.Resolve<Func<Lazy<ITest>>>(nullResultAllowed: true);
+
+            Assert.IsNull(inst);
         }
 
         [TestMethod]
@@ -46,6 +64,15 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void FuncTests_Resolve_Enumerable_Null()
+        {
+            var container = new StashboxContainer();
+            var inst = container.Resolve<Func<IEnumerable<ITest>>>();
+
+            Assert.AreEqual(0, inst().Count());
+        }
+
+        [TestMethod]
         public void FuncTests_Resolve_ConstructorDependency()
         {
             var container = new StashboxContainer();
@@ -56,6 +83,16 @@ namespace Stashbox.Tests
             Assert.IsNotNull(inst.Test);
             Assert.IsInstanceOfType(inst.Test, typeof(Func<ITest>));
             Assert.IsInstanceOfType(inst.Test(), typeof(Test));
+        }
+
+        [TestMethod]
+        public void FuncTests_Resolve_ConstructorDependency_Null()
+        {
+            var container = new StashboxContainer();
+            container.RegisterType<Test2>();
+            var inst = container.Resolve<Test2>(nullResultAllowed: true);
+
+            Assert.IsNull(inst);
         }
 
         [TestMethod]
@@ -147,7 +184,7 @@ namespace Stashbox.Tests
             container.RegisterType<Dep2>();
             container.RegisterType<Dep4>();
             var inst = container.Resolve<FuncTest5>();
-            
+
             var d3 = new Dep3();
 
             var d = inst.Dep(d3);

@@ -22,6 +22,15 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void LazyTests_Resolve_Null()
+        {
+            var container = new StashboxContainer();
+            var inst = container.Resolve<Lazy<ITest>>(nullResultAllowed: true);
+
+            Assert.IsNull(inst);
+        }
+
+        [TestMethod]
         public void LazyTests_Resolve_Func()
         {
             var container = new StashboxContainer();
@@ -32,6 +41,15 @@ namespace Stashbox.Tests
             Assert.IsFalse(inst.IsValueCreated);
             Assert.IsInstanceOfType(inst, typeof(Lazy<Func<ITest>>));
             Assert.IsInstanceOfType(inst.Value(), typeof(Test));
+        }
+
+        [TestMethod]
+        public void LazyTests_Resolve_Func_Null()
+        {
+            var container = new StashboxContainer();
+            var inst = container.Resolve<Lazy<Func<ITest>>>(nullResultAllowed: true);
+
+            Assert.IsNull(inst);
         }
 
         [TestMethod]
@@ -48,6 +66,15 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void LazyTests_Resolve_Enumerable_Null()
+        {
+            var container = new StashboxContainer();
+            var inst = container.Resolve<Lazy<IEnumerable<ITest>>>();
+            
+            Assert.AreEqual(0, inst.Value.Count());
+        }
+
+        [TestMethod]
         public void LazyTests_Resolve_ConstructorDependency()
         {
             var container = new StashboxContainer();
@@ -59,6 +86,16 @@ namespace Stashbox.Tests
             Assert.IsFalse(inst.Test.IsValueCreated);
             Assert.IsInstanceOfType(inst.Test, typeof(Lazy<ITest>));
             Assert.IsInstanceOfType(inst.Test.Value, typeof(Test));
+        }
+
+        [TestMethod]
+        public void LazyTests_Resolve_ConstructorDependency_Null()
+        {
+            var container = new StashboxContainer();
+            container.RegisterType<Test2>();
+            var inst = container.Resolve<Test2>(nullResultAllowed: true);
+
+            Assert.IsNull(inst);
         }
 
         [TestMethod]
