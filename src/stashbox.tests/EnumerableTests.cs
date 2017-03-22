@@ -169,6 +169,16 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void EnumerableTests_ResolveAll_Empty()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            
+            var all = container.ResolveAll<ITest1>();
+
+            Assert.AreEqual(0, all.Count());
+        }
+
+        [TestMethod]
         public void EnumerableTests_ResolveNonGeneric()
         {
             IStashboxContainer container = new StashboxContainer();
