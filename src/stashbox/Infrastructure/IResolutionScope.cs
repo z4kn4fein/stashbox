@@ -5,7 +5,7 @@ namespace Stashbox.Infrastructure
     /// <summary>
     /// Represents a resolution scope.
     /// </summary>
-    public interface IResolutionScope : IDisposableHandler
+    public interface IResolutionScope : IDisposable
     {
         /// <summary>
         /// Adds or updates an item in the scope.
@@ -20,5 +20,14 @@ namespace Stashbox.Infrastructure
         /// <param name="key">The key.</param>
         /// <returns>The item or null if it doesn't exists.</returns>
         object GetScopedItemOrDefault(object key);
+
+        /// <summary>
+        /// Adds a service for further disposable tracking.
+        /// </summary>
+        /// <typeparam name="TDisposable">The type parameter.</typeparam>
+        /// <param name="disposable">The <see cref="IDisposable"/> object.</param>
+        /// <returns>The <see cref="IDisposable"/> object.</returns>
+        TDisposable AddDisposableTracking<TDisposable>(TDisposable disposable)
+            where TDisposable : IDisposable;
     }
 }
