@@ -2,10 +2,7 @@
 using Stashbox.Attributes;
 using Stashbox.Utils;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using Stashbox.Entity;
 
 namespace Stashbox.Tests
 {
@@ -39,33 +36,6 @@ namespace Stashbox.Tests
 
             Assert.IsInstanceOfType(test3.test1, typeof(Test11));
             Assert.IsInstanceOfType(test3.test2, typeof(Test22));
-        }
-
-        [TestMethod]
-        public void AttributeTests_Resolve_Activator()
-        {
-            var container = new StashboxContainer();
-            container.RegisterType<ITest1, Test1>("test1");
-            container.RegisterType<ITest1, Test11>("test11");
-            container.RegisterType<ITest1, Test12>("test12");
-
-            var inst = container.ActivationContext.Activate(ResolutionInfo.New(container), typeof(ITest1), "test12");
-            Assert.IsNotNull(inst);
-            Assert.IsInstanceOfType(inst, typeof(Test12));
-        }
-
-        [TestMethod]
-        public void AttributeTests_Resolve_Activator_Resolver()
-        {
-            var container = new StashboxContainer();
-            container.RegisterType<ITest1, Test1>("test1");
-            container.RegisterType<ITest1, Test11>("test11");
-            container.RegisterType<ITest1, Test12>("test12");
-
-            var inst = container.ActivationContext.Activate(ResolutionInfo.New(container), typeof(IEnumerable<ITest1>));
-            Assert.IsNotNull(inst);
-            Assert.IsInstanceOfType(inst, typeof(IEnumerable<ITest1>));
-            Assert.AreEqual(3, ((IEnumerable<ITest1>)inst).Count());
         }
 
         [TestMethod]

@@ -31,7 +31,7 @@ namespace Stashbox.Resolution
             return cachedFactory != null ? cachedFactory(resolutionScope) : ActivateFactoryDelegate(type, parameterTypes, resolutionScope, name, nullResultAllowed);
         }
 
-        public object Activate(ResolutionInfo resolutionInfo, Type type, string name = null)
+        private object Activate(ResolutionInfo resolutionInfo, Type type, string name = null)
         {
             var registration = this.containerContext.RegistrationRepository.GetRegistrationOrDefault(type, name);
             if (registration != null)
