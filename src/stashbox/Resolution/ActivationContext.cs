@@ -33,12 +33,6 @@ namespace Stashbox.Resolution
 
         private object ActivateType(Type type, IResolutionScope resolutionScope, string name = null, bool nullResultAllowed = false)
         {
-            if (type == Constants.ResolutionScopeType)
-                return resolutionScope;
-
-            if (type == Constants.StashboxContainerType)
-                return this.containerContext.Container;
-
             var registration = this.containerContext.RegistrationRepository.GetRegistrationOrDefault(type, name);
             if (registration != null)
             {

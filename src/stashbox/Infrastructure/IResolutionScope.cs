@@ -5,7 +5,7 @@ namespace Stashbox.Infrastructure
     /// <summary>
     /// Represents a resolution scope.
     /// </summary>
-    public interface IResolutionScope : IDependencyResolver, IDisposable
+    public interface IResolutionScope : IDisposable
     {
         /// <summary>
         /// Adds or updates an item in the scope.
@@ -29,11 +29,5 @@ namespace Stashbox.Infrastructure
         /// <returns>The <see cref="IDisposable"/> object.</returns>
         TDisposable AddDisposableTracking<TDisposable>(TDisposable disposable)
             where TDisposable : IDisposable;
-
-        /// <summary>
-        /// Begins a new scope.
-        /// </summary>
-        /// <returns>The new scope.</returns>
-        IResolutionScope BeginScope();
     }
 }

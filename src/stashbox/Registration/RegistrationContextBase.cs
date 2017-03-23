@@ -6,6 +6,7 @@ using Stashbox.Infrastructure.Registration;
 using Stashbox.MetaInfo;
 using Stashbox.Utils;
 using System;
+using Stashbox.Lifetime;
 
 namespace Stashbox.Registration
 {
@@ -90,7 +91,7 @@ namespace Stashbox.Registration
                 this.RegistrationContextData.TargetTypeCondition, this.RegistrationContextData.ResolutionCondition);
         }
 
-        private ILifetime ChooseLifeTime() => this.RegistrationContextData.ExistingInstance != null ? null :
-            this.RegistrationContextData.Lifetime;
+        private ILifetime ChooseLifeTime() => this.RegistrationContextData.ExistingInstance != null ? null : 
+            this.RegistrationContextData.Lifetime ?? new TransientLifetime();
     }
 }

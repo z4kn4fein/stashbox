@@ -15,6 +15,11 @@ namespace Stashbox.Infrastructure
         bool HandlesObjectDisposal { get; }
 
         /// <summary>
+        /// Indicates that the lifetime transient services or not.
+        /// </summary>
+        bool IsTransient { get; }
+
+        /// <summary>
         /// Gets the expression for getting the instance managed by the <see cref="ILifetime"/>
         /// </summary>
         /// <param name="containerContext">The container context.</param>

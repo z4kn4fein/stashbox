@@ -43,26 +43,20 @@ namespace Stashbox.Lifetime
 
                 this.expression = Expression.Call(method,
                     Constants.ScopeExpression,
-                    Expression.Constant(factory), Expression.Constant(this.scopeId));
+                    Expression.Constant(factory),
+                    Expression.Constant(this.scopeId));
             }
 
             return this.expression;
         }
 
-        /// <inheritdoc />
-        public override bool HandlesObjectDisposal => true;
-
         private static TValue GetScopedValue<TValue>(IResolutionScope scope, Func<IResolutionScope, object> factory, string scopeId)
         {
             var value = scope.GetScopedItemOrDefault(scopeId);
-            if(value == null)
-            {
-                value = factory(scope);
-                scope.AddOrUpdateScopedItem(scopeId, value);
+            if (value != null) return (TValue)value;
 
-                if (value is IDisposable disposable)
-                    scope.AddDisposableTracking(disposable);
-            }
+            value = factory(scope);
+            scope.AddOrUpdateScopedItem(scopeId, value);
 
             return (TValue)value;
         }
