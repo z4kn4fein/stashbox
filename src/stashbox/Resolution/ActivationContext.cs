@@ -22,7 +22,7 @@ namespace Stashbox.Resolution
         public object Activate(Type type, IResolutionScope resolutionScope, string name = null, bool nullResultAllowed = false)
         {
             var cachedFactory = this.containerContext.DelegateRepository.GetDelegateCacheOrDefault(type, name);
-            return cachedFactory != null ? cachedFactory(resolutionScope) : this.Activate(ResolutionInfo.New(resolutionScope, nullResultAllowed), type, name);
+            return cachedFactory != null ? cachedFactory(resolutionScope) : this.ActivateType(type, resolutionScope, name, nullResultAllowed);
         }
 
         public Delegate ActivateFactory(Type type, Type[] parameterTypes, IResolutionScope resolutionScope, string name = null, bool nullResultAllowed = false)
@@ -31,32 +31,38 @@ namespace Stashbox.Resolution
             return cachedFactory != null ? cachedFactory(resolutionScope) : ActivateFactoryDelegate(type, parameterTypes, resolutionScope, name, nullResultAllowed);
         }
 
-        private object Activate(ResolutionInfo resolutionInfo, Type type, string name = null)
+        private object ActivateType(Type type, IResolutionScope resolutionScope, string name = null, bool nullResultAllowed = false)
         {
+            if (type == Constants.ResolutionScopeType)
+                return resolutionScope;
+
+            if (type == Constants.StashboxContainerType)
+                return this.containerContext.Container;
+
             var registration = this.containerContext.RegistrationRepository.GetRegistrationOrDefault(type, name);
             if (registration != null)
             {
-                var ragistrationFactory = registration.GetExpression(resolutionInfo, type)?.CompileDelegate(Constants.ScopeExpression);
+                var ragistrationFactory = registration.GetExpression(ResolutionInfo.New(resolutionScope, nullResultAllowed), type)?.CompileDelegate(Constants.ScopeExpression);
                 if (ragistrationFactory == null)
-                    if (resolutionInfo.NullResultAllowed)
+                    if (nullResultAllowed)
                         return null;
                     else
                         throw new ResolutionFailedException(type.FullName);
 
                 this.containerContext.DelegateRepository.AddServiceDelegate(type, ragistrationFactory, name);
-                return ragistrationFactory(resolutionInfo.ResolutionScope);
+                return ragistrationFactory(resolutionScope);
             }
 
-            var expr = this.resolverSelector.GetResolverExpression(containerContext, new TypeInformation { Type = type, DependencyName = name }, resolutionInfo);
+            var expr = this.resolverSelector.GetResolverExpression(containerContext, new TypeInformation { Type = type, DependencyName = name }, ResolutionInfo.New(resolutionScope, nullResultAllowed));
             if (expr == null)
-                if (resolutionInfo.NullResultAllowed)
+                if (nullResultAllowed)
                     return null;
                 else
                     throw new ResolutionFailedException(type.FullName);
 
             var factory = expr.CompileDelegate(Constants.ScopeExpression);
             this.containerContext.DelegateRepository.AddServiceDelegate(type, factory, name);
-            return factory(resolutionInfo.ResolutionScope);
+            return factory(resolutionScope);
         }
 
         private Delegate ActivateFactoryDelegate(Type type, Type[] parameterTypes, IResolutionScope resolutionScope, string name, bool nullResultAllowed)
