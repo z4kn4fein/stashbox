@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 
 namespace Stashbox.Registration
 {
@@ -82,21 +81,9 @@ namespace Stashbox.Registration
         /// <inheritdoc />
         public Expression GetExpression(ResolutionInfo resolutionInfo, Type resolveType)
         {
-            var expression = this.LifetimeManager == null || this.ServiceType.IsOpenGenericType() ?
-                this.ObjectBuilder.GetExpression(resolutionInfo, resolveType) :
+            return this.LifetimeManager == null || this.ServiceType.IsOpenGenericType() ? 
+                this.ObjectBuilder.GetExpression(resolutionInfo, resolveType) : 
                 this.LifetimeManager.GetExpression(this.containerContext, this.ObjectBuilder, resolutionInfo, resolveType);
-
-            if (expression == null)
-                return null;
-
-            if (this.LifetimeManager == null && this.containerContext.ContainerConfigurator.ContainerConfiguration.TrackTransientsForDisposalEnabled &&
-                expression.Type.GetTypeInfo().ImplementedInterfaces.Contains(Constants.DisposableType) && !this.ObjectBuilder.HandlesObjectDisposal)
-            {
-                var method = Constants.AddDisposalMethod.MakeGenericMethod(expression.Type);
-                return Expression.Call(Constants.ScopeExpression, method, expression);
-            }
-
-            return expression;
         }
     }
 }

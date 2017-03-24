@@ -16,6 +16,9 @@ namespace Stashbox.Lifetime
         public virtual bool HandlesObjectDisposal => false;
 
         /// <inheritdoc />
+        public virtual bool IsTransient => false;
+
+        /// <inheritdoc />
         public virtual Expression GetExpression(IContainerContext containerContext, IObjectBuilder objectBuilder,
             ResolutionInfo resolutionInfo, Type resolveType)
         {
@@ -25,7 +28,8 @@ namespace Stashbox.Lifetime
                 return null;
 
             if (!expr.Type.GetTypeInfo().ImplementedInterfaces.Contains(Constants.DisposableType) ||
-                objectBuilder.HandlesObjectDisposal || this.HandlesObjectDisposal)
+                !containerContext.ContainerConfigurator.ContainerConfiguration.TrackTransientsForDisposalEnabled &&
+                !this.IsTransient || objectBuilder.HandlesObjectDisposal || this.HandlesObjectDisposal)
                 return expr;
 
             var method = Constants.AddDisposalMethod.MakeGenericMethod(expr.Type);
