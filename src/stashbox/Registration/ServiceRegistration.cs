@@ -89,8 +89,8 @@ namespace Stashbox.Registration
             if (expr == null)
                 return null;
 
-            if (this.LifetimeManager == null && !this.ObjectBuilder.HandlesObjectDisposal &&
-                this.ImplementationType.GetTypeInfo().ImplementedInterfaces.Contains(Constants.DisposableType))
+            if (this.LifetimeManager == null && containerContext.ContainerConfigurator.ContainerConfiguration.TrackTransientsForDisposalEnabled &&
+                !this.ObjectBuilder.HandlesObjectDisposal && this.ImplementationType.GetTypeInfo().ImplementedInterfaces.Contains(Constants.DisposableType))
             {
                 var method = Constants.AddDisposalMethod.MakeGenericMethod(this.ImplementationType);
                 return Expression.Call(Constants.ScopeExpression, method,
