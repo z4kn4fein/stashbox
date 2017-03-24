@@ -19,7 +19,7 @@ namespace Stashbox
     /// <summary>
     /// Represents the stashbox dependency injection container.
     /// </summary>
-    public partial class StashboxContainer : ResolutionScopeBase, IStashboxContainer
+    public partial class StashboxContainer : IStashboxContainer
     {
         private readonly IContainerExtensionManager containerExtensionManager;
         private readonly IResolverSelector resolverSelector;
@@ -45,6 +45,7 @@ namespace Stashbox
             this.ContainerContext = new ContainerContext(this.registrationRepository, new DelegateRepository(), this,
                 new ResolutionStrategy(this.resolverSelector), configurator, new DecoratorRepository());
             this.activationContext = new Resolution.ActivationContext(this.ContainerContext, this.resolverSelector);
+            this.RootScope = new ResolutionScope(this.activationContext);
             this.RegisterResolvers();
         }
 
@@ -60,6 +61,7 @@ namespace Stashbox
             this.ContainerContext = new ContainerContext(this.registrationRepository, new DelegateRepository(), this, new ResolutionStrategy(this.resolverSelector),
                 parentContainer.ContainerContext.ContainerConfigurator, parentContainer.ContainerContext.DecoratorRepository);
             this.activationContext = new Resolution.ActivationContext(this.ContainerContext, this.resolverSelector);
+            this.RootScope = new ResolutionScope(this.activationContext);
             this.containerExtensionManager.ReinitalizeExtensions(this.ContainerContext);
         }
 
@@ -88,7 +90,7 @@ namespace Stashbox
         {
             foreach (var serviceRegistration in this.registrationRepository.GetAllRegistrations())
             {
-                var expression = serviceRegistration.GetExpression(ResolutionInfo.New(this), serviceRegistration.ServiceType);
+                var expression = serviceRegistration.GetExpression(ResolutionInfo.New(this.RootScope), serviceRegistration.ServiceType);
                 if (expression == null)
                     throw new ResolutionFailedException(serviceRegistration.ImplementationType.FullName);
             }
@@ -101,11 +103,14 @@ namespace Stashbox
         public IContainerContext ContainerContext { get; }
 
         /// <inheritdoc />
+        public IResolutionScope RootScope { get; }
+
+        /// <inheritdoc />
         public IStashboxContainer CreateChildContainer() =>
              new StashboxContainer(this, this.containerExtensionManager.CreateCopy(), this.resolverSelector, this.expressionBuilder);
 
         /// <inheritdoc />
-        public IDependencyResolver BeginScope() => new ResolutionScope(this.activationContext);
+        public IResolutionScope BeginScope() => this.RootScope.BeginScope();
 
         /// <inheritdoc />
         public void Configure(Action<IContainerConfigurator> config) =>
@@ -128,23 +133,30 @@ namespace Stashbox
             var typeTo = instance.GetType();
             var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, RegistrationContextData.Empty, typeTo);
 
-            var resolutionInfo = ResolutionInfo.New(this);
+            var resolutionInfo = ResolutionInfo.New(this.RootScope);
             var expr = this.expressionBuilder.CreateFillExpression(this.containerExtensionManager, this.ContainerContext,
                 Expression.Constant(instance), resolutionInfo, typeTo, null, metaInfoProvider.GetResolutionMembers(resolutionInfo),
                 metaInfoProvider.GetResolutionMethods(resolutionInfo));
 
             var factory = expr.CompileDelegate(Constants.ScopeExpression);
-            return factory(this) as TTo;
+            return factory(this.RootScope) as TTo;
+        }
+
+        /// <inheritdoc />
+        public void Dispose()
+        {
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         /// <summary>
         /// Disposes the container.
         /// </summary>
         /// <param name="disposing">Indicates the container is disposing or not.</param>
-        protected override void Dispose(bool disposing)
+        protected virtual void Dispose(bool disposing)
         {
             if (!this.disposed.CompareExchange(false, true) || !disposing) return;
-            base.Dispose(true);
+            this.RootScope.Dispose();
             this.registrationRepository.CleanUp();
             this.containerExtensionManager.CleanUp();
         }
