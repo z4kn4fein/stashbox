@@ -92,6 +92,6 @@ namespace Stashbox.Registration
         }
 
         private ILifetime ChooseLifeTime() => this.RegistrationContextData.ExistingInstance != null ? null : 
-            this.RegistrationContextData.Lifetime ?? new TransientLifetime();
+            this.RegistrationContextData.Lifetime;
     }
 }

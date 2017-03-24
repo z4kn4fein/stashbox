@@ -80,19 +80,12 @@ namespace Stashbox.Tests
         public void LifetimeTests_StateCheck()
         {
             var scoped = new ScopedLifetime();
-            Assert.IsFalse(scoped.IsTransient);
             Assert.IsFalse(scoped.HandlesObjectDisposal);
             Assert.IsInstanceOfType(scoped.Create(), typeof(ScopedLifetime));
 
             var singleton = new SingletonLifetime();
-            Assert.IsFalse(singleton.IsTransient);
             Assert.IsTrue(singleton.HandlesObjectDisposal);
             Assert.IsInstanceOfType(singleton.Create(), typeof(SingletonLifetime));
-
-            var transient = new TransientLifetime();
-            Assert.IsTrue(transient.IsTransient);
-            Assert.IsFalse(transient.HandlesObjectDisposal);
-            Assert.IsInstanceOfType(transient.Create(), typeof(TransientLifetime));
         }
 
         public interface ITest1 { string Name { get; set; } }
