@@ -55,7 +55,7 @@ namespace Stashbox.Lifetime
             if(value == null)
             {
                 value = factory(scope);
-                scope.AddOrUpdateScopedItem(scopeId, value);
+                scope.AddScopedItem(scopeId, value);
             }
 
             return (TValue)value;

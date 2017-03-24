@@ -12,7 +12,7 @@ namespace Stashbox.Infrastructure
         /// </summary>
         /// <param name="key">The key.</param>
         /// <param name="value">The value.</param>
-        void AddOrUpdateScopedItem(object key, object value);
+        void AddScopedItem(object key, object value);
 
         /// <summary>
         /// Gets an item from the scope.

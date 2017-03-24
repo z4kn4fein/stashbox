@@ -280,7 +280,7 @@ namespace Stashbox.Tests
 
             using (var child = container.BeginScope())
             {
-                test1 = child.Resolve<ITest11>();
+                test1 = (ITest11)child.Resolve(typeof(ITest11));
             }
 
             Assert.IsTrue(((Test4)test1).Disposed);

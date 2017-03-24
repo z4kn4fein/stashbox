@@ -32,8 +32,8 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public void AddOrUpdateScopedItem(object key, object value) =>
-            this.scopedItems.AddOrUpdate(key, value, (oldValue, newValue) => newValue);
+        public void AddScopedItem(object key, object value) =>
+            this.scopedItems.AddOrUpdate(key, value);
 
         /// <inheritdoc />
         public object GetScopedItemOrDefault(object key) =>
