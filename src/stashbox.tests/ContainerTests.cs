@@ -36,7 +36,7 @@ namespace Stashbox.Tests
             var container = new StashboxContainer();
             container.RegisterType<ITest1, Test1>();
 
-            var child = container.BeginScope();
+            var child = container.CreateChildContainer();
 
             var test1 = child.Resolve<ITest1>();
 
