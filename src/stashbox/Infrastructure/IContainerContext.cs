@@ -1,6 +1,5 @@
 ﻿using Stashbox.Infrastructure.Registration;
 using Stashbox.Infrastructure.Resolution;
-using Stashbox.Registration;
 using Stashbox.Utils;
 
 namespace Stashbox.Infrastructure
@@ -36,19 +35,9 @@ namespace Stashbox.Infrastructure
         IResolutionStrategy ResolutionStrategy { get; }
 
         /// <summary>
-        /// Repository of scoped registrations.
-        /// </summary>
-        ConcurrentTree<string, ScopedRegistrationItem> ScopedRegistrations { get; }
-
-        /// <summary>
         /// A generic key-value store.
         /// </summary>
         ConcurrentKeyValueStore<object, object> Bag { get; }
-
-        /// <summary>
-        /// The transient objects which are tracked by the container for disposal.
-        /// </summary>
-        ConcurrentStore<object> TrackedTransientObjects { get; }
 
         /// <summary>
         /// Indicates that the container should track transient objects for disposal or not.

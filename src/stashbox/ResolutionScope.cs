@@ -1,10 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
+using Stashbox.Infrastructure;
+using Stashbox.Infrastructure.Resolution;
 
 namespace Stashbox
 {
-    public partial class StashboxContainer
+    /// <summary>
+    /// Represents a resolution scope.
+    /// </summary>
+    public class ResolutionScope : ResolutionScopeBase, IDependencyResolver
     {
+        private readonly IActivationContext activationContext;
+
+        /// <summary>
+        /// Constructs a resolution scope.
+        /// </summary>
+        /// <param name="activationContext">The dependency resolver.</param>
+        public ResolutionScope(IActivationContext activationContext)
+        {
+            this.activationContext = activationContext;
+        }
+
         /// <inheritdoc />
         public TKey Resolve<TKey>(string name = null, bool nullResultAllowed = false) where TKey : class =>
             this.activationContext.Activate(typeof(TKey), this, name, nullResultAllowed) as TKey;
@@ -27,5 +43,8 @@ namespace Stashbox
         /// <inheritdoc />
         public Delegate ResolveFactory(Type typeFrom, string name = null, bool nullResultAllowed = false, params Type[] parameterTypes) =>
             this.activationContext.ActivateFactory(typeFrom, parameterTypes, this, name, nullResultAllowed);
+
+        /// <inheritdoc />
+        public IDependencyResolver BeginScope() => new ResolutionScope(this.activationContext);
     }
 }

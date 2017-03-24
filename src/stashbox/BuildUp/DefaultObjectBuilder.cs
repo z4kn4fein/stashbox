@@ -2,7 +2,6 @@
 using Stashbox.BuildUp.Expressions;
 using Stashbox.Entity;
 using Stashbox.Entity.Resolution;
-using Stashbox.Exceptions;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.ContainerExtension;
 using System.Linq.Expressions;
@@ -18,7 +17,7 @@ namespace Stashbox.BuildUp
         private readonly IExpressionBuilder expressionBuilder;
 
         public DefaultObjectBuilder(IContainerContext containerContext, IMetaInfoProvider metaInfoProvider,
-            IContainerExtensionManager containerExtensionManager, IExpressionBuilder expressionBuilder, 
+            IContainerExtensionManager containerExtensionManager, IExpressionBuilder expressionBuilder,
             InjectionParameter[] injectionParameters = null, bool isDecorator = false)
             : base(containerContext, isDecorator)
         {
@@ -36,7 +35,7 @@ namespace Stashbox.BuildUp
             if (!this.containerContext.ContainerConfigurator.ContainerConfiguration.CircularDependencyTrackingEnabled)
                 return this.CreateExpression(resolutionInfo, resolveType);
 
-            using (new CircularDependencyBarrier(resolutionInfo.CircularDependencyBarrier, this.metaInfoProvider.TypeTo))
+            using (new CircularDependencyBarrier(resolutionInfo, this.metaInfoProvider.TypeTo))
                 return this.CreateExpression(resolutionInfo, resolveType);
         }
 
@@ -44,7 +43,7 @@ namespace Stashbox.BuildUp
         {
             if (!this.metaInfoProvider.TryChooseConstructor(out ResolutionConstructor constructor,
                 resolutionInfo, this.injectionParameters))
-                throw new ResolutionFailedException(this.metaInfoProvider.TypeTo.FullName);
+                return null;
 
             return this.expressionBuilder.CreateExpression(this.containerExtensionManager, this.containerContext,
                     constructor, resolutionInfo, resolveType, this.injectionParameters,

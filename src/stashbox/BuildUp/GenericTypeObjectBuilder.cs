@@ -40,13 +40,13 @@ namespace Stashbox.BuildUp
 
         private IServiceRegistration RegisterConcreteGenericType(Type resolveType, Type genericType)
         {
-            var registrationContext = new ScopedRegistrationContext(resolveType, genericType, this.containerContext, this.expressionBuilder, this.containerExtensionManager);
+            var registrationContext = new RegistrationContext(resolveType, genericType, this.containerContext, this.expressionBuilder, this.containerExtensionManager);
             var newData = this.registrationContextData.CreateCopy();
             newData.Name = null;
 
-            if (!this.isDecorator) return registrationContext.InitFromScope(newData);
+            if (!this.isDecorator) return registrationContext.InitWithExistingData(newData);
 
-            var registration = registrationContext.CreateRegistration(newData, this.isDecorator);
+            var registration = registrationContext.CreateServiceRegistration(newData, this.isDecorator);
             this.containerContext.DecoratorRepository.AddDecorator(resolveType, registration);
             return registration;
         }

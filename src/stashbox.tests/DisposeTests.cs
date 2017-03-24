@@ -165,6 +165,51 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void DisposeTests_TrackTransientDisposal_ScopeOfScope_Transient()
+        {
+            using (IStashboxContainer container = new StashboxContainer(config => config.WithDisposableTransientTracking()))
+            {
+                container.RegisterType<ITest2, Test2>();
+                container.RegisterType<Test3>();
+                container.RegisterType<ITest1, Test1>();
+
+                ITest1 test;
+                ITest2 test2;
+                Test3 test3;
+
+                using (var scope = container.BeginScope())
+                {
+                    test = scope.Resolve<ITest1>();
+                    test2 = scope.Resolve<ITest2>();
+                    test3 = scope.Resolve<Test3>();
+
+                    ITest1 test4;
+                    ITest2 test5;
+                    Test3 test6;
+
+                    using (var scope2 = scope.BeginScope())
+                    {
+                        test4 = scope2.Resolve<ITest1>();
+                        test5 = scope2.Resolve<ITest2>();
+                        test6 = scope2.Resolve<Test3>();
+                    }
+
+                    Assert.IsTrue(test4.Disposed);
+                    Assert.IsTrue(test5.Test1.Disposed);
+                    Assert.IsTrue(test6.Test1.Disposed);
+                    
+                    Assert.IsFalse(test.Disposed);
+                    Assert.IsFalse(test2.Test1.Disposed);
+                    Assert.IsFalse(test3.Test1.Disposed);
+                }
+
+                Assert.IsTrue(test.Disposed);
+                Assert.IsTrue(test2.Test1.Disposed);
+                Assert.IsTrue(test3.Test1.Disposed);
+            }
+        }
+
+        [TestMethod]
         public void DisposeTests_TrackTransientDisposal_Scoped_Transient_ChildContainer()
         {
             IStashboxContainer container = new StashboxContainer(config => config.WithDisposableTransientTracking());
@@ -176,11 +221,12 @@ namespace Stashbox.Tests
             container.RegisterType<Test3>();
             container.RegisterType<ITest1, Test1>();
 
-            using (var child = container.BeginScope())
+            using (var child = container.CreateChildContainer())
+            using (var scope = child.BeginScope())
             {
-                test4 = child.Resolve<ITest1>();
-                test5 = child.Resolve<ITest2>();
-                test6 = child.Resolve<Test3>();
+                test4 = scope.Resolve<ITest1>();
+                test5 = scope.Resolve<ITest2>();
+                test6 = scope.Resolve<Test3>();
             }
 
             Assert.IsTrue(test4.Disposed);
@@ -225,11 +271,31 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void DisposeTests_TrackTransientDisposal_Implementation_Has_Disposable()
+        {
+            IStashboxContainer container = new StashboxContainer(config => config.WithDisposableTransientTracking());
+            ITest11 test1;
+
+            container.RegisterType<ITest11, Test4>();
+
+            using (var child = container.BeginScope())
+            {
+                test1 = (ITest11)child.Resolve(typeof(ITest11));
+            }
+
+            Assert.IsTrue(((Test4)test1).Disposed);
+        }
+
+        [TestMethod]
         public void DisposeTests_Instance_TrackTransient()
         {
             ITest1 test = new Test1();
             using (var container = new StashboxContainer(config => config.WithDisposableTransientTracking()))
-                container.RegisterInstance(test);
+            {
+                container.RegisterInstance<ITest1>(test);
+                
+                Assert.AreSame(test, container.Resolve<ITest1>());
+            }
 
             Assert.IsTrue(test.Disposed);
         }
@@ -239,7 +305,11 @@ namespace Stashbox.Tests
         {
             ITest1 test = new Test1();
             using (var container = new StashboxContainer(config => config.WithDisposableTransientTracking()))
-                container.WireUp(test);
+            {
+                container.WireUp<ITest1>(test);
+
+                Assert.AreSame(test, container.Resolve<ITest1>());
+            }
 
             Assert.IsTrue(test.Disposed);
         }
@@ -258,6 +328,11 @@ namespace Stashbox.Tests
 
             public void Dispose()
             {
+                if (Disposed)
+                {
+                    throw new ObjectDisposedException(nameof(Test1));
+                }
+
                 this.Disposed = true;
             }
         }
@@ -276,6 +351,21 @@ namespace Stashbox.Tests
         {
             [Dependency]
             public ITest1 Test1 { get; set; }
+        }
+
+        public class Test4 : ITest11, IDisposable
+        {
+            public bool Disposed { get; private set; }
+
+            public void Dispose()
+            {
+                if (Disposed)
+                {
+                    throw new ObjectDisposedException(nameof(Test4));
+                }
+
+                this.Disposed = true;
+            }
         }
     }
 }

@@ -10,19 +10,23 @@ using Stashbox.Registration;
 using Stashbox.Resolution;
 using Stashbox.Utils;
 using System;
+using System.Linq.Expressions;
+using Stashbox.Exceptions;
+using Stashbox.MetaInfo;
 
 namespace Stashbox
 {
     /// <summary>
     /// Represents the stashbox dependency injection container.
     /// </summary>
-    public partial class StashboxContainer : IStashboxContainer
+    public partial class StashboxContainer : ResolutionScopeBase, IStashboxContainer
     {
         private readonly IContainerExtensionManager containerExtensionManager;
         private readonly IResolverSelector resolverSelector;
         private readonly IRegistrationRepository registrationRepository;
         private readonly IExpressionBuilder expressionBuilder;
         private readonly AtomicBool disposed;
+        private readonly IActivationContext activationContext;
 
         /// <summary>
         /// Constructs a <see cref="StashboxContainer"/>
@@ -40,7 +44,7 @@ namespace Stashbox
             this.registrationRepository = new RegistrationRepository(configurator);
             this.ContainerContext = new ContainerContext(this.registrationRepository, new DelegateRepository(), this,
                 new ResolutionStrategy(this.resolverSelector), configurator, new DecoratorRepository());
-            this.ActivationContext = new Resolution.ActivationContext(this.ContainerContext, this.resolverSelector);
+            this.activationContext = new Resolution.ActivationContext(this.ContainerContext, this.resolverSelector);
 
             this.RegisterResolvers();
         }
@@ -56,7 +60,7 @@ namespace Stashbox
             this.registrationRepository = new RegistrationRepository(parentContainer.ContainerContext.ContainerConfigurator);
             this.ContainerContext = new ContainerContext(this.registrationRepository, new DelegateRepository(), this, new ResolutionStrategy(this.resolverSelector),
                 parentContainer.ContainerContext.ContainerConfigurator, parentContainer.ContainerContext.DecoratorRepository);
-            this.ActivationContext = new Resolution.ActivationContext(this.ContainerContext, this.resolverSelector);
+            this.activationContext = new Resolution.ActivationContext(this.ContainerContext, this.resolverSelector);
             this.containerExtensionManager.ReinitalizeExtensions(this.ContainerContext);
         }
 
@@ -77,14 +81,18 @@ namespace Stashbox
 
         /// <inheritdoc />
         public bool CanResolve(Type typeFrom, string name = null) =>
-            this.registrationRepository.ContainsRegistration(typeFrom, name) || 
+            this.registrationRepository.ContainsRegistration(typeFrom, name) ||
                 this.resolverSelector.CanResolve(this.ContainerContext, new TypeInformation { Type = typeFrom, DependencyName = name });
 
         /// <inheritdoc />
         public void Validate()
         {
             foreach (var serviceRegistration in this.registrationRepository.GetAllRegistrations())
-                serviceRegistration.GetExpression(ResolutionInfo.New(), serviceRegistration.ServiceType);
+            {
+                var expression = serviceRegistration.GetExpression(ResolutionInfo.New(this), serviceRegistration.ServiceType);
+                if (expression == null)
+                    throw new ResolutionFailedException(serviceRegistration.ImplementationType.FullName);
+            }
         }
 
         /// <inheritdoc />
@@ -94,30 +102,15 @@ namespace Stashbox
         public IContainerContext ContainerContext { get; }
 
         /// <inheritdoc />
-        public IActivationContext ActivationContext { get; }
+        public IStashboxContainer CreateChildContainer() =>
+             new StashboxContainer(this, this.containerExtensionManager.CreateCopy(), this.resolverSelector, this.expressionBuilder);
 
         /// <inheritdoc />
-        public IStashboxContainer BeginScope()
-        {
-            var container = new StashboxContainer(this, this.containerExtensionManager.CreateCopy(), this.resolverSelector, this.expressionBuilder);
-            container.OpenScope();
-            return container;
-        }
+        public IDependencyResolver BeginScope() => new ResolutionScope(this.activationContext);
 
         /// <inheritdoc />
-        public void Configure(Action<IContainerConfigurator> config) => 
+        public void Configure(Action<IContainerConfigurator> config) =>
             config?.Invoke(this.ContainerContext.ContainerConfigurator);
-
-        internal void OpenScope()
-        {
-            foreach (var registrationItem in this.ParentContainer.ContainerContext.ScopedRegistrations)
-            {
-                var registration = new ScopedRegistrationContext(registrationItem.TypeFrom, registrationItem.TypeTo,
-                    this.ContainerContext, this.expressionBuilder, this.containerExtensionManager);
-
-                registration.InitFromScope(registrationItem.RegistrationContextData.CreateCopy());
-            }
-        }
 
         private void RegisterResolvers()
         {
@@ -130,31 +123,31 @@ namespace Stashbox
             this.resolverSelector.AddResolver(new ParentContainerResolver());
         }
 
-        /// <summary>
-        /// Disposes the container.
-        /// </summary>
-        public void Dispose()
+        /// <inheritdoc />
+        public TTo BuildUp<TTo>(TTo instance) where TTo : class
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            var typeTo = instance.GetType();
+            var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, RegistrationContextData.Empty, typeTo);
+
+            var resolutionInfo = ResolutionInfo.New(this);
+            var expr = this.expressionBuilder.CreateFillExpression(this.containerExtensionManager, this.ContainerContext,
+                Expression.Constant(instance), resolutionInfo, typeTo, null, metaInfoProvider.GetResolutionMembers(resolutionInfo),
+                metaInfoProvider.GetResolutionMethods(resolutionInfo));
+
+            var factory = expr.CompileDelegate(Constants.ScopeExpression);
+            return factory(this) as TTo;
         }
 
         /// <summary>
         /// Disposes the container.
         /// </summary>
         /// <param name="disposing">Indicates the container is disposing or not.</param>
-        protected virtual void Dispose(bool disposing)
+        protected override void Dispose(bool disposing)
         {
             if (!this.disposed.CompareExchange(false, true) || !disposing) return;
+            base.Dispose(true);
             this.registrationRepository.CleanUp();
             this.containerExtensionManager.CleanUp();
-
-            var trackedObjects = this.ContainerContext.TrackedTransientObjects.GetAll();
-            foreach (var trackedObject in trackedObjects)
-            {
-                var disposable = trackedObject as IDisposable;
-                disposable?.Dispose();
-            }
         }
     }
 }

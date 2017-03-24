@@ -1,27 +1,26 @@
 ﻿using Stashbox.Exceptions;
 using System;
-using System.Collections.Generic;
+using Stashbox.Entity;
 
 namespace Stashbox.BuildUp
 {
     internal sealed class CircularDependencyBarrier : IDisposable
     {
-        private readonly HashSet<Type> set;
+        private readonly ResolutionInfo resolutionInfo;
         private readonly Type type;
 
-        public CircularDependencyBarrier(HashSet<Type> set, Type type)
+        public CircularDependencyBarrier(ResolutionInfo resolutionInfo, Type type)
         {
-            if (set.Contains(type))
+            var existing = resolutionInfo.CircularDependencyBarrier.GetOrDefault(type.GetHashCode());
+            if (existing != null)
                 throw new CircularDependencyException(type.FullName);
 
-            set.Add(type);
-            this.set = set;
+            resolutionInfo.CircularDependencyBarrier.AddOrUpdate(type.GetHashCode(), type);
+            this.resolutionInfo = resolutionInfo;
             this.type = type;
         }
 
-        public void Dispose()
-        {
-            this.set?.Remove(this.type);
-        }
+        public void Dispose() =>
+            this.resolutionInfo.CircularDependencyBarrier.AddOrUpdate(this.type.GetHashCode(), null, (oldValue, newValue) => newValue);
     }
 }

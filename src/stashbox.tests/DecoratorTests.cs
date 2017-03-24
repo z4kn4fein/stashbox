@@ -333,7 +333,39 @@ namespace Stashbox.Tests
             }
         }
 
+        [TestMethod]
+        public void DecoratorTests_DecoratorDependency_Null()
+        {
+            using (var container = new StashboxContainer())
+            {
+                container.RegisterType<ITest1, Test1>();
+                container.RegisterDecorator<ITest1, TestDecorator9>();
+
+                var inst = container.Resolve<ITest1>(nullResultAllowed: true);
+
+                Assert.IsNull(inst);
+            }
+        }
+
+        [TestMethod]
+        public void DecoratorTests_DecoreteeDependency_Null()
+        {
+            using (var container = new StashboxContainer())
+            {
+                container.RegisterType<ITest1, Test12>();
+                container.RegisterDecorator<ITest1, TestDecorator9>();
+
+                var inst = container.Resolve<ITest1>(nullResultAllowed: true);
+
+                Assert.IsNull(inst);
+            }
+        }
+
         public interface ITest1 { ITest1 Test { get; } }
+
+        public interface IDecoratorDep { }
+
+        public interface IDep { }
 
         public interface ITest1<T> { ITest1<T> Test { get; } }
         
@@ -345,6 +377,16 @@ namespace Stashbox.Tests
         public class Test11 : ITest1
         {
             public ITest1 Test { get; }
+        }
+
+        public class Test12 : ITest1
+        {
+            public ITest1 Test { get; }
+
+            public Test12(IDep dep)
+            {
+                
+            }
         }
 
         public class Test1<T> : ITest1<T>
@@ -435,6 +477,16 @@ namespace Stashbox.Tests
             public TestDecorator8(IEnumerable<ITest1> test1)
             {
                 this.Test = test1.First();
+            }
+        }
+
+        public class TestDecorator9 : ITest1
+        {
+            public ITest1 Test { get; }
+
+            public TestDecorator9(ITest1 test1, IDecoratorDep dep)
+            {
+                this.Test = test1;
             }
         }
     }

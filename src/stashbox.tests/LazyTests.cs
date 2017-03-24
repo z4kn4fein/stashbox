@@ -22,6 +22,15 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void LazyTests_Resolve_Null()
+        {
+            var container = new StashboxContainer();
+            var inst = container.Resolve<Lazy<ITest>>(nullResultAllowed: true);
+
+            Assert.IsNull(inst);
+        }
+
+        [TestMethod]
         public void LazyTests_Resolve_Func()
         {
             var container = new StashboxContainer();
@@ -35,6 +44,15 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void LazyTests_Resolve_Func_Null()
+        {
+            var container = new StashboxContainer();
+            var inst = container.Resolve<Lazy<Func<ITest>>>(nullResultAllowed: true);
+
+            Assert.IsNull(inst);
+        }
+
+        [TestMethod]
         public void LazyTests_Resolve_Enumerable()
         {
             var container = new StashboxContainer();
@@ -45,6 +63,15 @@ namespace Stashbox.Tests
             Assert.IsFalse(inst.IsValueCreated);
             Assert.IsInstanceOfType(inst, typeof(Lazy<IEnumerable<ITest>>));
             Assert.IsInstanceOfType(inst.Value.First(), typeof(Test));
+        }
+
+        [TestMethod]
+        public void LazyTests_Resolve_Enumerable_Null()
+        {
+            var container = new StashboxContainer();
+            var inst = container.Resolve<Lazy<IEnumerable<ITest>>>();
+            
+            Assert.AreEqual(0, inst.Value.Count());
         }
 
         [TestMethod]
@@ -62,6 +89,16 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void LazyTests_Resolve_ConstructorDependency_Null()
+        {
+            var container = new StashboxContainer();
+            container.RegisterType<Test2>();
+            var inst = container.Resolve<Test2>(nullResultAllowed: true);
+
+            Assert.IsNull(inst);
+        }
+
+        [TestMethod]
         public void LazyTests_Resolve_Circular()
         {
             var container = new StashboxContainer(config => 
@@ -76,6 +113,23 @@ namespace Stashbox.Tests
 
             Assert.AreSame(inst2, inst1.Dep.Value);
             Assert.AreSame(inst1, inst2.Dep.Value);
+        }
+
+        [TestMethod]
+        public void LazyTests_Resolve_Circular_FromCache()
+        {
+            var container = new StashboxContainer(config =>
+            config.WithCircularDependencyTracking()
+            .WithCircularDependencyWithLazy());
+
+            container.RegisterSingleton<Circular1>();
+            container.RegisterSingleton<Circular2>();
+
+            var inst1 = container.Resolve<Circular1>();
+            var inst2 = container.Resolve<Circular2>();
+
+            Assert.AreSame(container.Resolve<Circular2>(), inst1.Dep.Value);
+            Assert.AreSame(container.Resolve<Circular1>(), inst2.Dep.Value);
         }
 
         [TestMethod]

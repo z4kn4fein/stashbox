@@ -39,6 +39,23 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void GenericTests_Resolve_SameTime_DifferentParameter_Singleton()
+        {
+            using (var container = new StashboxContainer())
+            {
+                container.RegisterSingleton(typeof(ITest1<,>), typeof(Test1<,>));
+                var inst = container.Resolve<ITest1<int, string>>();
+                var inst2 = container.Resolve<ITest1<int, int>>();
+
+                Assert.IsNotNull(inst);
+                Assert.IsInstanceOfType(inst, typeof(Test1<int, string>));
+
+                Assert.IsNotNull(inst2);
+                Assert.IsInstanceOfType(inst2, typeof(Test1<int, int>));
+            }
+        }
+
+        [TestMethod]
         public void GenericTests_CanResolve()
         {
             using (var container = new StashboxContainer())

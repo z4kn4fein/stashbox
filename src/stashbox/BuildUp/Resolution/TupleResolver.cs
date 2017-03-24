@@ -4,7 +4,6 @@ using Stashbox.Entity;
 using Stashbox.Infrastructure;
 using System.Linq.Expressions;
 using System.Collections.Generic;
-using Stashbox.Exceptions;
 
 namespace Stashbox.BuildUp.Resolution
 {
@@ -35,7 +34,11 @@ namespace Stashbox.BuildUp.Resolution
             {
                 var argumentInfo = new TypeInformation { Type = args[i] };
                 var expr = containerContext.ResolutionStrategy.BuildResolutionExpression(containerContext, resolutionInfo, argumentInfo, null);
-                expressions[i] = expr ?? throw new ResolutionFailedException(typeInfo.Type.FullName);
+
+                if (expr != null)
+                    expressions[i] = expr;
+                else
+                    return null;
             }
 
             return Expression.New(tupleConstructor, expressions);

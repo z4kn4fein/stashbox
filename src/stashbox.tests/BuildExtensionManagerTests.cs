@@ -78,7 +78,7 @@ namespace Stashbox.Tests
 
                 post.Setup(p => p.CreateCopy()).Returns(post2.Object).Verifiable();
 
-                using (var child = container.BeginScope())
+                using (var child = container.CreateChildContainer())
                 {
                     child.RegisterInstance(new object());
 

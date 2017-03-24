@@ -11,13 +11,6 @@ namespace Stashbox.BuildUp.Expressions
 {
     internal class ExpressionBuilder : IExpressionBuilder
     {
-        private readonly MethodInfo buildExtensionMethod;
-
-        public ExpressionBuilder()
-        {
-            this.buildExtensionMethod = typeof(IContainerExtensionManager).GetSingleMethod("ExecutePostBuildExtensions");
-        }
-        
         public Expression CreateFillExpression(IContainerExtensionManager extensionManager, IContainerContext containerContext, Expression instance,
             ResolutionInfo resolutionInfo, Type serviceType, InjectionParameter[] parameters, ResolutionMember[] members, ResolutionMethod[] methods)
         {
@@ -75,7 +68,7 @@ namespace Stashbox.BuildUp.Expressions
 
             if (extensionManager.HasPostBuildExtensions)
             {
-                var call = Expression.Call(Expression.Constant(extensionManager), buildExtensionMethod, newVariable, Expression.Constant(containerContext),
+                var call = Expression.Call(Expression.Constant(extensionManager), Constants.BuildExtensionMethod, newVariable, Expression.Constant(containerContext),
                       Expression.Constant(resolutionInfo), Expression.Constant(serviceType), Expression.Constant(parameters, typeof(InjectionParameter[])));
 
                 block.Add(Expression.Assign(newVariable, Expression.Convert(call, serviceType)));

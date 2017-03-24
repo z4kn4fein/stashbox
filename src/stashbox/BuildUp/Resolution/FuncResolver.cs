@@ -1,5 +1,4 @@
 ﻿using Stashbox.Entity;
-using Stashbox.Exceptions;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.Resolution;
 using System;
@@ -42,10 +41,8 @@ namespace Stashbox.BuildUp.Resolution
 
             var parameters = this.PrepareExtraParameters(wrappedType, resolutionInfo, args);
             var expression = containerContext.ResolutionStrategy.BuildResolutionExpression(containerContext, resolutionInfo, funcArgumentInfo, null);
-            if (expression == null)
-                throw new ResolutionFailedException(typeInfo.Type.FullName);
 
-            return Expression.Lambda(expression, parameters);
+            return expression != null ? Expression.Lambda(expression, parameters) : null;
         }
 
         public override Expression[] GetExpressions(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo)

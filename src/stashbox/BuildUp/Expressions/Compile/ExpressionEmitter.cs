@@ -16,12 +16,8 @@ namespace Stashbox.BuildUp.Expressions.Compile
 
         private static readonly MethodInfo delegateTargetProperty = typeof(Delegate).GetProperty("Target").GetGetMethod();
 
-        public static bool TryEmit(this Expression expression, out Delegate resultDelegate) =>
-            expression.TryEmit(typeof(Func<object>), typeof(object), out resultDelegate, out DelegateTargetInformation delegateTarget);
-
-        public static bool TryEmit(this LambdaExpression expression, out Delegate resultDelegate) =>
-            expression.Body.TryEmit(expression.Type, expression.Body.Type, out resultDelegate,
-                out DelegateTargetInformation delegateTarget, expression.Parameters.ToArray());
+        public static bool TryEmit(this Expression expression, out Delegate resultDelegate, Type delegateType, Type returnType, params ParameterExpression[] parameters) =>
+            expression.TryEmit(delegateType, returnType, out resultDelegate, out DelegateTargetInformation delegateTarget, parameters);
         
         public static bool TryEmit(this Expression expression, Type delegateType, Type returnType,
             out Delegate resultDelegate, out DelegateTargetInformation delegateTarget, params ParameterExpression[] parameters)
@@ -191,7 +187,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
 
         private static bool TryEmit(this MethodCallExpression expression, DelegateTargetInformation target, ILGenerator generator, params ParameterExpression[] parameters)
         {
-            if (!expression.Object.TryEmit(target, generator, parameters))
+            if (expression.Object != null && !expression.Object.TryEmit(target, generator, parameters))
                 return false;
 
             return expression.Arguments.All(argument => argument.TryEmit(target, generator, parameters)) &&

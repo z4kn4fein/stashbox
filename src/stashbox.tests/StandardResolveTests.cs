@@ -42,9 +42,46 @@ namespace Stashbox.Tests
             {
                 container.RegisterType<ITest1, Test1>();
                 var test1 = container.ResolveFactory(typeof(ITest1)).DynamicInvoke();
-                
+
                 Assert.IsNotNull(test1);
                 Assert.IsInstanceOfType(test1, typeof(Test1));
+            }
+        }
+
+        [TestMethod]
+        public void StandardResolveTests_Factory_Scoped()
+        {
+            using (IStashboxContainer container = new StashboxContainer())
+            {
+                container.RegisterType<ITest1, Test1>();
+                using (var child = container.BeginScope())
+                {
+                    var test1 = child.ResolveFactory(typeof(ITest1)).DynamicInvoke();
+
+                    Assert.IsNotNull(test1);
+                    Assert.IsInstanceOfType(test1, typeof(Test1));
+                }
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ResolutionFailedException))]
+        public void StandardResolveTests_Factory_ResolutionFailed()
+        {
+            using (IStashboxContainer container = new StashboxContainer())
+            {
+                container.ResolveFactory(typeof(ITest1)).DynamicInvoke();
+            }
+        }
+
+        [TestMethod]
+        public void StandardResolveTests_Factory_ResolutionFailed_Null()
+        {
+            using (IStashboxContainer container = new StashboxContainer())
+            {
+                var factory = container.ResolveFactory(typeof(ITest1), nullResultAllowed: true);
+
+                Assert.IsNull(factory);
             }
         }
 
@@ -60,12 +97,35 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void StandardResolveTests_DependencyResolve_ResolutionFailed_AllowNull()
+        {
+            using (IStashboxContainer container = new StashboxContainer())
+            {
+                container.RegisterType<ITest2, Test2>();
+                var result = container.Resolve<ITest2>(nullResultAllowed: true);
+
+                Assert.IsNull(result);
+            }
+        }
+
+        [TestMethod]
         [ExpectedException(typeof(ResolutionFailedException))]
         public void StandardResolveTests_Resolve_ResolutionFailed()
         {
             using (IStashboxContainer container = new StashboxContainer())
             {
                 container.Resolve<ITest1>();
+            }
+        }
+
+        [TestMethod]
+        public void StandardResolveTests_Resolve_ResolutionFailed_AllowNull()
+        {
+            using (IStashboxContainer container = new StashboxContainer())
+            {
+                var result = container.Resolve<ITest1>(nullResultAllowed: true);
+
+                Assert.IsNull(result);
             }
         }
 
@@ -142,15 +202,15 @@ namespace Stashbox.Tests
                 var inst = container.Resolve<ITest1>();
                 var inst2 = container.Resolve<ITest1>();
 
-                Assert.AreEqual(inst, inst2);
+                Assert.AreSame(inst, inst2);
 
                 using (var child = container.BeginScope())
                 {
                     var inst3 = child.Resolve<ITest1>();
                     var inst4 = child.Resolve<ITest1>();
 
-                    Assert.AreNotEqual(inst, inst3);
-                    Assert.AreEqual(inst3, inst4);
+                    Assert.AreNotSame(inst, inst3);
+                    Assert.AreSame(inst3, inst4);
                 }
             }
         }
@@ -166,22 +226,22 @@ namespace Stashbox.Tests
                 var inst = container.Resolve<ITest4>();
                 var inst2 = container.Resolve<ITest4>();
 
-                Assert.AreEqual(inst.Test, inst2.Test);
-                Assert.AreEqual(inst.Test2, inst2.Test2);
-                Assert.AreEqual(inst.Test, inst2.Test2);
+                Assert.AreSame(inst.Test, inst2.Test);
+                Assert.AreSame(inst.Test2, inst2.Test2);
+                Assert.AreSame(inst.Test, inst2.Test2);
 
                 using (var child = container.BeginScope())
                 {
                     var inst3 = child.Resolve<ITest4>();
                     var inst4 = child.Resolve<ITest4>();
 
-                    Assert.AreNotEqual(inst.Test, inst4.Test);
-                    Assert.AreNotEqual(inst.Test2, inst4.Test2);
-                    Assert.AreNotEqual(inst.Test, inst4.Test2);
+                    Assert.AreNotSame(inst.Test, inst4.Test);
+                    Assert.AreNotSame(inst.Test2, inst4.Test2);
+                    Assert.AreNotSame(inst.Test, inst4.Test2);
 
-                    Assert.AreEqual(inst3.Test, inst4.Test);
-                    Assert.AreEqual(inst3.Test2, inst4.Test2);
-                    Assert.AreEqual(inst3.Test, inst4.Test2);
+                    Assert.AreSame(inst3.Test, inst4.Test);
+                    Assert.AreSame(inst3.Test2, inst4.Test2);
+                    Assert.AreSame(inst3.Test, inst4.Test2);
                 }
             }
         }
@@ -204,7 +264,7 @@ namespace Stashbox.Tests
         [TestMethod]
         public void StandardResolveTests_Resolve_MostParametersConstructor_WithoutDefault()
         {
-            using (IStashboxContainer container = new StashboxContainer(config => 
+            using (IStashboxContainer container = new StashboxContainer(config =>
             config.WithConstructorSelectionRule(Rules.ConstructorSelection.PreferMostParameters)))
             {
                 container.RegisterType(typeof(ITest1), typeof(Test1));
@@ -239,6 +299,30 @@ namespace Stashbox.Tests
                 container.RegisterType(typeof(ITest2), typeof(Test2222));
 
                 var inst = container.Resolve<ITest2>();
+            }
+        }
+
+        [TestMethod]
+        public void StandardResolveTests_Resolve_Scoped_NullDependency()
+        {
+            using (IStashboxContainer container = new StashboxContainer())
+            {
+                container.RegisterScoped<Test5>();
+                var inst = container.Resolve<Test5>(nullResultAllowed: true);
+
+                Assert.IsNull(inst);
+            }
+        }
+
+        [TestMethod]
+        public void StandardResolveTests_Resolve_Singleton_NullDependency()
+        {
+            using (IStashboxContainer container = new StashboxContainer())
+            {
+                container.RegisterSingleton<Test5>();
+                var inst = container.Resolve<Test5>(nullResultAllowed: true);
+
+                Assert.IsNull(inst);
             }
         }
 
@@ -349,6 +433,13 @@ namespace Stashbox.Tests
             public Test4(ITest1 test)
             {
                 this.Test = test;
+            }
+        }
+
+        public class Test5
+        {
+            public Test5(ITest1 test)
+            {
             }
         }
     }

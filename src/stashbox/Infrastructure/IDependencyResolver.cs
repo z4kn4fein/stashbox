@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Stashbox.Exceptions;
+using System;
 using System.Collections.Generic;
 
 namespace Stashbox.Infrastructure
@@ -6,15 +7,16 @@ namespace Stashbox.Infrastructure
     /// <summary>
     /// Represents a dependency resolver.
     /// </summary>
-    public interface IDependencyResolver
+    public interface IDependencyResolver : IDisposable
     {
         /// <summary>
         /// Resolves an instance from the container.
         /// </summary>
         /// <typeparam name="TKey">The type of the requested instance.</typeparam>
         /// <param name="name">The name of the requested registration.</param>
+        /// <param name="nullResultAllowed">If true, the container will return with null instead of throwing <see cref="ResolutionFailedException"/>.</param>
         /// <returns>The resolved object.</returns>
-        TKey Resolve<TKey>(string name = null)
+        TKey Resolve<TKey>(string name = null, bool nullResultAllowed = false)
            where TKey : class;
 
         /// <summary>
@@ -22,8 +24,9 @@ namespace Stashbox.Infrastructure
         /// </summary>
         /// <param name="typeFrom">The type of the requested instance.</param>
         /// <param name="name">The name of the requested registration.</param>
+        /// <param name="nullResultAllowed">If true, the container will return with null instead of throwing <see cref="ResolutionFailedException"/>.</param>
         /// <returns>The resolved object.</returns>
-        object Resolve(Type typeFrom, string name = null);
+        object Resolve(Type typeFrom, string name = null, bool nullResultAllowed = false);
 
         /// <summary>
         /// Resolves all registered types of a service.
@@ -45,16 +48,14 @@ namespace Stashbox.Infrastructure
         /// </summary>
         /// <param name="typeFrom">The type of the requested instances.</param>
         /// <param name="name">The name of the requested registration.</param>
+        /// <param name="nullResultAllowed">If true, the container will return with null instead of throwing <see cref="ResolutionFailedException"/>.</param>
         /// <param name="parameterTypes">The parameter type.</param>
         /// <returns>The factory delegate.</returns>
-        Delegate ResolveFactory(Type typeFrom, string name = null, params Type[] parameterTypes);
-
+        Delegate ResolveFactory(Type typeFrom, string name = null, bool nullResultAllowed = false, params Type[] parameterTypes);
+        
         /// <summary>
-        /// Builds up an instance, the container will perform injections and extensions on it.
+        /// Begins a new scope.
         /// </summary>
-        /// <typeparam name="TTo">The type of the requested instance.</typeparam>
-        /// <param name="instance">The instance to build up.</param>
-        /// <returns>The built object.</returns>
-        TTo BuildUp<TTo>(TTo instance) where TTo : class;
+        IDependencyResolver BeginScope();
     }
 }

@@ -3,7 +3,6 @@ using Stashbox.BuildUp.Expressions;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.ContainerExtension;
 using Stashbox.Infrastructure.Registration;
-using Stashbox.Lifetime;
 using Stashbox.MetaInfo;
 using Stashbox.Utils;
 using System;
@@ -35,12 +34,22 @@ namespace Stashbox.Registration
             this.expressionBuilder = expressionBuilder;
         }
 
+        public IServiceRegistration InitWithExistingData(RegistrationContextData data)
+        {
+            this.RegistrationContextData = data;
+            return this.CompleteRegistration();
+        }
+
+        public IServiceRegistration CreateServiceRegistration(RegistrationContextData data, bool isDecorator = false)
+        {
+            this.RegistrationContextData = data;
+            return this.CreateServiceRegistration(isDecorator);
+        }
+
         protected IServiceRegistration CompleteRegistration(bool update = false)
         {
             var registration = this.CreateServiceRegistration();
             this.ContainerContext.RegistrationRepository.AddOrUpdateRegistration(this.TypeFrom, this.RegistrationContextData.Name, update, registration);
-            this.CompleteScopeManagement(update, registration.LifetimeManager, registration.ObjectBuilder);
-
             return registration;
         }
 
@@ -54,23 +63,8 @@ namespace Stashbox.Registration
                     metaInfoProvider, this.ContainerExtensionManager, this.expressionBuilder, isDecorator) : 
                     this.CreateObjectBuilder(this.ContainerExtensionManager, metaInfoProvider, isDecorator);
 
-            return this.ProduceServiceRegistration(this.TypeTo.IsOpenGenericType() ? new TransientLifetime() : registrationLifetime, objectBuilder,
+            return this.ProduceServiceRegistration(registrationLifetime, objectBuilder,
                     metaInfoProvider);
-        }
-
-        private void CompleteScopeManagement(bool update, ILifetime registrationLifetime, IObjectBuilder objectBuilder)
-        {
-            if (!registrationLifetime.IsScoped &&
-                (!this.ContainerContext.ContainerConfigurator.ContainerConfiguration.TrackTransientsForDisposalEnabled ||
-                 !registrationLifetime.IsTransient || objectBuilder.HandlesObjectDisposal)) return;
-
-            var registrationItem = new ScopedRegistrationItem(this.TypeFrom, this.TypeTo, this.RegistrationContextData);
-
-            if (update)
-                this.ContainerContext.ScopedRegistrations.AddOrUpdate(this.RegistrationContextData.Name, registrationItem,
-                    (oldValue, newValue) => newValue);
-            else
-                this.ContainerContext.ScopedRegistrations.AddOrUpdate(this.RegistrationContextData.Name, registrationItem);
         }
 
         private IObjectBuilder CreateObjectBuilder(IContainerExtensionManager containerExtensionManager, IMetaInfoProvider metaInfoProvider, bool isDecorator = false)
@@ -96,7 +90,7 @@ namespace Stashbox.Registration
                 this.RegistrationContextData.TargetTypeCondition, this.RegistrationContextData.ResolutionCondition);
         }
 
-        private ILifetime ChooseLifeTime() => this.RegistrationContextData.ExistingInstance != null ? new TransientLifetime() :
-            this.RegistrationContextData.Lifetime ?? new TransientLifetime();
+        private ILifetime ChooseLifeTime() => this.RegistrationContextData.ExistingInstance != null ? null :
+            this.RegistrationContextData.Lifetime;
     }
 }

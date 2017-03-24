@@ -33,7 +33,7 @@ namespace Stashbox.BuildUp.Resolution
                 IsMember = typeInfo.IsMember
             };
             
-            var ctorParamType = typeof(Func<>).MakeGenericType(lazyArgumentInfo.Type);
+            var ctorParamType = Constants.FuncType.MakeGenericType(lazyArgumentInfo.Type);
             var lazyConstructor = typeInfo.Type.GetConstructor(ctorParamType);
 
             var registration = containerContext.RegistrationRepository.GetRegistrationOrDefault(lazyArgumentInfo, true);
@@ -43,7 +43,8 @@ namespace Stashbox.BuildUp.Resolution
                             this.CreateLazyExpressionCall(registration, lazyArgumentInfo.Type, lazyConstructor, resolutionInfo);
 
             var expression = this.resolverSelector.GetResolverExpression(containerContext, lazyArgumentInfo, resolutionInfo);
-            return Expression.New(lazyConstructor, Expression.Lambda(expression));
+
+            return expression == null ? null : Expression.New(lazyConstructor, Expression.Lambda(expression));
         }
 
         public override Expression[] GetExpressions(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo)
@@ -59,7 +60,7 @@ namespace Stashbox.BuildUp.Resolution
                 IsMember = typeInfo.IsMember
             };
             
-            var ctorParamType = typeof(Func<>).MakeGenericType(lazyArgumentInfo.Type);
+            var ctorParamType = Constants.FuncType.MakeGenericType(lazyArgumentInfo.Type);
             var lazyConstructor = typeInfo.Type.GetConstructor(ctorParamType);
 
             var registrations = containerContext.RegistrationRepository.GetRegistrationsOrDefault(lazyArgumentInfo.Type);
@@ -109,7 +110,7 @@ namespace Stashbox.BuildUp.Resolution
         private class DelegateCache
         {
             private readonly Type type;
-            private Delegate cache;
+            private Func<IResolutionScope, Delegate> cache;
 
             public DelegateCache(Type type)
             {
@@ -119,11 +120,11 @@ namespace Stashbox.BuildUp.Resolution
             public object CreateLazyDelegate(IServiceRegistration serviceRegistration, ResolutionInfo resolutionInfo, object[] arguments)
             {
                 if (this.cache != null)
-                    return this.cache.DynamicInvoke(arguments);
+                    return this.cache(resolutionInfo.ResolutionScope).DynamicInvoke(arguments);
 
                 var expr = serviceRegistration.GetExpression(resolutionInfo, this.type);
-                this.cache = Expression.Lambda(expr, resolutionInfo.ParameterExpressions).CompileDelegate();
-                return this.cache.DynamicInvoke(arguments);
+                this.cache = Expression.Lambda(expr, resolutionInfo.ParameterExpressions).CompileDelegate(Constants.ScopeExpression);
+                return this.cache(resolutionInfo.ResolutionScope).DynamicInvoke(arguments);
             }
         }
     }

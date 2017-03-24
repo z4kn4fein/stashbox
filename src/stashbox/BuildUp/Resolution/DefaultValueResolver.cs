@@ -1,5 +1,4 @@
 ﻿using Stashbox.Entity;
-using Stashbox.Exceptions;
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -21,7 +20,7 @@ namespace Stashbox.BuildUp.Resolution
             if (typeInfo.Type == typeof(string) || typeInfo.IsMember)
                 return Expression.Constant(null, typeInfo.Type);
 
-            throw new ResolutionFailedException(typeInfo.Type.FullName);
+            return null;
         }
 
         public override bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo) =>
