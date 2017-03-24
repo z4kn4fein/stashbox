@@ -73,7 +73,10 @@ namespace Stashbox.Resolution
                 registration.GetExpression(resolutionInfo, type);
 
             if (initExpression == null)
-                throw new ResolutionFailedException(typeInfo.Type.FullName);
+                if (resolutionInfo.NullResultAllowed)
+                    return null;
+                else
+                    throw new ResolutionFailedException(type.FullName);
 
             var factory = Expression.Lambda(initExpression, resolutionInfo.ParameterExpressions).CompileDelegate(Constants.ScopeExpression);
             this.containerContext.DelegateRepository.AddFactoryDelegate(type, parameterTypes, factory, name);

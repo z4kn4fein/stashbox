@@ -54,7 +54,7 @@ namespace Stashbox.Tests
                 container.RegisterType<Test2>();
                 var inst = container.Resolve<Test2>();
 
-                Assert.AreEqual(inst.I, null);
+                Assert.IsNull(inst.I);
             }
         }
 
@@ -89,7 +89,19 @@ namespace Stashbox.Tests
                 container.RegisterType<Test4>();
                 var inst = container.Resolve<Test4>();
 
-                Assert.AreEqual(inst.I, null);
+                Assert.IsNull(inst.I);
+            }
+        }
+
+        [TestMethod]
+        public void ResolverTests_DefaultValue_Null()
+        {
+            using (var container = new StashboxContainer())
+            {
+                container.RegisterType<Test4>();
+                var inst = container.Resolve<Test4>(nullResultAllowed: true);
+
+                Assert.IsNull(inst);
             }
         }
 

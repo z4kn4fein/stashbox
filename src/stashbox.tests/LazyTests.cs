@@ -116,6 +116,23 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void LazyTests_Resolve_Circular_FromCache()
+        {
+            var container = new StashboxContainer(config =>
+            config.WithCircularDependencyTracking()
+            .WithCircularDependencyWithLazy());
+
+            container.RegisterSingleton<Circular1>();
+            container.RegisterSingleton<Circular2>();
+
+            var inst1 = container.Resolve<Circular1>();
+            var inst2 = container.Resolve<Circular2>();
+
+            Assert.AreSame(container.Resolve<Circular2>(), inst1.Dep.Value);
+            Assert.AreSame(container.Resolve<Circular1>(), inst2.Dep.Value);
+        }
+
+        [TestMethod]
         public void LazyTests_Resolve_Circular_Evaluate()
         {
             var container = new StashboxContainer(config =>

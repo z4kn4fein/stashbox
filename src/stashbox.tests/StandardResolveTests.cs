@@ -42,9 +42,46 @@ namespace Stashbox.Tests
             {
                 container.RegisterType<ITest1, Test1>();
                 var test1 = container.ResolveFactory(typeof(ITest1)).DynamicInvoke();
-                
+
                 Assert.IsNotNull(test1);
                 Assert.IsInstanceOfType(test1, typeof(Test1));
+            }
+        }
+
+        [TestMethod]
+        public void StandardResolveTests_Factory_Scoped()
+        {
+            using (IStashboxContainer container = new StashboxContainer())
+            {
+                container.RegisterType<ITest1, Test1>();
+                using (var child = container.BeginScope())
+                {
+                    var test1 = child.ResolveFactory(typeof(ITest1)).DynamicInvoke();
+
+                    Assert.IsNotNull(test1);
+                    Assert.IsInstanceOfType(test1, typeof(Test1));
+                }
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ResolutionFailedException))]
+        public void StandardResolveTests_Factory_ResolutionFailed()
+        {
+            using (IStashboxContainer container = new StashboxContainer())
+            {
+                container.ResolveFactory(typeof(ITest1)).DynamicInvoke();
+            }
+        }
+
+        [TestMethod]
+        public void StandardResolveTests_Factory_ResolutionFailed_Null()
+        {
+            using (IStashboxContainer container = new StashboxContainer())
+            {
+                var factory = container.ResolveFactory(typeof(ITest1), nullResultAllowed: true);
+
+                Assert.IsNull(factory);
             }
         }
 
@@ -227,7 +264,7 @@ namespace Stashbox.Tests
         [TestMethod]
         public void StandardResolveTests_Resolve_MostParametersConstructor_WithoutDefault()
         {
-            using (IStashboxContainer container = new StashboxContainer(config => 
+            using (IStashboxContainer container = new StashboxContainer(config =>
             config.WithConstructorSelectionRule(Rules.ConstructorSelection.PreferMostParameters)))
             {
                 container.RegisterType(typeof(ITest1), typeof(Test1));
@@ -262,6 +299,30 @@ namespace Stashbox.Tests
                 container.RegisterType(typeof(ITest2), typeof(Test2222));
 
                 var inst = container.Resolve<ITest2>();
+            }
+        }
+
+        [TestMethod]
+        public void StandardResolveTests_Resolve_Scoped_NullDependency()
+        {
+            using (IStashboxContainer container = new StashboxContainer())
+            {
+                container.RegisterScoped<Test5>();
+                var inst = container.Resolve<Test5>(nullResultAllowed: true);
+
+                Assert.IsNull(inst);
+            }
+        }
+
+        [TestMethod]
+        public void StandardResolveTests_Resolve_Singleton_NullDependency()
+        {
+            using (IStashboxContainer container = new StashboxContainer())
+            {
+                container.RegisterSingleton<Test5>();
+                var inst = container.Resolve<Test5>(nullResultAllowed: true);
+
+                Assert.IsNull(inst);
             }
         }
 
@@ -372,6 +433,13 @@ namespace Stashbox.Tests
             public Test4(ITest1 test)
             {
                 this.Test = test;
+            }
+        }
+
+        public class Test5
+        {
+            public Test5(ITest1 test)
+            {
             }
         }
     }

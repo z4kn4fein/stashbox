@@ -68,6 +68,17 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void ContainerTests_Validate_Ok()
+        {
+            using (var container = new StashboxContainer())
+            {
+                container.RegisterType<ITest1, Test1>();
+                container.RegisterType<ITest2, Test2>();
+                container.Validate();
+            }
+        }
+
+        [TestMethod]
         public void ContainerTests_CheckRegistration()
         {
             using (var container = new StashboxContainer())

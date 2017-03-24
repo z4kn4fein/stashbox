@@ -110,6 +110,20 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void EnumerableTests_Resolve_Scoped_Null()
+        {
+            IStashboxContainer container = new StashboxContainer();
+
+            var scope = container.BeginScope();
+
+            var all = scope.Resolve<IEnumerable<ITest2>>();
+            var all2 = scope.ResolveAll<ITest2>();
+
+            Assert.AreEqual(0, all.Count());
+            Assert.AreEqual(0, all2.Count());
+        }
+
+        [TestMethod]
         public void EnumerableTests_Resolve_Scoped()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -138,19 +152,7 @@ namespace Stashbox.Tests
 
             Assert.AreEqual(3, all.Count());
         }
-
-        [TestMethod]
-        public void EnumerableTests_Resolve_Scoped_Null()
-        {
-            IStashboxContainer container = new StashboxContainer();
-
-            var child = container.BeginScope();
-
-            var all = child.Resolve<IEnumerable<ITest1>>();
-
-            Assert.AreEqual(0, all.Count());
-        }
-
+        
         [TestMethod]
         public void EnumerableTests_Resolve_Parent_Null()
         {
@@ -333,6 +335,30 @@ namespace Stashbox.Tests
             var all = container.Resolve<IEnumerable<ITest2>>();
             var all2 = (IEnumerable<ITest2>)container.ResolveAll(typeof(ITest2));
             var all3 = container.ResolveAll(typeof(ITest2));
+
+            Assert.AreEqual(2, all.Count());
+            Assert.AreEqual(2, all2.Count());
+            Assert.AreEqual(2, all3.Count());
+        }
+
+        [TestMethod]
+        public void EnumerableTests_ResolveNonGeneric_Scoped()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            container.RegisterType<ITest1, Test1>();
+            container.RegisterType<ITest1, Test11>();
+            container.RegisterType<ITest1, Test12>();
+            container.RegisterType<ITest2, Test2>("enumerable");
+            container.RegisterType<ITest2, Test22>("array");
+
+            var scope = container.BeginScope();
+
+            scope.Resolve<ITest2>("enumerable");
+            scope.Resolve<ITest2>("array");
+
+            var all = scope.Resolve<IEnumerable<ITest2>>();
+            var all2 = (IEnumerable<ITest2>)scope.ResolveAll(typeof(ITest2));
+            var all3 = scope.ResolveAll(typeof(ITest2));
 
             Assert.AreEqual(2, all.Count());
             Assert.AreEqual(2, all2.Count());

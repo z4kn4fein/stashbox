@@ -25,6 +25,16 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void TupleTests_Resolve_Null()
+        {
+            var container = new StashboxContainer();
+            container.RegisterType<ITest, Test>();
+            var inst = container.Resolve<Tuple<ITest, ITest1>>(nullResultAllowed: true);
+
+            Assert.IsNull(inst);
+        }
+
+        [TestMethod]
         public void TupleTests_Resolve_Lazy()
         {
             var container = new StashboxContainer();
