@@ -127,102 +127,6 @@ namespace Stashbox.Tests
             Assert.IsInstanceOfType(inst.First(), typeof(Test1));
         }
 
-        [TestMethod]
-        public void ContainerTests_ResolutionScopeResolve()
-        {
-            var container = new StashboxContainer();
-            var scope = container.Resolve<IResolutionScope>();
-
-            Assert.IsNotNull(scope);
-            Assert.AreSame(container.RootScope, scope);
-        }
-
-        [TestMethod]
-        public void ContainerTests_ResolutionScopeResolve_BeginScope()
-        {
-            var container = new StashboxContainer();
-            var newScope = container.BeginScope();
-            var scope = newScope.Resolve<IResolutionScope>();
-
-            Assert.IsNotNull(scope);
-            Assert.AreSame(newScope, scope);
-        }
-
-        [TestMethod]
-        public void ContainerTests_ContainerSelfResolve()
-        {
-            var container = new StashboxContainer();
-            var self = container.Resolve<IStashboxContainer>();
-
-            Assert.IsNotNull(self);
-            Assert.AreSame(container, self);
-        }
-
-        [TestMethod]
-        public void ContainerTests_ContainerSelfResolve_BeginScope()
-        {
-            var container = new StashboxContainer();
-            var newScope = container.BeginScope();
-            var self = newScope.Resolve<IStashboxContainer>();
-
-            Assert.IsNotNull(self);
-            Assert.AreSame(container, self);
-        }
-
-        [TestMethod]
-        public void ContainerTests_ContainerSelfResolve_CreateChild()
-        {
-            var container = new StashboxContainer();
-            var newContainer = container.CreateChildContainer();
-            var self = newContainer.Resolve<IStashboxContainer>();
-
-            Assert.IsNotNull(self);
-            Assert.AreSame(newContainer, self);
-        }
-
-        [TestMethod]
-        public void ContainerTests_ContainerSelfResolve_Dependency_CreateChild()
-        {
-            var container = new StashboxContainer(config => config.WithUnknownTypeResolution());
-            var newContainer = container.CreateChildContainer();
-            var inst = newContainer.Resolve<Test5>();
-
-            Assert.IsNotNull(inst);
-            Assert.AreSame(newContainer, inst.Container);
-        }
-
-        [TestMethod]
-        public void ContainerTests_ContainerSelfResolve_Dependency_BeginScope()
-        {
-            var container = new StashboxContainer(config => config.WithUnknownTypeResolution());
-            var scope = container.BeginScope();
-            var inst = scope.Resolve<Test5>();
-
-            Assert.IsNotNull(inst);
-            Assert.AreSame(container, inst.Container);
-        }
-
-        [TestMethod]
-        public void ContainerTests_ResolutionScopeResolve_Dependency()
-        {
-            var container = new StashboxContainer(config => config.WithUnknownTypeResolution());
-            var inst = container.Resolve<Test5>();
-
-            Assert.IsNotNull(inst);
-            Assert.AreSame(container.RootScope, inst.ResolutionScope);
-        }
-
-        [TestMethod]
-        public void ContainerTests_ResolutionScopeResolve_Dependency_BeginScope()
-        {
-            var container = new StashboxContainer(config => config.WithUnknownTypeResolution());
-            var newScope = container.BeginScope();
-            var inst = newScope.Resolve<Test5>();
-
-            Assert.IsNotNull(inst);
-            Assert.AreSame(newScope, inst.ResolutionScope);
-        }
-
         public interface ITest1 { }
 
         public interface ITest2 { }
@@ -252,18 +156,6 @@ namespace Stashbox.Tests
             public Test4(ITest3 test3)
             {
                 
-            }
-        }
-
-        public class Test5
-        {
-            public IResolutionScope ResolutionScope { get; }
-            public IStashboxContainer Container { get; }
-
-            public Test5(IResolutionScope resolutionScope, IStashboxContainer container)
-            {
-                ResolutionScope = resolutionScope;
-                Container = container;
             }
         }
 
