@@ -80,7 +80,7 @@ namespace Stashbox.Tests
         public void LifetimeTests_StateCheck()
         {
             var scoped = new ScopedLifetime();
-            Assert.IsTrue(scoped.HandlesObjectDisposal);
+            Assert.IsFalse(scoped.HandlesObjectDisposal);
             Assert.IsInstanceOfType(scoped.Create(), typeof(ScopedLifetime));
 
             var singleton = new SingletonLifetime();

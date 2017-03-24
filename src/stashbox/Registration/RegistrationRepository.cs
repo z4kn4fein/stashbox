@@ -45,7 +45,7 @@ namespace Stashbox.Registration
             var conditional = this.GetRegistrationsOrDefault(type, this.conditionalRepository);
             var registrations = this.GetRegistrationsOrDefault(type, this.serviceRepository);
 
-            return conditional != null ? conditional.Concat(registrations) : registrations;
+            return conditional?.Concat(registrations) ?? registrations;
         }
 
         public IEnumerable<IServiceRegistration> GetAllRegistrations() =>

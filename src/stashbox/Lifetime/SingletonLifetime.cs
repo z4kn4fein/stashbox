@@ -25,10 +25,7 @@ namespace Stashbox.Lifetime
                 if (expr == null)
                     return null;
 
-                if (expr.NodeType == ExpressionType.New && ((NewExpression)expr).Arguments.Count == 0)
-                    this.instance = Activator.CreateInstance(expr.Type);
-                else
-                    this.instance = expr.CompileDelegate(Constants.ScopeExpression)(resolutionInfo.ResolutionScope);
+                this.instance = expr.CompileDelegate(Constants.ScopeExpression)(resolutionInfo.ResolutionScope);
                 this.expression = Expression.Constant(this.instance);
             }
 

@@ -48,10 +48,7 @@ namespace Stashbox.Lifetime
 
             return this.expression;
         }
-
-        /// <inheritdoc />
-        public override bool HandlesObjectDisposal => true;
-
+        
         private static TValue GetScopedValue<TValue>(IResolutionScope scope, Func<IResolutionScope, object> factory, string scopeId)
         {
             var value = scope.GetScopedItemOrDefault(scopeId);
@@ -59,9 +56,6 @@ namespace Stashbox.Lifetime
             {
                 value = factory(scope);
                 scope.AddOrUpdateScopedItem(scopeId, value);
-
-                if (value is IDisposable disposable)
-                    scope.AddDisposableTracking(disposable);
             }
 
             return (TValue)value;

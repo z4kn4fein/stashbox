@@ -10,9 +10,7 @@ namespace Stashbox
     public class ResolutionScopeBase : IResolutionScope
     {
         private readonly AtomicBool disposed;
-
         private readonly ConcurrentStore<IDisposable> disposableObjects;
-
         private readonly ConcurrentTree<object, object> scopedItems;
 
         /// <summary>

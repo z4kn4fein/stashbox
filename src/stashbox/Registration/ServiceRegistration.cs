@@ -71,7 +71,7 @@ namespace Stashbox.Registration
         /// <inheritdoc />
         public bool ValidateGenericContraints(Type type) => !this.metaInfoProvider.HasGenericTypeConstraints ||
             this.metaInfoProvider.ValidateGenericContraints(type);
-        
+
         /// <inheritdoc />
         public void CleanUp()
         {
@@ -82,21 +82,22 @@ namespace Stashbox.Registration
         /// <inheritdoc />
         public Expression GetExpression(ResolutionInfo resolutionInfo, Type resolveType)
         {
-            var expr = this.LifetimeManager == null || this.ServiceType.IsOpenGenericType() ? 
+            var expr = this.LifetimeManager == null || this.ServiceType.IsOpenGenericType() ?
                 this.ObjectBuilder.GetExpression(resolutionInfo, resolveType) :
                 this.LifetimeManager.GetExpression(this.containerContext, this.ObjectBuilder, resolutionInfo, resolveType);
 
             if (expr == null)
                 return null;
 
-            if (!this.containerContext.ContainerConfigurator.ContainerConfiguration.TrackTransientsForDisposalEnabled ||
-                this.LifetimeManager != null && this.LifetimeManager.HandlesObjectDisposal ||
-                this.ObjectBuilder.HandlesObjectDisposal ||
-                !this.ImplementationType.GetTypeInfo().ImplementedInterfaces.Contains(Constants.DisposableType)) return expr;
-            
-            var method = Constants.AddDisposalMethod.MakeGenericMethod(this.ImplementationType);
+            if (this.LifetimeManager == null && !this.ObjectBuilder.HandlesObjectDisposal &&
+                this.ImplementationType.GetTypeInfo().ImplementedInterfaces.Contains(Constants.DisposableType))
+            {
+                var method = Constants.AddDisposalMethod.MakeGenericMethod(this.ImplementationType);
+                return Expression.Call(Constants.ScopeExpression, method,
+                    Expression.Convert(expr, this.ImplementationType));
+            }
 
-            return Expression.Call(Constants.ScopeExpression, method, Expression.Convert(expr, this.ImplementationType));
+            return expr;
         }
     }
 }

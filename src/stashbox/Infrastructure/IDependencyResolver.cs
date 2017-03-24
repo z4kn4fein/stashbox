@@ -1,7 +1,6 @@
 ﻿using Stashbox.Exceptions;
 using System;
 using System.Collections.Generic;
-using Stashbox.Infrastructure.Resolution;
 
 namespace Stashbox.Infrastructure
 {
@@ -10,11 +9,6 @@ namespace Stashbox.Infrastructure
     /// </summary>
     public interface IDependencyResolver : IDisposable
     {
-        /// <summary>
-        /// The activation context.
-        /// </summary>
-        IActivationContext ActivationContext { get; }
-
         /// <summary>
         /// Resolves an instance from the container.
         /// </summary>
