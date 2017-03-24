@@ -1,14 +1,20 @@
 ﻿using Stashbox.Exceptions;
 using System;
 using System.Collections.Generic;
+using Stashbox.Infrastructure.Resolution;
 
 namespace Stashbox.Infrastructure
 {
     /// <summary>
     /// Represents a dependency resolver.
     /// </summary>
-    public interface IDependencyResolver
+    public interface IDependencyResolver : IDisposable
     {
+        /// <summary>
+        /// The activation context.
+        /// </summary>
+        IActivationContext ActivationContext { get; }
+
         /// <summary>
         /// Resolves an instance from the container.
         /// </summary>
@@ -52,5 +58,10 @@ namespace Stashbox.Infrastructure
         /// <param name="parameterTypes">The parameter type.</param>
         /// <returns>The factory delegate.</returns>
         Delegate ResolveFactory(Type typeFrom, string name = null, bool nullResultAllowed = false, params Type[] parameterTypes);
+        
+        /// <summary>
+        /// Begins a new scope.
+        /// </summary>
+        IDependencyResolver BeginScope();
     }
 }
