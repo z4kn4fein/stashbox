@@ -38,9 +38,12 @@ namespace Stashbox.Registration
         /// <inheritdoc />
         public Func<TypeInformation, bool> ResolutionCondition { get; }
 
+        /// <inheritdoc />
+        public bool IsLifetimeExternallyOwned { get; }
+
         internal ServiceRegistration(Type serviceType, Type implementationType, IContainerContext containerContext,
             ILifetime lifetimeManager, IObjectBuilder objectBuilder, IMetaInfoProvider metaInfoProvider, HashSet<Type> attributeConditions = null,
-            Type targetTypeCondition = null, Func<TypeInformation, bool> resolutionCondition = null)
+            Type targetTypeCondition = null, Func<TypeInformation, bool> resolutionCondition = null, bool isLifetimeExternallyOwned = false)
         {
             this.ImplementationType = implementationType;
             this.ServiceType = serviceType;
@@ -51,6 +54,7 @@ namespace Stashbox.Registration
             this.TargetTypeCondition = targetTypeCondition;
             this.ResolutionCondition = resolutionCondition;
             this.metaInfoProvider = metaInfoProvider;
+            this.IsLifetimeExternallyOwned = isLifetimeExternallyOwned;
             this.RegistrationNumber = containerContext.ReserveRegistrationNumber();
         }
 
@@ -89,8 +93,8 @@ namespace Stashbox.Registration
             if (expr == null)
                 return null;
 
-            if (this.LifetimeManager == null && containerContext.ContainerConfigurator.ContainerConfiguration.TrackTransientsForDisposalEnabled &&
-                !this.ObjectBuilder.HandlesObjectDisposal && this.ImplementationType.GetTypeInfo().ImplementedInterfaces.Contains(Constants.DisposableType))
+            if (!this.IsLifetimeExternallyOwned && this.LifetimeManager == null && containerContext.ContainerConfigurator.ContainerConfiguration.TrackTransientsForDisposalEnabled &&
+                !this.ObjectBuilder.HandlesObjectDisposal && this.ImplementationType.IsDisposable())
             {
                 var method = Constants.AddDisposalMethod.MakeGenericMethod(this.ImplementationType);
                 return Expression.Call(Constants.ScopeExpression, method,

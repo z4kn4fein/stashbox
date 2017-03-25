@@ -118,7 +118,13 @@ namespace Stashbox.Infrastructure.Registration
         /// <param name="resolutionCondition">The predicate.</param>
         /// <returns>The <see cref="IRegistrationContext"/> which on this method was called.</returns>
         IRegistrationContext When(Func<TypeInformation, bool> resolutionCondition);
-        
+
+        /// <summary>
+        /// Tells the container that it shouldn't track the resolved transient object for disposal.
+        /// </summary>
+        /// <returns>The <see cref="IRegistrationContext"/> which on this method was called.</returns>
+        IRegistrationContext WithExternallyOwnedLifetime();
+
         /// <summary>
         /// Creates a service registration from the registration context.
         /// </summary>

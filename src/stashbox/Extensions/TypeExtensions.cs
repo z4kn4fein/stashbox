@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Stashbox;
 
 #if NET40
 namespace System.Reflection
@@ -109,6 +110,9 @@ namespace System
 
         public static bool HasSetMethod(this PropertyInfo property, bool includeNonPublic = false) =>
             property.DeclaringType.GetSingleMethodOrDefault("set_" + property.Name, includeNonPublic) != null;
+
+        public static bool IsDisposable(this Type type) =>
+            type.GetTypeInfo().ImplementedInterfaces.Contains(Constants.DisposableType);
 
         private static bool IsAssignableToGenericType(Type type, Type genericType)
         {

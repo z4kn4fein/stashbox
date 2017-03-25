@@ -87,7 +87,7 @@ namespace Stashbox.Registration
         private IServiceRegistration ProduceServiceRegistration(ILifetime lifeTime, IObjectBuilder objectBuilder, IMetaInfoProvider metaInfoProvider)
         {
             return new ServiceRegistration(this.TypeFrom, this.TypeTo, this.ContainerContext, lifeTime, objectBuilder, metaInfoProvider, this.RegistrationContextData.AttributeConditions,
-                this.RegistrationContextData.TargetTypeCondition, this.RegistrationContextData.ResolutionCondition);
+                this.RegistrationContextData.TargetTypeCondition, this.RegistrationContextData.ResolutionCondition, this.RegistrationContextData.IsLifetimeExternallyOwned);
         }
 
         private ILifetime ChooseLifeTime() => this.RegistrationContextData.ExistingInstance != null ? null :

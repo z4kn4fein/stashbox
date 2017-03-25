@@ -110,6 +110,12 @@ namespace Stashbox.Registration
             base.RegistrationContextData.ConstructorSelectionRule = rule;
             return this;
         }
+        
+        public IRegistrationContext WithExternallyOwnedLifetime()
+        {
+            this.RegistrationContextData.IsLifetimeExternallyOwned = true;
+            return this;
+        }
 
         public new IServiceRegistration CreateServiceRegistration(bool isDecorator = false) => base.CreateServiceRegistration(isDecorator);
     }

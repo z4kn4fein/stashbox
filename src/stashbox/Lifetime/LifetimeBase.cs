@@ -25,8 +25,7 @@ namespace Stashbox.Lifetime
             if (expr == null)
                 return null;
 
-            if (!expr.Type.GetTypeInfo().ImplementedInterfaces.Contains(Constants.DisposableType) || 
-                objectBuilder.HandlesObjectDisposal || this.HandlesObjectDisposal)
+            if (objectBuilder.HandlesObjectDisposal || this.HandlesObjectDisposal || !expr.Type.IsDisposable())
                 return expr;
 
             var method = Constants.AddDisposalMethod.MakeGenericMethod(expr.Type);

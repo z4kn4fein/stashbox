@@ -73,6 +73,11 @@ namespace Stashbox.Registration
         public bool AutoMemberInjectionEnabled { get; set; }
 
         /// <summary>
+        /// True if the lifetime of the service is owned externally.
+        /// </summary>
+        public bool IsLifetimeExternallyOwned { get; set; }
+
+        /// <summary>
         /// The constructor selection rule.
         /// </summary>
         public Func<IEnumerable<ResolutionConstructor>, ResolutionConstructor> ConstructorSelectionRule { get; set; }
