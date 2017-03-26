@@ -111,7 +111,7 @@ namespace Stashbox.Registration
             return this;
         }
         
-        public IRegistrationContext WithExternallyOwnedLifetime()
+        public IRegistrationContext WithoutDisposalTracking()
         {
             this.RegistrationContextData.IsLifetimeExternallyOwned = true;
             return this;

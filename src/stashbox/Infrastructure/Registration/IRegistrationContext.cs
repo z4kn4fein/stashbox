@@ -123,7 +123,7 @@ namespace Stashbox.Infrastructure.Registration
         /// Tells the container that it shouldn't track the resolved transient object for disposal.
         /// </summary>
         /// <returns>The <see cref="IRegistrationContext"/> which on this method was called.</returns>
-        IRegistrationContext WithExternallyOwnedLifetime();
+        IRegistrationContext WithoutDisposalTracking();
 
         /// <summary>
         /// Creates a service registration from the registration context.

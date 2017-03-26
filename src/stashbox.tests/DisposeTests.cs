@@ -165,6 +165,43 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void DisposeTests_TrackTransientDisposal_Scoped_Transient_TrackingDisabled()
+        {
+            ITest1 test;
+            ITest2 test2;
+            Test3 test3;
+            using (IStashboxContainer container = new StashboxContainer(config => config.WithDisposableTransientTracking()))
+            {
+                ITest1 test4;
+                ITest2 test5;
+                Test3 test6;
+
+                container.RegisterType<ITest2, Test2>();
+                container.RegisterType<Test3>();
+                container.PrepareType<ITest1, Test1>().WithoutDisposalTracking().Register();
+
+                test = container.Resolve<ITest1>();
+                test2 = container.Resolve<ITest2>();
+                test3 = container.Resolve<Test3>();
+
+                using (var child = container.BeginScope())
+                {
+                    test4 = child.Resolve<ITest1>();
+                    test5 = child.Resolve<ITest2>();
+                    test6 = child.Resolve<Test3>();
+                }
+
+                Assert.IsFalse(test4.Disposed);
+                Assert.IsFalse(test5.Test1.Disposed);
+                Assert.IsFalse(test6.Test1.Disposed);
+            }
+
+            Assert.IsFalse(test.Disposed);
+            Assert.IsFalse(test2.Test1.Disposed);
+            Assert.IsFalse(test3.Test1.Disposed);
+        }
+
+        [TestMethod]
         public void DisposeTests_TrackTransientDisposal_ScopeOfScope_Transient()
         {
             using (IStashboxContainer container = new StashboxContainer(config => config.WithDisposableTransientTracking()))
