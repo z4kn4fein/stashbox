@@ -9,7 +9,7 @@ namespace Stashbox.BuildUp
 {
     internal class FactoryObjectBuilder : ObjectBuilderBase
     {
-        private readonly Func<IStashboxContainer, object> containerFactory;
+        private readonly Func<IDependencyResolver, object> containerFactory;
         private readonly Func<object> singleFactory;
         private readonly IContainerExtensionManager containerExtensionManager;
         private readonly IMetaInfoProvider metaInfoProvider;
@@ -29,7 +29,7 @@ namespace Stashbox.BuildUp
             this.expressionBuilder = expressionBuilder;
         }
 
-        public FactoryObjectBuilder(Func<IStashboxContainer, object> containerFactory, IContainerContext containerContext,
+        public FactoryObjectBuilder(Func<IDependencyResolver, object> containerFactory, IContainerContext containerContext,
             IContainerExtensionManager containerExtensionManager, IMetaInfoProvider metaInfoProvider, IExpressionBuilder expressionBuilder, 
             InjectionParameter[] injectionParameters, bool isDecorator, bool shouldHandleDisposal)
             : this(containerContext, containerExtensionManager, metaInfoProvider, expressionBuilder, injectionParameters, isDecorator, shouldHandleDisposal)
@@ -46,13 +46,13 @@ namespace Stashbox.BuildUp
 
         protected override Expression GetExpressionInternal(ResolutionInfo resolutionInfo, Type resolveType)
         {
-            Expression<Func<object>> lambda;
+            Expression<Func<IDependencyResolver, object>> lambda;
             if (this.containerFactory != null)
-                lambda = () => this.containerFactory(this.containerContext.Container);
+                lambda = scope => this.containerFactory(scope);
             else
-                lambda = () => this.singleFactory();
-
-            var expr = Expression.Invoke(lambda);
+                lambda = scope => this.singleFactory();
+            
+            var expr = Expression.Invoke(lambda, Expression.Convert(Constants.ScopeExpression, Constants.ResolverType));
 
             return this.expressionBuilder.CreateFillExpression(this.containerExtensionManager, this.containerContext,
                    expr, resolutionInfo, resolveType, this.injectionParameters,

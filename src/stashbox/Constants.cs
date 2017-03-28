@@ -26,5 +26,7 @@ namespace Stashbox
         internal static Type DisposableType = typeof(IDisposable);
 
         internal static Type FuncType = typeof(Func<>);
+
+        internal static Type ResolverType = typeof(IDependencyResolver);
     }
 }

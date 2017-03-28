@@ -59,7 +59,7 @@ namespace Stashbox.Infrastructure.Registration
         /// </summary>
         /// <param name="containerFactory">The container factory delegate.</param>
         /// <returns>The <see cref="IRegistrationContext"/> which on this method was called.</returns>
-        IRegistrationContext WithFactory(Func<IStashboxContainer, object> containerFactory);
+        IRegistrationContext WithFactory(Func<IDependencyResolver, object> containerFactory);
 
         /// <summary>
         /// Enables auto member injection on the registration.

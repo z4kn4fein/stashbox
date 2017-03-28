@@ -25,7 +25,7 @@ namespace Stashbox.Registration
         /// <summary>
         /// Container factory of the registration.
         /// </summary>
-        public Func<IStashboxContainer, object> ContainerFactory { get; set; }
+        public Func<IDependencyResolver, object> ContainerFactory { get; set; }
 
         /// <summary>
         /// Parameterless factory of the registration.

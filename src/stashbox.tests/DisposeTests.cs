@@ -444,6 +444,71 @@ namespace Stashbox.Tests
             Assert.IsFalse(test.Disposed);
         }
 
+        [TestMethod]
+        public void DisposeTests_Factory()
+        {
+            ITest1 test;
+            using (var container = new StashboxContainer())
+            {
+                container.PrepareType<ITest1, Test1>().WithFactory(() => new Test1()).Register();
+                test = container.Resolve<ITest1>();
+            }
+
+            Assert.IsFalse(test.Disposed);
+        }
+
+        [TestMethod]
+        public void DisposeTests_Factory_TrackTransient()
+        {
+            ITest1 test;
+            using (var container = new StashboxContainer(config => config.WithDisposableTransientTracking()))
+            {
+                container.PrepareType<ITest1, Test1>().WithFactory(() => new Test1()).Register();
+                test = container.Resolve<ITest1>();
+            }
+
+            Assert.IsTrue(test.Disposed);
+        }
+
+        [TestMethod]
+        public void DisposeTests_Factory_Scoped()
+        {
+            ITest1 test;
+            using (var container = new StashboxContainer())
+            {
+                container.PrepareType<ITest1, Test1>().WithLifetime(new ScopedLifetime()).WithFactory(() => new Test1()).Register();
+                test = container.Resolve<ITest1>();
+            }
+
+            Assert.IsTrue(test.Disposed);
+        }
+
+        [TestMethod]
+        public void DisposeTests_Factory_Scoped_WithoutTracking()
+        {
+            ITest1 test;
+            using (var container = new StashboxContainer())
+            {
+                container.PrepareType<ITest1, Test1>().WithLifetime(new ScopedLifetime()).WithFactory(() => new Test1()).WithoutDisposalTracking().Register();
+                test = container.Resolve<ITest1>();
+            }
+
+            Assert.IsFalse(test.Disposed);
+        }
+
+        [TestMethod]
+        public void DisposeTests_Multiple_Dispose_Call()
+        {
+            var container = new StashboxContainer();
+            container.RegisterSingleton<ITest1, Test1>();
+            var test = container.Resolve<ITest1>();
+
+            container.Dispose();
+            container.Dispose();
+
+            Assert.IsTrue(test.Disposed);
+        }
+
         public interface ITest11 { }
 
         public interface ITest12 { }

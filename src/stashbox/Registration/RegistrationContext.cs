@@ -63,7 +63,7 @@ namespace Stashbox.Registration
             return this;
         }
 
-        public IRegistrationContext WithFactory(Func<IStashboxContainer, object> containerFactory)
+        public IRegistrationContext WithFactory(Func<IDependencyResolver, object> containerFactory)
         {
             base.RegistrationContextData.ContainerFactory = containerFactory;
             return this;

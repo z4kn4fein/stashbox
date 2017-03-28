@@ -20,9 +20,9 @@ namespace Stashbox.BuildUp.Expressions
                 instance = Expression.Convert(instance, serviceType);
 
             var variable = Expression.Variable(serviceType);
-            var assingExpr = Expression.Assign(variable, instance);
+            var assign = Expression.Assign(variable, instance);
 
-            block.Add(assingExpr);
+            block.Add(assign);
 
             if (members != null && members.Length > 0)
                 block.AddRange(FillMembersExpression(members, variable));
@@ -44,7 +44,7 @@ namespace Stashbox.BuildUp.Expressions
             if (members != null && members.Length > 0)
                 initExpression = CreateMemberInitExpression(members, (NewExpression)initExpression);
 
-            if ((methods != null && methods.Length > 0) || extensionManager.HasPostBuildExtensions)
+            if (methods != null && methods.Length > 0 || extensionManager.HasPostBuildExtensions)
                 return CreatePostWorkExpressionIfAny(extensionManager, containerContext, resolutionInfo, initExpression, serviceType, parameters, methods);
 
             return initExpression;
@@ -59,8 +59,8 @@ namespace Stashbox.BuildUp.Expressions
             var newVariable = variable ?? Expression.Variable(serviceType);
             if (variable == null)
             {
-                var assingExpr = Expression.Assign(newVariable, initExpression);
-                block.Add(assingExpr);
+                var assign = Expression.Assign(newVariable, initExpression);
+                block.Add(assign);
             }
 
             if (methods != null && methods.Length > 0)
