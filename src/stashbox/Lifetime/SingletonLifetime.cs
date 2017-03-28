@@ -28,31 +28,14 @@ namespace Stashbox.Lifetime
                 if (expr.NodeType == ExpressionType.New && ((NewExpression)expr).Arguments.Count == 0)
                     this.instance = Activator.CreateInstance(expr.Type);
                 else
-                    this.instance = expr.CompileDelegate(Constants.ScopeExpression)(resolutionInfo.ResolutionScope);
+                    this.instance = expr.CompileDelegate(Constants.ScopeExpression)(containerContext.RootScope);
 
                 this.expression = Expression.Constant(this.instance);
             }
 
             return this.expression;
         }
-
-        /// <inheritdoc />
-        public override bool HandlesObjectDisposal => true;
-
         /// <inheritdoc />
         public override ILifetime Create() => new SingletonLifetime();
-
-        /// <inheritdoc />
-        public override void CleanUp()
-        {
-            if (this.instance == null) return;
-            lock (this.syncObject)
-            {
-                if (this.instance == null) return;
-                var disposable = this.instance as IDisposable;
-                disposable?.Dispose();
-                this.instance = null;
-            }
-        }
     }
 }

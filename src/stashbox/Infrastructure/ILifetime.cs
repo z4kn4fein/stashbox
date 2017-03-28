@@ -10,11 +10,6 @@ namespace Stashbox.Infrastructure
     public interface ILifetime
     {
         /// <summary>
-        /// Indicates that the lifetime handles the disposal of the resolved service.
-        /// </summary>
-        bool HandlesObjectDisposal { get; }
-
-        /// <summary>
         /// Gets the expression for getting the instance managed by the <see cref="ILifetime"/>
         /// </summary>
         /// <param name="containerContext">The container context.</param>
@@ -29,10 +24,5 @@ namespace Stashbox.Infrastructure
         /// </summary>
         /// <returns>The new life time manager instance.</returns>
         ILifetime Create();
-
-        /// <summary>
-        /// Cleans up the lifetime manager.
-        /// </summary>
-        void CleanUp();
     }
 }

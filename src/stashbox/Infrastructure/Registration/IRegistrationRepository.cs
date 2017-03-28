@@ -54,10 +54,5 @@ namespace Stashbox.Infrastructure.Registration
         /// <param name="name">The requested name.</param>
         /// <returns>True if the registration found, otherwise false.</returns>
         bool ContainsRegistration(Type type, string name);
-
-        /// <summary>
-        /// Cleans up the repository.
-        /// </summary>
-        void CleanUp();
     }
 }

@@ -18,8 +18,8 @@ namespace Stashbox.BuildUp
 
         public DefaultObjectBuilder(IContainerContext containerContext, IMetaInfoProvider metaInfoProvider,
             IContainerExtensionManager containerExtensionManager, IExpressionBuilder expressionBuilder,
-            InjectionParameter[] injectionParameters = null, bool isDecorator = false)
-            : base(containerContext, isDecorator)
+            InjectionParameter[] injectionParameters, bool isDecorator, bool shouldHandleDisposal)
+            : base(containerContext, isDecorator, shouldHandleDisposal)
         {
             if (injectionParameters != null)
                 this.injectionParameters = injectionParameters;

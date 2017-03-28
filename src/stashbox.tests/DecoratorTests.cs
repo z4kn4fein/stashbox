@@ -361,6 +361,63 @@ namespace Stashbox.Tests
             }
         }
 
+        [TestMethod]
+        public void DecoratorTests_Disposed()
+        {
+            IDisp test;
+            using (var container = new StashboxContainer(config => config.WithDisposableTransientTracking()))
+            {
+                container.RegisterType<IDisp, TestDisp>();
+                container.RegisterDecorator<IDisp, TestDispDecorator>();
+
+                test = container.Resolve<IDisp>();
+
+                Assert.IsNotNull(test);
+                Assert.IsNotNull(test.Test);
+            }
+
+            Assert.IsTrue(test.Disposed);
+            Assert.IsTrue(test.Test.Disposed);
+        }
+
+        [TestMethod]
+        public void DecoratorTests_Disposed_OnlyDecoreteeDisposal()
+        {
+            IDisp test;
+            using (var container = new StashboxContainer(config => config.WithDisposableTransientTracking()))
+            {
+                container.PrepareType<IDisp, TestDisp>().WithoutDisposalTracking().Register();
+                container.RegisterDecorator<IDisp, TestDispDecorator>();
+
+                test = container.Resolve<IDisp>();
+
+                Assert.IsNotNull(test);
+                Assert.IsNotNull(test.Test);
+            }
+
+            Assert.IsTrue(test.Disposed);
+            Assert.IsFalse(test.Test.Disposed);
+        }
+
+        [TestMethod]
+        public void DecoratorTests_Disposed_BothDisposal()
+        {
+            IDisp test;
+            using (var container = new StashboxContainer(config => config.WithDisposableTransientTracking()))
+            {
+                container.PrepareType<IDisp, TestDisp>().WithoutDisposalTracking().Register();
+                container.PrepareDecorator<IDisp, TestDispDecorator>().WithoutDisposalTracking().Register();
+
+                test = container.Resolve<IDisp>();
+
+                Assert.IsNotNull(test);
+                Assert.IsNotNull(test.Test);
+            }
+
+            Assert.IsFalse(test.Disposed);
+            Assert.IsFalse(test.Test.Disposed);
+        }
+
         public interface ITest1 { ITest1 Test { get; } }
 
         public interface IDecoratorDep { }
@@ -368,6 +425,13 @@ namespace Stashbox.Tests
         public interface IDep { }
 
         public interface ITest1<T> { ITest1<T> Test { get; } }
+
+        public interface IDisp : IDisposable
+        {
+            IDisp Test { get; }
+
+            bool Disposed { get; }
+        }
         
         public class Test1 : ITest1
         {
@@ -387,6 +451,39 @@ namespace Stashbox.Tests
             {
                 
             }
+        }
+
+        public class TestDisp : IDisp
+        {
+            public void Dispose()
+            {
+                if(this.Disposed)
+                    throw new ObjectDisposedException(nameof(TestDisp));
+
+                this.Disposed = true;
+            }
+
+            public bool Disposed { get; private set; }
+            public IDisp Test { get; }
+        }
+
+        public class TestDispDecorator : IDisp
+        {
+            public TestDispDecorator(IDisp disp)
+            {
+                this.Test = disp;
+            }
+
+            public void Dispose()
+            {
+                if (this.Disposed)
+                    throw new ObjectDisposedException(nameof(TestDisp));
+
+                this.Disposed = true;
+            }
+
+            public bool Disposed { get; private set; }
+            public IDisp Test { get; }
         }
 
         public class Test1<T> : ITest1<T>

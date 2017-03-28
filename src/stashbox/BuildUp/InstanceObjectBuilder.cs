@@ -8,13 +8,14 @@ namespace Stashbox.BuildUp
     internal class InstanceObjectBuilder : ObjectBuilderBase
     {
         private readonly Expression expression;
-        private object instance;
 
-        public InstanceObjectBuilder(object instance, IContainerContext containerContext, bool isDecorator = false)
-            : base(containerContext, isDecorator)
+        public InstanceObjectBuilder(object instance, IContainerContext containerContext, bool isDecorator, bool shouldHandleDisposal)
+            : base(containerContext, isDecorator, shouldHandleDisposal)
         {
             this.expression = Expression.Constant(instance);
-            this.instance = instance;
+
+            if (shouldHandleDisposal && instance is IDisposable disposable)
+                containerContext.RootScope.AddDisposableTracking(disposable);
         }
 
         protected override Expression GetExpressionInternal(ResolutionInfo resolutionInfo, Type resolveType)
@@ -23,13 +24,5 @@ namespace Stashbox.BuildUp
         }
 
         public override bool HandlesObjectDisposal => true;
-
-        public override void CleanUp()
-        {
-            if (this.instance == null) return;
-            var disposable = this.instance as IDisposable;
-            disposable?.Dispose();
-            this.instance = null;
-        }
     }
 }

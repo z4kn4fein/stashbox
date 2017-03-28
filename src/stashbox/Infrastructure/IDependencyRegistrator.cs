@@ -143,8 +143,9 @@ namespace Stashbox.Infrastructure
         /// <typeparam name="TFrom">Type that will be requested.</typeparam>
         /// <param name="instance">The constructed object.</param>
         /// <param name="name">The name of the registration.</param>
+        /// <param name="withoutDisposalTracking">If it's set to true the container will exclude the instance from the disposal tracking.</param>
         /// <returns>The <see cref="IDependencyRegistrator"/> which on this method was called.</returns>
-        IDependencyRegistrator WireUp<TFrom>(object instance, string name = null)
+        IDependencyRegistrator WireUp<TFrom>(object instance, string name = null, bool withoutDisposalTracking = false)
             where TFrom : class;
 
         /// <summary>
@@ -152,8 +153,9 @@ namespace Stashbox.Infrastructure
         /// </summary>
         /// <param name="instance">The constructed object.</param>
         /// <param name="name">The name of the registration.</param>
+        /// <param name="withoutDisposalTracking">If it's set to true the container will exclude the instance from the disposal tracking.</param>
         /// <returns>The <see cref="IDependencyRegistrator"/> which on this method was called.</returns>
-        IDependencyRegistrator WireUp(object instance, string name = null);
+        IDependencyRegistrator WireUp(object instance, string name = null, bool withoutDisposalTracking = false);
 
         /// <summary>
         /// Registers a type with singleton lifetime.

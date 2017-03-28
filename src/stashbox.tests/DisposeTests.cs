@@ -2,6 +2,7 @@
 using Stashbox.Attributes;
 using Stashbox.Infrastructure;
 using System;
+using Stashbox.Lifetime;
 
 namespace Stashbox.Tests
 {
@@ -30,6 +31,27 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void DisposeTests_Singleton_WithoutDisposal()
+        {
+            ITest1 test;
+            ITest2 test2;
+            Test3 test3;
+            using (IStashboxContainer container = new StashboxContainer())
+            {
+                container.RegisterType<ITest2, Test2>();
+                container.RegisterType<Test3>();
+                container.PrepareType<ITest1, Test1>().WithLifetime(new SingletonLifetime()).WithoutDisposalTracking().Register();
+                test = container.Resolve<ITest1>();
+                test2 = container.Resolve<ITest2>();
+                test3 = container.Resolve<Test3>();
+            }
+
+            Assert.IsFalse(test.Disposed);
+            Assert.IsFalse(test2.Test1.Disposed);
+            Assert.IsFalse(test3.Test1.Disposed);
+        }
+
+        [TestMethod]
         public void DisposeTests_Instance()
         {
             ITest1 test = new Test1();
@@ -47,6 +69,26 @@ namespace Stashbox.Tests
             Assert.IsTrue(test.Disposed);
             Assert.IsTrue(test2.Test1.Disposed);
             Assert.IsTrue(test3.Test1.Disposed);
+        }
+
+        [TestMethod]
+        public void DisposeTests_Instance_WithoutDisposal()
+        {
+            ITest1 test = new Test1();
+            ITest2 test2;
+            Test3 test3;
+            using (IStashboxContainer container = new StashboxContainer())
+            {
+                container.RegisterType<ITest2, Test2>();
+                container.RegisterType<Test3>();
+                container.PrepareType<ITest1>().WithInstance(test).WithoutDisposalTracking().Register();
+                test2 = container.Resolve<ITest2>();
+                test3 = container.Resolve<Test3>();
+            }
+
+            Assert.IsFalse(test.Disposed);
+            Assert.IsFalse(test2.Test1.Disposed);
+            Assert.IsFalse(test3.Test1.Disposed);
         }
 
         [TestMethod]
@@ -91,12 +133,12 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
-        public void DisposeTests_TrackTransientDisposal_Scoped()
+        public void DisposeTests_Scoped()
         {
             ITest1 test;
             ITest2 test2;
             Test3 test3;
-            using (IStashboxContainer container = new StashboxContainer(config => config.WithDisposableTransientTracking()))
+            using (IStashboxContainer container = new StashboxContainer())
             {
                 ITest1 test4;
                 ITest2 test5;
@@ -125,6 +167,43 @@ namespace Stashbox.Tests
             Assert.IsTrue(test.Disposed);
             Assert.IsTrue(test2.Test1.Disposed);
             Assert.IsTrue(test3.Test1.Disposed);
+        }
+
+        [TestMethod]
+        public void DisposeTests_Scoped_WithoutDisposal()
+        {
+            ITest1 test;
+            ITest2 test2;
+            Test3 test3;
+            using (IStashboxContainer container = new StashboxContainer())
+            {
+                ITest1 test4;
+                ITest2 test5;
+                Test3 test6;
+
+                container.PrepareType<ITest2, Test2>().WithLifetime(new ScopedLifetime()).WithoutDisposalTracking().Register();
+                container.PrepareType<Test3>().WithLifetime(new ScopedLifetime()).WithoutDisposalTracking().Register();
+                container.PrepareType<ITest1, Test1>().WithLifetime(new ScopedLifetime()).WithoutDisposalTracking().Register();
+
+                test = container.Resolve<ITest1>();
+                test2 = container.Resolve<ITest2>();
+                test3 = container.Resolve<Test3>();
+
+                using (var child = container.BeginScope())
+                {
+                    test4 = child.Resolve<ITest1>();
+                    test5 = child.Resolve<ITest2>();
+                    test6 = child.Resolve<Test3>();
+                }
+
+                Assert.IsFalse(test4.Disposed);
+                Assert.IsFalse(test5.Test1.Disposed);
+                Assert.IsFalse(test6.Test1.Disposed);
+            }
+
+            Assert.IsFalse(test.Disposed);
+            Assert.IsFalse(test2.Test1.Disposed);
+            Assert.IsFalse(test3.Test1.Disposed);
         }
 
         [TestMethod]
@@ -234,7 +313,7 @@ namespace Stashbox.Tests
                     Assert.IsTrue(test4.Disposed);
                     Assert.IsTrue(test5.Test1.Disposed);
                     Assert.IsTrue(test6.Test1.Disposed);
-                    
+
                     Assert.IsFalse(test.Disposed);
                     Assert.IsFalse(test2.Test1.Disposed);
                     Assert.IsFalse(test3.Test1.Disposed);
@@ -330,7 +409,7 @@ namespace Stashbox.Tests
             using (var container = new StashboxContainer(config => config.WithDisposableTransientTracking()))
             {
                 container.RegisterInstance<ITest1>(test);
-                
+
                 Assert.AreSame(test, container.Resolve<ITest1>());
             }
 
@@ -349,6 +428,20 @@ namespace Stashbox.Tests
             }
 
             Assert.IsTrue(test.Disposed);
+        }
+
+        [TestMethod]
+        public void DisposeTests_WireUp_TrackTransient_WithoutDisposal()
+        {
+            ITest1 test = new Test1();
+            using (var container = new StashboxContainer(config => config.WithDisposableTransientTracking()))
+            {
+                container.WireUp<ITest1>(test, withoutDisposalTracking: true);
+
+                Assert.AreSame(test, container.Resolve<ITest1>());
+            }
+
+            Assert.IsFalse(test.Disposed);
         }
 
         public interface ITest11 { }

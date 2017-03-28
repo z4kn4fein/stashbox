@@ -81,10 +81,5 @@ namespace Stashbox.Infrastructure.Registration
         /// <param name="type">The type information.</param>
         /// <returns>True if the argument is valid.</returns>
         bool ValidateGenericContraints(Type type);
-        
-        /// <summary>
-        /// Cleans up the registration.
-        /// </summary>
-        void CleanUp();
     }
 }

@@ -19,8 +19,8 @@ namespace Stashbox.BuildUp
 
         private FactoryObjectBuilder(IContainerContext containerContext, IContainerExtensionManager containerExtensionManager,
             IMetaInfoProvider metaInfoProvider, IExpressionBuilder expressionBuilder,
-            InjectionParameter[] injectionParameters = null, bool isDecorator = false)
-            : base(containerContext, isDecorator)
+            InjectionParameter[] injectionParameters, bool isDecorator, bool shouldHandleDisposal)
+            : base(containerContext, isDecorator, shouldHandleDisposal)
         {
             this.containerContext = containerContext;
             this.containerExtensionManager = containerExtensionManager;
@@ -31,15 +31,15 @@ namespace Stashbox.BuildUp
 
         public FactoryObjectBuilder(Func<IStashboxContainer, object> containerFactory, IContainerContext containerContext,
             IContainerExtensionManager containerExtensionManager, IMetaInfoProvider metaInfoProvider, IExpressionBuilder expressionBuilder, 
-            InjectionParameter[] injectionParameters = null, bool isDecorator = false)
-            : this(containerContext, containerExtensionManager, metaInfoProvider, expressionBuilder, injectionParameters, isDecorator)
+            InjectionParameter[] injectionParameters, bool isDecorator, bool shouldHandleDisposal)
+            : this(containerContext, containerExtensionManager, metaInfoProvider, expressionBuilder, injectionParameters, isDecorator, shouldHandleDisposal)
         {
             this.containerFactory = containerFactory;
         }
 
         public FactoryObjectBuilder(Func<object> factory, IContainerContext containerContext, IContainerExtensionManager containerExtensionManager,
-            IMetaInfoProvider metaInfoProvider, IExpressionBuilder expressionBuilder, InjectionParameter[] injectionParameters = null, bool isDecorator = false)
-            : this(containerContext, containerExtensionManager, metaInfoProvider, expressionBuilder, injectionParameters, isDecorator)
+            IMetaInfoProvider metaInfoProvider, IExpressionBuilder expressionBuilder, InjectionParameter[] injectionParameters, bool isDecorator, bool shouldHandleDisposal)
+            : this(containerContext, containerExtensionManager, metaInfoProvider, expressionBuilder, injectionParameters, isDecorator, shouldHandleDisposal)
         {
             this.singleFactory = factory;
         }

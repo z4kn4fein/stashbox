@@ -36,6 +36,12 @@ namespace Stashbox.Registration
             return this;
         }
 
+        public IDecoratorRegistrationContext WithoutDisposalTracking()
+        {
+            this.registrationContext.WithoutDisposalTracking();
+            return this;
+        }
+
         public IStashboxContainer Register()
         {
             this.registrationContext.ContainerContext.DecoratorRepository

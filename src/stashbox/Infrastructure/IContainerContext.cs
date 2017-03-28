@@ -30,6 +30,11 @@ namespace Stashbox.Infrastructure
         IStashboxContainer Container { get; }
 
         /// <summary>
+        /// The root scope.
+        /// </summary>
+        IResolutionScope RootScope { get; }
+
+        /// <summary>
         /// The resolution strategy.
         /// </summary>
         IResolutionStrategy ResolutionStrategy { get; }

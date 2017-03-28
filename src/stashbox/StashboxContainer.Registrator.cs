@@ -84,19 +84,19 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public IDependencyRegistrator WireUp<TFrom>(object instance, string name = null) where TFrom : class
+        public IDependencyRegistrator WireUp<TFrom>(object instance, string name = null, bool withoutDisposalTracking = false) where TFrom : class
         {
             Shield.EnsureNotNull(instance, nameof(instance));
-            this.WireUpInternal(instance, name, typeof(TFrom), instance.GetType());
+            this.WireUpInternal(instance, name, typeof(TFrom), instance.GetType(), withoutDisposalTracking);
             return this;
         }
 
         /// <inheritdoc />
-        public IDependencyRegistrator WireUp(object instance, string name = null)
+        public IDependencyRegistrator WireUp(object instance, string name = null, bool withoutDisposalTracking = false)
         {
             Shield.EnsureNotNull(instance, nameof(instance));
             var type = instance.GetType();
-            this.WireUpInternal(instance, name, type, type);
+            this.WireUpInternal(instance, name, type, type, withoutDisposalTracking);
             return this;
         }
 
@@ -189,12 +189,14 @@ namespace Stashbox
             return this;
         }
 
-        private void WireUpInternal(object instance, string keyName, Type typeFrom, Type typeTo)
+        private void WireUpInternal(object instance, string keyName, Type typeFrom, Type typeTo, bool withoutDisposalTracking)
         {
             var regName = NameGenerator.GetRegistrationName(typeFrom, typeTo, keyName);
             var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, RegistrationContextData.Empty, typeTo);
             var registration = new ServiceRegistration(typeFrom, typeTo, this.ContainerContext, null,
-                new WireUpObjectBuilder(instance, this.containerExtensionManager, this.ContainerContext, metaInfoProvider, this.expressionBuilder), metaInfoProvider);
+                new WireUpObjectBuilder(instance, this.containerExtensionManager, 
+                this.ContainerContext, metaInfoProvider, this.expressionBuilder, null, false, !withoutDisposalTracking), 
+                metaInfoProvider);
 
             this.registrationRepository.AddOrUpdateRegistration(typeFrom, regName, false, registration);
             this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.ContainerContext, typeTo, typeFrom);
@@ -206,7 +208,7 @@ namespace Stashbox
             var regName = NameGenerator.GetRegistrationName(instanceType, instanceType, keyName);
             var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, RegistrationContextData.Empty, instanceType);
             var registration = new ServiceRegistration(type, instanceType, this.ContainerContext, null,
-                new InstanceObjectBuilder(instance, this.ContainerContext), metaInfoProvider);
+                new InstanceObjectBuilder(instance, this.ContainerContext, false, true), metaInfoProvider);
 
             this.registrationRepository.AddOrUpdateRegistration(type, regName, false, registration);
             this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.ContainerContext, instanceType, type);

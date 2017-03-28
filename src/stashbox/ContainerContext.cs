@@ -14,12 +14,13 @@ namespace Stashbox
         private int registrationNumber;
         
         internal ContainerContext(IRegistrationRepository registrationRepository, IDelegateRepository delegateRepository, IStashboxContainer container,
-            IResolutionStrategy resolutionStrategy, IContainerConfigurator containerConfigurator, IDecoratorRepository decoratorRepository)
+            IResolutionScope rootScope, IResolutionStrategy resolutionStrategy, IContainerConfigurator containerConfigurator, IDecoratorRepository decoratorRepository)
         {
             this.ResolutionStrategy = resolutionStrategy;
             this.RegistrationRepository = registrationRepository;
             this.DelegateRepository = delegateRepository;
             this.Container = container;
+            this.RootScope = rootScope;
             this.Bag = new ConcurrentKeyValueStore<object, object>();
             this.ContainerConfigurator = containerConfigurator;
             this.DecoratorRepository = decoratorRepository;
@@ -36,6 +37,9 @@ namespace Stashbox
 
         /// <inheritdoc />
         public IStashboxContainer Container { get; }
+
+        /// <inheritdoc />
+        public IResolutionScope RootScope { get; }
 
         /// <inheritdoc />
         public IResolutionStrategy ResolutionStrategy { get; }

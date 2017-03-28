@@ -53,13 +53,7 @@ namespace Stashbox.Registration
 
         public bool ContainsRegistration(Type type, string name) =>
             this.ContainsRegistration(type, name, this.serviceRepository) || this.ContainsRegistration(type, name, this.conditionalRepository);
-
-        public void CleanUp()
-        {
-            foreach (var serviceRegistration in this.GetAllRegistrations())
-                serviceRegistration.CleanUp();
-        }
-
+        
         private bool ContainsRegistration(Type type, string name, ConcurrentTree<Type, ConcurrentTree<string, IServiceRegistration>> repository)
         {
             var registrations = repository.GetOrDefault(type);

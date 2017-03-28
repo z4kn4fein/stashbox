@@ -31,7 +31,13 @@ namespace Stashbox.Infrastructure.Registration
         /// <param name="rule">The constructor selection rule.</param>
         /// <returns>The <see cref="IDecoratorRegistrationContext"/> which on this method was called.</returns>
         IDecoratorRegistrationContext WithConstructorSelectionRule(Func<IEnumerable<ResolutionConstructor>, ResolutionConstructor> rule);
-        
+
+        /// <summary>
+        /// Tells the container that it shouldn't track the resolved transient object for disposal.
+        /// </summary>
+        /// <returns>The <see cref="IDecoratorRegistrationContext"/> which on this method was called.</returns>
+        IDecoratorRegistrationContext WithoutDisposalTracking();
+
         /// <summary>
         /// Registers the registration into the container.
         /// </summary>
