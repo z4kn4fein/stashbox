@@ -11,58 +11,56 @@ namespace Stashbox.Entity
         /// <summary>
         /// The reflected type of the dependency.
         /// </summary>
-        public Type Type { get; set; }
+        public Type Type { get; internal set; }
 
         /// <summary>
         /// The reflected type of the parent of the dependency.
         /// </summary>
-        public Type ParentType { get; set; }
+        public Type ParentType { get; internal set; }
 
         /// <summary>
         /// The name of the dependency.
         /// </summary>
-        public string DependencyName { get; set; }
+        public string DependencyName { get; internal set; }
 
         /// <summary>
         /// Custom attributes of the dependency.
         /// </summary>
-        public Attribute[] CustomAttributes { get; set; }
+        public Attribute[] CustomAttributes { get; internal set; }
 
         /// <summary>
         /// The variable name of the dependency.
         /// </summary>
-        public string ParameterName { get; set; }
+        public string ParameterName { get; internal set; }
 
         /// <summary>
         /// It's true if the dependency has default value.
         /// </summary>
-        public bool HasDefaultValue { get; set; }
+        public bool HasDefaultValue { get; internal set; }
 
         /// <summary>
         /// The default value of the dependency.
         /// </summary>
-        public object DefaultValue { get; set; }
+        public object DefaultValue { get; internal set; }
 
         /// <summary>
         /// Property or field.
         /// </summary>
-        public bool IsMember { get; set; }
+        public bool IsMember { get; internal set; }
 
         /// <summary>
         /// True if the type has <see cref="DependencyAttribute"/>.
         /// </summary>
-        public bool HasDependencyAttribute { get; set; }
+        public bool HasDependencyAttribute { get; internal set; }
 
         /// <summary>
         /// Creates a clone of this instance.
         /// </summary>
         /// <param name="type">The type param to override.</param>
         /// <returns></returns>
-        public TypeInformation Clone(Type type = null)
+        public TypeInformation Clone(Type type)
         {
             var clone = (TypeInformation)this.MemberwiseClone();
-            if (type == null) return clone;
-
             clone.Type = type;
             return clone;
         }

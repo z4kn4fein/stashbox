@@ -12,21 +12,6 @@ namespace Stashbox.Infrastructure.Registration
     public interface IRegistrationContext
     {
         /// <summary>
-        /// The type that will be requested.		
-        /// </summary>		
-        Type TypeFrom { get; }
-
-        /// <summary>		
-        /// The type that will be returned.		
-        /// </summary>		
-        Type TypeTo { get; }
-
-        /// <summary>
-        /// The <see cref="IContainerContext"/> of the <see cref="StashboxContainer"/>
-        /// </summary>
-        IContainerContext ContainerContext { get; }
-
-        /// <summary>
         /// Sets the lifetime of the registration.
         /// </summary>
         /// <param name="lifetime">An <see cref="ILifetime"/> implementation.</param>

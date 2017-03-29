@@ -20,67 +20,67 @@ namespace Stashbox.Registration
         /// <summary>
         /// Name of the registration.
         /// </summary>
-        public string Name { get; set; }
+        public string Name { get; internal set; }
 
         /// <summary>
         /// Container factory of the registration.
         /// </summary>
-        public Func<IDependencyResolver, object> ContainerFactory { get; set; }
+        public Func<IDependencyResolver, object> ContainerFactory { get; internal set; }
 
         /// <summary>
         /// Parameterless factory of the registration.
         /// </summary>
-        public Func<object> SingleFactory { get; set; }
+        public Func<object> SingleFactory { get; internal set; }
 
         /// <summary>
         /// Injection parameters of the registration.
         /// </summary>
-        public InjectionParameter[] InjectionParameters { get; set; }
+        public InjectionParameter[] InjectionParameters { get; internal set; }
 
         /// <summary>
         /// Lifetime of the registration.
         /// </summary>
-        public ILifetime Lifetime { get; set; }
+        public ILifetime Lifetime { get; internal set; }
 
         /// <summary>
         /// Target type condition of the registration.
         /// </summary>
-        public Type TargetTypeCondition { get; set; }
+        public Type TargetTypeCondition { get; internal set; }
 
         /// <summary>
         /// Resolution condition of the registration.
         /// </summary>
-        public Func<TypeInformation, bool> ResolutionCondition { get; set; }
+        public Func<TypeInformation, bool> ResolutionCondition { get; internal set; }
 
         /// <summary>
         /// Attribute condition collection of the registration.
         /// </summary>
-        public HashSet<Type> AttributeConditions { get; set; }
+        public HashSet<Type> AttributeConditions { get; internal set; }
 
         /// <summary>
         /// The stored instance.
         /// </summary>
-        public object ExistingInstance { get; set; }
+        public object ExistingInstance { get; internal set; }
 
         /// <summary>
         /// The auto memeber injection rule for the registration.
         /// </summary>
-        public Rules.AutoMemberInjection AutoMemberInjectionRule { get; set; }
+        public Rules.AutoMemberInjection AutoMemberInjectionRule { get; internal set; }
 
         /// <summary>
         /// True if auto member injection is enabled on this instance.
         /// </summary>
-        public bool AutoMemberInjectionEnabled { get; set; }
+        public bool AutoMemberInjectionEnabled { get; internal set; }
 
         /// <summary>
         /// True if the lifetime of the service is owned externally.
         /// </summary>
-        public bool IsLifetimeExternallyOwned { get; set; }
+        public bool IsLifetimeExternallyOwned { get; internal set; }
 
         /// <summary>
         /// The constructor selection rule.
         /// </summary>
-        public Func<IEnumerable<ResolutionConstructor>, ResolutionConstructor> ConstructorSelectionRule { get; set; }
+        public Func<IEnumerable<ResolutionConstructor>, ResolutionConstructor> ConstructorSelectionRule { get; internal set; }
 
         /// <summary>
         /// Constructs a <see cref="RegistrationContextData"/>

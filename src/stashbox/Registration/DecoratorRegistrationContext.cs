@@ -11,10 +11,14 @@ namespace Stashbox.Registration
     internal class DecoratorRegistrationContext : IDecoratorRegistrationContext
     {
         private readonly IRegistrationContext registrationContext;
+        private readonly IContainerContext containerContext;
+        private readonly Type typeFrom;
 
-        public DecoratorRegistrationContext(IRegistrationContext registrationContext)
+        public DecoratorRegistrationContext(IRegistrationContext registrationContext, IContainerContext containerContext, Type typeFrom)
         {
             this.registrationContext = registrationContext;
+            this.containerContext = containerContext;
+            this.typeFrom = typeFrom;
         }
 
         public IDecoratorRegistrationContext WithInjectionParameters(params InjectionParameter[] injectionParameters)
@@ -44,11 +48,11 @@ namespace Stashbox.Registration
 
         public IStashboxContainer Register()
         {
-            this.registrationContext.ContainerContext.DecoratorRepository
-                .AddDecorator(this.registrationContext.TypeFrom, this.registrationContext.CreateServiceRegistration(isDecorator: true));
-            this.registrationContext.ContainerContext.DelegateRepository.InvalidateDelegateCache();
+            this.containerContext.DecoratorRepository
+                .AddDecorator(this.typeFrom, this.registrationContext.CreateServiceRegistration(isDecorator: true));
+            this.containerContext.DelegateRepository.InvalidateDelegateCache();
 
-            return this.registrationContext.ContainerContext.Container;
+            return this.containerContext.Container;
         }
     }
 }

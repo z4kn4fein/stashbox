@@ -11,14 +11,19 @@ namespace Stashbox
         /// <inheritdoc />
         public IDecoratorRegistrationContext PrepareDecorator<TFrom, TTo>() where TFrom : class where TTo : class, TFrom
         {
-            return new DecoratorRegistrationContext(new RegistrationContext(typeof(TFrom), typeof(TTo), this.ContainerContext, this.expressionBuilder, this.containerExtensionManager));
+            var typeFrom = typeof(TFrom);
+            return new DecoratorRegistrationContext(new RegistrationContext(typeFrom, typeof(TTo), 
+                this.ContainerContext, this.expressionBuilder, this.containerExtensionManager), this.ContainerContext, typeFrom);
         }
 
         /// <inheritdoc />
         public IDecoratorRegistrationContext PrepareDecorator<TFrom>(Type typeTo) where TFrom : class
         {
             Shield.EnsureNotNull(typeTo, nameof(typeTo));
-            return new DecoratorRegistrationContext(new RegistrationContext(typeof(TFrom), typeTo, this.ContainerContext, this.expressionBuilder, this.containerExtensionManager));
+
+            var typeFrom = typeof(TFrom);
+            return new DecoratorRegistrationContext(new RegistrationContext(typeFrom, typeTo, 
+                this.ContainerContext, this.expressionBuilder, this.containerExtensionManager), this.ContainerContext, typeFrom);
         }
 
         /// <inheritdoc />
@@ -26,7 +31,9 @@ namespace Stashbox
         {
             Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
             Shield.EnsureNotNull(typeTo, nameof(typeTo));
-            return new DecoratorRegistrationContext(new RegistrationContext(typeFrom, typeTo, this.ContainerContext, this.expressionBuilder, this.containerExtensionManager));
+
+            return new DecoratorRegistrationContext(new RegistrationContext(typeFrom, typeTo,
+                this.ContainerContext, this.expressionBuilder, this.containerExtensionManager), this.ContainerContext, typeFrom);
         }
 
         /// <inheritdoc />
@@ -40,6 +47,7 @@ namespace Stashbox
         public IDecoratorRegistrator RegisterDecorator<TFrom>(Type typeTo) where TFrom : class
         {
             Shield.EnsureNotNull(typeTo, nameof(typeTo));
+
             this.PrepareDecorator<TFrom>(typeTo).Register();
             return this;
         }
@@ -49,6 +57,7 @@ namespace Stashbox
         {
             Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
             Shield.EnsureNotNull(typeTo, nameof(typeTo));
+
             this.PrepareDecorator(typeFrom, typeTo).Register();
             return this;
         }
