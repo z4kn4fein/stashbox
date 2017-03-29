@@ -11,8 +11,17 @@ namespace Stashbox.BuildUp.Expressions
 {
     internal class ExpressionBuilder : IExpressionBuilder
     {
-        public Expression CreateFillExpression(IContainerExtensionManager extensionManager, IContainerContext containerContext, Expression instance,
-            ResolutionInfo resolutionInfo, Type serviceType, InjectionParameter[] parameters, ResolutionMember[] members, ResolutionMethod[] methods)
+        private readonly IContainerContext containerContext;
+        private readonly IContainerExtensionManager containerExtensionManager;
+
+        public ExpressionBuilder(IContainerContext containerContext, IContainerExtensionManager containerExtensionManager)
+        {
+            this.containerContext = containerContext;
+            this.containerExtensionManager = containerExtensionManager;
+        }
+
+        public Expression CreateFillExpression(Expression instance, ResolutionInfo resolutionInfo, Type serviceType, 
+            InjectionParameter[] parameters, ResolutionMember[] members, ResolutionMethod[] methods)
         {
             var block = new List<Expression>();
 
@@ -27,16 +36,15 @@ namespace Stashbox.BuildUp.Expressions
             if (members != null && members.Length > 0)
                 block.AddRange(FillMembersExpression(members, variable));
 
-            if (methods != null && methods.Length > 0 || extensionManager.HasPostBuildExtensions)
-                return CreatePostWorkExpressionIfAny(extensionManager, containerContext, resolutionInfo, variable, serviceType, parameters, methods, block, variable);
+            if (methods != null && methods.Length > 0 || this.containerExtensionManager.HasPostBuildExtensions)
+                return CreatePostWorkExpressionIfAny(resolutionInfo, variable, serviceType, parameters, methods, block, variable);
 
             block.Add(variable); //return
 
             return Expression.Block(new[] { variable }, block);
         }
 
-        public Expression CreateExpression(IContainerExtensionManager extensionManager, IContainerContext containerContext, 
-            ResolutionConstructor resolutionConstructor, ResolutionInfo resolutionInfo,
+        public Expression CreateExpression(ResolutionConstructor resolutionConstructor, ResolutionInfo resolutionInfo,
             Type serviceType, InjectionParameter[] parameters, ResolutionMember[] members, ResolutionMethod[] methods)
         {
             Expression initExpression = Expression.New(resolutionConstructor.Constructor, resolutionConstructor.Parameters);
@@ -44,13 +52,13 @@ namespace Stashbox.BuildUp.Expressions
             if (members != null && members.Length > 0)
                 initExpression = CreateMemberInitExpression(members, (NewExpression)initExpression);
 
-            if (methods != null && methods.Length > 0 || extensionManager.HasPostBuildExtensions)
-                return CreatePostWorkExpressionIfAny(extensionManager, containerContext, resolutionInfo, initExpression, serviceType, parameters, methods);
+            if (methods != null && methods.Length > 0 || this.containerExtensionManager.HasPostBuildExtensions)
+                return CreatePostWorkExpressionIfAny(resolutionInfo, initExpression, serviceType, parameters, methods);
 
             return initExpression;
         }
         
-        private Expression CreatePostWorkExpressionIfAny(IContainerExtensionManager extensionManager, IContainerContext containerContext, ResolutionInfo resolutionInfo,
+        private Expression CreatePostWorkExpressionIfAny(ResolutionInfo resolutionInfo,
             Expression initExpression, Type serviceType, InjectionParameter[] parameters, ResolutionMethod[] methods, 
             List<Expression> block = null, ParameterExpression variable = null)
         {
@@ -66,9 +74,9 @@ namespace Stashbox.BuildUp.Expressions
             if (methods != null && methods.Length > 0)
                 block.AddRange(CreateMethodExpressions(methods, newVariable));
 
-            if (extensionManager.HasPostBuildExtensions)
+            if (this.containerExtensionManager.HasPostBuildExtensions)
             {
-                var call = Expression.Call(Expression.Constant(extensionManager), Constants.BuildExtensionMethod, newVariable, Expression.Constant(containerContext),
+                var call = Expression.Call(Expression.Constant(this.containerExtensionManager), Constants.BuildExtensionMethod, newVariable, Expression.Constant(containerContext),
                       Expression.Constant(resolutionInfo), Expression.Constant(serviceType), Expression.Constant(parameters, typeof(InjectionParameter[])));
 
                 block.Add(Expression.Assign(newVariable, Expression.Convert(call, serviceType)));

@@ -40,7 +40,8 @@ namespace Stashbox.BuildUp
 
         private IServiceRegistration RegisterConcreteGenericType(Type resolveType, Type genericType)
         {
-            var registrationContext = new RegistrationContext(resolveType, genericType, this.containerContext, this.expressionBuilder, this.containerExtensionManager);
+            var registrationContext = new RegistrationContext(resolveType, genericType, this.containerContext, 
+                this.expressionBuilder, this.containerExtensionManager);
             var newData = this.registrationContextData.CreateCopy();
             newData.Name = null;
 

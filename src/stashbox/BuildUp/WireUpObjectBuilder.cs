@@ -41,8 +41,8 @@ namespace Stashbox.BuildUp
             {
                 if (this.expression != null) return this.expression;
 
-                var expr = this.expressionBuilder.CreateFillExpression(this.containerExtensionManager, this.containerContext,
-                    Expression.Constant(this.instance), resolutionInfo, this.metaInfoProvider.TypeTo, this.injectionParameters,
+                var expr = this.expressionBuilder.CreateFillExpression(Expression.Constant(this.instance), resolutionInfo, 
+                    this.metaInfoProvider.TypeTo, this.injectionParameters,
                     this.metaInfoProvider.GetResolutionMembers(resolutionInfo),
                     this.metaInfoProvider.GetResolutionMethods(resolutionInfo));
                 var factory = expr.CompileDelegate(Constants.ScopeExpression);

@@ -63,7 +63,7 @@ namespace Stashbox.Registration
 
             var objectBuilder = this.TypeTo.IsOpenGenericType() ? new GenericTypeObjectBuilder(this.RegistrationContextData, this.ContainerContext,
                     metaInfoProvider, this.ContainerExtensionManager, this.expressionBuilder, isDecorator, shouldHandleDisposal) : 
-                    this.CreateObjectBuilder(this.ContainerExtensionManager, metaInfoProvider, isDecorator, shouldHandleDisposal);
+                    this.CreateObjectBuilder(metaInfoProvider, isDecorator, shouldHandleDisposal);
 
             return this.ProduceServiceRegistration(registrationLifetime, objectBuilder,
                     metaInfoProvider);
@@ -80,21 +80,21 @@ namespace Stashbox.Registration
             return registrationLifetime != null;
         }
 
-        private IObjectBuilder CreateObjectBuilder(IContainerExtensionManager containerExtensionManager, IMetaInfoProvider metaInfoProvider, bool isDecorator, bool shouldHandleDisposal)
+        private IObjectBuilder CreateObjectBuilder(IMetaInfoProvider metaInfoProvider, bool isDecorator, bool shouldHandleDisposal)
         {
             if (this.RegistrationContextData.ExistingInstance != null)
                 return new InstanceObjectBuilder(this.RegistrationContextData.ExistingInstance, this.ContainerContext, isDecorator, shouldHandleDisposal);
 
             if (this.RegistrationContextData.ContainerFactory != null)
-                return new FactoryObjectBuilder(this.RegistrationContextData.ContainerFactory, this.ContainerContext, containerExtensionManager, metaInfoProvider,
+                return new FactoryObjectBuilder(this.RegistrationContextData.ContainerFactory, this.ContainerContext, metaInfoProvider,
                     this.expressionBuilder, this.RegistrationContextData.InjectionParameters, isDecorator, shouldHandleDisposal);
 
             if (this.RegistrationContextData.SingleFactory != null)
-                return new FactoryObjectBuilder(this.RegistrationContextData.SingleFactory, this.ContainerContext, containerExtensionManager, metaInfoProvider,
+                return new FactoryObjectBuilder(this.RegistrationContextData.SingleFactory, this.ContainerContext, metaInfoProvider,
                     this.expressionBuilder, this.RegistrationContextData.InjectionParameters, isDecorator, shouldHandleDisposal);
 
             return new DefaultObjectBuilder(this.ContainerContext, metaInfoProvider,
-                containerExtensionManager, this.expressionBuilder, this.RegistrationContextData.InjectionParameters, isDecorator, shouldHandleDisposal);
+                this.expressionBuilder, this.RegistrationContextData.InjectionParameters, isDecorator, shouldHandleDisposal);
         }
 
         private IServiceRegistration ProduceServiceRegistration(ILifetime lifeTime, IObjectBuilder objectBuilder, IMetaInfoProvider metaInfoProvider)
