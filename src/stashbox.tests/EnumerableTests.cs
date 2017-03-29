@@ -72,6 +72,18 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void EnumerableTests_RegisterTypes_Scoped_Selector()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            container.RegisterTypes(new[] { typeof(Test1), typeof(Test11), typeof(Test12) }, type => type == typeof(Test12), context => context.WithScopedLifetime().Register());
+
+            var regs = container.ContainerContext.RegistrationRepository.GetAllRegistrations().ToArray();
+
+            Assert.AreEqual(1, regs.Length);
+            Assert.IsTrue(regs.All(reg => reg.LifetimeManager is ScopedLifetime));
+        }
+
+        [TestMethod]
         public void EnumerableTests_Resolve_ICollection()
         {
             IStashboxContainer container = new StashboxContainer();
