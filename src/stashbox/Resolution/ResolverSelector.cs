@@ -10,12 +10,11 @@ namespace Stashbox.Resolution
 {
     internal class ResolverSelector : IResolverSelector
     {
-        private readonly ConcurrentTree<int, Resolver> resolverRepository;
-        private int resolverCounter;
+        private readonly ConcurrentOrderedStore<Resolver> resolverRepository;
 
         public ResolverSelector()
         {
-            this.resolverRepository = new ConcurrentTree<int, Resolver>();
+            this.resolverRepository = new ConcurrentOrderedStore<Resolver>();
         }
 
         public bool CanResolve(IContainerContext containerContext, TypeInformation typeInfo) =>
@@ -30,6 +29,6 @@ namespace Stashbox.Resolution
                 .GetExpressions(containerContext, typeInfo, resolutionInfo);
 
         public void AddResolver(Resolver resolver) =>
-            this.resolverRepository.AddOrUpdate(Interlocked.Increment(ref resolverCounter), resolver);
+            this.resolverRepository.Add(resolver);
     }
 }

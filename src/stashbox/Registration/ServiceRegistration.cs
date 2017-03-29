@@ -36,13 +36,10 @@ namespace Stashbox.Registration
 
         /// <inheritdoc />
         public Func<TypeInformation, bool> ResolutionCondition { get; }
-
-        /// <inheritdoc />
-        public bool IsLifetimeExternallyOwned { get; }
-
+        
         internal ServiceRegistration(Type serviceType, Type implementationType, IContainerContext containerContext,
             ILifetime lifetimeManager, IObjectBuilder objectBuilder, IMetaInfoProvider metaInfoProvider, HashSet<Type> attributeConditions = null,
-            Type targetTypeCondition = null, Func<TypeInformation, bool> resolutionCondition = null, bool isLifetimeExternallyOwned = false)
+            Type targetTypeCondition = null, Func<TypeInformation, bool> resolutionCondition = null)
         {
             this.ImplementationType = implementationType;
             this.ServiceType = serviceType;
@@ -53,7 +50,6 @@ namespace Stashbox.Registration
             this.TargetTypeCondition = targetTypeCondition;
             this.ResolutionCondition = resolutionCondition;
             this.metaInfoProvider = metaInfoProvider;
-            this.IsLifetimeExternallyOwned = isLifetimeExternallyOwned;
             this.RegistrationNumber = containerContext.ReserveRegistrationNumber();
         }
 
