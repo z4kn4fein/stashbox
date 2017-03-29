@@ -1,11 +1,13 @@
 ﻿using Stashbox.BuildUp;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.Registration;
-using Stashbox.Lifetime;
 using Stashbox.MetaInfo;
 using Stashbox.Registration;
 using Stashbox.Utils;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 
 namespace Stashbox
 {
@@ -22,6 +24,7 @@ namespace Stashbox
         public IDependencyRegistrator RegisterType<TFrom>(Type typeTo, string name = null) where TFrom : class
         {
             Shield.EnsureNotNull(typeTo, nameof(typeTo));
+
             this.PrepareType<TFrom>(typeTo).WithName(name).Register();
             return this;
         }
@@ -29,7 +32,9 @@ namespace Stashbox
         /// <inheritdoc />
         public IDependencyRegistrator RegisterType(Type typeFrom, Type typeTo, string name = null)
         {
+            Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
             Shield.EnsureNotNull(typeTo, nameof(typeTo));
+
             this.PrepareType(typeFrom, typeTo).WithName(name).Register();
             return this;
         }
@@ -55,6 +60,7 @@ namespace Stashbox
             where TFrom : class
         {
             Shield.EnsureNotNull(typeTo, nameof(typeTo));
+
             this.PrepareType<TFrom>(typeTo).WithName(name).ReMap();
             return this;
         }
@@ -71,6 +77,7 @@ namespace Stashbox
         public IDependencyRegistrator RegisterInstance<TFrom>(object instance, string name = null) where TFrom : class
         {
             Shield.EnsureNotNull(instance, nameof(instance));
+
             this.RegisterInstanceInternal(instance, name, typeof(TFrom));
             return this;
         }
@@ -79,6 +86,7 @@ namespace Stashbox
         public IDependencyRegistrator RegisterInstance(object instance, string name = null)
         {
             Shield.EnsureNotNull(instance, nameof(instance));
+
             this.RegisterInstanceInternal(instance, name, instance.GetType());
             return this;
         }
@@ -87,6 +95,7 @@ namespace Stashbox
         public IDependencyRegistrator WireUp<TFrom>(object instance, string name = null, bool withoutDisposalTracking = false) where TFrom : class
         {
             Shield.EnsureNotNull(instance, nameof(instance));
+
             this.WireUpInternal(instance, name, typeof(TFrom), instance.GetType(), withoutDisposalTracking);
             return this;
         }
@@ -95,6 +104,7 @@ namespace Stashbox
         public IDependencyRegistrator WireUp(object instance, string name = null, bool withoutDisposalTracking = false)
         {
             Shield.EnsureNotNull(instance, nameof(instance));
+
             var type = instance.GetType();
             this.WireUpInternal(instance, name, type, type, withoutDisposalTracking);
             return this;
@@ -112,12 +122,17 @@ namespace Stashbox
         public IRegistrationContext PrepareType<TFrom>(Type typeTo)
             where TFrom : class
         {
+            Shield.EnsureNotNull(typeTo, nameof(typeTo));
+
             return new RegistrationContext(typeof(TFrom), typeTo, this.ContainerContext, this.expressionBuilder, this.containerExtensionManager);
         }
 
         /// <inheritdoc />
         public IRegistrationContext PrepareType(Type typeFrom, Type typeTo)
         {
+            Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
+            Shield.EnsureNotNull(typeTo, nameof(typeTo));
+
             return new RegistrationContext(typeFrom, typeTo, this.ContainerContext, this.expressionBuilder, this.containerExtensionManager);
         }
 
@@ -132,6 +147,8 @@ namespace Stashbox
         /// <inheritdoc />
         public IRegistrationContext PrepareType(Type typeTo)
         {
+            Shield.EnsureNotNull(typeTo, nameof(typeTo));
+
             return new RegistrationContext(typeTo, typeTo, this.ContainerContext, this.expressionBuilder, this.containerExtensionManager);
         }
 
@@ -140,7 +157,7 @@ namespace Stashbox
             where TFrom : class
             where TTo : class, TFrom
         {
-            this.PrepareType<TFrom, TTo>().WithName(name).WithLifetime(new SingletonLifetime()).Register();
+            this.PrepareType<TFrom, TTo>().WithName(name).WithSingletonLifetime().Register();
             return this;
         }
 
@@ -148,7 +165,7 @@ namespace Stashbox
         public IDependencyRegistrator RegisterSingleton<TTo>(string name = null)
             where TTo : class
         {
-            this.PrepareType<TTo>().WithName(name).WithLifetime(new SingletonLifetime()).Register();
+            this.PrepareType<TTo>().WithName(name).WithSingletonLifetime().Register();
             return this;
         }
 
@@ -158,7 +175,7 @@ namespace Stashbox
             Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
             Shield.EnsureNotNull(typeTo, nameof(typeTo));
 
-            this.PrepareType(typeFrom, typeTo).WithName(name).WithLifetime(new SingletonLifetime()).Register();
+            this.PrepareType(typeFrom, typeTo).WithName(name).WithSingletonLifetime().Register();
             return this;
         }
 
@@ -167,7 +184,7 @@ namespace Stashbox
             where TFrom : class
             where TTo : class, TFrom
         {
-            this.PrepareType<TFrom, TTo>().WithName(name).WithLifetime(new ScopedLifetime()).Register();
+            this.PrepareType<TFrom, TTo>().WithName(name).WithScopedLifetime().Register();
             return this;
         }
 
@@ -177,7 +194,7 @@ namespace Stashbox
             Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
             Shield.EnsureNotNull(typeTo, nameof(typeTo));
 
-            this.PrepareType(typeFrom, typeTo).WithName(name).WithLifetime(new ScopedLifetime()).Register();
+            this.PrepareType(typeFrom, typeTo).WithName(name).WithScopedLifetime().Register();
             return this;
         }
 
@@ -185,7 +202,36 @@ namespace Stashbox
         public IDependencyRegistrator RegisterScoped<TTo>(string name = null)
             where TTo : class
         {
-            this.PrepareType<TTo>().WithName(name).WithLifetime(new ScopedLifetime()).Register();
+            this.PrepareType<TTo>().WithName(name).WithScopedLifetime().Register();
+            return this;
+        }
+
+        /// <inheritdoc />
+        public IDependencyRegistrator RegisterTypes<TFrom>(IEnumerable<Type> types, Action<IRegistrationContext> configurator = null)
+             where TFrom : class
+        {
+            Shield.EnsureNotNull(types, nameof(types));
+
+            var typeFrom = typeof(TFrom);
+            return this.RegisterTypes(typeFrom, types, configurator);
+        }
+
+        /// <inheritdoc />
+        public IDependencyRegistrator RegisterTypes(Type typeFrom, IEnumerable<Type> types, Action<IRegistrationContext> configurator = null)
+        {
+            Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
+            Shield.EnsureNotNull(types, nameof(types));
+
+            foreach (var type in types.Where(t => t.GetTypeInfo().ImplementedInterfaces.Contains(typeFrom)))
+            {
+                var context = this.PrepareType(typeFrom, type);
+
+                if (configurator != null)
+                    configurator(context);
+                else
+                    context.Register();
+            }
+
             return this;
         }
 

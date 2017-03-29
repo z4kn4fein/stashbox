@@ -21,9 +21,7 @@ namespace Stashbox.BuildUp
             InjectionParameter[] injectionParameters, bool isDecorator, bool shouldHandleDisposal)
             : base(containerContext, isDecorator, shouldHandleDisposal)
         {
-            if (injectionParameters != null)
-                this.injectionParameters = injectionParameters;
-
+            this.injectionParameters = injectionParameters;
             this.containerExtensionManager = containerExtensionManager;
             this.metaInfoProvider = metaInfoProvider;
             this.containerContext = containerContext;
@@ -42,13 +40,13 @@ namespace Stashbox.BuildUp
         private Expression CreateExpression(ResolutionInfo resolutionInfo, Type resolveType)
         {
             if (!this.metaInfoProvider.TryChooseConstructor(out ResolutionConstructor constructor,
-                resolutionInfo, this.injectionParameters))
+                resolutionInfo))
                 return null;
 
             return this.expressionBuilder.CreateExpression(this.containerExtensionManager, this.containerContext,
                     constructor, resolutionInfo, resolveType, this.injectionParameters,
-                    this.metaInfoProvider.GetResolutionMembers(resolutionInfo, this.injectionParameters),
-                    this.metaInfoProvider.GetResolutionMethods(resolutionInfo, this.injectionParameters));
+                    this.metaInfoProvider.GetResolutionMembers(resolutionInfo),
+                    this.metaInfoProvider.GetResolutionMethods(resolutionInfo));
         }
     }
 }

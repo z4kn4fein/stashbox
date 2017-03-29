@@ -57,7 +57,7 @@ namespace Stashbox.Registration
         {
             this.RegistrationContextData.Name = NameGenerator.GetRegistrationName(this.TypeFrom, this.TypeTo, this.RegistrationContextData.Name);
             var registrationLifetime = this.ChooseLifeTime();
-            var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, this.RegistrationContextData, this.TypeTo);
+            var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, this.RegistrationContextData, this.TypeTo, this.RegistrationContextData.InjectionParameters);
 
             var shouldHandleDisposal = this.ShouldHandleDisposal(registrationLifetime);
 

@@ -509,6 +509,20 @@ namespace Stashbox.Tests
             Assert.IsTrue(test.Disposed);
         }
 
+        [TestMethod]
+        public void DisposeTests_Scoped_Multiple_Dispose_Call()
+        {
+            var container = new StashboxContainer();
+            container.RegisterScoped<ITest1, Test1>();
+            var scope = container.BeginScope();
+            var test = scope.Resolve<ITest1>();
+
+            scope.Dispose();
+            scope.Dispose();
+
+            Assert.IsTrue(test.Disposed);
+        }
+
         public interface ITest11 { }
 
         public interface ITest12 { }

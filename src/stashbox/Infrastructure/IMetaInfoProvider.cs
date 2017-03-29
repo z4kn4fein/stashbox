@@ -8,9 +8,9 @@ namespace Stashbox.Infrastructure
     {
         Type TypeTo { get; }
         bool HasGenericTypeConstraints { get; }
-        bool TryChooseConstructor(out ResolutionConstructor constructor, ResolutionInfo resolutionInfo, InjectionParameter[] injectionParameters = null);
-        ResolutionMethod[] GetResolutionMethods(ResolutionInfo resolutionInfo, InjectionParameter[] injectionParameters = null);
-        ResolutionMember[] GetResolutionMembers(ResolutionInfo resolutionInfo, InjectionParameter[] injectionParameters = null);
+        bool TryChooseConstructor(out ResolutionConstructor constructor, ResolutionInfo resolutionInfo);
+        ResolutionMethod[] GetResolutionMethods(ResolutionInfo resolutionInfo);
+        ResolutionMember[] GetResolutionMembers(ResolutionInfo resolutionInfo);
         bool ValidateGenericContraints(Type type);
     }
 }

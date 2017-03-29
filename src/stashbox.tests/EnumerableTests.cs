@@ -6,6 +6,7 @@ using Stashbox.Utils;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Stashbox.Lifetime;
 
 namespace Stashbox.Tests
 {
@@ -36,6 +37,29 @@ namespace Stashbox.Tests
             var all = container.Resolve<IList<ITest1>>();
 
             Assert.AreEqual(3, all.Count);
+        }
+
+        [TestMethod]
+        public void EnumerableTests_RegisterTypes()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            container.RegisterTypes<ITest1>(new [] {typeof(Test1), typeof(Test11), typeof(Test12)});
+
+            var all = container.Resolve<IEnumerable<ITest1>>();
+
+            Assert.AreEqual(3, all.Count());
+        }
+
+        [TestMethod]
+        public void EnumerableTests_RegisterTypes_Scoped()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            container.RegisterTypes<ITest1>(new[] { typeof(Test1), typeof(Test11), typeof(Test12), typeof(Test2) }, context => context.WithScopedLifetime().Register());
+
+            var regs = container.ContainerContext.RegistrationRepository.GetAllRegistrations().ToArray();
+
+            Assert.AreEqual(3, regs.Length);
+            Assert.IsTrue(regs.All(reg => reg.LifetimeManager is ScopedLifetime));
         }
 
         [TestMethod]

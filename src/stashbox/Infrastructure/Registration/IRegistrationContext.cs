@@ -34,6 +34,18 @@ namespace Stashbox.Infrastructure.Registration
         IRegistrationContext WithLifetime(ILifetime lifetime);
 
         /// <summary>
+        /// Sets a scoped lifetime for the registration.
+        /// </summary>
+        /// <returns>The <see cref="IRegistrationContext"/> which on this method was called.</returns>
+        IRegistrationContext WithScopedLifetime();
+
+        /// <summary>
+        /// Sets a singleton lifetime for the registration.
+        /// </summary>
+        /// <returns>The <see cref="IRegistrationContext"/> which on this method was called.</returns>
+        IRegistrationContext WithSingletonLifetime();
+
+        /// <summary>
         /// Sets the name of the registration.
         /// </summary>
         /// <param name="name">The name of the registration.</param>

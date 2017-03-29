@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Stashbox.Infrastructure.Registration;
 
 namespace Stashbox.Infrastructure
@@ -81,7 +82,26 @@ namespace Stashbox.Infrastructure
         IDependencyRegistrator RegisterType(Type typeFrom, Type typeTo, string name = null);
 
         /// <summary>
-        /// Registers a type into the container.
+        /// Registers types into the container.
+        /// </summary>
+        /// <typeparam name="TFrom">Type interface type.</typeparam>
+        /// <param name="types">Types to register.</param>
+        /// <param name="configurator">The configurator for the registered types.</param>
+        /// <returns>The <see cref="IDependencyRegistrator"/> which on this method was called.</returns>
+        IDependencyRegistrator RegisterTypes<TFrom>(IEnumerable<Type> types, Action<IRegistrationContext> configurator = null)
+             where TFrom : class;
+
+        /// <summary>
+        /// Registers types into the container.
+        /// </summary>
+        /// <param name="typeFrom">Type interface type.</param>
+        /// <param name="types">Types to register.</param>
+        /// <param name="configurator">The configurator for the registered types.</param>
+        /// <returns>The <see cref="IDependencyRegistrator"/> which on this method was called.</returns>
+        IDependencyRegistrator RegisterTypes(Type typeFrom, IEnumerable<Type> types, Action<IRegistrationContext> configurator = null);
+
+        /// <summary>
+        /// Register types.
         /// </summary>
         /// <typeparam name="TTo">Type that will be returned.</typeparam>
         /// <param name="name">The name of the registration.</param>

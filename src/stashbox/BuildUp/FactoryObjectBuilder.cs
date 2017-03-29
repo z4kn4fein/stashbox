@@ -56,8 +56,8 @@ namespace Stashbox.BuildUp
 
             return this.expressionBuilder.CreateFillExpression(this.containerExtensionManager, this.containerContext,
                    expr, resolutionInfo, resolveType, this.injectionParameters,
-                   this.metaInfoProvider.GetResolutionMembers(resolutionInfo, this.injectionParameters),
-                   this.metaInfoProvider.GetResolutionMethods(resolutionInfo, this.injectionParameters));
+                   this.metaInfoProvider.GetResolutionMembers(resolutionInfo),
+                   this.metaInfoProvider.GetResolutionMethods(resolutionInfo));
         }
     }
 }

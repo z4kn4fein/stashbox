@@ -28,16 +28,7 @@ namespace Stashbox.BuildUp.Resolution
         {
             var args = typeInfo.Type.GetGenericArguments();
             var wrappedType = args.Last();
-            var funcArgumentInfo = new TypeInformation
-            {
-                Type = wrappedType,
-                CustomAttributes = typeInfo.CustomAttributes,
-                ParentType = typeInfo.ParentType,
-                DependencyName = typeInfo.DependencyName,
-                HasDependencyAttribute = typeInfo.HasDependencyAttribute,
-                ParameterName = typeInfo.ParameterName,
-                IsMember = typeInfo.IsMember
-            };
+            var funcArgumentInfo = typeInfo.Clone(wrappedType);
 
             var parameters = this.PrepareExtraParameters(wrappedType, resolutionInfo, args);
             var expression = containerContext.ResolutionStrategy.BuildResolutionExpression(containerContext, resolutionInfo, funcArgumentInfo, null);
@@ -49,16 +40,7 @@ namespace Stashbox.BuildUp.Resolution
         {
             var args = typeInfo.Type.GetGenericArguments();
             var wrappedType = args.Last();
-            var funcArgumentInfo = new TypeInformation
-            {
-                Type = wrappedType,
-                CustomAttributes = typeInfo.CustomAttributes,
-                ParentType = typeInfo.ParentType,
-                DependencyName = typeInfo.DependencyName,
-                HasDependencyAttribute = typeInfo.HasDependencyAttribute,
-                ParameterName = typeInfo.ParameterName,
-                IsMember = typeInfo.IsMember
-            };
+            var funcArgumentInfo = typeInfo.Clone(wrappedType);
 
             var parameters = this.PrepareExtraParameters(wrappedType, resolutionInfo, args);
             var expressions = containerContext.ResolutionStrategy.BuildResolutionExpressions(containerContext, resolutionInfo, funcArgumentInfo);

@@ -52,5 +52,19 @@ namespace Stashbox.Entity
         /// True if the type has <see cref="DependencyAttribute"/>.
         /// </summary>
         public bool HasDependencyAttribute { get; set; }
+
+        /// <summary>
+        /// Creates a clone of this instance.
+        /// </summary>
+        /// <param name="type">The type param to override.</param>
+        /// <returns></returns>
+        public TypeInformation Clone(Type type = null)
+        {
+            var clone = (TypeInformation)this.MemberwiseClone();
+            if (type == null) return clone;
+
+            clone.Type = type;
+            return clone;
+        }
     }
 }

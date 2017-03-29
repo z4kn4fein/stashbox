@@ -22,16 +22,7 @@ namespace Stashbox.BuildUp.Resolution
 
         public override Expression GetExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo)
         {
-            var lazyArgumentInfo = new TypeInformation
-            {
-                Type = typeInfo.Type.GetGenericArguments()[0],
-                CustomAttributes = typeInfo.CustomAttributes,
-                ParentType = typeInfo.ParentType,
-                DependencyName = typeInfo.DependencyName,
-                HasDependencyAttribute = typeInfo.HasDependencyAttribute,
-                ParameterName = typeInfo.ParameterName,
-                IsMember = typeInfo.IsMember
-            };
+            var lazyArgumentInfo = typeInfo.Clone(typeInfo.Type.GetGenericArguments()[0]);
             
             var ctorParamType = Constants.FuncType.MakeGenericType(lazyArgumentInfo.Type);
             var lazyConstructor = typeInfo.Type.GetConstructor(ctorParamType);
@@ -49,17 +40,8 @@ namespace Stashbox.BuildUp.Resolution
 
         public override Expression[] GetExpressions(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo)
         {
-            var lazyArgumentInfo = new TypeInformation
-            {
-                Type = typeInfo.Type.GetGenericArguments()[0],
-                CustomAttributes = typeInfo.CustomAttributes,
-                ParentType = typeInfo.ParentType,
-                DependencyName = typeInfo.DependencyName,
-                HasDependencyAttribute = typeInfo.HasDependencyAttribute,
-                ParameterName = typeInfo.ParameterName,
-                IsMember = typeInfo.IsMember
-            };
-            
+            var lazyArgumentInfo = typeInfo.Clone(typeInfo.Type.GetGenericArguments()[0]);
+
             var ctorParamType = Constants.FuncType.MakeGenericType(lazyArgumentInfo.Type);
             var lazyConstructor = typeInfo.Type.GetConstructor(ctorParamType);
 
@@ -94,7 +76,8 @@ namespace Stashbox.BuildUp.Resolution
         private Expression CreateLazyExpressionCall(IServiceRegistration serviceRegistration, Type type, ConstructorInfo constructor, ResolutionInfo resolutionInfo)
         {
             var delegateCache = new DelegateCache(type);
-            var callExpression = Expression.Call(Expression.Constant(delegateCache), "CreateLazyDelegate", null,
+            var callExpression = Expression.Call(Expression.Constant(delegateCache), 
+                DelegateCacheMethod,
                 Expression.Constant(serviceRegistration),
                 Expression.Constant(resolutionInfo),
                 Expression.NewArrayInit(typeof(object),
@@ -106,6 +89,8 @@ namespace Stashbox.BuildUp.Resolution
 
         public override bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo) =>
             typeInfo.Type.IsClosedGenericType() && typeInfo.Type.GetGenericTypeDefinition() == typeof(Lazy<>);
+
+        private static readonly MethodInfo DelegateCacheMethod = typeof(DelegateCache).GetSingleMethod("CreateLazyDelegate");
 
         private class DelegateCache
         {

@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using Stashbox.Configuration;
 using Stashbox.BuildUp.Expressions;
 using Stashbox.Entity.Resolution;
+using Stashbox.Lifetime;
 
 namespace Stashbox.Registration
 {
@@ -83,6 +84,18 @@ namespace Stashbox.Registration
         public IRegistrationContext WithLifetime(ILifetime lifetime)
         {
             base.RegistrationContextData.Lifetime = lifetime;
+            return this;
+        }
+
+        public IRegistrationContext WithScopedLifetime()
+        {
+            base.RegistrationContextData.Lifetime = new ScopedLifetime();
+            return this;
+        }
+
+        public IRegistrationContext WithSingletonLifetime()
+        {
+            base.RegistrationContextData.Lifetime = new SingletonLifetime();
             return this;
         }
 
