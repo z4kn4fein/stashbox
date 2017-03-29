@@ -51,6 +51,15 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void EnumerableTests_RegisterTypes_Selector()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            container.RegisterTypes(new[] { typeof(Test1), typeof(Test11), typeof(Test12) }, type => type == typeof(Test12));
+            
+            Assert.IsNotNull(container.Resolve<Test12>());
+        }
+
+        [TestMethod]
         public void EnumerableTests_RegisterTypes_Scoped()
         {
             IStashboxContainer container = new StashboxContainer();

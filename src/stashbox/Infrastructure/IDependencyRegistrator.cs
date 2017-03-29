@@ -101,6 +101,15 @@ namespace Stashbox.Infrastructure
         IDependencyRegistrator RegisterTypes(Type typeFrom, IEnumerable<Type> types, Action<IRegistrationContext> configurator = null);
 
         /// <summary>
+        /// Registers types into the container.
+        /// </summary>
+        /// <param name="types">Types to register.</param>
+        /// <param name="selector">The type selector.</param>
+        /// <param name="configurator">The configurator for the registered types.</param>
+        /// <returns>The <see cref="IDependencyRegistrator"/> which on this method was called.</returns>
+        IDependencyRegistrator RegisterTypes(IEnumerable<Type> types, Func<Type, bool> selector, Action<IRegistrationContext> configurator = null);
+
+        /// <summary>
         /// Register types.
         /// </summary>
         /// <typeparam name="TTo">Type that will be returned.</typeparam>

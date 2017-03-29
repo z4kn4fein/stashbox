@@ -217,6 +217,25 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
+        public IDependencyRegistrator RegisterTypes(IEnumerable<Type> types, Func<Type, bool> selector, Action<IRegistrationContext> configurator = null)
+        {
+            Shield.EnsureNotNull(types, nameof(types));
+            Shield.EnsureNotNull(selector, nameof(selector));
+
+            foreach (var type in types.Where(selector))
+            {
+                var context = this.PrepareType(type);
+
+                if (configurator != null)
+                    configurator(context);
+                else
+                    context.Register();
+            }
+
+            return this;
+        }
+
+        /// <inheritdoc />
         public IDependencyRegistrator RegisterTypes(Type typeFrom, IEnumerable<Type> types, Action<IRegistrationContext> configurator = null)
         {
             Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
