@@ -19,8 +19,6 @@ namespace Stashbox.MetaInfo
         private readonly RegistrationContextData registrationData;
         private readonly InjectionParameter[] injectionParameters;
 
-        public Type TypeTo { get; }
-
         public bool HasGenericTypeConstraints => this.metaInformation.GenericTypeConstraints.Count > 0;
 
         private readonly MetaInformation metaInformation;
@@ -28,9 +26,6 @@ namespace Stashbox.MetaInfo
         public MetaInfoProvider(IContainerContext containerContext, RegistrationContextData registrationData, Type typeTo, InjectionParameter[] injectionParameters = null)
         {
             this.metaInformation = GetOrCreateMetaInfo(typeTo);
-
-            this.TypeTo = typeTo;
-            
             this.containerContext = containerContext;
             this.registrationData = registrationData;
             this.injectionParameters = injectionParameters;

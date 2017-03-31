@@ -15,7 +15,8 @@ namespace Stashbox.Entity
         /// Static factory for <see cref="ResolutionInfo"/>.
         /// </summary>
         /// <returns>A new <see cref="ResolutionInfo"/> instance.</returns>
-        public static ResolutionInfo New(IResolutionScope scope, bool nullResultAllowed = false) => new ResolutionInfo(scope, nullResultAllowed);
+        public static ResolutionInfo New(IResolutionScope scope, IResolutionScope rootScope, bool nullResultAllowed = false) => 
+            new ResolutionInfo(scope, rootScope, nullResultAllowed);
 
         /// <summary>
         /// The extra parameter expressions.
@@ -35,13 +36,16 @@ namespace Stashbox.Entity
 
         internal IResolutionScope ResolutionScope { get; }
 
-        internal ResolutionInfo(IResolutionScope scope, bool nullResultAllowed = false)
+        internal IResolutionScope RootScope { get; }
+
+        internal ResolutionInfo(IResolutionScope scope, IResolutionScope rootScope, bool nullResultAllowed = false)
         {
             this.CircularDependencyBarrier = new SyncTree<Type>();
             this.ExpressionOverrides = new SyncTree<Type, Expression>();
             this.CurrentlyDecoratingTypes = new SyncTree<Type>();
             this.NullResultAllowed = nullResultAllowed;
             this.ResolutionScope = scope;
+            this.RootScope = rootScope;
         }
     }
 }

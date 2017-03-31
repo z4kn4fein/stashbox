@@ -83,17 +83,15 @@ namespace Stashbox.Infrastructure.Registration
         /// Sets a dependant target condition for the registration.
         /// </summary>
         /// <typeparam name="TTarget">The type of the dependant.</typeparam>
-        /// <param name="dependencyName">The name of the dependency.</param>
         /// <returns>The <see cref="IRegistrationContext"/> which on this method was called.</returns>
-        IRegistrationContext WhenDependantIs<TTarget>(string dependencyName = null) where TTarget : class;
+        IRegistrationContext WhenDependantIs<TTarget>() where TTarget : class;
 
         /// <summary>
         /// Sets a dependant target condition for the registration.
         /// </summary>
         /// <param name="targetType">The type of the dependant.</param>
-        /// <param name="dependencyName">The name of the dependency.</param>
         /// <returns>The <see cref="IRegistrationContext"/> which on this method was called.</returns>
-        IRegistrationContext WhenDependantIs(Type targetType, string dependencyName = null);
+        IRegistrationContext WhenDependantIs(Type targetType);
 
         /// <summary>
         /// Sets an attribute condition for the registration.
@@ -123,11 +121,11 @@ namespace Stashbox.Infrastructure.Registration
         IRegistrationContext WithoutDisposalTracking();
 
         /// <summary>
-        /// Creates a service registration from the registration context.
+        /// Creates an <see cref="IServiceRegistration"/>.
         /// </summary>
-        /// <param name="isDecorator">True if we are requesting a decorator registration, otherwise false.</param>
-        /// <returns>The created service registration.</returns>
-        IServiceRegistration CreateServiceRegistration(bool isDecorator = false);
+        /// <param name="isDecorator">True if the requested registration is a decorator.</param>
+        /// <returns>The created <see cref="IServiceRegistration"/>.</returns>
+        IServiceRegistration CreateServiceRegistration(bool isDecorator);
 
         /// <summary>
         /// Registers the registration into the container.

@@ -12,17 +12,19 @@ namespace Stashbox.Resolution
     {
         private readonly IContainerContext containerContext;
         private readonly IResolverSelector resolverSelector;
+        private readonly IResolutionScope rootScope;
 
-        public ActivationContext(IContainerContext containerContext, IResolverSelector resolverSelector)
+        public ActivationContext(IContainerContext containerContext, IResolverSelector resolverSelector, IResolutionScope rootScope)
         {
             this.containerContext = containerContext;
             this.resolverSelector = resolverSelector;
+            this.rootScope = rootScope;
         }
 
         public object Activate(Type type, IResolutionScope resolutionScope, string name = null, bool nullResultAllowed = false)
         {
             var cachedFactory = this.containerContext.DelegateRepository.GetDelegateCacheOrDefault(type, name);
-            return cachedFactory != null ? cachedFactory(resolutionScope) : this.Activate(ResolutionInfo.New(resolutionScope, nullResultAllowed), type, name);
+            return cachedFactory != null ? cachedFactory(resolutionScope) : this.Activate(ResolutionInfo.New(resolutionScope, this.rootScope, nullResultAllowed), type, name);
         }
 
         public Delegate ActivateFactory(Type type, Type[] parameterTypes, IResolutionScope resolutionScope, string name = null, bool nullResultAllowed = false)
@@ -61,7 +63,7 @@ namespace Stashbox.Resolution
 
         private Delegate ActivateFactoryDelegate(Type type, Type[] parameterTypes, IResolutionScope resolutionScope, string name, bool nullResultAllowed)
         {
-            var resolutionInfo = new ResolutionInfo(resolutionScope, nullResultAllowed)
+            var resolutionInfo = new ResolutionInfo(resolutionScope, this.rootScope, nullResultAllowed)
             {
                 ParameterExpressions = parameterTypes.Length == 0 ? null : parameterTypes.Select(Expression.Parameter).ToArray()
             };

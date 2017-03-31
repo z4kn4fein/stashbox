@@ -2,25 +2,32 @@
 using System;
 using System.Linq.Expressions;
 using Stashbox.Infrastructure;
+using Stashbox.Infrastructure.Registration;
 
 namespace Stashbox.BuildUp
 {
     internal class InstanceObjectBuilder : ObjectBuilderBase
     {
-        private readonly Expression expression;
+        private volatile Expression expression;
+        private readonly object syncObject = new object();
 
-        public InstanceObjectBuilder(object instance, IContainerContext containerContext, bool isDecorator, bool shouldHandleDisposal)
-            : base(containerContext, isDecorator, shouldHandleDisposal)
+        public InstanceObjectBuilder(IContainerContext containerContext)
+            : base(containerContext)
         {
-            this.expression = Expression.Constant(instance);
-
-            if (shouldHandleDisposal && instance is IDisposable disposable)
-                containerContext.RootScope.AddDisposableTracking(disposable);
         }
 
-        protected override Expression GetExpressionInternal(ResolutionInfo resolutionInfo, Type resolveType)
+        protected override Expression GetExpressionInternal(IServiceRegistration serviceRegistration, ResolutionInfo resolutionInfo, Type resolveType)
         {
-            return this.expression;
+            if (this.expression != null) return this.expression;
+            lock (this.syncObject)
+            {
+                if (this.expression != null) return this.expression;
+
+                if (serviceRegistration.ShouldHandleDisposal && serviceRegistration.RegistrationContext.ExistingInstance is IDisposable disposable)
+                    resolutionInfo.RootScope.AddDisposableTracking(disposable);
+
+                return this.expression = Expression.Constant(serviceRegistration.RegistrationContext.ExistingInstance);
+            }
         }
 
         public override bool HandlesObjectDisposal => true;

@@ -4,9 +4,8 @@ using System;
 
 namespace Stashbox.Infrastructure
 {
-    internal interface IMetaInfoProvider
+    public interface IMetaInfoProvider
     {
-        Type TypeTo { get; }
         bool HasGenericTypeConstraints { get; }
         bool TryChooseConstructor(out ResolutionConstructor constructor, ResolutionInfo resolutionInfo);
         ResolutionMethod[] GetResolutionMethods(ResolutionInfo resolutionInfo);

@@ -74,20 +74,20 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public IDependencyRegistrator RegisterInstance<TFrom>(object instance, string name = null) where TFrom : class
+        public IDependencyRegistrator RegisterInstance<TFrom>(object instance, string name = null, bool withoutDisposalTracking = false) where TFrom : class
         {
             Shield.EnsureNotNull(instance, nameof(instance));
 
-            this.RegisterInstanceInternal(instance, name, typeof(TFrom));
+            this.RegisterInstanceInternal(instance, name, typeof(TFrom), withoutDisposalTracking);
             return this;
         }
 
         /// <inheritdoc />
-        public IDependencyRegistrator RegisterInstance(object instance, string name = null)
+        public IDependencyRegistrator RegisterInstance(object instance, string name = null, bool withoutDisposalTracking = false)
         {
             Shield.EnsureNotNull(instance, nameof(instance));
 
-            this.RegisterInstanceInternal(instance, name, instance.GetType());
+            this.RegisterInstanceInternal(instance, name, instance.GetType(), withoutDisposalTracking);
             return this;
         }
 
@@ -113,10 +113,8 @@ namespace Stashbox
         /// <inheritdoc />
         public IRegistrationContext PrepareType<TFrom, TTo>()
             where TFrom : class
-            where TTo : class, TFrom
-        {
-            return new RegistrationContext(typeof(TFrom), typeof(TTo), this.ContainerContext, this.expressionBuilder, this.containerExtensionManager);
-        }
+            where TTo : class, TFrom =>
+            this.ServiceRegistrator.PrepareContext(typeof(TFrom), typeof(TTo));
 
         /// <inheritdoc />
         public IRegistrationContext PrepareType<TFrom>(Type typeTo)
@@ -124,7 +122,7 @@ namespace Stashbox
         {
             Shield.EnsureNotNull(typeTo, nameof(typeTo));
 
-            return new RegistrationContext(typeof(TFrom), typeTo, this.ContainerContext, this.expressionBuilder, this.containerExtensionManager);
+            return this.ServiceRegistrator.PrepareContext(typeof(TFrom), typeTo);
         }
 
         /// <inheritdoc />
@@ -133,7 +131,7 @@ namespace Stashbox
             Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
             Shield.EnsureNotNull(typeTo, nameof(typeTo));
 
-            return new RegistrationContext(typeFrom, typeTo, this.ContainerContext, this.expressionBuilder, this.containerExtensionManager);
+            return this.ServiceRegistrator.PrepareContext(typeFrom, typeTo);
         }
 
         /// <inheritdoc />
@@ -141,7 +139,7 @@ namespace Stashbox
              where TTo : class
         {
             var type = typeof(TTo);
-            return new RegistrationContext(type, type, this.ContainerContext, this.expressionBuilder, this.containerExtensionManager);
+            return this.ServiceRegistrator.PrepareContext(type, type);
         }
 
         /// <inheritdoc />
@@ -149,7 +147,7 @@ namespace Stashbox
         {
             Shield.EnsureNotNull(typeTo, nameof(typeTo));
 
-            return new RegistrationContext(typeTo, typeTo, this.ContainerContext, this.expressionBuilder, this.containerExtensionManager);
+            return this.ServiceRegistrator.PrepareContext(typeTo, typeTo);
         }
 
         /// <inheritdoc />
@@ -258,22 +256,30 @@ namespace Stashbox
         {
             var regName = NameGenerator.GetRegistrationName(typeFrom, typeTo, keyName);
             var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, RegistrationContextData.Empty, typeTo);
-            var registration = new ServiceRegistration(typeFrom, typeTo, this.ContainerContext, null,
-                new WireUpObjectBuilder(instance, this.containerExtensionManager, 
-                this.ContainerContext, metaInfoProvider, this.expressionBuilder, null, false, !withoutDisposalTracking), 
-                metaInfoProvider);
+
+            var data = RegistrationContextData.Empty;
+            data.ExistingInstance = instance;
+
+            var registration = new ServiceRegistration(typeFrom, typeTo,
+                this.ContainerContext.ReserveRegistrationNumber(), null,
+                this.objectBuilderSelector.Get(ObjectBuilder.WireUp), metaInfoProvider, data,
+                false, !withoutDisposalTracking);
 
             this.registrationRepository.AddOrUpdateRegistration(typeFrom, regName, false, registration);
             this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.ContainerContext, typeTo, typeFrom);
         }
 
-        private void RegisterInstanceInternal(object instance, string keyName, Type type)
+        private void RegisterInstanceInternal(object instance, string keyName, Type type, bool withoutDisposalTracking)
         {
             var instanceType = instance.GetType();
             var regName = NameGenerator.GetRegistrationName(instanceType, instanceType, keyName);
             var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, RegistrationContextData.Empty, instanceType);
-            var registration = new ServiceRegistration(type, instanceType, this.ContainerContext, null,
-                new InstanceObjectBuilder(instance, this.ContainerContext, false, true), metaInfoProvider);
+
+            var data = RegistrationContextData.Empty;
+            data.ExistingInstance = instance;
+
+            var registration = new ServiceRegistration(type, instanceType, this.ContainerContext.ReserveRegistrationNumber(), null,
+                this.objectBuilderSelector.Get(ObjectBuilder.Instance), metaInfoProvider, data, false, !withoutDisposalTracking);
 
             this.registrationRepository.AddOrUpdateRegistration(type, regName, false, registration);
             this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.ContainerContext, instanceType, type);

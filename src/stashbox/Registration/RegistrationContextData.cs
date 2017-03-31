@@ -18,6 +18,16 @@ namespace Stashbox.Registration
         public static RegistrationContextData Empty = new RegistrationContextData();
 
         /// <summary>
+        /// The service type.
+        /// </summary>
+        public Type ServiceType { get; internal set; }
+
+        /// <summary>
+        /// The implementation type.
+        /// </summary>
+        public Type ImplementationType { get; internal set; }
+
+        /// <summary>
         /// Name of the registration.
         /// </summary>
         public string Name { get; internal set; }

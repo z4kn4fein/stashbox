@@ -1,8 +1,5 @@
-﻿using Stashbox.BuildUp.Expressions;
-using Stashbox.Entity;
+﻿using Stashbox.Entity;
 using Stashbox.Infrastructure;
-using Stashbox.Infrastructure.ContainerExtension;
-using Stashbox.Registration;
 using System;
 using System.Linq.Expressions;
 using Stashbox.Infrastructure.Registration;
@@ -11,43 +8,31 @@ namespace Stashbox.BuildUp
 {
     internal class GenericTypeObjectBuilder : ObjectBuilderBase
     {
-        private readonly RegistrationContextData registrationContextData;
-        private readonly IContainerExtensionManager containerExtensionManager;
-        private readonly IMetaInfoProvider metaInfoProvider;
         private readonly IContainerContext containerContext;
-        private readonly IExpressionBuilder expressionBuilder;
-        private readonly bool isDecorator;
 
-        public GenericTypeObjectBuilder(RegistrationContextData registrationContextData, IContainerContext containerContext,
-            IMetaInfoProvider metaInfoProvider, IContainerExtensionManager containerExtensionManager, 
-            IExpressionBuilder expressionBuilder, bool isDecorator, bool shouldHandleDisposal)
-            : base(containerContext, isDecorator, shouldHandleDisposal)
+        public GenericTypeObjectBuilder(IContainerContext containerContext)
+            : base(containerContext)
         {
-            this.registrationContextData = registrationContextData;
-            this.metaInfoProvider = metaInfoProvider;
             this.containerContext = containerContext;
-            this.containerExtensionManager = containerExtensionManager;
-            this.expressionBuilder = expressionBuilder;
-            this.isDecorator = isDecorator;
         }
 
-        protected override Expression GetExpressionInternal(ResolutionInfo resolutionInfo, Type resolveType)
+        protected override Expression GetExpressionInternal(IServiceRegistration serviceRegistration, ResolutionInfo resolutionInfo, Type resolveType)
         {
-            var genericType = this.metaInfoProvider.TypeTo.MakeGenericType(resolveType.GetGenericArguments());
-            var registration = this.RegisterConcreteGenericType(resolveType, genericType);
+            var genericType = serviceRegistration.ImplementationType.MakeGenericType(resolveType.GetGenericArguments());
+            var registration = this.RegisterConcreteGenericType(serviceRegistration, resolveType, genericType);
             return registration.GetExpression(resolutionInfo, resolveType);
         }
 
-        private IServiceRegistration RegisterConcreteGenericType(Type resolveType, Type genericType)
+        private IServiceRegistration RegisterConcreteGenericType(IServiceRegistration serviceRegistration, Type resolveType, Type genericType)
         {
-            var registrationContext = new RegistrationContext(resolveType, genericType, this.containerContext, 
-                this.expressionBuilder, this.containerExtensionManager);
-            var newData = this.registrationContextData.CreateCopy();
+            var newData = serviceRegistration.RegistrationContext.CreateCopy();
             newData.Name = null;
 
-            if (!this.isDecorator) return registrationContext.InitWithExistingData(newData);
+            var registration = this.containerContext.Container.ServiceRegistrator.PrepareContext(resolveType,
+                genericType, newData).CreateServiceRegistration(serviceRegistration.IsDecorator);
 
-            var registration = registrationContext.CreateServiceRegistration(newData, this.isDecorator);
+            if (!serviceRegistration.IsDecorator) return registration;
+            
             this.containerContext.DecoratorRepository.AddDecorator(resolveType, registration);
             return registration;
         }

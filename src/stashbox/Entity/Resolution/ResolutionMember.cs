@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace Stashbox.Entity.Resolution
 {
-    internal class ResolutionMember
+    public class ResolutionMember
     {
         public Expression Expression { get; set; }
         public MemberInfo MemberInfo { get; set; }

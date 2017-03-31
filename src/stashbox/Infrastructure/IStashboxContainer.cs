@@ -1,6 +1,7 @@
 ﻿using Stashbox.Infrastructure.ContainerExtension;
 using Stashbox.Infrastructure.Resolution;
 using System;
+using Stashbox.Infrastructure.Registration;
 
 namespace Stashbox.Infrastructure
 {
@@ -35,6 +36,11 @@ namespace Stashbox.Infrastructure
         /// Stores the container context.
         /// </summary>
         IContainerContext ContainerContext { get; }
+
+        /// <summary>
+        /// The service registrator.
+        /// </summary>
+        IServiceRegistrator ServiceRegistrator { get; }
 
         /// <summary>
         /// Checks a type can be resolved by the container.

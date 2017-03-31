@@ -1,58 +1,35 @@
 ﻿using Stashbox.Entity;
 using Stashbox.Infrastructure;
-using Stashbox.Infrastructure.ContainerExtension;
 using System;
 using System.Linq.Expressions;
 using Stashbox.BuildUp.Expressions;
+using Stashbox.Infrastructure.Registration;
 
 namespace Stashbox.BuildUp
 {
     internal class FactoryObjectBuilder : ObjectBuilderBase
     {
-        private readonly Func<IDependencyResolver, object> containerFactory;
-        private readonly Func<object> singleFactory;
-        private readonly IMetaInfoProvider metaInfoProvider;
-        private readonly InjectionParameter[] injectionParameters;
         private readonly IExpressionBuilder expressionBuilder;
-
-        private FactoryObjectBuilder(IContainerContext containerContext,
-            IMetaInfoProvider metaInfoProvider, IExpressionBuilder expressionBuilder,
-            InjectionParameter[] injectionParameters, bool isDecorator, bool shouldHandleDisposal)
-            : base(containerContext, isDecorator, shouldHandleDisposal)
+        
+        public FactoryObjectBuilder(IContainerContext containerContext, IExpressionBuilder expressionBuilder)
+            : base(containerContext)
         {
-            this.metaInfoProvider = metaInfoProvider;
-            this.injectionParameters = injectionParameters;
             this.expressionBuilder = expressionBuilder;
         }
-
-        public FactoryObjectBuilder(Func<IDependencyResolver, object> containerFactory, IContainerContext containerContext,
-            IMetaInfoProvider metaInfoProvider, IExpressionBuilder expressionBuilder, 
-            InjectionParameter[] injectionParameters, bool isDecorator, bool shouldHandleDisposal)
-            : this(containerContext, metaInfoProvider, expressionBuilder, injectionParameters, isDecorator, shouldHandleDisposal)
-        {
-            this.containerFactory = containerFactory;
-        }
-
-        public FactoryObjectBuilder(Func<object> factory, IContainerContext containerContext,
-            IMetaInfoProvider metaInfoProvider, IExpressionBuilder expressionBuilder, InjectionParameter[] injectionParameters, bool isDecorator, bool shouldHandleDisposal)
-            : this(containerContext, metaInfoProvider, expressionBuilder, injectionParameters, isDecorator, shouldHandleDisposal)
-        {
-            this.singleFactory = factory;
-        }
-
-        protected override Expression GetExpressionInternal(ResolutionInfo resolutionInfo, Type resolveType)
+        
+        protected override Expression GetExpressionInternal(IServiceRegistration serviceRegistration, ResolutionInfo resolutionInfo, Type resolveType)
         {
             Expression<Func<IDependencyResolver, object>> lambda;
-            if (this.containerFactory != null)
-                lambda = scope => this.containerFactory(scope);
+            if (serviceRegistration.RegistrationContext.ContainerFactory != null)
+                lambda = scope => serviceRegistration.RegistrationContext.ContainerFactory(scope);
             else
-                lambda = scope => this.singleFactory();
+                lambda = scope => serviceRegistration.RegistrationContext.SingleFactory();
             
             var expr = Expression.Invoke(lambda, Expression.Convert(Constants.ScopeExpression, Constants.ResolverType));
 
-            return this.expressionBuilder.CreateFillExpression(expr, resolutionInfo, resolveType, this.injectionParameters,
-                   this.metaInfoProvider.GetResolutionMembers(resolutionInfo),
-                   this.metaInfoProvider.GetResolutionMethods(resolutionInfo));
+            return this.expressionBuilder.CreateFillExpression(expr, resolutionInfo, resolveType, serviceRegistration.RegistrationContext.InjectionParameters,
+                   serviceRegistration.MetaInfoProvider.GetResolutionMembers(resolutionInfo),
+                   serviceRegistration.MetaInfoProvider.GetResolutionMethods(resolutionInfo));
         }
     }
 }

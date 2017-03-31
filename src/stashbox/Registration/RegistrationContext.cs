@@ -1,135 +1,137 @@
 ﻿using Stashbox.Entity;
 using Stashbox.Infrastructure;
-using Stashbox.Infrastructure.ContainerExtension;
 using Stashbox.Infrastructure.Registration;
 using System;
 using System.Collections.Generic;
 using Stashbox.Configuration;
-using Stashbox.BuildUp.Expressions;
 using Stashbox.Entity.Resolution;
 using Stashbox.Lifetime;
 
 namespace Stashbox.Registration
 {
-    internal class RegistrationContext : RegistrationContextBase, IRegistrationContext
+    internal class RegistrationContext : IRegistrationContext, IRegistrationContextMeta
     {
-        public RegistrationContext(Type typeFrom, Type typeTo, IContainerContext containerContext,
-            IExpressionBuilder expressionBuilder, IContainerExtensionManager containerExtensionManager)
-            : base(typeFrom, typeTo, containerContext, expressionBuilder, containerExtensionManager)
+        private readonly IServiceRegistrator registrator;
+
+        public Type ServiceType { get; }
+
+        public Type ImplementationType { get; }
+
+        public RegistrationContextData Context { get; }
+
+        public RegistrationContext(Type serviceType, Type implementationType, IServiceRegistrator registrator)
+            : this(serviceType, implementationType, registrator, RegistrationContextData.Empty)
         { }
 
-        public IStashboxContainer Register()
+        public RegistrationContext(Type serviceType, Type implementationType, IServiceRegistrator registrator, RegistrationContextData registrationContextData)
         {
-            base.CompleteRegistration();
-            base.ContainerExtensionManager.ExecuteOnRegistrationExtensions(this.ContainerContext, base.TypeTo, base.TypeFrom, base.RegistrationContextData.InjectionParameters);
-            return this.ContainerContext.Container;
+            this.registrator = registrator;
+            this.ServiceType = serviceType;
+            this.ImplementationType = implementationType;
+            this.Context = registrationContextData;
         }
 
-        public IStashboxContainer ReMap()
-        {
-            base.CompleteRegistration(true);
-            base.ContainerExtensionManager.ExecuteOnRegistrationExtensions(this.ContainerContext, base.TypeTo, base.TypeFrom, base.RegistrationContextData.InjectionParameters);
+        public IStashboxContainer Register() => registrator.Register(this, false);
 
-            this.ContainerContext.DelegateRepository.InvalidateDelegateCache();
-            return this.ContainerContext.Container;
-        }
+        public IStashboxContainer ReMap() => this.registrator.ReMap(this);
 
-        public IRegistrationContext WhenDependantIs<TTarget>(string dependencyName = null) where TTarget : class
+        public IRegistrationContext WhenDependantIs<TTarget>() where TTarget : class
         {
-            base.RegistrationContextData.TargetTypeCondition = typeof(TTarget);
+            this.Context.TargetTypeCondition = typeof(TTarget);
             return this;
         }
 
-        public IRegistrationContext WhenDependantIs(Type targetType, string dependencyName = null)
+        public IRegistrationContext WhenDependantIs(Type targetType)
         {
-            base.RegistrationContextData.TargetTypeCondition = targetType;
+            this.Context.TargetTypeCondition = targetType;
             return this;
         }
 
         public IRegistrationContext WhenHas<TAttribute>() where TAttribute : Attribute
         {
-            base.RegistrationContextData.AttributeConditions.Add(typeof(TAttribute));
+            this.Context.AttributeConditions.Add(typeof(TAttribute));
             return this;
         }
 
         public IRegistrationContext WhenHas(Type attributeType)
         {
-            base.RegistrationContextData.AttributeConditions.Add(attributeType);
+            this.Context.AttributeConditions.Add(attributeType);
             return this;
         }
 
         public IRegistrationContext When(Func<TypeInformation, bool> resolutionCondition)
         {
-            base.RegistrationContextData.ResolutionCondition = resolutionCondition;
+            this.Context.ResolutionCondition = resolutionCondition;
             return this;
         }
 
         public IRegistrationContext WithFactory(Func<IDependencyResolver, object> containerFactory)
         {
-            base.RegistrationContextData.ContainerFactory = containerFactory;
+            this.Context.ContainerFactory = containerFactory;
             return this;
         }
         public IRegistrationContext WithFactory(Func<object> singleFactory)
         {
-            base.RegistrationContextData.SingleFactory = singleFactory;
+            this.Context.SingleFactory = singleFactory;
             return this;
         }
 
         public IRegistrationContext WithInjectionParameters(params InjectionParameter[] injectionParameters)
         {
-            base.RegistrationContextData.InjectionParameters = injectionParameters;
+            this.Context.InjectionParameters = injectionParameters;
             return this;
         }
 
         public IRegistrationContext WithLifetime(ILifetime lifetime)
         {
-            base.RegistrationContextData.Lifetime = lifetime;
+            this.Context.Lifetime = lifetime;
             return this;
         }
 
         public IRegistrationContext WithScopedLifetime()
         {
-            base.RegistrationContextData.Lifetime = new ScopedLifetime();
+            this.Context.Lifetime = new ScopedLifetime();
             return this;
         }
 
         public IRegistrationContext WithSingletonLifetime()
         {
-            base.RegistrationContextData.Lifetime = new SingletonLifetime();
+            this.Context.Lifetime = new SingletonLifetime();
             return this;
         }
 
         public IRegistrationContext WithName(string name)
         {
-            base.RegistrationContextData.Name = name;
+            this.Context.Name = name;
             return this;
         }
 
         public IRegistrationContext WithInstance(object instance)
         {
-            base.RegistrationContextData.ExistingInstance = instance;
+            this.Context.ExistingInstance = instance;
             return this;
         }
 
         public IRegistrationContext WithAutoMemberInjection(Rules.AutoMemberInjection rule = Rules.AutoMemberInjection.PropertiesWithPublicSetter)
         {
-            base.RegistrationContextData.AutoMemberInjectionEnabled = true;
-            base.RegistrationContextData.AutoMemberInjectionRule = rule;
+            this.Context.AutoMemberInjectionEnabled = true;
+            this.Context.AutoMemberInjectionRule = rule;
             return this;
         }
 
         public IRegistrationContext WithConstructorSelectionRule(Func<IEnumerable<ResolutionConstructor>, ResolutionConstructor> rule)
         {
-            base.RegistrationContextData.ConstructorSelectionRule = rule;
-            return this;
-        }
-        
-        public IRegistrationContext WithoutDisposalTracking()
-        {
-            this.RegistrationContextData.IsLifetimeExternallyOwned = true;
+            this.Context.ConstructorSelectionRule = rule;
             return this;
         }
 
-        public new IServiceRegistration CreateServiceRegistration(bool isDecorator = false) => base.CreateServiceRegistration(isDecorator);
+        public IRegistrationContext WithoutDisposalTracking()
+        {
+            this.Context.IsLifetimeExternallyOwned = true;
+            return this;
+        }
+
+        public IServiceRegistration CreateServiceRegistration(bool isDecorator) =>
+            this.registrator.CreateServiceRegistration(this, isDecorator);
     }
 }

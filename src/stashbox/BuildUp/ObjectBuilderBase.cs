@@ -2,30 +2,27 @@
 using System.Linq.Expressions;
 using Stashbox.Entity;
 using Stashbox.Infrastructure;
+using Stashbox.Infrastructure.Registration;
 
 namespace Stashbox.BuildUp
 {
     internal abstract class ObjectBuilderBase : IObjectBuilder
     {
         private readonly IContainerContext containerContext;
-        private readonly bool isDecorator;
-        private readonly bool shouldHandleDisposal;
 
-        protected ObjectBuilderBase(IContainerContext containerContext, bool isDecorator, bool shouldHandleDisposal)
+        protected ObjectBuilderBase(IContainerContext containerContext)
         {
             this.containerContext = containerContext;
-            this.isDecorator = isDecorator;
-            this.shouldHandleDisposal = shouldHandleDisposal;
         }
 
-        public Expression GetExpression(ResolutionInfo resolutionInfo, Type resolveType)
+        public Expression GetExpression(IServiceRegistration serviceRegistration, ResolutionInfo resolutionInfo, Type resolveType)
         {
-            if (this.isDecorator)
-                return this.GetExpressionAndHandleDisposal(resolutionInfo, resolveType);
+            if (serviceRegistration.IsDecorator)
+                return this.GetExpressionAndHandleDisposal(serviceRegistration, resolutionInfo, resolveType);
 
             var decoratedType = resolutionInfo.CurrentlyDecoratingTypes.GetOrDefault(resolveType.GetHashCode());
             if (decoratedType != null)
-                return this.GetExpressionAndHandleDisposal(resolutionInfo, resolveType);
+                return this.GetExpressionAndHandleDisposal(serviceRegistration, resolutionInfo, resolveType);
 
             var decorators = this.containerContext.DecoratorRepository.GetDecoratorsOrDefault(resolveType);
             if (decorators == null)
@@ -34,14 +31,14 @@ namespace Stashbox.BuildUp
                 {
                     decorators = this.containerContext.DecoratorRepository.GetDecoratorsOrDefault(resolveType.GetGenericTypeDefinition());
                     if (decorators == null)
-                        return this.GetExpressionAndHandleDisposal(resolutionInfo, resolveType);
+                        return this.GetExpressionAndHandleDisposal(serviceRegistration, resolutionInfo, resolveType);
                 }
                 else
-                    return this.GetExpressionAndHandleDisposal(resolutionInfo, resolveType);
+                    return this.GetExpressionAndHandleDisposal(serviceRegistration, resolutionInfo, resolveType);
             }
 
             resolutionInfo.CurrentlyDecoratingTypes.AddOrUpdate(resolveType.GetHashCode(), resolveType);
-            var expression = this.GetExpressionAndHandleDisposal(resolutionInfo, resolveType);
+            var expression = this.GetExpressionAndHandleDisposal(serviceRegistration, resolutionInfo, resolveType);
 
             if (expression == null)
                 return null;
@@ -58,18 +55,18 @@ namespace Stashbox.BuildUp
             return expression;
         }
 
-        private Expression GetExpressionAndHandleDisposal(ResolutionInfo resolutionInfo, Type resolveType)
+        private Expression GetExpressionAndHandleDisposal(IServiceRegistration serviceRegistration, ResolutionInfo resolutionInfo, Type resolveType)
         {
-            var expr = this.GetExpressionInternal(resolutionInfo, resolveType);
+            var expr = this.GetExpressionInternal(serviceRegistration, resolutionInfo, resolveType);
             
-            if (expr == null || !this.shouldHandleDisposal || this.HandlesObjectDisposal || !expr.Type.IsDisposable())
+            if (expr == null || !serviceRegistration.ShouldHandleDisposal || this.HandlesObjectDisposal || !expr.Type.IsDisposable())
                 return expr;
 
             var method = Constants.AddDisposalMethod.MakeGenericMethod(expr.Type);
             return Expression.Call(Constants.ScopeExpression, method, expr);
         }
 
-        protected abstract Expression GetExpressionInternal(ResolutionInfo resolutionInfo, Type resolveType);
+        protected abstract Expression GetExpressionInternal(IServiceRegistration serviceRegistration, ResolutionInfo resolutionInfo, Type resolveType);
 
         public virtual bool HandlesObjectDisposal => false;
     }

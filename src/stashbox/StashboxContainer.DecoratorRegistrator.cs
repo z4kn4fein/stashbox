@@ -1,7 +1,6 @@
 ﻿using System;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.Registration;
-using Stashbox.Registration;
 using Stashbox.Utils;
 
 namespace Stashbox
@@ -9,21 +8,15 @@ namespace Stashbox
     public partial class StashboxContainer
     {
         /// <inheritdoc />
-        public IDecoratorRegistrationContext PrepareDecorator<TFrom, TTo>() where TFrom : class where TTo : class, TFrom
-        {
-            var typeFrom = typeof(TFrom);
-            return new DecoratorRegistrationContext(new RegistrationContext(typeFrom, typeof(TTo), 
-                this.ContainerContext, this.expressionBuilder, this.containerExtensionManager), this.ContainerContext, typeFrom);
-        }
+        public IDecoratorRegistrationContext PrepareDecorator<TFrom, TTo>() where TFrom : class where TTo : class, TFrom =>
+            this.ServiceRegistrator.PrepareDecoratorContext(typeof(TFrom), typeof(TTo));
 
         /// <inheritdoc />
         public IDecoratorRegistrationContext PrepareDecorator<TFrom>(Type typeTo) where TFrom : class
         {
             Shield.EnsureNotNull(typeTo, nameof(typeTo));
-
-            var typeFrom = typeof(TFrom);
-            return new DecoratorRegistrationContext(new RegistrationContext(typeFrom, typeTo, 
-                this.ContainerContext, this.expressionBuilder, this.containerExtensionManager), this.ContainerContext, typeFrom);
+            
+            return this.ServiceRegistrator.PrepareDecoratorContext(typeof(TFrom), typeTo);
         }
 
         /// <inheritdoc />
@@ -32,8 +25,7 @@ namespace Stashbox
             Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
             Shield.EnsureNotNull(typeTo, nameof(typeTo));
 
-            return new DecoratorRegistrationContext(new RegistrationContext(typeFrom, typeTo,
-                this.ContainerContext, this.expressionBuilder, this.containerExtensionManager), this.ContainerContext, typeFrom);
+            return this.ServiceRegistrator.PrepareDecoratorContext(typeFrom, typeTo);
         }
 
         /// <inheritdoc />
