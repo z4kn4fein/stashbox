@@ -53,14 +53,12 @@ namespace Stashbox
         }
 
         internal StashboxContainer(IStashboxContainer parentContainer, IContainerExtensionManager containerExtensionManager,
-            IResolverSelector resolverSelector, IServiceRegistrator serviceRegistrator, IObjectBuilderSelector objectBuilderSelector)
+            IResolverSelector resolverSelector)
         {
             this.disposed = new AtomicBool();
             this.ParentContainer = parentContainer;
             this.containerExtensionManager = containerExtensionManager;
             this.resolverSelector = resolverSelector;
-            this.ServiceRegistrator = serviceRegistrator;
-            this.objectBuilderSelector = objectBuilderSelector;
             this.registrationRepository = new RegistrationRepository(parentContainer.ContainerContext.ContainerConfigurator);
             this.ContainerContext = new ContainerContext(this.registrationRepository, new DelegateRepository(), this,  
                 new ResolutionStrategy(this.resolverSelector), parentContainer.ContainerContext.ContainerConfigurator, 
@@ -68,6 +66,8 @@ namespace Stashbox
             this.activationContext = new Resolution.ActivationContext(this.ContainerContext, this.resolverSelector, this);
             this.containerExtensionManager.ReinitalizeExtensions(this.ContainerContext);
             this.expressionBuilder = new ExpressionBuilder(this.ContainerContext, this.containerExtensionManager);
+            this.objectBuilderSelector = new ObjectBuilderSelector(this.ContainerContext, this.expressionBuilder);
+            this.ServiceRegistrator = new ServiceRegistrator(this.ContainerContext, this.containerExtensionManager, this.objectBuilderSelector);
         }
 
         /// <inheritdoc />
@@ -112,8 +112,7 @@ namespace Stashbox
 
         /// <inheritdoc />
         public IStashboxContainer CreateChildContainer() =>
-             new StashboxContainer(this, this.containerExtensionManager.CreateCopy(), this.resolverSelector, 
-                 this.ServiceRegistrator, this.objectBuilderSelector);
+             new StashboxContainer(this, this.containerExtensionManager.CreateCopy(), this.resolverSelector);
 
         /// <inheritdoc />
         public IDependencyResolver BeginScope() => new ResolutionScope(this.activationContext);
