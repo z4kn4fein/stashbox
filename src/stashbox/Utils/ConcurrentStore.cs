@@ -25,7 +25,7 @@ namespace Stashbox.Utils
         /// <param name="content">The item to be added.</param>
         public void Add(TContent content)
         {
-            var current = repository.Value;
+            var current = this.repository.Value;
             var newRepo = this.repository.Value.Add(content);
 
             if(!this.repository.TrySwapCurrent(current, newRepo))
@@ -60,7 +60,7 @@ namespace Stashbox.Utils
         /// <param name="content">The item to be added.</param>
         public void Add(TContent content)
         {
-            var current = repository.Value;
+            var current = this.repository.Value;
             var newRepo = this.repository.Value.Add(content);
 
             if (!this.repository.TrySwapCurrent(current, newRepo))

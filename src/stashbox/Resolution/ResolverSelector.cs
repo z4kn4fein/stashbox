@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using System.Threading;
 using Stashbox.Entity;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.Resolution;

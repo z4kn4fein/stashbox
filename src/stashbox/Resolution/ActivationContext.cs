@@ -30,7 +30,7 @@ namespace Stashbox.Resolution
         public Delegate ActivateFactory(Type type, Type[] parameterTypes, IResolutionScope resolutionScope, string name = null, bool nullResultAllowed = false)
         {
             var cachedFactory = this.containerContext.DelegateRepository.GetFactoryDelegateCacheOrDefault(type, parameterTypes, name);
-            return cachedFactory != null ? cachedFactory(resolutionScope) : ActivateFactoryDelegate(type, parameterTypes, resolutionScope, name, nullResultAllowed);
+            return cachedFactory != null ? cachedFactory(resolutionScope) : this.ActivateFactoryDelegate(type, parameterTypes, resolutionScope, name, nullResultAllowed);
         }
 
         private object Activate(ResolutionInfo resolutionInfo, Type type, string name = null)
@@ -49,7 +49,7 @@ namespace Stashbox.Resolution
                 return ragistrationFactory(resolutionInfo.ResolutionScope);
             }
 
-            var expr = this.resolverSelector.GetResolverExpression(containerContext, new TypeInformation { Type = type, DependencyName = name }, resolutionInfo);
+            var expr = this.resolverSelector.GetResolverExpression(this.containerContext, new TypeInformation { Type = type, DependencyName = name }, resolutionInfo);
             if (expr == null)
                 if (resolutionInfo.NullResultAllowed)
                     return null;
@@ -71,7 +71,7 @@ namespace Stashbox.Resolution
             var registration = this.containerContext.RegistrationRepository.GetRegistrationOrDefault(typeInfo);
 
             var initExpression = registration == null ?
-                this.resolverSelector.GetResolverExpression(containerContext, typeInfo, resolutionInfo) :
+                this.resolverSelector.GetResolverExpression(this.containerContext, typeInfo, resolutionInfo) :
                 registration.GetExpression(resolutionInfo, type);
 
             if (initExpression == null)

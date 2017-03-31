@@ -34,10 +34,10 @@ namespace Stashbox.BuildUp.Expressions
             block.Add(assign);
 
             if (members != null && members.Length > 0)
-                block.AddRange(FillMembersExpression(members, variable));
+                block.AddRange(this.FillMembersExpression(members, variable));
 
             if (methods != null && methods.Length > 0 || this.containerExtensionManager.HasPostBuildExtensions)
-                return CreatePostWorkExpressionIfAny(resolutionInfo, variable, serviceType, parameters, methods, block, variable);
+                return this.CreatePostWorkExpressionIfAny(resolutionInfo, variable, serviceType, parameters, methods, block, variable);
 
             block.Add(variable); //return
 
@@ -50,10 +50,10 @@ namespace Stashbox.BuildUp.Expressions
             Expression initExpression = Expression.New(resolutionConstructor.Constructor, resolutionConstructor.Parameters);
 
             if (members != null && members.Length > 0)
-                initExpression = CreateMemberInitExpression(members, (NewExpression)initExpression);
+                initExpression = this.CreateMemberInitExpression(members, (NewExpression)initExpression);
 
             if (methods != null && methods.Length > 0 || this.containerExtensionManager.HasPostBuildExtensions)
-                return CreatePostWorkExpressionIfAny(resolutionInfo, initExpression, serviceType, parameters, methods);
+                return this.CreatePostWorkExpressionIfAny(resolutionInfo, initExpression, serviceType, parameters, methods);
 
             return initExpression;
         }
@@ -64,7 +64,7 @@ namespace Stashbox.BuildUp.Expressions
         {
             block = block ?? new List<Expression>();
 
-            var newVariable = variable ?? Expression.Variable(serviceType);
+            var newVariable = variable ?? Expression.Variable(initExpression.Type);
             if (variable == null)
             {
                 var assign = Expression.Assign(newVariable, initExpression);
@@ -72,11 +72,11 @@ namespace Stashbox.BuildUp.Expressions
             }
 
             if (methods != null && methods.Length > 0)
-                block.AddRange(CreateMethodExpressions(methods, newVariable));
+                block.AddRange(this.CreateMethodExpressions(methods, newVariable));
 
             if (this.containerExtensionManager.HasPostBuildExtensions)
             {
-                var call = Expression.Call(Expression.Constant(this.containerExtensionManager), Constants.BuildExtensionMethod, newVariable, Expression.Constant(containerContext),
+                var call = Expression.Call(Expression.Constant(this.containerExtensionManager), Constants.BuildExtensionMethod, newVariable, Expression.Constant(this.containerContext),
                       Expression.Constant(resolutionInfo), Expression.Constant(serviceType), Expression.Constant(parameters, typeof(InjectionParameter[])));
 
                 block.Add(Expression.Assign(newVariable, Expression.Convert(call, serviceType)));
@@ -100,9 +100,8 @@ namespace Stashbox.BuildUp.Expressions
                     var propExpression = Expression.Property(instance, prop);
                     expressions[i] = Expression.Assign(propExpression, member.Expression);
                 }
-                else
+                else if(member.MemberInfo is FieldInfo field)
                 {
-                    var field = member.MemberInfo as FieldInfo;
                     var propExpression = Expression.Field(instance, field);
                     expressions[i] = Expression.Assign(propExpression, member.Expression);
                 }
@@ -128,7 +127,6 @@ namespace Stashbox.BuildUp.Expressions
         private Expression[] CreateMethodExpressions(ResolutionMethod[] methods, Expression newExpression)
         {
             var lenght = methods.Length;
-            newExpression = Expression.Convert(newExpression, methods[0].Method.DeclaringType);
             var methodExpressions = new Expression[lenght];
             for (var i = 0; i < lenght; i++)
             {

@@ -92,7 +92,7 @@ namespace Stashbox.Utils
         /// <returns>A new tree instance</returns>
         public static ConcurrentTree<TValue> Create() => new ConcurrentTree<TValue>();
 
-        private Swap<AvlTree<TValue>> repository;
+        private readonly Swap<AvlTree<TValue>> repository;
 
         /// <summary>
         /// The current root value of the tree,

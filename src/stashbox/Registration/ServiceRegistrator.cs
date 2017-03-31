@@ -73,27 +73,27 @@ namespace Stashbox.Registration
         /// <inheritdoc />
         public IServiceRegistration CreateServiceRegistration(IRegistrationContextMeta registrationContextMeta, bool isDecorator)
         {
-            var registrationLifetime = this.ChooseLifeTime(registrationContextMeta);
+            registrationContextMeta.Context.Lifetime = this.ChooseLifeTime(registrationContextMeta);
             var metaInfoProvider = new MetaInfoProvider(this.containerContext, registrationContextMeta.Context, 
                 registrationContextMeta.ImplementationType, registrationContextMeta.Context.InjectionParameters);
 
-            var shouldHandleDisposal = this.ShouldHandleDisposal(registrationContextMeta, registrationLifetime);
+            var shouldHandleDisposal = this.ShouldHandleDisposal(registrationContextMeta);
 
             var objectBuilder = this.CreateObjectBuilder(registrationContextMeta);
 
-            return this.ProduceServiceRegistration(registrationLifetime, objectBuilder, metaInfoProvider, 
+            return this.ProduceServiceRegistration(objectBuilder, metaInfoProvider, 
                 registrationContextMeta, isDecorator, shouldHandleDisposal);
         }
 
-        private bool ShouldHandleDisposal(IRegistrationContextMeta meta, ILifetime registrationLifetime)
+        private bool ShouldHandleDisposal(IRegistrationContextMeta meta)
         {
             if (meta.Context.IsLifetimeExternallyOwned)
                 return false;
 
-            if (registrationLifetime == null && this.containerContext.ContainerConfigurator.ContainerConfiguration.TrackTransientsForDisposalEnabled)
+            if (meta.Context.Lifetime == null && this.containerContext.ContainerConfigurator.ContainerConfiguration.TrackTransientsForDisposalEnabled)
                 return true;
 
-            return registrationLifetime != null;
+            return meta.Context.Lifetime != null;
         }
 
         private IObjectBuilder CreateObjectBuilder(IRegistrationContextMeta meta)
@@ -113,10 +113,10 @@ namespace Stashbox.Registration
             return this.objectBuilderSelector.Get(ObjectBuilder.Default);
         }
 
-        private IServiceRegistration ProduceServiceRegistration(ILifetime lifeTime, IObjectBuilder objectBuilder, IMetaInfoProvider metaInfoProvider, IRegistrationContextMeta meta, bool isDecorator, bool shouldHandleDisposal)
+        private IServiceRegistration ProduceServiceRegistration(IObjectBuilder objectBuilder, IMetaInfoProvider metaInfoProvider, IRegistrationContextMeta meta, bool isDecorator, bool shouldHandleDisposal)
         {
             return new ServiceRegistration(meta.ServiceType, meta.ImplementationType, this.containerContext.ReserveRegistrationNumber(), 
-                lifeTime, objectBuilder, metaInfoProvider, meta.Context, isDecorator, shouldHandleDisposal);
+                objectBuilder, metaInfoProvider, meta.Context, isDecorator, shouldHandleDisposal);
         }
 
         private ILifetime ChooseLifeTime(IRegistrationContextMeta meta) => meta.Context.ExistingInstance != null ? null :

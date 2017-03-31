@@ -28,5 +28,9 @@ namespace Stashbox
         internal static Type FuncType = typeof(Func<>);
 
         internal static Type ResolverType = typeof(IDependencyResolver);
+
+        internal static Type[] EmptyTypes = new Type[0];
+
+        internal static ConstructorInfo ObjectConstructor = typeof(object).GetConstructor(EmptyTypes);
     }
 }

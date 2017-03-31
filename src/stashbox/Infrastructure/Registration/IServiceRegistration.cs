@@ -21,16 +21,6 @@ namespace Stashbox.Infrastructure.Registration
         Type ImplementationType { get; }
 
         /// <summary>
-        /// The lifetime manager.
-        /// </summary>
-        ILifetime LifetimeManager { get; }
-
-        /// <summary>
-        /// The object builder.
-        /// </summary>
-        IObjectBuilder ObjectBuilder { get; }
-
-        /// <summary>
         /// The meta info provider.
         /// </summary>
         IMetaInfoProvider MetaInfoProvider { get; }

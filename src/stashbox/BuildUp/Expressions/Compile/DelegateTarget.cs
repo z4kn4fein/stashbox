@@ -47,25 +47,33 @@ namespace Stashbox.BuildUp.Expressions.Compile
         public readonly List<Expression> Constants;
         public readonly List<LambdaTargetInformation> Lambdas;
         public readonly List<ParameterExpression> Parameters;
-        public readonly List<LocalBuilder> LocalBuilders;
-        public readonly List<ParameterExpression> Locals;
 
         public DelegateTargetInformation(object target, FieldInfo[] constantFields, List<Expression> constants,
-            List<LambdaTargetInformation> lambdas, List<ParameterExpression> parameters, List<ParameterExpression> locals)
+            List<LambdaTargetInformation> lambdas, List<ParameterExpression> parameters)
         {
-            this.Locals = locals;
             this.Target = target;
             this.ConstantFields = constantFields;
             this.Constants = constants;
             this.Lambdas = lambdas;
             this.Parameters = parameters;
+        }
+    }
+
+    internal class LocalVariableInformation
+    {
+        public readonly List<LocalBuilder> LocalBuilders;
+        public readonly List<ParameterExpression> Locals;
+
+        public LocalVariableInformation(List<ParameterExpression> locals)
+        {
+            this.Locals = locals;
             this.LocalBuilders = new List<LocalBuilder>();
         }
     }
 
     internal static class DelegateTargetSelector
     {
-        private static int TypeCounter;
+        private static int typeCounter;
 
         private static readonly ConcurrentTree<Type> TargetTypes = new ConcurrentTree<Type>();
 
@@ -86,7 +94,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
             }
 
             var fields = new FieldInfo[length];
-            var typeBuilder = ExpressionEmitter.ModuleBuilder.Value.DefineType("DT" + Interlocked.Increment(ref TypeCounter), TypeAttributes.Public);
+            var typeBuilder = ExpressionEmitter.ModuleBuilder.Value.DefineType("DT" + Interlocked.Increment(ref typeCounter), TypeAttributes.Public);
 
             if (length > 0)
             {
@@ -107,7 +115,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
                 var generator = constructor.GetILGenerator();
 
                 generator.Emit(OpCodes.Ldarg_0);
-                generator.Emit(OpCodes.Call, typeof(object).GetConstructor(Type.EmptyTypes));
+                generator.Emit(OpCodes.Call, Stashbox.Constants.ObjectConstructor);
 
                 for (var i = 0; i < length; i++)
                 {
@@ -126,10 +134,21 @@ namespace Stashbox.BuildUp.Expressions.Compile
 
         public static DelegateTargetInformation GetDelegateTarget(Constants constants)
         {
+            if (constants.ConstantExpressions.Count == 0)
+                return null;
+
             var type = GetOrAddTargetType(constants);
             var target = Activator.CreateInstance(type, constants.ConstantObjects.ToArray());
             return new DelegateTargetInformation(target, type.GetTypeInfo().DeclaredFields as FieldInfo[], constants.ConstantExpressions,
-                constants.Lambdas, constants.Parameters, constants.Locals);
+                constants.Lambdas, constants.Parameters);
+        }
+
+        public static LocalVariableInformation GetLocals(Constants constants)
+        {
+            if (constants.Locals.Count == 0)
+                return null;
+
+            return new LocalVariableInformation(constants.Locals);
         }
 
         public static bool TryCollectConstants(this Expression expression, Constants constants, params ParameterExpression[] parameters)
@@ -216,6 +235,8 @@ namespace Stashbox.BuildUp.Expressions.Compile
             constants.ConstantObjects.Add(lambda);
             constants.ConstantExpressions.Add(expression);
             constants.Lambdas.Add(new LambdaTargetInformation(expression, lambdaTarget));
+
+            if (lambdaTarget == null) return true;
 
             var length = lambdaTarget.Parameters.Count;
             for (var i = 0; i < length; i++)

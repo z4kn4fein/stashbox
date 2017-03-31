@@ -79,7 +79,7 @@ namespace Stashbox.Utils
         /// </summary>
         public void Dispose()
         {
-            Dispose(true);
+            this.Dispose(true);
             GC.SuppressFinalize(this);
         }
 
@@ -89,7 +89,7 @@ namespace Stashbox.Utils
         protected virtual void Dispose(bool isDisposing)
         {
             if (!isDisposing || this.lockSlim == null) return;
-            if (isRead && this.lockSlim.IsReadLockHeld)
+            if (this.isRead && this.lockSlim.IsReadLockHeld)
                 this.lockSlim.ExitReadLock();
             else if (this.lockSlim.IsWriteLockHeld)
                 this.lockSlim.ExitWriteLock();
@@ -122,7 +122,7 @@ namespace Stashbox.Utils
         /// </summary>
         public void Dispose()
         {
-            Dispose(true);
+            this.Dispose(true);
             GC.SuppressFinalize(this);
         }
 

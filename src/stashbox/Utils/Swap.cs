@@ -15,7 +15,7 @@ namespace Stashbox.Utils
         }
 
         public bool TrySwapCurrent(TValue currentValue, TValue newValue) =>
-            Interlocked.CompareExchange(ref storedValue, newValue, currentValue) == currentValue;
+            Interlocked.CompareExchange(ref this.storedValue, newValue, currentValue) == currentValue;
 
         public void SwapCurrent(Func<TValue, TValue> valueFactory)
         {
@@ -30,7 +30,7 @@ namespace Stashbox.Utils
 
                 currentValue = this.storedValue;
                 newValue = valueFactory(currentValue);
-            } while (Interlocked.CompareExchange(ref storedValue, newValue, currentValue) != currentValue);
+            } while (Interlocked.CompareExchange(ref this.storedValue, newValue, currentValue) != currentValue);
         }
     }
 }

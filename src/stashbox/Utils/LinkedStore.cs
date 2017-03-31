@@ -27,8 +27,8 @@ namespace Stashbox.Utils
             return this.SelfCopy(this.next.Add(paramValue));
         }
 
-        private OrderedLinkedStore<TValue> SelfCopy(OrderedLinkedStore<TValue> next) =>
-            new OrderedLinkedStore<TValue>(this.value, next);
+        private OrderedLinkedStore<TValue> SelfCopy(OrderedLinkedStore<TValue> nextNode) =>
+            new OrderedLinkedStore<TValue>(this.value, nextNode);
 
         IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 
@@ -48,7 +48,7 @@ namespace Stashbox.Utils
             {
                 if (this.current == null && this.init.next != null)
                     this.current = this.init;
-                else if (current?.next?.next != null)
+                else if (this.current?.next?.next != null)
                     this.current = this.current.next;
                 else
                     return false;
@@ -102,7 +102,7 @@ namespace Stashbox.Utils
             {
                 if (this.current == null && this.init.next != null)
                     this.current = this.init;
-                else if (current?.next != null)
+                else if (this.current?.next != null)
                     this.current = this.current.next;
                 else
                     return false;

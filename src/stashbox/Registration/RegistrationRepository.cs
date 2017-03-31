@@ -89,7 +89,7 @@ namespace Stashbox.Registration
         {
             var type = typeInfo.Type;
             var registrations = this.GetDefaultRegistrationsOrDefault(type, this.conditionalRepository);
-            if (registrations == null) return GetDefaultRegistrationOrDefault(type);
+            if (registrations == null) return this.GetDefaultRegistrationOrDefault(type);
 
             return registrations.HasMultipleItems ?
                 this.containerConfigurator.ContainerConfiguration.DependencySelectionRule(registrations.Where(reg => reg.IsUsableForCurrentContext(typeInfo) && reg.ValidateGenericContraints(type))) :

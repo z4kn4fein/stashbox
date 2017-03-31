@@ -140,26 +140,26 @@ namespace Stashbox.Utils
             private void Initialize()
             {
                 this.index = -1;
-                this.currentNode = root;
+                this.currentNode = this.root;
                 while (!this.currentNode.isEmpty)
                 {
-                    nodes[++index] = this.currentNode;
+                    this.nodes[++this.index] = this.currentNode;
                     this.currentNode = this.currentNode.leftNode;
                 }
             }
 
             public bool MoveNext()
             {
-                while (!this.currentNode.isEmpty || index != -1)
+                while (!this.currentNode.isEmpty || this.index != -1)
                 {
                     if (!this.currentNode.isEmpty)
                     {
-                        nodes[++index] = this.currentNode;
+                        this.nodes[++this.index] = this.currentNode;
                         this.currentNode = this.currentNode.leftNode;
                     }
                     else
                     {
-                        this.currentNode = nodes[index--];
+                        this.currentNode = this.nodes[this.index--];
                         this.current = this.currentNode.storedValue;
                         this.currentNode = this.currentNode.rightNode;
                         return true;

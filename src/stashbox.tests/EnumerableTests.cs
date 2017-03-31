@@ -68,7 +68,7 @@ namespace Stashbox.Tests
             var regs = container.ContainerContext.RegistrationRepository.GetAllRegistrations().ToArray();
 
             Assert.AreEqual(3, regs.Length);
-            Assert.IsTrue(regs.All(reg => reg.LifetimeManager is ScopedLifetime));
+            Assert.IsTrue(regs.All(reg => reg.RegistrationContext.Lifetime is ScopedLifetime));
         }
 
         [TestMethod]
@@ -80,7 +80,7 @@ namespace Stashbox.Tests
             var regs = container.ContainerContext.RegistrationRepository.GetAllRegistrations().ToArray();
 
             Assert.AreEqual(1, regs.Length);
-            Assert.IsTrue(regs.All(reg => reg.LifetimeManager is ScopedLifetime));
+            Assert.IsTrue(regs.All(reg => reg.RegistrationContext.Lifetime is ScopedLifetime));
         }
 
         [TestMethod]

@@ -13,6 +13,8 @@ namespace Stashbox.Registration
     /// </summary>
     public class ServiceRegistration : IServiceRegistration
     {
+        private readonly IObjectBuilder objectBuilder;
+
         /// <inheritdoc />
         public IMetaInfoProvider MetaInfoProvider { get; }
 
@@ -21,12 +23,6 @@ namespace Stashbox.Registration
 
         /// <inheritdoc />
         public Type ImplementationType { get; }
-
-        /// <inheritdoc />
-        public ILifetime LifetimeManager { get; }
-
-        /// <inheritdoc />
-        public IObjectBuilder ObjectBuilder { get; }
 
         /// <inheritdoc />
         public RegistrationContextData RegistrationContext { get; }
@@ -41,13 +37,12 @@ namespace Stashbox.Registration
         public int RegistrationNumber { get; }
 
         internal ServiceRegistration(Type serviceType, Type implementationType, int registrationNumber,
-            ILifetime lifetimeManager, IObjectBuilder objectBuilder, IMetaInfoProvider metaInfoProvider, 
-            RegistrationContextData registrationContextData, bool isDecorator, bool shouldHandleDisposal)
+             IObjectBuilder objectBuilder, IMetaInfoProvider metaInfoProvider, RegistrationContextData registrationContextData, 
+             bool isDecorator, bool shouldHandleDisposal)
         {
+            this.objectBuilder = objectBuilder;
             this.ImplementationType = implementationType;
             this.ServiceType = serviceType;
-            this.LifetimeManager = lifetimeManager;
-            this.ObjectBuilder = objectBuilder;
             this.MetaInfoProvider = metaInfoProvider;
             this.RegistrationNumber = registrationNumber;
             this.RegistrationContext = registrationContextData;
@@ -75,9 +70,9 @@ namespace Stashbox.Registration
         /// <inheritdoc />
         public Expression GetExpression(ResolutionInfo resolutionInfo, Type resolveType)
         {
-            var expr = this.LifetimeManager == null || this.ServiceType.IsOpenGenericType() ?
-                this.ObjectBuilder.GetExpression(this, resolutionInfo, resolveType) :
-                this.LifetimeManager.GetExpression(this, this.ObjectBuilder, resolutionInfo, resolveType);
+            var expr = this.RegistrationContext.Lifetime == null || this.ServiceType.IsOpenGenericType() ?
+                this.objectBuilder.GetExpression(this, resolutionInfo, resolveType) :
+                this.RegistrationContext.Lifetime.GetExpression(this, this.objectBuilder, resolutionInfo, resolveType);
 
             return expr;
         }

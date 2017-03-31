@@ -1,5 +1,4 @@
-﻿using Stashbox.BuildUp;
-using Stashbox.Infrastructure;
+﻿using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.Registration;
 using Stashbox.MetaInfo;
 using Stashbox.Registration;
@@ -255,13 +254,14 @@ namespace Stashbox
         private void WireUpInternal(object instance, string keyName, Type typeFrom, Type typeTo, bool withoutDisposalTracking)
         {
             var regName = NameGenerator.GetRegistrationName(typeFrom, typeTo, keyName);
-            var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, RegistrationContextData.Empty, typeTo);
-
-            var data = RegistrationContextData.Empty;
+            
+            var data = RegistrationContextData.New();
             data.ExistingInstance = instance;
 
+            var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, data, typeTo);
+            
             var registration = new ServiceRegistration(typeFrom, typeTo,
-                this.ContainerContext.ReserveRegistrationNumber(), null,
+                this.ContainerContext.ReserveRegistrationNumber(),
                 this.objectBuilderSelector.Get(ObjectBuilder.WireUp), metaInfoProvider, data,
                 false, !withoutDisposalTracking);
 
@@ -272,13 +272,14 @@ namespace Stashbox
         private void RegisterInstanceInternal(object instance, string keyName, Type type, bool withoutDisposalTracking)
         {
             var instanceType = instance.GetType();
-            var regName = NameGenerator.GetRegistrationName(instanceType, instanceType, keyName);
-            var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, RegistrationContextData.Empty, instanceType);
 
-            var data = RegistrationContextData.Empty;
+            var data = RegistrationContextData.New();
             data.ExistingInstance = instance;
 
-            var registration = new ServiceRegistration(type, instanceType, this.ContainerContext.ReserveRegistrationNumber(), null,
+            var regName = NameGenerator.GetRegistrationName(instanceType, instanceType, keyName);
+            var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, data, instanceType);
+            
+            var registration = new ServiceRegistration(type, instanceType, this.ContainerContext.ReserveRegistrationNumber(),
                 this.objectBuilderSelector.Get(ObjectBuilder.Instance), metaInfoProvider, data, false, !withoutDisposalTracking);
 
             this.registrationRepository.AddOrUpdateRegistration(type, regName, false, registration);

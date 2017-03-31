@@ -48,7 +48,7 @@ namespace Stashbox
             this.activationContext = new Resolution.ActivationContext(this.ContainerContext, this.resolverSelector, this);
             this.expressionBuilder = new ExpressionBuilder(this.ContainerContext, this.containerExtensionManager);
             this.objectBuilderSelector = new ObjectBuilderSelector(this.ContainerContext, this.expressionBuilder);
-            this.ServiceRegistrator = new ServiceRegistrator(this.ContainerContext, containerExtensionManager, this.objectBuilderSelector);
+            this.ServiceRegistrator = new ServiceRegistrator(this.ContainerContext, this.containerExtensionManager, this.objectBuilderSelector);
             this.RegisterResolvers();
         }
 
@@ -137,7 +137,7 @@ namespace Stashbox
         public TTo BuildUp<TTo>(TTo instance) where TTo : class
         {
             var typeTo = instance.GetType();
-            var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, RegistrationContextData.Empty, typeTo);
+            var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, RegistrationContextData.New(), typeTo);
 
             var resolutionInfo = ResolutionInfo.New(this, this);
             var expr = this.expressionBuilder.CreateFillExpression(Expression.Constant(instance), resolutionInfo, typeTo, null, metaInfoProvider.GetResolutionMembers(resolutionInfo),

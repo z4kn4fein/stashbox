@@ -53,7 +53,7 @@ namespace Stashbox
         protected virtual void Dispose(bool disposing)
         {
             if (!this.disposed.CompareExchange(false, true) || !disposing) return;
-            foreach (var disposableObject in disposableObjects)
+            foreach (var disposableObject in this.disposableObjects)
                 disposableObject?.Dispose();
         }
     }

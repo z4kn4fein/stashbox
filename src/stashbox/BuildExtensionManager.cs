@@ -25,7 +25,7 @@ namespace Stashbox
             if (containerExtension is IPostBuildExtension)
                 this.HasPostBuildExtensions = true;
 
-            this.repository.AddOrUpdate(Interlocked.Increment(ref extensionCounter), containerExtension);
+            this.repository.AddOrUpdate(Interlocked.Increment(ref this.extensionCounter), containerExtension);
         }
 
         public object ExecutePostBuildExtensions(object instance, IContainerContext containerContext, ResolutionInfo resolutionInfo,

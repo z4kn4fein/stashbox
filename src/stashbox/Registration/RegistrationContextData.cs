@@ -15,7 +15,7 @@ namespace Stashbox.Registration
         /// <summary>
         /// Empty registration data.
         /// </summary>
-        public static RegistrationContextData Empty = new RegistrationContextData();
+        public static RegistrationContextData New() => new RegistrationContextData();
 
         /// <summary>
         /// The service type.

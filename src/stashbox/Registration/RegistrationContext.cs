@@ -20,7 +20,7 @@ namespace Stashbox.Registration
         public RegistrationContextData Context { get; }
 
         public RegistrationContext(Type serviceType, Type implementationType, IServiceRegistrator registrator)
-            : this(serviceType, implementationType, registrator, RegistrationContextData.Empty)
+            : this(serviceType, implementationType, registrator, RegistrationContextData.New())
         { }
 
         public RegistrationContext(Type serviceType, Type implementationType, IServiceRegistrator registrator, RegistrationContextData registrationContextData)
@@ -31,7 +31,7 @@ namespace Stashbox.Registration
             this.Context = registrationContextData;
         }
 
-        public IStashboxContainer Register() => registrator.Register(this, false);
+        public IStashboxContainer Register() => this.registrator.Register(this, false);
 
         public IStashboxContainer ReMap() => this.registrator.ReMap(this);
 
