@@ -20,8 +20,7 @@ namespace Stashbox.BuildUp
             if (serviceRegistration.IsDecorator)
                 return this.GetExpressionAndHandleDisposal(serviceRegistration, resolutionInfo, resolveType);
 
-            var decoratedType = resolutionInfo.CurrentlyDecoratingTypes.GetOrDefault(resolveType.GetHashCode());
-            if (decoratedType != null)
+            if (resolutionInfo.IsCurrentlyDecorating(resolveType))
                 return this.GetExpressionAndHandleDisposal(serviceRegistration, resolutionInfo, resolveType);
 
             var decorators = this.containerContext.DecoratorRepository.GetDecoratorsOrDefault(resolveType);
@@ -37,7 +36,7 @@ namespace Stashbox.BuildUp
                     return this.GetExpressionAndHandleDisposal(serviceRegistration, resolutionInfo, resolveType);
             }
 
-            resolutionInfo.CurrentlyDecoratingTypes.AddOrUpdate(resolveType.GetHashCode(), resolveType);
+            resolutionInfo.AddCurrentlyDecoratingType(resolveType);
             var expression = this.GetExpressionAndHandleDisposal(serviceRegistration, resolutionInfo, resolveType);
 
             if (expression == null)
@@ -45,20 +44,20 @@ namespace Stashbox.BuildUp
 
             foreach (var decoratorRegistration in decorators)
             {
-                resolutionInfo.ExpressionOverrides.AddOrUpdate(resolveType, expression, (oldValue, newValue) => newValue);
+                resolutionInfo.SetExpressionOverride(resolveType, expression);
                 expression = decoratorRegistration.GetExpression(resolutionInfo, resolveType);
                 if (expression == null)
                     return null;
             }
 
-            resolutionInfo.CurrentlyDecoratingTypes.AddOrUpdate(resolveType.GetHashCode(), null, (oldValue, newValue) => newValue);
+            resolutionInfo.ClearCurrentlyDecoratingType(resolveType);
             return expression;
         }
 
         private Expression GetExpressionAndHandleDisposal(IServiceRegistration serviceRegistration, ResolutionInfo resolutionInfo, Type resolveType)
         {
             var expr = this.GetExpressionInternal(serviceRegistration, resolutionInfo, resolveType);
-            
+
             if (expr == null || !serviceRegistration.ShouldHandleDisposal || this.HandlesObjectDisposal || !expr.Type.IsDisposable())
                 return expr;
 

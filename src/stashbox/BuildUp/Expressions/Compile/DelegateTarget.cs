@@ -47,25 +47,17 @@ namespace Stashbox.BuildUp.Expressions.Compile
         public readonly List<Expression> Constants;
         public readonly List<LambdaTargetInformation> Lambdas;
         public readonly List<ParameterExpression> Parameters;
+        public readonly List<LocalBuilder> LocalBuilders;
+        public readonly List<ParameterExpression> Locals;
 
         public DelegateTargetInformation(object target, FieldInfo[] constantFields, List<Expression> constants,
-            List<LambdaTargetInformation> lambdas, List<ParameterExpression> parameters)
+            List<LambdaTargetInformation> lambdas, List<ParameterExpression> parameters, List<ParameterExpression> locals)
         {
             this.Target = target;
             this.ConstantFields = constantFields;
             this.Constants = constants;
             this.Lambdas = lambdas;
             this.Parameters = parameters;
-        }
-    }
-
-    internal class LocalVariableInformation
-    {
-        public readonly List<LocalBuilder> LocalBuilders;
-        public readonly List<ParameterExpression> Locals;
-
-        public LocalVariableInformation(List<ParameterExpression> locals)
-        {
             this.Locals = locals;
             this.LocalBuilders = new List<LocalBuilder>();
         }
@@ -134,23 +126,17 @@ namespace Stashbox.BuildUp.Expressions.Compile
 
         public static DelegateTargetInformation GetDelegateTarget(Constants constants)
         {
-            if (constants.ConstantExpressions.Count == 0)
-                return null;
+            if (constants.ConstantExpressions.Count > 0)
+            {
+                var type = GetOrAddTargetType(constants);
+                var target = Activator.CreateInstance(type, constants.ConstantObjects.CastToArray());
+                return new DelegateTargetInformation(target, type.GetTypeInfo().DeclaredFields as FieldInfo[], constants.ConstantExpressions,
+                    constants.Lambdas, constants.Parameters, constants.Locals);
+            }
 
-            var type = GetOrAddTargetType(constants);
-            var target = Activator.CreateInstance(type, constants.ConstantObjects.ToArray());
-            return new DelegateTargetInformation(target, type.GetTypeInfo().DeclaredFields as FieldInfo[], constants.ConstantExpressions,
-                constants.Lambdas, constants.Parameters);
+            return new DelegateTargetInformation(null, null, null, null, null, constants.Locals);
         }
-
-        public static LocalVariableInformation GetLocals(Constants constants)
-        {
-            if (constants.Locals.Count == 0)
-                return null;
-
-            return new LocalVariableInformation(constants.Locals);
-        }
-
+        
         public static bool TryCollectConstants(this Expression expression, Constants constants, params ParameterExpression[] parameters)
         {
             switch (expression.NodeType)
@@ -198,16 +184,28 @@ namespace Stashbox.BuildUp.Expressions.Compile
             if (!expression.NewExpression.TryCollectConstants(constants, parameters))
                 return false;
 
-            return expression.Bindings.All(binding => binding.BindingType != MemberBindingType.Assignment ||
-                ((MemberAssignment)binding).Expression.TryCollectConstants(constants, parameters));
+            for (int i = 0; i < expression.Bindings.Count; i++)
+            {
+                var binding = expression.Bindings[i];
+                if (binding.BindingType != MemberBindingType.Assignment || !((MemberAssignment)binding).Expression.TryCollectConstants(constants, parameters))
+                    return false;
+            }
+
+            return true;
         }
 
         private static bool TryCollectConstants(this MemberExpression expression, Constants constants, params ParameterExpression[] parameters) =>
             expression.Expression.TryCollectConstants(constants, parameters);
 
-        private static bool TryCollectConstants(this IEnumerable<Expression> expressions, Constants constants, params ParameterExpression[] parameters) =>
-            expressions.All(expression => expression.TryCollectConstants(constants, parameters));
+        private static bool TryCollectConstants(this IList<Expression> expressions, Constants constants, params ParameterExpression[] parameters)
+        {
+            for (var i = 0; i < expressions.Count; i++)
+                if (!expressions[i].TryCollectConstants(constants, parameters))
+                    return false;
 
+            return true;
+        }
+        
         private static bool TryCollectConstants(this BlockExpression expression, Constants constants, params ParameterExpression[] parameters)
         {
             constants.Locals.AddRange(expression.Variables);
@@ -229,14 +227,14 @@ namespace Stashbox.BuildUp.Expressions.Compile
 
         private static bool TryCollectConstants(this LambdaExpression expression, Constants constants, params ParameterExpression[] parameters)
         {
-            if (!expression.Body.TryEmit(expression.Type, expression.Body.Type, out Delegate lambda, out DelegateTargetInformation lambdaTarget, expression.Parameters.ToArray()))
+            if (!expression.Body.TryEmit(expression.Type, expression.Body.Type, out Delegate lambda, out DelegateTargetInformation lambdaTarget, expression.Parameters.CastToArray()))
                 return false;
 
             constants.ConstantObjects.Add(lambda);
             constants.ConstantExpressions.Add(expression);
             constants.Lambdas.Add(new LambdaTargetInformation(expression, lambdaTarget));
 
-            if (lambdaTarget == null) return true;
+            if (lambdaTarget.Parameters == null) return true;
 
             var length = lambdaTarget.Parameters.Count;
             for (var i = 0; i < length; i++)
@@ -253,9 +251,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
         private static bool TryCollectConstants(this ConstantExpression expression, Constants constants)
         {
             if (expression.Value == null) return true;
-            var type = expression.Value.GetType();
-            if (type == typeof(int) || type == typeof(double) || type == typeof(bool) || type == typeof(string) ||
-                type == typeof(Type) || type.IsEnum || expression.Value == null) return true;
+            
             constants.ConstantExpressions.Add(expression);
             constants.ConstantObjects.Add(expression.Value);
 

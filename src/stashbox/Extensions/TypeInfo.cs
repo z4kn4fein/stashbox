@@ -6,39 +6,40 @@ namespace System.Reflection
 {
     internal struct TypeInfo
     {
-        private readonly Type type;
+        public Type Type { get; }
 
         public TypeInfo(Type type)
         {
-            this.type = type;
+            this.Type = type;
         }
 
-        public Assembly Assembly => this.type.Assembly;
-        public IEnumerable<ConstructorInfo> DeclaredConstructors => this.type.GetConstructors(All ^ BindingFlags.Static);
-        public IEnumerable<MethodInfo> DeclaredMethods => this.type.GetMethods(All);
-        public IEnumerable<FieldInfo> DeclaredFields => this.type.GetFields(All); 
-        public IEnumerable<PropertyInfo> DeclaredProperties => this.type.GetProperties(All);
-        public IEnumerable<Type> ImplementedInterfaces  => this.type.GetInterfaces();
-        public IEnumerable<Attribute> GetCustomAttributes(Type attributeType, bool inherit) => this.type.GetCustomAttributes(attributeType, inherit).Cast<Attribute>();
-        public Type BaseType => this.type.BaseType;
-        public bool IsGenericType => this.type.IsGenericType; 
-        public bool IsGenericTypeDefinition => this.type.IsGenericTypeDefinition; 
-        public bool ContainsGenericParameters => this.type.ContainsGenericParameters;
-        public int GenericParameterPosition => this.type.GenericParameterPosition;
-        public Type[] GenericTypeParameters => this.type.GetGenericArguments(); 
-        public Type[] GenericTypeArguments => this.type.GetGenericArguments(); 
-        public Type[] GetGenericParameterConstraints() => this.type.GetGenericParameterConstraints();
-        public bool IsClass => this.type.IsClass; 
-        public bool IsInterface => this.type.IsInterface; 
-        public bool IsValueType => this.type.IsValueType; 
-        public bool IsPrimitive => this.type.IsPrimitive; 
-        public bool IsArray => this.type.IsArray; 
-        public bool IsPublic => this.type.IsPublic; 
-        public bool IsNestedPublic => this.type.IsNestedPublic; 
-        public Type DeclaringType => this.type.DeclaringType; 
-        public bool IsAbstract => this.type.IsAbstract; 
-        public bool IsSealed => this.type.IsSealed; 
-        public bool IsEnum => this.type.IsEnum; 
+        public Assembly Assembly => this.Type.Assembly;
+        public IEnumerable<ConstructorInfo> DeclaredConstructors => this.Type.GetConstructors(All ^ BindingFlags.Static);
+        public IEnumerable<MethodInfo> DeclaredMethods => this.Type.GetMethods(All);
+        public IEnumerable<FieldInfo> DeclaredFields => this.Type.GetFields(All); 
+        public IEnumerable<PropertyInfo> DeclaredProperties => this.Type.GetProperties(All);
+        public IEnumerable<Type> ImplementedInterfaces  => this.Type.GetInterfaces();
+        public IEnumerable<Attribute> GetCustomAttributes(Type attributeType, bool inherit) => this.Type.GetCustomAttributes(attributeType, inherit).Cast<Attribute>();
+        public Type BaseType => this.Type.BaseType;
+        public bool IsGenericType => this.Type.IsGenericType; 
+        public bool IsGenericTypeDefinition => this.Type.IsGenericTypeDefinition; 
+        public bool ContainsGenericParameters => this.Type.ContainsGenericParameters;
+        public int GenericParameterPosition => this.Type.GenericParameterPosition;
+        public Type[] GenericTypeParameters => this.Type.GetGenericArguments(); 
+        public Type[] GenericTypeArguments => this.Type.GetGenericArguments(); 
+        public Type[] GetGenericParameterConstraints() => this.Type.GetGenericParameterConstraints();
+        public bool IsClass => this.Type.IsClass; 
+        public bool IsInterface => this.Type.IsInterface; 
+        public bool IsValueType => this.Type.IsValueType; 
+        public bool IsPrimitive => this.Type.IsPrimitive; 
+        public bool IsArray => this.Type.IsArray; 
+        public bool IsPublic => this.Type.IsPublic; 
+        public bool IsNestedPublic => this.Type.IsNestedPublic; 
+        public Type DeclaringType => this.Type.DeclaringType; 
+        public bool IsAbstract => this.Type.IsAbstract; 
+        public bool IsSealed => this.Type.IsSealed; 
+        public bool IsEnum => this.Type.IsEnum;
+        public bool IsAssignableFrom(TypeInfo info) => this.Type.IsAssignableFrom(info.Type);
 
         private const BindingFlags All =
             BindingFlags.Instance | BindingFlags.Static |

@@ -11,16 +11,15 @@ namespace Stashbox.BuildUp
 
         public CircularDependencyBarrier(ResolutionInfo resolutionInfo, Type type)
         {
-            var existing = resolutionInfo.CircularDependencyBarrier.GetOrDefault(type.GetHashCode());
-            if (existing != null)
+            resolutionInfo.AddCircularDependencyCheck(type, out bool updated);
+            if (updated)
                 throw new CircularDependencyException(type.FullName);
-
-            resolutionInfo.CircularDependencyBarrier.AddOrUpdate(type.GetHashCode(), type);
+            
             this.resolutionInfo = resolutionInfo;
             this.type = type;
         }
 
         public void Dispose() =>
-            this.resolutionInfo.CircularDependencyBarrier.AddOrUpdate(this.type.GetHashCode(), null, (oldValue, newValue) => newValue);
+            this.resolutionInfo.ClearCircularDependencyCheck(this.type);
     }
 }

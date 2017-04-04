@@ -25,7 +25,7 @@ namespace Stashbox.Resolution
             if (matchingParam != null)
                 return Expression.Constant(matchingParam.Value);
 
-            var exprOverride = resolutionInfo.ExpressionOverrides.GetOrDefault(typeInformation.Type);
+            var exprOverride = resolutionInfo.GetExpressionOverrideOrDefault(typeInformation.Type);
             if (exprOverride != null)
                 return exprOverride;
 

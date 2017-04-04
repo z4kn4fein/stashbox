@@ -16,16 +16,38 @@ namespace Stashbox.Resolution
             this.resolverRepository = new ConcurrentOrderedStore<Resolver>();
         }
 
-        public bool CanResolve(IContainerContext containerContext, TypeInformation typeInfo) =>
-            this.resolverRepository.Any(resolver => resolver.CanUseForResolution(containerContext, typeInfo));
+        public bool CanResolve(IContainerContext containerContext, TypeInformation typeInfo)
+        {
+            for (var i = 0; i < this.resolverRepository.Lenght; i++)
+                if (this.resolverRepository.Get(i).CanUseForResolution(containerContext, typeInfo))
+                    return true;
 
-        public Expression GetResolverExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo) =>
-            this.resolverRepository.FirstOrDefault(resolver => resolver.CanUseForResolution(containerContext, typeInfo))?
-                .GetExpression(containerContext, typeInfo, resolutionInfo);
+            return false;
+        }
 
-        public Expression[] GetResolverExpressions(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo) =>
-            this.resolverRepository.FirstOrDefault(resolver => resolver.SupportsMany && resolver.CanUseForResolution(containerContext, typeInfo))?
-                .GetExpressions(containerContext, typeInfo, resolutionInfo);
+        public Expression GetResolverExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo)
+        {
+            for (int i = 0; i < this.resolverRepository.Lenght; i++)
+            {
+                var item = this.resolverRepository.Get(i);
+                if (item.CanUseForResolution(containerContext, typeInfo))
+                    return item.GetExpression(containerContext, typeInfo, resolutionInfo);
+            }
+
+            return null;
+        }
+
+        public Expression[] GetResolverExpressions(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo)
+        {
+            for (int i = 0; i < this.resolverRepository.Lenght; i++)
+            {
+                var item = this.resolverRepository.Get(i);
+                if (item.CanUseForResolution(containerContext, typeInfo))
+                    return item.GetExpressions(containerContext, typeInfo, resolutionInfo);
+            }
+
+            return null;
+        }
 
         public void AddResolver(Resolver resolver) =>
             this.resolverRepository.Add(resolver);

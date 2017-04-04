@@ -14,7 +14,7 @@ namespace Stashbox.Entity
         /// Static factory for <see cref="ResolutionInfo"/>.
         /// </summary>
         /// <returns>A new <see cref="ResolutionInfo"/> instance.</returns>
-        public static ResolutionInfo New(IResolutionScope scope, IResolutionScope rootScope, bool nullResultAllowed = false) => 
+        public static ResolutionInfo New(IResolutionScope scope, IResolutionScope rootScope, bool nullResultAllowed = false) =>
             new ResolutionInfo(scope, rootScope, nullResultAllowed);
 
         /// <summary>
@@ -27,11 +27,11 @@ namespace Stashbox.Entity
         /// </summary>
         public bool NullResultAllowed { get; }
 
-        internal SyncTree<Type> CircularDependencyBarrier { get; }
+        private AvlTree<Type> circularDependencyBarrier;
 
-        internal SyncTree<Type, Expression> ExpressionOverrides { get; }
+        private AvlTree<Expression> expressionOverrides;
 
-        internal SyncTree<Type> CurrentlyDecoratingTypes { get; }
+        private AvlTree<Type> currentlyDecoratingTypes;
 
         internal IResolutionScope ResolutionScope { get; }
 
@@ -39,12 +39,43 @@ namespace Stashbox.Entity
 
         internal ResolutionInfo(IResolutionScope scope, IResolutionScope rootScope, bool nullResultAllowed = false)
         {
-            this.CircularDependencyBarrier = new SyncTree<Type>();
-            this.ExpressionOverrides = new SyncTree<Type, Expression>();
-            this.CurrentlyDecoratingTypes = new SyncTree<Type>();
+            this.circularDependencyBarrier = AvlTree<Type>.Empty;
+            this.expressionOverrides = AvlTree<Expression>.Empty;
+            this.currentlyDecoratingTypes = AvlTree<Type>.Empty;
             this.NullResultAllowed = nullResultAllowed;
             this.ResolutionScope = scope;
             this.RootScope = rootScope;
+        }
+
+        internal bool IsCurrentlyDecorating(Type type) =>
+            this.currentlyDecoratingTypes.GetOrDefault(type.GetHashCode()) != null;
+
+        internal void AddCurrentlyDecoratingType(Type type)
+        {
+            this.currentlyDecoratingTypes = this.currentlyDecoratingTypes.AddOrUpdate(type.GetHashCode(), type);
+        }
+
+        internal void ClearCurrentlyDecoratingType(Type type)
+        {
+            this.currentlyDecoratingTypes = this.currentlyDecoratingTypes.AddOrUpdate(type.GetHashCode(), null, (oldValue, newValue) => newValue);
+        }
+
+        internal Expression GetExpressionOverrideOrDefault(Type type) =>
+            this.expressionOverrides.GetOrDefault(type.GetHashCode());
+
+        internal void SetExpressionOverride(Type type, Expression expression)
+        {
+            this.expressionOverrides = this.expressionOverrides.AddOrUpdate(type.GetHashCode(), expression, (oldValue, newValue) => newValue);
+        }
+
+        internal void AddCircularDependencyCheck(Type type, out bool updated)
+        {
+            this.circularDependencyBarrier = this.circularDependencyBarrier.AddOrUpdate(type.GetHashCode(), type, out updated);
+        }
+
+        internal void ClearCircularDependencyCheck(Type type)
+        {
+            this.circularDependencyBarrier = this.circularDependencyBarrier.AddOrUpdate(type.GetHashCode(), null, (oldValue, newValue) => newValue);
         }
     }
 }

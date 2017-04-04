@@ -3,6 +3,7 @@ using System.Linq.Expressions;
 using Stashbox.Entity;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.Registration;
+using Stashbox.Utils;
 
 namespace Stashbox.Lifetime
 {
@@ -20,7 +21,7 @@ namespace Stashbox.Lifetime
         /// </summary>
         public ScopedLifetime()
         {
-            this.scopeId = Guid.NewGuid().ToString();
+            this.scopeId = UniqueId.New(4);
         }
 
         /// <inheritdoc />

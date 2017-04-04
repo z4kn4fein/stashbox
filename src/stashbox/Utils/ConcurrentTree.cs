@@ -114,7 +114,7 @@ namespace Stashbox.Utils
         /// </summary>
         public ConcurrentTree()
         {
-            this.repository = new Swap<AvlTree<TValue>>(new AvlTree<TValue>());
+            this.repository = new Swap<AvlTree<TValue>>(AvlTree<TValue>.Empty);
         }
 
         /// <summary>

@@ -1,9 +1,9 @@
 ﻿#if NET45 || NET40
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection.Emit;
 using System.Reflection;
-using System.Linq;
 
 namespace Stashbox.BuildUp.Expressions.Compile
 {
@@ -30,71 +30,110 @@ namespace Stashbox.BuildUp.Expressions.Compile
                 return false;
 
             delegateTarget = DelegateTargetSelector.GetDelegateTarget(constants);
-            var locals = DelegateTargetSelector.GetLocals(constants);
 
             var method = CreateDynamicMethod(delegateTarget, returnType, parameters);
             var generator = method.GetILGenerator();
 
-            if (locals != null)
-                DeclareLocals(generator, locals, constants);
+            if (delegateTarget.Locals != null)
+                DeclareLocals(generator, delegateTarget, constants);
 
-            if (!expression.TryEmit(delegateTarget, locals, generator, parameters))
+            if (!expression.TryEmit(delegateTarget, generator, parameters))
                 return false;
 
             generator.Emit(OpCodes.Ret);
 
-            resultDelegate = delegateTarget == null ? method.CreateDelegate(delegateType) : method.CreateDelegate(delegateType, delegateTarget.Target);
+            resultDelegate = delegateTarget.Target == null ? method.CreateDelegate(delegateType) : method.CreateDelegate(delegateType, delegateTarget.Target);
             return true;
         }
 
         private static DynamicMethod CreateDynamicMethod(DelegateTargetInformation target, Type returnType, params ParameterExpression[] parameters)
         {
-            if (target == null)
-                return new DynamicMethod(string.Empty, returnType, parameters.Select(p => p.Type).ToArray(), typeof(ExpressionEmitter), true);
+            if (target.Target == null)
+                return new DynamicMethod(string.Empty, returnType, parameters.GetTypes(), typeof(ExpressionEmitter), true);
 
             var targetType = target.Target.GetType();
-            return new DynamicMethod(string.Empty, returnType, new[] { targetType }.Concat(parameters.Select(p => p.Type)).ToArray(), targetType, true);
+            return new DynamicMethod(string.Empty, returnType, targetType.ConcatDelegateTargetParameter(parameters.GetTypes()), targetType, true);
         }
 
-        private static void DeclareLocals(ILGenerator generator, LocalVariableInformation target, Constants constants)
+        private static Type[] GetTypes(this IList<ParameterExpression> parameters)
+        {
+            var count = parameters.Count;
+            if (count == 0)
+                return Stashbox.Constants.EmptyTypes;
+            if (count == 1)
+                return new[] { parameters[0].Type };
+
+            var types = new Type[count];
+            for (var i = 0; i < count; i++)
+                types[i] = parameters[i].Type;
+            return types;
+        }
+
+        private static Type[] ConcatDelegateTargetParameter(this Type targetType, Type[] parameters)
+        {
+            var count = parameters.Length;
+            if (count == 0)
+                return new[] { targetType };
+
+            var types = new Type[count + 1];
+            types[0] = targetType;
+
+            if (count == 1)
+                types[1] = parameters[0];
+            if (count > 1)
+                Array.Copy(parameters, 0, types, 1, count);
+
+            return types;
+        }
+
+        private static void DeclareLocals(ILGenerator generator, DelegateTargetInformation target, Constants constants)
         {
             var length = constants.Locals.Count;
-            for (int i = 0; i < length; i++)
+            for (var i = 0; i < length; i++)
                 target.LocalBuilders.Add(generator.DeclareLocal(constants.Locals[i].Type));
         }
 
-        private static bool TryEmit(this Expression expression, DelegateTargetInformation target, LocalVariableInformation locals, ILGenerator generator, params ParameterExpression[] parameters)
+        private static bool TryEmit(this Expression expression, DelegateTargetInformation target, ILGenerator generator, params ParameterExpression[] parameters)
         {
             switch (expression.NodeType)
             {
                 case ExpressionType.Call:
-                    return ((MethodCallExpression)expression).TryEmit(target, locals, generator, parameters);
+                    return ((MethodCallExpression)expression).TryEmit(target, generator, parameters);
                 case ExpressionType.MemberAccess:
-                    return ((MemberExpression)expression).TryEmit(target, locals, generator, parameters);
+                    return ((MemberExpression)expression).TryEmit(target, generator, parameters);
                 case ExpressionType.Invoke:
-                    return ((InvocationExpression)expression).TryEmit(target, locals, generator, parameters);
+                    return ((InvocationExpression)expression).TryEmit(target, generator, parameters);
                 case ExpressionType.Parameter:
-                    return ((ParameterExpression)expression).TryEmit(target, locals, generator, parameters);
+                    return ((ParameterExpression)expression).TryEmit(target, generator, parameters);
                 case ExpressionType.Lambda:
                     return ((LambdaExpression)expression).TryEmit(target, generator, parameters);
                 case ExpressionType.Convert:
-                    return ((UnaryExpression)expression).TryEmit(target, locals, generator, parameters);
+                    return ((UnaryExpression)expression).TryEmit(target, generator, parameters);
                 case ExpressionType.Constant:
                     return ((ConstantExpression)expression).TryEmit(target, generator);
                 case ExpressionType.MemberInit:
-                    return ((MemberInitExpression)expression).TryEmit(target, locals, generator, parameters);
+                    return ((MemberInitExpression)expression).TryEmit(target, generator, parameters);
                 case ExpressionType.New:
-                    return ((NewExpression)expression).TryEmit(target, locals, generator, parameters);
+                    return ((NewExpression)expression).TryEmit(target, generator, parameters);
                 case ExpressionType.Block:
-                    return ((BlockExpression)expression).TryEmit(target, locals, generator, parameters);
+                    return ((BlockExpression)expression).TryEmit(target, generator, parameters);
                 case ExpressionType.NewArrayInit:
-                    return ((NewArrayExpression)expression).TryEmit(target, locals, generator, parameters);
+                    return ((NewArrayExpression)expression).TryEmit(target, generator, parameters);
             }
 
             return false;
         }
 
-        private static bool TryEmit(this NewArrayExpression expression, DelegateTargetInformation target, LocalVariableInformation locals, ILGenerator generator, params ParameterExpression[] parameters)
+        private static bool TryEmit(this IList<Expression> expressions, DelegateTargetInformation target, ILGenerator generator, params ParameterExpression[] parameters)
+        {
+            for (var i = 0; i < expressions.Count; i++)
+                if (!expressions[i].TryEmit(target, generator, parameters))
+                    return false;
+
+            return true;
+        }
+
+        private static bool TryEmit(this NewArrayExpression expression, DelegateTargetInformation target, ILGenerator generator, params ParameterExpression[] parameters)
         {
             var type = expression.Type;
             var itemType = type.GetEnumerableType();
@@ -114,7 +153,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
                 if (type.IsValueType)
                     generator.Emit(OpCodes.Ldelema, itemType);
 
-                if (!expression.Expressions[i].TryEmit(target, locals, generator, parameters))
+                if (!expression.Expressions[i].TryEmit(target, generator, parameters))
                     return false;
 
                 if (type.IsValueType)
@@ -128,17 +167,17 @@ namespace Stashbox.BuildUp.Expressions.Compile
             return true;
         }
 
-        private static bool TryEmit(this ParameterExpression expression, DelegateTargetInformation target, LocalVariableInformation locals, ILGenerator generator, params ParameterExpression[] parameters)
+        private static bool TryEmit(this ParameterExpression expression, DelegateTargetInformation target, ILGenerator generator, params ParameterExpression[] parameters)
         {
             var index = Array.IndexOf(parameters, expression);
             if (index != -1) return generator.LoadParameter(target == null ? index : index + 1);
 
-            if (locals != null)
+            if (target.Locals != null)
             {
-                var paramIndex = locals.Locals.IndexOf(expression);
+                var paramIndex = target.Locals.IndexOf(expression);
                 if (paramIndex != -1)
                 {
-                    generator.Emit(OpCodes.Ldloc, locals.LocalBuilders[paramIndex]);
+                    generator.Emit(OpCodes.Ldloc, target.LocalBuilders[paramIndex]);
                     return true;
                 }
             }
@@ -147,7 +186,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
             return constantIndex != -1 && generator.LoadConstantFromField(target, constantIndex);
         }
 
-        private static bool TryEmit(this BlockExpression expression, DelegateTargetInformation target, LocalVariableInformation locals, ILGenerator generator, params ParameterExpression[] parameters)
+        private static bool TryEmit(this BlockExpression expression, DelegateTargetInformation target, ILGenerator generator, params ParameterExpression[] parameters)
         {
             var length = expression.Expressions.Count;
             for (var i = 0; i < length; i++)
@@ -159,22 +198,22 @@ namespace Stashbox.BuildUp.Expressions.Compile
 
                     if (binary.Left is ParameterExpression parameterExpression)
                     {
-                        var localIndex = locals.Locals.IndexOf(parameterExpression);
+                        var localIndex = target.Locals.IndexOf(parameterExpression);
                         if (localIndex == -1)
                             return false;
 
-                        if (!binary.Right.TryEmit(target, locals, generator, parameters))
+                        if (!binary.Right.TryEmit(target, generator, parameters))
                             return false;
 
-                        generator.Emit(OpCodes.Stloc, locals.LocalBuilders[localIndex]);
+                        generator.Emit(OpCodes.Stloc, target.LocalBuilders[localIndex]);
                     }
 
                     if (binary.Left is MemberExpression memberExpression)
                     {
-                        if (!memberExpression.Expression.TryEmit(target, locals, generator, parameters))
+                        if (!memberExpression.Expression.TryEmit(target, generator, parameters))
                             return false;
 
-                        if (!binary.Right.TryEmit(target, locals, generator, parameters))
+                        if (!binary.Right.TryEmit(target, generator, parameters))
                             return false;
 
                         if (memberExpression.Member is PropertyInfo property)
@@ -188,25 +227,25 @@ namespace Stashbox.BuildUp.Expressions.Compile
                             generator.Emit(OpCodes.Stfld, field);
                     }
                 }
-                else if (!expr.TryEmit(target, locals, generator, parameters))
+                else if (!expr.TryEmit(target, generator, parameters))
                     return false;
             }
 
             return true;
         }
 
-        private static bool TryEmit(this MethodCallExpression expression, DelegateTargetInformation target, LocalVariableInformation locals, ILGenerator generator, params ParameterExpression[] parameters)
+        private static bool TryEmit(this MethodCallExpression expression, DelegateTargetInformation target, ILGenerator generator, params ParameterExpression[] parameters)
         {
-            if (expression.Object != null && !expression.Object.TryEmit(target, locals, generator, parameters))
+            if (expression.Object != null && !expression.Object.TryEmit(target, generator, parameters))
                 return false;
 
-            return expression.Arguments.All(argument => argument.TryEmit(target, locals, generator, parameters)) &&
+            return expression.Arguments.TryEmit(target, generator, parameters) &&
                 generator.EmitMethod(expression.Method);
         }
 
-        private static bool TryEmit(this NewExpression expression, DelegateTargetInformation target, LocalVariableInformation locals, ILGenerator generator, params ParameterExpression[] parameters)
+        private static bool TryEmit(this NewExpression expression, DelegateTargetInformation target, ILGenerator generator, params ParameterExpression[] parameters)
         {
-            if (!expression.Arguments.All(argument => argument.TryEmit(target, locals, generator, parameters)))
+            if (!expression.Arguments.TryEmit(target, generator, parameters))
                 return false;
 
             generator.Emit(OpCodes.Newobj, expression.Constructor);
@@ -214,9 +253,9 @@ namespace Stashbox.BuildUp.Expressions.Compile
             return true;
         }
 
-        private static bool TryEmit(this UnaryExpression expression, DelegateTargetInformation target, LocalVariableInformation locals, ILGenerator generator, params ParameterExpression[] parameters)
+        private static bool TryEmit(this UnaryExpression expression, DelegateTargetInformation target, ILGenerator generator, params ParameterExpression[] parameters)
         {
-            if (!expression.Operand.TryEmit(target, locals, generator, parameters))
+            if (!expression.Operand.TryEmit(target, generator, parameters))
                 return false;
 
             var type = expression.Type;
@@ -240,7 +279,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
 
             if (lambda == null) return false;
 
-            if (lambda.DelegateTargetInfo == null || lambda.DelegateTargetInfo.Parameters.Count == 0) return true;
+            if (lambda.DelegateTargetInfo.Parameters == null) return true;
 
             var length = lambda.DelegateTargetInfo.Parameters.Count;
             for (var i = 0; i < length; i++)
@@ -269,9 +308,9 @@ namespace Stashbox.BuildUp.Expressions.Compile
             return true;
         }
 
-        private static bool TryEmit(this MemberInitExpression expression, DelegateTargetInformation target, LocalVariableInformation locals, ILGenerator generator, params ParameterExpression[] parameters)
+        private static bool TryEmit(this MemberInitExpression expression, DelegateTargetInformation target, ILGenerator generator, params ParameterExpression[] parameters)
         {
-            if (!expression.NewExpression.TryEmit(target, locals, generator, parameters))
+            if (!expression.NewExpression.TryEmit(target, generator, parameters))
                 return false;
 
             var result = generator.DeclareLocal(expression.Type);
@@ -286,7 +325,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
 
                 generator.Emit(OpCodes.Ldloc, result);
 
-                if (!((MemberAssignment)binding).Expression.TryEmit(target, locals, generator, parameters))
+                if (!((MemberAssignment)binding).Expression.TryEmit(target, generator, parameters))
                     return false;
 
                 if (binding.Member is PropertyInfo property)
@@ -304,9 +343,9 @@ namespace Stashbox.BuildUp.Expressions.Compile
             return true;
         }
 
-        private static bool TryEmit(this MemberExpression expression, DelegateTargetInformation target, LocalVariableInformation locals, ILGenerator generator, params ParameterExpression[] parameters)
+        private static bool TryEmit(this MemberExpression expression, DelegateTargetInformation target, ILGenerator generator, params ParameterExpression[] parameters)
         {
-            if (!expression.Expression.TryEmit(target, locals, generator, parameters))
+            if (!expression.Expression.TryEmit(target, generator, parameters))
                 return false;
 
             if (expression.Member is FieldInfo field)
@@ -325,12 +364,9 @@ namespace Stashbox.BuildUp.Expressions.Compile
             return true;
         }
 
-        private static bool TryEmit(this InvocationExpression expression, DelegateTargetInformation target, LocalVariableInformation locals, ILGenerator generator, params ParameterExpression[] parameters)
+        private static bool TryEmit(this InvocationExpression expression, DelegateTargetInformation target, ILGenerator generator, params ParameterExpression[] parameters)
         {
-            if (!expression.Expression.TryEmit(target, locals, generator, parameters))
-                return false;
-
-            if (!expression.Arguments.All(argument => argument.TryEmit(target, locals, generator, parameters)))
+            if (!expression.Expression.TryEmit(target, generator, parameters) || !expression.Arguments.TryEmit(target, generator, parameters))
                 return false;
 
             var invokeMethod = expression.Expression.Type.GetMethod("Invoke");

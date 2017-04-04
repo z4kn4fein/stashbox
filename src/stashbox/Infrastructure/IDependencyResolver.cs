@@ -16,8 +16,7 @@ namespace Stashbox.Infrastructure
         /// <param name="name">The name of the requested registration.</param>
         /// <param name="nullResultAllowed">If true, the container will return with null instead of throwing <see cref="ResolutionFailedException"/>.</param>
         /// <returns>The resolved object.</returns>
-        TKey Resolve<TKey>(string name = null, bool nullResultAllowed = false)
-           where TKey : class;
+        TKey Resolve<TKey>(string name = null, bool nullResultAllowed = false);
 
         /// <summary>
         /// Resolves an instance from the container.
@@ -33,8 +32,7 @@ namespace Stashbox.Infrastructure
         /// </summary>
         /// <typeparam name="TKey">The type of the requested instance.</typeparam>
         /// <returns>The resolved object.</returns>
-        IEnumerable<TKey> ResolveAll<TKey>()
-             where TKey : class;
+        IEnumerable<TKey> ResolveAll<TKey>();
 
         /// <summary>
         /// Resolves all registered types of a service.

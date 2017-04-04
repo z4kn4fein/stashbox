@@ -23,7 +23,7 @@ namespace Stashbox.MetaInfo
             var typeInfo = typeTo.GetTypeInfo();
             this.AddConstructors(typeInfo.DeclaredConstructors);
             this.AddMethods(typeInfo.DeclaredMethods);
-            this.InjectionMembers = this.FillMembers(typeInfo).ToArray();
+            this.InjectionMembers = this.FillMembers(typeInfo).CastToArray();
             this.CollectGenericConstraints(typeInfo);
         }
 
@@ -32,8 +32,8 @@ namespace Stashbox.MetaInfo
             this.Constructors = infos.Where(info => !info.IsStatic).Select(info => new ConstructorInformation
             {
                 Constructor = info,
-                Parameters = this.FillParameters(info.GetParameters()).ToArray()
-            }).ToArray();
+                Parameters = this.FillParameters(info.GetParameters()).CastToArray()
+            }).CastToArray();
         }
 
         private void AddMethods(IEnumerable<MethodInfo> infos)
@@ -41,8 +41,8 @@ namespace Stashbox.MetaInfo
             this.InjectionMethods = infos.Where(methodInfo => methodInfo.GetCustomAttribute<InjectionMethodAttribute>() != null).Select(info => new MethodInformation
             {
                 Method = info,
-                Parameters = this.FillParameters(info.GetParameters()).ToArray()
-            }).ToArray();
+                Parameters = this.FillParameters(info.GetParameters()).CastToArray()
+            }).CastToArray();
         }
 
         private IEnumerable<TypeInformation> FillParameters(IEnumerable<ParameterInfo> parameters)
@@ -71,7 +71,7 @@ namespace Stashbox.MetaInfo
                            DependencyName = propertyInfo.GetCustomAttribute<DependencyAttribute>()?.Name,
                            HasDependencyAttribute = propertyInfo.GetCustomAttribute<DependencyAttribute>() != null,
                            ParentType = this.typeTo,
-                           CustomAttributes = propertyInfo.GetCustomAttributes()?.ToArray(),
+                           CustomAttributes = propertyInfo.GetCustomAttributes()?.CastToArray(),
                            ParameterName = propertyInfo.Name,
                            IsMember = true
                        },
@@ -86,7 +86,7 @@ namespace Stashbox.MetaInfo
                                    DependencyName = fieldInfo.GetCustomAttribute<DependencyAttribute>()?.Name,
                                    HasDependencyAttribute = fieldInfo.GetCustomAttribute<DependencyAttribute>() != null,
                                    ParentType = this.typeTo,
-                                   CustomAttributes = fieldInfo.GetCustomAttributes()?.ToArray(),
+                                   CustomAttributes = fieldInfo.GetCustomAttributes()?.CastToArray(),
                                    ParameterName = fieldInfo.Name,
                                    IsMember = true
                                },

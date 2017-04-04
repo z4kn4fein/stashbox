@@ -112,7 +112,7 @@ namespace System
             property.DeclaringType.GetSingleMethodOrDefault("set_" + property.Name, includeNonPublic) != null;
 
         public static bool IsDisposable(this Type type) =>
-            type.GetTypeInfo().ImplementedInterfaces.Contains(Constants.DisposableType);
+            Constants.DisposableType.GetTypeInfo().IsAssignableFrom(type.GetTypeInfo());
 
         private static bool IsAssignableToGenericType(Type type, Type genericType)
         {

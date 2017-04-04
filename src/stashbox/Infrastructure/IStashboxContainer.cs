@@ -64,7 +64,7 @@ namespace Stashbox.Infrastructure
         /// <typeparam name="TTo">The type of the requested instance.</typeparam>
         /// <param name="instance">The instance to build up.</param>
         /// <returns>The built object.</returns>
-        TTo BuildUp<TTo>(TTo instance) where TTo : class;
+        TTo BuildUp<TTo>(TTo instance);
 
         /// <summary>
         /// Configures the container.

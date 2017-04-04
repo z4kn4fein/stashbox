@@ -69,7 +69,7 @@ namespace Stashbox
             this.objectBuilderSelector = new ObjectBuilderSelector(this.ContainerContext, this.expressionBuilder);
             this.ServiceRegistrator = new ServiceRegistrator(this.ContainerContext, this.containerExtensionManager, this.objectBuilderSelector);
         }
-
+        
         /// <inheritdoc />
         public void RegisterExtension(IContainerExtension containerExtension)
         {
@@ -133,7 +133,7 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public TTo BuildUp<TTo>(TTo instance) where TTo : class
+        public TTo BuildUp<TTo>(TTo instance)
         {
             var typeTo = instance.GetType();
             var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, RegistrationContextData.New(), typeTo);
@@ -143,7 +143,7 @@ namespace Stashbox
                 metaInfoProvider.GetResolutionMethods(resolutionInfo));
 
             var factory = expr.CompileDelegate(Constants.ScopeExpression);
-            return factory(this) as TTo;
+            return (TTo)factory(this);
         }
 
         /// <summary>
