@@ -31,14 +31,10 @@ namespace Stashbox.BuildUp
 
         private Expression CreateExpression(IServiceRegistration serviceRegistration, ResolutionInfo resolutionInfo, Type resolveType)
         {
-            if (!serviceRegistration.MetaInfoProvider.TryChooseConstructor(out ResolutionConstructor constructor,
-                resolutionInfo))
+            if (!serviceRegistration.MetaInfoProvider.TryChooseConstructor(out ResolutionConstructor constructor, resolutionInfo))
                 return null;
 
-            return this.expressionBuilder.CreateExpression(constructor, resolutionInfo,
-                    resolveType, serviceRegistration.RegistrationContext.InjectionParameters,
-                    serviceRegistration.MetaInfoProvider.GetResolutionMembers(resolutionInfo),
-                    serviceRegistration.MetaInfoProvider.GetResolutionMethods(resolutionInfo));
+            return this.expressionBuilder.CreateExpression(serviceRegistration, constructor, resolutionInfo, resolveType);
         }
     }
 }

@@ -26,10 +26,8 @@ namespace Stashbox.BuildUp
             {
                 if (this.expression != null) return this.expression;
 
-                var expr = this.expressionBuilder.CreateFillExpression(Expression.Constant(serviceRegistration.RegistrationContext.ExistingInstance), resolutionInfo,
-                    serviceRegistration.ImplementationType, serviceRegistration.RegistrationContext.InjectionParameters,
-                    serviceRegistration.MetaInfoProvider.GetResolutionMembers(resolutionInfo),
-                    serviceRegistration.MetaInfoProvider.GetResolutionMethods(resolutionInfo));
+                var expr = this.expressionBuilder.CreateFillExpression(serviceRegistration, Expression.Constant(serviceRegistration.RegistrationContext.ExistingInstance), 
+                    resolutionInfo, serviceRegistration.ImplementationType);
                 var factory = expr.CompileDelegate(Constants.ScopeExpression);
 
                 var instance = factory(resolutionInfo.ResolutionScope);

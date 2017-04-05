@@ -27,9 +27,7 @@ namespace Stashbox.BuildUp
             
             var expr = Expression.Invoke(lambda, Expression.Convert(Constants.ScopeExpression, Constants.ResolverType));
 
-            return this.expressionBuilder.CreateFillExpression(expr, resolutionInfo, resolveType, serviceRegistration.RegistrationContext.InjectionParameters,
-                   serviceRegistration.MetaInfoProvider.GetResolutionMembers(resolutionInfo),
-                   serviceRegistration.MetaInfoProvider.GetResolutionMethods(resolutionInfo));
+            return this.expressionBuilder.CreateFillExpression(serviceRegistration, expr, resolutionInfo, resolveType);
         }
     }
 }

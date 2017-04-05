@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
+using Stashbox.Infrastructure.Registration;
 
 namespace Stashbox.BuildUp.Expressions
 {
@@ -20,8 +21,8 @@ namespace Stashbox.BuildUp.Expressions
             this.containerExtensionManager = containerExtensionManager;
         }
 
-        public Expression CreateFillExpression(Expression instance, ResolutionInfo resolutionInfo, Type serviceType, 
-            InjectionParameter[] parameters, ResolutionMember[] members, ResolutionMethod[] methods)
+        public Expression CreateFillExpression(IMetaInfoProvider metaInfoProvider, Expression instance,
+            ResolutionInfo resolutionInfo, Type serviceType)
         {
             var block = new List<Expression>();
 
@@ -33,27 +34,57 @@ namespace Stashbox.BuildUp.Expressions
 
             block.Add(assign);
 
-            if (members != null && members.Length > 0)
+            var members = metaInfoProvider.GetResolutionMembers(resolutionInfo);
+            if (members != null)
                 block.AddRange(this.FillMembersExpression(members, variable));
 
+            var methods = metaInfoProvider.GetResolutionMethods(resolutionInfo);
             if (methods != null && methods.Length > 0 || this.containerExtensionManager.HasPostBuildExtensions)
-                return this.CreatePostWorkExpressionIfAny(resolutionInfo, variable, serviceType, parameters, methods, block, variable);
+                return this.CreatePostWorkExpressionIfAny(resolutionInfo, variable, serviceType, null, methods, block, variable);
 
             block.Add(variable); //return
 
             return Expression.Block(new[] { variable }, block);
         }
 
-        public Expression CreateExpression(ResolutionConstructor resolutionConstructor, ResolutionInfo resolutionInfo,
-            Type serviceType, InjectionParameter[] parameters, ResolutionMember[] members, ResolutionMethod[] methods)
+        public Expression CreateFillExpression(IServiceRegistration serviceRegistration, Expression instance, 
+            ResolutionInfo resolutionInfo, Type serviceType)
+        {
+            var block = new List<Expression>();
+
+            if (instance.Type != serviceType)
+                instance = Expression.Convert(instance, serviceType);
+
+            var variable = Expression.Variable(serviceType);
+            var assign = Expression.Assign(variable, instance);
+
+            block.Add(assign);
+
+            var members = serviceRegistration.MetaInfoProvider.GetResolutionMembers(resolutionInfo);
+            if (members != null)
+                block.AddRange(this.FillMembersExpression(members, variable));
+
+            var methods = serviceRegistration.MetaInfoProvider.GetResolutionMethods(resolutionInfo);
+            if (methods != null && methods.Length > 0 || this.containerExtensionManager.HasPostBuildExtensions)
+                return this.CreatePostWorkExpressionIfAny(resolutionInfo, variable, serviceType, serviceRegistration.RegistrationContext.InjectionParameters, methods, block, variable);
+
+            block.Add(variable); //return
+
+            return Expression.Block(new[] { variable }, block);
+        }
+
+        public Expression CreateExpression(IServiceRegistration serviceRegistration, ResolutionConstructor resolutionConstructor, 
+            ResolutionInfo resolutionInfo, Type serviceType)
         {
             Expression initExpression = Expression.New(resolutionConstructor.Constructor, resolutionConstructor.Parameters);
 
-            if (members != null && members.Length > 0)
+            var members = serviceRegistration.MetaInfoProvider.GetResolutionMembers(resolutionInfo);
+            if (members != null)
                 initExpression = this.CreateMemberInitExpression(members, (NewExpression)initExpression);
 
-            if (methods != null && methods.Length > 0 || this.containerExtensionManager.HasPostBuildExtensions)
-                return this.CreatePostWorkExpressionIfAny(resolutionInfo, initExpression, serviceType, parameters, methods);
+            var methods = serviceRegistration.MetaInfoProvider.GetResolutionMethods(resolutionInfo);
+            if (methods != null || this.containerExtensionManager.HasPostBuildExtensions)
+                return this.CreatePostWorkExpressionIfAny(resolutionInfo, initExpression, serviceType, serviceRegistration.RegistrationContext.InjectionParameters, methods);
 
             return initExpression;
         }

@@ -137,11 +137,7 @@ namespace Stashbox
         {
             var typeTo = instance.GetType();
             var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, RegistrationContextData.New(), typeTo);
-
-            var resolutionInfo = ResolutionInfo.New(this, this);
-            var expr = this.expressionBuilder.CreateFillExpression(Expression.Constant(instance), resolutionInfo, typeTo, null, metaInfoProvider.GetResolutionMembers(resolutionInfo),
-                metaInfoProvider.GetResolutionMethods(resolutionInfo));
-
+            var expr = this.expressionBuilder.CreateFillExpression(metaInfoProvider, Expression.Constant(instance), ResolutionInfo.New(this, this), typeTo);
             var factory = expr.CompileDelegate(Constants.ScopeExpression);
             return (TTo)factory(this);
         }
