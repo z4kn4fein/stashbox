@@ -42,7 +42,7 @@ namespace Stashbox.Resolution
             for (int i = 0; i < this.resolverRepository.Lenght; i++)
             {
                 var item = this.resolverRepository.Get(i);
-                if (item.CanUseForResolution(containerContext, typeInfo))
+                if (item.SupportsMany && item.CanUseForResolution(containerContext, typeInfo))
                     return item.GetExpressions(containerContext, typeInfo, resolutionInfo);
             }
 
