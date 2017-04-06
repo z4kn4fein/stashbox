@@ -13,37 +13,20 @@ namespace Stashbox
     public partial class StashboxContainer
     {
         /// <inheritdoc />
-        public IDependencyRegistrator RegisterType<TFrom, TTo>(string name = null) where TFrom : class where TTo : class, TFrom
-        {
-            this.PrepareType<TFrom, TTo>().WithName(name).Register();
-            return this;
-        }
+        public IDependencyRegistrator RegisterType<TFrom, TTo>(string name = null) where TFrom : class where TTo : class, TFrom =>
+            this.RegisterType<TFrom, TTo>(context => context.WithName(name));
 
         /// <inheritdoc />
-        public IDependencyRegistrator RegisterType<TFrom>(Type typeTo, string name = null) where TFrom : class
-        {
-            Shield.EnsureNotNull(typeTo, nameof(typeTo));
-
-            this.PrepareType<TFrom>(typeTo).WithName(name).Register();
-            return this;
-        }
+        public IDependencyRegistrator RegisterType<TFrom>(Type typeTo, string name = null) where TFrom : class =>
+            this.RegisterType<TFrom>(typeTo, context => context.WithName(name));
 
         /// <inheritdoc />
-        public IDependencyRegistrator RegisterType(Type typeFrom, Type typeTo, string name = null)
-        {
-            Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
-            Shield.EnsureNotNull(typeTo, nameof(typeTo));
-
-            this.PrepareType(typeFrom, typeTo).WithName(name).Register();
-            return this;
-        }
+        public IDependencyRegistrator RegisterType(Type typeFrom, Type typeTo, string name = null) =>
+            this.RegisterType(typeFrom, typeTo, context => context.WithName(name));
 
         /// <inheritdoc />
-        public IDependencyRegistrator RegisterType<TTo>(string name = null) where TTo : class
-        {
-            this.PrepareType<TTo>().WithName(name).Register();
-            return this;
-        }
+        public IDependencyRegistrator RegisterType<TTo>(string name = null) where TTo : class =>
+            this.RegisterType<TTo>(context => context.WithName(name));
 
         /// <inheritdoc />
         public IDependencyRegistrator ReMap<TFrom, TTo>(string name = null)
@@ -110,98 +93,93 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public IRegistrationContext PrepareType<TFrom, TTo>()
+        public IDependencyRegistrator RegisterType<TFrom, TTo>(Action<IFluentServiceRegistrator> configurator)
             where TFrom : class
-            where TTo : class, TFrom =>
-            this.ServiceRegistrator.PrepareContext(typeof(TFrom), typeof(TTo));
-
-        /// <inheritdoc />
-        public IRegistrationContext PrepareType<TFrom>(Type typeTo)
-            where TFrom : class
+            where TTo : class, TFrom
         {
-            Shield.EnsureNotNull(typeTo, nameof(typeTo));
+            Shield.EnsureNotNull(configurator, nameof(configurator));
 
-            return this.ServiceRegistrator.PrepareContext(typeof(TFrom), typeTo);
+            var context = this.ServiceRegistrator.PrepareContext(typeof(TFrom), typeof(TTo));
+            configurator(context);
+            return context.Register();
         }
 
         /// <inheritdoc />
-        public IRegistrationContext PrepareType(Type typeFrom, Type typeTo)
+        public IDependencyRegistrator RegisterType<TFrom>(Type typeTo, Action<IFluentServiceRegistrator> configurator)
+            where TFrom : class
+        {
+            Shield.EnsureNotNull(typeTo, nameof(typeTo));
+            Shield.EnsureNotNull(configurator, nameof(configurator));
+
+            var context = this.ServiceRegistrator.PrepareContext(typeof(TFrom), typeTo);
+            configurator(context);
+            return context.Register();
+        }
+
+        /// <inheritdoc />
+        public IDependencyRegistrator RegisterType(Type typeFrom, Type typeTo, Action<IFluentServiceRegistrator> configurator)
         {
             Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
             Shield.EnsureNotNull(typeTo, nameof(typeTo));
+            Shield.EnsureNotNull(configurator, nameof(configurator));
 
-            return this.ServiceRegistrator.PrepareContext(typeFrom, typeTo);
+            var context = this.ServiceRegistrator.PrepareContext(typeFrom, typeTo);
+            configurator(context);
+            return context.Register();
         }
 
         /// <inheritdoc />
-        public IRegistrationContext PrepareType<TTo>()
+        public IDependencyRegistrator RegisterType<TTo>(Action<IFluentServiceRegistrator> configurator)
              where TTo : class
         {
+            Shield.EnsureNotNull(configurator, nameof(configurator));
+
             var type = typeof(TTo);
-            return this.ServiceRegistrator.PrepareContext(type, type);
+            var context = this.ServiceRegistrator.PrepareContext(type, type);
+            configurator(context);
+            return context.Register();
         }
 
         /// <inheritdoc />
-        public IRegistrationContext PrepareType(Type typeTo)
+        public IDependencyRegistrator RegisterType(Type typeTo, Action<IFluentServiceRegistrator> configurator)
         {
             Shield.EnsureNotNull(typeTo, nameof(typeTo));
+            Shield.EnsureNotNull(configurator, nameof(configurator));
 
-            return this.ServiceRegistrator.PrepareContext(typeTo, typeTo);
+            var context = this.ServiceRegistrator.PrepareContext(typeTo, typeTo);
+            configurator(context);
+            return context.Register();
         }
 
         /// <inheritdoc />
         public IDependencyRegistrator RegisterSingleton<TFrom, TTo>(string name = null)
             where TFrom : class
-            where TTo : class, TFrom
-        {
-            this.PrepareType<TFrom, TTo>().WithName(name).WithSingletonLifetime().Register();
-            return this;
-        }
+            where TTo : class, TFrom =>
+            this.RegisterType<TFrom, TTo>(context => context.WithName(name).WithSingletonLifetime());
 
         /// <inheritdoc />
         public IDependencyRegistrator RegisterSingleton<TTo>(string name = null)
-            where TTo : class
-        {
-            this.PrepareType<TTo>().WithName(name).WithSingletonLifetime().Register();
-            return this;
-        }
+            where TTo : class =>
+            this.RegisterType<TTo>(context => context.WithName(name).WithSingletonLifetime());
 
         /// <inheritdoc />
-        public IDependencyRegistrator RegisterSingleton(Type typeFrom, Type typeTo, string name = null)
-        {
-            Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
-            Shield.EnsureNotNull(typeTo, nameof(typeTo));
-
-            this.PrepareType(typeFrom, typeTo).WithName(name).WithSingletonLifetime().Register();
-            return this;
-        }
+        public IDependencyRegistrator RegisterSingleton(Type typeFrom, Type typeTo, string name = null) =>
+            this.RegisterType(typeFrom, typeTo, context => context.WithName(name).WithSingletonLifetime());
 
         /// <inheritdoc />
         public IDependencyRegistrator RegisterScoped<TFrom, TTo>(string name = null)
             where TFrom : class
-            where TTo : class, TFrom
-        {
-            this.PrepareType<TFrom, TTo>().WithName(name).WithScopedLifetime().Register();
-            return this;
-        }
+            where TTo : class, TFrom =>
+            this.RegisterType<TFrom, TTo>(context => context.WithName(name).WithScopedLifetime());
 
         /// <inheritdoc />
-        public IDependencyRegistrator RegisterScoped(Type typeFrom, Type typeTo, string name = null)
-        {
-            Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
-            Shield.EnsureNotNull(typeTo, nameof(typeTo));
-
-            this.PrepareType(typeFrom, typeTo).WithName(name).WithScopedLifetime().Register();
-            return this;
-        }
+        public IDependencyRegistrator RegisterScoped(Type typeFrom, Type typeTo, string name = null) =>
+            this.RegisterType(typeFrom, typeTo, context => context.WithName(name).WithScopedLifetime());
 
         /// <inheritdoc />
         public IDependencyRegistrator RegisterScoped<TTo>(string name = null)
-            where TTo : class
-        {
-            this.PrepareType<TTo>().WithName(name).WithScopedLifetime().Register();
-            return this;
-        }
+            where TTo : class =>
+            this.RegisterType<TTo>(context => context.WithName(name).WithScopedLifetime());
 
         /// <inheritdoc />
         public IDependencyRegistrator RegisterTypes<TFrom>(IEnumerable<Type> types, Action<IRegistrationContext> configurator = null)

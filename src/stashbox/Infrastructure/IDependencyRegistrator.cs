@@ -10,46 +10,51 @@ namespace Stashbox.Infrastructure
     public interface IDependencyRegistrator
     {
         /// <summary>
-        /// Prepares a type for registration.
+        /// Registers a type into the container with custom configuration.
         /// </summary>
         /// <typeparam name="TFrom">Type that will be requested.</typeparam>
         /// <typeparam name="TTo">Type that will be returned.</typeparam>
-        /// <returns>The created <see cref="IRegistrationContext"/> which allows further configurations.</returns>
-        IRegistrationContext PrepareType<TFrom, TTo>()
+        /// <param name="configurator">The configurator for the registered types.</param>
+        /// <returns>The <see cref="IDependencyRegistrator"/> which on this method was called.</returns>
+        IDependencyRegistrator RegisterType<TFrom, TTo>(Action<IFluentServiceRegistrator> configurator)
             where TFrom : class
             where TTo : class, TFrom;
 
         /// <summary>
-        /// Prepares a type for registration.
+        /// Registers a type into the container with custom configuration.
         /// </summary>
         /// <typeparam name="TFrom">Type that will be requested.</typeparam>
         /// <param name="typeTo">Type that will be returned.</param>
-        /// <returns>The created <see cref="IRegistrationContext"/> which allows further configurations.</returns>
-        IRegistrationContext PrepareType<TFrom>(Type typeTo)
+        /// <param name="configurator">The configurator for the registered types.</param>
+        /// <returns>The <see cref="IDependencyRegistrator"/> which on this method was called.</returns>
+        IDependencyRegistrator RegisterType<TFrom>(Type typeTo, Action<IFluentServiceRegistrator> configurator)
             where TFrom : class;
 
         /// <summary>
-        /// Prepares a type for registration.
+        /// Registers a type into the container with custom configuration.
         /// </summary>
         /// <param name="typeFrom">Type that will be requested.</param>
         /// <param name="typeTo">Type that will be returned.</param>
-        /// <returns>The created <see cref="IRegistrationContext"/> which allows further configurations.</returns>
-        IRegistrationContext PrepareType(Type typeFrom, Type typeTo);
+        /// <param name="configurator">The configurator for the registered types.</param>
+        /// <returns>The <see cref="IDependencyRegistrator"/> which on this method was called.</returns>
+        IDependencyRegistrator RegisterType(Type typeFrom, Type typeTo, Action<IFluentServiceRegistrator> configurator);
 
         /// <summary>
-        /// Prepares a type for registration.
+        /// Registers a type into the container with custom configuration.
         /// </summary>
         /// <typeparam name="TTo">Type that will be returned.</typeparam>
-        /// <returns>The created <see cref="IRegistrationContext"/> which allows further configurations.</returns>
-        IRegistrationContext PrepareType<TTo>()
+        /// <param name="configurator">The configurator for the registered types.</param>
+        /// <returns>The <see cref="IDependencyRegistrator"/> which on this method was called.</returns>
+        IDependencyRegistrator RegisterType<TTo>(Action<IFluentServiceRegistrator> configurator)
              where TTo : class;
 
         /// <summary>
-        /// Prepares a type for registration.
+        /// Registers a type into the container with custom configuration.
         /// </summary>
         /// <param name="typeTo">Type that will be returned.</param>
-        /// <returns>The created <see cref="IRegistrationContext"/> which allows further configurations.</returns>
-        IRegistrationContext PrepareType(Type typeTo);
+        /// <param name="configurator">The configurator for the registered types.</param>
+        /// <returns>The <see cref="IDependencyRegistrator"/> which on this method was called.</returns>
+        IDependencyRegistrator RegisterType(Type typeTo, Action<IFluentServiceRegistrator> configurator);
 
         /// <summary>
         /// Registers a type into the container.
