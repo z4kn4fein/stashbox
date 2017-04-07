@@ -14,8 +14,8 @@ namespace Stashbox.Tests
         public void ReMapTests_SingleResolve()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterType<ITest1, Test1>("teszt");
-            container.RegisterType<ITest1, Test12>("teszt2");
+            container.RegisterType<ITest1, Test1>(context => context.WithName("teszt"));
+            container.RegisterType<ITest1, Test12>(context => context.WithName("teszt2"));
 
             var test1 = container.Resolve<ITest1>("teszt");
             var test2 = container.Resolve<ITest1>("teszt2");
@@ -36,8 +36,8 @@ namespace Stashbox.Tests
         public void ReMapTests_Enumerable_Named()
         {
             IStashboxContainer container = new StashboxContainer(config => config.WithEnumerableOrderRule(Rules.EnumerableOrder.PreserveOrder));
-            container.RegisterType<ITest1, Test1>("teszt");
-            container.RegisterType<ITest1, Test12>("teszt2");
+            container.RegisterType<ITest1, Test1>(context => context.WithName("teszt"));
+            container.RegisterType<ITest1, Test12>(context => context.WithName("teszt2"));
 
             var coll = container.Resolve<IEnumerable<ITest1>>().ToArray();
 
@@ -56,8 +56,8 @@ namespace Stashbox.Tests
         public void ReMapTests_Func_Named()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterType<ITest1, Test12>("teszt2");
-            container.RegisterType<ITest1, Test1>("teszt");
+            container.RegisterType<ITest1, Test12>(context => context.WithName("teszt2"));
+            container.RegisterType<ITest1, Test1>(context => context.WithName("teszt"));
 
             container.Resolve<Func<ITest1>>("teszt2");
 
@@ -76,8 +76,8 @@ namespace Stashbox.Tests
         public void ReMapTests_Lazy_Named()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterType<ITest1, Test12>("teszt2");
-            container.RegisterType<ITest1, Test1>("teszt");
+            container.RegisterType<ITest1, Test12>(context => context.WithName("teszt2"));
+            container.RegisterType<ITest1, Test1>(context => context.WithName("teszt"));
 
             container.Resolve<Lazy<ITest1>>("teszt2");
 

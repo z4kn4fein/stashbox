@@ -13,10 +13,10 @@ namespace Stashbox.Tests
         public void AttributeTests_Resolve()
         {
             var container = new StashboxContainer();
-            container.RegisterType<ITest1, Test1>("test1");
-            container.RegisterType<ITest1, Test11>("test11");
-            container.RegisterType<ITest1, Test12>("test12");
-            container.RegisterType<ITest2, Test2>("test2");
+            container.RegisterType<ITest1, Test1>(context => context.WithName("test1"));
+            container.RegisterType<ITest1, Test11>(context => context.WithName("test11"));
+            container.RegisterType<ITest1, Test12>(context => context.WithName("test12"));
+            container.RegisterType<ITest2, Test2>(context => context.WithName("test2"));
             container.RegisterType<ITest2, Test22>(context => context.WithName("test22"));
             container.RegisterType<ITest3, Test3>();
             container.RegisterType<ITest4, Test4>();
@@ -42,10 +42,10 @@ namespace Stashbox.Tests
         public void AttributeTests_Named_Resolution()
         {
             var container = new StashboxContainer();
-            container.RegisterType<ITest1, Test1>("test1");
-            container.RegisterType<ITest1, Test11>("test11");
-            container.RegisterType<ITest1, Test12>("test12");
-            container.RegisterType<ITest2, Test2>("test2");
+            container.RegisterType<ITest1, Test1>(context => context.WithName("test1"));
+            container.RegisterType<ITest1, Test11>(context => context.WithName("test11"));
+            container.RegisterType<ITest1, Test12>(context => context.WithName("test12"));
+            container.RegisterType<ITest2, Test2>(context => context.WithName("test2"));
             container.RegisterType<ITest2, Test22>(context => context.WithName("test22"));
 
             var test1 = container.Resolve<ITest1>("test1");
@@ -65,11 +65,11 @@ namespace Stashbox.Tests
         public void AttributeTests_Parallel_Resolve()
         {
             var container = new StashboxContainer();
-            container.RegisterType<ITest1, Test1>("test1");
-            container.RegisterType<ITest1, Test11>("test11");
-            container.RegisterType<ITest1, Test12>("test12");
-            container.RegisterType<ITest2, Test2>("test2");
-            container.RegisterType<ITest2, Test22>("test22");
+            container.RegisterType<ITest1, Test1>(context => context.WithName("test1"));
+            container.RegisterType<ITest1, Test11>(context => context.WithName("test11"));
+            container.RegisterType<ITest1, Test12>(context => context.WithName("test12"));
+            container.RegisterType<ITest2, Test2>(context => context.WithName("test2"));
+            container.RegisterType<ITest2, Test22>(context => context.WithName("test22"));
             container.RegisterType<ITest3, Test3>();
 
             Parallel.For(0, 50000, (i) =>
@@ -93,11 +93,11 @@ namespace Stashbox.Tests
         public void AttributeTests_Parallel_Lazy_Resolve()
         {
             var container = new StashboxContainer();
-            container.RegisterType<ITest1, Test1>("test1");
-            container.RegisterType<ITest1, Test11>("test11");
-            container.RegisterType<ITest1, Test12>("test12");
-            container.RegisterType<ITest2, Test2>("test2");
-            container.RegisterType<ITest2, Test22>("test22");
+            container.RegisterType<ITest1, Test1>(context => context.WithName("test1"));
+            container.RegisterType<ITest1, Test11>(context => context.WithName("test11"));
+            container.RegisterType<ITest1, Test12>(context => context.WithName("test12"));
+            container.RegisterType<ITest2, Test2>(context => context.WithName("test2"));
+            container.RegisterType<ITest2, Test22>(context => context.WithName("test22"));
             container.RegisterType<ITest3, Test3>();
             container.RegisterType<ITest4, Test4>();
 

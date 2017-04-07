@@ -85,8 +85,8 @@ namespace Stashbox.Tests
             container.RegisterType<ITest1, Test1>();
             container.RegisterType<ITest1, Test11>();
             container.RegisterType<ITest1, Test12>();
-            container.RegisterType<ITest2, Test2>("enumerable");
-            container.RegisterType<ITest2, Test22>("array");
+            container.RegisterType<ITest2, Test2>(context => context.WithName("enumerable"));
+            container.RegisterType<ITest2, Test22>(context => context.WithName("array"));
 
             container.Resolve<ITest2>("enumerable");
             container.Resolve<ITest2>("array");
@@ -327,8 +327,8 @@ namespace Stashbox.Tests
             container.RegisterType<ITest1, Test1>();
             container.RegisterType<ITest1, Test11>();
             container.RegisterType<ITest1, Test12>();
-            container.RegisterType<ITest2, Test2>("enumerable");
-            container.RegisterType<ITest2, Test22>("array");
+            container.RegisterType<ITest2, Test2>(context => context.WithName("enumerable"));
+            container.RegisterType<ITest2, Test22>(context => context.WithName("array"));
 
             container.Resolve<ITest2>("enumerable");
             container.Resolve<ITest2>("array");
@@ -349,8 +349,8 @@ namespace Stashbox.Tests
             container.RegisterType<ITest1, Test1>();
             container.RegisterType<ITest1, Test11>();
             container.RegisterType<ITest1, Test12>();
-            container.RegisterType<ITest2, Test2>("enumerable");
-            container.RegisterType<ITest2, Test22>("array");
+            container.RegisterType<ITest2, Test2>(context => context.WithName("enumerable"));
+            container.RegisterType<ITest2, Test22>(context => context.WithName("array"));
 
             var scope = container.BeginScope();
 
@@ -373,8 +373,8 @@ namespace Stashbox.Tests
             container.RegisterType<ITest1, Test1>();
             container.RegisterType<ITest1, Test11>();
             container.RegisterType<ITest1, Test12>();
-            container.RegisterType<ITest2, Test2>("enumerable");
-            container.RegisterType<ITest2, Test22>("array");
+            container.RegisterType<ITest2, Test2>(context => context.WithName("enumerable"));
+            container.RegisterType<ITest2, Test22>(context => context.WithName("array"));
 
             Parallel.For(0, 10000, (i) =>
             {
@@ -393,8 +393,8 @@ namespace Stashbox.Tests
             container.RegisterType<ITest1, Test1>();
             container.RegisterType<ITest1, Test11>();
             container.RegisterType<ITest1, Test12>();
-            container.RegisterType<ITest2, Test2>("enumerable");
-            container.RegisterType<ITest2, Test22>("array");
+            container.RegisterType<ITest2, Test2>(context => context.WithName("enumerable"));
+            container.RegisterType<ITest2, Test22>(context => context.WithName("array"));
 
             Parallel.For(0, 10000, (i) =>
             {

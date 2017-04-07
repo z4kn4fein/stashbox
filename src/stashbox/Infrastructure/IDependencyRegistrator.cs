@@ -15,7 +15,7 @@ namespace Stashbox.Infrastructure
         /// <typeparam name="TTo">Type that will be returned.</typeparam>
         /// <param name="configurator">The configurator for the registered types.</param>
         /// <returns>The <see cref="IDependencyRegistrator"/> which on this method was called.</returns>
-        IDependencyRegistrator RegisterType<TFrom, TTo>(Action<IFluentServiceRegistrator> configurator)
+        IDependencyRegistrator RegisterType<TFrom, TTo>(Action<IFluentServiceRegistrator> configurator = null)
             where TFrom : class
             where TTo : class, TFrom;
 
@@ -26,7 +26,7 @@ namespace Stashbox.Infrastructure
         /// <param name="typeTo">Type that will be returned.</param>
         /// <param name="configurator">The configurator for the registered types.</param>
         /// <returns>The <see cref="IDependencyRegistrator"/> which on this method was called.</returns>
-        IDependencyRegistrator RegisterType<TFrom>(Type typeTo, Action<IFluentServiceRegistrator> configurator)
+        IDependencyRegistrator RegisterType<TFrom>(Type typeTo, Action<IFluentServiceRegistrator> configurator = null)
             where TFrom : class;
 
         /// <summary>
@@ -36,7 +36,7 @@ namespace Stashbox.Infrastructure
         /// <param name="typeTo">Type that will be returned.</param>
         /// <param name="configurator">The configurator for the registered types.</param>
         /// <returns>The <see cref="IDependencyRegistrator"/> which on this method was called.</returns>
-        IDependencyRegistrator RegisterType(Type typeFrom, Type typeTo, Action<IFluentServiceRegistrator> configurator);
+        IDependencyRegistrator RegisterType(Type typeFrom, Type typeTo, Action<IFluentServiceRegistrator> configurator = null);
 
         /// <summary>
         /// Registers a type into the container with custom configuration.
@@ -44,7 +44,7 @@ namespace Stashbox.Infrastructure
         /// <typeparam name="TTo">Type that will be returned.</typeparam>
         /// <param name="configurator">The configurator for the registered types.</param>
         /// <returns>The <see cref="IDependencyRegistrator"/> which on this method was called.</returns>
-        IDependencyRegistrator RegisterType<TTo>(Action<IFluentServiceRegistrator> configurator)
+        IDependencyRegistrator RegisterType<TTo>(Action<IFluentServiceRegistrator> configurator = null)
              where TTo : class;
 
         /// <summary>
@@ -53,54 +53,7 @@ namespace Stashbox.Infrastructure
         /// <param name="typeTo">Type that will be returned.</param>
         /// <param name="configurator">The configurator for the registered types.</param>
         /// <returns>The <see cref="IDependencyRegistrator"/> which on this method was called.</returns>
-        IDependencyRegistrator RegisterType(Type typeTo, Action<IFluentServiceRegistrator> configurator);
-        
-        /// <summary>
-        /// Registers a type into the container.
-        /// </summary>
-        /// <typeparam name="TFrom">Type that will be requested.</typeparam>
-        /// <typeparam name="TTo">Type that will be returned.</typeparam>
-        /// <param name="name">The name of the registration.</param>
-        /// <returns>The <see cref="IDependencyRegistrator"/> which on this method was called.</returns>
-        IDependencyRegistrator RegisterType<TFrom, TTo>(string name = null)
-            where TFrom : class
-            where TTo : class, TFrom;
-
-        /// <summary>
-        /// Registers a type into the container.
-        /// </summary>
-        /// <typeparam name="TFrom">Type that will be requested.</typeparam>
-        /// <param name="typeTo">Type that will be returned.</param>
-        /// <param name="name">The name of the registration.</param>
-        /// <returns>The <see cref="IDependencyRegistrator"/> which on this method was called.</returns>
-        IDependencyRegistrator RegisterType<TFrom>(Type typeTo, string name = null)
-            where TFrom : class;
-
-        /// <summary>
-        /// Registers a type into the container.
-        /// </summary>
-        /// <param name="typeFrom">Type that will be requested.</param>
-        /// <param name="typeTo">Type that will be returned.</param>
-        /// <param name="name">The name of the registration.</param>
-        /// <returns>The <see cref="IDependencyRegistrator"/> which on this method was called.</returns>
-        IDependencyRegistrator RegisterType(Type typeFrom, Type typeTo, string name = null);
-        
-        /// <summary>
-        /// Registers a type.
-        /// </summary>
-        /// <typeparam name="TTo">Type that will be returned.</typeparam>
-        /// <param name="name">The name of the registration.</param>
-        /// <returns>The <see cref="IDependencyRegistrator"/> which on this method was called.</returns>
-        IDependencyRegistrator RegisterType<TTo>(string name = null)
-             where TTo : class;
-
-        /// <summary>
-        /// Registers a type.
-        /// </summary>
-        /// <param name="typeTo">Type that will be returned.</param>
-        /// <param name="name">The name of the registration.</param>
-        /// <returns>The <see cref="IDependencyRegistrator"/> which on this method was called.</returns>
-        IDependencyRegistrator RegisterType(Type typeTo, string name = null);
+        IDependencyRegistrator RegisterType(Type typeTo, Action<IFluentServiceRegistrator> configurator = null);
         
         /// <summary>
         /// Registers an already constructed instance into the container.

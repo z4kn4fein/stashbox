@@ -141,8 +141,8 @@ namespace Stashbox.Tests
             {
                 if (i % 100 == 0)
                 {
-                    container.RegisterType<ITest1, Test1>(i.ToString());
-                    container.RegisterType<ITest3, Test3>($"ITest3{i.ToString()}");
+                    container.RegisterType<ITest1, Test1>(context => context.WithName(i.ToString()));
+                    container.RegisterType<ITest3, Test3>(context => context.WithName($"ITest3{i.ToString()}"));
                     var test33 = container.Resolve<ITest3>($"ITest3{i.ToString()}");
                     var test11 = container.Resolve<ITest1>(i.ToString());
                     Assert.IsNotNull(test33);
@@ -282,7 +282,7 @@ namespace Stashbox.Tests
             .WithDependencySelectionRule(Rules.DependencySelection.PreferFirstRegistered)))
             {
                 container.RegisterType(typeof(ITest1), typeof(Test1));
-                container.RegisterType(typeof(ITest1), typeof(Test12), "test12");
+                container.RegisterType(typeof(ITest1), typeof(Test12), context => context.WithName("test12"));
                 container.RegisterType(typeof(ITest2), typeof(Test222));
 
                 var inst = container.Resolve<ITest2>();
