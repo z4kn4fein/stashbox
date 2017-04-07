@@ -16,7 +16,7 @@ namespace Stashbox.Tests
         {
             IStashboxContainer container = new StashboxContainer();
             container.RegisterType<ITest1, Test1>();
-            container.PrepareType<ITest2, Test2>().WithInjectionParameters(new InjectionParameter { Value = new Test1 { Name = "fakeName" }, Name = "test1" }).Register();
+            container.RegisterType<ITest2, Test2>(context => context.WithInjectionParameters(new InjectionParameter { Value = new Test1 { Name = "fakeName" }, Name = "test1" }));
             var inst2 = container.Resolve<ITest2>();
 
             Assert.IsInstanceOfType(inst2, typeof(Test2));
@@ -41,7 +41,7 @@ namespace Stashbox.Tests
         {
             IStashboxContainer container = new StashboxContainer();
             container.RegisterType<ITest1, Test1>();
-            container.PrepareType<ITest2, Test2>().WithInjectionParameters(new InjectionParameter { Value = new Test1 { Name = "fakeName" }, Name = "test1" }).Register();
+            container.RegisterType<ITest2, Test2>(context => context.WithInjectionParameters(new InjectionParameter { Value = new Test1 { Name = "fakeName" }, Name = "test1" }));
             var inst2 = container.Resolve<ITest2>();
 
             Assert.IsInstanceOfType(inst2, typeof(Test2));
@@ -105,7 +105,7 @@ namespace Stashbox.Tests
         {
             IStashboxContainer container = new StashboxContainer();
             container.RegisterType<ITest1, Test1>();
-            container.PrepareType<ITest2, Test2>().WithInjectionParameters(new InjectionParameter { Value = new Test1 { Name = "fakeName" }, Name = "test1" }).Register();
+            container.RegisterType<ITest2, Test2>(context => context.WithInjectionParameters(new InjectionParameter { Value = new Test1 { Name = "fakeName" }, Name = "test1" }));
             var inst2 = container.Resolve<Lazy<ITest2>>();
 
             Assert.IsInstanceOfType(inst2.Value, typeof(Test2));

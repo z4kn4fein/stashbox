@@ -43,7 +43,7 @@ namespace Stashbox.Tests
         public void EnumerableTests_RegisterTypes()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterTypes<ITest1>(new [] {typeof(Test1), typeof(Test11), typeof(Test12)});
+            container.RegisterTypesAs<ITest1>(new [] {typeof(Test1), typeof(Test11), typeof(Test12)});
 
             var all = container.Resolve<IEnumerable<ITest1>>();
 
@@ -54,7 +54,7 @@ namespace Stashbox.Tests
         public void EnumerableTests_RegisterTypes_Selector()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterTypes(new[] { typeof(Test1), typeof(Test11), typeof(Test12) }, type => type == typeof(Test12));
+            container.RegisterTypesAsSelf(new[] { typeof(Test1), typeof(Test11), typeof(Test12) }, type => type == typeof(Test12));
             
             Assert.IsNotNull(container.Resolve<Test12>());
         }
@@ -63,7 +63,7 @@ namespace Stashbox.Tests
         public void EnumerableTests_RegisterTypes_Scoped()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterTypes<ITest1>(new[] { typeof(Test1), typeof(Test11), typeof(Test12), typeof(Test2) }, context => context.WithScopedLifetime().Register());
+            container.RegisterTypesAs<ITest1>(new[] { typeof(Test1), typeof(Test11), typeof(Test12), typeof(Test2) }, configurator: context => context.WithScopedLifetime());
 
             var regs = container.ContainerContext.RegistrationRepository.GetAllRegistrations().ToArray();
 
@@ -75,7 +75,7 @@ namespace Stashbox.Tests
         public void EnumerableTests_RegisterTypes_Scoped_Selector()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterTypes(new[] { typeof(Test1), typeof(Test11), typeof(Test12) }, type => type == typeof(Test12), context => context.WithScopedLifetime().Register());
+            container.RegisterTypesAsSelf(new[] { typeof(Test1), typeof(Test11), typeof(Test12) }, type => type == typeof(Test12), context => context.WithScopedLifetime());
 
             var regs = container.ContainerContext.RegistrationRepository.GetAllRegistrations().ToArray();
 

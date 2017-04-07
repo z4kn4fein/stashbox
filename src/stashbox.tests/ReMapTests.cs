@@ -175,7 +175,7 @@ namespace Stashbox.Tests
             Assert.IsNotNull(test2.Test1);
             Assert.IsInstanceOfType(test2.Test1, typeof(Test1));
 
-            container.PrepareType<ITest1>(typeof(Test11)).ReMap();
+            container.ReMap<ITest1>(typeof(Test11));
 
             var test22 = container.Resolve<ITest2>();
 

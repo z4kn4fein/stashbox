@@ -51,7 +51,7 @@ namespace Stashbox.Tests
         public void InjectionMemberTests_Resolve_InjectionParameter()
         {
             var container = new StashboxContainer();
-            container.PrepareType<ITest2, Test2>().WithInjectionParameters(new InjectionParameter { Name = "Name", Value = "test" }).Register();
+            container.RegisterType<ITest2, Test2>(context => context.WithInjectionParameters(new InjectionParameter { Name = "Name", Value = "test" }));
 
             var inst = container.Resolve<ITest2>();
 

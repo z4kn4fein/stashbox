@@ -386,7 +386,7 @@ namespace Stashbox.Tests
             IDisp test;
             using (var container = new StashboxContainer(config => config.WithDisposableTransientTracking()))
             {
-                container.PrepareType<IDisp, TestDisp>().WithoutDisposalTracking().Register();
+                container.RegisterType<IDisp, TestDisp>(context => context.WithoutDisposalTracking());
                 container.RegisterDecorator<IDisp, TestDispDecorator>();
 
                 test = container.Resolve<IDisp>();
@@ -405,7 +405,7 @@ namespace Stashbox.Tests
             IDisp test;
             using (var container = new StashboxContainer(config => config.WithDisposableTransientTracking()))
             {
-                container.PrepareType<IDisp, TestDisp>().WithoutDisposalTracking().Register();
+                container.RegisterType<IDisp, TestDisp>(context => context.WithoutDisposalTracking());
                 container.PrepareDecorator<IDisp, TestDispDecorator>().WithoutDisposalTracking().Register();
 
                 test = container.Resolve<IDisp>();

@@ -112,7 +112,19 @@ namespace System
             property.DeclaringType.GetSingleMethodOrDefault("set_" + property.Name, includeNonPublic) != null;
 
         public static bool IsDisposable(this Type type) =>
-            Constants.DisposableType.GetTypeInfo().IsAssignableFrom(type.GetTypeInfo());
+            type.Implements(Constants.DisposableType);
+
+        public static bool IsValidForRegistration(this Type type)
+        {
+            var typeInfo = type.GetTypeInfo();
+            return !typeInfo.IsAbstract && !typeInfo.IsInterface;
+        }
+
+        public static IEnumerable<Type> GetRegisterableInterfaceTypes(this Type type)=>
+            type.GetTypeInfo().ImplementedInterfaces.Where(t => t != Constants.DisposableType);
+
+        public static bool Implements(this Type type, Type interfaceType) =>
+            interfaceType.GetTypeInfo().IsAssignableFrom(type.GetTypeInfo());
 
         private static bool IsAssignableToGenericType(Type type, Type genericType)
         {

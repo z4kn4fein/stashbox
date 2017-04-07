@@ -39,7 +39,7 @@ namespace Stashbox.Tests
             using (var container = new StashboxContainer())
             {
                 var dep = new Test();
-                container.PrepareType<ITest>().WithInstance(dep).Register();
+                container.RegisterType<ITest>(context => context.WithInstance(dep));
                 var inst = container.Resolve<ITest>();
 
                 Assert.AreSame(inst, dep);
@@ -53,8 +53,8 @@ namespace Stashbox.Tests
             {
                 var dep = new Test();
                 var dep1 = new Test();
-                container.PrepareType<ITest>().WithInstance(dep).Register();
-                container.PrepareType<ITest>().WithInstance(dep1).ReMap();
+                container.RegisterType<ITest>(context => context.WithInstance(dep));
+                container.ReMap<ITest>(context => context.WithInstance(dep1));
                 var inst = container.Resolve<ITest>();
 
                 Assert.AreSame(inst, dep1);
@@ -67,7 +67,7 @@ namespace Stashbox.Tests
             using (var container = new StashboxContainer())
             {
                 var dep = new Test();
-                container.PrepareType<ITest>().WithInstance(dep).Register();
+                container.RegisterType<ITest>(context => context.WithInstance(dep));
                 container.RegisterType<ITest1, Test1>();
 
                 var inst = container.Resolve<ITest1>();

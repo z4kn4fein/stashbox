@@ -85,7 +85,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.PrepareType(typeof(ITest1<,>), typeof(Test1<,>)).Register();
+                container.RegisterType(typeof(ITest1<,>), typeof(Test1<,>));
                 var inst = container.Resolve<ITest1<int, string>>();
 
                 Assert.IsNotNull(inst);
@@ -99,7 +99,7 @@ namespace Stashbox.Tests
             using (var container = new StashboxContainer())
             {
                 container.RegisterType(typeof(ITest1<,>), typeof(Test1<,>));
-                container.PrepareType(typeof(ITest1<,>), typeof(Test12<,>)).ReMap();
+                container.ReMap(typeof(ITest1<,>), typeof(Test12<,>));
                 var inst = container.Resolve<ITest1<int, string>>();
 
                 Assert.IsNotNull(inst);

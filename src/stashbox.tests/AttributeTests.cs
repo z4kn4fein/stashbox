@@ -20,7 +20,7 @@ namespace Stashbox.Tests
             container.RegisterType<ITest1, Test11>("test11");
             container.RegisterType<ITest1, Test12>("test12");
             container.RegisterType<ITest2, Test2>("test2");
-            container.PrepareType<ITest2, Test22>().WithName("test22").Register();
+            container.RegisterType<ITest2, Test22>(context => context.WithName("test22"));
             container.RegisterType<ITest3, Test3>();
             container.RegisterType<ITest4, Test4>();
 
@@ -49,7 +49,7 @@ namespace Stashbox.Tests
             container.RegisterType<ITest1, Test11>("test11");
             container.RegisterType<ITest1, Test12>("test12");
             container.RegisterType<ITest2, Test2>("test2");
-            container.PrepareType<ITest2, Test22>().WithName("test22").Register();
+            container.RegisterType<ITest2, Test22>(context => context.WithName("test22"));
 
             var test1 = container.Resolve<ITest1>("test1");
             var test11 = container.Resolve<ITest1>("test11");

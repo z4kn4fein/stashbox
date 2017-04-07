@@ -11,7 +11,7 @@ namespace Stashbox.Tests
         public void ConditionalTests_ParentTypeCondition_First()
         {
             var container = new StashboxContainer();
-            container.PrepareType<ITest1, Test1>().WhenDependantIs<Test2>().Register();
+            container.RegisterType<ITest1, Test1>(context => context.WhenDependantIs<Test2>());
             container.RegisterType<ITest1, Test11>();
             container.RegisterType<ITest1, Test12>();
             container.RegisterType<ITest2, Test2>();
@@ -26,7 +26,7 @@ namespace Stashbox.Tests
         public void ConditionalTests_ParentTypeCondition_When_First()
         {
             var container = new StashboxContainer();
-            container.PrepareType<ITest1, Test1>().When(type => type.ParentType == typeof(Test2)).Register();
+            container.RegisterType<ITest1, Test1>(context => context.When(type => type.ParentType == typeof(Test2)));
             container.RegisterType<ITest1, Test11>();
             container.RegisterType<ITest1, Test12>();
             container.RegisterType<ITest2, Test2>();
@@ -41,7 +41,7 @@ namespace Stashbox.Tests
         public void ConditionalTests_ParentTypeCondition_First_NonGeneric()
         {
             var container = new StashboxContainer();
-            container.PrepareType<ITest1, Test1>().WhenDependantIs(typeof(Test2)).Register();
+            container.RegisterType<ITest1, Test1>(context => context.WhenDependantIs(typeof(Test2)));
             container.RegisterType<ITest1, Test11>();
             container.RegisterType<ITest1, Test12>();
             container.RegisterType<ITest2, Test2>();
@@ -57,7 +57,7 @@ namespace Stashbox.Tests
         {
             var container = new StashboxContainer();
             container.RegisterType<ITest1, Test1>();
-            container.PrepareType<ITest1, Test11>().WhenDependantIs<Test2>().Register();
+            container.RegisterType<ITest1, Test11>(context => context.WhenDependantIs<Test2>());
             container.RegisterType<ITest1, Test12>();
             container.RegisterType<ITest2, Test2>();
 
@@ -72,7 +72,7 @@ namespace Stashbox.Tests
         {
             var container = new StashboxContainer();
             container.RegisterType<ITest1, Test1>();
-            container.PrepareType<ITest1, Test11>().WhenDependantIs(typeof(Test2)).Register();
+            container.RegisterType<ITest1, Test11>(context => context.WhenDependantIs(typeof(Test2)));
             container.RegisterType<ITest1, Test12>();
             container.RegisterType<ITest2, Test2>();
 
@@ -88,7 +88,7 @@ namespace Stashbox.Tests
             var container = new StashboxContainer();
             container.RegisterType<ITest1, Test1>();
             container.RegisterType<ITest1, Test11>();
-            container.PrepareType<ITest1, Test12>().WhenDependantIs<Test2>().Register();
+            container.RegisterType<ITest1, Test12>(context => context.WhenDependantIs<Test2>());
             container.RegisterType<ITest2, Test2>();
 
             var test2 = container.Resolve<ITest2>();
@@ -103,7 +103,7 @@ namespace Stashbox.Tests
             var container = new StashboxContainer();
             container.RegisterType<ITest1, Test1>();
             container.RegisterType<ITest1, Test11>();
-            container.PrepareType<ITest1, Test12>().WhenDependantIs(typeof(Test2)).Register();
+            container.RegisterType<ITest1, Test12>(context => context.WhenDependantIs(typeof(Test2)));
             container.RegisterType<ITest2, Test2>();
 
             var test2 = container.Resolve<ITest2>();
@@ -116,9 +116,9 @@ namespace Stashbox.Tests
         public void ConditionalTests_AttributeCondition_First()
         {
             var container = new StashboxContainer();
-            container.PrepareType<ITest1, Test1>().WhenHas<TestConditionAttribute>().Register();
+            container.RegisterType<ITest1, Test1>(context => context.WhenHas<TestConditionAttribute>());
             container.RegisterType<ITest1, Test11>();
-            container.PrepareType<ITest1, Test12>().WhenHas<TestCondition2Attribute>().Register();
+            container.RegisterType<ITest1, Test12>(context => context.WhenHas<TestCondition2Attribute>());
             container.RegisterType<ITest2, Test3>();
 
             var test3 = container.Resolve<ITest2>();
@@ -131,9 +131,9 @@ namespace Stashbox.Tests
         public void ConditionalTests_AttributeCondition_First_NonGeneric()
         {
             var container = new StashboxContainer();
-            container.PrepareType<ITest1, Test1>().WhenHas(typeof(TestConditionAttribute)).Register();
+            container.RegisterType<ITest1, Test1>(context => context.WhenHas(typeof(TestConditionAttribute)));
             container.RegisterType<ITest1, Test11>();
-            container.PrepareType<ITest1, Test12>().WhenHas(typeof(TestCondition2Attribute)).Register();
+            container.RegisterType<ITest1, Test12>(context => context.WhenHas(typeof(TestCondition2Attribute)));
             container.RegisterType<ITest2, Test3>();
 
             var test3 = container.Resolve<ITest2>();
@@ -147,8 +147,8 @@ namespace Stashbox.Tests
         {
             var container = new StashboxContainer();
             container.RegisterType<ITest1, Test1>();
-            container.PrepareType<ITest1, Test11>().WhenHas<TestCondition2Attribute>().Register();
-            container.PrepareType<ITest1, Test12>().WhenHas<TestConditionAttribute>().Register();
+            container.RegisterType<ITest1, Test11>(context => context.WhenHas<TestCondition2Attribute>());
+            container.RegisterType<ITest1, Test12>(context => context.WhenHas<TestConditionAttribute>());
             container.RegisterType<ITest2, Test3>();
 
             var test3 = container.Resolve<ITest2>();
@@ -162,8 +162,8 @@ namespace Stashbox.Tests
         {
             var container = new StashboxContainer();
             container.RegisterType<ITest1, Test1>();
-            container.PrepareType<ITest1, Test11>().WhenHas(typeof(TestCondition2Attribute)).Register();
-            container.PrepareType<ITest1, Test12>().WhenHas(typeof(TestConditionAttribute)).Register();
+            container.RegisterType<ITest1, Test11>(context => context.WhenHas(typeof(TestCondition2Attribute)));
+            container.RegisterType<ITest1, Test12>(context => context.WhenHas(typeof(TestConditionAttribute)));
             container.RegisterType<ITest2, Test3>();
 
             var test3 = container.Resolve<ITest2>();
@@ -176,8 +176,8 @@ namespace Stashbox.Tests
         public void ConditionalTests_AttributeCondition_Third()
         {
             var container = new StashboxContainer();
-            container.PrepareType<ITest1, Test1>().WhenHas<TestCondition2Attribute>().Register();
-            container.PrepareType<ITest1, Test11>().WhenHas<TestConditionAttribute>().Register();
+            container.RegisterType<ITest1, Test1>(context => context.WhenHas<TestCondition2Attribute>());
+            container.RegisterType<ITest1, Test11>(context => context.WhenHas<TestConditionAttribute>());
             container.RegisterType<ITest1, Test12>();
             container.RegisterType<ITest2, Test3>();
 
@@ -191,8 +191,8 @@ namespace Stashbox.Tests
         public void ConditionalTests_AttributeCondition_Third_NonGeneric()
         {
             var container = new StashboxContainer();
-            container.PrepareType<ITest1, Test1>().WhenHas(typeof(TestCondition2Attribute)).Register();
-            container.PrepareType<ITest1, Test11>().WhenHas(typeof(TestConditionAttribute)).Register();
+            container.RegisterType<ITest1, Test1>(context => context.WhenHas(typeof(TestCondition2Attribute)));
+            container.RegisterType<ITest1, Test11>(context => context.WhenHas(typeof(TestConditionAttribute)));
             container.RegisterType<ITest1, Test12>();
             container.RegisterType<ITest2, Test3>();
 

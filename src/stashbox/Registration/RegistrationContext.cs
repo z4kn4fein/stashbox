@@ -35,97 +35,97 @@ namespace Stashbox.Registration
 
         public IStashboxContainer ReMap() => this.registrator.ReMap(this);
 
-        public IRegistrationContext WhenDependantIs<TTarget>() where TTarget : class
+        public IFluentServiceRegistrator WhenDependantIs<TTarget>() where TTarget : class
         {
             this.Context.TargetTypeCondition = typeof(TTarget);
             return this;
         }
 
-        public IRegistrationContext WhenDependantIs(Type targetType)
+        public IFluentServiceRegistrator WhenDependantIs(Type targetType)
         {
             this.Context.TargetTypeCondition = targetType;
             return this;
         }
 
-        public IRegistrationContext WhenHas<TAttribute>() where TAttribute : Attribute
+        public IFluentServiceRegistrator WhenHas<TAttribute>() where TAttribute : Attribute
         {
             this.Context.AttributeConditions.Add(typeof(TAttribute));
             return this;
         }
 
-        public IRegistrationContext WhenHas(Type attributeType)
+        public IFluentServiceRegistrator WhenHas(Type attributeType)
         {
             this.Context.AttributeConditions.Add(attributeType);
             return this;
         }
 
-        public IRegistrationContext When(Func<TypeInformation, bool> resolutionCondition)
+        public IFluentServiceRegistrator When(Func<TypeInformation, bool> resolutionCondition)
         {
             this.Context.ResolutionCondition = resolutionCondition;
             return this;
         }
 
-        public IRegistrationContext WithFactory(Func<IDependencyResolver, object> containerFactory)
+        public IFluentServiceRegistrator WithFactory(Func<IDependencyResolver, object> containerFactory)
         {
             this.Context.ContainerFactory = containerFactory;
             return this;
         }
-        public IRegistrationContext WithFactory(Func<object> singleFactory)
+        public IFluentServiceRegistrator WithFactory(Func<object> singleFactory)
         {
             this.Context.SingleFactory = singleFactory;
             return this;
         }
 
-        public IRegistrationContext WithInjectionParameters(params InjectionParameter[] injectionParameters)
+        public IFluentServiceRegistrator WithInjectionParameters(params InjectionParameter[] injectionParameters)
         {
             this.Context.InjectionParameters = injectionParameters;
             return this;
         }
 
-        public IRegistrationContext WithLifetime(ILifetime lifetime)
+        public IFluentServiceRegistrator WithLifetime(ILifetime lifetime)
         {
             this.Context.Lifetime = lifetime;
             return this;
         }
 
-        public IRegistrationContext WithScopedLifetime()
+        public IFluentServiceRegistrator WithScopedLifetime()
         {
             this.Context.Lifetime = new ScopedLifetime();
             return this;
         }
 
-        public IRegistrationContext WithSingletonLifetime()
+        public IFluentServiceRegistrator WithSingletonLifetime()
         {
             this.Context.Lifetime = new SingletonLifetime();
             return this;
         }
 
-        public IRegistrationContext WithName(string name)
+        public IFluentServiceRegistrator WithName(string name)
         {
             this.Context.Name = name;
             return this;
         }
 
-        public IRegistrationContext WithInstance(object instance)
+        public IFluentServiceRegistrator WithInstance(object instance)
         {
             this.Context.ExistingInstance = instance;
             return this;
         }
 
-        public IRegistrationContext WithAutoMemberInjection(Rules.AutoMemberInjection rule = Rules.AutoMemberInjection.PropertiesWithPublicSetter)
+        public IFluentServiceRegistrator WithAutoMemberInjection(Rules.AutoMemberInjection rule = Rules.AutoMemberInjection.PropertiesWithPublicSetter)
         {
             this.Context.AutoMemberInjectionEnabled = true;
             this.Context.AutoMemberInjectionRule = rule;
             return this;
         }
 
-        public IRegistrationContext WithConstructorSelectionRule(Func<IEnumerable<ResolutionConstructor>, ResolutionConstructor> rule)
+        public IFluentServiceRegistrator WithConstructorSelectionRule(Func<IEnumerable<ResolutionConstructor>, ResolutionConstructor> rule)
         {
             this.Context.ConstructorSelectionRule = rule;
             return this;
         }
 
-        public IRegistrationContext WithoutDisposalTracking()
+        public IFluentServiceRegistrator WithoutDisposalTracking()
         {
             this.Context.IsLifetimeExternallyOwned = true;
             return this;
