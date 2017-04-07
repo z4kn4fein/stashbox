@@ -8,50 +8,22 @@ namespace Stashbox
     public partial class StashboxContainer
     {
         /// <inheritdoc />
-        public IDecoratorRegistrationContext PrepareDecorator<TFrom, TTo>() where TFrom : class where TTo : class, TFrom =>
-            this.ServiceRegistrator.PrepareDecoratorContext(typeof(TFrom), typeof(TTo));
+        public IDecoratorRegistrator RegisterDecorator<TFrom, TTo>(Action<IFluentDecoratorRegistrator> configurator = null) where TFrom : class where TTo : class, TFrom =>
+            this.RegisterDecorator(typeof(TFrom), typeof(TTo), configurator);
 
         /// <inheritdoc />
-        public IDecoratorRegistrationContext PrepareDecorator<TFrom>(Type typeTo) where TFrom : class
-        {
-            Shield.EnsureNotNull(typeTo, nameof(typeTo));
-            
-            return this.ServiceRegistrator.PrepareDecoratorContext(typeof(TFrom), typeTo);
-        }
+        public IDecoratorRegistrator RegisterDecorator<TFrom>(Type typeTo, Action<IFluentDecoratorRegistrator> configurator = null) where TFrom : class =>
+            this.RegisterDecorator(typeof(TFrom), typeTo, configurator);
 
         /// <inheritdoc />
-        public IDecoratorRegistrationContext PrepareDecorator(Type typeFrom, Type typeTo)
+        public IDecoratorRegistrator RegisterDecorator(Type typeFrom, Type typeTo, Action<IFluentDecoratorRegistrator> configurator = null)
         {
             Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
             Shield.EnsureNotNull(typeTo, nameof(typeTo));
 
-            return this.ServiceRegistrator.PrepareDecoratorContext(typeFrom, typeTo);
-        }
-
-        /// <inheritdoc />
-        public IDecoratorRegistrator RegisterDecorator<TFrom, TTo>() where TFrom : class where TTo : class, TFrom
-        {
-            this.PrepareDecorator<TFrom, TTo>().Register();
-            return this;
-        }
-
-        /// <inheritdoc />
-        public IDecoratorRegistrator RegisterDecorator<TFrom>(Type typeTo) where TFrom : class
-        {
-            Shield.EnsureNotNull(typeTo, nameof(typeTo));
-
-            this.PrepareDecorator<TFrom>(typeTo).Register();
-            return this;
-        }
-
-        /// <inheritdoc />
-        public IDecoratorRegistrator RegisterDecorator(Type typeFrom, Type typeTo)
-        {
-            Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
-            Shield.EnsureNotNull(typeTo, nameof(typeTo));
-
-            this.PrepareDecorator(typeFrom, typeTo).Register();
-            return this;
+            var context = this.ServiceRegistrator.PrepareDecoratorContext(typeFrom, typeTo);
+            configurator?.Invoke(context);
+            return context.Register();
         }
     }
 }

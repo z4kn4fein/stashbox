@@ -19,26 +19,26 @@ namespace Stashbox.Registration
             this.serviceRegistrator = serviceRegistrator;
         }
 
-        public IDecoratorRegistrationContext WithInjectionParameters(params InjectionParameter[] injectionParameters)
+        public IFluentDecoratorRegistrator WithInjectionParameters(params InjectionParameter[] injectionParameters)
         {
             this.registrationContext.WithInjectionParameters(injectionParameters);
             return this;
         }
 
-        public IDecoratorRegistrationContext WithAutoMemberInjection(
+        public IFluentDecoratorRegistrator WithAutoMemberInjection(
             Rules.AutoMemberInjection rule = Rules.AutoMemberInjection.PropertiesWithPublicSetter)
         {
             this.registrationContext.WithAutoMemberInjection(rule);
             return this;
         }
 
-        public IDecoratorRegistrationContext WithConstructorSelectionRule(Func<IEnumerable<ResolutionConstructor>, ResolutionConstructor> rule)
+        public IFluentDecoratorRegistrator WithConstructorSelectionRule(Func<IEnumerable<ResolutionConstructor>, ResolutionConstructor> rule)
         {
             this.registrationContext.WithConstructorSelectionRule(rule);
             return this;
         }
 
-        public IDecoratorRegistrationContext WithoutDisposalTracking()
+        public IFluentDecoratorRegistrator WithoutDisposalTracking()
         {
             this.registrationContext.WithoutDisposalTracking();
             return this;

@@ -199,9 +199,7 @@ namespace Stashbox.Tests
             using (var container = new StashboxContainer())
             {
                 container.RegisterType<ITest1, Test1>();
-                container.PrepareDecorator<ITest1, TestDecorator4>()
-                    .WithAutoMemberInjection(Rules.AutoMemberInjection.PropertiesWithLimitedAccess)
-                    .Register();
+                container.RegisterDecorator<ITest1, TestDecorator4>(context => context.WithAutoMemberInjection(Rules.AutoMemberInjection.PropertiesWithLimitedAccess));
                 var test = container.Resolve<ITest1>();
 
                 Assert.IsNotNull(test);
@@ -218,10 +216,9 @@ namespace Stashbox.Tests
             using (var container = new StashboxContainer())
             {
                 container.RegisterType<ITest1, Test1>();
-                container.PrepareDecorator<ITest1, TestDecorator4>()
+                container.RegisterDecorator<ITest1, TestDecorator4>(context => context
                     .WithAutoMemberInjection(Rules.AutoMemberInjection.PropertiesWithLimitedAccess)
-                    .WithInjectionParameters(new InjectionParameter { Name = "Name", Value = "test" })
-                    .Register();
+                    .WithInjectionParameters(new InjectionParameter { Name = "Name", Value = "test" }));
                 var test = container.Resolve<ITest1>();
 
                 Assert.IsNotNull(test);
@@ -239,9 +236,7 @@ namespace Stashbox.Tests
             using (var container = new StashboxContainer())
             {
                 container.RegisterType<ITest1, Test1>();
-                container.PrepareDecorator<ITest1, TestDecorator5>()
-                    .WithConstructorSelectionRule(Rules.ConstructorSelection.PreferLessParameters)
-                    .Register();
+                container.RegisterDecorator<ITest1, TestDecorator5>(context => context.WithConstructorSelectionRule(Rules.ConstructorSelection.PreferLessParameters));
                 var test = container.Resolve<ITest1>();
 
                 Assert.IsNotNull(test);
@@ -257,9 +252,7 @@ namespace Stashbox.Tests
             using (var container = new StashboxContainer())
             {
                 container.RegisterType<ITest1, Test1>();
-                container.PrepareDecorator<ITest1, TestDecorator5>()
-                    .WithConstructorSelectionRule(Rules.ConstructorSelection.PreferMostParameters)
-                    .Register();
+                container.RegisterDecorator<ITest1, TestDecorator5>(context => context.WithConstructorSelectionRule(Rules.ConstructorSelection.PreferMostParameters));
                 var test = container.Resolve<ITest1>();
 
                 Assert.IsNotNull(test);
@@ -406,7 +399,7 @@ namespace Stashbox.Tests
             using (var container = new StashboxContainer(config => config.WithDisposableTransientTracking()))
             {
                 container.RegisterType<IDisp, TestDisp>(context => context.WithoutDisposalTracking());
-                container.PrepareDecorator<IDisp, TestDispDecorator>().WithoutDisposalTracking().Register();
+                container.RegisterDecorator<IDisp, TestDispDecorator>(context => context.WithoutDisposalTracking());
 
                 test = container.Resolve<IDisp>();
 
