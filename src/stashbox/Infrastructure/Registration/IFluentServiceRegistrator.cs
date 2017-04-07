@@ -12,6 +12,16 @@ namespace Stashbox.Infrastructure.Registration
     public interface IFluentServiceRegistrator
     {
         /// <summary>
+        /// The service type.
+        /// </summary>
+        Type ServiceType { get; }
+
+        /// <summary>
+        /// The implementation type.
+        /// </summary>
+        Type ImplementationType { get; }
+
+        /// <summary>
         /// Sets the lifetime of the registration.
         /// </summary>
         /// <param name="lifetime">An <see cref="ILifetime"/> implementation.</param>

@@ -2,10 +2,7 @@
 using Stashbox.Attributes;
 using Stashbox.Utils;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using Stashbox.Entity;
 
 namespace Stashbox.Tests
 {
@@ -169,14 +166,14 @@ namespace Stashbox.Tests
             public void MethodTest([Dependency("test22")]ITest2 test2)
             {
                 Shield.EnsureNotNull(test2, nameof(test2));
-                MethodInvoked = true;
+                this.MethodInvoked = true;
             }
 
             [InjectionMethod]
             public void MethodTest2([Dependency("test22")]ITest2 test2)
             {
                 Shield.EnsureNotNull(test2, nameof(test2));
-                MethodInvoked2 = true;
+                this.MethodInvoked2 = true;
             }
 
             public Test3([Dependency("test12")]ITest1 test12, [Dependency("test2")]ITest2 test2)
@@ -204,7 +201,7 @@ namespace Stashbox.Tests
             public void MethodTest([Dependency("test22")]Lazy<ITest2> test2)
             {
                 Shield.EnsureNotNull(test2.Value, nameof(test2.Value));
-                MethodInvoked = true;
+                this.MethodInvoked = true;
             }
 
             public Test4([Dependency("test12")]Lazy<ITest1> test1, [Dependency("test2")]Lazy<ITest2> test2)

@@ -62,6 +62,21 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void InstanceBuilderTests_Resolve_Fluent_ReMap_Self()
+        {
+            using (var container = new StashboxContainer())
+            {
+                var dep = new Test();
+                var dep1 = new Test();
+                container.RegisterType(dep.GetType(), context => context.WithInstance(dep));
+                container.ReMap(dep1.GetType(), context => context.WithInstance(dep1));
+                var inst = container.Resolve<Test>();
+
+                Assert.AreSame(inst, dep1);
+            }
+        }
+
+        [TestMethod]
         public void InstanceBuilderTests_DependencyResolve_Fluent()
         {
             using (var container = new StashboxContainer())

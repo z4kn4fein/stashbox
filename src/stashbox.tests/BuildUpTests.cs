@@ -43,7 +43,7 @@ namespace Stashbox.Tests
             [InjectionMethod]
             public void Init()
             {
-                Shield.EnsureNotNull(Test, nameof(Test));
+                Shield.EnsureNotNull(this.Test, nameof(this.Test));
             }
         }
 

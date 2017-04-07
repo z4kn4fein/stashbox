@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Stashbox.Entity;
+﻿using Stashbox.Entity;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.Resolution;
 using Stashbox.Utils;

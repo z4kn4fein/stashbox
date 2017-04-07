@@ -537,7 +537,7 @@ namespace Stashbox.Tests
 
             public void Dispose()
             {
-                if (Disposed)
+                if (this.Disposed)
                 {
                     throw new ObjectDisposedException(nameof(Test1));
                 }
@@ -568,7 +568,7 @@ namespace Stashbox.Tests
 
             public void Dispose()
             {
-                if (Disposed)
+                if (this.Disposed)
                 {
                     throw new ObjectDisposedException(nameof(Test4));
                 }

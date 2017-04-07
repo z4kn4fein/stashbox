@@ -38,51 +38,7 @@ namespace Stashbox.Tests
 
             Assert.AreEqual(3, all.Count);
         }
-
-        [TestMethod]
-        public void EnumerableTests_RegisterTypes()
-        {
-            IStashboxContainer container = new StashboxContainer();
-            container.RegisterTypesAs<ITest1>(new [] {typeof(Test1), typeof(Test11), typeof(Test12)});
-
-            var all = container.Resolve<IEnumerable<ITest1>>();
-
-            Assert.AreEqual(3, all.Count());
-        }
-
-        [TestMethod]
-        public void EnumerableTests_RegisterTypes_Selector()
-        {
-            IStashboxContainer container = new StashboxContainer();
-            container.RegisterTypesAsSelf(new[] { typeof(Test1), typeof(Test11), typeof(Test12) }, type => type == typeof(Test12));
-            
-            Assert.IsNotNull(container.Resolve<Test12>());
-        }
-
-        [TestMethod]
-        public void EnumerableTests_RegisterTypes_Scoped()
-        {
-            IStashboxContainer container = new StashboxContainer();
-            container.RegisterTypesAs<ITest1>(new[] { typeof(Test1), typeof(Test11), typeof(Test12), typeof(Test2) }, configurator: context => context.WithScopedLifetime());
-
-            var regs = container.ContainerContext.RegistrationRepository.GetAllRegistrations().ToArray();
-
-            Assert.AreEqual(3, regs.Length);
-            Assert.IsTrue(regs.All(reg => reg.RegistrationContext.Lifetime is ScopedLifetime));
-        }
-
-        [TestMethod]
-        public void EnumerableTests_RegisterTypes_Scoped_Selector()
-        {
-            IStashboxContainer container = new StashboxContainer();
-            container.RegisterTypesAsSelf(new[] { typeof(Test1), typeof(Test11), typeof(Test12) }, type => type == typeof(Test12), context => context.WithScopedLifetime());
-
-            var regs = container.ContainerContext.RegistrationRepository.GetAllRegistrations().ToArray();
-
-            Assert.AreEqual(1, regs.Length);
-            Assert.IsTrue(regs.All(reg => reg.RegistrationContext.Lifetime is ScopedLifetime));
-        }
-
+        
         [TestMethod]
         public void EnumerableTests_Resolve_ICollection()
         {
