@@ -140,7 +140,8 @@ namespace Stashbox.Tests
 
             var regs = container.ContainerContext.RegistrationRepository.GetAllRegistrations();
 
-            Assert.IsTrue(regs.Any(r => r.ServiceType == typeof(IStashboxContainer) || r.ServiceType == typeof(ITest1)));
+            Assert.IsTrue(regs.Any(r => r.ServiceType == typeof(IStashboxContainer)));
+            Assert.IsTrue(regs.Any(r => r.ServiceType == typeof(ITest1)));
         }
 
         [TestMethod]

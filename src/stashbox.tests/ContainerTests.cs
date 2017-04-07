@@ -102,8 +102,22 @@ namespace Stashbox.Tests
             container.RegisterType<ITest1, Test1>();
             container.RegisterType<ITest2, Test2>();
 
+            var child = container.CreateChildContainer();
+
             Assert.IsTrue(container.CanResolve<ITest1>());
             Assert.IsTrue(container.CanResolve(typeof(ITest2)));
+            Assert.IsTrue(container.CanResolve<IEnumerable<ITest2>>());
+            Assert.IsTrue(container.CanResolve<Lazy<ITest2>>());
+            Assert.IsTrue(container.CanResolve<Func<ITest2>>());
+            Assert.IsTrue(container.CanResolve<Tuple<ITest2>>());
+
+            Assert.IsTrue(child.CanResolve<ITest1>());
+            Assert.IsTrue(child.CanResolve(typeof(ITest2)));
+            Assert.IsTrue(child.CanResolve<IEnumerable<ITest2>>());
+            Assert.IsTrue(child.CanResolve<Lazy<ITest2>>());
+            Assert.IsTrue(child.CanResolve<Func<ITest2>>());
+            Assert.IsTrue(child.CanResolve<Tuple<ITest2>>());
+
             Assert.IsFalse(container.CanResolve<ITest3>());
             Assert.IsFalse(container.CanResolve<ITest1>("test"));
             Assert.IsFalse(container.CanResolve(typeof(ITest1), "test"));
