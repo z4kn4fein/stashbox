@@ -13,7 +13,6 @@ using System;
 using System.Linq.Expressions;
 using Stashbox.BuildUp;
 using Stashbox.Exceptions;
-using Stashbox.MetaInfo;
 
 namespace Stashbox
 {
@@ -136,8 +135,8 @@ namespace Stashbox
         public TTo BuildUp<TTo>(TTo instance)
         {
             var typeTo = instance.GetType();
-            var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, RegistrationContextData.New(), typeTo);
-            var expr = this.expressionBuilder.CreateFillExpression(metaInfoProvider, Expression.Constant(instance), ResolutionInfo.New(this, this), typeTo);
+            var registration = this.ServiceRegistrator.PrepareContext(typeTo, typeTo);
+            var expr = this.expressionBuilder.CreateFillExpression(registration.CreateServiceRegistration(false), Expression.Constant(instance), ResolutionInfo.New(this, this), typeTo);
             var factory = expr.CompileDelegate(Constants.ScopeExpression);
             return (TTo)factory(this);
         }

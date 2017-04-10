@@ -1,7 +1,6 @@
 ﻿using System;
 using Stashbox.BuildUp.Expressions;
 using Stashbox.Entity;
-using Stashbox.Entity.Resolution;
 using Stashbox.Infrastructure;
 using System.Linq.Expressions;
 using Stashbox.Infrastructure.Registration;
@@ -23,18 +22,10 @@ namespace Stashbox.BuildUp
         protected override Expression GetExpressionInternal(IServiceRegistration serviceRegistration, ResolutionInfo resolutionInfo, Type resolveType)
         {
             if (!this.containerContext.ContainerConfigurator.ContainerConfiguration.CircularDependencyTrackingEnabled)
-                return this.CreateExpression(serviceRegistration, resolutionInfo, resolveType);
+                return this.expressionBuilder.CreateExpression(serviceRegistration, resolutionInfo, resolveType);
 
             using (new CircularDependencyBarrier(resolutionInfo, serviceRegistration.ImplementationType))
-                return this.CreateExpression(serviceRegistration, resolutionInfo, resolveType);
-        }
-
-        private Expression CreateExpression(IServiceRegistration serviceRegistration, ResolutionInfo resolutionInfo, Type resolveType)
-        {
-            if (!serviceRegistration.MetaInfoProvider.TryChooseConstructor(out ResolutionConstructor constructor, resolutionInfo))
-                return null;
-
-            return this.expressionBuilder.CreateExpression(serviceRegistration, constructor, resolutionInfo, resolveType);
+                return this.expressionBuilder.CreateExpression(serviceRegistration, resolutionInfo, resolveType);
         }
     }
 }

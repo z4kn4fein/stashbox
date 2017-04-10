@@ -1,6 +1,5 @@
 ﻿using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.Registration;
-using Stashbox.MetaInfo;
 using Stashbox.Registration;
 using Stashbox.Utils;
 using System;
@@ -42,14 +41,18 @@ namespace Stashbox
         /// <inheritdoc />
         public IDependencyRegistrator RegisterType(Type typeTo, Action<IFluentServiceRegistrator> configurator = null) =>
             this.RegisterType(typeTo, typeTo, configurator);
-        
+
         /// <inheritdoc />
         public IDependencyRegistrator RegisterInstance<TFrom>(object instance, string name = null, bool withoutDisposalTracking = false) where TFrom : class
         {
             Shield.EnsureNotNull(instance, nameof(instance));
 
-            this.RegisterInstanceInternal(instance, name, typeof(TFrom), withoutDisposalTracking);
-            return this;
+            return this.RegisterType(typeof(TFrom), instance.GetType(), context =>
+            {
+                context.WithInstance(instance).WithName(name);
+                if (withoutDisposalTracking)
+                    context.WithoutDisposalTracking();
+            });
         }
 
         /// <inheritdoc />
@@ -57,8 +60,12 @@ namespace Stashbox
         {
             Shield.EnsureNotNull(instance, nameof(instance));
 
-            this.RegisterInstanceInternal(instance, name, instance.GetType(), withoutDisposalTracking);
-            return this;
+            return this.RegisterType(instance.GetType(), context =>
+            {
+                context.WithInstance(instance).WithName(name);
+                if (withoutDisposalTracking)
+                    context.WithoutDisposalTracking();
+            });
         }
 
         /// <inheritdoc />
@@ -116,33 +123,14 @@ namespace Stashbox
 
             var data = RegistrationContextData.New();
             data.ExistingInstance = instance;
-
-            var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, data, typeTo);
-
+            
             var registration = new ServiceRegistration(typeFrom, typeTo,
                 this.ContainerContext.ReserveRegistrationNumber(),
-                this.objectBuilderSelector.Get(ObjectBuilder.WireUp), metaInfoProvider, data,
+                this.objectBuilderSelector.Get(ObjectBuilder.WireUp), data,
                 false, !withoutDisposalTracking);
 
             this.registrationRepository.AddOrUpdateRegistration(typeFrom, regName, false, registration);
             this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.ContainerContext, typeTo, typeFrom);
-        }
-
-        private void RegisterInstanceInternal(object instance, string keyName, Type type, bool withoutDisposalTracking)
-        {
-            var instanceType = instance.GetType();
-
-            var data = RegistrationContextData.New();
-            data.ExistingInstance = instance;
-
-            var regName = NameGenerator.GetRegistrationName(instanceType, instanceType, keyName);
-            var metaInfoProvider = new MetaInfoProvider(this.ContainerContext, data, instanceType);
-
-            var registration = new ServiceRegistration(type, instanceType, this.ContainerContext.ReserveRegistrationNumber(),
-                this.objectBuilderSelector.Get(ObjectBuilder.Instance), metaInfoProvider, data, false, !withoutDisposalTracking);
-
-            this.registrationRepository.AddOrUpdateRegistration(type, regName, false, registration);
-            this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.ContainerContext, instanceType, type);
         }
     }
 }

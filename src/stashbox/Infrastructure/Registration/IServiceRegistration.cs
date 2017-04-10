@@ -1,6 +1,7 @@
 ﻿using System.Linq.Expressions;
 using Stashbox.Entity;
 using System;
+using Stashbox.MetaInfo;
 using Stashbox.Registration;
 
 namespace Stashbox.Infrastructure.Registration
@@ -21,9 +22,9 @@ namespace Stashbox.Infrastructure.Registration
         Type ImplementationType { get; }
 
         /// <summary>
-        /// The meta info provider.
+        /// The meta info.
         /// </summary>
-        IMetaInfoProvider MetaInfoProvider { get; }
+        MetaInformation MetaInformation { get; }
 
         /// <summary>
         /// The registration context.

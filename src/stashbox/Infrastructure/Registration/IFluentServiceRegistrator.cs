@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using Stashbox.Configuration;
 using Stashbox.Entity;
-using Stashbox.Entity.Resolution;
 
 namespace Stashbox.Infrastructure.Registration
 {
@@ -80,7 +80,7 @@ namespace Stashbox.Infrastructure.Registration
         /// </summary>
         /// <param name="rule">The constructor selection rule.</param>
         /// <returns>The <see cref="IFluentServiceRegistrator"/> which on this method was called.</returns>
-        IFluentServiceRegistrator WithConstructorSelectionRule(Func<IEnumerable<ResolutionConstructor>, ResolutionConstructor> rule);
+        IFluentServiceRegistrator WithConstructorSelectionRule(Func<IEnumerable<ConstructorInfo>, IEnumerable<ConstructorInfo>> rule);
 
         /// <summary>
         /// Sets an instance as the resolution target of the registration.

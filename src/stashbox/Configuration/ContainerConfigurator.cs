@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Stashbox.Entity.Resolution;
+using System.Reflection;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.Registration;
 
@@ -65,7 +65,7 @@ namespace Stashbox.Configuration
         }
 
         /// <inheritdoc />
-        public IContainerConfigurator WithConstructorSelectionRule(Func<IEnumerable<ResolutionConstructor>, ResolutionConstructor> selectionRule)
+        public IContainerConfigurator WithConstructorSelectionRule(Func<IEnumerable<ConstructorInfo>, IEnumerable<ConstructorInfo>> selectionRule)
         {
             this.ContainerConfiguration.ConstructorSelectionRule = selectionRule;
             return this;

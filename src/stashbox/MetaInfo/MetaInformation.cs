@@ -7,57 +7,102 @@ using Stashbox.Entity;
 
 namespace Stashbox.MetaInfo
 {
-    internal class MetaInformation
+    /// <summary>
+    /// Holds meta information about a service.
+    /// </summary>
+    public class MetaInformation
     {
+        /// <summary>
+        /// Holds the constructors of the service.
+        /// </summary>
+        public IEnumerable<ConstructorInfo> Constructors { get; private set; }
+
+        /// <summary>
+        /// Holds the injection methods of the service.
+        /// </summary>
         public MethodInformation[] InjectionMethods { get; private set; }
+
+        /// <summary>
+        /// Holds the injection member of the service.
+        /// </summary>
         public MemberInformation[] InjectionMembers { get; private set; }
-        public ConstructorInformation[] Constructors { get; private set; }
+
+        /// <summary>
+        /// Holds the generic type constraints of the service.
+        /// </summary>
         public IDictionary<int, Type[]> GenericTypeConstraints { get; }
 
-        private readonly Type typeTo;
+        private readonly Type type;
 
-        public MetaInformation(Type typeTo)
+        internal MetaInformation(Type typeTo)
         {
-            this.typeTo = typeTo;
-            this.GenericTypeConstraints = new Dictionary<int, Type[]>();
+            this.type = typeTo;
             var typeInfo = typeTo.GetTypeInfo();
+            this.GenericTypeConstraints = new Dictionary<int, Type[]>();
             this.AddConstructors(typeInfo.DeclaredConstructors);
             this.AddMethods(typeInfo.DeclaredMethods);
             this.InjectionMembers = this.FillMembers(typeInfo).CastToArray();
             this.CollectGenericConstraints(typeInfo);
         }
 
-        private void AddConstructors(IEnumerable<ConstructorInfo> infos)
+        /// <summary>
+        /// Validates a type against the generic constraints of the service.
+        /// </summary>
+        /// <param name="typeForValidation">The validated type.</param>
+        /// <returns>True if the given type is valid, otherwise false.</returns>
+        public bool ValidateGenericContraints(Type typeForValidation)
         {
-            this.Constructors = infos.Where(info => !info.IsStatic).Select(info => new ConstructorInformation
-            {
-                Constructor = info,
-                Parameters = this.FillParameters(info.GetParameters()).CastToArray()
-            }).CastToArray();
+            var typeInfo = typeForValidation.GetTypeInfo();
+            var length = typeInfo.GenericTypeArguments.Length;
+
+            for (var i = 0; i < length; i++)
+                if (this.GenericTypeConstraints.ContainsKey(i) && !this.GenericTypeConstraints[i].Contains(typeInfo.GenericTypeArguments[i]))
+                    return false;
+
+            return true;
         }
 
-        private void AddMethods(IEnumerable<MethodInfo> infos)
-        {
+        /// <summary>
+        /// Converts a <see cref="ParameterInfo"/> to <see cref="TypeInformation"/>.
+        /// </summary>
+        /// <param name="parameter">The parameter info.</param>
+        /// <returns>The converted type info.</returns>
+        public TypeInformation GetTypeInformationForParameter(ParameterInfo parameter) =>
+            new TypeInformation
+            {
+                Type = parameter.ParameterType,
+                DependencyName = parameter.GetCustomAttribute<DependencyAttribute>()?.Name,
+                HasDependencyAttribute = parameter.GetCustomAttribute<DependencyAttribute>() != null,
+                ParentType = this.type,
+                CustomAttributes = parameter.GetCustomAttributes()?.ToArray(),
+                ParameterName = parameter.Name,
+                HasDefaultValue = parameter.HasDefaultValue(),
+                DefaultValue = parameter.DefaultValue
+            };
+
+
+        private void AddConstructors(IEnumerable<ConstructorInfo> constructors) =>
+            this.Constructors = constructors
+            .Where(constructor => !constructor.IsStatic && constructor.IsPublic);
+
+
+        private void AddMethods(IEnumerable<MethodInfo> infos) =>
             this.InjectionMethods = infos.Where(methodInfo => methodInfo.GetCustomAttribute<InjectionMethodAttribute>() != null).Select(info => new MethodInformation
             {
                 Method = info,
-                Parameters = this.FillParameters(info.GetParameters()).CastToArray()
+                Parameters = this.FillParameters(info.GetParameters())
             }).CastToArray();
-        }
 
-        private IEnumerable<TypeInformation> FillParameters(IEnumerable<ParameterInfo> parameters)
+        private TypeInformation[] FillParameters(ParameterInfo[] parameters)
         {
-            return parameters.Select(parameterInfo => new TypeInformation
-            {
-                Type = parameterInfo.ParameterType,
-                DependencyName = parameterInfo.GetCustomAttribute<DependencyAttribute>()?.Name,
-                HasDependencyAttribute = parameterInfo.GetCustomAttribute<DependencyAttribute>() != null,
-                ParentType = this.typeTo,
-                CustomAttributes = parameterInfo.GetCustomAttributes()?.ToArray(),
-                ParameterName = parameterInfo.Name,
-                HasDefaultValue = parameterInfo.HasDefaultValue(),
-                DefaultValue = parameterInfo.DefaultValue
-            });
+            var length = parameters.Length;
+            var types = new TypeInformation[length];
+
+            for (int i = 0; i < length; i++)
+                types[i] = this.GetTypeInformationForParameter(parameters[i]);
+
+
+            return types;
         }
 
         private IEnumerable<MemberInformation> FillMembers(TypeInfo typeInfo)
@@ -70,7 +115,7 @@ namespace Stashbox.MetaInfo
                            Type = propertyInfo.PropertyType,
                            DependencyName = propertyInfo.GetCustomAttribute<DependencyAttribute>()?.Name,
                            HasDependencyAttribute = propertyInfo.GetCustomAttribute<DependencyAttribute>() != null,
-                           ParentType = this.typeTo,
+                           ParentType = this.type,
                            CustomAttributes = propertyInfo.GetCustomAttributes()?.CastToArray(),
                            ParameterName = propertyInfo.Name,
                            IsMember = true
@@ -85,7 +130,7 @@ namespace Stashbox.MetaInfo
                                    Type = fieldInfo.FieldType,
                                    DependencyName = fieldInfo.GetCustomAttribute<DependencyAttribute>()?.Name,
                                    HasDependencyAttribute = fieldInfo.GetCustomAttribute<DependencyAttribute>() != null,
-                                   ParentType = this.typeTo,
+                                   ParentType = this.type,
                                    CustomAttributes = fieldInfo.GetCustomAttributes()?.CastToArray(),
                                    ParameterName = fieldInfo.Name,
                                    IsMember = true
@@ -99,14 +144,18 @@ namespace Stashbox.MetaInfo
             if (!typeInfo.IsGenericType && !typeInfo.IsGenericTypeDefinition)
                 return;
 
-            foreach (var typeInfoGenericTypeParameter in typeInfo.GenericTypeParameters)
+            var length = typeInfo.GenericTypeParameters.Length;
+            for (int i = 0; i < length; i++)
             {
+                var typeInfoGenericTypeParameter = typeInfo.GenericTypeParameters[i];
                 var paramTypeInfo = typeInfoGenericTypeParameter.GetTypeInfo();
-                var pos = paramTypeInfo.GenericParameterPosition;
                 var cons = paramTypeInfo.GetGenericParameterConstraints();
 
                 if (cons.Length > 0)
+                {
+                    var pos = paramTypeInfo.GenericParameterPosition;
                     this.GenericTypeConstraints.Add(pos, cons);
+                }
             }
         }
     }

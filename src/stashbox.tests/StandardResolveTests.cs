@@ -293,7 +293,7 @@ namespace Stashbox.Tests
         public void StandardResolveTests_Resolve_LessParametersConstructor()
         {
             using (IStashboxContainer container = new StashboxContainer(config =>
-            config.WithConstructorSelectionRule(Rules.ConstructorSelection.PreferLessParameters)))
+            config.WithConstructorSelectionRule(Rules.ConstructorSelection.PreferLeastParameters)))
             {
                 container.RegisterType(typeof(ITest1), typeof(Test1));
                 container.RegisterType(typeof(ITest2), typeof(Test2222));

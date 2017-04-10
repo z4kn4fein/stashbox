@@ -3,7 +3,7 @@ using Stashbox.Entity;
 using Stashbox.Infrastructure;
 using System;
 using System.Collections.Generic;
-using Stashbox.Entity.Resolution;
+using System.Reflection;
 
 namespace Stashbox.Registration
 {
@@ -90,7 +90,7 @@ namespace Stashbox.Registration
         /// <summary>
         /// The constructor selection rule.
         /// </summary>
-        public Func<IEnumerable<ResolutionConstructor>, ResolutionConstructor> ConstructorSelectionRule { get; internal set; }
+        public Func<IEnumerable<ConstructorInfo>, IEnumerable<ConstructorInfo>> ConstructorSelectionRule { get; internal set; }
 
         /// <summary>
         /// Constructs a <see cref="RegistrationContextData"/>

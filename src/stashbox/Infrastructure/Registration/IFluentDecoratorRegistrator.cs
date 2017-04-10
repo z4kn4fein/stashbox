@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using Stashbox.Configuration;
 using Stashbox.Entity;
-using Stashbox.Entity.Resolution;
 
 namespace Stashbox.Infrastructure.Registration
 {
@@ -30,7 +30,7 @@ namespace Stashbox.Infrastructure.Registration
         /// </summary>
         /// <param name="rule">The constructor selection rule.</param>
         /// <returns>The <see cref="IDecoratorRegistrationContext"/> which on this method was called.</returns>
-        IFluentDecoratorRegistrator WithConstructorSelectionRule(Func<IEnumerable<ResolutionConstructor>, ResolutionConstructor> rule);
+        IFluentDecoratorRegistrator WithConstructorSelectionRule(Func<IEnumerable<ConstructorInfo>, IEnumerable<ConstructorInfo>> rule);
 
         /// <summary>
         /// Tells the container that it shouldn't track the resolved transient object for disposal.

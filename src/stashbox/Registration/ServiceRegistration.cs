@@ -4,6 +4,7 @@ using Stashbox.Infrastructure.Registration;
 using System;
 using System.Linq;
 using System.Linq.Expressions;
+using Stashbox.MetaInfo;
 using Stashbox.Utils;
 
 namespace Stashbox.Registration
@@ -13,10 +14,12 @@ namespace Stashbox.Registration
     /// </summary>
     public class ServiceRegistration : IServiceRegistration
     {
+        private static readonly ConcurrentTree<Type, MetaInformation> MetaRepository = new ConcurrentTree<Type, MetaInformation>();
+
         private readonly IObjectBuilder objectBuilder;
 
         /// <inheritdoc />
-        public IMetaInfoProvider MetaInfoProvider { get; }
+        public MetaInformation MetaInformation { get; }
 
         /// <inheritdoc />
         public Type ServiceType { get; }
@@ -37,13 +40,13 @@ namespace Stashbox.Registration
         public int RegistrationNumber { get; }
 
         internal ServiceRegistration(Type serviceType, Type implementationType, int registrationNumber,
-             IObjectBuilder objectBuilder, IMetaInfoProvider metaInfoProvider, RegistrationContextData registrationContextData, 
+             IObjectBuilder objectBuilder, RegistrationContextData registrationContextData, 
              bool isDecorator, bool shouldHandleDisposal)
         {
             this.objectBuilder = objectBuilder;
             this.ImplementationType = implementationType;
             this.ServiceType = serviceType;
-            this.MetaInfoProvider = metaInfoProvider;
+            this.MetaInformation = GetOrCreateMetaInfo(implementationType);
             this.RegistrationNumber = registrationNumber;
             this.RegistrationContext = registrationContextData;
             this.IsDecorator = isDecorator;
@@ -64,17 +67,23 @@ namespace Stashbox.Registration
             this.RegistrationContext.AttributeConditions != null && this.RegistrationContext.AttributeConditions.Any();
 
         /// <inheritdoc />
-        public bool ValidateGenericContraints(Type type) => !this.MetaInfoProvider.HasGenericTypeConstraints ||
-            this.MetaInfoProvider.ValidateGenericContraints(type);
+        public bool ValidateGenericContraints(Type type) =>
+            this.MetaInformation.GenericTypeConstraints.Count == 0 || this.MetaInformation.ValidateGenericContraints(type);
         
         /// <inheritdoc />
-        public Expression GetExpression(ResolutionInfo resolutionInfo, Type resolveType)
-        {
-            var expr = this.RegistrationContext.Lifetime == null || this.ServiceType.IsOpenGenericType() ?
+        public Expression GetExpression(ResolutionInfo resolutionInfo, Type resolveType) =>
+            this.RegistrationContext.Lifetime == null || this.ServiceType.IsOpenGenericType() ?
                 this.objectBuilder.GetExpression(this, resolutionInfo, resolveType) :
                 this.RegistrationContext.Lifetime.GetExpression(this, this.objectBuilder, resolutionInfo, resolveType);
 
-            return expr;
+        private static MetaInformation GetOrCreateMetaInfo(Type typeTo)
+        {
+            var found = MetaRepository.GetOrDefault(typeTo);
+            if (found != null) return found;
+
+            var meta = new MetaInformation(typeTo);
+            MetaRepository.AddOrUpdate(typeTo, meta);
+            return meta;
         }
     }
 }

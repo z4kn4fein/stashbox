@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using Stashbox.Attributes;
-using Stashbox.Entity.Resolution;
 using Stashbox.Infrastructure.Registration;
 
 namespace Stashbox.Configuration
@@ -15,7 +15,7 @@ namespace Stashbox.Configuration
         {
             return new ContainerConfiguration
             {
-                ConstructorSelectionRule = Rules.ConstructorSelection.ByPass,
+                ConstructorSelectionRule = Rules.ConstructorSelection.PreferMostParameters,
                 DependencySelectionRule = Rules.DependencySelection.ByPass,
                 EnumerableOrderRule = Rules.EnumerableOrder.ByPass
             };
@@ -59,7 +59,7 @@ namespace Stashbox.Configuration
         /// <summary>
         /// The constructor selection rule.
         /// </summary>
-        public Func<IEnumerable<ResolutionConstructor>, ResolutionConstructor> ConstructorSelectionRule { get; internal set; }
+        public Func<IEnumerable<ConstructorInfo>, IEnumerable<ConstructorInfo>> ConstructorSelectionRule { get; internal set; }
 
         /// <summary>
         /// The dependency selection rule.

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using Stashbox.Configuration;
-using Stashbox.Entity.Resolution;
 using Stashbox.Infrastructure.Registration;
 
 namespace Stashbox.Infrastructure
@@ -56,7 +56,7 @@ namespace Stashbox.Infrastructure
         /// Sets the constructor selection rule.
         /// </summary>
         /// <returns>The container configurator.</returns>
-        IContainerConfigurator WithConstructorSelectionRule(Func<IEnumerable<ResolutionConstructor>, ResolutionConstructor> selectionRule);
+        IContainerConfigurator WithConstructorSelectionRule(Func<IEnumerable<ConstructorInfo>, IEnumerable<ConstructorInfo>> selectionRule);
 
         /// <summary>
         /// Sets the dependency selection rule.

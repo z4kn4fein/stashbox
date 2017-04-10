@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using Stashbox.Configuration;
 using Stashbox.Entity;
-using Stashbox.Entity.Resolution;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.Registration;
 
@@ -32,7 +32,7 @@ namespace Stashbox.Registration
             return this;
         }
 
-        public IFluentDecoratorRegistrator WithConstructorSelectionRule(Func<IEnumerable<ResolutionConstructor>, ResolutionConstructor> rule)
+        public IFluentDecoratorRegistrator WithConstructorSelectionRule(Func<IEnumerable<ConstructorInfo>, IEnumerable<ConstructorInfo>> rule)
         {
             this.registrationContext.WithConstructorSelectionRule(rule);
             return this;
