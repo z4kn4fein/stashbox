@@ -37,7 +37,7 @@
   
   build_script:
   - msbuild /t:Restore /p:Configuration=%CONFIGURATION% src\stashbox.sln
-  - msbuild /t:Build /p:Configuration=%CONFIGURATION% src\stashbox.sln
+  - msbuild /t:Rebuild /p:Configuration=%CONFIGURATION% src\stashbox.sln
   
   after_build:
   - msbuild /t:Pack /p:IncludeSymbols=true /p:Configuration=%CONFIGURATION% /p:PackageOutputPath=..\..\artifacts src\stashbox\stashbox.csproj
@@ -97,7 +97,7 @@
   
   build_script:
   - msbuild /t:Restore /p:Configuration=%CONFIGURATION% src\stashbox.sln
-  - msbuild /t:Build /p:Configuration=%CONFIGURATION% src\stashbox.sln
+  - msbuild /t:Rebuild /p:Configuration=%CONFIGURATION% src\stashbox.sln
   
   after_build:
   - msbuild /t:Pack /p:IncludeSymbols=true /p:Configuration=%CONFIGURATION% /p:PackageOutputPath=..\..\artifacts src\stashbox\stashbox.csproj
