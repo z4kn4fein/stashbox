@@ -231,7 +231,7 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
-        public void DecoratorTests_ConstructorSelection_LessParameters()
+        public void DecoratorTests_ConstructorSelection_LeastParameters()
         {
             using (var container = new StashboxContainer())
             {

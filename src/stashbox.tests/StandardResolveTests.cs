@@ -290,7 +290,7 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
-        public void StandardResolveTests_Resolve_LessParametersConstructor()
+        public void StandardResolveTests_Resolve_LeastParametersConstructor()
         {
             using (IStashboxContainer container = new StashboxContainer(config =>
             config.WithConstructorSelectionRule(Rules.ConstructorSelection.PreferLeastParameters)))

@@ -42,7 +42,7 @@ namespace Stashbox.Infrastructure
         IEnumerable<object> ResolveAll(Type typeFrom);
 
         /// <summary>
-        /// Returns with a factory method which can be used to activate a type.
+        /// Returns a factory method which can be used to activate a type.
         /// </summary>
         /// <param name="typeFrom">The type of the requested instances.</param>
         /// <param name="name">The name of the requested registration.</param>
@@ -50,7 +50,47 @@ namespace Stashbox.Infrastructure
         /// <param name="parameterTypes">The parameter type.</param>
         /// <returns>The factory delegate.</returns>
         Delegate ResolveFactory(Type typeFrom, string name = null, bool nullResultAllowed = false, params Type[] parameterTypes);
-        
+
+        /// <summary>
+        /// Returns a factory method which can be used to activate a type.
+        /// </summary>
+        /// <param name="name">The name of the requested registration.</param>
+        /// <param name="nullResultAllowed">If true, the container will return with null instead of throwing <see cref="ResolutionFailedException"/>.</param>
+        /// <returns>The factory delegate.</returns>
+        Func<TService> ResolveFactory<TService>(string name = null, bool nullResultAllowed = false);
+
+        /// <summary>
+        /// Returns a factory method which can be used to activate a type.
+        /// </summary>
+        /// <param name="name">The name of the requested registration.</param>
+        /// <param name="nullResultAllowed">If true, the container will return with null instead of throwing <see cref="ResolutionFailedException"/>.</param>
+        /// <returns>The factory delegate.</returns>
+        Func<T1, TService> ResolveFactory<T1, TService>(string name = null, bool nullResultAllowed = false);
+
+        /// <summary>
+        /// Returns a factory method which can be used to activate a type.
+        /// </summary>
+        /// <param name="name">The name of the requested registration.</param>
+        /// <param name="nullResultAllowed">If true, the container will return with null instead of throwing <see cref="ResolutionFailedException"/>.</param>
+        /// <returns>The factory delegate.</returns>
+        Func<T1, T2, TService> ResolveFactory<T1, T2, TService>(string name = null, bool nullResultAllowed = false);
+
+        /// <summary>
+        /// Returns a factory method which can be used to activate a type.
+        /// </summary>
+        /// <param name="name">The name of the requested registration.</param>
+        /// <param name="nullResultAllowed">If true, the container will return with null instead of throwing <see cref="ResolutionFailedException"/>.</param>
+        /// <returns>The factory delegate.</returns>
+        Func<T1, T2, T3, TService> ResolveFactory<T1, T2, T3, TService>(string name = null, bool nullResultAllowed = false);
+
+        /// <summary>
+        /// Returns a factory method which can be used to activate a type.
+        /// </summary>
+        /// <param name="name">The name of the requested registration.</param>
+        /// <param name="nullResultAllowed">If true, the container will return with null instead of throwing <see cref="ResolutionFailedException"/>.</param>
+        /// <returns>The factory delegate.</returns>
+        Func<T1, T2, T3, T4, TService> ResolveFactory<T1, T2, T3, T4, TService>(string name = null, bool nullResultAllowed = false);
+
         /// <summary>
         /// Begins a new scope.
         /// </summary>

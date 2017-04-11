@@ -63,7 +63,7 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
-        public void OverrideTests_Resolve_NonGeneric()
+        public void OverrideTests_Resolve_Factory_NonGeneric()
         {
             IStashboxContainer container = new StashboxContainer();
             container.RegisterType<ITest1, Test1>();
@@ -82,7 +82,26 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
-        public void OverrideTests_Resolve_NonGeneric_Lazy()
+        public void OverrideTests_Resolve_Factory()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            container.RegisterType<ITest1, Test1>();
+            container.RegisterType<ITest2, Test2>();
+
+            var inst1 = container.Resolve<ITest1>();
+            inst1.Name = "test1";
+            container.Resolve<ITest2>();
+
+            var factory = container.ResolveFactory<ITest1, ITest2>();
+            var inst2 = factory(inst1);
+
+            Assert.IsNotNull(inst2);
+            Assert.IsInstanceOfType(inst2, typeof(Test2));
+            Assert.AreEqual("test1", inst2.Name);
+        }
+
+        [TestMethod]
+        public void OverrideTests_Resolve_Factory_NonGeneric_Lazy()
         {
             IStashboxContainer container = new StashboxContainer();
             container.RegisterType<ITest1, Test1>();
@@ -94,6 +113,25 @@ namespace Stashbox.Tests
 
             var factory = container.ResolveFactory(typeof(Lazy<ITest2>), parameterTypes: typeof(ITest1));
             var inst2 = ((Func<ITest1, Lazy<ITest2>>)factory)(inst1);
+
+            Assert.IsNotNull(inst2);
+            Assert.IsInstanceOfType(inst2, typeof(Lazy<ITest2>));
+            Assert.AreEqual("test1", inst2.Value.Name);
+        }
+
+        [TestMethod]
+        public void OverrideTests_Resolve_Factory_Lazy()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            container.RegisterType<ITest1, Test1>();
+            container.RegisterType<ITest2, Test2>();
+
+            var inst1 = container.Resolve<ITest1>();
+            inst1.Name = "test1";
+            container.Resolve<ITest2>();
+
+            var factory = container.ResolveFactory<ITest1, Lazy<ITest2>>();
+            var inst2 = factory(inst1);
 
             Assert.IsNotNull(inst2);
             Assert.IsInstanceOfType(inst2, typeof(Lazy<ITest2>));
