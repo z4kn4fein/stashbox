@@ -14,7 +14,7 @@ namespace Stashbox.Exceptions
         /// <param name="message">The exception message.</param>
         /// <param name="innerException">The inner exception.</param>
         public ResolutionFailedException(string typeName, string message = null, Exception innerException = null)
-            : base(typeName, message, innerException)
+            : base(typeName, $"Could not resolve type {typeName}, reason: {message}", innerException)
         { }
     }
 }

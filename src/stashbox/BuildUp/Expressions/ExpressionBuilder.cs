@@ -6,9 +6,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Text;
 using Stashbox.Configuration;
 using Stashbox.Entity.Resolution;
+using Stashbox.Exceptions;
 using Stashbox.Infrastructure.Registration;
+using Stashbox.Utils;
 
 namespace Stashbox.BuildUp.Expressions
 {
@@ -69,7 +72,7 @@ namespace Stashbox.BuildUp.Expressions
         private ResolutionConstructor SelectConstructor(IServiceRegistration serviceRegistration, ResolutionInfo resolutionInfo, ConstructorInfo[] constructors)
         {
             var length = constructors.Length;
-
+            var checkedConstructors = new Dictionary<ConstructorInfo, ParameterInfo>();
             for (var i = 0; i < length; i++)
             {
                 var constructor = constructors[i];
@@ -78,6 +81,7 @@ namespace Stashbox.BuildUp.Expressions
                 var parameterExpressions = new Expression[paramLength];
 
                 var hasNullParameter = false;
+                ParameterInfo failedParameter = null;
                 for (var j = 0; j < paramLength; j++)
                 {
                     var parameter = parameters[j];
@@ -89,18 +93,32 @@ namespace Stashbox.BuildUp.Expressions
                     if(expression == null)
                     {
                         hasNullParameter = true;
+                        failedParameter = parameter;
                         break;
                     }
 
                     parameterExpressions[j] = expression;
                 }
 
-                if(hasNullParameter) continue;
+                if (hasNullParameter)
+                {
+                    if(!resolutionInfo.NullResultAllowed)
+                        checkedConstructors.Add(constructor, failedParameter);
+
+                    continue;
+                }
 
                 return new ResolutionConstructor { Constructor = constructor, Parameters = parameterExpressions};
             }
 
-            return null;
+            if (resolutionInfo.NullResultAllowed)
+                return null;
+
+            var stringBuilder = new StringBuilder();
+            foreach (var checkedConstructor in checkedConstructors)
+                stringBuilder.AppendLine($"Checked constructor {checkedConstructor.Key}, unresolvable parameter: ({checkedConstructor.Value.ParameterType}){checkedConstructor.Value.Name}");
+
+            throw new ResolutionFailedException(serviceRegistration.ImplementationType.FullName, stringBuilder.ToString());
         }
 
         private Expression CreatePostWorkExpressionIfAny(IServiceRegistration serviceRegistration, ResolutionInfo resolutionInfo,

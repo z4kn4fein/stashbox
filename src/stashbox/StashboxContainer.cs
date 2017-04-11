@@ -93,11 +93,7 @@ namespace Stashbox
         public void Validate()
         {
             foreach (var serviceRegistration in this.registrationRepository.GetAllRegistrations())
-            {
-                var expression = serviceRegistration.GetExpression(ResolutionInfo.New(this, this), serviceRegistration.ServiceType);
-                if (expression == null)
-                    throw new ResolutionFailedException(serviceRegistration.ImplementationType.FullName);
-            }
+                serviceRegistration.GetExpression(ResolutionInfo.New(this, this), serviceRegistration.ServiceType);
         }
 
         /// <inheritdoc />
