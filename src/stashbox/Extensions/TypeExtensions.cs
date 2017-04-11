@@ -114,6 +114,9 @@ namespace System
         public static bool IsDisposable(this Type type) =>
             type.Implements(Constants.DisposableType);
 
+        public static bool IsCompositionRoot(this Type type) =>
+            type.Implements(Constants.CompositionRootType);
+
         public static bool IsValidForRegistration(this Type type)
         {
             var typeInfo = type.GetTypeInfo();

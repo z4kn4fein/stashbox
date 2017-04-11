@@ -1,4 +1,7 @@
 ﻿using System.Collections.Generic;
+#if !NET40
+using System.Linq;
+#endif
 
 namespace System.Reflection
 {
@@ -10,6 +13,15 @@ namespace System.Reflection
             return assembly.GetExportedTypes();
 #else
             return assembly.ExportedTypes;
+#endif
+        }
+
+        public static IEnumerable<Type> CollectDefinedTypes(this Assembly assembly)
+        {
+#if NET40
+            return assembly.GetTypes();
+#else
+            return assembly.DefinedTypes.Select(typeInfo => typeInfo.AsType());
 #endif
         }
     }

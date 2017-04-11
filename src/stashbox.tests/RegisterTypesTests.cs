@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -122,7 +123,7 @@ namespace Stashbox.Tests
         {
             IStashboxContainer container = new StashboxContainer();
             container.RegisterAssemblyContaining<ITest1>();
-            
+
             var regs = container.ContainerContext.RegistrationRepository.GetAllRegistrations().ToArray();
 
             Assert.IsTrue(regs.Length > 0);
@@ -170,6 +171,70 @@ namespace Stashbox.Tests
             Assert.IsTrue(regs.Length > 0);
         }
 
+        [TestMethod]
+        public void RegisterTypesTests_ComposeBy()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            container.ComposeBy(typeof(TestCompositionRoot));
+
+            var regs = container.ContainerContext.RegistrationRepository.GetAllRegistrations().OrderBy(r => r.RegistrationNumber).ToArray();
+
+            Assert.AreEqual(2, regs.Length);
+            Assert.AreSame(regs[0].ImplementationType, typeof(Test));
+            Assert.AreSame(regs[1].ImplementationType, typeof(Test1));
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void RegisterTypesTests_ComposeBy_Throw_DoesntImplement_ICompositionRoot()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            container.ComposeBy(typeof(Test));
+        }
+
+        [TestMethod]
+        public void RegisterTypesTests_ComposeBy_Generic()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            container.ComposeBy<TestCompositionRoot>();
+
+            var regs = container.ContainerContext.RegistrationRepository.GetAllRegistrations().OrderBy(r => r.RegistrationNumber).ToArray();
+
+            Assert.AreEqual(2, regs.Length);
+            Assert.AreSame(regs[0].ImplementationType, typeof(Test));
+            Assert.AreSame(regs[1].ImplementationType, typeof(Test1));
+        }
+
+        [TestMethod]
+        public void RegisterTypesTests_ComposeAssembly()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            container.ComposeAssembly(this.GetType().GetTypeInfo().Assembly);
+
+            var regs = container.ContainerContext.RegistrationRepository.GetAllRegistrations().OrderBy(r => r.RegistrationNumber).ToArray();
+
+            Assert.AreEqual(4, regs.Length);
+            Assert.AreSame(regs[0].ImplementationType, typeof(Test));
+            Assert.AreSame(regs[1].ImplementationType, typeof(Test1));
+            Assert.AreSame(regs[2].ImplementationType, typeof(Test11));
+            Assert.AreSame(regs[3].ImplementationType, typeof(Test12));
+        }
+
+        [TestMethod]
+        public void RegisterTypesTests_ComposeAssemblies()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            container.ComposeAssemblies(new[] { this.GetType().GetTypeInfo().Assembly });
+
+            var regs = container.ContainerContext.RegistrationRepository.GetAllRegistrations().OrderBy(r => r.RegistrationNumber).ToArray();
+
+            Assert.AreEqual(4, regs.Length);
+            Assert.AreSame(regs[0].ImplementationType, typeof(Test));
+            Assert.AreSame(regs[1].ImplementationType, typeof(Test1));
+            Assert.AreSame(regs[2].ImplementationType, typeof(Test11));
+            Assert.AreSame(regs[3].ImplementationType, typeof(Test12));
+        }
+
         public interface ITest { }
 
         public interface ITest1 { }
@@ -185,5 +250,23 @@ namespace Stashbox.Tests
         public class Test11 : ITest1, ITest2 { }
 
         public class Test12 : ITest, ITest1, ITest2 { }
+
+        public class TestCompositionRoot : ICompositionRoot
+        {
+            public void Compose(IStashboxContainer container)
+            {
+                container.RegisterType<ITest, Test>();
+                container.RegisterType<ITest1, Test1>();
+            }
+        }
+
+        public class TestCompositionRoot2 : ICompositionRoot
+        {
+            public void Compose(IStashboxContainer container)
+            {
+                container.RegisterType<ITest1, Test11>();
+                container.RegisterType<ITest2, Test12>();
+            }
+        }
     }
 }

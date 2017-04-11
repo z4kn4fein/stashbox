@@ -105,5 +105,46 @@ namespace Stashbox
 
             return this.RegisterAssembly(typeFrom.GetTypeInfo().Assembly, selector, configurator);
         }
+
+        /// <inheritdoc />
+        public IDecoratorRegistrator ComposeBy<TCompositionRoot>()
+            where TCompositionRoot : ICompositionRoot, new() =>
+            this.ComposeBy(typeof(TCompositionRoot));
+
+        /// <inheritdoc />
+        public IDecoratorRegistrator ComposeBy(Type compositionRootType)
+        {
+            Shield.EnsureNotNull(compositionRootType, nameof(compositionRootType));
+            Shield.EnsureTrue(compositionRootType.IsCompositionRoot(), $"The given type {compositionRootType} doesn't implement ICompositionRoot.");
+
+            var compositionRoot = (ICompositionRoot)Activator.CreateInstance(compositionRootType);
+            compositionRoot.Compose(this);
+
+            return this;
+        }
+
+        /// <inheritdoc />
+        public IDecoratorRegistrator ComposeAssembly(Assembly assembly)
+        {
+            Shield.EnsureNotNull(assembly, nameof(assembly));
+
+            var compositionRootTypes = assembly.CollectDefinedTypes().Where(type => !type.GetTypeInfo().IsAbstract && type.IsCompositionRoot());
+
+            foreach (var compositionRootType in compositionRootTypes)
+                this.ComposeBy(compositionRootType);
+
+            return this;
+        }
+
+        /// <inheritdoc />
+        public IDecoratorRegistrator ComposeAssemblies(IEnumerable<Assembly> assemblies)
+        {
+            Shield.EnsureNotNull(assemblies, nameof(assemblies));
+
+            foreach (var assembly in assemblies)
+                this.ComposeAssembly(assembly);
+
+            return this;
+        }
     }
 }

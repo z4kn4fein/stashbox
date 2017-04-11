@@ -32,5 +32,7 @@ namespace Stashbox
         internal static Type[] EmptyTypes = new Type[0];
 
         internal static ConstructorInfo ObjectConstructor = typeof(object).GetConstructor(EmptyTypes);
+
+        internal static Type CompositionRootType = typeof(ICompositionRoot);
     }
 }
