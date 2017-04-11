@@ -62,7 +62,7 @@ namespace Stashbox
 
         /// <inheritdoc />
         public Func<T1, T2, T3, T4, TService> ResolveFactory<T1, T2, T3, T4, TService>(string name = null, bool nullResultAllowed = false) =>
-            this.ResolveFactory(typeof(TService), name, nullResultAllowed, typeof(T1), typeof(T2), typeof(T3)) as Func<T1, T2, T3, T4, TService>;
+            this.ResolveFactory(typeof(TService), name, nullResultAllowed, typeof(T1), typeof(T2), typeof(T3), typeof(T4)) as Func<T1, T2, T3, T4, TService>;
 
         /// <inheritdoc />
         public IDependencyResolver BeginScope() => new ResolutionScope(this.activationContext);

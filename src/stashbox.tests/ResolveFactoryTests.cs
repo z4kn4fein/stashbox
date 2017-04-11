@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Stashbox.Tests
 {
@@ -23,6 +18,22 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void ResolveFactoryTests_ParameterLess_Scoped()
+        {
+            using (var container = new StashboxContainer())
+            {
+                container.RegisterType<Test>();
+
+                using (var scope = container.BeginScope())
+                {
+                    var factory = scope.ResolveFactory<Test>();
+
+                    Assert.IsNotNull(factory());
+                }
+            }
+        }
+
+        [TestMethod]
         public void ResolveFactoryTests_OneParam()
         {
             using (var container = new StashboxContainer())
@@ -34,6 +45,25 @@ namespace Stashbox.Tests
                 var inst = factory(test);
 
                 Assert.AreSame(test, inst.Test);
+            }
+        }
+
+        [TestMethod]
+        public void ResolveFactoryTests_OneParam_Scoped()
+        {
+            using (var container = new StashboxContainer())
+            {
+                container.RegisterType<Test1>();
+
+                using (var scope = container.BeginScope())
+                {
+                    var factory = scope.ResolveFactory<Test, Test1>();
+
+                    var test = new Test();
+                    var inst = factory(test);
+
+                    Assert.AreSame(test, inst.Test);
+                }
             }
         }
 
@@ -51,6 +81,27 @@ namespace Stashbox.Tests
 
                 Assert.AreSame(test, inst.Test);
                 Assert.AreSame(test1, inst.Test1);
+            }
+        }
+
+        [TestMethod]
+        public void ResolveFactoryTests_TwoParams_Scoped()
+        {
+            using (var container = new StashboxContainer())
+            {
+                container.RegisterType<Test2>();
+
+                using (var scope = container.BeginScope())
+                {
+                    var factory = scope.ResolveFactory<Test, Test1, Test2>();
+
+                    var test = new Test();
+                    var test1 = new Test1(test);
+                    var inst = factory(test, test1);
+
+                    Assert.AreSame(test, inst.Test);
+                    Assert.AreSame(test1, inst.Test1);
+                }
             }
         }
 
@@ -74,6 +125,29 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void ResolveFactoryTests_ThreeParams_Scoped()
+        {
+            using (var container = new StashboxContainer())
+            {
+                container.RegisterType<Test3>();
+
+                using (var scope = container.BeginScope())
+                {
+                    var factory = scope.ResolveFactory<Test, Test1, Test2, Test3>();
+
+                    var test = new Test();
+                    var test1 = new Test1(test);
+                    var test2 = new Test2(test1, test);
+                    var inst = factory(test, test1, test2);
+
+                    Assert.AreSame(test, inst.Test);
+                    Assert.AreSame(test1, inst.Test1);
+                    Assert.AreSame(test2, inst.Test2);
+                }
+            }
+        }
+
+        [TestMethod]
         public void ResolveFactoryTests_FourParams()
         {
             using (var container = new StashboxContainer())
@@ -91,6 +165,31 @@ namespace Stashbox.Tests
                 Assert.AreSame(test1, inst.Test1);
                 Assert.AreSame(test2, inst.Test2);
                 Assert.AreSame(test3, inst.Test3);
+            }
+        }
+
+        [TestMethod]
+        public void ResolveFactoryTests_FourParams_Scoped()
+        {
+            using (var container = new StashboxContainer())
+            {
+                container.RegisterType<Test4>();
+
+                using (var scope = container.BeginScope())
+                {
+                    var factory = scope.ResolveFactory<Test, Test1, Test2, Test3, Test4>();
+
+                    var test = new Test();
+                    var test1 = new Test1(test);
+                    var test2 = new Test2(test1, test);
+                    var test3 = new Test3(test1, test, test2);
+                    var inst = factory(test, test1, test2, test3);
+
+                    Assert.AreSame(test, inst.Test);
+                    Assert.AreSame(test1, inst.Test1);
+                    Assert.AreSame(test2, inst.Test2);
+                    Assert.AreSame(test3, inst.Test3);
+                }
             }
         }
 
