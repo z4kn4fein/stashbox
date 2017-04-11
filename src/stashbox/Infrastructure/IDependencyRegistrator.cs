@@ -63,17 +63,18 @@ namespace Stashbox.Infrastructure
         /// <param name="name">The name of the registration.</param>
         /// <param name="withoutDisposalTracking">If it's set to true the container will exclude the instance from the disposal tracking.</param>
         /// <returns>The <see cref="IDependencyRegistrator"/> which on this method was called.</returns>
-        IDependencyRegistrator RegisterInstance<TFrom>(object instance, string name = null, bool withoutDisposalTracking = false)
+        IDependencyRegistrator RegisterInstance<TFrom>(TFrom instance, string name = null, bool withoutDisposalTracking = false)
             where TFrom : class;
 
         /// <summary>
         /// Registers an already constructed instance into the container.
         /// </summary>
+        /// <param name="serviceType">The service type.</param>
         /// <param name="instance">The constructed object.</param>
         /// <param name="name">The name of the registration.</param>
         /// <param name="withoutDisposalTracking">If it's set to true the container will exclude the instance from the disposal tracking.</param>
         /// <returns>The <see cref="IDependencyRegistrator"/> which on this method was called.</returns>
-        IDependencyRegistrator RegisterInstance(object instance, string name = null, bool withoutDisposalTracking = false);
+        IDependencyRegistrator RegisterInstance(Type serviceType, object instance, string name = null, bool withoutDisposalTracking = false);
 
         /// <summary>
         /// Registers an already constructed instance, but the container will perform injections and extensions on it.
@@ -83,17 +84,18 @@ namespace Stashbox.Infrastructure
         /// <param name="name">The name of the registration.</param>
         /// <param name="withoutDisposalTracking">If it's set to true the container will exclude the instance from the disposal tracking.</param>
         /// <returns>The <see cref="IDependencyRegistrator"/> which on this method was called.</returns>
-        IDependencyRegistrator WireUp<TFrom>(object instance, string name = null, bool withoutDisposalTracking = false)
+        IDependencyRegistrator WireUp<TFrom>(TFrom instance, string name = null, bool withoutDisposalTracking = false)
             where TFrom : class;
 
         /// <summary>
         /// Registers an already constructed instance, but the container will perform injections and extensions on it.
         /// </summary>
+        /// <param name="serviceType">The service type.</param>
         /// <param name="instance">The constructed object.</param>
         /// <param name="name">The name of the registration.</param>
         /// <param name="withoutDisposalTracking">If it's set to true the container will exclude the instance from the disposal tracking.</param>
         /// <returns>The <see cref="IDependencyRegistrator"/> which on this method was called.</returns>
-        IDependencyRegistrator WireUp(object instance, string name = null, bool withoutDisposalTracking = false);
+        IDependencyRegistrator WireUp(Type serviceType, object instance, string name = null, bool withoutDisposalTracking = false);
 
         /// <summary>
         /// Registers a type with singleton lifetime.

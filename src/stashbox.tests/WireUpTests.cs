@@ -70,6 +70,23 @@ namespace Stashbox.Tests
             }
         }
 
+        [TestMethod]
+        public void InjectionMemberTests_WireUp_WithoutService_NonGeneric()
+        {
+            using (var container = new StashboxContainer())
+            {
+                container.RegisterType<ITest, Test>();
+                object test1 = new Test1();
+                container.WireUp(typeof(Test1), test1);
+                var inst = container.Resolve<Test1>();
+
+                Assert.IsNotNull(inst);
+                Assert.IsNotNull(inst.Test);
+                Assert.IsInstanceOfType(inst, typeof(Test1));
+                Assert.IsInstanceOfType(inst.Test, typeof(Test));
+            }
+        }
+
         public interface ITest { }
 
         public interface ITest1 { ITest Test { get; } }

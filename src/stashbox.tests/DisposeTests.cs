@@ -81,6 +81,46 @@ namespace Stashbox.Tests
             {
                 container.RegisterType<ITest2, Test2>();
                 container.RegisterType<Test3>();
+                container.RegisterInstance(test, withoutDisposalTracking: true);
+                test2 = container.Resolve<ITest2>();
+                test3 = container.Resolve<Test3>();
+            }
+
+            Assert.IsFalse(test.Disposed);
+            Assert.IsFalse(test2.Test1.Disposed);
+            Assert.IsFalse(test3.Test1.Disposed);
+        }
+
+        [TestMethod]
+        public void DisposeTests_Instance_AsObject_WithoutDisposal()
+        {
+            object test = new Test1();
+            ITest2 test2;
+            Test3 test3;
+            using (IStashboxContainer container = new StashboxContainer())
+            {
+                container.RegisterType<ITest2, Test2>();
+                container.RegisterType<Test3>();
+                container.RegisterInstance(typeof(ITest1), test, withoutDisposalTracking: true);
+                test2 = container.Resolve<ITest2>();
+                test3 = container.Resolve<Test3>();
+            }
+
+            Assert.IsFalse(((ITest1)test).Disposed);
+            Assert.IsFalse(test2.Test1.Disposed);
+            Assert.IsFalse(test3.Test1.Disposed);
+        }
+
+        [TestMethod]
+        public void DisposeTests_Instance_WithoutDisposal_Fluent()
+        {
+            ITest1 test = new Test1();
+            ITest2 test2;
+            Test3 test3;
+            using (IStashboxContainer container = new StashboxContainer())
+            {
+                container.RegisterType<ITest2, Test2>();
+                container.RegisterType<Test3>();
                 container.RegisterType<ITest1>(context => context.WithInstance(test).WithoutDisposalTracking());
                 test2 = container.Resolve<ITest2>();
                 test3 = container.Resolve<Test3>();

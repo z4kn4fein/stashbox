@@ -43,7 +43,7 @@ namespace Stashbox
             this.RegisterType(typeTo, typeTo, configurator);
 
         /// <inheritdoc />
-        public IDependencyRegistrator RegisterInstance<TFrom>(object instance, string name = null, bool withoutDisposalTracking = false) where TFrom : class
+        public IDependencyRegistrator RegisterInstance<TFrom>(TFrom instance, string name = null, bool withoutDisposalTracking = false) where TFrom : class
         {
             Shield.EnsureNotNull(instance, nameof(instance));
 
@@ -56,11 +56,11 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public IDependencyRegistrator RegisterInstance(object instance, string name = null, bool withoutDisposalTracking = false)
+        public IDependencyRegistrator RegisterInstance(Type serviceType, object instance, string name = null, bool withoutDisposalTracking = false)
         {
             Shield.EnsureNotNull(instance, nameof(instance));
 
-            return this.RegisterType(instance.GetType(), context =>
+            return this.RegisterType(serviceType, instance.GetType(), context =>
             {
                 context.WithInstance(instance).WithName(name);
                 if (withoutDisposalTracking)
@@ -69,7 +69,7 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public IDependencyRegistrator WireUp<TFrom>(object instance, string name = null, bool withoutDisposalTracking = false) where TFrom : class
+        public IDependencyRegistrator WireUp<TFrom>(TFrom instance, string name = null, bool withoutDisposalTracking = false) where TFrom : class
         {
             Shield.EnsureNotNull(instance, nameof(instance));
 
@@ -78,12 +78,13 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public IDependencyRegistrator WireUp(object instance, string name = null, bool withoutDisposalTracking = false)
+        public IDependencyRegistrator WireUp(Type serviceType, object instance, string name = null, bool withoutDisposalTracking = false)
         {
             Shield.EnsureNotNull(instance, nameof(instance));
+            Shield.EnsureNotNull(serviceType, nameof(serviceType));
 
             var type = instance.GetType();
-            this.WireUpInternal(instance, name, type, type, withoutDisposalTracking);
+            this.WireUpInternal(instance, name, serviceType, type, withoutDisposalTracking);
             return this;
         }
 
