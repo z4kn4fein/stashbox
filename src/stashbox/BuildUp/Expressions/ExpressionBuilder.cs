@@ -11,7 +11,6 @@ using Stashbox.Configuration;
 using Stashbox.Entity.Resolution;
 using Stashbox.Exceptions;
 using Stashbox.Infrastructure.Registration;
-using Stashbox.Utils;
 
 namespace Stashbox.BuildUp.Expressions
 {
@@ -118,7 +117,7 @@ namespace Stashbox.BuildUp.Expressions
             foreach (var checkedConstructor in checkedConstructors)
                 stringBuilder.AppendLine($"Checked constructor {checkedConstructor.Key}, unresolvable parameter: ({checkedConstructor.Value.ParameterType}){checkedConstructor.Value.Name}");
 
-            throw new ResolutionFailedException(serviceRegistration.ImplementationType.FullName, stringBuilder.ToString());
+            throw new ResolutionFailedException(serviceRegistration.ImplementationType, stringBuilder.ToString());
         }
 
         private Expression CreatePostWorkExpressionIfAny(IServiceRegistration serviceRegistration, ResolutionInfo resolutionInfo,

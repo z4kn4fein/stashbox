@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Stashbox.Exceptions;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.Registration;
 using Stashbox.Utils;
@@ -128,10 +129,15 @@ namespace Stashbox
         {
             Shield.EnsureNotNull(assembly, nameof(assembly));
 
-            var compositionRootTypes = assembly.CollectDefinedTypes().Where(type => !type.GetTypeInfo().IsAbstract && type.IsCompositionRoot());
+            var compositionRootTypes = assembly.CollectDefinedTypes().Where(type => !type.GetTypeInfo().IsAbstract && type.IsCompositionRoot()).ToArray();
+            
+            var length = compositionRootTypes.Length;
 
-            foreach (var compositionRootType in compositionRootTypes)
-                this.ComposeBy(compositionRootType);
+            if (length == 0)
+                throw new CompositionRootNotFoundException(assembly);
+
+            for (var i = 0; i < length; i++)
+                this.ComposeBy(compositionRootTypes[i]);
 
             return this;
         }

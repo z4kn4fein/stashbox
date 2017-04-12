@@ -13,7 +13,7 @@ namespace Stashbox.BuildUp
         {
             resolutionInfo.AddCircularDependencyCheck(type, out bool updated);
             if (updated)
-                throw new CircularDependencyException(type.FullName);
+                throw new CircularDependencyException(type);
             
             this.resolutionInfo = resolutionInfo;
             this.type = type;

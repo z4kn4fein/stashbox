@@ -10,10 +10,10 @@ namespace Stashbox.Exceptions
         /// <summary>
         /// Constructs a <see cref="CircularDependencyException"/>
         /// </summary>
-        /// <param name="typeName">The name of the service type.</param>
+        /// <param name="type">The type of the service type.</param>
         /// <param name="innerException">The inner exception.</param>
-        public CircularDependencyException(string typeName, Exception innerException = null)
-            : base(typeName, $"Circular dependency detected during the resolution of {typeName}.", innerException)
+        public CircularDependencyException(Type type, Exception innerException = null)
+            : base(type, $"Circular dependency detected during the resolution of {type.FullName}.", innerException)
         {
         }
     }

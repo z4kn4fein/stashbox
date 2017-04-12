@@ -43,7 +43,7 @@ namespace Stashbox.Resolution
                     if (resolutionInfo.NullResultAllowed)
                         return null;
                     else
-                        throw new ResolutionFailedException(type.FullName);
+                        throw new ResolutionFailedException(type);
 
                 this.containerContext.DelegateRepository.AddServiceDelegate(type, ragistrationFactory, name);
                 return ragistrationFactory(resolutionInfo.ResolutionScope);
@@ -54,7 +54,7 @@ namespace Stashbox.Resolution
                 if (resolutionInfo.NullResultAllowed)
                     return null;
                 else
-                    throw new ResolutionFailedException(type.FullName);
+                    throw new ResolutionFailedException(type);
 
             var factory = expr.CompileDelegate(Constants.ScopeExpression);
             this.containerContext.DelegateRepository.AddServiceDelegate(type, factory, name);
@@ -78,7 +78,7 @@ namespace Stashbox.Resolution
                 if (resolutionInfo.NullResultAllowed)
                     return null;
                 else
-                    throw new ResolutionFailedException(type.FullName);
+                    throw new ResolutionFailedException(type);
 
             var factory = Expression.Lambda(initExpression, resolutionInfo.ParameterExpressions).CompileDelegate(Constants.ScopeExpression);
             this.containerContext.DelegateRepository.AddFactoryDelegate(type, parameterTypes, factory, name);

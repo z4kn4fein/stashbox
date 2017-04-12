@@ -8,20 +8,20 @@ namespace Stashbox.Exceptions
     public class ExceptionBase : Exception
     {
         /// <summary>
-        /// The name of the actually resolved type.
+        /// The actually resolved type.
         /// </summary>
-        public string TypeName { get; set; }
+        public Type Type { get; set; }
 
         /// <summary>
         /// Constructs a <see cref="ExceptionBase"/>
         /// </summary>
-        /// <param name="typeName">The name of the type.</param>
+        /// <param name="type">The name of the type.</param>
         /// <param name="message">The exception message.</param>
         /// <param name="innerException">The inner exception.</param>
-        public ExceptionBase(string typeName, string message = null, Exception innerException = null)
+        public ExceptionBase(Type type, string message = null, Exception innerException = null)
             : base(message, innerException)
         {
-            this.TypeName = typeName;
+            this.Type = type;
         }
     }
 }

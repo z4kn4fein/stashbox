@@ -303,6 +303,19 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        [ExpectedException(typeof(ResolutionFailedException))]
+        public void StandardResolveTests_Resolve_None_Of_The_Constructors_Selected()
+        {
+            using (IStashboxContainer container = new StashboxContainer(config =>
+            config.WithConstructorSelectionRule(Rules.ConstructorSelection.PreferLeastParameters)))
+            {
+                container.RegisterType(typeof(ITest2), typeof(Test222));
+
+                container.Resolve<ITest2>();
+            }
+        }
+
+        [TestMethod]
         public void StandardResolveTests_Resolve_Scoped_NullDependency()
         {
             using (IStashboxContainer container = new StashboxContainer())

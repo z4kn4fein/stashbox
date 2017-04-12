@@ -12,7 +12,6 @@ using Stashbox.Utils;
 using System;
 using System.Linq.Expressions;
 using Stashbox.BuildUp;
-using Stashbox.Exceptions;
 
 namespace Stashbox
 {

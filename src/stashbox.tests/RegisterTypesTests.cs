@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Stashbox.Exceptions;
 using Stashbox.Infrastructure;
 using Stashbox.Lifetime;
 
@@ -233,6 +234,14 @@ namespace Stashbox.Tests
             Assert.AreSame(regs[1].ImplementationType, typeof(Test1));
             Assert.AreSame(regs[2].ImplementationType, typeof(Test11));
             Assert.AreSame(regs[3].ImplementationType, typeof(Test12));
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(CompositionRootNotFoundException))]
+        public void RegisterTypesTests_ComposeAssembly_CompositionRootNotFound()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            container.ComposeAssemblies(new[] { typeof(IStashboxContainer).GetTypeInfo().Assembly });
         }
 
         public interface ITest { }
