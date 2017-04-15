@@ -37,44 +37,19 @@ namespace Stashbox.Utils
 
         private AvlTree()
         { }
-        
+
         public AvlTree<TValue> AddOrUpdate(int key, TValue value, Func<TValue, TValue, TValue> updateDelegate = null) =>
             this.Add(key, value, updateDelegate, out bool updated);
-        
+
         public AvlTree<TValue> AddOrUpdate(int key, TValue value, out bool updated, Func<TValue, TValue, TValue> updateDelegate = null) =>
             this.Add(key, value, updateDelegate, out updated);
-        
+
         public TValue GetOrDefault(int key)
         {
             var node = this;
             while (!node.isEmpty && node.storedHash != key)
                 node = key < node.storedHash ? node.leftNode : node.rightNode;
             return !node.isEmpty ? node.storedValue : default(TValue);
-        }
-
-        public IEnumerable<TValue> ReverseTraversal()
-        {
-            if(this.height == 0)
-                yield break;
-
-            var nodes = new AvlTree<TValue>[this.height];
-            var index = -1;
-            var currentNode = this;
-
-            while(!currentNode.isEmpty || index != -1)
-            {
-                if(!currentNode.isEmpty)
-                {
-                    nodes[++index] = currentNode;
-                    currentNode = currentNode.rightNode;
-                }
-                else
-                {
-                    currentNode = nodes[index--];
-                    yield return currentNode.Value;
-                    currentNode = currentNode.leftNode;
-                }
-            }
         }
         
         private AvlTree<TValue> Add(int hash, TValue value, Func<TValue, TValue, TValue> updateDelegate, out bool updated)
