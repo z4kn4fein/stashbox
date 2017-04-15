@@ -216,6 +216,32 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void StandardResolveTests_Resolve_Scoped_Factory()
+        {
+            using (IStashboxContainer container = new StashboxContainer())
+            {
+                container.RegisterScoped<ITest1, Test1>();
+
+                var factory = container.ResolveFactory<ITest1>();
+
+                var inst = factory();
+                var inst2 = factory();
+
+                Assert.AreSame(inst, inst2);
+
+                using (var child = container.BeginScope())
+                {
+                    var scopeFactory = child.ResolveFactory<ITest1>();
+                    var inst3 = scopeFactory();
+                    var inst4 = scopeFactory();
+
+                    Assert.AreNotSame(inst, inst3);
+                    Assert.AreSame(inst3, inst4);
+                }
+            }
+        }
+
+        [TestMethod]
         public void StandardResolveTests_Resolve_Scoped_Injection()
         {
             using (IStashboxContainer container = new StashboxContainer())
@@ -234,6 +260,41 @@ namespace Stashbox.Tests
                 {
                     var inst3 = child.Resolve<ITest4>();
                     var inst4 = child.Resolve<ITest4>();
+
+                    Assert.AreNotSame(inst.Test, inst4.Test);
+                    Assert.AreNotSame(inst.Test2, inst4.Test2);
+                    Assert.AreNotSame(inst.Test, inst4.Test2);
+
+                    Assert.AreSame(inst3.Test, inst4.Test);
+                    Assert.AreSame(inst3.Test2, inst4.Test2);
+                    Assert.AreSame(inst3.Test, inst4.Test2);
+                }
+            }
+        }
+
+        [TestMethod]
+        public void StandardResolveTests_Resolve_Scoped_Injection_Factory()
+        {
+            using (IStashboxContainer container = new StashboxContainer())
+            {
+                container.RegisterScoped(typeof(ITest1), typeof(Test1));
+                container.RegisterScoped<ITest4, Test4>();
+
+                var factory = container.ResolveFactory<ITest4>();
+
+                var inst = factory();
+                var inst2 = factory();
+
+                Assert.AreSame(inst.Test, inst2.Test);
+                Assert.AreSame(inst.Test2, inst2.Test2);
+                Assert.AreSame(inst.Test, inst2.Test2);
+
+                using (var child = container.BeginScope())
+                {
+                    var scopedFactory = child.ResolveFactory<ITest4>();
+
+                    var inst3 = scopedFactory();
+                    var inst4 = scopedFactory();
 
                     Assert.AreNotSame(inst.Test, inst4.Test);
                     Assert.AreNotSame(inst.Test2, inst4.Test2);

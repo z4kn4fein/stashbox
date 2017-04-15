@@ -6,7 +6,8 @@
         Factory,
         Generic,
         Instance,
-        WireUp
+        WireUp,
+        Func
     }
     
     internal interface IObjectBuilderSelector

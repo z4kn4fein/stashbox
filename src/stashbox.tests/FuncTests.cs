@@ -3,6 +3,7 @@ using Stashbox.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Stashbox.Tests
 {
@@ -194,6 +195,161 @@ namespace Stashbox.Tests
             Assert.IsNotNull(d.Dep(d32).Dep);
             Assert.AreNotSame(d3, d.Dep(d32).Dep);
             Assert.AreSame(d3, d.Dep1);
+        }
+
+        [TestMethod]
+        public void FuncTests_Register_FuncDelegate()
+        {
+            var container = new StashboxContainer();
+            container.RegisterFunc<string, RegisteredFuncTest>((name, resolver) =>
+            {
+                Assert.IsNotNull(name);
+                Assert.IsNotNull(resolver);
+                return new RegisteredFuncTest(name);
+            });
+
+            var test = container.Resolve<Func<string, RegisteredFuncTest>>()("test");
+
+            Assert.AreEqual("test", test.Name);
+        }
+
+        [TestMethod]
+        public void FuncTests_Register_FuncDelegate_Resolver()
+        {
+            var container = new StashboxContainer();
+            var test1 = new Test();
+            container.RegisterInstance<ITest>(test1);
+            container.RegisterFunc<string, RegisteredFuncTest2>((name, resolver) => new RegisteredFuncTest2(name, resolver.Resolve<ITest>()));
+
+            var test = container.Resolve<Func<string, RegisteredFuncTest2>>()("test");
+
+            Assert.AreSame(test1, test.Test1);
+            Assert.AreEqual("test", test.Name);
+        }
+
+        [TestMethod]
+        public void FuncTests_Register_FuncDelegate_TwoParams()
+        {
+            var container = new StashboxContainer();
+            var t1 = new Test();
+            var t2 = new Test();
+            container.RegisterFunc<ITest, ITest, RegisteredFuncTest3>((test1, test2, resolver) => new RegisteredFuncTest3(test1, test2));
+
+            var test = container.Resolve<Func<ITest, ITest, RegisteredFuncTest3>>()(t1, t2);
+
+            Assert.AreSame(t1, test.Test1);
+            Assert.AreSame(t2, test.Test2);
+        }
+
+        [TestMethod]
+        public void FuncTests_Register_FuncDelegate_ThreeParams()
+        {
+            var container = new StashboxContainer();
+            var t1 = new Test();
+            var t2 = new Test();
+            var t3 = new Test();
+            container.RegisterFunc<ITest, ITest, ITest, RegisteredFuncTest4>((test1, test2, test3, resolver) => new RegisteredFuncTest4(test1, test2, test3));
+
+            var test = container.Resolve<Func<ITest, ITest, ITest, RegisteredFuncTest4>>()(t1, t2, t3);
+
+            Assert.AreSame(t1, test.Test1);
+            Assert.AreSame(t2, test.Test2);
+            Assert.AreSame(t3, test.Test3);
+        }
+
+        [TestMethod]
+        public void FuncTests_Register_FuncDelegate_FourParams()
+        {
+            var container = new StashboxContainer();
+            var t1 = new Test();
+            var t2 = new Test();
+            var t3 = new Test();
+            var t4 = new Test();
+            container.RegisterFunc<ITest, ITest, ITest, ITest, RegisteredFuncTest5>((test1, test2, test3, test4, resolver) => new RegisteredFuncTest5(test1, test2, test3, test4));
+
+            var test = container.Resolve<Func<ITest, ITest, ITest, ITest, RegisteredFuncTest5>>()(t1, t2, t3, t4);
+
+            Assert.AreSame(t1, test.Test1);
+            Assert.AreSame(t2, test.Test2);
+            Assert.AreSame(t3, test.Test3);
+            Assert.AreSame(t4, test.Test4);
+        }
+
+        [TestMethod]
+        public async Task FuncTests_Register_FuncDelegate_Async()
+        {
+            var container = new StashboxContainer();
+            var test = new Test();
+            container.RegisterInstance(test);
+            container.RegisterFunc(async resolver => await Task.FromResult(resolver.Resolve<Test>()));
+
+            var inst = await container.Resolve<Func<Task<Test>>>()();
+
+            Assert.AreSame(test, inst);
+        }
+
+        public class RegisteredFuncTest
+        {
+            public string Name { get; }
+
+            public RegisteredFuncTest(string name)
+            {
+                this.Name = name;
+            }
+        }
+
+        public class RegisteredFuncTest2
+        {
+            public string Name { get; }
+            public ITest Test1 { get; }
+
+            public RegisteredFuncTest2(string name, ITest test1)
+            {
+                this.Name = name;
+                this.Test1 = test1;
+            }
+        }
+
+        public class RegisteredFuncTest3
+        {
+            public ITest Test1 { get; }
+            public ITest Test2 { get; }
+
+            public RegisteredFuncTest3(ITest test1, ITest test2)
+            {
+                this.Test1 = test1;
+                this.Test2 = test2;
+            }
+        }
+
+        public class RegisteredFuncTest4
+        {
+            public ITest Test1 { get; }
+            public ITest Test2 { get; }
+            public ITest Test3 { get; }
+
+            public RegisteredFuncTest4(ITest test1, ITest test2, ITest test3)
+            {
+                this.Test1 = test1;
+                this.Test2 = test2;
+                this.Test3 = test3;
+            }
+        }
+
+        public class RegisteredFuncTest5
+        {
+            public ITest Test1 { get; }
+            public ITest Test2 { get; }
+            public ITest Test3 { get; }
+            public ITest Test4 { get; }
+
+            public RegisteredFuncTest5(ITest test1, ITest test2, ITest test3, ITest test4)
+            {
+                this.Test1 = test1;
+                this.Test2 = test2;
+                this.Test3 = test3;
+                this.Test4 = test4;
+            }
         }
 
         public class ScopedFuncTest

@@ -83,7 +83,7 @@ namespace System
 
         public static Type[] GetGenericArguments(this Type type) =>
             type.GetTypeInfo().GenericTypeArguments;
-        
+
         public static ConstructorInfo GetConstructor(this Type type, params Type[] args) =>
             type.GetTypeInfo().DeclaredConstructors.FirstOrDefault(c => c.GetParameters().Select(p => p.ParameterType).SequenceEqual(args));
 
@@ -123,11 +123,18 @@ namespace System
             return !typeInfo.IsAbstract && !typeInfo.IsInterface;
         }
 
-        public static IEnumerable<Type> GetRegisterableInterfaceTypes(this Type type)=>
+        public static IEnumerable<Type> GetRegisterableInterfaceTypes(this Type type) =>
             type.GetTypeInfo().ImplementedInterfaces.Where(t => t != Constants.DisposableType);
 
         public static bool Implements(this Type type, Type interfaceType) =>
             interfaceType.GetTypeInfo().IsAssignableFrom(type.GetTypeInfo());
+
+        public static MethodInfo GetMethod(this Delegate @delegate) =>
+#if NET40
+            @delegate.Method;
+#else
+            @delegate.GetMethodInfo();
+#endif
 
         private static bool IsAssignableToGenericType(Type type, Type genericType)
         {

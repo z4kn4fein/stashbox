@@ -67,6 +67,7 @@ namespace Stashbox.Resolution
             {
                 ParameterExpressions = parameterTypes.Length == 0 ? null : parameterTypes.Select(Expression.Parameter).ToArray()
             };
+
             var typeInfo = new TypeInformation { Type = type, DependencyName = name };
             var registration = this.containerContext.RegistrationRepository.GetRegistrationOrDefault(typeInfo);
 
@@ -79,7 +80,7 @@ namespace Stashbox.Resolution
                     return null;
                 else
                     throw new ResolutionFailedException(type);
-
+            
             var factory = Expression.Lambda(initExpression, resolutionInfo.ParameterExpressions).CompileDelegate(Constants.ScopeExpression);
             this.containerContext.DelegateRepository.AddFactoryDelegate(type, parameterTypes, factory, name);
             return factory(resolutionScope);

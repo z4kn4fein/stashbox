@@ -21,10 +21,7 @@ namespace Stashbox.Utils
 
         public OrderedLinkedStore<TValue> Add(TValue paramValue)
         {
-            if (this.next == null)
-                return new OrderedLinkedStore<TValue>(paramValue, Empty);
-
-            return this.SelfCopy(this.next.Add(paramValue));
+            return this.next == null ? new OrderedLinkedStore<TValue>(paramValue, Empty) : this.SelfCopy(this.next.Add(paramValue));
         }
 
         private OrderedLinkedStore<TValue> SelfCopy(OrderedLinkedStore<TValue> nextNode) =>
@@ -66,6 +63,7 @@ namespace Stashbox.Utils
             { }
         }
     }
+
     internal class LinkedStore<TValue> : IEnumerable<TValue>
     {
         public static LinkedStore<TValue> Empty = new LinkedStore<TValue>();
@@ -83,6 +81,19 @@ namespace Stashbox.Utils
         }
 
         public LinkedStore<TValue> Add(TValue paramValue) => new LinkedStore<TValue>(paramValue, this);
+
+        public LinkedStore<TValue> ReversedOrder()
+        {
+            var reversedList = Empty;
+            var current = this;
+            while (current != Empty)
+            {
+                reversedList = reversedList.Add(current.value);
+                current = current.next;
+            }
+
+            return reversedList;
+        }
 
         IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 
@@ -102,7 +113,7 @@ namespace Stashbox.Utils
             {
                 if (this.current == null && this.init.next != null)
                     this.current = this.init;
-                else if (this.current?.next != null)
+                else if (this.current?.next != null && this.current.next != Empty)
                     this.current = this.current.next;
                 else
                     return false;

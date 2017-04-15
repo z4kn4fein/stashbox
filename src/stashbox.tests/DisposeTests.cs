@@ -141,7 +141,7 @@ namespace Stashbox.Tests
             {
                 container.RegisterType<ITest2, Test2>();
                 container.RegisterType<Test3>();
-                container.WireUp<ITest1>(test);
+                container.WireUp(test);
                 test2 = container.Resolve<ITest2>();
                 test3 = container.Resolve<Test3>();
             }
@@ -197,6 +197,43 @@ namespace Stashbox.Tests
                     test4 = child.Resolve<ITest1>();
                     test5 = child.Resolve<ITest2>();
                     test6 = child.Resolve<Test3>();
+                }
+
+                Assert.IsTrue(test4.Disposed);
+                Assert.IsTrue(test5.Test1.Disposed);
+                Assert.IsTrue(test6.Test1.Disposed);
+            }
+
+            Assert.IsTrue(test.Disposed);
+            Assert.IsTrue(test2.Test1.Disposed);
+            Assert.IsTrue(test3.Test1.Disposed);
+        }
+
+        [TestMethod]
+        public void DisposeTests_Scoped_Factory()
+        {
+            ITest1 test;
+            ITest2 test2;
+            Test3 test3;
+            using (IStashboxContainer container = new StashboxContainer())
+            {
+                ITest1 test4;
+                ITest2 test5;
+                Test3 test6;
+
+                container.RegisterScoped<ITest2, Test2>();
+                container.RegisterScoped<Test3>();
+                container.RegisterScoped<ITest1, Test1>();
+
+                test = container.ResolveFactory<ITest1>()();
+                test2 = container.ResolveFactory<ITest2>()();
+                test3 = container.ResolveFactory<Test3>()();
+
+                using (var child = container.BeginScope())
+                {
+                    test4 = child.ResolveFactory<ITest1>()();
+                    test5 = child.ResolveFactory<ITest2>()();
+                    test6 = child.ResolveFactory<Test3>()();
                 }
 
                 Assert.IsTrue(test4.Disposed);
@@ -271,6 +308,43 @@ namespace Stashbox.Tests
                     test4 = child.Resolve<ITest1>();
                     test5 = child.Resolve<ITest2>();
                     test6 = child.Resolve<Test3>();
+                }
+
+                Assert.IsTrue(test4.Disposed);
+                Assert.IsTrue(test5.Test1.Disposed);
+                Assert.IsTrue(test6.Test1.Disposed);
+            }
+
+            Assert.IsTrue(test.Disposed);
+            Assert.IsTrue(test2.Test1.Disposed);
+            Assert.IsTrue(test3.Test1.Disposed);
+        }
+
+        [TestMethod]
+        public void DisposeTests_TrackTransientDisposal_Scoped_Transient_Factory()
+        {
+            ITest1 test;
+            ITest2 test2;
+            Test3 test3;
+            using (IStashboxContainer container = new StashboxContainer(config => config.WithDisposableTransientTracking()))
+            {
+                ITest1 test4;
+                ITest2 test5;
+                Test3 test6;
+
+                container.RegisterType<ITest2, Test2>();
+                container.RegisterType<Test3>();
+                container.RegisterType<ITest1, Test1>();
+
+                test = container.ResolveFactory<ITest1>()();
+                test2 = container.ResolveFactory<ITest2>()();
+                test3 = container.ResolveFactory<Test3>()();
+
+                using (var child = container.BeginScope())
+                {
+                    test4 = child.ResolveFactory<ITest1>()();
+                    test5 = child.ResolveFactory<ITest2>()();
+                    test6 = child.ResolveFactory<Test3>()();
                 }
 
                 Assert.IsTrue(test4.Disposed);

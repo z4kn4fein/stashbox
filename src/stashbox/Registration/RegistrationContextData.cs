@@ -86,6 +86,11 @@ namespace Stashbox.Registration
         /// True if the lifetime of the service is owned externally.
         /// </summary>
         public bool IsLifetimeExternallyOwned { get; internal set; }
+        
+        /// <summary>
+        /// Holds the func delegate, if the registration is a factory.
+        /// </summary>
+        public Delegate FuncDelegate { get; internal set; }
 
         /// <summary>
         /// The constructor selection rule.

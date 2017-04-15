@@ -54,6 +54,7 @@ namespace Stashbox.Infrastructure
         /// <summary>
         /// Returns a factory method which can be used to activate a type.
         /// </summary>
+        /// <typeparam name="TService">The service type.</typeparam>
         /// <param name="name">The name of the requested registration.</param>
         /// <param name="nullResultAllowed">If true, the container will return with null instead of throwing <see cref="ResolutionFailedException"/>.</param>
         /// <returns>The factory delegate.</returns>
@@ -62,6 +63,8 @@ namespace Stashbox.Infrastructure
         /// <summary>
         /// Returns a factory method which can be used to activate a type.
         /// </summary>
+        /// <typeparam name="TService">The service type.</typeparam>
+        /// <typeparam name="T1">The first parameter of the factory.</typeparam>
         /// <param name="name">The name of the requested registration.</param>
         /// <param name="nullResultAllowed">If true, the container will return with null instead of throwing <see cref="ResolutionFailedException"/>.</param>
         /// <returns>The factory delegate.</returns>
@@ -70,6 +73,9 @@ namespace Stashbox.Infrastructure
         /// <summary>
         /// Returns a factory method which can be used to activate a type.
         /// </summary>
+        /// <typeparam name="TService">The service type.</typeparam>
+        /// <typeparam name="T1">The first parameter of the factory.</typeparam>
+        /// <typeparam name="T2">The second parameter of the factory.</typeparam>
         /// <param name="name">The name of the requested registration.</param>
         /// <param name="nullResultAllowed">If true, the container will return with null instead of throwing <see cref="ResolutionFailedException"/>.</param>
         /// <returns>The factory delegate.</returns>
@@ -78,6 +84,10 @@ namespace Stashbox.Infrastructure
         /// <summary>
         /// Returns a factory method which can be used to activate a type.
         /// </summary>
+        /// <typeparam name="TService">The service type.</typeparam>
+        /// <typeparam name="T1">The first parameter of the factory.</typeparam>
+        /// <typeparam name="T2">The second parameter of the factory.</typeparam>
+        /// <typeparam name="T3">The third parameter of the factory.</typeparam>
         /// <param name="name">The name of the requested registration.</param>
         /// <param name="nullResultAllowed">If true, the container will return with null instead of throwing <see cref="ResolutionFailedException"/>.</param>
         /// <returns>The factory delegate.</returns>
@@ -86,6 +96,11 @@ namespace Stashbox.Infrastructure
         /// <summary>
         /// Returns a factory method which can be used to activate a type.
         /// </summary>
+        /// <typeparam name="TService">The service type.</typeparam>
+        /// <typeparam name="T1">The first parameter of the factory.</typeparam>
+        /// <typeparam name="T2">The second parameter of the factory.</typeparam>
+        /// <typeparam name="T3">The third parameter of the factory.</typeparam>
+        /// <typeparam name="T4">The fourth parameter of the factory.</typeparam>
         /// <param name="name">The name of the requested registration.</param>
         /// <param name="nullResultAllowed">If true, the container will return with null instead of throwing <see cref="ResolutionFailedException"/>.</param>
         /// <returns>The factory delegate.</returns>

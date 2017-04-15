@@ -15,7 +15,8 @@ namespace Stashbox.BuildUp
                 new FactoryObjectBuilder(containerContext, expressionBuilder),
                 new GenericTypeObjectBuilder(containerContext),
                 new InstanceObjectBuilder(containerContext),
-                new WireUpObjectBuilder(containerContext, expressionBuilder)
+                new WireUpObjectBuilder(containerContext, expressionBuilder),
+                new FuncObjectBuilder(containerContext)
             };
         }
 
