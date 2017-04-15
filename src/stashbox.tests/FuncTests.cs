@@ -288,6 +288,21 @@ namespace Stashbox.Tests
             Assert.AreSame(test, inst);
         }
 
+        [TestMethod]
+        public void FuncTests_Register_Parallel()
+        {
+            var container = new StashboxContainer();
+
+            Parallel.For(0, 5000, i =>
+            {
+                container.RegisterFunc<ITest>(resolver => new Test(), i.ToString());
+
+                var test = container.Resolve<Func<ITest>>(i.ToString())();
+
+                Assert.IsNotNull(test);
+            });
+        }
+
         public class RegisteredFuncTest
         {
             public string Name { get; }

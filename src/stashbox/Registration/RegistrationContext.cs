@@ -19,6 +19,8 @@ namespace Stashbox.Registration
 
         public RegistrationContextData Context { get; }
 
+        private bool replaceExistingRegistration;
+
         public RegistrationContext(Type serviceType, Type implementationType, IServiceRegistrator registrator)
             : this(serviceType, implementationType, registrator, RegistrationContextData.New())
         { }
@@ -31,7 +33,7 @@ namespace Stashbox.Registration
             this.Context = registrationContextData;
         }
 
-        public IStashboxContainer Register() => this.registrator.Register(this, false);
+        public IStashboxContainer Register() => this.registrator.Register(this, false, this.replaceExistingRegistration);
 
         public IStashboxContainer ReMap() => this.registrator.ReMap(this);
 
@@ -133,5 +135,11 @@ namespace Stashbox.Registration
 
         public IServiceRegistration CreateServiceRegistration(bool isDecorator) =>
             this.registrator.CreateServiceRegistration(this, isDecorator);
+
+        public IFluentServiceRegistrator ReplaceExisting()
+        {
+            this.replaceExistingRegistration = true;
+            return this;
+        }
     }
 }

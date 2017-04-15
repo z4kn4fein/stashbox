@@ -37,5 +37,11 @@ namespace Stashbox.Infrastructure.Registration
         /// </summary>
         /// <returns>The <see cref="IDecoratorRegistrationContext"/> which on this method was called.</returns>
         IFluentDecoratorRegistrator WithoutDisposalTracking();
+
+        /// <summary>
+        /// Tells the container that it should replace an existing registration with this one.
+        /// </summary>
+        /// <returns>The <see cref="IFluentDecoratorRegistrator"/> which on this method was called.</returns>
+        IFluentDecoratorRegistrator ReplaceExisting();
     }
 }

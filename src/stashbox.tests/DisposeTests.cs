@@ -522,7 +522,7 @@ namespace Stashbox.Tests
             ITest1 test = new Test1();
             using (var container = new StashboxContainer(config => config.WithDisposableTransientTracking()))
             {
-                container.RegisterInstance<ITest1>(test);
+                container.RegisterInstance(test);
 
                 Assert.AreSame(test, container.Resolve<ITest1>());
             }
@@ -536,7 +536,7 @@ namespace Stashbox.Tests
             ITest1 test = new Test1();
             using (var container = new StashboxContainer(config => config.WithDisposableTransientTracking()))
             {
-                container.WireUp<ITest1>(test);
+                container.WireUp(test);
 
                 Assert.AreSame(test, container.Resolve<ITest1>());
             }
@@ -550,7 +550,7 @@ namespace Stashbox.Tests
             ITest1 test = new Test1();
             using (var container = new StashboxContainer(config => config.WithDisposableTransientTracking()))
             {
-                container.WireUp<ITest1>(test, withoutDisposalTracking: true);
+                container.WireUp(test, withoutDisposalTracking: true);
 
                 Assert.AreSame(test, container.Resolve<ITest1>());
             }

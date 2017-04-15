@@ -11,7 +11,7 @@ namespace Stashbox.Tests
     public class ReMapTests
     {
         [TestMethod]
-        public void ReMapTests_SingleResolve()
+        public void ReMapTests_Replace_SingleResolve()
         {
             IStashboxContainer container = new StashboxContainer();
             container.RegisterType<ITest1, Test1>(context => context.WithName("teszt"));
@@ -23,13 +23,33 @@ namespace Stashbox.Tests
             Assert.IsInstanceOfType(test1, typeof(Test1));
             Assert.IsInstanceOfType(test2, typeof(Test12));
 
-            container.ReMap<ITest1, Test11>("teszt");
+            container.RegisterType<ITest1, Test11>(context => context.WithName("teszt").ReplaceExisting());
 
             var test11 = container.Resolve<ITest1>("teszt");
             var test12 = container.Resolve<ITest1>("teszt2");
 
             Assert.IsInstanceOfType(test11, typeof(Test11));
             Assert.IsInstanceOfType(test12, typeof(Test12));
+        }
+
+        [TestMethod]
+        public void ReMapTests_Replace_Enumerable_Named()
+        {
+            IStashboxContainer container = new StashboxContainer(config => config.WithEnumerableOrderRule(Rules.EnumerableOrder.PreserveOrder));
+            container.RegisterType<ITest1, Test1>(context => context.WithName("teszt"));
+            container.RegisterType<ITest1, Test12>(context => context.WithName("teszt2"));
+
+            var coll = container.Resolve<IEnumerable<ITest1>>().ToArray();
+
+            Assert.IsInstanceOfType(coll[0], typeof(Test1));
+            Assert.IsInstanceOfType(coll[1], typeof(Test12));
+
+            container.RegisterType<ITest1, Test11>(context => context.WithName("teszt").ReplaceExisting());
+
+            var coll2 = container.Resolve<IEnumerable<ITest1>>().ToArray();
+
+            Assert.IsInstanceOfType(coll2[0], typeof(Test12));
+            Assert.IsInstanceOfType(coll2[1], typeof(Test11));
         }
 
         [TestMethod]
@@ -41,15 +61,16 @@ namespace Stashbox.Tests
 
             var coll = container.Resolve<IEnumerable<ITest1>>().ToArray();
 
+            Assert.AreEqual(2, coll.Length);
             Assert.IsInstanceOfType(coll[0], typeof(Test1));
             Assert.IsInstanceOfType(coll[1], typeof(Test12));
 
-            container.ReMap<ITest1, Test11>("teszt");
+            container.ReMap<ITest1, Test11>();
 
             var coll2 = container.Resolve<IEnumerable<ITest1>>().ToArray();
 
-            Assert.IsInstanceOfType(coll2[0], typeof(Test12));
-            Assert.IsInstanceOfType(coll2[1], typeof(Test11));
+            Assert.AreEqual(1, coll2.Length);
+            Assert.IsInstanceOfType(coll2[0], typeof(Test11));
         }
 
         [TestMethod]
@@ -79,15 +100,15 @@ namespace Stashbox.Tests
             container.RegisterType<ITest1, Test12>(context => context.WithName("teszt2"));
             container.RegisterType<ITest1, Test1>(context => context.WithName("teszt"));
 
-            container.Resolve<Lazy<ITest1>>("teszt2");
+            container.Resolve<Lazy<ITest1>>();
 
             var lazy = container.Resolve<Lazy<ITest1>>("teszt");
 
             Assert.IsInstanceOfType(lazy.Value, typeof(Test1));
 
-            container.ReMap<ITest1, Test11>("teszt");
+            container.ReMap<ITest1, Test11>();
 
-            var lazy2 = container.Resolve<Lazy<ITest1>>("teszt");
+            var lazy2 = container.Resolve<Lazy<ITest1>>();
 
             Assert.IsInstanceOfType(lazy2.Value, typeof(Test11));
         }
@@ -114,7 +135,7 @@ namespace Stashbox.Tests
         {
             IStashboxContainer container = new StashboxContainer();
             container.RegisterType<ITest1, Test1>();
-            
+
             var func = container.Resolve<Func<ITest1>>();
 
             Assert.IsInstanceOfType(func(), typeof(Test1));
@@ -131,7 +152,7 @@ namespace Stashbox.Tests
         {
             IStashboxContainer container = new StashboxContainer();
             container.RegisterType<ITest1, Test1>();
-            
+
             var lazy = container.Resolve<Lazy<ITest1>>();
 
             Assert.IsInstanceOfType(lazy.Value, typeof(Test1));

@@ -14,9 +14,10 @@ namespace Stashbox.Infrastructure.Registration
         /// </summary>
         /// <param name="type">The type.</param>
         /// <param name="name">The name of the registration.</param>
-        /// <param name="canUpdate">Indicates that update is allowed</param>
+        /// <param name="remap">If true, all the registrations mapped to a service type will be replaced.</param>
+        /// <param name="replace">If true, only one existing registration will be replaced when multiple exists.</param>
         /// <param name="registration">The registration.</param>
-        void AddOrUpdateRegistration(Type type, string name, bool canUpdate, IServiceRegistration registration);
+        void AddOrUpdateRegistration(Type type, string name, bool remap, bool replace, IServiceRegistration registration);
 
         /// <summary>
         /// Retrieves a registration.

@@ -13,7 +13,8 @@ namespace Stashbox.Infrastructure.Registration
         /// </summary>
         /// <param name="type">The decorated type.</param>
         /// <param name="serviceRegistration">The decorator registration.</param>
-        void AddDecorator(Type type, IServiceRegistration serviceRegistration);
+        /// <param name="replace">True if an existing decorator registration should be replaced.</param>
+        void AddDecorator(Type type, IServiceRegistration serviceRegistration, bool replace);
 
         /// <summary>
         /// Gets a decorator registration.

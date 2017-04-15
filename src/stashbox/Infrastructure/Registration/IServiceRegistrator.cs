@@ -38,8 +38,9 @@ namespace Stashbox.Infrastructure.Registration
         /// </summary>
         /// <param name="registrationContextMeta">The registration context meta.</param>
         /// <param name="isDecorator">True if the requested registration is a decorator.</param>
+        /// <param name="replace">True if the container should replace an existing registration.</param>
         /// <returns>The <see cref="IStashboxContainer"/>.</returns>
-        IStashboxContainer Register(IRegistrationContextMeta registrationContextMeta, bool isDecorator);
+        IStashboxContainer Register(IRegistrationContextMeta registrationContextMeta, bool isDecorator, bool replace);
 
         /// <summary>
         /// Remaps an <see cref="IRegistrationContext"/>.

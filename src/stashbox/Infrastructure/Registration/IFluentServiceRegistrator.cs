@@ -129,5 +129,11 @@ namespace Stashbox.Infrastructure.Registration
         /// </summary>
         /// <returns>The <see cref="IFluentServiceRegistrator"/> which on this method was called.</returns>
         IFluentServiceRegistrator WithoutDisposalTracking();
+
+        /// <summary>
+        /// Tells the container that it should replace an existing registration with this one.
+        /// </summary>
+        /// <returns>The <see cref="IFluentServiceRegistrator"/> which on this method was called.</returns>
+        IFluentServiceRegistrator ReplaceExisting();
     }
 }

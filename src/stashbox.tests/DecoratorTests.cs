@@ -411,6 +411,28 @@ namespace Stashbox.Tests
             Assert.IsFalse(test.Test.Disposed);
         }
 
+        [TestMethod]
+        public void DecoratorTests_ReplaceDecorator()
+        {
+            using (var container = new StashboxContainer())
+            {
+                container.RegisterType<ITest1, Test1>();
+                container.RegisterDecorator<ITest1, TestDecorator1>();
+
+                var test = container.Resolve<ITest1>();
+
+                Assert.IsInstanceOfType(test, typeof(TestDecorator1));
+                Assert.IsInstanceOfType(test.Test, typeof(Test1));
+
+                container.RegisterDecorator<ITest1, TestDecorator2>(context => context.ReplaceExisting());
+
+                test = container.Resolve<ITest1>();
+
+                Assert.IsInstanceOfType(test, typeof(TestDecorator2));
+                Assert.IsInstanceOfType(test.Test, typeof(Test1));
+            }
+        }
+
         public interface ITest1 { ITest1 Test { get; } }
 
         public interface IDecoratorDep { }
@@ -425,7 +447,7 @@ namespace Stashbox.Tests
 
             bool Disposed { get; }
         }
-        
+
         public class Test1 : ITest1
         {
             public ITest1 Test { get; }
@@ -442,7 +464,7 @@ namespace Stashbox.Tests
 
             public Test12(IDep dep)
             {
-                
+
             }
         }
 
@@ -450,7 +472,7 @@ namespace Stashbox.Tests
         {
             public void Dispose()
             {
-                if(this.Disposed)
+                if (this.Disposed)
                     throw new ObjectDisposedException(nameof(TestDisp));
 
                 this.Disposed = true;

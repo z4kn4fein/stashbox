@@ -22,13 +22,18 @@ namespace Stashbox.Registration
         }
 
         /// <inheritdoc />
-        public void AddDecorator(Type type, IServiceRegistration serviceRegistration)
+        public void AddDecorator(Type type, IServiceRegistration serviceRegistration, bool replace)
         {
             var newRepository = ConcurrentTree<IServiceRegistration>.Create();
             newRepository.AddOrUpdate(Interlocked.Increment(ref this.decoratorCounter), serviceRegistration);
 
-            this.repository.AddOrUpdate(type, newRepository, (oldValue, newValue) => oldValue
-                .AddOrUpdate(Interlocked.Increment(ref this.decoratorCounter), serviceRegistration));
+            if (replace)
+                this.repository.AddOrUpdate(type, newRepository,
+                    (oldValue, newValue) => oldValue.HasMultipleItems ? oldValue.AddOrUpdate(Interlocked.Increment(ref this.decoratorCounter), serviceRegistration,
+                        (oldReg, newReg) => newReg) : newValue);
+            else
+                this.repository.AddOrUpdate(type, newRepository, (oldValue, newValue) => oldValue
+                    .AddOrUpdate(Interlocked.Increment(ref this.decoratorCounter), serviceRegistration));
         }
 
         /// <inheritdoc />

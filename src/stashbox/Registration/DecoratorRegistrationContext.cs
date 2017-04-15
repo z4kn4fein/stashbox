@@ -12,6 +12,7 @@ namespace Stashbox.Registration
     {
         private readonly RegistrationContext registrationContext;
         private readonly IServiceRegistrator serviceRegistrator;
+        private bool replaceExistingRegistration;
 
         public DecoratorRegistrationContext(RegistrationContext registrationContext, IServiceRegistrator serviceRegistrator)
         {
@@ -44,6 +45,12 @@ namespace Stashbox.Registration
             return this;
         }
 
-        public IStashboxContainer Register() => this.serviceRegistrator.Register(this.registrationContext, true);
+        public IStashboxContainer Register() => this.serviceRegistrator.Register(this.registrationContext, true, this.replaceExistingRegistration);
+
+        public IFluentDecoratorRegistrator ReplaceExisting()
+        {
+            this.replaceExistingRegistration = true;
+            return this;
+        }
     }
 }

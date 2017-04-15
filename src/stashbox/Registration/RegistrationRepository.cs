@@ -21,9 +21,9 @@ namespace Stashbox.Registration
             this.conditionalRepository = new ConcurrentTree<Type, ConcurrentTree<string, IServiceRegistration>>();
         }
 
-        public void AddOrUpdateRegistration(Type type, string name, bool canUpdate, IServiceRegistration registration)
+        public void AddOrUpdateRegistration(Type type, string name, bool remap, bool replace, IServiceRegistration registration)
         {
-            this.AddOrUpdateRegistration(type, name, canUpdate, registration,
+            this.AddOrUpdateRegistration(type, name, remap, replace, registration,
                 registration.HasCondition ? this.conditionalRepository : this.serviceRepository);
         }
 
@@ -53,7 +53,7 @@ namespace Stashbox.Registration
 
         public bool ContainsRegistration(Type type, string name) =>
             this.ContainsRegistration(type, name, this.serviceRepository) || this.ContainsRegistration(type, name, this.conditionalRepository);
-        
+
         private bool ContainsRegistration(Type type, string name, ConcurrentTree<Type, ConcurrentTree<string, IServiceRegistration>> repository)
         {
             var registrations = repository.GetOrDefault(type);
@@ -66,12 +66,14 @@ namespace Stashbox.Registration
             return registrations?.Any(reg => reg.ValidateGenericContraints(type)) ?? false;
         }
 
-        private void AddOrUpdateRegistration(Type type, string name, bool canUpdate, IServiceRegistration registration, ConcurrentTree<Type, ConcurrentTree<string, IServiceRegistration>> repository)
+        private void AddOrUpdateRegistration(Type type, string name, bool remap, bool replace, IServiceRegistration registration, ConcurrentTree<Type, ConcurrentTree<string, IServiceRegistration>> repository)
         {
             var newRepository = ConcurrentTree<string, IServiceRegistration>.Create();
             newRepository.AddOrUpdate(name, registration);
 
-            if (canUpdate)
+            if (remap)
+                repository.AddOrUpdate(type, newRepository, (oldValue, newValue) => newValue);
+            else if (replace)
                 repository.AddOrUpdate(type, newRepository,
                     (oldValue, newValue) => oldValue.HasMultipleItems ? oldValue.AddOrUpdate(name, registration,
                         (oldReg, newReg) => newReg) : newValue);
