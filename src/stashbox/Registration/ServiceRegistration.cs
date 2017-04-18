@@ -39,15 +39,15 @@ namespace Stashbox.Registration
         /// <inheritdoc />
         public int RegistrationNumber { get; }
 
-        internal ServiceRegistration(Type serviceType, Type implementationType, int registrationNumber,
-             IObjectBuilder objectBuilder, RegistrationContextData registrationContextData, 
+        internal ServiceRegistration(Type serviceType, Type implementationType, IContainerContext containerContext,
+             IObjectBuilder objectBuilder, RegistrationContextData registrationContextData,
              bool isDecorator, bool shouldHandleDisposal)
         {
             this.objectBuilder = objectBuilder;
             this.ImplementationType = implementationType;
             this.ServiceType = serviceType;
             this.MetaInformation = GetOrCreateMetaInfo(implementationType);
-            this.RegistrationNumber = registrationNumber;
+            this.RegistrationNumber = containerContext.ReserveRegistrationNumber();
             this.RegistrationContext = registrationContextData;
             this.IsDecorator = isDecorator;
             this.ShouldHandleDisposal = shouldHandleDisposal;
@@ -69,7 +69,7 @@ namespace Stashbox.Registration
         /// <inheritdoc />
         public bool ValidateGenericContraints(Type type) =>
             this.MetaInformation.GenericTypeConstraints.Count == 0 || this.MetaInformation.ValidateGenericContraints(type);
-        
+
         /// <inheritdoc />
         public Expression GetExpression(ResolutionInfo resolutionInfo, Type resolveType) =>
             this.RegistrationContext.Lifetime == null || this.ServiceType.IsOpenGenericType() ?

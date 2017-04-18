@@ -29,7 +29,7 @@ namespace Stashbox.BuildUp
 
             if (!serviceRegistration.IsDecorator) return registration;
             
-            base.ContainerContext.DecoratorRepository.AddDecorator(resolveType, registration, false);
+            base.ContainerContext.DecoratorRepository.AddDecorator(resolveType, registration, false, false);
             return registration;
         }
     }

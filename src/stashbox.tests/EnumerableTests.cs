@@ -1,6 +1,5 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Stashbox.Configuration;
 using Stashbox.Infrastructure;
 using Stashbox.Utils;
 using System.Collections.Generic;
@@ -411,7 +410,7 @@ namespace Stashbox.Tests
         [TestMethod]
         public void EnumerableTests_Resolve_PreserveOrder()
         {
-            IStashboxContainer container = new StashboxContainer(config => config.WithEnumerableOrderRule(Rules.EnumerableOrder.PreserveOrder));
+            IStashboxContainer container = new StashboxContainer();
             container.RegisterType<ITest1, Test1>();
             container.RegisterType<ITest1, Test11>();
             container.RegisterType<ITest1, Test12>();
@@ -426,7 +425,7 @@ namespace Stashbox.Tests
         [TestMethod]
         public void EnumerableTests_ResolveAll_PreserveOrder()
         {
-            IStashboxContainer container = new StashboxContainer(config => config.WithEnumerableOrderRule(Rules.EnumerableOrder.PreserveOrder));
+            IStashboxContainer container = new StashboxContainer();
             container.RegisterType<ITest1, Test1>();
             container.RegisterType<ITest1, Test11>();
             container.RegisterType<ITest1, Test12>();
@@ -441,8 +440,7 @@ namespace Stashbox.Tests
         [TestMethod]
         public void EnumerableTests_Resolve_PreserveOrder_Scoped()
         {
-            IStashboxContainer container = new StashboxContainer(config =>
-                config.WithEnumerableOrderRule(Rules.EnumerableOrder.PreserveOrder));
+            IStashboxContainer container = new StashboxContainer();
 
             container.RegisterType<ITest1, Test1>();
             container.RegisterType<ITest1, Test11>();
@@ -460,8 +458,7 @@ namespace Stashbox.Tests
         [TestMethod]
         public void EnumerableTests_Resolve_PreserveOrder_Parent()
         {
-            IStashboxContainer container = new StashboxContainer(config =>
-                config.WithEnumerableOrderRule(Rules.EnumerableOrder.PreserveOrder));
+            IStashboxContainer container = new StashboxContainer();
 
             container.RegisterType<ITest1, Test1>();
             container.RegisterType<ITest1, Test11>();
@@ -479,8 +476,7 @@ namespace Stashbox.Tests
         [TestMethod]
         public void EnumerableTests_Resolve_PreserveOrder_Scoped_Lazy()
         {
-            IStashboxContainer container = new StashboxContainer(config => 
-                config.WithEnumerableOrderRule(Rules.EnumerableOrder.PreserveOrder));
+            IStashboxContainer container = new StashboxContainer();
 
             container.RegisterType<ITest1, Test1>();
             container.RegisterType<ITest1, Test11>();
@@ -498,8 +494,7 @@ namespace Stashbox.Tests
         [TestMethod]
         public void EnumerableTests_Resolve_PreserveOrder_Parent_Lazy()
         {
-            IStashboxContainer container = new StashboxContainer(config =>
-                config.WithEnumerableOrderRule(Rules.EnumerableOrder.PreserveOrder));
+            IStashboxContainer container = new StashboxContainer();
 
             container.RegisterType<ITest1, Test1>();
             container.RegisterType<ITest1, Test11>();
@@ -517,8 +512,7 @@ namespace Stashbox.Tests
         [TestMethod]
         public void EnumerableTests_Resolve_PreserveOrder_Scoped_Func()
         {
-            IStashboxContainer container = new StashboxContainer(config =>
-                config.WithEnumerableOrderRule(Rules.EnumerableOrder.PreserveOrder));
+            IStashboxContainer container = new StashboxContainer();
 
             container.RegisterType<ITest1, Test1>();
             container.RegisterType<ITest1, Test11>();
@@ -536,8 +530,7 @@ namespace Stashbox.Tests
         [TestMethod]
         public void EnumerableTests_Resolve_PreserveOrder_Parent_Func()
         {
-            IStashboxContainer container = new StashboxContainer(config =>
-                config.WithEnumerableOrderRule(Rules.EnumerableOrder.PreserveOrder));
+            IStashboxContainer container = new StashboxContainer();
 
             container.RegisterType<ITest1, Test1>();
             container.RegisterType<ITest1, Test11>();
@@ -555,7 +548,7 @@ namespace Stashbox.Tests
         [TestMethod]
         public void EnumerableTests_Resolve_PreserveOrder_Lazy()
         {
-            IStashboxContainer container = new StashboxContainer(config => config.WithEnumerableOrderRule(Rules.EnumerableOrder.PreserveOrder));
+            IStashboxContainer container = new StashboxContainer();
             container.RegisterType<ITest1, Test1>();
             container.RegisterType<ITest1, Test11>();
             container.RegisterType<ITest1, Test12>();
@@ -570,7 +563,7 @@ namespace Stashbox.Tests
         [TestMethod]
         public void EnumerableTests_Resolve_PreserveOrder_Func()
         {
-            IStashboxContainer container = new StashboxContainer(config => config.WithEnumerableOrderRule(Rules.EnumerableOrder.PreserveOrder));
+            IStashboxContainer container = new StashboxContainer();
             container.RegisterType<ITest1, Test1>();
             container.RegisterType<ITest1, Test11>();
             container.RegisterType<ITest1, Test12>();

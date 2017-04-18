@@ -99,7 +99,7 @@ namespace Stashbox.Tests
         [TestMethod]
         public void DecoratorTests_Simple_Enumerable()
         {
-            using (var container = new StashboxContainer(config => config.WithEnumerableOrderRule(Rules.EnumerableOrder.PreserveOrder)))
+            using (var container = new StashboxContainer())
             {
                 container.RegisterType<ITest1, Test1>();
                 container.RegisterType<ITest1, Test11>();
@@ -424,11 +424,35 @@ namespace Stashbox.Tests
                 Assert.IsInstanceOfType(test, typeof(TestDecorator1));
                 Assert.IsInstanceOfType(test.Test, typeof(Test1));
 
-                container.RegisterDecorator<ITest1, TestDecorator2>(context => context.ReplaceExisting());
+                container.RegisterDecorator<ITest1, TestDecorator1>(context => context.ReplaceExisting());
 
                 test = container.Resolve<ITest1>();
 
+                Assert.IsInstanceOfType(test, typeof(TestDecorator1));
+                Assert.IsInstanceOfType(test.Test, typeof(Test1));
+            }
+        }
+
+        [TestMethod]
+        public void DecoratorTests_RemapDecorator()
+        {
+            using (var container = new StashboxContainer())
+            {
+                container.RegisterType<ITest1, Test1>();
+                container.RegisterDecorator<ITest1, TestDecorator1>();
+                container.RegisterDecorator<ITest1, TestDecorator2>();
+
+                var test = container.Resolve<ITest1>();
+
                 Assert.IsInstanceOfType(test, typeof(TestDecorator2));
+                Assert.IsInstanceOfType(test.Test, typeof(TestDecorator1));
+                Assert.IsInstanceOfType(test.Test.Test, typeof(Test1));
+
+                container.ReMapDecorator<ITest1, TestDecorator3>();
+
+                test = container.Resolve<ITest1>();
+
+                Assert.IsInstanceOfType(test, typeof(TestDecorator3));
                 Assert.IsInstanceOfType(test.Test, typeof(Test1));
             }
         }

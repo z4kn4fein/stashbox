@@ -40,7 +40,7 @@ namespace Stashbox
             var configurator = new ContainerConfigurator();
             config?.Invoke(configurator);
 
-            this.registrationRepository = new RegistrationRepository(configurator);
+            this.registrationRepository = new RegistrationRepository();
             this.ContainerContext = new ContainerContext(this.registrationRepository, new DelegateRepository(), this, 
                 new ResolutionStrategy(this.resolverSelector), configurator, new DecoratorRepository());
             this.activationContext = new Resolution.ActivationContext(this.ContainerContext, this.resolverSelector, this);
@@ -57,7 +57,7 @@ namespace Stashbox
             this.ParentContainer = parentContainer;
             this.containerExtensionManager = containerExtensionManager;
             this.resolverSelector = resolverSelector;
-            this.registrationRepository = new RegistrationRepository(parentContainer.ContainerContext.ContainerConfigurator);
+            this.registrationRepository = new RegistrationRepository();
             this.ContainerContext = new ContainerContext(this.registrationRepository, new DelegateRepository(), this,  
                 new ResolutionStrategy(this.resolverSelector), parentContainer.ContainerContext.ContainerConfigurator, 
                 parentContainer.ContainerContext.DecoratorRepository);

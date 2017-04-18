@@ -1,5 +1,4 @@
 ﻿using Stashbox.Entity;
-using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.Registration;
 using Stashbox.Utils;
 using System;
@@ -10,20 +9,18 @@ namespace Stashbox.Registration
 {
     internal class RegistrationRepository : IRegistrationRepository
     {
-        private readonly IContainerConfigurator containerConfigurator;
-        private readonly ConcurrentTree<Type, ConcurrentTree<string, IServiceRegistration>> serviceRepository;
-        private readonly ConcurrentTree<Type, ConcurrentTree<string, IServiceRegistration>> conditionalRepository;
+        private readonly ConcurrentTree<Type, ConcurrentOrderedKeyStore<string, IServiceRegistration>> serviceRepository;
+        private readonly ConcurrentTree<Type, ConcurrentOrderedKeyStore<string, IServiceRegistration>> conditionalRepository;
 
-        public RegistrationRepository(IContainerConfigurator containerConfigurator)
+        public RegistrationRepository()
         {
-            this.containerConfigurator = containerConfigurator;
-            this.serviceRepository = new ConcurrentTree<Type, ConcurrentTree<string, IServiceRegistration>>();
-            this.conditionalRepository = new ConcurrentTree<Type, ConcurrentTree<string, IServiceRegistration>>();
+            this.serviceRepository = new ConcurrentTree<Type, ConcurrentOrderedKeyStore<string, IServiceRegistration>>();
+            this.conditionalRepository = new ConcurrentTree<Type, ConcurrentOrderedKeyStore<string, IServiceRegistration>>();
         }
 
-        public void AddOrUpdateRegistration(Type type, string name, bool remap, bool replace, IServiceRegistration registration)
+        public void AddOrUpdateRegistration(IServiceRegistration registration, bool remap, bool replace)
         {
-            this.AddOrUpdateRegistration(type, name, remap, replace, registration,
+            this.AddOrUpdateRegistration(registration, remap, replace,
                 registration.HasCondition ? this.conditionalRepository : this.serviceRepository);
         }
 
@@ -54,7 +51,7 @@ namespace Stashbox.Registration
         public bool ContainsRegistration(Type type, string name) =>
             this.ContainsRegistration(type, name, this.serviceRepository) || this.ContainsRegistration(type, name, this.conditionalRepository);
 
-        private bool ContainsRegistration(Type type, string name, ConcurrentTree<Type, ConcurrentTree<string, IServiceRegistration>> repository)
+        private bool ContainsRegistration(Type type, string name, ConcurrentTree<Type, ConcurrentOrderedKeyStore<string, IServiceRegistration>> repository)
         {
             var registrations = repository.GetOrDefault(type);
             if (name != null && registrations != null)
@@ -66,19 +63,16 @@ namespace Stashbox.Registration
             return registrations?.Any(reg => reg.ValidateGenericContraints(type)) ?? false;
         }
 
-        private void AddOrUpdateRegistration(Type type, string name, bool remap, bool replace, IServiceRegistration registration, ConcurrentTree<Type, ConcurrentTree<string, IServiceRegistration>> repository)
+        private void AddOrUpdateRegistration(IServiceRegistration registration, bool remap, bool replace, ConcurrentTree<Type, ConcurrentOrderedKeyStore<string, IServiceRegistration>> repository)
         {
-            var newRepository = ConcurrentTree<string, IServiceRegistration>.Create();
-            newRepository.AddOrUpdate(name, registration);
+            var newRepository = new ConcurrentOrderedKeyStore<string, IServiceRegistration>();
+            newRepository.AddOrUpdate(registration.RegistrationContext.Name, registration);
 
             if (remap)
-                repository.AddOrUpdate(type, newRepository, (oldValue, newValue) => newValue);
-            else if (replace)
-                repository.AddOrUpdate(type, newRepository,
-                    (oldValue, newValue) => oldValue.HasMultipleItems ? oldValue.AddOrUpdate(name, registration,
-                        (oldReg, newReg) => newReg) : newValue);
+                repository.AddOrUpdate(registration.ServiceType, newRepository, (oldValue, newValue) => newValue);
             else
-                repository.AddOrUpdate(type, newRepository, (oldValue, newValue) => oldValue.AddOrUpdate(name, registration));
+                repository.AddOrUpdate(registration.ServiceType, newRepository,
+                    (oldValue, newValue) => oldValue.AddOrUpdate(registration.RegistrationContext.Name, registration, replace));
         }
 
         private IServiceRegistration GetNamedRegistrationOrDefault(Type type, string dependencyName)
@@ -93,9 +87,9 @@ namespace Stashbox.Registration
             var registrations = this.GetDefaultRegistrationsOrDefault(type, this.conditionalRepository);
             if (registrations == null) return this.GetDefaultRegistrationOrDefault(type);
 
-            return registrations.HasMultipleItems ?
-                this.containerConfigurator.ContainerConfiguration.DependencySelectionRule(registrations.Where(reg => reg.IsUsableForCurrentContext(typeInfo) && reg.ValidateGenericContraints(type))) :
-                    registrations.Value;
+            return registrations.Lenght > 0 ?
+                registrations.FirstOrDefault(reg => reg.IsUsableForCurrentContext(typeInfo) && reg.ValidateGenericContraints(type)) :
+                    registrations.Last;
         }
 
         private IServiceRegistration GetDefaultRegistrationOrDefault(Type type)
@@ -103,12 +97,12 @@ namespace Stashbox.Registration
             var registrations = this.GetDefaultRegistrationsOrDefault(type, this.serviceRepository);
             if (registrations == null) return null;
 
-            return registrations.HasMultipleItems ?
-                this.containerConfigurator.ContainerConfiguration.DependencySelectionRule(registrations.Where(reg => reg.ValidateGenericContraints(type))) :
-                    registrations.Value;
+            return registrations.Lenght > 0 && type.IsClosedGenericType() ?
+                registrations.FirstOrDefault(reg => reg.ValidateGenericContraints(type)) :
+                    registrations.Last;
         }
 
-        private ConcurrentTree<string, IServiceRegistration> GetDefaultRegistrationsOrDefault(Type type, ConcurrentTree<Type, ConcurrentTree<string, IServiceRegistration>> repository)
+        private ConcurrentOrderedKeyStore<string, IServiceRegistration> GetDefaultRegistrationsOrDefault(Type type, ConcurrentTree<Type, ConcurrentOrderedKeyStore<string, IServiceRegistration>> repository)
         {
             var registrations = repository.GetOrDefault(type);
             if (registrations == null && type.IsClosedGenericType())
@@ -117,7 +111,7 @@ namespace Stashbox.Registration
             return registrations;
         }
 
-        private IEnumerable<IServiceRegistration> GetRegistrationsOrDefault(Type type, ConcurrentTree<Type, ConcurrentTree<string, IServiceRegistration>> repository)
+        private IEnumerable<IServiceRegistration> GetRegistrationsOrDefault(Type type, ConcurrentTree<Type, ConcurrentOrderedKeyStore<string, IServiceRegistration>> repository)
         {
             var registrations = repository.GetOrDefault(type);
             if (registrations == null && type.IsClosedGenericType())

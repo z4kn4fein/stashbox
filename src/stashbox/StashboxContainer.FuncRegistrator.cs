@@ -1,7 +1,6 @@
 ﻿using System;
 using Stashbox.Infrastructure;
 using Stashbox.Registration;
-using Stashbox.Utils;
 
 namespace Stashbox
 {
@@ -30,17 +29,16 @@ namespace Stashbox
         private IDependencyRegistrator RegisterFuncInternal(Delegate factory, Type factoryType, string name)
         {
             var internalFactoryType = factory.GetType();
-            var regName = NameGenerator.GetRegistrationName(factoryType, internalFactoryType, name);
 
             var data = RegistrationContextData.New();
+            data.Name = name;
             data.FuncDelegate = factory;
 
             var registration = new ServiceRegistration(factoryType, internalFactoryType,
-                this.ContainerContext.ReserveRegistrationNumber(),
-                this.objectBuilderSelector.Get(ObjectBuilder.Func), data,
-                false, false);
+                this.ContainerContext, this.objectBuilderSelector.Get(ObjectBuilder.Func),
+                data, false, false);
 
-            this.registrationRepository.AddOrUpdateRegistration(factoryType, regName, false, false, registration);
+            this.registrationRepository.AddOrUpdateRegistration(registration, false, false);
             this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.ContainerContext, factoryType, internalFactoryType);
             return this;
         }

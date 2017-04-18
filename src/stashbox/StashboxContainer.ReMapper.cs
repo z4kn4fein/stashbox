@@ -6,32 +6,31 @@ using Stashbox.Utils;
 namespace Stashbox
 {
     public partial class StashboxContainer
-    { 
+    {
         /// <inheritdoc />
-        public IDependencyRegistrator ReMap<TFrom, TTo>(Action<IFluentServiceRegistrator> configurator)
+        public IDependencyRegistrator ReMap<TFrom, TTo>(Action<IFluentServiceRegistrator> configurator = null)
             where TFrom : class
             where TTo : class, TFrom =>
             this.ReMap(typeof(TFrom), typeof(TTo), configurator);
 
         /// <inheritdoc />
-        public IDependencyRegistrator ReMap<TFrom>(Type typeTo, Action<IFluentServiceRegistrator> configurator)
+        public IDependencyRegistrator ReMap<TFrom>(Type typeTo, Action<IFluentServiceRegistrator> configurator = null)
             where TFrom : class =>
             this.ReMap(typeof(TFrom), typeTo, configurator);
 
         /// <inheritdoc />
-        public IDependencyRegistrator ReMap(Type typeFrom, Type typeTo, Action<IFluentServiceRegistrator> configurator)
+        public IDependencyRegistrator ReMap(Type typeFrom, Type typeTo, Action<IFluentServiceRegistrator> configurator = null)
         {
             Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
             Shield.EnsureNotNull(typeTo, nameof(typeTo));
-            Shield.EnsureNotNull(configurator, nameof(configurator));
 
             var context = this.ServiceRegistrator.PrepareContext(typeFrom, typeTo);
-            configurator(context);
+            configurator?.Invoke(context);
             return context.ReMap();
         }
 
         /// <inheritdoc />
-        public IDependencyRegistrator ReMap<TTo>(Action<IFluentServiceRegistrator> configurator)
+        public IDependencyRegistrator ReMap<TTo>(Action<IFluentServiceRegistrator> configurator = null)
              where TTo : class
         {
             var type = typeof(TTo);
@@ -39,23 +38,28 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public IDependencyRegistrator ReMap(Type typeTo, Action<IFluentServiceRegistrator> configurator) =>
+        public IDependencyRegistrator ReMap(Type typeTo, Action<IFluentServiceRegistrator> configurator = null) =>
             this.ReMap(typeTo, typeTo, configurator);
 
+        /// <inheritdoc />
+        public IDependencyRegistrator ReMapDecorator<TFrom, TTo>(Action<IFluentDecoratorRegistrator> configurator = null)
+            where TFrom : class where TTo : class, TFrom =>
+            this.ReMapDecorator(typeof(TFrom), typeof(TTo), configurator);
 
         /// <inheritdoc />
-        public IDependencyRegistrator ReMap<TFrom, TTo>(string name = null)
-            where TFrom : class
-            where TTo : class, TFrom =>
-            this.ReMap<TFrom, TTo>(context => context.WithName(name));
-
-        /// <inheritdoc />
-        public IDependencyRegistrator ReMap<TFrom>(Type typeTo, string name = null)
+        public IDependencyRegistrator ReMapDecorator<TFrom>(Type typeTo, Action<IFluentDecoratorRegistrator> configurator = null)
             where TFrom : class =>
-            this.ReMap<TFrom>(typeTo, context => context.WithName(name));
+            this.ReMapDecorator(typeof(TFrom), typeTo, configurator);
 
         /// <inheritdoc />
-        public IDependencyRegistrator ReMap(Type typeFrom, Type typeTo, string name = null) =>
-            this.ReMap(typeFrom, typeTo, context => context.WithName(name));
+        public IDependencyRegistrator ReMapDecorator(Type typeFrom, Type typeTo, Action<IFluentDecoratorRegistrator> configurator = null)
+        {
+            Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
+            Shield.EnsureNotNull(typeTo, nameof(typeTo));
+
+            var context = this.ServiceRegistrator.PrepareDecoratorContext(typeFrom, typeTo);
+            configurator?.Invoke(context);
+            return context.ReMap();
+        }
     }
 }

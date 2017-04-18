@@ -36,15 +36,14 @@ namespace Stashbox.Resolution
 
         public Expression[] BuildResolutionExpressions(IContainerContext containerContext, ResolutionInfo resolutionInfo, TypeInformation typeInformation)
         {
-            var registrations = containerContext.RegistrationRepository.GetRegistrationsOrDefault(typeInformation.Type);
+            var registrations = containerContext.RegistrationRepository.GetRegistrationsOrDefault(typeInformation.Type)?.CastToArray();
             if (registrations == null)
                 return this.resolverSelector.GetResolverExpressions(containerContext, typeInformation, resolutionInfo);
 
-            var serviceRegistrations = containerContext.ContainerConfigurator.ContainerConfiguration.EnumerableOrderRule(registrations).ToArray();
-            var lenght = serviceRegistrations.Length;
+            var lenght = registrations.Length;
             var expressions = new Expression[lenght];
             for (var i = 0; i < lenght; i++)
-                expressions[i] = serviceRegistrations[i].GetExpression(resolutionInfo, typeInformation.Type);
+                expressions[i] = registrations[i].GetExpression(resolutionInfo, typeInformation.Type);
 
             return expressions;
         }

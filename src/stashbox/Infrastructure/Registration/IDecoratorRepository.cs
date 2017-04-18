@@ -1,5 +1,5 @@
 ﻿using System;
-using Stashbox.Utils;
+using System.Collections.Generic;
 
 namespace Stashbox.Infrastructure.Registration
 {
@@ -13,14 +13,15 @@ namespace Stashbox.Infrastructure.Registration
         /// </summary>
         /// <param name="type">The decorated type.</param>
         /// <param name="serviceRegistration">The decorator registration.</param>
+        /// <param name="remap">If true, all the registrations mapped to a service type will be replaced.</param>
         /// <param name="replace">True if an existing decorator registration should be replaced.</param>
-        void AddDecorator(Type type, IServiceRegistration serviceRegistration, bool replace);
+        void AddDecorator(Type type, IServiceRegistration serviceRegistration, bool remap, bool replace);
 
         /// <summary>
         /// Gets a decorator registration.
         /// </summary>
         /// <param name="type">The decorated type.</param>
-        /// <returns>The decorator registration if any exists, otherwise null.</returns>
-        ConcurrentTree<IServiceRegistration> GetDecoratorsOrDefault(Type type);
+        /// <returns>The decorator registrations if any exists, otherwise null.</returns>
+        KeyValuePair<Type, IServiceRegistration>[] GetDecoratorsOrDefault(Type type);
     }
 }

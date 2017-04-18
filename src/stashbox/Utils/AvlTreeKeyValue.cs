@@ -47,13 +47,21 @@ namespace Stashbox.Utils
         public AvlTreeKeyValue<TKey, TValue> AddOrUpdate(TKey key, TValue value, Func<TValue, TValue, TValue> updateDelegate = null) =>
             this.Add(key.GetHashCode(), key, value, updateDelegate, out bool updated);
 
+        public AvlTreeKeyValue<TKey, TValue> AddOrUpdate(int hash, TKey key, TValue value, Func<TValue, TValue, TValue> updateDelegate = null) =>
+            this.Add(hash, key, value, updateDelegate, out bool updated);
+
         public AvlTreeKeyValue<TKey, TValue> AddOrUpdate(TKey key, TValue value, out bool updated, Func<TValue, TValue, TValue> updateDelegate = null) =>
             this.Add(key.GetHashCode(), key, value, updateDelegate, out updated);
 
-        public TValue GetOrDefault(TKey key)
+        public AvlTreeKeyValue<TKey, TValue> AddOrUpdate(int hash, TKey key, TValue value, out bool updated, Func<TValue, TValue, TValue> updateDelegate = null) =>
+            this.Add(hash, key, value, updateDelegate, out updated);
+
+        public TValue GetOrDefault(TKey key) =>
+            this.GetOrDefault(key.GetHashCode(), key);
+
+        public TValue GetOrDefault(int hash, TKey key)
         {
             var node = this;
-            var hash = key.GetHashCode();
             while (!node.isEmpty && node.storedHash != hash)
                 node = hash < node.storedHash ? node.leftNode : node.rightNode;
             return !node.isEmpty && key.Equals(node.storedKey) ?
@@ -89,7 +97,10 @@ namespace Stashbox.Utils
             }
 
             if (this.collisions == null)
-                return new AvlTreeKeyValue<TKey, TValue>(hash, key, value, this.leftNode, this.rightNode, ArrayStoreKeyed<TKey, TValue>.Empty.AddOrUpdate(key, value, out updated));
+            {
+                updated = false;
+                return new AvlTreeKeyValue<TKey, TValue>(hash, key, value, this.leftNode, this.rightNode, ArrayStoreKeyed<TKey, TValue>.Empty.Add(key, value));
+            }
 
             var newCollisions = this.collisions.AddOrUpdate(key, updateDelegate == null ? value : updateDelegate(this.storedValue, value), out updated);
             return new AvlTreeKeyValue<TKey, TValue>(hash, key, value, this.leftNode, this.rightNode, newCollisions);

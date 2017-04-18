@@ -289,15 +289,27 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void FuncTests_Register_Named()
+        {
+            var container = new StashboxContainer();
+
+            container.RegisterFunc<ITest>(resolver => new Test(), "teszt");
+
+            var test = container.Resolve<Func<ITest>>("teszt")();
+
+            Assert.IsNotNull(test);
+        }
+
+        [TestMethod]
         public void FuncTests_Register_Parallel()
         {
             var container = new StashboxContainer();
 
             Parallel.For(0, 5000, i =>
             {
-                container.RegisterFunc<ITest>(resolver => new Test(), i.ToString());
+                container.RegisterFunc<ITest>(resolver => new Test());
 
-                var test = container.Resolve<Func<ITest>>(i.ToString())();
+                var test = container.Resolve<Func<ITest>>()();
 
                 Assert.IsNotNull(test);
             });

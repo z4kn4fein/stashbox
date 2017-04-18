@@ -51,7 +51,7 @@ namespace Stashbox.Utils
                 node = key < node.storedHash ? node.leftNode : node.rightNode;
             return !node.isEmpty ? node.storedValue : default(TValue);
         }
-        
+
         private AvlTree<TValue> Add(int hash, TValue value, Func<TValue, TValue, TValue> updateDelegate, out bool updated)
         {
             if (this.isEmpty)

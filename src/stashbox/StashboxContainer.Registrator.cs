@@ -120,17 +120,15 @@ namespace Stashbox
 
         private void WireUpInternal(object instance, string keyName, Type typeFrom, Type typeTo, bool withoutDisposalTracking)
         {
-            var regName = NameGenerator.GetRegistrationName(typeFrom, typeTo, keyName);
-
             var data = RegistrationContextData.New();
+            data.Name = NameGenerator.GetRegistrationName(typeFrom, typeTo, keyName);
             data.ExistingInstance = instance;
-            
-            var registration = new ServiceRegistration(typeFrom, typeTo,
-                this.ContainerContext.ReserveRegistrationNumber(),
-                this.objectBuilderSelector.Get(ObjectBuilder.WireUp), data,
-                false, !withoutDisposalTracking);
 
-            this.registrationRepository.AddOrUpdateRegistration(typeFrom, regName, false, false, registration);
+            var registration = new ServiceRegistration(typeFrom, typeTo,
+                this.ContainerContext, this.objectBuilderSelector.Get(ObjectBuilder.WireUp),
+                data, false, !withoutDisposalTracking);
+
+            this.registrationRepository.AddOrUpdateRegistration(registration, false, false);
             this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.ContainerContext, typeTo, typeFrom);
         }
     }

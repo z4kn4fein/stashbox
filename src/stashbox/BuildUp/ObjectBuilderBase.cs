@@ -42,10 +42,13 @@ namespace Stashbox.BuildUp
             if (expression == null)
                 return null;
 
-            foreach (var decoratorRegistration in decorators)
+            var length = decorators.Length;
+
+            for (int i = 0; i < length; i++)
             {
+                var decorator = decorators[i];
                 resolutionInfo.SetExpressionOverride(resolveType, expression);
-                expression = decoratorRegistration.GetExpression(resolutionInfo, resolveType);
+                expression = decorator.Value.GetExpression(resolutionInfo, resolveType);
                 if (expression == null)
                     return null;
             }

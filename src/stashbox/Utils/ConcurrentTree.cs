@@ -41,7 +41,7 @@ namespace Stashbox.Utils
         {
             this.repository = new Swap<AvlTreeKeyValue<TKey, TValue>>(AvlTreeKeyValue<TKey, TValue>.Empty);
         }
-        
+
         /// <summary>
         /// Returns with the value specified by the given key if it's exist, otherwise it's default value will be returned.
         /// </summary>
@@ -51,23 +51,43 @@ namespace Stashbox.Utils
             this.repository.Value.GetOrDefault(key);
 
         /// <summary>
+        /// Returns with the value specified by the given key if it's exist, otherwise it's default value will be returned.
+        /// </summary>
+        /// <param name="hash">The hash.</param>
+        /// <param name="key">The key of the entry.</param>
+        /// <returns>The found or the default value.</returns>
+        public TValue GetOrDefault(int hash, TKey key) =>
+            this.repository.Value.GetOrDefault(hash, key);
+
+        /// <summary>
         /// Inserts an item into the tree if it doesn't exist, otherwise the existing item will be replaced if the update delegate is set.
         /// </summary>
         /// <param name="key">The key of the entry.</param>
         /// <param name="value">The value which will be inserted if it doesn't exist yet.</param>
         /// <param name="updateDelegate">The update delegate which will be invoked when the value is already stored on the tree.</param>
         /// <returns>The modified tree.</returns>
-        public ConcurrentTree<TKey, TValue> AddOrUpdate(TKey key, TValue value, Func<TValue, TValue, TValue> updateDelegate = null)
+        public ConcurrentTree<TKey, TValue> AddOrUpdate(TKey key, TValue value, Func<TValue, TValue, TValue> updateDelegate = null) =>
+            this.AddOrUpdate(key.GetHashCode(), key, value, updateDelegate);
+
+        /// <summary>
+        /// Inserts an item into the tree if it doesn't exist, otherwise the existing item will be replaced if the update delegate is set.
+        /// </summary>
+        /// <param name="hash">The hash.</param>
+        /// <param name="key">The key of the entry.</param>
+        /// <param name="value">The value which will be inserted if it doesn't exist yet.</param>
+        /// <param name="updateDelegate">The update delegate which will be invoked when the value is already stored on the tree.</param>
+        /// <returns>The modified tree.</returns>
+        public ConcurrentTree<TKey, TValue> AddOrUpdate(int hash, TKey key, TValue value, Func<TValue, TValue, TValue> updateDelegate = null)
         {
             var currentRepo = this.repository.Value;
-            var newRepo = this.repository.Value.AddOrUpdate(key, value, updateDelegate);
+            var newRepo = this.repository.Value.AddOrUpdate(hash, key, value, updateDelegate);
 
             if (!this.repository.TrySwapCurrent(currentRepo, newRepo))
-                this.repository.SwapCurrent(repo => repo.AddOrUpdate(key, value, updateDelegate));
+                this.repository.SwapCurrent(repo => repo.AddOrUpdate(hash, key, value, updateDelegate));
 
             return this;
         }
-        
+
         /// <inheritdoc />
         public IEnumerator<TValue> GetEnumerator() => this.repository.Value.GetEnumerator();
 
@@ -137,7 +157,7 @@ namespace Stashbox.Utils
 
             return this;
         }
-        
+
         /// <inheritdoc />
         public IEnumerator<TValue> GetEnumerator() => this.repository.Value.GetEnumerator();
 

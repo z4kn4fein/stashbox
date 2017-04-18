@@ -310,7 +310,7 @@ namespace Stashbox.Tests
         [TestMethod]
         public void StandardResolveTests_Resolve_LastService()
         {
-            using (IStashboxContainer container = new StashboxContainer(config => config.WithDependencySelectionRule(Rules.DependencySelection.PreferLastRegistered)))
+            using (IStashboxContainer container = new StashboxContainer())
             {
                 container.RegisterType(typeof(ITest1), typeof(Test1));
                 container.RegisterType(typeof(ITest1), typeof(Test11));
@@ -339,10 +339,9 @@ namespace Stashbox.Tests
         public void StandardResolveTests_Resolve_MostParametersConstructor()
         {
             using (IStashboxContainer container = new StashboxContainer(config =>
-            config.WithConstructorSelectionRule(Rules.ConstructorSelection.PreferMostParameters)
-            .WithDependencySelectionRule(Rules.DependencySelection.PreferFirstRegistered)))
+            config.WithConstructorSelectionRule(Rules.ConstructorSelection.PreferMostParameters)))
             {
-                container.RegisterType(typeof(ITest1), typeof(Test1));
+                container.RegisterType(typeof(ITest1), typeof(Test1), context => context.WithName("test1"));
                 container.RegisterType(typeof(ITest1), typeof(Test12), context => context.WithName("test12"));
                 container.RegisterType(typeof(ITest2), typeof(Test222));
 
@@ -459,7 +458,7 @@ namespace Stashbox.Tests
                 Assert.Fail("Wrong constructor selected.");
             }
 
-            public Test222(ITest1 test1, [Dependency("test12")]ITest1 test2)
+            public Test222([Dependency("test1")]ITest1 test1, [Dependency("test12")]ITest1 test2)
             {
                 Shield.EnsureNotNull(test1, nameof(test1));
                 Shield.EnsureNotNull(test2, nameof(test2));

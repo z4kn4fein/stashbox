@@ -42,11 +42,11 @@ namespace Stashbox.Registration
 
             if (isDecorator)
             {
-                this.containerContext.DecoratorRepository.AddDecorator(registrationContextMeta.ServiceType, registration, replace);
+                this.containerContext.DecoratorRepository.AddDecorator(registrationContextMeta.ServiceType, registration, false, replace);
                 this.containerContext.DelegateRepository.InvalidateDelegateCache();
             }
             else
-                this.containerContext.RegistrationRepository.AddOrUpdateRegistration(registrationContextMeta.ServiceType, registrationContextMeta.Context.Name, false, replace, registration);
+                this.containerContext.RegistrationRepository.AddOrUpdateRegistration(registration, false, replace);
 
             if (replace)
                 this.containerContext.DelegateRepository.InvalidateDelegateCache();
@@ -58,11 +58,14 @@ namespace Stashbox.Registration
         }
 
         /// <inheritdoc />
-        public IStashboxContainer ReMap(IRegistrationContextMeta registrationContextMeta)
+        public IStashboxContainer ReMap(IRegistrationContextMeta registrationContextMeta, bool isDecorator)
         {
-            var registration = this.CreateServiceRegistration(registrationContextMeta, false);
+            var registration = this.CreateServiceRegistration(registrationContextMeta, isDecorator);
 
-            this.containerContext.RegistrationRepository.AddOrUpdateRegistration(registrationContextMeta.ServiceType, registrationContextMeta.Context.Name, true, false, registration);
+            if (isDecorator)
+                this.containerContext.DecoratorRepository.AddDecorator(registrationContextMeta.ServiceType, registration, true, false);
+            else
+                this.containerContext.RegistrationRepository.AddOrUpdateRegistration(registration, true, false);
 
             this.containerContext.DelegateRepository.InvalidateDelegateCache();
 
@@ -114,7 +117,7 @@ namespace Stashbox.Registration
 
         private IServiceRegistration ProduceServiceRegistration(IObjectBuilder objectBuilder, IRegistrationContextMeta meta, bool isDecorator, bool shouldHandleDisposal)
         {
-            return new ServiceRegistration(meta.ServiceType, meta.ImplementationType, this.containerContext.ReserveRegistrationNumber(),
+            return new ServiceRegistration(meta.ServiceType, meta.ImplementationType, this.containerContext,
                 objectBuilder, meta.Context, isDecorator, shouldHandleDisposal);
         }
 

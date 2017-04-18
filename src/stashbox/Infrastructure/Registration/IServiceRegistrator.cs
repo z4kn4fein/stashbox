@@ -46,8 +46,9 @@ namespace Stashbox.Infrastructure.Registration
         /// Remaps an <see cref="IRegistrationContext"/>.
         /// </summary>
         /// <param name="registrationContextMeta">The registration context meta.</param>
+        /// <param name="isDecorator">True if the requested registration is a decorator.</param>
         /// <returns>The <see cref="IStashboxContainer"/>.</returns>
-        IStashboxContainer ReMap(IRegistrationContextMeta registrationContextMeta);
+        IStashboxContainer ReMap(IRegistrationContextMeta registrationContextMeta, bool isDecorator);
 
         /// <summary>
         /// Creates a service registration.

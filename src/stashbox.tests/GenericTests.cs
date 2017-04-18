@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Stashbox.Exceptions;
 
 namespace Stashbox.Tests
 {
@@ -152,7 +152,7 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
+        [ExpectedException(typeof(ResolutionFailedException))]
         public void GenericTests_Resolve_Constraint()
         {
             using (var container = new StashboxContainer())

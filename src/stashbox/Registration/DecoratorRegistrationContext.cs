@@ -47,6 +47,8 @@ namespace Stashbox.Registration
 
         public IStashboxContainer Register() => this.serviceRegistrator.Register(this.registrationContext, true, this.replaceExistingRegistration);
 
+        public IStashboxContainer ReMap() => this.serviceRegistrator.ReMap(this.registrationContext, true);
+
         public IFluentDecoratorRegistrator ReplaceExisting()
         {
             this.replaceExistingRegistration = true;

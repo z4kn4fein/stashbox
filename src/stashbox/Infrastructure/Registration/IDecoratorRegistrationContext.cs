@@ -10,5 +10,11 @@
         /// </summary>
         /// <returns>The container.</returns>
         IStashboxContainer Register();
+
+        /// <summary>
+        /// Replaces an already registered service.
+        /// </summary>
+        /// <returns>The container.</returns>
+        IStashboxContainer ReMap();
     }
 }

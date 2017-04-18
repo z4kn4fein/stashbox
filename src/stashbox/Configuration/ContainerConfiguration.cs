@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Reflection;
 using Stashbox.Attributes;
-using Stashbox.Infrastructure.Registration;
 
 namespace Stashbox.Configuration
 {
@@ -15,9 +14,7 @@ namespace Stashbox.Configuration
         {
             return new ContainerConfiguration
             {
-                ConstructorSelectionRule = Rules.ConstructorSelection.PreferMostParameters,
-                DependencySelectionRule = Rules.DependencySelection.ByPass,
-                EnumerableOrderRule = Rules.EnumerableOrder.ByPass
+                ConstructorSelectionRule = Rules.ConstructorSelection.PreferMostParameters
             };
         }
 
@@ -25,7 +22,7 @@ namespace Stashbox.Configuration
         /// If it's set to true the container will track transient objects for disposal.
         /// </summary>
         public bool TrackTransientsForDisposalEnabled { get; internal set; }
-        
+
         /// <summary>
         /// If it's set to true the container will track circular dependencies in the dependency graph and will throw an exception if any of it found.
         /// </summary>
@@ -60,16 +57,6 @@ namespace Stashbox.Configuration
         /// The constructor selection rule.
         /// </summary>
         public Func<IEnumerable<ConstructorInfo>, IEnumerable<ConstructorInfo>> ConstructorSelectionRule { get; internal set; }
-
-        /// <summary>
-        /// The dependency selection rule.
-        /// </summary>
-        public Func<IEnumerable<IServiceRegistration>, IServiceRegistration> DependencySelectionRule { get; internal set; }
-
-        /// <summary>
-        /// The enumerable order rule.
-        /// </summary>
-        public Func<IEnumerable<IServiceRegistration>, IEnumerable<IServiceRegistration>> EnumerableOrderRule { get; internal set; }
 
         internal ContainerConfiguration()
         {

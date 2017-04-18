@@ -35,7 +35,7 @@ namespace Stashbox.Registration
 
         public IStashboxContainer Register() => this.registrator.Register(this, false, this.replaceExistingRegistration);
 
-        public IStashboxContainer ReMap() => this.registrator.ReMap(this);
+        public IStashboxContainer ReMap() => this.registrator.ReMap(this, false);
 
         public IFluentServiceRegistrator WhenDependantIs<TTarget>() where TTarget : class
         {

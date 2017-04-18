@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Threading;
+using System.Collections.Generic;
 using Stashbox.Infrastructure.Registration;
 using Stashbox.Utils;
 
@@ -10,34 +10,33 @@ namespace Stashbox.Registration
     /// </summary>
     public class DecoratorRepository : IDecoratorRepository
     {
-        private int decoratorCounter;
-        private readonly ConcurrentTree<Type, ConcurrentTree<IServiceRegistration>> repository;
+        private readonly ConcurrentTree<Type, ConcurrentOrderedKeyStore<Type, IServiceRegistration>> repository;
 
         /// <summary>
         /// Constructs a <see cref="DecoratorRepository"/>.
         /// </summary>
         public DecoratorRepository()
         {
-            this.repository = ConcurrentTree<Type, ConcurrentTree<IServiceRegistration>>.Create();
+            this.repository = ConcurrentTree<Type, ConcurrentOrderedKeyStore<Type, IServiceRegistration>>.Create();
         }
 
         /// <inheritdoc />
-        public void AddDecorator(Type type, IServiceRegistration serviceRegistration, bool replace)
+        public void AddDecorator(Type type, IServiceRegistration serviceRegistration, bool remap, bool replace)
         {
-            var newRepository = ConcurrentTree<IServiceRegistration>.Create();
-            newRepository.AddOrUpdate(Interlocked.Increment(ref this.decoratorCounter), serviceRegistration);
+            var newRepository = new ConcurrentOrderedKeyStore<Type, IServiceRegistration>
+            {
+                {serviceRegistration.ImplementationType, serviceRegistration}
+            };
 
-            if (replace)
-                this.repository.AddOrUpdate(type, newRepository,
-                    (oldValue, newValue) => oldValue.HasMultipleItems ? oldValue.AddOrUpdate(Interlocked.Increment(ref this.decoratorCounter), serviceRegistration,
-                        (oldReg, newReg) => newReg) : newValue);
+            if (remap)
+                this.repository.AddOrUpdate(type, newRepository, (oldValue, newValue) => newValue);
             else
                 this.repository.AddOrUpdate(type, newRepository, (oldValue, newValue) => oldValue
-                    .AddOrUpdate(Interlocked.Increment(ref this.decoratorCounter), serviceRegistration));
+                    .AddOrUpdate(serviceRegistration.ImplementationType, serviceRegistration, replace));
         }
 
         /// <inheritdoc />
-        public ConcurrentTree<IServiceRegistration> GetDecoratorsOrDefault(Type type) =>
-             this.repository.GetOrDefault(type);
+        public KeyValuePair<Type, IServiceRegistration>[] GetDecoratorsOrDefault(Type type) =>
+             this.repository.GetOrDefault(type)?.Repository;
     }
 }

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Reflection;
 using Stashbox.Infrastructure;
-using Stashbox.Infrastructure.Registration;
 
 namespace Stashbox.Configuration
 {
@@ -68,20 +67,6 @@ namespace Stashbox.Configuration
         public IContainerConfigurator WithConstructorSelectionRule(Func<IEnumerable<ConstructorInfo>, IEnumerable<ConstructorInfo>> selectionRule)
         {
             this.ContainerConfiguration.ConstructorSelectionRule = selectionRule;
-            return this;
-        }
-
-        /// <inheritdoc />
-        public IContainerConfigurator WithDependencySelectionRule(Func<IEnumerable<IServiceRegistration>, IServiceRegistration> selectionRule)
-        {
-            this.ContainerConfiguration.DependencySelectionRule = selectionRule;
-            return this;
-        }
-
-        /// <inheritdoc />
-        public IContainerConfigurator WithEnumerableOrderRule(Func<IEnumerable<IServiceRegistration>, IEnumerable<IServiceRegistration>> selectionRule)
-        {
-            this.ContainerConfiguration.EnumerableOrderRule = selectionRule;
             return this;
         }
     }
