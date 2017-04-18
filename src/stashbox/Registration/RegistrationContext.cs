@@ -3,7 +3,6 @@ using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.Registration;
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using Stashbox.Configuration;
 using Stashbox.Lifetime;
 
@@ -121,7 +120,7 @@ namespace Stashbox.Registration
             return this;
         }
 
-        public IFluentServiceRegistrator WithConstructorSelectionRule(Func<IEnumerable<ConstructorInfo>, IEnumerable<ConstructorInfo>> rule)
+        public IFluentServiceRegistrator WithConstructorSelectionRule(Func<IEnumerable<ConstructorInformation>, IEnumerable<ConstructorInformation>> rule)
         {
             this.Context.ConstructorSelectionRule = rule;
             return this;

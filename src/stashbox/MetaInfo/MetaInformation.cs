@@ -15,7 +15,7 @@ namespace Stashbox.MetaInfo
         /// <summary>
         /// Holds the constructors of the service.
         /// </summary>
-        public IEnumerable<ConstructorInfo> Constructors { get; private set; }
+        public ConstructorInformation[] Constructors { get; private set; }
 
         /// <summary>
         /// Holds the injection methods of the service.
@@ -83,7 +83,12 @@ namespace Stashbox.MetaInfo
 
         private void AddConstructors(IEnumerable<ConstructorInfo> constructors) =>
             this.Constructors = constructors
-            .Where(constructor => !constructor.IsStatic && constructor.IsPublic);
+            .Where(constructor => !constructor.IsStatic && constructor.IsPublic)
+            .Select(info => new ConstructorInformation
+            {
+                Parameters = this.FillParameters(info.GetParameters()),
+                Constructor = info
+            }).CastToArray();
 
 
         private void AddMethods(IEnumerable<MethodInfo> infos) =>

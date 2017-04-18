@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reflection;
 using Stashbox.Configuration;
 using Stashbox.Entity;
 using Stashbox.Infrastructure;
@@ -33,7 +32,7 @@ namespace Stashbox.Registration
             return this;
         }
 
-        public IFluentDecoratorRegistrator WithConstructorSelectionRule(Func<IEnumerable<ConstructorInfo>, IEnumerable<ConstructorInfo>> rule)
+        public IFluentDecoratorRegistrator WithConstructorSelectionRule(Func<IEnumerable<ConstructorInformation>, IEnumerable<ConstructorInformation>> rule)
         {
             this.registrationContext.WithConstructorSelectionRule(rule);
             return this;

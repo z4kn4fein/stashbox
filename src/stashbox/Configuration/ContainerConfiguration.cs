@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reflection;
 using Stashbox.Attributes;
+using Stashbox.Entity;
 
 namespace Stashbox.Configuration
 {
@@ -56,7 +56,7 @@ namespace Stashbox.Configuration
         /// <summary>
         /// The constructor selection rule.
         /// </summary>
-        public Func<IEnumerable<ConstructorInfo>, IEnumerable<ConstructorInfo>> ConstructorSelectionRule { get; internal set; }
+        public Func<IEnumerable<ConstructorInformation>, IEnumerable<ConstructorInformation>> ConstructorSelectionRule { get; internal set; }
 
         internal ContainerConfiguration()
         {
