@@ -17,7 +17,7 @@ namespace Stashbox.Resolution
             this.keyedServiceDelegates = new HashMap<string, Func<IResolutionScope, object>>();
             this.factoryDelegates = new HashMap<Type, string, Func<IResolutionScope, Delegate>>();
         }
-        
+
         public Func<IResolutionScope, Delegate> GetFactoryDelegateCacheOrDefault(Type type, Type[] parameterTypes, string name = null)
         {
             var key = this.GetFactoryKey(type, parameterTypes, name);
@@ -29,7 +29,7 @@ namespace Stashbox.Resolution
             return name == null ? this.serviceDelegates.GetOrDefault(type)
                 : this.keyedServiceDelegates.GetOrDefault(this.GetKey(type, name));
         }
-        
+
         public void AddFactoryDelegate(Type type, Type[] parameterTypes, Func<IResolutionScope, Delegate> factory, string name = null)
         {
             var key = this.GetFactoryKey(type, parameterTypes, name);
@@ -43,11 +43,14 @@ namespace Stashbox.Resolution
                 this.keyedServiceDelegates.AddOrUpdate(this.GetKey(type, name), factory);
         }
 
-        public void InvalidateDelegateCache()
+        public void InvalidateDelegateCache(Type serviceType, string name)
         {
-            this.serviceDelegates.Clear();
+            if (name == null)
+                this.serviceDelegates.AddOrUpdate(serviceType, null);
+            else
+                this.keyedServiceDelegates.AddOrUpdate(this.GetKey(serviceType, name), null);
+
             this.factoryDelegates.Clear();
-            this.keyedServiceDelegates.Clear();
         }
 
         private string GetKey(Type type, string name) =>

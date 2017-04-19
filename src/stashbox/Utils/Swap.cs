@@ -3,21 +3,14 @@ using System.Threading;
 
 namespace Stashbox.Utils
 {
-    internal class Swap<TValue> where TValue : class
+    internal static class Swap
     {
-        private TValue storedValue;
+        public static bool TrySwapCurrent<TValue>(ref TValue refValue, TValue currentValue, TValue newValue)
+            where TValue : class =>
+            ReferenceEquals(Interlocked.CompareExchange(ref refValue, newValue, currentValue), currentValue);
 
-        public TValue Value => this.storedValue;
-
-        public Swap(TValue initialValue)
-        {
-            this.storedValue = initialValue;
-        }
-
-        public bool TrySwapCurrent(TValue currentValue, TValue newValue) =>
-            Interlocked.CompareExchange(ref this.storedValue, newValue, currentValue) == currentValue;
-
-        public void SwapCurrent(Func<TValue, TValue> valueFactory)
+        public static void SwapCurrent<TValue>(ref TValue refValue, Func<TValue, TValue> valueFactory)
+            where TValue : class
         {
             TValue currentValue;
             TValue newValue;
@@ -28,9 +21,9 @@ namespace Stashbox.Utils
                 if (++counter > 20)
                     throw new InvalidOperationException("Swap quota exceeded.");
 
-                currentValue = this.storedValue;
+                currentValue = refValue;
                 newValue = valueFactory(currentValue);
-            } while (Interlocked.CompareExchange(ref this.storedValue, newValue, currentValue) != currentValue);
+            } while (!ReferenceEquals(Interlocked.CompareExchange(ref refValue, newValue, currentValue), currentValue));
         }
     }
 }

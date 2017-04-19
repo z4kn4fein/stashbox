@@ -64,7 +64,7 @@ namespace Stashbox.Registration
 
         /// <inheritdoc />
         public bool HasCondition => this.RegistrationContext.TargetTypeCondition != null || this.RegistrationContext.ResolutionCondition != null ||
-            this.RegistrationContext.AttributeConditions != null && this.RegistrationContext.AttributeConditions.Any();
+            this.RegistrationContext.AttributeConditions != null && this.RegistrationContext.AttributeConditions.Count > 0;
 
         /// <inheritdoc />
         public bool ValidateGenericContraints(Type type) =>

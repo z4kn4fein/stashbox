@@ -2,7 +2,6 @@
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.ContainerExtension;
 using System.Linq;
-using System.Threading;
 using Stashbox.Utils;
 using System;
 
@@ -10,22 +9,25 @@ namespace Stashbox
 {
     internal class BuildExtensionManager : IContainerExtensionManager
     {
-        private readonly ConcurrentTree<IContainerExtension> repository;
-        private int extensionCounter;
+        private readonly ConcurrentOrderedStore<IContainerExtension> repository;
 
         public bool HasPostBuildExtensions { get; private set; }
 
+        public bool HasRegistrationExtensions { get; private set; }
+
         public BuildExtensionManager()
         {
-            this.repository = new ConcurrentTree<IContainerExtension>();
+            this.repository = new ConcurrentOrderedStore<IContainerExtension>();
         }
 
         public void AddExtension(IContainerExtension containerExtension)
         {
             if (containerExtension is IPostBuildExtension)
                 this.HasPostBuildExtensions = true;
+            else
+                this.HasRegistrationExtensions = true;
 
-            this.repository.AddOrUpdate(Interlocked.Increment(ref this.extensionCounter), containerExtension);
+            this.repository.Add(containerExtension);
         }
 
         public object ExecutePostBuildExtensions(object instance, IContainerContext containerContext, ResolutionInfo resolutionInfo,
@@ -34,6 +36,8 @@ namespace Stashbox
 
         public void ExecuteOnRegistrationExtensions(IContainerContext containerContext, Type typeTo, Type typeFrom, InjectionParameter[] injectionParameters = null)
         {
+            if (!this.HasRegistrationExtensions) return;
+
             foreach (var extension in this.repository.OfType<IRegistrationExtension>())
                 extension.OnRegistration(containerContext, typeTo, typeFrom, injectionParameters);
         }

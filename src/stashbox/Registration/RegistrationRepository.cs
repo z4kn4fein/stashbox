@@ -87,7 +87,7 @@ namespace Stashbox.Registration
             var registrations = this.GetDefaultRegistrationsOrDefault(type, this.conditionalRepository);
             if (registrations == null) return this.GetDefaultRegistrationOrDefault(type);
 
-            return registrations.Lenght > 0 ?
+            return registrations.Lenght > 1 ?
                 registrations.FirstOrDefault(reg => reg.IsUsableForCurrentContext(typeInfo) && reg.ValidateGenericContraints(type)) :
                     registrations.Last;
         }
@@ -97,7 +97,7 @@ namespace Stashbox.Registration
             var registrations = this.GetDefaultRegistrationsOrDefault(type, this.serviceRepository);
             if (registrations == null) return null;
 
-            return registrations.Lenght > 0 && type.IsClosedGenericType() ?
+            return registrations.Lenght > 1 && type.IsClosedGenericType() ?
                 registrations.FirstOrDefault(reg => reg.ValidateGenericContraints(type)) :
                     registrations.Last;
         }

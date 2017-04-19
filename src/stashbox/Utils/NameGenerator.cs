@@ -7,15 +7,15 @@ namespace Stashbox.Utils
     {
         public static string GetRegistrationName(Type typeFrom, Type typeTo, string name = null)
         {
-            return string.IsNullOrWhiteSpace(name) ? GenerateName(typeFrom, typeTo) : name;
+            return string.IsNullOrWhiteSpace(name) ? GenerateName(typeTo) : name;
         }
 
-        private static string GenerateName(Type typeFrom, Type typeTo)
+        private static string GenerateName(Type typeTo)
         {
-            if (!typeTo.IsClosedGenericType()) return typeFrom.Name + typeTo.Name;
+            if (!typeTo.IsClosedGenericType()) return typeTo.Name;
 
             var parts = string.Join("+", typeTo.GetGenericArguments().Select(arg => arg.Name));
-            return typeFrom.Name + typeTo.Name + parts;
+            return typeTo.Name + parts;
         }
     }
 }

@@ -9,8 +9,16 @@ namespace Stashbox
     /// </summary>
     public class ResolutionScopeBase : IResolutionScope
     {
+        private class DisposableItem
+        {
+            public IDisposable Item;
+            public DisposableItem Next;
+
+            public static readonly DisposableItem Empty = new DisposableItem();
+        }
+
         private readonly AtomicBool disposed;
-        private readonly ConcurrentStore<IDisposable> disposableObjects;
+        private DisposableItem rootItem;
         private readonly ConcurrentTree<object, object> scopedItems;
 
         /// <summary>
@@ -19,7 +27,7 @@ namespace Stashbox
         public ResolutionScopeBase()
         {
             this.disposed = new AtomicBool();
-            this.disposableObjects = new ConcurrentStore<IDisposable>();
+            this.rootItem = DisposableItem.Empty;
             this.scopedItems = new ConcurrentTree<object, object>();
         }
 
@@ -27,7 +35,12 @@ namespace Stashbox
         public TDisposable AddDisposableTracking<TDisposable>(TDisposable disposable)
             where TDisposable : IDisposable
         {
-            this.disposableObjects.Add(disposable);
+
+            var item = new DisposableItem { Item = disposable, Next = this.rootItem };
+            var current = this.rootItem;
+            if (!Swap.TrySwapCurrent(ref this.rootItem, current, item))
+                Swap.SwapCurrent(ref this.rootItem, root => new DisposableItem { Item = disposable, Next = root });
+
             return disposable;
         }
 
@@ -53,8 +66,13 @@ namespace Stashbox
         protected virtual void Dispose(bool disposing)
         {
             if (!this.disposed.CompareExchange(false, true) || !disposing) return;
-            foreach (var disposableObject in this.disposableObjects)
-                disposableObject?.Dispose();
+
+            var root = this.rootItem;
+            while (!ReferenceEquals(root, DisposableItem.Empty))
+            {
+                root.Item?.Dispose();
+                root = root.Next;
+            }
         }
     }
 }

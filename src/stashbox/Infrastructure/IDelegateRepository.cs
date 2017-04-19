@@ -44,6 +44,8 @@ namespace Stashbox.Infrastructure
         /// <summary>
         /// Invalidates a service delegate in the repository.
         /// </summary>
-        void InvalidateDelegateCache();
+        /// <param name="serviceType">The service type.</param>
+        /// <param name="name">The service name.</param>
+        void InvalidateDelegateCache(Type serviceType, string name);
     }
 }

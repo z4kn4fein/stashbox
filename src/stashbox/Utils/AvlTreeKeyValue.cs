@@ -42,7 +42,9 @@ namespace Stashbox.Utils
         { }
 
         private AvlTreeKeyValue()
-        { }
+        {
+            this.collisions = ArrayStoreKeyed<TKey, TValue>.Empty;
+        }
 
         public AvlTreeKeyValue<TKey, TValue> AddOrUpdate(TKey key, TValue value, Func<TValue, TValue, TValue> updateDelegate = null) =>
             this.Add(key.GetHashCode(), key, value, updateDelegate, out bool updated);
@@ -61,12 +63,14 @@ namespace Stashbox.Utils
 
         public TValue GetOrDefault(int hash, TKey key)
         {
+            if (ReferenceEquals(key, this.storedKey))
+                return this.storedValue;
+
             var node = this;
             while (!node.isEmpty && node.storedHash != hash)
                 node = hash < node.storedHash ? node.leftNode : node.rightNode;
-            return !node.isEmpty && key.Equals(node.storedKey) ?
-                node.storedValue : node.collisions == null ?
-                default(TValue) : node.collisions.GetOrDefault(key);
+            return !node.isEmpty && ReferenceEquals(key, node.storedKey) || key.Equals(node.storedKey) ?
+                node.storedValue : node.collisions.GetOrDefault(key);
         }
 
         private AvlTreeKeyValue<TKey, TValue> Add(int hash, TKey key, TValue value, Func<TValue, TValue, TValue> updateDelegate, out bool updated)
@@ -89,7 +93,7 @@ namespace Stashbox.Utils
 
         private AvlTreeKeyValue<TKey, TValue> CheckCollision(int hash, TKey key, TValue value, Func<TValue, TValue, TValue> updateDelegate, out bool updated)
         {
-            if (this.storedKey.Equals(key))
+            if (ReferenceEquals(key, this.storedKey) || key.Equals(this.storedKey))
             {
                 updated = true;
                 return updateDelegate == null ? this : new AvlTreeKeyValue<TKey, TValue>(hash, key,

@@ -12,6 +12,7 @@ namespace Stashbox.Infrastructure.ContainerExtension
         IContainerExtensionManager CreateCopy();
         void ReinitalizeExtensions(IContainerContext containerContext);
         bool HasPostBuildExtensions { get; }
+        bool HasRegistrationExtensions { get; }
         void CleanUp();
     }
 }

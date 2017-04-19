@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Stashbox.Utils
 {
-    internal class ArrayStore<TValue>
+    internal class ArrayStore<TValue> : IEnumerable<TValue>
     {
         public static ArrayStore<TValue> Empty = new ArrayStore<TValue>();
 
@@ -36,6 +36,14 @@ namespace Stashbox.Utils
 
         public TValue Get(int index) =>
             this.repository[index];
+
+        IEnumerator IEnumerable.GetEnumerator() => this.repository.GetEnumerator();
+
+        public IEnumerator<TValue> GetEnumerator()
+        {
+            for (var i = 0; i < this.Length; i++)
+                yield return this.repository[i];
+        }
     }
 
     internal class ArrayStoreKeyed<TKey, TValue> : IEnumerable<TValue>
@@ -110,7 +118,7 @@ namespace Stashbox.Utils
             for (var i = 0; i < length; i++)
             {
                 var item = this.Repository[i];
-                if (item.Key.Equals(key))
+                if (ReferenceEquals(key, item.Key) || item.Key.Equals(key))
                     return item.Value;
             }
 

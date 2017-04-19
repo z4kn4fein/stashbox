@@ -34,7 +34,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
             var method = CreateDynamicMethod(delegateTarget, returnType, parameters);
             var generator = method.GetILGenerator();
 
-            if (delegateTarget.Locals != null)
+            if (delegateTarget.Locals.Count > 0)
                 DeclareLocals(generator, delegateTarget, constants);
 
             if (!expression.TryEmit(delegateTarget, generator, parameters))

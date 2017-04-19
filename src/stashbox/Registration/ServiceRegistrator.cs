@@ -43,13 +43,13 @@ namespace Stashbox.Registration
             if (isDecorator)
             {
                 this.containerContext.DecoratorRepository.AddDecorator(registrationContextMeta.ServiceType, registration, false, replace);
-                this.containerContext.DelegateRepository.InvalidateDelegateCache();
+                this.containerContext.DelegateRepository.InvalidateDelegateCache(registration.ServiceType, registration.RegistrationContext.Name);
             }
             else
                 this.containerContext.RegistrationRepository.AddOrUpdateRegistration(registration, false, replace);
 
             if (replace)
-                this.containerContext.DelegateRepository.InvalidateDelegateCache();
+                this.containerContext.DelegateRepository.InvalidateDelegateCache(registration.ServiceType, registration.RegistrationContext.Name);
 
             this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.containerContext, registrationContextMeta.ServiceType,
                 registrationContextMeta.ImplementationType, registrationContextMeta.Context.InjectionParameters);
@@ -67,7 +67,7 @@ namespace Stashbox.Registration
             else
                 this.containerContext.RegistrationRepository.AddOrUpdateRegistration(registration, true, false);
 
-            this.containerContext.DelegateRepository.InvalidateDelegateCache();
+            this.containerContext.DelegateRepository.InvalidateDelegateCache(registration.ServiceType, registration.RegistrationContext.Name);
 
             this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.containerContext, registrationContextMeta.ServiceType,
                 registrationContextMeta.ImplementationType, registrationContextMeta.Context.InjectionParameters);
