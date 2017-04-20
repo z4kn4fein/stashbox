@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Linq;
 using System.Threading.Tasks;
 using Stashbox.Exceptions;
@@ -152,7 +153,7 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ResolutionFailedException))]
+        [ExpectedException(typeof(ArgumentException))]
         public void GenericTests_Resolve_Constraint()
         {
             using (var container = new StashboxContainer())

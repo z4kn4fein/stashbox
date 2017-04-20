@@ -2,6 +2,7 @@
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.ContainerExtension;
 using Stashbox.Infrastructure.Registration;
+using Stashbox.Utils;
 
 namespace Stashbox.Registration
 {
@@ -42,14 +43,20 @@ namespace Stashbox.Registration
 
             if (isDecorator)
             {
-                this.containerContext.DecoratorRepository.AddDecorator(registrationContextMeta.ServiceType, registration, false, replace);
-                this.containerContext.DelegateRepository.InvalidateDelegateCache(registration.ServiceType, registration.RegistrationContext.Name);
+                this.containerContext.DecoratorRepository.AddDecorator(registrationContextMeta.ServiceType, registration,
+                    false, replace);
+                this.containerContext.DelegateRepository.InvalidateDelegateCache();
             }
             else
-                this.containerContext.RegistrationRepository.AddOrUpdateRegistration(registration, false, replace);
+            {
+                var name = registration.RegistrationContext.Name ??
+                           NameGenerator.GetRegistrationName(registration.ServiceType, registration.ImplementationType,
+                               registration.RegistrationContext.Name);
+                this.containerContext.RegistrationRepository.AddOrUpdateRegistration(registration, name, false, replace);
+            }
 
             if (replace)
-                this.containerContext.DelegateRepository.InvalidateDelegateCache(registration.ServiceType, registration.RegistrationContext.Name);
+                this.containerContext.DelegateRepository.InvalidateDelegateCache();
 
             this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.containerContext, registrationContextMeta.ServiceType,
                 registrationContextMeta.ImplementationType, registrationContextMeta.Context.InjectionParameters);
@@ -63,11 +70,17 @@ namespace Stashbox.Registration
             var registration = this.CreateServiceRegistration(registrationContextMeta, isDecorator);
 
             if (isDecorator)
-                this.containerContext.DecoratorRepository.AddDecorator(registrationContextMeta.ServiceType, registration, true, false);
+                this.containerContext.DecoratorRepository.AddDecorator(registrationContextMeta.ServiceType, registration,
+                    true, false);
             else
-                this.containerContext.RegistrationRepository.AddOrUpdateRegistration(registration, true, false);
+            {
+                var name = registration.RegistrationContext.Name ??
+                           NameGenerator.GetRegistrationName(registration.ServiceType, registration.ImplementationType,
+                               registration.RegistrationContext.Name);
+                this.containerContext.RegistrationRepository.AddOrUpdateRegistration(registration, name, true, false);
+            }
 
-            this.containerContext.DelegateRepository.InvalidateDelegateCache(registration.ServiceType, registration.RegistrationContext.Name);
+            this.containerContext.DelegateRepository.InvalidateDelegateCache();
 
             this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.containerContext, registrationContextMeta.ServiceType,
                 registrationContextMeta.ImplementationType, registrationContextMeta.Context.InjectionParameters);

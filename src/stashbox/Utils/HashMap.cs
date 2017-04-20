@@ -4,11 +4,13 @@ namespace Stashbox.Utils
 {
     internal class HashMap<TKey, TValue>
     {
+        private readonly int arraySize;
         protected readonly int IndexBound;
         private readonly AvlTreeKeyValue<TKey, TValue>[] array;
 
         public HashMap(int arraySize = 64)
         {
+            this.arraySize = arraySize;
             this.IndexBound = arraySize - 1;
             this.array = new AvlTreeKeyValue<TKey, TValue>[arraySize];
 
@@ -32,6 +34,14 @@ namespace Stashbox.Utils
             var index = hash & this.IndexBound;
             this.array[index] = this.array[index].AddOrUpdate(hash, key, value);
             return this;
+        }
+
+        public void Clear() => this.Init();
+
+        private void Init()
+        {
+            for (var i = 0; i < this.arraySize; i++)
+                this.array[i] = AvlTreeKeyValue<TKey, TValue>.Empty;
         }
     }
 

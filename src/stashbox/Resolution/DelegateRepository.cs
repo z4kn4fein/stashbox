@@ -43,13 +43,10 @@ namespace Stashbox.Resolution
                 this.keyedServiceDelegates.AddOrUpdate(this.GetKey(type, name), factory);
         }
 
-        public void InvalidateDelegateCache(Type serviceType, string name)
+        public void InvalidateDelegateCache()
         {
-            if (name == null)
-                this.serviceDelegates.AddOrUpdate(serviceType, null);
-            else
-                this.keyedServiceDelegates.AddOrUpdate(this.GetKey(serviceType, name), null);
-
+            this.serviceDelegates.Clear();
+            this.keyedServiceDelegates.Clear();
             this.factoryDelegates.Clear();
         }
 

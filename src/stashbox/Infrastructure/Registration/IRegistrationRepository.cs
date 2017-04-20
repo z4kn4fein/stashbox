@@ -12,10 +12,11 @@ namespace Stashbox.Infrastructure.Registration
         /// <summary>
         /// Adds or updates an element in the repository.
         /// </summary>
+        /// <param name="registrationName">The registration name.</param>
         /// <param name="remap">If true, all the registrations mapped to a service type will be replaced.</param>
         /// <param name="replace">If true, only one existing registration will be replaced when multiple exists.</param>
         /// <param name="registration">The registration.</param>
-        void AddOrUpdateRegistration(IServiceRegistration registration, bool remap, bool replace);
+        void AddOrUpdateRegistration(IServiceRegistration registration, string registrationName, bool remap, bool replace);
 
         /// <summary>
         /// Retrieves a registration.

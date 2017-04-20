@@ -18,9 +18,9 @@ namespace Stashbox.Registration
             this.conditionalRepository = new ConcurrentTree<Type, ConcurrentOrderedKeyStore<string, IServiceRegistration>>();
         }
 
-        public void AddOrUpdateRegistration(IServiceRegistration registration, bool remap, bool replace)
+        public void AddOrUpdateRegistration(IServiceRegistration registration, string registrationName, bool remap, bool replace)
         {
-            this.AddOrUpdateRegistration(registration, remap, replace,
+            this.AddOrUpdateRegistration(registration, registrationName, remap, replace,
                 registration.HasCondition ? this.conditionalRepository : this.serviceRepository);
         }
 
@@ -63,16 +63,16 @@ namespace Stashbox.Registration
             return registrations?.Any(reg => reg.ValidateGenericContraints(type)) ?? false;
         }
 
-        private void AddOrUpdateRegistration(IServiceRegistration registration, bool remap, bool replace, ConcurrentTree<Type, ConcurrentOrderedKeyStore<string, IServiceRegistration>> repository)
+        private void AddOrUpdateRegistration(IServiceRegistration registration, string registrationName, bool remap, bool replace, ConcurrentTree<Type, ConcurrentOrderedKeyStore<string, IServiceRegistration>> repository)
         {
             var newRepository = new ConcurrentOrderedKeyStore<string, IServiceRegistration>();
-            newRepository.AddOrUpdate(registration.RegistrationContext.Name, registration);
+            newRepository.AddOrUpdate(registrationName, registration);
 
             if (remap)
                 repository.AddOrUpdate(registration.ServiceType, newRepository, (oldValue, newValue) => newValue);
             else
                 repository.AddOrUpdate(registration.ServiceType, newRepository,
-                    (oldValue, newValue) => oldValue.AddOrUpdate(registration.RegistrationContext.Name, registration, replace));
+                    (oldValue, newValue) => oldValue.AddOrUpdate(registrationName, registration, replace));
         }
 
         private IServiceRegistration GetNamedRegistrationOrDefault(Type type, string dependencyName)
