@@ -53,9 +53,9 @@ namespace Stashbox.BuildUp.Resolution
                 for (var i = 0; i < regLenght; i++)
                     if (!containerContext.ContainerConfigurator.ContainerConfiguration.CircularDependenciesWithLazyEnabled)
                         regExpressions[i] = Expression.New(lazyConstructor,
-                            Expression.Lambda(registrations[i].GetExpression(resolutionInfo, lazyArgumentInfo.Type)));
+                            Expression.Lambda(registrations[i].Value.GetExpression(resolutionInfo, lazyArgumentInfo.Type)));
                     else
-                        regExpressions[i] = this.CreateLazyExpressionCall(registrations[i], lazyArgumentInfo.Type, lazyConstructor, resolutionInfo);
+                        regExpressions[i] = this.CreateLazyExpressionCall(registrations[i].Value, lazyArgumentInfo.Type, lazyConstructor, resolutionInfo);
 
                 return regExpressions;
             }

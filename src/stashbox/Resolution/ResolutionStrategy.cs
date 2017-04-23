@@ -43,7 +43,7 @@ namespace Stashbox.Resolution
             var lenght = registrations.Length;
             var expressions = new Expression[lenght];
             for (var i = 0; i < lenght; i++)
-                expressions[i] = registrations[i].GetExpression(resolutionInfo, typeInformation.Type);
+                expressions[i] = registrations[i].Value.GetExpression(resolutionInfo, typeInformation.Type);
 
             return expressions;
         }

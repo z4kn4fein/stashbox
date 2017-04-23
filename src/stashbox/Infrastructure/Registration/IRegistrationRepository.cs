@@ -39,7 +39,7 @@ namespace Stashbox.Infrastructure.Registration
         /// </summary>
         /// <param name="type">The requested type.</param>
         /// <returns>The registrations or null, if it doesn't exist.</returns>
-        IEnumerable<IServiceRegistration> GetRegistrationsOrDefault(Type type);
+        IEnumerable<KeyValuePair<string, IServiceRegistration>> GetRegistrationsOrDefault(Type type);
 
         /// <summary>
         /// Retrieves all registrations.
