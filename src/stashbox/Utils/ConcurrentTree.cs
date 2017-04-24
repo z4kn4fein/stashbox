@@ -82,8 +82,7 @@ namespace Stashbox.Utils
             var currentRepo = this.repository;
             var newRepo = this.repository.AddOrUpdate(hash, key, value, updateDelegate);
 
-            if (!Swap.TrySwapCurrent(ref this.repository, currentRepo, newRepo))
-                Swap.SwapCurrent(ref this.repository, repo => repo.AddOrUpdate(hash, key, value, updateDelegate));
+            Swap.SwapValue(ref this.repository, currentRepo, newRepo, repo => repo.AddOrUpdate(hash, key, value, updateDelegate));
 
             return this;
         }
@@ -152,8 +151,7 @@ namespace Stashbox.Utils
             var currentRepo = this.repository;
             var newRepo = this.repository.AddOrUpdate(key, value, updateDelegate);
 
-            if (!Swap.TrySwapCurrent(ref this.repository, currentRepo, newRepo))
-                Swap.SwapCurrent(ref this.repository, repo => repo.AddOrUpdate(key, value, updateDelegate));
+            Swap.SwapValue(ref this.repository, currentRepo, newRepo, repo => repo.AddOrUpdate(key, value, updateDelegate));
 
             return this;
         }

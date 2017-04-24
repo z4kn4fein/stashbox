@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.ContainerExtension;
 using Stashbox.Lifetime;
@@ -34,5 +35,7 @@ namespace Stashbox
         internal static ConstructorInfo ObjectConstructor = typeof(object).GetConstructor(EmptyTypes);
 
         internal static Type CompositionRootType = typeof(ICompositionRoot);
+
+        internal const MethodImplOptions Inline = (MethodImplOptions)256;
     }
 }

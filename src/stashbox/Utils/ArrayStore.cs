@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using Stashbox.Entity;
 
 namespace Stashbox.Utils
 {
@@ -50,19 +51,19 @@ namespace Stashbox.Utils
     {
         public static ArrayStoreKeyed<TKey, TValue> Empty = new ArrayStoreKeyed<TKey, TValue>();
 
-        public KeyValuePair<TKey, TValue>[] Repository { get; }
+        public KeyValue<TKey, TValue>[] Repository { get; }
 
         public TValue Last => this.Repository[this.Length - 1].Value;
 
         public int Length { get; }
 
-        private ArrayStoreKeyed(KeyValuePair<TKey, TValue> item, KeyValuePair<TKey, TValue>[] old)
+        private ArrayStoreKeyed(KeyValue<TKey, TValue> item, KeyValue<TKey, TValue>[] old)
         {
             if (old.Length == 0)
                 this.Repository = new[] { item };
             else
             {
-                this.Repository = new KeyValuePair<TKey, TValue>[old.Length + 1];
+                this.Repository = new KeyValue<TKey, TValue>[old.Length + 1];
                 Array.Copy(old, this.Repository, old.Length);
                 this.Repository[old.Length] = item;
             }
@@ -70,7 +71,7 @@ namespace Stashbox.Utils
             this.Length = old.Length + 1;
         }
 
-        private ArrayStoreKeyed(KeyValuePair<TKey, TValue>[] initial)
+        private ArrayStoreKeyed(KeyValue<TKey, TValue>[] initial)
         {
             this.Repository = initial;
             this.Length = initial.Length;
@@ -78,11 +79,11 @@ namespace Stashbox.Utils
 
         public ArrayStoreKeyed()
         {
-            this.Repository = new KeyValuePair<TKey, TValue>[0];
+            this.Repository = new KeyValue<TKey, TValue>[0];
         }
 
         public ArrayStoreKeyed<TKey, TValue> Add(TKey key, TValue value) =>
-           new ArrayStoreKeyed<TKey, TValue>(new KeyValuePair<TKey, TValue>(key, value), this.Repository);
+           new ArrayStoreKeyed<TKey, TValue>(new KeyValue<TKey, TValue>(key, value), this.Repository);
 
         public ArrayStoreKeyed<TKey, TValue> AddOrUpdate(TKey key, TValue value, out bool updated, bool allowUpdate = true)
         {
@@ -102,9 +103,9 @@ namespace Stashbox.Utils
                 return this;
             }
 
-            var newRepository = new KeyValuePair<TKey, TValue>[length];
+            var newRepository = new KeyValue<TKey, TValue>[length];
             Array.Copy(this.Repository, newRepository, length);
-            newRepository[count] = new KeyValuePair<TKey, TValue>(key, value);
+            newRepository[count] = new KeyValue<TKey, TValue>(key, value);
             updated = true;
             return new ArrayStoreKeyed<TKey, TValue>(newRepository);
         }

@@ -9,16 +9,16 @@ namespace Stashbox.Registration
 {
     internal class RegistrationRepository : IRegistrationRepository
     {
-        private readonly ConcurrentTree<Type, ConcurrentOrderedKeyStore<string, IServiceRegistration>> serviceRepository;
+        private readonly ConcurrentTree<Type, ConcurrentOrderedKeyStore<object, IServiceRegistration>> serviceRepository;
 
         public RegistrationRepository()
         {
-            this.serviceRepository = new ConcurrentTree<Type, ConcurrentOrderedKeyStore<string, IServiceRegistration>>();
+            this.serviceRepository = new ConcurrentTree<Type, ConcurrentOrderedKeyStore<object, IServiceRegistration>>();
         }
 
-        public void AddOrUpdateRegistration(IServiceRegistration registration, string registrationName, bool remap, bool replace)
+        public void AddOrUpdateRegistration(IServiceRegistration registration, object registrationName, bool remap, bool replace)
         {
-            var newRepository = new ConcurrentOrderedKeyStore<string, IServiceRegistration>();
+            var newRepository = new ConcurrentOrderedKeyStore<object, IServiceRegistration>();
             newRepository.AddOrUpdate(registrationName, registration);
 
             if (remap)
@@ -28,7 +28,7 @@ namespace Stashbox.Registration
                     (oldValue, newValue) => oldValue.AddOrUpdate(registrationName, registration, replace));
         }
 
-        public IServiceRegistration GetRegistrationOrDefault(Type type, string name = null) =>
+        public IServiceRegistration GetRegistrationOrDefault(Type type, object name = null) =>
             name != null ? this.GetNamedRegistrationOrDefault(type, name) : this.GetDefaultRegistrationOrDefault(type);
 
         public IServiceRegistration GetRegistrationOrDefault(TypeInformation typeInfo, bool checkConditions = false)
@@ -38,7 +38,7 @@ namespace Stashbox.Registration
                 this.GetDefaultRegistrationOrDefault(typeInfo);
         }
 
-        public IEnumerable<KeyValuePair<string, IServiceRegistration>> GetRegistrationsOrDefault(Type type)
+        public IEnumerable<KeyValue<object, IServiceRegistration>> GetRegistrationsOrDefault(Type type)
         {
             var registrations = this.serviceRepository.GetOrDefault(type);
             if (registrations != null || !type.IsClosedGenericType()) return registrations?.Repository;
@@ -50,7 +50,7 @@ namespace Stashbox.Registration
         public IEnumerable<IServiceRegistration> GetAllRegistrations() =>
             this.serviceRepository.SelectMany(reg => reg);
 
-        public bool ContainsRegistration(Type type, string name)
+        public bool ContainsRegistration(Type type, object name)
         {
             var registrations = this.serviceRepository.GetOrDefault(type);
             if (name != null && registrations != null)
@@ -62,7 +62,7 @@ namespace Stashbox.Registration
             return registrations?.Any(reg => reg.ValidateGenericContraints(type)) ?? false;
         }
 
-        private IServiceRegistration GetNamedRegistrationOrDefault(Type type, string dependencyName)
+        private IServiceRegistration GetNamedRegistrationOrDefault(Type type, object dependencyName)
         {
             var registrations = this.GetDefaultRegistrationsOrDefault(type);
             return registrations?.GetOrDefault(dependencyName);
@@ -102,7 +102,7 @@ namespace Stashbox.Registration
                 registrations.Last;
         }
 
-        private ConcurrentOrderedKeyStore<string, IServiceRegistration> GetDefaultRegistrationsOrDefault(Type type)
+        private ConcurrentOrderedKeyStore<object, IServiceRegistration> GetDefaultRegistrationsOrDefault(Type type)
         {
             var registrations = this.serviceRepository.GetOrDefault(type);
             if (registrations == null && type.IsClosedGenericType())

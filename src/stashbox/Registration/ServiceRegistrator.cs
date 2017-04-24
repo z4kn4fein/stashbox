@@ -50,7 +50,7 @@ namespace Stashbox.Registration
             else
             {
                 var name = registration.RegistrationContext.Name ??
-                           NameGenerator.GetRegistrationName(registration.ServiceType, registration.ImplementationType,
+                           NameGenerator.GetRegistrationName(registration.ImplementationType,
                                registration.RegistrationContext.Name);
                 this.containerContext.RegistrationRepository.AddOrUpdateRegistration(registration, name, false, replace);
             }
@@ -75,7 +75,7 @@ namespace Stashbox.Registration
             else
             {
                 var name = registration.RegistrationContext.Name ??
-                           NameGenerator.GetRegistrationName(registration.ServiceType, registration.ImplementationType,
+                           NameGenerator.GetRegistrationName(registration.ImplementationType,
                                registration.RegistrationContext.Name);
                 this.containerContext.RegistrationRepository.AddOrUpdateRegistration(registration, name, true, false);
             }

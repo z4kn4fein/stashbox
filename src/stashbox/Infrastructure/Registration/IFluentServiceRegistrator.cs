@@ -44,7 +44,7 @@ namespace Stashbox.Infrastructure.Registration
         /// </summary>
         /// <param name="name">The name of the registration.</param>
         /// <returns>The <see cref="IFluentServiceRegistrator"/> which on this method was called.</returns>
-        IFluentServiceRegistrator WithName(string name);
+        IFluentServiceRegistrator WithName(object name);
 
         /// <summary>
         /// Sets injection parameters for the registration.

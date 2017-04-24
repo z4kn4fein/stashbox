@@ -80,11 +80,11 @@ namespace Stashbox
             this.resolverSelector.AddResolver(resolver);
 
         /// <inheritdoc />
-        public bool CanResolve<TFrom>(string name = null) =>
+        public bool CanResolve<TFrom>(object name = null) =>
             this.CanResolve(typeof(TFrom), name);
 
         /// <inheritdoc />
-        public bool CanResolve(Type typeFrom, string name = null) =>
+        public bool CanResolve(Type typeFrom, object name = null) =>
             this.registrationRepository.ContainsRegistration(typeFrom, name) ||
                 this.resolverSelector.CanResolve(this.ContainerContext, new TypeInformation { Type = typeFrom, DependencyName = name });
 

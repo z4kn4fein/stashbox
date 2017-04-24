@@ -29,7 +29,7 @@ namespace Stashbox.Registration
         /// <summary>
         /// Name of the registration.
         /// </summary>
-        public string Name { get; internal set; }
+        public object Name { get; internal set; }
 
         /// <summary>
         /// Container factory of the registration.

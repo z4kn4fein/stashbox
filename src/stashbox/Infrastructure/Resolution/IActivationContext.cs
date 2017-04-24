@@ -16,8 +16,8 @@ namespace Stashbox.Infrastructure.Resolution
         /// <param name="name">The service name.</param>
         /// <param name="nullResultAllowed">If true, the container will return with null instead of throwing <see cref="ResolutionFailedException"/>.</param>
         /// <returns>The resolved object.</returns>
-        object Activate(Type type, IResolutionScope resolutionScope, string name = null, bool nullResultAllowed = false);
-        
+        object Activate(Type type, IResolutionScope resolutionScope, object name = null, bool nullResultAllowed = false);
+
         /// <summary>
         /// Activates a type via a delegate.
         /// </summary>
@@ -27,6 +27,6 @@ namespace Stashbox.Infrastructure.Resolution
         /// <param name="name">The service name.</param>
         /// <param name="nullResultAllowed">If true, the container will return with null instead of throwing <see cref="ResolutionFailedException"/>.</param>
         /// <returns>The delegate which can be used for activate a type.</returns>
-        Delegate ActivateFactory(Type type, Type[] parameterTypes, IResolutionScope resolutionScope, string name = null, bool nullResultAllowed = false);
+        Delegate ActivateFactory(Type type, Type[] parameterTypes, IResolutionScope resolutionScope, object name = null, bool nullResultAllowed = false);
     }
 }

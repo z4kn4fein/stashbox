@@ -101,7 +101,7 @@ namespace Stashbox.Registration
             return this;
         }
 
-        public IFluentServiceRegistrator WithName(string name)
+        public IFluentServiceRegistrator WithName(object name)
         {
             this.Context.Name = name;
             return this;

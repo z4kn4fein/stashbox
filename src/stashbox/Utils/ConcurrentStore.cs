@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Stashbox.Entity;
 
 namespace Stashbox.Utils
 {
@@ -33,8 +34,7 @@ namespace Stashbox.Utils
             var current = this.repository;
             var newRepo = this.repository.Add(content);
 
-            if (!Swap.TrySwapCurrent(ref this.repository, current, newRepo))
-                Swap.SwapCurrent(ref this.repository, repo => repo.Add(content));
+            Swap.SwapValue(ref this.repository, current, newRepo, repo => repo.Add(content));
         }
 
         /// <summary>
@@ -67,7 +67,7 @@ namespace Stashbox.Utils
         /// <summary>
         /// The array of the items.
         /// </summary>
-        public KeyValuePair<TKey, TContent>[] Repository => this.repository.Repository;
+        public KeyValue<TKey, TContent>[] Repository => this.repository.Repository;
 
         /// <summary>
         /// The last item in the collection.
@@ -75,7 +75,7 @@ namespace Stashbox.Utils
         public TContent Last => this.repository.Last;
 
         /// <summary>
-        /// Constructs a <see cref="ConcurrentOrderedStore{TContent}"/>
+        /// Constructs a <see cref="ConcurrentOrderedKeyStore{TKey,TContent}"/>
         /// </summary>
         public ConcurrentOrderedKeyStore()
         {
@@ -92,8 +92,7 @@ namespace Stashbox.Utils
             var current = this.repository;
             var newRepo = this.repository.Add(key, content);
 
-            if (!Swap.TrySwapCurrent(ref this.repository, current, newRepo))
-                Swap.SwapCurrent(ref this.repository, repo => repo.Add(key, content));
+            Swap.SwapValue(ref this.repository, current, newRepo, repo => repo.Add(key, content));
         }
 
         /// <summary>
@@ -107,8 +106,7 @@ namespace Stashbox.Utils
             var current = this.repository;
             var newRepo = this.repository.AddOrUpdate(key, value, allowUpdate);
 
-            if (!Swap.TrySwapCurrent(ref this.repository, current, newRepo))
-                Swap.SwapCurrent(ref this.repository, repo => repo.AddOrUpdate(key, value, allowUpdate));
+            Swap.SwapValue(ref this.repository, current, newRepo, repo => repo.AddOrUpdate(key, value, allowUpdate));
 
             return this;
         }

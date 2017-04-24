@@ -16,7 +16,7 @@ namespace Stashbox.Infrastructure.Registration
         /// <param name="remap">If true, all the registrations mapped to a service type will be replaced.</param>
         /// <param name="replace">If true, only one existing registration will be replaced when multiple exists.</param>
         /// <param name="registration">The registration.</param>
-        void AddOrUpdateRegistration(IServiceRegistration registration, string registrationName, bool remap, bool replace);
+        void AddOrUpdateRegistration(IServiceRegistration registration, object registrationName, bool remap, bool replace);
 
         /// <summary>
         /// Retrieves a registration.
@@ -24,7 +24,7 @@ namespace Stashbox.Infrastructure.Registration
         /// <param name="type">The requested type.</param>
         /// <param name="name">The requested name.</param>
         /// <returns>The registration or null, if it doesn't exist.</returns>
-        IServiceRegistration GetRegistrationOrDefault(Type type, string name = null);
+        IServiceRegistration GetRegistrationOrDefault(Type type, object name = null);
 
         /// <summary>
         /// Retrieves a registration.
@@ -39,7 +39,7 @@ namespace Stashbox.Infrastructure.Registration
         /// </summary>
         /// <param name="type">The requested type.</param>
         /// <returns>The registrations or null, if it doesn't exist.</returns>
-        IEnumerable<KeyValuePair<string, IServiceRegistration>> GetRegistrationsOrDefault(Type type);
+        IEnumerable<KeyValue<object, IServiceRegistration>> GetRegistrationsOrDefault(Type type);
 
         /// <summary>
         /// Retrieves all registrations.
@@ -53,6 +53,6 @@ namespace Stashbox.Infrastructure.Registration
         /// <param name="type">The requested type.</param>
         /// <param name="name">The requested name.</param>
         /// <returns>True if the registration found, otherwise false.</returns>
-        bool ContainsRegistration(Type type, string name);
+        bool ContainsRegistration(Type type, object name);
     }
 }

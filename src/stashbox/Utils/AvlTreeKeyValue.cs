@@ -63,6 +63,9 @@ namespace Stashbox.Utils
 
         public TValue GetOrDefault(int hash, TKey key)
         {
+            if (this.isEmpty)
+                return default(TValue);
+
             if (ReferenceEquals(key, this.storedKey))
                 return this.storedValue;
 

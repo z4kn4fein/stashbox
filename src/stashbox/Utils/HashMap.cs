@@ -18,7 +18,7 @@ namespace Stashbox.Utils
                 this.array[i] = AvlTreeKeyValue<TKey, TValue>.Empty;
         }
 
-        [MethodImpl((MethodImplOptions)256)]
+        [MethodImpl(Constants.Inline)]
         public TValue GetOrDefault(TKey key)
         {
             var hash = key.GetHashCode();
@@ -26,14 +26,17 @@ namespace Stashbox.Utils
             return this.array[hash & this.IndexBound].GetOrDefault(hash, key);
         }
 
-        [MethodImpl((MethodImplOptions)256)]
-        public HashMap<TKey, TValue> AddOrUpdate(TKey key, TValue value)
+        [MethodImpl(Constants.Inline)]
+        public void AddOrUpdate(TKey key, TValue value)
         {
             var hash = key.GetHashCode();
 
             var index = hash & this.IndexBound;
-            this.array[index] = this.array[index].AddOrUpdate(hash, key, value);
-            return this;
+
+            var tree = this.array[index];
+            var newTree = tree.AddOrUpdate(hash, key, value);
+
+            Swap.SwapValue(ref this.array[index], tree, newTree, root => root.AddOrUpdate(hash, key, value));
         }
 
         public void Clear() => this.Init();
@@ -43,43 +46,5 @@ namespace Stashbox.Utils
             for (var i = 0; i < this.arraySize; i++)
                 this.array[i] = AvlTreeKeyValue<TKey, TValue>.Empty;
         }
-    }
-
-    internal class HashMap<TKey, TNestedKey, TValue>
-    {
-        private readonly int arraySize;
-        protected readonly int IndexBound;
-        private AvlTreeKeyValue<TNestedKey, TValue>[] array;
-
-        public HashMap(int arraySize = 64)
-        {
-            this.arraySize = arraySize;
-            this.IndexBound = arraySize - 1;
-            this.array = new AvlTreeKeyValue<TNestedKey, TValue>[arraySize];
-        }
-
-        public TValue GetOrDefault(TKey key, TNestedKey nestedKey)
-        {
-            var hash = key.GetHashCode();
-            var nestedHash = nestedKey.GetHashCode();
-
-            var tree = this.array[hash & this.IndexBound];
-            return tree == null ? default(TValue) : tree.GetOrDefault(nestedHash, nestedKey);
-        }
-
-        public HashMap<TKey, TNestedKey, TValue> AddOrUpdate(TKey key, TNestedKey nestedKey, TValue value)
-        {
-            var hash = key.GetHashCode();
-            var nestedHash = nestedKey.GetHashCode();
-
-            var index = hash & this.IndexBound;
-
-            var tree = this.array[index] ?? AvlTreeKeyValue<TNestedKey, TValue>.Empty;
-            var newTree = tree.AddOrUpdate(nestedHash, nestedKey, value);
-            this.array[index] = newTree;
-            return this;
-        }
-
-        public void Clear() => this.array = new AvlTreeKeyValue<TNestedKey, TValue>[this.arraySize];
     }
 }

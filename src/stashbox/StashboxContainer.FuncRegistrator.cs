@@ -39,7 +39,7 @@ namespace Stashbox
                 this.ContainerContext, this.objectBuilderSelector.Get(ObjectBuilder.Func),
                 data, false, false);
 
-            this.registrationRepository.AddOrUpdateRegistration(registration, NameGenerator.GetRegistrationName(factoryType, internalFactoryType, name), false, false);
+            this.registrationRepository.AddOrUpdateRegistration(registration, NameGenerator.GetRegistrationName(internalFactoryType, name), false, false);
             this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.ContainerContext, factoryType, internalFactoryType);
             return this;
         }

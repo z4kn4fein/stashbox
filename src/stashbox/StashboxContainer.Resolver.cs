@@ -6,11 +6,11 @@ namespace Stashbox
     public partial class StashboxContainer
     {
         /// <inheritdoc />
-        public TKey Resolve<TKey>(string name = null, bool nullResultAllowed = false) =>
+        public TKey Resolve<TKey>(object name = null, bool nullResultAllowed = false) =>
             (TKey)this.activationContext.Activate(typeof(TKey), this, name, nullResultAllowed);
 
         /// <inheritdoc />
-        public object Resolve(Type typeFrom, string name = null, bool nullResultAllowed = false) =>
+        public object Resolve(Type typeFrom, object name = null, bool nullResultAllowed = false) =>
             this.activationContext.Activate(typeFrom, this, name, nullResultAllowed);
 
         /// <inheritdoc />
@@ -25,27 +25,27 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public Delegate ResolveFactory(Type typeFrom, string name = null, bool nullResultAllowed = false, params Type[] parameterTypes) =>
+        public Delegate ResolveFactory(Type typeFrom, object name = null, bool nullResultAllowed = false, params Type[] parameterTypes) =>
             this.activationContext.ActivateFactory(typeFrom, parameterTypes, this, name, nullResultAllowed);
 
         /// <inheritdoc />
-        public Func<TService> ResolveFactory<TService>(string name = null, bool nullResultAllowed = false) =>
+        public Func<TService> ResolveFactory<TService>(object name = null, bool nullResultAllowed = false) =>
             (Func<TService>)this.ResolveFactory(typeof(TService), name, nullResultAllowed);
 
         /// <inheritdoc />
-        public Func<T1, TService> ResolveFactory<T1, TService>(string name = null, bool nullResultAllowed = false) =>
+        public Func<T1, TService> ResolveFactory<T1, TService>(object name = null, bool nullResultAllowed = false) =>
             (Func<T1, TService>)this.ResolveFactory(typeof(TService), name, nullResultAllowed, typeof(T1));
 
         /// <inheritdoc />
-        public Func<T1, T2, TService> ResolveFactory<T1, T2, TService>(string name = null, bool nullResultAllowed = false) =>
+        public Func<T1, T2, TService> ResolveFactory<T1, T2, TService>(object name = null, bool nullResultAllowed = false) =>
             (Func<T1, T2, TService>)this.ResolveFactory(typeof(TService), name, nullResultAllowed, typeof(T1), typeof(T2));
 
         /// <inheritdoc />
-        public Func<T1, T2, T3, TService> ResolveFactory<T1, T2, T3, TService>(string name = null, bool nullResultAllowed = false) =>
+        public Func<T1, T2, T3, TService> ResolveFactory<T1, T2, T3, TService>(object name = null, bool nullResultAllowed = false) =>
             (Func<T1, T2, T3, TService>)this.ResolveFactory(typeof(TService), name, nullResultAllowed, typeof(T1), typeof(T2), typeof(T3));
 
         /// <inheritdoc />
-        public Func<T1, T2, T3, T4, TService> ResolveFactory<T1, T2, T3, T4, TService>(string name = null, bool nullResultAllowed = false) =>
+        public Func<T1, T2, T3, T4, TService> ResolveFactory<T1, T2, T3, T4, TService>(object name = null, bool nullResultAllowed = false) =>
             (Func<T1, T2, T3, T4, TService>)this.ResolveFactory(typeof(TService), name, nullResultAllowed, typeof(T1), typeof(T2), typeof(T3), typeof(T4));
     }
 }

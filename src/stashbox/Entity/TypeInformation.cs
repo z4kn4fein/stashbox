@@ -21,7 +21,7 @@ namespace Stashbox.Entity
         /// <summary>
         /// The name of the dependency.
         /// </summary>
-        public string DependencyName { get; internal set; }
+        public object DependencyName { get; internal set; }
 
         /// <summary>
         /// Custom attributes of the dependency.

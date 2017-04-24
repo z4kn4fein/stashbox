@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using Stashbox.Entity;
 using Stashbox.Infrastructure.Registration;
 using Stashbox.Utils;
 
@@ -36,7 +36,7 @@ namespace Stashbox.Registration
         }
 
         /// <inheritdoc />
-        public KeyValuePair<Type, IServiceRegistration>[] GetDecoratorsOrDefault(Type type) =>
+        public KeyValue<Type, IServiceRegistration>[] GetDecoratorsOrDefault(Type type) =>
              this.repository.GetOrDefault(type)?.Repository;
     }
 }

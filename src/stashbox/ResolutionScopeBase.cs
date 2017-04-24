@@ -38,8 +38,7 @@ namespace Stashbox
 
             var item = new DisposableItem { Item = disposable, Next = this.rootItem };
             var current = this.rootItem;
-            if (!Swap.TrySwapCurrent(ref this.rootItem, current, item))
-                Swap.SwapCurrent(ref this.rootItem, root => new DisposableItem { Item = disposable, Next = root });
+            Swap.SwapValue(ref this.rootItem, current, item, root => new DisposableItem { Item = disposable, Next = root });
 
             return disposable;
         }

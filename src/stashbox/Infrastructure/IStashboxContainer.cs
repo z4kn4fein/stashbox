@@ -48,7 +48,7 @@ namespace Stashbox.Infrastructure
         /// <typeparam name="TFrom">The service type.</typeparam>
         /// <param name="name">The registration name.</param>
         /// <returns>True if the service can be resolved, otherwise false.</returns>
-        bool CanResolve<TFrom>(string name = null);
+        bool CanResolve<TFrom>(object name = null);
 
         /// <summary>
         /// Checks a type can be resolved by the container.
@@ -56,7 +56,7 @@ namespace Stashbox.Infrastructure
         /// <param name="typeFrom">The service type.</param>
         /// <param name="name">The registration name.</param>
         /// <returns>True if the service can be resolved, otherwise false.</returns>
-        bool CanResolve(Type typeFrom, string name = null);
+        bool CanResolve(Type typeFrom, object name = null);
 
         /// <summary>
         /// Builds up an instance, the container will perform injections and extensions on it.
