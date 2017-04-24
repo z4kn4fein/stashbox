@@ -91,6 +91,22 @@ namespace Stashbox.Tests
             }
         }
 
+        [TestMethod]
+        public void InstanceBuilderTests_Multiple()
+        {
+            using (var container = new StashboxContainer())
+            {
+                var dep = new Test();
+                var dep2 = new Test2();
+                container.RegisterInstance(dep);
+                container.RegisterInstance(dep2);
+                container.Resolve<Test>();
+                var inst = container.Resolve<Test2>();
+
+                Assert.AreSame(inst, dep2);
+            }
+        }
+
         public interface ITest { }
 
         public interface ITest1 { ITest Test { get; } }

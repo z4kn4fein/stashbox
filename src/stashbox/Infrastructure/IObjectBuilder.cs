@@ -23,5 +23,11 @@ namespace Stashbox.Infrastructure
         /// Indicates that the object builder is handling the disposal of the produced instance or not.
         /// </summary>
         bool HandlesObjectDisposal { get; }
+
+        /// <summary>
+        /// Produces an <see cref="IObjectBuilder"/>.
+        /// </summary>
+        /// <returns>The <see cref="IObjectBuilder"/> instance.</returns>
+        IObjectBuilder Produce();
     }
 }

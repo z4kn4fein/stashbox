@@ -35,6 +35,8 @@ namespace Stashbox.BuildUp
             }
         }
 
+        public override IObjectBuilder Produce() => new FuncObjectBuilder(base.ContainerContext);
+
         private Expression[] GetFuncParametersWithScope(ParameterInfo[] parameterInfos)
         {
             var length = parameterInfos.Length;

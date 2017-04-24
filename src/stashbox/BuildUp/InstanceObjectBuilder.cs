@@ -30,6 +30,8 @@ namespace Stashbox.BuildUp
             }
         }
 
+        public override IObjectBuilder Produce() => new InstanceObjectBuilder(base.ContainerContext);
+
         public override bool HandlesObjectDisposal => true;
     }
 }

@@ -26,7 +26,7 @@ namespace Stashbox.BuildUp
             {
                 if (this.expression != null) return this.expression;
 
-                var expr = this.expressionBuilder.CreateFillExpression(serviceRegistration, Expression.Constant(serviceRegistration.RegistrationContext.ExistingInstance), 
+                var expr = this.expressionBuilder.CreateFillExpression(serviceRegistration, Expression.Constant(serviceRegistration.RegistrationContext.ExistingInstance),
                     resolutionInfo, serviceRegistration.ImplementationType);
                 var factory = expr.CompileDelegate(Constants.ScopeExpression);
 
@@ -38,6 +38,8 @@ namespace Stashbox.BuildUp
                 return this.expression = Expression.Constant(factory(resolutionInfo.ResolutionScope));
             }
         }
+
+        public override IObjectBuilder Produce() => new WireUpObjectBuilder(base.ContainerContext, this.expressionBuilder);
 
         public override bool HandlesObjectDisposal => true;
     }

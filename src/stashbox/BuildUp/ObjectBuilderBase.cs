@@ -71,5 +71,7 @@ namespace Stashbox.BuildUp
         protected abstract Expression GetExpressionInternal(IServiceRegistration serviceRegistration, ResolutionInfo resolutionInfo, Type resolveType);
 
         public virtual bool HandlesObjectDisposal => false;
+
+        public virtual IObjectBuilder Produce() => this;
     }
 }
