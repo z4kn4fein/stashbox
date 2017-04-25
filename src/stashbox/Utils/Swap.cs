@@ -30,7 +30,7 @@ namespace Stashbox.Utils
             {
                 counter++;
 
-                if (counter > 40)
+                if (counter > 50)
                     throw new InvalidOperationException("Swap quota exceeded.");
 
                 if (counter > 20)

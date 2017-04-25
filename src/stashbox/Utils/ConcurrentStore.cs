@@ -104,9 +104,10 @@ namespace Stashbox.Utils
         public ConcurrentOrderedKeyStore<TKey, TContent> AddOrUpdate(TKey key, TContent value, bool allowUpdate = true)
         {
             var current = this.repository;
-            var newRepo = this.repository.AddOrUpdate(key, value, allowUpdate);
+            var newRepo = this.repository.AddOrUpdate(key, value, out bool changed, allowUpdate);
 
-            Swap.SwapValue(ref this.repository, current, newRepo, repo => repo.AddOrUpdate(key, value, allowUpdate));
+            if (changed)
+                Swap.SwapValue(ref this.repository, current, newRepo, repo => repo.AddOrUpdate(key, value, out changed, allowUpdate));
 
             return this;
         }

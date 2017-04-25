@@ -98,7 +98,7 @@ namespace Stashbox.Utils
         {
             if (ReferenceEquals(key, this.storedKey) || key.Equals(this.storedKey))
             {
-                updated = true;
+                updated = this.storedValue != null;
                 return updateDelegate == null ? this : new AvlTreeKeyValue<TKey, TValue>(hash, key,
                     updateDelegate(this.storedValue, value), this.leftNode, this.rightNode, this.collisions);
             }

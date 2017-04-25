@@ -289,6 +289,23 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public async Task FuncTests_Register_FuncDelegate_Async_Longrun()
+        {
+            var container = new StashboxContainer();
+            var test = new Test();
+            container.RegisterInstance(test);
+            container.RegisterFunc(async resolver =>
+            {
+                await Task.Delay(1000);
+                return resolver.Resolve<Test>();
+            });
+
+            var inst = await container.Resolve<Func<Task<Test>>>()();
+
+            Assert.AreSame(test, inst);
+        }
+
+        [TestMethod]
         public void FuncTests_Register_Named()
         {
             var container = new StashboxContainer();
@@ -319,9 +336,9 @@ namespace Stashbox.Tests
 
             Parallel.For(0, 5000, i =>
             {
-                container.RegisterFunc<ITest>(resolver => new Test());
+                container.RegisterFunc<ITest>(resolver => new Test(), i.ToString());
 
-                var test = container.Resolve<Func<ITest>>()();
+                var test = container.Resolve<Func<ITest>>(i.ToString())();
 
                 Assert.IsNotNull(test);
             });

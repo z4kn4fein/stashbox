@@ -85,7 +85,7 @@ namespace Stashbox.Utils
         public ArrayStoreKeyed<TKey, TValue> Add(TKey key, TValue value) =>
            new ArrayStoreKeyed<TKey, TValue>(new KeyValue<TKey, TValue>(key, value), this.Repository);
 
-        public ArrayStoreKeyed<TKey, TValue> AddOrUpdate(TKey key, TValue value, out bool updated, bool allowUpdate = true)
+        public ArrayStoreKeyed<TKey, TValue> AddOrUpdate(TKey key, TValue value, out bool updated, out bool changed, bool allowUpdate = true)
         {
             var length = this.Repository.Length;
             var count = length - 1;
@@ -94,12 +94,14 @@ namespace Stashbox.Utils
             if (count == -1)
             {
                 updated = false;
+                changed = true;
                 return this.Add(key, value);
             }
 
             if (!allowUpdate)
             {
                 updated = false;
+                changed = false;
                 return this;
             }
 
@@ -107,11 +109,12 @@ namespace Stashbox.Utils
             Array.Copy(this.Repository, newRepository, length);
             newRepository[count] = new KeyValue<TKey, TValue>(key, value);
             updated = true;
+            changed = true;
             return new ArrayStoreKeyed<TKey, TValue>(newRepository);
         }
 
-        public ArrayStoreKeyed<TKey, TValue> AddOrUpdate(TKey key, TValue value, bool allowUpdate = true) =>
-            this.AddOrUpdate(key, value, out bool updated, allowUpdate);
+        public ArrayStoreKeyed<TKey, TValue> AddOrUpdate(TKey key, TValue value, out bool changed, bool allowUpdate = true) =>
+            this.AddOrUpdate(key, value, out bool updated, out changed, allowUpdate);
 
         public TValue GetOrDefault(TKey key)
         {
