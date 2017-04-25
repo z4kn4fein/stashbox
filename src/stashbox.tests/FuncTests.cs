@@ -301,6 +301,18 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void FuncTests_Register_Multiple()
+        {
+            var container = new StashboxContainer();
+
+            container.RegisterFunc<ITest>(resolver => new Test());
+            container.RegisterFunc(resolver => new Dep1());
+
+            container.Resolve<Func<ITest>>();
+            container.Resolve<Func<Dep1>>();
+        }
+
+        [TestMethod]
         public void FuncTests_Register_Parallel()
         {
             var container = new StashboxContainer();

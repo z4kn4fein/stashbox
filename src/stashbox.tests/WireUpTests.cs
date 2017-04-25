@@ -8,6 +8,25 @@ namespace Stashbox.Tests
     public class WireUpTests
     {
         [TestMethod]
+        public void WireUp_Multiple()
+        {
+            using (var container = new StashboxContainer())
+            {
+                var test1 = new Test1();
+                container.WireUp<ITest1>(test1);
+
+                var test2 = new Test();
+                container.WireUp<ITest>(test2);
+
+                var inst = container.Resolve<ITest1>();
+                var inst2 = container.Resolve<ITest>();
+
+                Assert.AreSame(test1, inst);
+                Assert.AreSame(test2, inst2);
+            }
+        }
+
+        [TestMethod]
         public void InjectionMemberTests_WireUp()
         {
             using (var container = new StashboxContainer())
