@@ -152,6 +152,19 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void GenericTests_Resolve_Constraint_Multiple()
+        {
+            using (var container = new StashboxContainer())
+            {
+                container.RegisterType(typeof(IConstraintTest<>), typeof(ConstraintTest<>));
+                container.RegisterType(typeof(IConstraintTest<>), typeof(ConstraintTest2<>));
+
+                var inst = container.Resolve<IConstraintTest<ConstraintArgument>>();
+                Assert.IsInstanceOfType(inst, typeof(ConstraintTest<ConstraintArgument>));
+            }
+        }
+
+        [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
         public void GenericTests_Resolve_Constraint()
         {

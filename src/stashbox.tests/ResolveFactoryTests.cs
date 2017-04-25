@@ -18,6 +18,19 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void ResolveFactoryTests_ParameterLess_Named()
+        {
+            using (var container = new StashboxContainer())
+            {
+                container.RegisterType<IService, Service>(c => c.WithName("service"));
+                container.RegisterType<IService, Service1>(c => c.WithName("service1"));
+                var factory = container.ResolveFactory<IService>("service");
+
+                Assert.IsInstanceOfType(factory(), typeof(Service));
+            }
+        }
+
+        [TestMethod]
         public void ResolveFactoryTests_ParameterLess_Scoped()
         {
             using (var container = new StashboxContainer())
@@ -192,6 +205,15 @@ namespace Stashbox.Tests
                 }
             }
         }
+
+        public interface IService
+        { }
+
+        public class Service : IService
+        { }
+
+        public class Service1 : IService
+        { }
 
         public class Test
         { }

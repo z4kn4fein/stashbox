@@ -284,8 +284,10 @@ namespace Stashbox.Tests
             container.RegisterFunc(async resolver => await Task.FromResult(resolver.Resolve<Test>()));
 
             var inst = await container.Resolve<Func<Task<Test>>>()();
+            var inst2 = await container.Resolve<Func<Task<Test>>>()();
 
             Assert.AreSame(test, inst);
+            Assert.AreSame(inst, inst2);
         }
 
         [TestMethod]
