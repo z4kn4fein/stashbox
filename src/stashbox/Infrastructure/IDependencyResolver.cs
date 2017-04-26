@@ -13,10 +13,26 @@ namespace Stashbox.Infrastructure
         /// Resolves an instance from the container.
         /// </summary>
         /// <typeparam name="TKey">The type of the requested instance.</typeparam>
+        /// <param name="nullResultAllowed">If true, the container will return with null instead of throwing <see cref="ResolutionFailedException"/>.</param>
+        /// <returns>The resolved object.</returns>
+        TKey Resolve<TKey>(bool nullResultAllowed = false);
+
+        /// <summary>
+        /// Resolves an instance from the container.
+        /// </summary>
+        /// <param name="typeFrom">The type of the requested instance.</param>
+        /// <param name="nullResultAllowed">If true, the container will return with null instead of throwing <see cref="ResolutionFailedException"/>.</param>
+        /// <returns>The resolved object.</returns>
+        object Resolve(Type typeFrom, bool nullResultAllowed = false);
+
+        /// <summary>
+        /// Resolves an instance from the container.
+        /// </summary>
+        /// <typeparam name="TKey">The type of the requested instance.</typeparam>
         /// <param name="name">The name of the requested registration.</param>
         /// <param name="nullResultAllowed">If true, the container will return with null instead of throwing <see cref="ResolutionFailedException"/>.</param>
         /// <returns>The resolved object.</returns>
-        TKey Resolve<TKey>(object name = null, bool nullResultAllowed = false);
+        TKey Resolve<TKey>(object name, bool nullResultAllowed = false);
 
         /// <summary>
         /// Resolves an instance from the container.
@@ -25,7 +41,7 @@ namespace Stashbox.Infrastructure
         /// <param name="name">The name of the requested registration.</param>
         /// <param name="nullResultAllowed">If true, the container will return with null instead of throwing <see cref="ResolutionFailedException"/>.</param>
         /// <returns>The resolved object.</returns>
-        object Resolve(Type typeFrom, object name = null, bool nullResultAllowed = false);
+        object Resolve(Type typeFrom, object name, bool nullResultAllowed = false);
 
         /// <summary>
         /// Resolves all registered types of a service.

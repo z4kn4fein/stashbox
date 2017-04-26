@@ -21,9 +21,15 @@ namespace Stashbox.Resolution
             this.rootScope = rootScope;
         }
 
-        public object Activate(Type type, IResolutionScope resolutionScope, object name = null, bool nullResultAllowed = false)
+        public object Activate(Type type, IResolutionScope resolutionScope, bool nullResultAllowed = false)
         {
-            var cachedFactory = this.containerContext.DelegateRepository.GetDelegateCacheOrDefault(type, name);
+            var cachedFactory = this.containerContext.DelegateRepository.GetDelegateCacheOrDefault(type);
+            return cachedFactory != null ? cachedFactory(resolutionScope) : this.Activate(ResolutionInfo.New(resolutionScope, this.rootScope, nullResultAllowed), type);
+        }
+
+        public object Activate(Type type, IResolutionScope resolutionScope, object name, bool nullResultAllowed = false)
+        {
+            var cachedFactory = this.containerContext.DelegateRepository.GetDelegateCacheOrDefault(name);
             return cachedFactory != null ? cachedFactory(resolutionScope) : this.Activate(ResolutionInfo.New(resolutionScope, this.rootScope, nullResultAllowed), type, name);
         }
 

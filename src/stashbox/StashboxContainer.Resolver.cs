@@ -6,11 +6,19 @@ namespace Stashbox
     public partial class StashboxContainer
     {
         /// <inheritdoc />
-        public TKey Resolve<TKey>(object name = null, bool nullResultAllowed = false) =>
+        public TKey Resolve<TKey>(bool nullResultAllowed = false) =>
+            (TKey)this.activationContext.Activate(typeof(TKey), this, nullResultAllowed);
+
+        /// <inheritdoc />
+        public object Resolve(Type typeFrom, bool nullResultAllowed = false) =>
+            this.activationContext.Activate(typeFrom, this, nullResultAllowed);
+
+        /// <inheritdoc />
+        public TKey Resolve<TKey>(object name, bool nullResultAllowed = false) =>
             (TKey)this.activationContext.Activate(typeof(TKey), this, name, nullResultAllowed);
 
         /// <inheritdoc />
-        public object Resolve(Type typeFrom, object name = null, bool nullResultAllowed = false) =>
+        public object Resolve(Type typeFrom, object name, bool nullResultAllowed = false) =>
             this.activationContext.Activate(typeFrom, this, name, nullResultAllowed);
 
         /// <inheritdoc />

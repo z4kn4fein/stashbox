@@ -11,9 +11,15 @@ namespace Stashbox.Infrastructure
         /// Gets a cached factory method for a type.
         /// </summary>
         /// <param name="type">The service type.</param>
+        /// <returns>The cached factory delegate.</returns>
+        Func<IResolutionScope, object> GetDelegateCacheOrDefault(Type type);
+
+        /// <summary>
+        /// Gets a cached factory method for a type.
+        /// </summary>
         /// <param name="name">The service name.</param>
         /// <returns>The cached factory delegate.</returns>
-        Func<IResolutionScope, object> GetDelegateCacheOrDefault(Type type, object name = null);
+        Func<IResolutionScope, object> GetDelegateCacheOrDefault(object name);
 
         /// <summary>
         /// Gets a cached factory method.
