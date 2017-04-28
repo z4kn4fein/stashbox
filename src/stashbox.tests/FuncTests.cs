@@ -332,6 +332,21 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void FuncTests_Register_Multiple_ReMap()
+        {
+            var container = new StashboxContainer();
+
+            container.RegisterType<ITest, Test>();
+            container.RegisterFunc(resolver => resolver.Resolve<ITest>());
+
+            Assert.IsNotNull(container.Resolve<Func<ITest>>()());
+
+            container.ReMap<ITest, Test>();
+
+            Assert.IsNotNull(container.Resolve<Func<ITest>>()());
+        }
+
+        [TestMethod]
         public void FuncTests_Register_Parallel()
         {
             var container = new StashboxContainer();
