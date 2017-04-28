@@ -2,7 +2,6 @@
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.ContainerExtension;
 using Stashbox.Infrastructure.Registration;
-using Stashbox.Utils;
 
 namespace Stashbox.Registration
 {
@@ -49,9 +48,7 @@ namespace Stashbox.Registration
             }
             else
             {
-                var name = registration.RegistrationContext.Name ??
-                           NameGenerator.GetRegistrationName(registration.ImplementationType,
-                               registration.RegistrationContext.Name);
+                var name = registration.RegistrationContext.Name ?? registration.ImplementationType;
                 this.containerContext.RegistrationRepository.AddOrUpdateRegistration(registration, name, false, replace);
             }
 
@@ -74,9 +71,7 @@ namespace Stashbox.Registration
                     true, false);
             else
             {
-                var name = registration.RegistrationContext.Name ??
-                           NameGenerator.GetRegistrationName(registration.ImplementationType,
-                               registration.RegistrationContext.Name);
+                var name = registration.RegistrationContext.Name ?? registration.ImplementationType;
                 this.containerContext.RegistrationRepository.AddOrUpdateRegistration(registration, name, true, false);
             }
 
@@ -119,13 +114,11 @@ namespace Stashbox.Registration
             if (meta.Context.ExistingInstance != null)
                 return this.objectBuilderSelector.Get(ObjectBuilder.Instance);
 
-            if (meta.Context.ContainerFactory != null)
-                return this.objectBuilderSelector.Get(ObjectBuilder.Factory);
-
-            if (meta.Context.SingleFactory != null)
-                return this.objectBuilderSelector.Get(ObjectBuilder.Factory);
-
-            return this.objectBuilderSelector.Get(ObjectBuilder.Default);
+            return meta.Context.ContainerFactory != null ?
+                this.objectBuilderSelector.Get(ObjectBuilder.Factory) :
+                    this.objectBuilderSelector.Get(meta.Context.SingleFactory != null ?
+                        ObjectBuilder.Factory :
+                            ObjectBuilder.Default);
         }
 
         private IServiceRegistration ProduceServiceRegistration(IObjectBuilder objectBuilder, IRegistrationContextMeta meta, bool isDecorator, bool shouldHandleDisposal)
@@ -134,7 +127,6 @@ namespace Stashbox.Registration
                 objectBuilder, meta.Context, isDecorator, shouldHandleDisposal);
         }
 
-        private ILifetime ChooseLifeTime(IRegistrationContextMeta meta) => meta.Context.ExistingInstance != null ? null :
-            meta.Context.Lifetime;
+        private ILifetime ChooseLifeTime(IRegistrationContextMeta meta) => meta.Context.ExistingInstance != null ? null : meta.Context.Lifetime;
     }
 }

@@ -1,7 +1,6 @@
 ﻿using System;
 using Stashbox.Infrastructure;
 using Stashbox.Registration;
-using Stashbox.Utils;
 
 namespace Stashbox
 {
@@ -39,7 +38,7 @@ namespace Stashbox
                 this.ContainerContext, this.objectBuilderSelector.Get(ObjectBuilder.Func),
                 data, false, false);
 
-            this.registrationRepository.AddOrUpdateRegistration(registration, NameGenerator.GetRegistrationName(internalFactoryType, name), false, false);
+            this.registrationRepository.AddOrUpdateRegistration(registration, name ?? (object)internalFactoryType, false, false);
             this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.ContainerContext, factoryType, internalFactoryType);
             return this;
         }

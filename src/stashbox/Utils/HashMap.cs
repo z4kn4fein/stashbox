@@ -2,20 +2,17 @@
 
 namespace Stashbox.Utils
 {
-    internal class HashMap<TKey, TValue>
+    public class HashMap<TKey, TValue>
     {
         private readonly int arraySize;
         protected readonly int IndexBound;
-        private readonly AvlTreeKeyValue<TKey, TValue>[] array;
+        private AvlTreeKeyValue<TKey, TValue>[] array;
 
         public HashMap(int arraySize = 64)
         {
             this.arraySize = arraySize;
             this.IndexBound = arraySize - 1;
             this.array = new AvlTreeKeyValue<TKey, TValue>[arraySize];
-
-            for (var i = 0; i < arraySize; i++)
-                this.array[i] = AvlTreeKeyValue<TKey, TValue>.Empty;
         }
 
         [MethodImpl(Constants.Inline)]
@@ -23,7 +20,17 @@ namespace Stashbox.Utils
         {
             var hash = key.GetHashCode();
 
-            return this.array[hash & this.IndexBound].GetOrDefault(hash, key);
+            var tree = this.array[hash & this.IndexBound];
+            if (tree == null)
+                return default(TValue);
+
+            while (!tree.IsEmpty && tree.StoredHash != hash)
+                tree = hash < tree.StoredHash ? tree.LeftNode : tree.RightNode;
+
+            if (!tree.IsEmpty && (ReferenceEquals(key, tree.StoredKey) || key.Equals(tree.StoredKey)))
+                return tree.Value;
+
+            return tree.Collisions.GetOrDefault(key);
         }
 
         [MethodImpl(Constants.Inline)]
@@ -31,20 +38,12 @@ namespace Stashbox.Utils
         {
             var hash = key.GetHashCode();
 
-            var index = hash & this.IndexBound;
+            var treeIndex = hash & this.IndexBound;
 
-            var tree = this.array[index];
-            var newTree = tree.AddOrUpdate(hash, key, value);
-
-            Swap.SwapValue(ref this.array[index], tree, newTree, root => root.AddOrUpdate(hash, key, value));
+            var tree = this.array[treeIndex] ?? AvlTreeKeyValue<TKey, TValue>.Empty;
+            this.array[treeIndex] = tree.AddOrUpdate(hash, key, value);
         }
 
-        public void Clear() => this.Init();
-
-        private void Init()
-        {
-            for (var i = 0; i < this.arraySize; i++)
-                this.array[i] = AvlTreeKeyValue<TKey, TValue>.Empty;
-        }
+        public void Clear() => this.array = new AvlTreeKeyValue<TKey, TValue>[this.arraySize];
     }
 }

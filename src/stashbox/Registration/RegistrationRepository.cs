@@ -41,7 +41,10 @@ namespace Stashbox.Registration
         public IEnumerable<KeyValue<object, IServiceRegistration>> GetRegistrationsOrDefault(Type type)
         {
             var registrations = this.serviceRepository.GetOrDefault(type);
-            if (registrations != null || !type.IsClosedGenericType()) return registrations?.Repository;
+
+            if (registrations != null) return registrations.Repository;
+
+            if (!type.IsClosedGenericType()) return null;
 
             var generics = this.serviceRepository.GetOrDefault(type.GetGenericTypeDefinition());
             return generics?.Repository.Where(reg => reg.Value.ValidateGenericContraints(type));
