@@ -2,7 +2,7 @@
 
 namespace Stashbox.Utils
 {
-    public class HashMap<TKey, TValue>
+    internal class HashMap<TKey, TValue>
     {
         private readonly int arraySize;
         protected readonly int IndexBound;
