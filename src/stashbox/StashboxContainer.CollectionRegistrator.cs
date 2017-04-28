@@ -95,6 +95,25 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
+        public IDependencyRegistrator RegisterAssemblyAsSelf(Assembly assembly, Func<Type, bool> selector = null, Action<IFluentServiceRegistrator> configurator = null)
+        {
+            Shield.EnsureNotNull(assembly, nameof(assembly));
+
+            return this.RegisterTypesAsSelf(assembly.CollectExportedTypes(), selector, configurator);
+        }
+
+        /// <inheritdoc />
+        public IDependencyRegistrator RegisterAssembliesAsSelf(IEnumerable<Assembly> assemblies, Func<Type, bool> selector = null, Action<IFluentServiceRegistrator> configurator = null)
+        {
+            Shield.EnsureNotNull(assemblies, nameof(assemblies));
+
+            foreach (var assembly in assemblies)
+                this.RegisterAssemblyAsSelf(assembly, selector, configurator);
+
+            return this;
+        }
+
+        /// <inheritdoc />
         public IDependencyRegistrator RegisterAssemblyContaining<TFrom>(Func<Type, bool> selector = null, Action<IFluentServiceRegistrator> configurator = null)
              where TFrom : class =>
              this.RegisterAssemblyContaining(typeof(TFrom), selector, configurator);
@@ -105,6 +124,19 @@ namespace Stashbox
             Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
 
             return this.RegisterAssembly(typeFrom.GetTypeInfo().Assembly, selector, configurator);
+        }
+
+        /// <inheritdoc />
+        public IDependencyRegistrator RegisterAssemblyAsSelfContaining<TFrom>(Func<Type, bool> selector = null, Action<IFluentServiceRegistrator> configurator = null)
+             where TFrom : class =>
+             this.RegisterAssemblyAsSelfContaining(typeof(TFrom), selector, configurator);
+
+        /// <inheritdoc />
+        public IDependencyRegistrator RegisterAssemblyAsSelfContaining(Type typeFrom, Func<Type, bool> selector = null, Action<IFluentServiceRegistrator> configurator = null)
+        {
+            Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
+
+            return this.RegisterAssemblyAsSelf(typeFrom.GetTypeInfo().Assembly, selector, configurator);
         }
 
         /// <inheritdoc />
@@ -130,7 +162,7 @@ namespace Stashbox
             Shield.EnsureNotNull(assembly, nameof(assembly));
 
             var compositionRootTypes = assembly.CollectDefinedTypes().Where(type => !type.GetTypeInfo().IsAbstract && type.IsCompositionRoot()).ToArray();
-            
+
             var length = compositionRootTypes.Length;
 
             if (length == 0)
