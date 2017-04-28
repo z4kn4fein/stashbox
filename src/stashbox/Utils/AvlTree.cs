@@ -62,7 +62,7 @@ namespace Stashbox.Utils
 
             if (hash == this.storedHash)
             {
-                updated = true;
+                updated = this.storedValue != null;
                 return updateDelegate == null ? this : new AvlTree<TValue>(hash, updateDelegate(this.storedValue, value), this.leftNode, this.rightNode);
             }
 
