@@ -41,7 +41,7 @@ namespace Stashbox
             config?.Invoke(configurator);
 
             this.registrationRepository = new RegistrationRepository();
-            this.ContainerContext = new ContainerContext(this.registrationRepository, new DelegateRepository(), this, 
+            this.ContainerContext = new ContainerContext(this.registrationRepository, new DelegateRepository(), this,
                 new ResolutionStrategy(this.resolverSelector), configurator, new DecoratorRepository());
             this.activationContext = new Resolution.ActivationContext(this.ContainerContext, this.resolverSelector, this);
             this.expressionBuilder = new ExpressionBuilder(this.ContainerContext, this.containerExtensionManager);
@@ -58,8 +58,8 @@ namespace Stashbox
             this.containerExtensionManager = containerExtensionManager;
             this.resolverSelector = resolverSelector;
             this.registrationRepository = new RegistrationRepository();
-            this.ContainerContext = new ContainerContext(this.registrationRepository, new DelegateRepository(), this,  
-                new ResolutionStrategy(this.resolverSelector), parentContainer.ContainerContext.ContainerConfigurator, 
+            this.ContainerContext = new ContainerContext(this.registrationRepository, new DelegateRepository(), this,
+                new ResolutionStrategy(this.resolverSelector), parentContainer.ContainerContext.ContainerConfigurator,
                 parentContainer.ContainerContext.DecoratorRepository);
             this.activationContext = new Resolution.ActivationContext(this.ContainerContext, this.resolverSelector, this);
             this.containerExtensionManager.ReinitalizeExtensions(this.ContainerContext);
@@ -67,7 +67,7 @@ namespace Stashbox
             this.objectBuilderSelector = new ObjectBuilderSelector(this.ContainerContext, this.expressionBuilder);
             this.ServiceRegistrator = new ServiceRegistrator(this.ContainerContext, this.containerExtensionManager, this.objectBuilderSelector);
         }
-        
+
         /// <inheritdoc />
         public void RegisterExtension(IContainerExtension containerExtension)
         {
@@ -122,8 +122,6 @@ namespace Stashbox
             this.resolverSelector.AddResolver(new FuncResolver());
             this.resolverSelector.AddResolver(new TupleResolver());
             this.resolverSelector.AddResolver(new DefaultValueResolver());
-            this.resolverSelector.AddResolver(new UnknownTypeResolver());
-            this.resolverSelector.AddResolver(new ParentContainerResolver());
         }
 
         /// <inheritdoc />

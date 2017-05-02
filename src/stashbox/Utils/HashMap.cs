@@ -26,11 +26,8 @@ namespace Stashbox.Utils
 
             while (!tree.IsEmpty && tree.StoredHash != hash)
                 tree = hash < tree.StoredHash ? tree.LeftNode : tree.RightNode;
-
-            if (!tree.IsEmpty && (ReferenceEquals(key, tree.StoredKey) || key.Equals(tree.StoredKey)))
-                return tree.Value;
-
-            return tree.Collisions.GetOrDefault(key);
+            return !tree.IsEmpty && (ReferenceEquals(key, tree.StoredKey) || key.Equals(tree.StoredKey)) ?
+                tree.Value : tree.Collisions.GetOrDefault(key);
         }
 
         [MethodImpl(Constants.Inline)]
