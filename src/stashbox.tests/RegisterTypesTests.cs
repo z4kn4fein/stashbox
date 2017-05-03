@@ -38,7 +38,7 @@ namespace Stashbox.Tests
         public void RegisterTypesTests_RegisterTypesAsSelf_Selector()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterTypesAsSelf(new[] { typeof(Test1), typeof(Test11), typeof(Test12) }, type => type == typeof(Test12));
+            container.RegisterTypes(new[] { typeof(Test1), typeof(Test11), typeof(Test12) }, type => type == typeof(Test12));
 
             Assert.IsNotNull(container.Resolve<Test12>());
         }
@@ -59,11 +59,11 @@ namespace Stashbox.Tests
         public void RegisterTypesTests_RegisterTypesAsSelf_Scoped_Selector()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterTypesAsSelf(new[] { typeof(Test1), typeof(Test11), typeof(Test12) }, type => type == typeof(Test12), context => context.WithScopedLifetime());
+            container.RegisterTypes(new[] { typeof(Test1), typeof(Test11), typeof(Test12) }, type => type == typeof(Test12), context => context.WithScopedLifetime());
 
             var regs = container.ContainerContext.RegistrationRepository.GetAllRegistrations().ToArray();
 
-            Assert.AreEqual(1, regs.Length);
+            Assert.AreEqual(4, regs.Length);
             Assert.IsTrue(regs.All(reg => reg.RegistrationContext.Lifetime is ScopedLifetime));
         }
 
@@ -134,7 +134,7 @@ namespace Stashbox.Tests
         public void RegisterTypesTests_RegisterAssembly_AsSelf()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterAssemblyAsSelfContaining<ITest1>();
+            container.RegisterAssemblyContaining<ITest1>();
 
             var regs = container.ContainerContext.RegistrationRepository.GetAllRegistrations().ToArray();
 
@@ -166,7 +166,7 @@ namespace Stashbox.Tests
             var assembly1 = typeof(ITest1).GetTypeInfo().Assembly;
             var assembly2 = typeof(IStashboxContainer).GetTypeInfo().Assembly;
 
-            container.RegisterAssembliesAsSelf(new[] { assembly1, assembly2 });
+            container.RegisterAssemblies(new[] { assembly1, assembly2 });
 
             var regs = container.ContainerContext.RegistrationRepository.GetAllRegistrations();
 
@@ -181,23 +181,11 @@ namespace Stashbox.Tests
             container.RegisterAssemblyContaining<ITest1>(type => type == typeof(Test));
 
             var regs = container.ContainerContext.RegistrationRepository.GetAllRegistrations();
-
-            Assert.IsTrue(regs.Any());
-            Assert.IsTrue(regs.All(reg => reg.ServiceType == typeof(ITest)));
+            
+            Assert.IsTrue(regs.Any(reg => reg.ServiceType == typeof(ITest)));
+            Assert.IsTrue(regs.Any(reg => reg.ServiceType == typeof(Test)));
         }
-
-        [TestMethod]
-        public void RegisterTypesTests_RegisterAssembly_Selector_AsSelf()
-        {
-            IStashboxContainer container = new StashboxContainer();
-            container.RegisterAssemblyAsSelfContaining<ITest1>(type => type == typeof(Test));
-
-            var regs = container.ContainerContext.RegistrationRepository.GetAllRegistrations();
-
-            Assert.IsTrue(regs.Any());
-            Assert.IsTrue(regs.All(reg => reg.ServiceType == typeof(Test)));
-        }
-
+        
         [TestMethod]
         public void RegisterTypesTests_RegisterAssembly_Configurator()
         {
@@ -217,7 +205,7 @@ namespace Stashbox.Tests
         public void RegisterTypesTests_RegisterAssembly_Configurator_AsSelf()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterAssemblyAsSelfContaining<ITest1>(configurator: context =>
+            container.RegisterAssemblyContaining<ITest1>(configurator: context =>
             {
                 if (context.ServiceType == typeof(Test1))
                     context.WithScopedLifetime();

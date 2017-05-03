@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Stashbox;
 
 #if NET40
@@ -38,6 +39,13 @@ namespace System.Reflection
         {
             var attrType = typeof(TAttribute);
             var attributes = field.GetCustomAttributes(attrType, false);
+            return (TAttribute)attributes.FirstOrDefault();
+        }
+
+        public static TAttribute GetCustomAttribute<TAttribute>(this TypeInfo typeInfo) where TAttribute : Attribute
+        {
+            var attrType = typeof(TAttribute);
+            var attributes = typeInfo.GetCustomAttributes(attrType, false);
             return (TAttribute)attributes.FirstOrDefault();
         }
 
@@ -120,11 +128,23 @@ namespace System
         public static bool IsValidForRegistration(this Type type)
         {
             var typeInfo = type.GetTypeInfo();
-            return !typeInfo.IsAbstract && !typeInfo.IsInterface;
+            return !typeInfo.IsAbstract && !typeInfo.IsInterface && typeInfo.GetCustomAttribute<CompilerGeneratedAttribute>() == null;
         }
 
         public static IEnumerable<Type> GetRegisterableInterfaceTypes(this Type type) =>
             type.GetTypeInfo().ImplementedInterfaces.Where(t => t != Constants.DisposableType);
+
+        public static IEnumerable<Type> GetRegisterableBaseTypes(this Type type)
+        {
+            var baseType = type;
+            while (!baseType.IsObjectType() && baseType != null)
+            {
+                yield return baseType;
+                baseType = baseType.GetTypeInfo().BaseType;
+            }
+        }
+
+        public static bool IsObjectType(this Type type) => type == Constants.ObjectType;
 
         public static bool Implements(this Type type, Type interfaceType) =>
             interfaceType.GetTypeInfo().IsAssignableFrom(type.GetTypeInfo());

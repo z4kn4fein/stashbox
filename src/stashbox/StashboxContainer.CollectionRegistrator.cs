@@ -25,31 +25,13 @@ namespace Stashbox
             if (selector != null)
                 types = types.Where(selector);
 
-            foreach (var type in types.Where(t => t.IsValidForRegistration() && t.Implements(typeFrom)))
+            var validTypes = types.Where(t => t.IsValidForRegistration() && t.Implements(typeFrom));
+            foreach (var type in validTypes)
             {
                 if (configurator == null)
                     this.RegisterType(typeFrom, type);
                 else
                     this.RegisterType(typeFrom, type, configurator);
-            }
-
-            return this;
-        }
-
-        /// <inheritdoc />
-        public IDependencyRegistrator RegisterTypesAsSelf(IEnumerable<Type> types, Func<Type, bool> selector = null, Action<IFluentServiceRegistrator> configurator = null)
-        {
-            Shield.EnsureNotNull(types, nameof(types));
-
-            if (selector != null)
-                types = types.Where(selector);
-
-            foreach (var type in types.Where(t => t.IsValidForRegistration()))
-            {
-                if (configurator == null)
-                    this.RegisterType(type);
-                else
-                    this.RegisterType(type, configurator);
             }
 
             return this;
@@ -63,7 +45,9 @@ namespace Stashbox
             if (selector != null)
                 types = types.Where(selector);
 
-            foreach (var type in types.Where(t => t.IsValidForRegistration()))
+            var validTypes = types.Where(t => t.IsValidForRegistration());
+            foreach (var type in validTypes)
+            {
                 foreach (var interfaceType in type.GetRegisterableInterfaceTypes())
                 {
                     if (configurator == null)
@@ -71,6 +55,20 @@ namespace Stashbox
                     else
                         this.RegisterType(interfaceType, type, configurator);
                 }
+
+                foreach (var baseType in type.GetRegisterableBaseTypes())
+                {
+                    if (configurator == null)
+                        this.RegisterType(baseType, type);
+                    else
+                        this.RegisterType(baseType, type, configurator);
+                }
+
+                if (configurator == null)
+                    this.RegisterType(type);
+                else
+                    this.RegisterType(type, configurator);
+            }
 
             return this;
         }
@@ -93,26 +91,7 @@ namespace Stashbox
 
             return this;
         }
-
-        /// <inheritdoc />
-        public IDependencyRegistrator RegisterAssemblyAsSelf(Assembly assembly, Func<Type, bool> selector = null, Action<IFluentServiceRegistrator> configurator = null)
-        {
-            Shield.EnsureNotNull(assembly, nameof(assembly));
-
-            return this.RegisterTypesAsSelf(assembly.CollectExportedTypes(), selector, configurator);
-        }
-
-        /// <inheritdoc />
-        public IDependencyRegistrator RegisterAssembliesAsSelf(IEnumerable<Assembly> assemblies, Func<Type, bool> selector = null, Action<IFluentServiceRegistrator> configurator = null)
-        {
-            Shield.EnsureNotNull(assemblies, nameof(assemblies));
-
-            foreach (var assembly in assemblies)
-                this.RegisterAssemblyAsSelf(assembly, selector, configurator);
-
-            return this;
-        }
-
+        
         /// <inheritdoc />
         public IDependencyRegistrator RegisterAssemblyContaining<TFrom>(Func<Type, bool> selector = null, Action<IFluentServiceRegistrator> configurator = null)
              where TFrom : class =>
@@ -125,20 +104,7 @@ namespace Stashbox
 
             return this.RegisterAssembly(typeFrom.GetTypeInfo().Assembly, selector, configurator);
         }
-
-        /// <inheritdoc />
-        public IDependencyRegistrator RegisterAssemblyAsSelfContaining<TFrom>(Func<Type, bool> selector = null, Action<IFluentServiceRegistrator> configurator = null)
-             where TFrom : class =>
-             this.RegisterAssemblyAsSelfContaining(typeof(TFrom), selector, configurator);
-
-        /// <inheritdoc />
-        public IDependencyRegistrator RegisterAssemblyAsSelfContaining(Type typeFrom, Func<Type, bool> selector = null, Action<IFluentServiceRegistrator> configurator = null)
-        {
-            Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
-
-            return this.RegisterAssemblyAsSelf(typeFrom.GetTypeInfo().Assembly, selector, configurator);
-        }
-
+        
         /// <inheritdoc />
         public IDecoratorRegistrator ComposeBy<TCompositionRoot>()
             where TCompositionRoot : ICompositionRoot, new() =>

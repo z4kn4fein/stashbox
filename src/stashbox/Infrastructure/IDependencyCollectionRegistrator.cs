@@ -32,15 +32,6 @@ namespace Stashbox.Infrastructure
         IDependencyRegistrator RegisterTypesAs(Type typeFrom, IEnumerable<Type> types, Func<Type, bool> selector = null, Action<IFluentServiceRegistrator> configurator = null);
 
         /// <summary>
-        /// Registers types into the container mapped to themselves.
-        /// </summary>
-        /// <param name="types">Types to register.</param>
-        /// <param name="selector">The type selector.</param>
-        /// <param name="configurator">The configurator for the registered types.</param>
-        /// <returns>The <see cref="IDependencyRegistrator"/> which on this method was called.</returns>
-        IDependencyRegistrator RegisterTypesAsSelf(IEnumerable<Type> types, Func<Type, bool> selector = null, Action<IFluentServiceRegistrator> configurator = null);
-
-        /// <summary>
         /// Registers types into the container.
         /// </summary>
         /// <param name="types">Types to register.</param>
@@ -59,15 +50,6 @@ namespace Stashbox.Infrastructure
         IDependencyRegistrator RegisterAssembly(Assembly assembly, Func<Type, bool> selector = null, Action<IFluentServiceRegistrator> configurator = null);
 
         /// <summary>
-        /// Registers the publicly visible types from an assembly into the container mapped to themselves.
-        /// </summary>
-        /// <param name="assembly">The assembly holding the types to register.</param>
-        /// <param name="selector">The type selector.</param>
-        /// <param name="configurator">The configurator for the registered types.</param>
-        /// <returns>The <see cref="IDependencyRegistrator"/> which on this method was called.</returns>
-        IDependencyRegistrator RegisterAssemblyAsSelf(Assembly assembly, Func<Type, bool> selector = null, Action<IFluentServiceRegistrator> configurator = null);
-
-        /// <summary>
         /// Registers the publicly visible types from an assembly collection into the container.
         /// </summary>
         /// <param name="assemblies">The assemblies holding the types to register.</param>
@@ -75,15 +57,6 @@ namespace Stashbox.Infrastructure
         /// <param name="configurator">The configurator for the registered types.</param>
         /// <returns>The <see cref="IDependencyRegistrator"/> which on this method was called.</returns>
         IDependencyRegistrator RegisterAssemblies(IEnumerable<Assembly> assemblies, Func<Type, bool> selector = null, Action<IFluentServiceRegistrator> configurator = null);
-
-        /// <summary>
-        /// Registers the publicly visible types from an assembly collection into the container mapped to themselves.
-        /// </summary>
-        /// <param name="assemblies">The assemblies holding the types to register.</param>
-        /// <param name="selector">The type selector.</param>
-        /// <param name="configurator">The configurator for the registered types.</param>
-        /// <returns>The <see cref="IDependencyRegistrator"/> which on this method was called.</returns>
-        IDependencyRegistrator RegisterAssembliesAsSelf(IEnumerable<Assembly> assemblies, Func<Type, bool> selector = null, Action<IFluentServiceRegistrator> configurator = null);
 
         /// <summary>
         /// Registers the publicly visible types from an assembly which contains a given type into the container.
@@ -103,25 +76,6 @@ namespace Stashbox.Infrastructure
         /// <param name="configurator">The configurator for the registered types.</param>
         /// <returns>The <see cref="IDependencyRegistrator"/> which on this method was called.</returns>
         IDependencyRegistrator RegisterAssemblyContaining(Type typeFrom, Func<Type, bool> selector = null, Action<IFluentServiceRegistrator> configurator = null);
-
-        /// <summary>
-        /// Registers the publicly visible types from an assembly which contains a given type into the container mapped to themselves.
-        /// </summary>
-        /// <typeparam name="TFrom">The type the assembly contains.</typeparam>
-        /// <param name="selector">The type selector.</param>
-        /// <param name="configurator">The configurator for the registered types.</param>
-        /// <returns>The <see cref="IDependencyRegistrator"/> which on this method was called.</returns>
-        IDependencyRegistrator RegisterAssemblyAsSelfContaining<TFrom>(Func<Type, bool> selector = null, Action<IFluentServiceRegistrator> configurator = null)
-             where TFrom : class;
-
-        /// <summary>
-        /// Registers the publicly visible types from an assembly which contains a given type into the container mapped to themselves.
-        /// </summary>
-        /// <param name="typeFrom">The type the assembly contains.</param>
-        /// <param name="selector">The type selector.</param>
-        /// <param name="configurator">The configurator for the registered types.</param>
-        /// <returns>The <see cref="IDependencyRegistrator"/> which on this method was called.</returns>
-        IDependencyRegistrator RegisterAssemblyAsSelfContaining(Type typeFrom, Func<Type, bool> selector = null, Action<IFluentServiceRegistrator> configurator = null);
 
         /// <summary>
         /// Composes services by calling the <see cref="ICompositionRoot.Compose"/> method of the given type parameter.
