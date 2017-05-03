@@ -9,7 +9,9 @@ Stashbox is a lightweight, portable dependency injection framework for .NET base
  - **Fluent interface** - for faster and easier configuration, attributes also can be used.
  - **Interface/type mapping** - single service, existing instance registration, remapping registrations also supported.
  - **Resolution via delegates** - any number of parameters can be injected, they will be reused for subdenpendency resolution as well.
- - **Registering with name** - multiple registration with the same service type, can be addressed at resolution time via attributes as well.
+ - **Register with name** - multiple registration with the same service type, can be addressed at resolution time via attributes as well.
+ - **Assembly registration** - service lookup in assemblies, composition root implementations also supported.
+ - **Factory registration** - factories with several parameters can be registered.
  - **Multiple service resolution** - all registered type of a service can be obtained as an `IEnumerable<T>` or `IEnumerable<object>` with the `ResolveAll()` method.
  - **Unknown type resolution** - unregistered services can be resolved or injected.
  - **Default and optional value injection** - primitive types or dependencies with default or optional value can be injected.
