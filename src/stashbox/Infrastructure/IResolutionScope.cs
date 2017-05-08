@@ -8,6 +8,11 @@ namespace Stashbox.Infrastructure
     public interface IResolutionScope : IDisposable
     {
         /// <summary>
+        /// True if the scope contains scoped instances, otherwise false.
+        /// </summary>
+        bool HasScopedInstances { get; }
+
+        /// <summary>
         /// Adds or updates an item in the scope.
         /// </summary>
         /// <param name="key">The key.</param>
@@ -20,6 +25,20 @@ namespace Stashbox.Infrastructure
         /// <param name="key">The key.</param>
         /// <returns>The item or null if it doesn't exists.</returns>
         object GetScopedItemOrDefault(object key);
+
+        /// <summary>
+        /// Adds or updates an instance in the scope.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <param name="value">The value.</param>
+        void AddScopedInstance(Type key, object value);
+
+        /// <summary>
+        /// Gets an instance from the scope.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <returns>The item or null if it doesn't exists.</returns>
+        object GetScopedInstanceOrDefault(Type key);
 
         /// <summary>
         /// Adds a service for further disposable tracking.

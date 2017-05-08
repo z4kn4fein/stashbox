@@ -3,7 +3,6 @@ using System.Linq.Expressions;
 using Stashbox.Entity;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.Registration;
-using Stashbox.Utils;
 
 namespace Stashbox.Lifetime
 {
@@ -14,15 +13,7 @@ namespace Stashbox.Lifetime
     {
         private volatile Expression expression;
         private readonly object syncObject = new object();
-        private readonly string scopeId;
-
-        /// <summary>
-        /// Constructs a <see cref="ScopedLifetime"/>.
-        /// </summary>
-        public ScopedLifetime()
-        {
-            this.scopeId = UniqueId.New(4);
-        }
+        private readonly object scopeId = new object();
 
         /// <inheritdoc />
         public override ILifetime Create() => new ScopedLifetime();
@@ -50,11 +41,11 @@ namespace Stashbox.Lifetime
 
             return this.expression;
         }
-        
-        private static TValue GetScopedValue<TValue>(IResolutionScope scope, Func<IResolutionScope, object> factory, string scopeId)
+
+        private static TValue GetScopedValue<TValue>(IResolutionScope scope, Func<IResolutionScope, object> factory, object scopeId)
         {
             var value = scope.GetScopedItemOrDefault(scopeId);
-            if(value == null)
+            if (value == null)
             {
                 value = factory(scope);
                 scope.AddScopedItem(scopeId, value);

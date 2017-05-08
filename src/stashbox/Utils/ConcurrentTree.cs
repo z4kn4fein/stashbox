@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace Stashbox.Utils
 {
     /// <summary>
-    /// Represents an immutable AVL tree
+    /// Represents concurrent AVL tree
     /// </summary>
     /// <typeparam name="TKey">The type of the key.</typeparam>
     /// <typeparam name="TValue">The type of the value.</typeparam>
@@ -47,8 +48,17 @@ namespace Stashbox.Utils
         /// </summary>
         /// <param name="key">The key of the entry.</param>
         /// <returns>The found or the default value.</returns>
-        public TValue GetOrDefault(TKey key) =>
-            this.repository.GetOrDefault(key);
+        [MethodImpl(Constants.Inline)]
+        public TValue GetOrDefault(TKey key)
+        {
+            var hash = key.GetHashCode();
+
+            var node = this.repository;
+            while (!node.IsEmpty && node.StoredHash != hash)
+                node = hash < node.StoredHash ? node.LeftNode : node.RightNode;
+            return !node.IsEmpty && (ReferenceEquals(key, node.StoredKey) || key.Equals(node.StoredKey)) ?
+                node.StoredValue : node.Collisions.GetOrDefault(key);
+        }
 
         /// <summary>
         /// Returns with the value specified by the given key if it's exist, otherwise it's default value will be returned.
@@ -56,8 +66,15 @@ namespace Stashbox.Utils
         /// <param name="hash">The hash.</param>
         /// <param name="key">The key of the entry.</param>
         /// <returns>The found or the default value.</returns>
-        public TValue GetOrDefault(int hash, TKey key) =>
-            this.repository.GetOrDefault(hash, key);
+        [MethodImpl(Constants.Inline)]
+        public TValue GetOrDefault(int hash, TKey key)
+        {
+            var node = this.repository;
+            while (!node.IsEmpty && node.StoredHash != hash)
+                node = hash < node.StoredHash ? node.LeftNode : node.RightNode;
+            return !node.IsEmpty && (ReferenceEquals(key, node.StoredKey) || key.Equals(node.StoredKey)) ?
+                node.StoredValue : node.Collisions.GetOrDefault(key);
+        }
 
         /// <summary>
         /// Inserts an item into the tree if it doesn't exist, otherwise the existing item will be replaced if the update delegate is set.
@@ -94,7 +111,7 @@ namespace Stashbox.Utils
     }
 
     /// <summary>
-    /// Represents an immutable AVL tree
+    /// Represents a concurrent AVL tree
     /// </summary>
     /// <typeparam name="TValue">The type of the value.</typeparam>
     public class ConcurrentTree<TValue> : IEnumerable<TValue>

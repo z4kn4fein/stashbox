@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using Stashbox.Infrastructure;
+using Stashbox.Utils;
 
 namespace Stashbox
 {
@@ -55,5 +57,22 @@ namespace Stashbox
         /// <inheritdoc />
         public Func<T1, T2, T3, T4, TService> ResolveFactory<T1, T2, T3, T4, TService>(object name = null, bool nullResultAllowed = false) =>
             (Func<T1, T2, T3, T4, TService>)this.ResolveFactory(typeof(TService), name, nullResultAllowed, typeof(T1), typeof(T2), typeof(T3), typeof(T4));
+
+        /// <inheritdoc />
+        public IDependencyResolver PutInstanceInScope<TFrom>(TFrom instance, bool withoutDisposalTracking = false) =>
+            this.PutInstanceInScope(typeof(TFrom), instance, withoutDisposalTracking);
+
+        /// <inheritdoc />
+        public IDependencyResolver PutInstanceInScope(Type typeFrom, object instance, bool withoutDisposalTracking = false)
+        {
+            Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
+            Shield.EnsureNotNull(instance, nameof(instance));
+
+            base.AddScopedInstance(typeFrom, instance);
+            if (!withoutDisposalTracking && instance is IDisposable)
+                base.AddDisposableTracking((IDisposable)instance);
+
+            return this;
+        }
     }
 }

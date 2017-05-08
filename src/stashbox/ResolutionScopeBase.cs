@@ -20,6 +20,10 @@ namespace Stashbox
         private readonly AtomicBool disposed;
         private DisposableItem rootItem;
         private readonly ConcurrentTree<object, object> scopedItems;
+        private readonly ConcurrentTree<Type, object> scopedInstances;
+
+        /// <inheritdoc />
+        public bool HasScopedInstances => !this.scopedInstances.IsEmpty;
 
         /// <summary>
         /// Constructs a <see cref="ResolutionScopeBase"/>.
@@ -29,6 +33,7 @@ namespace Stashbox
             this.disposed = new AtomicBool();
             this.rootItem = DisposableItem.Empty;
             this.scopedItems = new ConcurrentTree<object, object>();
+            this.scopedInstances = new ConcurrentTree<Type, object>();
         }
 
         /// <inheritdoc />
@@ -50,6 +55,14 @@ namespace Stashbox
         /// <inheritdoc />
         public object GetScopedItemOrDefault(object key) =>
             this.scopedItems.GetOrDefault(key);
+
+        /// <inheritdoc />
+        public void AddScopedInstance(Type key, object value) =>
+            this.scopedInstances.AddOrUpdate(key, value);
+
+        /// <inheritdoc />
+        public object GetScopedInstanceOrDefault(Type key) =>
+            this.scopedInstances.GetOrDefault(key);
 
         /// <inheritdoc />
         public void Dispose()

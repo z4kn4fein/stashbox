@@ -126,5 +126,23 @@ namespace Stashbox.Infrastructure
         /// Begins a new scope.
         /// </summary>
         IDependencyResolver BeginScope();
+
+        /// <summary>
+        /// Puts an instance into the scope which will be dropped when the scope is being disposed.
+        /// </summary>
+        /// <typeparam name="TFrom">The service type.</typeparam>
+        /// <param name="instance">The instance.</param>
+        /// <param name="withoutDisposalTracking">If it's set to true the container will exclude the instance from the disposal tracking.</param>
+        /// <returns>The scope.</returns>
+        IDependencyResolver PutInstanceInScope<TFrom>(TFrom instance, bool withoutDisposalTracking = false);
+
+        /// <summary>
+        /// Puts an instance into the scope which will be dropped when the scope is being disposed.
+        /// </summary>
+        /// <param name="typeFrom">The service type.</param>
+        /// <param name="instance">The instance.</param>
+        /// <param name="withoutDisposalTracking">If it's set to true the container will exclude the instance from the disposal tracking.</param>
+        /// <returns>The scope.</returns>
+        IDependencyResolver PutInstanceInScope(Type typeFrom, object instance, bool withoutDisposalTracking = false);
     }
 }

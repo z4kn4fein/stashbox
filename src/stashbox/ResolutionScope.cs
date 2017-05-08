@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.Resolution;
+using Stashbox.Utils;
 
 namespace Stashbox
 {
@@ -42,11 +43,8 @@ namespace Stashbox
             (IEnumerable<TKey>)this.activationContext.Activate(typeof(IEnumerable<TKey>), this);
 
         /// <inheritdoc />
-        public IEnumerable<object> ResolveAll(Type typeFrom)
-        {
-            var type = typeof(IEnumerable<>).MakeGenericType(typeFrom);
-            return (IEnumerable<object>)this.activationContext.Activate(type, this);
-        }
+        public IEnumerable<object> ResolveAll(Type typeFrom) =>
+            (IEnumerable<object>)this.activationContext.Activate(typeof(IEnumerable<>).MakeGenericType(typeFrom), this);
 
         /// <inheritdoc />
         public Delegate ResolveFactory(Type typeFrom, object name = null, bool nullResultAllowed = false, params Type[] parameterTypes) =>
@@ -74,5 +72,22 @@ namespace Stashbox
 
         /// <inheritdoc />
         public IDependencyResolver BeginScope() => new ResolutionScope(this.activationContext);
+
+        /// <inheritdoc />
+        public IDependencyResolver PutInstanceInScope<TFrom>(TFrom instance, bool withoutDisposalTracking = false) =>
+            this.PutInstanceInScope(typeof(TFrom), instance, withoutDisposalTracking);
+
+        /// <inheritdoc />
+        public IDependencyResolver PutInstanceInScope(Type typeFrom, object instance, bool withoutDisposalTracking = false)
+        {
+            Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
+            Shield.EnsureNotNull(instance, nameof(instance));
+
+            base.AddScopedInstance(typeFrom, instance);
+            if (!withoutDisposalTracking && instance is IDisposable)
+                base.AddDisposableTracking((IDisposable)instance);
+
+            return this;
+        }
     }
 }

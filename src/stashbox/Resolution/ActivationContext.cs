@@ -41,6 +41,13 @@ namespace Stashbox.Resolution
 
         private object Activate(ResolutionInfo resolutionInfo, Type type, object name = null)
         {
+            if (resolutionInfo.ResolutionScope.HasScopedInstances)
+            {
+                var instance = resolutionInfo.ResolutionScope.GetScopedInstanceOrDefault(type);
+                if (instance != null)
+                    return instance;
+            }
+
             var registration = this.containerContext.RegistrationRepository.GetRegistrationOrDefault(type, name);
             if (registration != null)
             {
