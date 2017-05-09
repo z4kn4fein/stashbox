@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Stashbox.Exceptions
 {
@@ -14,11 +12,29 @@ namespace Stashbox.Exceptions
         /// Constructs a <see cref="ConstructorNotFoundException"/>.
         /// </summary>
         /// <param name="type">The type on the constructor was not found.</param>
-        /// <param name="argumentsLength">The length of the arguments.</param>
+        /// <param name="argumentTypes">The arguments.</param>
         /// <param name="innerException">The inner exception</param>
-        public ConstructorNotFoundException(Type type, int argumentsLength, Exception innerException = null) :
-            base($"Constructor not found for {type.FullName} with {argumentsLength} arguments.", innerException)
-        {
-        }
+        public ConstructorNotFoundException(Type type, Type[] argumentTypes, Exception innerException = null) :
+            base($"Constructor not found for {type.FullName} with the given argument types: {argumentTypes.Select(t => t.FullName).Aggregate((t1, t2) => $"{t1}, {t2}")}", innerException)
+        { }
+
+        /// <summary>
+        /// Constructs a <see cref="ConstructorNotFoundException"/>.
+        /// </summary>
+        /// <param name="type">The type on the constructor was not found.</param>
+        /// <param name="innerException">The inner exception</param>
+        public ConstructorNotFoundException(Type type, Exception innerException = null) :
+            base($"Constructor not found for {type.FullName} with no arguments.", innerException)
+        { }
+
+        /// <summary>
+        /// Constructs a <see cref="ConstructorNotFoundException"/>.
+        /// </summary>
+        /// <param name="type">The type on the constructor was not found.</param>
+        /// <param name="argument">The argument type.</param>
+        /// <param name="innerException">The inner exception</param>
+        public ConstructorNotFoundException(Type type, Type argument, Exception innerException = null) :
+            base($"Constructor not found for {type.FullName} with argument: {argument.FullName}", innerException)
+        { }
     }
 }

@@ -147,7 +147,7 @@ namespace Stashbox.Registration
         {
             var constructor = this.ImplementationType.GetConstructor(argumentTypes);
             if (constructor == null)
-                throw new ConstructorNotFoundException(this.ImplementationType, argumentTypes.Length);
+                this.ThrowConstructorNotFoundException(this.ImplementationType, argumentTypes);
 
             this.Context.SelectedConstructor = constructor;
             return this;
@@ -155,13 +155,25 @@ namespace Stashbox.Registration
 
         public IFluentServiceRegistrator WithConstructorByArguments(params object[] arguments)
         {
-            var constructor = this.ImplementationType.GetConstructor(arguments.Select(arg => arg.GetType()).ToArray());
+            var argTypes = arguments.Select(arg => arg.GetType()).ToArray();
+            var constructor = this.ImplementationType.GetConstructor(argTypes);
             if (constructor == null)
-                throw new ConstructorNotFoundException(this.ImplementationType, arguments.Length);
+                this.ThrowConstructorNotFoundException(this.ImplementationType, argTypes);
 
             this.Context.SelectedConstructor = constructor;
             this.Context.ConstructorArguments = arguments;
             return this;
+        }
+
+        private void ThrowConstructorNotFoundException(Type type, params Type[] argTypes)
+        {
+            if (argTypes.Length == 0)
+                throw new ConstructorNotFoundException(type);
+
+            if (argTypes.Length == 1)
+                throw new ConstructorNotFoundException(type, argTypes[0]);
+
+            throw new ConstructorNotFoundException(type, argTypes);
         }
     }
 }
