@@ -13,11 +13,19 @@ namespace Stashbox.Registration
         private readonly IServiceRegistrator serviceRegistrator;
         private bool replaceExistingRegistration;
 
+        public Type ServiceType => this.registrationContext.ServiceType;
+
+        public Type ImplementationType => this.registrationContext.ImplementationType;
+
         public DecoratorRegistrationContext(RegistrationContext registrationContext, IServiceRegistrator serviceRegistrator)
         {
             this.registrationContext = registrationContext;
             this.serviceRegistrator = serviceRegistrator;
         }
+
+        public IStashboxContainer Register() => this.serviceRegistrator.Register(this.registrationContext, true, this.replaceExistingRegistration);
+
+        public IStashboxContainer ReMap() => this.serviceRegistrator.ReMap(this.registrationContext, true);
 
         public IFluentDecoratorRegistrator WithInjectionParameters(params InjectionParameter[] injectionParameters)
         {
@@ -43,10 +51,6 @@ namespace Stashbox.Registration
             this.registrationContext.WithoutDisposalTracking();
             return this;
         }
-
-        public IStashboxContainer Register() => this.serviceRegistrator.Register(this.registrationContext, true, this.replaceExistingRegistration);
-
-        public IStashboxContainer ReMap() => this.serviceRegistrator.ReMap(this.registrationContext, true);
 
         public IFluentDecoratorRegistrator ReplaceExisting()
         {

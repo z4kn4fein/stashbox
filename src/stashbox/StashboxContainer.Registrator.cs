@@ -68,6 +68,10 @@ namespace Stashbox
             this.WireUp(typeof(TFrom), instance, name, withoutDisposalTracking);
 
         /// <inheritdoc />
+        public IDependencyRegistrator WireUp(object instance, object name = null, bool withoutDisposalTracking = false) =>
+            this.WireUp(instance.GetType(), instance, name, withoutDisposalTracking);
+
+        /// <inheritdoc />
         public IDependencyRegistrator WireUp(Type serviceType, object instance, object name = null, bool withoutDisposalTracking = false)
         {
             Shield.EnsureNotNull(instance, nameof(instance));

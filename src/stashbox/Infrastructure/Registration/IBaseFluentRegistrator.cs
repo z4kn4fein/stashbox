@@ -12,6 +12,16 @@ namespace Stashbox.Infrastructure.Registration
     public interface IBaseFluentRegistrator<out TFluentRegistrator>
     {
         /// <summary>
+        /// The service type.
+        /// </summary>
+        Type ServiceType { get; }
+
+        /// <summary>
+        /// The implementation type.
+        /// </summary>
+        Type ImplementationType { get; }
+
+        /// <summary>
         /// Sets injection parameters for the registration.
         /// </summary>
         /// <param name="injectionParameters">The injection parameters.</param>

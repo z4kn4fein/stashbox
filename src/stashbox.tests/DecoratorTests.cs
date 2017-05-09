@@ -481,6 +481,19 @@ namespace Stashbox.Tests
             }
         }
 
+        [TestMethod]
+        public void DecoratorTests_Service_ImplementationType()
+        {
+            using (var container = new StashboxContainer())
+            {
+                container.RegisterDecorator<ITest1, TestDecorator1>(context =>
+                {
+                    Assert.AreEqual(typeof(ITest1), context.ServiceType);
+                    Assert.AreEqual(typeof(TestDecorator1), context.ImplementationType);
+                });
+            }
+        }
+
         public interface ITest1 { ITest1 Test { get; } }
 
         public interface IDecoratorDep { }

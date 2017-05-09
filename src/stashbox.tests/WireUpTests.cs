@@ -79,7 +79,7 @@ namespace Stashbox.Tests
             {
                 container.RegisterType<ITest, Test>();
                 var test1 = new Test1();
-                container.WireUpAs(test1);
+                container.WireUp(test1);
                 var inst = container.Resolve<Test1>();
 
                 Assert.IsNotNull(inst);
