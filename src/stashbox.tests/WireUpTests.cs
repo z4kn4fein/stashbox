@@ -13,10 +13,10 @@ namespace Stashbox.Tests
             using (var container = new StashboxContainer())
             {
                 var test1 = new Test1();
-                container.WireUp<ITest1>(test1);
+                container.WireUpAs<ITest1>(test1);
 
                 var test2 = new Test();
-                container.WireUp<ITest>(test2);
+                container.WireUpAs<ITest>(test2);
 
                 var inst = container.Resolve<ITest1>();
                 var inst2 = container.Resolve<ITest>();
@@ -34,7 +34,7 @@ namespace Stashbox.Tests
                 container.RegisterType<ITest, Test>();
 
                 var test1 = new Test1();
-                container.WireUp<ITest1>(test1);
+                container.WireUpAs<ITest1>(test1);
 
                 container.RegisterType<Test2>();
 
@@ -56,7 +56,7 @@ namespace Stashbox.Tests
                 container.RegisterType<ITest, Test>();
 
                 var test1 = new Test1();
-                container.WireUp<ITest1>(test1);
+                container.WireUpAs<ITest1>(test1);
 
                 container.ReMap<ITest, Test>();
 
@@ -79,7 +79,7 @@ namespace Stashbox.Tests
             {
                 container.RegisterType<ITest, Test>();
                 var test1 = new Test1();
-                container.WireUp(test1);
+                container.WireUpAs(test1);
                 var inst = container.Resolve<Test1>();
 
                 Assert.IsNotNull(inst);

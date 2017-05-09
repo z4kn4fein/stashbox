@@ -61,7 +61,7 @@ namespace Stashbox.Tests
             {
                 container.RegisterType<ITest2, Test2>();
                 container.RegisterType<Test3>();
-                container.RegisterInstance<ITest1>(test);
+                container.RegisterInstanceAs(test);
                 test2 = container.Resolve<ITest2>();
                 test3 = container.Resolve<Test3>();
             }
@@ -81,7 +81,7 @@ namespace Stashbox.Tests
             {
                 container.RegisterType<ITest2, Test2>();
                 container.RegisterType<Test3>();
-                container.RegisterInstance(test, withoutDisposalTracking: true);
+                container.RegisterInstanceAs(test, withoutDisposalTracking: true);
                 test2 = container.Resolve<ITest2>();
                 test3 = container.Resolve<Test3>();
             }
@@ -141,7 +141,7 @@ namespace Stashbox.Tests
             {
                 container.RegisterType<ITest2, Test2>();
                 container.RegisterType<Test3>();
-                container.WireUp(test);
+                container.WireUpAs(test);
                 test2 = container.Resolve<ITest2>();
                 test3 = container.Resolve<Test3>();
             }
@@ -573,10 +573,10 @@ namespace Stashbox.Tests
         [TestMethod]
         public void DisposeTests_Instance_TrackTransient()
         {
-            ITest1 test = new Test1();
+            var test = new Test1();
             using (var container = new StashboxContainer(config => config.WithDisposableTransientTracking()))
             {
-                container.RegisterInstance(test);
+                container.RegisterInstanceAs<ITest1>(test);
 
                 Assert.AreSame(test, container.Resolve<ITest1>());
             }
@@ -590,7 +590,7 @@ namespace Stashbox.Tests
             ITest1 test = new Test1();
             using (var container = new StashboxContainer(config => config.WithDisposableTransientTracking()))
             {
-                container.WireUp(test);
+                container.WireUpAs(test);
 
                 Assert.AreSame(test, container.Resolve<ITest1>());
             }
@@ -604,7 +604,7 @@ namespace Stashbox.Tests
             ITest1 test = new Test1();
             using (var container = new StashboxContainer(config => config.WithDisposableTransientTracking()))
             {
-                container.WireUp(test, withoutDisposalTracking: true);
+                container.WireUpAs(test, withoutDisposalTracking: true);
 
                 Assert.AreSame(test, container.Resolve<ITest1>());
             }

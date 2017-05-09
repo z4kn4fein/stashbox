@@ -218,7 +218,7 @@ namespace Stashbox.Tests
         {
             var container = new StashboxContainer();
             var test1 = new Test();
-            container.RegisterInstance<ITest>(test1);
+            container.RegisterInstanceAs<ITest>(test1);
             container.RegisterFunc<string, RegisteredFuncTest2>((name, resolver) => new RegisteredFuncTest2(name, resolver.Resolve<ITest>()));
 
             var test = container.Resolve<Func<string, RegisteredFuncTest2>>()("test");

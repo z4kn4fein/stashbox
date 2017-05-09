@@ -53,5 +53,17 @@ namespace Stashbox.Registration
             this.replaceExistingRegistration = true;
             return this;
         }
+
+        public IFluentDecoratorRegistrator WithConstructorByArgumentTypes(params Type[] argumentTypes)
+        {
+            this.registrationContext.WithConstructorByArgumentTypes(argumentTypes);
+            return this;
+        }
+
+        public IFluentDecoratorRegistrator WithConstructorByArguments(params object[] arguments)
+        {
+            this.registrationContext.WithConstructorByArguments(arguments);
+            return this;
+        }
     }
 }

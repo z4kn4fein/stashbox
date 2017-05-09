@@ -3,7 +3,9 @@ using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.Registration;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Stashbox.Configuration;
+using Stashbox.Exceptions;
 using Stashbox.Lifetime;
 
 namespace Stashbox.Registration
@@ -138,6 +140,27 @@ namespace Stashbox.Registration
         public IFluentServiceRegistrator ReplaceExisting()
         {
             this.replaceExistingRegistration = true;
+            return this;
+        }
+
+        public IFluentServiceRegistrator WithConstructorByArgumentTypes(params Type[] argumentTypes)
+        {
+            var constructor = this.ImplementationType.GetConstructor(argumentTypes);
+            if (constructor == null)
+                throw new ConstructorNotFoundException(this.ImplementationType, argumentTypes.Length);
+
+            this.Context.SelectedConstructor = constructor;
+            return this;
+        }
+
+        public IFluentServiceRegistrator WithConstructorByArguments(params object[] arguments)
+        {
+            var constructor = this.ImplementationType.GetConstructor(arguments.Select(arg => arg.GetType()).ToArray());
+            if (constructor == null)
+                throw new ConstructorNotFoundException(this.ImplementationType, arguments.Length);
+
+            this.Context.SelectedConstructor = constructor;
+            this.Context.ConstructorArguments = arguments;
             return this;
         }
     }

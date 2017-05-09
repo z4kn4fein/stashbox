@@ -51,13 +51,9 @@ namespace Stashbox.BuildUp.Expressions
 
         public Expression CreateExpression(IServiceRegistration serviceRegistration, ResolutionInfo resolutionInfo, Type serviceType)
         {
-            var rule = serviceRegistration.RegistrationContext.ConstructorSelectionRule ?? this.containerContext.ContainerConfigurator.ContainerConfiguration.ConstructorSelectionRule;
-            var constructors = rule(serviceRegistration.MetaInformation.Constructors).ToArray();
-
-            var constructor = this.SelectConstructor(serviceRegistration, resolutionInfo, constructors);
-            if (constructor == null) return null;
-
-            Expression initExpression = Expression.New(constructor.Constructor, constructor.Parameters);
+            var initExpression = this.CreateInitExpression(serviceRegistration, resolutionInfo);
+            if (initExpression == null)
+                return null;
 
             if (serviceRegistration.MetaInformation.InjectionMembers.Length > 0)
                 initExpression = Expression.MemberInit((NewExpression)initExpression, this.GetMemberBindings(serviceRegistration, resolutionInfo));
@@ -66,6 +62,45 @@ namespace Stashbox.BuildUp.Expressions
                 return this.CreatePostWorkExpressionIfAny(serviceRegistration, resolutionInfo, initExpression, serviceType);
 
             return initExpression;
+        }
+
+        private Expression CreateInitExpression(IServiceRegistration serviceRegistration, ResolutionInfo resolutionInfo)
+        {
+            if (serviceRegistration.RegistrationContext.SelectedConstructor != null)
+            {
+                if (serviceRegistration.RegistrationContext.ConstructorArguments != null)
+                    return Expression.New(serviceRegistration.RegistrationContext.SelectedConstructor, serviceRegistration.RegistrationContext.ConstructorArguments.Select(Expression.Constant));
+
+                var resolutionConstructor = this.CreateResolutionConstructor(serviceRegistration, resolutionInfo, serviceRegistration.RegistrationContext.SelectedConstructor);
+                return Expression.New(resolutionConstructor.Constructor, resolutionConstructor.Parameters);
+            }
+
+            var rule = serviceRegistration.RegistrationContext.ConstructorSelectionRule ?? this.containerContext.ContainerConfigurator.ContainerConfiguration.ConstructorSelectionRule;
+            var constructors = rule(serviceRegistration.MetaInformation.Constructors).ToArray();
+
+            var constructor = this.SelectConstructor(serviceRegistration, resolutionInfo, constructors);
+            return constructor == null ? null : Expression.New(constructor.Constructor, constructor.Parameters);
+        }
+
+        private ResolutionConstructor CreateResolutionConstructor(IServiceRegistration serviceRegistration, ResolutionInfo resolutionInfo, ConstructorInfo constructor)
+        {
+            var parameters = constructor.GetParameters();
+            var paramLength = constructor.GetParameters().Length;
+            var parameterExpressions = new Expression[paramLength];
+
+            for (var i = 0; i < paramLength; i++)
+            {
+                var parameter = parameters[i];
+
+                var expression = this.containerContext.ResolutionStrategy.BuildResolutionExpression(this.containerContext,
+                    resolutionInfo, serviceRegistration.MetaInformation.GetTypeInformationForParameter(parameter),
+                    serviceRegistration.RegistrationContext.InjectionParameters);
+
+                parameterExpressions[i] = expression ?? throw new ResolutionFailedException(serviceRegistration.ImplementationType, 
+                    $"Constructor {constructor}, unresolvable parameter: ({parameter.ParameterType}){parameter.Name}");
+            }
+
+            return new ResolutionConstructor { Constructor = constructor, Parameters = parameterExpressions };
         }
 
         private ResolutionConstructor SelectConstructor(IServiceRegistration serviceRegistration, ResolutionInfo resolutionInfo, ConstructorInformation[] constructors)

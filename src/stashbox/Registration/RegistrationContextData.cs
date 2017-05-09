@@ -3,6 +3,7 @@ using Stashbox.Entity;
 using Stashbox.Infrastructure;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace Stashbox.Registration
 {
@@ -45,6 +46,16 @@ namespace Stashbox.Registration
         /// Injection parameters of the registration.
         /// </summary>
         public InjectionParameter[] InjectionParameters { get; internal set; }
+
+        /// <summary>
+        /// The selected constructor if any was set.
+        /// </summary>
+        public ConstructorInfo SelectedConstructor { get; internal set; }
+
+        /// <summary>
+        /// The arguments of the selected constructor if any was set.
+        /// </summary>
+        public object[] ConstructorArguments { get; internal set; }
 
         /// <summary>
         /// Lifetime of the registration.

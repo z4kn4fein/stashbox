@@ -58,7 +58,7 @@ namespace Stashbox.Tests
             using (var container = new StashboxContainer())
             {
                 container.RegisterExtension(post.Object);
-                container.RegisterInstance(new object());
+                container.RegisterInstanceAs(new object());
                 post.Verify(p => p.Initialize(container.ContainerContext));
                 post.Verify(p => p.OnRegistration(container.ContainerContext,
                     It.IsAny<Type>(), It.IsAny<Type>(), null));
@@ -80,7 +80,7 @@ namespace Stashbox.Tests
 
                 using (var child = container.CreateChildContainer())
                 {
-                    child.RegisterInstance(new object());
+                    child.RegisterInstanceAs(new object());
 
                     post2.Verify(p => p.Initialize(child.ContainerContext));
                     post2.Verify(p => p.OnRegistration(child.ContainerContext,

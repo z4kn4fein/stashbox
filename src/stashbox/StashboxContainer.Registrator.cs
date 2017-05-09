@@ -43,20 +43,15 @@ namespace Stashbox
             this.RegisterType(typeTo, typeTo, configurator);
 
         /// <inheritdoc />
-        public IDependencyRegistrator RegisterInstance<TFrom>(TFrom instance, string name = null, bool withoutDisposalTracking = false) where TFrom : class
-        {
-            Shield.EnsureNotNull(instance, nameof(instance));
-
-            return this.RegisterType(typeof(TFrom), instance.GetType(), context =>
-            {
-                context.WithInstance(instance).WithName(name);
-                if (withoutDisposalTracking)
-                    context.WithoutDisposalTracking();
-            });
-        }
+        public IDependencyRegistrator RegisterInstanceAs<TFrom>(TFrom instance, object name = null, bool withoutDisposalTracking = false) =>
+            this.RegisterInstance(typeof(TFrom), instance, name, withoutDisposalTracking);
 
         /// <inheritdoc />
-        public IDependencyRegistrator RegisterInstance(Type serviceType, object instance, string name = null, bool withoutDisposalTracking = false)
+        public IDependencyRegistrator RegisterInstance(object instance, object name = null, bool withoutDisposalTracking = false) =>
+            this.RegisterInstance(instance.GetType(), instance, name, withoutDisposalTracking);
+
+        /// <inheritdoc />
+        public IDependencyRegistrator RegisterInstance(Type serviceType, object instance, object name = null, bool withoutDisposalTracking = false)
         {
             Shield.EnsureNotNull(instance, nameof(instance));
 
@@ -69,56 +64,50 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public IDependencyRegistrator WireUp<TFrom>(TFrom instance, string name = null, bool withoutDisposalTracking = false) where TFrom : class
-        {
-            Shield.EnsureNotNull(instance, nameof(instance));
-
-            this.WireUpInternal(instance, name, typeof(TFrom), instance.GetType(), withoutDisposalTracking);
-            return this;
-        }
+        public IDependencyRegistrator WireUpAs<TFrom>(TFrom instance, object name = null, bool withoutDisposalTracking = false) =>
+            this.WireUp(typeof(TFrom), instance, name, withoutDisposalTracking);
 
         /// <inheritdoc />
-        public IDependencyRegistrator WireUp(Type serviceType, object instance, string name = null, bool withoutDisposalTracking = false)
+        public IDependencyRegistrator WireUp(Type serviceType, object instance, object name = null, bool withoutDisposalTracking = false)
         {
             Shield.EnsureNotNull(instance, nameof(instance));
             Shield.EnsureNotNull(serviceType, nameof(serviceType));
 
-            var type = instance.GetType();
-            this.WireUpInternal(instance, name, serviceType, type, withoutDisposalTracking);
+            this.WireUpInternal(instance, name, serviceType, instance.GetType(), withoutDisposalTracking);
             return this;
         }
 
         /// <inheritdoc />
-        public IDependencyRegistrator RegisterSingleton<TFrom, TTo>(string name = null)
+        public IDependencyRegistrator RegisterSingleton<TFrom, TTo>(object name = null)
             where TFrom : class
             where TTo : class, TFrom =>
             this.RegisterType<TFrom, TTo>(context => context.WithName(name).WithSingletonLifetime());
 
         /// <inheritdoc />
-        public IDependencyRegistrator RegisterSingleton<TTo>(string name = null)
+        public IDependencyRegistrator RegisterSingleton<TTo>(object name = null)
             where TTo : class =>
             this.RegisterType<TTo>(context => context.WithName(name).WithSingletonLifetime());
 
         /// <inheritdoc />
-        public IDependencyRegistrator RegisterSingleton(Type typeFrom, Type typeTo, string name = null) =>
+        public IDependencyRegistrator RegisterSingleton(Type typeFrom, Type typeTo, object name = null) =>
             this.RegisterType(typeFrom, typeTo, context => context.WithName(name).WithSingletonLifetime());
 
         /// <inheritdoc />
-        public IDependencyRegistrator RegisterScoped<TFrom, TTo>(string name = null)
+        public IDependencyRegistrator RegisterScoped<TFrom, TTo>(object name = null)
             where TFrom : class
             where TTo : class, TFrom =>
             this.RegisterType<TFrom, TTo>(context => context.WithName(name).WithScopedLifetime());
 
         /// <inheritdoc />
-        public IDependencyRegistrator RegisterScoped(Type typeFrom, Type typeTo, string name = null) =>
+        public IDependencyRegistrator RegisterScoped(Type typeFrom, Type typeTo, object name = null) =>
             this.RegisterType(typeFrom, typeTo, context => context.WithName(name).WithScopedLifetime());
 
         /// <inheritdoc />
-        public IDependencyRegistrator RegisterScoped<TTo>(string name = null)
+        public IDependencyRegistrator RegisterScoped<TTo>(object name = null)
             where TTo : class =>
             this.RegisterType<TTo>(context => context.WithName(name).WithScopedLifetime());
 
-        private void WireUpInternal(object instance, string keyName, Type typeFrom, Type typeTo, bool withoutDisposalTracking)
+        private void WireUpInternal(object instance, object keyName, Type typeFrom, Type typeTo, bool withoutDisposalTracking)
         {
             var data = RegistrationContextData.New();
             data.Name = keyName;
@@ -128,7 +117,7 @@ namespace Stashbox
                 this.ContainerContext, this.objectBuilderSelector.Get(ObjectBuilder.WireUp),
                 data, false, !withoutDisposalTracking);
 
-            this.registrationRepository.AddOrUpdateRegistration(registration, keyName ?? (object)typeTo, false, false);
+            this.registrationRepository.AddOrUpdateRegistration(registration, keyName ?? typeTo, false, false);
             this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.ContainerContext, typeTo, typeFrom);
         }
     }

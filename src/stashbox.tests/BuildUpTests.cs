@@ -15,7 +15,7 @@ namespace Stashbox.Tests
                 container.RegisterType<ITest, Test>();
 
                 var test1 = new Test1();
-                container.WireUp<ITest1>(test1);
+                container.WireUpAs<ITest1>(test1);
 
                 var test2 = new Test2();
                 var inst = container.BuildUp(test2);

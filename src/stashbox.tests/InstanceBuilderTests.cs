@@ -11,7 +11,7 @@ namespace Stashbox.Tests
             using (var container = new StashboxContainer())
             {
                 var dep = new Test();
-                container.RegisterInstance<ITest>(dep);
+                container.RegisterInstanceAs<ITest>(dep);
                 var inst = container.Resolve<ITest>();
 
                 Assert.AreSame(inst, dep);
@@ -24,7 +24,7 @@ namespace Stashbox.Tests
             using (var container = new StashboxContainer())
             {
                 var dep = new Test();
-                container.RegisterInstance<ITest>(dep);
+                container.RegisterInstanceAs<ITest>(dep);
                 container.RegisterType<ITest1, Test1>();
 
                 var inst = container.Resolve<ITest1>();
