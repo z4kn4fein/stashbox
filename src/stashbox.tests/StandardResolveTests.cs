@@ -36,6 +36,30 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void StandardResolveTests_Ensure_DependencyResolver_CanBeResolved()
+        {
+            using (IStashboxContainer container = new StashboxContainer())
+            {
+                container.RegisterScoped<ResolverTest>();
+                var resolver = container.Resolve<IDependencyResolver>();
+
+                var test = container.Resolve<ResolverTest>();
+
+                Assert.AreSame(container, resolver);
+                Assert.AreSame(container, test.DependencyResolver);
+
+                using (var scope = container.BeginScope())
+                {
+                    var scopedResolver = scope.Resolve<IDependencyResolver>();
+                    var test1 = scope.Resolve<ResolverTest>();
+
+                    Assert.AreSame(scope, scopedResolver);
+                    Assert.AreSame(scope, test1.DependencyResolver);
+                }
+            }
+        }
+
+        [TestMethod]
         public void StandardResolveTests_Factory()
         {
             using (IStashboxContainer container = new StashboxContainer())
@@ -513,6 +537,16 @@ namespace Stashbox.Tests
         {
             public Test5(ITest1 test)
             {
+            }
+        }
+
+        public class ResolverTest
+        {
+            public IDependencyResolver DependencyResolver { get; }
+
+            public ResolverTest(IDependencyResolver dependencyResolver)
+            {
+                this.DependencyResolver = dependencyResolver;
             }
         }
     }

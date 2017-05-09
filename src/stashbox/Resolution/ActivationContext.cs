@@ -41,6 +41,9 @@ namespace Stashbox.Resolution
 
         private object Activate(ResolutionInfo resolutionInfo, Type type, object name = null)
         {
+            if (type == Constants.ResolverType)
+                return resolutionInfo.ResolutionScope;
+
             if (resolutionInfo.ResolutionScope.HasScopedInstances)
             {
                 var instance = resolutionInfo.ResolutionScope.GetScopedInstanceOrDefault(type);

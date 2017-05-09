@@ -59,14 +59,6 @@ namespace Stashbox.Infrastructure
         bool CanResolve(Type typeFrom, object name = null);
 
         /// <summary>
-        /// Builds up an instance, the container will perform injections and extensions on it.
-        /// </summary>
-        /// <typeparam name="TTo">The type of the requested instance.</typeparam>
-        /// <param name="instance">The instance to build up.</param>
-        /// <returns>The built object.</returns>
-        TTo BuildUp<TTo>(TTo instance);
-
-        /// <summary>
         /// Configures the container.
         /// </summary>
         /// <param name="config">The action delegate which will configure the container.</param>

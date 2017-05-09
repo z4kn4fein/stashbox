@@ -109,7 +109,8 @@ namespace Stashbox
              new StashboxContainer(this, this.containerExtensionManager.CreateCopy(), this.resolverSelector);
 
         /// <inheritdoc />
-        public IDependencyResolver BeginScope() => new ResolutionScope(this.activationContext);
+        public IDependencyResolver BeginScope() => new ResolutionScope(this.activationContext,
+            this.ServiceRegistrator, this.expressionBuilder, this);
 
         /// <inheritdoc />
         public void Configure(Action<IContainerConfigurator> config) =>

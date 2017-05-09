@@ -18,6 +18,9 @@ namespace Stashbox.Resolution
         public Expression BuildResolutionExpression(IContainerContext containerContext, ResolutionInfo resolutionInfo, TypeInformation typeInformation,
             InjectionParameter[] injectionParameters)
         {
+            if (typeInformation.Type == Constants.ResolverType)
+                return Expression.Convert(Constants.ScopeExpression, Constants.ResolverType);
+
             if (resolutionInfo.ParameterExpressions != null && resolutionInfo.ParameterExpressions.Any(p => p.Type == typeInformation.Type))
                 return resolutionInfo.ParameterExpressions.Last(p => p.Type == typeInformation.Type);
 
@@ -32,7 +35,7 @@ namespace Stashbox.Resolution
             if (resolutionInfo.ResolutionScope.HasScopedInstances)
             {
                 var instance = resolutionInfo.ResolutionScope.GetScopedInstanceOrDefault(typeInformation.Type);
-                if(instance != null)
+                if (instance != null)
                     return Expression.Constant(instance);
             }
 
