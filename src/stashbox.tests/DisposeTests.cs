@@ -210,6 +210,31 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void DisposeTests_PutInScope_RootScope()
+        {
+            var test = new Test1();
+            using (IStashboxContainer container = new StashboxContainer())
+            {
+                container.RegisterType<ITest2, Test2>();
+                container.RegisterType<Test3>();
+
+
+                container.PutInstanceInScope<ITest1>(test);
+
+                var test1 = container.Resolve<ITest1>();
+                var test2 = container.Resolve(typeof(ITest2));
+                var test3 = container.Resolve<Test3>();
+
+                Assert.AreSame(test, test1);
+                Assert.AreSame(test, ((ITest2)test2).Test1);
+                Assert.AreSame(test, test3.Test1);
+
+            }
+
+            Assert.IsTrue(test.Disposed);
+        }
+
+        [TestMethod]
         public void DisposeTests_PutInScope_Scoped()
         {
             using (IStashboxContainer container = new StashboxContainer())
