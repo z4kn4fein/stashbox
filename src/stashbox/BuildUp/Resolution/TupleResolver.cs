@@ -21,7 +21,7 @@ namespace Stashbox.BuildUp.Resolution
             typeof(Tuple<,,,,,,,>)
         };
 
-        public override bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo) =>
+        public override bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo) =>
             typeInfo.Type.IsClosedGenericType() && this.supportedTypes.Contains(typeInfo.Type.GetGenericTypeDefinition());
 
         public override Expression GetExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo)

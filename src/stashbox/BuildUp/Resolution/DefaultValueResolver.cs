@@ -23,7 +23,7 @@ namespace Stashbox.BuildUp.Resolution
             return null;
         }
 
-        public override bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo) =>
+        public override bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo) =>
             containerContext.ContainerConfigurator.ContainerConfiguration.OptionalAndDefaultValueInjectionEnabled &&
                  (typeInfo.HasDefaultValue || typeInfo.Type.GetTypeInfo().IsValueType || typeInfo.Type == typeof(string) || typeInfo.IsMember);
     }

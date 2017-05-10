@@ -8,7 +8,7 @@ namespace Stashbox.BuildUp.Resolution
 {
     internal class UnknownTypeResolver : Resolver
     {
-        public override bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo) =>
+        public override bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo) =>
             containerContext.ContainerConfigurator.ContainerConfiguration.UnknownTypeResolutionEnabled &&
                        typeInfo.Type.IsValidForRegistration();
 

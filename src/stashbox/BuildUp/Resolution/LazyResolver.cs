@@ -86,7 +86,7 @@ namespace Stashbox.BuildUp.Resolution
             return Expression.New(constructor, Expression.Lambda(convert));
         }
 
-        public override bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo) =>
+        public override bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo) =>
             typeInfo.Type.IsClosedGenericType() && typeInfo.Type.GetGenericTypeDefinition() == typeof(Lazy<>);
 
         private static readonly MethodInfo DelegateCacheMethod = typeof(DelegateCache).GetSingleMethod("CreateLazyDelegate");

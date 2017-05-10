@@ -86,7 +86,7 @@ namespace Stashbox
         /// <inheritdoc />
         public bool CanResolve(Type typeFrom, object name = null) =>
             this.registrationRepository.ContainsRegistration(typeFrom, name) ||
-                this.resolverSelector.CanResolve(this.ContainerContext, new TypeInformation { Type = typeFrom, DependencyName = name });
+                this.resolverSelector.CanResolve(this.ContainerContext, new TypeInformation { Type = typeFrom, DependencyName = name }, ResolutionInfo.New(this, this));
 
         /// <inheritdoc />
         public void Validate()
@@ -122,6 +122,7 @@ namespace Stashbox
             this.resolverSelector.AddResolver(new LazyResolver(this.resolverSelector));
             this.resolverSelector.AddResolver(new FuncResolver());
             this.resolverSelector.AddResolver(new TupleResolver());
+            this.resolverSelector.AddResolver(new ScopedInstanceResolver());
             this.resolverSelector.AddResolver(new DefaultValueResolver());
         }
 

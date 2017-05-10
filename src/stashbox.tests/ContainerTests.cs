@@ -188,7 +188,7 @@ namespace Stashbox.Tests
         {
             public override bool SupportsMany => true;
 
-            public override bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo)
+            public override bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo)
             {
                 return typeInfo.Type == typeof(ITest1);
             }
@@ -203,7 +203,7 @@ namespace Stashbox.Tests
         {
             public override bool SupportsMany => true;
 
-            public override bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo)
+            public override bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo)
             {
                 return typeInfo.Type == typeof(ITest1);
             }

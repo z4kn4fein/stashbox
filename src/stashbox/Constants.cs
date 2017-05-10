@@ -24,6 +24,8 @@ namespace Stashbox
 
         internal static MethodInfo GetScopedValueMethod = typeof(ScopedLifetime).GetSingleMethod("GetScopedValue", true);
 
+        internal static MethodInfo GetScopedInstanceMethod = typeof(IResolutionScope).GetSingleMethod("GetScopedInstanceOrDefault");
+
         internal static Type DisposableType = typeof(IDisposable);
 
         internal static Type FuncType = typeof(Func<>);

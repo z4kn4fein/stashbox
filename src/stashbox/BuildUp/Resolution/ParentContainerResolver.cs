@@ -7,7 +7,7 @@ namespace Stashbox.BuildUp.Resolution
 {
     internal class ParentContainerResolver : Resolver
     {
-        public override bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo) =>
+        public override bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo) =>
             containerContext.Container.ParentContainer != null && containerContext.Container.ParentContainer.CanResolve(typeInfo.Type, typeInfo.DependencyName);
 
         public override Expression GetExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo) =>

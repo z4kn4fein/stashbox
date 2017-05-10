@@ -17,7 +17,7 @@ namespace Stashbox.BuildUp.Resolution
                     Expression.NewArrayInit(enumerableType.Type, expressions);
         }
         
-        public override bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo) =>
+        public override bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo) =>
             typeInfo.Type.GetEnumerableType() != null;
     }
 }

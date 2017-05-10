@@ -237,8 +237,8 @@ namespace Stashbox.Tests
         {
             using (IStashboxContainer container = new StashboxContainer())
             {
-                container.RegisterType<ITest2, Test2>();
-                container.RegisterType<Test3>();
+                container.RegisterScoped<ITest2, Test2>();
+                container.RegisterScoped<Test3>();
 
                 var test = new Test1();
 
@@ -256,6 +256,27 @@ namespace Stashbox.Tests
                 }
 
                 Assert.IsTrue(test.Disposed);
+
+                var test4 = new Test1();
+
+                using (var child = container.BeginScope())
+                {
+                    child.PutInstanceInScope<ITest1>(test4);
+
+                    var test1 = child.Resolve<ITest1>();
+                    var test2 = child.Resolve<ITest2>();
+                    var test3 = child.Resolve<Test3>();
+
+                    Assert.AreSame(test4, test1);
+                    Assert.AreSame(test4, test2.Test1);
+                    Assert.AreSame(test4, test3.Test1);
+
+                    Assert.AreNotSame(test, test1);
+                    Assert.AreNotSame(test, test2.Test1);
+                    Assert.AreNotSame(test, test3.Test1);
+                }
+
+                Assert.IsTrue(test4.Disposed);
             }
         }
 

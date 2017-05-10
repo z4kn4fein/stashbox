@@ -40,7 +40,8 @@ namespace Stashbox.Infrastructure.Resolution
         /// </summary>
         /// <param name="containerContext">The container context.</param>
         /// <param name="typeInfo">The type info.</param>
+        /// <param name="resolutionInfo">The info about the actual resolution.</param>
         /// <returns>Returns true, if the resolver can be used to activate the requested service, otherwise false.</returns>
-        public abstract bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo);
+        public abstract bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo);
     }
 }

@@ -32,13 +32,6 @@ namespace Stashbox.Resolution
             if (exprOverride != null)
                 return exprOverride;
 
-            if (resolutionInfo.ResolutionScope.HasScopedInstances)
-            {
-                var instance = resolutionInfo.ResolutionScope.GetScopedInstanceOrDefault(typeInformation.Type);
-                if (instance != null)
-                    return Expression.Constant(instance);
-            }
-
             var registration = containerContext.RegistrationRepository.GetRegistrationOrDefault(typeInformation, true);
             return registration != null ? registration.GetExpression(resolutionInfo, typeInformation.Type) :
                 this.resolverSelector.GetResolverExpression(containerContext, typeInformation, resolutionInfo);

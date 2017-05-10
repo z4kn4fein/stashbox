@@ -56,7 +56,7 @@ namespace Stashbox.BuildUp.Resolution
             return funcExpressions;
         }
 
-        public override bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo) =>
+        public override bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo) =>
             typeInfo.Type.IsClosedGenericType() && this.supportedTypes.Contains(typeInfo.Type.GetGenericTypeDefinition());
 
         private ParameterExpression[] PrepareExtraParameters(Type wrappedType, ResolutionInfo resolutionInfo, Type[] args)

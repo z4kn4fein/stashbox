@@ -44,13 +44,6 @@ namespace Stashbox.Resolution
             if (type == Constants.ResolverType)
                 return resolutionInfo.ResolutionScope;
 
-            if (resolutionInfo.ResolutionScope.HasScopedInstances)
-            {
-                var instance = resolutionInfo.ResolutionScope.GetScopedInstanceOrDefault(type);
-                if (instance != null)
-                    return instance;
-            }
-
             var registration = this.containerContext.RegistrationRepository.GetRegistrationOrDefault(type, name);
             if (registration != null)
             {

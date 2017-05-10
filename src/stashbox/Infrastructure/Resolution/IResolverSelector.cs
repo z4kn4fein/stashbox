@@ -13,8 +13,9 @@ namespace Stashbox.Infrastructure.Resolution
         /// </summary>
         /// <param name="containerContext">The container context.</param>
         /// <param name="typeInfo">The type info.</param>
+        /// <param name="resolutionInfo">The resolution info.</param>
         /// <returns></returns>
-        bool CanResolve(IContainerContext containerContext, TypeInformation typeInfo);
+        bool CanResolve(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo);
 
         /// <summary>
         /// Gets an expression built by a selected <see cref="Resolver"/>.
