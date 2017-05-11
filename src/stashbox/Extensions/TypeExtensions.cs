@@ -128,7 +128,11 @@ namespace System
         public static bool IsValidForRegistration(this Type type)
         {
             var typeInfo = type.GetTypeInfo();
-            return !typeInfo.IsAbstract && !typeInfo.IsInterface && typeInfo.GetCustomAttribute<CompilerGeneratedAttribute>() == null;
+            return !typeInfo.IsAbstract &&
+                !typeInfo.IsInterface &&
+                typeInfo.IsClass &&
+                type != typeof(string) &&
+                typeInfo.GetCustomAttribute<CompilerGeneratedAttribute>() == null;
         }
 
         public static IEnumerable<Type> GetRegisterableInterfaceTypes(this Type type) =>
@@ -148,6 +152,38 @@ namespace System
 
         public static bool Implements(this Type type, Type interfaceType) =>
             interfaceType.GetTypeInfo().IsAssignableFrom(type.GetTypeInfo());
+
+        public static ConstructorInfo GetConstructorByTypes(this Type type, params Type[] types)
+        {
+            if (types.Length == 0)
+                return type.GetConstructor(Constants.EmptyTypes);
+
+            var ctor = type.GetConstructor(types);
+            if (ctor != null)
+                return ctor;
+
+            return type.GetTypeInfo().DeclaredConstructors.FirstOrDefault(constructor =>
+            {
+                var parameters = constructor.GetParameters();
+                if (parameters.Length != types.Length)
+                    return false;
+
+                var length = parameters.Length;
+                for (var i = 0; i < length; i++)
+                {
+                    var paramType = parameters[i].ParameterType;
+                    var argType = types[i];
+
+                    var eq = paramType == argType;
+                    var im = argType.Implements(paramType);
+
+                    if (!eq && !im)
+                        return false;
+                }
+
+                return true;
+            });
+        }
 
         public static MethodInfo GetMethod(this Delegate @delegate) =>
 #if NET40

@@ -115,6 +115,22 @@ namespace Stashbox.Tests
             }
         }
 
+        [TestMethod]
+        public void ConstructorSelectionTests_Arg_ByInterface()
+        {
+            using (var container = new StashboxContainer())
+            {
+                var arg = new Arg();
+                var arg1 = new Arg1();
+
+                container.RegisterType<Test1>(context => context.WithConstructorByArguments(arg, arg1));
+                var test = container.Resolve<Test1>();
+
+                Assert.AreSame(arg, test.PArg);
+                Assert.AreSame(arg1, test.PArg1);
+            }
+        }
+
         public class Dep
         { }
 
@@ -165,6 +181,26 @@ namespace Stashbox.Tests
             public Test(Dep dep, Dep2 dep2, Dep3 dep3)
             {
                 Assert.Fail("wrong constructor");
+            }
+        }
+
+        public interface IArg { }
+
+        public interface IArg1 { }
+
+        public class Arg : IArg { }
+
+        public class Arg1 : IArg1 { }
+
+        public class Test1
+        {
+            public IArg PArg { get; }
+            public IArg1 PArg1 { get; }
+
+            public Test1(IArg arg, IArg1 arg1)
+            {
+                this.PArg = arg;
+                this.PArg1 = arg1;
             }
         }
     }

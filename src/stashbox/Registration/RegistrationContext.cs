@@ -145,7 +145,7 @@ namespace Stashbox.Registration
 
         public IFluentServiceRegistrator WithConstructorByArgumentTypes(params Type[] argumentTypes)
         {
-            var constructor = this.ImplementationType.GetConstructor(argumentTypes);
+            var constructor = this.ImplementationType.GetConstructorByTypes(argumentTypes);
             if (constructor == null)
                 this.ThrowConstructorNotFoundException(this.ImplementationType, argumentTypes);
 
@@ -156,7 +156,7 @@ namespace Stashbox.Registration
         public IFluentServiceRegistrator WithConstructorByArguments(params object[] arguments)
         {
             var argTypes = arguments.Select(arg => arg.GetType()).ToArray();
-            var constructor = this.ImplementationType.GetConstructor(argTypes);
+            var constructor = this.ImplementationType.GetConstructorByTypes(argTypes);
             if (constructor == null)
                 this.ThrowConstructorNotFoundException(this.ImplementationType, argTypes);
 
