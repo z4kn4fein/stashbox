@@ -82,6 +82,21 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void OverrideTests_Resolve_Factory_NonGeneric_DerivedParam()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            container.RegisterType<ITest2, Test2>();
+
+            var inst1 = new Test1 { Name = "test" };
+
+            var factory = container.ResolveFactory(typeof(ITest2), parameterTypes: inst1.GetType());
+            var inst2 = (ITest2)factory.DynamicInvoke(inst1);
+
+            Assert.IsNotNull(inst2);
+            Assert.AreEqual("test", inst2.Name);
+        }
+
+        [TestMethod]
         public void OverrideTests_Resolve_Factory()
         {
             IStashboxContainer container = new StashboxContainer();

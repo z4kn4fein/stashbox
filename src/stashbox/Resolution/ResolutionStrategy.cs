@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Linq.Expressions;
 using Stashbox.Entity;
 using Stashbox.Infrastructure;
@@ -21,8 +22,8 @@ namespace Stashbox.Resolution
             if (typeInformation.Type == Constants.ResolverType)
                 return Expression.Convert(Constants.ScopeExpression, Constants.ResolverType);
 
-            if (resolutionInfo.ParameterExpressions != null && resolutionInfo.ParameterExpressions.Any(p => p.Type == typeInformation.Type))
-                return resolutionInfo.ParameterExpressions.Last(p => p.Type == typeInformation.Type);
+            if (resolutionInfo.ParameterExpressions != null && resolutionInfo.ParameterExpressions.Any(p => p.Type == typeInformation.Type || p.Type.Implements(typeInformation.Type)))
+                return resolutionInfo.ParameterExpressions.Last(p => p.Type == typeInformation.Type || p.Type.Implements(typeInformation.Type));
 
             var matchingParam = injectionParameters?.FirstOrDefault(param => param.Name == typeInformation.ParameterName);
             if (matchingParam != null)
