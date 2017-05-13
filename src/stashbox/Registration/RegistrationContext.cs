@@ -10,6 +10,23 @@ using Stashbox.Lifetime;
 
 namespace Stashbox.Registration
 {
+    internal class RegistrationContext<TService> : RegistrationContext, IRegistrationContext<TService>
+    {
+        public RegistrationContext(Type serviceType, Type implementationType, IServiceRegistrator registrator)
+            : base(serviceType, implementationType, registrator)
+        { }
+
+        public RegistrationContext(Type serviceType, Type implementationType, IServiceRegistrator registrator, RegistrationContextData registrationContextData)
+            : base(serviceType, implementationType, registrator, registrationContextData)
+        { }
+
+        public IFluentServiceRegistrator<TService> WithFinalizer(Action<TService> finalizer)
+        {
+            base.Context.Finalizer = finalizer;
+            return this;
+        }
+    }
+
     internal class RegistrationContext : IRegistrationContext, IRegistrationContextMeta
     {
         private readonly IServiceRegistrator registrator;
@@ -22,6 +39,8 @@ namespace Stashbox.Registration
 
         private bool replaceExistingRegistration;
 
+        private bool withImplementedTypes;
+
         public RegistrationContext(Type serviceType, Type implementationType, IServiceRegistrator registrator)
             : this(serviceType, implementationType, registrator, RegistrationContextData.New())
         { }
@@ -33,10 +52,6 @@ namespace Stashbox.Registration
             this.ImplementationType = implementationType;
             this.Context = registrationContextData;
         }
-
-        public IStashboxContainer Register() => this.registrator.Register(this, false, this.replaceExistingRegistration);
-
-        public IStashboxContainer ReMap() => this.registrator.ReMap(this, false);
 
         public IFluentServiceRegistrator WhenDependantIs<TTarget>() where TTarget : class
         {
@@ -163,6 +178,56 @@ namespace Stashbox.Registration
             this.Context.SelectedConstructor = constructor;
             this.Context.ConstructorArguments = arguments;
             return this;
+        }
+
+        public IFluentServiceRegistrator AsImplementedTypes()
+        {
+            this.withImplementedTypes = true;
+            return this;
+        }
+
+        public IStashboxContainer Register()
+        {
+            if (this.withImplementedTypes)
+            {
+                var interfaceTypes = this.ImplementationType.GetRegisterableInterfaceTypes();
+                foreach (var interfaceType in interfaceTypes)
+                {
+                    var context = new RegistrationContext(interfaceType, this.ImplementationType, this.registrator, this.Context.CreateCopy());
+                    this.registrator.Register(context, false, this.replaceExistingRegistration);
+                }
+
+                var baseTypes = this.ImplementationType.GetRegisterableBaseTypes();
+                foreach (var baseType in baseTypes)
+                {
+                    var context = new RegistrationContext(baseType, this.ImplementationType, this.registrator, this.Context.CreateCopy());
+                    this.registrator.Register(context, false, this.replaceExistingRegistration);
+                }
+            }
+
+            return this.registrator.Register(this, false, this.replaceExistingRegistration);
+        }
+
+        public IStashboxContainer ReMap()
+        {
+            if (this.withImplementedTypes)
+            {
+                var interfaceTypes = this.ImplementationType.GetRegisterableInterfaceTypes();
+                foreach (var interfaceType in interfaceTypes)
+                {
+                    var context = new RegistrationContext(interfaceType, this.ImplementationType, this.registrator, this.Context.CreateCopy());
+                    this.registrator.ReMap(context, false);
+                }
+
+                var baseTypes = this.ImplementationType.GetRegisterableBaseTypes();
+                foreach (var baseType in baseTypes)
+                {
+                    var context = new RegistrationContext(baseType, this.ImplementationType, this.registrator, this.Context.CreateCopy());
+                    this.registrator.ReMap(context, false);
+                }
+            }
+
+            return this.registrator.ReMap(this, false);
         }
 
         private void ThrowConstructorNotFoundException(Type type, params Type[] argTypes)

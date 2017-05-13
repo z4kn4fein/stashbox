@@ -181,11 +181,11 @@ namespace Stashbox.Tests
             container.RegisterAssemblyContaining<ITest1>(type => type == typeof(Test));
 
             var regs = container.ContainerContext.RegistrationRepository.GetAllRegistrations();
-            
+
             Assert.IsTrue(regs.Any(reg => reg.ServiceType == typeof(ITest)));
             Assert.IsTrue(regs.Any(reg => reg.ServiceType == typeof(Test)));
         }
-        
+
         [TestMethod]
         public void RegisterTypesTests_RegisterAssembly_Configurator()
         {
@@ -288,6 +288,78 @@ namespace Stashbox.Tests
             container.ComposeAssemblies(new[] { typeof(IStashboxContainer).GetTypeInfo().Assembly });
         }
 
+        [TestMethod]
+        public void RegisterTypesTests_AsImplementedTypes_Interfaces()
+        {
+            var container = new StashboxContainer();
+            container.RegisterType<Test12>(context => context.AsImplementedTypes());
+
+            var regs = container.ContainerContext.RegistrationRepository.GetAllRegistrations().OrderBy(r => r.RegistrationNumber).ToArray();
+
+            Assert.AreEqual(4, regs.Length);
+            Assert.AreSame(regs[0].ServiceType, typeof(ITest));
+            Assert.AreSame(regs[1].ServiceType, typeof(ITest1));
+            Assert.AreSame(regs[2].ServiceType, typeof(ITest2));
+            Assert.AreSame(regs[3].ServiceType, typeof(Test12));
+        }
+
+        [TestMethod]
+        public void RegisterTypesTests_AsImplementedTypes_Interfaces_ReMap()
+        {
+            var container = new StashboxContainer();
+            container.RegisterType<Test12>(context => context.AsImplementedTypes());
+
+            var regs = container.ContainerContext.RegistrationRepository.GetAllRegistrations().OrderBy(r => r.RegistrationNumber).ToArray();
+
+            container.ReMap<Test12>(context => context.AsImplementedTypes());
+
+            var regs2 = container.ContainerContext.RegistrationRepository.GetAllRegistrations().OrderBy(r => r.RegistrationNumber).ToArray();
+
+            Assert.AreEqual(regs.Length, regs2.Length);
+            Assert.AreNotEqual(regs[0].RegistrationNumber, regs2[0].RegistrationNumber);
+            Assert.AreNotEqual(regs[1].RegistrationNumber, regs2[1].RegistrationNumber);
+            Assert.AreNotEqual(regs[2].RegistrationNumber, regs2[2].RegistrationNumber);
+            Assert.AreNotEqual(regs[3].RegistrationNumber, regs2[3].RegistrationNumber);
+        }
+
+        [TestMethod]
+        public void RegisterTypesTests_AsImplementedTypes_BaseType()
+        {
+            var container = new StashboxContainer();
+            container.RegisterType<Test14>(context => context.AsImplementedTypes());
+
+            var regs = container.ContainerContext.RegistrationRepository.GetAllRegistrations().OrderBy(r => r.RegistrationNumber).ToArray();
+
+            Assert.AreEqual(6, regs.Length);
+            Assert.AreSame(regs[0].ServiceType, typeof(ITest));
+            Assert.AreSame(regs[1].ServiceType, typeof(ITest1));
+            Assert.AreSame(regs[2].ServiceType, typeof(ITest2));
+            Assert.AreSame(regs[3].ServiceType, typeof(Test13));
+            Assert.AreSame(regs[4].ServiceType, typeof(Test12));
+            Assert.AreSame(regs[5].ServiceType, typeof(Test14));
+        }
+
+        [TestMethod]
+        public void RegisterTypesTests_AsImplementedTypes_BaseType_ReMap()
+        {
+            var container = new StashboxContainer();
+            container.RegisterType<Test14>(context => context.AsImplementedTypes());
+
+            var regs = container.ContainerContext.RegistrationRepository.GetAllRegistrations().OrderBy(r => r.RegistrationNumber).ToArray();
+
+            container.ReMap<Test14>(context => context.AsImplementedTypes());
+
+            var regs2 = container.ContainerContext.RegistrationRepository.GetAllRegistrations().OrderBy(r => r.RegistrationNumber).ToArray();
+
+            Assert.AreEqual(regs.Length, regs2.Length);
+            Assert.AreNotEqual(regs[0].RegistrationNumber, regs2[0].RegistrationNumber);
+            Assert.AreNotEqual(regs[1].RegistrationNumber, regs2[1].RegistrationNumber);
+            Assert.AreNotEqual(regs[2].RegistrationNumber, regs2[2].RegistrationNumber);
+            Assert.AreNotEqual(regs[3].RegistrationNumber, regs2[3].RegistrationNumber);
+            Assert.AreNotEqual(regs[4].RegistrationNumber, regs2[4].RegistrationNumber);
+            Assert.AreNotEqual(regs[5].RegistrationNumber, regs2[5].RegistrationNumber);
+        }
+
         public interface ITest { }
 
         public interface ITest1 { }
@@ -303,6 +375,10 @@ namespace Stashbox.Tests
         public class Test11 : ITest1, ITest2 { }
 
         public class Test12 : ITest, ITest1, ITest2 { }
+
+        public class Test13 : Test12 { }
+
+        public class Test14 : Test13 { }
 
         public class TestCompositionRoot : ICompositionRoot
         {

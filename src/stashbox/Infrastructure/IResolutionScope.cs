@@ -48,5 +48,14 @@ namespace Stashbox.Infrastructure
         /// <returns>The <see cref="IDisposable"/> object.</returns>
         TDisposable AddDisposableTracking<TDisposable>(TDisposable disposable)
             where TDisposable : IDisposable;
+
+        /// <summary>
+        /// Adds a service with a cleanup delegate.
+        /// </summary>
+        /// <typeparam name="TService">The service type.</typeparam>
+        /// <param name="finalizable">The object to cleanup.</param>
+        /// <param name="finalizer">The cleanup delegate.</param>
+        /// <returns>The object to cleanup.</returns>
+        TService AddWithFinalizer<TService>(TService finalizable, Action<TService> finalizer);
     }
 }

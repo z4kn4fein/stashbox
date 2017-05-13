@@ -17,8 +17,18 @@ namespace Stashbox
             public static readonly DisposableItem Empty = new DisposableItem();
         }
 
+        private class FinalizableItem
+        {
+            public object Item;
+            public Action<object> Finalizer;
+            public FinalizableItem Next;
+
+            public static readonly FinalizableItem Empty = new FinalizableItem();
+        }
+
         private readonly AtomicBool disposed;
         private DisposableItem rootItem;
+        private FinalizableItem rootFinalizableItem;
         private readonly ConcurrentTree<object, object> scopedItems;
         private readonly ConcurrentTree<Type, object> scopedInstances;
 
@@ -32,6 +42,7 @@ namespace Stashbox
         {
             this.disposed = new AtomicBool();
             this.rootItem = DisposableItem.Empty;
+            this.rootFinalizableItem = FinalizableItem.Empty;
             this.scopedItems = new ConcurrentTree<object, object>();
             this.scopedInstances = new ConcurrentTree<Type, object>();
         }
@@ -43,7 +54,8 @@ namespace Stashbox
 
             var item = new DisposableItem { Item = disposable, Next = this.rootItem };
             var current = this.rootItem;
-            Swap.SwapValue(ref this.rootItem, current, item, root => new DisposableItem { Item = disposable, Next = root });
+            Swap.SwapValue(ref this.rootItem, current, item, root =>
+                new DisposableItem { Item = disposable, Next = root });
 
             return disposable;
         }
@@ -65,6 +77,17 @@ namespace Stashbox
             this.scopedInstances.GetOrDefault(key);
 
         /// <inheritdoc />
+        public TService AddWithFinalizer<TService>(TService finalizable, Action<TService> finalizer)
+        {
+            var item = new FinalizableItem { Item = finalizable, Finalizer = f => finalizer((TService)f), Next = this.rootFinalizableItem };
+            var current = this.rootFinalizableItem;
+            Swap.SwapValue(ref this.rootFinalizableItem, current, item, root =>
+                new FinalizableItem { Item = finalizable, Finalizer = f => finalizer((TService)f), Next = root });
+
+            return finalizable;
+        }
+
+        /// <inheritdoc />
         public void Dispose()
         {
             this.Dispose(true);
@@ -78,6 +101,13 @@ namespace Stashbox
         protected virtual void Dispose(bool disposing)
         {
             if (!this.disposed.CompareExchange(false, true) || !disposing) return;
+
+            var rootFinalizable = this.rootFinalizableItem;
+            while (!ReferenceEquals(rootFinalizable, FinalizableItem.Empty))
+            {
+                rootFinalizable.Finalizer(rootFinalizable.Item);
+                rootFinalizable = rootFinalizable.Next;
+            }
 
             var root = this.rootItem;
             while (!ReferenceEquals(root, DisposableItem.Empty))

@@ -83,6 +83,11 @@ namespace Stashbox.Registration
         public object ExistingInstance { get; internal set; }
 
         /// <summary>
+        /// The cleanup delegate.
+        /// </summary>
+        public object Finalizer { get; internal set; }
+
+        /// <summary>
         /// The auto memeber injection rule for the registration.
         /// </summary>
         public Rules.AutoMemberInjection AutoMemberInjectionRule { get; internal set; }

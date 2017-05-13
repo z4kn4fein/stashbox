@@ -26,6 +26,12 @@ namespace Stashbox.BuildUp
                 if (serviceRegistration.ShouldHandleDisposal && serviceRegistration.RegistrationContext.ExistingInstance is IDisposable disposable)
                     resolutionInfo.RootScope.AddDisposableTracking(disposable);
 
+                if (serviceRegistration.RegistrationContext.Finalizer != null)
+                {
+                    var finalizerExpression = base.HandleFinalizer(Expression.Constant(serviceRegistration.RegistrationContext.ExistingInstance), serviceRegistration);
+                    return this.expression = Expression.Constant(finalizerExpression.CompileDelegate(Constants.ScopeExpression)(resolutionInfo.ResolutionScope));
+                }
+
                 return this.expression = Expression.Constant(serviceRegistration.RegistrationContext.ExistingInstance);
             }
         }
@@ -33,5 +39,7 @@ namespace Stashbox.BuildUp
         public override IObjectBuilder Produce() => new InstanceObjectBuilder(base.ContainerContext);
 
         public override bool HandlesObjectDisposal => true;
+
+        public override bool HandlesFinalizer => true;
     }
 }

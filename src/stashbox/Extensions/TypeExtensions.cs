@@ -140,8 +140,8 @@ namespace System
 
         public static IEnumerable<Type> GetRegisterableBaseTypes(this Type type)
         {
-            var baseType = type;
-            while (!baseType.IsObjectType() && baseType != null)
+            var baseType = type.GetTypeInfo().BaseType;
+            while (baseType != null && !baseType.IsObjectType())
             {
                 yield return baseType;
                 baseType = baseType.GetTypeInfo().BaseType;

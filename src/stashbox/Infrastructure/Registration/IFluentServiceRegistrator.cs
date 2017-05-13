@@ -4,6 +4,19 @@ using Stashbox.Entity;
 namespace Stashbox.Infrastructure.Registration
 {
     /// <summary>
+    /// Represents a generic fluent service registrator.
+    /// </summary>
+    public interface IFluentServiceRegistrator<out TService> : IFluentServiceRegistrator
+    {
+        /// <summary>
+        /// Sets a delegate which will be called when the container is being disposed.
+        /// </summary>
+        /// <param name="finalizer">The cleanup delegate.</param>
+        /// <returns>The <see cref="IFluentServiceRegistrator{TService}"/> which on this method was called.</returns>
+        IFluentServiceRegistrator<TService> WithFinalizer(Action<TService> finalizer);
+    }
+
+    /// <summary>
     /// Represents a fluent service registrator.
     /// </summary>
     public interface IFluentServiceRegistrator : IBaseFluentRegistrator<IFluentServiceRegistrator>
@@ -89,5 +102,11 @@ namespace Stashbox.Infrastructure.Registration
         /// <param name="resolutionCondition">The predicate.</param>
         /// <returns>The <see cref="IFluentServiceRegistrator"/> which on this method was called.</returns>
         IFluentServiceRegistrator When(Func<TypeInformation, bool> resolutionCondition);
+
+        /// <summary>
+        /// Registers the given service by all of it's implemented types.
+        /// </summary>
+        /// <returns>The <see cref="IFluentServiceRegistrator"/> which on this method was called.</returns>
+        IFluentServiceRegistrator AsImplementedTypes();
     }
 }

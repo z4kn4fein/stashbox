@@ -27,6 +27,10 @@ namespace Stashbox.Registration
             new RegistrationContext(serviceType, implementationType, this);
 
         /// <inheritdoc />
+        public IRegistrationContext<TService> PrepareContext<TService>(Type serviceType, Type implementationType) =>
+            new RegistrationContext<TService>(serviceType, implementationType, this);
+
+        /// <inheritdoc />
         public IRegistrationContext PrepareContext(Type serviceType, Type implementationType,
              RegistrationContextData registrationContextData) =>
             new RegistrationContext(serviceType, implementationType, this, registrationContextData);

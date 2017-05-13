@@ -20,6 +20,8 @@ namespace Stashbox
 
         internal static MethodInfo AddDisposalMethod = typeof(IResolutionScope).GetSingleMethod("AddDisposableTracking");
 
+        internal static MethodInfo AddWithFinalizerMethod = typeof(IResolutionScope).GetSingleMethod("AddWithFinalizer");
+
         internal static MethodInfo BuildExtensionMethod = typeof(IContainerExtensionManager).GetSingleMethod("ExecutePostBuildExtensions");
 
         internal static MethodInfo GetScopedValueMethod = typeof(ScopedLifetime).GetSingleMethod("GetScopedValue", true);

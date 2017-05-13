@@ -423,6 +423,19 @@ namespace Stashbox.Tests
             }
         }
 
+        [TestMethod]
+        public void StandardResolveTests_Resolve_WithFinalizer()
+        {
+            var finalized = false;
+            using (IStashboxContainer container = new StashboxContainer())
+            {
+                container.RegisterType<Test1>(context => context.WithFinalizer(_ => finalized = true));
+                container.Resolve<Test1>();
+            }
+
+            Assert.IsTrue(finalized);
+        }
+
         public interface ITest1 { string Name { get; set; } }
 
         public interface ITest2 { string Name { get; set; } }

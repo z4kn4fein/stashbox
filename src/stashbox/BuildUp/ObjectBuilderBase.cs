@@ -61,16 +61,31 @@ namespace Stashbox.BuildUp
         {
             var expr = this.GetExpressionInternal(serviceRegistration, resolutionInfo, resolveType);
 
-            if (expr == null || !serviceRegistration.ShouldHandleDisposal || this.HandlesObjectDisposal || !expr.Type.IsDisposable())
+            if (expr == null)
+                return null;
+
+            if (!this.HandlesFinalizer && serviceRegistration.RegistrationContext.Finalizer != null)
+                expr = this.HandleFinalizer(expr, serviceRegistration);
+
+            if (!serviceRegistration.ShouldHandleDisposal || this.HandlesObjectDisposal || !expr.Type.IsDisposable())
                 return expr;
 
             var method = Constants.AddDisposalMethod.MakeGenericMethod(expr.Type);
             return Expression.Call(Constants.ScopeExpression, method, expr);
         }
 
+        protected Expression HandleFinalizer(Expression instanceExpression, IServiceRegistration serviceRegistration)
+        {
+            var addFinalizerMethod = Constants.AddWithFinalizerMethod.MakeGenericMethod(instanceExpression.Type);
+            return Expression.Call(Constants.ScopeExpression, addFinalizerMethod, instanceExpression,
+                Expression.Constant(serviceRegistration.RegistrationContext.Finalizer));
+        }
+
         protected abstract Expression GetExpressionInternal(IServiceRegistration serviceRegistration, ResolutionInfo resolutionInfo, Type resolveType);
 
         public virtual bool HandlesObjectDisposal => false;
+
+        public virtual bool HandlesFinalizer => false;
 
         public virtual IObjectBuilder Produce() => this;
     }

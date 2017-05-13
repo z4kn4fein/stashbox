@@ -21,6 +21,14 @@ namespace Stashbox.Infrastructure.Registration
         /// </summary>
         /// <param name="serviceType">The service type.</param>
         /// <param name="implementationType">The implementation type.</param>
+        /// <returns>The <see cref="IRegistrationContext"/>.</returns>
+        IRegistrationContext<TService> PrepareContext<TService>(Type serviceType, Type implementationType);
+
+        /// <summary>
+        /// Creates an <see cref="IRegistrationContext"/>.
+        /// </summary>
+        /// <param name="serviceType">The service type.</param>
+        /// <param name="implementationType">The implementation type.</param>
         /// <param name="registrationContextData">Existing registration context data.</param>
         /// <returns>The <see cref="IRegistrationContext"/>.</returns>
         IRegistrationContext PrepareContext(Type serviceType, Type implementationType, RegistrationContextData registrationContextData);

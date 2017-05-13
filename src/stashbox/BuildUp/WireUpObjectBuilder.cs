@@ -35,6 +35,12 @@ namespace Stashbox.BuildUp
                 if (serviceRegistration.ShouldHandleDisposal && instance is IDisposable disposable)
                     resolutionInfo.RootScope.AddDisposableTracking(disposable);
 
+                if (serviceRegistration.RegistrationContext.Finalizer != null)
+                {
+                    var finalizerExpression = base.HandleFinalizer(Expression.Constant(factory(resolutionInfo.ResolutionScope)), serviceRegistration);
+                    return this.expression = Expression.Constant(finalizerExpression.CompileDelegate(Constants.ScopeExpression)(resolutionInfo.ResolutionScope));
+                }
+
                 return this.expression = Expression.Constant(factory(resolutionInfo.ResolutionScope));
             }
         }

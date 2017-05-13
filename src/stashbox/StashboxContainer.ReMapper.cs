@@ -8,15 +8,23 @@ namespace Stashbox
     public partial class StashboxContainer
     {
         /// <inheritdoc />
-        public IDependencyRegistrator ReMap<TFrom, TTo>(Action<IFluentServiceRegistrator> configurator = null)
+        public IDependencyRegistrator ReMap<TFrom, TTo>(Action<IFluentServiceRegistrator<TTo>> configurator = null)
             where TFrom : class
-            where TTo : class, TFrom =>
-            this.ReMap(typeof(TFrom), typeof(TTo), configurator);
+            where TTo : class, TFrom
+        {
+            var context = this.ServiceRegistrator.PrepareContext<TTo>(typeof(TFrom), typeof(TTo));
+            configurator?.Invoke(context);
+            return context.ReMap();
+        }
 
         /// <inheritdoc />
-        public IDependencyRegistrator ReMap<TFrom>(Type typeTo, Action<IFluentServiceRegistrator> configurator = null)
-            where TFrom : class =>
-            this.ReMap(typeof(TFrom), typeTo, configurator);
+        public IDependencyRegistrator ReMap<TFrom>(Type typeTo, Action<IFluentServiceRegistrator<TFrom>> configurator = null)
+            where TFrom : class
+        {
+            var context = this.ServiceRegistrator.PrepareContext<TFrom>(typeof(TFrom), typeTo);
+            configurator?.Invoke(context);
+            return context.ReMap();
+        }
 
         /// <inheritdoc />
         public IDependencyRegistrator ReMap(Type typeFrom, Type typeTo, Action<IFluentServiceRegistrator> configurator = null)
@@ -30,11 +38,13 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public IDependencyRegistrator ReMap<TTo>(Action<IFluentServiceRegistrator> configurator = null)
+        public IDependencyRegistrator ReMap<TTo>(Action<IFluentServiceRegistrator<TTo>> configurator = null)
              where TTo : class
         {
             var type = typeof(TTo);
-            return this.ReMap(type, type, configurator);
+            var context = this.ServiceRegistrator.PrepareContext<TTo>(type, type);
+            configurator?.Invoke(context);
+            return context.ReMap();
         }
 
         /// <inheritdoc />

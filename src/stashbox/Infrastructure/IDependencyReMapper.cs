@@ -15,7 +15,7 @@ namespace Stashbox.Infrastructure
         /// <typeparam name="TTo">Type that will be returned.</typeparam>
         /// <param name="configurator">The configurator for the registered types.</param>
         /// <returns>The <see cref="IDependencyRegistrator"/> which on this method was called.</returns>
-        IDependencyRegistrator ReMap<TFrom, TTo>(Action<IFluentServiceRegistrator> configurator = null)
+        IDependencyRegistrator ReMap<TFrom, TTo>(Action<IFluentServiceRegistrator<TTo>> configurator = null)
             where TFrom : class
             where TTo : class, TFrom;
 
@@ -26,7 +26,7 @@ namespace Stashbox.Infrastructure
         /// <param name="typeTo">Type that will be returned.</param>
         /// <param name="configurator">The configurator for the registered types.</param>
         /// <returns>The <see cref="IDependencyRegistrator"/> which on this method was called.</returns>
-        IDependencyRegistrator ReMap<TFrom>(Type typeTo, Action<IFluentServiceRegistrator> configurator = null)
+        IDependencyRegistrator ReMap<TFrom>(Type typeTo, Action<IFluentServiceRegistrator<TFrom>> configurator = null)
             where TFrom : class;
 
         /// <summary>
@@ -44,7 +44,7 @@ namespace Stashbox.Infrastructure
         /// <typeparam name="TTo">Type that will be returned.</typeparam>
         /// <param name="configurator">The configurator for the registered types.</param>
         /// <returns>The <see cref="IDependencyRegistrator"/> which on this method was called.</returns>
-        IDependencyRegistrator ReMap<TTo>(Action<IFluentServiceRegistrator> configurator = null)
+        IDependencyRegistrator ReMap<TTo>(Action<IFluentServiceRegistrator<TTo>> configurator = null)
              where TTo : class;
 
         /// <summary>
