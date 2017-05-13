@@ -37,16 +37,18 @@ namespace Stashbox.BuildUp
 
                 if (serviceRegistration.RegistrationContext.Finalizer != null)
                 {
-                    var finalizerExpression = base.HandleFinalizer(Expression.Constant(factory(resolutionInfo.ResolutionScope)), serviceRegistration);
+                    var finalizerExpression = base.HandleFinalizer(Expression.Constant(instance), serviceRegistration);
                     return this.expression = Expression.Constant(finalizerExpression.CompileDelegate(Constants.ScopeExpression)(resolutionInfo.ResolutionScope));
                 }
 
-                return this.expression = Expression.Constant(factory(resolutionInfo.ResolutionScope));
+                return this.expression = Expression.Constant(instance);
             }
         }
 
         public override IObjectBuilder Produce() => new WireUpObjectBuilder(base.ContainerContext, this.expressionBuilder);
 
         public override bool HandlesObjectDisposal => true;
+
+        public override bool HandlesFinalizer => true;
     }
 }

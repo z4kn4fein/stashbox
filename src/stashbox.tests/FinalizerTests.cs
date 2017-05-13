@@ -114,6 +114,32 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void FinalizerTests_WireUp_Interface()
+        {
+            var test = new Test();
+            using (var container = new StashboxContainer())
+            {
+                container.WireUpAs<ITest>(test, finalizerDelegate: t => t.CleanUp());
+                test = (Test)container.Resolve<ITest>();
+            }
+
+            Assert.IsTrue(test.CleanupCalled);
+        }
+
+        [TestMethod]
+        public void FinalizerTests_WireUp_Implementation()
+        {
+            var test = new Test();
+            using (var container = new StashboxContainer())
+            {
+                container.WireUpAs(test, finalizerDelegate: t => t.CleanUp());
+                test = container.Resolve<Test>();
+            }
+
+            Assert.IsTrue(test.CleanupCalled);
+        }
+
+        [TestMethod]
         public void FinalizerTests_RegisterType_Multiple_Shouldnt_Throw()
         {
             using (var container = new StashboxContainer())

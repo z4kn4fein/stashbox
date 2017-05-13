@@ -16,10 +16,6 @@ namespace Stashbox.Registration
             : base(serviceType, implementationType, registrator)
         { }
 
-        public RegistrationContext(Type serviceType, Type implementationType, IServiceRegistrator registrator, RegistrationContextData registrationContextData)
-            : base(serviceType, implementationType, registrator, registrationContextData)
-        { }
-
         public IFluentServiceRegistrator<TService> WithFinalizer(Action<TService> finalizer)
         {
             base.Context.Finalizer = finalizer;
