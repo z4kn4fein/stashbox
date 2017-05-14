@@ -124,6 +124,25 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void ContainerTests_IsRegistered()
+        {
+            var container = new StashboxContainer();
+            container.RegisterType<ITest1, Test1>();
+            container.RegisterType<ITest2, Test2>(context => context.WithName("test"));
+
+            var child = container.CreateChildContainer();
+
+            Assert.IsTrue(container.IsRegistered<ITest1>());
+            Assert.IsTrue(container.IsRegistered<ITest2>("test"));
+            Assert.IsTrue(container.IsRegistered(typeof(ITest1)));
+            Assert.IsFalse(container.IsRegistered<IEnumerable<ITest1>>());
+
+            Assert.IsFalse(child.IsRegistered<ITest1>());
+            Assert.IsFalse(child.IsRegistered(typeof(ITest1)));
+            Assert.IsFalse(child.IsRegistered<IEnumerable<ITest1>>());
+        }
+
+        [TestMethod]
         public void ContainerTests_ResolverTest()
         {
             var container = new StashboxContainer();
@@ -180,7 +199,7 @@ namespace Stashbox.Tests
         {
             public Test4(ITest3 test3)
             {
-                
+
             }
         }
 

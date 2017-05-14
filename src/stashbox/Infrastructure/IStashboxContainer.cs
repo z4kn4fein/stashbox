@@ -59,6 +59,22 @@ namespace Stashbox.Infrastructure
         bool CanResolve(Type typeFrom, object name = null);
 
         /// <summary>
+        /// Checks a type is registered in the container.
+        /// </summary>
+        /// <typeparam name="TFrom">The service type.</typeparam>
+        /// <param name="name">The registration name.</param>
+        /// <returns>True if the service is registered, otherwise false.</returns>
+        bool IsRegistered<TFrom>(object name = null);
+
+        /// <summary>
+        /// Checks a type is registered in the container.
+        /// </summary>
+        /// <param name="typeFrom">The service type.</param>
+        /// <param name="name">The registration name.</param>
+        /// <returns>True if the service is registered, otherwise false.</returns>
+        bool IsRegistered(Type typeFrom, object name = null);
+
+        /// <summary>
         /// Configures the container.
         /// </summary>
         /// <param name="config">The action delegate which will configure the container.</param>

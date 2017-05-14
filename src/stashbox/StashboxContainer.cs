@@ -89,6 +89,14 @@ namespace Stashbox
                 this.resolverSelector.CanResolve(this.ContainerContext, new TypeInformation { Type = typeFrom, DependencyName = name }, ResolutionInfo.New(this, this));
 
         /// <inheritdoc />
+        public bool IsRegistered<TFrom>(object name = null) =>
+            this.IsRegistered(typeof(TFrom), name);
+
+        /// <inheritdoc />
+        public bool IsRegistered(Type typeFrom, object name = null) =>
+            this.registrationRepository.ContainsRegistration(typeFrom, name);
+
+        /// <inheritdoc />
         public void Validate()
         {
             foreach (var serviceRegistration in this.registrationRepository.GetAllRegistrations())
