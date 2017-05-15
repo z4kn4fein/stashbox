@@ -39,7 +39,7 @@ Stashbox is a lightweight, portable dependency injection framework for .NET base
 
 ## Supported platforms
 
- - .NET 4.5 and above
+ - .NET 4.0 and above
  - Windows 8/8.1/10
  - Windows Phone Silverlight 8/8.1
  - Windows Phone 8.1
@@ -66,7 +66,11 @@ var wulfgar = container.Resolve<IBarbarian>();
 ## Extensions
  - [Decorator extension](https://github.com/z4kn4fein/stashbox-decoratorextension) (obsolate, the decorator pattern support is a built-in feature from version 2.3.0)
  - [Stashbox.Web.WebApi](https://github.com/z4kn4fein/stashbox-web-webapi)
+ - [Stashbox.AspNet.WebApi.Owin](https://github.com/z4kn4fein/stashbox-webapi-owin)
  - [Stashbox.Web.Mvc](https://github.com/z4kn4fein/stashbox-web-mvc)
+ - [Stashbox.AspNet.SingalR](https://github.com/z4kn4fein/stashbox-signalr)
+ - [Stashbox.AspNet.SingalR.Owin](https://github.com/z4kn4fein/stashbox-signalr-owin)
+ - [Stashbox.Owin](https://github.com/z4kn4fein/stashbox-owin)
  - [Stashbox.Extension.Wcf](https://github.com/devworker55/stashbox-extension-wcf)
  - [Stashbox.Extensions.Dependencyinjection](https://github.com/z4kn4fein/stashbox-extensions-dependencyinjection)
      - [Microsoft.Extensions.DependencyInjection](https://github.com/aspnet/DependencyInjection) adapter for ASP.NET Core.
