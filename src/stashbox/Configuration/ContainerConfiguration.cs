@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Stashbox.Attributes;
 using Stashbox.Entity;
+using Stashbox.Infrastructure.Registration;
 
 namespace Stashbox.Configuration
 {
@@ -52,6 +53,11 @@ namespace Stashbox.Configuration
         /// The annotationless member injection rule.
         /// </summary>
         public Rules.AutoMemberInjection MemberInjectionWithoutAnnotationRule { get; internal set; }
+
+        /// <summary>
+        /// Represents the configuration which will be invoked when an unknown type being registered.
+        /// </summary>
+        public Action<IFluentServiceRegistrator> UnknownTypeConfigurator { get; internal set; }
 
         /// <summary>
         /// The constructor selection rule.

@@ -14,7 +14,11 @@ namespace Stashbox.BuildUp.Resolution
 
         public override Expression GetExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo)
         {
-            containerContext.Container.RegisterType(typeInfo.Type, typeInfo.Type, context => context.WithName(typeInfo.DependencyName));
+            var context = containerContext.Container.ServiceRegistrator.PrepareContext(typeInfo.Type, typeInfo.Type);
+            context.WithName(typeInfo.DependencyName);
+            containerContext.ContainerConfigurator.ContainerConfiguration.UnknownTypeConfigurator?.Invoke(context);
+            context.Register();
+
             return containerContext.ResolutionStrategy.BuildResolutionExpression(containerContext, resolutionInfo, typeInfo, null);
         }
     }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Stashbox.Configuration;
 using Stashbox.Entity;
+using Stashbox.Infrastructure.Registration;
 
 namespace Stashbox.Infrastructure
 {
@@ -43,7 +44,7 @@ namespace Stashbox.Infrastructure
         /// Enables the unknown type resolution.
         /// </summary>
         /// <returns>The container configurator.</returns>
-        IContainerConfigurator WithUnknownTypeResolution();
+        IContainerConfigurator WithUnknownTypeResolution(Action<IFluentServiceRegistrator> configurator = null);
 
         /// <summary>
         /// Enables the member injection without annotation.

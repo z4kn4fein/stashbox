@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Stashbox.Entity;
 using Stashbox.Infrastructure;
+using Stashbox.Infrastructure.Registration;
 
 namespace Stashbox.Configuration
 {
@@ -49,9 +50,10 @@ namespace Stashbox.Configuration
         }
 
         /// <inheritdoc />
-        public IContainerConfigurator WithUnknownTypeResolution()
+        public IContainerConfigurator WithUnknownTypeResolution(Action<IFluentServiceRegistrator> configurator = null)
         {
             this.ContainerConfiguration.UnknownTypeResolutionEnabled = true;
+            this.ContainerConfiguration.UnknownTypeConfigurator = configurator;
             return this;
         }
 

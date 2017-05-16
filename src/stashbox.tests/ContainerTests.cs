@@ -7,6 +7,7 @@ using Stashbox.Infrastructure;
 using System.Linq.Expressions;
 using Stashbox.Infrastructure.Resolution;
 using System.Linq;
+using Stashbox.Lifetime;
 
 namespace Stashbox.Tests
 {
@@ -169,6 +170,21 @@ namespace Stashbox.Tests
             var inst = container.Resolve<IEnumerable<ITest1>>();
 
             Assert.IsInstanceOfType(inst.First(), typeof(Test1));
+        }
+
+        [TestMethod]
+        public void ContainerTests_UnknownType_Config()
+        {
+            var container = new StashboxContainer(config => config
+                .WithUnknownTypeResolution(context => context.WithSingletonLifetime()));
+
+            container.Resolve<Test1>();
+
+            var regs = container.ContainerContext.RegistrationRepository.GetAllRegistrations().ToArray();
+
+            Assert.AreEqual(1, regs.Length);
+            Assert.AreEqual(regs[0].ServiceType, typeof(Test1));
+            Assert.IsTrue(regs[0].RegistrationContext.Lifetime is SingletonLifetime);
         }
 
         public interface ITest1 { }
