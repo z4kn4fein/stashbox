@@ -1,4 +1,4 @@
-﻿#if NET45 || NET40
+﻿#if NET45 || NET40 || NETSTANDARD1_3
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
@@ -10,11 +10,26 @@ namespace Stashbox.BuildUp.Expressions.Compile
     internal static class ExpressionEmitter
     {
         public static readonly Lazy<ModuleBuilder> ModuleBuilder = new Lazy<ModuleBuilder>(() =>
-            AppDomain.CurrentDomain.DefineDynamicAssembly(
-                new AssemblyName("Stashbox.Dynamic"),
-                AssemblyBuilderAccess.Run).DefineDynamicModule("Stashbox.Dynamic"));
+            CreateAssembly().DefineDynamicModule("Stashbox.Dynamic"));
 
+        private static AssemblyBuilder CreateAssembly()
+        {
+#if NETSTANDARD1_3
+            return AssemblyBuilder.DefineDynamicAssembly(
+                 new AssemblyName("Stashbox.Dynamic"),
+                 AssemblyBuilderAccess.Run);
+#else
+            return AppDomain.CurrentDomain.DefineDynamicAssembly(
+                 new AssemblyName("Stashbox.Dynamic"),
+                 AssemblyBuilderAccess.Run);
+#endif
+        }
+
+#if NETSTANDARD1_3
+        private static readonly MethodInfo DelegateTargetProperty = typeof(Delegate).GetPropertyGetMethod("Target");
+#else
         private static readonly MethodInfo DelegateTargetProperty = typeof(Delegate).GetProperty("Target").GetGetMethod();
+#endif
 
         public static bool TryEmit(this Expression expression, out Delegate resultDelegate, Type delegateType, Type returnType, params ParameterExpression[] parameters) =>
             expression.TryEmit(delegateType, returnType, out resultDelegate, out DelegateTargetInformation delegateTarget, parameters);
@@ -136,6 +151,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
         private static bool TryEmit(this NewArrayExpression expression, DelegateTargetInformation target, ILGenerator generator, params ParameterExpression[] parameters)
         {
             var type = expression.Type;
+            var typeInfo = type.GetTypeInfo();
             var itemType = type.GetEnumerableType();
 
             var instance = generator.DeclareLocal(itemType);
@@ -150,13 +166,13 @@ namespace Stashbox.BuildUp.Expressions.Compile
                 generator.Emit(OpCodes.Ldloc, instance);
                 generator.EmitInteger(i);
 
-                if (type.IsValueType)
+                if (typeInfo.IsValueType)
                     generator.Emit(OpCodes.Ldelema, itemType);
 
                 if (!expression.Expressions[i].TryEmit(target, generator, parameters))
                     return false;
 
-                if (type.IsValueType)
+                if (typeInfo.IsValueType)
                     generator.Emit(OpCodes.Stobj, itemType);
                 else
                     generator.Emit(OpCodes.Stelem_Ref);
@@ -218,7 +234,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
 
                         if (memberExpression.Member is PropertyInfo property)
                         {
-                            var setMethod = property.GetSetMethod(true);
+                            var setMethod = property.GetSetMethod();
                             if (setMethod == null)
                                 return false;
                             generator.EmitMethod(setMethod);
@@ -330,7 +346,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
 
                 if (binding.Member is PropertyInfo property)
                 {
-                    var setMethod = property.GetSetMethod(true);
+                    var setMethod = property.GetSetMethod();
                     if (setMethod == null)
                         return false;
                     generator.EmitMethod(setMethod);
@@ -356,7 +372,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
 
             if (!(expression.Member is PropertyInfo property)) return true;
 
-            var getMethod = property.GetGetMethod(true);
+            var getMethod = property.GetGetMethod();
             if (getMethod == null)
                 return false;
             generator.EmitMethod(getMethod);

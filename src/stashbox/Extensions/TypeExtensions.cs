@@ -192,6 +192,20 @@ namespace System
             @delegate.GetMethodInfo();
 #endif
 
+#if NETSTANDARD1_3
+        public static MethodInfo GetGetMethod(this PropertyInfo property) =>
+            property.DeclaringType.GetMethod($"get_{property.Name}");
+
+        public static MethodInfo GetSetMethod(this PropertyInfo property) =>
+            property.DeclaringType.GetMethod($"set_{property.Name}");
+
+        public static MethodInfo GetPropertyGetMethod(this Type type, string name) =>
+            type.GetTypeInfo().DeclaredMethods.Single(method => method.Name == $"get_{name}");
+
+        public static MethodInfo GetMethod(this Type type, string name) =>
+            type.GetTypeInfo().DeclaredMethods.Single(method => method.Name == name);
+#endif
+
         private static bool IsAssignableToGenericType(Type type, Type genericType)
         {
             if (type == null || genericType == null) return false;

@@ -1,4 +1,4 @@
-﻿#if NET45 || NET40
+﻿#if NET45 || NET40 || NETSTANDARD1_3
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -95,15 +95,27 @@ namespace Stashbox.BuildUp.Expressions.Compile
                     typeParamNames[i] = "T" + i;
 
                 var typeParams = typeBuilder.DefineGenericParameters(typeParamNames);
+#if NETSTANDARD1_3
+                var genericTypes = new Type[length];
+#endif
 
                 for (var i = 0; i < length; i++)
                 {
                     types[i] = constants.ConstantExpressions[i].Type;
+#if NETSTANDARD1_3
+                    var genericType = typeParams[i].AsType();
+                    genericTypes[i] = genericType;
+                    fields[i] = typeBuilder.DefineField("F" + i, genericType, FieldAttributes.Public);
+#else
                     fields[i] = typeBuilder.DefineField("F" + i, typeParams[i], FieldAttributes.Public);
+#endif
                 }
 
-
+#if NETSTANDARD1_3
+                var constructor = typeBuilder.DefineConstructor(MethodAttributes.Public, CallingConventions.HasThis, genericTypes);
+#else
                 var constructor = typeBuilder.DefineConstructor(MethodAttributes.Public, CallingConventions.HasThis, typeParams);
+#endif
                 var generator = constructor.GetILGenerator();
 
                 generator.Emit(OpCodes.Ldarg_0);
@@ -118,8 +130,11 @@ namespace Stashbox.BuildUp.Expressions.Compile
 
                 generator.Emit(OpCodes.Ret);
             }
-
+#if NETSTANDARD1_3
+            var type = typeBuilder.CreateTypeInfo().AsType();
+#else
             var type = typeBuilder.CreateType();
+#endif
             TargetTypes.AddOrUpdate(length, type);
             return length > 0 ? type.MakeGenericType(types) : type;
         }
@@ -136,7 +151,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
 
             return new DelegateTargetInformation(null, null, null, null, null, constants.Locals);
         }
-        
+
         public static bool TryCollectConstants(this Expression expression, Constants constants, params ParameterExpression[] parameters)
         {
             switch (expression.NodeType)
@@ -205,7 +220,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
 
             return true;
         }
-        
+
         private static bool TryCollectConstants(this BlockExpression expression, Constants constants, params ParameterExpression[] parameters)
         {
             constants.Locals.AddRange(expression.Variables);
@@ -251,7 +266,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
         private static bool TryCollectConstants(this ConstantExpression expression, Constants constants)
         {
             if (expression.Value == null) return true;
-            
+
             constants.ConstantExpressions.Add(expression);
             constants.ConstantObjects.Add(expression.Value);
 
