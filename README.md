@@ -2,7 +2,7 @@
 
 Stashbox is a lightweight, portable dependency injection framework for .NET based solutions.
 
-[![Join the chat at https://gitter.im/z4kn4fein/stashbox](https://img.shields.io/badge/gitter-join%20chat-1dce73.svg)](https://gitter.im/z4kn4fein/stashbox?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Slack](https://img.shields.io/badge/slack-chat-orange.svg?style=flat)](https://stashbox-container.slack.com)
+[![Join the chat at https://gitter.im/z4kn4fein/stashbox](https://img.shields.io/badge/gitter-join%20chat-1dce73.svg)](https://gitter.im/z4kn4fein/stashbox?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Slack](https://img.shields.io/badge/slack-chat-orange.svg?style=flat)](https://stashbox-slack-in.herokuapp.com/)
 
 ## Features
 
