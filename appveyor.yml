@@ -84,6 +84,8 @@
       secure: Q9gcbZnzJ5a0YYF6mkr4QoQylIzeQmVytMnIe4WL7aPtb30SdNes7brLkvnXOirt
 
   version: $(build_version)-preview-{build}
+  
+  skip_tags: true
 
   pull_requests:
     do_not_increment_build_number: true
