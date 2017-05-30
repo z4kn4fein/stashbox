@@ -1,15 +1,11 @@
 deploy:
 - provider: NuGet
-  on:
-    branch: master
   api_key:
     secure: doqtwSE1NadH7pf4jqYifDu4tcXzsNiJtPWOccnbUrhSnIJX+5js7m8z+kV9LNJ2
 
 - provider: GitHub
   tag: $(build_version)
   release: Stashbox v$(build_version)
-  on:
-    branch: master
   auth_token:
     secure: TaIug8cHioxT2qDznFpGtDinZiDi+20pEMQZUVAATWCvGLG9Y5LrjaxDUQtGyt38
   artifact: /.*\.nupkg/

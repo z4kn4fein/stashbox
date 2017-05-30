@@ -1,7 +1,6 @@
 deploy:
 - provider: NuGet
   server: https://www.myget.org/F/pcsajtai/api/v2/package
-  skip_symbols: true
   api_key:
     secure: 2bITagXOj2s3bTJaGXh8/iyWtST8OQOFaMM+0GAKgZts9OjCVCiV7C+E/0SYsM6M
 

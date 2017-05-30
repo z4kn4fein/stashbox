@@ -1,6 +1,7 @@
 language: csharp
 dist: trusty
 mono: none
+sudo: required
 dotnet: 1.0.1
 
 os:
@@ -8,7 +9,7 @@ os:
   - osx
   
 before_script:
-  - dotnet restore src/
+  - dotnet restore src/stashbox.sln
 
 script:
   - dotnet test src/stashbox.tests/stashbox.tests.csproj -c Release -f netcoreapp1.0
