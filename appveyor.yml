@@ -15,7 +15,7 @@ image: Visual Studio 2017
 configuration: Release
 
 init:
-- ps: >-
+- ps: |
     $ver = Get-Content ".version"
     Update-AppveyorBuild -Version "$ver-preview-${env:APPVEYOR_BUILD_NUMBER}"
 

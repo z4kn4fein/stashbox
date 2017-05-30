@@ -22,7 +22,7 @@ image: Visual Studio 2017
 configuration: Release
 
 init:
-- ps: >-
+- ps: |
     $env:build_version = Get-Content ".version"
     Update-AppveyorBuild -Version "${env:build_version}-${env:APPVEYOR_BUILD_NUMBER}"
 
