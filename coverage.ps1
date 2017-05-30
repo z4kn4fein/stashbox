@@ -15,5 +15,5 @@ $env:Path += ";c:\Python34;C:\Python34\Scripts"
 $arguments = "-returntargetcode", "-register:user", "`"-filter:+[*]Stashbox.* -[Stashbox.Tests]* -[Stashbox]*.Utils* -[Stashbox]*.Expressions.Compile*`"", "-target:dotnet.exe", "`"-targetargs:test $testPath -f net45 -c Release`"", "-output:coverage.xml", "-skipautoprops", "-hideskipped:All"
 . $openCoverPath $arguments
 . pip install codecov
-. codecov -f coverage.xml
+. codecov -f coverage.xml -X gcov
 . $reportGeneratorPath -verbosity:Info -reports:coverage.xml -targetdir:$coverageReportDir "-assemblyfilters:-Stashbox.Tests*"
