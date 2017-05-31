@@ -24,7 +24,8 @@ namespace Stashbox
         {
             if (containerExtension is IPostBuildExtension)
                 this.HasPostBuildExtensions = true;
-            else
+
+            if (containerExtension is IRegistrationExtension)
                 this.HasRegistrationExtensions = true;
 
             this.repository.Add(containerExtension);
