@@ -54,11 +54,12 @@ namespace Stashbox.Registration
         }
 
         /// <inheritdoc />
-        public bool IsUsableForCurrentContext(TypeInformation typeInfo) => this.RegistrationContext.TargetTypeCondition == null && this.RegistrationContext.ResolutionCondition == null && (this.RegistrationContext.AttributeConditions == null || !this.RegistrationContext.AttributeConditions.Any()) ||
-                   this.RegistrationContext.TargetTypeCondition != null && typeInfo.ParentType != null && this.RegistrationContext.TargetTypeCondition == typeInfo.ParentType ||
-                   this.RegistrationContext.AttributeConditions != null && typeInfo.CustomAttributes != null &&
-                   this.RegistrationContext.AttributeConditions.Intersect(typeInfo.CustomAttributes.Select(attribute => attribute.GetType())).Any() ||
-                   this.RegistrationContext.ResolutionCondition != null && this.RegistrationContext.ResolutionCondition(typeInfo);
+        public bool IsUsableForCurrentContext(TypeInformation typeInfo) =>
+            this.RegistrationContext.TargetTypeCondition == null && this.RegistrationContext.ResolutionCondition == null && (this.RegistrationContext.AttributeConditions == null || !this.RegistrationContext.AttributeConditions.Any()) ||
+            this.RegistrationContext.TargetTypeCondition != null && typeInfo.ParentType != null && this.RegistrationContext.TargetTypeCondition == typeInfo.ParentType ||
+            this.RegistrationContext.AttributeConditions != null && typeInfo.CustomAttributes != null &&
+            this.RegistrationContext.AttributeConditions.Intersect(typeInfo.CustomAttributes.Select(attribute => attribute.GetType())).Any() ||
+            this.RegistrationContext.ResolutionCondition != null && this.RegistrationContext.ResolutionCondition(typeInfo);
 
         /// <inheritdoc />
         public bool HasCondition => this.RegistrationContext.TargetTypeCondition != null || this.RegistrationContext.ResolutionCondition != null ||

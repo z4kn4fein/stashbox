@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Stashbox.Attributes;
 
 namespace Stashbox.Entity
@@ -26,7 +27,7 @@ namespace Stashbox.Entity
         /// <summary>
         /// Custom attributes of the dependency.
         /// </summary>
-        public Attribute[] CustomAttributes { get; internal set; }
+        public IEnumerable<Attribute> CustomAttributes { get; internal set; }
 
         /// <summary>
         /// The variable name of the dependency.

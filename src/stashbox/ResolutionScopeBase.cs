@@ -112,7 +112,7 @@ namespace Stashbox
             var root = this.rootItem;
             while (!ReferenceEquals(root, DisposableItem.Empty))
             {
-                root.Item?.Dispose();
+                root.Item.Dispose();
                 root = root.Next;
             }
         }

@@ -12,12 +12,6 @@ namespace Stashbox.Utils
     /// <typeparam name="TValue">The type of the value.</typeparam>
     public class ConcurrentTree<TKey, TValue> : IEnumerable<TValue>
     {
-        /// <summary>
-        /// Static factory method.
-        /// </summary>
-        /// <returns>A new tree instance</returns>
-        public static ConcurrentTree<TKey, TValue> Create() => new ConcurrentTree<TKey, TValue>();
-
         private AvlTreeKeyValue<TKey, TValue> repository;
 
         /// <summary>
@@ -116,12 +110,6 @@ namespace Stashbox.Utils
     /// <typeparam name="TValue">The type of the value.</typeparam>
     public class ConcurrentTree<TValue> : IEnumerable<TValue>
     {
-        /// <summary>
-        /// Static factory method.
-        /// </summary>
-        /// <returns>A new tree instance</returns>
-        public static ConcurrentTree<TValue> Create() => new ConcurrentTree<TValue>();
-
         private AvlTree<TValue> repository;
 
         /// <summary>

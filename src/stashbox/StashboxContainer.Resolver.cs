@@ -69,8 +69,8 @@ namespace Stashbox
             Shield.EnsureNotNull(instance, nameof(instance));
 
             base.AddScopedInstance(typeFrom, instance);
-            if (!withoutDisposalTracking && instance is IDisposable)
-                base.AddDisposableTracking((IDisposable)instance);
+            if (!withoutDisposalTracking && instance is IDisposable disposable)
+                base.AddDisposableTracking(disposable);
 
             return this;
         }

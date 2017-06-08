@@ -17,7 +17,7 @@ namespace Stashbox.Registration
         /// </summary>
         public DecoratorRepository()
         {
-            this.repository = ConcurrentTree<Type, ConcurrentOrderedKeyStore<Type, IServiceRegistration>>.Create();
+            this.repository = new ConcurrentTree<Type, ConcurrentOrderedKeyStore<Type, IServiceRegistration>>();
         }
 
         /// <inheritdoc />

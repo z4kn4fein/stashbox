@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace Stashbox.Utils
 {
@@ -44,6 +45,7 @@ namespace Stashbox.Utils
         public AvlTree<TValue> AddOrUpdate(int key, TValue value, out bool updated, Func<TValue, TValue, TValue> updateDelegate = null) =>
             this.Add(key, value, updateDelegate, out updated);
 
+        [MethodImpl(Constants.Inline)]
         public TValue GetOrDefault(int key)
         {
             var node = this;

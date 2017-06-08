@@ -27,7 +27,26 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
-        public void InjectionMemberTests_WireUp()
+        public void WireUp_Multiple_Named()
+        {
+            using (var container = new StashboxContainer())
+            {
+                var test1 = new Test();
+                container.WireUpAs<ITest>(test1, "test1");
+
+                var test2 = new Test();
+                container.WireUpAs<ITest>(test2, "test2");
+
+                var inst = container.Resolve<ITest>("test1");
+                var inst2 = container.Resolve<ITest>("test2");
+
+                Assert.AreSame(test1, inst);
+                Assert.AreSame(test2, inst2);
+            }
+        }
+
+        [TestMethod]
+        public void WireUpTests_InjectionMember()
         {
             using (var container = new StashboxContainer())
             {
@@ -49,7 +68,7 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
-        public void InjectionMemberTests_WireUp_ServiceUpdated()
+        public void WireUpTests_InjectionMember_ServiceUpdated()
         {
             using (var container = new StashboxContainer())
             {
@@ -73,7 +92,7 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
-        public void InjectionMemberTests_WireUp_WithoutService()
+        public void WireUpTests_InjectionMember_WithoutService()
         {
             using (var container = new StashboxContainer())
             {
@@ -90,7 +109,7 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
-        public void InjectionMemberTests_WireUp_WithoutService_NonGeneric()
+        public void WireUpTests_WithoutService_NonGeneric()
         {
             using (var container = new StashboxContainer())
             {

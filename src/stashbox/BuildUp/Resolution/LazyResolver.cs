@@ -31,7 +31,7 @@ namespace Stashbox.BuildUp.Resolution
             if (registration != null)
                 return !containerContext.ContainerConfigurator.ContainerConfiguration.CircularDependenciesWithLazyEnabled ?
                            Expression.New(lazyConstructor, Expression.Lambda(registration.GetExpression(resolutionInfo, lazyArgumentInfo.Type))) :
-                            this.CreateLazyExpressionCall(registration, lazyArgumentInfo.Type, lazyConstructor, resolutionInfo);
+                            CreateLazyExpressionCall(registration, lazyArgumentInfo.Type, lazyConstructor, resolutionInfo);
 
             var expression = this.resolverSelector.GetResolverExpression(containerContext, lazyArgumentInfo, resolutionInfo);
 
@@ -55,7 +55,7 @@ namespace Stashbox.BuildUp.Resolution
                         regExpressions[i] = Expression.New(lazyConstructor,
                             Expression.Lambda(registrations[i].Value.GetExpression(resolutionInfo, lazyArgumentInfo.Type)));
                     else
-                        regExpressions[i] = this.CreateLazyExpressionCall(registrations[i].Value, lazyArgumentInfo.Type, lazyConstructor, resolutionInfo);
+                        regExpressions[i] = CreateLazyExpressionCall(registrations[i].Value, lazyArgumentInfo.Type, lazyConstructor, resolutionInfo);
 
                 return regExpressions;
             }
@@ -72,13 +72,12 @@ namespace Stashbox.BuildUp.Resolution
             return expressions;
         }
 
-        private Expression CreateLazyExpressionCall(IServiceRegistration serviceRegistration, Type type, ConstructorInfo constructor, ResolutionInfo resolutionInfo)
+        private static Expression CreateLazyExpressionCall(IServiceRegistration serviceRegistration, Type type, ConstructorInfo constructor, ResolutionInfo resolutionInfo)
         {
-            var delegateCache = new DelegateCache(type);
-            var callExpression = Expression.Call(Expression.Constant(delegateCache),
-                DelegateCacheMethod,
+            var callExpression = Expression.Call(DelegateCacheMethod,
                 Expression.Constant(serviceRegistration),
                 Expression.Constant(resolutionInfo),
+                Expression.Constant(type),
                 Expression.NewArrayInit(typeof(object),
                 resolutionInfo.ParameterExpressions?.OfType<Expression>() ?? new Expression[] { }));
 
@@ -89,27 +88,12 @@ namespace Stashbox.BuildUp.Resolution
         public override bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo) =>
             typeInfo.Type.IsClosedGenericType() && typeInfo.Type.GetGenericTypeDefinition() == typeof(Lazy<>);
 
-        private static readonly MethodInfo DelegateCacheMethod = typeof(DelegateCache).GetSingleMethod("CreateLazyDelegate");
+        private static readonly MethodInfo DelegateCacheMethod = typeof(LazyResolver).GetSingleMethod(nameof(CreateLazyDelegate), true);
 
-        private class DelegateCache
+        private static object CreateLazyDelegate(IServiceRegistration serviceRegistration, ResolutionInfo resolutionInfo, Type type, object[] arguments)
         {
-            private readonly Type type;
-            private Func<IResolutionScope, Delegate> cache;
-
-            public DelegateCache(Type type)
-            {
-                this.type = type;
-            }
-
-            public object CreateLazyDelegate(IServiceRegistration serviceRegistration, ResolutionInfo resolutionInfo, object[] arguments)
-            {
-                if (this.cache != null)
-                    return this.cache(resolutionInfo.ResolutionScope).DynamicInvoke(arguments);
-
-                var expr = serviceRegistration.GetExpression(resolutionInfo, this.type);
-                this.cache = Expression.Lambda(expr, resolutionInfo.ParameterExpressions).CompileDelegate(Constants.ScopeExpression);
-                return this.cache(resolutionInfo.ResolutionScope).DynamicInvoke(arguments);
-            }
+            var expr = serviceRegistration.GetExpression(resolutionInfo, type);
+            return Expression.Lambda(expr, resolutionInfo.ParameterExpressions).CompileDelegate(Constants.ScopeExpression)(resolutionInfo.ResolutionScope).DynamicInvoke(arguments);
         }
     }
 }
