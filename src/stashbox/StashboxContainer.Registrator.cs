@@ -149,7 +149,7 @@ namespace Stashbox
                 data, false, !withoutDisposalTracking);
 
             this.registrationRepository.AddOrUpdateRegistration(registration, keyName ?? typeTo, false, false);
-            this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.ContainerContext, typeTo, typeFrom);
+            this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.ContainerContext, registration);
         }
     }
 }

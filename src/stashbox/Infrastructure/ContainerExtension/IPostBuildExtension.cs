@@ -1,5 +1,6 @@
 ﻿using System;
 using Stashbox.Entity;
+using Stashbox.Infrastructure.Registration;
 
 namespace Stashbox.Infrastructure.ContainerExtension
 {
@@ -14,10 +15,10 @@ namespace Stashbox.Infrastructure.ContainerExtension
         /// <param name="instance">The resolved object.</param>
         /// <param name="containerContext">The <see cref="IContainerContext"/> of the <see cref="StashboxContainer"/></param>
         /// <param name="resolutionInfo">Information about the actual resolution.</param>
-        /// <param name="resolveType">The type information of the resolved type.</param>
-        /// <param name="injectionParameters">The injection parameters.</param>
+        /// <param name="serviceRegistration">The service registration.</param>
+        /// <param name="requestedType">The requested type.</param>
         /// <returns>The extended object.</returns>
         object PostBuild(object instance, IContainerContext containerContext, ResolutionInfo resolutionInfo,
-            Type resolveType, InjectionParameter[] injectionParameters = null);
+            IServiceRegistration serviceRegistration, Type requestedType);
     }
 }

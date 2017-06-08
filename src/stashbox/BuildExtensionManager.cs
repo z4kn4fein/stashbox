@@ -4,6 +4,7 @@ using Stashbox.Infrastructure.ContainerExtension;
 using System.Linq;
 using Stashbox.Utils;
 using System;
+using Stashbox.Infrastructure.Registration;
 
 namespace Stashbox
 {
@@ -24,22 +25,23 @@ namespace Stashbox
         {
             if (containerExtension is IPostBuildExtension)
                 this.HasPostBuildExtensions = true;
-            else
+
+            if (containerExtension is IRegistrationExtension)
                 this.HasRegistrationExtensions = true;
 
             this.repository.Add(containerExtension);
         }
 
         public object ExecutePostBuildExtensions(object instance, IContainerContext containerContext, ResolutionInfo resolutionInfo,
-            Type resolveType, InjectionParameter[] injectionParameters = null) =>
-            this.repository.OfType<IPostBuildExtension>().Aggregate(instance, (current, extension) => extension.PostBuild(current, containerContext, resolutionInfo, resolveType, injectionParameters));
+            IServiceRegistration serviceRegistration, Type requestedType) =>
+            this.repository.OfType<IPostBuildExtension>().Aggregate(instance, (current, extension) => extension.PostBuild(current, containerContext, resolutionInfo, serviceRegistration, requestedType));
 
-        public void ExecuteOnRegistrationExtensions(IContainerContext containerContext, Type typeTo, Type typeFrom, InjectionParameter[] injectionParameters = null)
+        public void ExecuteOnRegistrationExtensions(IContainerContext containerContext, IServiceRegistration serviceRegistration)
         {
             if (!this.HasRegistrationExtensions) return;
 
             foreach (var extension in this.repository.OfType<IRegistrationExtension>())
-                extension.OnRegistration(containerContext, typeTo, typeFrom, injectionParameters);
+                extension.OnRegistration(containerContext, serviceRegistration);
         }
 
         public IContainerExtensionManager CreateCopy()

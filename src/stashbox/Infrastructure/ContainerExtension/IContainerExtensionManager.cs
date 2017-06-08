@@ -1,5 +1,6 @@
-﻿using Stashbox.Entity;
-using System;
+﻿using System;
+using Stashbox.Entity;
+using Stashbox.Infrastructure.Registration;
 
 namespace Stashbox.Infrastructure.ContainerExtension
 {
@@ -7,8 +8,8 @@ namespace Stashbox.Infrastructure.ContainerExtension
     {
         void AddExtension(IContainerExtension containerExtension);
         object ExecutePostBuildExtensions(object instance, IContainerContext containerContext, ResolutionInfo resolutionInfo,
-            Type resolveType, InjectionParameter[] injectionParameters = null);
-        void ExecuteOnRegistrationExtensions(IContainerContext containerContext, Type typeTo, Type typeFrom, InjectionParameter[] injectionParameters = null);
+            IServiceRegistration serviceRegistration, Type requestedType);
+        void ExecuteOnRegistrationExtensions(IContainerContext containerContext, IServiceRegistration serviceRegistration);
         IContainerExtensionManager CreateCopy();
         void ReinitalizeExtensions(IContainerContext containerContext);
         bool HasPostBuildExtensions { get; }

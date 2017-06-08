@@ -26,7 +26,21 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
-        public void InjectionMemberTests_BuildUp()
+        public void InjectionMemberTests_Resolve_WithoutRegistered()
+        {
+            var container = new StashboxContainer();
+            var test1 = new Test1();
+            container.WireUpAs<ITest1>(test1);
+
+            var inst = container.Resolve<ITest1>();
+
+            Assert.IsNotNull(inst);
+            Assert.IsNull(inst.Test);
+            Assert.IsNull(((Test1)inst).TestFieldProperty);
+        }
+
+        [TestMethod]
+        public void InjectionMemberTests_WireUp()
         {
             using (var container = new StashboxContainer())
             {

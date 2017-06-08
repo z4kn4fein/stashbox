@@ -186,7 +186,7 @@ namespace Stashbox.Tests
 
                 container.RegisterScoped<ITest2, Test2>();
                 container.RegisterScoped<Test3>();
-                container.RegisterScoped<ITest1, Test1>();
+                container.RegisterScoped<ITest1, Test1>("test");
 
                 test = container.Resolve<ITest1>();
                 test2 = container.Resolve<ITest2>();
@@ -194,7 +194,7 @@ namespace Stashbox.Tests
 
                 using (var child = container.BeginScope())
                 {
-                    test4 = child.Resolve<ITest1>();
+                    test4 = (ITest1)child.Resolve(typeof(ITest1), "test");
                     test5 = child.Resolve<ITest2>();
                     test6 = child.Resolve<Test3>();
                 }
@@ -230,6 +230,29 @@ namespace Stashbox.Tests
             }
 
             Assert.IsTrue(test.Disposed);
+        }
+
+        [TestMethod]
+        public void DisposeTests_PutInScope_RootScope_WithoutDispose()
+        {
+            var test = new Test1();
+            using (IStashboxContainer container = new StashboxContainer())
+            {
+                container.RegisterType<ITest2, Test2>();
+                container.RegisterType<Test3>();
+
+                container.PutInstanceInScope<ITest1>(test, true);
+
+                var test1 = container.Resolve<ITest1>();
+                var test2 = container.Resolve(typeof(ITest2));
+                var test3 = container.Resolve<Test3>();
+
+                Assert.AreSame(test, test1);
+                Assert.AreSame(test, ((ITest2)test2).Test1);
+                Assert.AreSame(test, test3.Test1);
+            }
+
+            Assert.IsFalse(test.Disposed);
         }
 
         [TestMethod]

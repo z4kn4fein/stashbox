@@ -16,31 +16,31 @@ namespace Stashbox
         /// <summary>
         /// The scope parameter expression.
         /// </summary>
-        public static ParameterExpression ScopeExpression = Expression.Parameter(typeof(IResolutionScope));
+        public static readonly ParameterExpression ScopeExpression = Expression.Parameter(typeof(IResolutionScope));
 
-        internal static MethodInfo AddDisposalMethod = typeof(IResolutionScope).GetSingleMethod("AddDisposableTracking");
+        internal static readonly MethodInfo AddDisposalMethod = typeof(IResolutionScope).GetSingleMethod("AddDisposableTracking");
 
-        internal static MethodInfo AddWithFinalizerMethod = typeof(IResolutionScope).GetSingleMethod("AddWithFinalizer");
+        internal static readonly MethodInfo AddWithFinalizerMethod = typeof(IResolutionScope).GetSingleMethod("AddWithFinalizer");
 
-        internal static MethodInfo BuildExtensionMethod = typeof(IContainerExtensionManager).GetSingleMethod("ExecutePostBuildExtensions");
+        internal static readonly MethodInfo BuildExtensionMethod = typeof(IContainerExtensionManager).GetSingleMethod("ExecutePostBuildExtensions");
 
-        internal static MethodInfo GetScopedValueMethod = typeof(ScopedLifetime).GetSingleMethod("GetScopedValue", true);
+        internal static readonly MethodInfo GetScopedInstanceMethod = typeof(IResolutionScope).GetSingleMethod("GetScopedInstanceOrDefault");
 
-        internal static MethodInfo GetScopedInstanceMethod = typeof(IResolutionScope).GetSingleMethod("GetScopedInstanceOrDefault");
+        internal static readonly Type DisposableType = typeof(IDisposable);
 
-        internal static Type DisposableType = typeof(IDisposable);
+        internal static readonly Type FuncType = typeof(Func<>);
 
-        internal static Type FuncType = typeof(Func<>);
+        internal static readonly Type ResolverType = typeof(IDependencyResolver);
 
-        internal static Type ResolverType = typeof(IDependencyResolver);
+        internal static readonly Type[] EmptyTypes = new Type[0];
 
-        internal static Type[] EmptyTypes = new Type[0];
+        internal static readonly Type ObjectType = typeof(object);
 
-        internal static Type ObjectType = typeof(object);
+        internal static readonly ConstructorInfo ObjectConstructor = ObjectType.GetConstructor(EmptyTypes);
 
-        internal static ConstructorInfo ObjectConstructor = ObjectType.GetConstructor(EmptyTypes);
+        internal static readonly Type CompositionRootType = typeof(ICompositionRoot);
 
-        internal static Type CompositionRootType = typeof(ICompositionRoot);
+        internal static readonly Type DependencyAttributeType = typeof(Attributes.DependencyAttribute);
 
         internal const MethodImplOptions Inline = (MethodImplOptions)256;
     }

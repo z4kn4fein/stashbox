@@ -96,7 +96,7 @@ namespace Stashbox.BuildUp.Expressions
                     resolutionInfo, serviceRegistration.MetaInformation.GetTypeInformationForParameter(parameter),
                     serviceRegistration.RegistrationContext.InjectionParameters);
 
-                parameterExpressions[i] = expression ?? throw new ResolutionFailedException(serviceRegistration.ImplementationType, 
+                parameterExpressions[i] = expression ?? throw new ResolutionFailedException(serviceRegistration.ImplementationType,
                     $"Constructor {constructor}, unresolvable parameter: ({parameter.ParameterType}){parameter.Name}");
             }
 
@@ -171,7 +171,7 @@ namespace Stashbox.BuildUp.Expressions
             if (this.containerExtensionManager.HasPostBuildExtensions)
             {
                 var call = Expression.Call(Expression.Constant(this.containerExtensionManager), Constants.BuildExtensionMethod, newVariable, Expression.Constant(this.containerContext),
-                      Expression.Constant(resolutionInfo), Expression.Constant(serviceType), Expression.Constant(serviceRegistration.RegistrationContext.InjectionParameters, typeof(InjectionParameter[])));
+                      Expression.Constant(resolutionInfo), Expression.Constant(serviceRegistration), Expression.Constant(serviceType));
 
                 block.Add(Expression.Assign(newVariable, Expression.Convert(call, serviceType)));
             }

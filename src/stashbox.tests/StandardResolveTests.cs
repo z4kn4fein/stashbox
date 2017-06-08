@@ -168,7 +168,7 @@ namespace Stashbox.Tests
                     container.RegisterType<ITest1, Test1>(context => context.WithName(i.ToString()));
                     container.RegisterType<ITest3, Test3>(context => context.WithName($"ITest3{i.ToString()}"));
                     var test33 = container.Resolve<ITest3>($"ITest3{i.ToString()}");
-                    var test11 = container.Resolve<ITest1>(i.ToString());
+                    var test11 = container.Resolve(typeof(ITest1), i.ToString());
                     Assert.IsNotNull(test33);
                     Assert.IsNotNull(test11);
 

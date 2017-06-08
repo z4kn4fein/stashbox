@@ -59,8 +59,7 @@ namespace Stashbox.Registration
             if (replace)
                 this.containerContext.DelegateRepository.InvalidateDelegateCache();
 
-            this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.containerContext, registrationContextMeta.ServiceType,
-                registrationContextMeta.ImplementationType, registrationContextMeta.Context.InjectionParameters);
+            this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.containerContext, registration);
 
             return this.containerContext.Container;
         }
@@ -81,8 +80,7 @@ namespace Stashbox.Registration
 
             this.containerContext.DelegateRepository.InvalidateDelegateCache();
 
-            this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.containerContext, registrationContextMeta.ServiceType,
-                registrationContextMeta.ImplementationType, registrationContextMeta.Context.InjectionParameters);
+            this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.containerContext, registration);
 
             return this.containerContext.Container;
         }

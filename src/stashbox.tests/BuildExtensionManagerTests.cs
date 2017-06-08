@@ -3,6 +3,7 @@ using Moq;
 using Stashbox.Entity;
 using Stashbox.Infrastructure.ContainerExtension;
 using System;
+using Stashbox.Infrastructure.Registration;
 
 namespace Stashbox.Tests
 {
@@ -20,7 +21,7 @@ namespace Stashbox.Tests
                 container.RegisterType<object>(context => context.WithFactory(() => obj));
 
                 post.Setup(p => p.PostBuild(obj, container.ContainerContext, It.IsAny<ResolutionInfo>(),
-                    It.IsAny<Type>(), null)).Returns(obj).Verifiable();
+                    It.IsAny<IServiceRegistration>(), It.IsAny<Type>())).Returns(obj).Verifiable();
 
                 var inst = container.Resolve(typeof(object));
                 post.Verify(p => p.Initialize(container.ContainerContext));
@@ -40,7 +41,7 @@ namespace Stashbox.Tests
 
                 bool called = false;
                 post.Setup(p => p.PostBuild(It.IsAny<object>(), container.ContainerContext, It.IsAny<ResolutionInfo>(),
-                    It.IsAny<Type>(), null)).Returns(It.IsAny<object>()).Callback(() => called = true).Verifiable();
+                    It.IsAny<IServiceRegistration>(), It.IsAny<Type>())).Returns(It.IsAny<object>()).Callback(() => called = true).Verifiable();
 
                 var inst = container.Resolve<Test>();
                 Assert.IsTrue(called);
@@ -60,8 +61,7 @@ namespace Stashbox.Tests
                 container.RegisterExtension(post.Object);
                 container.RegisterInstanceAs(new object());
                 post.Verify(p => p.Initialize(container.ContainerContext));
-                post.Verify(p => p.OnRegistration(container.ContainerContext,
-                    It.IsAny<Type>(), It.IsAny<Type>(), null));
+                post.Verify(p => p.OnRegistration(container.ContainerContext, It.IsAny<IServiceRegistration>()));
             }
 
             post.Verify(p => p.CleanUp());
@@ -83,8 +83,7 @@ namespace Stashbox.Tests
                     child.RegisterInstanceAs(new object());
 
                     post2.Verify(p => p.Initialize(child.ContainerContext));
-                    post2.Verify(p => p.OnRegistration(child.ContainerContext,
-                        It.IsAny<Type>(), It.IsAny<Type>(), null));
+                    post2.Verify(p => p.OnRegistration(child.ContainerContext, It.IsAny<IServiceRegistration>()));
                 }
 
                 post2.Verify(p => p.CleanUp());

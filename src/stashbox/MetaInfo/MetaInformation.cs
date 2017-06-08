@@ -56,7 +56,7 @@ namespace Stashbox.MetaInfo
             var length = typeInfo.GenericTypeArguments.Length;
 
             for (var i = 0; i < length; i++)
-                if (this.GenericTypeConstraints.ContainsKey(i) && !this.GenericTypeConstraints[i].Contains(typeInfo.GenericTypeArguments[i]))
+                if (this.GenericTypeConstraints.ContainsKey(i) && !this.GenericTypeConstraints[i].Any(constraint => typeInfo.GenericTypeArguments[i].Implements(constraint)))
                     return false;
 
             return true;
@@ -67,19 +67,22 @@ namespace Stashbox.MetaInfo
         /// </summary>
         /// <param name="parameter">The parameter info.</param>
         /// <returns>The converted type info.</returns>
-        public TypeInformation GetTypeInformationForParameter(ParameterInfo parameter) =>
-            new TypeInformation
+        public TypeInformation GetTypeInformationForParameter(ParameterInfo parameter)
+        {
+            var customAttributes = parameter.GetCustomAttributes();
+            var dependencyAttribute = parameter.GetCustomAttribute<DependencyAttribute>();
+            return new TypeInformation
             {
                 Type = parameter.ParameterType,
-                DependencyName = parameter.GetCustomAttribute<DependencyAttribute>()?.Name,
-                HasDependencyAttribute = parameter.GetCustomAttribute<DependencyAttribute>() != null,
+                DependencyName = dependencyAttribute?.Name,
+                HasDependencyAttribute = dependencyAttribute != null,
                 ParentType = this.type,
-                CustomAttributes = parameter.GetCustomAttributes()?.ToArray(),
+                CustomAttributes = customAttributes,
                 ParameterName = parameter.Name,
                 HasDefaultValue = parameter.HasDefaultValue(),
                 DefaultValue = parameter.DefaultValue
             };
-
+        }
 
         private void AddConstructors(IEnumerable<ConstructorInfo> constructors) =>
             this.Constructors = constructors
@@ -105,7 +108,6 @@ namespace Stashbox.MetaInfo
 
             for (int i = 0; i < length; i++)
                 types[i] = this.GetTypeInformationForParameter(parameters[i]);
-
 
             return types;
         }

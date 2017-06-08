@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq.Expressions;
+using System.Reflection;
 using Stashbox.Entity;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.Registration;
@@ -14,6 +15,8 @@ namespace Stashbox.Lifetime
         private volatile Expression expression;
         private readonly object syncObject = new object();
         private readonly object scopeId = new object();
+
+        private static readonly MethodInfo GetScopedValueMethod = typeof(ScopedLifetime).GetSingleMethod(nameof(GetScopedValue), true);
 
         /// <inheritdoc />
         public override ILifetime Create() => new ScopedLifetime();
@@ -32,7 +35,7 @@ namespace Stashbox.Lifetime
 
                 var factory = expr.CompileDelegate(Constants.ScopeExpression);
 
-                var method = Constants.GetScopedValueMethod.MakeGenericMethod(resolveType);
+                var method = GetScopedValueMethod.MakeGenericMethod(resolveType);
 
                 this.expression = Expression.Call(method,
                     Constants.ScopeExpression,

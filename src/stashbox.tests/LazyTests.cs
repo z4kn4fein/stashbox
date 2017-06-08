@@ -70,7 +70,7 @@ namespace Stashbox.Tests
         {
             var container = new StashboxContainer();
             var inst = container.Resolve<Lazy<IEnumerable<ITest>>>();
-            
+
             Assert.AreEqual(0, inst.Value.Count());
         }
 
@@ -101,7 +101,7 @@ namespace Stashbox.Tests
         [TestMethod]
         public void LazyTests_Resolve_Circular()
         {
-            var container = new StashboxContainer(config => 
+            var container = new StashboxContainer(config =>
             config.WithCircularDependencyTracking()
             .WithCircularDependencyWithLazy());
 
@@ -116,43 +116,39 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
-        public void LazyTests_Resolve_Circular_FromCache()
-        {
-            var container = new StashboxContainer(config =>
-            config.WithCircularDependencyTracking()
-            .WithCircularDependencyWithLazy());
-
-            container.RegisterSingleton<Circular1>();
-            container.RegisterSingleton<Circular2>();
-
-            var inst1 = container.Resolve<Circular1>();
-            var inst2 = container.Resolve<Circular2>();
-
-            Assert.AreSame(container.Resolve<Circular2>(), inst1.Dep.Value);
-            Assert.AreSame(container.Resolve<Circular1>(), inst2.Dep.Value);
-        }
-
-        [TestMethod]
         public void LazyTests_Resolve_Circular_Evaluate()
         {
             var container = new StashboxContainer(config =>
             config.WithCircularDependencyTracking()
             .WithCircularDependencyWithLazy());
 
+            container.RegisterType<Circular1>();
+            container.RegisterType<Circular2>();
+
+            var inst1 = container.Resolve<Circular1>();
+
+            Assert.IsNotNull(inst1.Dep.Value.Dep.Value.Dep.Value.Dep);
+        }
+
+        [TestMethod]
+        public void LazyTests_Resolve_Circular_Evaluate_Singleton()
+        {
+            var container = new StashboxContainer(config =>
+            config.WithCircularDependencyTracking()
+            .WithCircularDependencyWithLazy());
+
             container.RegisterSingleton<Circular1>();
             container.RegisterSingleton<Circular2>();
 
             var inst1 = container.Resolve<Circular1>();
 
-            var val = inst1.Dep.Value.Dep.Value.Dep.Value.Dep;
-
-            Assert.IsNotNull(val);
+            Assert.IsNotNull(inst1.Dep.Value.Dep.Value.Dep.Value.Dep);
         }
 
         [TestMethod]
         public void LazyTests_Resolve_IEnumerable_Circular()
         {
-            var container = new StashboxContainer(config => 
+            var container = new StashboxContainer(config =>
             config.WithCircularDependencyTracking()
             .WithCircularDependencyWithLazy());
 

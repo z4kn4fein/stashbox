@@ -156,8 +156,8 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType(typeof(IConstraintTest<>), typeof(ConstraintTest<>));
                 container.RegisterType(typeof(IConstraintTest<>), typeof(ConstraintTest2<>));
+                container.RegisterType(typeof(IConstraintTest<>), typeof(ConstraintTest<>));
 
                 var inst = container.Resolve<IConstraintTest<ConstraintArgument>>();
                 Assert.IsInstanceOfType(inst, typeof(ConstraintTest<ConstraintArgument>));
@@ -189,15 +189,34 @@ namespace Stashbox.Tests
             }
         }
 
-        public interface Constraint { }
+        [TestMethod]
+        public void GenericTests_Resolve_Constraint_Pick_RightImpl()
+        {
+            using (var container = new StashboxContainer())
+            {
+                container.RegisterType(typeof(IConstraintTest<>), typeof(ConstraintTest2<>));
+                container.RegisterType(typeof(IConstraintTest<>), typeof(ConstraintTest3<>));
+
+                var inst = container.Resolve<IConstraintTest<ConstraintArgument1>>();
+                Assert.IsInstanceOfType(inst, typeof(ConstraintTest3<ConstraintArgument1>));
+            }
+        }
+
+        public interface IConstraint { }
+
+        public interface IConstraint1 { }
 
         public interface IConstraintTest<T> { }
 
         public class ConstraintTest<T> : IConstraintTest<T> { }
 
-        public class ConstraintTest2<T> : IConstraintTest<T> where T : Constraint { }
+        public class ConstraintTest2<T> : IConstraintTest<T> where T : IConstraint { }
+
+        public class ConstraintTest3<T> : IConstraintTest<T> where T : IConstraint1 { }
 
         public class ConstraintArgument { }
+
+        public class ConstraintArgument1 : IConstraint1 { }
 
         public class ConstraintTest3
         {
