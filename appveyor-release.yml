@@ -23,7 +23,7 @@ install:
     Update-AppveyorBuild -Version "${env:build_version}-${env:APPVEYOR_BUILD_NUMBER}"
 
 before_build:
-- ps: . .\patch-version.ps1 "src\stashbox\stashbox.csproj"  ${env:build_version}
+- ps: . .\patch-version.ps1 "src\stashbox\stashbox.csproj" ${env:build_version}
 
 build_script:
 - msbuild /t:Restore /p:Configuration=%CONFIGURATION% src\stashbox.sln
