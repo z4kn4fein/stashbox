@@ -184,6 +184,30 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void ReMapTests_DependencyResolve_WithoutService()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            container.RegisterSingleton<Test11>();
+            container.RegisterType<Test3>();
+
+            var inst = container.Resolve<Test3>();
+
+            var dep = inst.Test1;
+
+            Assert.IsNotNull(dep);
+            Assert.IsInstanceOfType(dep, typeof(Test11));
+
+            container.ReMap<Test11>();
+
+            inst = container.Resolve<Test3>();
+
+            Assert.IsNotNull(inst.Test1);
+            Assert.IsInstanceOfType(inst.Test1, typeof(Test11));
+
+            Assert.AreNotSame(dep, inst.Test1);
+        }
+
+        [TestMethod]
         public void ReMapTests_DependencyResolve_Fluent()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -224,6 +248,16 @@ namespace Stashbox.Tests
             public ITest1 Test1 { get; }
 
             public Test2(ITest1 test1)
+            {
+                this.Test1 = test1;
+            }
+        }
+
+        public class Test3
+        {
+            public Test11 Test1 { get; }
+
+            public Test3(Test11 test1)
             {
                 this.Test1 = test1;
             }
