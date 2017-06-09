@@ -482,7 +482,7 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
-        public void DecoratorTests_RemapDecorator_V3()
+        public void DecoratorTests_RemapDecorator_WithConfig()
         {
             using (var container = new StashboxContainer())
             {
@@ -496,7 +496,7 @@ namespace Stashbox.Tests
                 Assert.IsInstanceOfType(test.Test, typeof(TestDecorator1));
                 Assert.IsInstanceOfType(test.Test.Test, typeof(Test1));
 
-                container.ReMapDecorator(typeof(ITest1), typeof(TestDecorator3));
+                container.ReMapDecorator(typeof(ITest1), typeof(TestDecorator3), context => context.WithoutDisposalTracking());
 
                 test = container.Resolve<ITest1>();
 
