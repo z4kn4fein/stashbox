@@ -32,7 +32,7 @@ Stashbox is a lightweight, portable dependency injection framework for .NET base
      - Parameter injection over factory method arguments e.g. `Func<TParam, TService>`, `Func<TParam1, TParam2, TService>`, etc. applied to subdependencies as well.
      - Nested wrappers e.g. `Tuple<TService, IEnumerable<Func<TParam, Lazy<TService1>>>>`.
  - **Custom resolvers** - the existing resolution operations can be extended with custom resolvers.
- - **Container extensions** - the functionality of the container can be extended with custom extensions, e.g. [Decorator extension](https://github.com/z4kn4fein/stashbox-decoratorextension)
+ - **Container extensions** - the functionality of the container can be extended with custom extensions, e.g. [Auto configuration parser extension](https://github.com/z4kn4fein/stashbox-configuration-extension)
  - **Custom configuration** - the behavior of the container can be controlled with custom configurations.
  - **Container validation** - the resolution graph can be validated by calling the `Validate()` function.
  - **Decorator support / Interception** - service decorators can be registered into the container and also can used for interception with Castle DynamicProxy
