@@ -160,10 +160,7 @@ namespace Stashbox.BuildUp.Expressions
 
             var newVariable = variable ?? Expression.Variable(initExpression.Type);
             if (variable == null)
-            {
-                var assign = Expression.Assign(newVariable, initExpression);
-                block.Add(assign);
-            }
+                block.Add(Expression.Assign(newVariable, initExpression));
 
             if (serviceRegistration.MetaInformation.InjectionMethods.Length > 0)
                 block.AddRange(this.CreateMethodExpressions(serviceRegistration, resolutionInfo, newVariable));
@@ -173,7 +170,7 @@ namespace Stashbox.BuildUp.Expressions
                 var call = Expression.Call(Expression.Constant(this.containerExtensionManager), Constants.BuildExtensionMethod, newVariable, Expression.Constant(this.containerContext),
                       Expression.Constant(resolutionInfo), Expression.Constant(serviceRegistration), Expression.Constant(serviceType));
 
-                block.Add(Expression.Assign(newVariable, Expression.Convert(call, serviceType)));
+                block.Add(Expression.Assign(newVariable, Expression.Convert(call, initExpression.Type)));
             }
 
             block.Add(newVariable); //return

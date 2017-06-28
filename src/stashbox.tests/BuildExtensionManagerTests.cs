@@ -37,13 +37,13 @@ namespace Stashbox.Tests
             using (var container = new StashboxContainer())
             {
                 container.RegisterExtension(post.Object);
-                container.RegisterType<Test>();
+                container.RegisterType<ITest, Test>();
 
                 bool called = false;
                 post.Setup(p => p.PostBuild(It.IsAny<object>(), container.ContainerContext, It.IsAny<ResolutionInfo>(),
                     It.IsAny<IServiceRegistration>(), It.IsAny<Type>())).Returns(It.IsAny<object>()).Callback(() => called = true).Verifiable();
 
-                var inst = container.Resolve<Test>();
+                var inst = container.Resolve<ITest>();
                 Assert.IsTrue(called);
 
                 post.Verify(p => p.Initialize(container.ContainerContext));
@@ -92,6 +92,8 @@ namespace Stashbox.Tests
             post.Verify(p => p.CleanUp());
         }
 
-        public class Test { }
+        public interface ITest { }
+
+        public class Test : ITest { }
     }
 }
