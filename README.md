@@ -45,6 +45,7 @@ Stashbox is a lightweight, portable dependency injection framework for .NET base
  - Windows Phone 8.1
  - Xamarin (Android/iOS/iOS Classic)
  - .NET Standard 1.0
+ - .NET Standard 1.3
 
 ## Sample usage
 ```c#
