@@ -37,6 +37,20 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void GenericTests_Resolve_Singleton_Many()
+        {
+            using (var container = new StashboxContainer(config => config.WithUniqueRegistrationIdentifiers()))
+            {
+                container.RegisterSingleton(typeof(ITest1<,>), typeof(Test1<,>));
+                container.RegisterSingleton(typeof(ITest1<,>), typeof(Test1<,>));
+                var en = container.Resolve<IEnumerable<ITest1<int, string>>>();
+                var inst = container.Resolve<ITest1<int, string>>();
+
+                Assert.AreEqual(inst, en.ToArray()[1]);
+            }
+        }
+
+        [TestMethod]
         public void GenericTests_Resolve_SameTime_DifferentParameter()
         {
             using (var container = new StashboxContainer())

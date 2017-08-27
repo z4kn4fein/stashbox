@@ -81,14 +81,14 @@ namespace Stashbox.Registration
 
             if (typeInfo.Type.IsClosedGenericType())
             {
-                var conditional = registrations.Where(reg => reg.HasCondition).FirstOrDefault(reg => reg.ValidateGenericContraints(typeInfo.Type) && reg.IsUsableForCurrentContext(typeInfo));
+                var conditional = registrations.Where(reg => reg.HasCondition).LastOrDefault(reg => reg.ValidateGenericContraints(typeInfo.Type) && reg.IsUsableForCurrentContext(typeInfo));
                 return conditional ??
-                       registrations.FirstOrDefault(reg => reg.ValidateGenericContraints(typeInfo.Type) && reg.IsUsableForCurrentContext(typeInfo));
+                       registrations.LastOrDefault(reg => reg.ValidateGenericContraints(typeInfo.Type) && reg.IsUsableForCurrentContext(typeInfo));
             }
             else
             {
-                var conditional = registrations.Where(reg => reg.HasCondition).FirstOrDefault(reg => reg.IsUsableForCurrentContext(typeInfo));
-                return conditional ?? registrations.FirstOrDefault(reg => reg.IsUsableForCurrentContext(typeInfo));
+                var conditional = registrations.Where(reg => reg.HasCondition).LastOrDefault(reg => reg.IsUsableForCurrentContext(typeInfo));
+                return conditional ?? registrations.LastOrDefault(reg => reg.IsUsableForCurrentContext(typeInfo));
             }
         }
 
@@ -101,7 +101,7 @@ namespace Stashbox.Registration
                 return registrations.Last;
 
             return type.IsClosedGenericType() ?
-                registrations.FirstOrDefault(reg => reg.ValidateGenericContraints(type)) :
+                registrations.LastOrDefault(reg => reg.ValidateGenericContraints(type)) :
                 registrations.Last;
         }
 
