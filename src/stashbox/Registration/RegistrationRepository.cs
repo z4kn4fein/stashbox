@@ -41,13 +41,11 @@ namespace Stashbox.Registration
         public IEnumerable<KeyValue<object, IServiceRegistration>> GetRegistrationsOrDefault(Type type)
         {
             var registrations = this.serviceRepository.GetOrDefault(type);
-
-            if (registrations != null) return registrations.Repository;
-
-            if (!type.IsClosedGenericType()) return null;
+            
+            if (!type.IsClosedGenericType()) return registrations?.Repository;
 
             var generics = this.serviceRepository.GetOrDefault(type.GetGenericTypeDefinition());
-            return generics?.Repository.Where(reg => reg.Value.ValidateGenericContraints(type));
+            return generics == null ? registrations?.Repository : registrations?.Repository.Concat(generics.Repository.Where(reg => reg.Value.ValidateGenericContraints(type))) ?? generics.Repository.Where(reg => reg.Value.ValidateGenericContraints(type));
         }
 
         public IEnumerable<IServiceRegistration> GetAllRegistrations() =>
