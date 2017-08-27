@@ -1,6 +1,6 @@
 ﻿using Stashbox.Infrastructure;
 
-#if NET45 || NET40 || NETSTANDARD1_3 || NETSTANDARD2_0
+#if NET45 || NET40 || NETSTANDARD1_3
 using Stashbox.BuildUp.Expressions.Compile;
 #endif
 
@@ -25,7 +25,7 @@ namespace System.Linq.Expressions
                 return scope => instance;
             }
 
-#if NET45 || NET40 || NETSTANDARD1_3 || NETSTANDARD2_0
+#if NET45 || NET40 || NETSTANDARD1_3
             if (!expression.TryEmit(out Delegate factory, typeof(Func<IResolutionScope, object>), typeof(object), scopeParameter))
                 factory = Expression.Lambda(expression, scopeParameter).Compile();
 
@@ -43,7 +43,7 @@ namespace System.Linq.Expressions
         /// <returns>The compiled delegate.</returns>
         public static Func<IResolutionScope, Delegate> CompileDelegate(this LambdaExpression expression, ParameterExpression scopeParameter)
         {
-#if NET45 || NET40 || NETSTANDARD1_3 || NETSTANDARD2_0
+#if NET45 || NET40 || NETSTANDARD1_3
             if (!expression.TryEmit(out Delegate factory, typeof(Func<IResolutionScope, Delegate>), typeof(Delegate), scopeParameter))
                 factory = Expression.Lambda<Func<IResolutionScope, Delegate>>(expression, scopeParameter).Compile();
 

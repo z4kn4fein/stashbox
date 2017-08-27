@@ -1,4 +1,4 @@
-﻿#if NET45 || NET40 || NETSTANDARD1_3 || NETSTANDARD2_0
+﻿#if NET45 || NET40 || NETSTANDARD1_3
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
@@ -14,7 +14,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
 
         private static AssemblyBuilder CreateAssembly()
         {
-#if NETSTANDARD1_3 || NETSTANDARD2_0
+#if NETSTANDARD1_3
             return AssemblyBuilder.DefineDynamicAssembly(
                  new AssemblyName("Stashbox.Dynamic"),
                  AssemblyBuilderAccess.Run);
