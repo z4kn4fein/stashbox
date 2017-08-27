@@ -55,11 +55,14 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer(config => config.WithUniqueRegistrationIdentifiers()))
             {
-                container.RegisterSingleton(typeof(ITest1<,>), typeof(Test1<,>));
+                var inst = new Test1<int, string>();
                 container.RegisterSingleton(typeof(ITest1<int, string>), typeof(Test1<int, string>));
-                var en = container.Resolve<IEnumerable<ITest1<int, string>>>();
-                
-                Assert.AreEqual(2, en.Count());
+                container.RegisterSingleton(typeof(ITest1<,>), typeof(Test1<,>));
+                container.RegisterType(typeof(ITest1<int, string>), typeof(Test1<int, string>), config => config.WithInstance(inst));
+                var en = container.Resolve<IEnumerable<ITest1<int, string>>>().ToArray();
+
+                Assert.AreEqual(3, en.Length);
+                Assert.AreEqual(inst, en[2]);
             }
         }
 
