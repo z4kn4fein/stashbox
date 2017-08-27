@@ -23,6 +23,12 @@ namespace Stashbox.Infrastructure
         IContainerConfigurator WithDisposableTransientTracking();
 
         /// <summary>
+        /// Enables the unique registration id generation for services even if the implementation type is the same.
+        /// </summary>
+        /// <returns>The container configurator.</returns>
+        IContainerConfigurator WithUniqueRegistrationIdentifiers();
+
+        /// <summary>
         /// Enables the circular dependency tracking.
         /// </summary>
         /// <returns>The container configurator.</returns>

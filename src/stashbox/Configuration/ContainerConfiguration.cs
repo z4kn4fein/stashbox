@@ -25,6 +25,11 @@ namespace Stashbox.Configuration
         public bool TrackTransientsForDisposalEnabled { get; internal set; }
 
         /// <summary>
+        /// If it's set to true the container will set a unique registration name for every new registration even if the implementation type is the same.
+        /// </summary>
+        public bool SetUniqueRegistrationNames { get; internal set; }
+
+        /// <summary>
         /// If it's set to true the container will track circular dependencies in the dependency graph and will throw an exception if any of it found.
         /// </summary>
         public bool CircularDependencyTrackingEnabled { get; internal set; }
@@ -72,6 +77,7 @@ namespace Stashbox.Configuration
             this.UnknownTypeResolutionEnabled = false;
             this.MemberInjectionWithoutAnnotationEnabled = false;
             this.CircularDependenciesWithLazyEnabled = false;
+            this.SetUniqueRegistrationNames = false;
         }
     }
 }

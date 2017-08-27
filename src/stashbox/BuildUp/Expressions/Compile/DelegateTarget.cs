@@ -1,4 +1,4 @@
-﻿#if NET45 || NET40 || NETSTANDARD1_3
+﻿#if NET45 || NET40 || NETSTANDARD1_3 || NETSTANDARD2_0
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -95,14 +95,14 @@ namespace Stashbox.BuildUp.Expressions.Compile
                     typeParamNames[i] = "T" + i;
 
                 var typeParams = typeBuilder.DefineGenericParameters(typeParamNames);
-#if NETSTANDARD1_3
+#if NETSTANDARD1_3 || NETSTANDARD2_0
                 var genericTypes = new Type[length];
 #endif
 
                 for (var i = 0; i < length; i++)
                 {
                     types[i] = constants.ConstantExpressions[i].Type;
-#if NETSTANDARD1_3
+#if NETSTANDARD1_3 || NETSTANDARD2_0
                     var genericType = typeParams[i].AsType();
                     genericTypes[i] = genericType;
                     fields[i] = typeBuilder.DefineField("F" + i, genericType, FieldAttributes.Public);
@@ -111,7 +111,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
 #endif
                 }
 
-#if NETSTANDARD1_3
+#if NETSTANDARD1_3 || NETSTANDARD2_0
                 var constructor = typeBuilder.DefineConstructor(MethodAttributes.Public, CallingConventions.HasThis, genericTypes);
 #else
                 var constructor = typeBuilder.DefineConstructor(MethodAttributes.Public, CallingConventions.HasThis, typeParams);
@@ -130,7 +130,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
 
                 generator.Emit(OpCodes.Ret);
             }
-#if NETSTANDARD1_3
+#if NETSTANDARD1_3 || NETSTANDARD2_0
             var type = typeBuilder.CreateTypeInfo().AsType();
 #else
             var type = typeBuilder.CreateType();

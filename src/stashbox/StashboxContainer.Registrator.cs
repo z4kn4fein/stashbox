@@ -148,7 +148,7 @@ namespace Stashbox
                 this.ContainerContext, this.objectBuilderSelector.Get(ObjectBuilder.WireUp),
                 data, false, !withoutDisposalTracking);
 
-            this.registrationRepository.AddOrUpdateRegistration(registration, keyName ?? typeTo, false, false);
+            this.registrationRepository.AddOrUpdateRegistration(registration, false, false);
             this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.ContainerContext, registration);
         }
     }

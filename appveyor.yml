@@ -29,6 +29,7 @@ after_build:
 test_script:
 - dotnet test src\stashbox.tests\stashbox.tests.csproj  -f net45 -c %CONFIGURATION% --no-build
 - dotnet test src\stashbox.tests\stashbox.tests.csproj  -f netcoreapp1.0 -c %CONFIGURATION% --no-build
+- dotnet test src\stashbox.tests\stashbox.tests.csproj  -f netcoreapp2.0 -c %CONFIGURATION% --no-build
 
 after_test:
 - ps: . .\set-debug-type.ps1 "src\stashbox\stashbox.csproj"

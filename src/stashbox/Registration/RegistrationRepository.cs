@@ -16,16 +16,16 @@ namespace Stashbox.Registration
             this.serviceRepository = new ConcurrentTree<Type, ConcurrentOrderedKeyStore<object, IServiceRegistration>>();
         }
 
-        public void AddOrUpdateRegistration(IServiceRegistration registration, object registrationName, bool remap, bool replace)
+        public void AddOrUpdateRegistration(IServiceRegistration registration, bool remap, bool replace)
         {
             var newRepository = new ConcurrentOrderedKeyStore<object, IServiceRegistration>();
-            newRepository.AddOrUpdate(registrationName, registration);
+            newRepository.AddOrUpdate(registration.RegistrationContext.Name, registration);
 
             if (remap)
                 this.serviceRepository.AddOrUpdate(registration.ServiceType, newRepository, (oldValue, newValue) => newValue);
             else
                 this.serviceRepository.AddOrUpdate(registration.ServiceType, newRepository,
-                    (oldValue, newValue) => oldValue.AddOrUpdate(registrationName, registration, replace));
+                    (oldValue, newValue) => oldValue.AddOrUpdate(registration.RegistrationContext.Name, registration, replace));
         }
 
         public IServiceRegistration GetRegistrationOrDefault(Type type, object name = null) =>

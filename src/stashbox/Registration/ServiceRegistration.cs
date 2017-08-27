@@ -51,6 +51,9 @@ namespace Stashbox.Registration
             this.RegistrationContext = registrationContextData;
             this.IsDecorator = isDecorator;
             this.ShouldHandleDisposal = shouldHandleDisposal;
+
+            if (this.RegistrationContext.Name == null)
+                this.RegistrationContext.Name = containerContext.ContainerConfigurator.ContainerConfiguration.SetUniqueRegistrationNames ? (object)this.RegistrationNumber : implementationType;
         }
 
         /// <inheritdoc />

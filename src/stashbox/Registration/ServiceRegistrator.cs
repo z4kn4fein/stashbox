@@ -51,10 +51,7 @@ namespace Stashbox.Registration
                 this.containerContext.DelegateRepository.InvalidateDelegateCache();
             }
             else
-            {
-                var name = registration.RegistrationContext.Name ?? registration.ImplementationType;
-                this.containerContext.RegistrationRepository.AddOrUpdateRegistration(registration, name, false, replace);
-            }
+                this.containerContext.RegistrationRepository.AddOrUpdateRegistration(registration, false, replace);
 
             if (replace)
                 this.containerContext.DelegateRepository.InvalidateDelegateCache();
@@ -73,10 +70,7 @@ namespace Stashbox.Registration
                 this.containerContext.DecoratorRepository.AddDecorator(registrationContextMeta.ServiceType, registration,
                     true, false);
             else
-            {
-                var name = registration.RegistrationContext.Name ?? registration.ImplementationType;
-                this.containerContext.RegistrationRepository.AddOrUpdateRegistration(registration, name, true, false);
-            }
+                this.containerContext.RegistrationRepository.AddOrUpdateRegistration(registration, true, false);
 
             this.containerContext.DelegateRepository.InvalidateDelegateCache();
 

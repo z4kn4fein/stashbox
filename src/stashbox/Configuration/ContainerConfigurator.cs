@@ -29,6 +29,13 @@ namespace Stashbox.Configuration
         }
 
         /// <inheritdoc />
+        public IContainerConfigurator WithUniqueRegistrationIdentifiers()
+        {
+            this.ContainerConfiguration.SetUniqueRegistrationNames = true;
+            return this;
+        }
+
+        /// <inheritdoc />
         public IContainerConfigurator WithCircularDependencyTracking()
         {
             this.ContainerConfiguration.CircularDependencyTrackingEnabled = true;

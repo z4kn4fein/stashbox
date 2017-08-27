@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFrameworks>net40;net45;netstandard1.0;netstandard1.3;portable-net45+win8+wpa81+wp8</TargetFrameworks>
+        <TargetFrameworks>net40;net45;netstandard1.0;netstandard1.3;netstandard2.0;portable-net45+win8+wpa81+wp8</TargetFrameworks>
         <AssemblyName>Stashbox</AssemblyName>
         <AssemblyTitle>Stashbox</AssemblyTitle>
         <RootNamespace>Stashbox</RootNamespace>
@@ -32,6 +32,10 @@
         <AssemblyTitle>Stashbox .NET Standard 1.3</AssemblyTitle>
         <DefineConstants>NETSTANDARD1_3</DefineConstants>
     </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <AssemblyTitle>Stashbox .NET Standard 2.0</AssemblyTitle>
+    <DefineConstants>NETSTANDARD2_0</DefineConstants>
+  </PropertyGroup>
     <PropertyGroup Condition="'$(TargetFramework)' == 'portable-net45+win8+wpa81+wp8'">
         <IncludeProjectPriFile>false</IncludeProjectPriFile>
         <TargetFrameworkIdentifier>.NETPortable</TargetFrameworkIdentifier>
@@ -40,7 +44,7 @@
         <NugetTargetMoniker>.NETPortable,Version=v0.0,Profile=Profile259</NugetTargetMoniker>
         <LanguageTargets>$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets</LanguageTargets>
     </PropertyGroup>
-    <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">
+    <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.3' Or '$(TargetFramework)' == 'netstandard2.0'">
         <PackageReference Include="System.Reflection.Emit" Version="4.3.0" />
         <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.3.0" />
     </ItemGroup>

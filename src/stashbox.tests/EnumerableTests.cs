@@ -575,6 +575,17 @@ namespace Stashbox.Tests
             Assert.IsInstanceOfType(services[2](), typeof(Test12));
         }
 
+        [TestMethod]
+        public void EnumerableTests_Resolve_UniqueIds()
+        {
+            IStashboxContainer container = new StashboxContainer(config => config.WithUniqueRegistrationIdentifiers());
+            container.RegisterType<ITest1, Test1>();
+            container.RegisterType<ITest1, Test1>();
+            container.RegisterType<ITest1, Test1>();
+
+            Assert.AreEqual(3, container.Resolve<IEnumerable<ITest1>>().Count());
+        }
+
         public interface ITest1 { }
 
         public interface ITest2 { }
