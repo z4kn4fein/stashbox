@@ -27,8 +27,12 @@ namespace Stashbox.BuildUp
             var registration = base.ContainerContext.Container.ServiceRegistrator.PrepareContext(resolveType,
                 genericType, newData).CreateServiceRegistration(serviceRegistration.IsDecorator);
 
-            if (!serviceRegistration.IsDecorator) return registration;
-            
+            if (!serviceRegistration.IsDecorator)
+            {
+                this.ContainerContext.RegistrationRepository.AddOrUpdateRegistration(registration, false, false);
+                return registration;
+            }
+
             base.ContainerContext.DecoratorRepository.AddDecorator(resolveType, registration, false, false);
             return registration;
         }

@@ -15,7 +15,7 @@ os:
   - linux
   - osx
 
-osx_image: xcode8.3
+osx_image: xcode8.2
   
 before_install:  
   - if test "$TRAVIS_OS_NAME" == "osx"; then ulimit -n 2048; fi
@@ -24,7 +24,7 @@ before_script:
   - dotnet restore src/
 
 script:
-  - dotnet test src/stashbox.tests/stashbox.tests.csproj -c Release -f netcoreapp1.0
+  - if test "$TRAVIS_OS_NAME" != "osx"; then dotnet test src/stashbox.tests/stashbox.tests.csproj -c Release -f netcoreapp1.0; fi
   - dotnet test src/stashbox.tests/stashbox.tests.csproj -c Release -f netcoreapp2.0
 
 notifications:

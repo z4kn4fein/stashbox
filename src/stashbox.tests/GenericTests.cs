@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Linq;
 using System.Threading.Tasks;
@@ -18,6 +20,19 @@ namespace Stashbox.Tests
 
                 Assert.IsNotNull(inst);
                 Assert.IsInstanceOfType(inst, typeof(Test1<int, string>));
+            }
+        }
+
+        [TestMethod]
+        public void GenericTests_Resolve_Singleton()
+        {
+            using (var container = new StashboxContainer())
+            {
+                container.RegisterSingleton(typeof(ITest1<,>), typeof(Test1<,>));
+                var en = container.Resolve<IEnumerable<ITest1<int, string>>>();
+                var inst = container.Resolve<ITest1<int, string>>();
+
+                Assert.AreEqual(inst, en.ToArray()[0]);
             }
         }
 
