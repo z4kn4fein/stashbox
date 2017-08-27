@@ -1,7 +1,6 @@
 language: csharp
 mono: none
 dotnet: 2.0.0
-dist: trusty
 
 addons:
   apt:
@@ -15,7 +14,8 @@ os:
   - linux
   - osx
 
-osx_image: xcode8.2
+dist: trusty
+osx_image: xcode8.3
   
 before_install:  
   - if test "$TRAVIS_OS_NAME" == "osx"; then ulimit -n 2048; fi
