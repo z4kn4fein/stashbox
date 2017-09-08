@@ -1,6 +1,8 @@
 environment:
   github_auth_token:
     secure: z/dKTRVRPmpItPTM/lYdX7dBJk3roDLV98Uj1XzpDqqV868xhHX8dnyKwPAJooUj
+  sonarqube_token:
+    secure: +1HWbXdBJr2pRiVYPjXzHOhz7bH35FHd18F+VxQHeWdzOK7uAXEt88tResk6Ku3I
 
 deploy:
 - provider: NuGet
@@ -23,15 +25,15 @@ install:
 
 before_build:
 - ps: . .\patch-version.ps1 "src\stashbox\stashbox.csproj" ${env:APPVEYOR_BUILD_VERSION}
-- ps: if ($env:APPVEYOR_PULL_REQUEST_NUMBER) { MSBuild.SonarQube.Runner.exe begin /k:"stashbox" /d:"sonar.host.url=https://sonarqube.com" /d:"sonar.login=b6dc58c52583ce0876897344c40fd40d7d8e57de" /o:"z4kn4fein-github" /d:"sonar.analysis.mode=preview" /d:"sonar.github.pullRequest=$env:APPVEYOR_PULL_REQUEST_NUMBER" /d:"sonar.github.repository=z4kn4fein/stashbox" /d:"sonar.github.oauth=$env:github_auth_token" /v:${env:APPVEYOR_BUILD_VERSION} }
-- ps: if (-Not $env:APPVEYOR_PULL_REQUEST_NUMBER) { MSBuild.SonarQube.Runner.exe begin /k:"stashbox" /d:"sonar.host.url=https://sonarqube.com" /d:"sonar.login=b6dc58c52583ce0876897344c40fd40d7d8e57de" /o:"z4kn4fein-github" /v:${env:APPVEYOR_BUILD_VERSION} }
+- ps: if ($env:APPVEYOR_PULL_REQUEST_NUMBER) { MSBuild.SonarQube.Runner.exe begin /k:"stashbox" /d:"sonar.host.url=https://sonarqube.com" /d:"sonar.login=$env:sonarqube_token" /o:"z4kn4fein-github" /d:"sonar.analysis.mode=preview" /d:"sonar.github.pullRequest=$env:APPVEYOR_PULL_REQUEST_NUMBER" /d:"sonar.github.repository=z4kn4fein/stashbox" /d:"sonar.github.oauth=$env:github_auth_token" /v:${env:APPVEYOR_BUILD_VERSION} }
+- ps: if (-Not $env:APPVEYOR_PULL_REQUEST_NUMBER) { MSBuild.SonarQube.Runner.exe begin /k:"stashbox" /d:"sonar.host.url=https://sonarqube.com" /d:"sonar.login=$env:sonarqube_token" /o:"z4kn4fein-github" /v:${env:APPVEYOR_BUILD_VERSION} }
 
 build_script:
 - msbuild /t:Restore /p:Configuration=%CONFIGURATION% src\stashbox.sln
 - msbuild /t:Build /p:Configuration=%CONFIGURATION% src\stashbox.sln
 
 after_build:
-- SonarQube.Scanner.MSBuild.exe end /d:"sonar.login=b6dc58c52583ce0876897344c40fd40d7d8e57de"
+- SonarQube.Scanner.MSBuild.exe end /d:"sonar.login=$env:sonarqube_token"
 - msbuild /t:Pack /p:IncludeSymbols=true /p:Configuration=%CONFIGURATION% /p:PackageOutputPath=..\..\artifacts src\stashbox\stashbox.csproj
 
 test_script:
