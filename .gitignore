@@ -201,3 +201,5 @@ coverageresults
 coverage.xml
 
 project.lock.json
+
+.sonarqube
