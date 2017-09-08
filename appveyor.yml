@@ -3,6 +3,7 @@ environment:
     secure: z/dKTRVRPmpItPTM/lYdX7dBJk3roDLV98Uj1XzpDqqV868xhHX8dnyKwPAJooUj
   sonarqube_token:
     secure: +1HWbXdBJr2pRiVYPjXzHOhz7bH35FHd18F+VxQHeWdzOK7uAXEt88tResk6Ku3I
+  build_version: ''
 
 deploy:
 - provider: NuGet
@@ -19,19 +20,19 @@ configuration: Release
 
 install:
 - ps: |
-    $ver = Get-Content ".version"
-    Update-AppveyorBuild -Version "$ver-preview-${env:APPVEYOR_BUILD_NUMBER}"
+    $env:build_version = Get-Content ".version"
+    Update-AppveyorBuild -Version "$env:build_version-preview-${env:APPVEYOR_BUILD_NUMBER}"
     choco install "msbuild-sonarqube-runner" -y
 
 dotnet_csproj:
   patch: true
   file: src\stashbox\stashbox.csproj
-  version: $(env:APPVEYOR_BUILD_VERSION)
+  version: $(build_version)
   package_version: $(APPVEYOR_BUILD_VERSION)
 
 before_build:
-- ps: if ($env:APPVEYOR_PULL_REQUEST_NUMBER) { MSBuild.SonarQube.Runner.exe begin /k:"stashbox" /d:"sonar.host.url=https://sonarqube.com" /d:"sonar.login=${$env:sonarqube_token}" /o:"z4kn4fein-github" /d:"sonar.analysis.mode=preview" /d:"sonar.github.pullRequest=$env:APPVEYOR_PULL_REQUEST_NUMBER" /d:"sonar.github.repository=z4kn4fein/stashbox" /d:"sonar.github.oauth=$env:github_auth_token" /v:${env:APPVEYOR_BUILD_VERSION} }
-- ps: if (-Not $env:APPVEYOR_PULL_REQUEST_NUMBER) { MSBuild.SonarQube.Runner.exe begin /k:"stashbox" /d:"sonar.host.url=https://sonarqube.com" /d:"sonar.login=${$env:sonarqube_token}" /o:"z4kn4fein-github" /v:${env:APPVEYOR_BUILD_VERSION} }
+- ps: if ($env:APPVEYOR_PULL_REQUEST_NUMBER) { MSBuild.SonarQube.Runner.exe begin /k:"stashbox" /d:"sonar.host.url=https://sonarqube.com" /d:"sonar.login=$env:sonarqube_token" /o:"z4kn4fein-github" /d:"sonar.analysis.mode=preview" /d:"sonar.github.pullRequest=$env:APPVEYOR_PULL_REQUEST_NUMBER" /d:"sonar.github.repository=z4kn4fein/stashbox" /d:"sonar.github.oauth=$env:github_auth_token" /v:$env:APPVEYOR_BUILD_VERSION }
+- ps: if (-Not $env:APPVEYOR_PULL_REQUEST_NUMBER) { MSBuild.SonarQube.Runner.exe begin /k:"stashbox" /d:"sonar.host.url=https://sonarqube.com" /d:"sonar.login=$env:sonarqube_token" /o:"z4kn4fein-github" /v:$env:APPVEYOR_BUILD_VERSION }
 
 build_script:
 - msbuild /t:Restore /p:Configuration=%CONFIGURATION% src\stashbox.sln
