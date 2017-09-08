@@ -22,9 +22,9 @@ install:
     choco install "msbuild-sonarqube-runner" -y
 
 before_build:
-- ps: . .\patch-version.ps1 "src\stashbox\stashbox.csproj"  ${env:APPVEYOR_BUILD_VERSION}
-- ps: if ($env:APPVEYOR_PULL_REQUEST_NUMBER) { MSBuild.SonarQube.Runner.exe begin /k:"stashbox" /d:"sonar.host.url=https://sonarqube.com" /d:"sonar.login=b6dc58c52583ce0876897344c40fd40d7d8e57de" /o:"z4kn4fein-github" /d:"sonar.analysis.mode=preview" /d:"sonar.github.pullRequest=$env:APPVEYOR_PULL_REQUEST_NUMBER" /d:"sonar.github.repository=z4kn4fein/stashbox" /d:"sonar.github.oauth=$env:github_auth_token" }
-- ps: if (-Not $env:APPVEYOR_PULL_REQUEST_NUMBER) { MSBuild.SonarQube.Runner.exe begin /k:"stashbox" /d:"sonar.host.url=https://sonarqube.com" /d:"sonar.login=b6dc58c52583ce0876897344c40fd40d7d8e57de" /o:"z4kn4fein-github" }
+- ps: . .\patch-version.ps1 "src\stashbox\stashbox.csproj" ${env:APPVEYOR_BUILD_VERSION}
+- ps: if ($env:APPVEYOR_PULL_REQUEST_NUMBER) { MSBuild.SonarQube.Runner.exe begin /k:"stashbox" /d:"sonar.host.url=https://sonarqube.com" /d:"sonar.login=b6dc58c52583ce0876897344c40fd40d7d8e57de" /o:"z4kn4fein-github" /d:"sonar.analysis.mode=preview" /d:"sonar.github.pullRequest=$env:APPVEYOR_PULL_REQUEST_NUMBER" /d:"sonar.github.repository=z4kn4fein/stashbox" /d:"sonar.github.oauth=$env:github_auth_token" /v:${env:APPVEYOR_BUILD_VERSION} }
+- ps: if (-Not $env:APPVEYOR_PULL_REQUEST_NUMBER) { MSBuild.SonarQube.Runner.exe begin /k:"stashbox" /d:"sonar.host.url=https://sonarqube.com" /d:"sonar.login=b6dc58c52583ce0876897344c40fd40d7d8e57de" /o:"z4kn4fein-github" /v:${env:APPVEYOR_BUILD_VERSION} }
 
 build_script:
 - msbuild /t:Restore /p:Configuration=%CONFIGURATION% src\stashbox.sln
