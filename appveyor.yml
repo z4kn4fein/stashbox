@@ -26,7 +26,7 @@ install:
 
 dotnet_csproj:
   patch: true
-  file: "**\stashbox.csproj"
+  file: '**\stashbox.csproj'
   version: $(build_version)
   package_version: $(appveyor_build_version)
 
