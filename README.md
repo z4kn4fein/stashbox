@@ -2,8 +2,6 @@
 
 Stashbox is a lightweight, portable dependency injection framework for .NET based solutions.
 
-## Releases
-
 Github (stable) | NuGet (stable) | MyGet (pre-release) 
 --- | --- | ---
 [![Github release](https://img.shields.io/github/release/z4kn4fein/stashbox.svg)](https://github.com/z4kn4fein/stashbox/releases) | [![NuGet Version](https://buildstats.info/nuget/Stashbox)](https://www.nuget.org/packages/Stashbox/) | [![MyGet package](https://img.shields.io/myget/pcsajtai/v/Stashbox.svg?label=myget)](https://www.myget.org/feed/pcsajtai/package/nuget/Stashbox)
