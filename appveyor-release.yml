@@ -20,17 +20,17 @@ configuration: Release
 install:
 - ps: |
     $env:build_version = Get-Content ".version"
-    Update-AppveyorBuild -Version "${env:build_version}-${env:APPVEYOR_BUILD_NUMBER}"
+    Update-AppveyorBuild -Version "$env:build_version-$env:appveyor_build_number"
 
 before_build:
-- ps: . .\patch-version.ps1 "src\stashbox\stashbox.csproj" ${env:build_version}
+- ps: . .\patch-version.ps1 "src\stashbox\stashbox.csproj" $env:build_version $env:build_version
 
 build_script:
-- msbuild /t:Restore /p:Configuration=%CONFIGURATION% src\stashbox.sln
-- msbuild /t:Build /p:Configuration=%CONFIGURATION% src\stashbox.sln
+- msbuild /t:Restore /p:Configuration=%configuration% src\stashbox.sln
+- msbuild /t:Build /p:Configuration=%configuration% src\stashbox.sln
 
 after_build:
-- msbuild /t:Pack /p:IncludeSymbols=true /p:Configuration=%CONFIGURATION% /p:PackageOutputPath=..\..\artifacts src\stashbox\stashbox.csproj
+- msbuild /t:Pack /p:IncludeSymbols=true /p:Configuration=%configuration% /p:PackageOutputPath=..\..\artifacts src\stashbox\stashbox.csproj
 
 artifacts:
 - path: artifacts\Stashbox.*.nupkg

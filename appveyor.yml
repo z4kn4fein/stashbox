@@ -24,13 +24,8 @@ install:
     Update-AppveyorBuild -Version "$env:build_version-preview-$env:appveyor_build_number"
     choco install "msbuild-sonarqube-runner" -y
 
-dotnet_csproj:
-  patch: true
-  file: '**\stashbox.csproj'
-  version: $(build_version)
-  package_version: $(appveyor_build_version)
-
 before_build:
+- ps: . .\patch-version.ps1 "src\stashbox\stashbox.csproj" $env:build_version $env:appveyor_build_version 
 - ps: if ($env:appveyor_pull_request_number) { MSBuild.SonarQube.Runner.exe begin /k:"stashbox" /d:"sonar.host.url=https://sonarqube.com" /d:"sonar.login=$env:sonarqube_token" /o:"z4kn4fein-github" /d:"sonar.analysis.mode=preview" /d:"sonar.github.pullRequest=$env:APPVEYOR_PULL_REQUEST_NUMBER" /d:"sonar.github.repository=z4kn4fein/stashbox" /d:"sonar.github.oauth=$env:github_auth_token" /v:$env:appveyor_build_version }
 - ps: if (-Not $env:appveyor_pull_request_number) { MSBuild.SonarQube.Runner.exe begin /k:"stashbox" /d:"sonar.host.url=https://sonarqube.com" /d:"sonar.login=$env:sonarqube_token" /o:"z4kn4fein-github" /v:$env:appveyor_build_version }
 
