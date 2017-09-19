@@ -12,25 +12,23 @@ namespace Stashbox.Resolution
     {
         private readonly IContainerContext containerContext;
         private readonly IResolverSelector resolverSelector;
-        private readonly IResolutionScope rootScope;
 
-        public ActivationContext(IContainerContext containerContext, IResolverSelector resolverSelector, IResolutionScope rootScope)
+        public ActivationContext(IContainerContext containerContext, IResolverSelector resolverSelector)
         {
             this.containerContext = containerContext;
             this.resolverSelector = resolverSelector;
-            this.rootScope = rootScope;
         }
 
         public object Activate(Type type, IResolutionScope resolutionScope, bool nullResultAllowed = false)
         {
             var cachedFactory = this.containerContext.DelegateRepository.GetDelegateCacheOrDefault(type);
-            return cachedFactory != null ? cachedFactory(resolutionScope) : this.Activate(ResolutionInfo.New(resolutionScope, this.rootScope, nullResultAllowed), type);
+            return cachedFactory != null ? cachedFactory(resolutionScope) : this.Activate(ResolutionInfo.New(resolutionScope, nullResultAllowed), type);
         }
 
         public object Activate(Type type, IResolutionScope resolutionScope, object name, bool nullResultAllowed = false)
         {
             var cachedFactory = this.containerContext.DelegateRepository.GetDelegateCacheOrDefault(name);
-            return cachedFactory != null ? cachedFactory(resolutionScope) : this.Activate(ResolutionInfo.New(resolutionScope, this.rootScope, nullResultAllowed), type, name);
+            return cachedFactory != null ? cachedFactory(resolutionScope) : this.Activate(ResolutionInfo.New(resolutionScope, nullResultAllowed), type, name);
         }
 
         public Delegate ActivateFactory(Type type, Type[] parameterTypes, IResolutionScope resolutionScope, object name = null, bool nullResultAllowed = false)
@@ -72,7 +70,7 @@ namespace Stashbox.Resolution
 
         private Delegate ActivateFactoryDelegate(Type type, Type[] parameterTypes, IResolutionScope resolutionScope, object name, bool nullResultAllowed)
         {
-            var resolutionInfo = new ResolutionInfo(resolutionScope, this.rootScope, nullResultAllowed)
+            var resolutionInfo = new ResolutionInfo(resolutionScope, nullResultAllowed)
             {
                 ParameterExpressions = parameterTypes.Length == 0 ? null : parameterTypes.Select(Expression.Parameter).ToArray()
             };

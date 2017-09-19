@@ -4,7 +4,6 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.ContainerExtension;
-using Stashbox.Lifetime;
 
 namespace Stashbox
 {

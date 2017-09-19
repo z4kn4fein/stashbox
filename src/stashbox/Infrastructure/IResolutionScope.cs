@@ -8,6 +8,11 @@ namespace Stashbox.Infrastructure
     public interface IResolutionScope : IDisposable
     {
         /// <summary>
+        /// The root scope.
+        /// </summary>
+        IResolutionScope RootScope { get; }
+
+        /// <summary>
         /// True if the scope contains scoped instances, otherwise false.
         /// </summary>
         bool HasScopedInstances { get; }

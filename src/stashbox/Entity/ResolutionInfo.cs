@@ -14,8 +14,8 @@ namespace Stashbox.Entity
         /// Static factory for <see cref="ResolutionInfo"/>.
         /// </summary>
         /// <returns>A new <see cref="ResolutionInfo"/> instance.</returns>
-        public static ResolutionInfo New(IResolutionScope scope, IResolutionScope rootScope, bool nullResultAllowed = false) =>
-            new ResolutionInfo(scope, rootScope, nullResultAllowed);
+        public static ResolutionInfo New(IResolutionScope scope, bool nullResultAllowed = false) =>
+            new ResolutionInfo(scope, nullResultAllowed);
 
         /// <summary>
         /// The extra parameter expressions.
@@ -37,14 +37,14 @@ namespace Stashbox.Entity
 
         internal IResolutionScope RootScope { get; }
 
-        internal ResolutionInfo(IResolutionScope scope, IResolutionScope rootScope, bool nullResultAllowed = false)
+        internal ResolutionInfo(IResolutionScope scope, bool nullResultAllowed = false)
         {
             this.circularDependencyBarrier = AvlTree<Type>.Empty;
             this.expressionOverrides = AvlTree<Expression>.Empty;
             this.currentlyDecoratingTypes = AvlTree<Type>.Empty;
             this.NullResultAllowed = nullResultAllowed;
             this.ResolutionScope = scope;
-            this.RootScope = rootScope;
+            this.RootScope = scope.RootScope;
         }
 
         internal bool IsCurrentlyDecorating(Type type) =>
