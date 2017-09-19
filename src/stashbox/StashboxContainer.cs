@@ -69,7 +69,6 @@ namespace Stashbox
             this.ServiceRegistrator, this.expressionBuilder);
 
             this.rootResolver = (IDependencyResolver)this.rootScope;
-
         }
 
         /// <inheritdoc />
