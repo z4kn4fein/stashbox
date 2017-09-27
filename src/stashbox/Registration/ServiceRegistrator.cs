@@ -1,7 +1,7 @@
-﻿using System;
-using Stashbox.Infrastructure;
+﻿using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.ContainerExtension;
 using Stashbox.Infrastructure.Registration;
+using System;
 
 namespace Stashbox.Registration
 {
@@ -99,7 +99,7 @@ namespace Stashbox.Registration
             if (meta.Context.Lifetime == null && this.containerContext.ContainerConfigurator.ContainerConfiguration.TrackTransientsForDisposalEnabled)
                 return true;
 
-            return meta.Context.Lifetime != null || objectBuilder.HandlesObjectDisposal;
+            return meta.Context.Lifetime != null || objectBuilder.HandlesObjectLifecycle;
         }
 
         private IObjectBuilder CreateObjectBuilder(IRegistrationContextMeta meta)

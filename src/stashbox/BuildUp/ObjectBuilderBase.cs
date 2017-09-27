@@ -1,8 +1,8 @@
-﻿using System;
-using System.Linq.Expressions;
-using Stashbox.Entity;
+﻿using Stashbox.Entity;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.Registration;
+using System;
+using System.Linq.Expressions;
 
 namespace Stashbox.BuildUp
 {
@@ -64,10 +64,10 @@ namespace Stashbox.BuildUp
             if (expr == null)
                 return null;
 
-            if (!this.HandlesFinalizer && serviceRegistration.RegistrationContext.Finalizer != null)
+            if (!this.HandlesObjectLifecycle && serviceRegistration.RegistrationContext.Finalizer != null)
                 expr = this.HandleFinalizer(expr, serviceRegistration);
 
-            if (!serviceRegistration.ShouldHandleDisposal || this.HandlesObjectDisposal || !expr.Type.IsDisposable())
+            if (!serviceRegistration.ShouldHandleDisposal || this.HandlesObjectLifecycle || !expr.Type.IsDisposable())
                 return expr;
 
             var method = Constants.AddDisposalMethod.MakeGenericMethod(expr.Type);
@@ -83,9 +83,7 @@ namespace Stashbox.BuildUp
 
         protected abstract Expression GetExpressionInternal(IServiceRegistration serviceRegistration, ResolutionInfo resolutionInfo, Type resolveType);
 
-        public virtual bool HandlesObjectDisposal => false;
-
-        public virtual bool HandlesFinalizer => false;
+        public virtual bool HandlesObjectLifecycle => false;
 
         public virtual IObjectBuilder Produce() => this;
     }

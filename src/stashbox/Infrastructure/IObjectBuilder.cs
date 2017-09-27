@@ -1,7 +1,7 @@
-﻿using System;
-using Stashbox.Entity;
-using System.Linq.Expressions;
+﻿using Stashbox.Entity;
 using Stashbox.Infrastructure.Registration;
+using System;
+using System.Linq.Expressions;
 
 namespace Stashbox.Infrastructure
 {
@@ -22,7 +22,7 @@ namespace Stashbox.Infrastructure
         /// <summary>
         /// Indicates that the object builder is handling the disposal of the produced instance or not.
         /// </summary>
-        bool HandlesObjectDisposal { get; }
+        bool HandlesObjectLifecycle { get; }
 
         /// <summary>
         /// Produces an <see cref="IObjectBuilder"/>.

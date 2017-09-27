@@ -1,8 +1,8 @@
 ﻿using Stashbox.Entity;
-using System;
-using System.Linq.Expressions;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.Registration;
+using System;
+using System.Linq.Expressions;
 
 namespace Stashbox.BuildUp
 {
@@ -38,8 +38,6 @@ namespace Stashbox.BuildUp
 
         public override IObjectBuilder Produce() => new InstanceObjectBuilder(base.ContainerContext);
 
-        public override bool HandlesObjectDisposal => true;
-
-        public override bool HandlesFinalizer => true;
+        public override bool HandlesObjectLifecycle => true;
     }
 }

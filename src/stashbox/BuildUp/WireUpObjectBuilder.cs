@@ -1,9 +1,9 @@
-﻿using Stashbox.Entity;
+﻿using Stashbox.BuildUp.Expressions;
+using Stashbox.Entity;
 using Stashbox.Infrastructure;
+using Stashbox.Infrastructure.Registration;
 using System;
 using System.Linq.Expressions;
-using Stashbox.BuildUp.Expressions;
-using Stashbox.Infrastructure.Registration;
 
 namespace Stashbox.BuildUp
 {
@@ -47,8 +47,6 @@ namespace Stashbox.BuildUp
 
         public override IObjectBuilder Produce() => new WireUpObjectBuilder(base.ContainerContext, this.expressionBuilder);
 
-        public override bool HandlesObjectDisposal => true;
-
-        public override bool HandlesFinalizer => true;
+        public override bool HandlesObjectLifecycle => true;
     }
 }
