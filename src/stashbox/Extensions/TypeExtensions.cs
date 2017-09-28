@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using Stashbox;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using Stashbox;
 
 #if NET40
 namespace System.Reflection
@@ -12,34 +12,6 @@ namespace System.Reflection
         public static TypeInfo GetTypeInfo(this Type type)
         {
             return new TypeInfo(type);
-        }
-
-        public static TAttribute GetCustomAttribute<TAttribute>(this MethodInfo method) where TAttribute : Attribute
-        {
-            var attrType = typeof(TAttribute);
-            var attributes = method.GetCustomAttributes(attrType, false);
-            return (TAttribute)attributes.FirstOrDefault();
-        }
-
-        public static TAttribute GetCustomAttribute<TAttribute>(this ParameterInfo parameter) where TAttribute : Attribute
-        {
-            var attrType = typeof(TAttribute);
-            var attributes = parameter.GetCustomAttributes(attrType, false);
-            return (TAttribute)attributes.FirstOrDefault();
-        }
-
-        public static TAttribute GetCustomAttribute<TAttribute>(this PropertyInfo property) where TAttribute : Attribute
-        {
-            var attrType = typeof(TAttribute);
-            var attributes = property.GetCustomAttributes(attrType, false);
-            return (TAttribute)attributes.FirstOrDefault();
-        }
-
-        public static TAttribute GetCustomAttribute<TAttribute>(this FieldInfo field) where TAttribute : Attribute
-        {
-            var attrType = typeof(TAttribute);
-            var attributes = field.GetCustomAttributes(attrType, false);
-            return (TAttribute)attributes.FirstOrDefault();
         }
 
         public static TAttribute GetCustomAttribute<TAttribute>(this TypeInfo typeInfo) where TAttribute : Attribute
@@ -87,6 +59,30 @@ namespace System
         {
             var typeInfo = type.GetTypeInfo();
             return typeInfo.IsGenericType && typeInfo.ContainsGenericParameters;
+        }
+
+        public static Stashbox.Attributes.DependencyAttribute GetDependencyAttribute(this PropertyInfo property)
+        {
+            var attr = property.GetCustomAttributes(Constants.DependencyAttributeType, false).FirstOrDefault();
+            return attr != null ? (Stashbox.Attributes.DependencyAttribute)attr : null;
+        }
+
+        public static Stashbox.Attributes.DependencyAttribute GetDependencyAttribute(this FieldInfo field)
+        {
+            var attr = field.GetCustomAttributes(Constants.DependencyAttributeType, false).FirstOrDefault();
+            return attr != null ? (Stashbox.Attributes.DependencyAttribute)attr : null;
+        }
+
+        public static Stashbox.Attributes.DependencyAttribute GetDependencyAttribute(this ParameterInfo parameter)
+        {
+            var attr = parameter.GetCustomAttributes(Constants.DependencyAttributeType, false).FirstOrDefault();
+            return attr != null ? (Stashbox.Attributes.DependencyAttribute)attr : null;
+        }
+
+        public static Stashbox.Attributes.InjectionMethodAttribute GetInjectionAttribute(this MethodInfo method)
+        {
+            var attr = method.GetCustomAttributes(Constants.InjectionAttributeType, false).FirstOrDefault();
+            return attr != null ? (Stashbox.Attributes.InjectionMethodAttribute)attr : null;
         }
 
         public static Type[] GetGenericArguments(this Type type) =>

@@ -2,8 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using System.Reflection.Emit;
 using System.Reflection;
+using System.Reflection.Emit;
 
 namespace Stashbox.BuildUp.Expressions.Compile
 {
@@ -154,31 +154,24 @@ namespace Stashbox.BuildUp.Expressions.Compile
             var typeInfo = type.GetTypeInfo();
             var itemType = type.GetEnumerableType();
 
-            var instance = generator.DeclareLocal(itemType);
-
-            generator.EmitInteger(expression.Expressions.Count);
-            generator.Emit(OpCodes.Newarr, itemType);
-            generator.Emit(OpCodes.Stloc, instance);
-
             var length = expression.Expressions.Count;
+
+            generator.EmitInteger(length);
+            generator.Emit(OpCodes.Newarr, itemType);
+
             for (var i = 0; i < length; i++)
             {
-                generator.Emit(OpCodes.Ldloc, instance);
+                generator.Emit(OpCodes.Dup);
                 generator.EmitInteger(i);
-
-                if (typeInfo.IsValueType)
-                    generator.Emit(OpCodes.Ldelema, itemType);
 
                 if (!expression.Expressions[i].TryEmit(target, generator, parameters))
                     return false;
 
                 if (typeInfo.IsValueType)
-                    generator.Emit(OpCodes.Stobj, itemType);
+                    generator.Emit(OpCodes.Stelem, itemType);
                 else
                     generator.Emit(OpCodes.Stelem_Ref);
             }
-
-            generator.Emit(OpCodes.Ldloc, instance);
 
             return true;
         }
@@ -271,11 +264,21 @@ namespace Stashbox.BuildUp.Expressions.Compile
 
         private static bool TryEmit(this UnaryExpression expression, DelegateTargetInformation target, ILGenerator generator, params ParameterExpression[] parameters)
         {
+            var typeFrom = expression.Operand.Type;
+            var typeTo = expression.Type;
+
             if (!expression.Operand.TryEmit(target, generator, parameters))
                 return false;
 
-            var type = expression.Type;
-            generator.Emit(OpCodes.Castclass, type);
+            if (typeFrom == typeTo)
+                return true;
+
+            if (!typeFrom.GetTypeInfo().IsValueType && typeTo.GetTypeInfo().IsValueType)
+                generator.Emit(OpCodes.Unbox_Any, typeTo);
+            else if (typeFrom.GetTypeInfo().IsValueType && typeTo == typeof(object))
+                generator.Emit(OpCodes.Box, typeFrom);
+            else
+                generator.Emit(OpCodes.Castclass, typeTo);
 
             return true;
         }
@@ -329,9 +332,6 @@ namespace Stashbox.BuildUp.Expressions.Compile
             if (!expression.NewExpression.TryEmit(target, generator, parameters))
                 return false;
 
-            var result = generator.DeclareLocal(expression.Type);
-            generator.Emit(OpCodes.Stloc, result);
-
             var length = expression.Bindings.Count;
             for (var i = 0; i < length; i++)
             {
@@ -339,7 +339,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
                 if (binding.BindingType != MemberBindingType.Assignment)
                     return false;
 
-                generator.Emit(OpCodes.Ldloc, result);
+                generator.Emit(OpCodes.Dup);
 
                 if (!((MemberAssignment)binding).Expression.TryEmit(target, generator, parameters))
                     return false;
@@ -355,7 +355,6 @@ namespace Stashbox.BuildUp.Expressions.Compile
                     generator.Emit(OpCodes.Stfld, field);
             }
 
-            generator.Emit(OpCodes.Ldloc, result);
             return true;
         }
 
@@ -369,15 +368,17 @@ namespace Stashbox.BuildUp.Expressions.Compile
                 generator.Emit(field.IsStatic ? OpCodes.Ldsfld : OpCodes.Ldfld, field);
                 return true;
             }
+            else if (expression.Member is PropertyInfo property)
+            {
+                var getMethod = property.GetGetMethod();
+                if (getMethod == null)
+                    return false;
+                generator.EmitMethod(getMethod);
 
-            if (!(expression.Member is PropertyInfo property)) return true;
+                return true;
+            }
 
-            var getMethod = property.GetGetMethod();
-            if (getMethod == null)
-                return false;
-            generator.EmitMethod(getMethod);
-
-            return true;
+            return false;
         }
 
         private static bool TryEmit(this InvocationExpression expression, DelegateTargetInformation target, ILGenerator generator, params ParameterExpression[] parameters)
@@ -393,7 +394,8 @@ namespace Stashbox.BuildUp.Expressions.Compile
 
         private static bool TryEmit(this ConstantExpression expression, DelegateTargetInformation target, ILGenerator generator)
         {
-            if (expression.Value == null)
+            var value = expression.Value;
+            if (value == null)
             {
                 generator.Emit(OpCodes.Ldnull);
                 return true;
@@ -402,13 +404,34 @@ namespace Stashbox.BuildUp.Expressions.Compile
             var type = expression.Type;
 
             if (type == typeof(int))
-                generator.EmitInteger((int)expression.Value);
-            else if (type == typeof(string))
-                generator.Emit(OpCodes.Ldstr, (string)expression.Value);
-            else if (type == typeof(bool))
-                generator.Emit((bool)expression.Value ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0);
+                generator.EmitInteger((int)value);
+            else if (type == typeof(char))
+                generator.EmitInteger((char)value);
+            else if (type == typeof(short))
+                generator.EmitInteger((short)value);
+            else if (type == typeof(byte))
+                generator.EmitInteger((byte)value);
+            else if (type == typeof(ushort))
+                generator.EmitInteger((ushort)value);
+            else if (type == typeof(sbyte))
+                generator.EmitInteger((sbyte)value);
+            else if (type == typeof(long))
+                generator.Emit(OpCodes.Ldc_I8, (long)value);
+            else if (type == typeof(float))
+                generator.Emit(OpCodes.Ldc_R8, (float)value);
             else if (type == typeof(double))
-                generator.Emit(OpCodes.Ldc_R8, (double)expression.Value);
+                generator.Emit(OpCodes.Ldc_R8, (double)value);
+            else if (type == typeof(string))
+                generator.Emit(OpCodes.Ldstr, (string)value);
+            else if (type == typeof(bool))
+                generator.Emit((bool)value ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0);
+            else if (type == typeof(double))
+                generator.Emit(OpCodes.Ldc_R8, (double)value);
+            else if (type == typeof(Type))
+            {
+                generator.Emit(OpCodes.Ldtoken, type);
+                generator.Emit(OpCodes.Call, typeof(Type).GetMethod("GetTypeFromHandle"));
+            }
             else if (target != null)
             {
                 var constantIndex = target.Constants.IndexOf(expression);

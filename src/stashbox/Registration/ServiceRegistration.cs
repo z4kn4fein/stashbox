@@ -1,11 +1,13 @@
-﻿using Stashbox.Entity;
+﻿using Stashbox.Configuration;
+using Stashbox.Entity;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.Registration;
+using Stashbox.MetaInfo;
+using Stashbox.Utils;
 using System;
 using System.Linq;
 using System.Linq.Expressions;
-using Stashbox.MetaInfo;
-using Stashbox.Utils;
+using System.Reflection;
 
 namespace Stashbox.Registration
 {
@@ -15,7 +17,7 @@ namespace Stashbox.Registration
     public class ServiceRegistration : IServiceRegistration
     {
         private static readonly ConcurrentTree<Type, MetaInformation> MetaRepository = new ConcurrentTree<Type, MetaInformation>();
-
+        private readonly IContainerContext containerContext;
         private readonly IObjectBuilder objectBuilder;
 
         /// <inheritdoc />
@@ -44,6 +46,7 @@ namespace Stashbox.Registration
              bool isDecorator, bool shouldHandleDisposal)
         {
             this.objectBuilder = objectBuilder;
+            this.containerContext = containerContext;
             this.ImplementationType = implementationType;
             this.ServiceType = serviceType;
             this.MetaInformation = GetOrCreateMetaInfo(implementationType);
@@ -58,11 +61,8 @@ namespace Stashbox.Registration
 
         /// <inheritdoc />
         public bool IsUsableForCurrentContext(TypeInformation typeInfo) =>
-            this.RegistrationContext.TargetTypeCondition == null && this.RegistrationContext.ResolutionCondition == null && (this.RegistrationContext.AttributeConditions == null || !this.RegistrationContext.AttributeConditions.Any()) ||
-            this.RegistrationContext.TargetTypeCondition != null && typeInfo.ParentType != null && this.RegistrationContext.TargetTypeCondition == typeInfo.ParentType ||
-            this.RegistrationContext.AttributeConditions != null && typeInfo.CustomAttributes != null &&
-            this.RegistrationContext.AttributeConditions.Intersect(typeInfo.CustomAttributes.Select(attribute => attribute.GetType())).Any() ||
-            this.RegistrationContext.ResolutionCondition != null && this.RegistrationContext.ResolutionCondition(typeInfo);
+            !this.HasCondition || this.HasParentTypeConditionAndMatch(typeInfo) || this.HasAttributeConditionAndMatch(typeInfo) ||
+            this.HasResolutionConditionAndMatch(typeInfo);
 
         /// <inheritdoc />
         public bool HasCondition => this.RegistrationContext.TargetTypeCondition != null || this.RegistrationContext.ResolutionCondition != null ||
@@ -77,6 +77,32 @@ namespace Stashbox.Registration
             this.RegistrationContext.Lifetime == null || this.ServiceType.IsOpenGenericType() ?
                 this.objectBuilder.GetExpression(this, resolutionInfo, resolveType) :
                 this.RegistrationContext.Lifetime.GetExpression(this, this.objectBuilder, resolutionInfo, resolveType);
+
+        /// <inheritdoc />
+        public bool CanInjectMember(MemberInformation member)
+        {
+            var autoMemberInjectionEnabled = this.containerContext.ContainerConfigurator.ContainerConfiguration.MemberInjectionWithoutAnnotationEnabled || this.RegistrationContext.AutoMemberInjectionEnabled;
+            var autoMemberInjectionRule = this.RegistrationContext.AutoMemberInjectionEnabled ? this.RegistrationContext.AutoMemberInjectionRule :
+                this.containerContext.ContainerConfigurator.ContainerConfiguration.MemberInjectionWithoutAnnotationRule;
+
+            if (autoMemberInjectionEnabled)
+                return member.TypeInformation.ForcedDependency ||
+                    member.MemberInfo is FieldInfo && autoMemberInjectionRule.HasFlag(Rules.AutoMemberInjection.PrivateFields) ||
+                    member.MemberInfo is PropertyInfo && (autoMemberInjectionRule.HasFlag(Rules.AutoMemberInjection.PropertiesWithPublicSetter) && ((PropertyInfo)member.MemberInfo).HasSetMethod() ||
+                     autoMemberInjectionRule.HasFlag(Rules.AutoMemberInjection.PropertiesWithLimitedAccess));
+
+            return member.TypeInformation.ForcedDependency;
+        }
+
+        private bool HasParentTypeConditionAndMatch(TypeInformation typeInfo) =>
+            this.RegistrationContext.TargetTypeCondition != null && typeInfo.ParentType != null && this.RegistrationContext.TargetTypeCondition == typeInfo.ParentType;
+
+        private bool HasAttributeConditionAndMatch(TypeInformation typeInfo) =>
+            this.RegistrationContext.AttributeConditions != null && typeInfo.CustomAttributes != null &&
+            this.RegistrationContext.AttributeConditions.Intersect(typeInfo.CustomAttributes.Select(attribute => attribute.GetType())).Any();
+
+        private bool HasResolutionConditionAndMatch(TypeInformation typeInfo) =>
+            this.RegistrationContext.ResolutionCondition != null && this.RegistrationContext.ResolutionCondition(typeInfo);
 
         private static MetaInformation GetOrCreateMetaInfo(Type typeTo)
         {

@@ -1,16 +1,15 @@
 ﻿using Stashbox.Entity;
+using Stashbox.Entity.Resolution;
+using Stashbox.Exceptions;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.ContainerExtension;
+using Stashbox.Infrastructure.Registration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
-using Stashbox.Configuration;
-using Stashbox.Entity.Resolution;
-using Stashbox.Exceptions;
-using Stashbox.Infrastructure.Registration;
 
 namespace Stashbox.BuildUp.Expressions
 {
@@ -42,7 +41,7 @@ namespace Stashbox.BuildUp.Expressions
                 block.AddRange(this.FillMembersExpression(serviceRegistration, resolutionInfo, variable));
 
             if (serviceRegistration.MetaInformation.InjectionMethods.Length > 0 || this.containerExtensionManager.HasPostBuildExtensions)
-                return this.CreatePostWorkExpressionIfAny(serviceRegistration, resolutionInfo, variable, serviceType, block, variable);
+                block.AddRange(this.CreatePostWorkExpressionIfAny(serviceRegistration, resolutionInfo, serviceType, variable));
 
             block.Add(variable); //return
 
@@ -59,7 +58,18 @@ namespace Stashbox.BuildUp.Expressions
                 initExpression = Expression.MemberInit((NewExpression)initExpression, this.GetMemberBindings(serviceRegistration, resolutionInfo));
 
             if (serviceRegistration.MetaInformation.InjectionMethods.Length > 0 || this.containerExtensionManager.HasPostBuildExtensions)
-                return this.CreatePostWorkExpressionIfAny(serviceRegistration, resolutionInfo, initExpression, serviceType);
+            {
+                var variable = Expression.Variable(initExpression.Type);
+                var assign = Expression.Assign(variable, initExpression);
+
+                var expressions = this.CreatePostWorkExpressionIfAny(serviceRegistration, resolutionInfo, serviceType, variable);
+
+                var block = new List<Expression>(expressions.Length + 1) { assign };
+                block.AddRange(expressions);
+                block.Add(variable);
+
+                return Expression.Block(new[] { variable }, block);
+            }
 
             return initExpression;
         }
@@ -85,7 +95,7 @@ namespace Stashbox.BuildUp.Expressions
         private ResolutionConstructor CreateResolutionConstructor(IServiceRegistration serviceRegistration, ResolutionInfo resolutionInfo, ConstructorInfo constructor)
         {
             var parameters = constructor.GetParameters();
-            var paramLength = constructor.GetParameters().Length;
+            var paramLength = parameters.Length;
             var parameterExpressions = new Expression[paramLength];
 
             for (var i = 0; i < paramLength; i++)
@@ -153,29 +163,23 @@ namespace Stashbox.BuildUp.Expressions
             throw new ResolutionFailedException(serviceRegistration.ImplementationType, stringBuilder.ToString());
         }
 
-        private Expression CreatePostWorkExpressionIfAny(IServiceRegistration serviceRegistration, ResolutionInfo resolutionInfo,
-            Expression initExpression, Type serviceType, List<Expression> block = null, ParameterExpression variable = null)
+        private Expression[] CreatePostWorkExpressionIfAny(IServiceRegistration serviceRegistration, ResolutionInfo resolutionInfo, Type serviceType, Expression instance)
         {
-            block = block ?? new List<Expression>();
+            var length = serviceRegistration.MetaInformation.InjectionMethods.Length;
+            var expressions = new Expression[this.containerExtensionManager.HasPostBuildExtensions ? length + 1 : length];
 
-            var newVariable = variable ?? Expression.Variable(initExpression.Type);
-            if (variable == null)
-                block.Add(Expression.Assign(newVariable, initExpression));
-
-            if (serviceRegistration.MetaInformation.InjectionMethods.Length > 0)
-                block.AddRange(this.CreateMethodExpressions(serviceRegistration, resolutionInfo, newVariable));
+            if (length > 0)
+                this.CreateMethodExpressions(serviceRegistration, resolutionInfo, instance, expressions);
 
             if (this.containerExtensionManager.HasPostBuildExtensions)
             {
-                var call = Expression.Call(Expression.Constant(this.containerExtensionManager), Constants.BuildExtensionMethod, newVariable, Expression.Constant(this.containerContext),
+                var call = Expression.Call(Expression.Constant(this.containerExtensionManager), Constants.BuildExtensionMethod, instance, Expression.Constant(this.containerContext),
                       Expression.Constant(resolutionInfo), Expression.Constant(serviceRegistration), Expression.Constant(serviceType));
 
-                block.Add(Expression.Assign(newVariable, Expression.Convert(call, initExpression.Type)));
+                expressions[expressions.Length - 1] = Expression.Assign(instance, Expression.Convert(call, instance.Type));
             }
 
-            block.Add(newVariable); //return
-
-            return Expression.Block(new[] { newVariable }, block);
+            return expressions;
         }
 
         private IEnumerable<Expression> FillMembersExpression(IServiceRegistration serviceRegistration, ResolutionInfo resolutionInfo, Expression instance)
@@ -188,7 +192,7 @@ namespace Stashbox.BuildUp.Expressions
             {
                 var member = serviceRegistration.MetaInformation.InjectionMembers[i];
 
-                if (!this.CanInjectMember(member, serviceRegistration)) continue;
+                if (!serviceRegistration.CanInjectMember(member)) continue;
 
                 var expression = this.containerContext.ResolutionStrategy
                     .BuildResolutionExpression(this.containerContext, resolutionInfo, member.TypeInformation, serviceRegistration.RegistrationContext.InjectionParameters);
@@ -210,18 +214,16 @@ namespace Stashbox.BuildUp.Expressions
             return expressions;
         }
 
-        private Expression[] CreateMethodExpressions(IServiceRegistration serviceRegistration, ResolutionInfo resolutionInfo, Expression newExpression)
+        private void CreateMethodExpressions(IServiceRegistration serviceRegistration, ResolutionInfo resolutionInfo, Expression newExpression, Expression[] buffer)
         {
             var length = serviceRegistration.MetaInformation.InjectionMethods.Length;
-            var methodExpressions = new Expression[length];
-
             for (var i = 0; i < length; i++)
             {
                 var info = serviceRegistration.MetaInformation.InjectionMethods[i];
 
                 var paramLength = info.Parameters.Length;
                 if (paramLength == 0)
-                    methodExpressions[i] = Expression.Call(newExpression, info.Method, new Expression[0]);
+                    buffer[i] = Expression.Call(newExpression, info.Method, Constants.EmptyExpressions);
                 else
                 {
                     var parameters = new Expression[paramLength];
@@ -229,11 +231,9 @@ namespace Stashbox.BuildUp.Expressions
                         parameters[j] = this.containerContext.ResolutionStrategy.BuildResolutionExpression(this.containerContext, resolutionInfo,
                             info.Parameters[j], serviceRegistration.RegistrationContext.InjectionParameters);
 
-                    methodExpressions[i] = Expression.Call(newExpression, info.Method, parameters);
+                    buffer[i] = Expression.Call(newExpression, info.Method, parameters);
                 }
             }
-
-            return methodExpressions;
         }
 
         private IEnumerable<MemberBinding> GetMemberBindings(IServiceRegistration serviceRegistration, ResolutionInfo resolutionInfo)
@@ -244,7 +244,7 @@ namespace Stashbox.BuildUp.Expressions
             for (var i = 0; i < length; i++)
             {
                 var info = serviceRegistration.MetaInformation.InjectionMembers[i];
-                if (!this.CanInjectMember(info, serviceRegistration)) continue;
+                if (!serviceRegistration.CanInjectMember(info)) continue;
 
                 var expression = this.containerContext.ResolutionStrategy
                     .BuildResolutionExpression(this.containerContext, resolutionInfo, info.TypeInformation, serviceRegistration.RegistrationContext.InjectionParameters);
@@ -255,21 +255,6 @@ namespace Stashbox.BuildUp.Expressions
             }
 
             return members;
-        }
-
-        private bool CanInjectMember(MemberInformation member, IServiceRegistration serviceRegistration)
-        {
-            var autoMemberInjectionEnabled = this.containerContext.ContainerConfigurator.ContainerConfiguration.MemberInjectionWithoutAnnotationEnabled || serviceRegistration.RegistrationContext.AutoMemberInjectionEnabled;
-            var autoMemberInjectionRule = serviceRegistration.RegistrationContext.AutoMemberInjectionEnabled ? serviceRegistration.RegistrationContext.AutoMemberInjectionRule :
-                this.containerContext.ContainerConfigurator.ContainerConfiguration.MemberInjectionWithoutAnnotationRule;
-
-            if (autoMemberInjectionEnabled)
-                return member.TypeInformation.HasDependencyAttribute ||
-                    member.MemberInfo is FieldInfo && autoMemberInjectionRule.HasFlag(Rules.AutoMemberInjection.PrivateFields) ||
-                    member.MemberInfo is PropertyInfo && (autoMemberInjectionRule.HasFlag(Rules.AutoMemberInjection.PropertiesWithPublicSetter) && ((PropertyInfo)member.MemberInfo).HasSetMethod() ||
-                     autoMemberInjectionRule.HasFlag(Rules.AutoMemberInjection.PropertiesWithLimitedAccess));
-
-            return member.TypeInformation.HasDependencyAttribute;
         }
     }
 }

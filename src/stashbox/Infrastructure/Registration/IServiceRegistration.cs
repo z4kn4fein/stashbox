@@ -1,8 +1,8 @@
-﻿using System.Linq.Expressions;
-using Stashbox.Entity;
-using System;
+﻿using Stashbox.Entity;
 using Stashbox.MetaInfo;
 using Stashbox.Registration;
+using System;
+using System.Linq.Expressions;
 
 namespace Stashbox.Infrastructure.Registration
 {
@@ -72,5 +72,12 @@ namespace Stashbox.Infrastructure.Registration
         /// <param name="type">The type information.</param>
         /// <returns>True if the argument is valid.</returns>
         bool ValidateGenericContraints(Type type);
+
+        /// <summary>
+        /// Checks that the registration can inject the given member.
+        /// </summary>
+        /// <param name="member">The member info to inject.</param>
+        /// <returns>True if the member could be injected, otherwise false.</returns>
+        bool CanInjectMember(MemberInformation member);
     }
 }

@@ -1,9 +1,8 @@
-﻿using System;
+﻿using Stashbox.Entity;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Stashbox.Attributes;
-using Stashbox.Entity;
 
 namespace Stashbox.MetaInfo
 {
@@ -70,12 +69,12 @@ namespace Stashbox.MetaInfo
         public TypeInformation GetTypeInformationForParameter(ParameterInfo parameter)
         {
             var customAttributes = parameter.GetCustomAttributes();
-            var dependencyAttribute = parameter.GetCustomAttribute<DependencyAttribute>();
+            var dependencyAttribute = parameter.GetDependencyAttribute();
             return new TypeInformation
             {
                 Type = parameter.ParameterType,
                 DependencyName = dependencyAttribute?.Name,
-                HasDependencyAttribute = dependencyAttribute != null,
+                ForcedDependency = dependencyAttribute != null,
                 ParentType = this.type,
                 CustomAttributes = customAttributes,
                 ParameterName = parameter.Name,
@@ -95,7 +94,7 @@ namespace Stashbox.MetaInfo
 
 
         private void AddMethods(IEnumerable<MethodInfo> infos) =>
-            this.InjectionMethods = infos.Where(methodInfo => methodInfo.GetCustomAttribute<InjectionMethodAttribute>() != null).Select(info => new MethodInformation
+            this.InjectionMethods = infos.Where(methodInfo => methodInfo.GetInjectionAttribute() != null).Select(info => new MethodInformation
             {
                 Method = info,
                 Parameters = this.FillParameters(info.GetParameters())
@@ -115,34 +114,42 @@ namespace Stashbox.MetaInfo
         private IEnumerable<MemberInformation> FillMembers(TypeInfo typeInfo)
         {
             return typeInfo.DeclaredProperties.Where(property => property.CanWrite && !property.IsIndexer())
-                   .Select(propertyInfo => new MemberInformation
+                   .Select(propertyInfo =>
                    {
-                       TypeInformation = new TypeInformation
+                       var attr = propertyInfo.GetDependencyAttribute();
+                       return new MemberInformation
                        {
-                           Type = propertyInfo.PropertyType,
-                           DependencyName = propertyInfo.GetCustomAttribute<DependencyAttribute>()?.Name,
-                           HasDependencyAttribute = propertyInfo.GetCustomAttribute<DependencyAttribute>() != null,
-                           ParentType = this.type,
-                           CustomAttributes = propertyInfo.GetCustomAttributes()?.CastToArray(),
-                           ParameterName = propertyInfo.Name,
-                           IsMember = true
-                       },
-                       MemberInfo = propertyInfo
+                           TypeInformation = new TypeInformation
+                           {
+                               Type = propertyInfo.PropertyType,
+                               DependencyName = attr?.Name,
+                               ForcedDependency = attr != null,
+                               ParentType = this.type,
+                               CustomAttributes = propertyInfo.GetCustomAttributes()?.CastToArray(),
+                               ParameterName = propertyInfo.Name,
+                               IsMember = true
+                           },
+                           MemberInfo = propertyInfo
+                       };
                    })
                    .Concat(typeInfo.DeclaredFields.Where(field => !field.IsInitOnly && !field.IsBackingField())
-                           .Select(fieldInfo => new MemberInformation
+                           .Select(fieldInfo =>
                            {
-                               TypeInformation = new TypeInformation
+                               var attr = fieldInfo.GetDependencyAttribute();
+                               return new MemberInformation
                                {
-                                   Type = fieldInfo.FieldType,
-                                   DependencyName = fieldInfo.GetCustomAttribute<DependencyAttribute>()?.Name,
-                                   HasDependencyAttribute = fieldInfo.GetCustomAttribute<DependencyAttribute>() != null,
-                                   ParentType = this.type,
-                                   CustomAttributes = fieldInfo.GetCustomAttributes()?.CastToArray(),
-                                   ParameterName = fieldInfo.Name,
-                                   IsMember = true
-                               },
-                               MemberInfo = fieldInfo
+                                   TypeInformation = new TypeInformation
+                                   {
+                                       Type = fieldInfo.FieldType,
+                                       DependencyName = attr?.Name,
+                                       ForcedDependency = attr != null,
+                                       ParentType = this.type,
+                                       CustomAttributes = fieldInfo.GetCustomAttributes()?.CastToArray(),
+                                       ParameterName = fieldInfo.Name,
+                                       IsMember = true
+                                   },
+                                   MemberInfo = fieldInfo
+                               };
                            }));
         }
 

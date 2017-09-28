@@ -1,9 +1,9 @@
-﻿using System;
+﻿using Stashbox.Infrastructure;
+using Stashbox.Infrastructure.ContainerExtension;
+using System;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using Stashbox.Infrastructure;
-using Stashbox.Infrastructure.ContainerExtension;
 
 namespace Stashbox
 {
@@ -33,6 +33,8 @@ namespace Stashbox
 
         internal static readonly Type[] EmptyTypes = new Type[0];
 
+        internal static readonly Expression[] EmptyExpressions = new Expression[0];
+
         internal static readonly Type ObjectType = typeof(object);
 
         internal static readonly ConstructorInfo ObjectConstructor = ObjectType.GetConstructor(EmptyTypes);
@@ -40,6 +42,8 @@ namespace Stashbox
         internal static readonly Type CompositionRootType = typeof(ICompositionRoot);
 
         internal static readonly Type DependencyAttributeType = typeof(Attributes.DependencyAttribute);
+
+        internal static readonly Type InjectionAttributeType = typeof(Attributes.InjectionMethodAttribute);
 
         internal const MethodImplOptions Inline = (MethodImplOptions)256;
     }
