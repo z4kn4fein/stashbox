@@ -2,7 +2,7 @@
 
 namespace System.Linq
 {
-    internal static class EnumerableExpressions
+    internal static class EnumerableExtensions
     {
         public static TEnumerable[] CastToArray<TEnumerable>(this IEnumerable<TEnumerable> enumerable) =>
             enumerable is TEnumerable[] ? (TEnumerable[])enumerable : enumerable.ToArray();

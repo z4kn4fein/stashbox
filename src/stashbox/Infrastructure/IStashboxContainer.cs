@@ -8,7 +8,7 @@ namespace Stashbox.Infrastructure
     /// <summary>
     /// Represents a dependency injection container.
     /// </summary>
-    public interface IStashboxContainer : IDependencyRegistrator, IDependencyResolver, IDecoratorRegistrator, IFuncRegistrator
+    public interface IStashboxContainer : IDependencyRegistrator, IDependencyResolver, IDependencyReMapper, IDependencyCollectionRegistrator, IDecoratorRegistrator, IFuncRegistrator
     {
         /// <summary>
         /// Registers a <see cref="IContainerExtension"/> into the container.

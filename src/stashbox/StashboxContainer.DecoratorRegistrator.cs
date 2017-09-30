@@ -8,15 +8,7 @@ namespace Stashbox
     public partial class StashboxContainer
     {
         /// <inheritdoc />
-        public IDecoratorRegistrator RegisterDecorator<TFrom, TTo>(Action<IFluentDecoratorRegistrator> configurator = null) where TFrom : class where TTo : class, TFrom =>
-            this.RegisterDecorator(typeof(TFrom), typeof(TTo), configurator);
-
-        /// <inheritdoc />
-        public IDecoratorRegistrator RegisterDecorator<TFrom>(Type typeTo, Action<IFluentDecoratorRegistrator> configurator = null) where TFrom : class =>
-            this.RegisterDecorator(typeof(TFrom), typeTo, configurator);
-
-        /// <inheritdoc />
-        public IDecoratorRegistrator RegisterDecorator(Type typeFrom, Type typeTo, Action<IFluentDecoratorRegistrator> configurator = null)
+        public IStashboxContainer RegisterDecorator(Type typeFrom, Type typeTo, Action<IFluentDecoratorRegistrator> configurator = null)
         {
             Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
             Shield.EnsureNotNull(typeTo, nameof(typeTo));
