@@ -40,7 +40,7 @@ namespace Stashbox.BuildUp.Expressions
             if (serviceRegistration.MetaInformation.InjectionMembers.Length > 0)
                 block.AddRange(this.FillMembersExpression(serviceRegistration, resolutionInfo, variable));
 
-            if (serviceRegistration.MetaInformation.InjectionMethods.Length > 0 || this.containerExtensionManager.HasPostBuildExtensions)
+            if (serviceRegistration.MetaInformation.InjectionMethods.Length > 0 || serviceRegistration.RegistrationContext.Initializer != null || this.containerExtensionManager.HasPostBuildExtensions)
                 block.AddRange(this.CreatePostWorkExpressionIfAny(serviceRegistration, resolutionInfo, serviceType, variable));
 
             block.Add(variable); //return
@@ -57,7 +57,7 @@ namespace Stashbox.BuildUp.Expressions
             if (serviceRegistration.MetaInformation.InjectionMembers.Length > 0)
                 initExpression = Expression.MemberInit((NewExpression)initExpression, this.GetMemberBindings(serviceRegistration, resolutionInfo));
 
-            if (serviceRegistration.MetaInformation.InjectionMethods.Length > 0 || this.containerExtensionManager.HasPostBuildExtensions)
+            if (serviceRegistration.MetaInformation.InjectionMethods.Length > 0 || serviceRegistration.RegistrationContext.Initializer != null || this.containerExtensionManager.HasPostBuildExtensions)
             {
                 var variable = Expression.Variable(initExpression.Type);
                 var assign = Expression.Assign(variable, initExpression);
@@ -166,10 +166,21 @@ namespace Stashbox.BuildUp.Expressions
         private Expression[] CreatePostWorkExpressionIfAny(IServiceRegistration serviceRegistration, ResolutionInfo resolutionInfo, Type serviceType, Expression instance)
         {
             var length = serviceRegistration.MetaInformation.InjectionMethods.Length;
-            var expressions = new Expression[this.containerExtensionManager.HasPostBuildExtensions ? length + 1 : length];
+
+            if (this.containerExtensionManager.HasPostBuildExtensions)
+                length++;
+
+            if (serviceRegistration.RegistrationContext.Initializer != null)
+                length++;
+
+            var expressions = new Expression[length];
 
             if (length > 0)
                 this.CreateMethodExpressions(serviceRegistration, resolutionInfo, instance, expressions);
+
+            if (serviceRegistration.RegistrationContext.Initializer != null)
+                expressions[expressions.Length - (this.containerExtensionManager.HasPostBuildExtensions ? 2 : 1)] = Expression.Call(Expression.Constant(serviceRegistration.RegistrationContext.Initializer), 
+                    serviceRegistration.RegistrationContext.Initializer.GetType().GetSingleMethod("Invoke"), instance);
 
             if (this.containerExtensionManager.HasPostBuildExtensions)
             {

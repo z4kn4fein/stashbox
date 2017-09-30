@@ -4,19 +4,45 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Stashbox.Tests
 {
     [TestClass]
-    public class FinalizerTests
+    public class InitializerFinalizerTests
     {
+        [TestMethod]
+        public void InitializerTests_Interface_Method()
+        {
+            ITest test;
+            using (var container = new StashboxContainer())
+            {
+                container.RegisterType<ITest, Test>(context => context.WithInitializer(t => t.Method()));
+                test = container.Resolve<ITest>();
+            }
+
+            Assert.IsTrue(test.MethodCalled);
+        }
+
+        [TestMethod]
+        public void InitializerTests_ImplOnly_Method()
+        {
+            ITest test;
+            using (var container = new StashboxContainer())
+            {
+                container.RegisterType<ITest, Test>(context => context.WithInitializer(t => t.ImplMethod()));
+                test = container.Resolve<ITest>();
+            }
+
+            Assert.IsTrue(test.MethodCalled);
+        }
+
         [TestMethod]
         public void FinalizerTests_RegisterType()
         {
             ITest test;
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<ITest, Test>(context => context.WithFinalizer(t => t.CleanUp()));
+                container.RegisterType<ITest, Test>(context => context.WithFinalizer(t => t.Method()));
                 test = container.Resolve<ITest>();
             }
 
-            Assert.IsTrue(test.CleanupCalled);
+            Assert.IsTrue(test.MethodCalled);
         }
 
         [TestMethod]
@@ -25,11 +51,11 @@ namespace Stashbox.Tests
             ITest test;
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<ITest>(typeof(Test), context => context.WithFinalizer(t => t.CleanUp()));
+                container.RegisterType<ITest>(typeof(Test), context => context.WithFinalizer(t => t.Method()));
                 test = container.Resolve<ITest>();
             }
 
-            Assert.IsTrue(test.CleanupCalled);
+            Assert.IsTrue(test.MethodCalled);
         }
 
         [TestMethod]
@@ -38,11 +64,11 @@ namespace Stashbox.Tests
             Test test;
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<Test>(context => context.WithFinalizer(t => t.CleanUp()));
+                container.RegisterType<Test>(context => context.WithFinalizer(t => t.Method()));
                 test = container.Resolve<Test>();
             }
 
-            Assert.IsTrue(test.CleanupCalled);
+            Assert.IsTrue(test.MethodCalled);
         }
 
         [TestMethod]
@@ -51,12 +77,12 @@ namespace Stashbox.Tests
             ITest test;
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<ITest, Test>(context => context.WithFinalizer(t => t.CleanUp()));
-                container.ReMap<ITest, Test>(context => context.WithFinalizer(t => t.CleanUp()));
+                container.RegisterType<ITest, Test>(context => context.WithFinalizer(t => t.Method()));
+                container.ReMap<ITest, Test>(context => context.WithFinalizer(t => t.Method()));
                 test = container.Resolve<ITest>();
             }
 
-            Assert.IsTrue(test.CleanupCalled);
+            Assert.IsTrue(test.MethodCalled);
         }
 
         [TestMethod]
@@ -65,12 +91,12 @@ namespace Stashbox.Tests
             ITest test;
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<ITest>(typeof(Test), context => context.WithFinalizer(t => t.CleanUp()));
-                container.ReMap<ITest>(typeof(Test), context => context.WithFinalizer(t => t.CleanUp()));
+                container.RegisterType<ITest>(typeof(Test), context => context.WithFinalizer(t => t.Method()));
+                container.ReMap<ITest>(typeof(Test), context => context.WithFinalizer(t => t.Method()));
                 test = container.Resolve<ITest>();
             }
 
-            Assert.IsTrue(test.CleanupCalled);
+            Assert.IsTrue(test.MethodCalled);
         }
 
         [TestMethod]
@@ -79,12 +105,12 @@ namespace Stashbox.Tests
             Test test;
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<Test>(context => context.WithFinalizer(t => t.CleanUp()));
-                container.ReMap<Test>(context => context.WithFinalizer(t => t.CleanUp()));
+                container.RegisterType<Test>(context => context.WithFinalizer(t => t.Method()));
+                container.ReMap<Test>(context => context.WithFinalizer(t => t.Method()));
                 test = container.Resolve<Test>();
             }
 
-            Assert.IsTrue(test.CleanupCalled);
+            Assert.IsTrue(test.MethodCalled);
         }
 
         [TestMethod]
@@ -93,11 +119,11 @@ namespace Stashbox.Tests
             var test = new Test();
             using (var container = new StashboxContainer())
             {
-                container.RegisterInstanceAs<ITest>(test, finalizerDelegate: t => t.CleanUp());
+                container.RegisterInstanceAs<ITest>(test, finalizerDelegate: t => t.Method());
                 test = (Test)container.Resolve<ITest>();
             }
 
-            Assert.IsTrue(test.CleanupCalled);
+            Assert.IsTrue(test.MethodCalled);
         }
 
         [TestMethod]
@@ -106,11 +132,11 @@ namespace Stashbox.Tests
             var test = new Test();
             using (var container = new StashboxContainer())
             {
-                container.RegisterInstanceAs(test, finalizerDelegate: t => t.CleanUp());
+                container.RegisterInstanceAs(test, finalizerDelegate: t => t.Method());
                 test = container.Resolve<Test>();
             }
 
-            Assert.IsTrue(test.CleanupCalled);
+            Assert.IsTrue(test.MethodCalled);
         }
 
         [TestMethod]
@@ -119,11 +145,11 @@ namespace Stashbox.Tests
             var test = new Test();
             using (var container = new StashboxContainer())
             {
-                container.WireUpAs<ITest>(test, finalizerDelegate: t => t.CleanUp());
+                container.WireUpAs<ITest>(test, finalizerDelegate: t => t.Method());
                 test = (Test)container.Resolve<ITest>();
             }
 
-            Assert.IsTrue(test.CleanupCalled);
+            Assert.IsTrue(test.MethodCalled);
         }
 
         [TestMethod]
@@ -132,11 +158,11 @@ namespace Stashbox.Tests
             var test = new Test();
             using (var container = new StashboxContainer())
             {
-                container.WireUpAs(test, finalizerDelegate: t => t.CleanUp());
+                container.WireUpAs(test, finalizerDelegate: t => t.Method());
                 test = container.Resolve<Test>();
             }
 
-            Assert.IsTrue(test.CleanupCalled);
+            Assert.IsTrue(test.MethodCalled);
         }
 
         [TestMethod]
@@ -144,11 +170,11 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<ITest, Test>(context => context.WithFinalizer(t => t.CleanUp()));
+                container.RegisterType<ITest, Test>(context => context.WithFinalizer(t => t.Method()));
                 for (var i = 0; i < 10; i++)
                 {
                     var test = container.Resolve<ITest>();
-                    Assert.IsFalse(test.CleanupCalled);
+                    Assert.IsFalse(test.MethodCalled);
                 }
             }
         }
@@ -158,11 +184,11 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<ITest, Test>(context => context.WithFinalizer(t => t.CleanUp()).WithSingletonLifetime());
+                container.RegisterType<ITest, Test>(context => context.WithFinalizer(t => t.Method()).WithSingletonLifetime());
                 for (var i = 0; i < 10; i++)
                 {
                     var test = container.Resolve<ITest>();
-                    Assert.IsFalse(test.CleanupCalled);
+                    Assert.IsFalse(test.MethodCalled);
                 }
             }
         }
@@ -172,17 +198,17 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<ITest, Test>(context => context.WithFinalizer(t => t.CleanUp()).WithScopedLifetime());
+                container.RegisterType<ITest, Test>(context => context.WithFinalizer(t => t.Method()).WithScopedLifetime());
                 for (var i = 0; i < 10; i++)
                 {
                     ITest test;
                     using (var scope = container.BeginScope())
                     {
                         test = scope.Resolve<ITest>();
-                        Assert.IsFalse(test.CleanupCalled);
+                        Assert.IsFalse(test.MethodCalled);
                     }
 
-                    Assert.IsTrue(test.CleanupCalled);
+                    Assert.IsTrue(test.MethodCalled);
                 }
             }
         }
@@ -193,36 +219,49 @@ namespace Stashbox.Tests
             var test = new Test();
             using (var container = new StashboxContainer())
             {
-                container.RegisterInstanceAs(test, finalizerDelegate: t => t.CleanUp());
+                container.RegisterInstanceAs(test, finalizerDelegate: t => t.Method());
                 for (var i = 0; i < 10; i++)
                 {
                     var test1 = container.Resolve<Test>();
-                    Assert.IsFalse(test1.CleanupCalled);
+                    Assert.IsFalse(test1.MethodCalled);
                     Assert.AreSame(test, test1);
                 }
             }
 
-            Assert.IsTrue(test.CleanupCalled);
+            Assert.IsTrue(test.MethodCalled);
         }
 
         public interface ITest
         {
-            bool CleanupCalled { get; }
+            bool MethodCalled { get; }
 
-            void CleanUp();
+            void Method();
+        }
+
+        public interface ITest1
+        {
+            void Init();
         }
 
         public class Test : ITest
         {
-            public void CleanUp()
+            public void Method()
             {
-                if (this.CleanupCalled)
-                    throw new Exception("CleanUp called multiple times!");
+                if (this.MethodCalled)
+                    throw new Exception("Method called multiple times!");
 
-                this.CleanupCalled = true;
+                this.MethodCalled = true;
             }
 
-            public bool CleanupCalled { get; private set; }
+            public void ImplMethod()
+            {
+                if (this.MethodCalled)
+                    throw new Exception("Method called multiple times!");
+
+                this.MethodCalled = true;
+            }
+
+            public bool MethodCalled { get; private set; }
         }
     }
 }

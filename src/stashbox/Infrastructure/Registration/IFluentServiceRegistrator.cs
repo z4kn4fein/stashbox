@@ -14,6 +14,13 @@ namespace Stashbox.Infrastructure.Registration
         /// <param name="finalizer">The cleanup delegate.</param>
         /// <returns>The <see cref="IFluentServiceRegistrator{TService}"/> which on this method was called.</returns>
         IFluentServiceRegistrator<TService> WithFinalizer(Action<TService> finalizer);
+
+        /// <summary>
+        /// Sets a delegate which will be called when the service is being constructed.
+        /// </summary>
+        /// <param name="initializer">The initializer delegate.</param>
+        /// <returns>The <see cref="IFluentServiceRegistrator{TService}"/> which on this method was called.</returns>
+        IFluentServiceRegistrator<TService> WithInitializer(Action<TService> initializer);
     }
 
     /// <summary>

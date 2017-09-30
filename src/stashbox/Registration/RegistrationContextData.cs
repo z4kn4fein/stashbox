@@ -88,6 +88,11 @@ namespace Stashbox.Registration
         public object Finalizer { get; internal set; }
 
         /// <summary>
+        /// The initializer delegate.
+        /// </summary>
+        public object Initializer { get; internal set; }
+
+        /// <summary>
         /// The auto memeber injection rule for the registration.
         /// </summary>
         public Rules.AutoMemberInjection AutoMemberInjectionRule { get; internal set; }

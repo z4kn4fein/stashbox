@@ -21,6 +21,12 @@ namespace Stashbox.Registration
             base.Context.Finalizer = finalizer;
             return this;
         }
+
+        public IFluentServiceRegistrator<TService> WithInitializer(Action<TService> initializer)
+        {
+            base.Context.Initializer = initializer;
+            return this;
+        }
     }
 
     internal class RegistrationContext : IRegistrationContext, IRegistrationContextMeta
