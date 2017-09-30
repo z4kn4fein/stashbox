@@ -143,15 +143,7 @@ namespace Stashbox
 
             return disposable;
         }
-
-        /// <inheritdoc />
-        public void AddScopedItem(object key, object value) =>
-            this.scopedItems.AddOrUpdate(key, value);
-
-        /// <inheritdoc />
-        public object GetScopedItemOrDefault(object key) =>
-            this.scopedItems.GetOrDefault(key);
-
+        
         /// <inheritdoc />
         public void AddScopedInstance(Type key, object value) =>
             this.scopedInstances.AddOrUpdate(key, value);
@@ -169,6 +161,23 @@ namespace Stashbox
                 new FinalizableItem { Item = finalizable, Finalizer = f => finalizer((TService)f), Next = root });
 
             return finalizable;
+        }
+
+        public object GetOrAddScopedItem(object key, Func<IResolutionScope, object> factory)
+        {
+            var item = this.scopedItems.GetOrDefault(key);
+            if (item != null) return item;
+
+            lock (key)
+            {
+                item = this.scopedItems.GetOrDefault(key);
+                if (item != null) return item;
+
+                item = factory(this);
+                this.scopedItems.AddOrUpdate(key, item);
+            }
+
+            return item;
         }
 
         /// <inheritdoc />

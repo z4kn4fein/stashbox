@@ -77,6 +77,24 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void Scoped_Lifetime_Ensure_Thread_Safe()
+        {
+            for (var i = 0; i < 1000; i++)
+            {
+                Test4.IsConstructed = false;
+                using (IStashboxContainer container = new StashboxContainer())
+                {
+                    container.RegisterScoped<Test4>();
+
+                    using (var scope = container.BeginScope())
+                    {
+                        Parallel.For(0, 50, _ => scope.Resolve<Test4>());
+                    }
+                }
+            }
+        }
+
+        [TestMethod]
         public void LifetimeTests_StateCheck()
         {
             var scoped = new ScopedLifetime();
@@ -121,6 +139,19 @@ namespace Stashbox.Tests
 
                 Shield.EnsureTypeOf<Test1>(test1);
                 Shield.EnsureTypeOf<Test2>(test2);
+            }
+        }
+
+        public class Test4
+        {
+            public static bool IsConstructed;
+
+            public Test4()
+            {
+                if (IsConstructed)
+                    throw new InvalidOperationException();
+
+                IsConstructed = true;
             }
         }
     }

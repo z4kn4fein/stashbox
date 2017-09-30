@@ -16,21 +16,7 @@ namespace Stashbox.Infrastructure
         /// True if the scope contains scoped instances, otherwise false.
         /// </summary>
         bool HasScopedInstances { get; }
-
-        /// <summary>
-        /// Adds or updates an item in the scope.
-        /// </summary>
-        /// <param name="key">The key.</param>
-        /// <param name="value">The value.</param>
-        void AddScopedItem(object key, object value);
-
-        /// <summary>
-        /// Gets an item from the scope.
-        /// </summary>
-        /// <param name="key">The key.</param>
-        /// <returns>The item or null if it doesn't exists.</returns>
-        object GetScopedItemOrDefault(object key);
-
+        
         /// <summary>
         /// Adds or updates an instance in the scope.
         /// </summary>
@@ -62,5 +48,13 @@ namespace Stashbox.Infrastructure
         /// <param name="finalizer">The cleanup delegate.</param>
         /// <returns>The object to cleanup.</returns>
         TService AddWithFinalizer<TService>(TService finalizable, Action<TService> finalizer);
+
+        /// <summary>
+        /// Gets or adds an item to the scope.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <param name="factory">The value factory used if the item doesn't exist yet.</param>
+        /// <returns>The scoped item.</returns>
+        object GetOrAddScopedItem(object key, Func<IResolutionScope, object> factory);
     }
 }
