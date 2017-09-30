@@ -22,7 +22,7 @@ namespace Stashbox.Registration
             return this;
         }
 
-        public IFluentServiceRegistrator<TService> WithInitializer(Action<TService> initializer)
+        public IFluentServiceRegistrator<TService> WithInitializer(Action<TService, IDependencyResolver> initializer)
         {
             base.Context.Initializer = initializer;
             return this;

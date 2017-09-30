@@ -20,7 +20,7 @@ namespace Stashbox.Infrastructure.Registration
         /// </summary>
         /// <param name="initializer">The initializer delegate.</param>
         /// <returns>The <see cref="IFluentServiceRegistrator{TService}"/> which on this method was called.</returns>
-        IFluentServiceRegistrator<TService> WithInitializer(Action<TService> initializer);
+        IFluentServiceRegistrator<TService> WithInitializer(Action<TService, IDependencyResolver> initializer);
     }
 
     /// <summary>

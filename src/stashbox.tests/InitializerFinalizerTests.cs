@@ -12,7 +12,7 @@ namespace Stashbox.Tests
             ITest test;
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<ITest, Test>(context => context.WithInitializer(t => t.Method()));
+                container.RegisterType<ITest, Test>(context => context.WithInitializer((t, resolver) => t.Method()));
                 test = container.Resolve<ITest>();
             }
 
@@ -25,7 +25,8 @@ namespace Stashbox.Tests
             ITest test;
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<ITest, Test>(context => context.WithInitializer(t => t.ImplMethod()));
+                container.RegisterType<Test1>();
+                container.RegisterType<ITest, Test>(context => context.WithInitializer((t, resolver) => t.ImplMethod(resolver.Resolve<Test1>())));
                 test = container.Resolve<ITest>();
             }
 
@@ -243,6 +244,11 @@ namespace Stashbox.Tests
             void Init();
         }
 
+        public class Test1
+        {
+
+        }
+
         public class Test : ITest
         {
             public void Method()
@@ -253,8 +259,11 @@ namespace Stashbox.Tests
                 this.MethodCalled = true;
             }
 
-            public void ImplMethod()
+            public void ImplMethod(Test1 t)
             {
+                if (t == null)
+                    throw new NullReferenceException();
+
                 if (this.MethodCalled)
                     throw new Exception("Method called multiple times!");
 
