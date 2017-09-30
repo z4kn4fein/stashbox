@@ -5,7 +5,7 @@ namespace Stashbox.Utils
 {
     internal class OrderedLinkedStore<TValue> : IEnumerable<TValue>
     {
-        public static OrderedLinkedStore<TValue> Empty = new OrderedLinkedStore<TValue>();
+        public static readonly OrderedLinkedStore<TValue> Empty = new OrderedLinkedStore<TValue>();
 
         private readonly OrderedLinkedStore<TValue> next;
 
@@ -60,7 +60,9 @@ namespace Stashbox.Utils
             object IEnumerator.Current => this.Current;
 
             public void Dispose()
-            { }
+            {
+                // do nothing
+            }
         }
     }
 }

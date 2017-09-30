@@ -87,9 +87,9 @@ namespace Stashbox.Registration
 
             if (autoMemberInjectionEnabled)
                 return member.TypeInformation.ForcedDependency ||
-                    member.MemberInfo is FieldInfo && autoMemberInjectionRule.HasFlag(Rules.AutoMemberInjection.PrivateFields) ||
-                    member.MemberInfo is PropertyInfo && (autoMemberInjectionRule.HasFlag(Rules.AutoMemberInjection.PropertiesWithPublicSetter) && ((PropertyInfo)member.MemberInfo).HasSetMethod() ||
-                     autoMemberInjectionRule.HasFlag(Rules.AutoMemberInjection.PropertiesWithLimitedAccess));
+                       member.MemberInfo is FieldInfo && autoMemberInjectionRule.HasFlag(Rules.AutoMemberInjectionRules.PrivateFields) ||
+                       member.MemberInfo is PropertyInfo && (autoMemberInjectionRule.HasFlag(Rules.AutoMemberInjectionRules.PropertiesWithPublicSetter) && ((PropertyInfo)member.MemberInfo).HasSetMethod() ||
+                       autoMemberInjectionRule.HasFlag(Rules.AutoMemberInjectionRules.PropertiesWithLimitedAccess));
 
             return member.TypeInformation.ForcedDependency;
         }

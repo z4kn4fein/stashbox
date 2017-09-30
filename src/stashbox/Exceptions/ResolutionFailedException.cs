@@ -5,7 +5,7 @@ namespace Stashbox.Exceptions
     /// <summary>
     /// Represents the exception threw when a service resolution failed.
     /// </summary>
-    public class ResolutionFailedException : ExceptionBase
+    public class ResolutionFailedException : ExceptionBaseException
     {
         /// <summary>
         /// Constructs a <see cref="ResolutionFailedException"/>

@@ -90,7 +90,7 @@ namespace Stashbox.Resolution
 
             var expression = Expression.Lambda(initExpression, resolutionInfo.ParameterExpressions);
 
-            var factory = expression.CompileDelegate(Constants.ScopeExpression);
+            var factory = expression.CompileDynamicDelegate(Constants.ScopeExpression);
             this.containerContext.DelegateRepository.AddFactoryDelegate(type, factory, name);
             return factory(resolutionScope);
         }

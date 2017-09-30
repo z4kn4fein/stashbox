@@ -12,7 +12,6 @@ namespace Stashbox.Lifetime
     public class SingletonLifetime : LifetimeBase
     {
         private volatile Expression expression;
-        private object instance;
         private readonly object syncObject = new object();
 
         /// <inheritdoc />
@@ -26,12 +25,13 @@ namespace Stashbox.Lifetime
                 if (expr == null)
                     return null;
 
+                object instance;
                 if (expr.NodeType == ExpressionType.New && ((NewExpression)expr).Arguments.Count == 0)
-                    this.instance = Activator.CreateInstance(expr.Type);
+                    instance = Activator.CreateInstance(expr.Type);
                 else
-                    this.instance = expr.CompileDelegate(Constants.ScopeExpression)(resolutionInfo.RootScope);
+                    instance = expr.CompileDelegate(Constants.ScopeExpression)(resolutionInfo.RootScope);
 
-                this.expression = Expression.Constant(this.instance);
+                this.expression = Expression.Constant(instance);
             }
 
             return this.expression;

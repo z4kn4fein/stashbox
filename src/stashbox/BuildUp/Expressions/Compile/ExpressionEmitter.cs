@@ -134,6 +134,8 @@ namespace Stashbox.BuildUp.Expressions.Compile
                     return ((BlockExpression)expression).TryEmit(target, generator, parameters);
                 case ExpressionType.NewArrayInit:
                     return ((NewArrayExpression)expression).TryEmit(target, generator, parameters);
+                case ExpressionType.Default:
+                    return ((DefaultExpression)expression).TryEmit(generator);
             }
 
             return false;
@@ -172,6 +174,47 @@ namespace Stashbox.BuildUp.Expressions.Compile
                 else
                     generator.Emit(OpCodes.Stelem_Ref);
             }
+
+            return true;
+        }
+
+        private static bool TryEmit(this DefaultExpression expression, ILGenerator il)
+        {
+            var type = expression.Type;
+
+            if (type == typeof(void))
+                return true;
+
+            if (type == typeof(string))
+                il.Emit(OpCodes.Ldnull);
+            else if (type == typeof(bool) ||
+                     type == typeof(byte) ||
+                     type == typeof(char) ||
+                     type == typeof(sbyte) ||
+                     type == typeof(int) ||
+                     type == typeof(uint) ||
+                     type == typeof(short) ||
+                     type == typeof(ushort))
+                il.Emit(OpCodes.Ldc_I4_0);
+            else if (type == typeof(long) ||
+                     type == typeof(ulong))
+            {
+                il.Emit(OpCodes.Ldc_I4_0);
+                il.Emit(OpCodes.Conv_I8);
+            }
+            else if (type == typeof(float))
+                il.Emit(OpCodes.Ldc_R4, default(float));
+            else if (type == typeof(double))
+                il.Emit(OpCodes.Ldc_R8, default(double));
+            else if (type.GetTypeInfo().IsValueType)
+            {
+                var lb = il.DeclareLocal(type);
+                il.Emit(OpCodes.Ldloca, lb);
+                il.Emit(OpCodes.Initobj, type);
+                il.Emit(OpCodes.Ldloc, lb);
+            }
+            else
+                il.Emit(OpCodes.Ldnull);
 
             return true;
         }

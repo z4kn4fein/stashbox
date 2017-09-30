@@ -95,7 +95,7 @@ namespace Stashbox.Registration
         /// <summary>
         /// The auto memeber injection rule for the registration.
         /// </summary>
-        public Rules.AutoMemberInjection AutoMemberInjectionRule { get; internal set; }
+        public Rules.AutoMemberInjectionRules AutoMemberInjectionRule { get; internal set; }
 
         /// <summary>
         /// True if auto member injection is enabled on this instance.

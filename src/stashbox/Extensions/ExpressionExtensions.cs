@@ -36,12 +36,12 @@ namespace System.Linq.Expressions
         }
 
         /// <summary>
-        /// Compiles an <see cref="LambdaExpression"/> to a <see cref="Func{T,R}"/> of <see cref="IResolutionScope"/>, <see cref="Delegate"/>.
+        /// Compiles an <see cref="Expression"/> to a <see cref="Func{T,R}"/> of <see cref="IResolutionScope"/>, <see cref="Delegate"/>.
         /// </summary>
         /// <param name="expression">The expression.</param>
         /// <param name="scopeParameter">The scope parameter expression.</param>
         /// <returns>The compiled delegate.</returns>
-        public static Func<IResolutionScope, Delegate> CompileDelegate(this LambdaExpression expression, ParameterExpression scopeParameter)
+        public static Func<IResolutionScope, Delegate> CompileDynamicDelegate(this Expression expression, ParameterExpression scopeParameter)
         {
 #if NET45 || NET40 || NETSTANDARD1_3
             if (!expression.TryEmit(out Delegate factory, typeof(Func<IResolutionScope, Delegate>), typeof(Delegate), scopeParameter))

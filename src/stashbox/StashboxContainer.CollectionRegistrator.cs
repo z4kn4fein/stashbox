@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using Stashbox.Exceptions;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.Registration;
 using Stashbox.Utils;
@@ -44,30 +42,17 @@ namespace Stashbox
             foreach (var type in validTypes)
             {
                 foreach (var interfaceType in type.GetRegisterableInterfaceTypes())
-                {
-                    if (configurator == null)
-                        this.RegisterType(interfaceType, type);
-                    else
-                        this.RegisterType(interfaceType, type, configurator);
-                }
+                    this.RegisterType(interfaceType, type, configurator);
 
                 foreach (var baseType in type.GetRegisterableBaseTypes())
-                {
-                    if (configurator == null)
-                        this.RegisterType(baseType, type);
-                    else
-                        this.RegisterType(baseType, type, configurator);
-                }
+                    this.RegisterType(baseType, type, configurator);
 
-                if (configurator == null)
-                    this.RegisterType(type);
-                else
-                    this.RegisterType(type, configurator);
+                this.RegisterType(type, configurator);
             }
 
             return this;
         }
-        
+
         /// <inheritdoc />
         public IStashboxContainer ComposeBy(Type compositionRootType)
         {

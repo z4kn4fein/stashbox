@@ -33,7 +33,7 @@ namespace Stashbox.Infrastructure.Registration
         /// </summary>
         /// <param name="rule">The auto member injection rule.</param>
         /// <returns>The fluent registrator.</returns>
-        TFluentRegistrator WithAutoMemberInjection(Rules.AutoMemberInjection rule = Rules.AutoMemberInjection.PropertiesWithPublicSetter);
+        TFluentRegistrator WithAutoMemberInjection(Rules.AutoMemberInjectionRules rule = Rules.AutoMemberInjectionRules.PropertiesWithPublicSetter);
 
         /// <summary>
         /// The constructor selection rule.

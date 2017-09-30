@@ -7,7 +7,7 @@ namespace Stashbox.Utils
 {
     internal class ArrayStore<TValue> : IEnumerable<TValue>
     {
-        public static ArrayStore<TValue> Empty = new ArrayStore<TValue>();
+        public static readonly ArrayStore<TValue> Empty = new ArrayStore<TValue>();
 
         private readonly TValue[] repository;
 
@@ -49,7 +49,7 @@ namespace Stashbox.Utils
 
     internal class ArrayStoreKeyed<TKey, TValue> : IEnumerable<TValue>
     {
-        public static ArrayStoreKeyed<TKey, TValue> Empty = new ArrayStoreKeyed<TKey, TValue>();
+        public static readonly ArrayStoreKeyed<TKey, TValue> Empty = new ArrayStoreKeyed<TKey, TValue>();
 
         public KeyValue<TKey, TValue>[] Repository { get; }
 

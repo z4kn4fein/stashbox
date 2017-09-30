@@ -24,11 +24,8 @@ namespace System.Reflection
         public static IEnumerable<Attribute> GetCustomAttributes(this ParameterInfo parameter) =>
             parameter.GetCustomAttributes(false).Cast<Attribute>();
 
-        public static IEnumerable<Attribute> GetCustomAttributes(this PropertyInfo property) =>
+        public static IEnumerable<Attribute> GetCustomAttributes(this MemberInfo property) =>
             property.GetCustomAttributes(false).Cast<Attribute>();
-
-        public static IEnumerable<Attribute> GetCustomAttributes(this FieldInfo field) =>
-            field.GetCustomAttributes(false).Cast<Attribute>();
     }
 }
 #endif
@@ -61,15 +58,9 @@ namespace System
             return typeInfo.IsGenericType && typeInfo.ContainsGenericParameters;
         }
 
-        public static Stashbox.Attributes.DependencyAttribute GetDependencyAttribute(this PropertyInfo property)
+        public static Stashbox.Attributes.DependencyAttribute GetDependencyAttribute(this MemberInfo property)
         {
             var attr = property.GetCustomAttributes(Constants.DependencyAttributeType, false).FirstOrDefault();
-            return attr != null ? (Stashbox.Attributes.DependencyAttribute)attr : null;
-        }
-
-        public static Stashbox.Attributes.DependencyAttribute GetDependencyAttribute(this FieldInfo field)
-        {
-            var attr = field.GetCustomAttributes(Constants.DependencyAttributeType, false).FirstOrDefault();
             return attr != null ? (Stashbox.Attributes.DependencyAttribute)attr : null;
         }
 
@@ -79,7 +70,7 @@ namespace System
             return attr != null ? (Stashbox.Attributes.DependencyAttribute)attr : null;
         }
 
-        public static Stashbox.Attributes.InjectionMethodAttribute GetInjectionAttribute(this MethodInfo method)
+        public static Stashbox.Attributes.InjectionMethodAttribute GetInjectionAttribute(this MemberInfo method)
         {
             var attr = method.GetCustomAttributes(Constants.InjectionAttributeType, false).FirstOrDefault();
             return attr != null ? (Stashbox.Attributes.InjectionMethodAttribute)attr : null;
@@ -91,7 +82,7 @@ namespace System
         public static ConstructorInfo GetConstructor(this Type type, params Type[] args) =>
             type.GetTypeInfo().DeclaredConstructors.FirstOrDefault(c => c.GetParameters().Select(p => p.ParameterType).SequenceEqual(args));
 
-        public static bool IsBackingField(this FieldInfo field) =>
+        public static bool IsBackingField(this MemberInfo field) =>
             field.Name[0] == '<';
 
         public static bool IsIndexer(this PropertyInfo property) =>
@@ -112,7 +103,7 @@ namespace System
         public static MethodInfo GetSingleMethodOrDefault(this Type type, string name, bool includeNonPublic = false) =>
             type.GetTypeInfo().DeclaredMethods.FirstOrDefault(method => (includeNonPublic || method.IsPublic) && method.Name == name);
 
-        public static bool HasSetMethod(this PropertyInfo property, bool includeNonPublic = false) =>
+        public static bool HasSetMethod(this MemberInfo property, bool includeNonPublic = false) =>
             property.DeclaringType.GetSingleMethodOrDefault("set_" + property.Name, includeNonPublic) != null;
 
         public static bool IsDisposable(this Type type) =>

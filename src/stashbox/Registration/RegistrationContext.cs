@@ -132,7 +132,7 @@ namespace Stashbox.Registration
             return this;
         }
 
-        public IFluentServiceRegistrator WithAutoMemberInjection(Rules.AutoMemberInjection rule = Rules.AutoMemberInjection.PropertiesWithPublicSetter)
+        public IFluentServiceRegistrator WithAutoMemberInjection(Rules.AutoMemberInjectionRules rule = Rules.AutoMemberInjectionRules.PropertiesWithPublicSetter)
         {
             this.Context.AutoMemberInjectionEnabled = true;
             this.Context.AutoMemberInjectionRule = rule;

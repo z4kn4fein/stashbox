@@ -14,13 +14,7 @@ namespace Stashbox.BuildUp.Resolution
             if (typeInfo.HasDefaultValue)
                 return Expression.Constant(typeInfo.DefaultValue, typeInfo.Type);
 
-            if (typeInfo.Type.GetTypeInfo().IsValueType)
-                return Expression.Constant(Activator.CreateInstance(typeInfo.Type), typeInfo.Type);
-
-            if (typeInfo.Type == typeof(string) || typeInfo.IsMember)
-                return Expression.Constant(null, typeInfo.Type);
-
-            return null;
+            return Expression.Default(typeInfo.Type);
         }
 
         public override bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo) =>

@@ -34,7 +34,7 @@ namespace Stashbox.Registration
         }
 
         public IFluentDecoratorRegistrator WithAutoMemberInjection(
-            Rules.AutoMemberInjection rule = Rules.AutoMemberInjection.PropertiesWithPublicSetter)
+            Rules.AutoMemberInjectionRules rule = Rules.AutoMemberInjectionRules.PropertiesWithPublicSetter)
         {
             this.registrationContext.WithAutoMemberInjection(rule);
             return this;

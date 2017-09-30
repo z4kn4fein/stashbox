@@ -93,7 +93,7 @@ namespace Stashbox.BuildUp.Resolution
         private static object CreateLazyDelegate(IServiceRegistration serviceRegistration, ResolutionInfo resolutionInfo, Type type, object[] arguments)
         {
             var expr = serviceRegistration.GetExpression(resolutionInfo, type);
-            return Expression.Lambda(expr, resolutionInfo.ParameterExpressions).CompileDelegate(Constants.ScopeExpression)(resolutionInfo.ResolutionScope).DynamicInvoke(arguments);
+            return Expression.Lambda(expr, resolutionInfo.ParameterExpressions).CompileDynamicDelegate(Constants.ScopeExpression)(resolutionInfo.ResolutionScope).DynamicInvoke(arguments);
         }
     }
 }

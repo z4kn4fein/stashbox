@@ -170,6 +170,8 @@ namespace Stashbox.BuildUp.Expressions.Compile
                     return ((MemberInitExpression)expression).TryCollectConstants(constants, parameters);
                 case ExpressionType.Block:
                     return ((BlockExpression)expression).TryCollectConstants(constants, parameters);
+                case ExpressionType.Default:
+                    return true;
                 case ExpressionType.Call:
                     var call = (MethodCallExpression)expression;
                     return (call.Object == null || call.Object.TryCollectConstants(constants, parameters)) &&

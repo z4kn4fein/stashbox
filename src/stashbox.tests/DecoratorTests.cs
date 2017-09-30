@@ -199,7 +199,7 @@ namespace Stashbox.Tests
             using (var container = new StashboxContainer())
             {
                 container.RegisterType<ITest1, Test1>();
-                container.RegisterDecorator<ITest1, TestDecorator4>(context => context.WithAutoMemberInjection(Rules.AutoMemberInjection.PropertiesWithLimitedAccess));
+                container.RegisterDecorator<ITest1, TestDecorator4>(context => context.WithAutoMemberInjection(Rules.AutoMemberInjectionRules.PropertiesWithLimitedAccess));
                 var test = container.Resolve<ITest1>();
 
                 Assert.IsNotNull(test);
@@ -217,7 +217,7 @@ namespace Stashbox.Tests
             {
                 container.RegisterType<ITest1, Test1>();
                 container.RegisterDecorator<ITest1, TestDecorator4>(context => context
-                    .WithAutoMemberInjection(Rules.AutoMemberInjection.PropertiesWithLimitedAccess)
+                    .WithAutoMemberInjection(Rules.AutoMemberInjectionRules.PropertiesWithLimitedAccess)
                     .WithInjectionParameters(new InjectionParameter { Name = "Name", Value = "test" }));
                 var test = container.Resolve<ITest1>();
 
