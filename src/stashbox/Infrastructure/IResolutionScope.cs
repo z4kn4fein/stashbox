@@ -18,6 +18,11 @@ namespace Stashbox.Infrastructure
         bool HasScopedInstances { get; }
         
         /// <summary>
+        /// The name of the scope, if it's null then it's a regular nameless scope.
+        /// </summary>
+        object Name { get; }
+
+        /// <summary>
         /// Adds or updates an instance in the scope.
         /// </summary>
         /// <param name="key">The key.</param>

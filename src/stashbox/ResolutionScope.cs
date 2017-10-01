@@ -45,8 +45,11 @@ namespace Stashbox
         /// <inheritdoc />
         public IResolutionScope RootScope { get; }
 
+        /// <inheritdoc />
+        public object Name { get; }
+
         public ResolutionScope(IActivationContext activationContext, IServiceRegistrator serviceRegistrator,
-            IExpressionBuilder expressionBuilder)
+            IExpressionBuilder expressionBuilder, object name = null)
         {
             this.disposed = new AtomicBool();
             this.rootItem = DisposableItem.Empty;
@@ -56,12 +59,13 @@ namespace Stashbox
             this.activationContext = activationContext;
             this.serviceRegistrator = serviceRegistrator;
             this.expressionBuilder = expressionBuilder;
+            this.Name = name;
             this.RootScope = this;
         }
 
         public ResolutionScope(IActivationContext activationContext, IServiceRegistrator serviceRegistrator,
-            IExpressionBuilder expressionBuilder, IResolutionScope rootScope)
-            : this(activationContext, serviceRegistrator, expressionBuilder)
+            IExpressionBuilder expressionBuilder, IResolutionScope rootScope, object name = null)
+            : this(activationContext, serviceRegistrator, expressionBuilder, name)
         {
             this.RootScope = rootScope;
         }
@@ -81,8 +85,8 @@ namespace Stashbox
         public Delegate ResolveFactory(Type typeFrom, object name = null, bool nullResultAllowed = false, params Type[] parameterTypes) =>
             this.activationContext.ActivateFactory(typeFrom, parameterTypes, this, name, nullResultAllowed);
 
-        public IDependencyResolver BeginScope() => new ResolutionScope(this.activationContext, this.serviceRegistrator,
-            this.expressionBuilder, this.RootScope);
+        public IDependencyResolver BeginScope(object name = null) => new ResolutionScope(this.activationContext, this.serviceRegistrator,
+            this.expressionBuilder, this.RootScope, name);
 
         public IDependencyResolver PutInstanceInScope(Type typeFrom, object instance, bool withoutDisposalTracking = false)
         {

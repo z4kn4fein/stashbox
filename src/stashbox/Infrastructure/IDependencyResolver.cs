@@ -49,11 +49,13 @@ namespace Stashbox.Infrastructure
         /// <param name="parameterTypes">The parameter type.</param>
         /// <returns>The factory delegate.</returns>
         Delegate ResolveFactory(Type typeFrom, object name = null, bool nullResultAllowed = false, params Type[] parameterTypes);
-        
+
         /// <summary>
         /// Begins a new scope.
         /// </summary>
-        IDependencyResolver BeginScope();
+        /// <param name="name">The name of the scope.</param>
+        /// <returns>The created scope.</returns>
+        IDependencyResolver BeginScope(object name = null);
 
         /// <summary>
         /// Puts an instance into the scope which will be dropped when the scope is being disposed.

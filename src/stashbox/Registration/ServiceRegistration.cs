@@ -39,6 +39,12 @@ namespace Stashbox.Registration
         public bool ShouldHandleDisposal { get; }
 
         /// <inheritdoc />
+        public object UsedScopeName { get; }
+
+        /// <inheritdoc />
+        public object DefinedScopeName { get; }
+
+        /// <inheritdoc />
         public int RegistrationNumber { get; }
 
         internal ServiceRegistration(Type serviceType, Type implementationType, IContainerContext containerContext,

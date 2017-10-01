@@ -28,8 +28,8 @@ namespace Stashbox.Registration
                     (oldValue, newValue) => oldValue.AddOrUpdate(registration.RegistrationContext.Name, registration, replace));
         }
 
-        public IServiceRegistration GetRegistrationOrDefault(Type type, object name = null) =>
-            name != null ? this.GetNamedRegistrationOrDefault(type, name) : this.GetDefaultRegistrationOrDefault(type);
+        public IServiceRegistration GetRegistrationOrDefault(Type type, object name = null, object scopeName = null) =>
+            name != null ? this.GetNamedRegistrationOrDefault(type, name) : this.GetDefaultRegistrationOrDefault(type, scopeName);
 
         public IServiceRegistration GetRegistrationOrDefault(TypeInformation typeInfo, bool checkConditions = false)
         {
@@ -90,7 +90,7 @@ namespace Stashbox.Registration
             }
         }
 
-        private IServiceRegistration GetDefaultRegistrationOrDefault(Type type)
+        private IServiceRegistration GetDefaultRegistrationOrDefault(Type type, object scopeName)
         {
             var registrations = this.GetDefaultRegistrationsOrDefault(type);
             if (registrations == null) return null;

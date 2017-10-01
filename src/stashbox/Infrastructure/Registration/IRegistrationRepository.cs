@@ -22,8 +22,9 @@ namespace Stashbox.Infrastructure.Registration
         /// </summary>
         /// <param name="type">The requested type.</param>
         /// <param name="name">The requested name.</param>
+        /// <param name="scopeName">The scope name.</param>
         /// <returns>The registration or null, if it doesn't exist.</returns>
-        IServiceRegistration GetRegistrationOrDefault(Type type, object name = null);
+        IServiceRegistration GetRegistrationOrDefault(Type type, object name = null, object scopeName = null);
 
         /// <summary>
         /// Retrieves a registration.
