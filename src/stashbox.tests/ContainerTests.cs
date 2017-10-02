@@ -93,7 +93,7 @@ namespace Stashbox.Tests
             child2.RegisterType<ITest3, Test3>();
 
             var child3 = child2.CreateChildContainer();
-            child2.RegisterType<ITest1, Test1>();
+            child3.RegisterType<ITest1, Test1>();
 
             var test3 = child3.Resolve<ITest5>();
 

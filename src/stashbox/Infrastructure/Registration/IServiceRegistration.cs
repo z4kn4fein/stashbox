@@ -64,11 +64,11 @@ namespace Stashbox.Infrastructure.Registration
         /// <summary>
         /// Creates an expression for creating the resolved instance.
         /// </summary>
-        /// <param name="context">The container context.</param>
+        /// <param name="containerContext">The container context.</param>
         /// <param name="resolutionInfo">The info about the current resolution.</param>
         /// <param name="resolveType">The requested type.</param>
         /// <returns>The expression.</returns>
-        Expression GetExpression(IContainerContext context, ResolutionInfo resolutionInfo, Type resolveType);
+        Expression GetExpression(IContainerContext containerContext, ResolutionInfo resolutionInfo, Type resolveType);
 
         /// <summary>
         /// Checks whether the registration can be used for a current resolution.
