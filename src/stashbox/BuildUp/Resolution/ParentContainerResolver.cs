@@ -12,10 +12,10 @@ namespace Stashbox.BuildUp.Resolution
 
         public override Expression GetExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo) =>
             containerContext.Container.ParentContainer.ContainerContext.ResolutionStrategy
-                .BuildResolutionExpression(containerContext.Container.ParentContainer.ContainerContext, resolutionInfo.CreateNew(containerContext), typeInfo, null);
+                .BuildResolutionExpression(containerContext.Container.ParentContainer.ContainerContext, resolutionInfo.ChildContext == null ? resolutionInfo.CreateNew(containerContext) : resolutionInfo, typeInfo, null);
 
         public override Expression[] GetExpressions(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo) =>
             containerContext.Container.ParentContainer.ContainerContext.ResolutionStrategy
-                .BuildResolutionExpressions(containerContext.Container.ParentContainer.ContainerContext, resolutionInfo.CreateNew(containerContext), typeInfo);
+                .BuildResolutionExpressions(containerContext.Container.ParentContainer.ContainerContext, resolutionInfo.ChildContext == null ? resolutionInfo.CreateNew(containerContext) : resolutionInfo, typeInfo);
     }
 }

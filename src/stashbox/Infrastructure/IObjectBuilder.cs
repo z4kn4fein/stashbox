@@ -13,6 +13,7 @@ namespace Stashbox.Infrastructure
         /// <summary>
         /// Creates the expression for creating an instance of a registered service.
         /// </summary>
+        /// <param name="containerContext">The container context.</param>
         /// <param name="serviceRegistration">The service registration.</param>
         /// <param name="resolutionInfo">The info about the actual resolution.</param>
         /// <param name="resolveType">The requested type.</param>

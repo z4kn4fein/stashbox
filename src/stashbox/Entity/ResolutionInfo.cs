@@ -27,7 +27,7 @@ namespace Stashbox.Entity
         /// </summary>
         public bool NullResultAllowed { get; }
 
-        private AvlTree<Type> circularDependencyBarrier;
+        private AvlTree<int> circularDependencyBarrier;
 
         private AvlTree<Expression> expressionOverrides;
 
@@ -41,7 +41,7 @@ namespace Stashbox.Entity
 
         internal ResolutionInfo(IResolutionScope scope, bool nullResultAllowed = false)
         {
-            this.circularDependencyBarrier = AvlTree<Type>.Empty;
+            this.circularDependencyBarrier = AvlTree<int>.Empty;
             this.expressionOverrides = AvlTree<Expression>.Empty;
             this.currentlyDecoratingTypes = AvlTree<Type>.Empty;
             this.NullResultAllowed = nullResultAllowed;
@@ -49,7 +49,7 @@ namespace Stashbox.Entity
             this.RootScope = scope.RootScope;
         }
 
-        internal ResolutionInfo(IResolutionScope scope, AvlTree<Type> circularDependencyBarrier, AvlTree<Expression> expressionOverrides,
+        internal ResolutionInfo(IResolutionScope scope, AvlTree<int> circularDependencyBarrier, AvlTree<Expression> expressionOverrides,
             AvlTree<Type> currentlyDecoratingTypes, ParameterExpression[] parameterExpressions, IContainerContext childContext, bool nullResultAllowed = false)
         {
             this.circularDependencyBarrier = circularDependencyBarrier;
@@ -83,14 +83,14 @@ namespace Stashbox.Entity
             this.expressionOverrides = this.expressionOverrides.AddOrUpdate(type.GetHashCode(), expression, (oldValue, newValue) => newValue);
         }
 
-        internal void AddCircularDependencyCheck(Type type, out bool updated)
+        internal void AddCircularDependencyCheck(int regNumber, out bool updated)
         {
-            this.circularDependencyBarrier = this.circularDependencyBarrier.AddOrUpdate(type.GetHashCode(), type, out updated);
+            this.circularDependencyBarrier = this.circularDependencyBarrier.AddOrUpdate(regNumber, regNumber, out updated);
         }
 
-        internal void ClearCircularDependencyCheck(Type type)
+        internal void ClearCircularDependencyCheck(int regNumber)
         {
-            this.circularDependencyBarrier = this.circularDependencyBarrier.AddOrUpdate(type.GetHashCode(), null, (oldValue, newValue) => newValue);
+            this.circularDependencyBarrier = this.circularDependencyBarrier.AddOrUpdate(regNumber, 0, (oldValue, newValue) => newValue);
         }
 
         internal ResolutionInfo CreateNew(IContainerContext childContext) =>

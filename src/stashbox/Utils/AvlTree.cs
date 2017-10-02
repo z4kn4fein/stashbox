@@ -9,6 +9,7 @@ namespace Stashbox.Utils
     {
         public static readonly AvlTree<TValue> Empty = new AvlTree<TValue>();
 
+        private readonly TValue defaultValue = default(TValue);
         private readonly int storedHash;
         private readonly TValue storedValue;
 
@@ -51,7 +52,7 @@ namespace Stashbox.Utils
             var node = this;
             while (!node.isEmpty && node.storedHash != key)
                 node = key < node.storedHash ? node.leftNode : node.rightNode;
-            return !node.isEmpty ? node.storedValue : default(TValue);
+            return !node.isEmpty ? node.storedValue : defaultValue;
         }
 
         private AvlTree<TValue> Add(int hash, TValue value, Func<TValue, TValue, TValue> updateDelegate, out bool updated)
@@ -64,7 +65,7 @@ namespace Stashbox.Utils
 
             if (hash == this.storedHash)
             {
-                updated = this.storedValue != null;
+                updated = this.storedValue != null && !this.storedValue.Equals(defaultValue);
                 return updateDelegate == null ? this : new AvlTree<TValue>(hash, updateDelegate(this.storedValue, value), this.leftNode, this.rightNode);
             }
 

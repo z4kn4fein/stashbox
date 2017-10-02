@@ -21,7 +21,7 @@ namespace Stashbox.BuildUp
             if (!containerContext.ContainerConfigurator.ContainerConfiguration.CircularDependencyTrackingEnabled)
                 return this.expressionBuilder.CreateExpression(containerContext, serviceRegistration, resolutionInfo, resolveType);
 
-            using (new CircularDependencyBarrier(resolutionInfo, serviceRegistration.ImplementationType))
+            using (new CircularDependencyBarrier(resolutionInfo, serviceRegistration))
                 return this.expressionBuilder.CreateExpression(containerContext, serviceRegistration, resolutionInfo, resolveType);
         }
     }
