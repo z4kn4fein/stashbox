@@ -8,36 +8,24 @@ namespace Stashbox.BuildUp
 {
     internal abstract class ObjectBuilderBase : IObjectBuilder
     {
-        protected readonly IContainerContext ContainerContext;
-
-        protected ObjectBuilderBase(IContainerContext containerContext)
+        public Expression GetExpression(IContainerContext containerContext, IServiceRegistration serviceRegistration, ResolutionInfo resolutionInfo, Type resolveType)
         {
-            this.ContainerContext = containerContext;
-        }
+            if (serviceRegistration.IsDecorator || resolutionInfo.IsCurrentlyDecorating(resolveType))
+                return this.GetExpressionAndHandleDisposal(containerContext, serviceRegistration, resolutionInfo, resolveType);
 
-        public Expression GetExpression(IServiceRegistration serviceRegistration, ResolutionInfo resolutionInfo, Type resolveType)
-        {
-            if (serviceRegistration.IsDecorator)
-                return this.GetExpressionAndHandleDisposal(serviceRegistration, resolutionInfo, resolveType);
-
-            if (resolutionInfo.IsCurrentlyDecorating(resolveType))
-                return this.GetExpressionAndHandleDisposal(serviceRegistration, resolutionInfo, resolveType);
-
-            var decorators = this.ContainerContext.DecoratorRepository.GetDecoratorsOrDefault(resolveType);
+            var decorators = containerContext.DecoratorRepository.GetDecoratorsOrDefault(resolveType);
             if (decorators == null)
             {
-                if (resolveType.IsClosedGenericType())
-                {
-                    decorators = this.ContainerContext.DecoratorRepository.GetDecoratorsOrDefault(resolveType.GetGenericTypeDefinition());
-                    if (decorators == null)
-                        return this.GetExpressionAndHandleDisposal(serviceRegistration, resolutionInfo, resolveType);
-                }
-                else
-                    return this.GetExpressionAndHandleDisposal(serviceRegistration, resolutionInfo, resolveType);
+                if (!resolveType.IsClosedGenericType())
+                    return this.GetExpressionAndHandleDisposal(containerContext, serviceRegistration, resolutionInfo, resolveType);
+
+                decorators = containerContext.DecoratorRepository.GetDecoratorsOrDefault(resolveType.GetGenericTypeDefinition());
+                if (decorators == null)
+                    return this.GetExpressionAndHandleDisposal(containerContext, serviceRegistration, resolutionInfo, resolveType);
             }
 
             resolutionInfo.AddCurrentlyDecoratingType(resolveType);
-            var expression = this.GetExpressionAndHandleDisposal(serviceRegistration, resolutionInfo, resolveType);
+            var expression = this.GetExpressionAndHandleDisposal(containerContext, serviceRegistration, resolutionInfo, resolveType);
 
             if (expression == null)
                 return null;
@@ -48,7 +36,7 @@ namespace Stashbox.BuildUp
             {
                 var decorator = decorators[i];
                 resolutionInfo.SetExpressionOverride(resolveType, expression);
-                expression = decorator.Value.GetExpression(resolutionInfo, resolveType);
+                expression = decorator.Value.GetExpression(containerContext, resolutionInfo, resolveType);
                 if (expression == null)
                     return null;
             }
@@ -57,9 +45,9 @@ namespace Stashbox.BuildUp
             return expression;
         }
 
-        private Expression GetExpressionAndHandleDisposal(IServiceRegistration serviceRegistration, ResolutionInfo resolutionInfo, Type resolveType)
+        private Expression GetExpressionAndHandleDisposal(IContainerContext containerContext, IServiceRegistration serviceRegistration, ResolutionInfo resolutionInfo, Type resolveType)
         {
-            var expr = this.GetExpressionInternal(serviceRegistration, resolutionInfo, resolveType);
+            var expr = this.GetExpressionInternal(containerContext, serviceRegistration, resolutionInfo, resolveType);
 
             if (expr == null)
                 return null;
@@ -81,7 +69,7 @@ namespace Stashbox.BuildUp
                 Expression.Constant(serviceRegistration.RegistrationContext.Finalizer));
         }
 
-        protected abstract Expression GetExpressionInternal(IServiceRegistration serviceRegistration, ResolutionInfo resolutionInfo, Type resolveType);
+        protected abstract Expression GetExpressionInternal(IContainerContext containerContext, IServiceRegistration serviceRegistration, ResolutionInfo resolutionInfo, Type resolveType);
 
         public virtual bool HandlesObjectLifecycle => false;
 

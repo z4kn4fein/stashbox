@@ -1,8 +1,8 @@
-﻿using System;
-using System.Linq.Expressions;
-using Stashbox.Entity;
+﻿using Stashbox.Entity;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.Registration;
+using System;
+using System.Linq.Expressions;
 
 namespace Stashbox.Lifetime
 {
@@ -19,13 +19,13 @@ namespace Stashbox.Lifetime
         public override ILifetime Create() => new ScopedLifetime();
 
         /// <inheritdoc />
-        public override Expression GetExpression(IServiceRegistration serviceRegistration, IObjectBuilder objectBuilder, ResolutionInfo resolutionInfo, Type resolveType)
+        public override Expression GetExpression(IContainerContext containerContext, IServiceRegistration serviceRegistration, IObjectBuilder objectBuilder, ResolutionInfo resolutionInfo, Type resolveType)
         {
             if (this.expression != null) return this.expression;
             lock (this.syncObject)
             {
                 if (this.expression != null) return this.expression;
-                var expr = base.GetExpression(serviceRegistration, objectBuilder, resolutionInfo, resolveType);
+                var expr = base.GetExpression(containerContext, serviceRegistration, objectBuilder, resolutionInfo, resolveType);
                 if (expr == null)
                     return null;
 

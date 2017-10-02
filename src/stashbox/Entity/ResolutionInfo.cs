@@ -1,7 +1,7 @@
-﻿using System;
-using System.Linq.Expressions;
-using Stashbox.Infrastructure;
+﻿using Stashbox.Infrastructure;
 using Stashbox.Utils;
+using System;
+using System.Linq.Expressions;
 
 namespace Stashbox.Entity
 {
@@ -37,11 +37,26 @@ namespace Stashbox.Entity
 
         internal IResolutionScope RootScope { get; }
 
+        internal IContainerContext ChildContext { get; }
+
         internal ResolutionInfo(IResolutionScope scope, bool nullResultAllowed = false)
         {
             this.circularDependencyBarrier = AvlTree<Type>.Empty;
             this.expressionOverrides = AvlTree<Expression>.Empty;
             this.currentlyDecoratingTypes = AvlTree<Type>.Empty;
+            this.NullResultAllowed = nullResultAllowed;
+            this.ResolutionScope = scope;
+            this.RootScope = scope.RootScope;
+        }
+
+        internal ResolutionInfo(IResolutionScope scope, AvlTree<Type> circularDependencyBarrier, AvlTree<Expression> expressionOverrides,
+            AvlTree<Type> currentlyDecoratingTypes, ParameterExpression[] parameterExpressions, IContainerContext childContext, bool nullResultAllowed = false)
+        {
+            this.circularDependencyBarrier = circularDependencyBarrier;
+            this.expressionOverrides = expressionOverrides;
+            this.currentlyDecoratingTypes = currentlyDecoratingTypes;
+            this.ParameterExpressions = parameterExpressions;
+            this.ChildContext = childContext;
             this.NullResultAllowed = nullResultAllowed;
             this.ResolutionScope = scope;
             this.RootScope = scope.RootScope;
@@ -77,5 +92,9 @@ namespace Stashbox.Entity
         {
             this.circularDependencyBarrier = this.circularDependencyBarrier.AddOrUpdate(type.GetHashCode(), null, (oldValue, newValue) => newValue);
         }
+
+        internal ResolutionInfo CreateNew(IContainerContext childContext) =>
+            new ResolutionInfo(this.ResolutionScope, this.circularDependencyBarrier, this.expressionOverrides,
+                this.currentlyDecoratingTypes, this.ParameterExpressions, childContext, NullResultAllowed);
     }
 }

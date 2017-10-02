@@ -7,16 +7,16 @@ namespace Stashbox.BuildUp
     {
         private readonly IObjectBuilder[] builderRepository;
 
-        public ObjectBuilderSelector(IContainerContext containerContext, IExpressionBuilder expressionBuilder)
+        public ObjectBuilderSelector(IExpressionBuilder expressionBuilder)
         {
             this.builderRepository = new IObjectBuilder[]
             {
-                new DefaultObjectBuilder(containerContext, expressionBuilder),
-                new FactoryObjectBuilder(containerContext, expressionBuilder),
-                new GenericTypeObjectBuilder(containerContext),
-                new InstanceObjectBuilder(containerContext),
-                new WireUpObjectBuilder(containerContext, expressionBuilder),
-                new FuncObjectBuilder(containerContext)
+                new DefaultObjectBuilder(expressionBuilder),
+                new FactoryObjectBuilder(expressionBuilder),
+                new GenericTypeObjectBuilder(),
+                new InstanceObjectBuilder(),
+                new WireUpObjectBuilder(expressionBuilder),
+                new FuncObjectBuilder()
             };
         }
 

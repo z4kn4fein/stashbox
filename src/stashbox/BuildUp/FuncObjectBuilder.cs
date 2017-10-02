@@ -1,10 +1,10 @@
-﻿using System;
+﻿using Stashbox.Entity;
+using Stashbox.Infrastructure;
+using Stashbox.Infrastructure.Registration;
+using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Stashbox.Entity;
-using Stashbox.Infrastructure;
-using Stashbox.Infrastructure.Registration;
 
 namespace Stashbox.BuildUp
 {
@@ -13,10 +13,7 @@ namespace Stashbox.BuildUp
         private volatile Expression expression;
         private readonly object syncObject = new object();
 
-        public FuncObjectBuilder(IContainerContext containerContext) : base(containerContext)
-        { }
-
-        protected override Expression GetExpressionInternal(IServiceRegistration serviceRegistration, ResolutionInfo resolutionInfo,
+        protected override Expression GetExpressionInternal(IContainerContext containerContext, IServiceRegistration serviceRegistration, ResolutionInfo resolutionInfo,
             Type resolveType)
         {
             if (this.expression != null) return this.expression;
@@ -35,7 +32,7 @@ namespace Stashbox.BuildUp
             }
         }
 
-        public override IObjectBuilder Produce() => new FuncObjectBuilder(base.ContainerContext);
+        public override IObjectBuilder Produce() => new FuncObjectBuilder();
 
         private Expression[] GetFuncParametersWithScope(ParameterInfo[] parameterInfos)
         {

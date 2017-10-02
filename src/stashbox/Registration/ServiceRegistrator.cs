@@ -119,7 +119,7 @@ namespace Stashbox.Registration
 
         private IServiceRegistration ProduceServiceRegistration(IObjectBuilder objectBuilder, IRegistrationContextMeta meta, bool isDecorator, bool shouldHandleDisposal)
         {
-            return new ServiceRegistration(meta.ServiceType, meta.ImplementationType, this.containerContext,
+            return new ServiceRegistration(meta.ServiceType, meta.ImplementationType, this.containerContext.ContainerConfigurator,
                 objectBuilder, meta.Context, isDecorator, shouldHandleDisposal);
         }
 

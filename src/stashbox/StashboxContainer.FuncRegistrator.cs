@@ -1,6 +1,6 @@
-﻿using System;
-using Stashbox.Infrastructure;
+﻿using Stashbox.Infrastructure;
 using Stashbox.Registration;
+using System;
 
 namespace Stashbox
 {
@@ -35,7 +35,7 @@ namespace Stashbox
             data.FuncDelegate = factory;
 
             var registration = new ServiceRegistration(factoryType, internalFactoryType,
-                this.ContainerContext, this.objectBuilderSelector.Get(ObjectBuilder.Func),
+                this.ContainerContext.ContainerConfigurator, this.objectBuilderSelector.Get(ObjectBuilder.Func),
                 data, false, false);
 
             this.registrationRepository.AddOrUpdateRegistration(registration, false, false);

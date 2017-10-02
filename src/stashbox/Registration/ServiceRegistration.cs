@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading;
 
 namespace Stashbox.Registration
 {
@@ -16,8 +17,9 @@ namespace Stashbox.Registration
     /// </summary>
     public class ServiceRegistration : IServiceRegistration
     {
+        private static int GlobalRegistrationNumber = 0;
         private static readonly ConcurrentTree<Type, MetaInformation> MetaRepository = new ConcurrentTree<Type, MetaInformation>();
-        private readonly IContainerContext containerContext;
+        private readonly IContainerConfigurator containerConfigurator;
         private readonly IObjectBuilder objectBuilder;
 
         /// <inheritdoc />
@@ -47,22 +49,22 @@ namespace Stashbox.Registration
         /// <inheritdoc />
         public int RegistrationNumber { get; }
 
-        internal ServiceRegistration(Type serviceType, Type implementationType, IContainerContext containerContext,
+        internal ServiceRegistration(Type serviceType, Type implementationType, IContainerConfigurator containerConfigurator,
              IObjectBuilder objectBuilder, RegistrationContextData registrationContextData,
              bool isDecorator, bool shouldHandleDisposal)
         {
             this.objectBuilder = objectBuilder;
-            this.containerContext = containerContext;
+            this.containerConfigurator = containerConfigurator;
             this.ImplementationType = implementationType;
             this.ServiceType = serviceType;
             this.MetaInformation = GetOrCreateMetaInfo(implementationType);
-            this.RegistrationNumber = containerContext.ReserveRegistrationNumber();
+            this.RegistrationNumber = ReserveRegistrationNumber();
             this.RegistrationContext = registrationContextData;
             this.IsDecorator = isDecorator;
             this.ShouldHandleDisposal = shouldHandleDisposal;
 
             if (this.RegistrationContext.Name == null)
-                this.RegistrationContext.Name = containerContext.ContainerConfigurator.ContainerConfiguration.SetUniqueRegistrationNames ? (object)this.RegistrationNumber : implementationType;
+                this.RegistrationContext.Name = containerConfigurator.ContainerConfiguration.SetUniqueRegistrationNames ? (object)this.RegistrationNumber : implementationType;
         }
 
         /// <inheritdoc />
@@ -79,17 +81,17 @@ namespace Stashbox.Registration
             this.MetaInformation.GenericTypeConstraints.Count == 0 || this.MetaInformation.ValidateGenericContraints(type);
 
         /// <inheritdoc />
-        public Expression GetExpression(ResolutionInfo resolutionInfo, Type resolveType) =>
+        public Expression GetExpression(IContainerContext containerContext, ResolutionInfo resolutionInfo, Type resolveType) =>
             this.RegistrationContext.Lifetime == null || this.ServiceType.IsOpenGenericType() ?
-                this.objectBuilder.GetExpression(this, resolutionInfo, resolveType) :
-                this.RegistrationContext.Lifetime.GetExpression(this, this.objectBuilder, resolutionInfo, resolveType);
+                this.objectBuilder.GetExpression(containerContext, this, resolutionInfo, resolveType) :
+                this.RegistrationContext.Lifetime.GetExpression(containerContext, this, this.objectBuilder, resolutionInfo, resolveType);
 
         /// <inheritdoc />
         public bool CanInjectMember(MemberInformation member)
         {
-            var autoMemberInjectionEnabled = this.containerContext.ContainerConfigurator.ContainerConfiguration.MemberInjectionWithoutAnnotationEnabled || this.RegistrationContext.AutoMemberInjectionEnabled;
+            var autoMemberInjectionEnabled = this.containerConfigurator.ContainerConfiguration.MemberInjectionWithoutAnnotationEnabled || this.RegistrationContext.AutoMemberInjectionEnabled;
             var autoMemberInjectionRule = this.RegistrationContext.AutoMemberInjectionEnabled ? this.RegistrationContext.AutoMemberInjectionRule :
-                this.containerContext.ContainerConfigurator.ContainerConfiguration.MemberInjectionWithoutAnnotationRule;
+                this.containerConfigurator.ContainerConfiguration.MemberInjectionWithoutAnnotationRule;
 
             if (autoMemberInjectionEnabled)
                 return member.TypeInformation.ForcedDependency ||
@@ -119,5 +121,8 @@ namespace Stashbox.Registration
             MetaRepository.AddOrUpdate(typeTo, meta);
             return meta;
         }
+
+        private static int ReserveRegistrationNumber() =>
+            Interlocked.Increment(ref GlobalRegistrationNumber);
     }
 }

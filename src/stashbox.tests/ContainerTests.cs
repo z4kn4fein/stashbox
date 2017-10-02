@@ -1,13 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Stashbox.Entity;
 using Stashbox.Exceptions;
 using Stashbox.Infrastructure;
-using System.Linq.Expressions;
 using Stashbox.Infrastructure.Resolution;
-using System.Linq;
 using Stashbox.Lifetime;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
 
 namespace Stashbox.Tests
 {
@@ -23,6 +23,23 @@ namespace Stashbox.Tests
 
             var child = container.CreateChildContainer();
             child.RegisterType<ITest3, Test3>();
+
+            var test3 = child.Resolve<ITest3>();
+
+            Assert.IsNotNull(test3);
+            Assert.IsInstanceOfType(test3, typeof(Test3));
+            Assert.AreEqual(container, child.ParentContainer);
+        }
+
+        [TestMethod]
+        public void ContainerTests_ChildContainer_Resolve_Dependency_From_Child()
+        {
+            var container = new StashboxContainer();
+            container.RegisterType<ITest3, Test3>();
+
+            var child = container.CreateChildContainer();
+            child.RegisterType<ITest1, Test1>();
+            child.RegisterType<ITest2, Test2>();
 
             var test3 = child.Resolve<ITest3>();
 

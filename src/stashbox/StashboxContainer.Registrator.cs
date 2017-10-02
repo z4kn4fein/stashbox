@@ -65,7 +65,7 @@ namespace Stashbox
                     context.WithoutDisposalTracking();
             });
         }
-        
+
         /// <inheritdoc />
         public IStashboxContainer RegisterInstance(Type serviceType, object instance, object name = null, bool withoutDisposalTracking = false)
         {
@@ -88,7 +88,7 @@ namespace Stashbox
             this.WireUpInternal(instance, name, typeof(TFrom), instance.GetType(), withoutDisposalTracking, finalizerDelegate);
             return this;
         }
-        
+
         /// <inheritdoc />
         public IStashboxContainer WireUp(Type serviceType, object instance, object name = null, bool withoutDisposalTracking = false)
         {
@@ -107,7 +107,7 @@ namespace Stashbox
             data.Finalizer = finalizerDelelgate;
 
             var registration = new ServiceRegistration(typeFrom, typeTo,
-                this.ContainerContext, this.objectBuilderSelector.Get(ObjectBuilder.WireUp),
+                this.ContainerContext.ContainerConfigurator, this.objectBuilderSelector.Get(ObjectBuilder.WireUp),
                 data, false, !withoutDisposalTracking);
 
             this.registrationRepository.AddOrUpdateRegistration(registration, false, false);

@@ -17,7 +17,7 @@ namespace Stashbox.Infrastructure
         /// <param name="resolutionInfo">The info about the actual resolution.</param>
         /// <param name="resolveType">The requested type.</param>
         /// <returns>The created object.</returns>
-        Expression GetExpression(IServiceRegistration serviceRegistration, ResolutionInfo resolutionInfo, Type resolveType);
+        Expression GetExpression(IContainerContext containerContext, IServiceRegistration serviceRegistration, ResolutionInfo resolutionInfo, Type resolveType);
 
         /// <summary>
         /// Indicates that the object builder is handling the disposal of the produced instance or not.

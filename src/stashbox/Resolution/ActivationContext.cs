@@ -1,10 +1,10 @@
-﻿using System;
-using System.Linq.Expressions;
-using Stashbox.Entity;
+﻿using Stashbox.Entity;
 using Stashbox.Exceptions;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.Resolution;
+using System;
 using System.Linq;
+using System.Linq.Expressions;
 
 namespace Stashbox.Resolution
 {
@@ -45,7 +45,7 @@ namespace Stashbox.Resolution
             var registration = this.containerContext.RegistrationRepository.GetRegistrationOrDefault(type, name);
             if (registration != null)
             {
-                var ragistrationFactory = registration.GetExpression(resolutionInfo, type)?.CompileDelegate(Constants.ScopeExpression);
+                var ragistrationFactory = registration.GetExpression(this.containerContext, resolutionInfo, type)?.CompileDelegate(Constants.ScopeExpression);
                 if (ragistrationFactory == null)
                     if (resolutionInfo.NullResultAllowed)
                         return null;
@@ -80,7 +80,7 @@ namespace Stashbox.Resolution
 
             var initExpression = registration == null ?
                 this.resolverSelector.GetResolverExpression(this.containerContext, typeInfo, resolutionInfo) :
-                registration.GetExpression(resolutionInfo, type);
+                registration.GetExpression(this.containerContext, resolutionInfo, type);
 
             if (initExpression == null)
                 if (resolutionInfo.NullResultAllowed)

@@ -1,4 +1,5 @@
-﻿using Stashbox.BuildUp.Expressions;
+﻿using Stashbox.BuildUp;
+using Stashbox.BuildUp.Expressions;
 using Stashbox.BuildUp.Resolution;
 using Stashbox.Configuration;
 using Stashbox.Entity;
@@ -10,7 +11,6 @@ using Stashbox.Registration;
 using Stashbox.Resolution;
 using Stashbox.Utils;
 using System;
-using Stashbox.BuildUp;
 
 namespace Stashbox
 {
@@ -61,12 +61,12 @@ namespace Stashbox
                 new ResolutionStrategy(this.resolverSelector), containerConfigurator, decoratorRepository);
 
             this.activationContext = new Resolution.ActivationContext(this.ContainerContext, this.resolverSelector);
-            this.expressionBuilder = new ExpressionBuilder(this.ContainerContext, this.containerExtensionManager);
-            this.objectBuilderSelector = new ObjectBuilderSelector(this.ContainerContext, this.expressionBuilder);
+            this.expressionBuilder = new ExpressionBuilder(this.containerExtensionManager);
+            this.objectBuilderSelector = new ObjectBuilderSelector(this.expressionBuilder);
             this.ServiceRegistrator = new ServiceRegistrator(this.ContainerContext, this.containerExtensionManager, this.objectBuilderSelector);
 
             this.rootScope = new ResolutionScope(this.activationContext,
-            this.ServiceRegistrator, this.expressionBuilder);
+            this.ServiceRegistrator, this.expressionBuilder, this.ContainerContext);
 
             this.rootResolver = (IDependencyResolver)this.rootScope;
         }
@@ -103,7 +103,7 @@ namespace Stashbox
         public void Validate()
         {
             foreach (var serviceRegistration in this.registrationRepository.GetAllRegistrations())
-                serviceRegistration.GetExpression(ResolutionInfo.New(this.rootScope), serviceRegistration.ServiceType);
+                serviceRegistration.GetExpression(this.ContainerContext, ResolutionInfo.New(this.rootScope), serviceRegistration.ServiceType);
         }
 
         /// <inheritdoc />
@@ -122,7 +122,7 @@ namespace Stashbox
 
         /// <inheritdoc />
         public IDependencyResolver BeginScope(object name = null) => new ResolutionScope(this.activationContext,
-            this.ServiceRegistrator, this.expressionBuilder, this.rootScope, name);
+            this.ServiceRegistrator, this.expressionBuilder, this.ContainerContext, this.rootScope, name);
 
         /// <inheritdoc />
         public void Configure(Action<IContainerConfigurator> config) =>

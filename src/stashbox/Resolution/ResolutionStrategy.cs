@@ -1,9 +1,9 @@
-﻿using System;
-using System.Linq;
-using System.Linq.Expressions;
-using Stashbox.Entity;
+﻿using Stashbox.Entity;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.Resolution;
+using System;
+using System.Linq;
+using System.Linq.Expressions;
 
 namespace Stashbox.Resolution
 {
@@ -34,7 +34,7 @@ namespace Stashbox.Resolution
                 return exprOverride;
 
             var registration = containerContext.RegistrationRepository.GetRegistrationOrDefault(typeInformation, true);
-            return registration != null ? registration.GetExpression(resolutionInfo, typeInformation.Type) :
+            return registration != null ? registration.GetExpression(resolutionInfo.ChildContext ?? containerContext, resolutionInfo, typeInformation.Type) :
                 this.resolverSelector.GetResolverExpression(containerContext, typeInformation, resolutionInfo);
         }
 
@@ -47,7 +47,7 @@ namespace Stashbox.Resolution
             var lenght = registrations.Length;
             var expressions = new Expression[lenght];
             for (var i = 0; i < lenght; i++)
-                expressions[i] = registrations[i].Value.GetExpression(resolutionInfo, typeInformation.Type);
+                expressions[i] = registrations[i].Value.GetExpression(resolutionInfo.ChildContext ?? containerContext, resolutionInfo, typeInformation.Type);
 
             return expressions;
         }

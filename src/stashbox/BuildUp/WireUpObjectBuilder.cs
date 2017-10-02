@@ -13,20 +13,19 @@ namespace Stashbox.BuildUp
         private readonly object syncObject = new object();
         private readonly IExpressionBuilder expressionBuilder;
 
-        public WireUpObjectBuilder(IContainerContext containerContext, IExpressionBuilder expressionBuilder)
-            : base(containerContext)
+        public WireUpObjectBuilder(IExpressionBuilder expressionBuilder)
         {
             this.expressionBuilder = expressionBuilder;
         }
 
-        protected override Expression GetExpressionInternal(IServiceRegistration serviceRegistration, ResolutionInfo resolutionInfo, Type resolveType)
+        protected override Expression GetExpressionInternal(IContainerContext containerContext, IServiceRegistration serviceRegistration, ResolutionInfo resolutionInfo, Type resolveType)
         {
             if (this.expression != null) return this.expression;
             lock (this.syncObject)
             {
                 if (this.expression != null) return this.expression;
 
-                var expr = this.expressionBuilder.CreateFillExpression(serviceRegistration, Expression.Constant(serviceRegistration.RegistrationContext.ExistingInstance),
+                var expr = this.expressionBuilder.CreateFillExpression(containerContext, serviceRegistration, Expression.Constant(serviceRegistration.RegistrationContext.ExistingInstance),
                     resolutionInfo, serviceRegistration.ImplementationType);
                 var factory = expr.CompileDelegate(Constants.ScopeExpression);
 
@@ -45,7 +44,7 @@ namespace Stashbox.BuildUp
             }
         }
 
-        public override IObjectBuilder Produce() => new WireUpObjectBuilder(base.ContainerContext, this.expressionBuilder);
+        public override IObjectBuilder Produce() => new WireUpObjectBuilder(this.expressionBuilder);
 
         public override bool HandlesObjectLifecycle => true;
     }

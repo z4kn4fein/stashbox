@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq.Expressions;
-using Stashbox.BuildUp.Expressions;
+﻿using Stashbox.BuildUp.Expressions;
 using Stashbox.Entity;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.Registration;
 using Stashbox.Infrastructure.Resolution;
 using Stashbox.Utils;
+using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
 
 namespace Stashbox
 {
@@ -32,7 +32,7 @@ namespace Stashbox
         private readonly IActivationContext activationContext;
         private readonly IServiceRegistrator serviceRegistrator;
         private readonly IExpressionBuilder expressionBuilder;
-
+        private readonly IContainerContext containerContext;
         private readonly AtomicBool disposed;
         private DisposableItem rootItem;
         private FinalizableItem rootFinalizableItem;
@@ -49,7 +49,7 @@ namespace Stashbox
         public object Name { get; }
 
         public ResolutionScope(IActivationContext activationContext, IServiceRegistrator serviceRegistrator,
-            IExpressionBuilder expressionBuilder, object name = null)
+            IExpressionBuilder expressionBuilder, IContainerContext containerContext, object name = null)
         {
             this.disposed = new AtomicBool();
             this.rootItem = DisposableItem.Empty;
@@ -59,20 +59,21 @@ namespace Stashbox
             this.activationContext = activationContext;
             this.serviceRegistrator = serviceRegistrator;
             this.expressionBuilder = expressionBuilder;
+            this.containerContext = containerContext;
             this.Name = name;
             this.RootScope = this;
         }
 
         public ResolutionScope(IActivationContext activationContext, IServiceRegistrator serviceRegistrator,
-            IExpressionBuilder expressionBuilder, IResolutionScope rootScope, object name = null)
-            : this(activationContext, serviceRegistrator, expressionBuilder, name)
+            IExpressionBuilder expressionBuilder, IContainerContext containerContext, IResolutionScope rootScope, object name = null)
+            : this(activationContext, serviceRegistrator, expressionBuilder, containerContext, name)
         {
             this.RootScope = rootScope;
         }
-        
+
         public object Resolve(Type typeFrom, bool nullResultAllowed = false) =>
             this.activationContext.Activate(typeFrom, this, nullResultAllowed);
-        
+
         public object Resolve(Type typeFrom, object name, bool nullResultAllowed = false) =>
             this.activationContext.Activate(typeFrom, this, name, nullResultAllowed);
 
@@ -86,7 +87,7 @@ namespace Stashbox
             this.activationContext.ActivateFactory(typeFrom, parameterTypes, this, name, nullResultAllowed);
 
         public IDependencyResolver BeginScope(object name = null) => new ResolutionScope(this.activationContext, this.serviceRegistrator,
-            this.expressionBuilder, this.RootScope, name);
+            this.expressionBuilder, this.containerContext, this.RootScope, name);
 
         public IDependencyResolver PutInstanceInScope(Type typeFrom, object instance, bool withoutDisposalTracking = false)
         {
@@ -105,7 +106,7 @@ namespace Stashbox
         {
             var typeTo = instance.GetType();
             var registration = this.serviceRegistrator.PrepareContext(typeTo, typeTo);
-            var expr = this.expressionBuilder.CreateFillExpression(registration.CreateServiceRegistration(false),
+            var expr = this.expressionBuilder.CreateFillExpression(this.containerContext, registration.CreateServiceRegistration(false),
                 Expression.Constant(instance), ResolutionInfo.New(this), typeTo);
             var factory = expr.CompileDelegate(Constants.ScopeExpression);
             return (TTo)factory(this);
@@ -123,7 +124,7 @@ namespace Stashbox
 
             return disposable;
         }
-        
+
         /// <inheritdoc />
         public void AddScopedInstance(Type key, object value) =>
             this.scopedInstances.AddOrUpdate(key, value);

@@ -11,12 +11,7 @@ namespace Stashbox.BuildUp
         private volatile Expression expression;
         private readonly object syncObject = new object();
 
-        public InstanceObjectBuilder(IContainerContext containerContext)
-            : base(containerContext)
-        {
-        }
-
-        protected override Expression GetExpressionInternal(IServiceRegistration serviceRegistration, ResolutionInfo resolutionInfo, Type resolveType)
+        protected override Expression GetExpressionInternal(IContainerContext containerContext, IServiceRegistration serviceRegistration, ResolutionInfo resolutionInfo, Type resolveType)
         {
             if (this.expression != null) return this.expression;
             lock (this.syncObject)
@@ -36,7 +31,7 @@ namespace Stashbox.BuildUp
             }
         }
 
-        public override IObjectBuilder Produce() => new InstanceObjectBuilder(base.ContainerContext);
+        public override IObjectBuilder Produce() => new InstanceObjectBuilder();
 
         public override bool HandlesObjectLifecycle => true;
     }

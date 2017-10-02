@@ -1,8 +1,7 @@
 ﻿using Stashbox.Infrastructure;
-using Stashbox.Utils;
-using System.Threading;
 using Stashbox.Infrastructure.Registration;
 using Stashbox.Infrastructure.Resolution;
+using Stashbox.Utils;
 
 namespace Stashbox
 {
@@ -11,8 +10,6 @@ namespace Stashbox
     /// </summary>
     public class ContainerContext : IContainerContext
     {
-        private int registrationNumber;
-
         internal ContainerContext(IRegistrationRepository registrationRepository, IDelegateRepository delegateRepository,
             IStashboxContainer container, IResolutionStrategy resolutionStrategy, IContainerConfigurator containerConfigurator,
             IDecoratorRepository decoratorRepository)
@@ -46,9 +43,5 @@ namespace Stashbox
 
         /// <inheritdoc />
         public IContainerConfigurator ContainerConfigurator { get; internal set; }
-
-        /// <inheritdoc />
-        public int ReserveRegistrationNumber() =>
-            Interlocked.Increment(ref this.registrationNumber);
     }
 }
