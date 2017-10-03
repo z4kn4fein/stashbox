@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections.Generic;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -244,6 +244,18 @@ namespace Stashbox.Tests
                 var inst = container.Resolve<IConstraintTest<ConstraintArgument1>>();
                 Assert.IsInstanceOfType(inst, typeof(ConstraintTest3<ConstraintArgument1>));
             }
+        }
+
+        [TestMethod]
+        public void GenericTests_Resolve_Prefer_Open_Generic_In_Named_Scope()
+        {
+            var container = new StashboxContainer(config => config.WithUniqueRegistrationIdentifiers())
+               .RegisterType<ITest1<int, string>, Test1<int, string>>()
+               .RegisterType(typeof(ITest1<,>), typeof(Test1<,>), config => config.InNamedScope("A"));
+
+            container.BeginScope("A").Resolve<ITest1<int, string>>();
+
+            Assert.AreEqual(3, container.ContainerContext.RegistrationRepository.GetAllRegistrations().Count());
         }
 
         public interface IConstraint { }

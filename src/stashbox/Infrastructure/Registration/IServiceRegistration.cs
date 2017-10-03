@@ -64,9 +64,8 @@ namespace Stashbox.Infrastructure.Registration
         /// Checks whether the registration can be used for a current resolution.
         /// </summary>
         /// <param name="typeInfo">The type information.</param>
-        /// <param name="scopeName">The name of the current scope.</param>
         /// <returns>True if the registration can be used for the current resolution, otherwise false.</returns>
-        bool IsUsableForCurrentContext(TypeInformation typeInfo, object scopeName);
+        bool IsUsableForCurrentContext(TypeInformation typeInfo);
 
         /// <summary>
         /// Validates that the given type's generic argument fullfills the generic constraint or not 

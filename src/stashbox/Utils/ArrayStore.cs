@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Stashbox.Entity;
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using Stashbox.Entity;
 
 namespace Stashbox.Utils
 {
@@ -71,7 +71,7 @@ namespace Stashbox.Utils
             this.Length = old.Length + 1;
         }
 
-        private ArrayStoreKeyed(KeyValue<TKey, TValue>[] initial)
+        internal ArrayStoreKeyed(KeyValue<TKey, TValue>[] initial)
         {
             this.Repository = initial;
             this.Length = initial.Length;

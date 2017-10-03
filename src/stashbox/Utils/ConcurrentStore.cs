@@ -1,6 +1,8 @@
-﻿using System.Collections;
+﻿using Stashbox.Entity;
+using System;
+using System.Collections;
 using System.Collections.Generic;
-using Stashbox.Entity;
+using System.Linq;
 
 namespace Stashbox.Utils
 {
@@ -82,6 +84,11 @@ namespace Stashbox.Utils
             this.repository = ArrayStoreKeyed<TKey, TContent>.Empty;
         }
 
+        private ConcurrentOrderedKeyStore(KeyValue<TKey, TContent>[] initial)
+        {
+            this.repository = new ArrayStoreKeyed<TKey, TContent>(initial);
+        }
+
         /// <summary>
         /// Adds an item to the collection.
         /// </summary>
@@ -109,6 +116,15 @@ namespace Stashbox.Utils
             Swap.SwapValue(ref this.repository, current, newRepo, repo => repo.AddOrUpdate(key, value));
 
             return this;
+        }
+
+        internal ConcurrentOrderedKeyStore<TKey, TContent> WhereOrDefault(Func<KeyValue<TKey, TContent>, bool> predicate)
+        {
+            var initial = this.repository.Repository.Where(predicate).ToArray();
+            if (initial.Length == 0)
+                return null;
+
+            return new ConcurrentOrderedKeyStore<TKey, TContent>(initial);
         }
 
         /// <summary>
