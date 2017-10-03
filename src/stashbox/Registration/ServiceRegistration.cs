@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading;
 
 namespace Stashbox.Registration
@@ -62,13 +63,16 @@ namespace Stashbox.Registration
         }
 
         /// <inheritdoc />
-        public bool IsUsableForCurrentContext(TypeInformation typeInfo) =>
-            !this.HasCondition || this.HasParentTypeConditionAndMatch(typeInfo) || this.HasAttributeConditionAndMatch(typeInfo) ||
-            this.HasResolutionConditionAndMatch(typeInfo);
-
+        public bool IsUsableForCurrentContext(TypeInformation typeInfo, object scopeName) =>
+            !this.HasCondition || 
+            this.HasParentTypeConditionAndMatch(typeInfo) || 
+            this.HasAttributeConditionAndMatch(typeInfo) ||
+            this.HasResolutionConditionAndMatch(typeInfo) ||
+            this.MatchScopeName(scopeName);
+        
         /// <inheritdoc />
         public bool HasCondition => this.RegistrationContext.TargetTypeCondition != null || this.RegistrationContext.ResolutionCondition != null ||
-            this.RegistrationContext.AttributeConditions != null && this.RegistrationContext.AttributeConditions.Count > 0;
+            this.RegistrationContext.AttributeConditions != null && this.RegistrationContext.AttributeConditions.Count > 0 || this.RegistrationContext.UsedScopeName != null;
 
         /// <inheritdoc />
         public bool ValidateGenericContraints(Type type) =>
@@ -105,6 +109,9 @@ namespace Stashbox.Registration
 
         private bool HasResolutionConditionAndMatch(TypeInformation typeInfo) =>
             this.RegistrationContext.ResolutionCondition != null && this.RegistrationContext.ResolutionCondition(typeInfo);
+
+        private bool MatchScopeName(object scopeName) =>
+            scopeName != null && scopeName == this.RegistrationContext.UsedScopeName;
 
         private static MetaInformation GetOrCreateMetaInfo(Type typeTo)
         {

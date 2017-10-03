@@ -82,8 +82,13 @@ namespace Stashbox.Registration
             var conditionals = registrations.Where(reg => reg.HasCondition);
 
             return typeInfo.Type.IsClosedGenericType()
-                ? GetGenericRegistrationFromCollection(conditionals, typeInfo, scopeName) ?? GetGenericRegistrationFromCollection(registrations, typeInfo, scopeName)
-                : GetRegistrationFromCollection(conditionals, typeInfo, scopeName) ?? GetRegistrationFromCollection(registrations, typeInfo, scopeName);
+                ? conditionals.LastOrDefault(reg => reg.ValidateGenericContraints(typeInfo.Type) &&
+                                                    reg.IsUsableForCurrentContext(typeInfo, scopeName)) ??
+                  registrations.LastOrDefault(reg => reg.ValidateGenericContraints(typeInfo.Type) &&
+                                                     reg.IsUsableForCurrentContext(typeInfo, scopeName))
+
+                : conditionals.LastOrDefault(reg => reg.IsUsableForCurrentContext(typeInfo, scopeName)) ??
+                  registrations.LastOrDefault(reg => reg.IsUsableForCurrentContext(typeInfo, scopeName));
         }
 
         private IServiceRegistration GetDefaultRegistrationOrDefault(Type type, object scopeName)
@@ -94,8 +99,8 @@ namespace Stashbox.Registration
             if (registrations.Lenght == 1)
                 return registrations.Last;
 
-            return type.IsClosedGenericType()
-                ? GetGenericRegistrationFromCollection(registrations, type, scopeName)
+            return type.IsClosedGenericType() 
+                ? GetGenericRegistrationFromCollection(registrations, type, scopeName) 
                 : GetRegistrationFromCollection(registrations, scopeName);
         }
 
@@ -126,7 +131,7 @@ namespace Stashbox.Registration
                 return collection?.Repository.Concat(generics.Repository.Where(reg => reg.Value.ValidateGenericContraints(type))).OrderBy(reg => reg.Value.RegistrationNumber) ?? generics.Repository.Where(reg => reg.Value.ValidateGenericContraints(type));
 
             var filtered = generics.Repository.Where(reg => reg.Value.ValidateGenericContraints(type) &&
-                                reg.Value.RegistrationContext.UsedScopeName == scopeName);
+                                                            reg.Value.RegistrationContext.UsedScopeName == scopeName);
 
             var genericFiltered = !filtered.Any() ? generics.Repository.Where(reg => reg.Value.ValidateGenericContraints(type)) : filtered;
 
@@ -142,28 +147,11 @@ namespace Stashbox.Registration
             scopeName == null
                 ? collection.LastOrDefault(reg => reg.ValidateGenericContraints(type))
                 : collection.LastOrDefault(reg => reg.ValidateGenericContraints(type) && reg.RegistrationContext.UsedScopeName == scopeName) ??
-                    collection.LastOrDefault(reg => reg.ValidateGenericContraints(type));
+                  collection.LastOrDefault(reg => reg.ValidateGenericContraints(type));
 
         private static IServiceRegistration GetRegistrationFromCollection(ConcurrentOrderedKeyStore<object, IServiceRegistration> collection, object scopeName) =>
             scopeName == null
                 ? collection.Last
                 : collection.LastOrDefault(reg => reg.RegistrationContext.UsedScopeName == scopeName) ?? collection.Last;
-
-        private static IServiceRegistration GetGenericRegistrationFromCollection(IEnumerable<IServiceRegistration> collection, TypeInformation typeInfo, object scopeName) =>
-            scopeName == null
-                ? collection.LastOrDefault(reg => reg.ValidateGenericContraints(typeInfo.Type) &&
-                                                  reg.IsUsableForCurrentContext(typeInfo))
-                : collection.LastOrDefault(reg => reg.ValidateGenericContraints(typeInfo.Type) &&
-                                                  reg.IsUsableForCurrentContext(typeInfo) &&
-                                                  reg.RegistrationContext.UsedScopeName == scopeName) ??
-                    collection.LastOrDefault(reg => reg.ValidateGenericContraints(typeInfo.Type) &&
-                                                    reg.IsUsableForCurrentContext(typeInfo));
-
-        private static IServiceRegistration GetRegistrationFromCollection(IEnumerable<IServiceRegistration> collection, TypeInformation typeInfo, object scopeName) =>
-            scopeName == null
-                ? collection.LastOrDefault(reg => reg.IsUsableForCurrentContext(typeInfo))
-                : collection.LastOrDefault(reg => reg.IsUsableForCurrentContext(typeInfo) &&
-                                                  reg.RegistrationContext.UsedScopeName == scopeName) ??
-                    collection.LastOrDefault(reg => reg.IsUsableForCurrentContext(typeInfo));
     }
 }
