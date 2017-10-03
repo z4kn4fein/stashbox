@@ -258,6 +258,18 @@ namespace Stashbox.Tests
             Assert.AreEqual(3, container.ContainerContext.RegistrationRepository.GetAllRegistrations().Count());
         }
 
+        [TestMethod]
+        public void GenericTests_Resolve_Prefer_Open_Generic_Enumerable_In_Named_Scope()
+        {
+            var container = new StashboxContainer(config => config.WithUniqueRegistrationIdentifiers())
+               .RegisterType<ITest1<int, string>, Test1<int, string>>(config => config.InNamedScope("A"))
+               .RegisterType(typeof(ITest1<,>), typeof(Test1<,>), config => config.InNamedScope("A"));
+
+            var res = container.BeginScope("A").Resolve<IEnumerable<ITest1<int, string>>>();
+
+            Assert.AreEqual(2, res.Count());
+        }
+
         public interface IConstraint { }
 
         public interface IConstraint1 { }
