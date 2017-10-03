@@ -1,5 +1,10 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Stashbox.Attributes;
+using Stashbox.Entity;
+using Stashbox.Infrastructure;
+using Stashbox.Infrastructure.ContainerExtension;
+using Stashbox.Infrastructure.Registration;
 using Stashbox.Utils;
 
 namespace Stashbox.Tests
@@ -113,6 +118,8 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
+                var ext = new Ext();
+                container.RegisterExtension(ext);
                 container.RegisterType<ITest, Test>();
                 object test1 = new Test1();
                 container.WireUp(typeof(Test1), test1);
@@ -120,8 +127,33 @@ namespace Stashbox.Tests
 
                 Assert.IsNotNull(inst);
                 Assert.IsNotNull(inst.Test);
+                Assert.IsNotNull(inst.test);
                 Assert.IsInstanceOfType(inst, typeof(Test1));
                 Assert.IsInstanceOfType(inst.Test, typeof(Test));
+                Assert.IsInstanceOfType(inst.test, typeof(Test));
+
+                Assert.IsNotNull(ext.Test);
+                Assert.AreSame(inst, ext.Test);
+            }
+        }
+
+        class Ext : IPostBuildExtension
+        {
+            public Test1 Test { get; private set; }
+
+            public void CleanUp()
+            { }
+
+            public IContainerExtension CreateCopy() => this;
+
+            public void Initialize(IContainerContext containerContext)
+            { }
+
+            public object PostBuild(object instance, IContainerContext containerContext, ResolutionInfo resolutionInfo, IServiceRegistration serviceRegistration, Type requestedType)
+            { 
+                if(requestedType == typeof(Test1))
+                    Test = (Test1)instance;
+                return instance;
             }
         }
 
@@ -133,6 +165,9 @@ namespace Stashbox.Tests
 
         public class Test1 : ITest1
         {
+            [Dependency]
+            public ITest test;
+
             [Dependency]
             public ITest Test { get; set; }
 

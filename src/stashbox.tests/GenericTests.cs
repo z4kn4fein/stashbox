@@ -270,6 +270,30 @@ namespace Stashbox.Tests
             Assert.AreEqual(2, res.Count());
         }
 
+        [TestMethod]
+        public void GenericTests_Resolve_Prefer_Valid_Constraint_In_Named_Scope()
+        {
+            var inst = new StashboxContainer()
+               .RegisterType(typeof(IConstraintTest<>), typeof(ConstraintTest3<>), config => config.InNamedScope("A"))
+               .RegisterType(typeof(IConstraintTest<>), typeof(ConstraintTest2<>), config => config.InNamedScope("A"))
+               .BeginScope("A")
+               .Resolve<IConstraintTest<ConstraintArgument1>>();
+
+            Assert.IsInstanceOfType(inst, typeof(ConstraintTest3<ConstraintArgument1>));
+        }
+
+        [TestMethod]
+        public void GenericTests_Resolve_Prefer_Valid_Constraint_In_Named_Scope_Enumerable()
+        {
+            var inst = new StashboxContainer()
+               .RegisterType(typeof(IConstraintTest<>), typeof(ConstraintTest3<>), config => config.InNamedScope("A"))
+               .RegisterType(typeof(IConstraintTest<>), typeof(ConstraintTest2<>), config => config.InNamedScope("A"))
+               .BeginScope("A")
+               .ResolveAll<IConstraintTest<ConstraintArgument1>>();
+
+            Assert.AreEqual(1, inst.Count());
+        }
+
         public interface IConstraint { }
 
         public interface IConstraint1 { }
