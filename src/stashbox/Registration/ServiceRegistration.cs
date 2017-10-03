@@ -17,7 +17,7 @@ namespace Stashbox.Registration
     /// </summary>
     public class ServiceRegistration : IServiceRegistration
     {
-        private static int GlobalRegistrationNumber = 0;
+        private static int GlobalRegistrationNumber;
         private static readonly ConcurrentTree<Type, MetaInformation> MetaRepository = new ConcurrentTree<Type, MetaInformation>();
         private readonly IContainerConfigurator containerConfigurator;
         private readonly IObjectBuilder objectBuilder;
@@ -39,12 +39,6 @@ namespace Stashbox.Registration
 
         /// <inheritdoc />
         public bool ShouldHandleDisposal { get; }
-
-        /// <inheritdoc />
-        public object UsedScopeName { get; }
-
-        /// <inheritdoc />
-        public object DefinedScopeName { get; }
 
         /// <inheritdoc />
         public int RegistrationNumber { get; }
@@ -83,8 +77,8 @@ namespace Stashbox.Registration
         /// <inheritdoc />
         public Expression GetExpression(IContainerContext containerContext, ResolutionInfo resolutionInfo, Type resolveType) =>
             this.RegistrationContext.Lifetime == null || this.ServiceType.IsOpenGenericType() ?
-                this.objectBuilder.GetExpression(containerContext, this, resolutionInfo, resolveType) :
-                this.RegistrationContext.Lifetime.GetExpression(containerContext, this, this.objectBuilder, resolutionInfo, resolveType);
+                this.objectBuilder.GetExpression(containerContext, this, this.RegistrationContext.DefinedScopeName == null ? resolutionInfo : resolutionInfo.CreateNew(scopeName: this.RegistrationContext.DefinedScopeName), resolveType) :
+                this.RegistrationContext.Lifetime.GetExpression(containerContext, this, this.objectBuilder, this.RegistrationContext.DefinedScopeName == null ? resolutionInfo : resolutionInfo.CreateNew(scopeName: this.RegistrationContext.DefinedScopeName), resolveType);
 
         /// <inheritdoc />
         public bool CanInjectMember(MemberInformation member)
@@ -101,7 +95,7 @@ namespace Stashbox.Registration
 
             return member.TypeInformation.ForcedDependency;
         }
-
+        
         private bool HasParentTypeConditionAndMatch(TypeInformation typeInfo) =>
             this.RegistrationContext.TargetTypeCondition != null && typeInfo.ParentType != null && this.RegistrationContext.TargetTypeCondition == typeInfo.ParentType;
 

@@ -115,5 +115,19 @@ namespace Stashbox.Infrastructure.Registration
         /// </summary>
         /// <returns>The <see cref="IFluentServiceRegistrator"/> which on this method was called.</returns>
         IFluentServiceRegistrator AsImplementedTypes();
+
+        /// <summary>
+        /// Sets a scope name condition for the registration, it will be used only when a scope with the given name requests it.
+        /// </summary>
+        /// <param name="scopeName">The name of the scope.</param>
+        /// <returns>The <see cref="IFluentServiceRegistrator"/> which on this method was called.</returns>
+        IFluentServiceRegistrator InNamedScope(object scopeName);
+
+        /// <summary>
+        /// It means this registration would be used as a logical scope for it's dependencies, the dependencies registered with the <see cref="InNamedScope"/> and with the same name as it's param will be preffered during reolution.
+        /// </summary>
+        /// <param name="scopeName">The name of the scope.</param>
+        /// <returns>The <see cref="IFluentServiceRegistrator"/> which on this method was called.</returns>
+        IFluentServiceRegistrator DefinesScope(object scopeName);
     }
 }

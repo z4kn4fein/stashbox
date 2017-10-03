@@ -27,6 +27,11 @@ namespace Stashbox.Entity
         /// </summary>
         public bool NullResultAllowed { get; }
 
+        /// <summary>
+        /// The name of the currently resolving scope.
+        /// </summary>
+        public object CurrentScopeName { get; }
+
         private AvlTree<int> circularDependencyBarrier;
 
         private AvlTree<Expression> expressionOverrides;
@@ -38,28 +43,24 @@ namespace Stashbox.Entity
         internal IResolutionScope RootScope { get; }
 
         internal IContainerContext ChildContext { get; }
-
-        internal ResolutionInfo(IResolutionScope scope, bool nullResultAllowed = false)
+        
+        internal ResolutionInfo(IResolutionScope scope, bool nullResultAllowed)
+            : this(scope, AvlTree<int>.Empty, AvlTree<Expression>.Empty, AvlTree<Type>.Empty, null, null, nullResultAllowed, scope.Name)
         {
-            this.circularDependencyBarrier = AvlTree<int>.Empty;
-            this.expressionOverrides = AvlTree<Expression>.Empty;
-            this.currentlyDecoratingTypes = AvlTree<Type>.Empty;
-            this.NullResultAllowed = nullResultAllowed;
-            this.ResolutionScope = scope;
-            this.RootScope = scope.RootScope;
         }
-
-        internal ResolutionInfo(IResolutionScope scope, AvlTree<int> circularDependencyBarrier, AvlTree<Expression> expressionOverrides,
-            AvlTree<Type> currentlyDecoratingTypes, ParameterExpression[] parameterExpressions, IContainerContext childContext, bool nullResultAllowed = false)
+        
+        private ResolutionInfo(IResolutionScope scope, AvlTree<int> circularDependencyBarrier, AvlTree<Expression> expressionOverrides,
+            AvlTree<Type> currentlyDecoratingTypes, ParameterExpression[] parameterExpressions, IContainerContext childContext, bool nullResultAllowed, object scopeName)
         {
             this.circularDependencyBarrier = circularDependencyBarrier;
             this.expressionOverrides = expressionOverrides;
             this.currentlyDecoratingTypes = currentlyDecoratingTypes;
-            this.ParameterExpressions = parameterExpressions;
-            this.ChildContext = childContext;
             this.NullResultAllowed = nullResultAllowed;
             this.ResolutionScope = scope;
             this.RootScope = scope.RootScope;
+            this.CurrentScopeName = scopeName;
+            this.ParameterExpressions = parameterExpressions;
+            this.ChildContext = childContext;
         }
 
         internal bool IsCurrentlyDecorating(Type type) =>
@@ -93,8 +94,8 @@ namespace Stashbox.Entity
             this.circularDependencyBarrier = this.circularDependencyBarrier.AddOrUpdate(regNumber, 0, (oldValue, newValue) => newValue);
         }
 
-        internal ResolutionInfo CreateNew(IContainerContext childContext) =>
+        internal ResolutionInfo CreateNew(IContainerContext childContext = null, object scopeName = null) =>
             new ResolutionInfo(this.ResolutionScope, this.circularDependencyBarrier, this.expressionOverrides,
-                this.currentlyDecoratingTypes, this.ParameterExpressions, childContext, NullResultAllowed);
+                this.currentlyDecoratingTypes, this.ParameterExpressions, childContext ?? this.ChildContext, this.NullResultAllowed, scopeName ?? this.CurrentScopeName);
     }
 }

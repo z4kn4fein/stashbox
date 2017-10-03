@@ -33,14 +33,14 @@ namespace Stashbox.Resolution
             if (exprOverride != null)
                 return exprOverride;
 
-            var registration = containerContext.RegistrationRepository.GetRegistrationOrDefault(typeInformation, true);
+            var registration = containerContext.RegistrationRepository.GetRegistrationOrDefault(typeInformation, resolutionInfo.CurrentScopeName);
             return registration != null ? registration.GetExpression(resolutionInfo.ChildContext ?? containerContext, resolutionInfo, typeInformation.Type) :
                 this.resolverSelector.GetResolverExpression(containerContext, typeInformation, resolutionInfo);
         }
 
         public Expression[] BuildResolutionExpressions(IContainerContext containerContext, ResolutionInfo resolutionInfo, TypeInformation typeInformation)
         {
-            var registrations = containerContext.RegistrationRepository.GetRegistrationsOrDefault(typeInformation.Type)?.CastToArray();
+            var registrations = containerContext.RegistrationRepository.GetRegistrationsOrDefault(typeInformation.Type, resolutionInfo.CurrentScopeName)?.CastToArray();
             if (registrations == null)
                 return this.resolverSelector.GetResolverExpressions(containerContext, typeInformation, resolutionInfo);
 

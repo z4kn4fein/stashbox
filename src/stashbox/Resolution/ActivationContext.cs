@@ -42,7 +42,7 @@ namespace Stashbox.Resolution
             if (type == Constants.ResolverType)
                 return resolutionInfo.ResolutionScope;
 
-            var registration = this.containerContext.RegistrationRepository.GetRegistrationOrDefault(type, name);
+            var registration = this.containerContext.RegistrationRepository.GetRegistrationOrDefault(type, resolutionInfo.CurrentScopeName, name);
             if (registration != null)
             {
                 var ragistrationFactory = registration.GetExpression(this.containerContext, resolutionInfo, type)?.CompileDelegate(Constants.ScopeExpression);
@@ -76,7 +76,7 @@ namespace Stashbox.Resolution
             };
 
             var typeInfo = new TypeInformation { Type = type, DependencyName = name };
-            var registration = this.containerContext.RegistrationRepository.GetRegistrationOrDefault(typeInfo);
+            var registration = this.containerContext.RegistrationRepository.GetRegistrationOrDefault(typeInfo, resolutionInfo.CurrentScopeName);
 
             var initExpression = registration == null ?
                 this.resolverSelector.GetResolverExpression(this.containerContext, typeInfo, resolutionInfo) :

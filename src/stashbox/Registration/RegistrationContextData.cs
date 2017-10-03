@@ -113,6 +113,16 @@ namespace Stashbox.Registration
         public Delegate FuncDelegate { get; internal set; }
 
         /// <summary>
+        /// The name of the scope in which this registration should be used.
+        /// </summary>
+        public object UsedScopeName { get; internal set; }
+
+        /// <summary>
+        /// The name of the scope this registration defines.
+        /// </summary>
+        public object DefinedScopeName { get; internal set; }
+
+        /// <summary>
         /// The constructor selection rule.
         /// </summary>
         public Func<IEnumerable<ConstructorInformation>, IEnumerable<ConstructorInformation>> ConstructorSelectionRule { get; internal set; }

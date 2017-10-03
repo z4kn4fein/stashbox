@@ -52,16 +52,6 @@ namespace Stashbox.Infrastructure.Registration
         bool ShouldHandleDisposal { get; }
 
         /// <summary>
-        /// The name of the scope in which this registration should be used.
-        /// </summary>
-        object UsedScopeName { get; }
-
-        /// <summary>
-        /// The name of the scope this registration defines.
-        /// </summary>
-        object DefinedScopeName { get; }
-
-        /// <summary>
         /// Creates an expression for creating the resolved instance.
         /// </summary>
         /// <param name="containerContext">The container context.</param>

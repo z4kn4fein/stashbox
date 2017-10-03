@@ -188,6 +188,18 @@ namespace Stashbox.Registration
             return this;
         }
 
+        public IFluentServiceRegistrator InNamedScope(object scopeName)
+        {
+            this.Context.UsedScopeName = scopeName;
+            return this;
+        }
+
+        public IFluentServiceRegistrator DefinesScope(object scopeName)
+        {
+            this.Context.DefinedScopeName = scopeName;
+            return this;
+        }
+
         public IStashboxContainer Register()
         {
             if (this.withImplementedTypes)

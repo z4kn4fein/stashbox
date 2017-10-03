@@ -27,7 +27,7 @@ namespace Stashbox.BuildUp.Resolution
             var ctorParamType = Constants.FuncType.MakeGenericType(lazyArgumentInfo.Type);
             var lazyConstructor = typeInfo.Type.GetConstructor(ctorParamType);
 
-            var registration = containerContext.RegistrationRepository.GetRegistrationOrDefault(lazyArgumentInfo, true);
+            var registration = containerContext.RegistrationRepository.GetRegistrationOrDefault(lazyArgumentInfo, resolutionInfo.CurrentScopeName);
             if (registration != null)
                 return !containerContext.ContainerConfigurator.ContainerConfiguration.CircularDependenciesWithLazyEnabled ?
                            Expression.New(lazyConstructor, Expression.Lambda(registration.GetExpression(containerContext, resolutionInfo, lazyArgumentInfo.Type))) :
@@ -45,12 +45,12 @@ namespace Stashbox.BuildUp.Resolution
             var ctorParamType = Constants.FuncType.MakeGenericType(lazyArgumentInfo.Type);
             var lazyConstructor = typeInfo.Type.GetConstructor(ctorParamType);
 
-            var registrations = containerContext.RegistrationRepository.GetRegistrationsOrDefault(lazyArgumentInfo.Type)?.CastToArray();
+            var registrations = containerContext.RegistrationRepository.GetRegistrationsOrDefault(lazyArgumentInfo.Type, resolutionInfo.CurrentScopeName)?.CastToArray();
             if (registrations != null)
             {
-                var regLenght = registrations.Length;
-                var regExpressions = new Expression[regLenght];
-                for (var i = 0; i < regLenght; i++)
+                var regLength = registrations.Length;
+                var regExpressions = new Expression[regLength];
+                for (var i = 0; i < regLength; i++)
                     if (!containerContext.ContainerConfigurator.ContainerConfiguration.CircularDependenciesWithLazyEnabled)
                         regExpressions[i] = Expression.New(lazyConstructor,
                             Expression.Lambda(registrations[i].Value.GetExpression(containerContext, resolutionInfo, lazyArgumentInfo.Type)));

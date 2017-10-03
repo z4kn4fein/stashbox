@@ -21,25 +21,26 @@ namespace Stashbox.Infrastructure.Registration
         /// Retrieves a registration.
         /// </summary>
         /// <param name="type">The requested type.</param>
-        /// <param name="name">The requested name.</param>
         /// <param name="scopeName">The scope name.</param>
+        /// <param name="name">The requested name.</param>
         /// <returns>The registration or null, if it doesn't exist.</returns>
-        IServiceRegistration GetRegistrationOrDefault(Type type, object name = null, object scopeName = null);
+        IServiceRegistration GetRegistrationOrDefault(Type type, object scopeName, object name = null);
 
         /// <summary>
         /// Retrieves a registration.
         /// </summary>
         /// <param name="typeInfo">The type info.</param>
-        /// <param name="checkConditions">Indicates that the operation should check the registration conditions.</param>
+        /// <param name="scopeName">The scope name.</param>
         /// <returns>The registration or null, if it doesn't exist.</returns>
-        IServiceRegistration GetRegistrationOrDefault(TypeInformation typeInfo, bool checkConditions = false);
+        IServiceRegistration GetRegistrationOrDefault(TypeInformation typeInfo, object scopeName);
 
         /// <summary>
         /// Retrieves all registrations for a type.
         /// </summary>
         /// <param name="type">The requested type.</param>
+        /// <param name="scopeName">The scope name.</param>
         /// <returns>The registrations or null, if it doesn't exist.</returns>
-        IEnumerable<KeyValue<object, IServiceRegistration>> GetRegistrationsOrDefault(Type type);
+        IEnumerable<KeyValue<object, IServiceRegistration>> GetRegistrationsOrDefault(Type type, object scopeName);
 
         /// <summary>
         /// Retrieves all registrations.

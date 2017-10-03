@@ -2,6 +2,7 @@
 using Stashbox.Infrastructure.ContainerExtension;
 using Stashbox.Infrastructure.Registration;
 using System;
+using Stashbox.Lifetime;
 
 namespace Stashbox.Registration
 {
@@ -123,6 +124,10 @@ namespace Stashbox.Registration
                 objectBuilder, meta.Context, isDecorator, shouldHandleDisposal);
         }
 
-        private ILifetime ChooseLifeTime(IRegistrationContextMeta meta) => meta.Context.ExistingInstance != null ? null : meta.Context.Lifetime;
+        private ILifetime ChooseLifeTime(IRegistrationContextMeta meta) => meta.Context.ExistingInstance != null 
+            ? null 
+            : meta.Context.UsedScopeName != null
+                ? new ScopedLifetime() 
+                : meta.Context.Lifetime;
     }
 }

@@ -29,7 +29,7 @@ namespace Stashbox.Entity
         public IEnumerable<Attribute> CustomAttributes { get; internal set; }
 
         /// <summary>
-        /// The variable name of the dependency.
+        /// The parameter name of the dependency if it's a param of a method.
         /// </summary>
         public string ParameterName { get; internal set; }
 
