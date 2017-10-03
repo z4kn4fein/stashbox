@@ -108,9 +108,6 @@ namespace Stashbox.Registration
         private bool HasResolutionConditionAndMatch(TypeInformation typeInfo) =>
             this.RegistrationContext.ResolutionCondition != null && this.RegistrationContext.ResolutionCondition(typeInfo);
 
-        private bool MatchScopeName(object scopeName) =>
-            scopeName != null && scopeName == this.RegistrationContext.UsedScopeName;
-
         private static MetaInformation GetOrCreateMetaInfo(Type typeTo)
         {
             var found = MetaRepository.GetOrDefault(typeTo);

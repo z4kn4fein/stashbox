@@ -118,8 +118,6 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                var ext = new Ext();
-                container.RegisterExtension(ext);
                 container.RegisterType<ITest, Test>();
                 object test1 = new Test1();
                 container.WireUp(typeof(Test1), test1);
@@ -131,29 +129,6 @@ namespace Stashbox.Tests
                 Assert.IsInstanceOfType(inst, typeof(Test1));
                 Assert.IsInstanceOfType(inst.Test, typeof(Test));
                 Assert.IsInstanceOfType(inst.test, typeof(Test));
-
-                Assert.IsNotNull(ext.Test);
-                Assert.AreSame(inst, ext.Test);
-            }
-        }
-
-        class Ext : IPostBuildExtension
-        {
-            public Test1 Test { get; private set; }
-
-            public void CleanUp()
-            { }
-
-            public IContainerExtension CreateCopy() => this;
-
-            public void Initialize(IContainerContext containerContext)
-            { }
-
-            public object PostBuild(object instance, IContainerContext containerContext, ResolutionInfo resolutionInfo, IServiceRegistration serviceRegistration, Type requestedType)
-            { 
-                if(requestedType == typeof(Test1))
-                    Test = (Test1)instance;
-                return instance;
             }
         }
 
