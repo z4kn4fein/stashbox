@@ -1,5 +1,10 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
+using Stashbox.Entity;
+using Stashbox.Infrastructure;
+using Stashbox.Infrastructure.ContainerExtension;
+using Stashbox.Infrastructure.Registration;
+using System;
 
 namespace Stashbox.Tests
 {
@@ -28,6 +33,28 @@ namespace Stashbox.Tests
                 container.RegisterType<Test1>();
                 container.RegisterType<ITest, Test>(context => context.WithInitializer((t, resolver) => t.ImplMethod(resolver.Resolve<Test1>())));
                 test = container.Resolve<ITest>();
+            }
+
+            Assert.IsTrue(test.MethodCalled);
+        }
+
+        [TestMethod]
+        public void InitializerTests_With_Post_Build_Extension()
+        {
+            ITest test;
+            using (var container = new StashboxContainer())
+            {
+                var post = new Mock<IPostBuildExtension>();
+
+                post.Setup(p => p.PostBuild(It.IsAny<object>(), container.ContainerContext, It.IsAny<ResolutionInfo>(),
+                    It.IsAny<IServiceRegistration>(), It.IsAny<Type>())).Returns<object, IContainerContext, ResolutionInfo, IServiceRegistration, Type>((o, c, r, sr, t) => o);
+
+                container.RegisterExtension(post.Object);
+                container.RegisterType<Test1>();
+                container.RegisterType<ITest, Test>(context => context.WithInitializer((t, resolver) => t.ImplMethod(resolver.Resolve<Test1>())));
+                test = container.Resolve<ITest>();
+
+                post.Verify(p => p.PostBuild(It.IsAny<object>(), container.ContainerContext, It.IsAny<ResolutionInfo>(), It.IsAny<IServiceRegistration>(), It.IsAny<Type>()), Times.Exactly(2));
             }
 
             Assert.IsTrue(test.MethodCalled);
@@ -239,15 +266,8 @@ namespace Stashbox.Tests
             void Method();
         }
 
-        public interface ITest1
-        {
-            void Init();
-        }
-
         public class Test1
-        {
-
-        }
+        { }
 
         public class Test : ITest
         {

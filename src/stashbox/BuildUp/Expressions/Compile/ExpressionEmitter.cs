@@ -41,7 +41,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
             delegateTarget = null;
             var constants = new Constants();
 
-            if (!expression.TryCollectConstants(constants))
+            if (!expression.TryCollectConstants(constants, parameters))
                 return false;
 
             delegateTarget = DelegateTargetSelector.GetDelegateTarget(constants);
@@ -52,6 +52,22 @@ namespace Stashbox.BuildUp.Expressions.Compile
             if (delegateTarget.Locals.Count > 0)
                 DeclareLocals(generator, delegateTarget, constants);
 
+#if NET45 || NET40
+
+            //var dyn = AppDomain.CurrentDomain.DefineDynamicAssembly(new AssemblyName("Emitted"), AssemblyBuilderAccess.Save, "c:\\temp");
+            //var mod = dyn.DefineDynamicModule("Emitted", "Emitted.dll");
+            //var typ = mod.DefineType("EmittedNS.EmittedType", TypeAttributes.Public);
+
+            //var m = typ.DefineMethod("nojrwonfreonre", MethodAttributes.Public | MethodAttributes.Static, returnType, delegateTarget.Target.GetType().ConcatDelegateTargetParameter(parameters.GetTypes()));
+            //var g = m.GetILGenerator();
+            //if (!expression.TryEmit(delegateTarget, g, parameters))
+            //    return false;
+
+            //g.Emit(OpCodes.Ret);
+
+            //var t = typ.CreateType();
+            //dyn.Save("Emitted.dll");
+#endif
             if (!expression.TryEmit(delegateTarget, generator, parameters))
                 return false;
 
@@ -222,7 +238,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
         private static bool TryEmit(this ParameterExpression expression, DelegateTargetInformation target, ILGenerator generator, params ParameterExpression[] parameters)
         {
             var index = Array.IndexOf(parameters, expression);
-            if (index != -1) return generator.LoadParameter(target == null ? index : index + 1);
+            if (index != -1) return generator.LoadParameter(target.Target == null ? index : index + 1);
 
             if (target.Locals != null)
             {
