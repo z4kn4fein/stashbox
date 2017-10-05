@@ -18,7 +18,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
                 case ExpressionType.Parameter:
 
                     if (Array.IndexOf(parameters, expression) != -1) return true;
-                    this.AddClosureItem(expression, null);
+                    this.AddClosureItem(expression);
                     return true;
 
                 case ExpressionType.Lambda:
