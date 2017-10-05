@@ -7,25 +7,25 @@ namespace Stashbox.Utils
     {
         public static readonly OrderedLinkedStore<TValue> Empty = new OrderedLinkedStore<TValue>();
 
-        private readonly OrderedLinkedStore<TValue> next;
+        public OrderedLinkedStore<TValue> Next { get; }
 
-        private readonly TValue value;
+        public TValue Value { get; }
 
         private OrderedLinkedStore() { }
 
         private OrderedLinkedStore(TValue value, OrderedLinkedStore<TValue> next)
         {
-            this.value = value;
-            this.next = next;
+            this.Value = value;
+            this.Next = next;
         }
 
         public OrderedLinkedStore<TValue> Add(TValue paramValue)
         {
-            return this.next == null ? new OrderedLinkedStore<TValue>(paramValue, Empty) : this.SelfCopy(this.next.Add(paramValue));
+            return this.Next == null ? new OrderedLinkedStore<TValue>(paramValue, Empty) : this.SelfCopy(this.Next.Add(paramValue));
         }
 
         private OrderedLinkedStore<TValue> SelfCopy(OrderedLinkedStore<TValue> nextNode) =>
-            new OrderedLinkedStore<TValue>(this.value, nextNode);
+            new OrderedLinkedStore<TValue>(this.Value, nextNode);
 
         IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 
@@ -43,10 +43,10 @@ namespace Stashbox.Utils
 
             public bool MoveNext()
             {
-                if (this.current == null && this.init.next != null)
+                if (this.current == null && this.init.Next != null)
                     this.current = this.init;
-                else if (this.current?.next != null && this.current.next != Empty)
-                    this.current = this.current.next;
+                else if (this.current?.Next != null && this.current.Next != Empty)
+                    this.current = this.current.Next;
                 else
                     return false;
 
@@ -55,7 +55,7 @@ namespace Stashbox.Utils
 
             public void Reset() => this.current = this.init;
 
-            public TValue Current => this.current.value;
+            public TValue Current => this.current.Value;
 
             object IEnumerator.Current => this.Current;
 
