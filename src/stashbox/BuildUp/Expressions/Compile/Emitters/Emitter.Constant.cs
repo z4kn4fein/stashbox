@@ -47,10 +47,13 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
                 generator.Emit(OpCodes.Ldtoken, type);
                 generator.Emit(OpCodes.Call, typeof(Type).GetMethod("GetTypeFromHandle"));
             }
-            else if (context.Target != null)
+            else if (context.HasClosure)
             {
                 var constantIndex = context.ClosureExpressions.GetIndex(expression);
-                return constantIndex != -1 && generator.LoadConstantFromField(context, constantIndex);
+                if (constantIndex == -1) return false;
+
+                generator.LoadConstantField(context, constantIndex);
+                return true;
             }
             else
                 return false;
@@ -58,12 +61,10 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
             return true;
         }
 
-        private static bool LoadConstantFromField(this ILGenerator generator, CompilerContext context, int constantIndex)
+        private static void LoadConstantField(this ILGenerator generator, CompilerContext context, int constantIndex)
         {
             generator.Emit(OpCodes.Ldarg_0);
             generator.Emit(OpCodes.Ldfld, context.Target.Fields[constantIndex]);
-
-            return true;
         }
     }
 }

@@ -10,21 +10,25 @@ namespace Stashbox.BuildUp.Expressions.Compile
 {
     internal class DynamicModule
     {
-        public static readonly Lazy<ModuleBuilder> ModuleBuilder = new Lazy<ModuleBuilder>(() =>
-            CreateAssembly().DefineDynamicModule("Stashbox.Dynamic"));
-
-        private static AssemblyBuilder CreateAssembly()
-        {
 #if NETSTANDARD1_3
-            return AssemblyBuilder.DefineDynamicAssembly(
-                 new AssemblyName("Stashbox.Dynamic"),
-                 AssemblyBuilderAccess.Run);
+        public static readonly Lazy<ModuleBuilder> ModuleBuilder = new Lazy<ModuleBuilder>(() =>
+            DynamicAssemblyBuilder.Value.DefineDynamicModule("Stashbox.Dynamic"));
 #else
-            return AppDomain.CurrentDomain.DefineDynamicAssembly(
-                 new AssemblyName("Stashbox.Dynamic"),
-                 AssemblyBuilderAccess.Run);
+        public static readonly Lazy<ModuleBuilder> ModuleBuilder = new Lazy<ModuleBuilder>(() =>
+            DynamicAssemblyBuilder.Value.DefineDynamicModule("Stashbox.Dynamic", "Stashbox.Dynamic.dll"));
 #endif
-        }
+
+#if NETSTANDARD1_3
+        public static readonly Lazy<AssemblyBuilder> DynamicAssemblyBuilder = new Lazy<AssemblyBuilder>(() =>
+            AssemblyBuilder.DefineDynamicAssembly(
+                new AssemblyName("Stashbox.Dynamic"),
+                AssemblyBuilderAccess.Run));
+#else
+        public static readonly Lazy<AssemblyBuilder> DynamicAssemblyBuilder = new Lazy<AssemblyBuilder>(() =>
+            AppDomain.CurrentDomain.DefineDynamicAssembly(
+                new AssemblyName("Stashbox.Dynamic"),
+                AssemblyBuilderAccess.RunAndSave, "c:\\temp"));
+#endif
 
         private static int typeCounter;
 
@@ -55,7 +59,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
             }
 
             var fields = new FieldInfo[length];
-            var typeBuilder = ModuleBuilder.Value.DefineType("DT" + Interlocked.Increment(ref typeCounter), TypeAttributes.Public);
+            var typeBuilder = ModuleBuilder.Value.DefineType("Stashbox.Dynamic.DT" + Interlocked.Increment(ref typeCounter), TypeAttributes.Public);
 
             if (length > 0)
             {

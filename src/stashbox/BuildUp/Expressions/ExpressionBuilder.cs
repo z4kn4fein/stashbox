@@ -53,7 +53,12 @@ namespace Stashbox.BuildUp.Expressions
                 return null;
 
             if (serviceRegistration.MetaInformation.InjectionMembers.Length > 0)
-                initExpression = Expression.MemberInit((NewExpression)initExpression, this.GetMemberBindings(containerContext, serviceRegistration, resolutionInfo));
+            {
+                var bindings = this.GetMemberBindings(containerContext, serviceRegistration, resolutionInfo);
+                if (bindings.Count > 0)
+                    initExpression = Expression.MemberInit((NewExpression)initExpression,
+                        this.GetMemberBindings(containerContext, serviceRegistration, resolutionInfo));
+            }
 
             if (serviceRegistration.MetaInformation.InjectionMethods.Length > 0 || serviceRegistration.RegistrationContext.Initializer != null || this.containerExtensionManager.HasPostBuildExtensions)
             {
@@ -177,7 +182,7 @@ namespace Stashbox.BuildUp.Expressions
                 this.CreateMethodExpressions(containerContext, serviceRegistration, resolutionInfo, instance, expressions);
 
             if (serviceRegistration.RegistrationContext.Initializer != null)
-                expressions[expressions.Length - (this.containerExtensionManager.HasPostBuildExtensions ? 2 : 1)] = Expression.Call(Expression.Constant(serviceRegistration.RegistrationContext.Initializer), 
+                expressions[expressions.Length - (this.containerExtensionManager.HasPostBuildExtensions ? 2 : 1)] = Expression.Call(Expression.Constant(serviceRegistration.RegistrationContext.Initializer),
                     serviceRegistration.RegistrationContext.Initializer.GetType().GetSingleMethod("Invoke"), instance, Expression.Convert(Constants.ScopeExpression, Constants.ResolverType));
 
             if (this.containerExtensionManager.HasPostBuildExtensions)
@@ -245,7 +250,7 @@ namespace Stashbox.BuildUp.Expressions
             }
         }
 
-        private IEnumerable<MemberBinding> GetMemberBindings(IContainerContext containerContext, IServiceRegistration serviceRegistration, ResolutionInfo resolutionInfo)
+        private IList<MemberBinding> GetMemberBindings(IContainerContext containerContext, IServiceRegistration serviceRegistration, ResolutionInfo resolutionInfo)
         {
             var length = serviceRegistration.MetaInformation.InjectionMembers.Length;
             var members = new List<MemberBinding>();

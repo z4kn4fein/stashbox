@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -17,17 +18,20 @@ namespace Stashbox.BuildUp.Expressions.Compile
             {
                 case ExpressionType.Parameter:
 
-                    if (Array.IndexOf(parameters, expression) != -1) return true;
+                    if (parameters.GetIndex(expression) != -1) return true;
                     this.AddClosureItem(expression);
                     return true;
 
                 case ExpressionType.Lambda:
                     var lambda = (LambdaExpression)expression;
-                    if (!this.Analyze(lambda.Parameters, parameters))
+
+                    var analyzer = new TreeAnalyzer();
+                    if (!analyzer.Analyze(lambda.Body, lambda.Parameters.CastToArray()))
                         return false;
 
-                    if (!this.Analyze(lambda.Body, parameters))
-                        return false;
+                    var length = analyzer.ClosureExpressions.Length;
+                    for (var i = 0; i < length; i++)
+                        this.AddClosureItem(analyzer.ClosureExpressions[i], analyzer.ClosureObjects[i]);
 
                     this.AddClosureItem(lambda);
                     return true;

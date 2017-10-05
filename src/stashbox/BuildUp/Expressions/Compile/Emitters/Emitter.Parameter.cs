@@ -9,14 +9,21 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
     {
         private static bool TryEmit(this ParameterExpression expression, ILGenerator generator, CompilerContext context, params ParameterExpression[] parameters)
         {
-            var index = Array.IndexOf(parameters, expression);
-            if (index != -1) return generator.LoadParameter(context.Target == null ? index : index + 1);
+            var index = parameters.GetIndex(expression);
+            if (index != -1)
+            {
+                generator.LoadParameter(context.HasClosure ? index + 1 : index);
+                return true;
+            }
 
             var constantIndex = context.ClosureExpressions.GetIndex(expression);
-            return constantIndex != -1 && generator.LoadConstantFromField(context, constantIndex);
+            if (constantIndex == -1) return false;
+
+            generator.LoadConstantField(context, constantIndex);
+            return true;
         }
 
-        private static bool LoadParameter(this ILGenerator generator, int index)
+        private static void LoadParameter(this ILGenerator generator, int index)
         {
             switch (index)
             {
@@ -39,8 +46,6 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
                         generator.Emit(OpCodes.Ldarg, index);
                     break;
             }
-
-            return true;
         }
     }
 }

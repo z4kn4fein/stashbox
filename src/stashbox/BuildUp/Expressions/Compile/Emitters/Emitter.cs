@@ -1,4 +1,5 @@
 ﻿#if NET45 || NET40 || NETSTANDARD1_3
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection.Emit;
@@ -7,7 +8,7 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
 {
     internal static partial class Emitter
     {
-        private static bool TryEmit(this Expression expression, ILGenerator generator, CompilerContext context, params ParameterExpression[] parameters)
+        public static bool TryEmit(this Expression expression, ILGenerator generator, CompilerContext context, params ParameterExpression[] parameters)
         {
             switch (expression.NodeType)
             {
@@ -49,6 +50,46 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
             }
 
             return false;
+        }
+        
+        public static DynamicMethod CreateDynamicMethod(CompilerContext context, Type returnType, params ParameterExpression[] parameters)
+        {
+            if (context.Target == null)
+                return new DynamicMethod(string.Empty, returnType, parameters.GetTypes(), typeof(ExpressionEmitter), true);
+
+            var targetType = context.Target.TargetType;
+            return new DynamicMethod(string.Empty, returnType, targetType.ConcatDelegateTargetParameter(parameters.GetTypes()), targetType, true);
+        }
+
+        public static Type[] GetTypes(this IList<ParameterExpression> parameters)
+        {
+            var count = parameters.Count;
+            if (count == 0)
+                return Stashbox.Constants.EmptyTypes;
+            if (count == 1)
+                return new[] { parameters[0].Type };
+
+            var types = new Type[count];
+            for (var i = 0; i < count; i++)
+                types[i] = parameters[i].Type;
+            return types;
+        }
+
+        public static Type[] ConcatDelegateTargetParameter(this Type targetType, Type[] parameters)
+        {
+            var count = parameters.Length;
+            if (count == 0)
+                return new[] { targetType };
+
+            var types = new Type[count + 1];
+            types[0] = targetType;
+
+            if (count == 1)
+                types[1] = parameters[0];
+            if (count > 1)
+                Array.Copy(parameters, 0, types, 1, count);
+
+            return types;
         }
 
         private static bool TryEmit(this IList<Expression> expressions, ILGenerator generator, CompilerContext context, params ParameterExpression[] parameters)

@@ -1,9 +1,11 @@
 ﻿#if NET45 || NET40 || NETSTANDARD1_3
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
+using Stashbox.BuildUp.Expressions.Compile.Emitters;
 
 namespace Stashbox.BuildUp.Expressions.Compile
 {
@@ -31,8 +33,56 @@ namespace Stashbox.BuildUp.Expressions.Compile
         private static readonly MethodInfo DelegateTargetProperty = typeof(Delegate).GetProperty("Target").GetGetMethod();
 #endif
 
-        public static bool TryEmit(this Expression expression, out Delegate resultDelegate, Type delegateType, Type returnType, params ParameterExpression[] parameters) =>
-            expression.TryEmit(delegateType, returnType, out resultDelegate, out DelegateTargetInformation delegateTarget, parameters);
+        //public static bool TryEmit(this Expression expression, out Delegate resultDelegate, Type delegateType, Type returnType, params ParameterExpression[] parameters) =>
+        //    expression.TryEmit(delegateType, returnType, out resultDelegate, out DelegateTargetInformation delegateTarget, parameters);
+
+        public static bool TryEmit(this Expression expression, out Delegate resultDelegate, Type delegateType,
+            Type returnType, params ParameterExpression[] parameters)
+        {
+            resultDelegate = null;
+
+            var analyzer = new TreeAnalyzer();
+            if (!analyzer.Analyze(expression, parameters))
+                return false;
+
+            var targetType = DynamicModule.GetDelegateTargetOrDefault(analyzer.ClosureExpressions, analyzer.ClosureObjects);
+            var delegateTarget = targetType != null
+                ? new DelegateTarget(targetType.GetTypeInfo().DeclaredFields.CastToArray(), targetType, Activator.CreateInstance(targetType, analyzer.ClosureObjects))
+                : null;
+
+            var context = new CompilerContext(analyzer.ClosureExpressions, delegateTarget);
+
+#if NET45 || NET40
+
+            //var typ = DynamicModule.ModuleBuilder.Value.DefineType("Stashbox.Dynamic.EmittedType", TypeAttributes.Public);
+
+            //var m = typ.DefineMethod("nojrwonfreonre", MethodAttributes.Public | MethodAttributes.Static, returnType, delegateTarget == null ? parameters.GetTypes() : delegateTarget.Target.GetType().ConcatDelegateTargetParameter(parameters.GetTypes()));
+            //var g = m.GetILGenerator();
+            //if (!expression.TryEmit(g, context, parameters))
+            //    return false;
+
+            //g.Emit(OpCodes.Ret);
+
+            //var t = typ.CreateType();
+            //DynamicModule.DynamicAssemblyBuilder.Value.Save("Stashbox.Dynamic.dll");
+#endif
+
+
+
+            var method = Emitter.CreateDynamicMethod(context, returnType, parameters);
+            var generator = method.GetILGenerator();
+
+            if (!expression.TryEmit(generator, context, parameters))
+                return false;
+            
+            generator.Emit(OpCodes.Ret);
+
+            resultDelegate = context.HasClosure
+                ? method.CreateDelegate(delegateType, context.Target.Target)
+                : method.CreateDelegate(delegateType);
+
+            return true;
+        }
 
         public static bool TryEmit(this Expression expression, Type delegateType, Type returnType,
             out Delegate resultDelegate, out DelegateTargetInformation delegateTarget, params ParameterExpression[] parameters)
@@ -76,7 +126,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
             resultDelegate = delegateTarget.Target == null ? method.CreateDelegate(delegateType) : method.CreateDelegate(delegateType, delegateTarget.Target);
             return true;
         }
-
+        
         private static DynamicMethod CreateDynamicMethod(DelegateTargetInformation target, Type returnType, params ParameterExpression[] parameters)
         {
             if (target.Target == null)

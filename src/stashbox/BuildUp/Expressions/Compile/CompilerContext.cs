@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿using System;
+using System.Linq.Expressions;
 using System.Reflection;
 
 namespace Stashbox.BuildUp.Expressions.Compile
@@ -7,11 +8,14 @@ namespace Stashbox.BuildUp.Expressions.Compile
     {
         public FieldInfo[] Fields { get; }
 
+        public Type TargetType { get; }
+
         public object Target { get; }
 
-        public DelegateTarget(FieldInfo[] fields, object target)
+        public DelegateTarget(FieldInfo[] fields, Type targetType, object target)
         {
             this.Fields = fields;
+            this.TargetType = targetType;
             this.Target = target;
         }
     }
@@ -27,5 +31,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
             this.ClosureExpressions = closureExpressions;
             this.Target = target;
         }
+
+        public bool HasClosure => Target != null;
     }
 }

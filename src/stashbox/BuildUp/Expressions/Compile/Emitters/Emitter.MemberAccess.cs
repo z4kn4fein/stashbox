@@ -8,13 +8,8 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
 {
     internal static partial class Emitter
     {
-        private static bool TryEmit(this MemberExpression expression, ILGenerator generator, CompilerContext context, params ParameterExpression[] parameters)
-        {
-            if (!expression.Expression.TryEmit(generator, context, parameters))
-                return false;
-
-            return expression.Member.EmitMemberAccess(generator);
-        }
+        private static bool TryEmit(this MemberExpression expression, ILGenerator generator, CompilerContext context, params ParameterExpression[] parameters) =>
+            expression.Expression.TryEmit(generator, context, parameters) && expression.Member.EmitMemberAccess(generator);
 
         private static bool EmitMemberAssign(this MemberInfo member, ILGenerator generator)
         {
