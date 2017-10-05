@@ -65,7 +65,7 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
         {
             var count = parameters.Count;
             if (count == 0)
-                return Stashbox.Constants.EmptyTypes;
+                return Constants.EmptyTypes;
             if (count == 1)
                 return new[] { parameters[0].Type };
 

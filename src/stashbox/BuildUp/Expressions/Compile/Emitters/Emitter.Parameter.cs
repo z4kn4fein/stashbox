@@ -23,7 +23,7 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
             return true;
         }
 
-        private static void LoadParameter(this ILGenerator generator, int index)
+        public static void LoadParameter(this ILGenerator generator, int index)
         {
             switch (index)
             {

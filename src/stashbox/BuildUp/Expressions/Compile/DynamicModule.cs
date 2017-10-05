@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Threading;
+using Stashbox.BuildUp.Expressions.Compile.Emitters;
 
 namespace Stashbox.BuildUp.Expressions.Compile
 {
@@ -15,7 +16,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
             DynamicAssemblyBuilder.Value.DefineDynamicModule("Stashbox.Dynamic"));
 #else
         public static readonly Lazy<ModuleBuilder> ModuleBuilder = new Lazy<ModuleBuilder>(() =>
-            DynamicAssemblyBuilder.Value.DefineDynamicModule("Stashbox.Dynamic", "Stashbox.Dynamic.dll"));
+            DynamicAssemblyBuilder.Value.DefineDynamicModule("Stashbox.Dynamic"));
 #endif
 
 #if NETSTANDARD1_3
@@ -27,7 +28,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
         public static readonly Lazy<AssemblyBuilder> DynamicAssemblyBuilder = new Lazy<AssemblyBuilder>(() =>
             AppDomain.CurrentDomain.DefineDynamicAssembly(
                 new AssemblyName("Stashbox.Dynamic"),
-                AssemblyBuilderAccess.RunAndSave, "c:\\temp"));
+                AssemblyBuilderAccess.Run));
 #endif
 
         private static int typeCounter;
