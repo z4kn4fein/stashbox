@@ -20,7 +20,7 @@ namespace Stashbox.Tests
             Assert.IsInstanceOfType(inst, typeof(Lazy<ITest>));
             Assert.IsInstanceOfType(inst.Value, typeof(Test));
         }
-
+        
         [TestMethod]
         public void LazyTests_Resolve_Null()
         {
@@ -41,6 +41,20 @@ namespace Stashbox.Tests
             Assert.IsFalse(inst.IsValueCreated);
             Assert.IsInstanceOfType(inst, typeof(Lazy<Func<ITest>>));
             Assert.IsInstanceOfType(inst.Value(), typeof(Test));
+        }
+
+        [TestMethod]
+        public void LazyTests_Resolve_Func_Param()
+        {
+            var container = new StashboxContainer(config => config.WithCircularDependencyWithLazy());
+            container.RegisterType<ITest2, Test3>();
+            var inst = container.Resolve<Lazy<Func<int, Lazy<ITest2>>>>();
+
+            Assert.IsNotNull(inst);
+            Assert.IsFalse(inst.IsValueCreated);
+            Assert.IsInstanceOfType(inst, typeof(Lazy<Func<int, Lazy<ITest2>>>));
+            Assert.IsInstanceOfType(inst.Value(5).Value, typeof(Test3));
+            Assert.AreEqual(5, inst.Value(5).Value.T);
         }
 
         [TestMethod]
@@ -167,6 +181,21 @@ namespace Stashbox.Tests
 
         public class Test : ITest
         { }
+
+        public interface ITest2
+        {
+            int T { get; }
+        }
+
+        public class Test3 : ITest2
+        {
+            public Test3(int t)
+            {
+                this.T = t;
+            }
+
+            public int T { get; }
+        }
 
         public class Test2
         {

@@ -74,13 +74,21 @@ namespace Stashbox.BuildUp.Resolution
 
         private static Expression CreateLazyExpressionCall(IContainerContext containerContext, IServiceRegistration serviceRegistration, Type type, ConstructorInfo constructor, ResolutionInfo resolutionInfo)
         {
+            var arguments = resolutionInfo.ParameterExpressions != null
+                ? new Expression[resolutionInfo.ParameterExpressions.Length]
+                : new Expression[0];
+
+            if (resolutionInfo.ParameterExpressions != null)
+                for (var i = 0; i < resolutionInfo.ParameterExpressions.Length; i++)
+                    arguments[i] = Expression.Convert(resolutionInfo.ParameterExpressions[i], typeof(object));
+
             var callExpression = Expression.Call(DelegateCacheMethod,
                 Expression.Constant(containerContext),
                 Expression.Constant(serviceRegistration),
                 Expression.Constant(resolutionInfo),
                 Expression.Constant(type),
-                Expression.NewArrayInit(typeof(object),
-                resolutionInfo.ParameterExpressions?.OfType<Expression>() ?? new Expression[] { }));
+                Expression.NewArrayInit(typeof(object), 
+                arguments));
 
             var convert = Expression.Convert(callExpression, type);
             return Expression.New(constructor, Expression.Lambda(convert));
