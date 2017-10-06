@@ -43,6 +43,9 @@ namespace Stashbox.Registration
         /// <inheritdoc />
         public int RegistrationNumber { get; }
 
+        /// <inheritdoc />
+        public bool HasScopeName => this.RegistrationContext.UsedScopeName != null;
+
         internal ServiceRegistration(Type serviceType, Type implementationType, IContainerConfigurator containerConfigurator,
              IObjectBuilder objectBuilder, RegistrationContextData registrationContextData,
              bool isDecorator, bool shouldHandleDisposal)
@@ -97,6 +100,8 @@ namespace Stashbox.Registration
 
             return member.TypeInformation.ForcedDependency;
         }
+
+        public bool CanInjectIntoNamedScope(object scopeName) => this.RegistrationContext.UsedScopeName == scopeName;
 
         private bool HasParentTypeConditionAndMatch(TypeInformation typeInfo) =>
             this.RegistrationContext.TargetTypeCondition != null && typeInfo.ParentType != null && this.RegistrationContext.TargetTypeCondition == typeInfo.ParentType;

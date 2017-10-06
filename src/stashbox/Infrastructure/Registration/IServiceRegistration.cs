@@ -47,6 +47,11 @@ namespace Stashbox.Infrastructure.Registration
         bool IsDecorator { get; }
 
         /// <summary>
+        /// True if the registration is restricted to a named scope.
+        /// </summary>
+        bool HasScopeName { get; }
+
+        /// <summary>
         /// True if the registration contains a disposable service which should be tracked.
         /// </summary>
         bool ShouldHandleDisposal { get; }
@@ -80,5 +85,12 @@ namespace Stashbox.Infrastructure.Registration
         /// <param name="member">The member info to inject.</param>
         /// <returns>True if the member could be injected, otherwise false.</returns>
         bool CanInjectMember(MemberInformation member);
+
+        /// <summary>
+        /// Checks that the registration can be injected into a named scope.
+        /// </summary>
+        /// <param name="scopeName">The scope name.</param>
+        /// <returns>True if the registration could be injected into a named scope, otherwise false.</returns>
+        bool CanInjectIntoNamedScope(object scopeName);
     }
 }

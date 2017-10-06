@@ -218,10 +218,10 @@ namespace Stashbox.BuildUp.Expressions
                     var propExpression = Expression.Property(instance, prop);
                     expressions.Add(Expression.Assign(propExpression, expression));
                 }
-                else if (member.MemberInfo is FieldInfo field)
+                else
                 {
-                    var propExpression = Expression.Field(instance, field);
-                    expressions.Add(Expression.Assign(propExpression, expression));
+                    var fieldExpression = Expression.Field(instance, member.MemberInfo as FieldInfo);
+                    expressions.Add(Expression.Assign(fieldExpression, expression));
                 }
             }
 

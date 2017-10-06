@@ -1,5 +1,6 @@
 ﻿using Stashbox.Entity;
 using Stashbox.Infrastructure.Registration;
+using Stashbox.Registration.Extensions;
 using Stashbox.Utils;
 using System;
 using System.Collections.Generic;
@@ -10,31 +11,29 @@ namespace Stashbox.Registration
     internal class RegistrationRepository : IRegistrationRepository
     {
         private readonly ConcurrentTree<Type, ConcurrentOrderedKeyStore<object, IServiceRegistration>> serviceRepository;
+        private readonly ConcurrentTree<Type, ConcurrentOrderedKeyStore<object, IServiceRegistration>> namedScopeRepository;
 
         public RegistrationRepository()
         {
             this.serviceRepository = new ConcurrentTree<Type, ConcurrentOrderedKeyStore<object, IServiceRegistration>>();
+            this.namedScopeRepository = new ConcurrentTree<Type, ConcurrentOrderedKeyStore<object, IServiceRegistration>>();
         }
 
         public void AddOrUpdateRegistration(IServiceRegistration registration, bool remap, bool replace)
         {
-            var newRepository = new ConcurrentOrderedKeyStore<object, IServiceRegistration>();
-            newRepository.AddOrUpdate(registration.RegistrationContext.Name, registration);
-
-            if (remap)
-                this.serviceRepository.AddOrUpdate(registration.ServiceType, newRepository, (oldValue, newValue) => newValue);
+            if (registration.HasScopeName)
+                this.namedScopeRepository.AddOrUpdateRegistration(registration, remap, replace);
             else
-                this.serviceRepository.AddOrUpdate(registration.ServiceType, newRepository,
-                    (oldValue, newValue) => oldValue.AddOrUpdate(registration.RegistrationContext.Name, registration, replace));
+                this.serviceRepository.AddOrUpdateRegistration(registration, remap, replace);
         }
 
         public IServiceRegistration GetRegistrationOrDefault(Type type, object scopeName, object name = null) =>
-            name != null ? this.GetNamedRegistrationOrDefault(type, name) : this.GetDefaultRegistrationOrDefault(type, scopeName);
+            name != null ? this.GetNamedRegistrationOrDefault(type, name, scopeName) : this.GetDefaultRegistrationOrDefault(type, scopeName);
 
         public IServiceRegistration GetRegistrationOrDefault(TypeInformation typeInfo, object scopeName)
         {
             return typeInfo.DependencyName != null ?
-                this.GetNamedRegistrationOrDefault(typeInfo.Type, typeInfo.DependencyName) :
+                this.GetNamedRegistrationOrDefault(typeInfo.Type, typeInfo.DependencyName, scopeName) :
                 this.GetDefaultRegistrationOrDefault(typeInfo, scopeName);
         }
 
@@ -51,31 +50,25 @@ namespace Stashbox.Registration
         }
 
         public IEnumerable<IServiceRegistration> GetAllRegistrations() =>
-            this.serviceRepository.SelectMany(reg => reg);
+            this.serviceRepository.SelectMany(reg => reg).Concat(this.namedScopeRepository.SelectMany(reg => reg));
 
         public bool ContainsRegistration(Type type, object name)
         {
-            var registrations = this.serviceRepository.GetOrDefault(type);
-            if (name != null && registrations != null)
-                return registrations.GetOrDefault(name) != null;
+            if (!this.serviceRepository.ContainsRegistration(type, name))
+                return this.namedScopeRepository.ContainsRegistration(type, name);
 
-            if (registrations != null || !type.IsClosedGenericType()) return registrations != null;
-
-            registrations = this.serviceRepository.GetOrDefault(type.GetGenericTypeDefinition());
-            return registrations?.Any(reg => reg.ValidateGenericContraints(type)) ?? false;
+            return true;
         }
 
-        private IServiceRegistration GetNamedRegistrationOrDefault(Type type, object dependencyName)
+        private IServiceRegistration GetNamedRegistrationOrDefault(Type type, object dependencyName, object scopeName)
         {
-            var registrations = this.GetDefaultRegistrationsOrDefault(type);
+            var registrations = this.GetDefaultRegistrationsOrDefault(type, scopeName);
             return registrations?.GetOrDefault(dependencyName);
         }
 
         private IServiceRegistration GetDefaultRegistrationOrDefault(TypeInformation typeInfo, object scopeName)
         {
-            var registrations = scopeName == null
-                ? this.GetDefaultRegistrationsOrDefault(typeInfo.Type)
-                : this.GetScopedRegistrationsOrDefault(typeInfo.Type, scopeName);
+            var registrations = this.GetDefaultRegistrationsOrDefault(typeInfo.Type, scopeName);
 
             if (registrations == null) return null;
 
