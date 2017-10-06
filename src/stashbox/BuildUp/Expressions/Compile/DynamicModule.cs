@@ -35,15 +35,10 @@ namespace Stashbox.BuildUp.Expressions.Compile
 
         private static readonly ConcurrentTree<Type> TargetTypes = new ConcurrentTree<Type>();
 
-        public static Type GetDelegateTargetOrDefault(Expression[] expressions, object[] objects)
-        {
-            if (expressions.Length > 0)
-                return GetOrAddTargetType(expressions, objects);
+        public static Type GetDelegateTargetOrDefault(Expression[] expressions) =>
+            expressions.Length > 0 ? GetOrAddTargetType(expressions) : null;
 
-            return null;
-        }
-
-        private static Type GetOrAddTargetType(Expression[] expressions, object[] objects)
+        private static Type GetOrAddTargetType(Expression[] expressions)
         {
             var length = expressions.Length;
             var types = new Type[length];
@@ -93,7 +88,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
                 var generator = constructor.GetILGenerator();
 
                 generator.Emit(OpCodes.Ldarg_0);
-                generator.Emit(OpCodes.Call, Stashbox.Constants.ObjectConstructor);
+                generator.Emit(OpCodes.Call, Constants.ObjectConstructor);
 
                 for (var i = 0; i < length; i++)
                 {

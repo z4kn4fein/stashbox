@@ -41,7 +41,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
 
                 case ExpressionType.Constant:
                     var constant = (ConstantExpression)expression;
-                    if (constant.Value == null || this.IsInPlaceEmittableConstant(constant.Type, constant.Value)) return true;
+                    if (constant.Value == null || IsInPlaceEmittableConstant(constant.Type, constant.Value)) return true;
                     this.AddClosureItem(constant, constant.Value);
                     return true;
 
@@ -132,12 +132,12 @@ namespace Stashbox.BuildUp.Expressions.Compile
             this.ClosureObjects = this.ClosureObjects.AddElement(value);
         }
 
-        private bool IsInPlaceEmittableConstant(Type type, object value)
+        private static bool IsInPlaceEmittableConstant(Type type, object value)
         {
             var typeInfo = type.GetTypeInfo();
             return typeInfo.IsPrimitive || typeInfo.IsEnum
-                   || (value is string)
-                   || (value is Type);
+                   || value is string
+                   || value is Type;
         }
     }
 }

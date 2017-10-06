@@ -19,7 +19,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
             if (!analyzer.Analyze(expression, parameters))
                 return false;
 
-            var targetType = DynamicModule.GetDelegateTargetOrDefault(analyzer.ClosureExpressions, analyzer.ClosureObjects);
+            var targetType = DynamicModule.GetDelegateTargetOrDefault(analyzer.ClosureExpressions);
             var delegateTarget = targetType != null
                 ? new DelegateTarget(targetType.GetTypeInfo().DeclaredFields.CastToArray(), targetType, Activator.CreateInstance(targetType, analyzer.ClosureObjects))
                 : null;
