@@ -183,7 +183,7 @@ namespace Stashbox.BuildUp.Expressions
 
             if (serviceRegistration.RegistrationContext.Initializer != null)
                 expressions[expressions.Length - (this.containerExtensionManager.HasPostBuildExtensions ? 2 : 1)] = Expression.Call(Expression.Constant(serviceRegistration.RegistrationContext.Initializer),
-                    serviceRegistration.RegistrationContext.Initializer.GetType().GetSingleMethod("Invoke"), instance, Expression.Convert(Constants.ScopeExpression, Constants.ResolverType));
+                    serviceRegistration.RegistrationContext.Initializer.GetType().GetSingleMethod("Invoke"), instance, Expression.Convert(resolutionInfo.CurrentScopeParameter, Constants.ResolverType));
 
             if (this.containerExtensionManager.HasPostBuildExtensions)
             {

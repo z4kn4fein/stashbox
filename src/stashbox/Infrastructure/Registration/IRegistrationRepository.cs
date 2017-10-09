@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Stashbox.Entity;
+using System;
 using System.Collections.Generic;
-using Stashbox.Entity;
 
 namespace Stashbox.Infrastructure.Registration
 {
@@ -21,26 +21,26 @@ namespace Stashbox.Infrastructure.Registration
         /// Retrieves a registration.
         /// </summary>
         /// <param name="type">The requested type.</param>
-        /// <param name="scopeName">The scope name.</param>
+        /// <param name="scopeNames">The scope names info.</param>
         /// <param name="name">The requested name.</param>
         /// <returns>The registration or null, if it doesn't exist.</returns>
-        IServiceRegistration GetRegistrationOrDefault(Type type, object scopeName, object name = null);
+        IServiceRegistration GetRegistrationOrDefault(Type type, ISet<string> scopeNames = null, object name = null);
 
         /// <summary>
         /// Retrieves a registration.
         /// </summary>
         /// <param name="typeInfo">The type info.</param>
-        /// <param name="scopeName">The scope name.</param>
+        /// <param name="scopeNames">The scope names info.</param>
         /// <returns>The registration or null, if it doesn't exist.</returns>
-        IServiceRegistration GetRegistrationOrDefault(TypeInformation typeInfo, object scopeName);
+        IServiceRegistration GetRegistrationOrDefault(TypeInformation typeInfo, ISet<string> scopeNames);
 
         /// <summary>
         /// Retrieves all registrations for a type.
         /// </summary>
         /// <param name="type">The requested type.</param>
-        /// <param name="scopeName">The scope name.</param>
+        /// <param name="scopeNames">The scope names info.</param>
         /// <returns>The registrations or null, if it doesn't exist.</returns>
-        IEnumerable<KeyValue<object, IServiceRegistration>> GetRegistrationsOrDefault(Type type, object scopeName);
+        IEnumerable<KeyValue<object, IServiceRegistration>> GetRegistrationsOrDefault(Type type, ISet<string> scopeNames = null);
 
         /// <summary>
         /// Retrieves all registrations.

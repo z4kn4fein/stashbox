@@ -48,6 +48,9 @@ namespace Stashbox
         /// <inheritdoc />
         public object Name { get; }
 
+        /// <inheritdoc />
+        public IResolutionScope ParentScope { get; }
+
         public ResolutionScope(IActivationContext activationContext, IServiceRegistrator serviceRegistrator,
             IExpressionBuilder expressionBuilder, IContainerContext containerContext, object name = null)
         {
@@ -62,13 +65,15 @@ namespace Stashbox
             this.containerContext = containerContext;
             this.Name = name;
             this.RootScope = this;
+            this.ParentScope = this;
         }
 
-        public ResolutionScope(IActivationContext activationContext, IServiceRegistrator serviceRegistrator,
-            IExpressionBuilder expressionBuilder, IContainerContext containerContext, IResolutionScope rootScope, object name = null)
+        public ResolutionScope(IActivationContext activationContext, IServiceRegistrator serviceRegistrator, IExpressionBuilder expressionBuilder,
+            IContainerContext containerContext, IResolutionScope rootScope, IResolutionScope parent, object name = null)
             : this(activationContext, serviceRegistrator, expressionBuilder, containerContext, name)
         {
             this.RootScope = rootScope;
+            this.ParentScope = parent;
         }
 
         public object Resolve(Type typeFrom, bool nullResultAllowed = false) =>
@@ -87,7 +92,7 @@ namespace Stashbox
             this.activationContext.ActivateFactory(typeFrom, parameterTypes, this, name, nullResultAllowed);
 
         public IDependencyResolver BeginScope(object name = null) => new ResolutionScope(this.activationContext, this.serviceRegistrator,
-            this.expressionBuilder, this.containerContext, this.RootScope, name);
+            this.expressionBuilder, this.containerContext, this.RootScope, this, name);
 
         public IDependencyResolver PutInstanceInScope(Type typeFrom, object instance, bool withoutDisposalTracking = false)
         {
@@ -106,9 +111,10 @@ namespace Stashbox
         {
             var typeTo = instance.GetType();
             var registration = this.serviceRegistrator.PrepareContext(typeTo, typeTo);
+            var resolutionInfo = ResolutionInfo.New(this);
             var expr = this.expressionBuilder.CreateFillExpression(this.containerContext, registration.CreateServiceRegistration(false),
                 Expression.Constant(instance), ResolutionInfo.New(this), typeTo);
-            var factory = expr.CompileDelegate(Constants.ScopeExpression);
+            var factory = expr.CompileDelegate(resolutionInfo.CurrentScopeParameter);
             return (TTo)factory(this);
         }
 

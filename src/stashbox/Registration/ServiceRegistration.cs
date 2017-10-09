@@ -5,6 +5,7 @@ using Stashbox.Infrastructure.Registration;
 using Stashbox.MetaInfo;
 using Stashbox.Utils;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -80,10 +81,10 @@ namespace Stashbox.Registration
             this.MetaInformation.GenericTypeConstraints.Count == 0 || this.MetaInformation.ValidateGenericContraints(type);
 
         /// <inheritdoc />
-        public Expression GetExpression(IContainerContext containerContext, ResolutionInfo resolutionInfo, Type resolveType) =>
-            this.RegistrationContext.Lifetime == null || this.ServiceType.IsOpenGenericType() ?
-                this.objectBuilder.GetExpression(containerContext, this, this.RegistrationContext.DefinedScopeName == null ? resolutionInfo : resolutionInfo.CreateNew(scopeName: this.RegistrationContext.DefinedScopeName), resolveType) :
-                this.RegistrationContext.Lifetime.GetExpression(containerContext, this, this.objectBuilder, this.RegistrationContext.DefinedScopeName == null ? resolutionInfo : resolutionInfo.CreateNew(scopeName: this.RegistrationContext.DefinedScopeName), resolveType);
+        public Expression GetExpression(IContainerContext containerContext, ResolutionInfo resolutionInfo, Type resolveType)
+        {
+
+        }
 
         /// <inheritdoc />
         public bool CanInjectMember(MemberInformation member)
@@ -101,7 +102,13 @@ namespace Stashbox.Registration
             return member.TypeInformation.ForcedDependency;
         }
 
-        public bool CanInjectIntoNamedScope(object scopeName) => this.RegistrationContext.UsedScopeName == scopeName;
+        /// <inheritdoc />
+        public bool CanInjectIntoNamedScope(ISet<string> scopeNames) => scopeNames.Contains(this.RegistrationContext.UsedScopeName);
+
+        private Expression GetExpressionInternal(IContainerContext containerContext, ResolutionInfo resolutionInfo, Type resolveType) =>
+            this.RegistrationContext.Lifetime == null || this.ServiceType.IsOpenGenericType() ?
+                this.objectBuilder.GetExpression(containerContext, this, resolutionInfo, resolveType) :
+                this.RegistrationContext.Lifetime.GetExpression(containerContext, this, this.objectBuilder, resolutionInfo, resolveType);
 
         private bool HasParentTypeConditionAndMatch(TypeInformation typeInfo) =>
             this.RegistrationContext.TargetTypeCondition != null && typeInfo.ParentType != null && this.RegistrationContext.TargetTypeCondition == typeInfo.ParentType;

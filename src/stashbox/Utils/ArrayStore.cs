@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace Stashbox.Utils
 {
@@ -27,13 +28,43 @@ namespace Stashbox.Utils
             this.Length = old.Length + 1;
         }
 
+        private ArrayStore(TValue[] items, TValue[] old)
+        {
+            if (old.Length == 0)
+            {
+                this.repository = items;
+                this.Length = items.Length;
+            }
+            else
+            {
+                var oldLength = old.Length;
+                var itemsLength = items.Length;
+                var newLength = oldLength + itemsLength;
+                this.repository = new TValue[newLength];
+                Array.Copy(old, this.repository, oldLength);
+                Array.Copy(items, 0, this.repository, oldLength - 1, itemsLength);
+                this.Length = newLength;
+            }
+        }
+
         public ArrayStore()
         {
             this.repository = new TValue[0];
         }
 
+        public ArrayStore(TValue[] initial)
+        {
+            this.repository = initial;
+            this.Length = initial.Length;
+        }
+
         public ArrayStore<TValue> Add(TValue value) =>
             new ArrayStore<TValue>(value, this.repository);
+
+        public ArrayStore<TValue> AddRange(TValue[] items) =>
+            new ArrayStore<TValue>(items, this.repository);
+
+        public TValue this[int i] => this.repository[i];
 
         public TValue Get(int index) =>
             this.repository[index];
@@ -82,6 +113,8 @@ namespace Stashbox.Utils
             this.Repository = new KeyValue<TKey, TValue>[0];
         }
 
+        public TValue this[int i] => this.Repository[i].Value;
+
         public ArrayStoreKeyed<TKey, TValue> Add(TKey key, TValue value) =>
            new ArrayStoreKeyed<TKey, TValue>(new KeyValue<TKey, TValue>(key, value), this.Repository);
 
@@ -103,6 +136,7 @@ namespace Stashbox.Utils
             return new ArrayStoreKeyed<TKey, TValue>(newRepository);
         }
 
+        [MethodImpl(Constants.Inline)]
         public TValue GetOrDefault(TKey key)
         {
             var length = this.Repository.Length;

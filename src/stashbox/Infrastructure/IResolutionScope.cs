@@ -13,10 +13,15 @@ namespace Stashbox.Infrastructure
         IResolutionScope RootScope { get; }
 
         /// <summary>
+        /// The parent scope.
+        /// </summary>
+        IResolutionScope ParentScope { get; }
+
+        /// <summary>
         /// True if the scope contains scoped instances, otherwise false.
         /// </summary>
         bool HasScopedInstances { get; }
-        
+
         /// <summary>
         /// The name of the scope, if it's null then it's a regular nameless scope.
         /// </summary>

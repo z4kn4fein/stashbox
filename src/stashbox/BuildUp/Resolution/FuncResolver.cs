@@ -72,8 +72,7 @@ namespace Stashbox.BuildUp.Resolution
                 parameters[i] = Expression.Parameter(argType, argName);
             }
 
-            resolutionInfo.ParameterExpressions = resolutionInfo.ParameterExpressions?.Concat(parameters).ToArray() ?? parameters;
-
+            resolutionInfo.AddParameterExpressions(parameters);
             return parameters;
         }
     }

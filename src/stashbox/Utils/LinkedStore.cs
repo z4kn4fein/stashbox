@@ -11,12 +11,15 @@ namespace Stashbox.Utils
 
         public TValue Value { get; }
 
-        private OrderedLinkedStore() { }
+        public bool IsEmpty { get; }
+
+        private OrderedLinkedStore() { this.IsEmpty = true; }
 
         private OrderedLinkedStore(TValue value, OrderedLinkedStore<TValue> next)
         {
             this.Value = value;
             this.Next = next;
+            this.IsEmpty = false;
         }
 
         public OrderedLinkedStore<TValue> Add(TValue paramValue)

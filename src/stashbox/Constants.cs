@@ -12,11 +12,6 @@ namespace Stashbox
     /// </summary>
     public static class Constants
     {
-        /// <summary>
-        /// The scope parameter expression.
-        /// </summary>
-        public static readonly ParameterExpression ScopeExpression = Expression.Parameter(typeof(IResolutionScope));
-
         internal static readonly MethodInfo AddDisposalMethod = typeof(IResolutionScope).GetSingleMethod("AddDisposableTracking");
 
         internal static readonly MethodInfo GetOrAddScopedItemMethod = typeof(IResolutionScope).GetSingleMethod("GetOrAddScopedItem");
@@ -28,6 +23,8 @@ namespace Stashbox
         internal static readonly MethodInfo GetScopedInstanceMethod = typeof(IResolutionScope).GetSingleMethod("GetScopedInstanceOrDefault");
 
         internal static readonly Type DisposableType = typeof(IDisposable);
+
+        internal static readonly Type ResolutionScopeType = typeof(IResolutionScope);
 
         internal static readonly Type FuncType = typeof(Func<>);
 

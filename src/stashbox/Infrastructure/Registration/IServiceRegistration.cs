@@ -2,6 +2,7 @@
 using Stashbox.MetaInfo;
 using Stashbox.Registration;
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 
 namespace Stashbox.Infrastructure.Registration
@@ -89,8 +90,8 @@ namespace Stashbox.Infrastructure.Registration
         /// <summary>
         /// Checks that the registration can be injected into a named scope.
         /// </summary>
-        /// <param name="scopeName">The scope name.</param>
+        /// <param name="scopeNames">The scope names.</param>
         /// <returns>True if the registration could be injected into a named scope, otherwise false.</returns>
-        bool CanInjectIntoNamedScope(object scopeName);
+        bool CanInjectIntoNamedScope(ISet<string> scopeNames);
     }
 }

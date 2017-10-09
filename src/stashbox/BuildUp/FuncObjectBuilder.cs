@@ -23,7 +23,7 @@ namespace Stashbox.BuildUp
 
                 var internalMethodInfo = serviceRegistration.RegistrationContext.FuncDelegate.GetMethod();
 
-                var parameters = this.GetFuncParametersWithScope(serviceRegistration.ServiceType.GetSingleMethod("Invoke").GetParameters());
+                var parameters = this.GetFuncParametersWithScope(serviceRegistration.ServiceType.GetSingleMethod("Invoke").GetParameters(), resolutionInfo);
                 var expr = internalMethodInfo.IsStatic ?
                     Expression.Call(internalMethodInfo, parameters) :
                     Expression.Call(Expression.Constant(serviceRegistration.RegistrationContext.FuncDelegate.Target), internalMethodInfo, parameters);
@@ -34,7 +34,7 @@ namespace Stashbox.BuildUp
 
         public override IObjectBuilder Produce() => new FuncObjectBuilder();
 
-        private Expression[] GetFuncParametersWithScope(ParameterInfo[] parameterInfos)
+        private Expression[] GetFuncParametersWithScope(ParameterInfo[] parameterInfos, ResolutionInfo resolutionInfo)
         {
             var length = parameterInfos.Length;
             var expressions = new Expression[length + 1];
@@ -42,7 +42,7 @@ namespace Stashbox.BuildUp
             for (int i = 0; i < length; i++)
                 expressions[i] = Expression.Parameter(parameterInfos[i].ParameterType);
 
-            expressions[expressions.Length - 1] = Expression.Convert(Constants.ScopeExpression, Constants.ResolverType);
+            expressions[expressions.Length - 1] = Expression.Convert(resolutionInfo.CurrentScopeParameter, Constants.ResolverType);
 
             return expressions;
         }

@@ -10,13 +10,13 @@ namespace Stashbox.Registration
 {
     internal class RegistrationRepository : IRegistrationRepository
     {
-        private readonly ConcurrentTree<Type, ConcurrentOrderedKeyStore<object, IServiceRegistration>> serviceRepository;
-        private readonly ConcurrentTree<Type, ConcurrentOrderedKeyStore<object, IServiceRegistration>> namedScopeRepository;
+        private readonly HashMap<Type, ConcurrentOrderedKeyStore<object, IServiceRegistration>> serviceRepository;
+        private readonly HashMap<Type, ConcurrentOrderedKeyStore<object, IServiceRegistration>> namedScopeRepository;
 
         public RegistrationRepository()
         {
-            this.serviceRepository = new ConcurrentTree<Type, ConcurrentOrderedKeyStore<object, IServiceRegistration>>();
-            this.namedScopeRepository = new ConcurrentTree<Type, ConcurrentOrderedKeyStore<object, IServiceRegistration>>();
+            this.serviceRepository = new HashMap<Type, ConcurrentOrderedKeyStore<object, IServiceRegistration>>();
+            this.namedScopeRepository = new HashMap<Type, ConcurrentOrderedKeyStore<object, IServiceRegistration>>();
         }
 
         public void AddOrUpdateRegistration(IServiceRegistration registration, bool remap, bool replace)
@@ -27,26 +27,22 @@ namespace Stashbox.Registration
                 this.serviceRepository.AddOrUpdateRegistration(registration, remap, replace);
         }
 
-        public IServiceRegistration GetRegistrationOrDefault(Type type, object scopeName, object name = null) =>
-            name != null ? this.GetNamedRegistrationOrDefault(type, name, scopeName) : this.GetDefaultRegistrationOrDefault(type, scopeName);
+        public IServiceRegistration GetRegistrationOrDefault(Type type, ISet<string> scopeNames = null, object name = null) =>
+            name != null ? this.GetNamedRegistrationOrDefault(type, name, scopeNames) : this.GetDefaultRegistrationOrDefault(type, scopeNames);
 
-        public IServiceRegistration GetRegistrationOrDefault(TypeInformation typeInfo, object scopeName)
+        public IServiceRegistration GetRegistrationOrDefault(TypeInformation typeInfo, ISet<string> scopeNames)
         {
             return typeInfo.DependencyName != null ?
-                this.GetNamedRegistrationOrDefault(typeInfo.Type, typeInfo.DependencyName, scopeName) :
-                this.GetDefaultRegistrationOrDefault(typeInfo, scopeName);
+                this.GetNamedRegistrationOrDefault(typeInfo.Type, typeInfo.DependencyName, scopeNames) :
+                this.GetDefaultRegistrationOrDefault(typeInfo, scopeNames);
         }
 
-        public IEnumerable<KeyValue<object, IServiceRegistration>> GetRegistrationsOrDefault(Type type, object scopeName)
+        public IEnumerable<KeyValue<object, IServiceRegistration>> GetRegistrationsOrDefault(Type type, ISet<string> scopeNames = null)
         {
-            var registrations = this.serviceRepository.GetOrDefault(type);
+            if (scopeNames != null)
+                return this.GetAllRegistrationsOrDefault(type);
 
-            if (!type.IsClosedGenericType()) return GetRegistrationsFromCollection(registrations, scopeName);
-
-            var generics = this.serviceRepository.GetOrDefault(type.GetGenericTypeDefinition());
-            return generics == null
-                ? GetRegistrationsFromCollection(registrations, scopeName)
-                : GetGenericRegistrationsFromCollection(registrations, generics, type, scopeName);
+            return this.GetAllScopedRegistrationsOrDefault(type, scopeNames) ?? this.GetAllRegistrationsOrDefault(type);
         }
 
         public IEnumerable<IServiceRegistration> GetAllRegistrations() =>
@@ -60,15 +56,18 @@ namespace Stashbox.Registration
             return true;
         }
 
-        private IServiceRegistration GetNamedRegistrationOrDefault(Type type, object dependencyName, object scopeName)
+        private IServiceRegistration GetNamedRegistrationOrDefault(Type type, object dependencyName, ISet<string> scopeNames)
         {
-            var registrations = this.GetDefaultRegistrationsOrDefault(type, scopeName);
-            return registrations?.GetOrDefault(dependencyName);
+            if (scopeNames != null)
+                return this.GetDefaultRegistrationsOrDefault(type)?.GetOrDefault(dependencyName);
+
+            return this.GetScopedRegistrationsOrDefault(type, scopeNames)?.GetOrDefault(dependencyName) ??
+                this.GetDefaultRegistrationsOrDefault(type)?.GetOrDefault(dependencyName);
         }
 
-        private IServiceRegistration GetDefaultRegistrationOrDefault(TypeInformation typeInfo, object scopeName)
+        private IServiceRegistration GetDefaultRegistrationOrDefault(TypeInformation typeInfo, ISet<string> scopeNames)
         {
-            var registrations = this.GetDefaultRegistrationsOrDefault(typeInfo.Type, scopeName);
+            var registrations = this.GetDefaultOrScopedRegistrationsOrDefault(typeInfo.Type, scopeNames);
 
             if (registrations == null) return null;
 
@@ -86,11 +85,9 @@ namespace Stashbox.Registration
                   registrations.Last;
         }
 
-        private IServiceRegistration GetDefaultRegistrationOrDefault(Type type, object scopeName)
+        private IServiceRegistration GetDefaultRegistrationOrDefault(Type type, ISet<string> scopeNames)
         {
-            var registrations = scopeName == null
-                ? this.GetDefaultRegistrationsOrDefault(type)
-                : this.GetScopedRegistrationsOrDefault(type, scopeName);
+            var registrations = this.GetDefaultOrScopedRegistrationsOrDefault(type, scopeNames);
 
             if (registrations == null) return null;
 
@@ -102,6 +99,14 @@ namespace Stashbox.Registration
                 : registrations.Last;
         }
 
+        private ConcurrentOrderedKeyStore<object, IServiceRegistration> GetDefaultOrScopedRegistrationsOrDefault(Type type, ISet<string> scopeNames)
+        {
+            if (scopeNames != null)
+                return this.GetDefaultRegistrationsOrDefault(type);
+
+            return this.GetScopedRegistrationsOrDefault(type, scopeNames) ?? this.GetDefaultRegistrationsOrDefault(type);
+        }
+
         private ConcurrentOrderedKeyStore<object, IServiceRegistration> GetDefaultRegistrationsOrDefault(Type type)
         {
             var registrations = this.serviceRepository.GetOrDefault(type);
@@ -111,48 +116,34 @@ namespace Stashbox.Registration
             return registrations;
         }
 
-        private ConcurrentOrderedKeyStore<object, IServiceRegistration> GetScopedRegistrationsOrDefault(Type type, object scopeName)
+        private ConcurrentOrderedKeyStore<object, IServiceRegistration> GetScopedRegistrationsOrDefault(Type type, ISet<string> scopeNames)
+        {
+            var scopedRegistrations = this.namedScopeRepository.GetOrDefault(type)?.WhereOrDefault(kv => kv.Value.CanInjectIntoNamedScope(scopeNames));
+            if (scopedRegistrations == null && type.IsClosedGenericType())
+                return this.namedScopeRepository.GetOrDefault(type.GetGenericTypeDefinition())?
+                    .WhereOrDefault(kv => kv.Value.CanInjectIntoNamedScope(scopeNames));
+
+            return scopedRegistrations;
+        }
+
+        private IEnumerable<KeyValue<object, IServiceRegistration>> GetAllRegistrationsOrDefault(Type type)
         {
             var registrations = this.serviceRepository.GetOrDefault(type);
-            var scopedRegistrations = registrations?.WhereOrDefault(kv => kv.Value.RegistrationContext.UsedScopeName == scopeName);
-            if (scopedRegistrations == null && type.IsClosedGenericType())
-            {
-                var definitions = this.serviceRepository.GetOrDefault(type.GetGenericTypeDefinition())?
-                    .WhereOrDefault(kv => kv.Value.RegistrationContext.UsedScopeName == scopeName);
 
-                return definitions ?? registrations;
-            }
+            if (!type.IsClosedGenericType()) return registrations?.Repository;
 
-            return scopedRegistrations ?? registrations;
+            var generics = this.serviceRepository.GetOrDefault(type.GetGenericTypeDefinition());
+            return generics == null ? registrations?.Repository : registrations?.Repository.Concat(generics.Repository.Where(reg => reg.Value.ValidateGenericContraints(type))).OrderBy(reg => reg.Value.RegistrationNumber) ?? generics.Repository.Where(reg => reg.Value.ValidateGenericContraints(type));
         }
 
-        private static IEnumerable<KeyValue<object, IServiceRegistration>> GetRegistrationsFromCollection(ConcurrentOrderedKeyStore<object, IServiceRegistration> collection, object scopeName)
+        private IEnumerable<KeyValue<object, IServiceRegistration>> GetAllScopedRegistrationsOrDefault(Type type, ISet<string> scopeNames)
         {
-            if (collection == null)
-                return null;
+            var registrations = this.namedScopeRepository.GetOrDefault(type)?.WhereOrDefault(kv => kv.Value.CanInjectIntoNamedScope(scopeNames));
 
-            if (scopeName == null)
-                return collection.Repository;
+            if (!type.IsClosedGenericType()) return registrations?.Repository;
 
-            return collection.WhereOrDefault(reg => reg.Value.RegistrationContext.UsedScopeName == scopeName)?.Repository ?? collection.Repository;
-        }
-
-        private static IEnumerable<KeyValue<object, IServiceRegistration>> GetGenericRegistrationsFromCollection(ConcurrentOrderedKeyStore<object, IServiceRegistration> collection, ConcurrentOrderedKeyStore<object, IServiceRegistration> generics, Type type, object scopeName)
-        {
-            if (scopeName == null)
-                return collection?.Repository.Concat(generics.Repository.Where(reg => reg.Value.ValidateGenericContraints(type))).OrderBy(reg => reg.Value.RegistrationNumber) ?? generics.Repository.Where(reg => reg.Value.ValidateGenericContraints(type));
-
-            var filtered = generics.WhereOrDefault(reg => reg.Value.ValidateGenericContraints(type) &&
-                                                          reg.Value.RegistrationContext.UsedScopeName == scopeName);
-
-            var genericFiltered = filtered == null ? generics.Repository.Where(reg => reg.Value.ValidateGenericContraints(type)) : filtered.Repository;
-
-            if (collection == null)
-                return genericFiltered;
-
-            var registrations = GetRegistrationsFromCollection(collection, scopeName);
-
-            return registrations?.Concat(genericFiltered).OrderBy(reg => reg.Value.RegistrationNumber) ?? genericFiltered;
+            var generics = this.namedScopeRepository.GetOrDefault(type.GetGenericTypeDefinition())?.WhereOrDefault(kv => kv.Value.CanInjectIntoNamedScope(scopeNames));
+            return generics == null ? registrations?.Repository : registrations?.Repository.Concat(generics.Repository.Where(reg => reg.Value.ValidateGenericContraints(type))).OrderBy(reg => reg.Value.RegistrationNumber) ?? generics.Repository.Where(reg => reg.Value.ValidateGenericContraints(type));
         }
     }
 }

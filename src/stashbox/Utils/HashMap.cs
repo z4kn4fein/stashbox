@@ -1,8 +1,11 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace Stashbox.Utils
 {
-    internal class HashMap<TKey, TValue>
+    internal class HashMap<TKey, TValue> : IEnumerable<TValue>
     {
         private readonly int arraySize;
         protected readonly int IndexBound;
@@ -31,16 +34,27 @@ namespace Stashbox.Utils
         }
 
         [MethodImpl(Constants.Inline)]
-        public void AddOrUpdate(TKey key, TValue value)
+        public void AddOrUpdate(TKey key, TValue value, Func<TValue, TValue, TValue> updateDelegate = null)
         {
             var hash = key.GetHashCode();
 
             var treeIndex = hash & this.IndexBound;
 
             var tree = this.array[treeIndex] ?? AvlTreeKeyValue<TKey, TValue>.Empty;
-            this.array[treeIndex] = tree.AddOrUpdate(hash, key, value);
+            Swap.SwapValue(ref this.array[treeIndex], tree, tree.AddOrUpdate(hash, key, value, updateDelegate),
+                t => t.AddOrUpdate(hash, key, value, updateDelegate));
         }
 
         public void Clear() => this.array = new AvlTreeKeyValue<TKey, TValue>[this.arraySize];
+
+        public IEnumerator<TValue> GetEnumerator()
+        {
+            for (var i = 0; i < arraySize; i++)
+                if (this.array[i] != null)
+                    foreach (var item in this.array)
+                        yield return item.StoredValue;
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
     }
 }

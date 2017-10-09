@@ -42,10 +42,10 @@ namespace Stashbox.Resolution
             if (type == Constants.ResolverType)
                 return resolutionInfo.ResolutionScope;
 
-            var registration = this.containerContext.RegistrationRepository.GetRegistrationOrDefault(type, resolutionInfo.CurrentScopeName, name);
+            var registration = this.containerContext.RegistrationRepository.GetRegistrationOrDefault(type, resolutionInfo.ScopeNames, name);
             if (registration != null)
             {
-                var ragistrationFactory = registration.GetExpression(this.containerContext, resolutionInfo, type)?.CompileDelegate(Constants.ScopeExpression);
+                var ragistrationFactory = registration.GetExpression(this.containerContext, resolutionInfo, type)?.CompileDelegate(resolutionInfo.CurrentScopeParameter);
                 if (ragistrationFactory == null)
                     if (resolutionInfo.NullResultAllowed)
                         return null;
@@ -63,20 +63,18 @@ namespace Stashbox.Resolution
                 else
                     throw new ResolutionFailedException(type);
 
-            var factory = expr.CompileDelegate(Constants.ScopeExpression);
+            var factory = expr.CompileDelegate(resolutionInfo.CurrentScopeParameter);
             this.containerContext.DelegateRepository.AddServiceDelegate(type, factory, name);
             return factory(resolutionInfo.ResolutionScope);
         }
 
         private Delegate ActivateFactoryDelegate(Type type, Type[] parameterTypes, IResolutionScope resolutionScope, object name, bool nullResultAllowed)
         {
-            var resolutionInfo = new ResolutionInfo(resolutionScope, nullResultAllowed)
-            {
-                ParameterExpressions = parameterTypes.Length == 0 ? null : parameterTypes.Select(Expression.Parameter).ToArray()
-            };
+            var resolutionInfo = ResolutionInfo.New(resolutionScope, nullResultAllowed);
+            resolutionInfo.AddParameterExpressions(parameterTypes.Select(Expression.Parameter).ToArray());
 
             var typeInfo = new TypeInformation { Type = type, DependencyName = name };
-            var registration = this.containerContext.RegistrationRepository.GetRegistrationOrDefault(typeInfo, resolutionInfo.CurrentScopeName);
+            var registration = this.containerContext.RegistrationRepository.GetRegistrationOrDefault(typeInfo, resolutionInfo.ScopeNames);
 
             var initExpression = registration == null ?
                 this.resolverSelector.GetResolverExpression(this.containerContext, typeInfo, resolutionInfo) :
@@ -90,7 +88,7 @@ namespace Stashbox.Resolution
 
             var expression = Expression.Lambda(initExpression, resolutionInfo.ParameterExpressions);
 
-            var factory = expression.CompileDynamicDelegate(Constants.ScopeExpression);
+            var factory = expression.CompileDynamicDelegate(resolutionInfo.CurrentScopeParameter);
             this.containerContext.DelegateRepository.AddFactoryDelegate(type, factory, name);
             return factory(resolutionScope);
         }

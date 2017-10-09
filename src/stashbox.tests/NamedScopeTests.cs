@@ -1,8 +1,8 @@
-﻿using System;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Stashbox.Lifetime;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Stashbox.Lifetime;
 
 namespace Stashbox.Tests
 {
@@ -170,14 +170,14 @@ namespace Stashbox.Tests
         {
             var inst = new StashboxContainer()
                 .RegisterType<ITest, Test>(config => config.InNamedScope("A").WithSingletonLifetime())
-                .ContainerContext.RegistrationRepository.GetRegistrationOrDefault(typeof(ITest), "A");
+                .ContainerContext.RegistrationRepository.GetRegistrationOrDefault(typeof(ITest), new HashSet<string> { "A" });
 
             Assert.IsInstanceOfType(inst.RegistrationContext.Lifetime, typeof(ScopedLifetime));
         }
 
         interface ITest
         { }
-        
+
         class Test : ITest
         { }
 

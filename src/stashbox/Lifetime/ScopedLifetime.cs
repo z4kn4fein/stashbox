@@ -29,8 +29,8 @@ namespace Stashbox.Lifetime
                 if (expr == null)
                     return null;
 
-                var factory = expr.CompileDelegate(Constants.ScopeExpression);
-                this.expression = Expression.Convert(Expression.Call(Constants.ScopeExpression, Constants.GetOrAddScopedItemMethod, Expression.Constant(scopeId), Expression.Constant(factory)), resolveType);
+                var factory = expr.CompileDelegate(resolutionInfo.CurrentScopeParameter);
+                this.expression = Expression.Convert(Expression.Call(resolutionInfo.CurrentScopeParameter, Constants.GetOrAddScopedItemMethod, Expression.Constant(scopeId), Expression.Constant(factory)), resolveType);
             }
 
             return this.expression;

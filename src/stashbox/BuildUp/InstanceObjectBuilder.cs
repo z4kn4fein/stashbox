@@ -23,8 +23,8 @@ namespace Stashbox.BuildUp
 
                 if (serviceRegistration.RegistrationContext.Finalizer != null)
                 {
-                    var finalizerExpression = base.HandleFinalizer(Expression.Constant(serviceRegistration.RegistrationContext.ExistingInstance), serviceRegistration);
-                    return this.expression = Expression.Constant(finalizerExpression.CompileDelegate(Constants.ScopeExpression)(resolutionInfo.ResolutionScope));
+                    var finalizerExpression = base.HandleFinalizer(Expression.Constant(serviceRegistration.RegistrationContext.ExistingInstance), serviceRegistration, resolutionInfo);
+                    return this.expression = Expression.Constant(finalizerExpression.CompileDelegate(resolutionInfo.CurrentScopeParameter)(resolutionInfo.ResolutionScope));
                 }
 
                 return this.expression = Expression.Constant(serviceRegistration.RegistrationContext.ExistingInstance);

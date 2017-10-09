@@ -53,19 +53,19 @@ namespace Stashbox.BuildUp
                 return null;
 
             if (!this.HandlesObjectLifecycle && serviceRegistration.RegistrationContext.Finalizer != null)
-                expr = this.HandleFinalizer(expr, serviceRegistration);
+                expr = this.HandleFinalizer(expr, serviceRegistration, resolutionInfo);
 
             if (!serviceRegistration.ShouldHandleDisposal || this.HandlesObjectLifecycle || !expr.Type.IsDisposable())
                 return expr;
 
             var method = Constants.AddDisposalMethod.MakeGenericMethod(expr.Type);
-            return Expression.Call(Constants.ScopeExpression, method, expr);
+            return Expression.Call(resolutionInfo.CurrentScopeParameter, method, expr);
         }
 
-        protected Expression HandleFinalizer(Expression instanceExpression, IServiceRegistration serviceRegistration)
+        protected Expression HandleFinalizer(Expression instanceExpression, IServiceRegistration serviceRegistration, ResolutionInfo resolutionInfo)
         {
             var addFinalizerMethod = Constants.AddWithFinalizerMethod.MakeGenericMethod(instanceExpression.Type);
-            return Expression.Call(Constants.ScopeExpression, addFinalizerMethod, instanceExpression,
+            return Expression.Call(resolutionInfo.CurrentScopeParameter, addFinalizerMethod, instanceExpression,
                 Expression.Constant(serviceRegistration.RegistrationContext.Finalizer));
         }
 

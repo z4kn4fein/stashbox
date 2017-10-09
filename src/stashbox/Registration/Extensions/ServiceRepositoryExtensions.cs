@@ -7,7 +7,7 @@ namespace Stashbox.Registration.Extensions
 {
     internal static class ServiceRepositoryExtensions
     {
-        public static void AddOrUpdateRegistration(this ConcurrentTree<Type, ConcurrentOrderedKeyStore<object, IServiceRegistration>> repository, IServiceRegistration registration, bool remap, bool replace)
+        public static void AddOrUpdateRegistration(this HashMap<Type, ConcurrentOrderedKeyStore<object, IServiceRegistration>> repository, IServiceRegistration registration, bool remap, bool replace)
         {
             var newRepository = new ConcurrentOrderedKeyStore<object, IServiceRegistration>();
             newRepository.AddOrUpdate(registration.RegistrationContext.Name, registration);
@@ -19,7 +19,7 @@ namespace Stashbox.Registration.Extensions
                     (oldValue, newValue) => oldValue.AddOrUpdate(registration.RegistrationContext.Name, registration, replace));
         }
 
-        public static bool ContainsRegistration(this ConcurrentTree<Type, ConcurrentOrderedKeyStore<object, IServiceRegistration>> repository, Type type, object name)
+        public static bool ContainsRegistration(this HashMap<Type, ConcurrentOrderedKeyStore<object, IServiceRegistration>> repository, Type type, object name)
         {
             var registrations = repository.GetOrDefault(type);
             if (name != null && registrations != null)

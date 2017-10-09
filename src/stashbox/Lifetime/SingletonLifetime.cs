@@ -29,7 +29,7 @@ namespace Stashbox.Lifetime
                 if (expr.NodeType == ExpressionType.New && ((NewExpression)expr).Arguments.Count == 0)
                     instance = Activator.CreateInstance(expr.Type);
                 else
-                    instance = expr.CompileDelegate(Constants.ScopeExpression)(resolutionInfo.RootScope);
+                    instance = expr.CompileDelegate(resolutionInfo.CurrentScopeParameter)(resolutionInfo.RootScope);
 
                 this.expression = Expression.Constant(instance);
             }
