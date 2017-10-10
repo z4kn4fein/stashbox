@@ -1,8 +1,8 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Stashbox.Attributes;
 using Stashbox.Infrastructure;
-using System;
 using Stashbox.Lifetime;
+using System;
 
 namespace Stashbox.Tests
 {
@@ -187,8 +187,10 @@ namespace Stashbox.Tests
                 container.RegisterScoped<ITest2, Test2>();
                 container.RegisterScoped<Test3>();
                 container.RegisterScoped<ITest1, Test1>("test");
+                container.RegisterScoped<ITest11, Test4>("test2");
 
                 test = container.Resolve<ITest1>();
+                var a = container.Resolve<ITest11>();
                 test2 = container.Resolve<ITest2>();
                 test3 = container.Resolve<Test3>();
 
@@ -799,6 +801,10 @@ namespace Stashbox.Tests
 
         public class Test4 : ITest11, IDisposable
         {
+            public Test4(ITest1 test1)
+            {
+            }
+
             public bool Disposed { get; private set; }
 
             public void Dispose()

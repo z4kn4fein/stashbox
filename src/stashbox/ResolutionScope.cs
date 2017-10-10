@@ -1,8 +1,8 @@
 ﻿using Stashbox.BuildUp.Expressions;
-using Stashbox.Entity;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.Registration;
 using Stashbox.Infrastructure.Resolution;
+using Stashbox.Resolution;
 using Stashbox.Utils;
 using System;
 using System.Collections.Generic;
@@ -65,7 +65,6 @@ namespace Stashbox
             this.containerContext = containerContext;
             this.Name = name;
             this.RootScope = this;
-            this.ParentScope = this;
         }
 
         public ResolutionScope(IActivationContext activationContext, IServiceRegistrator serviceRegistrator, IExpressionBuilder expressionBuilder,
@@ -111,10 +110,10 @@ namespace Stashbox
         {
             var typeTo = instance.GetType();
             var registration = this.serviceRegistrator.PrepareContext(typeTo, typeTo);
-            var resolutionInfo = ResolutionInfo.New(this);
+            var resolutionContext = ResolutionContext.New(this);
             var expr = this.expressionBuilder.CreateFillExpression(this.containerContext, registration.CreateServiceRegistration(false),
-                Expression.Constant(instance), ResolutionInfo.New(this), typeTo);
-            var factory = expr.CompileDelegate(resolutionInfo.CurrentScopeParameter);
+                Expression.Constant(instance), ResolutionContext.New(this), typeTo);
+            var factory = expr.CompileDelegate(resolutionContext);
             return (TTo)factory(this);
         }
 
@@ -150,6 +149,7 @@ namespace Stashbox
             return finalizable;
         }
 
+        /// <inheritdoc />
         public object GetOrAddScopedItem(object key, Func<IResolutionScope, object> factory)
         {
             var item = this.scopedItems.GetOrDefault(key);
@@ -165,6 +165,23 @@ namespace Stashbox
             }
 
             return item;
+        }
+
+        /// <inheritdoc />
+        public ISet<object> GetActiveScopeNames()
+        {
+            var set = new HashSet<object>();
+            IResolutionScope current = this;
+
+            while (current != null)
+            {
+                if (current.Name != null)
+                    set.Add(current.Name);
+
+                current = current.ParentScope;
+            }
+
+            return set.Count > 0 ? set : null;
         }
 
         /// <inheritdoc />

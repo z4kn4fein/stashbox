@@ -170,7 +170,7 @@ namespace Stashbox.Tests
         {
             var inst = new StashboxContainer()
                 .RegisterType<ITest, Test>(config => config.InNamedScope("A").WithSingletonLifetime())
-                .ContainerContext.RegistrationRepository.GetRegistrationOrDefault(typeof(ITest), new HashSet<string> { "A" });
+                .ContainerContext.RegistrationRepository.GetAllRegistrations().First(reg => reg.ServiceType == typeof(ITest));
 
             Assert.IsInstanceOfType(inst.RegistrationContext.Lifetime, typeof(ScopedLifetime));
         }

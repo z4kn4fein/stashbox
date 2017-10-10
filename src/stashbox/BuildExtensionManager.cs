@@ -1,10 +1,10 @@
-﻿using Stashbox.Entity;
-using Stashbox.Infrastructure;
+﻿using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.ContainerExtension;
-using System.Linq;
+using Stashbox.Infrastructure.Registration;
+using Stashbox.Resolution;
 using Stashbox.Utils;
 using System;
-using Stashbox.Infrastructure.Registration;
+using System.Linq;
 
 namespace Stashbox
 {
@@ -32,9 +32,9 @@ namespace Stashbox
             this.repository.Add(containerExtension);
         }
 
-        public object ExecutePostBuildExtensions(object instance, IContainerContext containerContext, ResolutionInfo resolutionInfo,
+        public object ExecutePostBuildExtensions(object instance, IContainerContext containerContext, ResolutionContext resolutionContext,
             IServiceRegistration serviceRegistration, Type requestedType) =>
-            this.repository.OfType<IPostBuildExtension>().Aggregate(instance, (current, extension) => extension.PostBuild(current, containerContext, resolutionInfo, serviceRegistration, requestedType));
+            this.repository.OfType<IPostBuildExtension>().Aggregate(instance, (current, extension) => extension.PostBuild(current, containerContext, resolutionContext, serviceRegistration, requestedType));
 
         public void ExecuteOnRegistrationExtensions(IContainerContext containerContext, IServiceRegistration serviceRegistration)
         {

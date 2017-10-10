@@ -1,6 +1,6 @@
-﻿using Stashbox.Entity;
-using Stashbox.Infrastructure;
+﻿using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.Registration;
+using Stashbox.Resolution;
 using System;
 using System.Linq.Expressions;
 
@@ -13,7 +13,7 @@ namespace Stashbox.Lifetime
     {
         /// <inheritdoc />
         public virtual Expression GetExpression(IContainerContext containerContext, IServiceRegistration serviceRegistration, IObjectBuilder objectBuilder,
-            ResolutionInfo resolutionInfo, Type resolveType) => objectBuilder.GetExpression(containerContext, serviceRegistration, resolutionInfo, resolveType);
+            ResolutionContext resolutionContext, Type resolveType) => objectBuilder.GetExpression(containerContext, serviceRegistration, resolutionContext, resolveType);
 
         /// <inheritdoc />
         public abstract ILifetime Create();

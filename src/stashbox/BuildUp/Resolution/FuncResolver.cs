@@ -1,6 +1,7 @@
 ﻿using Stashbox.Entity;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.Resolution;
+using Stashbox.Resolution;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,26 +25,26 @@ namespace Stashbox.BuildUp.Resolution
 
         public override bool SupportsMany => true;
 
-        public override Expression GetExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo)
+        public override Expression GetExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext)
         {
             var args = typeInfo.Type.GetGenericArguments();
             var wrappedType = args.Last();
             var funcArgumentInfo = typeInfo.Clone(wrappedType);
 
-            var parameters = this.PrepareExtraParameters(wrappedType, resolutionInfo, args);
-            var expression = containerContext.ResolutionStrategy.BuildResolutionExpression(containerContext, resolutionInfo, funcArgumentInfo, null);
+            var parameters = this.PrepareExtraParameters(wrappedType, resolutionContext, args);
+            var expression = containerContext.ResolutionStrategy.BuildResolutionExpression(containerContext, resolutionContext, funcArgumentInfo, null);
 
             return expression != null ? Expression.Lambda(expression, parameters) : null;
         }
 
-        public override Expression[] GetExpressions(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo)
+        public override Expression[] GetExpressions(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext)
         {
             var args = typeInfo.Type.GetGenericArguments();
             var wrappedType = args.Last();
             var funcArgumentInfo = typeInfo.Clone(wrappedType);
 
-            var parameters = this.PrepareExtraParameters(wrappedType, resolutionInfo, args);
-            var expressions = containerContext.ResolutionStrategy.BuildResolutionExpressions(containerContext, resolutionInfo, funcArgumentInfo);
+            var parameters = this.PrepareExtraParameters(wrappedType, resolutionContext, args);
+            var expressions = containerContext.ResolutionStrategy.BuildResolutionExpressions(containerContext, resolutionContext, funcArgumentInfo);
 
             if (expressions == null)
                 return null;
@@ -56,10 +57,10 @@ namespace Stashbox.BuildUp.Resolution
             return funcExpressions;
         }
 
-        public override bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo) =>
+        public override bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext) =>
             typeInfo.Type.IsClosedGenericType() && this.supportedTypes.Contains(typeInfo.Type.GetGenericTypeDefinition());
 
-        private ParameterExpression[] PrepareExtraParameters(Type wrappedType, ResolutionInfo resolutionInfo, Type[] args)
+        private ParameterExpression[] PrepareExtraParameters(Type wrappedType, ResolutionContext resolutionContext, Type[] args)
         {
             var length = args.Length - 1;
             var parameters = new ParameterExpression[length];
@@ -71,9 +72,9 @@ namespace Stashbox.BuildUp.Resolution
                 var argName = wrappedType.Name + argType.Name + i;
                 var parameter = Expression.Parameter(argType, argName);
                 parameters[i] = parameter;
-                resolutionInfo.AddParameterExpressions(parameter);
+                resolutionContext.AddParameterExpressions(parameter);
             }
-            
+
             return parameters;
         }
     }

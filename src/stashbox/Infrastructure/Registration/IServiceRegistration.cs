@@ -1,6 +1,7 @@
 ﻿using Stashbox.Entity;
 using Stashbox.MetaInfo;
 using Stashbox.Registration;
+using Stashbox.Resolution;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
@@ -61,10 +62,10 @@ namespace Stashbox.Infrastructure.Registration
         /// Creates an expression for creating the resolved instance.
         /// </summary>
         /// <param name="containerContext">The container context.</param>
-        /// <param name="resolutionInfo">The info about the current resolution.</param>
+        /// <param name="resolutionContext">The info about the current resolution.</param>
         /// <param name="resolveType">The requested type.</param>
         /// <returns>The expression.</returns>
-        Expression GetExpression(IContainerContext containerContext, ResolutionInfo resolutionInfo, Type resolveType);
+        Expression GetExpression(IContainerContext containerContext, ResolutionContext resolutionContext, Type resolveType);
 
         /// <summary>
         /// Checks whether the registration can be used for a current resolution.
@@ -92,6 +93,6 @@ namespace Stashbox.Infrastructure.Registration
         /// </summary>
         /// <param name="scopeNames">The scope names.</param>
         /// <returns>True if the registration could be injected into a named scope, otherwise false.</returns>
-        bool CanInjectIntoNamedScope(ISet<string> scopeNames);
+        bool CanInjectIntoNamedScope(ISet<object> scopeNames);
     }
 }

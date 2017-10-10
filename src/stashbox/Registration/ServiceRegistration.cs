@@ -3,6 +3,7 @@ using Stashbox.Entity;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.Registration;
 using Stashbox.MetaInfo;
+using Stashbox.Resolution;
 using Stashbox.Utils;
 using System;
 using System.Collections.Generic;
@@ -81,10 +82,10 @@ namespace Stashbox.Registration
             this.MetaInformation.GenericTypeConstraints.Count == 0 || this.MetaInformation.ValidateGenericContraints(type);
 
         /// <inheritdoc />
-        public Expression GetExpression(IContainerContext containerContext, ResolutionInfo resolutionInfo, Type resolveType) =>
+        public Expression GetExpression(IContainerContext containerContext, ResolutionContext resolutionContext, Type resolveType) =>
             this.RegistrationContext.Lifetime == null || this.ServiceType.IsOpenGenericType() ?
-                this.objectBuilder.GetExpression(containerContext, this, resolutionInfo, resolveType) :
-                this.RegistrationContext.Lifetime.GetExpression(containerContext, this, this.objectBuilder, resolutionInfo, resolveType);
+                this.objectBuilder.GetExpression(containerContext, this, resolutionContext, resolveType) :
+                this.RegistrationContext.Lifetime.GetExpression(containerContext, this, this.objectBuilder, resolutionContext, resolveType);
 
         /// <inheritdoc />
         public bool CanInjectMember(MemberInformation member)
@@ -103,8 +104,8 @@ namespace Stashbox.Registration
         }
 
         /// <inheritdoc />
-        public bool CanInjectIntoNamedScope(ISet<string> scopeNames) => scopeNames.Contains(this.RegistrationContext.UsedScopeName);
-        
+        public bool CanInjectIntoNamedScope(ISet<object> scopeNames) => scopeNames.Contains(this.RegistrationContext.UsedScopeName);
+
         private bool HasParentTypeConditionAndMatch(TypeInformation typeInfo) =>
             this.RegistrationContext.TargetTypeCondition != null && typeInfo.ParentType != null && this.RegistrationContext.TargetTypeCondition == typeInfo.ParentType;
 

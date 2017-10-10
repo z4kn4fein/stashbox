@@ -1,5 +1,5 @@
-﻿using Stashbox.Entity;
-using Stashbox.Infrastructure.Registration;
+﻿using Stashbox.Infrastructure.Registration;
+using Stashbox.Resolution;
 using System;
 using System.Linq.Expressions;
 
@@ -15,10 +15,10 @@ namespace Stashbox.Infrastructure
         /// </summary>
         /// <param name="containerContext">The container context.</param>
         /// <param name="serviceRegistration">The service registration.</param>
-        /// <param name="resolutionInfo">The info about the actual resolution.</param>
+        /// <param name="resolutionContext">The info about the actual resolution.</param>
         /// <param name="resolveType">The requested type.</param>
         /// <returns>The created object.</returns>
-        Expression GetExpression(IContainerContext containerContext, IServiceRegistration serviceRegistration, ResolutionInfo resolutionInfo, Type resolveType);
+        Expression GetExpression(IContainerContext containerContext, IServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType);
 
         /// <summary>
         /// Indicates that the object builder is handling the disposal of the produced instance or not.

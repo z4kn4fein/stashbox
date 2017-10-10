@@ -4,19 +4,21 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 
-namespace Stashbox.Entity
+namespace Stashbox.Resolution
 {
     /// <summary>
     /// Represents information about the actual resolution flow.
     /// </summary>
-    public class ResolutionInfo
+    public class ResolutionContext
     {
+        private static ParameterExpression p = Expression.Parameter(Constants.ResolutionScopeType);
+
         /// <summary>
-        /// Static factory for <see cref="ResolutionInfo"/>.
+        /// Static factory for <see cref="ResolutionContext"/>.
         /// </summary>
-        /// <returns>A new <see cref="ResolutionInfo"/> instance.</returns>
-        public static ResolutionInfo New(IResolutionScope scope, bool nullResultAllowed = false) =>
-            new ResolutionInfo(scope, nullResultAllowed);
+        /// <returns>A new <see cref="ResolutionContext"/> instance.</returns>
+        public static ResolutionContext New(IResolutionScope scope, bool nullResultAllowed = false) =>
+            new ResolutionContext(scope, nullResultAllowed);
 
         /// <summary>
         /// True if null result is allowed, otherwise false.
@@ -42,19 +44,16 @@ namespace Stashbox.Entity
 
         internal ArrayStore<ParameterExpression> ParameterExpressions { get; private set; }
 
-        internal OrderedLinkedStore<ParameterExpression> NamedScopes { get; }
+        internal ISet<object> ScopeNames { get; }
 
-        internal ISet<string> ScopeNames { get; }
-        
-        internal ResolutionInfo(IResolutionScope scope, bool nullResultAllowed)
+        private ResolutionContext(IResolutionScope scope, bool nullResultAllowed)
             : this(scope, AvlTree<int>.Empty, AvlTree<Expression>.Empty, AvlTree<Type>.Empty, ArrayStore<ParameterExpression>.Empty,
-                  OrderedLinkedStore<ParameterExpression>.Empty, null, null, nullResultAllowed, Expression.Parameter(Constants.ResolutionScopeType))
-        {
-        }
+                  scope.GetActiveScopeNames(), null, nullResultAllowed, Expression.Parameter(Constants.ResolutionScopeType, "res"))
+        { }
 
-        private ResolutionInfo(IResolutionScope scope, AvlTree<int> circularDependencyBarrier, AvlTree<Expression> expressionOverrides,
-            AvlTree<Type> currentlyDecoratingTypes, ArrayStore<ParameterExpression> parameterExpressions, OrderedLinkedStore<ParameterExpression> namedScopes,
-            ISet<string> scopeNames, IContainerContext childContext, bool nullResultAllowed, ParameterExpression currentScope)
+        private ResolutionContext(IResolutionScope scope, AvlTree<int> circularDependencyBarrier, AvlTree<Expression> expressionOverrides,
+            AvlTree<Type> currentlyDecoratingTypes, ArrayStore<ParameterExpression> parameterExpressions, ISet<object> scopeNames,
+            IContainerContext childContext, bool nullResultAllowed, ParameterExpression currentScope)
         {
             this.circularDependencyBarrier = circularDependencyBarrier;
             this.expressionOverrides = expressionOverrides;
@@ -65,6 +64,7 @@ namespace Stashbox.Entity
             this.CurrentScopeParameter = currentScope;
             this.ParameterExpressions = parameterExpressions;
             this.ChildContext = childContext;
+            this.ScopeNames = scopeNames;
         }
 
         internal bool IsCurrentlyDecorating(Type type) =>
@@ -103,9 +103,9 @@ namespace Stashbox.Entity
             this.ParameterExpressions = this.ParameterExpressions.AddRange(parameterExpressions);
         }
 
-        internal ResolutionInfo CreateNew(IContainerContext childContext = null, ParameterExpression currentScope = null) =>
-            new ResolutionInfo(this.ResolutionScope, this.circularDependencyBarrier, this.expressionOverrides,
-                this.currentlyDecoratingTypes, this.ParameterExpressions, this.NamedScopes, this.ScopeNames,
+        internal ResolutionContext CreateNew(IContainerContext childContext = null, ParameterExpression currentScope = null) =>
+            new ResolutionContext(this.ResolutionScope, this.circularDependencyBarrier, this.expressionOverrides,
+                this.currentlyDecoratingTypes, this.ParameterExpressions, this.ScopeNames,
                 childContext ?? this.ChildContext, this.NullResultAllowed, currentScope ?? this.CurrentScopeParameter);
     }
 }

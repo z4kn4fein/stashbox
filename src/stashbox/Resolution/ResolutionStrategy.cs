@@ -16,38 +16,38 @@ namespace Stashbox.Resolution
             this.resolverSelector = resolverSelector;
         }
 
-        public Expression BuildResolutionExpression(IContainerContext containerContext, ResolutionInfo resolutionInfo, TypeInformation typeInformation,
+        public Expression BuildResolutionExpression(IContainerContext containerContext, ResolutionContext resolutionContext, TypeInformation typeInformation,
             InjectionParameter[] injectionParameters)
         {
             if (typeInformation.Type == Constants.ResolverType)
-                return Expression.Convert(resolutionInfo.CurrentScopeParameter, Constants.ResolverType);
+                return Expression.Convert(resolutionContext.CurrentScopeParameter, Constants.ResolverType);
 
-            if (resolutionInfo.ParameterExpressions.Length > 0 && resolutionInfo.ParameterExpressions.Any(p => p.Type == typeInformation.Type || p.Type.Implements(typeInformation.Type)))
-                return resolutionInfo.ParameterExpressions.Last(p => p.Type == typeInformation.Type || p.Type.Implements(typeInformation.Type));
+            if (resolutionContext.ParameterExpressions.Length > 0 && resolutionContext.ParameterExpressions.Any(p => p.Type == typeInformation.Type || p.Type.Implements(typeInformation.Type)))
+                return resolutionContext.ParameterExpressions.Last(p => p.Type == typeInformation.Type || p.Type.Implements(typeInformation.Type));
 
             var matchingParam = injectionParameters?.FirstOrDefault(param => param.Name == typeInformation.ParameterName);
             if (matchingParam != null)
                 return Expression.Constant(matchingParam.Value);
 
-            var exprOverride = resolutionInfo.GetExpressionOverrideOrDefault(typeInformation.Type);
+            var exprOverride = resolutionContext.GetExpressionOverrideOrDefault(typeInformation.Type);
             if (exprOverride != null)
                 return exprOverride;
 
-            var registration = containerContext.RegistrationRepository.GetRegistrationOrDefault(typeInformation, resolutionInfo.ScopeNames);
-            return registration != null ? registration.GetExpression(resolutionInfo.ChildContext ?? containerContext, resolutionInfo, typeInformation.Type) :
-                this.resolverSelector.GetResolverExpression(containerContext, typeInformation, resolutionInfo);
+            var registration = containerContext.RegistrationRepository.GetRegistrationOrDefault(typeInformation, resolutionContext);
+            return registration != null ? registration.GetExpression(resolutionContext.ChildContext ?? containerContext, resolutionContext, typeInformation.Type) :
+                this.resolverSelector.GetResolverExpression(containerContext, typeInformation, resolutionContext);
         }
 
-        public Expression[] BuildResolutionExpressions(IContainerContext containerContext, ResolutionInfo resolutionInfo, TypeInformation typeInformation)
+        public Expression[] BuildResolutionExpressions(IContainerContext containerContext, ResolutionContext resolutionContext, TypeInformation typeInformation)
         {
-            var registrations = containerContext.RegistrationRepository.GetRegistrationsOrDefault(typeInformation.Type, resolutionInfo.ScopeNames)?.CastToArray();
+            var registrations = containerContext.RegistrationRepository.GetRegistrationsOrDefault(typeInformation.Type, resolutionContext)?.CastToArray();
             if (registrations == null)
-                return this.resolverSelector.GetResolverExpressions(containerContext, typeInformation, resolutionInfo);
+                return this.resolverSelector.GetResolverExpressions(containerContext, typeInformation, resolutionContext);
 
             var lenght = registrations.Length;
             var expressions = new Expression[lenght];
             for (var i = 0; i < lenght; i++)
-                expressions[i] = registrations[i].Value.GetExpression(resolutionInfo.ChildContext ?? containerContext, resolutionInfo, typeInformation.Type);
+                expressions[i] = registrations[i].Value.GetExpression(resolutionContext.ChildContext ?? containerContext, resolutionContext, typeInformation.Type);
 
             return expressions;
         }

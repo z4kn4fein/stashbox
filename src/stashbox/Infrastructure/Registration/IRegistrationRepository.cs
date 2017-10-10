@@ -1,4 +1,5 @@
 ﻿using Stashbox.Entity;
+using Stashbox.Resolution;
 using System;
 using System.Collections.Generic;
 
@@ -21,26 +22,26 @@ namespace Stashbox.Infrastructure.Registration
         /// Retrieves a registration.
         /// </summary>
         /// <param name="type">The requested type.</param>
-        /// <param name="scopeNames">The scope names info.</param>
+        /// <param name="resolutionContext">The resolution context.</param>
         /// <param name="name">The requested name.</param>
         /// <returns>The registration or null, if it doesn't exist.</returns>
-        IServiceRegistration GetRegistrationOrDefault(Type type, ISet<string> scopeNames = null, object name = null);
+        IServiceRegistration GetRegistrationOrDefault(Type type, ResolutionContext resolutionContext, object name = null);
 
         /// <summary>
         /// Retrieves a registration.
         /// </summary>
         /// <param name="typeInfo">The type info.</param>
-        /// <param name="scopeNames">The scope names info.</param>
+        /// <param name="resolutionContext">The resolution context.</param>
         /// <returns>The registration or null, if it doesn't exist.</returns>
-        IServiceRegistration GetRegistrationOrDefault(TypeInformation typeInfo, ISet<string> scopeNames);
+        IServiceRegistration GetRegistrationOrDefault(TypeInformation typeInfo, ResolutionContext resolutionContext);
 
         /// <summary>
         /// Retrieves all registrations for a type.
         /// </summary>
         /// <param name="type">The requested type.</param>
-        /// <param name="scopeNames">The scope names info.</param>
+        /// <param name="resolutionContext">The resolution context.</param>
         /// <returns>The registrations or null, if it doesn't exist.</returns>
-        IEnumerable<KeyValue<object, IServiceRegistration>> GetRegistrationsOrDefault(Type type, ISet<string> scopeNames = null);
+        IEnumerable<KeyValue<object, IServiceRegistration>> GetRegistrationsOrDefault(Type type, ResolutionContext resolutionContext);
 
         /// <summary>
         /// Retrieves all registrations.

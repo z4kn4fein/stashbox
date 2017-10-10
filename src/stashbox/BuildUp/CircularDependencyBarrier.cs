@@ -1,26 +1,26 @@
 ﻿using Stashbox.Exceptions;
-using System;
-using Stashbox.Entity;
 using Stashbox.Infrastructure.Registration;
+using Stashbox.Resolution;
+using System;
 
 namespace Stashbox.BuildUp
 {
     internal sealed class CircularDependencyBarrier : IDisposable
     {
-        private readonly ResolutionInfo resolutionInfo;
+        private readonly ResolutionContext resolutionContext;
         private readonly int registrationNumber;
 
-        public CircularDependencyBarrier(ResolutionInfo resolutionInfo, IServiceRegistration registration)
+        public CircularDependencyBarrier(ResolutionContext resolutionContext, IServiceRegistration registration)
         {
-            resolutionInfo.AddCircularDependencyCheck(registration.RegistrationNumber, out bool updated);
+            resolutionContext.AddCircularDependencyCheck(registration.RegistrationNumber, out bool updated);
             if (updated)
                 throw new CircularDependencyException(registration.ImplementationType);
-            
-            this.resolutionInfo = resolutionInfo;
+
+            this.resolutionContext = resolutionContext;
             this.registrationNumber = registration.RegistrationNumber;
         }
 
         public void Dispose() =>
-            this.resolutionInfo.ClearCircularDependencyCheck(this.registrationNumber);
+            this.resolutionContext.ClearCircularDependencyCheck(this.registrationNumber);
     }
 }

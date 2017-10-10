@@ -1,9 +1,9 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using Stashbox.Entity;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.ContainerExtension;
 using Stashbox.Infrastructure.Registration;
+using Stashbox.Resolution;
 using System;
 
 namespace Stashbox.Tests
@@ -46,15 +46,15 @@ namespace Stashbox.Tests
             {
                 var post = new Mock<IPostBuildExtension>();
 
-                post.Setup(p => p.PostBuild(It.IsAny<object>(), container.ContainerContext, It.IsAny<ResolutionInfo>(),
-                    It.IsAny<IServiceRegistration>(), It.IsAny<Type>())).Returns<object, IContainerContext, ResolutionInfo, IServiceRegistration, Type>((o, c, r, sr, t) => o);
+                post.Setup(p => p.PostBuild(It.IsAny<object>(), container.ContainerContext, It.IsAny<ResolutionContext>(),
+                    It.IsAny<IServiceRegistration>(), It.IsAny<Type>())).Returns<object, IContainerContext, ResolutionContext, IServiceRegistration, Type>((o, c, r, sr, t) => o);
 
                 container.RegisterExtension(post.Object);
                 container.RegisterType<Test1>();
                 container.RegisterType<ITest, Test>(context => context.WithInitializer((t, resolver) => t.ImplMethod(resolver.Resolve<Test1>())));
                 test = container.Resolve<ITest>();
 
-                post.Verify(p => p.PostBuild(It.IsAny<object>(), container.ContainerContext, It.IsAny<ResolutionInfo>(), It.IsAny<IServiceRegistration>(), It.IsAny<Type>()), Times.Exactly(2));
+                post.Verify(p => p.PostBuild(It.IsAny<object>(), container.ContainerContext, It.IsAny<ResolutionContext>(), It.IsAny<IServiceRegistration>(), It.IsAny<Type>()), Times.Exactly(2));
             }
 
             Assert.IsTrue(test.MethodCalled);

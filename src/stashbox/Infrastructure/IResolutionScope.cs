@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Stashbox.Infrastructure
 {
@@ -66,5 +67,11 @@ namespace Stashbox.Infrastructure
         /// <param name="factory">The value factory used if the item doesn't exist yet.</param>
         /// <returns>The scoped item.</returns>
         object GetOrAddScopedItem(object key, Func<IResolutionScope, object> factory);
+
+        /// <summary>
+        /// Gets the names of the already opened scopes.
+        /// </summary>
+        /// <returns>The scope names.</returns>
+        ISet<object> GetActiveScopeNames();
     }
 }

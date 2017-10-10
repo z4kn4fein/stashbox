@@ -1,7 +1,7 @@
 ﻿using Stashbox.BuildUp.Expressions;
-using Stashbox.Entity;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.Registration;
+using Stashbox.Resolution;
 using System;
 using System.Linq.Expressions;
 
@@ -18,7 +18,7 @@ namespace Stashbox.BuildUp
             this.expressionBuilder = expressionBuilder;
         }
 
-        protected override Expression GetExpressionInternal(IContainerContext containerContext, IServiceRegistration serviceRegistration, ResolutionInfo resolutionInfo, Type resolveType)
+        protected override Expression GetExpressionInternal(IContainerContext containerContext, IServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType)
         {
             if (this.expression != null) return this.expression;
             lock (this.syncObject)
@@ -26,18 +26,18 @@ namespace Stashbox.BuildUp
                 if (this.expression != null) return this.expression;
 
                 var expr = this.expressionBuilder.CreateFillExpression(containerContext, serviceRegistration, Expression.Constant(serviceRegistration.RegistrationContext.ExistingInstance),
-                    resolutionInfo, serviceRegistration.ImplementationType);
-                var factory = expr.CompileDelegate(resolutionInfo.CurrentScopeParameter);
+                    resolutionContext, serviceRegistration.ImplementationType);
+                var factory = expr.CompileDelegate(resolutionContext);
 
-                var instance = factory(resolutionInfo.ResolutionScope);
+                var instance = factory(resolutionContext.ResolutionScope);
 
                 if (serviceRegistration.ShouldHandleDisposal && instance is IDisposable disposable)
-                    resolutionInfo.RootScope.AddDisposableTracking(disposable);
+                    resolutionContext.RootScope.AddDisposableTracking(disposable);
 
                 if (serviceRegistration.RegistrationContext.Finalizer != null)
                 {
-                    var finalizerExpression = base.HandleFinalizer(Expression.Constant(instance), serviceRegistration, resolutionInfo);
-                    return this.expression = Expression.Constant(finalizerExpression.CompileDelegate(resolutionInfo.CurrentScopeParameter)(resolutionInfo.ResolutionScope));
+                    var finalizerExpression = base.HandleFinalizer(Expression.Constant(instance), serviceRegistration, resolutionContext);
+                    return this.expression = Expression.Constant(finalizerExpression.CompileDelegate(resolutionContext)(resolutionContext.ResolutionScope));
                 }
 
                 return this.expression = Expression.Constant(instance);

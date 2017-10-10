@@ -1,6 +1,6 @@
-﻿using Stashbox.Entity;
-using Stashbox.Infrastructure;
+﻿using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.Registration;
+using Stashbox.Resolution;
 using System;
 using System.Linq.Expressions;
 
@@ -15,13 +15,13 @@ namespace Stashbox.Lifetime
         private readonly object syncObject = new object();
 
         /// <inheritdoc />
-        public override Expression GetExpression(IContainerContext containerContext, IServiceRegistration serviceRegistration, IObjectBuilder objectBuilder, ResolutionInfo resolutionInfo, Type resolveType)
+        public override Expression GetExpression(IContainerContext containerContext, IServiceRegistration serviceRegistration, IObjectBuilder objectBuilder, ResolutionContext resolutionContext, Type resolveType)
         {
             if (this.expression != null) return this.expression;
             lock (this.syncObject)
             {
                 if (this.expression != null) return this.expression;
-                var expr = base.GetExpression(containerContext, serviceRegistration, objectBuilder, resolutionInfo, resolveType);
+                var expr = base.GetExpression(containerContext, serviceRegistration, objectBuilder, resolutionContext, resolveType);
                 if (expr == null)
                     return null;
 
@@ -29,7 +29,7 @@ namespace Stashbox.Lifetime
                 if (expr.NodeType == ExpressionType.New && ((NewExpression)expr).Arguments.Count == 0)
                     instance = Activator.CreateInstance(expr.Type);
                 else
-                    instance = expr.CompileDelegate(resolutionInfo.CurrentScopeParameter)(resolutionInfo.RootScope);
+                    instance = expr.CompileDelegate(resolutionContext)(resolutionContext.RootScope);
 
                 this.expression = Expression.Constant(instance);
             }

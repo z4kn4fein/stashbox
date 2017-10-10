@@ -4,6 +4,7 @@ using Stashbox.Exceptions;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.Resolution;
 using Stashbox.Lifetime;
+using Stashbox.Resolution;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -322,12 +323,12 @@ namespace Stashbox.Tests
         {
             public override bool SupportsMany => true;
 
-            public override bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo)
+            public override bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionInfo)
             {
                 return typeInfo.Type == typeof(ITest1);
             }
 
-            public override Expression GetExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo)
+            public override Expression GetExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionInfo)
             {
                 return Expression.Constant(new Test1());
             }
@@ -337,17 +338,17 @@ namespace Stashbox.Tests
         {
             public override bool SupportsMany => true;
 
-            public override bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo)
+            public override bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionInfo)
             {
                 return typeInfo.Type == typeof(ITest1);
             }
 
-            public override Expression GetExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo)
+            public override Expression GetExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionInfo)
             {
                 return Expression.Constant(new Test1());
             }
 
-            public override Expression[] GetExpressions(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo)
+            public override Expression[] GetExpressions(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionInfo)
             {
                 return new Expression[] { Expression.Constant(new Test1()) };
             }

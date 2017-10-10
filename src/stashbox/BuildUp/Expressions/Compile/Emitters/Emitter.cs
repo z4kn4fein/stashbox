@@ -51,10 +51,10 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
 
             return false;
         }
-        
+
         public static DynamicMethod CreateDynamicMethod(CompilerContext context, Type returnType, params ParameterExpression[] parameters)
         {
-            if (context.Target == null)
+            if (!context.HasClosure)
                 return new DynamicMethod(string.Empty, returnType, parameters.GetTypes(), typeof(ExpressionEmitter), true);
 
             var targetType = context.Target.TargetType;

@@ -1,6 +1,6 @@
-﻿using Stashbox.Entity;
-using Stashbox.Infrastructure;
+﻿using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.Registration;
+using Stashbox.Resolution;
 using System;
 using System.Linq.Expressions;
 
@@ -19,18 +19,18 @@ namespace Stashbox.Lifetime
         public override ILifetime Create() => new ScopedLifetime();
 
         /// <inheritdoc />
-        public override Expression GetExpression(IContainerContext containerContext, IServiceRegistration serviceRegistration, IObjectBuilder objectBuilder, ResolutionInfo resolutionInfo, Type resolveType)
+        public override Expression GetExpression(IContainerContext containerContext, IServiceRegistration serviceRegistration, IObjectBuilder objectBuilder, ResolutionContext resolutionContext, Type resolveType)
         {
             if (this.expression != null) return this.expression;
             lock (this.syncObject)
             {
                 if (this.expression != null) return this.expression;
-                var expr = base.GetExpression(containerContext, serviceRegistration, objectBuilder, resolutionInfo, resolveType);
+                var expr = base.GetExpression(containerContext, serviceRegistration, objectBuilder, resolutionContext, resolveType);
                 if (expr == null)
                     return null;
 
-                var factory = expr.CompileDelegate(resolutionInfo.CurrentScopeParameter);
-                this.expression = Expression.Convert(Expression.Call(resolutionInfo.CurrentScopeParameter, Constants.GetOrAddScopedItemMethod, Expression.Constant(scopeId), Expression.Constant(factory)), resolveType);
+                var factory = expr.CompileDelegate(resolutionContext);
+                this.expression = Expression.Convert(Expression.Call(resolutionContext.CurrentScopeParameter, Constants.GetOrAddScopedItemMethod, Expression.Constant(scopeId), Expression.Constant(factory)), resolveType);
             }
 
             return this.expression;

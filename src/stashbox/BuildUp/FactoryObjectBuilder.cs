@@ -1,7 +1,7 @@
 ﻿using Stashbox.BuildUp.Expressions;
-using Stashbox.Entity;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.Registration;
+using Stashbox.Resolution;
 using System;
 using System.Linq.Expressions;
 
@@ -16,7 +16,7 @@ namespace Stashbox.BuildUp
             this.expressionBuilder = expressionBuilder;
         }
 
-        protected override Expression GetExpressionInternal(IContainerContext containerContext, IServiceRegistration serviceRegistration, ResolutionInfo resolutionInfo, Type resolveType)
+        protected override Expression GetExpressionInternal(IContainerContext containerContext, IServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType)
         {
             Expression<Func<IDependencyResolver, object>> lambda;
             if (serviceRegistration.RegistrationContext.ContainerFactory != null)
@@ -24,9 +24,9 @@ namespace Stashbox.BuildUp
             else
                 lambda = scope => serviceRegistration.RegistrationContext.SingleFactory();
 
-            var expr = Expression.Invoke(lambda, Expression.Convert(resolutionInfo.CurrentScopeParameter, Constants.ResolverType));
+            var expr = Expression.Invoke(lambda, Expression.Convert(resolutionContext.CurrentScopeParameter, Constants.ResolverType));
 
-            return this.expressionBuilder.CreateFillExpression(containerContext, serviceRegistration, expr, resolutionInfo, resolveType);
+            return this.expressionBuilder.CreateFillExpression(containerContext, serviceRegistration, expr, resolutionContext, resolveType);
         }
     }
 }

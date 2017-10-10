@@ -1,6 +1,6 @@
-﻿using System;
-using Stashbox.Entity;
-using Stashbox.Infrastructure.Registration;
+﻿using Stashbox.Infrastructure.Registration;
+using Stashbox.Resolution;
+using System;
 
 namespace Stashbox.Infrastructure.ContainerExtension
 {
@@ -14,11 +14,11 @@ namespace Stashbox.Infrastructure.ContainerExtension
         /// </summary>
         /// <param name="instance">The resolved object.</param>
         /// <param name="containerContext">The <see cref="IContainerContext"/> of the <see cref="StashboxContainer"/></param>
-        /// <param name="resolutionInfo">Information about the actual resolution.</param>
+        /// <param name="resolutionContext">Information about the actual resolution.</param>
         /// <param name="serviceRegistration">The service registration.</param>
         /// <param name="requestedType">The requested type.</param>
         /// <returns>The extended object.</returns>
-        object PostBuild(object instance, IContainerContext containerContext, ResolutionInfo resolutionInfo,
+        object PostBuild(object instance, IContainerContext containerContext, ResolutionContext resolutionContext,
             IServiceRegistration serviceRegistration, Type requestedType);
     }
 }
