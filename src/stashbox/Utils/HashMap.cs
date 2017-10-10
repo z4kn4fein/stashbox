@@ -16,6 +16,7 @@ namespace Stashbox.Utils
             this.arraySize = arraySize;
             this.IndexBound = arraySize - 1;
             this.array = new AvlTreeKeyValue<TKey, TValue>[arraySize];
+            this.Reset();
         }
 
         [MethodImpl(Constants.Inline)]
@@ -45,16 +46,22 @@ namespace Stashbox.Utils
                 t => t.AddOrUpdate(hash, key, value, updateDelegate));
         }
 
-        public void Clear() => this.array = new AvlTreeKeyValue<TKey, TValue>[this.arraySize];
+        public void Clear() => this.Reset();
 
         public IEnumerator<TValue> GetEnumerator()
         {
             for (var i = 0; i < arraySize; i++)
-                if (this.array[i] != null)
-                    foreach (var item in this.array)
-                        yield return item.StoredValue;
+                if(!this.array[i].IsEmpty)
+                    foreach (var item in this.array[i])
+                        yield return item;
         }
 
         IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
+
+        private void Reset()
+        {
+            for (var i = 0; i < this.arraySize; i++)
+                this.array[i] = AvlTreeKeyValue<TKey, TValue>.Empty;
+        }
     }
 }

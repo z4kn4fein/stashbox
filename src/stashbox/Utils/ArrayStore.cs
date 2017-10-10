@@ -42,7 +42,7 @@ namespace Stashbox.Utils
                 var newLength = oldLength + itemsLength;
                 this.repository = new TValue[newLength];
                 Array.Copy(old, this.repository, oldLength);
-                Array.Copy(items, 0, this.repository, oldLength - 1, itemsLength);
+                Array.Copy(items, 0, this.repository, oldLength, itemsLength);
                 this.Length = newLength;
             }
         }

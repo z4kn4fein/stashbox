@@ -69,10 +69,11 @@ namespace Stashbox.BuildUp.Resolution
             {
                 var argType = args[i];
                 var argName = wrappedType.Name + argType.Name + i;
-                parameters[i] = Expression.Parameter(argType, argName);
+                var parameter = Expression.Parameter(argType, argName);
+                parameters[i] = parameter;
+                resolutionInfo.AddParameterExpressions(parameter);
             }
-
-            resolutionInfo.AddParameterExpressions(parameters);
+            
             return parameters;
         }
     }

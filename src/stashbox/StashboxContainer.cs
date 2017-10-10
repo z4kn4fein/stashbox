@@ -122,7 +122,7 @@ namespace Stashbox
 
         /// <inheritdoc />
         public IDependencyResolver BeginScope(object name = null) => new ResolutionScope(this.activationContext,
-            this.ServiceRegistrator, this.expressionBuilder, this.ContainerContext, this.rootScope, name);
+            this.ServiceRegistrator, this.expressionBuilder, this.ContainerContext, this.rootScope, this.rootScope, name);
 
         /// <inheritdoc />
         public void Configure(Action<IContainerConfigurator> config) =>

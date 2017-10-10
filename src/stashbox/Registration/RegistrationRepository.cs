@@ -39,7 +39,7 @@ namespace Stashbox.Registration
 
         public IEnumerable<KeyValue<object, IServiceRegistration>> GetRegistrationsOrDefault(Type type, ISet<string> scopeNames = null)
         {
-            if (scopeNames != null)
+            if (scopeNames == null)
                 return this.GetAllRegistrationsOrDefault(type);
 
             return this.GetAllScopedRegistrationsOrDefault(type, scopeNames) ?? this.GetAllRegistrationsOrDefault(type);
@@ -58,7 +58,7 @@ namespace Stashbox.Registration
 
         private IServiceRegistration GetNamedRegistrationOrDefault(Type type, object dependencyName, ISet<string> scopeNames)
         {
-            if (scopeNames != null)
+            if (scopeNames == null)
                 return this.GetDefaultRegistrationsOrDefault(type)?.GetOrDefault(dependencyName);
 
             return this.GetScopedRegistrationsOrDefault(type, scopeNames)?.GetOrDefault(dependencyName) ??
@@ -101,7 +101,7 @@ namespace Stashbox.Registration
 
         private ConcurrentOrderedKeyStore<object, IServiceRegistration> GetDefaultOrScopedRegistrationsOrDefault(Type type, ISet<string> scopeNames)
         {
-            if (scopeNames != null)
+            if (scopeNames == null)
                 return this.GetDefaultRegistrationsOrDefault(type);
 
             return this.GetScopedRegistrationsOrDefault(type, scopeNames) ?? this.GetDefaultRegistrationsOrDefault(type);
