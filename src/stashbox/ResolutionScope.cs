@@ -110,10 +110,9 @@ namespace Stashbox
         {
             var typeTo = instance.GetType();
             var registration = this.serviceRegistrator.PrepareContext(typeTo, typeTo);
-            var resolutionContext = ResolutionContext.New(this);
             var expr = this.expressionBuilder.CreateFillExpression(this.containerContext, registration.CreateServiceRegistration(false),
                 Expression.Constant(instance), ResolutionContext.New(this), typeTo);
-            var factory = expr.CompileDelegate(resolutionContext);
+            var factory = expr.CompileDelegate();
             return (TTo)factory(this);
         }
 

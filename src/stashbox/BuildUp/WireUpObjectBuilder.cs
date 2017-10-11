@@ -27,7 +27,7 @@ namespace Stashbox.BuildUp
 
                 var expr = this.expressionBuilder.CreateFillExpression(containerContext, serviceRegistration, Expression.Constant(serviceRegistration.RegistrationContext.ExistingInstance),
                     resolutionContext, serviceRegistration.ImplementationType);
-                var factory = expr.CompileDelegate(resolutionContext);
+                var factory = expr.CompileDelegate();
 
                 var instance = factory(resolutionContext.ResolutionScope);
 
@@ -36,8 +36,9 @@ namespace Stashbox.BuildUp
 
                 if (serviceRegistration.RegistrationContext.Finalizer != null)
                 {
-                    var finalizerExpression = base.HandleFinalizer(Expression.Constant(instance), serviceRegistration, resolutionContext);
-                    return this.expression = Expression.Constant(finalizerExpression.CompileDelegate(resolutionContext)(resolutionContext.ResolutionScope));
+                    var finalizerExpression = base.HandleFinalizer(Expression.Constant(instance), serviceRegistration,
+                        Expression.Property(resolutionContext.CurrentScopeParameter, Constants.RootScopeProperty));
+                    return this.expression = Expression.Constant(finalizerExpression.CompileDelegate()(resolutionContext.ResolutionScope));
                 }
 
                 return this.expression = Expression.Constant(instance);

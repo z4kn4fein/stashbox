@@ -801,10 +801,6 @@ namespace Stashbox.Tests
 
         public class Test4 : ITest11, IDisposable
         {
-            public Test4(ITest1 test1)
-            {
-            }
-
             public bool Disposed { get; private set; }
 
             public void Dispose()

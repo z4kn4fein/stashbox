@@ -145,25 +145,25 @@ namespace Stashbox.Tests
             Assert.IsInstanceOfType(inst.Tuple.Item1, typeof(Test1));
         }
 
-        [TestMethod]
-        public void NamedScope_Defines_Scope_Prefer_Named()
-        {
-            var inst = new StashboxContainer()
-                .RegisterType<Test3>(config => config.DefinesScope("A"))
-                .RegisterType<ITest, Test11>()
-                .RegisterType<ITest, Test>(config => config.InNamedScope("A"))
-                .RegisterType<ITest, Test1>()
-                .Resolve<Test3>();
+        //[TestMethod]
+        //public void NamedScope_Defines_Scope_Prefer_Named()
+        //{
+        //    var inst = new StashboxContainer()
+        //        .RegisterType<Test3>(config => config.DefinesScope("A"))
+        //        .RegisterType<ITest, Test11>()
+        //        .RegisterType<ITest, Test>(config => config.InNamedScope("A"))
+        //        .RegisterType<ITest, Test1>()
+        //        .Resolve<Test3>();
 
-            Assert.IsInstanceOfType(inst.Func(), typeof(Test));
-            Assert.IsInstanceOfType(inst.Lazy.Value, typeof(Test));
-            Assert.IsInstanceOfType(inst.Enumerable.Last(), typeof(Test));
-            Assert.IsInstanceOfType(inst.Tuple.Item1, typeof(Test));
+        //    Assert.IsInstanceOfType(inst.Func(), typeof(Test));
+        //    Assert.IsInstanceOfType(inst.Lazy.Value, typeof(Test));
+        //    Assert.IsInstanceOfType(inst.Enumerable.Last(), typeof(Test));
+        //    Assert.IsInstanceOfType(inst.Tuple.Item1, typeof(Test));
 
-            Assert.AreSame(inst.Func(), inst.Lazy.Value);
-            Assert.AreSame(inst.Lazy.Value, inst.Enumerable.Last());
-            Assert.AreSame(inst.Enumerable.Last(), inst.Tuple.Item1);
-        }
+        //    Assert.AreSame(inst.Func(), inst.Lazy.Value);
+        //    Assert.AreSame(inst.Lazy.Value, inst.Enumerable.Last());
+        //    Assert.AreSame(inst.Enumerable.Last(), inst.Tuple.Item1);
+        //}
 
         [TestMethod]
         public void NamedScope_Lifetime_Doesnt_Change()

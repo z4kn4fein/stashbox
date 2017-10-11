@@ -1,5 +1,5 @@
-﻿using Stashbox.Infrastructure;
-using Stashbox.Resolution;
+﻿using Stashbox;
+using Stashbox.Infrastructure;
 
 #if NET45 || NET40 || NETSTANDARD1_3
 using Stashbox.BuildUp.Expressions.Compile;
@@ -16,9 +16,8 @@ namespace System.Linq.Expressions
         /// Compiles an <see cref="Expression"/> to a <see cref="Func{T,R}"/> of <see cref="IResolutionScope"/>, <see cref="object"/>.
         /// </summary>
         /// <param name="expression">The expression.</param>
-        /// <param name="resolutionContext">The resolution context.</param>
         /// <returns>The compiled delegate.</returns>
-        public static Func<IResolutionScope, object> CompileDelegate(this Expression expression, ResolutionContext resolutionContext)
+        public static Func<IResolutionScope, object> CompileDelegate(this Expression expression)
         {
             if (expression.NodeType == ExpressionType.Constant)
             {
@@ -27,12 +26,12 @@ namespace System.Linq.Expressions
             }
 
 #if NET45 || NET40 || NETSTANDARD1_3
-            if (!expression.TryEmit(out Delegate factory, typeof(Func<IResolutionScope, object>), typeof(object), resolutionContext.CurrentScopeParameter))
-                factory = Expression.Lambda(expression, resolutionContext.CurrentScopeParameter).Compile();
+            if (!expression.TryEmit(out Delegate factory, typeof(Func<IResolutionScope, object>), typeof(object), Constants.ResolutionScopeParameter))
+                factory = Expression.Lambda(expression, Constants.ResolutionScopeParameter).Compile();
 
             return (Func<IResolutionScope, object>)factory;
 #else
-            return Expression.Lambda<Func<IResolutionScope, object>>(expression, resolutionContext.CurrentScopeParameter).Compile();
+            return Expression.Lambda<Func<IResolutionScope, object>>(expression, Constants.ResolutionScopeParameter).Compile();
 #endif
         }
 
@@ -40,17 +39,16 @@ namespace System.Linq.Expressions
         /// Compiles an <see cref="Expression"/> to a <see cref="Func{T,R}"/> of <see cref="IResolutionScope"/>, <see cref="Delegate"/>.
         /// </summary>
         /// <param name="expression">The expression.</param>
-        /// <param name="resolutionContext">The resolution context.</param>
         /// <returns>The compiled delegate.</returns>
-        public static Func<IResolutionScope, Delegate> CompileDynamicDelegate(this Expression expression, ResolutionContext resolutionContext)
+        public static Func<IResolutionScope, Delegate> CompileDynamicDelegate(this Expression expression)
         {
 #if NET45 || NET40 || NETSTANDARD1_3
-            if (!expression.TryEmit(out Delegate factory, typeof(Func<IResolutionScope, Delegate>), typeof(Delegate), resolutionContext.CurrentScopeParameter))
-                factory = Expression.Lambda<Func<IResolutionScope, Delegate>>(expression, resolutionContext.CurrentScopeParameter).Compile();
+            if (!expression.TryEmit(out Delegate factory, typeof(Func<IResolutionScope, Delegate>), typeof(Delegate), Constants.ResolutionScopeParameter))
+                factory = Expression.Lambda<Func<IResolutionScope, Delegate>>(expression, Constants.ResolutionScopeParameter).Compile();
 
             return (Func<IResolutionScope, Delegate>)factory;
 #else
-            return Expression.Lambda<Func<IResolutionScope, Delegate>>(expression, resolutionContext.CurrentScopeParameter).Compile();
+            return Expression.Lambda<Func<IResolutionScope, Delegate>>(expression, Constants.ResolutionScopeParameter).Compile();
 #endif
         }
     }

@@ -48,7 +48,7 @@ namespace Stashbox.Resolution
 
         private ResolutionContext(IResolutionScope scope, bool nullResultAllowed)
             : this(scope, AvlTree<int>.Empty, AvlTree<Expression>.Empty, AvlTree<Type>.Empty, ArrayStore<ParameterExpression>.Empty,
-                  scope.GetActiveScopeNames(), null, nullResultAllowed, Expression.Parameter(Constants.ResolutionScopeType, "res"))
+                  scope.GetActiveScopeNames(), null, nullResultAllowed, Constants.ResolutionScopeParameter)
         { }
 
         private ResolutionContext(IResolutionScope scope, AvlTree<int> circularDependencyBarrier, AvlTree<Expression> expressionOverrides,
@@ -103,9 +103,16 @@ namespace Stashbox.Resolution
             this.ParameterExpressions = this.ParameterExpressions.AddRange(parameterExpressions);
         }
 
-        internal ResolutionContext CreateNew(IContainerContext childContext = null, ParameterExpression currentScope = null) =>
-            new ResolutionContext(this.ResolutionScope, this.circularDependencyBarrier, this.expressionOverrides,
+        internal ResolutionContext CreateNew(IContainerContext childContext = null, object scopeName = null)
+        {
+            var context = new ResolutionContext(this.ResolutionScope, this.circularDependencyBarrier, this.expressionOverrides,
                 this.currentlyDecoratingTypes, this.ParameterExpressions, this.ScopeNames,
-                childContext ?? this.ChildContext, this.NullResultAllowed, currentScope ?? this.CurrentScopeParameter);
+                childContext ?? this.ChildContext, this.NullResultAllowed, this.CurrentScopeParameter);
+
+            if (scopeName != null)
+                context.ScopeNames.Add(scopeName);
+
+            return context;
+        }
     }
 }
