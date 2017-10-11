@@ -33,8 +33,7 @@ namespace Stashbox.BuildUp
                 var variable = Expression.Variable(Constants.ResolutionScopeType);
                 return Expression.Block(new[] { variable },
                      Expression.Assign(variable, Expression.Convert(Expression.Call(Expression.Convert(resolutionContext.CurrentScopeParameter, Constants.ResolverType),
-                        Constants.BeginScopeMethod,
-                            Expression.Constant(serviceRegistration.RegistrationContext.DefinedScopeName)),
+                        Constants.BeginScopeMethod, Expression.Constant(serviceRegistration.RegistrationContext.DefinedScopeName), Expression.Constant(true)),
                                 Constants.ResolutionScopeType)),
 
                      this.expressionBuilder.CreateExpression(containerContext, serviceRegistration,

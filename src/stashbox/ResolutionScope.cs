@@ -90,8 +90,13 @@ namespace Stashbox
         public Delegate ResolveFactory(Type typeFrom, object name = null, bool nullResultAllowed = false, params Type[] parameterTypes) =>
             this.activationContext.ActivateFactory(typeFrom, parameterTypes, this, name, nullResultAllowed);
 
-        public IDependencyResolver BeginScope(object name = null) => new ResolutionScope(this.activationContext, this.serviceRegistrator,
-            this.expressionBuilder, this.containerContext, this.RootScope, this, name);
+        public IDependencyResolver BeginScope(object name = null, bool attachedToParent = false)
+        {
+            var scope = new ResolutionScope(this.activationContext, this.serviceRegistrator,
+                this.expressionBuilder, this.containerContext, this.RootScope, this, name);
+
+            return attachedToParent ? this.AddDisposableTracking(scope) : scope;
+        }
 
         public IDependencyResolver PutInstanceInScope(Type typeFrom, object instance, bool withoutDisposalTracking = false)
         {
@@ -110,9 +115,10 @@ namespace Stashbox
         {
             var typeTo = instance.GetType();
             var registration = this.serviceRegistrator.PrepareContext(typeTo, typeTo);
+            var resolutionContext = ResolutionContext.New(this);
             var expr = this.expressionBuilder.CreateFillExpression(this.containerContext, registration.CreateServiceRegistration(false),
-                Expression.Constant(instance), ResolutionContext.New(this), typeTo);
-            var factory = expr.CompileDelegate();
+                Expression.Constant(instance), resolutionContext, typeTo);
+            var factory = expr.CompileDelegate(resolutionContext.CurrentScopeParameter);
             return (TTo)factory(this);
         }
 

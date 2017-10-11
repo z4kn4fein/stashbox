@@ -47,14 +47,16 @@ namespace Stashbox.Resolution
 
         internal ISet<object> ScopeNames { get; }
 
+        internal AvlTreeKeyValue<object, object> PerRequestItems { get; private set; }
+
         private ResolutionContext(IResolutionScope scope, bool nullResultAllowed)
             : this(scope, AvlTree<int>.Empty, AvlTree<Expression>.Empty, AvlTree<Type>.Empty, ArrayStore<ParameterExpression>.Empty,
-                  scope.GetActiveScopeNames(), null, nullResultAllowed, Constants.ResolutionScopeParameter)
+                  scope.GetActiveScopeNames(), null, nullResultAllowed, Constants.ResolutionScopeParameter, AvlTreeKeyValue<object, object>.Empty)
         { }
 
         private ResolutionContext(IResolutionScope scope, AvlTree<int> circularDependencyBarrier, AvlTree<Expression> expressionOverrides,
             AvlTree<Type> currentlyDecoratingTypes, ArrayStore<ParameterExpression> parameterExpressions, ISet<object> scopeNames,
-            IContainerContext childContext, bool nullResultAllowed, ParameterExpression currentScope)
+            IContainerContext childContext, bool nullResultAllowed, ParameterExpression currentScope, AvlTreeKeyValue<object, object> perRequestItems)
         {
             this.circularDependencyBarrier = circularDependencyBarrier;
             this.expressionOverrides = expressionOverrides;
@@ -66,6 +68,7 @@ namespace Stashbox.Resolution
             this.ParameterExpressions = parameterExpressions;
             this.ChildContext = childContext;
             this.ScopeNames = scopeNames;
+            this.PerRequestItems = perRequestItems;
         }
 
         internal bool IsCurrentlyDecorating(Type type) =>
@@ -104,6 +107,18 @@ namespace Stashbox.Resolution
             this.ParameterExpressions = this.ParameterExpressions.AddRange(parameterExpressions);
         }
 
+        internal TValue GetPerRequestItemOrDefault<TValue>(object key)
+        {
+            var value = this.PerRequestItems.GetOrDefault(key);
+            if (value == null) return default(TValue);
+            return (TValue)value;
+        }
+
+        internal void AddPerRequestItem(object key, object value)
+        {
+            this.PerRequestItems = this.PerRequestItems.AddOrUpdate(key, value);
+        }
+
         internal ResolutionContext CreateNew(IContainerContext childContext = null, KeyValue<object, ParameterExpression> scopeParameter = null)
         {
             var scopeNames = this.ScopeNames;
@@ -115,7 +130,7 @@ namespace Stashbox.Resolution
 
             return new ResolutionContext(this.ResolutionScope, this.circularDependencyBarrier, this.expressionOverrides,
                  this.currentlyDecoratingTypes, this.ParameterExpressions, scopeNames, childContext ?? this.ChildContext,
-                 this.NullResultAllowed, scopeParameter == null ? this.CurrentScopeParameter : scopeParameter.Value);
+                 this.NullResultAllowed, scopeParameter == null ? this.CurrentScopeParameter : scopeParameter.Value, this.PerRequestItems);
         }
     }
 }

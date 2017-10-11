@@ -54,8 +54,9 @@ namespace Stashbox.Infrastructure
         /// Begins a new scope.
         /// </summary>
         /// <param name="name">The name of the scope.</param>
+        /// <param name="attachToParent">If true, the new scope will be attached to the lifecycle of the parent scope, when it'll be disposed, the new scope will be disposed with it.</param>
         /// <returns>The created scope.</returns>
-        IDependencyResolver BeginScope(object name = null);
+        IDependencyResolver BeginScope(object name = null, bool attachToParent = false);
 
         /// <summary>
         /// Puts an instance into the scope which will be dropped when the scope is being disposed.

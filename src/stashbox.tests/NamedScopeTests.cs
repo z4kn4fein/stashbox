@@ -3,6 +3,7 @@ using Stashbox.Lifetime;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 
 namespace Stashbox.Tests
 {
@@ -166,6 +167,63 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void NamedScope_Preserve_Instance_Through_Nested_Scopes()
+        {
+            var container = new StashboxContainer()
+                .RegisterType<ITest, Test>(config => config.InNamedScope("A"));
+
+            using (var s1 = container.BeginScope("A"))
+            {
+                var i1 = s1.Resolve<ITest>();
+                using (var s2 = s1.BeginScope())
+                {
+                    var i2 = s2.Resolve<ITest>();
+
+                    Assert.AreSame(i2, i1);
+                }
+            }
+        }
+
+        [TestMethod]
+        public void NamedScope_Dispose_Instance_Through_Nested_Scopes()
+        {
+            var container = new StashboxContainer()
+                .RegisterType<ITest, Test12>(config => config.InNamedScope("A"));
+
+            ITest i1;
+            using (var s1 = container.BeginScope("A"))
+            {
+                i1 = s1.Resolve<ITest>();
+                using (var s2 = s1.BeginScope())
+                {
+                    var i2 = s2.Resolve<ITest>();
+
+                    Assert.AreSame(i2, i1);
+                }
+
+                Assert.IsFalse(((Test12)i1).Disposed);
+            }
+
+            Assert.IsTrue(((Test12)i1).Disposed);
+        }
+
+        [TestMethod]
+        public void NamedScope_Dispose_Instance_Defines_Named_Scope()
+        {
+            var container = new StashboxContainer()
+                .RegisterType<ITest, Test12>(config => config.InNamedScope("A"))
+                .RegisterType<Test2>(config => config.DefinesScope("A"));
+
+            Test2 i1;
+            using (var s1 = container.BeginScope())
+            {
+                i1 = s1.Resolve<Test2>();
+            }
+
+            Assert.IsTrue(((Test12)i1.Test).Disposed);
+        }
+
+        [TestMethod]
         public void NamedScope_Lifetime_Check()
         {
             var inst = new StashboxContainer()
@@ -186,6 +244,19 @@ namespace Stashbox.Tests
 
         class Test11 : ITest
         { }
+
+        class Test12 : ITest, IDisposable
+        {
+            public bool Disposed { get; private set; }
+
+            public void Dispose()
+            {
+                if(this.Disposed)
+                    throw new ObjectDisposedException("");
+
+                this.Disposed = true;
+            }
+        }
 
         class Test2
         {

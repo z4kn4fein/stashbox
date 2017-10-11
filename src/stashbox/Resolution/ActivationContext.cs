@@ -45,7 +45,7 @@ namespace Stashbox.Resolution
             var registration = this.containerContext.RegistrationRepository.GetRegistrationOrDefault(type, resolutionContext, name);
             if (registration != null)
             {
-                var ragistrationFactory = registration.GetExpression(this.containerContext, resolutionContext, type)?.CompileDelegate();
+                var ragistrationFactory = registration.GetExpression(this.containerContext, resolutionContext, type)?.CompileDelegate(resolutionContext.CurrentScopeParameter);
                 if (ragistrationFactory == null)
                     if (resolutionContext.NullResultAllowed)
                         return null;
@@ -63,7 +63,7 @@ namespace Stashbox.Resolution
                 else
                     throw new ResolutionFailedException(type);
 
-            var factory = expr.CompileDelegate();
+            var factory = expr.CompileDelegate(resolutionContext.CurrentScopeParameter);
             this.containerContext.DelegateRepository.AddServiceDelegate(type, factory, name);
             return factory(resolutionContext.ResolutionScope);
         }
@@ -88,7 +88,7 @@ namespace Stashbox.Resolution
 
             var expression = Expression.Lambda(initExpression, resolutionContext.ParameterExpressions);
 
-            var factory = expression.CompileDynamicDelegate();
+            var factory = expression.CompileDynamicDelegate(resolutionContext.CurrentScopeParameter);
             this.containerContext.DelegateRepository.AddFactoryDelegate(type, factory, name);
             return factory(resolutionScope);
         }

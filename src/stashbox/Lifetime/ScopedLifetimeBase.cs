@@ -39,7 +39,7 @@ namespace Stashbox.Lifetime
                 if (expr == null)
                     return null;
 
-                return this.factoryDelegate = expr.CompileDelegate();
+                return this.factoryDelegate = expr.CompileDelegate(resolutionContext.CurrentScopeParameter);
             }
         }
     }
