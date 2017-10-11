@@ -24,6 +24,8 @@ namespace Stashbox
 
         internal static readonly MethodInfo GetScopedInstanceMethod = typeof(IResolutionScope).GetSingleMethod("GetScopedInstanceOrDefault");
 
+        internal static readonly MethodInfo BeginScopeMethod = typeof(IDependencyResolver).GetSingleMethod("BeginScope");
+
         internal static readonly PropertyInfo RootScopeProperty = typeof(IResolutionScope).GetSingleProperty("RootScope");
 
         internal static readonly Type DisposableType = typeof(IDisposable);

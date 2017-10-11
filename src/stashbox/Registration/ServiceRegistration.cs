@@ -2,6 +2,7 @@
 using Stashbox.Entity;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.Registration;
+using Stashbox.Lifetime;
 using Stashbox.MetaInfo;
 using Stashbox.Resolution;
 using Stashbox.Utils;
@@ -46,7 +47,7 @@ namespace Stashbox.Registration
         public int RegistrationNumber { get; }
 
         /// <inheritdoc />
-        public bool HasScopeName => this.RegistrationContext.UsedScopeName != null;
+        public bool HasScopeName => this.RegistrationContext.Lifetime is NamedScopeLifetime;
 
         internal ServiceRegistration(Type serviceType, Type implementationType, IContainerConfigurator containerConfigurator,
              IObjectBuilder objectBuilder, RegistrationContextData registrationContextData,
@@ -104,7 +105,7 @@ namespace Stashbox.Registration
         }
 
         /// <inheritdoc />
-        public bool CanInjectIntoNamedScope(ISet<object> scopeNames) => scopeNames.Contains(this.RegistrationContext.UsedScopeName);
+        public bool CanInjectIntoNamedScope(ISet<object> scopeNames) => scopeNames.Contains(((NamedScopeLifetime)this.RegistrationContext.Lifetime).ScopeName);
 
         private bool HasParentTypeConditionAndMatch(TypeInformation typeInfo) =>
             this.RegistrationContext.TargetTypeCondition != null && typeInfo.ParentType != null && this.RegistrationContext.TargetTypeCondition == typeInfo.ParentType;

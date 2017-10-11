@@ -1,4 +1,5 @@
-﻿using Stashbox.Infrastructure;
+﻿using Stashbox.Entity;
+using Stashbox.Infrastructure;
 using Stashbox.Utils;
 using System;
 using System.Collections.Generic;
@@ -103,16 +104,18 @@ namespace Stashbox.Resolution
             this.ParameterExpressions = this.ParameterExpressions.AddRange(parameterExpressions);
         }
 
-        internal ResolutionContext CreateNew(IContainerContext childContext = null, object scopeName = null)
+        internal ResolutionContext CreateNew(IContainerContext childContext = null, KeyValue<object, ParameterExpression> scopeParameter = null)
         {
-            var context = new ResolutionContext(this.ResolutionScope, this.circularDependencyBarrier, this.expressionOverrides,
-                this.currentlyDecoratingTypes, this.ParameterExpressions, this.ScopeNames,
-                childContext ?? this.ChildContext, this.NullResultAllowed, this.CurrentScopeParameter);
+            var scopeNames = this.ScopeNames;
+            if (scopeParameter != null)
+            {
+                scopeNames = scopeNames ?? new HashSet<object>();
+                scopeNames.Add(scopeParameter.Key);
+            }
 
-            if (scopeName != null)
-                context.ScopeNames.Add(scopeName);
-
-            return context;
+            return new ResolutionContext(this.ResolutionScope, this.circularDependencyBarrier, this.expressionOverrides,
+                 this.currentlyDecoratingTypes, this.ParameterExpressions, scopeNames, childContext ?? this.ChildContext,
+                 this.NullResultAllowed, scopeParameter == null ? this.CurrentScopeParameter : scopeParameter.Value);
         }
     }
 }

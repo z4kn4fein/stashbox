@@ -1,12 +1,12 @@
-﻿using Stashbox.Entity;
+﻿using Stashbox.Configuration;
+using Stashbox.Entity;
+using Stashbox.Exceptions;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.Registration;
+using Stashbox.Lifetime;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Stashbox.Configuration;
-using Stashbox.Exceptions;
-using Stashbox.Lifetime;
 
 namespace Stashbox.Registration
 {
@@ -188,11 +188,8 @@ namespace Stashbox.Registration
             return this;
         }
 
-        public IFluentServiceRegistrator InNamedScope(object scopeName)
-        {
-            this.Context.UsedScopeName = scopeName;
-            return this;
-        }
+        public IFluentServiceRegistrator InNamedScope(object scopeName) =>
+            this.WithLifetime(new NamedScopeLifetime(scopeName));
 
         public IFluentServiceRegistrator DefinesScope(object scopeName)
         {
