@@ -107,12 +107,7 @@ namespace Stashbox.Resolution
             this.ParameterExpressions = this.ParameterExpressions.AddRange(parameterExpressions);
         }
 
-        internal TValue GetPerRequestItemOrDefault<TValue>(object key)
-        {
-            var value = this.PerRequestItems.GetOrDefault(key);
-            if (value == null) return default(TValue);
-            return (TValue)value;
-        }
+        internal object GetPerRequestItemOrDefault(object key) => this.PerRequestItems.GetOrDefault(key);
 
         internal void AddPerRequestItem(object key, object value)
         {

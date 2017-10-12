@@ -25,15 +25,8 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
                 if (!((MemberAssignment)binding).Expression.TryEmit(generator, context, parameters))
                     return false;
 
-                if (binding.Member is PropertyInfo property)
-                {
-                    var setMethod = property.GetSetMethod();
-                    if (setMethod == null)
-                        return false;
-                    generator.EmitMethod(setMethod);
-                }
-                else if (binding.Member is FieldInfo field)
-                    generator.Emit(OpCodes.Stfld, field);
+                if (!EmitMemberAssign(binding.Member, generator))
+                    return false;
             }
 
             return true;

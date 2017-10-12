@@ -113,7 +113,13 @@ namespace System
             type.GetTypeInfo().DeclaredMethods.FirstOrDefault(method => (includeNonPublic || method.IsPublic) && method.Name == name);
 
         public static bool HasSetMethod(this MemberInfo property, bool includeNonPublic = false) =>
-            property.DeclaringType.GetSingleMethodOrDefault("set_" + property.Name, includeNonPublic) != null;
+            property.GetSetterMethodOrDefault(includeNonPublic) != null;
+
+        public static MethodInfo GetSetterMethodOrDefault(this MemberInfo property, bool includeNonPublic = false) =>
+            property.DeclaringType.GetSingleMethodOrDefault("set_" + property.Name, includeNonPublic);
+
+        public static MethodInfo GetGetterMethodOrDefault(this MemberInfo property, bool includeNonPublic = false) =>
+            property.DeclaringType.GetSingleMethodOrDefault("get_" + property.Name, includeNonPublic);
 
         public static bool IsDisposable(this Type type) =>
             type.Implements(Constants.DisposableType);

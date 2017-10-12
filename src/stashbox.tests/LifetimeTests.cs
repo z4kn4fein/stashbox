@@ -77,6 +77,39 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void LifetimeTests_Per_Resolution_Request_Dependency()
+        {
+            using (IStashboxContainer container = new StashboxContainer())
+            {
+                container.RegisterType<Test5>(context => context.WithPerResolutionRequestLifetime())
+                .RegisterType<Test6>()
+                .RegisterType<Test7>();
+
+                var inst1 = container.Resolve<Test7>();
+                var inst2 = container.Resolve<Test7>();
+
+                Assert.AreSame(inst1.Test5, inst1.Test6.Test5);
+                Assert.AreSame(inst2.Test5, inst2.Test6.Test5);
+                Assert.AreNotSame(inst1.Test5, inst2.Test6.Test5);
+                Assert.AreNotSame(inst2.Test5, inst1.Test6.Test5);
+            }
+        }
+
+        [TestMethod]
+        public void LifetimeTests_Per_Resolution_Request()
+        {
+            using (IStashboxContainer container = new StashboxContainer())
+            {
+                container.RegisterType<Test5>(context => context.WithPerResolutionRequestLifetime());
+
+                var inst1 = container.Resolve<Test5>();
+                var inst2 = container.Resolve<Test5>();
+                
+                Assert.AreNotSame(inst1, inst2);
+            }
+        }
+
+        [TestMethod]
         public void Scoped_Lifetime_Ensure_Thread_Safe()
         {
             for (var i = 0; i < 1000; i++)
@@ -102,6 +135,9 @@ namespace Stashbox.Tests
 
             var singleton = new SingletonLifetime();
             Assert.IsInstanceOfType(singleton.Create(), typeof(SingletonLifetime));
+
+            var perResolution = new ResolutionRequestLifetime();
+            Assert.IsInstanceOfType(perResolution.Create(), typeof(ResolutionRequestLifetime));
         }
 
         public interface ITest1 { string Name { get; set; } }
@@ -117,10 +153,12 @@ namespace Stashbox.Tests
 
         public class Test2 : ITest2
         {
+            public ITest1 Test1 { get; }
             public string Name { get; set; }
 
             public Test2(ITest1 test1)
             {
+                Test1 = test1;
                 Shield.EnsureNotNull(test1, nameof(test1));
                 Shield.EnsureNotNullOrEmpty(test1.Name, nameof(test1.Name));
                 Shield.EnsureTypeOf<Test1>(test1);
@@ -129,10 +167,14 @@ namespace Stashbox.Tests
 
         public class Test3 : ITest3
         {
+            public ITest1 Test1 { get; }
+            public ITest2 Test2 { get; }
             public string Name { get; set; }
 
             public Test3(ITest1 test1, ITest2 test2)
             {
+                Test1 = test1;
+                Test2 = test2;
                 Shield.EnsureNotNull(test1, nameof(test1));
                 Shield.EnsureNotNull(test2, nameof(test2));
                 Shield.EnsureNotNullOrEmpty(test1.Name, nameof(test1.Name));
@@ -152,6 +194,32 @@ namespace Stashbox.Tests
                     throw new InvalidOperationException();
 
                 IsConstructed = true;
+            }
+        }
+
+        class Test5
+        {
+        }
+
+        class Test6
+        {
+            public Test5 Test5 { get; }
+
+            public Test6(Test5 test5)
+            {
+                Test5 = test5;
+            }
+        }
+
+        class Test7
+        {
+            public Test5 Test5 { get; }
+            public Test6 Test6 { get; }
+
+            public Test7(Test5 test5, Test6 test6)
+            {
+                Test5 = test5;
+                Test6 = test6;
             }
         }
     }

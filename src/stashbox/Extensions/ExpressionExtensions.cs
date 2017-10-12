@@ -27,8 +27,9 @@ namespace System.Linq.Expressions
             }
 
 #if NET45 || NET40 || NETSTANDARD1_3
-            if (!expression.TryEmit(out Delegate factory, typeof(Func<IResolutionScope, object>), typeof(object), parameter))
-                factory = Expression.Lambda(expression, parameter).Compile();
+            if (!expression.TryEmit(out Delegate factory, typeof(Func<IResolutionScope, object>), typeof(object),
+                parameter)) ;
+                //factory = Expression.Lambda(expression, parameter).Compile();
 
             return (Func<IResolutionScope, object>)factory;
 #else
@@ -45,8 +46,9 @@ namespace System.Linq.Expressions
         public static Func<IResolutionScope, Delegate> CompileDynamicDelegate(this Expression expression, ParameterExpression parameter)
         {
 #if NET45 || NET40 || NETSTANDARD1_3
-            if (!expression.TryEmit(out Delegate factory, typeof(Func<IResolutionScope, Delegate>), typeof(Delegate), parameter))
-                factory = Expression.Lambda<Func<IResolutionScope, Delegate>>(expression, parameter).Compile();
+            if (!expression.TryEmit(out Delegate factory, typeof(Func<IResolutionScope, Delegate>), typeof(Delegate),
+                parameter)) ;
+                //factory = Expression.Lambda<Func<IResolutionScope, Delegate>>(expression, parameter).Compile();
 
             return (Func<IResolutionScope, Delegate>)factory;
 #else

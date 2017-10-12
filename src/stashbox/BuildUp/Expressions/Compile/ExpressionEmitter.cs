@@ -25,6 +25,26 @@ namespace Stashbox.BuildUp.Expressions.Compile
                 : null;
 
             var context = new CompilerContext(analyzer.ClosureExpressions, delegateTarget);
+
+
+
+#if NET45 || NET40
+
+            //var typ = DynamicModule.ModuleBuilder.Value.DefineType("Stashbox.Dynamic.EmittedType", TypeAttributes.Public);
+
+            //var m = typ.DefineMethod("nojrwonfreonre", MethodAttributes.Public | MethodAttributes.Static, returnType, delegateTarget == null ? parameters.GetTypes() : delegateTarget.Target.GetType().ConcatDelegateTargetParameter(parameters.GetTypes()));
+            //var g = m.GetILGenerator();
+            //if (!expression.TryEmit(g, context, parameters))
+            //    return false;
+
+            //g.Emit(OpCodes.Ret);
+
+            //var t = typ.CreateType();
+            //DynamicModule.DynamicAssemblyBuilder.Value.Save("Stashbox.Dynamic.dll");
+
+#endif
+
+
             var method = Emitter.CreateDynamicMethod(context, returnType, parameters);
             var generator = method.GetILGenerator();
 

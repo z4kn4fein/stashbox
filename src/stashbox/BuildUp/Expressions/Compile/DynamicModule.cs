@@ -16,7 +16,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
             DynamicAssemblyBuilder.Value.DefineDynamicModule("Stashbox.Dynamic"));
 #else
         public static readonly Lazy<ModuleBuilder> ModuleBuilder = new Lazy<ModuleBuilder>(() =>
-            DynamicAssemblyBuilder.Value.DefineDynamicModule("Stashbox.Dynamic"));
+            DynamicAssemblyBuilder.Value.DefineDynamicModule("Stashbox.Dynamic", "Stashbox.Dynamic.dll"));
 #endif
 
 #if NETSTANDARD1_3
@@ -28,7 +28,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
         public static readonly Lazy<AssemblyBuilder> DynamicAssemblyBuilder = new Lazy<AssemblyBuilder>(() =>
             AppDomain.CurrentDomain.DefineDynamicAssembly(
                 new AssemblyName("Stashbox.Dynamic"),
-                AssemblyBuilderAccess.Run));
+                AssemblyBuilderAccess.RunAndSave, "c:\\temp"));
 #endif
 
         private static int typeCounter;

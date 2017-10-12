@@ -18,6 +18,8 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
                     if (paramIndex == -1)
                         return false;
 
+                    generator.Emit(OpCodes.Ldarg_0);
+
                     if (!expression.Right.TryEmit(generator, context, parameters))
                         return false;
 

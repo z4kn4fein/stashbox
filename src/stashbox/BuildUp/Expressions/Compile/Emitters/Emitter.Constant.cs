@@ -42,9 +42,9 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
                 generator.Emit((bool)value ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0);
             else if (type == typeof(double))
                 generator.Emit(OpCodes.Ldc_R8, (double)value);
-            else if (type == typeof(Type))
+            else if (value is Type)
             {
-                generator.Emit(OpCodes.Ldtoken, type);
+                generator.Emit(OpCodes.Ldtoken, (Type)value);
                 generator.Emit(OpCodes.Call, typeof(Type).GetMethod("GetTypeFromHandle"));
             }
             else if (context.HasClosure)

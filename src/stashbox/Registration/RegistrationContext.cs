@@ -197,6 +197,9 @@ namespace Stashbox.Registration
             return this;
         }
 
+        public IFluentServiceRegistrator WithPerResolutionRequestLifetime() =>
+            this.WithLifetime(new ResolutionRequestLifetime());
+
         public IStashboxContainer Register()
         {
             if (this.withImplementedTypes)

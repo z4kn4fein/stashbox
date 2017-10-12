@@ -45,6 +45,9 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
                 case ExpressionType.NewArrayInit:
                     return ((NewArrayExpression)expression).TryEmit(generator, context, parameters);
 
+                case ExpressionType.Assign:
+                    return ((BinaryExpression)expression).TryEmit(generator, context, parameters);
+
                 case ExpressionType.Default:
                     return ((DefaultExpression)expression).TryEmit(generator);
             }

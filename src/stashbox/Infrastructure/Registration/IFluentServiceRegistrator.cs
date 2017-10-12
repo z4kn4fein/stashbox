@@ -1,5 +1,6 @@
 ﻿using System;
 using Stashbox.Entity;
+using Stashbox.Lifetime;
 
 namespace Stashbox.Infrastructure.Registration
 {
@@ -129,5 +130,11 @@ namespace Stashbox.Infrastructure.Registration
         /// <param name="scopeName">The name of the scope.</param>
         /// <returns>The <see cref="IFluentServiceRegistrator"/> which on this method was called.</returns>
         IFluentServiceRegistrator DefinesScope(object scopeName);
+
+        /// <summary>
+        /// Sets the lifetime to <see cref="ResolutionRequestLifetime"/>. The container will inject this registration in a singleton per resolution request manner.
+        /// </summary>
+        /// <returns>The <see cref="IFluentServiceRegistrator"/> which on this method was called.</returns>
+        IFluentServiceRegistrator WithPerResolutionRequestLifetime();
     }
 }
