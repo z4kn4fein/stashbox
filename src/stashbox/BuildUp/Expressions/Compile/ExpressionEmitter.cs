@@ -1,18 +1,18 @@
 ﻿#if NET45 || NET40 || NETSTANDARD1_3
+using Stashbox.BuildUp.Expressions.Compile.Emitters;
 using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Threading;
-using Stashbox.BuildUp.Expressions.Compile.Emitters;
 
 namespace Stashbox.BuildUp.Expressions.Compile
 {
     public static class ExpressionEmitter
     {
         private static int methodCounter;
-        
+
         public static bool TryEmit(this Expression expression, out Delegate resultDelegate, Type delegateType,
             Type returnType, params ParameterExpression[] parameters)
         {
@@ -23,7 +23,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
                 return false;
 
             var module = new DynamicModule();
-            
+
             var fields = analyzer.StoredExpressions.Length > 0
                 ? module.GetOrAddTargetType(analyzer.StoredExpressions)
                 : null;
@@ -58,7 +58,9 @@ namespace Stashbox.BuildUp.Expressions.Compile
                     return false;
 
                 generator.Emit(OpCodes.Ret);
-                
+
+                resultDelegate = method.CreateDelegate(delegateType);
+
                 return true;
             }
 
