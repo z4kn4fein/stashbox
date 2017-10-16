@@ -1,7 +1,9 @@
 ﻿#if NET45 || NET40 || NETSTANDARD1_3
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Reflection.Emit;
 
 namespace Stashbox.BuildUp.Expressions.Compile.Emitters
@@ -55,14 +57,14 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
             return false;
         }
 
-        public static DynamicMethod CreateDynamicMethod(CompilerContext context, Type returnType, params ParameterExpression[] parameters)
-        {
-            if (!context.HasClosure)
-                return new DynamicMethod(string.Empty, returnType, parameters.GetTypes(), typeof(ExpressionEmitter), true);
+        //public static DynamicMethod CreateDynamicMethod(CompilerContext context, Type returnType, params ParameterExpression[] parameters)
+        //{
+        //    if (!context.HasClosure)
+        //        return new DynamicMethod(string.Empty, returnType, parameters.GetTypes(), typeof(ExpressionEmitter), true);
 
-            var targetType = context.Target.TargetType;
-            return new DynamicMethod(string.Empty, returnType, targetType.ConcatDelegateTargetParameter(parameters.GetTypes()), targetType, true);
-        }
+        //    var targetType = context.Target.TargetType;
+        //    return new DynamicMethod(string.Empty, returnType, context.ConcatCapturedArgumentWithParameter(parameters.GetTypes()), targetType, true);
+        //}
 
         public static Type[] GetTypes(this IList<ParameterExpression> parameters)
         {
@@ -77,24 +79,7 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
                 types[i] = parameters[i].Type;
             return types;
         }
-
-        public static Type[] ConcatDelegateTargetParameter(this Type targetType, Type[] parameters)
-        {
-            var count = parameters.Length;
-            if (count == 0)
-                return new[] { targetType };
-
-            var types = new Type[count + 1];
-            types[0] = targetType;
-
-            if (count == 1)
-                types[1] = parameters[0];
-            if (count > 1)
-                Array.Copy(parameters, 0, types, 1, count);
-
-            return types;
-        }
-
+        
         private static bool TryEmit(this IList<Expression> expressions, ILGenerator generator, CompilerContext context, params ParameterExpression[] parameters)
         {
             for (var i = 0; i < expressions.Count; i++)
@@ -140,6 +125,27 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
                     break;
             }
         }
+
+        internal static MethodInfo GetCurryClosureMethod(Type[] types)
+        {
+            return CurryClosureFuncs.Methods[types.Length - 2].MakeGenericMethod(types);
+        }
+    }
+    
+    internal static class CurryClosureFuncs
+    {
+        private static readonly IEnumerable<MethodInfo> _methods =
+            typeof(CurryClosureFuncs).GetTypeInfo().DeclaredMethods;
+
+        public static readonly MethodInfo[] Methods = _methods as MethodInfo[] ?? _methods.ToArray();
+
+        public static Func<R> Curry<C, R>(Func<C, R> f, C c) { return () => f(c); }
+        public static Func<T1, R> Curry<C, T1, R>(Func<C, T1, R> f, C c) { return t1 => f(c, t1); }
+        public static Func<T1, T2, R> Curry<C, T1, T2, R>(Func<C, T1, T2, R> f, C c) { return (t1, t2) => f(c, t1, t2); }
+        public static Func<T1, T2, T3, R> Curry<C, T1, T2, T3, R>(Func<C, T1, T2, T3, R> f, C c) { return (t1, t2, t3) => f(c, t1, t2, t3); }
+        public static Func<T1, T2, T3, T4, R> Curry<C, T1, T2, T3, T4, R>(Func<C, T1, T2, T3, T4, R> f, C c) { return (t1, t2, t3, t4) => f(c, t1, t2, t3, t4); }
+        public static Func<T1, T2, T3, T4, T5, R> Curry<C, T1, T2, T3, T4, T5, R>(Func<C, T1, T2, T3, T4, T5, R> f, C c) { return (t1, t2, t3, t4, t5) => f(c, t1, t2, t3, t4, t5); }
+        public static Func<T1, T2, T3, T4, T5, T6, R> Curry<C, T1, T2, T3, T4, T5, T6, R>(Func<C, T1, T2, T3, T4, T5, T6, R> f, C c) { return (t1, t2, t3, t4, t5, t6) => f(c, t1, t2, t3, t4, t5, t6); }
     }
 }
 #endif

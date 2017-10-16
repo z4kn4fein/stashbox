@@ -7,15 +7,15 @@ namespace Stashbox.BuildUp.Expressions.Compile
     {
         public FieldInfo[] Fields { get; }
 
-        public Type TargetType { get; }
+        //public Type TargetType { get; }
 
-        public object Target { get; }
+        //public object Target { get; }
 
-        public DelegateTarget(FieldInfo[] fields, Type targetType, object target)
+        public DelegateTarget(FieldInfo[] fields /*,Type targetType, object target*/)
         {
             this.Fields = fields;
-            this.TargetType = targetType;
-            this.Target = target;
+            //this.TargetType = targetType;
+            //this.Target = target;
         }
     }
 }

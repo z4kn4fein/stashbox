@@ -1,6 +1,7 @@
 ﻿#if NET45 || NET40 || NETSTANDARD1_3
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Reflection.Emit;
 
 namespace Stashbox.BuildUp.Expressions.Compile.Emitters
@@ -9,36 +10,49 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
     {
         private static bool TryEmit(this LambdaExpression expression, ILGenerator generator, CompilerContext context, params ParameterExpression[] parameters)
         {
-            var length = parameters.Length;
-            for (var i = 0; i < length; i++)
-            {
-                var capturedParamIndex = context.ClosureExpressions.GetIndex(parameters[i]);
-                if (capturedParamIndex == -1) continue;
-
-                generator.Emit(OpCodes.Ldarg_0);
-                generator.LoadParameter(i + 1);
-                generator.Emit(OpCodes.Stfld, context.Target.Fields[capturedParamIndex]);
-            }
-
-            var lambdaClosureIndex = context.ClosureExpressions.GetIndex(expression);
+            var lambdaClosureIndex = context.StoredExpressions.GetIndex(expression);
             if (lambdaClosureIndex == -1) return false;
 
-            var nestedParameters = expression.Parameters.CastToArray();
-            var nestedMethod = CreateDynamicMethod(context, expression.ReturnType, expression.Parameters.CastToArray());
-            var nestedGenerator = nestedMethod.GetILGenerator();
+            generator.Emit(OpCodes.Ldarg_0);
+            generator.Emit(OpCodes.Ldfld, context.Target.Fields[lambdaClosureIndex]);
 
-            if (!expression.Body.TryEmit(nestedGenerator, context, nestedParameters))
-                return false;
+            if (context.HasCapturedVariablesArgument)
+            {
+                if (!context.HasCapturedVariablesArgumentConstructed)
+                    generator.Emit(OpCodes.Newobj, context.CapturedArgumentsHolder.TargetType.GetTypeInfo().DeclaredConstructors.First());
+                else
+                    generator.Emit(OpCodes.Ldarg_1);
 
-            nestedGenerator.Emit(OpCodes.Ret);
+                var length = context.CapturedArguments.Length;
+                for (var i = 0; i < length; i++)
+                {
+                    var arg = context.CapturedArguments[i];
+                    var paramIndex = parameters.GetIndex(arg);
+                    if (paramIndex != -1)
+                    {
+                        generator.Emit(OpCodes.Dup);
 
-            var lambda = context.HasClosure
-                ? nestedMethod.CreateDelegate(expression.Type, context.Target.Target)
-                : nestedMethod.CreateDelegate(expression.Type);
+                        generator.LoadParameter(paramIndex + 1);
+                        generator.Emit(OpCodes.Stfld,
+                            context.CapturedArgumentsHolder.Fields[i]);
 
-            context.Target.Fields[lambdaClosureIndex].SetValue(context.Target.Target, lambda);
+                        continue;
+                    }
 
-            generator.LoadConstantField(context, lambdaClosureIndex);
+                    var definedVariableIndex = context.DefinedVariables.GetIndex(arg);
+                    if (definedVariableIndex != -1)
+                    {
+                        generator.Emit(OpCodes.Dup);
+
+                        generator.Emit(OpCodes.Ldloc, context.LocalBuilders[definedVariableIndex]);
+                        generator.Emit(OpCodes.Stfld,
+                            context.CapturedArgumentsHolder.Fields[i]);
+                    }
+                }
+                
+                generator.EmitMethod(GetCurryClosureMethod(context.ConcatCapturedArgumentWithParameter(parameters.GetTypes())));
+                return true;
+            }
 
             return true;
         }

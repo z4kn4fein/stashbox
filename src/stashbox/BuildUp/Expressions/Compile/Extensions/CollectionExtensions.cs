@@ -1,4 +1,5 @@
 ﻿using System;
+using Stashbox.Entity;
 
 namespace Stashbox.BuildUp.Expressions.Compile
 {
@@ -13,6 +14,20 @@ namespace Stashbox.BuildUp.Expressions.Compile
 
             for (int i = 0; i < length; i++)
                 if (array[i].Equals(element))
+                    return i;
+
+            return -1;
+        }
+
+        public static int GetIndex<TKey, TValue>(this KeyValue<TKey, TValue>[] array, TKey element)
+        {
+            if (array == null || array.Length == 0) return -1;
+
+            var length = array.Length;
+            if (length == 1) return array[0].Key.Equals(element) ? 0 : -1;
+
+            for (int i = 0; i < length; i++)
+                if (array[i].Key.Equals(element))
                     return i;
 
             return -1;

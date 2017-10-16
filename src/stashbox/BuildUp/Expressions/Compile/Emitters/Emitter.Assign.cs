@@ -11,21 +11,32 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
             switch (expression.Left.NodeType)
             {
                 case ExpressionType.Parameter:
-                    if (context.Target == null)
-                        return false;
+                    
+                    var localIndex = context.DefinedVariables.GetIndex(expression.Left);
+                    if (localIndex != -1)
+                    {
+                        if (!expression.Right.TryEmit(generator, context, parameters))
+                            return false;
 
-                    var paramIndex = context.ClosureExpressions.GetIndex(expression.Left);
-                    if (paramIndex == -1)
-                        return false;
+                        generator.Emit(OpCodes.Stloc, context.LocalBuilders[localIndex]);
 
-                    generator.Emit(OpCodes.Ldarg_0);
+                        return true;
+                    }
 
-                    if (!expression.Right.TryEmit(generator, context, parameters))
-                        return false;
+                    var paramIndex = context.CapturedArguments.GetIndex(expression.Left);
+                    if (paramIndex != -1)
+                    {
+                        generator.Emit(context.HasClosure ? OpCodes.Ldarg_1 : OpCodes.Ldarg_0);
 
-                    generator.Emit(OpCodes.Stfld, context.Target.Fields[paramIndex]);
+                        if (!expression.Right.TryEmit(generator, context, parameters))
+                            return false;
 
-                    return true;
+                        generator.Emit(OpCodes.Stfld, context.CapturedArgumentsHolder.Fields[paramIndex]);
+
+                        return true;
+                    }
+
+                    return false;
 
                 case ExpressionType.MemberAccess:
                     var memberExpression = (MemberExpression)expression.Left;

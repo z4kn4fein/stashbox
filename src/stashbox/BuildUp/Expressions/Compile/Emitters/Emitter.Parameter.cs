@@ -1,5 +1,4 @@
 ﻿#if NET45 || NET40 || NETSTANDARD1_3
-using System;
 using System.Linq.Expressions;
 using System.Reflection.Emit;
 
@@ -12,14 +11,37 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
             var index = parameters.GetIndex(expression);
             if (index != -1)
             {
-                generator.LoadParameter(context.HasClosure ? index + 1 : index);
+                generator.LoadParameter(index + (context.HasClosure && context.HasCapturedVariablesArgument 
+                    ? 2 
+                    : context.HasClosure || context.HasCapturedVariablesArgument 
+                        ? 1 
+                        : 0));
                 return true;
             }
 
-            var constantIndex = context.ClosureExpressions.GetIndex(expression);
-            if (constantIndex == -1) return false;
+            var constantIndex = context.StoredExpressions.GetIndex(expression);
+            if (constantIndex != -1)
+            {
+                generator.Emit(OpCodes.Ldarg_0);
+                generator.Emit(OpCodes.Ldfld, context.Target.Fields[constantIndex]);
+                return true;
+            }
+            
+            var definedVariableIndex = context.DefinedVariables.GetIndex(expression);
+            if (definedVariableIndex != -1)
+            {
+                generator.Emit(OpCodes.Ldloc, context.LocalBuilders[definedVariableIndex]);
+                return true;
+            }
 
-            generator.LoadConstantField(context, constantIndex);
+            var capturedVariableIndex = context.CapturedArguments.GetIndex(expression);
+            if (capturedVariableIndex != -1)
+            {
+                generator.Emit(OpCodes.Ldarg_1);
+                generator.Emit(OpCodes.Ldfld, context.CapturedArgumentsHolder.Fields[capturedVariableIndex]);
+                return true;
+            }
+
             return true;
         }
 

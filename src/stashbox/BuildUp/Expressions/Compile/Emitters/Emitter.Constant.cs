@@ -49,22 +49,17 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
             }
             else if (context.HasClosure)
             {
-                var constantIndex = context.ClosureExpressions.GetIndex(expression);
+                var constantIndex = context.StoredExpressions.GetIndex(expression);
                 if (constantIndex == -1) return false;
 
-                generator.LoadConstantField(context, constantIndex);
+                generator.Emit(OpCodes.Ldarg_0);
+                generator.Emit(OpCodes.Ldfld, context.Target.Fields[constantIndex]);
                 return true;
             }
             else
                 return false;
 
             return true;
-        }
-
-        private static void LoadConstantField(this ILGenerator generator, CompilerContext context, int constantIndex)
-        {
-            generator.Emit(OpCodes.Ldarg_0);
-            generator.Emit(OpCodes.Ldfld, context.Target.Fields[constantIndex]);
         }
     }
 }

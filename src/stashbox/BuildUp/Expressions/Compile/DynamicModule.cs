@@ -9,7 +9,7 @@ using Stashbox.BuildUp.Expressions.Compile.Emitters;
 
 namespace Stashbox.BuildUp.Expressions.Compile
 {
-    internal class DynamicModule
+    public class DynamicModule
     {
 #if NETSTANDARD1_3
         public static readonly Lazy<ModuleBuilder> ModuleBuilder = new Lazy<ModuleBuilder>(() =>
@@ -31,31 +31,32 @@ namespace Stashbox.BuildUp.Expressions.Compile
                 AssemblyBuilderAccess.RunAndSave, "c:\\temp"));
 #endif
 
+        public static readonly Lazy<TypeBuilder> DynamicTypeBuilder = new Lazy<TypeBuilder>(() =>
+            ModuleBuilder.Value.DefineType("Stashbox.Dynamic.DT" + Interlocked.Increment(ref typeCounter), TypeAttributes.Public));
+
         private static int typeCounter;
 
         private static readonly ConcurrentTree<Type> TargetTypes = new ConcurrentTree<Type>();
 
-        public static Type GetDelegateTargetOrDefault(Expression[] expressions) =>
-            expressions.Length > 0 ? GetOrAddTargetType(expressions) : null;
+        private static readonly ConcurrentTree<Type> CapturedArgumentTypes = new ConcurrentTree<Type>();
 
-        private static Type GetOrAddTargetType(Expression[] expressions)
+        public FieldInfo[] GetOrAddTargetType(Expression[] expressions)
         {
             var length = expressions.Length;
             var types = new Type[length];
 
-            var foundType = TargetTypes.GetOrDefault(length);
-            if (foundType != null)
-            {
-                if (length <= 0) return foundType;
+            //var foundType = TargetTypes.GetOrDefault(length);
+            //if (foundType != null)
+            //{
+            //    if (length <= 0) return foundType;
 
-                for (var i = 0; i < length; i++)
-                    types[i] = expressions[i].Type;
+            //    for (var i = 0; i < length; i++)
+            //        types[i] = expressions[i].Type;
 
-                return foundType.MakeGenericType(types);
-            }
+            //    return foundType.MakeGenericType(types);
+            //}
 
             var fields = new FieldInfo[length];
-            var typeBuilder = ModuleBuilder.Value.DefineType("Stashbox.Dynamic.DT" + Interlocked.Increment(ref typeCounter), TypeAttributes.Public);
 
             if (length > 0)
             {
@@ -63,7 +64,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
                 for (var i = 0; i < length; i++)
                     typeParamNames[i] = "T" + i;
 
-                var typeParams = typeBuilder.DefineGenericParameters(typeParamNames);
+                var typeParams = DynamicTypeBuilder.Value.DefineGenericParameters(typeParamNames);
 #if NETSTANDARD1_3
                 var genericTypes = new Type[length];
 #endif
@@ -74,16 +75,16 @@ namespace Stashbox.BuildUp.Expressions.Compile
 #if NETSTANDARD1_3
                     var genericType = typeParams[i].AsType();
                     genericTypes[i] = genericType;
-                    fields[i] = typeBuilder.DefineField("F" + i, genericType, FieldAttributes.Public);
+                    fields[i] = DynamicTypeBuilder.Value.DefineField("F" + i, genericType, FieldAttributes.Public);
 #else
-                    fields[i] = typeBuilder.DefineField("F" + i, typeParams[i], FieldAttributes.Public);
+                    fields[i] = DynamicTypeBuilder.Value.DefineField("F" + i, typeParams[i], FieldAttributes.Public);
 #endif
                 }
 
 #if NETSTANDARD1_3
-                var constructor = typeBuilder.DefineConstructor(MethodAttributes.Public, CallingConventions.HasThis, genericTypes);
+                var constructor = DynamicTypeBuilder.Value.DefineConstructor(MethodAttributes.Public, CallingConventions.HasThis, genericTypes);
 #else
-                var constructor = typeBuilder.DefineConstructor(MethodAttributes.Public, CallingConventions.HasThis, typeParams);
+                var constructor = DynamicTypeBuilder.Value.DefineConstructor(MethodAttributes.Public, CallingConventions.HasThis, typeParams);
 #endif
                 var generator = constructor.GetILGenerator();
 
@@ -99,12 +100,64 @@ namespace Stashbox.BuildUp.Expressions.Compile
 
                 generator.Emit(OpCodes.Ret);
             }
+
+            return fields;
+
+//#if NETSTANDARD1_3
+//            var type = DynamicTypeBuilder.Value.CreateTypeInfo().AsType();
+//#else
+//            var type = DynamicTypeBuilder.Value.CreateType();
+//#endif
+//            TargetTypes.AddOrUpdate(length, type);
+//            return type.MakeGenericType(types);
+        }
+
+        public Type GetOrAddCapturedArgumentsType(Expression[] expressions)
+        {
+            var length = expressions.Length;
+            var types = new Type[length];
+
+            var foundType = CapturedArgumentTypes.GetOrDefault(length);
+            if (foundType != null)
+            {
+                if (length <= 0) return foundType;
+
+                for (var i = 0; i < length; i++)
+                    types[i] = expressions[i].Type;
+
+                return foundType.MakeGenericType(types);
+            }
+
+            var fields = new FieldInfo[length];
+
+            var typeBuilder = ModuleBuilder.Value.DefineType("Stashbox.Dynamic.DT" + Interlocked.Increment(ref typeCounter), TypeAttributes.Public);
+
+            var typeParamNames = new string[length];
+            for (var i = 0; i < length; i++)
+                typeParamNames[i] = "T" + i;
+
+            var typeParams = typeBuilder.DefineGenericParameters(typeParamNames);
+#if NETSTANDARD1_3
+                var genericTypes = new Type[length];
+#endif
+
+            for (var i = 0; i < length; i++)
+            {
+                types[i] = expressions[i].Type;
+#if NETSTANDARD1_3
+                    var genericType = typeParams[i].AsType();
+                    genericTypes[i] = genericType;
+                    fields[i] = typeBuilder.DefineField("F" + i, genericType, FieldAttributes.Public);
+#else
+                fields[i] = typeBuilder.DefineField("F" + i, typeParams[i], FieldAttributes.Public);
+#endif
+            }
 #if NETSTANDARD1_3
             var type = typeBuilder.CreateTypeInfo().AsType();
 #else
             var type = typeBuilder.CreateType();
 #endif
-            TargetTypes.AddOrUpdate(length, type);
+            CapturedArgumentTypes.AddOrUpdate(length, type);
             return type.MakeGenericType(types);
         }
     }
