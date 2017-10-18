@@ -1,10 +1,10 @@
 ﻿#if NET45 || NET40 || NETSTANDARD1_3
+using Stashbox.Entity;
+using Stashbox.Utils;
 using System;
 using System.Linq.Expressions;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
-using Stashbox.Entity;
-using Stashbox.Utils;
 
 namespace Stashbox.BuildUp.Expressions.Compile
 {
@@ -32,13 +32,13 @@ namespace Stashbox.BuildUp.Expressions.Compile
 
         public bool HasCapturedVariablesArgumentConstructed => !this.hasCapturedVariablesArgumentConstructed.CompareExchange(false, true);
 
-        public CompilerContext(DelegateTarget target, Expression[] definedVariables, Expression[] storedExpressions, Expression[] capturedArguments, KeyValue<LambdaExpression, Expression[]>[] nestedLambdas, 
-            CapturedArgumentsHolder capturedArgumentsHolder) 
+        public CompilerContext(DelegateTarget target, Expression[] definedVariables, Expression[] storedExpressions, Expression[] capturedArguments,
+            KeyValue<LambdaExpression, Expression[]>[] nestedLambdas, CapturedArgumentsHolder capturedArgumentsHolder)
             : this(target, definedVariables, storedExpressions, capturedArguments, nestedLambdas, capturedArgumentsHolder, false)
         { }
-        
-        private CompilerContext(DelegateTarget target, Expression[] definedVariables, Expression[] storedExpressions, Expression[] capturedArguments, KeyValue<LambdaExpression, Expression[]>[] nestedLambdas,
-            CapturedArgumentsHolder capturedArgumentsHolder, bool hasCapturedVariablesArgumentConstructed)
+
+        private CompilerContext(DelegateTarget target, Expression[] definedVariables, Expression[] storedExpressions, Expression[] capturedArguments,
+            KeyValue<LambdaExpression, Expression[]>[] nestedLambdas, CapturedArgumentsHolder capturedArgumentsHolder, bool hasCapturedVariablesArgumentConstructed)
         {
             this.hasCapturedVariablesArgumentConstructed = new AtomicBool(hasCapturedVariablesArgumentConstructed);
             this.Target = target;
@@ -50,7 +50,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
         }
 
         public CompilerContext CreateNew(Expression[] definedVariables) =>
-            new CompilerContext(this.Target, definedVariables, this.StoredExpressions, this.CapturedArguments, this.NestedLambdas, 
+            new CompilerContext(this.Target, definedVariables, this.StoredExpressions, this.CapturedArguments, this.NestedLambdas,
                 this.CapturedArgumentsHolder);
 
         public Type[] ConcatDelegateTargetAndCapturedArgumentWithParameter(Type[] parameters)
@@ -92,23 +92,8 @@ namespace Stashbox.BuildUp.Expressions.Compile
             return types;
         }
 
-        public Type[] ConcatCapturedArgumentWithParameterWithReturnType(Type[] parameters, Type returnType)
-        {
-            var count = parameters.Length;
-            if (count == 0)
-                return new[] { this.CapturedArgumentsHolder.TargetType, returnType };
-
-            var types = new Type[count + 2];
-            types[0] = this.CapturedArgumentsHolder.TargetType;
-            types[1] = returnType;
-
-            if (count == 1)
-                types[2] = parameters[0];
-            if (count > 1)
-                Array.Copy(parameters, 0, types, 2, count);
-
-            return types;
-        }
+        public Type[] ConcatCapturedArgumentWithParameterWithReturnType(Type[] parameters, Type returnType) =>
+            Utils.ConcatCapturedArgumentWithParameterWithReturnType(parameters, this.CapturedArgumentsHolder.TargetType, returnType);
 
         public Type[] ConcatDelegateTargetWithParameter(Type[] parameters)
         {

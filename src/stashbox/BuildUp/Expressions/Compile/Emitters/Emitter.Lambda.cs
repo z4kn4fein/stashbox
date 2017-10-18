@@ -1,6 +1,7 @@
 ﻿//#define ILDebug
 #if NET45 || NET40 || NETSTANDARD1_3
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -104,9 +105,9 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
 
             nestedGenerator.Emit(OpCodes.Ret);
 
-            var delegateArgs = context.ConcatCapturedArgumentWithParameterWithReturnType(expression.Parameters.ToArray().GetTypes(),
+            var delegateArgs = context.ConcatCapturedArgumentWithParameterWithReturnType(expression.Parameters.GetTypes(),
                     lambdaExpression.ReturnType);
-            var resultDelegate = method.CreateDelegate(GetFuncType(delegateArgs), nestedContext.Target.Target);
+            var resultDelegate = method.CreateDelegate(Utils.GetFuncType(delegateArgs), nestedContext.Target.Target);
 
             nestedContext.Target.Fields[lambdaClosureIndex].SetValue(nestedContext.Target.Target, resultDelegate);
 
@@ -114,24 +115,6 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
                 generator.EmitMethod(GetCurryClosureMethod(delegateArgs, context));
 #endif
             return true;
-        }
-
-        public static Type GetFuncType(Type[] paramTypes)
-        {
-            switch (paramTypes.Length)
-            {
-                case 1: return typeof(Func<>).MakeGenericType(paramTypes);
-                case 2: return typeof(Func<,>).MakeGenericType(paramTypes);
-                case 3: return typeof(Func<,,>).MakeGenericType(paramTypes);
-                case 4: return typeof(Func<,,,>).MakeGenericType(paramTypes);
-                case 5: return typeof(Func<,,,,>).MakeGenericType(paramTypes);
-                case 6: return typeof(Func<,,,,,>).MakeGenericType(paramTypes);
-                case 7: return typeof(Func<,,,,,,>).MakeGenericType(paramTypes);
-                case 8: return typeof(Func<,,,,,,,>).MakeGenericType(paramTypes);
-                default:
-                    throw new NotSupportedException(
-                        string.Format("Func with so many ({0}) parameters is not supported!", paramTypes.Length));
-            }
         }
     }
 }

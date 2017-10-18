@@ -1,5 +1,6 @@
 ﻿#if NET45 || NET40 || NETSTANDARD1_3
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection.Emit;
 

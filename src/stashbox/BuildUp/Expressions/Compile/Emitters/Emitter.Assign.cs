@@ -1,4 +1,5 @@
 ﻿#if NET45 || NET40 || NETSTANDARD1_3
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection.Emit;
 
@@ -11,7 +12,7 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
             switch (expression.Left.NodeType)
             {
                 case ExpressionType.Parameter:
-                    
+
                     var localIndex = context.DefinedVariables.GetIndex(expression.Left);
                     if (localIndex != -1)
                     {

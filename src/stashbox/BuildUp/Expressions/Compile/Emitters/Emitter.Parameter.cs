@@ -1,4 +1,5 @@
 ﻿#if NET45 || NET40 || NETSTANDARD1_3
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection.Emit;
 
@@ -11,10 +12,10 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
             var index = parameters.GetIndex(expression);
             if (index != -1)
             {
-                generator.LoadParameter(index + (context.HasClosure && context.HasCapturedVariablesArgument 
-                    ? 2 
-                    : context.HasClosure || context.HasCapturedVariablesArgument 
-                        ? 1 
+                generator.LoadParameter(index + (context.HasClosure && context.HasCapturedVariablesArgument
+                    ? 2
+                    : context.HasClosure || context.HasCapturedVariablesArgument
+                        ? 1
                         : 0));
                 return true;
             }
@@ -26,7 +27,7 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
                 generator.Emit(OpCodes.Ldfld, context.Target.Fields[constantIndex]);
                 return true;
             }
-            
+
             var definedVariableIndex = context.DefinedVariables.GetIndex(expression);
             if (definedVariableIndex != -1)
             {

@@ -1,11 +1,11 @@
 ﻿#if NET45 || NET40 || NETSTANDARD1_3
+using Stashbox.BuildUp.Expressions.Compile.Emitters;
 using Stashbox.Utils;
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Threading;
-using Stashbox.BuildUp.Expressions.Compile.Emitters;
 
 namespace Stashbox.BuildUp.Expressions.Compile
 {
@@ -40,21 +40,13 @@ namespace Stashbox.BuildUp.Expressions.Compile
 
         private static readonly ConcurrentTree<Type> CapturedArgumentTypes = new ConcurrentTree<Type>();
 
-        public Type GetOrAddTargetType(Expression[] expressions)
+        public Type GetOrAddTargetType(Type[] types)
         {
-            var length = expressions.Length;
-            var types = new Type[length];
+            var length = types.Length;
 
             var foundType = TargetTypes.GetOrDefault(length);
             if (foundType != null)
-            {
-                if (length <= 0) return foundType;
-
-                for (var i = 0; i < length; i++)
-                    types[i] = expressions[i].Type;
-
                 return foundType.MakeGenericType(types);
-            }
 
             var fields = new FieldInfo[length];
             var typeBuilder = ModuleBuilder.Value.DefineType("Stashbox.Dynamic.DT" + Interlocked.Increment(ref typeCounter), TypeAttributes.Public);
@@ -72,7 +64,6 @@ namespace Stashbox.BuildUp.Expressions.Compile
 
                 for (var i = 0; i < length; i++)
                 {
-                    types[i] = expressions[i].Type;
 #if NETSTANDARD1_3
                     var genericType = typeParams[i].AsType();
                     genericTypes[i] = genericType;
@@ -115,7 +106,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
         {
             var length = expressions.Length;
             var types = new Type[length];
-            
+
             var fields = new FieldInfo[length];
 
             if (length > 0)

@@ -1,7 +1,8 @@
-﻿using System;
+﻿using Stashbox;
 using Stashbox.Entity;
+using System.Linq.Expressions;
 
-namespace Stashbox.BuildUp.Expressions.Compile
+namespace System.Collections.Generic
 {
     internal static class CollectionExtensions
     {
@@ -61,6 +62,20 @@ namespace Stashbox.BuildUp.Expressions.Compile
                     newArr[length] = element;
                     return newArr;
             }
+        }
+
+        public static Type[] GetTypes(this IList<ParameterExpression> parameters)
+        {
+            var count = parameters.Count;
+            if (count == 0)
+                return Constants.EmptyTypes;
+            if (count == 1)
+                return new[] { parameters[0].Type };
+
+            var types = new Type[count];
+            for (var i = 0; i < count; i++)
+                types[i] = parameters[i].Type;
+            return types;
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿#if NET45 || NET40 || NETSTANDARD1_3
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -57,27 +58,13 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
             return false;
         }
 
-        public static DynamicMethod CreateDynamicMethod(CompilerContext context, Type returnType, params Expression[] parameters)
+        public static DynamicMethod CreateDynamicMethod(CompilerContext context, Type returnType, params ParameterExpression[] parameters)
         {
-            return !context.HasClosure 
-                ? new DynamicMethod(string.Empty, returnType, parameters.GetTypes(), typeof(ExpressionEmitter), true) 
+            return !context.HasClosure
+                ? new DynamicMethod(string.Empty, returnType, parameters.GetTypes(), typeof(ExpressionEmitter), true)
                 : new DynamicMethod(string.Empty, returnType, context.ConcatDelegateTargetWithParameter(parameters.GetTypes()), context.Target.TargetType, true);
         }
 
-        public static Type[] GetTypes(this IList<Expression> parameters)
-        {
-            var count = parameters.Count;
-            if (count == 0)
-                return Constants.EmptyTypes;
-            if (count == 1)
-                return new[] { parameters[0].Type };
-
-            var types = new Type[count];
-            for (var i = 0; i < count; i++)
-                types[i] = parameters[i].Type;
-            return types;
-        }
-        
         private static bool TryEmit(this IList<Expression> expressions, ILGenerator generator, CompilerContext context, params ParameterExpression[] parameters)
         {
             for (var i = 0; i < expressions.Count; i++)
@@ -140,7 +127,7 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
             return locals;
         }
     }
-    
+
     internal static class CurryClosureFuncs
     {
         private static readonly IEnumerable<MethodInfo> _methods =

@@ -1,9 +1,9 @@
-﻿using System;
+﻿using Stashbox.Entity;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Stashbox.Entity;
 
 namespace Stashbox.BuildUp.Expressions.Compile
 {
@@ -16,6 +16,8 @@ namespace Stashbox.BuildUp.Expressions.Compile
         public Expression[] DefinedVariables { get; private set; } = new Expression[0];
 
         public KeyValue<LambdaExpression, Expression[]>[] NestedLambdas { get; private set; } = new KeyValue<LambdaExpression, Expression[]>[0];
+
+        public Type[] StoredObjectTypes { get; private set; } = new Type[0];
 
         public object[] StoredObjects { get; private set; } = new object[0];
 
@@ -32,17 +34,15 @@ namespace Stashbox.BuildUp.Expressions.Compile
                 case ExpressionType.Lambda:
                     var lambda = (LambdaExpression)expression;
 
-                    this.AddStoredItem(expression);
-
                     var analyzer = new TreeAnalyzer();
                     if (!analyzer.Analyze(lambda.Body, lambda.Parameters.CastToArray()))
                         return false;
-                    
+
                     this.AddNestedLambda(new KeyValue<LambdaExpression, Expression[]>(lambda, analyzer.DefinedVariables));
 
                     var length = analyzer.StoredExpressions.Length;
                     for (var i = 0; i < length; i++)
-                        this.AddStoredItem(analyzer.StoredExpressions[i], analyzer.StoredObjects[i]);
+                        this.AddStoredItem(analyzer.StoredExpressions[i], analyzer.StoredExpressions[i].Type, analyzer.StoredObjects[i]);
 
                     var lambdaLength = analyzer.NestedLambdas.Length;
                     for (var i = 0; i < lambdaLength; i++)
@@ -60,7 +60,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
                 case ExpressionType.Constant:
                     var constant = (ConstantExpression)expression;
                     if (constant.Value == null || IsInPlaceEmittableConstant(constant.Type, constant.Value)) return true;
-                    this.AddStoredItem(constant, constant.Value);
+                    this.AddStoredItem(constant, constant.Type, constant.Value);
                     return true;
 
                 case ExpressionType.New:
@@ -75,7 +75,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
 
                 case ExpressionType.Block:
                     var block = (BlockExpression)expression;
-                    for(var i = 0; i < block.Variables.Count; i++)
+                    for (var i = 0; i < block.Variables.Count; i++)
                         this.AddDefinedVariable(block.Variables[i]);
 
                     return this.Analyze(block.Expressions, parameters);
@@ -120,7 +120,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
 
             return true;
         }
-        
+
         private bool Analyze(IList<MemberBinding> bindings, params ParameterExpression[] parameters)
         {
             for (var i = 0; i < bindings.Count; i++)
@@ -134,10 +134,11 @@ namespace Stashbox.BuildUp.Expressions.Compile
             return true;
         }
 
-        private void AddStoredItem(Expression expression, object value = null)
+        public void AddStoredItem(Expression expression, Type type, object value = null)
         {
             if (this.StoredExpressions.ContainsElement(expression)) return;
             this.StoredExpressions = this.StoredExpressions.AddElement(expression);
+            this.StoredObjectTypes = this.StoredObjectTypes.AddElement(type);
             this.StoredObjects = this.StoredObjects.AddElement(value);
         }
 
