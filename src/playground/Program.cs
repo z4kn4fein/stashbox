@@ -23,10 +23,11 @@ namespace playground
             );
 
             Delegate d;
-            var lambda = Lambda<Func<int, Func<int, int>>>(block, param).Body.TryEmit(out d, typeof(Func<int, int>), typeof(Func<int, int>), param);
+            var lambda = Lambda<Func<int, Func<int, int>>>(block, param).TryEmit(out d);
 
-            var a = (Func<int, Func<int, int>>)d.DynamicInvoke(4);
+            var a = (Func<int, Func<int, int>>)d;
             var k = a(5);
+            var g = k(2);
 
             DynamicModule.DynamicAssemblyBuilder.Value.Save("Stashbox.Dynamic.dll");
         }

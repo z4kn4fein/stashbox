@@ -57,16 +57,14 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
             return false;
         }
 
-        //public static DynamicMethod CreateDynamicMethod(CompilerContext context, Type returnType, params ParameterExpression[] parameters)
-        //{
-        //    if (!context.HasClosure)
-        //        return new DynamicMethod(string.Empty, returnType, parameters.GetTypes(), typeof(ExpressionEmitter), true);
+        public static DynamicMethod CreateDynamicMethod(CompilerContext context, Type returnType, params Expression[] parameters)
+        {
+            return !context.HasClosure 
+                ? new DynamicMethod(string.Empty, returnType, parameters.GetTypes(), typeof(ExpressionEmitter), true) 
+                : new DynamicMethod(string.Empty, returnType, context.ConcatDelegateTargetWithParameter(parameters.GetTypes()), context.Target.TargetType, true);
+        }
 
-        //    var targetType = context.Target.TargetType;
-        //    return new DynamicMethod(string.Empty, returnType, context.ConcatCapturedArgumentWithParameter(parameters.GetTypes()), targetType, true);
-        //}
-
-        public static Type[] GetTypes(this IList<ParameterExpression> parameters)
+        public static Type[] GetTypes(this IList<Expression> parameters)
         {
             var count = parameters.Count;
             if (count == 0)
@@ -126,9 +124,20 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
             }
         }
 
-        internal static MethodInfo GetCurryClosureMethod(Type[] types)
+        internal static MethodInfo GetCurryClosureMethod(Type[] types, CompilerContext context)
         {
             return CurryClosureFuncs.Methods[types.Length - 2].MakeGenericMethod(types);
+        }
+
+        internal static LocalBuilder[] BuildLocals(Expression[] variables, ILGenerator ilGenerator)
+        {
+            var length = variables.Length;
+            var locals = new LocalBuilder[length];
+
+            for (var i = 0; i < length; i++)
+                locals[i] = ilGenerator.DeclareLocal(variables[i].Type);
+
+            return locals;
         }
     }
     
