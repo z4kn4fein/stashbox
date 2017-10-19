@@ -10,14 +10,16 @@ namespace Stashbox.BuildUp.Expressions.Compile
             if (count == 0)
                 return new[] { capturedArgumentsType, returnType };
 
-            var types = new Type[count + 2];
+            var length = count + 2;
+            var types = new Type[length];
             types[0] = capturedArgumentsType;
-            types[1] = returnType;
 
             if (count == 1)
-                types[2] = parameters[0];
+                types[1] = parameters[0];
             if (count > 1)
-                Array.Copy(parameters, 0, types, 2, count);
+                Array.Copy(parameters, 0, types, 1, count);
+
+            types[length - 1] = returnType;
 
             return types;
         }

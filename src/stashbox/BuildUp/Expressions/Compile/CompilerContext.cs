@@ -4,7 +4,6 @@ using Stashbox.Utils;
 using System;
 using System.Linq.Expressions;
 using System.Reflection.Emit;
-using System.Runtime.CompilerServices;
 
 namespace Stashbox.BuildUp.Expressions.Compile
 {
@@ -22,7 +21,11 @@ namespace Stashbox.BuildUp.Expressions.Compile
 
         public CapturedArgumentsHolder CapturedArgumentsHolder { get; }
 
+        public bool IsNestedLambda { get; }
+
         public LocalBuilder[] LocalBuilders { get; set; }
+
+        public LocalBuilder CapturedArgumentsHolderVariable { get; set; }
 
         public KeyValue<LambdaExpression, Expression[]>[] NestedLambdas { get; }
 
@@ -34,24 +37,25 @@ namespace Stashbox.BuildUp.Expressions.Compile
 
         public CompilerContext(DelegateTarget target, Expression[] definedVariables, Expression[] storedExpressions, Expression[] capturedArguments,
             KeyValue<LambdaExpression, Expression[]>[] nestedLambdas, CapturedArgumentsHolder capturedArgumentsHolder)
-            : this(target, definedVariables, storedExpressions, capturedArguments, nestedLambdas, capturedArgumentsHolder, false)
+            : this(target, definedVariables, storedExpressions, capturedArguments, nestedLambdas, capturedArgumentsHolder, false, false)
         { }
 
         private CompilerContext(DelegateTarget target, Expression[] definedVariables, Expression[] storedExpressions, Expression[] capturedArguments,
-            KeyValue<LambdaExpression, Expression[]>[] nestedLambdas, CapturedArgumentsHolder capturedArgumentsHolder, bool hasCapturedVariablesArgumentConstructed)
+            KeyValue<LambdaExpression, Expression[]>[] nestedLambdas, CapturedArgumentsHolder capturedArgumentsHolder, bool isNestedLambda, bool hasCapturedVariablesArgumentConstructed)
         {
             this.hasCapturedVariablesArgumentConstructed = new AtomicBool(hasCapturedVariablesArgumentConstructed);
             this.Target = target;
             this.DefinedVariables = definedVariables;
             this.StoredExpressions = storedExpressions;
             this.CapturedArgumentsHolder = capturedArgumentsHolder;
+            this.IsNestedLambda = isNestedLambda;
             this.CapturedArguments = capturedArguments;
             this.NestedLambdas = nestedLambdas;
         }
 
-        public CompilerContext CreateNew(Expression[] definedVariables) =>
+        public CompilerContext CreateNew(Expression[] definedVariables, bool isNestedLambda) =>
             new CompilerContext(this.Target, definedVariables, this.StoredExpressions, this.CapturedArguments, this.NestedLambdas,
-                this.CapturedArgumentsHolder);
+                this.CapturedArgumentsHolder, isNestedLambda, this.hasCapturedVariablesArgumentConstructed.Value);
 
         public Type[] ConcatDelegateTargetAndCapturedArgumentWithParameter(Type[] parameters)
         {

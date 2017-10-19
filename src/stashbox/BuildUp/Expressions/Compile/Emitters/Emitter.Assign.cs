@@ -14,30 +14,23 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
                 case ExpressionType.Parameter:
 
                     var localIndex = context.DefinedVariables.GetIndex(expression.Left);
-                    if (localIndex != -1)
-                    {
-                        if (!expression.Right.TryEmit(generator, context, parameters))
-                            return false;
+                    if (localIndex == -1) return false;
 
-                        generator.Emit(OpCodes.Stloc, context.LocalBuilders[localIndex]);
+                    if (!expression.Right.TryEmit(generator, context, parameters))
+                        return false;
+                        
+                    generator.Emit(OpCodes.Stloc, context.LocalBuilders[localIndex]);
 
-                        return true;
-                    }
+                    if (!context.HasCapturedVariablesArgument) return true;
 
                     var paramIndex = context.CapturedArguments.GetIndex(expression.Left);
-                    if (paramIndex != -1)
-                    {
-                        generator.Emit(context.HasClosure ? OpCodes.Ldarg_1 : OpCodes.Ldarg_0);
+                    if (paramIndex == -1) return true;
 
-                        if (!expression.Right.TryEmit(generator, context, parameters))
-                            return false;
+                    generator.LoadCapturedArgumentHolder(context);
+                    generator.Emit(OpCodes.Ldloc, context.LocalBuilders[localIndex]);
+                    generator.Emit(OpCodes.Stfld, context.CapturedArgumentsHolder.Fields[paramIndex]);
 
-                        generator.Emit(OpCodes.Stfld, context.CapturedArgumentsHolder.Fields[paramIndex]);
-
-                        return true;
-                    }
-
-                    return false;
+                    return true;
 
                 case ExpressionType.MemberAccess:
                     var memberExpression = (MemberExpression)expression.Left;
@@ -48,7 +41,7 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
                     if (!expression.Right.TryEmit(generator, context, parameters))
                         return false;
 
-                    return EmitMemberAssign(memberExpression.Member, generator);
+                    return memberExpression.Member.EmitMemberAssign(generator);
 
                 default:
                     return false;

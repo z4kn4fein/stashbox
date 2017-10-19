@@ -1,6 +1,5 @@
 ﻿#if NET45 || NET40 || NETSTANDARD1_3
 using System.Linq.Expressions;
-using System.Reflection;
 using System.Reflection.Emit;
 
 namespace Stashbox.BuildUp.Expressions.Compile.Emitters
@@ -14,12 +13,6 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
 
             return expression.Arguments.TryEmit(generator, context, parameters) &&
                 generator.EmitMethod(expression.Method);
-        }
-
-        private static bool EmitMethod(this ILGenerator generator, MethodInfo info)
-        {
-            generator.Emit(info.IsVirtual ? OpCodes.Callvirt : OpCodes.Call, info);
-            return true;
         }
     }
 }

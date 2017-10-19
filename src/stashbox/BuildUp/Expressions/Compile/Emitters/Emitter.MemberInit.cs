@@ -25,7 +25,7 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
                 if (!((MemberAssignment)binding).Expression.TryEmit(generator, context, parameters))
                     return false;
 
-                if (!EmitMemberAssign(binding.Member, generator))
+                if (!binding.Member.EmitMemberAssign(generator))
                     return false;
             }
 

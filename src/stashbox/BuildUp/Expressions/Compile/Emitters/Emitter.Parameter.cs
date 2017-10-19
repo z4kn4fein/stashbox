@@ -12,11 +12,15 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
             var index = parameters.GetIndex(expression);
             if (index != -1)
             {
-                generator.LoadParameter(index + (context.HasClosure && context.HasCapturedVariablesArgument
-                    ? 2
-                    : context.HasClosure || context.HasCapturedVariablesArgument
-                        ? 1
-                        : 0));
+                if (context.HasClosure && context.HasCapturedVariablesArgument)
+                    index += 2;
+                else if (context.HasClosure || context.HasCapturedVariablesArgument)
+                    index++;
+
+                if (!context.IsNestedLambda && context.HasCapturedVariablesArgument)
+                    index--;
+
+                generator.LoadParameter(index);
                 return true;
             }
 
@@ -44,31 +48,6 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
             }
 
             return true;
-        }
-
-        public static void LoadParameter(this ILGenerator generator, int index)
-        {
-            switch (index)
-            {
-                case 0:
-                    generator.Emit(OpCodes.Ldarg_0);
-                    break;
-                case 1:
-                    generator.Emit(OpCodes.Ldarg_1);
-                    break;
-                case 2:
-                    generator.Emit(OpCodes.Ldarg_2);
-                    break;
-                case 3:
-                    generator.Emit(OpCodes.Ldarg_3);
-                    break;
-                default:
-                    if (index <= byte.MaxValue)
-                        generator.Emit(OpCodes.Ldarg_S, (byte)index);
-                    else
-                        generator.Emit(OpCodes.Ldarg, index);
-                    break;
-            }
         }
     }
 }

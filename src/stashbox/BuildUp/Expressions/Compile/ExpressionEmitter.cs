@@ -54,6 +54,13 @@ namespace Stashbox.BuildUp.Expressions.Compile
             var method = Emitter.CreateDynamicMethod(context, returnType, parameters);
             var generator = method.GetILGenerator();
 
+            if (context.HasCapturedVariablesArgument)
+            {
+                context.CapturedArgumentsHolderVariable = generator.PrepareCapturedArgumentsHolderVariable(capturedArgumentsType);
+                generator.CopyParametersToCapturedArgumentsIfAny(context, parameters);
+
+            }
+
             if (analyzer.DefinedVariables.Length > 0)
                 context.LocalBuilders = Emitter.BuildLocals(analyzer.DefinedVariables, generator);
 
@@ -68,21 +75,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
 
             return true;
         }
-
-        private static void PrepareNestedLambdaTypes(TreeAnalyzer analyzer, Type capturedArgumentTypes)
-        {
-            var length = analyzer.NestedLambdas.Length;
-            for (var i = 0; i < length; i++)
-            {
-                var lambda = analyzer.NestedLambdas[i];
-                var type = Utils.GetFuncType(
-                    Utils.ConcatCapturedArgumentWithParameterWithReturnType(
-                        lambda.Key.Parameters.GetTypes(), capturedArgumentTypes, lambda.Key.ReturnType));
-
-                analyzer.AddStoredItem(lambda.Key, type);
-            }
-        }
-
+        
         public static bool TryEmitDebug(this Expression expression, out Delegate resultDelegate, Type delegateType,
             Type returnType, params ParameterExpression[] parameters)
         {
@@ -93,12 +86,15 @@ namespace Stashbox.BuildUp.Expressions.Compile
                 return false;
 
             var module = new DynamicModule();
+            
+            var capturedArgumentsType = analyzer.CapturedParameters.Length > 0 ? module.GetOrAddCapturedArgumentsType(analyzer.CapturedParameters) : null;
+
+            if (analyzer.NestedLambdas.Length > 0)
+                PrepareNestedLambdaTypes(analyzer, capturedArgumentsType);
 
             var fields = analyzer.StoredExpressions.Length > 0
                 ? module.GetOrAddTargetTypeDebug(analyzer.StoredExpressions)
                 : null;
-
-            var capturedArgumentsType = analyzer.CapturedParameters.Length > 0 ? module.GetOrAddCapturedArgumentsType(analyzer.CapturedParameters) : null;
 
             var delegateTarget = analyzer.StoredExpressions.Length > 0
                 ? new DelegateTarget(fields, null, null)
@@ -114,6 +110,13 @@ namespace Stashbox.BuildUp.Expressions.Compile
             {
                 var method = new DynamicMethod("main" + Interlocked.Increment(ref methodCounter), returnType, parameters.GetTypes(), typeof(ExpressionEmitter), true);
                 var generator = method.GetILGenerator();
+
+                if (context.HasCapturedVariablesArgument)
+                {
+                    context.CapturedArgumentsHolderVariable = generator.PrepareCapturedArgumentsHolderVariable(capturedArgumentsType);
+                    generator.CopyParametersToCapturedArgumentsIfAny(context, parameters);
+
+                }
 
                 if (context.DefinedVariables.Length > 0)
                     context.LocalBuilders = Emitter.BuildLocals(context.DefinedVariables, generator);
@@ -133,6 +136,13 @@ namespace Stashbox.BuildUp.Expressions.Compile
 
             var gen = builder.GetILGenerator();
 
+            if (context.HasCapturedVariablesArgument)
+            {
+                context.CapturedArgumentsHolderVariable = gen.PrepareCapturedArgumentsHolderVariable(capturedArgumentsType);
+                gen.CopyParametersToCapturedArgumentsIfAny(context, parameters);
+
+            }
+
             if (context.DefinedVariables.Length > 0)
                 context.LocalBuilders = Emitter.BuildLocals(context.DefinedVariables, gen);
 
@@ -143,13 +153,29 @@ namespace Stashbox.BuildUp.Expressions.Compile
 
 #if NETSTANDARD1_3
             var type = DynamicModule.DynamicTypeBuilder.Value.CreateTypeInfo().AsType();
-            //resultDelegate = type.GetTypeInfo().DeclaredMethods.First(m => m.Name == "kaki2").CreateDelegate(delegateType);
 #else
             var type = DynamicModule.DynamicTypeBuilder.Value.CreateType();
-            //resultDelegate = Delegate.CreateDelegate(delegateType, type.GetTypeInfo().DeclaredMethods.First(m => m.Name == "main2"));
+            DynamicModule.DynamicAssemblyBuilder.Value.Save("Stashbox.Dynamic.dll");
 #endif
-
             return true;
+        }
+
+        private static void PrepareNestedLambdaTypes(TreeAnalyzer analyzer, Type capturedArgumentType)
+        {
+            var length = analyzer.NestedLambdas.Length;
+            for (var i = 0; i < length; i++)
+            {
+                var lambda = analyzer.NestedLambdas[i];
+                if (capturedArgumentType != null)
+                {
+                    var type = Utils.GetFuncType(
+                        Utils.ConcatCapturedArgumentWithParameterWithReturnType(
+                            lambda.Key.Parameters.GetTypes(), capturedArgumentType, lambda.Key.ReturnType));
+                    analyzer.AddStoredItem(lambda.Key, type);
+                }
+                else
+                    analyzer.AddStoredItem(lambda.Key, lambda.Key.Type);
+            }
         }
     }
 }
