@@ -1,8 +1,8 @@
-﻿using System;
-using System.Linq.Expressions;
-using Stashbox.Infrastructure;
+﻿using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.Registration;
 using Stashbox.Resolution;
+using System;
+using System.Linq.Expressions;
 
 namespace Stashbox.Lifetime
 {
@@ -18,20 +18,16 @@ namespace Stashbox.Lifetime
         public override Expression GetExpression(IContainerContext containerContext, IServiceRegistration serviceRegistration,
             IObjectBuilder objectBuilder, ResolutionContext resolutionContext, Type resolveType)
         {
-            var instance = resolutionContext.GetPerRequestItemOrDefault(base.ScopeId);
-            if (instance != null)
-                return Expression.Constant(instance);
+            var variable = resolutionContext.GlobalParameters.GetOrDefault(base.ScopeId);
+            if (variable != null)
+                return variable;
 
-            var factory = base.GetFactoryDelegate(containerContext, serviceRegistration, objectBuilder,
-                resolutionContext, resolveType);
+            var expression = base.GetExpression(containerContext, serviceRegistration, objectBuilder, resolutionContext, resolveType);
 
-            if (factory == null)
+            if (expression == null)
                 return null;
 
-            instance = factory(resolutionContext.ResolutionScope);
-
-            resolutionContext.AddPerRequestItem(base.ScopeId, instance);
-            return Expression.Constant(instance);
+            return base.StoreExpressionIntoLocalVariable(expression, resolutionContext, resolveType);
         }
     }
 }

@@ -118,7 +118,7 @@ namespace Stashbox
             var resolutionContext = ResolutionContext.New(this);
             var expr = this.expressionBuilder.CreateFillExpression(this.containerContext, registration.CreateServiceRegistration(false),
                 Expression.Constant(instance), resolutionContext, typeTo);
-            var factory = expr.CompileDelegate(resolutionContext.CurrentScopeParameter);
+            var factory = expr.CompileDelegate(resolutionContext);
             return (TTo)factory(this);
         }
 

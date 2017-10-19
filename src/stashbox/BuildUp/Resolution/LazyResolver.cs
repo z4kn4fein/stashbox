@@ -104,7 +104,7 @@ namespace Stashbox.BuildUp.Resolution
         {
             var expr = serviceRegistration.GetExpression(containerContext, resolutionContext, type);
             return Expression.Lambda(expr, resolutionContext.ParameterExpressions)
-                .CompileDynamicDelegate(resolutionContext.CurrentScopeParameter)(resolutionContext.ResolutionScope).DynamicInvoke(arguments);
+                .CompileDynamicDelegate(resolutionContext)(resolutionContext.ResolutionScope).DynamicInvoke(arguments);
         }
     }
 }

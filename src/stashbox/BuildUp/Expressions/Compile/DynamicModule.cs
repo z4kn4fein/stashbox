@@ -40,7 +40,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
 
         private static readonly ConcurrentTree<Type> CapturedArgumentTypes = new ConcurrentTree<Type>();
 
-        public Type GetOrAddTargetType(Type[] types)
+        public static Type GetOrAddTargetType(Type[] types)
         {
             var length = types.Length;
 
@@ -102,7 +102,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
             return type.MakeGenericType(types);
         }
 
-        public FieldInfo[] GetOrAddTargetTypeDebug(Expression[] expressions)
+        public static FieldInfo[] GetOrAddTargetTypeDebug(Expression[] expressions)
         {
             var length = expressions.Length;
             var types = new Type[length];
@@ -155,7 +155,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
             return fields;
         }
 
-        public Type GetOrAddCapturedArgumentsType(Expression[] expressions)
+        public static Type GetOrAddCapturedArgumentsType(Expression[] expressions)
         {
             var length = expressions.Length;
             var types = new Type[length];

@@ -17,12 +17,21 @@ namespace Stashbox.Lifetime
         /// <inheritdoc />
         public override Expression GetExpression(IContainerContext containerContext, IServiceRegistration serviceRegistration, IObjectBuilder objectBuilder, ResolutionContext resolutionContext, Type resolveType)
         {
+            var variable = resolutionContext.GlobalParameters.GetOrDefault(base.ScopeId);
+            if (variable != null)
+                return variable;
+
             var factory = base.GetFactoryDelegate(containerContext, serviceRegistration, objectBuilder, resolutionContext, resolveType);
             if (factory == null)
                 return null;
 
-            return Expression.Convert(Expression.Call(resolutionContext.CurrentScopeParameter, 
+            var expression = Expression.Convert(Expression.Call(resolutionContext.CurrentScopeParameter,
                 Constants.GetOrAddScopedItemMethod, Expression.Constant(base.ScopeId), Expression.Constant(factory)), resolveType);
+
+            if (expression == null)
+                return null;
+
+            return base.StoreExpressionIntoLocalVariable(expression, resolutionContext, resolveType);
         }
     }
 }

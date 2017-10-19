@@ -31,14 +31,12 @@ namespace Stashbox.BuildUp.Expressions.Compile
             if (!analyzer.Analyze(expression, parameters))
                 return false;
 
-            var module = new DynamicModule();
-
-            var capturedArgumentsType = analyzer.CapturedParameters.Length > 0 ? module.GetOrAddCapturedArgumentsType(analyzer.CapturedParameters) : null;
+            var capturedArgumentsType = analyzer.CapturedParameters.Length > 0 ? DynamicModule.GetOrAddCapturedArgumentsType(analyzer.CapturedParameters) : null;
 
             if (analyzer.NestedLambdas.Length > 0)
                 PrepareNestedLambdaTypes(analyzer, capturedArgumentsType);
 
-            var targetType = analyzer.StoredExpressions.Length > 0 ? module.GetOrAddTargetType(analyzer.StoredObjectTypes) : null;
+            var targetType = analyzer.StoredExpressions.Length > 0 ? DynamicModule.GetOrAddTargetType(analyzer.StoredObjectTypes) : null;
 
             var delegateTarget = targetType != null
                 ? new DelegateTarget(targetType.GetTypeInfo().DeclaredFields.CastToArray(), targetType, Activator.CreateInstance(targetType, analyzer.StoredObjects))
@@ -75,7 +73,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
 
             return true;
         }
-        
+
         public static bool TryEmitDebug(this Expression expression, out Delegate resultDelegate, Type delegateType,
             Type returnType, params ParameterExpression[] parameters)
         {
@@ -86,14 +84,14 @@ namespace Stashbox.BuildUp.Expressions.Compile
                 return false;
 
             var module = new DynamicModule();
-            
-            var capturedArgumentsType = analyzer.CapturedParameters.Length > 0 ? module.GetOrAddCapturedArgumentsType(analyzer.CapturedParameters) : null;
+
+            var capturedArgumentsType = analyzer.CapturedParameters.Length > 0 ? DynamicModule.GetOrAddCapturedArgumentsType(analyzer.CapturedParameters) : null;
 
             if (analyzer.NestedLambdas.Length > 0)
                 PrepareNestedLambdaTypes(analyzer, capturedArgumentsType);
 
             var fields = analyzer.StoredExpressions.Length > 0
-                ? module.GetOrAddTargetTypeDebug(analyzer.StoredExpressions)
+                ? DynamicModule.GetOrAddTargetTypeDebug(analyzer.StoredExpressions)
                 : null;
 
             var delegateTarget = analyzer.StoredExpressions.Length > 0
