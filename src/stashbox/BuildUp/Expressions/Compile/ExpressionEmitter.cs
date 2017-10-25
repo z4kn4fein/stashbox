@@ -124,6 +124,12 @@ namespace Stashbox.BuildUp.Expressions.Compile
 
                 generator.Emit(OpCodes.Ret);
 
+#if NETSTANDARD1_3
+                var t = DynamicModule.DynamicTypeBuilder.Value.CreateTypeInfo().AsType();
+#else
+                var t = DynamicModule.DynamicTypeBuilder.Value.CreateType();
+#endif
+
                 resultDelegate = method.CreateDelegate(delegateType);
 
                 return true;
@@ -153,7 +159,6 @@ namespace Stashbox.BuildUp.Expressions.Compile
             var type = DynamicModule.DynamicTypeBuilder.Value.CreateTypeInfo().AsType();
 #else
             var type = DynamicModule.DynamicTypeBuilder.Value.CreateType();
-            DynamicModule.DynamicAssemblyBuilder.Value.Save("Stashbox.Dynamic.dll");
 #endif
             return true;
         }
