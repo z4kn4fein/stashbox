@@ -28,9 +28,6 @@ namespace Stashbox.Lifetime
             var expression = Expression.Convert(Expression.Call(resolutionContext.CurrentScopeParameter,
                 Constants.GetOrAddScopedItemMethod, Expression.Constant(base.ScopeId), Expression.Constant(factory)), resolveType);
 
-            if (expression == null)
-                return null;
-
             return base.StoreExpressionIntoLocalVariable(expression, resolutionContext, resolveType);
         }
     }

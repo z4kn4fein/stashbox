@@ -116,9 +116,26 @@ namespace Stashbox.Tests
             var b = scope.Resolve<ITest>("T");
             var c = scope.Resolve<ITest>();
 
-            Assert.IsNotNull(a);
             Assert.AreSame(a, b);
             Assert.AreNotSame(a, c);
+            Assert.IsInstanceOfType(a, typeof(Test));
+        }
+
+        [TestMethod]
+        public void NamedScope_Simple_Resolve_Gets_Named_When_Scoped_Doesnt_Exist()
+        {
+            var scope = new StashboxContainer()
+                .RegisterType<ITest, Test11>()
+                .RegisterType<ITest, Test>(config => config.WithName("T"))
+                .RegisterType<ITest, Test1>()
+                .BeginScope("A");
+
+            var a = scope.Resolve<ITest>("T");
+            var b = scope.Resolve<ITest>("T");
+            var c = scope.Resolve<ITest>();
+
+            Assert.IsInstanceOfType(c, typeof(Test1));
+            Assert.IsInstanceOfType(b, typeof(Test));
             Assert.IsInstanceOfType(a, typeof(Test));
         }
 
