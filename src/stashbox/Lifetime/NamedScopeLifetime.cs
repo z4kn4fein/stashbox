@@ -1,5 +1,4 @@
-﻿using Stashbox.Exceptions;
-using Stashbox.Infrastructure;
+﻿using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.Registration;
 using Stashbox.Resolution;
 using System;
@@ -49,9 +48,6 @@ namespace Stashbox.Lifetime
             var scope = currentScope;
             while (scope != null && scope.Name != scopeName)
                 scope = scope.ParentScope;
-
-            if (scope == null)
-                throw new NamedScopeNotFoundException(resolveType, scopeName);
 
             return (TValue)scope.GetOrAddScopedItem(scopeId, factory);
 

@@ -1,9 +1,9 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Stashbox.Exceptions;
 using Stashbox.Lifetime;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
 
 namespace Stashbox.Tests
 {
@@ -104,6 +104,25 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void NamedScope_Simple_Resolve_Gets_Named_Within_Scope()
+        {
+            var scope = new StashboxContainer()
+                .RegisterType<ITest, Test11>(config => config.InNamedScope("A"))
+                .RegisterType<ITest, Test>(config => config.InNamedScope("A").WithName("T"))
+                .RegisterType<ITest, Test1>(config => config.InNamedScope("A"))
+                .BeginScope("A");
+
+            var a = scope.Resolve<ITest>("T");
+            var b = scope.Resolve<ITest>("T");
+            var c = scope.Resolve<ITest>();
+
+            Assert.IsNotNull(a);
+            Assert.AreSame(a, b);
+            Assert.AreNotSame(a, c);
+            Assert.IsInstanceOfType(a, typeof(Test));
+        }
+
+        [TestMethod]
         public void NamedScope_Dependency_Resolve_Wrapper_Gets_Same_Within_Scope()
         {
             var inst = new StashboxContainer()
@@ -175,7 +194,7 @@ namespace Stashbox.Tests
             using (var s1 = container.BeginScope("A"))
             {
                 var i1 = s1.Resolve<ITest>();
-                using (var s2 = s1.BeginScope())
+                using (var s2 = s1.BeginScope("C"))
                 {
                     var i2 = s2.Resolve<ITest>();
 
@@ -233,6 +252,25 @@ namespace Stashbox.Tests
             Assert.IsInstanceOfType(inst.RegistrationContext.Lifetime, typeof(NamedScopeLifetime));
         }
 
+        [TestMethod]
+        [ExpectedException(typeof(ResolutionFailedException))]
+        public void NamedScope_Throws_ResolutionFailedException_Without_Scope()
+        {
+            var container = new StashboxContainer()
+                .RegisterType<ITest, Test>(config => config.InNamedScope("A"));
+
+            container.Resolve<ITest>();
+        }
+
+        [TestMethod]
+        public void NamedScope_WithNull()
+        {
+            var container = new StashboxContainer()
+                .RegisterType<Test2>(config => config.InNamedScope("A"));
+
+            Assert.IsNull(container.BeginScope("A").Resolve<Test2>(nullResultAllowed: true));
+        }
+
         interface ITest
         { }
 
@@ -251,7 +289,7 @@ namespace Stashbox.Tests
 
             public void Dispose()
             {
-                if(this.Disposed)
+                if (this.Disposed)
                     throw new ObjectDisposedException("");
 
                 this.Disposed = true;

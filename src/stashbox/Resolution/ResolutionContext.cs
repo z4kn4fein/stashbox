@@ -37,19 +37,19 @@ namespace Stashbox.Resolution
 
         private AvlTree<Type> currentlyDecoratingTypes;
 
-        internal ArrayStore<Expression> SingleInstructions { get; private set; }
-
-        internal ArrayStoreKeyed<object, ParameterExpression> GlobalParameters { get; private set; }
-
         internal IResolutionScope ResolutionScope { get; }
 
         internal IResolutionScope RootScope { get; }
 
         internal IContainerContext ChildContext { get; }
+        internal ISet<object> ScopeNames { get; }
 
         internal ArrayStore<ParameterExpression> ParameterExpressions { get; private set; }
 
-        internal ISet<object> ScopeNames { get; }
+        internal ArrayStore<Expression> SingleInstructions { get; private set; }
+
+        internal ArrayStoreKeyed<object, ParameterExpression> GlobalParameters { get; private set; }
+
 
         private ResolutionContext(IResolutionScope scope, bool nullResultAllowed)
             : this(scope, AvlTree<int>.Empty, AvlTree<Expression>.Empty, AvlTree<Type>.Empty, ArrayStore<ParameterExpression>.Empty,
@@ -77,48 +77,32 @@ namespace Stashbox.Resolution
         internal bool IsCurrentlyDecorating(Type type) =>
             this.currentlyDecoratingTypes.GetOrDefault(type.GetHashCode()) != null;
 
-        internal void AddCurrentlyDecoratingType(Type type)
-        {
+        internal void AddCurrentlyDecoratingType(Type type) =>
             this.currentlyDecoratingTypes = this.currentlyDecoratingTypes.AddOrUpdate(type.GetHashCode(), type);
-        }
 
-        internal void ClearCurrentlyDecoratingType(Type type)
-        {
+        internal void ClearCurrentlyDecoratingType(Type type) =>
             this.currentlyDecoratingTypes = this.currentlyDecoratingTypes.AddOrUpdate(type.GetHashCode(), null, (oldValue, newValue) => newValue);
-        }
 
         internal Expression GetExpressionOverrideOrDefault(Type type) =>
             this.expressionOverrides.GetOrDefault(type.GetHashCode());
 
-        internal void SetExpressionOverride(Type type, Expression expression)
-        {
+        internal void SetExpressionOverride(Type type, Expression expression) =>
             this.expressionOverrides = this.expressionOverrides.AddOrUpdate(type.GetHashCode(), expression, (oldValue, newValue) => newValue);
-        }
 
-        internal void AddCircularDependencyCheck(int regNumber, out bool updated)
-        {
+        internal void AddCircularDependencyCheck(int regNumber, out bool updated) =>
             this.circularDependencyBarrier = this.circularDependencyBarrier.AddOrUpdate(regNumber, regNumber, out updated);
-        }
 
-        internal void ClearCircularDependencyCheck(int regNumber)
-        {
+        internal void ClearCircularDependencyCheck(int regNumber) =>
             this.circularDependencyBarrier = this.circularDependencyBarrier.AddOrUpdate(regNumber, 0, (oldValue, newValue) => newValue);
-        }
 
-        internal void AddParameterExpressions(params ParameterExpression[] parameterExpressions)
-        {
+        internal void AddParameterExpressions(params ParameterExpression[] parameterExpressions) =>
             this.ParameterExpressions = this.ParameterExpressions.AddRange(parameterExpressions);
-        }
 
-        internal void AddInstruction(Expression instruction)
-        {
+        internal void AddInstruction(Expression instruction) =>
             this.SingleInstructions = this.SingleInstructions.Add(instruction);
-        }
 
-        internal void AddGlobalParameter(object key, ParameterExpression parameter)
-        {
+        internal void AddGlobalParameter(object key, ParameterExpression parameter) =>
             this.GlobalParameters = this.GlobalParameters.AddOrUpdate(key, parameter);
-        }
 
         internal ResolutionContext CreateNew(IContainerContext childContext = null, KeyValue<object, ParameterExpression> scopeParameter = null)
         {

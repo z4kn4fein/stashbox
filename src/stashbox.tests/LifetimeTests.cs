@@ -96,6 +96,17 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void LifetimeTests_Per_Resolution_Request_Dependency_WithNull()
+        {
+            using (IStashboxContainer container = new StashboxContainer())
+            {
+                container.RegisterType<Test6>(context => context.WithPerResolutionRequestLifetime());
+
+                Assert.IsNull(container.Resolve<Test6>(nullResultAllowed: true));
+            }
+        }
+
+        [TestMethod]
         public void LifetimeTests_Per_Resolution_Request()
         {
             using (IStashboxContainer container = new StashboxContainer())
@@ -104,7 +115,7 @@ namespace Stashbox.Tests
 
                 var inst1 = container.Resolve<Test5>();
                 var inst2 = container.Resolve<Test5>();
-                
+
                 Assert.AreNotSame(inst1, inst2);
             }
         }
@@ -124,6 +135,17 @@ namespace Stashbox.Tests
                         Parallel.For(0, 50, _ => scope.Resolve<Test4>());
                     }
                 }
+            }
+        }
+
+        [TestMethod]
+        public void LifetimeTests_Scoped_WithNull()
+        {
+            using (IStashboxContainer container = new StashboxContainer())
+            {
+                container.RegisterScoped<Test6>();
+
+                Assert.IsNull(container.BeginScope().Resolve<Test6>(nullResultAllowed: true));
             }
         }
 
