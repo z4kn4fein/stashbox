@@ -12,7 +12,7 @@ namespace Stashbox
     /// </summary>
     public static class Constants
     {
-        internal static readonly ParameterExpression ResolutionScopeParameter = Expression.Parameter(typeof(IResolutionScope), "scope");
+        internal static readonly ParameterExpression ResolutionScopeParameter = typeof(IResolutionScope).AsParameter("scope");
 
         internal static readonly MethodInfo AddDisposalMethod = typeof(IResolutionScope).GetSingleMethod("AddDisposableTracking");
 

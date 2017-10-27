@@ -30,11 +30,16 @@ namespace Stashbox.BuildUp
         {
             if (serviceRegistration.RegistrationContext.DefinedScopeName != null)
             {
-                var variable = Expression.Variable(Constants.ResolutionScopeType);
+                var variable = Constants.ResolutionScopeType.AsVariable();
+
+                var newScope = resolutionContext.CurrentScopeParameter
+                    .ConvertTo(Constants.ResolverType)
+                    .CallMethod(Constants.BeginScopeMethod,
+                        serviceRegistration.RegistrationContext.DefinedScopeName.AsConstant(),
+                        true.AsConstant());
+
                 return Expression.Block(new[] { variable },
-                     Expression.Assign(variable, Expression.Convert(Expression.Call(Expression.Convert(resolutionContext.CurrentScopeParameter, Constants.ResolverType),
-                        Constants.BeginScopeMethod, Expression.Constant(serviceRegistration.RegistrationContext.DefinedScopeName), Expression.Constant(true)),
-                                Constants.ResolutionScopeType)),
+                     variable.AssignTo(newScope.ConvertTo(Constants.ResolutionScopeType)),
 
                      this.expressionBuilder.CreateExpression(containerContext, serviceRegistration,
                          resolutionContext.CreateNew(scopeParameter: new KeyValue<object, ParameterExpression>(serviceRegistration.RegistrationContext.DefinedScopeName, variable)),

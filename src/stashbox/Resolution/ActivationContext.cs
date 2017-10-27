@@ -86,7 +86,7 @@ namespace Stashbox.Resolution
                 else
                     throw new ResolutionFailedException(type);
 
-            var expression = Expression.Lambda(initExpression, resolutionContext.ParameterExpressions);
+            var expression = initExpression.AsLambda(resolutionContext.ParameterExpressions);
 
             var factory = expression.CompileDynamicDelegate(resolutionContext);
             this.containerContext.DelegateRepository.AddFactoryDelegate(type, factory, name);

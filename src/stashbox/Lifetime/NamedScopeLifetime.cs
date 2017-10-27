@@ -39,8 +39,8 @@ namespace Stashbox.Lifetime
                 return null;
 
             var genericMethod = GetScopeValueMethod.MakeGenericMethod(resolveType);
-            return Expression.Call(genericMethod, resolutionContext.CurrentScopeParameter, Expression.Constant(factory),
-                Expression.Constant(base.ScopeId), Expression.Constant(this.ScopeName), Expression.Constant(resolveType));
+            return genericMethod.InvokeMethod(resolutionContext.CurrentScopeParameter, factory.AsConstant(),
+                base.ScopeId.AsConstant(), this.ScopeName.AsConstant(), resolveType.AsConstant());
         }
 
         private static TValue GetScopedValue<TValue>(IResolutionScope currentScope, Func<IResolutionScope, object> factory, object scopeId, object scopeName, Type resolveType)

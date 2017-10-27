@@ -1,9 +1,9 @@
 ﻿using Stashbox.Entity;
 using Stashbox.Infrastructure;
-using System;
-using System.Linq.Expressions;
 using Stashbox.Infrastructure.Resolution;
 using Stashbox.Resolution;
+using System;
+using System.Linq.Expressions;
 
 namespace Stashbox.BuildUp.Resolution
 {
@@ -14,10 +14,10 @@ namespace Stashbox.BuildUp.Resolution
             var enumerableType = new TypeInformation { Type = typeInfo.Type.GetEnumerableType() };
             var expressions = containerContext.ResolutionStrategy.BuildResolutionExpressions(containerContext, resolutionContext, enumerableType);
 
-            return expressions == null ? Expression.NewArrayInit(enumerableType.Type) :
-                    Expression.NewArrayInit(enumerableType.Type, expressions);
+            return expressions == null ? enumerableType.Type.InitNewArray() :
+                    enumerableType.Type.InitNewArray(expressions);
         }
-        
+
         public override bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext) =>
             typeInfo.Type.GetEnumerableType() != null;
     }

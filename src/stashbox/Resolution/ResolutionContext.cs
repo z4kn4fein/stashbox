@@ -12,8 +12,6 @@ namespace Stashbox.Resolution
     /// </summary>
     public class ResolutionContext
     {
-        private static ParameterExpression p = Expression.Parameter(Constants.ResolutionScopeType);
-
         /// <summary>
         /// Static factory for <see cref="ResolutionContext"/>.
         /// </summary>
@@ -103,6 +101,9 @@ namespace Stashbox.Resolution
 
         internal void AddGlobalParameter(object key, ParameterExpression parameter) =>
             this.GlobalParameters = this.GlobalParameters.AddOrUpdate(key, parameter);
+
+        internal void AddGlobalParameter(ParameterExpression parameter) =>
+            this.GlobalParameters = this.GlobalParameters.AddOrUpdate(parameter, parameter);
 
         internal ResolutionContext CreateNew(IContainerContext childContext = null, KeyValue<object, ParameterExpression> scopeParameter = null)
         {

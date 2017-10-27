@@ -42,7 +42,7 @@ namespace Stashbox.BuildUp.Resolution
                     return null;
             }
 
-            return Expression.New(tupleConstructor, expressions);
+            return tupleConstructor.MakeNew(expressions);
         }
     }
 }

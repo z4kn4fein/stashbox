@@ -25,10 +25,10 @@ namespace Stashbox.BuildUp
 
                 var parameters = this.GetFuncParametersWithScope(serviceRegistration.ServiceType.GetSingleMethod("Invoke").GetParameters(), resolutionContext);
                 var expr = internalMethodInfo.IsStatic ?
-                    Expression.Call(internalMethodInfo, parameters) :
-                    Expression.Call(Expression.Constant(serviceRegistration.RegistrationContext.FuncDelegate.Target), internalMethodInfo, parameters);
+                    internalMethodInfo.InvokeMethod(parameters) :
+                    serviceRegistration.RegistrationContext.FuncDelegate.Target.AsConstant().CallMethod(internalMethodInfo, parameters);
 
-                return this.expression = Expression.Lambda(expr, parameters.Take(parameters.Length - 1).Cast<ParameterExpression>());
+                return this.expression = expr.AsLambda(parameters.Take(parameters.Length - 1).Cast<ParameterExpression>());
             }
         }
 
@@ -40,9 +40,9 @@ namespace Stashbox.BuildUp
             var expressions = new Expression[length + 1];
 
             for (int i = 0; i < length; i++)
-                expressions[i] = Expression.Parameter(parameterInfos[i].ParameterType);
+                expressions[i] = parameterInfos[i].ParameterType.AsParameter();
 
-            expressions[expressions.Length - 1] = Expression.Convert(resolutionContext.CurrentScopeParameter, Constants.ResolverType);
+            expressions[expressions.Length - 1] = resolutionContext.CurrentScopeParameter.ConvertTo(Constants.ResolverType);
 
             return expressions;
         }

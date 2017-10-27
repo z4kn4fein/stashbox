@@ -52,11 +52,9 @@ namespace Stashbox.Lifetime
         /// <returns>The local variable.</returns>
         public Expression StoreExpressionIntoLocalVariable(Expression expression, ResolutionContext resolutionContext, Type resolveType)
         {
-            var variable = Expression.Variable(resolveType);
-            var instruction = Expression.Assign(variable, expression);
-
+            var variable = resolveType.AsVariable();
             resolutionContext.AddGlobalParameter(this.ScopeId, variable);
-            resolutionContext.AddInstruction(instruction);
+            resolutionContext.AddInstruction(variable.AssignTo(expression));
             return variable;
         }
     }

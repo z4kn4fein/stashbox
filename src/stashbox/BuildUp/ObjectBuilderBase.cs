@@ -59,14 +59,14 @@ namespace Stashbox.BuildUp
                 return expr;
 
             var method = Constants.AddDisposalMethod.MakeGenericMethod(expr.Type);
-            return Expression.Call(resolutionContext.CurrentScopeParameter, method, expr);
+            return resolutionContext.CurrentScopeParameter.CallMethod(method, expr);
         }
 
         protected Expression HandleFinalizer(Expression instanceExpression, IServiceRegistration serviceRegistration, Expression scopeExpression)
         {
             var addFinalizerMethod = Constants.AddWithFinalizerMethod.MakeGenericMethod(instanceExpression.Type);
-            return Expression.Call(scopeExpression, addFinalizerMethod, instanceExpression,
-                Expression.Constant(serviceRegistration.RegistrationContext.Finalizer));
+            return scopeExpression.CallMethod(addFinalizerMethod, instanceExpression,
+                serviceRegistration.RegistrationContext.Finalizer.AsConstant());
         }
 
         protected abstract Expression GetExpressionInternal(IContainerContext containerContext, IServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType);

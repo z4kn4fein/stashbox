@@ -20,14 +20,14 @@ namespace Stashbox.Resolution
             InjectionParameter[] injectionParameters)
         {
             if (typeInformation.Type == Constants.ResolverType)
-                return Expression.Convert(resolutionContext.CurrentScopeParameter, Constants.ResolverType);
+                return resolutionContext.CurrentScopeParameter.ConvertTo(Constants.ResolverType);
 
             if (resolutionContext.ParameterExpressions.Length > 0 && resolutionContext.ParameterExpressions.Any(p => p.Type == typeInformation.Type || p.Type.Implements(typeInformation.Type)))
                 return resolutionContext.ParameterExpressions.Last(p => p.Type == typeInformation.Type || p.Type.Implements(typeInformation.Type));
 
             var matchingParam = injectionParameters?.FirstOrDefault(param => param.Name == typeInformation.ParameterName);
             if (matchingParam != null)
-                return Expression.Constant(matchingParam.Value);
+                return matchingParam.Value.AsConstant();
 
             var exprOverride = resolutionContext.GetExpressionOverrideOrDefault(typeInformation.Type);
             if (exprOverride != null)

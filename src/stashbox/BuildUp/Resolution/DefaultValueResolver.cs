@@ -12,9 +12,9 @@ namespace Stashbox.BuildUp.Resolution
         public override Expression GetExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext)
         {
             if (typeInfo.HasDefaultValue)
-                return Expression.Constant(typeInfo.DefaultValue, typeInfo.Type);
+                return typeInfo.DefaultValue.AsConstant(typeInfo.Type);
 
-            return Expression.Default(typeInfo.Type);
+            return typeInfo.Type.AsDefault();
         }
 
         public override bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext) =>

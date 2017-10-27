@@ -24,7 +24,7 @@ namespace Stashbox.BuildUp
             else
                 lambda = scope => serviceRegistration.RegistrationContext.SingleFactory();
 
-            var expr = Expression.Invoke(lambda, Expression.Convert(resolutionContext.CurrentScopeParameter, Constants.ResolverType));
+            var expr = lambda.InvokeLambda(resolutionContext.CurrentScopeParameter.ConvertTo(Constants.ResolverType));
 
             return this.expressionBuilder.CreateFillExpression(containerContext, serviceRegistration, expr, resolutionContext, resolveType);
         }

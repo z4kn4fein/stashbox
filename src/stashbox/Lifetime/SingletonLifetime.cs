@@ -31,7 +31,7 @@ namespace Stashbox.Lifetime
                 else
                     instance = expr.CompileDelegate(resolutionContext)(resolutionContext.RootScope);
 
-                this.expression = Expression.Constant(instance);
+                this.expression = instance.AsConstant();
             }
 
             return this.expression;

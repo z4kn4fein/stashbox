@@ -117,7 +117,7 @@ namespace Stashbox
             var registration = this.serviceRegistrator.PrepareContext(typeTo, typeTo);
             var resolutionContext = ResolutionContext.New(this);
             var expr = this.expressionBuilder.CreateFillExpression(this.containerContext, registration.CreateServiceRegistration(false),
-                Expression.Constant(instance), resolutionContext, typeTo);
+                instance.AsConstant(), resolutionContext, typeTo);
             var factory = expr.CompileDelegate(resolutionContext);
             return (TTo)factory(this);
         }

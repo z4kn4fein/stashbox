@@ -9,7 +9,9 @@ namespace Stashbox.BuildUp.Resolution
     internal class ScopedInstanceResolver : Resolver
     {
         public override Expression GetExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext) =>
-            Expression.Convert(Expression.Call(resolutionContext.CurrentScopeParameter, Constants.GetScopedInstanceMethod, Expression.Constant(typeInfo.Type)), typeInfo.Type);
+            resolutionContext.CurrentScopeParameter
+                .CallMethod(Constants.GetScopedInstanceMethod, typeInfo.Type.AsConstant())
+                .ConvertTo(typeInfo.Type);
 
         public override bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext) =>
             resolutionContext.ResolutionScope.HasScopedInstances && resolutionContext.ResolutionScope.GetScopedInstanceOrDefault(typeInfo.Type) != null;
