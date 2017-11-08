@@ -25,10 +25,11 @@ namespace Stashbox.BuildUp
             {
                 if (this.expression != null) return this.expression;
 
-                var expr = this.expressionBuilder.CreateFillExpression(containerContext, serviceRegistration, Expression.Constant(serviceRegistration.RegistrationContext.ExistingInstance),
+                var expr = this.expressionBuilder.CreateFillExpression(containerContext, serviceRegistration,
+                    serviceRegistration.RegistrationContext.ExistingInstance.AsConstant(),
                     resolutionContext, serviceRegistration.ImplementationType);
-                var factory = expr.CompileDelegate(resolutionContext);
 
+                var factory = expr.CompileDelegate(resolutionContext);
                 var instance = factory(resolutionContext.ResolutionScope);
 
                 if (serviceRegistration.ShouldHandleDisposal && instance is IDisposable disposable)
