@@ -9,14 +9,14 @@ using System.Threading;
 
 namespace Stashbox.BuildUp.Expressions.Compile
 {
-    public class DynamicModule
+    internal class DynamicModule
     {
 #if NETSTANDARD1_3
         public static readonly Lazy<ModuleBuilder> ModuleBuilder = new Lazy<ModuleBuilder>(() =>
             DynamicAssemblyBuilder.Value.DefineDynamicModule("Stashbox.Dynamic"));
 #else
         public static readonly Lazy<ModuleBuilder> ModuleBuilder = new Lazy<ModuleBuilder>(() =>
-            DynamicAssemblyBuilder.Value.DefineDynamicModule("Stashbox.Dynamic", "Stashbox.Dynamic.dll"));
+            DynamicAssemblyBuilder.Value.DefineDynamicModule("Stashbox.Dynamic"));
 #endif
 
 #if NETSTANDARD1_3
@@ -28,12 +28,8 @@ namespace Stashbox.BuildUp.Expressions.Compile
         public static readonly Lazy<AssemblyBuilder> DynamicAssemblyBuilder = new Lazy<AssemblyBuilder>(() =>
             AppDomain.CurrentDomain.DefineDynamicAssembly(
                 new AssemblyName("Stashbox.Dynamic"),
-                AssemblyBuilderAccess.RunAndSave, "c:\\temp"));
+                AssemblyBuilderAccess.Run));
 #endif
-
-        public static readonly Lazy<TypeBuilder> DynamicTypeBuilder = new Lazy<TypeBuilder>(() =>
-            ModuleBuilder.Value.DefineType("Stashbox.Dynamic.DT" + Interlocked.Increment(ref typeCounter), TypeAttributes.Public));
-
         private static int typeCounter;
 
         private static readonly ConcurrentTree<Type> TargetTypes = new ConcurrentTree<Type>();
@@ -100,59 +96,6 @@ namespace Stashbox.BuildUp.Expressions.Compile
 #endif
             TargetTypes.AddOrUpdate(length, type);
             return type.MakeGenericType(types);
-        }
-
-        public static FieldInfo[] GetOrAddTargetTypeDebug(Expression[] expressions)
-        {
-            var length = expressions.Length;
-            var types = new Type[length];
-
-            var fields = new FieldInfo[length];
-
-            if (length > 0)
-            {
-                var typeParamNames = new string[length];
-                for (var i = 0; i < length; i++)
-                    typeParamNames[i] = "T" + i;
-
-                var typeParams = DynamicTypeBuilder.Value.DefineGenericParameters(typeParamNames);
-#if NETSTANDARD1_3
-                var genericTypes = new Type[length];
-#endif
-
-                for (var i = 0; i < length; i++)
-                {
-                    types[i] = expressions[i].Type;
-#if NETSTANDARD1_3
-                    var genericType = typeParams[i].AsType();
-                    genericTypes[i] = genericType;
-                    fields[i] = DynamicTypeBuilder.Value.DefineField("F" + i, genericType, FieldAttributes.Public);
-#else
-                    fields[i] = DynamicTypeBuilder.Value.DefineField("F" + i, typeParams[i], FieldAttributes.Public);
-#endif
-                }
-
-#if NETSTANDARD1_3
-                var constructor = DynamicTypeBuilder.Value.DefineConstructor(MethodAttributes.Public, CallingConventions.HasThis, genericTypes);
-#else
-                var constructor = DynamicTypeBuilder.Value.DefineConstructor(MethodAttributes.Public, CallingConventions.HasThis, typeParams);
-#endif
-                var generator = constructor.GetILGenerator();
-
-                generator.Emit(OpCodes.Ldarg_0);
-                generator.Emit(OpCodes.Call, Constants.ObjectConstructor);
-
-                for (var i = 0; i < length; i++)
-                {
-                    generator.Emit(OpCodes.Ldarg_0);
-                    generator.LoadParameter(i + 1);
-                    generator.Emit(OpCodes.Stfld, fields[i]);
-                }
-
-                generator.Emit(OpCodes.Ret);
-            }
-
-            return fields;
         }
 
         public static Type GetOrAddCapturedArgumentsType(Expression[] expressions)

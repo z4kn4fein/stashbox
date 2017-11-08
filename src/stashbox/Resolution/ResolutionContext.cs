@@ -35,6 +35,9 @@ namespace Stashbox.Resolution
 
         private AvlTree<Type> currentlyDecoratingTypes;
 
+
+        private ArrayStoreKeyed<object, ParameterExpression> knownVariables;
+
         internal IResolutionScope ResolutionScope { get; }
 
         internal IResolutionScope RootScope { get; }
@@ -46,18 +49,19 @@ namespace Stashbox.Resolution
 
         internal ArrayStore<Expression> SingleInstructions { get; private set; }
 
-        internal ArrayStoreKeyed<object, ParameterExpression> GlobalParameters { get; private set; }
-
+        internal ArrayStoreKeyed<object, ParameterExpression> DefinedVariables { get; private set; }
 
         private ResolutionContext(IResolutionScope scope, bool nullResultAllowed)
             : this(scope, AvlTree<int>.Empty, AvlTree<Expression>.Empty, AvlTree<Type>.Empty, ArrayStore<ParameterExpression>.Empty,
-                  scope.GetActiveScopeNames(), null, nullResultAllowed, Constants.ResolutionScopeParameter, ArrayStore<Expression>.Empty, ArrayStoreKeyed<object, ParameterExpression>.Empty)
+                  scope.GetActiveScopeNames(), null, nullResultAllowed, Constants.ResolutionScopeParameter, ArrayStoreKeyed<object, ParameterExpression>.Empty)
         { }
 
         private ResolutionContext(IResolutionScope scope, AvlTree<int> circularDependencyBarrier, AvlTree<Expression> expressionOverrides,
             AvlTree<Type> currentlyDecoratingTypes, ArrayStore<ParameterExpression> parameterExpressions, ISet<object> scopeNames,
-            IContainerContext childContext, bool nullResultAllowed, ParameterExpression currentScope, ArrayStore<Expression> singleInstructions, ArrayStoreKeyed<object, ParameterExpression> globalParameters)
+            IContainerContext childContext, bool nullResultAllowed, ParameterExpression currentScope, ArrayStoreKeyed<object, ParameterExpression> knownVariables)
         {
+            this.DefinedVariables = ArrayStoreKeyed<object, ParameterExpression>.Empty;
+            this.SingleInstructions = ArrayStore<Expression>.Empty;
             this.circularDependencyBarrier = circularDependencyBarrier;
             this.expressionOverrides = expressionOverrides;
             this.currentlyDecoratingTypes = currentlyDecoratingTypes;
@@ -68,8 +72,7 @@ namespace Stashbox.Resolution
             this.ParameterExpressions = parameterExpressions;
             this.ChildContext = childContext;
             this.ScopeNames = scopeNames;
-            this.SingleInstructions = singleInstructions;
-            this.GlobalParameters = globalParameters;
+            this.knownVariables = knownVariables;
         }
 
         internal bool IsCurrentlyDecorating(Type type) =>
@@ -99,11 +102,14 @@ namespace Stashbox.Resolution
         internal void AddInstruction(Expression instruction) =>
             this.SingleInstructions = this.SingleInstructions.Add(instruction);
 
-        internal void AddGlobalParameter(object key, ParameterExpression parameter) =>
-            this.GlobalParameters = this.GlobalParameters.AddOrUpdate(key, parameter);
+        internal void AddDefinedVariable(object key, ParameterExpression parameter) =>
+            this.DefinedVariables = this.DefinedVariables.AddOrUpdate(key, parameter);
 
-        internal void AddGlobalParameter(ParameterExpression parameter) =>
-            this.GlobalParameters = this.GlobalParameters.AddOrUpdate(parameter, parameter);
+        internal void AddDefinedVariable(ParameterExpression parameter) =>
+            this.DefinedVariables = this.DefinedVariables.AddOrUpdate(parameter, parameter);
+
+        internal ParameterExpression GetKnownVariableOrDefault(object key) =>
+            this.DefinedVariables.GetOrDefault(key) ?? this.knownVariables.GetOrDefault(key);
 
         internal ResolutionContext CreateNew(IContainerContext childContext = null, KeyValue<object, ParameterExpression> scopeParameter = null)
         {
@@ -116,7 +122,7 @@ namespace Stashbox.Resolution
 
             return new ResolutionContext(this.ResolutionScope, this.circularDependencyBarrier, this.expressionOverrides,
                  this.currentlyDecoratingTypes, this.ParameterExpressions, scopeNames, childContext ?? this.ChildContext,
-                 this.NullResultAllowed, scopeParameter == null ? this.CurrentScopeParameter : scopeParameter.Value, this.SingleInstructions, this.GlobalParameters);
+                 this.NullResultAllowed, scopeParameter == null ? this.CurrentScopeParameter : scopeParameter.Value, this.DefinedVariables);
         }
     }
 }

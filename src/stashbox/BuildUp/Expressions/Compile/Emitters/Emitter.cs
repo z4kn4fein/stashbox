@@ -56,7 +56,7 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
 
             return false;
         }
-        
+
         public static DynamicMethod CreateDynamicMethod(CompilerContext context, Type returnType, params ParameterExpression[] parameters)
         {
             return !context.HasClosure
@@ -72,11 +72,6 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
 
             return true;
         }
-        
-        internal static MethodInfo GetCurryClosureMethod(Type[] types, CompilerContext context)
-        {
-            return CurryClosureFuncs.Methods[types.Length - 2].MakeGenericMethod(types);
-        }
 
         internal static LocalBuilder[] BuildLocals(Expression[] variables, ILGenerator ilGenerator)
         {
@@ -88,22 +83,6 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
 
             return locals;
         }
-    }
-
-    internal static class CurryClosureFuncs
-    {
-        private static readonly IEnumerable<MethodInfo> _methods =
-            typeof(CurryClosureFuncs).GetTypeInfo().DeclaredMethods;
-
-        public static readonly MethodInfo[] Methods = _methods as MethodInfo[] ?? _methods.ToArray();
-
-        public static Func<R> Curry<C, R>(Func<C, R> f, C c) { return () => f(c); }
-        public static Func<T1, R> Curry<C, T1, R>(Func<C, T1, R> f, C c) { return t1 => f(c, t1); }
-        public static Func<T1, T2, R> Curry<C, T1, T2, R>(Func<C, T1, T2, R> f, C c) { return (t1, t2) => f(c, t1, t2); }
-        public static Func<T1, T2, T3, R> Curry<C, T1, T2, T3, R>(Func<C, T1, T2, T3, R> f, C c) { return (t1, t2, t3) => f(c, t1, t2, t3); }
-        public static Func<T1, T2, T3, T4, R> Curry<C, T1, T2, T3, T4, R>(Func<C, T1, T2, T3, T4, R> f, C c) { return (t1, t2, t3, t4) => f(c, t1, t2, t3, t4); }
-        public static Func<T1, T2, T3, T4, T5, R> Curry<C, T1, T2, T3, T4, T5, R>(Func<C, T1, T2, T3, T4, T5, R> f, C c) { return (t1, t2, t3, t4, t5) => f(c, t1, t2, t3, t4, t5); }
-        public static Func<T1, T2, T3, T4, T5, T6, R> Curry<C, T1, T2, T3, T4, T5, T6, R>(Func<C, T1, T2, T3, T4, T5, T6, R> f, C c) { return (t1, t2, t3, t4, t5, t6) => f(c, t1, t2, t3, t4, t5, t6); }
     }
 }
 #endif

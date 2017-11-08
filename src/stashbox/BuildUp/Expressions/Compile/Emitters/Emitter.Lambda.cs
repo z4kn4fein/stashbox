@@ -1,5 +1,4 @@
-﻿//#define ILDebug
-#if NET45 || NET40 || NETSTANDARD1_3
+﻿#if NET45 || NET40 || NETSTANDARD1_3
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,37 +31,7 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
                 else
                     generator.Emit(OpCodes.Ldarg_1);
             }
-#if ILDebug
-            var lambda = context.NestedLambdas[lambdaIndex];
 
-            var lambdaExpression = lambda.Key;
-            var variables = lambda.Value;
-
-            var nestedParameters = lambdaExpression.Parameters.CastToArray();
-
-            var nestedContext = context.CreateNew(variables, true);
-
-            var builder = DynamicModule.DynamicTypeBuilder.Value.DefineMethod("nested" + Interlocked.Increment(ref methodCounter), MethodAttributes.Public,
-                lambdaExpression.ReturnType, nestedContext.HasCapturedVariablesArgument 
-                    ? context.ConcatCapturedArgumentWithParameter(nestedParameters.GetTypes())
-                    : nestedParameters.GetTypes());
-
-            var nestedGenerator = builder.GetILGenerator();
-
-            if (variables.Length > 0)
-                nestedContext.LocalBuilders = BuildLocals(variables, nestedGenerator);
-
-            if (nestedContext.HasCapturedVariablesArgument)
-                nestedGenerator.CopyParametersToCapturedArgumentsIfAny(nestedContext, nestedParameters);
-
-            if (!lambdaExpression.Body.TryEmit(nestedGenerator, nestedContext, nestedParameters))
-                return false;
-
-            nestedGenerator.Emit(OpCodes.Ret);
-
-            if (nestedContext.HasCapturedVariablesArgument)
-                generator.EmitMethod(GetCurryClosureMethod(nestedContext.ConcatCapturedArgumentWithParameterWithReturnType(expression.Parameters.ToArray().GetTypes(), lambdaExpression.ReturnType), context));
-#else
             var lambda = context.NestedLambdas[lambdaIndex];
 
             var lambdaExpression = lambda.Key;
@@ -94,20 +63,21 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
                 var delegateArgs = context.ConcatCapturedArgumentWithParameterWithReturnType(
                     nestedParameters.GetTypes(),
                     lambdaExpression.ReturnType);
-                var resultDelegate = method.CreateDelegate(Utils.GetFuncType(delegateArgs),
+
+                var resultDelegate = method.CreateDelegate(Utils.MapDelegateType(delegateArgs),
                     nestedContext.Target.Target);
 
                 nestedContext.Target.Fields[lambdaClosureIndex].SetValue(nestedContext.Target.Target, resultDelegate);
-                
+
                 if (context.HasCapturedVariablesArgument)
-                    generator.EmitMethod(GetCurryClosureMethod(delegateArgs, nestedContext));
+                    generator.EmitMethod(Utils.GetMapperMethodInfo(delegateArgs));
             }
             else
             {
                 var resultDelegate = method.CreateDelegate(lambdaExpression.Type, nestedContext.Target.Target);
                 nestedContext.Target.Fields[lambdaClosureIndex].SetValue(nestedContext.Target.Target, resultDelegate);
             }
-#endif
+
             return true;
         }
     }

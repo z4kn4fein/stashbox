@@ -29,17 +29,17 @@ namespace System.Linq.Expressions
                 return scope => instance;
             }
 
-            if (resolutionContext.GlobalParameters.Length > 0)
+            if (resolutionContext.DefinedVariables.Length > 0)
             {
                 var originalExpression = expression;
-                expression = Expression.Block(resolutionContext.GlobalParameters,
+                expression = Expression.Block(resolutionContext.DefinedVariables,
                     resolutionContext.SingleInstructions.Add(originalExpression));
             }
 
 #if NET45 || NET40 || NETSTANDARD1_3
             if (!expression.TryEmit(out Delegate factory, typeof(Func<IResolutionScope, object>), typeof(object),
-                resolutionContext.CurrentScopeParameter)) ;
-            //factory = Expression.Lambda(expression, resolutionContext.CurrentScopeParameter).Compile();
+                resolutionContext.CurrentScopeParameter))
+                factory = Expression.Lambda(expression, resolutionContext.CurrentScopeParameter).Compile();
 
             return (Func<IResolutionScope, object>)factory;
 #else
@@ -55,17 +55,17 @@ namespace System.Linq.Expressions
         /// <returns>The compiled delegate.</returns>
         public static Func<IResolutionScope, Delegate> CompileDynamicDelegate(this Expression expression, ResolutionContext resolutionContext)
         {
-            if (resolutionContext.GlobalParameters.Length > 0)
+            if (resolutionContext.DefinedVariables.Length > 0)
             {
                 var originalExpression = expression;
-                expression = Expression.Block(resolutionContext.GlobalParameters,
+                expression = Expression.Block(resolutionContext.DefinedVariables,
                     resolutionContext.SingleInstructions.Add(originalExpression));
             }
 
 #if NET45 || NET40 || NETSTANDARD1_3
             if (!expression.TryEmit(out Delegate factory, typeof(Func<IResolutionScope, Delegate>), typeof(Delegate),
-                resolutionContext.CurrentScopeParameter)) ;
-            //factory = Expression.Lambda<Func<IResolutionScope, Delegate>>(expression, resolutionContext.CurrentScopeParameter).Compile();
+                resolutionContext.CurrentScopeParameter))
+                factory = Expression.Lambda<Func<IResolutionScope, Delegate>>(expression, resolutionContext.CurrentScopeParameter).Compile();
 
             return (Func<IResolutionScope, Delegate>)factory;
 #else

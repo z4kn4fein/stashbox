@@ -18,7 +18,7 @@ namespace Stashbox.Lifetime
         public override Expression GetExpression(IContainerContext containerContext, IServiceRegistration serviceRegistration,
             IObjectBuilder objectBuilder, ResolutionContext resolutionContext, Type resolveType)
         {
-            var variable = resolutionContext.GlobalParameters.GetOrDefault(base.ScopeId);
+            var variable = resolutionContext.GetKnownVariableOrDefault(base.ScopeId);
             if (variable != null)
                 return variable;
 

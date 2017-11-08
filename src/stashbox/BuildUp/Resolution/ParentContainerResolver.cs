@@ -13,10 +13,18 @@ namespace Stashbox.BuildUp.Resolution
 
         public override Expression GetExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext) =>
             containerContext.Container.ParentContainer.ContainerContext.ResolutionStrategy
-                .BuildResolutionExpression(containerContext.Container.ParentContainer.ContainerContext, resolutionContext.ChildContext == null ? resolutionContext.CreateNew(containerContext) : resolutionContext, typeInfo, null);
+                .BuildResolutionExpression(containerContext.Container.ParentContainer.ContainerContext,
+                resolutionContext.ChildContext == null
+                    ? resolutionContext.CreateNew(containerContext)
+                    : resolutionContext,
+                typeInfo, null);
 
         public override Expression[] GetExpressions(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext) =>
             containerContext.Container.ParentContainer.ContainerContext.ResolutionStrategy
-                .BuildResolutionExpressions(containerContext.Container.ParentContainer.ContainerContext, resolutionContext.ChildContext == null ? resolutionContext.CreateNew(containerContext) : resolutionContext, typeInfo);
+                .BuildResolutionExpressions(containerContext.Container.ParentContainer.ContainerContext,
+                resolutionContext.ChildContext == null
+                    ? resolutionContext.CreateNew(containerContext)
+                    : resolutionContext,
+                typeInfo);
     }
 }
