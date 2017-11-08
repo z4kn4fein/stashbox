@@ -47,10 +47,7 @@ namespace Stashbox.Resolution
             {
                 var ragistrationFactory = registration.GetExpression(this.containerContext, resolutionContext, type)?.CompileDelegate(resolutionContext);
                 if (ragistrationFactory == null)
-                    if (resolutionContext.NullResultAllowed)
-                        return null;
-                    else
-                        throw new ResolutionFailedException(type);
+                    return null;
 
                 this.containerContext.DelegateRepository.AddServiceDelegate(type, ragistrationFactory, name);
                 return ragistrationFactory(resolutionContext.ResolutionScope);
