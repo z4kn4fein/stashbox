@@ -11,8 +11,6 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
 {
     internal static partial class Emitter
     {
-        private static int methodCounter;
-
         private static bool TryEmit(this LambdaExpression expression, ILGenerator generator, CompilerContext context, params ParameterExpression[] parameters)
         {
             var lambdaClosureIndex = context.StoredExpressions.GetIndex(expression);
