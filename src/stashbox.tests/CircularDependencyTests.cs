@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Stashbox.Attributes;
 using Stashbox.Exceptions;
+using System.Threading.Tasks;
 
 namespace Stashbox.Tests
 {
@@ -15,6 +16,19 @@ namespace Stashbox.Tests
             {
                 container.RegisterType<ITest1, Test1>();
                 container.Resolve<ITest1>();
+            }
+        }
+
+        [TestMethod]
+        public void CircularDependencyTests_StandardResolve_Parallel_ShouldntThrow()
+        {
+            using (var container = new StashboxContainer(config => config.WithCircularDependencyTracking()))
+            {
+                container.RegisterType<ITest1, Test4>();
+                Parallel.For(0, 50000, (i) =>
+                {
+                    container.Resolve<ITest1>();
+                });
             }
         }
 
@@ -81,6 +95,8 @@ namespace Stashbox.Tests
     public interface ITest3 { }
 
     public interface ITest1<I, K> { }
+
+    public class Test4 : ITest1 { }
 
     public class Test1<I, K> : ITest1<I, K>
     {

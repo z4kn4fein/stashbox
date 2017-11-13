@@ -1,6 +1,5 @@
 ﻿using Stashbox.Infrastructure.Registration;
 using Stashbox.Infrastructure.Resolution;
-using Stashbox.Utils;
 
 namespace Stashbox.Infrastructure
 {
@@ -33,11 +32,6 @@ namespace Stashbox.Infrastructure
         /// The resolution strategy.
         /// </summary>
         IResolutionStrategy ResolutionStrategy { get; }
-
-        /// <summary>
-        /// A generic key-value store.
-        /// </summary>
-        ConcurrentKeyValueStore<object, object> Bag { get; }
 
         /// <summary>
         /// Indicates that the container should track transient objects for disposal or not.

@@ -1,7 +1,6 @@
 ﻿using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.Registration;
 using Stashbox.Infrastructure.Resolution;
-using Stashbox.Utils;
 
 namespace Stashbox
 {
@@ -18,7 +17,6 @@ namespace Stashbox
             this.RegistrationRepository = registrationRepository;
             this.DelegateRepository = delegateRepository;
             this.Container = container;
-            this.Bag = new ConcurrentKeyValueStore<object, object>();
             this.ContainerConfigurator = containerConfigurator;
             this.DecoratorRepository = decoratorRepository;
         }
@@ -37,9 +35,6 @@ namespace Stashbox
 
         /// <inheritdoc />
         public IResolutionStrategy ResolutionStrategy { get; }
-
-        /// <inheritdoc />
-        public ConcurrentKeyValueStore<object, object> Bag { get; }
 
         /// <inheritdoc />
         public IContainerConfigurator ContainerConfigurator { get; internal set; }

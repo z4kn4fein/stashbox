@@ -49,12 +49,14 @@ namespace Stashbox.Resolution
 
         internal ArrayStoreKeyed<object, ParameterExpression> DefinedVariables { get; private set; }
 
+        internal HashMap<int, bool> CircularDependencyBarrier { get; private set; }
+
         private ResolutionContext(IResolutionScope scope, bool nullResultAllowed)
-            : this(scope, AvlTree<Expression>.Empty, AvlTree<Type>.Empty, ArrayStore<ParameterExpression>.Empty, scope.GetActiveScopeNames(), 
+            : this(scope, new HashMap<int, bool>(), AvlTree<Expression>.Empty, AvlTree<Type>.Empty, ArrayStore<ParameterExpression>.Empty, scope.GetActiveScopeNames(),
                   null, nullResultAllowed, Constants.ResolutionScopeParameter, ArrayStoreKeyed<object, ParameterExpression>.Empty)
         { }
 
-        private ResolutionContext(IResolutionScope scope, AvlTree<Expression> expressionOverrides,
+        private ResolutionContext(IResolutionScope scope, HashMap<int, bool> circularDependencyBarrier, AvlTree<Expression> expressionOverrides,
             AvlTree<Type> currentlyDecoratingTypes, ArrayStore<ParameterExpression> parameterExpressions, ISet<object> scopeNames,
             IContainerContext childContext, bool nullResultAllowed, ParameterExpression currentScope, ArrayStoreKeyed<object, ParameterExpression> knownVariables)
         {
@@ -70,6 +72,7 @@ namespace Stashbox.Resolution
             this.ChildContext = childContext;
             this.ScopeNames = scopeNames;
             this.knownVariables = knownVariables;
+            this.CircularDependencyBarrier = circularDependencyBarrier;
         }
 
         internal bool IsCurrentlyDecorating(Type type) =>
@@ -111,7 +114,7 @@ namespace Stashbox.Resolution
                 scopeNames.Add(scopeParameter.Key);
             }
 
-            return new ResolutionContext(this.ResolutionScope, this.expressionOverrides,
+            return new ResolutionContext(this.ResolutionScope, this.CircularDependencyBarrier, this.expressionOverrides,
                  this.currentlyDecoratingTypes, this.ParameterExpressions, scopeNames, childContext ?? this.ChildContext,
                  this.NullResultAllowed, scopeParameter == null ? this.CurrentScopeParameter : scopeParameter.Value, this.DefinedVariables);
         }
