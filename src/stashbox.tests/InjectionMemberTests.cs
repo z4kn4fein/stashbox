@@ -92,6 +92,18 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void InjectionMemberTests_Inject_With_Invalid_Config()
+        {
+            var container = new StashboxContainer();
+            container.RegisterType<Test3>(context => context.InjectMember("Test3"));
+
+            var inst = container.Resolve<Test3>();
+
+            Assert.IsNull(inst.Test1);
+            Assert.IsNull(inst.Test2);
+        }
+
+        [TestMethod]
         public void InjectionMemberTests_Inject_With_Config_Generic()
         {
             var container = new StashboxContainer();
