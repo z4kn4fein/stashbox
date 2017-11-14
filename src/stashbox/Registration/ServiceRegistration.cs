@@ -57,7 +57,7 @@ namespace Stashbox.Registration
             this.containerConfigurator = containerConfigurator;
             this.ImplementationType = implementationType;
             this.ServiceType = serviceType;
-            this.MetaInformation = GetOrCreateMetaInfo(implementationType);
+            this.MetaInformation = GetOrCreateMetaInfo(implementationType, registrationContextData);
             this.RegistrationNumber = ReserveRegistrationNumber();
             this.RegistrationContext = registrationContextData;
             this.IsDecorator = isDecorator;
@@ -117,12 +117,12 @@ namespace Stashbox.Registration
         private bool HasResolutionConditionAndMatch(TypeInformation typeInfo) =>
             this.RegistrationContext.ResolutionCondition != null && this.RegistrationContext.ResolutionCondition(typeInfo);
 
-        private static MetaInformation GetOrCreateMetaInfo(Type typeTo)
+        private static MetaInformation GetOrCreateMetaInfo(Type typeTo, RegistrationContextData registrationContextData)
         {
             var found = MetaRepository.GetOrDefault(typeTo);
             if (found != null) return found;
 
-            var meta = new MetaInformation(typeTo);
+            var meta = new MetaInformation(typeTo, registrationContextData);
             MetaRepository.AddOrUpdate(typeTo, meta);
             return meta;
         }

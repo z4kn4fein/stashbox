@@ -1,4 +1,5 @@
 ﻿using Stashbox.Entity;
+using Stashbox.Registration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,15 +34,16 @@ namespace Stashbox.MetaInfo
 
         private readonly Type type;
 
-        internal MetaInformation(Type typeTo)
+        internal MetaInformation(Type typeTo, RegistrationContextData registrationContextData)
         {
             this.type = typeTo;
-            var typeInfo = typeTo.GetTypeInfo();
+            var typeInfo = this.type.GetTypeInfo();
             this.GenericTypeConstraints = new Dictionary<int, Type[]>();
             this.AddConstructors(typeInfo.DeclaredConstructors);
             this.AddMethods(typeInfo.DeclaredMethods);
             this.InjectionMembers = this.FillMembers(typeInfo).CastToArray();
             this.CollectGenericConstraints(typeInfo);
+            this.SetMemberInjections(registrationContextData);
         }
 
         /// <summary>
@@ -170,6 +172,18 @@ namespace Stashbox.MetaInfo
                     var pos = paramTypeInfo.GenericParameterPosition;
                     this.GenericTypeConstraints.Add(pos, cons);
                 }
+            }
+        }
+
+        private void SetMemberInjections(RegistrationContextData registrationContextData)
+        {
+            foreach (var member in registrationContextData.InjectionMemberNames)
+            {
+                var knownMember = this.InjectionMembers.FirstOrDefault(m => m.MemberInfo.Name == member.Key);
+                if (knownMember == null) continue;
+
+                knownMember.TypeInformation.ForcedDependency = true;
+                knownMember.TypeInformation.DependencyName = member.Value;
             }
         }
     }

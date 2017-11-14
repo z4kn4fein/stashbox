@@ -3,7 +3,7 @@
     /// <summary>
     /// Represents a registration context. Allows a fluent registration configuration.
     /// </summary>
-    public interface IRegistrationContext<out TService> : IRegistrationContext, IFluentServiceRegistrator<TService>
+    public interface IRegistrationContext<TService> : IRegistrationContext, IFluentServiceRegistrator<TService>
     { }
 
     /// <summary>

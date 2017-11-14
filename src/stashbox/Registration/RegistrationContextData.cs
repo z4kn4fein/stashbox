@@ -16,17 +16,7 @@ namespace Stashbox.Registration
         /// Empty registration data.
         /// </summary>
         public static RegistrationContextData New() => new RegistrationContextData();
-
-        /// <summary>
-        /// The service type.
-        /// </summary>
-        public Type ServiceType { get; internal set; }
-
-        /// <summary>
-        /// The implementation type.
-        /// </summary>
-        public Type ImplementationType { get; internal set; }
-
+        
         /// <summary>
         /// Name of the registration.
         /// </summary>
@@ -76,6 +66,11 @@ namespace Stashbox.Registration
         /// Attribute condition collection of the registration.
         /// </summary>
         public HashSet<Type> AttributeConditions { get; internal set; }
+
+        /// <summary>
+        /// Member names which are explicitly set to be filled by the container.
+        /// </summary>
+        public HashSet<KeyValuePair<string, object>> InjectionMemberNames { get; internal set; }
 
         /// <summary>
         /// The stored instance.
@@ -128,6 +123,7 @@ namespace Stashbox.Registration
         public RegistrationContextData()
         {
             this.AttributeConditions = new HashSet<Type>();
+            this.InjectionMemberNames = new HashSet<KeyValuePair<string, object>>();
             this.AutoMemberInjectionEnabled = false;
         }
 

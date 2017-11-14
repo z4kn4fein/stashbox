@@ -7,6 +7,7 @@ using Stashbox.Lifetime;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 
 namespace Stashbox.Registration
 {
@@ -15,6 +16,17 @@ namespace Stashbox.Registration
         public RegistrationContext(Type serviceType, Type implementationType, IServiceRegistrator registrator)
             : base(serviceType, implementationType, registrator)
         { }
+
+        public IFluentServiceRegistrator<TService> InjectMember<TResult>(Expression<Func<TService, TResult>> expression, object dependencyName = null)
+        {
+            if (expression.Body is MemberExpression memberExpression)
+            {
+                this.Context.InjectionMemberNames.Add(new KeyValuePair<string, object>(memberExpression.Member.Name, dependencyName));
+                return this;
+            }
+
+            throw new ArgumentException(nameof(expression), "The expression must be a member expression (Property or Field)");
+        }
 
         public IFluentServiceRegistrator<TService> WithFinalizer(Action<TService> finalizer)
         {
@@ -199,6 +211,12 @@ namespace Stashbox.Registration
 
         public IFluentServiceRegistrator WithPerResolutionRequestLifetime() =>
             this.WithLifetime(new ResolutionRequestLifetime());
+
+        public IFluentServiceRegistrator InjectMember(string memberName, object dependencyName = null)
+        {
+            this.Context.InjectionMemberNames.Add(new KeyValuePair<string, object>(memberName, dependencyName));
+            return this;
+        }
 
         public IStashboxContainer Register()
         {

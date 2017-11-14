@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using Stashbox.Configuration;
+﻿using Stashbox.Configuration;
 using Stashbox.Entity;
 using Stashbox.Exceptions;
+using System;
+using System.Collections.Generic;
 
 namespace Stashbox.Infrastructure.Registration
 {
@@ -57,6 +57,14 @@ namespace Stashbox.Infrastructure.Registration
         /// <returns>The fluent registrator.</returns>
         /// <exception cref="ConstructorNotFoundException" />
         TFluentRegistrator WithConstructorByArguments(params object[] arguments);
+
+        /// <summary>
+        /// Set a member (property / field) with the given name as a dependency should be filled by the container.
+        /// </summary>
+        /// <param name="memberName">The name of the member.</param>
+        /// <param name="dependencyName">The name of the dependency.</param>
+        /// <returns>The fluent registrator.</returns>
+        TFluentRegistrator InjectMember(string memberName, object dependencyName = null);
 
         /// <summary>
         /// Tells the container that it shouldn't track the resolved transient object for disposal.

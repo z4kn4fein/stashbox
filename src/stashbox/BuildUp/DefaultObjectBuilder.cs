@@ -59,7 +59,5 @@ namespace Stashbox.BuildUp
 
             return this.expressionBuilder.CreateExpression(containerContext, serviceRegistration, resolutionContext, resolveType);
         }
-
-        public override IObjectBuilder Produce() => new DefaultObjectBuilder(this.expressionBuilder);
     }
 }

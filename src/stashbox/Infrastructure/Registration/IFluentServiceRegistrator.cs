@@ -1,13 +1,14 @@
-﻿using System;
-using Stashbox.Entity;
+﻿using Stashbox.Entity;
 using Stashbox.Lifetime;
+using System;
+using System.Linq.Expressions;
 
 namespace Stashbox.Infrastructure.Registration
 {
     /// <summary>
     /// Represents a generic fluent service registrator.
     /// </summary>
-    public interface IFluentServiceRegistrator<out TService> : IFluentServiceRegistrator
+    public interface IFluentServiceRegistrator<TService> : IFluentServiceRegistrator
     {
         /// <summary>
         /// Sets a delegate which will be called when the container is being disposed.
@@ -22,6 +23,14 @@ namespace Stashbox.Infrastructure.Registration
         /// <param name="initializer">The initializer delegate.</param>
         /// <returns>The <see cref="IFluentServiceRegistrator{TService}"/> which on this method was called.</returns>
         IFluentServiceRegistrator<TService> WithInitializer(Action<TService, IDependencyResolver> initializer);
+
+        /// <summary>
+        /// Set a member (property / field) as a dependency should be filled by the container.
+        /// </summary>
+        /// <param name="expression">The member expression.</param>
+        /// <param name="dependencyName">The name of the dependency.</param>
+        /// <returns>The <see cref="IFluentServiceRegistrator{TService}"/> which on this method was called.</returns>
+        IFluentServiceRegistrator<TService> InjectMember<TResult>(Expression<Func<TService, TResult>> expression, object dependencyName = null);
     }
 
     /// <summary>
