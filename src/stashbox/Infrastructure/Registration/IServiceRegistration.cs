@@ -39,6 +39,11 @@ namespace Stashbox.Infrastructure.Registration
         int RegistrationNumber { get; }
 
         /// <summary>
+        /// The registration id.
+        /// </summary>
+        object RegistrationId { get; }
+
+        /// <summary>
         /// True if the registration contains any condition, otherwise false.
         /// </summary>
         bool HasCondition { get; }
@@ -57,6 +62,11 @@ namespace Stashbox.Infrastructure.Registration
         /// True if the registration contains a disposable service which should be tracked.
         /// </summary>
         bool ShouldHandleDisposal { get; }
+
+        /// <summary>
+        /// True if the registration has a name set.
+        /// </summary>
+        bool HasName { get; }
 
         /// <summary>
         /// Creates an expression for creating the resolved instance.

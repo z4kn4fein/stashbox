@@ -47,7 +47,16 @@ namespace Stashbox.Registration
         public int RegistrationNumber { get; }
 
         /// <inheritdoc />
-        public bool HasScopeName => this.RegistrationContext.Lifetime is NamedScopeLifetime;
+        public object RegistrationId { get; }
+
+        /// <inheritdoc />
+        public bool HasName { get; }
+
+        /// <inheritdoc />
+        public bool HasScopeName { get; }
+
+        /// <inheritdoc />
+        public bool HasCondition { get; }
 
         internal ServiceRegistration(Type serviceType, Type implementationType, IContainerConfigurator containerConfigurator,
              IObjectBuilder objectBuilder, RegistrationContextData registrationContextData,
@@ -63,8 +72,17 @@ namespace Stashbox.Registration
             this.IsDecorator = isDecorator;
             this.ShouldHandleDisposal = shouldHandleDisposal;
 
-            if (this.RegistrationContext.Name == null)
-                this.RegistrationContext.Name = containerConfigurator.ContainerConfiguration.SetUniqueRegistrationNames ? (object)this.RegistrationNumber : implementationType;
+            this.HasName = this.RegistrationContext.Name != null;
+
+            this.HasScopeName = this.RegistrationContext.Lifetime is NamedScopeLifetime;
+
+            this.HasCondition = this.RegistrationContext.TargetTypeCondition != null || this.RegistrationContext.ResolutionCondition != null ||
+                this.RegistrationContext.AttributeConditions != null && this.RegistrationContext.AttributeConditions.Count > 0;
+
+            this.RegistrationId = this.RegistrationContext.Name ??
+                (containerConfigurator.ContainerConfiguration.SetUniqueRegistrationNames
+                ? (object)this.RegistrationNumber
+                : implementationType);
         }
 
         /// <inheritdoc />
@@ -73,10 +91,6 @@ namespace Stashbox.Registration
             this.HasParentTypeConditionAndMatch(typeInfo) ||
             this.HasAttributeConditionAndMatch(typeInfo) ||
             this.HasResolutionConditionAndMatch(typeInfo);
-
-        /// <inheritdoc />
-        public bool HasCondition => this.RegistrationContext.TargetTypeCondition != null || this.RegistrationContext.ResolutionCondition != null ||
-            this.RegistrationContext.AttributeConditions != null && this.RegistrationContext.AttributeConditions.Count > 0;
 
         /// <inheritdoc />
         public bool ValidateGenericContraints(Type type) =>

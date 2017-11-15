@@ -72,18 +72,21 @@ namespace Stashbox.Registration
 
             if (registrations == null) return null;
 
-            if (registrations.Lenght == 1)
+            if (registrations.Lenght == 1 && !registrations.Last.HasName)
                 return registrations.Last;
 
             var conditionals = registrations.Where(reg => reg.HasCondition);
 
             return typeInfo.Type.IsClosedGenericType()
                 ? conditionals.LastOrDefault(reg => reg.ValidateGenericContraints(typeInfo.Type) &&
-                                                    reg.IsUsableForCurrentContext(typeInfo)) ??
-                  registrations.LastOrDefault(reg => reg.ValidateGenericContraints(typeInfo.Type))
+                                                    reg.IsUsableForCurrentContext(typeInfo) &&
+                                                    !reg.HasName) ??
+                  registrations.LastOrDefault(reg => reg.ValidateGenericContraints(typeInfo.Type) &&
+                                                     !reg.HasName)
 
-                : conditionals.LastOrDefault(reg => reg.IsUsableForCurrentContext(typeInfo)) ??
-                  registrations.Last;
+                : conditionals.LastOrDefault(reg => reg.IsUsableForCurrentContext(typeInfo) &&
+                                                    !reg.HasName) ??
+                  registrations.LastOrDefault(reg => !reg.HasName);
         }
 
         private IServiceRegistration GetDefaultRegistrationOrDefault(Type type, ResolutionContext resolutionContext)
@@ -92,12 +95,12 @@ namespace Stashbox.Registration
 
             if (registrations == null) return null;
 
-            if (registrations.Lenght == 1)
+            if (registrations.Lenght == 1 && !registrations.Last.HasName)
                 return registrations.Last;
 
             return type.IsClosedGenericType()
-                ? registrations.LastOrDefault(reg => reg.ValidateGenericContraints(type))
-                : registrations.Last;
+                ? registrations.LastOrDefault(reg => reg.ValidateGenericContraints(type) && !reg.HasName)
+                : registrations.LastOrDefault(reg => !reg.HasName);
         }
 
         private ConcurrentOrderedKeyStore<object, IServiceRegistration> GetDefaultOrScopedRegistrationsOrDefault(Type type, ResolutionContext resolutionContext)

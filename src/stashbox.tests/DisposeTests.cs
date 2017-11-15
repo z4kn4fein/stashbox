@@ -186,6 +186,8 @@ namespace Stashbox.Tests
 
                 container.RegisterScoped<ITest2, Test2>();
                 container.RegisterScoped<Test3>();
+                container.RegisterScoped<ITest1, Test1>();
+                container.RegisterScoped<ITest11, Test4>();
                 container.RegisterScoped<ITest1, Test1>("test");
                 container.RegisterScoped<ITest11, Test4>("test2");
 

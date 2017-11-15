@@ -1,8 +1,8 @@
-﻿using System;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Stashbox.Infrastructure;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Stashbox.Infrastructure;
 
 namespace Stashbox.Tests
 {
@@ -99,15 +99,15 @@ namespace Stashbox.Tests
             container.RegisterType<ITest1, Test12>(context => context.WithName("teszt2"));
             container.RegisterType<ITest1, Test1>(context => context.WithName("teszt"));
 
-            container.Resolve<Lazy<ITest1>>();
+            container.Resolve<Lazy<ITest1>>("teszt");
 
             var lazy = container.Resolve<Lazy<ITest1>>("teszt");
 
             Assert.IsInstanceOfType(lazy.Value, typeof(Test1));
 
-            container.ReMap<ITest1, Test11>();
+            container.ReMap<ITest1, Test11>(config => config.WithName("teszt"));
 
-            var lazy2 = container.Resolve<Lazy<ITest1>>();
+            var lazy2 = container.Resolve<Lazy<ITest1>>("teszt");
 
             Assert.IsInstanceOfType(lazy2.Value, typeof(Test11));
         }

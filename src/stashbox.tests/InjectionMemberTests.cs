@@ -160,7 +160,7 @@ namespace Stashbox.Tests
         {
             public ITest Test1 { get; set; }
 
-            private ITest test2;
+            private ITest test2 = null;
 
             public ITest Test2 => this.test2;
 
