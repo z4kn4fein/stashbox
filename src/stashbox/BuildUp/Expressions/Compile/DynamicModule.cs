@@ -32,9 +32,9 @@ namespace Stashbox.BuildUp.Expressions.Compile
 #endif
         private static int typeCounter;
 
-        private static readonly ConcurrentTree<Type> TargetTypes = new ConcurrentTree<Type>();
+        private static AvlTree<Type> TargetTypes = AvlTree<Type>.Empty;
 
-        private static readonly ConcurrentTree<Type> CapturedArgumentTypes = new ConcurrentTree<Type>();
+        private static AvlTree<Type> CapturedArgumentTypes = AvlTree<Type>.Empty;
 
         public static Type GetOrAddTargetType(Type[] types)
         {
@@ -94,7 +94,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
 #else
             var type = typeBuilder.CreateType();
 #endif
-            TargetTypes.AddOrUpdate(length, type);
+            Swap.SwapValue(ref TargetTypes, t => t.AddOrUpdate(length, type));
             return type.MakeGenericType(types);
         }
 
@@ -143,7 +143,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
 #else
             var type = typeBuilder.CreateType();
 #endif
-            CapturedArgumentTypes.AddOrUpdate(length, type);
+            Swap.SwapValue(ref CapturedArgumentTypes, t => t.AddOrUpdate(length, type));
             return type.MakeGenericType(types);
         }
     }

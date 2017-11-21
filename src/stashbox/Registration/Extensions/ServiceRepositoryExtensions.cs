@@ -7,19 +7,19 @@ namespace Stashbox.Registration.Extensions
 {
     internal static class ServiceRepositoryExtensions
     {
-        public static void AddOrUpdateRegistration(this HashMap<Type, ConcurrentOrderedKeyStore<object, IServiceRegistration>> repository, IServiceRegistration registration, bool remap, bool replace)
+        public static void AddOrUpdateRegistration(this AvlTreeKeyValue<Type, ConcurrentOrderedKeyStore<object, IServiceRegistration>> repository, IServiceRegistration registration, bool remap, bool replace)
         {
             var newRepository = new ConcurrentOrderedKeyStore<object, IServiceRegistration>();
             newRepository.AddOrUpdate(registration.RegistrationId, registration);
 
             if (remap)
-                repository.AddOrUpdate(registration.ServiceType, newRepository, (oldValue, newValue) => newValue);
+                Swap.SwapValue(ref repository, repo => repo.AddOrUpdate(registration.ServiceType, newRepository, (oldValue, newValue) => newValue));
             else
-                repository.AddOrUpdate(registration.ServiceType, newRepository,
-                    (oldValue, newValue) => oldValue.AddOrUpdate(registration.RegistrationId, registration, replace));
+                Swap.SwapValue(ref repository, repo => repo.AddOrUpdate(registration.ServiceType, newRepository,
+                    (oldValue, newValue) => oldValue.AddOrUpdate(registration.RegistrationId, registration, replace)));
         }
 
-        public static bool ContainsRegistration(this HashMap<Type, ConcurrentOrderedKeyStore<object, IServiceRegistration>> repository, Type type, object name)
+        public static bool ContainsRegistration(this AvlTreeKeyValue<Type, ConcurrentOrderedKeyStore<object, IServiceRegistration>> repository, Type type, object name)
         {
             var registrations = repository.GetOrDefault(type);
             if (name != null && registrations != null)

@@ -21,7 +21,7 @@ namespace Stashbox.Registration
     public class ServiceRegistration : IServiceRegistration
     {
         private static int GlobalRegistrationNumber;
-        private static readonly ConcurrentTree<Type, MetaInformation> MetaRepository = new ConcurrentTree<Type, MetaInformation>();
+        private static AvlTreeKeyValue<Type, MetaInformation> MetaRepository = AvlTreeKeyValue<Type, MetaInformation>.Empty;
         private readonly IContainerConfigurator containerConfigurator;
         private readonly IObjectBuilder objectBuilder;
 
@@ -137,7 +137,7 @@ namespace Stashbox.Registration
             if (found != null) return found;
 
             var meta = new MetaInformation(typeTo, registrationContextData);
-            MetaRepository.AddOrUpdate(typeTo, meta);
+            Swap.SwapValue(ref MetaRepository, repo => repo.AddOrUpdate(typeTo, meta));
             return meta;
         }
 

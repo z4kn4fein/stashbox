@@ -14,11 +14,6 @@ namespace Stashbox.Infrastructure
         IRegistrationRepository RegistrationRepository { get; }
 
         /// <summary>
-        /// The delegate repository.
-        /// </summary>
-        IDelegateRepository DelegateRepository { get; }
-
-        /// <summary>
         /// The decorator repository.
         /// </summary>
         IDecoratorRepository DecoratorRepository { get; }

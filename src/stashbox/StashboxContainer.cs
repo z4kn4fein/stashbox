@@ -24,10 +24,7 @@ namespace Stashbox
         private readonly IRegistrationRepository registrationRepository = new RegistrationRepository();
         private readonly IExpressionBuilder expressionBuilder;
         private readonly AtomicBool disposed;
-        private readonly IActivationContext activationContext;
         private readonly IObjectBuilderSelector objectBuilderSelector;
-
-        private readonly IResolutionScope rootScope;
         private readonly IDependencyResolver rootResolver;
 
         /// <summary>
@@ -57,18 +54,17 @@ namespace Stashbox
 
             config?.Invoke(containerConfigurator);
 
-            this.ContainerContext = new ContainerContext(this.registrationRepository, new DelegateRepository(), this,
+            this.ContainerContext = new ContainerContext(this.registrationRepository, this,
                 new ResolutionStrategy(this.resolverSelector), containerConfigurator, decoratorRepository);
 
-            this.activationContext = new Resolution.ActivationContext(this.ContainerContext, this.resolverSelector);
             this.expressionBuilder = new ExpressionBuilder(this.containerExtensionManager);
             this.objectBuilderSelector = new ObjectBuilderSelector(this.expressionBuilder);
             this.ServiceRegistrator = new ServiceRegistrator(this.ContainerContext, this.containerExtensionManager, this.objectBuilderSelector);
 
-            this.rootScope = new ResolutionScope(this.activationContext,
+            this.RootScope = new ResolutionScope(this.resolverSelector,
             this.ServiceRegistrator, this.expressionBuilder, this.ContainerContext);
 
-            this.rootResolver = (IDependencyResolver)this.rootScope;
+            this.rootResolver = (IDependencyResolver)this.RootScope;
         }
 
         /// <inheritdoc />
@@ -89,7 +85,7 @@ namespace Stashbox
         /// <inheritdoc />
         public bool CanResolve(Type typeFrom, object name = null) =>
             this.registrationRepository.ContainsRegistration(typeFrom, name) ||
-                this.resolverSelector.CanResolve(this.ContainerContext, new TypeInformation { Type = typeFrom, DependencyName = name }, ResolutionContext.New(this.rootScope));
+                this.resolverSelector.CanResolve(this.ContainerContext, new TypeInformation { Type = typeFrom, DependencyName = name }, ResolutionContext.New(this.RootScope));
 
         /// <inheritdoc />
         public bool IsRegistered<TFrom>(object name = null) =>
@@ -103,7 +99,7 @@ namespace Stashbox
         public void Validate()
         {
             foreach (var serviceRegistration in this.registrationRepository.GetAllRegistrations())
-                serviceRegistration.GetExpression(this.ContainerContext, ResolutionContext.New(this.rootScope), serviceRegistration.ServiceType);
+                serviceRegistration.GetExpression(this.ContainerContext, ResolutionContext.New(this.RootScope), serviceRegistration.ServiceType);
         }
 
         /// <inheritdoc />
@@ -111,6 +107,9 @@ namespace Stashbox
 
         /// <inheritdoc />
         public IContainerContext ContainerContext { get; }
+
+        /// <inheritdoc />
+        public IResolutionScope RootScope { get; }
 
         /// <inheritdoc />
         public IServiceRegistrator ServiceRegistrator { get; }
@@ -121,7 +120,7 @@ namespace Stashbox
                  this.ContainerContext.ContainerConfigurator, this.ContainerContext.DecoratorRepository);
 
         /// <inheritdoc />
-        public IDependencyResolver BeginScope(object name = null, bool attachedToParent = false) => 
+        public IDependencyResolver BeginScope(object name = null, bool attachedToParent = false) =>
             this.rootResolver.BeginScope(name, attachedToParent);
 
         /// <inheritdoc />
@@ -152,7 +151,7 @@ namespace Stashbox
         protected virtual void Dispose(bool disposing)
         {
             if (!this.disposed.CompareExchange(false, true) || !disposing) return;
-            this.rootScope.Dispose();
+            this.RootScope.Dispose();
             this.containerExtensionManager.CleanUp();
         }
     }

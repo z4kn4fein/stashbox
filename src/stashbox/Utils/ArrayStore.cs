@@ -12,7 +12,7 @@ namespace Stashbox.Utils
 
         private readonly TValue[] repository;
 
-        public int Length { get; }
+        public int Length;
 
         private ArrayStore(TValue item, TValue[] old)
         {

@@ -94,13 +94,8 @@ namespace Stashbox.Utils
         /// </summary>
         /// <param name="key">The key.</param>
         /// <param name="content">The item to be added.</param>
-        public void Add(TKey key, TContent content)
-        {
-            var current = this.repository;
-            var newRepo = this.repository.Add(key, content);
-
-            Swap.SwapValue(ref this.repository, current, newRepo, repo => repo.Add(key, content));
-        }
+        public void Add(TKey key, TContent content) =>
+            Swap.SwapValue(ref this.repository, repo => repo.Add(key, content));
 
         /// <summary>
         /// Adds or updates an item in the collection.
@@ -110,11 +105,7 @@ namespace Stashbox.Utils
         /// <param name="allowUpdate">True if update is allowed, otherwise false.</param>
         public ConcurrentOrderedKeyStore<TKey, TContent> AddOrUpdate(TKey key, TContent value, bool allowUpdate = true)
         {
-            var current = this.repository;
-            var newRepo = this.repository.AddOrUpdate(key, value, allowUpdate);
-
-            Swap.SwapValue(ref this.repository, current, newRepo, repo => repo.AddOrUpdate(key, value));
-
+            Swap.SwapValue(ref this.repository, repo => repo.AddOrUpdate(key, value));
             return this;
         }
 

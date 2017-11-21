@@ -26,12 +26,12 @@ namespace Stashbox.BuildUp
             if (!containerContext.ContainerConfigurator.ContainerConfiguration.CircularDependencyTrackingEnabled)
                 return this.PrepareExpression(containerContext, serviceRegistration, resolutionContext, resolveType);
 
-            if (resolutionContext.CircularDependencyBarrier.GetOrDefault(serviceRegistration.RegistrationNumber))
+            if (resolutionContext.GetCircularDependencyBarrier(serviceRegistration.RegistrationNumber))
                 throw new CircularDependencyException(resolveType);
 
-            resolutionContext.CircularDependencyBarrier.AddOrUpdate(serviceRegistration.RegistrationNumber, true);
+            resolutionContext.SetCircularDependencyBarrier(serviceRegistration.RegistrationNumber, true);
             var result = this.PrepareExpression(containerContext, serviceRegistration, resolutionContext, resolveType);
-            resolutionContext.CircularDependencyBarrier.AddOrUpdate(serviceRegistration.RegistrationNumber, false, (old, @new) => @new);
+            resolutionContext.SetCircularDependencyBarrier(serviceRegistration.RegistrationNumber, false);
             return result;
         }
 

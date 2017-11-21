@@ -11,13 +11,13 @@ namespace Stashbox.Registration
 {
     internal class RegistrationRepository : IRegistrationRepository
     {
-        private readonly HashMap<Type, ConcurrentOrderedKeyStore<object, IServiceRegistration>> serviceRepository;
-        private readonly HashMap<Type, ConcurrentOrderedKeyStore<object, IServiceRegistration>> namedScopeRepository;
+        private readonly AvlTreeKeyValue<Type, ConcurrentOrderedKeyStore<object, IServiceRegistration>> serviceRepository;
+        private readonly AvlTreeKeyValue<Type, ConcurrentOrderedKeyStore<object, IServiceRegistration>> namedScopeRepository;
 
         public RegistrationRepository()
         {
-            this.serviceRepository = new HashMap<Type, ConcurrentOrderedKeyStore<object, IServiceRegistration>>();
-            this.namedScopeRepository = new HashMap<Type, ConcurrentOrderedKeyStore<object, IServiceRegistration>>();
+            this.serviceRepository = AvlTreeKeyValue<Type, ConcurrentOrderedKeyStore<object, IServiceRegistration>>.Empty;
+            this.namedScopeRepository = AvlTreeKeyValue<Type, ConcurrentOrderedKeyStore<object, IServiceRegistration>>.Empty;
         }
 
         public void AddOrUpdateRegistration(IServiceRegistration registration, bool remap, bool replace)

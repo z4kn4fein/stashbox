@@ -15,6 +15,17 @@ namespace Stashbox.Utils
         }
 
         [MethodImpl(Constants.Inline)]
+        public static void SwapValue<TValue>(ref TValue refValue, Func<TValue, TValue> valueFactory)
+            where TValue : class
+        {
+            var currentValue = refValue;
+            var newValue = valueFactory(currentValue);
+
+            if (!TrySwapCurrent(ref refValue, currentValue, newValue))
+                SwapCurrent(ref refValue, valueFactory);
+        }
+
+        [MethodImpl(Constants.Inline)]
         public static bool TrySwapCurrent<TValue>(ref TValue refValue, TValue currentValue, TValue newValue)
             where TValue : class =>
             ReferenceEquals(Interlocked.CompareExchange(ref refValue, newValue, currentValue), currentValue);

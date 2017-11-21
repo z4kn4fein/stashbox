@@ -1,7 +1,7 @@
 ﻿using Stashbox.Infrastructure.ContainerExtension;
+using Stashbox.Infrastructure.Registration;
 using Stashbox.Infrastructure.Resolution;
 using System;
-using Stashbox.Infrastructure.Registration;
 
 namespace Stashbox.Infrastructure
 {
@@ -36,6 +36,11 @@ namespace Stashbox.Infrastructure
         /// Stores the container context.
         /// </summary>
         IContainerContext ContainerContext { get; }
+
+        /// <summary>
+        /// The root scope.
+        /// </summary>
+        IResolutionScope RootScope { get; }
 
         /// <summary>
         /// The service registrator.

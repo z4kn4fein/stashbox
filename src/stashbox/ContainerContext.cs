@@ -9,13 +9,11 @@ namespace Stashbox
     /// </summary>
     public class ContainerContext : IContainerContext
     {
-        internal ContainerContext(IRegistrationRepository registrationRepository, IDelegateRepository delegateRepository,
-            IStashboxContainer container, IResolutionStrategy resolutionStrategy, IContainerConfigurator containerConfigurator,
-            IDecoratorRepository decoratorRepository)
+        internal ContainerContext(IRegistrationRepository registrationRepository, IStashboxContainer container, 
+            IResolutionStrategy resolutionStrategy, IContainerConfigurator containerConfigurator, IDecoratorRepository decoratorRepository)
         {
             this.ResolutionStrategy = resolutionStrategy;
             this.RegistrationRepository = registrationRepository;
-            this.DelegateRepository = delegateRepository;
             this.Container = container;
             this.ContainerConfigurator = containerConfigurator;
             this.DecoratorRepository = decoratorRepository;
@@ -23,9 +21,6 @@ namespace Stashbox
 
         /// <inheritdoc />
         public IRegistrationRepository RegistrationRepository { get; }
-
-        /// <inheritdoc />
-        public IDelegateRepository DelegateRepository { get; }
 
         /// <inheritdoc />
         public IDecoratorRepository DecoratorRepository { get; }

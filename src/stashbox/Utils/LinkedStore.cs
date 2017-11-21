@@ -7,11 +7,11 @@ namespace Stashbox.Utils
     {
         public static readonly OrderedLinkedStore<TValue> Empty = new OrderedLinkedStore<TValue>();
 
-        public OrderedLinkedStore<TValue> Next { get; }
+        public OrderedLinkedStore<TValue> Next;
 
-        public TValue Value { get; }
+        public TValue Value;
 
-        public bool IsEmpty { get; }
+        public bool IsEmpty;
 
         private OrderedLinkedStore() { this.IsEmpty = true; }
 

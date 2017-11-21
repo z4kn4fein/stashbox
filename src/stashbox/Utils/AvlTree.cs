@@ -17,11 +17,9 @@ namespace Stashbox.Utils
         private readonly AvlTree<TValue> rightNode;
 
         private readonly int height;
-        private readonly bool isEmpty = true;
-
-        public TValue Value => this.storedValue;
+        
         public bool HasMultipleItems => this.height > 1;
-        public bool IsEmpty => this.isEmpty;
+        public bool IsEmpty = true;
 
         private AvlTree(int hash, TValue value, AvlTree<TValue> left, AvlTree<TValue> right)
         {
@@ -29,7 +27,7 @@ namespace Stashbox.Utils
             this.leftNode = left;
             this.rightNode = right;
             this.storedValue = value;
-            this.isEmpty = false;
+            this.IsEmpty = false;
             this.height = 1 + (left.height > right.height ? left.height : right.height);
         }
 
@@ -50,14 +48,14 @@ namespace Stashbox.Utils
         public TValue GetOrDefault(int key)
         {
             var node = this;
-            while (!node.isEmpty && node.storedHash != key)
+            while (!node.IsEmpty && node.storedHash != key)
                 node = key < node.storedHash ? node.leftNode : node.rightNode;
-            return !node.isEmpty ? node.storedValue : defaultValue;
+            return !node.IsEmpty ? node.storedValue : defaultValue;
         }
 
         private AvlTree<TValue> Add(int hash, TValue value, Func<TValue, TValue, TValue> updateDelegate, out bool updated)
         {
-            if (this.isEmpty)
+            if (this.IsEmpty)
             {
                 updated = false;
                 return new AvlTree<TValue>(hash, value);
@@ -128,7 +126,7 @@ namespace Stashbox.Utils
             {
                 this.index = -1;
                 this.currentNode = this.root;
-                while (!this.currentNode.isEmpty)
+                while (!this.currentNode.IsEmpty)
                 {
                     this.nodes[++this.index] = this.currentNode;
                     this.currentNode = this.currentNode.leftNode;
@@ -137,9 +135,9 @@ namespace Stashbox.Utils
 
             public bool MoveNext()
             {
-                while (!this.currentNode.isEmpty || this.index != -1)
+                while (!this.currentNode.IsEmpty || this.index != -1)
                 {
-                    if (!this.currentNode.isEmpty)
+                    if (!this.currentNode.IsEmpty)
                     {
                         this.nodes[++this.index] = this.currentNode;
                         this.currentNode = this.currentNode.leftNode;

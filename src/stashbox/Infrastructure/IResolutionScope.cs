@@ -69,6 +69,11 @@ namespace Stashbox.Infrastructure
         object GetOrAddScopedItem(object key, Func<IResolutionScope, object> factory);
 
         /// <summary>
+        /// Invalidates the delegate cache.
+        /// </summary>
+        void InvalidateDelegateCache();
+
+        /// <summary>
         /// Gets the names of the already opened scopes.
         /// </summary>
         /// <returns>The scope names.</returns>
