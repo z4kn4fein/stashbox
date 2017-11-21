@@ -11,8 +11,8 @@ namespace Stashbox.Registration
 {
     internal class RegistrationRepository : IRegistrationRepository
     {
-        private readonly AvlTreeKeyValue<Type, ConcurrentOrderedKeyStore<object, IServiceRegistration>> serviceRepository;
-        private readonly AvlTreeKeyValue<Type, ConcurrentOrderedKeyStore<object, IServiceRegistration>> namedScopeRepository;
+        private AvlTreeKeyValue<Type, ConcurrentOrderedKeyStore<object, IServiceRegistration>> serviceRepository;
+        private AvlTreeKeyValue<Type, ConcurrentOrderedKeyStore<object, IServiceRegistration>> namedScopeRepository;
 
         public RegistrationRepository()
         {
@@ -23,9 +23,21 @@ namespace Stashbox.Registration
         public void AddOrUpdateRegistration(IServiceRegistration registration, bool remap, bool replace)
         {
             if (registration.HasScopeName)
-                this.namedScopeRepository.AddOrUpdateRegistration(registration, remap, replace);
+                this.AddOrUpdateRegistration(ref this.namedScopeRepository, registration, remap, replace);
             else
-                this.serviceRepository.AddOrUpdateRegistration(registration, remap, replace);
+                this.AddOrUpdateRegistration(ref this.serviceRepository, registration, remap, replace);
+        }
+
+        private void AddOrUpdateRegistration(ref AvlTreeKeyValue<Type, ConcurrentOrderedKeyStore<object, IServiceRegistration>> repository, IServiceRegistration registration, bool remap, bool replace)
+        {
+            var newRepository = new ConcurrentOrderedKeyStore<object, IServiceRegistration>();
+            newRepository.AddOrUpdate(registration.RegistrationId, registration);
+
+            if (remap)
+                Swap.SwapValue(ref repository, repo => repo.AddOrUpdate(registration.ServiceType, newRepository, (oldValue, newValue) => newValue));
+            else
+                Swap.SwapValue(ref repository, repo => repo.AddOrUpdate(registration.ServiceType, newRepository,
+                    (oldValue, newValue) => oldValue.AddOrUpdate(registration.RegistrationId, registration, replace)));
         }
 
         public IServiceRegistration GetRegistrationOrDefault(Type type, ResolutionContext resolutionContext, object name = null) =>

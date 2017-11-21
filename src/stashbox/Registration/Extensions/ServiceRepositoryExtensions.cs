@@ -7,18 +7,6 @@ namespace Stashbox.Registration.Extensions
 {
     internal static class ServiceRepositoryExtensions
     {
-        public static void AddOrUpdateRegistration(this AvlTreeKeyValue<Type, ConcurrentOrderedKeyStore<object, IServiceRegistration>> repository, IServiceRegistration registration, bool remap, bool replace)
-        {
-            var newRepository = new ConcurrentOrderedKeyStore<object, IServiceRegistration>();
-            newRepository.AddOrUpdate(registration.RegistrationId, registration);
-
-            if (remap)
-                Swap.SwapValue(ref repository, repo => repo.AddOrUpdate(registration.ServiceType, newRepository, (oldValue, newValue) => newValue));
-            else
-                Swap.SwapValue(ref repository, repo => repo.AddOrUpdate(registration.ServiceType, newRepository,
-                    (oldValue, newValue) => oldValue.AddOrUpdate(registration.RegistrationId, registration, replace)));
-        }
-
         public static bool ContainsRegistration(this AvlTreeKeyValue<Type, ConcurrentOrderedKeyStore<object, IServiceRegistration>> repository, Type type, object name)
         {
             var registrations = repository.GetOrDefault(type);
