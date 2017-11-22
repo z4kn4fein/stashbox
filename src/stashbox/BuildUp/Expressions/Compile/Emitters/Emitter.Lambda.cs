@@ -39,9 +39,11 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
 
             var nestedContext = context.CreateNew(variables, true);
 
-            var method = context.HasCapturedVariablesArgument
-                ? new DynamicMethod(string.Empty, lambdaExpression.ReturnType, context.ConcatDelegateTargetAndCapturedArgumentWithParameter(nestedParameters.GetTypes()), context.Target.TargetType, true)
-                : new DynamicMethod(string.Empty, lambdaExpression.ReturnType, context.ConcatDelegateTargetWithParameter(nestedParameters.GetTypes()), context.Target.TargetType, true);
+            var method = nestedContext.HasCapturedVariablesArgument
+                ? new DynamicMethod(string.Empty, lambdaExpression.ReturnType, nestedContext.HasCapturedVariablesArgument
+                    ? new[] { nestedContext.Target.TargetType, nestedContext.CapturedArgumentsHolder.TargetType }.Append(nestedParameters.GetTypes())
+                    : nestedContext.Target.TargetType.Append(parameters.GetTypes()), nestedContext.Target.TargetType, true)
+                : new DynamicMethod(string.Empty, lambdaExpression.ReturnType, nestedContext.Target.TargetType.Append(nestedParameters.GetTypes()), nestedContext.Target.TargetType, true);
 
             var nestedGenerator = method.GetILGenerator();
 
@@ -56,18 +58,18 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
 
             nestedGenerator.Emit(OpCodes.Ret);
 
-            if (context.HasCapturedVariablesArgument)
+            if (nestedContext.HasCapturedVariablesArgument)
             {
-                var delegateArgs = context.ConcatCapturedArgumentWithParameterWithReturnType(
-                    nestedParameters.GetTypes(),
-                    lambdaExpression.ReturnType);
+                var delegateArgs = nestedContext.CapturedArgumentsHolder.TargetType
+                    .Append(nestedParameters.GetTypes())
+                    .Append(lambdaExpression.ReturnType);
 
                 var resultDelegate = method.CreateDelegate(Utils.MapDelegateType(delegateArgs),
                     nestedContext.Target.Target);
 
                 nestedContext.Target.Fields[lambdaClosureIndex].SetValue(nestedContext.Target.Target, resultDelegate);
 
-                if (context.HasCapturedVariablesArgument)
+                if (nestedContext.HasCapturedVariablesArgument)
                     generator.EmitMethod(Utils.GetMapperMethodInfo(delegateArgs));
             }
             else

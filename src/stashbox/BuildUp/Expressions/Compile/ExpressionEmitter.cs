@@ -75,8 +75,9 @@ namespace Stashbox.BuildUp.Expressions.Compile
                 var lambda = analyzer.NestedLambdas[i];
                 if (capturedArgumentType != null)
                 {
-                    var type = Utils.MapDelegateType(Utils.ConcatCapturedArgumentWithParameterWithReturnType(
-                            lambda.Key.Parameters.GetTypes(), capturedArgumentType, lambda.Key.ReturnType));
+                    var type = Utils.MapDelegateType(capturedArgumentType
+                        .Append(lambda.Key.Parameters.GetTypes())
+                        .Append(lambda.Key.ReturnType));
                     analyzer.AddStoredItem(lambda.Key, type);
                 }
                 else

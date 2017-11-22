@@ -292,7 +292,7 @@ namespace Stashbox
         private Delegate ActivateFactoryDelegate(Type type, Type[] parameterTypes, IResolutionScope resolutionScope, object name, bool nullResultAllowed, int hash)
         {
             var resolutionContext = ResolutionContext.New(resolutionScope, nullResultAllowed);
-            resolutionContext.AddParameterExpressions(parameterTypes.Select(Expression.Parameter).ToArray());
+            resolutionContext.AddParameterExpressions(parameterTypes.Select(p => p.AsParameter()).ToArray());
 
             var typeInfo = new TypeInformation { Type = type, DependencyName = name };
             var registration = this.containerContext.RegistrationRepository.GetRegistrationOrDefault(typeInfo, resolutionContext);

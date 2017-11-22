@@ -2,6 +2,7 @@
 using Stashbox.Entity;
 using Stashbox.Utils;
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection.Emit;
 
@@ -56,65 +57,6 @@ namespace Stashbox.BuildUp.Expressions.Compile
         public CompilerContext CreateNew(Expression[] definedVariables, bool isNestedLambda) =>
             new CompilerContext(this.Target, definedVariables, this.StoredExpressions, this.CapturedArguments, this.NestedLambdas,
                 this.CapturedArgumentsHolder, isNestedLambda, this.hasCapturedVariablesArgumentConstructed.Value);
-
-        public Type[] ConcatDelegateTargetAndCapturedArgumentWithParameter(Type[] parameters)
-        {
-            var count = parameters.Length;
-            if (count == 0 && this.HasCapturedVariablesArgument)
-                return new[] { this.Target.TargetType, this.CapturedArgumentsHolder.TargetType };
-
-            var indexOffset = this.HasCapturedVariablesArgument ? 2 : 1;
-
-            var types = new Type[count + indexOffset];
-            types[0] = this.Target.TargetType;
-
-            if (this.HasCapturedVariablesArgument)
-                types[1] = this.CapturedArgumentsHolder.TargetType;
-
-            if (count == 1)
-                types[indexOffset] = parameters[0];
-            if (count > 1)
-                Array.Copy(parameters, 0, types, indexOffset, count);
-
-            return types;
-        }
-
-        public Type[] ConcatCapturedArgumentWithParameter(Type[] parameters)
-        {
-            var count = parameters.Length;
-            if (count == 0)
-                return new[] { this.CapturedArgumentsHolder.TargetType };
-
-            var types = new Type[count + 1];
-            types[0] = this.CapturedArgumentsHolder.TargetType;
-
-            if (count == 1)
-                types[1] = parameters[0];
-            if (count > 1)
-                Array.Copy(parameters, 0, types, 1, count);
-
-            return types;
-        }
-
-        public Type[] ConcatCapturedArgumentWithParameterWithReturnType(Type[] parameters, Type returnType) =>
-            Utils.ConcatCapturedArgumentWithParameterWithReturnType(parameters, this.CapturedArgumentsHolder.TargetType, returnType);
-
-        public Type[] ConcatDelegateTargetWithParameter(Type[] parameters)
-        {
-            var count = parameters.Length;
-            if (count == 0)
-                return new[] { this.Target.TargetType };
-
-            var types = new Type[count + 1];
-            types[0] = this.Target.TargetType;
-
-            if (count == 1)
-                types[1] = parameters[0];
-            if (count > 1)
-                Array.Copy(parameters, 0, types, 1, count);
-
-            return types;
-        }
     }
 }
 #endif

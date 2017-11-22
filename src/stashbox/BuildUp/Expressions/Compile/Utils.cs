@@ -7,26 +7,6 @@ namespace Stashbox.BuildUp.Expressions.Compile
 {
     internal static class Utils
     {
-        public static Type[] ConcatCapturedArgumentWithParameterWithReturnType(Type[] parameters, Type capturedArgumentsType, Type returnType)
-        {
-            var count = parameters.Length;
-            if (count == 0)
-                return new[] { capturedArgumentsType, returnType };
-
-            var length = count + 2;
-            var types = new Type[length];
-            types[0] = capturedArgumentsType;
-
-            if (count == 1)
-                types[1] = parameters[0];
-            if (count > 1)
-                Array.Copy(parameters, 0, types, 1, count);
-
-            types[length - 1] = returnType;
-
-            return types;
-        }
-
         public static Type MapDelegateType(Type[] paramTypes)
         {
             switch (paramTypes.Length)

@@ -61,7 +61,7 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
         {
             return !context.HasClosure
                 ? new DynamicMethod(string.Empty, returnType, parameters.GetTypes(), typeof(ExpressionEmitter), true)
-                : new DynamicMethod(string.Empty, returnType, context.ConcatDelegateTargetWithParameter(parameters.GetTypes()), context.Target.TargetType, true);
+                : new DynamicMethod(string.Empty, returnType, context.Target.TargetType.Append(parameters.GetTypes()), context.Target.TargetType, true);
         }
 
         private static bool TryEmit(this IList<Expression> expressions, ILGenerator generator, CompilerContext context, params ParameterExpression[] parameters)
