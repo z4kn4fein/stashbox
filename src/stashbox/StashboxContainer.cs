@@ -119,8 +119,8 @@ namespace Stashbox
                  this.ContainerContext.ContainerConfigurator, this.ContainerContext.DecoratorRepository);
 
         /// <inheritdoc />
-        public IDependencyResolver BeginScope(object name = null, bool attachedToParent = false) =>
-            this.rootResolver.BeginScope(name, attachedToParent);
+        public IDependencyResolver BeginScope(object name = null, bool attachToParent = false) =>
+            this.rootResolver.BeginScope(name, attachToParent);
 
         /// <inheritdoc />
         public void Configure(Action<IContainerConfigurator> config) =>
