@@ -1,4 +1,4 @@
-﻿#if NET45 || NET40 || NETSTANDARD1_3
+﻿#if NET45 || NET40 || IL_EMIT
 using Stashbox.Utils;
 using System;
 using System.Linq.Expressions;
@@ -10,7 +10,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
 {
     internal class DynamicModule
     {
-#if NETSTANDARD1_3
+#if NETSTANDARD
         public static readonly Lazy<ModuleBuilder> ModuleBuilder = new Lazy<ModuleBuilder>(() =>
             DynamicAssemblyBuilder.Value.DefineDynamicModule("Stashbox.Dynamic"));
 #else
@@ -18,7 +18,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
             DynamicAssemblyBuilder.Value.DefineDynamicModule("Stashbox.Dynamic"));
 #endif
 
-#if NETSTANDARD1_3
+#if NETSTANDARD
         public static readonly Lazy<AssemblyBuilder> DynamicAssemblyBuilder = new Lazy<AssemblyBuilder>(() =>
             AssemblyBuilder.DefineDynamicAssembly(
                 new AssemblyName("Stashbox.Dynamic"),
@@ -53,13 +53,13 @@ namespace Stashbox.BuildUp.Expressions.Compile
                     typeParamNames[i] = "T" + i;
 
                 var typeParams = typeBuilder.DefineGenericParameters(typeParamNames);
-#if NETSTANDARD1_3
+#if NETSTANDARD
                 var genericTypes = new Type[length];
 #endif
 
                 for (var i = 0; i < length; i++)
                 {
-#if NETSTANDARD1_3
+#if NETSTANDARD
                     var genericType = typeParams[i].AsType();
                     genericTypes[i] = genericType;
                     fields[i] = typeBuilder.DefineField("F" + i, genericType, FieldAttributes.Public);
@@ -68,7 +68,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
 #endif
                 }
 
-#if NETSTANDARD1_3
+#if NETSTANDARD
                 var constructor = typeBuilder.DefineConstructor(MethodAttributes.Public, CallingConventions.HasThis, genericTypes);
 #else
                 var constructor = typeBuilder.DefineConstructor(MethodAttributes.Public, CallingConventions.HasThis, typeParams);
@@ -88,7 +88,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
                 generator.Emit(OpCodes.Ret);
             }
 
-#if NETSTANDARD1_3
+#if NETSTANDARD
             var type = typeBuilder.CreateTypeInfo().AsType();
 #else
             var type = typeBuilder.CreateType();
@@ -122,14 +122,14 @@ namespace Stashbox.BuildUp.Expressions.Compile
                 typeParamNames[i] = "T" + i;
 
             var typeParams = typeBuilder.DefineGenericParameters(typeParamNames);
-#if NETSTANDARD1_3
+#if NETSTANDARD
                 var genericTypes = new Type[length];
 #endif
 
             for (var i = 0; i < length; i++)
             {
                 types[i] = expressions[i].Type;
-#if NETSTANDARD1_3
+#if NETSTANDARD
                     var genericType = typeParams[i].AsType();
                     genericTypes[i] = genericType;
                     fields[i] = typeBuilder.DefineField("F" + i, genericType, FieldAttributes.Public);
@@ -137,7 +137,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
                 fields[i] = typeBuilder.DefineField("F" + i, typeParams[i], FieldAttributes.Public);
 #endif
             }
-#if NETSTANDARD1_3
+#if NETSTANDARD
             var type = typeBuilder.CreateTypeInfo().AsType();
 #else
             var type = typeBuilder.CreateType();
