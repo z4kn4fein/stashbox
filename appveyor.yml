@@ -20,7 +20,7 @@ configuration: Release
 
 dotnet_csproj:
   patch: true
-  file: 'src\stashbox\stashbox.csproj'
+  file: '**\stashbox.csproj'
   version: $(build_version)
   package_version: $(appveyor_build_version)
 
