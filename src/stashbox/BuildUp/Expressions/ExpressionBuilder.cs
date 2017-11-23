@@ -190,8 +190,6 @@ namespace Stashbox.BuildUp.Expressions
 
             if (this.containerExtensionManager.HasPostBuildExtensions)
             {
-
-
                 var call = this.containerExtensionManager.AsConstant()
                     .CallMethod(Constants.BuildExtensionMethod,
                         instance,

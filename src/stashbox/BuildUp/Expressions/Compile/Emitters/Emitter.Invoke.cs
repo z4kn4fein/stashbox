@@ -12,7 +12,7 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
             if (!expression.Expression.TryEmit(generator, context, parameters) || !expression.Arguments.TryEmit(generator, context, parameters))
                 return false;
 
-            var invokeMethod = expression.Expression.Type.GetMethod("Invoke");
+            var invokeMethod = expression.Expression.Type.GetSingleMethod("Invoke");
             generator.EmitMethod(invokeMethod);
 
             return true;

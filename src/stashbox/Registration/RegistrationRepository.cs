@@ -11,13 +11,13 @@ namespace Stashbox.Registration
 {
     internal class RegistrationRepository : IRegistrationRepository
     {
-        private AvlTreeKeyValue<Type, ConcurrentOrderedKeyStore<object, IServiceRegistration>> serviceRepository;
-        private AvlTreeKeyValue<Type, ConcurrentOrderedKeyStore<object, IServiceRegistration>> namedScopeRepository;
+        private AvlTreeKeyValue<Type, ArrayStoreKeyed<object, IServiceRegistration>> serviceRepository;
+        private AvlTreeKeyValue<Type, ArrayStoreKeyed<object, IServiceRegistration>> namedScopeRepository;
 
         public RegistrationRepository()
         {
-            this.serviceRepository = AvlTreeKeyValue<Type, ConcurrentOrderedKeyStore<object, IServiceRegistration>>.Empty;
-            this.namedScopeRepository = AvlTreeKeyValue<Type, ConcurrentOrderedKeyStore<object, IServiceRegistration>>.Empty;
+            this.serviceRepository = AvlTreeKeyValue<Type, ArrayStoreKeyed<object, IServiceRegistration>>.Empty;
+            this.namedScopeRepository = AvlTreeKeyValue<Type, ArrayStoreKeyed<object, IServiceRegistration>>.Empty;
         }
 
         public void AddOrUpdateRegistration(IServiceRegistration registration, bool remap, bool replace)
@@ -28,10 +28,9 @@ namespace Stashbox.Registration
                 this.AddOrUpdateRegistration(ref this.serviceRepository, registration, remap, replace);
         }
 
-        private void AddOrUpdateRegistration(ref AvlTreeKeyValue<Type, ConcurrentOrderedKeyStore<object, IServiceRegistration>> repository, IServiceRegistration registration, bool remap, bool replace)
+        private void AddOrUpdateRegistration(ref AvlTreeKeyValue<Type, ArrayStoreKeyed<object, IServiceRegistration>> repository, IServiceRegistration registration, bool remap, bool replace)
         {
-            var newRepository = new ConcurrentOrderedKeyStore<object, IServiceRegistration>();
-            newRepository.AddOrUpdate(registration.RegistrationId, registration);
+            var newRepository = new ArrayStoreKeyed<object, IServiceRegistration>(registration.RegistrationId, registration);
 
             if (remap)
                 Swap.SwapValue(ref repository, repo => repo.AddOrUpdate(registration.ServiceType, newRepository, (oldValue, newValue) => newValue));
@@ -84,7 +83,7 @@ namespace Stashbox.Registration
 
             if (registrations == null) return null;
 
-            if (registrations.Lenght == 1 && !registrations.Last.HasName)
+            if (registrations.Length == 1 && !registrations.Last.HasName)
                 return registrations.Last;
 
             var conditionals = registrations.Where(reg => reg.HasCondition);
@@ -107,7 +106,7 @@ namespace Stashbox.Registration
 
             if (registrations == null) return null;
 
-            if (registrations.Lenght == 1 && !registrations.Last.HasName)
+            if (registrations.Length == 1 && !registrations.Last.HasName)
                 return registrations.Last;
 
             return type.IsClosedGenericType()
@@ -115,7 +114,7 @@ namespace Stashbox.Registration
                 : registrations.LastOrDefault(reg => !reg.HasName);
         }
 
-        private ConcurrentOrderedKeyStore<object, IServiceRegistration> GetDefaultOrScopedRegistrationsOrDefault(Type type, ResolutionContext resolutionContext)
+        private ArrayStoreKeyed<object, IServiceRegistration> GetDefaultOrScopedRegistrationsOrDefault(Type type, ResolutionContext resolutionContext)
         {
             if (resolutionContext.ScopeNames == null)
                 return this.GetDefaultRegistrationsOrDefault(type);
@@ -123,7 +122,7 @@ namespace Stashbox.Registration
             return this.GetScopedRegistrationsOrDefault(type, resolutionContext) ?? this.GetDefaultRegistrationsOrDefault(type);
         }
 
-        private ConcurrentOrderedKeyStore<object, IServiceRegistration> GetDefaultRegistrationsOrDefault(Type type)
+        private ArrayStoreKeyed<object, IServiceRegistration> GetDefaultRegistrationsOrDefault(Type type)
         {
             var registrations = this.serviceRepository.GetOrDefault(type);
             if (registrations == null && type.IsClosedGenericType())
@@ -132,7 +131,7 @@ namespace Stashbox.Registration
             return registrations;
         }
 
-        private ConcurrentOrderedKeyStore<object, IServiceRegistration> GetScopedRegistrationsOrDefault(Type type, ResolutionContext resolutionContext)
+        private ArrayStoreKeyed<object, IServiceRegistration> GetScopedRegistrationsOrDefault(Type type, ResolutionContext resolutionContext)
         {
             var scopedRegistrations = this.namedScopeRepository.GetOrDefault(type)?.WhereOrDefault(kv => kv.Value.CanInjectIntoNamedScope(resolutionContext.ScopeNames));
             if (scopedRegistrations == null && type.IsClosedGenericType())

@@ -31,8 +31,9 @@ namespace Stashbox.Resolution
 
         private AvlTree<Expression> expressionOverrides;
         private AvlTree<Type> currentlyDecoratingTypes;
-        private ArrayStoreKeyed<object, ParameterExpression> knownVariables;
         private AvlTreeKeyValue<int, bool> circularDependencyBarrier;
+        
+        private readonly ArrayStoreKeyed<object, ParameterExpression> knownVariables;
 
         internal IResolutionScope ResolutionScope { get; }
 

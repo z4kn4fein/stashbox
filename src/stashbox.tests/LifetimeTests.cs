@@ -119,25 +119,7 @@ namespace Stashbox.Tests
                 Assert.AreNotSame(inst1, inst2);
             }
         }
-
-        [TestMethod]
-        public void Scoped_Lifetime_Ensure_Thread_Safe()
-        {
-            for (var i = 0; i < 1000; i++)
-            {
-                Test4.IsConstructed = false;
-                using (IStashboxContainer container = new StashboxContainer())
-                {
-                    container.RegisterScoped<Test4>();
-
-                    using (var scope = container.BeginScope())
-                    {
-                        Parallel.For(0, 50, _ => scope.Resolve<Test4>());
-                    }
-                }
-            }
-        }
-
+        
         [TestMethod]
         public void LifetimeTests_Scoped_WithNull()
         {

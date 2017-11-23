@@ -25,7 +25,7 @@ namespace Stashbox.Registration
                 return this;
             }
 
-            throw new ArgumentException(nameof(expression), "The expression must be a member expression (Property or Field)");
+            throw new ArgumentException("The expression must be a member expression (Property or Field)", nameof(expression));
         }
 
         public IFluentServiceRegistrator<TService> WithFinalizer(Action<TService> finalizer)

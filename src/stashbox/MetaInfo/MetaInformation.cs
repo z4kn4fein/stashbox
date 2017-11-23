@@ -25,7 +25,7 @@ namespace Stashbox.MetaInfo
         /// <summary>
         /// Holds the injection member of the service.
         /// </summary>
-        public MemberInformation[] InjectionMembers { get; private set; }
+        public MemberInformation[] InjectionMembers { get; }
 
         /// <summary>
         /// Holds the generic type constraints of the service.
@@ -107,7 +107,7 @@ namespace Stashbox.MetaInfo
             var length = parameters.Length;
             var types = new TypeInformation[length];
 
-            for (int i = 0; i < length; i++)
+            for (var i = 0; i < length; i++)
                 types[i] = this.GetTypeInformationForParameter(parameters[i]);
 
             return types;
@@ -161,17 +161,16 @@ namespace Stashbox.MetaInfo
                 return;
 
             var length = typeInfo.GenericTypeParameters.Length;
-            for (int i = 0; i < length; i++)
+            for (var i = 0; i < length; i++)
             {
                 var typeInfoGenericTypeParameter = typeInfo.GenericTypeParameters[i];
                 var paramTypeInfo = typeInfoGenericTypeParameter.GetTypeInfo();
                 var cons = paramTypeInfo.GetGenericParameterConstraints();
 
-                if (cons.Length > 0)
-                {
-                    var pos = paramTypeInfo.GenericParameterPosition;
-                    this.GenericTypeConstraints.Add(pos, cons);
-                }
+                if (cons.Length <= 0) continue;
+
+                var pos = paramTypeInfo.GenericParameterPosition;
+                this.GenericTypeConstraints.Add(pos, cons);
             }
         }
 

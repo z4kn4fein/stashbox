@@ -46,7 +46,7 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
             else if (value is Type)
             {
                 generator.Emit(OpCodes.Ldtoken, (Type)value);
-                generator.Emit(OpCodes.Call, typeof(Type).GetMethod("GetTypeFromHandle"));
+                generator.Emit(OpCodes.Call, typeof(Type).GetSingleMethod("GetTypeFromHandle"));
             }
             else if (context.HasClosure)
             {

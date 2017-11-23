@@ -10,52 +10,6 @@ namespace Stashbox.Utils
     /// Represents a concurrent collection.
     /// </summary>
     /// <typeparam name="TContent">The content type generic parameter.</typeparam>
-    public class ConcurrentOrderedStore<TContent> : IEnumerable<TContent>
-    {
-        private ArrayStore<TContent> repository;
-
-        /// <summary>
-        /// The length of the collection.
-        /// </summary>
-        public int Lenght => this.repository.Length;
-
-        /// <summary>
-        /// Constructs a <see cref="ConcurrentOrderedStore{TContent}"/>
-        /// </summary>
-        public ConcurrentOrderedStore()
-        {
-            this.repository = ArrayStore<TContent>.Empty;
-        }
-
-        /// <summary>
-        /// Adds an item to the collection.
-        /// </summary>
-        /// <param name="content">The item to be added.</param>
-        public void Add(TContent content)
-        {
-            var current = this.repository;
-            var newRepo = this.repository.Add(content);
-
-            Swap.SwapValue(ref this.repository, current, newRepo, repo => repo.Add(content));
-        }
-
-        /// <summary>
-        /// Gets an item from the collection.
-        /// </summary>
-        /// <param name="index">The index of the item.</param>
-        /// <returns>The item.</returns>
-        public TContent Get(int index) => this.repository.Get(index);
-
-        IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
-
-        /// <inheritdoc />
-        public IEnumerator<TContent> GetEnumerator() => this.repository.GetEnumerator();
-    }
-
-    /// <summary>
-    /// Represents a concurrent collection.
-    /// </summary>
-    /// <typeparam name="TContent">The content type generic parameter.</typeparam>
     /// <typeparam name="TKey">The key.</typeparam>
     public class ConcurrentOrderedKeyStore<TKey, TContent> : IEnumerable<TContent>
     {

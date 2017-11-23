@@ -10,7 +10,7 @@ namespace Stashbox
 {
     internal class BuildExtensionManager : IContainerExtensionManager
     {
-        private readonly ConcurrentOrderedStore<IContainerExtension> repository;
+        private ArrayStore<IContainerExtension> repository;
 
         public bool HasPostBuildExtensions { get; private set; }
 
@@ -18,7 +18,7 @@ namespace Stashbox
 
         public BuildExtensionManager()
         {
-            this.repository = new ConcurrentOrderedStore<IContainerExtension>();
+            this.repository = ArrayStore<IContainerExtension>.Empty;
         }
 
         public void AddExtension(IContainerExtension containerExtension)
@@ -29,7 +29,7 @@ namespace Stashbox
             if (containerExtension is IRegistrationExtension)
                 this.HasRegistrationExtensions = true;
 
-            this.repository.Add(containerExtension);
+            Swap.SwapValue(ref this.repository, repo => repo.Add(containerExtension));
         }
 
         public object ExecutePostBuildExtensions(object instance, IContainerContext containerContext, ResolutionContext resolutionContext,

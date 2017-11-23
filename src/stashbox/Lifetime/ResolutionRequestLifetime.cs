@@ -24,10 +24,7 @@ namespace Stashbox.Lifetime
 
             var expression = base.GetExpression(containerContext, serviceRegistration, objectBuilder, resolutionContext, resolveType);
 
-            if (expression == null)
-                return null;
-
-            return base.StoreExpressionIntoLocalVariable(expression, resolutionContext, resolveType);
+            return expression == null ? null : base.StoreExpressionIntoLocalVariable(expression, resolutionContext, resolveType);
         }
     }
 }

@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace Stashbox.Utils
@@ -108,6 +109,11 @@ namespace Stashbox.Utils
             this.Length = initial.Length;
         }
 
+        internal ArrayStoreKeyed(TKey key, TValue value)
+        {
+            this.Repository = new[] { new KeyValue<TKey, TValue>(key, value) };
+            this.Length = 1;}
+
         public ArrayStoreKeyed()
         {
             this.Repository = new KeyValue<TKey, TValue>[0];
@@ -134,6 +140,12 @@ namespace Stashbox.Utils
             Array.Copy(this.Repository, newRepository, length);
             newRepository[count] = new KeyValue<TKey, TValue>(key, value);
             return new ArrayStoreKeyed<TKey, TValue>(newRepository);
+        }
+
+        internal ArrayStoreKeyed<TKey, TValue> WhereOrDefault(Func<KeyValue<TKey, TValue>, bool> predicate)
+        {
+            var initial = this.Repository.Where(predicate).ToArray();
+            return initial.Length == 0 ? null : new ArrayStoreKeyed<TKey, TValue>(initial);
         }
 
         [MethodImpl(Constants.Inline)]

@@ -3,8 +3,9 @@
 namespace Stashbox.Tests.IssueTests
 {
     [TestClass]
-    public class IssueTests
+    public class MixtureOfNamedAndNonNamedRegistrationTests
     {
+        [TestMethod]
         public void Mixture_of_named_and_non_named_registrations_result_in_the_wrong_type_resolved()
         {
             var sb = new StashboxContainer();
@@ -21,13 +22,13 @@ namespace Stashbox.Tests.IssueTests
         interface ITest
         { }
 
-        class Test : ITest1
+        class Test : ITest
         { }
 
-        class Test1 : ITest1
+        class Test1 : ITest
         { }
 
-        class Test2 : ITest1
+        class Test2 : ITest
         { }
     }
 }

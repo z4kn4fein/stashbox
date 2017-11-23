@@ -9,7 +9,7 @@ namespace Stashbox.Utils
     {
         public static readonly AvlTreeKeyValue<TKey, TValue> Empty = new AvlTreeKeyValue<TKey, TValue>();
 
-        private int height;
+        private readonly int height;
 
         public int StoredHash;
         public TKey StoredKey;
@@ -17,8 +17,7 @@ namespace Stashbox.Utils
         public AvlTreeKeyValue<TKey, TValue> LeftNode;
         public AvlTreeKeyValue<TKey, TValue> RightNode;
         public ArrayStoreKeyed<TKey, TValue> Collisions;
-        public bool HasMultipleItems => this.height > 1;
-        public bool IsEmpty;
+        public bool IsEmpty = true;
 
         private AvlTreeKeyValue(int hash, TKey key, TValue value, AvlTreeKeyValue<TKey, TValue> left,
             AvlTreeKeyValue<TKey, TValue> right, ArrayStoreKeyed<TKey, TValue> collisions)
@@ -35,7 +34,6 @@ namespace Stashbox.Utils
 
         private AvlTreeKeyValue()
         {
-            this.IsEmpty = true;
             this.Collisions = ArrayStoreKeyed<TKey, TValue>.Empty;
         }
 
@@ -131,7 +129,7 @@ namespace Stashbox.Utils
                     yield return currentNode.StoredValue;
 
                     if (currentNode.Collisions.Length > 0)
-                        for (int i = 0; i < currentNode.Collisions.Length; i++)
+                        for (var i = 0; i < currentNode.Collisions.Length; i++)
                             yield return currentNode.Collisions[i];
 
                     currentNode = currentNode.RightNode;

@@ -45,7 +45,7 @@ namespace Stashbox.Configuration
         public bool UnknownTypeResolutionEnabled { get; internal set; }
 
         /// <summary>
-        /// If it's set to true, the container will wither inject members whithout the <see cref="DependencyAttribute"/>.
+        /// If it's set to true, the container will inject members even whithout <see cref="DependencyAttribute"/>.
         /// </summary>
         public bool MemberInjectionWithoutAnnotationEnabled { get; internal set; }
 

@@ -17,8 +17,6 @@ namespace Stashbox.Utils
         private readonly AvlTree<TValue> rightNode;
 
         private readonly int height;
-        
-        public bool HasMultipleItems => this.height > 1;
         public bool IsEmpty = true;
 
         private AvlTree(int hash, TValue value, AvlTree<TValue> left, AvlTree<TValue> right)
@@ -37,12 +35,9 @@ namespace Stashbox.Utils
 
         private AvlTree()
         { }
-
+        
         public AvlTree<TValue> AddOrUpdate(int key, TValue value, Func<TValue, TValue, TValue> updateDelegate = null) =>
-            this.Add(key, value, updateDelegate, out bool updated);
-
-        public AvlTree<TValue> AddOrUpdate(int key, TValue value, out bool updated, Func<TValue, TValue, TValue> updateDelegate = null) =>
-            this.Add(key, value, updateDelegate, out updated);
+            this.Add(key, value, updateDelegate);
 
         [MethodImpl(Constants.Inline)]
         public TValue GetOrDefault(int key)
@@ -53,23 +48,17 @@ namespace Stashbox.Utils
             return !node.IsEmpty ? node.storedValue : defaultValue;
         }
 
-        private AvlTree<TValue> Add(int hash, TValue value, Func<TValue, TValue, TValue> updateDelegate, out bool updated)
+        private AvlTree<TValue> Add(int hash, TValue value, Func<TValue, TValue, TValue> updateDelegate)
         {
             if (this.IsEmpty)
-            {
-                updated = false;
                 return new AvlTree<TValue>(hash, value);
-            }
 
             if (hash == this.storedHash)
-            {
-                updated = this.storedValue != null && !this.storedValue.Equals(defaultValue);
                 return updateDelegate == null ? this : new AvlTree<TValue>(hash, updateDelegate(this.storedValue, value), this.leftNode, this.rightNode);
-            }
 
             var result = hash < this.storedHash
-                ? this.SelfCopy(this.leftNode.Add(hash, value, updateDelegate, out updated), this.rightNode)
-                : this.SelfCopy(this.leftNode, this.rightNode.Add(hash, value, updateDelegate, out updated));
+                ? this.SelfCopy(this.leftNode.Add(hash, value, updateDelegate), this.rightNode)
+                : this.SelfCopy(this.leftNode, this.rightNode.Add(hash, value, updateDelegate));
 
             return result.Balance();
         }

@@ -7,7 +7,7 @@ namespace Stashbox.Registration.Extensions
 {
     internal static class ServiceRepositoryExtensions
     {
-        public static bool ContainsRegistration(this AvlTreeKeyValue<Type, ConcurrentOrderedKeyStore<object, IServiceRegistration>> repository, Type type, object name)
+        public static bool ContainsRegistration(this AvlTreeKeyValue<Type, ArrayStoreKeyed<object, IServiceRegistration>> repository, Type type, object name)
         {
             var registrations = repository.GetOrDefault(type);
             if (name != null && registrations != null)

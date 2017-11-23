@@ -85,7 +85,6 @@ namespace Stashbox
                   new AvlTreeKeyValue<object, Func<IResolutionScope, Delegate>>[Constants.HashMapLength], name)
         {
             this.RootScope = this;
-
             this.InvalidateDelegateCache();
         }
 

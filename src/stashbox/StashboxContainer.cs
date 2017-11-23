@@ -22,7 +22,6 @@ namespace Stashbox
         private readonly IContainerExtensionManager containerExtensionManager;
         private readonly IResolverSelector resolverSelector;
         private readonly IRegistrationRepository registrationRepository = new RegistrationRepository();
-        private readonly IExpressionBuilder expressionBuilder;
         private readonly AtomicBool disposed;
         private readonly IObjectBuilderSelector objectBuilderSelector;
         private readonly IDependencyResolver rootResolver;
@@ -57,12 +56,12 @@ namespace Stashbox
             this.ContainerContext = new ContainerContext(this.registrationRepository, this,
                 new ResolutionStrategy(this.resolverSelector), containerConfigurator, decoratorRepository);
 
-            this.expressionBuilder = new ExpressionBuilder(this.containerExtensionManager);
-            this.objectBuilderSelector = new ObjectBuilderSelector(this.expressionBuilder);
+            var expressionBuilder = new ExpressionBuilder(this.containerExtensionManager);
+            this.objectBuilderSelector = new ObjectBuilderSelector(expressionBuilder);
             this.ServiceRegistrator = new ServiceRegistrator(this.ContainerContext, this.containerExtensionManager, this.objectBuilderSelector);
 
             this.RootScope = new ResolutionScope(this.resolverSelector,
-            this.ServiceRegistrator, this.expressionBuilder, this.ContainerContext);
+            this.ServiceRegistrator, expressionBuilder, this.ContainerContext);
 
             this.rootResolver = (IDependencyResolver)this.RootScope;
         }
