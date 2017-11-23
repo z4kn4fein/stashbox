@@ -13,12 +13,10 @@ namespace Stashbox.BuildUp
     internal class DefaultObjectBuilder : ObjectBuilderBase
     {
         private readonly IExpressionBuilder expressionBuilder;
-        private readonly AtomicBool circularDependencyCheck;
 
         public DefaultObjectBuilder(IExpressionBuilder expressionBuilder)
         {
             this.expressionBuilder = expressionBuilder;
-            this.circularDependencyCheck = new AtomicBool();
         }
 
         protected override Expression GetExpressionInternal(IContainerContext containerContext, IServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType)

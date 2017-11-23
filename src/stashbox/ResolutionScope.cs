@@ -125,13 +125,13 @@ namespace Stashbox
             return cachedFactory != null ? cachedFactory(this) : this.ActivateFactoryDelegate(typeFrom, parameterTypes, this, name, nullResultAllowed, hash);
         }
 
-        public IDependencyResolver BeginScope(object name = null, bool attachedToParent = false)
+        public IDependencyResolver BeginScope(object name = null, bool attachToParent = false)
         {
             var scope = new ResolutionScope(this.resolverSelector, this.serviceRegistrator,
                 this.expressionBuilder, this.containerContext, this.RootScope, this,
                 this.serviceDelegates, this.factoryDelegates, name);
 
-            return attachedToParent ? this.AddDisposableTracking(scope) : scope;
+            return attachToParent ? this.AddDisposableTracking(scope) : scope;
         }
 
         public IDependencyResolver PutInstanceInScope(Type typeFrom, object instance, bool withoutDisposalTracking = false)
