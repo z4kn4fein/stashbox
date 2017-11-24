@@ -73,60 +73,179 @@ namespace System.Linq.Expressions
 #endif
         }
 
-        internal static BinaryExpression AssignTo(this Expression left, Expression right) => Expression.Assign(left, right);
+        /// <summary>
+        /// Constructs an assigment expression, => Expression.Assign(left, right)
+        /// </summary>
+        /// <param name="left">The left part.</param>
+        /// <param name="right">The right part.</param>
+        /// <returns>The assignment expression.</returns>
+        public static BinaryExpression AssignTo(this Expression left, Expression right) => Expression.Assign(left, right);
 
-        internal static MemberAssignment AssignTo(this MemberInfo memberInfo, Expression expression) =>
+        /// <summary>
+        /// Constructs an assigment expression, => Expression.Bind(member, expression)
+        /// </summary>
+        /// <param name="memberInfo">The member info.</param>
+        /// <param name="expression">The right part.</param>
+        /// <returns>The assignment expression.</returns>
+        public static MemberAssignment AssignTo(this MemberInfo memberInfo, Expression expression) =>
             Expression.Bind(memberInfo, expression);
 
-        internal static ConstantExpression AsConstant(this object obj) => Expression.Constant(obj);
+        /// <summary>
+        /// Constructs a constant expression from an object, => Expression.Constant(obj)
+        /// </summary>
+        /// <param name="obj">The object.</param>
+        /// <returns>The constant expression.</returns>
+        public static ConstantExpression AsConstant(this object obj) => Expression.Constant(obj);
 
-        internal static ConstantExpression AsConstant(this object obj, Type type) => Expression.Constant(obj, type);
+        /// <summary>
+        /// Constructs a constant expression from an object and a type, => Expression.Constant(obj, type)
+        /// </summary>
+        /// <param name="obj">The object.</param>
+        /// <param name="type">The type.</param>
+        /// <returns>The constant expression.</returns>
+        public static ConstantExpression AsConstant(this object obj, Type type) => Expression.Constant(obj, type);
 
-        internal static DefaultExpression AsDefault(this Type type) => Expression.Default(type);
+        /// <summary>
+        /// Constructs a default expression from a type, => Expression.Default(type)
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <returns>The default expression.</returns>
+        public static DefaultExpression AsDefault(this Type type) => Expression.Default(type);
 
-        internal static BlockExpression AsBlock(this IList<Expression> expressions, params ParameterExpression[] variables) =>
+        /// <summary>
+        /// Constructs a block expression from an expression collection and variables, => Expression.Block(variables, expressions)
+        /// </summary>
+        /// <param name="expressions">The expressions.</param>
+        /// <param name="variables">The variables.</param>
+        /// <returns>The block expression.</returns>
+        public static BlockExpression AsBlock(this IList<Expression> expressions, params ParameterExpression[] variables) =>
             Expression.Block(variables, expressions);
 
-        internal static LambdaExpression AsLambda(this Expression expression, params ParameterExpression[] parameters) =>
+        /// <summary>
+        /// Constructs a lambda expression from an expression and parameters, => Expression.Lambda(expression, parameters)
+        /// </summary>
+        /// <param name="expression">The expression.</param>
+        /// <param name="parameters">The parameters.</param>
+        /// <returns>The lambda expression.</returns>
+        public static LambdaExpression AsLambda(this Expression expression, params ParameterExpression[] parameters) =>
             Expression.Lambda(expression, parameters);
 
-        internal static LambdaExpression AsLambda(this Expression expression, IEnumerable<ParameterExpression> parameters) =>
+        /// <summary>
+        /// Constructs a lambda expression from an expression and parameters, => Expression.Lambda(expression, parameters)
+        /// </summary>
+        /// <param name="expression">The expression.</param>
+        /// <param name="parameters">The parameters.</param>
+        /// <returns>The lambda expression.</returns>
+        public static LambdaExpression AsLambda(this Expression expression, IEnumerable<ParameterExpression> parameters) =>
             Expression.Lambda(expression, parameters);
 
-        internal static ParameterExpression AsVariable(this Type type, string name = null) => Expression.Variable(type, name);
+        /// <summary>
+        /// Constructs a variable expression from a type, => Expression.Variable(type, name)
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <param name="name">The name.</param>
+        /// <returns>The variable expression.</returns>
+        public static ParameterExpression AsVariable(this Type type, string name = null) => Expression.Variable(type, name);
 
-        internal static ParameterExpression AsParameter(this Type type, string name = null) => Expression.Parameter(type, name);
+        /// <summary>
+        /// Constructs a parameter expression from a type, => Expression.Parameter(type, name)
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <param name="name">The name.</param>
+        /// <returns>The parameter expression.</returns>
+        public static ParameterExpression AsParameter(this Type type, string name = null) => Expression.Parameter(type, name);
 
-        internal static MethodCallExpression InvokeMethod(this MethodInfo methodInfo, params Expression[] parameters) =>
+        /// <summary>
+        /// Constructs a method call expression from a <see cref="MethodInfo"/> and parameters, => Expression.Call(methodInfo, parameters)
+        /// </summary>
+        /// <param name="methodInfo">The method info.</param>
+        /// <param name="parameters">The parameters.</param>
+        /// <returns>The call expression.</returns>
+        public static MethodCallExpression InvokeMethod(this MethodInfo methodInfo, params Expression[] parameters) =>
             Expression.Call(methodInfo, parameters);
 
-        internal static MethodCallExpression CallMethod(this Expression target, MethodInfo methodInfo, params Expression[] parameters) =>
+        /// <summary>
+        /// Constructs a method call expression from a target expression, method info and parameters, => Expression.Call(target, methodInfo, parameters)
+        /// </summary>
+        /// <param name="target">The target expression.</param>
+        /// <param name="methodInfo">The method info.</param>
+        /// <param name="parameters">The parameters.</param>
+        /// <returns>The call expression.</returns>
+        public static MethodCallExpression CallMethod(this Expression target, MethodInfo methodInfo, params Expression[] parameters) =>
             Expression.Call(target, methodInfo, parameters);
 
-        internal static Expression ConvertTo(this Expression expression, Type type) => Expression.Convert(expression, type);
+        /// <summary>
+        /// Constructs a convert expression, => Expression.Convert(expression, type)
+        /// </summary>
+        /// <param name="expression">The expression.</param>
+        /// <param name="type">The type.</param>
+        /// <returns>The convert expression.</returns>
+        public static Expression ConvertTo(this Expression expression, Type type) => Expression.Convert(expression, type);
 
-        internal static InvocationExpression InvokeLambda(this LambdaExpression expression, params Expression[] parameters) =>
+        /// <summary>
+        /// Constructs an invocation expression, => Expression.Invoke(expression, parameters)
+        /// </summary>
+        /// <param name="expression">The expression.</param>
+        /// <param name="parameters">The parameters.</param>
+        /// <returns>The invocation expression.</returns>
+        public static InvocationExpression InvokeLambda(this LambdaExpression expression, params Expression[] parameters) =>
             Expression.Invoke(expression, parameters);
 
         internal static NewExpression MakeNew(this ResolutionConstructor constructor) =>
             Expression.New(constructor.Constructor, constructor.Parameters);
 
-        internal static NewExpression MakeNew(this ConstructorInfo constructor, IEnumerable<Expression> arguments) =>
+        /// <summary>
+        /// Constructs an new expression, => Expression.New(constructor, arguments)
+        /// </summary>
+        /// <param name="constructor">The constructor info.</param>
+        /// <param name="arguments">The arguments.</param>
+        /// <returns>The new expression.</returns>
+        public static NewExpression MakeNew(this ConstructorInfo constructor, IEnumerable<Expression> arguments) =>
            Expression.New(constructor, arguments);
 
-        internal static NewExpression MakeNew(this ConstructorInfo constructor, params Expression[] arguments) =>
+        /// <summary>
+        /// Constructs an new expression, => Expression.New(constructor, arguments)
+        /// </summary>
+        /// <param name="constructor">The constructor info.</param>
+        /// <param name="arguments">The arguments.</param>
+        /// <returns>The new expression.</returns>
+        public static NewExpression MakeNew(this ConstructorInfo constructor, params Expression[] arguments) =>
            Expression.New(constructor, arguments);
 
-        internal static MemberExpression Member(this Expression expression, MemberInfo memberInfo) =>
+        /// <summary>
+        /// Constructs a member access expression, => Expression.Property(expression, prop) or Expression.Field(expression, field)
+        /// </summary>
+        /// <param name="expression">The expression.</param>
+        /// <param name="memberInfo">The property or field info.</param>
+        /// <returns>The member access expression.</returns>
+        public static MemberExpression Member(this Expression expression, MemberInfo memberInfo) =>
             memberInfo is PropertyInfo prop ? Expression.Property(expression, prop) : Expression.Field(expression, memberInfo as FieldInfo);
 
-        internal static MemberExpression Prop(this Expression expression, PropertyInfo propertyInfo) =>
+        /// <summary>
+        /// Constructs a property access expression, => Expression.Property(expression, prop)
+        /// </summary>
+        /// <param name="expression">The expression.</param>
+        /// <param name="propertyInfo">The property info.</param>
+        /// <returns>The property access expression.</returns>
+        public static MemberExpression Prop(this Expression expression, PropertyInfo propertyInfo) =>
             Expression.Property(expression, propertyInfo);
 
-        internal static MemberInitExpression InitMembers(this Expression expression, IList<MemberBinding> bindings) =>
+        /// <summary>
+        /// Constructs a member init expression, => Expression.MemberInit(expression, bindings)
+        /// </summary>
+        /// <param name="expression">The expression.</param>
+        /// <param name="bindings">The member bindings.</param>
+        /// <returns>The member init expression.</returns>
+        public static MemberInitExpression InitMembers(this Expression expression, IList<MemberBinding> bindings) =>
            Expression.MemberInit((NewExpression)expression, bindings);
 
-        internal static NewArrayExpression InitNewArray(this Type type, params Expression[] initializers) =>
+        /// <summary>
+        /// Constructs a new array expression, => Expression.NewArrayInit(type, initializers)
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <param name="initializers">The element initializer expressions.</param>
+        /// <returns>The new array expression.</returns>
+        public static NewArrayExpression InitNewArray(this Type type, params Expression[] initializers) =>
           Expression.NewArrayInit(type, initializers);
     }
 }

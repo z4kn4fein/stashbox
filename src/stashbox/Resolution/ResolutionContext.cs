@@ -72,6 +72,36 @@ namespace Stashbox.Resolution
             this.circularDependencyBarrier = circularDependencyBarrier;
         }
 
+        /// <summary>
+        /// Adds a custom expression to the instruction list
+        /// </summary>
+        /// <param name="instruction">The custom expression.</param>
+        public void AddInstruction(Expression instruction) =>
+            this.SingleInstructions = this.SingleInstructions.Add(instruction);
+
+        /// <summary>
+        /// Adds a global keyed variable to the compiled expression tree.
+        /// </summary>
+        /// <param name="key">The key of the variable.</param>
+        /// <param name="parameter">The variable.</param>
+        public void AddDefinedVariable(object key, ParameterExpression parameter) =>
+            this.DefinedVariables = this.DefinedVariables.AddOrUpdate(key, parameter);
+
+        /// <summary>
+        /// Adds a global variable to the compiled expression tree.
+        /// </summary>
+        /// <param name="parameter">The variable.</param>
+        public void AddDefinedVariable(ParameterExpression parameter) =>
+            this.DefinedVariables = this.DefinedVariables.AddOrUpdate(parameter, parameter);
+
+        /// <summary>
+        /// Gets an already defined global variable.
+        /// </summary>
+        /// <param name="key">The key of the variable.</param>
+        /// <returns>The variable.</returns>
+        public ParameterExpression GetKnownVariableOrDefault(object key) =>
+            this.DefinedVariables.GetOrDefault(key) ?? this.knownVariables.GetOrDefault(key);
+
         internal bool IsCurrentlyDecorating(Type type) =>
             this.currentlyDecoratingTypes.GetOrDefault(type.GetHashCode()) != null;
 
@@ -89,18 +119,6 @@ namespace Stashbox.Resolution
 
         internal void AddParameterExpressions(params ParameterExpression[] parameterExpressions) =>
             this.ParameterExpressions = this.ParameterExpressions.AddRange(parameterExpressions);
-
-        internal void AddInstruction(Expression instruction) =>
-            this.SingleInstructions = this.SingleInstructions.Add(instruction);
-
-        internal void AddDefinedVariable(object key, ParameterExpression parameter) =>
-            this.DefinedVariables = this.DefinedVariables.AddOrUpdate(key, parameter);
-
-        internal void AddDefinedVariable(ParameterExpression parameter) =>
-            this.DefinedVariables = this.DefinedVariables.AddOrUpdate(parameter, parameter);
-
-        internal ParameterExpression GetKnownVariableOrDefault(object key) =>
-            this.DefinedVariables.GetOrDefault(key) ?? this.knownVariables.GetOrDefault(key);
 
         internal void SetCircularDependencyBarrier(int key, bool value) =>
             Swap.SwapValue(ref this.circularDependencyBarrier, barrier => barrier.AddOrUpdate(key, value, (old, @new) => @new));
