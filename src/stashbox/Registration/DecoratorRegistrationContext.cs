@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using Stashbox.Configuration;
+﻿using Stashbox.Configuration;
 using Stashbox.Entity;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.Registration;
+using System;
+using System.Collections.Generic;
 
 namespace Stashbox.Registration
 {
@@ -34,7 +34,7 @@ namespace Stashbox.Registration
         }
 
         public IFluentDecoratorRegistrator WithAutoMemberInjection(
-            Rules.AutoMemberInjection rule = Rules.AutoMemberInjection.PropertiesWithPublicSetter)
+            Rules.AutoMemberInjectionRules rule = Rules.AutoMemberInjectionRules.PropertiesWithPublicSetter)
         {
             this.registrationContext.WithAutoMemberInjection(rule);
             return this;
@@ -67,6 +67,12 @@ namespace Stashbox.Registration
         public IFluentDecoratorRegistrator WithConstructorByArguments(params object[] arguments)
         {
             this.registrationContext.WithConstructorByArguments(arguments);
+            return this;
+        }
+
+        public IFluentDecoratorRegistrator InjectMember(string memberName, object dependencyName = null)
+        {
+            this.registrationContext.InjectMember(memberName, dependencyName);
             return this;
         }
     }

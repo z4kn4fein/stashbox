@@ -1,4 +1,4 @@
-# stashbox [![Appveyor build status](https://img.shields.io/appveyor/ci/pcsajtai/stashbox/master.svg?label=appveyor)](https://ci.appveyor.com/project/pcsajtai/stashbox/branch/master) [![Travis CI build status](https://img.shields.io/travis/z4kn4fein/stashbox/master.svg?label=travis-ci)](https://travis-ci.org/z4kn4fein/stashbox) [![Coverage Status](https://img.shields.io/codecov/c/github/z4kn4fein/stashbox.svg)](https://codecov.io/gh/z4kn4fein/stashbox) [![Quality Gate](https://sonarqube.com/api/badges/gate?key=stashbox)](https://sonarqube.com/dashboard/index/stashbox) [![Join the chat at https://gitter.im/z4kn4fein/stashbox](https://img.shields.io/gitter/room/z4kn4fein/stashbox.svg)](https://gitter.im/z4kn4fein/stashbox?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Slack](https://img.shields.io/badge/slack-chat-orange.svg?style=flat)](https://stashbox-slack-in.herokuapp.com/)
+# stashbox [![Appveyor build status](https://img.shields.io/appveyor/ci/pcsajtai/stashbox/master.svg?label=appveyor)](https://ci.appveyor.com/project/pcsajtai/stashbox/branch/master) [![Travis CI build status](https://img.shields.io/travis/z4kn4fein/stashbox/master.svg?label=travis-ci)](https://travis-ci.org/z4kn4fein/stashbox) [![Coverage Status](https://img.shields.io/codecov/c/github/z4kn4fein/stashbox.svg)](https://codecov.io/gh/z4kn4fein/stashbox) [![Quality Gate](https://sonarqube.com/api/badges/gate?key=stashbox)](https://sonarcloud.io/dashboard?id=stashbox) [![Join the chat at https://gitter.im/z4kn4fein/stashbox](https://img.shields.io/gitter/room/z4kn4fein/stashbox.svg)](https://gitter.im/z4kn4fein/stashbox?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Slack](https://img.shields.io/badge/slack-chat-orange.svg?style=flat)](https://stashbox-slack-in.herokuapp.com/)
 
 Stashbox is a lightweight, portable dependency injection framework for .NET based solutions.
 
@@ -14,6 +14,7 @@ Github (stable) | NuGet (stable) | MyGet (pre-release)
  - **Register with name** - multiple registration with the same service type, can be addressed at resolution time via attributes as well.
  - **Assembly registration** - service lookup in assemblies, composition root implementations also supported.
  - **Factory registration** - factories with several parameters can be registered.
+ - **Initializer / finalizer** - custom initializer and finalizer actions can be configured for the registrations.
  - **Multiple service resolution** - all registered type of a service can be obtained as an `IEnumerable<T>` or `IEnumerable<object>` with the `ResolveAll()` method.
  - **Unknown type resolution** - unregistered services can be resolved or injected.
  - **Default and optional value injection** - primitive types or dependencies with default or optional value can be injected.
@@ -22,7 +23,8 @@ Github (stable) | NuGet (stable) | MyGet (pre-release)
  - **Injection method** - methods decorated with `InjectionMethod` attribute will be called at resolution time.
  - **Wiring into container** - member injection can be executed on existing instance with every resolve call.
  - **Building up existing instance** - member injection can be executed on existing instance without registering it into the container.
- - **Child scopes** - for managing scoped registrations.
+ - **Child scopes** - child container support.
+ - **Lifetime scopes** - scoped resolution support.
  - **Lifetime management** - including `Singleton`, `Transient` and `Scoped` lifetime, custom user defined lifetimes also can be used.
  - **Conditional resolution** - attribute, parent-type and custom user defined conditions can be specified.
  - **IDisposable object tracking** - `IDisposable` objects are being disposed by the container.
@@ -48,6 +50,7 @@ Github (stable) | NuGet (stable) | MyGet (pre-release)
  - Xamarin (Android/iOS/iOS Classic)
  - .NET Standard 1.0
  - .NET Standard 1.3
+ - .NET Standard 2.0
 
 ## Sample usage
 ```c#

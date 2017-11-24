@@ -1,12 +1,13 @@
-﻿using Stashbox.Entity;
+﻿using Stashbox.Configuration;
+using Stashbox.Entity;
+using Stashbox.Exceptions;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.Registration;
+using Stashbox.Lifetime;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Stashbox.Configuration;
-using Stashbox.Exceptions;
-using Stashbox.Lifetime;
+using System.Linq.Expressions;
 
 namespace Stashbox.Registration
 {
@@ -16,9 +17,26 @@ namespace Stashbox.Registration
             : base(serviceType, implementationType, registrator)
         { }
 
+        public IFluentServiceRegistrator<TService> InjectMember<TResult>(Expression<Func<TService, TResult>> expression, object dependencyName = null)
+        {
+            if (expression.Body is MemberExpression memberExpression)
+            {
+                this.Context.InjectionMemberNames.Add(new KeyValuePair<string, object>(memberExpression.Member.Name, dependencyName));
+                return this;
+            }
+
+            throw new ArgumentException("The expression must be a member expression (Property or Field)", nameof(expression));
+        }
+
         public IFluentServiceRegistrator<TService> WithFinalizer(Action<TService> finalizer)
         {
             base.Context.Finalizer = finalizer;
+            return this;
+        }
+
+        public IFluentServiceRegistrator<TService> WithInitializer(Action<TService, IDependencyResolver> initializer)
+        {
+            base.Context.Initializer = initializer;
             return this;
         }
     }
@@ -126,7 +144,7 @@ namespace Stashbox.Registration
             return this;
         }
 
-        public IFluentServiceRegistrator WithAutoMemberInjection(Rules.AutoMemberInjection rule = Rules.AutoMemberInjection.PropertiesWithPublicSetter)
+        public IFluentServiceRegistrator WithAutoMemberInjection(Rules.AutoMemberInjectionRules rule = Rules.AutoMemberInjectionRules.PropertiesWithPublicSetter)
         {
             this.Context.AutoMemberInjectionEnabled = true;
             this.Context.AutoMemberInjectionRule = rule;
@@ -179,6 +197,24 @@ namespace Stashbox.Registration
         public IFluentServiceRegistrator AsImplementedTypes()
         {
             this.withImplementedTypes = true;
+            return this;
+        }
+
+        public IFluentServiceRegistrator InNamedScope(object scopeName) =>
+            this.WithLifetime(new NamedScopeLifetime(scopeName));
+
+        public IFluentServiceRegistrator DefinesScope(object scopeName)
+        {
+            this.Context.DefinedScopeName = scopeName;
+            return this;
+        }
+
+        public IFluentServiceRegistrator WithPerResolutionRequestLifetime() =>
+            this.WithLifetime(new ResolutionRequestLifetime());
+
+        public IFluentServiceRegistrator InjectMember(string memberName, object dependencyName = null)
+        {
+            this.Context.InjectionMemberNames.Add(new KeyValuePair<string, object>(memberName, dependencyName));
             return this;
         }
 

@@ -120,8 +120,10 @@ namespace Stashbox.Tests
 
                 Assert.IsNotNull(inst);
                 Assert.IsNotNull(inst.Test);
+                Assert.IsNotNull(inst.test);
                 Assert.IsInstanceOfType(inst, typeof(Test1));
                 Assert.IsInstanceOfType(inst.Test, typeof(Test));
+                Assert.IsInstanceOfType(inst.test, typeof(Test));
             }
         }
 
@@ -133,6 +135,9 @@ namespace Stashbox.Tests
 
         public class Test1 : ITest1
         {
+            [Dependency]
+            public ITest test;
+
             [Dependency]
             public ITest Test { get; set; }
 

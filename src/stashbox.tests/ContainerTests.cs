@@ -1,13 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Stashbox.Entity;
 using Stashbox.Exceptions;
 using Stashbox.Infrastructure;
-using System.Linq.Expressions;
 using Stashbox.Infrastructure.Resolution;
-using System.Linq;
 using Stashbox.Lifetime;
+using Stashbox.Resolution;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
 
 namespace Stashbox.Tests
 {
@@ -30,7 +31,7 @@ namespace Stashbox.Tests
             Assert.IsInstanceOfType(test3, typeof(Test3));
             Assert.AreEqual(container, child.ParentContainer);
         }
-
+        
         [TestMethod]
         public void ContainerTests_ChildContainer_ResolveFromParent()
         {
@@ -193,6 +194,14 @@ namespace Stashbox.Tests
 
         public interface ITest3 { }
 
+        public interface ITest5
+        {
+            Func<ITest2> Func { get; }
+            Lazy<ITest2> Lazy { get; }
+            IEnumerable<ITest3> Enumerable { get; }
+            Tuple<ITest2, ITest3> Tuple { get; }
+        }
+
         public class Test1 : ITest1
         {
         }
@@ -219,16 +228,32 @@ namespace Stashbox.Tests
             }
         }
 
+        public class Test5 : ITest5
+        {
+            public Test5(Func<ITest2> func, Lazy<ITest2> lazy, IEnumerable<ITest3> enumerable, Tuple<ITest2, ITest3> tuple)
+            {
+                Func = func;
+                Lazy = lazy;
+                Enumerable = enumerable;
+                Tuple = tuple;
+            }
+
+            public Func<ITest2> Func { get; }
+            public Lazy<ITest2> Lazy { get; }
+            public IEnumerable<ITest3> Enumerable { get; }
+            public Tuple<ITest2, ITest3> Tuple { get; }
+        }
+
         public class TestResolver : Resolver
         {
             public override bool SupportsMany => true;
 
-            public override bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo)
+            public override bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionInfo)
             {
                 return typeInfo.Type == typeof(ITest1);
             }
 
-            public override Expression GetExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo)
+            public override Expression GetExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionInfo)
             {
                 return Expression.Constant(new Test1());
             }
@@ -238,17 +263,17 @@ namespace Stashbox.Tests
         {
             public override bool SupportsMany => true;
 
-            public override bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo)
+            public override bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionInfo)
             {
                 return typeInfo.Type == typeof(ITest1);
             }
 
-            public override Expression GetExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo)
+            public override Expression GetExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionInfo)
             {
                 return Expression.Constant(new Test1());
             }
 
-            public override Expression[] GetExpressions(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo)
+            public override Expression[] GetExpressions(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionInfo)
             {
                 return new Expression[] { Expression.Constant(new Test1()) };
             }

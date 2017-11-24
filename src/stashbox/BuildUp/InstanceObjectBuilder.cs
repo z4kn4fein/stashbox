@@ -1,8 +1,8 @@
-﻿using Stashbox.Entity;
+﻿using Stashbox.Infrastructure;
+using Stashbox.Infrastructure.Registration;
+using Stashbox.Resolution;
 using System;
 using System.Linq.Expressions;
-using Stashbox.Infrastructure;
-using Stashbox.Infrastructure.Registration;
 
 namespace Stashbox.BuildUp
 {
@@ -11,12 +11,7 @@ namespace Stashbox.BuildUp
         private volatile Expression expression;
         private readonly object syncObject = new object();
 
-        public InstanceObjectBuilder(IContainerContext containerContext)
-            : base(containerContext)
-        {
-        }
-
-        protected override Expression GetExpressionInternal(IServiceRegistration serviceRegistration, ResolutionInfo resolutionInfo, Type resolveType)
+        protected override Expression GetExpressionInternal(IContainerContext containerContext, IServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType)
         {
             if (this.expression != null) return this.expression;
             lock (this.syncObject)
@@ -24,22 +19,21 @@ namespace Stashbox.BuildUp
                 if (this.expression != null) return this.expression;
 
                 if (serviceRegistration.ShouldHandleDisposal && serviceRegistration.RegistrationContext.ExistingInstance is IDisposable disposable)
-                    resolutionInfo.RootScope.AddDisposableTracking(disposable);
+                    resolutionContext.RootScope.AddDisposableTracking(disposable);
 
                 if (serviceRegistration.RegistrationContext.Finalizer != null)
                 {
-                    var finalizerExpression = base.HandleFinalizer(Expression.Constant(serviceRegistration.RegistrationContext.ExistingInstance), serviceRegistration);
-                    return this.expression = Expression.Constant(finalizerExpression.CompileDelegate(Constants.ScopeExpression)(resolutionInfo.ResolutionScope));
+                    var finalizerExpression = base.HandleFinalizer(serviceRegistration.RegistrationContext.ExistingInstance.AsConstant(),
+                        serviceRegistration, resolutionContext.CurrentScopeParameter.Prop(Constants.RootScopeProperty));
+                    return this.expression = finalizerExpression.CompileDelegate(resolutionContext)(resolutionContext.ResolutionScope).AsConstant();
                 }
 
-                return this.expression = Expression.Constant(serviceRegistration.RegistrationContext.ExistingInstance);
+                return this.expression = serviceRegistration.RegistrationContext.ExistingInstance.AsConstant();
             }
         }
 
-        public override IObjectBuilder Produce() => new InstanceObjectBuilder(base.ContainerContext);
+        public override IObjectBuilder Produce() => new InstanceObjectBuilder();
 
-        public override bool HandlesObjectDisposal => true;
-
-        public override bool HandlesFinalizer => true;
+        public override bool HandlesObjectLifecycle => true;
     }
 }

@@ -1,9 +1,9 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using Stashbox.Entity;
 using Stashbox.Infrastructure.ContainerExtension;
-using System;
 using Stashbox.Infrastructure.Registration;
+using Stashbox.Resolution;
+using System;
 
 namespace Stashbox.Tests
 {
@@ -20,7 +20,7 @@ namespace Stashbox.Tests
                 var obj = new object();
                 container.RegisterType<object>(context => context.WithFactory(() => obj));
 
-                post.Setup(p => p.PostBuild(obj, container.ContainerContext, It.IsAny<ResolutionInfo>(),
+                post.Setup(p => p.PostBuild(obj, container.ContainerContext, It.IsAny<ResolutionContext>(),
                     It.IsAny<IServiceRegistration>(), It.IsAny<Type>())).Returns(obj).Verifiable();
 
                 var inst = container.Resolve(typeof(object));
@@ -40,7 +40,7 @@ namespace Stashbox.Tests
                 container.RegisterType<ITest, Test>();
 
                 bool called = false;
-                post.Setup(p => p.PostBuild(It.IsAny<object>(), container.ContainerContext, It.IsAny<ResolutionInfo>(),
+                post.Setup(p => p.PostBuild(It.IsAny<object>(), container.ContainerContext, It.IsAny<ResolutionContext>(),
                     It.IsAny<IServiceRegistration>(), It.IsAny<Type>())).Returns(It.IsAny<object>()).Callback(() => called = true).Verifiable();
 
                 var inst = container.Resolve<ITest>();

@@ -13,6 +13,7 @@ namespace Stashbox.Tests
         public void AttributeTests_Resolve()
         {
             var container = new StashboxContainer();
+            container.RegisterType<ITest1, Test1>();
             container.RegisterType<ITest1, Test1>(context => context.WithName("test1"));
             container.RegisterType<ITest1, Test11>(context => context.WithName("test11"));
             container.RegisterType<ITest1, Test12>(context => context.WithName("test12"));
@@ -37,7 +38,7 @@ namespace Stashbox.Tests
             Assert.IsInstanceOfType(test3.test1, typeof(Test11));
             Assert.IsInstanceOfType(test3.test2, typeof(Test22));
         }
-        
+
         [TestMethod]
         public void AttributeTests_Named_Resolution()
         {
@@ -65,6 +66,7 @@ namespace Stashbox.Tests
         public void AttributeTests_Parallel_Resolve()
         {
             var container = new StashboxContainer();
+            container.RegisterType<ITest1, Test1>();
             container.RegisterType<ITest1, Test1>(context => context.WithName("test1"));
             container.RegisterType<ITest1, Test11>(context => context.WithName("test11"));
             container.RegisterType<ITest1, Test12>(context => context.WithName("test12"));
@@ -93,6 +95,7 @@ namespace Stashbox.Tests
         public void AttributeTests_Parallel_Lazy_Resolve()
         {
             var container = new StashboxContainer();
+            container.RegisterType<ITest1, Test1>();
             container.RegisterType<ITest1, Test1>(context => context.WithName("test1"));
             container.RegisterType<ITest1, Test11>(context => context.WithName("test11"));
             container.RegisterType<ITest1, Test12>(context => context.WithName("test12"));

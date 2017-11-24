@@ -16,17 +16,7 @@ namespace Stashbox.Registration
         /// Empty registration data.
         /// </summary>
         public static RegistrationContextData New() => new RegistrationContextData();
-
-        /// <summary>
-        /// The service type.
-        /// </summary>
-        public Type ServiceType { get; internal set; }
-
-        /// <summary>
-        /// The implementation type.
-        /// </summary>
-        public Type ImplementationType { get; internal set; }
-
+        
         /// <summary>
         /// Name of the registration.
         /// </summary>
@@ -78,6 +68,11 @@ namespace Stashbox.Registration
         public HashSet<Type> AttributeConditions { get; internal set; }
 
         /// <summary>
+        /// Member names which are explicitly set to be filled by the container.
+        /// </summary>
+        public HashSet<KeyValuePair<string, object>> InjectionMemberNames { get; internal set; }
+
+        /// <summary>
         /// The stored instance.
         /// </summary>
         public object ExistingInstance { get; internal set; }
@@ -88,9 +83,14 @@ namespace Stashbox.Registration
         public object Finalizer { get; internal set; }
 
         /// <summary>
+        /// The initializer delegate.
+        /// </summary>
+        public object Initializer { get; internal set; }
+
+        /// <summary>
         /// The auto memeber injection rule for the registration.
         /// </summary>
-        public Rules.AutoMemberInjection AutoMemberInjectionRule { get; internal set; }
+        public Rules.AutoMemberInjectionRules AutoMemberInjectionRule { get; internal set; }
 
         /// <summary>
         /// True if auto member injection is enabled on this instance.
@@ -108,6 +108,11 @@ namespace Stashbox.Registration
         public Delegate FuncDelegate { get; internal set; }
 
         /// <summary>
+        /// The name of the scope this registration defines.
+        /// </summary>
+        public object DefinedScopeName { get; internal set; }
+
+        /// <summary>
         /// The constructor selection rule.
         /// </summary>
         public Func<IEnumerable<ConstructorInformation>, IEnumerable<ConstructorInformation>> ConstructorSelectionRule { get; internal set; }
@@ -118,6 +123,7 @@ namespace Stashbox.Registration
         public RegistrationContextData()
         {
             this.AttributeConditions = new HashSet<Type>();
+            this.InjectionMemberNames = new HashSet<KeyValuePair<string, object>>();
             this.AutoMemberInjectionEnabled = false;
         }
 

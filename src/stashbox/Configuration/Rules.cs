@@ -14,7 +14,7 @@ namespace Stashbox.Configuration
         /// Represents the rules for auto injecting members.
         /// </summary>
         [Flags]
-        public enum AutoMemberInjection
+        public enum AutoMemberInjectionRules
         {
             /// <summary>
             /// With this flag the container will perform auto injection on properties which has a public setter.
@@ -29,7 +29,7 @@ namespace Stashbox.Configuration
             /// <summary>
             /// With this flag the container will perform auto injection on private fields too.
             /// </summary>
-            PrivateFields,
+            PrivateFields
         }
 
         /// <summary>

@@ -1,7 +1,7 @@
-﻿using System;
-using Stashbox.Entity;
+﻿using Stashbox.Entity;
 using Stashbox.Infrastructure.Registration;
 using Stashbox.Utils;
+using System;
 
 namespace Stashbox.Registration
 {
@@ -10,29 +10,26 @@ namespace Stashbox.Registration
     /// </summary>
     public class DecoratorRepository : IDecoratorRepository
     {
-        private readonly ConcurrentTree<Type, ConcurrentOrderedKeyStore<Type, IServiceRegistration>> repository;
+        private AvlTreeKeyValue<Type, ArrayStoreKeyed<Type, IServiceRegistration>> repository;
 
         /// <summary>
         /// Constructs a <see cref="DecoratorRepository"/>.
         /// </summary>
         public DecoratorRepository()
         {
-            this.repository = new ConcurrentTree<Type, ConcurrentOrderedKeyStore<Type, IServiceRegistration>>();
+            this.repository = AvlTreeKeyValue<Type, ArrayStoreKeyed<Type, IServiceRegistration>>.Empty;
         }
 
         /// <inheritdoc />
         public void AddDecorator(Type type, IServiceRegistration serviceRegistration, bool remap, bool replace)
         {
-            var newRepository = new ConcurrentOrderedKeyStore<Type, IServiceRegistration>
-            {
-                {serviceRegistration.ImplementationType, serviceRegistration}
-            };
+            var newRepository = new ArrayStoreKeyed<Type, IServiceRegistration>(serviceRegistration.ImplementationType, serviceRegistration);
 
             if (remap)
-                this.repository.AddOrUpdate(type, newRepository, (oldValue, newValue) => newValue);
+                Swap.SwapValue(ref this.repository, repo => repo.AddOrUpdate(type, newRepository, (oldValue, newValue) => newValue));
             else
-                this.repository.AddOrUpdate(type, newRepository, (oldValue, newValue) => oldValue
-                    .AddOrUpdate(serviceRegistration.ImplementationType, serviceRegistration, replace));
+                Swap.SwapValue(ref this.repository, repo => repo.AddOrUpdate(type, newRepository, (oldValue, newValue) => oldValue
+                    .AddOrUpdate(serviceRegistration.ImplementationType, serviceRegistration, replace)));
         }
 
         /// <inheritdoc />

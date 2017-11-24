@@ -56,7 +56,7 @@ namespace Stashbox.Infrastructure
         /// Enables the member injection without annotation.
         /// </summary>
         /// <returns>The container configurator.</returns>
-        IContainerConfigurator WithMemberInjectionWithoutAnnotation(Rules.AutoMemberInjection rule = Rules.AutoMemberInjection.PropertiesWithPublicSetter);
+        IContainerConfigurator WithMemberInjectionWithoutAnnotation(Rules.AutoMemberInjectionRules rule = Rules.AutoMemberInjectionRules.PropertiesWithPublicSetter);
 
         /// <summary>
         /// Sets the constructor selection rule.

@@ -1,9 +1,12 @@
-﻿using System;
-using Stashbox.BuildUp.Expressions;
+﻿using Stashbox.BuildUp.Expressions;
 using Stashbox.Entity;
+using Stashbox.Exceptions;
 using Stashbox.Infrastructure;
-using System.Linq.Expressions;
 using Stashbox.Infrastructure.Registration;
+using Stashbox.Resolution;
+using Stashbox.Utils;
+using System;
+using System.Linq.Expressions;
 
 namespace Stashbox.BuildUp
 {
@@ -11,19 +14,48 @@ namespace Stashbox.BuildUp
     {
         private readonly IExpressionBuilder expressionBuilder;
 
-        public DefaultObjectBuilder(IContainerContext containerContext, IExpressionBuilder expressionBuilder)
-            : base(containerContext)
+        public DefaultObjectBuilder(IExpressionBuilder expressionBuilder)
         {
             this.expressionBuilder = expressionBuilder;
         }
 
-        protected override Expression GetExpressionInternal(IServiceRegistration serviceRegistration, ResolutionInfo resolutionInfo, Type resolveType)
+        protected override Expression GetExpressionInternal(IContainerContext containerContext, IServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType)
         {
-            if (!base.ContainerContext.ContainerConfigurator.ContainerConfiguration.CircularDependencyTrackingEnabled)
-                return this.expressionBuilder.CreateExpression(serviceRegistration, resolutionInfo, resolveType);
+            if (!containerContext.ContainerConfigurator.ContainerConfiguration.CircularDependencyTrackingEnabled)
+                return this.PrepareExpression(containerContext, serviceRegistration, resolutionContext, resolveType);
 
-            using (new CircularDependencyBarrier(resolutionInfo, serviceRegistration.ImplementationType))
-                return this.expressionBuilder.CreateExpression(serviceRegistration, resolutionInfo, resolveType);
+            if (resolutionContext.GetCircularDependencyBarrier(serviceRegistration.RegistrationNumber))
+                throw new CircularDependencyException(resolveType);
+
+            resolutionContext.SetCircularDependencyBarrier(serviceRegistration.RegistrationNumber, true);
+            var result = this.PrepareExpression(containerContext, serviceRegistration, resolutionContext, resolveType);
+            resolutionContext.SetCircularDependencyBarrier(serviceRegistration.RegistrationNumber, false);
+            return result;
+        }
+
+        private Expression PrepareExpression(IContainerContext containerContext, IServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType)
+        {
+            if (serviceRegistration.RegistrationContext.DefinedScopeName != null)
+            {
+                var variable = Constants.ResolutionScopeType.AsVariable();
+
+                var newScope = resolutionContext.CurrentScopeParameter
+                    .ConvertTo(Constants.ResolverType)
+                    .CallMethod(Constants.BeginScopeMethod,
+                        serviceRegistration.RegistrationContext.DefinedScopeName.AsConstant(),
+                        true.AsConstant());
+
+
+                resolutionContext.AddDefinedVariable(variable);
+                resolutionContext.AddInstruction(variable.AssignTo(newScope.ConvertTo(Constants.ResolutionScopeType)));
+
+                return this.expressionBuilder.CreateExpression(containerContext,
+                    serviceRegistration, resolutionContext.CreateNew(scopeParameter:
+                    new KeyValue<object, ParameterExpression>(serviceRegistration.RegistrationContext.DefinedScopeName, variable)),
+                    resolveType);
+            }
+
+            return this.expressionBuilder.CreateExpression(containerContext, serviceRegistration, resolutionContext, resolveType);
         }
     }
 }

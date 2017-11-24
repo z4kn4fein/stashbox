@@ -1,5 +1,6 @@
-﻿using System;
-using Stashbox.Entity;
+﻿using Stashbox.Entity;
+using Stashbox.Resolution;
+using System;
 using System.Linq.Expressions;
 
 namespace Stashbox.Infrastructure.Resolution
@@ -19,18 +20,18 @@ namespace Stashbox.Infrastructure.Resolution
         /// </summary>
         /// <param name="containerContext">The container context.</param>
         /// <param name="typeInfo">The type info.</param>
-        /// <param name="resolutionInfo">The info about the actual resolution.</param>
+        /// <param name="resolutionContext">The info about the actual resolution.</param>
         /// <returns>The expression.</returns>
-        public abstract Expression GetExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo);
+        public abstract Expression GetExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext);
 
         /// <summary>
         /// If <see cref="SupportsMany"/> is set to true, this method will be called to collect the enumerable item expressions.
         /// </summary>
         /// <param name="containerContext">The container context.</param>
         /// <param name="typeInfo">The type info.</param>
-        /// <param name="resolutionInfo">The resolution info.</param>
+        /// <param name="resolutionContext">The resolution info.</param>
         /// <returns>The enumerable item expressions.</returns>
-        public virtual Expression[] GetExpressions(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo)
+        public virtual Expression[] GetExpressions(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext)
         {
             throw new NotImplementedException("The SupportsMany property is set to true, but the GetManyExpression method is not implemented.");
         }
@@ -40,8 +41,8 @@ namespace Stashbox.Infrastructure.Resolution
         /// </summary>
         /// <param name="containerContext">The container context.</param>
         /// <param name="typeInfo">The type info.</param>
-        /// <param name="resolutionInfo">The info about the actual resolution.</param>
+        /// <param name="resolutionContext">The info about the actual resolution.</param>
         /// <returns>Returns true, if the resolver can be used to activate the requested service, otherwise false.</returns>
-        public abstract bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo);
+        public abstract bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext);
     }
 }

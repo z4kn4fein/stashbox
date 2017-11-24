@@ -1,14 +1,14 @@
 ﻿using Stashbox.Infrastructure.ContainerExtension;
+using Stashbox.Infrastructure.Registration;
 using Stashbox.Infrastructure.Resolution;
 using System;
-using Stashbox.Infrastructure.Registration;
 
 namespace Stashbox.Infrastructure
 {
     /// <summary>
     /// Represents a dependency injection container.
     /// </summary>
-    public interface IStashboxContainer : IDependencyRegistrator, IDependencyResolver, IDecoratorRegistrator, IFuncRegistrator
+    public interface IStashboxContainer : IDependencyRegistrator, IDependencyResolver, IDependencyReMapper, IDependencyCollectionRegistrator, IDecoratorRegistrator, IFuncRegistrator
     {
         /// <summary>
         /// Registers a <see cref="IContainerExtension"/> into the container.
@@ -36,6 +36,11 @@ namespace Stashbox.Infrastructure
         /// Stores the container context.
         /// </summary>
         IContainerContext ContainerContext { get; }
+
+        /// <summary>
+        /// The root scope.
+        /// </summary>
+        IResolutionScope RootScope { get; }
 
         /// <summary>
         /// The service registrator.

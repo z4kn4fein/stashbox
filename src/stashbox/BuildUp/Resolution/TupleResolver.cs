@@ -1,9 +1,10 @@
-﻿using Stashbox.Infrastructure.Resolution;
-using System;
-using Stashbox.Entity;
+﻿using Stashbox.Entity;
 using Stashbox.Infrastructure;
-using System.Linq.Expressions;
+using Stashbox.Infrastructure.Resolution;
+using Stashbox.Resolution;
+using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 
 namespace Stashbox.BuildUp.Resolution
 {
@@ -21,10 +22,10 @@ namespace Stashbox.BuildUp.Resolution
             typeof(Tuple<,,,,,,,>)
         };
 
-        public override bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo) =>
+        public override bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext) =>
             typeInfo.Type.IsClosedGenericType() && this.supportedTypes.Contains(typeInfo.Type.GetGenericTypeDefinition());
 
-        public override Expression GetExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionInfo resolutionInfo)
+        public override Expression GetExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext)
         {
             var args = typeInfo.Type.GetGenericArguments();
             var tupleConstructor = typeInfo.Type.GetConstructor(args);
@@ -33,7 +34,7 @@ namespace Stashbox.BuildUp.Resolution
             for (var i = 0; i < length; i++)
             {
                 var argumentInfo = new TypeInformation { Type = args[i] };
-                var expr = containerContext.ResolutionStrategy.BuildResolutionExpression(containerContext, resolutionInfo, argumentInfo, null);
+                var expr = containerContext.ResolutionStrategy.BuildResolutionExpression(containerContext, resolutionContext, argumentInfo, null);
 
                 if (expr != null)
                     expressions[i] = expr;
@@ -41,7 +42,7 @@ namespace Stashbox.BuildUp.Resolution
                     return null;
             }
 
-            return Expression.New(tupleConstructor, expressions);
+            return tupleConstructor.MakeNew(expressions);
         }
     }
 }

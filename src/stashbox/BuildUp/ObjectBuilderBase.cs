@@ -1,43 +1,31 @@
-﻿using System;
-using System.Linq.Expressions;
-using Stashbox.Entity;
-using Stashbox.Infrastructure;
+﻿using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.Registration;
+using Stashbox.Resolution;
+using System;
+using System.Linq.Expressions;
 
 namespace Stashbox.BuildUp
 {
     internal abstract class ObjectBuilderBase : IObjectBuilder
     {
-        protected readonly IContainerContext ContainerContext;
-
-        protected ObjectBuilderBase(IContainerContext containerContext)
+        public Expression GetExpression(IContainerContext containerContext, IServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType)
         {
-            this.ContainerContext = containerContext;
-        }
+            if (serviceRegistration.IsDecorator || resolutionContext.IsCurrentlyDecorating(resolveType))
+                return this.GetExpressionAndHandleDisposal(containerContext, serviceRegistration, resolutionContext, resolveType);
 
-        public Expression GetExpression(IServiceRegistration serviceRegistration, ResolutionInfo resolutionInfo, Type resolveType)
-        {
-            if (serviceRegistration.IsDecorator)
-                return this.GetExpressionAndHandleDisposal(serviceRegistration, resolutionInfo, resolveType);
-
-            if (resolutionInfo.IsCurrentlyDecorating(resolveType))
-                return this.GetExpressionAndHandleDisposal(serviceRegistration, resolutionInfo, resolveType);
-
-            var decorators = this.ContainerContext.DecoratorRepository.GetDecoratorsOrDefault(resolveType);
+            var decorators = containerContext.DecoratorRepository.GetDecoratorsOrDefault(resolveType);
             if (decorators == null)
             {
-                if (resolveType.IsClosedGenericType())
-                {
-                    decorators = this.ContainerContext.DecoratorRepository.GetDecoratorsOrDefault(resolveType.GetGenericTypeDefinition());
-                    if (decorators == null)
-                        return this.GetExpressionAndHandleDisposal(serviceRegistration, resolutionInfo, resolveType);
-                }
-                else
-                    return this.GetExpressionAndHandleDisposal(serviceRegistration, resolutionInfo, resolveType);
+                if (!resolveType.IsClosedGenericType())
+                    return this.GetExpressionAndHandleDisposal(containerContext, serviceRegistration, resolutionContext, resolveType);
+
+                decorators = containerContext.DecoratorRepository.GetDecoratorsOrDefault(resolveType.GetGenericTypeDefinition());
+                if (decorators == null)
+                    return this.GetExpressionAndHandleDisposal(containerContext, serviceRegistration, resolutionContext, resolveType);
             }
 
-            resolutionInfo.AddCurrentlyDecoratingType(resolveType);
-            var expression = this.GetExpressionAndHandleDisposal(serviceRegistration, resolutionInfo, resolveType);
+            resolutionContext.AddCurrentlyDecoratingType(resolveType);
+            var expression = this.GetExpressionAndHandleDisposal(containerContext, serviceRegistration, resolutionContext, resolveType);
 
             if (expression == null)
                 return null;
@@ -47,45 +35,43 @@ namespace Stashbox.BuildUp
             for (int i = 0; i < length; i++)
             {
                 var decorator = decorators[i];
-                resolutionInfo.SetExpressionOverride(resolveType, expression);
-                expression = decorator.Value.GetExpression(resolutionInfo, resolveType);
+                resolutionContext.SetExpressionOverride(resolveType, expression);
+                expression = decorator.Value.GetExpression(containerContext, resolutionContext, resolveType);
                 if (expression == null)
                     return null;
             }
 
-            resolutionInfo.ClearCurrentlyDecoratingType(resolveType);
+            resolutionContext.ClearCurrentlyDecoratingType(resolveType);
             return expression;
         }
 
-        private Expression GetExpressionAndHandleDisposal(IServiceRegistration serviceRegistration, ResolutionInfo resolutionInfo, Type resolveType)
+        private Expression GetExpressionAndHandleDisposal(IContainerContext containerContext, IServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType)
         {
-            var expr = this.GetExpressionInternal(serviceRegistration, resolutionInfo, resolveType);
+            var expr = this.GetExpressionInternal(containerContext, serviceRegistration, resolutionContext, resolveType);
 
             if (expr == null)
                 return null;
 
-            if (!this.HandlesFinalizer && serviceRegistration.RegistrationContext.Finalizer != null)
-                expr = this.HandleFinalizer(expr, serviceRegistration);
+            if (!this.HandlesObjectLifecycle && serviceRegistration.RegistrationContext.Finalizer != null)
+                expr = this.HandleFinalizer(expr, serviceRegistration, resolutionContext.CurrentScopeParameter);
 
-            if (!serviceRegistration.ShouldHandleDisposal || this.HandlesObjectDisposal || !expr.Type.IsDisposable())
+            if (!serviceRegistration.ShouldHandleDisposal || this.HandlesObjectLifecycle || !expr.Type.IsDisposable())
                 return expr;
 
             var method = Constants.AddDisposalMethod.MakeGenericMethod(expr.Type);
-            return Expression.Call(Constants.ScopeExpression, method, expr);
+            return resolutionContext.CurrentScopeParameter.CallMethod(method, expr);
         }
 
-        protected Expression HandleFinalizer(Expression instanceExpression, IServiceRegistration serviceRegistration)
+        protected Expression HandleFinalizer(Expression instanceExpression, IServiceRegistration serviceRegistration, Expression scopeExpression)
         {
             var addFinalizerMethod = Constants.AddWithFinalizerMethod.MakeGenericMethod(instanceExpression.Type);
-            return Expression.Call(Constants.ScopeExpression, addFinalizerMethod, instanceExpression,
-                Expression.Constant(serviceRegistration.RegistrationContext.Finalizer));
+            return scopeExpression.CallMethod(addFinalizerMethod, instanceExpression,
+                serviceRegistration.RegistrationContext.Finalizer.AsConstant());
         }
 
-        protected abstract Expression GetExpressionInternal(IServiceRegistration serviceRegistration, ResolutionInfo resolutionInfo, Type resolveType);
+        protected abstract Expression GetExpressionInternal(IContainerContext containerContext, IServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType);
 
-        public virtual bool HandlesObjectDisposal => false;
-
-        public virtual bool HandlesFinalizer => false;
+        public virtual bool HandlesObjectLifecycle => false;
 
         public virtual IObjectBuilder Produce() => this;
     }

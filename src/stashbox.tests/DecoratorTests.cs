@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Stashbox.Attributes;
 using Stashbox.Configuration;
 using Stashbox.Entity;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Stashbox.Tests
 {
@@ -194,12 +194,29 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void DecoratorTests_Inject_Member_With_Config()
+        {
+            using (var container = new StashboxContainer())
+            {
+                container.RegisterType<ITest1, Test1>();
+                container.RegisterDecorator<ITest1, TestDecorator3Attributeless>(config => config.InjectMember("Test"));
+                var test = container.Resolve<ITest1>();
+
+                Assert.IsNotNull(test);
+                Assert.IsInstanceOfType(test, typeof(TestDecorator3Attributeless));
+
+                Assert.IsNotNull(test.Test);
+                Assert.IsInstanceOfType(test.Test, typeof(Test1));
+            }
+        }
+
+        [TestMethod]
         public void DecoratorTests_AutoMemberInjection()
         {
             using (var container = new StashboxContainer())
             {
                 container.RegisterType<ITest1, Test1>();
-                container.RegisterDecorator<ITest1, TestDecorator4>(context => context.WithAutoMemberInjection(Rules.AutoMemberInjection.PropertiesWithLimitedAccess));
+                container.RegisterDecorator<ITest1, TestDecorator4>(context => context.WithAutoMemberInjection(Rules.AutoMemberInjectionRules.PropertiesWithLimitedAccess));
                 var test = container.Resolve<ITest1>();
 
                 Assert.IsNotNull(test);
@@ -217,7 +234,7 @@ namespace Stashbox.Tests
             {
                 container.RegisterType<ITest1, Test1>();
                 container.RegisterDecorator<ITest1, TestDecorator4>(context => context
-                    .WithAutoMemberInjection(Rules.AutoMemberInjection.PropertiesWithLimitedAccess)
+                    .WithAutoMemberInjection(Rules.AutoMemberInjectionRules.PropertiesWithLimitedAccess)
                     .WithInjectionParameters(new InjectionParameter { Name = "Name", Value = "test" }));
                 var test = container.Resolve<ITest1>();
 
@@ -624,6 +641,11 @@ namespace Stashbox.Tests
         public class TestDecorator3 : ITest1
         {
             [Dependency]
+            public ITest1 Test { get; set; }
+        }
+
+        public class TestDecorator3Attributeless : ITest1
+        {
             public ITest1 Test { get; set; }
         }
 

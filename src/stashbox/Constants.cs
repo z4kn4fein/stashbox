@@ -1,10 +1,9 @@
-﻿using System;
+﻿using Stashbox.Infrastructure;
+using Stashbox.Infrastructure.ContainerExtension;
+using System;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using Stashbox.Infrastructure;
-using Stashbox.Infrastructure.ContainerExtension;
-using Stashbox.Lifetime;
 
 namespace Stashbox
 {
@@ -13,12 +12,11 @@ namespace Stashbox
     /// </summary>
     public static class Constants
     {
-        /// <summary>
-        /// The scope parameter expression.
-        /// </summary>
-        public static readonly ParameterExpression ScopeExpression = Expression.Parameter(typeof(IResolutionScope));
+        internal static readonly ParameterExpression ResolutionScopeParameter = typeof(IResolutionScope).AsParameter("scope");
 
         internal static readonly MethodInfo AddDisposalMethod = typeof(IResolutionScope).GetSingleMethod("AddDisposableTracking");
+
+        internal static readonly MethodInfo GetOrAddScopedItemMethod = typeof(IResolutionScope).GetSingleMethod("GetOrAddScopedItem");
 
         internal static readonly MethodInfo AddWithFinalizerMethod = typeof(IResolutionScope).GetSingleMethod("AddWithFinalizer");
 
@@ -26,13 +24,21 @@ namespace Stashbox
 
         internal static readonly MethodInfo GetScopedInstanceMethod = typeof(IResolutionScope).GetSingleMethod("GetScopedInstanceOrDefault");
 
+        internal static readonly MethodInfo BeginScopeMethod = typeof(IDependencyResolver).GetSingleMethod("BeginScope");
+
+        internal static readonly PropertyInfo RootScopeProperty = typeof(IResolutionScope).GetSingleProperty("RootScope");
+
         internal static readonly Type DisposableType = typeof(IDisposable);
+
+        internal static readonly Type ResolutionScopeType = typeof(IResolutionScope);
 
         internal static readonly Type FuncType = typeof(Func<>);
 
         internal static readonly Type ResolverType = typeof(IDependencyResolver);
 
         internal static readonly Type[] EmptyTypes = new Type[0];
+
+        internal static readonly Expression[] EmptyExpressions = new Expression[0];
 
         internal static readonly Type ObjectType = typeof(object);
 
@@ -42,6 +48,10 @@ namespace Stashbox
 
         internal static readonly Type DependencyAttributeType = typeof(Attributes.DependencyAttribute);
 
+        internal static readonly Type InjectionAttributeType = typeof(Attributes.InjectionMethodAttribute);
+
         internal const MethodImplOptions Inline = (MethodImplOptions)256;
+
+        internal const int HashMapLength = 64;
     }
 }

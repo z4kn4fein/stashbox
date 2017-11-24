@@ -1,7 +1,7 @@
-﻿using System;
-using Stashbox.Entity;
+﻿using Stashbox.Infrastructure.Registration;
+using Stashbox.Resolution;
+using System;
 using System.Linq.Expressions;
-using Stashbox.Infrastructure.Registration;
 
 namespace Stashbox.Infrastructure
 {
@@ -13,16 +13,17 @@ namespace Stashbox.Infrastructure
         /// <summary>
         /// Creates the expression for creating an instance of a registered service.
         /// </summary>
+        /// <param name="containerContext">The container context.</param>
         /// <param name="serviceRegistration">The service registration.</param>
-        /// <param name="resolutionInfo">The info about the actual resolution.</param>
+        /// <param name="resolutionContext">The info about the actual resolution.</param>
         /// <param name="resolveType">The requested type.</param>
         /// <returns>The created object.</returns>
-        Expression GetExpression(IServiceRegistration serviceRegistration, ResolutionInfo resolutionInfo, Type resolveType);
+        Expression GetExpression(IContainerContext containerContext, IServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType);
 
         /// <summary>
         /// Indicates that the object builder is handling the disposal of the produced instance or not.
         /// </summary>
-        bool HandlesObjectDisposal { get; }
+        bool HandlesObjectLifecycle { get; }
 
         /// <summary>
         /// Produces an <see cref="IObjectBuilder"/>.

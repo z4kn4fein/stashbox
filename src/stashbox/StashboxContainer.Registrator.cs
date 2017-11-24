@@ -9,7 +9,7 @@ namespace Stashbox
     public partial class StashboxContainer
     {
         /// <inheritdoc />
-        public IDependencyRegistrator RegisterType<TFrom, TTo>(Action<IFluentServiceRegistrator<TTo>> configurator = null)
+        public IStashboxContainer RegisterType<TFrom, TTo>(Action<IFluentServiceRegistrator<TTo>> configurator = null)
             where TFrom : class
             where TTo : class, TFrom
         {
@@ -19,7 +19,7 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public IDependencyRegistrator RegisterType<TFrom>(Type typeTo, Action<IFluentServiceRegistrator<TFrom>> configurator = null)
+        public IStashboxContainer RegisterType<TFrom>(Type typeTo, Action<IFluentServiceRegistrator<TFrom>> configurator = null)
             where TFrom : class
         {
             var context = this.ServiceRegistrator.PrepareContext<TFrom>(typeof(TFrom), typeTo);
@@ -28,7 +28,7 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public IDependencyRegistrator RegisterType(Type typeFrom, Type typeTo, Action<IFluentServiceRegistrator> configurator = null)
+        public IStashboxContainer RegisterType(Type typeFrom, Type typeTo, Action<IFluentServiceRegistrator> configurator = null)
         {
             Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
             Shield.EnsureNotNull(typeTo, nameof(typeTo));
@@ -39,7 +39,7 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public IDependencyRegistrator RegisterType<TTo>(Action<IFluentServiceRegistrator<TTo>> configurator = null)
+        public IStashboxContainer RegisterType<TTo>(Action<IFluentServiceRegistrator<TTo>> configurator = null)
              where TTo : class
         {
             var type = typeof(TTo);
@@ -49,11 +49,11 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public IDependencyRegistrator RegisterType(Type typeTo, Action<IFluentServiceRegistrator> configurator = null) =>
+        public IStashboxContainer RegisterType(Type typeTo, Action<IFluentServiceRegistrator> configurator = null) =>
             this.RegisterType(typeTo, typeTo, configurator);
 
         /// <inheritdoc />
-        public IDependencyRegistrator RegisterInstanceAs<TFrom>(TFrom instance, object name = null, bool withoutDisposalTracking = false,
+        public IStashboxContainer RegisterInstanceAs<TFrom>(TFrom instance, object name = null, bool withoutDisposalTracking = false,
             Action<TFrom> finalizerDelegate = null) where TFrom : class
         {
             Shield.EnsureNotNull(instance, nameof(instance));
@@ -67,11 +67,7 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public IDependencyRegistrator RegisterInstance(object instance, object name = null, bool withoutDisposalTracking = false) =>
-            this.RegisterInstance(instance.GetType(), instance, name, withoutDisposalTracking);
-
-        /// <inheritdoc />
-        public IDependencyRegistrator RegisterInstance(Type serviceType, object instance, object name = null, bool withoutDisposalTracking = false)
+        public IStashboxContainer RegisterInstance(Type serviceType, object instance, object name = null, bool withoutDisposalTracking = false)
         {
             Shield.EnsureNotNull(instance, nameof(instance));
 
@@ -84,7 +80,7 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public IDependencyRegistrator WireUpAs<TFrom>(TFrom instance, object name = null, bool withoutDisposalTracking = false,
+        public IStashboxContainer WireUpAs<TFrom>(TFrom instance, object name = null, bool withoutDisposalTracking = false,
             Action<TFrom> finalizerDelegate = null) where TFrom : class
         {
             Shield.EnsureNotNull(instance, nameof(instance));
@@ -94,11 +90,7 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public IDependencyRegistrator WireUp(object instance, object name = null, bool withoutDisposalTracking = false) =>
-            this.WireUp(instance.GetType(), instance, name, withoutDisposalTracking);
-
-        /// <inheritdoc />
-        public IDependencyRegistrator WireUp(Type serviceType, object instance, object name = null, bool withoutDisposalTracking = false)
+        public IStashboxContainer WireUp(Type serviceType, object instance, object name = null, bool withoutDisposalTracking = false)
         {
             Shield.EnsureNotNull(instance, nameof(instance));
             Shield.EnsureNotNull(serviceType, nameof(serviceType));
@@ -106,36 +98,6 @@ namespace Stashbox
             this.WireUpInternal(instance, name, serviceType, instance.GetType(), withoutDisposalTracking);
             return this;
         }
-
-        /// <inheritdoc />
-        public IDependencyRegistrator RegisterSingleton<TFrom, TTo>(object name = null)
-            where TFrom : class
-            where TTo : class, TFrom =>
-            this.RegisterType<TFrom, TTo>(context => context.WithName(name).WithSingletonLifetime());
-
-        /// <inheritdoc />
-        public IDependencyRegistrator RegisterSingleton<TTo>(object name = null)
-            where TTo : class =>
-            this.RegisterType<TTo>(context => context.WithName(name).WithSingletonLifetime());
-
-        /// <inheritdoc />
-        public IDependencyRegistrator RegisterSingleton(Type typeFrom, Type typeTo, object name = null) =>
-            this.RegisterType(typeFrom, typeTo, context => context.WithName(name).WithSingletonLifetime());
-
-        /// <inheritdoc />
-        public IDependencyRegistrator RegisterScoped<TFrom, TTo>(object name = null)
-            where TFrom : class
-            where TTo : class, TFrom =>
-            this.RegisterType<TFrom, TTo>(context => context.WithName(name).WithScopedLifetime());
-
-        /// <inheritdoc />
-        public IDependencyRegistrator RegisterScoped(Type typeFrom, Type typeTo, object name = null) =>
-            this.RegisterType(typeFrom, typeTo, context => context.WithName(name).WithScopedLifetime());
-
-        /// <inheritdoc />
-        public IDependencyRegistrator RegisterScoped<TTo>(object name = null)
-            where TTo : class =>
-            this.RegisterType<TTo>(context => context.WithName(name).WithScopedLifetime());
 
         private void WireUpInternal(object instance, object keyName, Type typeFrom, Type typeTo, bool withoutDisposalTracking, object finalizerDelelgate = null)
         {
@@ -145,7 +107,7 @@ namespace Stashbox
             data.Finalizer = finalizerDelelgate;
 
             var registration = new ServiceRegistration(typeFrom, typeTo,
-                this.ContainerContext, this.objectBuilderSelector.Get(ObjectBuilder.WireUp),
+                this.ContainerContext.ContainerConfigurator, this.objectBuilderSelector.Get(ObjectBuilder.WireUp),
                 data, false, !withoutDisposalTracking);
 
             this.registrationRepository.AddOrUpdateRegistration(registration, false, false);

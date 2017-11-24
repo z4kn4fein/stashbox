@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Stashbox.Attributes;
 
 namespace Stashbox.Entity
 {
@@ -30,7 +29,7 @@ namespace Stashbox.Entity
         public IEnumerable<Attribute> CustomAttributes { get; internal set; }
 
         /// <summary>
-        /// The variable name of the dependency.
+        /// The parameter name of the dependency if it's a param of a method.
         /// </summary>
         public string ParameterName { get; internal set; }
 
@@ -50,9 +49,9 @@ namespace Stashbox.Entity
         public bool IsMember { get; internal set; }
 
         /// <summary>
-        /// True if the type has <see cref="DependencyAttribute"/>.
+        /// True if the dependency explicitly set to be injected.
         /// </summary>
-        public bool HasDependencyAttribute { get; internal set; }
+        public bool ForcedDependency { get; internal set; }
 
         /// <summary>
         /// Creates a clone of this instance.

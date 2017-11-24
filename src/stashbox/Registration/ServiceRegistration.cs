@@ -1,11 +1,17 @@
-﻿using Stashbox.Entity;
+﻿using Stashbox.Configuration;
+using Stashbox.Entity;
 using Stashbox.Infrastructure;
 using Stashbox.Infrastructure.Registration;
+using Stashbox.Lifetime;
+using Stashbox.MetaInfo;
+using Stashbox.Resolution;
+using Stashbox.Utils;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using Stashbox.MetaInfo;
-using Stashbox.Utils;
+using System.Reflection;
+using System.Threading;
 
 namespace Stashbox.Registration
 {
@@ -14,8 +20,9 @@ namespace Stashbox.Registration
     /// </summary>
     public class ServiceRegistration : IServiceRegistration
     {
-        private static readonly ConcurrentTree<Type, MetaInformation> MetaRepository = new ConcurrentTree<Type, MetaInformation>();
-
+        private static int GlobalRegistrationNumber;
+        private static AvlTreeKeyValue<Type, MetaInformation> MetaRepository = AvlTreeKeyValue<Type, MetaInformation>.Empty;
+        private readonly IContainerConfigurator containerConfigurator;
         private readonly IObjectBuilder objectBuilder;
 
         /// <inheritdoc />
@@ -39,53 +46,102 @@ namespace Stashbox.Registration
         /// <inheritdoc />
         public int RegistrationNumber { get; }
 
-        internal ServiceRegistration(Type serviceType, Type implementationType, IContainerContext containerContext,
+        /// <inheritdoc />
+        public object RegistrationId { get; }
+
+        /// <inheritdoc />
+        public bool HasName { get; }
+
+        /// <inheritdoc />
+        public bool HasScopeName { get; }
+
+        /// <inheritdoc />
+        public bool HasCondition { get; }
+
+        internal ServiceRegistration(Type serviceType, Type implementationType, IContainerConfigurator containerConfigurator,
              IObjectBuilder objectBuilder, RegistrationContextData registrationContextData,
              bool isDecorator, bool shouldHandleDisposal)
         {
             this.objectBuilder = objectBuilder;
+            this.containerConfigurator = containerConfigurator;
             this.ImplementationType = implementationType;
             this.ServiceType = serviceType;
-            this.MetaInformation = GetOrCreateMetaInfo(implementationType);
-            this.RegistrationNumber = containerContext.ReserveRegistrationNumber();
+            this.MetaInformation = GetOrCreateMetaInfo(implementationType, registrationContextData);
+            this.RegistrationNumber = ReserveRegistrationNumber();
             this.RegistrationContext = registrationContextData;
             this.IsDecorator = isDecorator;
             this.ShouldHandleDisposal = shouldHandleDisposal;
 
-            if (this.RegistrationContext.Name == null)
-                this.RegistrationContext.Name = containerContext.ContainerConfigurator.ContainerConfiguration.SetUniqueRegistrationNames ? (object)this.RegistrationNumber : implementationType;
+            this.HasName = this.RegistrationContext.Name != null;
+
+            this.HasScopeName = this.RegistrationContext.Lifetime is NamedScopeLifetime;
+
+            this.HasCondition = this.RegistrationContext.TargetTypeCondition != null || this.RegistrationContext.ResolutionCondition != null ||
+                this.RegistrationContext.AttributeConditions != null && this.RegistrationContext.AttributeConditions.Count > 0;
+
+            this.RegistrationId = this.RegistrationContext.Name ??
+                (containerConfigurator.ContainerConfiguration.SetUniqueRegistrationNames
+                ? (object)this.RegistrationNumber
+                : implementationType);
         }
 
         /// <inheritdoc />
         public bool IsUsableForCurrentContext(TypeInformation typeInfo) =>
-            this.RegistrationContext.TargetTypeCondition == null && this.RegistrationContext.ResolutionCondition == null && (this.RegistrationContext.AttributeConditions == null || !this.RegistrationContext.AttributeConditions.Any()) ||
-            this.RegistrationContext.TargetTypeCondition != null && typeInfo.ParentType != null && this.RegistrationContext.TargetTypeCondition == typeInfo.ParentType ||
-            this.RegistrationContext.AttributeConditions != null && typeInfo.CustomAttributes != null &&
-            this.RegistrationContext.AttributeConditions.Intersect(typeInfo.CustomAttributes.Select(attribute => attribute.GetType())).Any() ||
-            this.RegistrationContext.ResolutionCondition != null && this.RegistrationContext.ResolutionCondition(typeInfo);
-
-        /// <inheritdoc />
-        public bool HasCondition => this.RegistrationContext.TargetTypeCondition != null || this.RegistrationContext.ResolutionCondition != null ||
-            this.RegistrationContext.AttributeConditions != null && this.RegistrationContext.AttributeConditions.Count > 0;
+            !this.HasCondition ||
+            this.HasParentTypeConditionAndMatch(typeInfo) ||
+            this.HasAttributeConditionAndMatch(typeInfo) ||
+            this.HasResolutionConditionAndMatch(typeInfo);
 
         /// <inheritdoc />
         public bool ValidateGenericContraints(Type type) =>
             this.MetaInformation.GenericTypeConstraints.Count == 0 || this.MetaInformation.ValidateGenericContraints(type);
 
         /// <inheritdoc />
-        public Expression GetExpression(ResolutionInfo resolutionInfo, Type resolveType) =>
+        public Expression GetExpression(IContainerContext containerContext, ResolutionContext resolutionContext, Type resolveType) =>
             this.RegistrationContext.Lifetime == null || this.ServiceType.IsOpenGenericType() ?
-                this.objectBuilder.GetExpression(this, resolutionInfo, resolveType) :
-                this.RegistrationContext.Lifetime.GetExpression(this, this.objectBuilder, resolutionInfo, resolveType);
+                this.objectBuilder.GetExpression(containerContext, this, resolutionContext, resolveType) :
+                this.RegistrationContext.Lifetime.GetExpression(containerContext, this, this.objectBuilder, resolutionContext, resolveType);
 
-        private static MetaInformation GetOrCreateMetaInfo(Type typeTo)
+        /// <inheritdoc />
+        public bool CanInjectMember(MemberInformation member)
+        {
+            var autoMemberInjectionEnabled = this.containerConfigurator.ContainerConfiguration.MemberInjectionWithoutAnnotationEnabled || this.RegistrationContext.AutoMemberInjectionEnabled;
+            var autoMemberInjectionRule = this.RegistrationContext.AutoMemberInjectionEnabled ? this.RegistrationContext.AutoMemberInjectionRule :
+                this.containerConfigurator.ContainerConfiguration.MemberInjectionWithoutAnnotationRule;
+
+            if (autoMemberInjectionEnabled)
+                return member.TypeInformation.ForcedDependency ||
+                       member.MemberInfo is FieldInfo && autoMemberInjectionRule.HasFlag(Rules.AutoMemberInjectionRules.PrivateFields) ||
+                       member.MemberInfo is PropertyInfo && (autoMemberInjectionRule.HasFlag(Rules.AutoMemberInjectionRules.PropertiesWithPublicSetter) && ((PropertyInfo)member.MemberInfo).HasSetMethod() ||
+                       autoMemberInjectionRule.HasFlag(Rules.AutoMemberInjectionRules.PropertiesWithLimitedAccess));
+
+            return member.TypeInformation.ForcedDependency;
+        }
+
+        /// <inheritdoc />
+        public bool CanInjectIntoNamedScope(ISet<object> scopeNames) => scopeNames.Contains(((NamedScopeLifetime)this.RegistrationContext.Lifetime).ScopeName);
+
+        private bool HasParentTypeConditionAndMatch(TypeInformation typeInfo) =>
+            this.RegistrationContext.TargetTypeCondition != null && typeInfo.ParentType != null && this.RegistrationContext.TargetTypeCondition == typeInfo.ParentType;
+
+        private bool HasAttributeConditionAndMatch(TypeInformation typeInfo) =>
+            this.RegistrationContext.AttributeConditions != null && typeInfo.CustomAttributes != null &&
+            this.RegistrationContext.AttributeConditions.Intersect(typeInfo.CustomAttributes.Select(attribute => attribute.GetType())).Any();
+
+        private bool HasResolutionConditionAndMatch(TypeInformation typeInfo) =>
+            this.RegistrationContext.ResolutionCondition != null && this.RegistrationContext.ResolutionCondition(typeInfo);
+
+        private static MetaInformation GetOrCreateMetaInfo(Type typeTo, RegistrationContextData registrationContextData)
         {
             var found = MetaRepository.GetOrDefault(typeTo);
             if (found != null) return found;
 
-            var meta = new MetaInformation(typeTo);
-            MetaRepository.AddOrUpdate(typeTo, meta);
+            var meta = new MetaInformation(typeTo, registrationContextData);
+            Swap.SwapValue(ref MetaRepository, repo => repo.AddOrUpdate(typeTo, meta));
             return meta;
         }
+
+        private static int ReserveRegistrationNumber() =>
+            Interlocked.Increment(ref GlobalRegistrationNumber);
     }
 }

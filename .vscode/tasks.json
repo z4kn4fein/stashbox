@@ -1,0 +1,27 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "taskName": "build",
+            "command": "dotnet restore src/stashbox.sln && dotnet build src/stashbox/stashbox.csproj -f netstandard1.3 && dotnet build src/stashbox/stashbox.csproj -f netstandard1.0",
+            "type": "shell",
+            "group": "build",
+            "presentation": {
+                "reveal": "silent"
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "taskName": "test",
+            "command": "dotnet restore src/stashbox.sln && dotnet test src/stashbox.tests/stashbox.tests.csproj -f netcoreapp2.0",
+            "type": "shell",
+            "group": "build",
+            "presentation": {
+                "reveal": "silent"
+            },
+            "problemMatcher": "$msCompile"
+        }
+    ]
+}

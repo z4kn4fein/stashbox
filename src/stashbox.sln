@@ -1,16 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26403.0
+VisualStudioVersion = 15.0.26730.8
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "stashbox", "stashbox\stashbox.csproj", "{21317234-0499-4178-BCA5-558FBA2CB9AC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "stashbox", "stashbox\stashbox.csproj", "{21317234-0499-4178-BCA5-558FBA2CB9AC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "stashbox.tests", "stashbox.tests\stashbox.tests.csproj", "{C7625187-F112-4928-8B73-2EA175E32204}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "stashbox.tests", "stashbox.tests\stashbox.tests.csproj", "{C7625187-F112-4928-8B73-2EA175E32204}"
 EndProject
 Global
-	GlobalSection(Performance) = preSolution
-		HasPerformanceSessions = true
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|x64 = Debug|x64
@@ -47,6 +44,12 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A91FC5AF-2866-45D7-91FF-1C6ADE67E230}
+	EndGlobalSection
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
 	EndGlobalSection
 	GlobalSection(Performance) = preSolution
 		HasPerformanceSessions = true

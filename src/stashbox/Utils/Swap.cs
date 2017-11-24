@@ -1,23 +1,24 @@
 ﻿using System;
-using System.Runtime.CompilerServices;
 using System.Threading;
 
 namespace Stashbox.Utils
 {
     internal static class Swap
     {
-        [MethodImpl(Constants.Inline)]
-        public static void SwapValue<TValue>(ref TValue refValue, TValue currentValue, TValue newValue, Func<TValue, TValue> valueFactory)
+        public static void SwapValue<TValue>(ref TValue refValue, Func<TValue, TValue> valueFactory)
             where TValue : class
         {
+            var currentValue = refValue;
+            var newValue = valueFactory(currentValue);
+
             if (!TrySwapCurrent(ref refValue, currentValue, newValue))
                 SwapCurrent(ref refValue, valueFactory);
         }
-
+        
         public static bool TrySwapCurrent<TValue>(ref TValue refValue, TValue currentValue, TValue newValue)
             where TValue : class =>
             ReferenceEquals(Interlocked.CompareExchange(ref refValue, newValue, currentValue), currentValue);
-
+        
         public static void SwapCurrent<TValue>(ref TValue refValue, Func<TValue, TValue> valueFactory)
             where TValue : class
         {

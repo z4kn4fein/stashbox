@@ -189,7 +189,7 @@ namespace Stashbox.Tests
 
                 Assert.IsNull(inst.I);
 
-                container.RegisterType<Test6>(context => context.WithName("success").WithAutoMemberInjection(Rules.AutoMemberInjection.PrivateFields));
+                container.RegisterType<Test6>(context => context.WithName("success").WithAutoMemberInjection(Rules.AutoMemberInjectionRules.PrivateFields));
                 var inst1 = container.Resolve<Test6>("success");
 
                 Assert.IsNotNull(inst1.I);
@@ -206,7 +206,7 @@ namespace Stashbox.Tests
 
                 Assert.IsNull(inst.I);
 
-                container.RegisterType<Test7>(context => context.WithName("success").WithAutoMemberInjection(Rules.AutoMemberInjection.PropertiesWithLimitedAccess));
+                container.RegisterType<Test7>(context => context.WithName("success").WithAutoMemberInjection(Rules.AutoMemberInjectionRules.PropertiesWithLimitedAccess));
                 var inst1 = container.Resolve<Test7>("success");
 
                 Assert.IsNotNull(inst1.I);
@@ -218,20 +218,20 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer(config => config.WithUnknownTypeResolution()))
             {
-                container.RegisterType<Test8>(context => context.WithName("justfield").WithAutoMemberInjection(Rules.AutoMemberInjection.PrivateFields));
+                container.RegisterType<Test8>(context => context.WithName("justfield").WithAutoMemberInjection(Rules.AutoMemberInjectionRules.PrivateFields));
                 var inst = container.Resolve<Test8>("justfield");
 
                 Assert.IsNotNull(inst.I);
                 Assert.IsNull(inst.I1);
 
-                container.RegisterType<Test8>(context => context.WithName("justprivatesetter").WithAutoMemberInjection(Rules.AutoMemberInjection.PropertiesWithLimitedAccess));
+                container.RegisterType<Test8>(context => context.WithName("justprivatesetter").WithAutoMemberInjection(Rules.AutoMemberInjectionRules.PropertiesWithLimitedAccess));
                 var inst1 = container.Resolve<Test8>("justprivatesetter");
 
                 Assert.IsNotNull(inst1.I1);
                 Assert.IsNull(inst1.I);
 
                 container.RegisterType<Test8>(context => context.WithName("mixed")
-                    .WithAutoMemberInjection(Rules.AutoMemberInjection.PropertiesWithLimitedAccess | Rules.AutoMemberInjection.PrivateFields));
+                    .WithAutoMemberInjection(Rules.AutoMemberInjectionRules.PropertiesWithLimitedAccess | Rules.AutoMemberInjectionRules.PrivateFields));
                 var inst2 = container.Resolve<Test8>("mixed");
 
                 Assert.IsNotNull(inst2.I1);
@@ -244,9 +244,9 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer(config => config
                 .WithUnknownTypeResolution()
-                .WithMemberInjectionWithoutAnnotation(Rules.AutoMemberInjection.PropertiesWithLimitedAccess | Rules.AutoMemberInjection.PrivateFields)))
+                .WithMemberInjectionWithoutAnnotation(Rules.AutoMemberInjectionRules.PropertiesWithLimitedAccess | Rules.AutoMemberInjectionRules.PrivateFields)))
             {
-                container.RegisterType<Test8>(context => context.WithAutoMemberInjection(Rules.AutoMemberInjection.PropertiesWithLimitedAccess | Rules.AutoMemberInjection.PrivateFields));
+                container.RegisterType<Test8>(context => context.WithAutoMemberInjection(Rules.AutoMemberInjectionRules.PropertiesWithLimitedAccess | Rules.AutoMemberInjectionRules.PrivateFields));
                 var inst2 = container.Resolve<Test8>();
 
                 Assert.IsNotNull(inst2.I1);
@@ -259,9 +259,9 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer(config => config
                 .WithUnknownTypeResolution()
-                .WithMemberInjectionWithoutAnnotation(Rules.AutoMemberInjection.PropertiesWithLimitedAccess | Rules.AutoMemberInjection.PrivateFields)))
+                .WithMemberInjectionWithoutAnnotation(Rules.AutoMemberInjectionRules.PropertiesWithLimitedAccess | Rules.AutoMemberInjectionRules.PrivateFields)))
             {
-                container.RegisterType<Test8>(context => context.WithAutoMemberInjection(Rules.AutoMemberInjection.PrivateFields));
+                container.RegisterType<Test8>(context => context.WithAutoMemberInjection(Rules.AutoMemberInjectionRules.PrivateFields));
                 var inst2 = container.Resolve<Test8>();
 
                 Assert.IsNull(inst2.I1);
@@ -326,7 +326,7 @@ namespace Stashbox.Tests
 
         public class Test6
         {
-            public RefDep I { get { return this.i; } }
+            public RefDep I => this.i;
 
             private RefDep i = null;
         }
@@ -340,7 +340,7 @@ namespace Stashbox.Tests
         {
             public RefDep I1 { get; private set; }
 
-            public RefDep I { get { return this.i; } }
+            public RefDep I => this.i;
 
             private RefDep i = null;
         }

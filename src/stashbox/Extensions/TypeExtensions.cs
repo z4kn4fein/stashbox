@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using Stashbox;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using Stashbox;
 
 #if NET40
 namespace System.Reflection
@@ -12,34 +12,6 @@ namespace System.Reflection
         public static TypeInfo GetTypeInfo(this Type type)
         {
             return new TypeInfo(type);
-        }
-
-        public static TAttribute GetCustomAttribute<TAttribute>(this MethodInfo method) where TAttribute : Attribute
-        {
-            var attrType = typeof(TAttribute);
-            var attributes = method.GetCustomAttributes(attrType, false);
-            return (TAttribute)attributes.FirstOrDefault();
-        }
-
-        public static TAttribute GetCustomAttribute<TAttribute>(this ParameterInfo parameter) where TAttribute : Attribute
-        {
-            var attrType = typeof(TAttribute);
-            var attributes = parameter.GetCustomAttributes(attrType, false);
-            return (TAttribute)attributes.FirstOrDefault();
-        }
-
-        public static TAttribute GetCustomAttribute<TAttribute>(this PropertyInfo property) where TAttribute : Attribute
-        {
-            var attrType = typeof(TAttribute);
-            var attributes = property.GetCustomAttributes(attrType, false);
-            return (TAttribute)attributes.FirstOrDefault();
-        }
-
-        public static TAttribute GetCustomAttribute<TAttribute>(this FieldInfo field) where TAttribute : Attribute
-        {
-            var attrType = typeof(TAttribute);
-            var attributes = field.GetCustomAttributes(attrType, false);
-            return (TAttribute)attributes.FirstOrDefault();
         }
 
         public static TAttribute GetCustomAttribute<TAttribute>(this TypeInfo typeInfo) where TAttribute : Attribute
@@ -52,11 +24,8 @@ namespace System.Reflection
         public static IEnumerable<Attribute> GetCustomAttributes(this ParameterInfo parameter) =>
             parameter.GetCustomAttributes(false).Cast<Attribute>();
 
-        public static IEnumerable<Attribute> GetCustomAttributes(this PropertyInfo property) =>
+        public static IEnumerable<Attribute> GetCustomAttributes(this MemberInfo property) =>
             property.GetCustomAttributes(false).Cast<Attribute>();
-
-        public static IEnumerable<Attribute> GetCustomAttributes(this FieldInfo field) =>
-            field.GetCustomAttributes(false).Cast<Attribute>();
     }
 }
 #endif
@@ -89,13 +58,31 @@ namespace System
             return typeInfo.IsGenericType && typeInfo.ContainsGenericParameters;
         }
 
+        public static Stashbox.Attributes.DependencyAttribute GetDependencyAttribute(this MemberInfo property)
+        {
+            var attr = property.GetCustomAttributes(Constants.DependencyAttributeType, false).FirstOrDefault();
+            return attr != null ? (Stashbox.Attributes.DependencyAttribute)attr : null;
+        }
+
+        public static Stashbox.Attributes.DependencyAttribute GetDependencyAttribute(this ParameterInfo parameter)
+        {
+            var attr = parameter.GetCustomAttributes(Constants.DependencyAttributeType, false).FirstOrDefault();
+            return attr != null ? (Stashbox.Attributes.DependencyAttribute)attr : null;
+        }
+
+        public static Stashbox.Attributes.InjectionMethodAttribute GetInjectionAttribute(this MemberInfo method)
+        {
+            var attr = method.GetCustomAttributes(Constants.InjectionAttributeType, false).FirstOrDefault();
+            return attr != null ? (Stashbox.Attributes.InjectionMethodAttribute)attr : null;
+        }
+
         public static Type[] GetGenericArguments(this Type type) =>
             type.GetTypeInfo().GenericTypeArguments;
 
         public static ConstructorInfo GetConstructor(this Type type, params Type[] args) =>
             type.GetTypeInfo().DeclaredConstructors.FirstOrDefault(c => c.GetParameters().Select(p => p.ParameterType).SequenceEqual(args));
 
-        public static bool IsBackingField(this FieldInfo field) =>
+        public static bool IsBackingField(this MemberInfo field) =>
             field.Name[0] == '<';
 
         public static bool IsIndexer(this PropertyInfo property) =>
@@ -113,11 +100,26 @@ namespace System
             return found;
         }
 
+        public static PropertyInfo GetSingleProperty(this Type type, string name)
+        {
+            var found = type.GetTypeInfo().DeclaredProperties.FirstOrDefault(property => property.Name == name);
+            if (found == null)
+                throw new InvalidOperationException($"'{name}' property not found on {type.FullName}.");
+
+            return found;
+        }
+
         public static MethodInfo GetSingleMethodOrDefault(this Type type, string name, bool includeNonPublic = false) =>
             type.GetTypeInfo().DeclaredMethods.FirstOrDefault(method => (includeNonPublic || method.IsPublic) && method.Name == name);
 
-        public static bool HasSetMethod(this PropertyInfo property, bool includeNonPublic = false) =>
-            property.DeclaringType.GetSingleMethodOrDefault("set_" + property.Name, includeNonPublic) != null;
+        public static bool HasSetMethod(this MemberInfo property, bool includeNonPublic = false) =>
+            property.GetSetterMethodOrDefault(includeNonPublic) != null;
+
+        public static MethodInfo GetSetterMethodOrDefault(this MemberInfo property, bool includeNonPublic = false) =>
+            property.DeclaringType.GetSingleMethodOrDefault("set_" + property.Name, includeNonPublic);
+
+        public static MethodInfo GetGetterMethodOrDefault(this MemberInfo property, bool includeNonPublic = false) =>
+            property.DeclaringType.GetSingleMethodOrDefault("get_" + property.Name, includeNonPublic);
 
         public static bool IsDisposable(this Type type) =>
             type.Implements(Constants.DisposableType);
@@ -191,21 +193,6 @@ namespace System
 #else
             @delegate.GetMethodInfo();
 #endif
-
-#if NETSTANDARD1_3
-        public static MethodInfo GetGetMethod(this PropertyInfo property) =>
-            property.DeclaringType.GetMethod($"get_{property.Name}");
-
-        public static MethodInfo GetSetMethod(this PropertyInfo property) =>
-            property.DeclaringType.GetMethod($"set_{property.Name}");
-
-        public static MethodInfo GetPropertyGetMethod(this Type type, string name) =>
-            type.GetTypeInfo().DeclaredMethods.Single(method => method.Name == $"get_{name}");
-
-        public static MethodInfo GetMethod(this Type type, string name) =>
-            type.GetTypeInfo().DeclaredMethods.Single(method => method.Name == name);
-#endif
-
         private static bool IsAssignableToGenericType(Type type, Type genericType)
         {
             if (type == null || genericType == null) return false;

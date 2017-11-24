@@ -9,6 +9,7 @@ namespace Stashbox.Utils
     {
         public static readonly AvlTree<TValue> Empty = new AvlTree<TValue>();
 
+        private readonly TValue defaultValue = default(TValue);
         private readonly int storedHash;
         private readonly TValue storedValue;
 
@@ -16,11 +17,7 @@ namespace Stashbox.Utils
         private readonly AvlTree<TValue> rightNode;
 
         private readonly int height;
-        private readonly bool isEmpty = true;
-
-        public TValue Value => this.storedValue;
-        public bool HasMultipleItems => this.height > 1;
-        public bool IsEmpty => this.isEmpty;
+        public bool IsEmpty = true;
 
         private AvlTree(int hash, TValue value, AvlTree<TValue> left, AvlTree<TValue> right)
         {
@@ -28,7 +25,7 @@ namespace Stashbox.Utils
             this.leftNode = left;
             this.rightNode = right;
             this.storedValue = value;
-            this.isEmpty = false;
+            this.IsEmpty = false;
             this.height = 1 + (left.height > right.height ? left.height : right.height);
         }
 
@@ -38,39 +35,30 @@ namespace Stashbox.Utils
 
         private AvlTree()
         { }
-
+        
         public AvlTree<TValue> AddOrUpdate(int key, TValue value, Func<TValue, TValue, TValue> updateDelegate = null) =>
-            this.Add(key, value, updateDelegate, out bool updated);
-
-        public AvlTree<TValue> AddOrUpdate(int key, TValue value, out bool updated, Func<TValue, TValue, TValue> updateDelegate = null) =>
-            this.Add(key, value, updateDelegate, out updated);
+            this.Add(key, value, updateDelegate);
 
         [MethodImpl(Constants.Inline)]
         public TValue GetOrDefault(int key)
         {
             var node = this;
-            while (!node.isEmpty && node.storedHash != key)
+            while (!node.IsEmpty && node.storedHash != key)
                 node = key < node.storedHash ? node.leftNode : node.rightNode;
-            return !node.isEmpty ? node.storedValue : default(TValue);
+            return !node.IsEmpty ? node.storedValue : defaultValue;
         }
 
-        private AvlTree<TValue> Add(int hash, TValue value, Func<TValue, TValue, TValue> updateDelegate, out bool updated)
+        private AvlTree<TValue> Add(int hash, TValue value, Func<TValue, TValue, TValue> updateDelegate)
         {
-            if (this.isEmpty)
-            {
-                updated = false;
+            if (this.IsEmpty)
                 return new AvlTree<TValue>(hash, value);
-            }
 
             if (hash == this.storedHash)
-            {
-                updated = this.storedValue != null;
                 return updateDelegate == null ? this : new AvlTree<TValue>(hash, updateDelegate(this.storedValue, value), this.leftNode, this.rightNode);
-            }
 
             var result = hash < this.storedHash
-                ? this.SelfCopy(this.leftNode.Add(hash, value, updateDelegate, out updated), this.rightNode)
-                : this.SelfCopy(this.leftNode, this.rightNode.Add(hash, value, updateDelegate, out updated));
+                ? this.SelfCopy(this.leftNode.Add(hash, value, updateDelegate), this.rightNode)
+                : this.SelfCopy(this.leftNode, this.rightNode.Add(hash, value, updateDelegate));
 
             return result.Balance();
         }
@@ -127,7 +115,7 @@ namespace Stashbox.Utils
             {
                 this.index = -1;
                 this.currentNode = this.root;
-                while (!this.currentNode.isEmpty)
+                while (!this.currentNode.IsEmpty)
                 {
                     this.nodes[++this.index] = this.currentNode;
                     this.currentNode = this.currentNode.leftNode;
@@ -136,9 +124,9 @@ namespace Stashbox.Utils
 
             public bool MoveNext()
             {
-                while (!this.currentNode.isEmpty || this.index != -1)
+                while (!this.currentNode.IsEmpty || this.index != -1)
                 {
-                    if (!this.currentNode.isEmpty)
+                    if (!this.currentNode.IsEmpty)
                     {
                         this.nodes[++this.index] = this.currentNode;
                         this.currentNode = this.currentNode.leftNode;
@@ -158,7 +146,9 @@ namespace Stashbox.Utils
             public void Reset() => this.Initialize();
 
             public void Dispose()
-            { }
+            {
+                // do nothing
+            }
         }
     }
 }

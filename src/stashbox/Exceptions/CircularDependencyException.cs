@@ -5,7 +5,7 @@ namespace Stashbox.Exceptions
     /// <summary>
     /// Represents the exception which will be threw when a circular dependency found.
     /// </summary>
-    public class CircularDependencyException : ExceptionBase
+    public class CircularDependencyException : ExceptionBaseException
     {
         /// <summary>
         /// Constructs a <see cref="CircularDependencyException"/>

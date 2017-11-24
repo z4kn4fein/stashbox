@@ -65,7 +65,7 @@ namespace Stashbox.Configuration
         }
 
         /// <inheritdoc />
-        public IContainerConfigurator WithMemberInjectionWithoutAnnotation(Rules.AutoMemberInjection rule = Rules.AutoMemberInjection.PropertiesWithPublicSetter)
+        public IContainerConfigurator WithMemberInjectionWithoutAnnotation(Rules.AutoMemberInjectionRules rule = Rules.AutoMemberInjectionRules.PropertiesWithPublicSetter)
         {
             this.ContainerConfiguration.MemberInjectionWithoutAnnotationEnabled = true;
             this.ContainerConfiguration.MemberInjectionWithoutAnnotationRule = rule;

@@ -214,6 +214,22 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void FuncTests_Register_FuncDelegate_Lazy()
+        {
+            var container = new StashboxContainer();
+            container.RegisterFunc<string, RegisteredFuncTest>((name, resolver) =>
+            {
+                Assert.IsNotNull(name);
+                Assert.IsNotNull(resolver);
+                return new RegisteredFuncTest(name);
+            });
+
+            var test = container.Resolve<Lazy<Func<string, RegisteredFuncTest>>>().Value("test");
+
+            Assert.AreEqual("test", test.Name);
+        }
+
+        [TestMethod]
         public void FuncTests_Register_FuncDelegate_Resolver()
         {
             var container = new StashboxContainer();

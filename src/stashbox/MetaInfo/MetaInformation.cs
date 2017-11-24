@@ -1,9 +1,9 @@
-﻿using System;
+﻿using Stashbox.Entity;
+using Stashbox.Registration;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Stashbox.Attributes;
-using Stashbox.Entity;
 
 namespace Stashbox.MetaInfo
 {
@@ -25,7 +25,7 @@ namespace Stashbox.MetaInfo
         /// <summary>
         /// Holds the injection member of the service.
         /// </summary>
-        public MemberInformation[] InjectionMembers { get; private set; }
+        public MemberInformation[] InjectionMembers { get; }
 
         /// <summary>
         /// Holds the generic type constraints of the service.
@@ -34,15 +34,16 @@ namespace Stashbox.MetaInfo
 
         private readonly Type type;
 
-        internal MetaInformation(Type typeTo)
+        internal MetaInformation(Type typeTo, RegistrationContextData registrationContextData)
         {
             this.type = typeTo;
-            var typeInfo = typeTo.GetTypeInfo();
+            var typeInfo = this.type.GetTypeInfo();
             this.GenericTypeConstraints = new Dictionary<int, Type[]>();
             this.AddConstructors(typeInfo.DeclaredConstructors);
             this.AddMethods(typeInfo.DeclaredMethods);
             this.InjectionMembers = this.FillMembers(typeInfo).CastToArray();
             this.CollectGenericConstraints(typeInfo);
+            this.SetMemberInjections(registrationContextData);
         }
 
         /// <summary>
@@ -70,12 +71,12 @@ namespace Stashbox.MetaInfo
         public TypeInformation GetTypeInformationForParameter(ParameterInfo parameter)
         {
             var customAttributes = parameter.GetCustomAttributes();
-            var dependencyAttribute = parameter.GetCustomAttribute<DependencyAttribute>();
+            var dependencyAttribute = parameter.GetDependencyAttribute();
             return new TypeInformation
             {
                 Type = parameter.ParameterType,
                 DependencyName = dependencyAttribute?.Name,
-                HasDependencyAttribute = dependencyAttribute != null,
+                ForcedDependency = dependencyAttribute != null,
                 ParentType = this.type,
                 CustomAttributes = customAttributes,
                 ParameterName = parameter.Name,
@@ -95,7 +96,7 @@ namespace Stashbox.MetaInfo
 
 
         private void AddMethods(IEnumerable<MethodInfo> infos) =>
-            this.InjectionMethods = infos.Where(methodInfo => methodInfo.GetCustomAttribute<InjectionMethodAttribute>() != null).Select(info => new MethodInformation
+            this.InjectionMethods = infos.Where(methodInfo => methodInfo.GetInjectionAttribute() != null).Select(info => new MethodInformation
             {
                 Method = info,
                 Parameters = this.FillParameters(info.GetParameters())
@@ -106,7 +107,7 @@ namespace Stashbox.MetaInfo
             var length = parameters.Length;
             var types = new TypeInformation[length];
 
-            for (int i = 0; i < length; i++)
+            for (var i = 0; i < length; i++)
                 types[i] = this.GetTypeInformationForParameter(parameters[i]);
 
             return types;
@@ -115,34 +116,42 @@ namespace Stashbox.MetaInfo
         private IEnumerable<MemberInformation> FillMembers(TypeInfo typeInfo)
         {
             return typeInfo.DeclaredProperties.Where(property => property.CanWrite && !property.IsIndexer())
-                   .Select(propertyInfo => new MemberInformation
+                   .Select(propertyInfo =>
                    {
-                       TypeInformation = new TypeInformation
+                       var attr = propertyInfo.GetDependencyAttribute();
+                       return new MemberInformation
                        {
-                           Type = propertyInfo.PropertyType,
-                           DependencyName = propertyInfo.GetCustomAttribute<DependencyAttribute>()?.Name,
-                           HasDependencyAttribute = propertyInfo.GetCustomAttribute<DependencyAttribute>() != null,
-                           ParentType = this.type,
-                           CustomAttributes = propertyInfo.GetCustomAttributes()?.CastToArray(),
-                           ParameterName = propertyInfo.Name,
-                           IsMember = true
-                       },
-                       MemberInfo = propertyInfo
+                           TypeInformation = new TypeInformation
+                           {
+                               Type = propertyInfo.PropertyType,
+                               DependencyName = attr?.Name,
+                               ForcedDependency = attr != null,
+                               ParentType = this.type,
+                               CustomAttributes = propertyInfo.GetCustomAttributes()?.CastToArray(),
+                               ParameterName = propertyInfo.Name,
+                               IsMember = true
+                           },
+                           MemberInfo = propertyInfo
+                       };
                    })
                    .Concat(typeInfo.DeclaredFields.Where(field => !field.IsInitOnly && !field.IsBackingField())
-                           .Select(fieldInfo => new MemberInformation
+                           .Select(fieldInfo =>
                            {
-                               TypeInformation = new TypeInformation
+                               var attr = fieldInfo.GetDependencyAttribute();
+                               return new MemberInformation
                                {
-                                   Type = fieldInfo.FieldType,
-                                   DependencyName = fieldInfo.GetCustomAttribute<DependencyAttribute>()?.Name,
-                                   HasDependencyAttribute = fieldInfo.GetCustomAttribute<DependencyAttribute>() != null,
-                                   ParentType = this.type,
-                                   CustomAttributes = fieldInfo.GetCustomAttributes()?.CastToArray(),
-                                   ParameterName = fieldInfo.Name,
-                                   IsMember = true
-                               },
-                               MemberInfo = fieldInfo
+                                   TypeInformation = new TypeInformation
+                                   {
+                                       Type = fieldInfo.FieldType,
+                                       DependencyName = attr?.Name,
+                                       ForcedDependency = attr != null,
+                                       ParentType = this.type,
+                                       CustomAttributes = fieldInfo.GetCustomAttributes()?.CastToArray(),
+                                       ParameterName = fieldInfo.Name,
+                                       IsMember = true
+                                   },
+                                   MemberInfo = fieldInfo
+                               };
                            }));
         }
 
@@ -152,17 +161,28 @@ namespace Stashbox.MetaInfo
                 return;
 
             var length = typeInfo.GenericTypeParameters.Length;
-            for (int i = 0; i < length; i++)
+            for (var i = 0; i < length; i++)
             {
                 var typeInfoGenericTypeParameter = typeInfo.GenericTypeParameters[i];
                 var paramTypeInfo = typeInfoGenericTypeParameter.GetTypeInfo();
                 var cons = paramTypeInfo.GetGenericParameterConstraints();
 
-                if (cons.Length > 0)
-                {
-                    var pos = paramTypeInfo.GenericParameterPosition;
-                    this.GenericTypeConstraints.Add(pos, cons);
-                }
+                if (cons.Length <= 0) continue;
+
+                var pos = paramTypeInfo.GenericParameterPosition;
+                this.GenericTypeConstraints.Add(pos, cons);
+            }
+        }
+
+        private void SetMemberInjections(RegistrationContextData registrationContextData)
+        {
+            foreach (var member in registrationContextData.InjectionMemberNames)
+            {
+                var knownMember = this.InjectionMembers.FirstOrDefault(m => m.MemberInfo.Name == member.Key);
+                if (knownMember == null) continue;
+
+                knownMember.TypeInformation.ForcedDependency = true;
+                knownMember.TypeInformation.DependencyName = member.Value;
             }
         }
     }

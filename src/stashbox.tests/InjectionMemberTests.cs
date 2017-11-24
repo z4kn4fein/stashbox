@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Stashbox.Attributes;
 using Stashbox.Entity;
+using System;
 
 namespace Stashbox.Tests
 {
@@ -74,11 +75,67 @@ namespace Stashbox.Tests
             Assert.AreEqual("test", inst.Name);
         }
 
+        [TestMethod]
+        public void InjectionMemberTests_Inject_With_Config()
+        {
+            var container = new StashboxContainer();
+            container.RegisterType<Test3>(context => context.InjectMember("Test1", "test1").InjectMember("test2", "test2"))
+                .RegisterType<ITest, TestM1>(context => context.WithName("test1"))
+                .RegisterType<ITest, TestM2>(context => context.WithName("test2"));
+
+            var inst = container.Resolve<Test3>();
+
+            Assert.IsNotNull(inst.Test1);
+            Assert.IsNotNull(inst.Test2);
+            Assert.IsInstanceOfType(inst.Test1, typeof(TestM1));
+            Assert.IsInstanceOfType(inst.Test2, typeof(TestM2));
+        }
+
+        [TestMethod]
+        public void InjectionMemberTests_Inject_With_Invalid_Config()
+        {
+            var container = new StashboxContainer();
+            container.RegisterType<Test3>(context => context.InjectMember("Test3"));
+
+            var inst = container.Resolve<Test3>();
+
+            Assert.IsNull(inst.Test1);
+            Assert.IsNull(inst.Test2);
+        }
+
+        [TestMethod]
+        public void InjectionMemberTests_Inject_With_Config_Generic()
+        {
+            var container = new StashboxContainer();
+            container.RegisterType<Test3>(context => context.InjectMember(x => x.Test1, "test1").InjectMember(x => x.Test2, "test2"))
+                .RegisterType<ITest, TestM1>(context => context.WithName("test1"))
+                .RegisterType<ITest, TestM2>(context => context.WithName("test2"));
+
+            var inst = container.Resolve<Test3>();
+
+            Assert.IsNotNull(inst.Test1);
+            Assert.IsNotNull(inst.Test2);
+            Assert.IsInstanceOfType(inst.Test1, typeof(TestM1));
+            Assert.IsInstanceOfType(inst.Test2, typeof(TestM2));
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void InjectionMemberTests_Inject_With_Config_Generic_Throws()
+        {
+            var container = new StashboxContainer();
+            container.RegisterType<Test3>(context => context.InjectMember(x => 50));
+        }
+
         public interface ITest { }
 
         public interface ITest1 { ITest Test { get; } }
 
         public class Test : ITest { }
+
+        public class TestM1 : ITest { }
+
+        public class TestM2 : ITest { }
 
         public class Test1 : ITest1
         {
@@ -97,6 +154,17 @@ namespace Stashbox.Tests
         {
             [Dependency]
             public string Name { get; set; }
+        }
+
+        public class Test3
+        {
+            public ITest Test1 { get; set; }
+
+            private ITest test2 = null;
+
+            public ITest Test2 => this.test2;
+
+            public void Test() { }
         }
     }
 }

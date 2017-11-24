@@ -45,8 +45,7 @@ namespace Stashbox.Tests
 
                 var test = container.Resolve<ResolverTest>();
 
-                Assert.AreSame(container, resolver);
-                Assert.AreSame(container, test.DependencyResolver);
+                Assert.AreSame(resolver, test.DependencyResolver);
 
                 using (var scope = container.BeginScope())
                 {

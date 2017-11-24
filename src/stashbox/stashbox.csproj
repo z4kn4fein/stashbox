@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFrameworks>net40;net45;netstandard1.0;netstandard1.3;portable-net45+win8+wpa81+wp8</TargetFrameworks>
+        <TargetFrameworks>net40;net45;netstandard1.0;netstandard1.3;netstandard2.0;portable-net45+win8+wpa81+wp8</TargetFrameworks>
         <AssemblyName>Stashbox</AssemblyName>
         <AssemblyTitle>Stashbox</AssemblyTitle>
         <RootNamespace>Stashbox</RootNamespace>
@@ -14,7 +14,7 @@
         <PackageIconUrl>https://goo.gl/I3hRfL</PackageIconUrl>
         <RepositoryUrl>https://github.com/z4kn4fein/stashbox</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
-        <PackageTags>Stashbox di dependencyinjection ioc</PackageTags>
+        <PackageTags>Stashbox di dependencyinjection ioc dotnet netstandard</PackageTags>
         <Description>Stashbox is a lightweight, portable dependency injection framework for .NET based solutions.</Description>
         <WarningsAsErrors>true</WarningsAsErrors>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -25,13 +25,27 @@
         <PackageVersion>1.0.0</PackageVersion>
         <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
         <DebugType>portable</DebugType>
+        <PackageReleaseNotes>
+          v2.5.5
+          - fixed: #35 Mixture of named and non named registrations result in the wrong type resolved
+          - fixed: #34 Resolution from parent container not working well
+          - fixed: #33 ScopedLifetime isn't thread safe
+          - added: #32 Extended configuration options
+          - added: #31 Support custom initializer actions for registrations
+          - added: #30 Add named scopes
+        </PackageReleaseNotes>
     </PropertyGroup>
     <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.0'">
         <AssemblyTitle>Stashbox .NET Standard 1.0</AssemblyTitle>
     </PropertyGroup>
     <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">
         <AssemblyTitle>Stashbox .NET Standard 1.3</AssemblyTitle>
-        <DefineConstants>NETSTANDARD1_3</DefineConstants>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+        <AssemblyTitle>Stashbox .NET Standard 2.0</AssemblyTitle>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.3' Or '$(TargetFramework)' == 'netstandard2.0'">
+        <DefineConstants>IL_EMIT;NETSTANDARD</DefineConstants>
     </PropertyGroup>
     <PropertyGroup Condition="'$(TargetFramework)' == 'portable-net45+win8+wpa81+wp8' And '$(MSBuildRuntimeType)' == 'Full'">
         <IncludeProjectPriFile>false</IncludeProjectPriFile>
@@ -41,7 +55,7 @@
         <NugetTargetMoniker>.NETPortable,Version=v0.0,Profile=Profile259</NugetTargetMoniker>
         <LanguageTargets>$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets</LanguageTargets>
     </PropertyGroup>
-    <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">
+    <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.3' Or '$(TargetFramework)' == 'netstandard2.0'">
         <PackageReference Include="System.Reflection.Emit" Version="4.3.0" />
         <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.3.0" />
     </ItemGroup>

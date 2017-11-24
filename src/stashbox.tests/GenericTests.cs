@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections.Generic;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -247,6 +246,88 @@ namespace Stashbox.Tests
             }
         }
 
+        [TestMethod]
+        public void GenericTests_Resolve_Prefer_Open_Generic_In_Named_Scope()
+        {
+            var container = new StashboxContainer(config => config.WithUniqueRegistrationIdentifiers())
+               .RegisterType<ITest1<int, string>, Test1<int, string>>()
+               .RegisterType(typeof(ITest1<,>), typeof(Test1<,>), config => config.InNamedScope("A"));
+
+            container.BeginScope("A").Resolve<ITest1<int, string>>();
+
+            Assert.AreEqual(3, container.ContainerContext.RegistrationRepository.GetAllRegistrations().Count());
+        }
+
+        [TestMethod]
+        public void GenericTests_Resolve_Prefer_Open_Generic_Enumerable_In_Named_Scope()
+        {
+            var container = new StashboxContainer(config => config.WithUniqueRegistrationIdentifiers())
+               .RegisterType<ITest1<int, string>, Test1<int, string>>(config => config.InNamedScope("A"))
+               .RegisterType(typeof(ITest1<,>), typeof(Test1<,>), config => config.InNamedScope("A"));
+
+            var res = container.BeginScope("A").Resolve<IEnumerable<ITest1<int, string>>>();
+
+            Assert.AreEqual(2, res.Count());
+        }
+
+        [TestMethod]
+        public void GenericTests_Resolve_Prefer_Valid_Constraint_In_Named_Scope()
+        {
+            var inst = new StashboxContainer()
+               .RegisterType(typeof(IConstraintTest<>), typeof(ConstraintTest3<>), config => config.InNamedScope("A"))
+               .RegisterType(typeof(IConstraintTest<>), typeof(ConstraintTest2<>), config => config.InNamedScope("A"))
+               .BeginScope("A")
+               .Resolve<IConstraintTest<ConstraintArgument1>>();
+
+            Assert.IsInstanceOfType(inst, typeof(ConstraintTest3<ConstraintArgument1>));
+        }
+
+        [TestMethod]
+        public void GenericTests_Resolve_Prefer_Valid_Constraint_In_Named_Scope_Enumerable()
+        {
+            var inst = new StashboxContainer()
+               .RegisterType(typeof(IConstraintTest<>), typeof(ConstraintTest3<>), config => config.InNamedScope("A"))
+               .RegisterType(typeof(IConstraintTest<>), typeof(ConstraintTest2<>), config => config.InNamedScope("A"))
+               .BeginScope("A")
+               .ResolveAll<IConstraintTest<ConstraintArgument1>>();
+
+            Assert.AreEqual(1, inst.Count());
+        }
+
+        [TestMethod]
+        public void GenericTests_Nested_Generics()
+        {
+            var inst = new StashboxContainer()
+               .RegisterType(typeof(IGen1<>), typeof(Gen1<>))
+               .RegisterType(typeof(IGen2<>), typeof(Gen2<>))
+               .RegisterType<ConstraintArgument>()
+               .Resolve<IGen2<IGen1<ConstraintArgument>>>();
+
+            Assert.IsNotNull(inst.Value);
+            Assert.IsInstanceOfType(inst.Value, typeof(Gen1<ConstraintArgument>));
+
+            Assert.IsNotNull(inst.Value.Value);
+            Assert.IsInstanceOfType(inst.Value.Value, typeof(ConstraintArgument));
+        }
+
+        [TestMethod]
+        public void GenericTests_Nested_Generics_Decorator()
+        {
+            var inst = new StashboxContainer()
+               .RegisterType(typeof(IGen3<>), typeof(Gen3<>))
+               .RegisterDecorator(typeof(IGen3<>), typeof(Gen3Decorator<>))
+               .RegisterType<ConstraintArgument>()
+               .Resolve<IGen3<ConstraintArgument>>();
+
+            Assert.IsNotNull(inst.Value);
+            Assert.IsInstanceOfType(inst.Value, typeof(ConstraintArgument));
+
+            var decorator = (Gen3Decorator<ConstraintArgument>)inst;
+
+            Assert.IsNotNull(decorator.Decorated);
+            Assert.IsInstanceOfType(decorator.Decorated, typeof(Gen3<ConstraintArgument>));
+        }
+
         public interface IConstraint { }
 
         public interface IConstraint1 { }
@@ -304,6 +385,55 @@ namespace Stashbox.Tests
             {
                 Test = test1;
             }
+        }
+
+        interface IGen1<T> { T Value { get; } }
+
+        interface IGen2<T> { T Value { get; } }
+
+        interface IGen3<T> { T Value { get; } }
+
+        class Gen1<T> : IGen1<T>
+        {
+            public Gen1(T value)
+            {
+                this.Value = value;
+            }
+
+            public T Value { get; }
+        }
+
+        class Gen2<T> : IGen2<T>
+        {
+            public Gen2(T value)
+            {
+                this.Value = value;
+            }
+
+            public T Value { get; }
+        }
+
+        class Gen3<T> : IGen3<T>
+        {
+            public Gen3(T value)
+            {
+                this.Value = value;
+            }
+
+            public T Value { get; }
+        }
+
+        class Gen3Decorator<T> : IGen3<T>
+        {
+            public IGen3<T> Decorated { get; }
+
+            public Gen3Decorator(IGen3<T> value)
+            {
+                this.Decorated = value;
+                this.Value = value.Value;
+            }
+
+            public T Value { get; }
         }
     }
 }

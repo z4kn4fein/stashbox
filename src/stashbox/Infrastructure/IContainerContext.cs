@@ -1,6 +1,5 @@
 ﻿using Stashbox.Infrastructure.Registration;
 using Stashbox.Infrastructure.Resolution;
-using Stashbox.Utils;
 
 namespace Stashbox.Infrastructure
 {
@@ -13,11 +12,6 @@ namespace Stashbox.Infrastructure
         /// The repository of the registrations.
         /// </summary>
         IRegistrationRepository RegistrationRepository { get; }
-
-        /// <summary>
-        /// The delegate repository.
-        /// </summary>
-        IDelegateRepository DelegateRepository { get; }
 
         /// <summary>
         /// The decorator repository.
@@ -35,19 +29,8 @@ namespace Stashbox.Infrastructure
         IResolutionStrategy ResolutionStrategy { get; }
 
         /// <summary>
-        /// A generic key-value store.
-        /// </summary>
-        ConcurrentKeyValueStore<object, object> Bag { get; }
-
-        /// <summary>
         /// Indicates that the container should track transient objects for disposal or not.
         /// </summary>
         IContainerConfigurator ContainerConfigurator { get; }
-
-        /// <summary>
-        /// Reserves a new registration number.
-        /// </summary>
-        /// <returns>The registration number.</returns>
-        int ReserveRegistrationNumber();
     }
 }
