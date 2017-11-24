@@ -24,7 +24,7 @@ Github (stable) | NuGet (stable) | MyGet (pre-release)
  - **Wiring into container** - member injection can be executed on existing instance with every resolve call.
  - **Building up existing instance** - member injection can be executed on existing instance without registering it into the container.
  - **Child scopes** - child container support.
- - **Lifetime scoped** - scoped resolution support.
+ - **Lifetime scopes** - scoped resolution support.
  - **Lifetime management** - including `Singleton`, `Transient` and `Scoped` lifetime, custom user defined lifetimes also can be used.
  - **Conditional resolution** - attribute, parent-type and custom user defined conditions can be specified.
  - **IDisposable object tracking** - `IDisposable` objects are being disposed by the container.
