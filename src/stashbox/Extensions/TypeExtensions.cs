@@ -60,19 +60,19 @@ namespace System
 
         public static Stashbox.Attributes.DependencyAttribute GetDependencyAttribute(this MemberInfo property)
         {
-            var attr = property.GetCustomAttributes(Constants.DependencyAttributeType, false).FirstOrDefault();
+            var attr = property.GetCustomAttributes(Constants.DependencyAttributeType, false)?.FirstOrDefault();
             return attr != null ? (Stashbox.Attributes.DependencyAttribute)attr : null;
         }
 
         public static Stashbox.Attributes.DependencyAttribute GetDependencyAttribute(this ParameterInfo parameter)
         {
-            var attr = parameter.GetCustomAttributes(Constants.DependencyAttributeType, false).FirstOrDefault();
+            var attr = parameter.GetCustomAttributes(Constants.DependencyAttributeType, false)?.FirstOrDefault();
             return attr != null ? (Stashbox.Attributes.DependencyAttribute)attr : null;
         }
 
         public static Stashbox.Attributes.InjectionMethodAttribute GetInjectionAttribute(this MemberInfo method)
         {
-            var attr = method.GetCustomAttributes(Constants.InjectionAttributeType, false).FirstOrDefault();
+            var attr = method.GetCustomAttributes(Constants.InjectionAttributeType, false)?.FirstOrDefault();
             return attr != null ? (Stashbox.Attributes.InjectionMethodAttribute)attr : null;
         }
 
