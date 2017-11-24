@@ -26,6 +26,8 @@
         <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
         <DebugType>portable</DebugType>
         <PackageReleaseNotes>
+          v2.5.6
+          - fixed: #36 Nullreference on fetching custom attributes under netcoreapp1.1 target
           v2.5.5
           - fixed: #35 Mixture of named and non named registrations result in the wrong type resolved
           - fixed: #34 Resolution from parent container not working well
