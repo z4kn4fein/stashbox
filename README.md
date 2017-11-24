@@ -14,6 +14,7 @@ Github (stable) | NuGet (stable) | MyGet (pre-release)
  - **Register with name** - multiple registration with the same service type, can be addressed at resolution time via attributes as well.
  - **Assembly registration** - service lookup in assemblies, composition root implementations also supported.
  - **Factory registration** - factories with several parameters can be registered.
+ - **Initializer / finalizer** - custom initializer and finalizer actions can be configured for the registrations.
  - **Multiple service resolution** - all registered type of a service can be obtained as an `IEnumerable<T>` or `IEnumerable<object>` with the `ResolveAll()` method.
  - **Unknown type resolution** - unregistered services can be resolved or injected.
  - **Default and optional value injection** - primitive types or dependencies with default or optional value can be injected.
@@ -22,7 +23,8 @@ Github (stable) | NuGet (stable) | MyGet (pre-release)
  - **Injection method** - methods decorated with `InjectionMethod` attribute will be called at resolution time.
  - **Wiring into container** - member injection can be executed on existing instance with every resolve call.
  - **Building up existing instance** - member injection can be executed on existing instance without registering it into the container.
- - **Child scopes** - for managing scoped registrations.
+ - **Child scopes** - child container support.
+ - **Lifetime scoped** - scoped resolution support.
  - **Lifetime management** - including `Singleton`, `Transient` and `Scoped` lifetime, custom user defined lifetimes also can be used.
  - **Conditional resolution** - attribute, parent-type and custom user defined conditions can be specified.
  - **IDisposable object tracking** - `IDisposable` objects are being disposed by the container.
@@ -48,6 +50,7 @@ Github (stable) | NuGet (stable) | MyGet (pre-release)
  - Xamarin (Android/iOS/iOS Classic)
  - .NET Standard 1.0
  - .NET Standard 1.3
+ - .NET Standard 2.0
 
 ## Sample usage
 ```c#
