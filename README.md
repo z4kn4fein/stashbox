@@ -25,7 +25,7 @@ Github (stable) | NuGet (stable) | MyGet (pre-release)
  - **Building up existing instance** - member injection can be executed on existing instance without registering it into the container.
  - **Child scopes** - parent/child container support.
  - **Lifetime scopes** - hierarchical/named scoping support.
- - **Lifetime management** - including `Singleton`, `Transient`, `Scoped`, `NamedScoped` and `PerResolutionRequest` lifetime, custom user defined lifetimes also can be used.
+ - **Lifetime management** - including `Singleton`, `Transient`, `Scoped`, `NamedScope` and `PerResolutionRequest` lifetime, custom user defined lifetimes also can be used.
  - **Conditional resolution** - attribute, parent-type and custom user defined conditions can be specified.
  - **IDisposable object tracking** - `IDisposable` objects are being disposed by the container.
  - **Cleanup delegates** - custom delegate can be configured which'll be invoked when the container/scope is being disposed.
