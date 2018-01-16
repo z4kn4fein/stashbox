@@ -26,6 +26,8 @@
         <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
         <DebugType>portable</DebugType>
         <PackageReleaseNotes>
+          v2.5.7
+          - fixed: #37 Resolver factory invoke doesn't pass different parameters given when they're the same type
           v2.5.6
           - fixed: #36 Nullreference on fetching custom attributes under netcoreapp1.1 target
           v2.5.5
