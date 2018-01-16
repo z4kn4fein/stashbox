@@ -32,7 +32,7 @@ namespace Stashbox.Resolution
         private AvlTree<Expression> expressionOverrides;
         private AvlTree<Type> currentlyDecoratingTypes;
         private AvlTreeKeyValue<int, bool> circularDependencyBarrier;
-        
+
         private readonly ArrayStoreKeyed<object, ParameterExpression> knownVariables;
 
         internal IResolutionScope ResolutionScope { get; }
@@ -42,19 +42,19 @@ namespace Stashbox.Resolution
         internal IContainerContext ChildContext { get; }
         internal ISet<object> ScopeNames { get; }
 
-        internal ArrayStore<ParameterExpression> ParameterExpressions { get; private set; }
+        internal ArrayStoreKeyed<Type, ArrayStoreKeyed<bool, ParameterExpression>> ParameterExpressions { get; private set; }
 
         internal ArrayStore<Expression> SingleInstructions { get; private set; }
 
         internal ArrayStoreKeyed<object, ParameterExpression> DefinedVariables { get; private set; }
 
         private ResolutionContext(IResolutionScope scope, bool nullResultAllowed)
-            : this(scope, AvlTreeKeyValue<int, bool>.Empty, AvlTree<Expression>.Empty, AvlTree<Type>.Empty, ArrayStore<ParameterExpression>.Empty, scope.GetActiveScopeNames(),
+            : this(scope, AvlTreeKeyValue<int, bool>.Empty, AvlTree<Expression>.Empty, AvlTree<Type>.Empty, ArrayStoreKeyed<Type, ArrayStoreKeyed<bool, ParameterExpression>>.Empty, scope.GetActiveScopeNames(),
                   null, nullResultAllowed, Constants.ResolutionScopeParameter, ArrayStoreKeyed<object, ParameterExpression>.Empty)
         { }
 
         private ResolutionContext(IResolutionScope scope, AvlTreeKeyValue<int, bool> circularDependencyBarrier, AvlTree<Expression> expressionOverrides,
-            AvlTree<Type> currentlyDecoratingTypes, ArrayStore<ParameterExpression> parameterExpressions, ISet<object> scopeNames,
+            AvlTree<Type> currentlyDecoratingTypes, ArrayStoreKeyed<Type, ArrayStoreKeyed<bool, ParameterExpression>> parameterExpressions, ISet<object> scopeNames,
             IContainerContext childContext, bool nullResultAllowed, ParameterExpression currentScope, ArrayStoreKeyed<object, ParameterExpression> knownVariables)
         {
             this.DefinedVariables = ArrayStoreKeyed<object, ParameterExpression>.Empty;
@@ -117,8 +117,14 @@ namespace Stashbox.Resolution
         internal void SetExpressionOverride(Type type, Expression expression) =>
             this.expressionOverrides = this.expressionOverrides.AddOrUpdate(type.GetHashCode(), expression, (oldValue, newValue) => newValue);
 
-        internal void AddParameterExpressions(params ParameterExpression[] parameterExpressions) =>
-            this.ParameterExpressions = this.ParameterExpressions.AddRange(parameterExpressions);
+        internal void AddParameterExpressions(Type scopeType, ParameterExpression[] parameterExpressions)
+        {
+            var length = parameterExpressions.Length;
+            var newItems = new KeyValue<bool, ParameterExpression>[length];
+            for (var i = 0; i < length; i++)
+                newItems[i] = new KeyValue<bool, ParameterExpression>(false, parameterExpressions[i]);
+            this.ParameterExpressions = this.ParameterExpressions.Add(scopeType, new ArrayStoreKeyed<bool, ParameterExpression>(newItems));
+        }
 
         internal void SetCircularDependencyBarrier(int key, bool value) =>
             Swap.SwapValue(ref this.circularDependencyBarrier, barrier => barrier.AddOrUpdate(key, value, (old, @new) => @new));

@@ -75,12 +75,18 @@ namespace Stashbox.BuildUp.Resolution
         private static Expression CreateLazyExpressionCall(IContainerContext containerContext, IServiceRegistration serviceRegistration, Type type, ConstructorInfo constructor, ResolutionContext resolutionContext)
         {
             var arguments = resolutionContext.ParameterExpressions != null
-                ? new Expression[resolutionContext.ParameterExpressions.Length]
+                ? new Expression[resolutionContext.ParameterExpressions.Sum(x => x.Length)]
                 : new Expression[0];
 
             if (resolutionContext.ParameterExpressions != null)
+            {
+                var index = 0;
                 for (var i = 0; i < resolutionContext.ParameterExpressions.Length; i++)
-                    arguments[i] = resolutionContext.ParameterExpressions[i].ConvertTo(typeof(object));
+                    for (var j = 0; j < resolutionContext.ParameterExpressions[i].Length; j++)
+                        arguments[index++] = resolutionContext.ParameterExpressions[i][j].ConvertTo(typeof(object));
+            }
+
+
 
             var callExpression = DelegateCacheMethod.InvokeMethod(
                 containerContext.AsConstant(),
@@ -100,7 +106,7 @@ namespace Stashbox.BuildUp.Resolution
         private static object CreateLazyDelegate(IContainerContext containerContext, IServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type type, object[] arguments)
         {
             var expr = serviceRegistration.GetExpression(containerContext, resolutionContext, type);
-            return expr.AsLambda(resolutionContext.ParameterExpressions)
+            return expr.AsLambda(resolutionContext.ParameterExpressions.SelectMany(x => x))
                 .CompileDynamicDelegate(resolutionContext)(resolutionContext.ResolutionScope).DynamicInvoke(arguments);
         }
     }

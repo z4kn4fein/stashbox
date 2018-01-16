@@ -291,7 +291,7 @@ namespace Stashbox
         private Delegate ActivateFactoryDelegate(Type type, Type[] parameterTypes, IResolutionScope resolutionScope, object name, bool nullResultAllowed, int hash)
         {
             var resolutionContext = ResolutionContext.New(resolutionScope, nullResultAllowed);
-            resolutionContext.AddParameterExpressions(parameterTypes.Select(p => p.AsParameter()).ToArray());
+            resolutionContext.AddParameterExpressions(type, parameterTypes.Select(p => p.AsParameter()).ToArray());
 
             var typeInfo = new TypeInformation { Type = type, DependencyName = name };
             var registration = this.containerContext.RegistrationRepository.GetRegistrationOrDefault(typeInfo, resolutionContext);
@@ -306,7 +306,7 @@ namespace Stashbox
                 else
                     throw new ResolutionFailedException(type);
 
-            var expression = initExpression.AsLambda(resolutionContext.ParameterExpressions);
+            var expression = initExpression.AsLambda(resolutionContext.ParameterExpressions.SelectMany(x => x));
 
             var factory = expression.CompileDynamicDelegate(resolutionContext);
             Swap.SwapValue(ref this.factoryDelegates[hash & this.indexBound], c => c.AddOrUpdate(hash, name ?? type, factory));

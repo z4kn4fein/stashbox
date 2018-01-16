@@ -22,8 +22,20 @@ namespace Stashbox.Resolution
             if (typeInformation.Type == Constants.ResolverType)
                 return resolutionContext.CurrentScopeParameter.ConvertTo(Constants.ResolverType);
 
-            if (resolutionContext.ParameterExpressions.Length > 0 && resolutionContext.ParameterExpressions.Any(p => p.Type == typeInformation.Type || p.Type.Implements(typeInformation.Type)))
-                return resolutionContext.ParameterExpressions.Last(p => p.Type == typeInformation.Type || p.Type.Implements(typeInformation.Type));
+            if (resolutionContext.ParameterExpressions.Length > 0 && typeInformation.ParentType != null)
+            {
+                var length = resolutionContext.ParameterExpressions.Length;
+                for (var i = length; i-- > 0;)
+                {
+                    var parameters = resolutionContext.ParameterExpressions[i].WhereOrDefault(p => p.Value.Type == typeInformation.Type ||
+                                                                                                   p.Value.Type.Implements(typeInformation.Type));
+
+                    if (parameters == null) continue;
+                    var selected = parameters.Repository.FirstOrDefault(parameter => !parameter.Key) ?? parameters.Repository.Last();
+                    selected.Key = true;
+                    return selected.Value;
+                }
+            }
 
             var matchingParam = injectionParameters?.FirstOrDefault(param => param.Name == typeInformation.ParameterName);
             if (matchingParam != null)
