@@ -13,11 +13,6 @@ namespace Stashbox.Tests.IssueTests
                 .RegisterType<IFoo, Foobar>()
                 .Resolve<Func<string, string, IFoo>>();
 
-            //var c = new Container();
-            //c.Register<IFoo, Foobar>();
-
-            //var factory = c.Resolve<Func<string, string, IFoo>>();
-
             Assert.AreEqual("foobar", factory("foo", "bar").Result);
         }
 
