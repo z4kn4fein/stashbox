@@ -22,7 +22,7 @@ namespace Stashbox.Resolution
             if (typeInformation.Type == Constants.ResolverType)
                 return resolutionContext.CurrentScopeParameter.ConvertTo(Constants.ResolverType);
 
-            if (resolutionContext.ParameterExpressions.Length > 0 && typeInformation.ParentType != null)
+            if (resolutionContext.ParameterExpressions.Length > 0)
             {
                 var length = resolutionContext.ParameterExpressions.Length;
                 for (var i = length; i-- > 0;)

@@ -42,19 +42,19 @@ namespace Stashbox.Resolution
         internal IContainerContext ChildContext { get; }
         internal ISet<object> ScopeNames { get; }
 
-        internal ArrayStoreKeyed<Type, ArrayStoreKeyed<bool, ParameterExpression>> ParameterExpressions { get; private set; }
+        internal ArrayStore<ArrayStoreKeyed<bool, ParameterExpression>> ParameterExpressions { get; private set; }
 
         internal ArrayStore<Expression> SingleInstructions { get; private set; }
 
         internal ArrayStoreKeyed<object, ParameterExpression> DefinedVariables { get; private set; }
 
         private ResolutionContext(IResolutionScope scope, bool nullResultAllowed)
-            : this(scope, AvlTreeKeyValue<int, bool>.Empty, AvlTree<Expression>.Empty, AvlTree<Type>.Empty, ArrayStoreKeyed<Type, ArrayStoreKeyed<bool, ParameterExpression>>.Empty, scope.GetActiveScopeNames(),
+            : this(scope, AvlTreeKeyValue<int, bool>.Empty, AvlTree<Expression>.Empty, AvlTree<Type>.Empty, ArrayStore<ArrayStoreKeyed<bool, ParameterExpression>>.Empty, scope.GetActiveScopeNames(),
                   null, nullResultAllowed, Constants.ResolutionScopeParameter, ArrayStoreKeyed<object, ParameterExpression>.Empty)
         { }
 
         private ResolutionContext(IResolutionScope scope, AvlTreeKeyValue<int, bool> circularDependencyBarrier, AvlTree<Expression> expressionOverrides,
-            AvlTree<Type> currentlyDecoratingTypes, ArrayStoreKeyed<Type, ArrayStoreKeyed<bool, ParameterExpression>> parameterExpressions, ISet<object> scopeNames,
+            AvlTree<Type> currentlyDecoratingTypes, ArrayStore<ArrayStoreKeyed<bool, ParameterExpression>> parameterExpressions, ISet<object> scopeNames,
             IContainerContext childContext, bool nullResultAllowed, ParameterExpression currentScope, ArrayStoreKeyed<object, ParameterExpression> knownVariables)
         {
             this.DefinedVariables = ArrayStoreKeyed<object, ParameterExpression>.Empty;
@@ -123,7 +123,7 @@ namespace Stashbox.Resolution
             var newItems = new KeyValue<bool, ParameterExpression>[length];
             for (var i = 0; i < length; i++)
                 newItems[i] = new KeyValue<bool, ParameterExpression>(false, parameterExpressions[i]);
-            this.ParameterExpressions = this.ParameterExpressions.Add(scopeType, new ArrayStoreKeyed<bool, ParameterExpression>(newItems));
+            this.ParameterExpressions = this.ParameterExpressions.Add(new ArrayStoreKeyed<bool, ParameterExpression>(newItems));
         }
 
         internal void SetCircularDependencyBarrier(int key, bool value) =>
