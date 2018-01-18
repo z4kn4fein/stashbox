@@ -34,7 +34,7 @@ namespace Stashbox.BuildUp.Resolution
             var parameters = this.PrepareExtraParameters(wrappedType, resolutionContext, args);
             var expression = containerContext.ResolutionStrategy.BuildResolutionExpression(containerContext, resolutionContext, funcArgumentInfo, null);
 
-            return expression != null ? expression.AsLambda(parameters) : null;
+            return expression?.AsLambda(parameters);
         }
 
         public override Expression[] GetExpressions(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext)
@@ -72,9 +72,9 @@ namespace Stashbox.BuildUp.Resolution
                 var argName = wrappedType.Name + argType.Name + i;
                 var parameter = argType.AsParameter(argName);
                 parameters[i] = parameter;
-                resolutionContext.AddParameterExpressions(parameter);
             }
 
+            resolutionContext.AddParameterExpressions(wrappedType, parameters);
             return parameters;
         }
     }
