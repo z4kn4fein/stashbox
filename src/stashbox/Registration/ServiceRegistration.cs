@@ -1,4 +1,5 @@
-﻿using Stashbox.Configuration;
+﻿using Stashbox.BuildUp;
+using Stashbox.Configuration;
 using Stashbox.Entity;
 using Stashbox.Lifetime;
 using Stashbox.MetaInfo;

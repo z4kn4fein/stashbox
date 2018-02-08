@@ -1,5 +1,5 @@
-﻿using Stashbox;
-using Stashbox.Entity;
+﻿using Stashbox.Entity;
+using Stashbox.Utils;
 using System.Linq.Expressions;
 
 namespace System.Collections.Generic

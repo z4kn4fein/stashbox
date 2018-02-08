@@ -4,6 +4,7 @@ using Stashbox.Entity.Resolution;
 using Stashbox.Exceptions;
 using Stashbox.Registration;
 using Stashbox.Resolution;
+using Stashbox.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;

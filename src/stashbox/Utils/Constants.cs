@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
-namespace Stashbox
+namespace Stashbox.Utils
 {
     /// <summary>
     /// Holds the constant values used by the conainer.

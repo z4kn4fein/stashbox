@@ -1,9 +1,9 @@
-﻿using Stashbox.Registration;
-using Stashbox.Resolution;
-using System;
+﻿using System;
 using System.Linq.Expressions;
+using Stashbox.Registration;
+using Stashbox.Resolution;
 
-namespace Stashbox
+namespace Stashbox.BuildUp
 {
     /// <summary>
     /// Represents an object builder.

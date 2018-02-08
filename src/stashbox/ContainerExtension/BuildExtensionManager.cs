@@ -1,11 +1,10 @@
-﻿using Stashbox.ContainerExtension;
-using Stashbox.Registration;
+﻿using Stashbox.Registration;
 using Stashbox.Resolution;
 using Stashbox.Utils;
 using System;
 using System.Linq;
 
-namespace Stashbox
+namespace Stashbox.ContainerExtension
 {
     internal class BuildExtensionManager : IContainerExtensionManager
     {

@@ -1,4 +1,4 @@
-﻿namespace Stashbox
+﻿namespace Stashbox.BuildUp
 {
     internal enum ObjectBuilder
     {

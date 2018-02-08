@@ -1,4 +1,6 @@
-﻿using Stashbox.ContainerExtension;
+﻿using Stashbox.BuildUp;
+using Stashbox.ContainerExtension;
+using Stashbox.Lifetime;
 using System;
 
 namespace Stashbox.Registration

@@ -1,9 +1,10 @@
-﻿using Stashbox.Registration;
+﻿using Stashbox.BuildUp;
+using Stashbox.Registration;
 using Stashbox.Resolution;
 using System;
 using System.Linq.Expressions;
 
-namespace Stashbox
+namespace Stashbox.Lifetime
 {
     /// <summary>
     /// Represents a lifetime.

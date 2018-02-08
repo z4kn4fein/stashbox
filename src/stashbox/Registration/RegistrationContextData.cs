@@ -1,5 +1,6 @@
 ﻿using Stashbox.Configuration;
 using Stashbox.Entity;
+using Stashbox.Lifetime;
 using System;
 using System.Collections.Generic;
 using System.Reflection;

@@ -1,4 +1,5 @@
-﻿using Stashbox.Registration;
+﻿using Stashbox.BuildUp;
+using Stashbox.Registration;
 using Stashbox.Utils;
 using System;
 
