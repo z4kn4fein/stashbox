@@ -1,6 +1,5 @@
-﻿using System;
-using Stashbox.Exceptions;
-using Stashbox.Infrastructure;
+﻿using Stashbox.Exceptions;
+using System;
 
 namespace Stashbox
 {

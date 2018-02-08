@@ -1,8 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Stashbox.Entity;
 using Stashbox.Exceptions;
-using Stashbox.Infrastructure;
-using Stashbox.Infrastructure.Resolution;
 using Stashbox.Lifetime;
 using Stashbox.Resolution;
 using System;
@@ -31,7 +29,7 @@ namespace Stashbox.Tests
             Assert.IsInstanceOfType(test3, typeof(Test3));
             Assert.AreEqual(container, child.ParentContainer);
         }
-        
+
         [TestMethod]
         public void ContainerTests_ChildContainer_ResolveFromParent()
         {

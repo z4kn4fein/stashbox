@@ -1,5 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Stashbox.Infrastructure;
 using Stashbox.Lifetime;
 using Stashbox.Utils;
 using System;
@@ -119,7 +118,7 @@ namespace Stashbox.Tests
                 Assert.AreNotSame(inst1, inst2);
             }
         }
-        
+
         [TestMethod]
         public void LifetimeTests_Scoped_WithNull()
         {

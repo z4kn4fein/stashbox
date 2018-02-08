@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using Stashbox.Attributes;
+﻿using Stashbox.Attributes;
 using Stashbox.Entity;
-using Stashbox.Infrastructure.Registration;
+using Stashbox.Registration;
+using System;
+using System.Collections.Generic;
 
 namespace Stashbox.Configuration
 {

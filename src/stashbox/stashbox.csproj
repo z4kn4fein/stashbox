@@ -26,6 +26,8 @@
         <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
         <DebugType>portable</DebugType>
         <PackageReleaseNotes>
+          v2.5.8
+          - modified: #41 Reduced namespace complexity, removed 'Infrastructure' from every ns
           v2.5.7
           - fixed: #37 Resolver factory invoke doesn't pass different parameters given when they're the same type
           v2.5.6

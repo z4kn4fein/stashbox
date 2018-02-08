@@ -1,6 +1,4 @@
-﻿using Stashbox.Infrastructure;
-using Stashbox.Infrastructure.ContainerExtension;
-using Stashbox.Infrastructure.Registration;
+﻿using Stashbox.ContainerExtension;
 using System;
 
 namespace Stashbox.Registration

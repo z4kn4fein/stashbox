@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Stashbox.Infrastructure;
 
 namespace Stashbox
 {
@@ -9,7 +8,7 @@ namespace Stashbox
         /// <inheritdoc />
         public object Resolve(Type typeFrom, bool nullResultAllowed = false) =>
            this.rootResolver.Resolve(typeFrom, nullResultAllowed);
-        
+
         /// <inheritdoc />
         public object Resolve(Type typeFrom, object name, bool nullResultAllowed = false) =>
             this.rootResolver.Resolve(typeFrom, name, nullResultAllowed);

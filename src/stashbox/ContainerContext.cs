@@ -1,6 +1,5 @@
-﻿using Stashbox.Infrastructure;
-using Stashbox.Infrastructure.Registration;
-using Stashbox.Infrastructure.Resolution;
+﻿using Stashbox.Registration;
+using Stashbox.Resolution;
 
 namespace Stashbox
 {
@@ -9,7 +8,7 @@ namespace Stashbox
     /// </summary>
     public class ContainerContext : IContainerContext
     {
-        internal ContainerContext(IRegistrationRepository registrationRepository, IStashboxContainer container, 
+        internal ContainerContext(IRegistrationRepository registrationRepository, IStashboxContainer container,
             IResolutionStrategy resolutionStrategy, IContainerConfigurator containerConfigurator, IDecoratorRepository decoratorRepository)
         {
             this.ResolutionStrategy = resolutionStrategy;

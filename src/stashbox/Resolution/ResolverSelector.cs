@@ -1,9 +1,7 @@
-﻿using Stashbox.Entity;
-using Stashbox.Infrastructure;
-using Stashbox.Infrastructure.Resolution;
+﻿using Stashbox.BuildUp.Resolution;
+using Stashbox.Entity;
 using Stashbox.Utils;
 using System.Linq.Expressions;
-using Stashbox.BuildUp.Resolution;
 
 namespace Stashbox.Resolution
 {

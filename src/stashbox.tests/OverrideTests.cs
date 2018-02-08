@@ -1,7 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Stashbox.Attributes;
 using Stashbox.Entity;
-using Stashbox.Infrastructure;
 using Stashbox.Utils;
 using System;
 using System.Threading.Tasks;

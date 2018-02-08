@@ -1,7 +1,7 @@
-﻿using Stashbox.Infrastructure;
-using Stashbox.Resolution;
+﻿using Stashbox.Resolution;
 using System.Reflection;
 using System.Collections.Generic;
+using Stashbox;
 using Stashbox.Entity.Resolution;
 
 #if NET45 || NET40 || NETSTANDARD1_3

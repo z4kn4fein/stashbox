@@ -1,5 +1,4 @@
-﻿using Stashbox.Infrastructure;
-using System;
+﻿using System;
 
 namespace Stashbox
 {

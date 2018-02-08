@@ -1,5 +1,4 @@
-﻿using Stashbox.Infrastructure;
-using Stashbox.Infrastructure.ContainerExtension;
+﻿using Stashbox.ContainerExtension;
 using System;
 using System.Linq.Expressions;
 using System.Reflection;

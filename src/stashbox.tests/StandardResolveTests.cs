@@ -2,7 +2,6 @@
 using Stashbox.Attributes;
 using Stashbox.Configuration;
 using Stashbox.Exceptions;
-using Stashbox.Infrastructure;
 using Stashbox.Utils;
 using System;
 using System.Threading.Tasks;

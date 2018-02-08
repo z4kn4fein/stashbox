@@ -1,9 +1,8 @@
-﻿using Stashbox.Entity;
+﻿using Stashbox.ContainerExtension;
+using Stashbox.Entity;
 using Stashbox.Entity.Resolution;
 using Stashbox.Exceptions;
-using Stashbox.Infrastructure;
-using Stashbox.Infrastructure.ContainerExtension;
-using Stashbox.Infrastructure.Registration;
+using Stashbox.Registration;
 using Stashbox.Resolution;
 using System;
 using System.Collections.Generic;

@@ -1,6 +1,5 @@
 ﻿using Stashbox.Configuration;
 using Stashbox.Entity;
-using Stashbox.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -16,7 +15,7 @@ namespace Stashbox.Registration
         /// Empty registration data.
         /// </summary>
         public static RegistrationContextData New() => new RegistrationContextData();
-        
+
         /// <summary>
         /// Name of the registration.
         /// </summary>

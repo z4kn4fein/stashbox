@@ -1,8 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using Stashbox.Infrastructure;
-using Stashbox.Infrastructure.ContainerExtension;
-using Stashbox.Infrastructure.Registration;
+using Stashbox.ContainerExtension;
+using Stashbox.Registration;
 using Stashbox.Resolution;
 using System;
 

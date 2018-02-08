@@ -1,5 +1,4 @@
 ﻿using Stashbox.BuildUp.Expressions;
-using Stashbox.Infrastructure;
 
 namespace Stashbox.BuildUp
 {

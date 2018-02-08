@@ -1,8 +1,6 @@
 ﻿using Stashbox.Configuration;
 using Stashbox.Entity;
 using Stashbox.Exceptions;
-using Stashbox.Infrastructure;
-using Stashbox.Infrastructure.Registration;
 using Stashbox.Lifetime;
 using System;
 using System.Collections.Generic;

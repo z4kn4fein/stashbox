@@ -1,6 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Stashbox.Attributes;
-using Stashbox.Infrastructure;
 using Stashbox.Lifetime;
 using System;
 

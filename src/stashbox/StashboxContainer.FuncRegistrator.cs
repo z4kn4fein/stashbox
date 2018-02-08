@@ -1,5 +1,4 @@
-﻿using Stashbox.Infrastructure;
-using Stashbox.Registration;
+﻿using Stashbox.Registration;
 using System;
 
 namespace Stashbox

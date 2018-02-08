@@ -1,7 +1,6 @@
-﻿using System;
-using Stashbox.Infrastructure;
-using Stashbox.Infrastructure.Registration;
+﻿using Stashbox.Registration;
 using Stashbox.Utils;
+using System;
 
 namespace Stashbox
 {
@@ -46,7 +45,7 @@ namespace Stashbox
             configurator?.Invoke(context);
             return context.ReMap();
         }
-        
+
         /// <inheritdoc />
         public IStashboxContainer ReMapDecorator(Type typeFrom, Type typeTo, Action<IFluentDecoratorRegistrator> configurator = null)
         {

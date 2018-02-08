@@ -1,11 +1,10 @@
-﻿using System;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Stashbox.Exceptions;
+using Stashbox.Lifetime;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Stashbox.Exceptions;
-using Stashbox.Infrastructure;
-using Stashbox.Lifetime;
 
 namespace Stashbox.Tests
 {

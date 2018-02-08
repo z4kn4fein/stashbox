@@ -1,7 +1,6 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Stashbox.Infrastructure;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Stashbox.Utils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -36,7 +35,7 @@ namespace Stashbox.Tests
 
             Assert.AreEqual(3, all.Count);
         }
-        
+
         [TestMethod]
         public void EnumerableTests_Resolve_ICollection()
         {
@@ -151,7 +150,7 @@ namespace Stashbox.Tests
 
             Assert.AreEqual(3, all.Count());
         }
-        
+
         [TestMethod]
         public void EnumerableTests_Resolve_Parent_Null()
         {

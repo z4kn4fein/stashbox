@@ -2,11 +2,8 @@
 using Stashbox.BuildUp.Expressions;
 using Stashbox.BuildUp.Resolution;
 using Stashbox.Configuration;
+using Stashbox.ContainerExtension;
 using Stashbox.Entity;
-using Stashbox.Infrastructure;
-using Stashbox.Infrastructure.ContainerExtension;
-using Stashbox.Infrastructure.Registration;
-using Stashbox.Infrastructure.Resolution;
 using Stashbox.Registration;
 using Stashbox.Resolution;
 using Stashbox.Utils;

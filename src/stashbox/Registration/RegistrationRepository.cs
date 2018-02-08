@@ -1,5 +1,4 @@
 ﻿using Stashbox.Entity;
-using Stashbox.Infrastructure.Registration;
 using Stashbox.Registration.Extensions;
 using Stashbox.Resolution;
 using Stashbox.Utils;

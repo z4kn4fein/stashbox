@@ -1,9 +1,7 @@
 ﻿using Stashbox.BuildUp.Expressions;
 using Stashbox.Entity;
 using Stashbox.Exceptions;
-using Stashbox.Infrastructure;
-using Stashbox.Infrastructure.Registration;
-using Stashbox.Infrastructure.Resolution;
+using Stashbox.Registration;
 using Stashbox.Resolution;
 using Stashbox.Utils;
 using System;

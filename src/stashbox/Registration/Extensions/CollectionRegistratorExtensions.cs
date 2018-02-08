@@ -1,11 +1,10 @@
-﻿using System;
+﻿using Stashbox.Exceptions;
+using Stashbox.Registration;
+using Stashbox.Utils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Stashbox.Exceptions;
-using Stashbox.Infrastructure;
-using Stashbox.Infrastructure.Registration;
-using Stashbox.Utils;
 
 namespace Stashbox
 {

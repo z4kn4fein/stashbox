@@ -1,6 +1,4 @@
 ﻿using Stashbox.Entity;
-using Stashbox.Infrastructure;
-using Stashbox.Infrastructure.Resolution;
 using Stashbox.Resolution;
 using System;
 using System.Collections.Generic;
