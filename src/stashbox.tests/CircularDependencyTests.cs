@@ -1,6 +1,8 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Stashbox.Attributes;
 using Stashbox.Exceptions;
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Stashbox.Tests
@@ -86,55 +88,127 @@ namespace Stashbox.Tests
                 container.Resolve<ITest1<int, int>>();
             }
         }
+
+        [TestMethod]
+        [ExpectedException(typeof(CircularDependencyException))]
+        public void CircularDependencyTests_Func()
+        {
+            using (var container = new StashboxContainer(config => config.WithCircularDependencyTracking()))
+            {
+                container.RegisterType<ITest1, Test5>();
+                container.Resolve<ITest1>();
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(CircularDependencyException))]
+        public void CircularDependencyTests_Lazy()
+        {
+            using (var container = new StashboxContainer(config => config.WithCircularDependencyTracking()))
+            {
+                container.RegisterType<ITest1, Test6>();
+                container.Resolve<ITest1>();
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(CircularDependencyException))]
+        public void CircularDependencyTests_Tuple()
+        {
+            using (var container = new StashboxContainer(config => config.WithCircularDependencyTracking()))
+            {
+                container.RegisterType<ITest1, Test7>();
+                container.Resolve<ITest1>();
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(CircularDependencyException))]
+        public void CircularDependencyTests_Enumerable()
+        {
+            using (var container = new StashboxContainer(config => config.WithCircularDependencyTracking()))
+            {
+                container.RegisterType<ITest1, Test8>();
+                container.Resolve<ITest1>();
+            }
+        }
     }
 
-    public interface ITest1 { }
+    interface ITest1 { }
 
-    public interface ITest2 { }
+    interface ITest2 { }
 
-    public interface ITest3 { }
+    interface ITest3 { }
 
-    public interface ITest1<I, K> { }
+    interface ITest1<I, K> { }
 
-    public class Test4 : ITest1 { }
+    class Test4 : ITest1 { }
 
-    public class Test1<I, K> : ITest1<I, K>
+    class Test1<I, K> : ITest1<I, K>
     {
         public Test1(ITest1<I, K> test1)
         {
         }
     }
 
-    public class Test2<I, K> : ITest1<I, K>
+    class Test2<I, K> : ITest1<I, K>
     {
         [Dependency]
         public ITest1<I, K> Test1 { get; set; }
     }
 
-    public class Test3<I, K> : ITest1<I, K>
+    class Test3<I, K> : ITest1<I, K>
     {
         [InjectionMethod]
         public void Inject(ITest1<I, K> test1)
         { }
     }
 
-    public class Test1 : ITest1
+    class Test1 : ITest1
     {
         public Test1(ITest1 test1)
         {
         }
     }
 
-    public class Test2 : ITest1
+    class Test2 : ITest1
     {
         [Dependency]
         public ITest1 Test1 { get; set; }
     }
 
-    public class Test3 : ITest1
+    class Test3 : ITest1
     {
         [InjectionMethod]
         public void Inject(ITest1 test1)
         { }
+    }
+
+    class Test5 : ITest1
+    {
+        public Test5(Func<ITest1> test1)
+        {
+        }
+    }
+
+    class Test6 : ITest1
+    {
+        public Test6(Lazy<ITest1> test1)
+        {
+        }
+    }
+
+    class Test7 : ITest1
+    {
+        public Test7(Tuple<ITest1> test1)
+        {
+        }
+    }
+
+    class Test8 : ITest1
+    {
+        public Test8(IEnumerable<ITest1> test1)
+        {
+        }
     }
 }
