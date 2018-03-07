@@ -11,29 +11,29 @@ namespace Stashbox.Utils
     /// </summary>
     public static class Constants
     {
-        internal static readonly ParameterExpression ResolutionScopeParameter = typeof(IResolutionScope).AsParameter("scope");
+        internal static readonly Type ResolutionScopeType = typeof(IResolutionScope);
 
-        internal static readonly MethodInfo AddDisposalMethod = typeof(IResolutionScope).GetSingleMethod("AddDisposableTracking");
+        internal static readonly Type ResolverType = typeof(IDependencyResolver);
 
-        internal static readonly MethodInfo GetOrAddScopedItemMethod = typeof(IResolutionScope).GetSingleMethod("GetOrAddScopedItem");
+        internal static readonly ParameterExpression ResolutionScopeParameter = ResolutionScopeType.AsParameter("scope");
 
-        internal static readonly MethodInfo AddWithFinalizerMethod = typeof(IResolutionScope).GetSingleMethod("AddWithFinalizer");
+        internal static readonly MethodInfo AddDisposalMethod = ResolutionScopeType.GetSingleMethod("AddDisposableTracking");
+
+        internal static readonly MethodInfo GetOrAddScopedItemMethod = ResolutionScopeType.GetSingleMethod("GetOrAddScopedItem");
+
+        internal static readonly MethodInfo AddWithFinalizerMethod = ResolutionScopeType.GetSingleMethod("AddWithFinalizer");
+
+        internal static readonly PropertyInfo RootScopeProperty = ResolutionScopeType.GetSingleProperty("RootScope");
+
+        internal static readonly MethodInfo GetScopedInstanceMethod = ResolutionScopeType.GetSingleMethod("GetScopedInstanceOrDefault");
 
         internal static readonly MethodInfo BuildExtensionMethod = typeof(IContainerExtensionManager).GetSingleMethod("ExecutePostBuildExtensions");
 
-        internal static readonly MethodInfo GetScopedInstanceMethod = typeof(IResolutionScope).GetSingleMethod("GetScopedInstanceOrDefault");
-
-        internal static readonly MethodInfo BeginScopeMethod = typeof(IDependencyResolver).GetSingleMethod("BeginScope");
-
-        internal static readonly PropertyInfo RootScopeProperty = typeof(IResolutionScope).GetSingleProperty("RootScope");
+        internal static readonly MethodInfo BeginScopeMethod = ResolverType.GetSingleMethod("BeginScope");
 
         internal static readonly Type DisposableType = typeof(IDisposable);
 
-        internal static readonly Type ResolutionScopeType = typeof(IResolutionScope);
-
         internal static readonly Type FuncType = typeof(Func<>);
-
-        internal static readonly Type ResolverType = typeof(IDependencyResolver);
 
         internal static readonly Type[] EmptyTypes = new Type[0];
 

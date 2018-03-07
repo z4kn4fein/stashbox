@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using Stashbox;
 using Stashbox.Entity.Resolution;
 
-#if NET45 || NET40 || NETSTANDARD1_3
+#if NET45 || NET40 || IL_EMIT
 using Stashbox.BuildUp.Expressions.Compile;
 #endif
 
@@ -36,7 +36,7 @@ namespace System.Linq.Expressions
                     resolutionContext.SingleInstructions.Add(originalExpression));
             }
 
-#if NET45 || NET40 || NETSTANDARD1_3
+#if NET45 || NET40 || IL_EMIT
             if (!expression.TryEmit(out Delegate factory, typeof(Func<IResolutionScope, object>), typeof(object),
                 resolutionContext.CurrentScopeParameter))
                 factory = Expression.Lambda(expression, resolutionContext.CurrentScopeParameter).Compile();
@@ -62,7 +62,7 @@ namespace System.Linq.Expressions
                     resolutionContext.SingleInstructions.Add(originalExpression));
             }
 
-#if NET45 || NET40 || NETSTANDARD1_3
+#if NET45 || NET40 || IL_EMIT
             if (!expression.TryEmit(out Delegate factory, typeof(Func<IResolutionScope, Delegate>), typeof(Delegate),
                 resolutionContext.CurrentScopeParameter))
                 factory = Expression.Lambda<Func<IResolutionScope, Delegate>>(expression, resolutionContext.CurrentScopeParameter).Compile();
