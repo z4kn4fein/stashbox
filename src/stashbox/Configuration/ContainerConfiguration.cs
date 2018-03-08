@@ -35,6 +35,11 @@ namespace Stashbox.Configuration
         public bool CircularDependencyTrackingEnabled { get; internal set; }
 
         /// <summary>
+        /// If it's set to true the container will track circular dependencies in the compiled delegates and will throw an exception if any of it found.
+        /// </summary>
+        public bool RuntimeCircularDependencyTrackingEnabled { get; internal set; }
+
+        /// <summary>
         /// If it's set to true, the container will inject optional and default values for missing dependencies and primitive types.
         /// </summary>
         public bool OptionalAndDefaultValueInjectionEnabled { get; internal set; }

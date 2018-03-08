@@ -35,9 +35,10 @@ namespace Stashbox.Configuration
         }
 
         /// <inheritdoc />
-        public IContainerConfigurator WithCircularDependencyTracking()
+        public IContainerConfigurator WithCircularDependencyTracking(bool runtimeTrackingEnabled = false)
         {
             this.ContainerConfiguration.CircularDependencyTrackingEnabled = true;
+            this.ContainerConfiguration.RuntimeCircularDependencyTrackingEnabled = runtimeTrackingEnabled;
             return this;
         }
 

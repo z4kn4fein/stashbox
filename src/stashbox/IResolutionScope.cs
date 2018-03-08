@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Stashbox.Configuration;
+using System;
 using System.Collections.Generic;
 
 namespace Stashbox
@@ -78,5 +79,20 @@ namespace Stashbox
         /// </summary>
         /// <returns>The scope names.</returns>
         ISet<object> GetActiveScopeNames();
+
+        /// <summary>
+        /// Called by every node of the internal graph when the <see cref="ContainerConfiguration.RuntimeCircularDependencyTrackingEnabled"/> is true.
+        /// Checks for runtime circular dependencies in the compiled delegates.
+        /// </summary>
+        /// <param name="key">The key of the dependency.</param>
+        /// <param name="type">The type of the dependency.</param>
+        void CheckRuntimeCircularDependencyBarrier(int key, Type type);
+
+        /// <summary>
+        /// Called by every node of the internal graph when the <see cref="ContainerConfiguration.RuntimeCircularDependencyTrackingEnabled"/> is true.
+        /// Resets the runtime circular dependency checks state for a node.
+        /// </summary>
+        /// <param name="key"></param>
+        void ResetRuntimetCircularDependencyBarrier(int key);
     }
 }

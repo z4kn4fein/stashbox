@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading;
 
 namespace Stashbox
 {
@@ -39,6 +40,7 @@ namespace Stashbox
         private FinalizableItem rootFinalizableItem;
         private AvlTreeKeyValue<object, object> scopedItems;
         private AvlTreeKeyValue<Type, object> scopedInstances;
+        private AvlTreeKeyValue<int, ThreadLocal<bool>> circularDependencyBarrier = AvlTreeKeyValue<int, ThreadLocal<bool>>.Empty;
 
         private readonly int indexBound;
         private readonly AvlTreeKeyValue<object, Func<IResolutionScope, object>>[] serviceDelegates;
@@ -228,6 +230,23 @@ namespace Stashbox
             return set.Count > 0 ? set : null;
         }
 
+        public void CheckRuntimeCircularDependencyBarrier(int key, Type type)
+        {
+            var check = this.circularDependencyBarrier.GetOrDefault(key);
+            if (check != null && check.Value)
+                throw new CircularDependencyException(type);
+
+            Swap.SwapValue(ref this.circularDependencyBarrier, barrier => barrier.AddOrUpdate(key, new ThreadLocal<bool>(), (old, @new) =>
+                { old.Value = true; return old; }));
+        }
+
+        public void ResetRuntimetCircularDependencyBarrier(int key)
+        {
+            var check = this.circularDependencyBarrier.GetOrDefault(key);
+            if (check != null)
+                check.Value = false;
+        }
+
         /// <inheritdoc />
         public void Dispose()
         {
@@ -256,6 +275,9 @@ namespace Stashbox
                 root.Item.Dispose();
                 root = root.Next;
             }
+
+            foreach (var threadLocal in this.circularDependencyBarrier)
+                threadLocal.Dispose();
         }
 
         private object Activate(ResolutionContext resolutionContext, Type type, int hash, object name = null)

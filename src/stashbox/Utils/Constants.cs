@@ -27,6 +27,10 @@ namespace Stashbox.Utils
 
         internal static readonly MethodInfo GetScopedInstanceMethod = ResolutionScopeType.GetSingleMethod("GetScopedInstanceOrDefault");
 
+        internal static readonly MethodInfo CheckRuntimeCircularDependencyBarrierMethod = ResolutionScopeType.GetSingleMethod("CheckRuntimeCircularDependencyBarrier");
+
+        internal static readonly MethodInfo ResetRuntimetCircularDependencyBarrierMethod = ResolutionScopeType.GetSingleMethod("ResetRuntimetCircularDependencyBarrier");
+
         internal static readonly MethodInfo BuildExtensionMethod = typeof(IContainerExtensionManager).GetSingleMethod("ExecutePostBuildExtensions");
 
         internal static readonly MethodInfo BeginScopeMethod = ResolverType.GetSingleMethod("BeginScope");

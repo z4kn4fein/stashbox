@@ -31,8 +31,9 @@ namespace Stashbox
         /// <summary>
         /// Enables the circular dependency tracking.
         /// </summary>
+        /// <param name="runtimeTrackingEnabled">If it's true the container will track circular dependencies in the compiled delegates and will throw an exception if any of it found.</param>
         /// <returns>The container configurator.</returns>
-        IContainerConfigurator WithCircularDependencyTracking();
+        IContainerConfigurator WithCircularDependencyTracking(bool runtimeTrackingEnabled = false);
 
         /// <summary>
         /// Allows circular dependencies through Lazy objects.
