@@ -111,6 +111,19 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void GenericTests_Named()
+        {
+            using (var container = new StashboxContainer())
+            {
+                container.RegisterType(typeof(ITest1<,>), typeof(Test1<,>), config => config.WithName("G1"));
+                container.RegisterType(typeof(ITest1<,>), typeof(Test12<,>), config => config.WithName("G2"));
+
+                Assert.IsInstanceOfType(container.Resolve<ITest1<int, string>>("G1"), typeof(Test1<int, string>));
+                Assert.IsInstanceOfType(container.Resolve<ITest1<int, double>>("G2"), typeof(Test12<int, double>));
+            }
+        }
+
+        [TestMethod]
         public void GenericTests_DependencyResolve()
         {
             using (var container = new StashboxContainer())

@@ -27,6 +27,31 @@ namespace Stashbox
             registrator.RegisterTypesAs(typeof(TFrom), types, selector, configurator);
 
         /// <summary>
+        /// Registers types into the container mapped to an interface type.
+        /// </summary>
+        /// <typeparam name="TFrom">The interface type.</typeparam>
+        /// <param name="registrator">The registrator.</param>
+        /// <param name="assembly">Assembly to register.</param>
+        /// <param name="selector">The type selector.</param>
+        /// <param name="configurator">The configurator for the registered types.</param>
+        /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns>
+        public static IStashboxContainer RegisterTypesAs<TFrom>(this IDependencyCollectionRegistrator registrator, Assembly assembly, Func<Type, bool> selector = null, Action<IFluentServiceRegistrator> configurator = null)
+            where TFrom : class =>
+            registrator.RegisterTypesAs(typeof(TFrom), assembly.CollectTypes(), selector, configurator);
+
+        /// <summary>
+        /// Registers types into the container mapped to an interface type.
+        /// </summary>
+        /// <param name="typeFrom">The interface type.</param>
+        /// <param name="registrator">The registrator.</param>
+        /// <param name="assembly">Assembly to register.</param>
+        /// <param name="selector">The type selector.</param>
+        /// <param name="configurator">The configurator for the registered types.</param>
+        /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns>
+        public static IStashboxContainer RegisterTypesAs(this IDependencyCollectionRegistrator registrator, Type typeFrom, Assembly assembly, Func<Type, bool> selector = null, Action<IFluentServiceRegistrator> configurator = null) =>
+            registrator.RegisterTypesAs(typeFrom, assembly.CollectTypes(), selector, configurator);
+
+        /// <summary>
         /// Registers the publicly visible types from an assembly into the container.
         /// </summary>
         /// <param name="registrator">The registrator.</param>
@@ -35,7 +60,7 @@ namespace Stashbox
         /// <param name="configurator">The configurator for the registered types.</param>
         /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns>
         public static IStashboxContainer RegisterAssembly(this IDependencyCollectionRegistrator registrator, Assembly assembly, Func<Type, bool> selector = null, Action<IFluentServiceRegistrator> configurator = null) =>
-            registrator.RegisterTypes(assembly.CollectExportedTypes(), selector, configurator);
+            registrator.RegisterTypes(assembly.CollectTypes(), selector, configurator);
 
         /// <summary>
         /// Registers the publicly visible types from an assembly collection into the container.
@@ -114,7 +139,7 @@ namespace Stashbox
         {
             Shield.EnsureNotNull(assembly, nameof(assembly));
 
-            var compositionRootTypes = assembly.CollectDefinedTypes().Where(type => !type.GetTypeInfo().IsAbstract && type.IsCompositionRoot()).ToArray();
+            var compositionRootTypes = assembly.CollectTypes().Where(type => !type.GetTypeInfo().IsAbstract && type.IsCompositionRoot()).ToArray();
 
             var length = compositionRootTypes.Length;
 

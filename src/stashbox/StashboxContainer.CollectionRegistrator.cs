@@ -3,6 +3,7 @@ using Stashbox.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace Stashbox
 {
@@ -17,13 +18,28 @@ namespace Stashbox
             if (selector != null)
                 types = types.Where(selector);
 
-            var validTypes = types.Where(t => t.IsValidForRegistration() && t.Implements(typeFrom));
-            foreach (var type in validTypes)
+            foreach (var type in types.Where(t => t.IsValidForRegistration()))
             {
-                if (configurator == null)
-                    this.RegisterType(typeFrom, type);
-                else
-                    this.RegisterType(typeFrom, type, configurator);
+                if (type.Implements(typeFrom))
+                {
+                    this.RegisterTypeAs(typeFrom, type, configurator);
+                    continue;
+                }
+
+                var typeFromInfo = typeFrom.GetTypeInfo();
+                var typeInfo = type.GetTypeInfo();
+
+                if (!typeFromInfo.IsGenericTypeDefinition) continue;
+
+                if (typeInfo.BaseType.GetTypeInfo().IsGenericType && typeInfo.BaseType.GetGenericTypeDefinition() == typeFrom)
+                {
+                    this.RegisterTypeAs(typeInfo.IsGenericTypeDefinition ? typeFrom : typeInfo.BaseType, type, configurator);
+                    continue;
+                }
+
+                foreach (var impl in typeInfo.ImplementedInterfaces)
+                    if (impl.GetTypeInfo().IsGenericType && impl.GetGenericTypeDefinition() == typeFrom)
+                        this.RegisterTypeAs(typeInfo.IsGenericTypeDefinition ? typeFrom : impl, type, configurator);
             }
 
             return this;
@@ -62,6 +78,14 @@ namespace Stashbox
             compositionRoot.Compose(this);
 
             return this;
+        }
+
+        private void RegisterTypeAs(Type typeFrom, Type type, Action<IFluentServiceRegistrator> configurator)
+        {
+            if (configurator == null)
+                this.RegisterType(typeFrom, type);
+            else
+                this.RegisterType(typeFrom, type, configurator);
         }
     }
 }

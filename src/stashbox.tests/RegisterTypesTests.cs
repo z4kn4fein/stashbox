@@ -359,27 +359,89 @@ namespace Stashbox.Tests
             Assert.AreNotEqual(regs[5].RegistrationNumber, regs2[5].RegistrationNumber);
         }
 
-        public interface ITest { }
+        [TestMethod]
+        public void RegisterTypesTests_Generic_ByInterface()
+        {
+            var container = new StashboxContainer();
+            container.RegisterTypesAs(typeof(IGenTest<>), typeof(IGenTest<>).GetTypeInfo().Assembly);
 
-        public interface ITest1 { }
+            var regs = container.ContainerContext.RegistrationRepository.GetAllRegistrations().OrderBy(r => r.RegistrationNumber).ToArray();
 
-        public interface ITest2 { }
+            Assert.AreEqual(7, regs.Length);
+            Assert.AreEqual(typeof(IGenTest<>), regs[0].ServiceType);
+            Assert.AreEqual(typeof(IGenTest<int>), regs[1].ServiceType);
+            Assert.AreEqual(typeof(IGenTest<double>), regs[2].ServiceType);
+            Assert.AreEqual(typeof(IGenTest<object>), regs[3].ServiceType);
+            Assert.AreEqual(typeof(IGenTest<int>), regs[4].ServiceType);
+            Assert.AreEqual(typeof(IGenTest<double>), regs[5].ServiceType);
+            Assert.AreEqual(typeof(IGenTest<object>), regs[6].ServiceType);
 
-        public class Test : ITest { }
+            Assert.AreEqual(typeof(GenTest<>), regs[0].ImplementationType);
+            Assert.AreEqual(typeof(GenTest1), regs[1].ImplementationType);
+            Assert.AreEqual(typeof(GenTest2), regs[2].ImplementationType);
+            Assert.AreEqual(typeof(GenTest3), regs[3].ImplementationType);
+            Assert.AreEqual(typeof(GenTest4), regs[4].ImplementationType);
+            Assert.AreEqual(typeof(GenTest5), regs[5].ImplementationType);
+            Assert.AreEqual(typeof(GenTest6), regs[6].ImplementationType);
+        }
 
-        public class Test2 { }
+        [TestMethod]
+        public void RegisterTypesTests_Generic_ByBase()
+        {
+            var container = new StashboxContainer();
+            container.RegisterTypesAs(typeof(GenTest<>), typeof(IGenTest<>).GetTypeInfo().Assembly);
 
-        public class Test1 : ITest, ITest1 { }
+            var regs = container.ContainerContext.RegistrationRepository.GetAllRegistrations().OrderBy(r => r.RegistrationNumber).ToArray();
 
-        public class Test11 : ITest1, ITest2 { }
+            Assert.AreEqual(4, regs.Length);
+            Assert.AreEqual(typeof(GenTest<>), regs[0].ServiceType);
+            Assert.AreEqual(typeof(GenTest<int>), regs[1].ServiceType);
+            Assert.AreEqual(typeof(GenTest<double>), regs[2].ServiceType);
+            Assert.AreEqual(typeof(GenTest<object>), regs[3].ServiceType);
 
-        public class Test12 : ITest, ITest1, ITest2 { }
+            Assert.AreEqual(typeof(GenTest<>), regs[0].ImplementationType);
+            Assert.AreEqual(typeof(GenTest1), regs[1].ImplementationType);
+            Assert.AreEqual(typeof(GenTest2), regs[2].ImplementationType);
+            Assert.AreEqual(typeof(GenTest3), regs[3].ImplementationType);
+        }
 
-        public class Test13 : Test12 { }
+        interface ITest { }
 
-        public class Test14 : Test13 { }
+        interface ITest1 { }
 
-        public class TestCompositionRoot : ICompositionRoot
+        interface ITest2 { }
+
+        class Test : ITest { }
+
+        interface IGenTest<T> { }
+
+        class GenTest<T> : IGenTest<T> { }
+
+        class GenTest1 : GenTest<int> { }
+
+        class GenTest2 : GenTest<double> { }
+
+        class GenTest3 : GenTest<object> { }
+
+        class GenTest4 : IGenTest<int> { }
+
+        class GenTest5 : IGenTest<double> { }
+
+        class GenTest6 : IGenTest<object> { }
+
+        class Test2 { }
+
+        class Test1 : ITest, ITest1 { }
+
+        class Test11 : ITest1, ITest2 { }
+
+        class Test12 : ITest, ITest1, ITest2 { }
+
+        class Test13 : Test12 { }
+
+        class Test14 : Test13 { }
+
+        class TestCompositionRoot : ICompositionRoot
         {
             public void Compose(IStashboxContainer container)
             {
@@ -388,7 +450,7 @@ namespace Stashbox.Tests
             }
         }
 
-        public class TestCompositionRoot2 : ICompositionRoot
+        class TestCompositionRoot2 : ICompositionRoot
         {
             public void Compose(IStashboxContainer container)
             {
