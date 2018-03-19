@@ -90,3 +90,9 @@ var wulfgar = container.Resolve<IBarbarian>();
 ## Benchmarks
  - [Performance](http://www.palmmedia.de/blog/2011/8/30/ioc-container-benchmark-performance-comparison)
  - [Feature](http://featuretests.apphb.com/DependencyInjection.html)
+
+<br/>
+
+*Powered by [Jetbrains'](https://www.jetbrains.com/) [OpenSource License](https://www.jetbrains.com/community/opensource) for [Resharper](https://www.jetbrains.com/resharper)*
+
+[![Resharper](https://user-images.githubusercontent.com/13772020/37600537-e8479a16-2b87-11e8-8400-baac41f85187.png)](https://www.jetbrains.com/)
