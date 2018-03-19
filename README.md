@@ -93,6 +93,6 @@ var wulfgar = container.Resolve<IBarbarian>();
 
 <br/>
 
-*Powered by [Jetbrains'](https://www.jetbrains.com/) [OpenSource License](https://www.jetbrains.com/community/opensource) for [Resharper](https://www.jetbrains.com/resharper)*
+*Powered by [Jetbrains'](https://www.jetbrains.com/) [Open Source License](https://www.jetbrains.com/community/opensource) for [Resharper](https://www.jetbrains.com/resharper)*
 
 [![Resharper](https://user-images.githubusercontent.com/13772020/37600537-e8479a16-2b87-11e8-8400-baac41f85187.png)](https://www.jetbrains.com/)
