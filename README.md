@@ -86,6 +86,7 @@ var wulfgar = container.Resolve<IBarbarian>();
 
 ## Documentation
  - [Wiki](https://github.com/z4kn4fein/stashbox/wiki)
+ - [ASP.NET Core sample](https://github.com/z4kn4fein/stashbox-extensions-dependencyinjection/tree/master/sample)
  
 ## Benchmarks
  - [Performance](http://www.palmmedia.de/blog/2011/8/30/ioc-container-benchmark-performance-comparison)
