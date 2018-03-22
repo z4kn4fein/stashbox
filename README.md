@@ -9,37 +9,37 @@ Github (stable) | NuGet (stable) | MyGet (pre-release)
 ## Features
 
  - **Fluent interface** - for faster and easier configuration, attributes also can be used.
- - **Interface/type mapping** - single service, existing instance registration, remapping registrations also supported.
+ - **Interface/type mapping** - single service, instance registration, remapping of existing registrations also supported.
  - **Resolution via delegates** - any number of parameters can be injected, they will be reused for subdenpendency resolution as well.
- - **Register with name** - multiple registration with the same service type, can be addressed at resolution time via attributes as well.
+ - **Named registration** - multiple registrations with the same interface type.
  - **Assembly registration** - service lookup in assemblies, composition root implementations also supported.
  - **Factory registration** - factories with several parameters can be registered.
- - **Initializer / finalizer** - custom initializer and finalizer actions can be configured for the registrations.
- - **Multiple service resolution** - all registered type of a service can be obtained as an `IEnumerable<T>` or `IEnumerable<object>` with the `ResolveAll()` method.
+ - **Initializer / finalizer** - custom initializer and finalizer actions can be set.
+ - **Multiple service resolution** - all implementation registered for an interface can be obtained.
  - **Unknown type resolution** - unregistered services can be resolved or injected.
  - **Default and optional value injection** - primitive types or dependencies with default or optional value can be injected.
- - **Open generic type resolution** - concrete generic types can be resolved from open generic definitions, constraint checking and nested generic definitions also supported.
+ - **Open generic type resolution** - concrete generic types can be resolved from open generic definitions, constraint checking and nested generic definitions are checked.
  - **Constructor, property and field injection** - supports attribute driven injection and auto injection as well, where there is no chance to decorate members with attributes.
  - **Injection method** - methods decorated with `InjectionMethod` attribute will be called at resolution time.
- - **Wiring into container** - member injection can be executed on existing instance with every resolve call.
+ - **Wiring into container** - member injection can be executed on existing instances.
  - **Building up existing instance** - member injection can be executed on existing instance without registering it into the container.
  - **Child scopes** - parent/child container support.
  - **Lifetime scopes** - hierarchical/named scoping support.
- - **Lifetime management** - including `Singleton`, `Transient`, `Scoped`, `NamedScope` and `PerResolutionRequest` lifetime, custom user defined lifetimes also can be used.
+ - **Lifetime management** - including `Singleton`, `Transient`, `Scoped`, `NamedScope` and `PerResolutionRequest` lifetime, custom user defined lifetimes can also be used.
  - **Conditional resolution** - attribute, parent-type and custom user defined conditions can be specified.
  - **IDisposable object tracking** - `IDisposable` objects are being disposed by the container.
- - **Cleanup delegates** - custom delegate can be configured which'll be invoked when the container/scope is being disposed.
- - **Circular dependency tracking** - the container checks the dependency graph for circular dependencies, specific excpetion will be thrown if found any.
+ - **Cleanup delegates** - custom delegate can be configured which'll be called when the container/scope is being disposed.
+ - **Circular dependency tracking** - the container checks the dependency graph for circular dependencies, specific excpetion will be thrown if any found.
  - **Special types** - generic wrappers:
      - Collections: everything assignable to `IEnumerable<T>` e.g. `T[]`, `ICollection<T>`, `IReadOnlyCollection<T>`, `IList<T>` etc.
      - `Lazy<>`, `Func<>`, `Tuple<>`
      - Parameter injection over factory method arguments e.g. `Func<TParam, TService>`, `Func<TParam1, TParam2, TService>`, etc. applied to subdependencies as well.
      - Nested wrappers e.g. `Tuple<TService, IEnumerable<Func<TParam, Lazy<TService1>>>>`.
- - **Custom resolvers** - the existing resolution operations can be extended with custom resolvers.
- - **Container extensions** - the functionality of the container can be extended with custom extensions, e.g. [Auto configuration parser extension](https://github.com/z4kn4fein/stashbox-configuration-extension)
+ - **Custom resolvers** - the existing activation rutines can be extended with custom resolvers.
+ - **Container extensions** - the container's functionality can be extended with custom extensions, e.g. [Auto configuration parser extension](https://github.com/z4kn4fein/stashbox-configuration-extension)
  - **Custom configuration** - the behavior of the container can be controlled with custom configurations.
  - **Container validation** - the resolution graph can be validated by calling the `Validate()` function.
- - **Decorator support / Interception** - service decorators can be registered into the container and also can used for interception with Castle DynamicProxy
+ - **Decorator support / Interception** - service decorators can be registered and also can used for interception with Castle DynamicProxy
 
 ## Supported platforms
 
