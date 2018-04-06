@@ -27,19 +27,15 @@ namespace Stashbox
                 }
 
                 var typeFromInfo = typeFrom.GetTypeInfo();
-                var typeInfo = type.GetTypeInfo();
-
                 if (!typeFromInfo.IsGenericTypeDefinition) continue;
 
-                if (typeInfo.BaseType.GetTypeInfo().IsGenericType && typeInfo.BaseType.GetGenericTypeDefinition() == typeFrom)
-                {
-                    this.RegisterTypeAs(typeInfo.IsGenericTypeDefinition ? typeFrom : typeInfo.BaseType, type, configurator);
-                    continue;
-                }
+                var typeInfo = type.GetTypeInfo();
 
-                foreach (var impl in typeInfo.ImplementedInterfaces)
-                    if (impl.GetTypeInfo().IsGenericType && impl.GetGenericTypeDefinition() == typeFrom)
-                        this.RegisterTypeAs(typeInfo.IsGenericTypeDefinition ? typeFrom : impl, type, configurator);
+                foreach (var baseType in type.GetRegisterableBaseTypes().Where(baseType => baseType.GetTypeInfo().IsGenericType && baseType.GetGenericTypeDefinition() == typeFrom))
+                    this.RegisterTypeAs(typeInfo.IsGenericTypeDefinition ? typeFrom : baseType, type, configurator);
+
+                foreach (var interfaceType in type.GetRegisterableInterfaceTypes().Where(interfaceType => interfaceType.GetTypeInfo().IsGenericType && interfaceType.GetGenericTypeDefinition() == typeFrom))
+                    this.RegisterTypeAs(typeInfo.IsGenericTypeDefinition ? typeFrom : interfaceType, type, configurator);
             }
 
             return this;
@@ -53,8 +49,7 @@ namespace Stashbox
             if (selector != null)
                 types = types.Where(selector);
 
-            var validTypes = types.Where(t => t.IsValidForRegistration());
-            foreach (var type in validTypes)
+            foreach (var type in types.Where(t => t.IsValidForRegistration()))
             {
                 foreach (var interfaceType in type.GetRegisterableInterfaceTypes())
                     this.RegisterType(interfaceType, type, configurator);
