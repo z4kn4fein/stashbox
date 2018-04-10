@@ -71,7 +71,7 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public void RegisterResolver(Resolver resolver) =>
+        public void RegisterResolver(IResolver resolver) =>
             this.resolverSelector.AddResolver(resolver);
 
         /// <inheritdoc />

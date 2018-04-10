@@ -7,7 +7,7 @@ using System.Linq.Expressions;
 
 namespace Stashbox.BuildUp.Resolution
 {
-    internal class FuncResolver : Resolver
+    internal class FuncResolver : IMultiServiceResolver
     {
         private readonly HashSet<Type> supportedTypes = new HashSet<Type>
         {
@@ -21,9 +21,7 @@ namespace Stashbox.BuildUp.Resolution
             typeof(Func<,,,,,,,>)
         };
 
-        public override bool SupportsMany => true;
-
-        public override Expression GetExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext)
+        public Expression GetExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext)
         {
             var args = typeInfo.Type.GetGenericArguments();
             var wrappedType = args.Last();
@@ -35,7 +33,7 @@ namespace Stashbox.BuildUp.Resolution
             return expression?.AsLambda(parameters);
         }
 
-        public override Expression[] GetExpressions(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext)
+        public Expression[] GetExpressions(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext)
         {
             var args = typeInfo.Type.GetGenericArguments();
             var wrappedType = args.Last();
@@ -55,7 +53,7 @@ namespace Stashbox.BuildUp.Resolution
             return funcExpressions;
         }
 
-        public override bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext) =>
+        public bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext) =>
             typeInfo.Type.IsClosedGenericType() && this.supportedTypes.Contains(typeInfo.Type.GetGenericTypeDefinition());
 
         private ParameterExpression[] PrepareExtraParameters(Type wrappedType, ResolutionContext resolutionContext, Type[] args)

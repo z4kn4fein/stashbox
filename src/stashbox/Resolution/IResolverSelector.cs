@@ -18,7 +18,7 @@ namespace Stashbox.Resolution
         bool CanResolve(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext);
 
         /// <summary>
-        /// Gets an expression built by a selected <see cref="Resolver"/>.
+        /// Gets an expression built by a selected <see cref="IResolver"/>.
         /// </summary>
         /// <param name="containerContext">The container context.</param>
         /// <param name="typeInfo">The type info.</param>
@@ -27,7 +27,7 @@ namespace Stashbox.Resolution
         Expression GetResolverExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext);
 
         /// <summary>
-        /// Gets the expressions built by a selected <see cref="Resolver"/>.
+        /// Gets the expressions built by a selected <see cref="IMultiServiceResolver"/>.
         /// </summary>
         /// <param name="containerContext">The container context.</param>
         /// <param name="typeInfo">The type info.</param>
@@ -39,6 +39,6 @@ namespace Stashbox.Resolution
         /// Adds a resolver to the selector.
         /// </summary>
         /// <param name="resolver">The resolver.</param>
-        void AddResolver(Resolver resolver);
+        void AddResolver(IResolver resolver);
     }
 }

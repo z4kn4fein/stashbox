@@ -4,12 +4,12 @@ using System.Linq.Expressions;
 
 namespace Stashbox.BuildUp.Resolution
 {
-    internal class ParentContainerResolver : Resolver
+    internal class ParentContainerResolver : IMultiServiceResolver
     {
-        public override bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext) =>
+        public bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext) =>
             containerContext.Container.ParentContainer != null && containerContext.Container.ParentContainer.CanResolve(typeInfo.Type, typeInfo.DependencyName);
 
-        public override Expression GetExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext) =>
+        public Expression GetExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext) =>
             containerContext.Container.ParentContainer.ContainerContext.ResolutionStrategy
                 .BuildResolutionExpression(containerContext.Container.ParentContainer.ContainerContext,
                 resolutionContext.ChildContext == null
@@ -17,7 +17,7 @@ namespace Stashbox.BuildUp.Resolution
                     : resolutionContext,
                 typeInfo, null);
 
-        public override Expression[] GetExpressions(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext) =>
+        public Expression[] GetExpressions(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext) =>
             containerContext.Container.ParentContainer.ContainerContext.ResolutionStrategy
                 .BuildResolutionExpressions(containerContext.Container.ParentContainer.ContainerContext,
                 resolutionContext.ChildContext == null

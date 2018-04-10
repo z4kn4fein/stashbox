@@ -5,9 +5,9 @@ using System.Reflection;
 
 namespace Stashbox.BuildUp.Resolution
 {
-    internal class DefaultValueResolver : Resolver
+    internal class DefaultValueResolver : IResolver
     {
-        public override Expression GetExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext)
+        public Expression GetExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext)
         {
             if (typeInfo.HasDefaultValue)
                 return typeInfo.DefaultValue.AsConstant(typeInfo.Type);
@@ -15,7 +15,7 @@ namespace Stashbox.BuildUp.Resolution
             return typeInfo.Type.AsDefault();
         }
 
-        public override bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext) =>
+        public bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext) =>
             containerContext.ContainerConfigurator.ContainerConfiguration.OptionalAndDefaultValueInjectionEnabled &&
                  (typeInfo.HasDefaultValue || typeInfo.Type.GetTypeInfo().IsValueType || typeInfo.Type == typeof(string) || typeInfo.IsMember);
     }

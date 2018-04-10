@@ -5,14 +5,14 @@ using System.Linq.Expressions;
 
 namespace Stashbox.BuildUp.Resolution
 {
-    internal class ScopedInstanceResolver : Resolver
+    internal class ScopedInstanceResolver : IResolver
     {
-        public override Expression GetExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext) =>
+        public Expression GetExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext) =>
             resolutionContext.CurrentScopeParameter
                 .CallMethod(Constants.GetScopedInstanceMethod, typeInfo.Type.AsConstant())
                 .ConvertTo(typeInfo.Type);
 
-        public override bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext) =>
+        public bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext) =>
             resolutionContext.ResolutionScope.HasScopedInstances && resolutionContext.ResolutionScope.GetScopedInstanceOrDefault(typeInfo.Type) != null;
     }
 }

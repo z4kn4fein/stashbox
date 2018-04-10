@@ -9,18 +9,16 @@ using System.Reflection;
 
 namespace Stashbox.BuildUp.Resolution
 {
-    internal class LazyResolver : Resolver
+    internal class LazyResolver : IMultiServiceResolver
     {
         private readonly IResolverSelector resolverSelector;
-
-        public override bool SupportsMany => true;
 
         public LazyResolver(IResolverSelector resolverSelector)
         {
             this.resolverSelector = resolverSelector;
         }
 
-        public override Expression GetExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext)
+        public Expression GetExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext)
         {
             var lazyArgumentInfo = typeInfo.Clone(typeInfo.Type.GetGenericArguments()[0]);
 
@@ -38,7 +36,7 @@ namespace Stashbox.BuildUp.Resolution
             return expression == null ? null : lazyConstructor.MakeNew(expression.AsLambda());
         }
 
-        public override Expression[] GetExpressions(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext)
+        public Expression[] GetExpressions(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext)
         {
             var lazyArgumentInfo = typeInfo.Clone(typeInfo.Type.GetGenericArguments()[0]);
 
@@ -97,7 +95,7 @@ namespace Stashbox.BuildUp.Resolution
             return constructor.MakeNew(callExpression.ConvertTo(type).AsLambda());
         }
 
-        public override bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext) =>
+        public bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext) =>
             typeInfo.Type.IsClosedGenericType() && typeInfo.Type.GetGenericTypeDefinition() == typeof(Lazy<>);
 
         private static readonly MethodInfo DelegateCacheMethod = typeof(LazyResolver).GetSingleMethod(nameof(CreateLazyDelegate), true);

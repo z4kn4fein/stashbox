@@ -153,15 +153,6 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(NotImplementedException))]
-        public void ContainerTests_ResolverTest_SupportsMany_Throw()
-        {
-            var container = new StashboxContainer();
-            container.RegisterResolver(new TestResolver());
-            container.Resolve<IEnumerable<ITest1>>();
-        }
-
-        [TestMethod]
         public void ContainerTests_ResolverTest_SupportsMany()
         {
             var container = new StashboxContainer();
@@ -242,36 +233,32 @@ namespace Stashbox.Tests
             public Tuple<ITest2, ITest3> Tuple { get; }
         }
 
-        public class TestResolver : Resolver
+        public class TestResolver : IResolver
         {
-            public override bool SupportsMany => true;
-
-            public override bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionInfo)
+            public bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionInfo)
             {
                 return typeInfo.Type == typeof(ITest1);
             }
 
-            public override Expression GetExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionInfo)
+            public Expression GetExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionInfo)
             {
                 return Expression.Constant(new Test1());
             }
         }
 
-        public class TestResolver2 : Resolver
+        public class TestResolver2 : IMultiServiceResolver
         {
-            public override bool SupportsMany => true;
-
-            public override bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionInfo)
+            public bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionInfo)
             {
                 return typeInfo.Type == typeof(ITest1);
             }
 
-            public override Expression GetExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionInfo)
+            public Expression GetExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionInfo)
             {
                 return Expression.Constant(new Test1());
             }
 
-            public override Expression[] GetExpressions(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionInfo)
+            public Expression[] GetExpressions(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionInfo)
             {
                 return new Expression[] { Expression.Constant(new Test1()) };
             }

@@ -6,7 +6,7 @@ using System.Linq.Expressions;
 
 namespace Stashbox.BuildUp.Resolution
 {
-    internal class TupleResolver : Resolver
+    internal class TupleResolver : IResolver
     {
         private readonly HashSet<Type> supportedTypes = new HashSet<Type>
         {
@@ -20,10 +20,10 @@ namespace Stashbox.BuildUp.Resolution
             typeof(Tuple<,,,,,,,>)
         };
 
-        public override bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext) =>
+        public bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext) =>
             typeInfo.Type.IsClosedGenericType() && this.supportedTypes.Contains(typeInfo.Type.GetGenericTypeDefinition());
 
-        public override Expression GetExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext)
+        public Expression GetExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext)
         {
             var args = typeInfo.Type.GetGenericArguments();
             var tupleConstructor = typeInfo.Type.GetConstructor(args);

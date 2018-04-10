@@ -17,10 +17,10 @@ namespace Stashbox
         void RegisterExtension(IContainerExtension containerExtension);
 
         /// <summary>
-        /// Registers a <see cref="Resolver"/> into the container.
+        /// Registers an <see cref="IResolver"/> into the container.
         /// </summary>
         /// <param name="resolver">The resolver.</param>
-        void RegisterResolver(Resolver resolver);
+        void RegisterResolver(IResolver resolver);
 
         /// <summary>
         /// Creates a child container.
