@@ -1,7 +1,7 @@
-﻿using System;
-using System.Linq.Expressions;
-using Stashbox.Registration;
+﻿using Stashbox.Registration;
 using Stashbox.Resolution;
+using System;
+using System.Linq.Expressions;
 
 namespace Stashbox.BuildUp
 {
@@ -26,7 +26,7 @@ namespace Stashbox.BuildUp
         bool HandlesObjectLifecycle { get; }
 
         /// <summary>
-        /// Produces an <see cref="IObjectBuilder"/>.
+        /// Produces an <see cref="IObjectBuilder"/>, when an implementor .
         /// </summary>
         /// <returns>The <see cref="IObjectBuilder"/> instance.</returns>
         IObjectBuilder Produce();

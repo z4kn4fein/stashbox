@@ -1,10 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-#if !NET40
-using System.Linq;
-#endif
-
 namespace System.Reflection
 {
     internal static class AssemblyExtensions

@@ -20,7 +20,7 @@ namespace Stashbox.Lifetime
         /// <param name="scopeName">The scope name.</param>
         public NamedScopeLifetime(object scopeName)
         {
-            ScopeName = scopeName;
+            this.ScopeName = scopeName;
         }
 
         /// <summary>
@@ -29,7 +29,7 @@ namespace Stashbox.Lifetime
         public object ScopeName { get; }
 
         /// <inheritdoc />
-        public override ILifetime Create() => new NamedScopeLifetime(ScopeName);
+        public override ILifetime Create() => new NamedScopeLifetime(this.ScopeName);
 
         /// <inheritdoc />
         public override Expression GetExpression(IContainerContext containerContext, IServiceRegistration serviceRegistration, IObjectBuilder objectBuilder, ResolutionContext resolutionContext, Type resolveType)

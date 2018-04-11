@@ -34,27 +34,26 @@ namespace Stashbox.BuildUp
 
         private Expression PrepareExpression(IContainerContext containerContext, IServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType)
         {
-            if (serviceRegistration.RegistrationContext.DefinedScopeName != null)
-            {
-                var variable = Constants.ResolutionScopeType.AsVariable();
+            if (serviceRegistration.RegistrationContext.DefinedScopeName == null)
+                return this.expressionBuilder.CreateExpression(containerContext, serviceRegistration, resolutionContext, resolveType);
 
-                var newScope = resolutionContext.CurrentScopeParameter
-                    .ConvertTo(Constants.ResolverType)
-                    .CallMethod(Constants.BeginScopeMethod,
-                        serviceRegistration.RegistrationContext.DefinedScopeName.AsConstant(),
-                        true.AsConstant());
+            var variable = Constants.ResolutionScopeType.AsVariable();
+
+            var newScope = resolutionContext.CurrentScopeParameter
+                .ConvertTo(Constants.ResolverType)
+                .CallMethod(Constants.BeginScopeMethod,
+                    serviceRegistration.RegistrationContext.DefinedScopeName.AsConstant(),
+                    true.AsConstant());
 
 
-                resolutionContext.AddDefinedVariable(variable);
-                resolutionContext.AddInstruction(variable.AssignTo(newScope.ConvertTo(Constants.ResolutionScopeType)));
+            resolutionContext.AddDefinedVariable(variable);
+            resolutionContext.AddInstruction(variable.AssignTo(newScope.ConvertTo(Constants.ResolutionScopeType)));
 
-                return this.expressionBuilder.CreateExpression(containerContext,
-                    serviceRegistration, resolutionContext.CreateNew(scopeParameter:
+            return this.expressionBuilder.CreateExpression(containerContext,
+                serviceRegistration, resolutionContext.CreateNew(scopeParameter:
                     new KeyValue<object, ParameterExpression>(serviceRegistration.RegistrationContext.DefinedScopeName, variable)),
-                    resolveType);
-            }
+                resolveType);
 
-            return this.expressionBuilder.CreateExpression(containerContext, serviceRegistration, resolutionContext, resolveType);
         }
     }
 }
