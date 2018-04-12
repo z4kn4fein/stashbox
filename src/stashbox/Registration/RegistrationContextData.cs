@@ -73,7 +73,7 @@ namespace Stashbox.Registration
         public HashSet<KeyValuePair<string, object>> InjectionMemberNames { get; internal set; }
 
         /// <summary>
-        /// The stored instance.
+        /// The already stored instance which was provided by instance or wireup registration.
         /// </summary>
         public object ExistingInstance { get; internal set; }
 
@@ -111,6 +111,11 @@ namespace Stashbox.Registration
         /// The name of the scope this registration defines.
         /// </summary>
         public object DefinedScopeName { get; internal set; }
+
+        /// <summary>
+        /// If true, the existing instance will be wired into the container, it will perform member and method injection on it.
+        /// </summary>
+        public bool IsWireUp { get; set; }
 
         /// <summary>
         /// The constructor selection rule.

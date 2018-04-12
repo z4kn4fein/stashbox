@@ -72,10 +72,10 @@ namespace Stashbox.BuildUp
             if (expr == null)
                 return null;
 
-            if (!this.HandlesObjectLifecycle && serviceRegistration.RegistrationContext.Finalizer != null)
+            if (serviceRegistration.RegistrationContext.ExistingInstance == null && serviceRegistration.RegistrationContext.Finalizer != null)
                 expr = this.HandleFinalizer(expr, serviceRegistration, resolutionContext.CurrentScopeParameter);
 
-            if (!serviceRegistration.ShouldHandleDisposal || this.HandlesObjectLifecycle || !expr.Type.IsDisposable())
+            if (!serviceRegistration.ShouldHandleDisposal || !expr.Type.IsDisposable())
                 return this.CheckRuntimeCircularDependenciesIfNeeded(expr, containerContext, serviceRegistration, resolutionContext, resolveType);
 
             var method = Constants.AddDisposalMethod.MakeGenericMethod(expr.Type);
@@ -83,7 +83,7 @@ namespace Stashbox.BuildUp
                 containerContext, serviceRegistration, resolutionContext, resolveType);
         }
 
-        protected Expression HandleFinalizer(Expression instanceExpression, IServiceRegistration serviceRegistration, Expression scopeExpression)
+        private Expression HandleFinalizer(Expression instanceExpression, IServiceRegistration serviceRegistration, Expression scopeExpression)
         {
             var addFinalizerMethod = Constants.AddWithFinalizerMethod.MakeGenericMethod(instanceExpression.Type);
             return scopeExpression.CallMethod(addFinalizerMethod, instanceExpression,
@@ -91,9 +91,5 @@ namespace Stashbox.BuildUp
         }
 
         protected abstract Expression GetExpressionInternal(IContainerContext containerContext, IServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType);
-
-        public virtual bool HandlesObjectLifecycle => false;
-
-        public virtual IObjectBuilder Produce() => this;
     }
 }

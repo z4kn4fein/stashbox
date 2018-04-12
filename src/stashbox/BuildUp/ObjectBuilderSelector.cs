@@ -19,6 +19,6 @@ namespace Stashbox.BuildUp
             };
         }
 
-        public IObjectBuilder Get(ObjectBuilder builderType) => this.builderRepository[(int)builderType].Produce();
+        public IObjectBuilder Get(ObjectBuilder builderType) => this.builderRepository[(int)builderType];
     }
 }

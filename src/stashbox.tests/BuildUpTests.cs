@@ -1,7 +1,7 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Stashbox.Attributes;
 using Stashbox.Utils;
+using System;
 
 namespace Stashbox.Tests
 {
@@ -38,23 +38,21 @@ namespace Stashbox.Tests
                 container.RegisterScoped<ITest, Test>();
 
                 var test1 = new Test1();
-                var test2 = new Test2();
                 using (var scope = container.BeginScope())
                 {
-
-                    container.WireUpAs<ITest1>(test1);
-                    var inst = scope.BuildUp(test2);
-
-                    Assert.AreEqual(test2, inst);
-                    Assert.IsNotNull(inst);
-                    Assert.IsNotNull(inst.Test1);
-                    Assert.IsInstanceOfType(inst, typeof(Test2));
-                    Assert.IsInstanceOfType(inst.Test1, typeof(Test1));
-                    Assert.IsInstanceOfType(inst.Test1.Test, typeof(Test));
+                    scope.BuildUp(test1);
+                    Assert.IsFalse(test1.Test.Disposed);
                 }
 
                 Assert.IsTrue(test1.Test.Disposed);
-                Assert.IsTrue(test2.Test1.Test.Disposed);
+
+                using (var scope = container.BeginScope())
+                {
+                    scope.BuildUp(test1);
+                    Assert.IsFalse(test1.Test.Disposed);
+                }
+
+                Assert.IsTrue(test1.Test.Disposed);
             }
         }
 

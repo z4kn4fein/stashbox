@@ -136,9 +136,10 @@ namespace Stashbox.Registration
             return this;
         }
 
-        public IFluentServiceRegistrator WithInstance(object instance)
+        public IFluentServiceRegistrator WithInstance(object instance, bool wireUp = false)
         {
             this.Context.ExistingInstance = instance;
+            this.Context.IsWireUp = wireUp;
             return this;
         }
 

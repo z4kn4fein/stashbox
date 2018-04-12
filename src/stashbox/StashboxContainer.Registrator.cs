@@ -1,5 +1,4 @@
-﻿using Stashbox.BuildUp;
-using Stashbox.Registration;
+﻿using Stashbox.Registration;
 using Stashbox.Utils;
 using System;
 
@@ -84,8 +83,12 @@ namespace Stashbox
         {
             Shield.EnsureNotNull(instance, nameof(instance));
 
-            this.WireUpInternal(instance, name, typeof(TFrom), instance.GetType(), withoutDisposalTracking, finalizerDelegate);
-            return this;
+            return this.RegisterType<TFrom>(instance.GetType(), context =>
+            {
+                context.WithFinalizer(finalizerDelegate).WithInstance(instance, true).WithName(name);
+                if (withoutDisposalTracking)
+                    context.WithoutDisposalTracking();
+            });
         }
 
         /// <inheritdoc />
@@ -94,23 +97,12 @@ namespace Stashbox
             Shield.EnsureNotNull(instance, nameof(instance));
             Shield.EnsureNotNull(serviceType, nameof(serviceType));
 
-            this.WireUpInternal(instance, name, serviceType, instance.GetType(), withoutDisposalTracking);
-            return this;
-        }
-
-        private void WireUpInternal(object instance, object keyName, Type typeFrom, Type typeTo, bool withoutDisposalTracking, object finalizerDelelgate = null)
-        {
-            var data = RegistrationContextData.New();
-            data.Name = keyName;
-            data.ExistingInstance = instance;
-            data.Finalizer = finalizerDelelgate;
-
-            var registration = new ServiceRegistration(typeFrom, typeTo,
-                this.ContainerContext.ContainerConfigurator, this.objectBuilderSelector.Get(ObjectBuilder.WireUp),
-                data, false, !withoutDisposalTracking);
-
-            this.registrationRepository.AddOrUpdateRegistration(registration, false, false);
-            this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.ContainerContext, registration);
+            return this.RegisterType(serviceType, instance.GetType(), context =>
+            {
+                context.WithInstance(instance, true).WithName(name);
+                if (withoutDisposalTracking)
+                    context.WithoutDisposalTracking();
+            });
         }
     }
 }

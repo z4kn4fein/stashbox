@@ -82,8 +82,9 @@ namespace Stashbox.Registration
         /// Sets an instance as the resolution target of the registration.
         /// </summary>
         /// <param name="instance">The instance.</param>
+        /// <param name="wireUp">If true, the instance will be wired into the container, it will perform member and method injection on it.</param>
         /// <returns>The <see cref="IFluentServiceRegistrator"/> which on this method was called.</returns>
-        IFluentServiceRegistrator WithInstance(object instance);
+        IFluentServiceRegistrator WithInstance(object instance, bool wireUp = false);
 
         /// <summary>
         /// Sets a dependant target condition for the registration.

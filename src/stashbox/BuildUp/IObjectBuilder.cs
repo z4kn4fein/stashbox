@@ -19,16 +19,5 @@ namespace Stashbox.BuildUp
         /// <param name="resolveType">The requested type.</param>
         /// <returns>The created object.</returns>
         Expression GetExpression(IContainerContext containerContext, IServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType);
-
-        /// <summary>
-        /// Indicates that the object builder is handling the disposal of the produced instance or not.
-        /// </summary>
-        bool HandlesObjectLifecycle { get; }
-
-        /// <summary>
-        /// Produces an <see cref="IObjectBuilder"/>, when an implementor .
-        /// </summary>
-        /// <returns>The <see cref="IObjectBuilder"/> instance.</returns>
-        IObjectBuilder Produce();
     }
 }
