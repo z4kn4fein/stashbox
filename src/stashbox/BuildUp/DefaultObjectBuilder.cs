@@ -53,7 +53,6 @@ namespace Stashbox.BuildUp
                 serviceRegistration, resolutionContext.CreateNew(scopeParameter:
                     new KeyValue<object, ParameterExpression>(serviceRegistration.RegistrationContext.DefinedScopeName, variable)),
                 resolveType);
-
         }
     }
 }

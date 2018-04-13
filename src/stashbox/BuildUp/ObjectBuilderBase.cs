@@ -12,21 +12,21 @@ namespace Stashbox.BuildUp
         public Expression GetExpression(IContainerContext containerContext, IServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType)
         {
             if (serviceRegistration.IsDecorator || resolutionContext.IsCurrentlyDecorating(resolveType))
-                return this.HandleDisposalAndGetExpression(containerContext, serviceRegistration, resolutionContext, resolveType);
+                return this.BuildDisposalTrackingAndFinalizerExpression(containerContext, serviceRegistration, resolutionContext, resolveType);
 
             var decorators = containerContext.DecoratorRepository.GetDecoratorsOrDefault(resolveType);
             if (decorators == null)
             {
                 if (!resolveType.IsClosedGenericType())
-                    return this.HandleDisposalAndGetExpression(containerContext, serviceRegistration, resolutionContext, resolveType);
+                    return this.BuildDisposalTrackingAndFinalizerExpression(containerContext, serviceRegistration, resolutionContext, resolveType);
 
                 decorators = containerContext.DecoratorRepository.GetDecoratorsOrDefault(resolveType.GetGenericTypeDefinition());
                 if (decorators == null)
-                    return this.HandleDisposalAndGetExpression(containerContext, serviceRegistration, resolutionContext, resolveType);
+                    return this.BuildDisposalTrackingAndFinalizerExpression(containerContext, serviceRegistration, resolutionContext, resolveType);
             }
 
             resolutionContext.AddCurrentlyDecoratingType(resolveType);
-            var expression = this.HandleDisposalAndGetExpression(containerContext, serviceRegistration, resolutionContext, resolveType);
+            var expression = this.BuildDisposalTrackingAndFinalizerExpression(containerContext, serviceRegistration, resolutionContext, resolveType);
 
             if (expression == null)
                 return null;
@@ -46,7 +46,26 @@ namespace Stashbox.BuildUp
             return expression;
         }
 
-        private Expression CheckRuntimeCircularDependenciesIfNeeded(Expression expression, IContainerContext containerContext,
+        private Expression BuildDisposalTrackingAndFinalizerExpression(IContainerContext containerContext, IServiceRegistration serviceRegistration,
+            ResolutionContext resolutionContext, Type resolveType)
+        {
+            var expr = this.GetExpressionInternal(containerContext, serviceRegistration, resolutionContext, resolveType);
+
+            if (expr == null)
+                return null;
+
+            if (serviceRegistration.RegistrationContext.ExistingInstance == null && serviceRegistration.RegistrationContext.Finalizer != null)
+                expr = this.BuildFinalizerExpression(expr, serviceRegistration, resolutionContext.CurrentScopeParameter);
+
+            if (!serviceRegistration.ShouldHandleDisposal || !expr.Type.IsDisposable())
+                return this.BuildRuntimeCircularDependencyCheckExpression(expr, containerContext, serviceRegistration, resolutionContext, resolveType);
+
+            var method = Constants.AddDisposalMethod.MakeGenericMethod(expr.Type);
+            return this.BuildRuntimeCircularDependencyCheckExpression(resolutionContext.CurrentScopeParameter.CallMethod(method, expr),
+                containerContext, serviceRegistration, resolutionContext, resolveType);
+        }
+
+        private Expression BuildRuntimeCircularDependencyCheckExpression(Expression expression, IContainerContext containerContext,
             IServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType)
         {
             if (!containerContext.ContainerConfigurator.ContainerConfiguration.RuntimeCircularDependencyTrackingEnabled)
@@ -64,26 +83,7 @@ namespace Stashbox.BuildUp
             return exprs.AsBlock(variable);
         }
 
-        private Expression HandleDisposalAndGetExpression(IContainerContext containerContext, IServiceRegistration serviceRegistration,
-            ResolutionContext resolutionContext, Type resolveType)
-        {
-            var expr = this.GetExpressionInternal(containerContext, serviceRegistration, resolutionContext, resolveType);
-
-            if (expr == null)
-                return null;
-
-            if (serviceRegistration.RegistrationContext.ExistingInstance == null && serviceRegistration.RegistrationContext.Finalizer != null)
-                expr = this.HandleFinalizer(expr, serviceRegistration, resolutionContext.CurrentScopeParameter);
-
-            if (!serviceRegistration.ShouldHandleDisposal || !expr.Type.IsDisposable())
-                return this.CheckRuntimeCircularDependenciesIfNeeded(expr, containerContext, serviceRegistration, resolutionContext, resolveType);
-
-            var method = Constants.AddDisposalMethod.MakeGenericMethod(expr.Type);
-            return this.CheckRuntimeCircularDependenciesIfNeeded(resolutionContext.CurrentScopeParameter.CallMethod(method, expr),
-                containerContext, serviceRegistration, resolutionContext, resolveType);
-        }
-
-        private Expression HandleFinalizer(Expression instanceExpression, IServiceRegistration serviceRegistration, Expression scopeExpression)
+        private Expression BuildFinalizerExpression(Expression instanceExpression, IServiceRegistration serviceRegistration, Expression scopeExpression)
         {
             var addFinalizerMethod = Constants.AddWithFinalizerMethod.MakeGenericMethod(instanceExpression.Type);
             return scopeExpression.CallMethod(addFinalizerMethod, instanceExpression,

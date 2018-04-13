@@ -59,13 +59,8 @@ namespace Stashbox.Registration
         public IEnumerable<IServiceRegistration> GetAllRegistrations() =>
             this.serviceRepository.SelectMany(reg => reg).Concat(this.namedScopeRepository.SelectMany(reg => reg));
 
-        public bool ContainsRegistration(Type type, object name)
-        {
-            if (!this.serviceRepository.ContainsRegistration(type, name))
-                return this.namedScopeRepository.ContainsRegistration(type, name);
-
-            return true;
-        }
+        public bool ContainsRegistration(Type type, object name) =>
+            this.serviceRepository.ContainsRegistration(type, name) || this.namedScopeRepository.ContainsRegistration(type, name);
 
         private IServiceRegistration GetNamedRegistrationOrDefault(Type type, object dependencyName, ResolutionContext resolutionContext)
         {
