@@ -2,6 +2,7 @@
 using Stashbox.Utils;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 
 namespace Stashbox.Resolution
@@ -15,8 +16,8 @@ namespace Stashbox.Resolution
         /// Static factory for <see cref="ResolutionContext"/>.
         /// </summary>
         /// <returns>A new <see cref="ResolutionContext"/> instance.</returns>
-        public static ResolutionContext New(IResolutionScope scope, bool nullResultAllowed = false) =>
-            new ResolutionContext(scope, nullResultAllowed);
+        public static ResolutionContext New(IResolutionScope scope, bool nullResultAllowed = false, object[] dependencyOverrides = null) =>
+            new ResolutionContext(scope, nullResultAllowed, dependencyOverrides);
 
         /// <summary>
         /// True if null result is allowed, otherwise false.
@@ -34,11 +35,14 @@ namespace Stashbox.Resolution
 
         private readonly ArrayStoreKeyed<object, ParameterExpression> knownVariables;
 
+        internal bool ShouldCacheFactoryDelegate { get; }
+
         internal IResolutionScope ResolutionScope { get; }
 
         internal IResolutionScope RootScope { get; }
 
         internal IContainerContext ChildContext { get; }
+
         internal ISet<object> ScopeNames { get; }
 
         internal ArrayStore<ArrayStoreKeyed<bool, ParameterExpression>> ParameterExpressions { get; private set; }
@@ -47,14 +51,32 @@ namespace Stashbox.Resolution
 
         internal ArrayStoreKeyed<object, ParameterExpression> DefinedVariables { get; private set; }
 
-        private ResolutionContext(IResolutionScope scope, bool nullResultAllowed)
+        private ResolutionContext(IResolutionScope scope, bool nullResultAllowed, object[] dependencyOverrides)
             : this(scope, AvlTreeKeyValue<int, bool>.Empty, AvlTree<Expression>.Empty, AvlTree<Type>.Empty, ArrayStore<ArrayStoreKeyed<bool, ParameterExpression>>.Empty, scope.GetActiveScopeNames(),
-                  null, nullResultAllowed, Constants.ResolutionScopeParameter, ArrayStoreKeyed<object, ParameterExpression>.Empty)
-        { }
+                  null, nullResultAllowed, Constants.ResolutionScopeParameter, ArrayStoreKeyed<object, ParameterExpression>.Empty, dependencyOverrides == null)
+        {
+            this.ProcessDependencyOverrides(dependencyOverrides);
+        }
+
+        private void ProcessDependencyOverrides(object[] dependencyOverrides)
+        {
+            if (dependencyOverrides == null)
+                return;
+
+            foreach (var dependencyOverride in dependencyOverrides)
+            {
+                var type = dependencyOverride.GetType();
+                var expression = dependencyOverride.AsConstant();
+                this.SetExpressionOverride(type, expression);
+
+                foreach (var baseType in type.GetRegisterableInterfaceTypes().Concat(type.GetRegisterableBaseTypes()))
+                    this.SetExpressionOverride(baseType, expression);
+            }
+        }
 
         private ResolutionContext(IResolutionScope scope, AvlTreeKeyValue<int, bool> circularDependencyBarrier, AvlTree<Expression> expressionOverrides,
             AvlTree<Type> currentlyDecoratingTypes, ArrayStore<ArrayStoreKeyed<bool, ParameterExpression>> parameterExpressions, ISet<object> scopeNames,
-            IContainerContext childContext, bool nullResultAllowed, ParameterExpression currentScope, ArrayStoreKeyed<object, ParameterExpression> knownVariables)
+            IContainerContext childContext, bool nullResultAllowed, ParameterExpression currentScope, ArrayStoreKeyed<object, ParameterExpression> knownVariables, bool shouldCacheFactoryDelegate)
         {
             this.DefinedVariables = ArrayStoreKeyed<object, ParameterExpression>.Empty;
             this.SingleInstructions = ArrayStore<Expression>.Empty;
@@ -69,6 +91,7 @@ namespace Stashbox.Resolution
             this.ScopeNames = scopeNames;
             this.knownVariables = knownVariables;
             this.circularDependencyBarrier = circularDependencyBarrier;
+            this.ShouldCacheFactoryDelegate = shouldCacheFactoryDelegate;
         }
 
         /// <summary>
@@ -142,7 +165,8 @@ namespace Stashbox.Resolution
 
             return new ResolutionContext(this.ResolutionScope, this.circularDependencyBarrier, this.expressionOverrides,
                  this.currentlyDecoratingTypes, this.ParameterExpressions, scopeNames, childContext ?? this.ChildContext,
-                 this.NullResultAllowed, scopeParameter == null ? this.CurrentScopeParameter : scopeParameter.Value, this.DefinedVariables);
+                 this.NullResultAllowed, scopeParameter == null ? this.CurrentScopeParameter : scopeParameter.Value,
+                 this.DefinedVariables, this.ShouldCacheFactoryDelegate);
         }
     }
 }

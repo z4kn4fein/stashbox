@@ -97,25 +97,25 @@ namespace Stashbox
             this.ParentScope = parent;
         }
 
-        public object Resolve(Type typeFrom, bool nullResultAllowed = false)
+        public object Resolve(Type typeFrom, bool nullResultAllowed = false, object[] dependencyOverrides = null)
         {
             var hash = typeFrom.GetHashCode();
             var cachedFactory = this.serviceDelegates[hash & this.indexBound].GetOrDefault(hash, typeFrom);
-            return cachedFactory != null ? cachedFactory(this) : this.Activate(ResolutionContext.New(this, nullResultAllowed), typeFrom, hash);
+            return cachedFactory != null ? cachedFactory(this) : this.Activate(ResolutionContext.New(this, nullResultAllowed, dependencyOverrides), typeFrom, hash);
         }
 
-        public object Resolve(Type typeFrom, object name, bool nullResultAllowed = false)
+        public object Resolve(Type typeFrom, object name, bool nullResultAllowed = false, object[] dependencyOverrides = null)
         {
             var hash = name.GetHashCode();
             var cachedFactory = this.serviceDelegates[hash & this.indexBound].GetOrDefault(hash, name);
-            return cachedFactory != null ? cachedFactory(this) : this.Activate(ResolutionContext.New(this, nullResultAllowed), typeFrom, hash, name);
+            return cachedFactory != null ? cachedFactory(this) : this.Activate(ResolutionContext.New(this, nullResultAllowed, dependencyOverrides), typeFrom, hash, name);
         }
 
-        public IEnumerable<TKey> ResolveAll<TKey>() =>
-            (IEnumerable<TKey>)this.Resolve(typeof(IEnumerable<TKey>));
+        public IEnumerable<TKey> ResolveAll<TKey>(object[] dependencyOverrides = null) =>
+            (IEnumerable<TKey>)this.Resolve(typeof(IEnumerable<TKey>), dependencyOverrides: dependencyOverrides);
 
-        public IEnumerable<object> ResolveAll(Type typeFrom) =>
-            (IEnumerable<object>)this.Resolve(typeof(IEnumerable<>).MakeGenericType(typeFrom));
+        public IEnumerable<object> ResolveAll(Type typeFrom, object[] dependencyOverrides = null) =>
+            (IEnumerable<object>)this.Resolve(typeof(IEnumerable<>).MakeGenericType(typeFrom), dependencyOverrides: dependencyOverrides);
 
         public Delegate ResolveFactory(Type typeFrom, object name = null, bool nullResultAllowed = false, params Type[] parameterTypes)
         {
@@ -292,7 +292,9 @@ namespace Stashbox
                 if (ragistrationFactory == null)
                     return null;
 
-                Swap.SwapValue(ref this.serviceDelegates[hash & this.indexBound], c => c.AddOrUpdate(hash, name ?? type, ragistrationFactory));
+                if (resolutionContext.ShouldCacheFactoryDelegate)
+                    Swap.SwapValue(ref this.serviceDelegates[hash & this.indexBound], c => c.AddOrUpdate(hash, name ?? type, ragistrationFactory));
+
                 return ragistrationFactory(resolutionContext.ResolutionScope);
             }
 
@@ -304,7 +306,10 @@ namespace Stashbox
                     throw new ResolutionFailedException(type);
 
             var factory = expr.CompileDelegate(resolutionContext);
-            Swap.SwapValue(ref this.serviceDelegates[hash & this.indexBound], c => c.AddOrUpdate(hash, name ?? type, factory));
+
+            if (resolutionContext.ShouldCacheFactoryDelegate)
+                Swap.SwapValue(ref this.serviceDelegates[hash & this.indexBound], c => c.AddOrUpdate(hash, name ?? type, factory));
+
             return factory(resolutionContext.ResolutionScope);
         }
 

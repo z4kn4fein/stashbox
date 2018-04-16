@@ -3,6 +3,7 @@ using Stashbox.Attributes;
 using Stashbox.Entity;
 using Stashbox.Utils;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Stashbox.Tests
@@ -140,16 +141,16 @@ namespace Stashbox.Tests
             container.RegisterType<ITest1, Test1>();
             container.RegisterType<ITest2, Test2>();
 
-            //var inst1 = container.Resolve<ITest1>();
-            //inst1.Name = "test1";
-            //container.Resolve<ITest2>();
+            var inst1 = container.Resolve<ITest1>();
+            inst1.Name = "test1";
+            container.Resolve<ITest2>();
 
             var factory = container.ResolveFactory<ITest1, Lazy<ITest2>>();
-            //var inst2 = factory(inst1);
+            var inst2 = factory(inst1);
 
-            //Assert.IsNotNull(inst2);
-            //Assert.IsInstanceOfType(inst2, typeof(Lazy<ITest2>));
-            //Assert.AreEqual("test1", inst2.Value.Name);
+            Assert.IsNotNull(inst2);
+            Assert.IsInstanceOfType(inst2, typeof(Lazy<ITest2>));
+            Assert.AreEqual("test1", inst2.Value.Name);
         }
 
         [TestMethod]
@@ -195,19 +196,90 @@ namespace Stashbox.Tests
             Assert.AreEqual("test2Test6", inst4.Name);
         }
 
-        public interface ITest1 { string Name { get; set; } }
+        [TestMethod]
+        public void OverrideTests_Resolve_DependencyOverride()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            container.RegisterType<ITest2, Test2>();
 
-        public interface ITest2 { string Name { get; set; } }
+            var inst = container.Resolve<ITest2>(dependencyOverrides: new object[] { new Test1 { Name = "test" } });
 
-        public interface ITest3 { string Name { get; set; } bool MethodInvoked { get; } }
+            Assert.IsNotNull(inst);
+            Assert.IsInstanceOfType(inst, typeof(Test2));
+            Assert.AreEqual("test", inst.Name);
+        }
 
-        public interface ITest4 { string Name { get; set; } }
+        [TestMethod]
+        public void OverrideTests_Resolve_DependencyOverride_ShouldntCached()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            container.RegisterType<ITest2, Test2>();
 
-        public interface ITest5 { string Name { get; set; } }
+            var inst = container.Resolve<ITest2>(dependencyOverrides: new object[] { new Test1 { Name = "test" } });
 
-        public interface ITest6 { string Name { get; set; } }
+            Assert.IsNotNull(inst);
+            Assert.IsInstanceOfType(inst, typeof(Test2));
+            Assert.AreEqual("test", inst.Name);
 
-        public class Test4 : ITest4
+            var inst2 = container.Resolve<ITest2>(dependencyOverrides: new object[] { new Test1 { Name = "test2" } });
+
+            Assert.IsNotNull(inst2);
+            Assert.IsInstanceOfType(inst2, typeof(Test2));
+            Assert.AreEqual("test2", inst2.Name);
+        }
+
+        [TestMethod]
+        public void OverrideTests_Resolve_DependencyOverride_NonGeneric()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            container.RegisterType<ITest2, Test2>();
+
+            var inst = (ITest2)container.Resolve(typeof(ITest2), dependencyOverrides: new object[] { new Test1 { Name = "test" } });
+
+            Assert.IsNotNull(inst);
+            Assert.IsInstanceOfType(inst, typeof(Test2));
+            Assert.AreEqual("test", inst.Name);
+        }
+
+        [TestMethod]
+        public void OverrideTests_Resolve_DependencyOverride_All()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            container.RegisterType<ITest2, Test2>();
+
+            var inst = container.ResolveAll<ITest2>(new object[] { new Test1 { Name = "test" } }).First();
+
+            Assert.IsNotNull(inst);
+            Assert.IsInstanceOfType(inst, typeof(Test2));
+            Assert.AreEqual("test", inst.Name);
+        }
+
+        [TestMethod]
+        public void OverrideTests_Resolve_DependencyOverride_All_NonGeneric()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            container.RegisterType<ITest2, Test2>();
+
+            var inst = (ITest2)container.ResolveAll(typeof(ITest2), new object[] { new Test1 { Name = "test" } }).First();
+
+            Assert.IsNotNull(inst);
+            Assert.IsInstanceOfType(inst, typeof(Test2));
+            Assert.AreEqual("test", inst.Name);
+        }
+
+        interface ITest1 { string Name { get; set; } }
+
+        interface ITest2 { string Name { get; set; } }
+
+        interface ITest3 { string Name { get; set; } bool MethodInvoked { get; } }
+
+        interface ITest4 { string Name { get; set; } }
+
+        interface ITest5 { string Name { get; set; } }
+
+        interface ITest6 { string Name { get; set; } }
+
+        class Test4 : ITest4
         {
             public string Name { get; set; }
 
@@ -217,12 +289,12 @@ namespace Stashbox.Tests
             }
         }
 
-        public class Test5 : ITest5
+        class Test5 : ITest5
         {
             public string Name { get; set; }
         }
 
-        public class Test6 : ITest6
+        class Test6 : ITest6
         {
             public string Name { get; set; }
 
@@ -232,17 +304,12 @@ namespace Stashbox.Tests
             }
         }
 
-        public class Test1 : ITest1
+        class Test1 : ITest1
         {
             public string Name { get; set; }
         }
 
-        public class Test12 : ITest1
-        {
-            public string Name { get; set; }
-        }
-
-        public class Test2 : ITest2
+        class Test2 : ITest2
         {
             public string Name { get; set; }
 
@@ -252,17 +319,7 @@ namespace Stashbox.Tests
             }
         }
 
-        public class Test22 : ITest2
-        {
-            public string Name { get; set; }
-
-            public Test22([Dependency("test1")]ITest1 test1)
-            {
-                this.Name = test1.Name;
-            }
-        }
-
-        public class Test3 : ITest3
+        class Test3 : ITest3
         {
             public string Name { get; set; }
 

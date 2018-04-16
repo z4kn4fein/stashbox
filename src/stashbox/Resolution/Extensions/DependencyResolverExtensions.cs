@@ -14,9 +14,10 @@ namespace Stashbox
         /// <typeparam name="TKey">The type of the requested instance.</typeparam>
         /// <param name="resolver">The dependency resolver.</param>
         /// <param name="nullResultAllowed">If true, the container will return with null instead of throwing <see cref="ResolutionFailedException"/>.</param>
+        /// <param name="dependencyOverrides">A collection of objects which are used to override certain dependencies of the requested service.</param>
         /// <returns>The resolved object.</returns>
-        public static TKey Resolve<TKey>(this IDependencyResolver resolver, bool nullResultAllowed = false) =>
-            (TKey)resolver.Resolve(typeof(TKey), nullResultAllowed);
+        public static TKey Resolve<TKey>(this IDependencyResolver resolver, bool nullResultAllowed = false, object[] dependencyOverrides = null) =>
+            (TKey)resolver.Resolve(typeof(TKey), nullResultAllowed, dependencyOverrides);
 
 
         /// <summary>
@@ -26,9 +27,10 @@ namespace Stashbox
         /// <param name="resolver">The dependency resolver.</param>
         /// <param name="name">The name of the requested registration.</param>
         /// <param name="nullResultAllowed">If true, the container will return with null instead of throwing <see cref="ResolutionFailedException"/>.</param>
+        /// <param name="dependencyOverrides">A collection of objects which are used to override certain dependencies of the requested service.</param>
         /// <returns>The resolved object.</returns>
-        public static TKey Resolve<TKey>(this IDependencyResolver resolver, object name, bool nullResultAllowed = false) =>
-            (TKey)resolver.Resolve(typeof(TKey), name, nullResultAllowed);
+        public static TKey Resolve<TKey>(this IDependencyResolver resolver, object name, bool nullResultAllowed = false, object[] dependencyOverrides = null) =>
+            (TKey)resolver.Resolve(typeof(TKey), name, nullResultAllowed, dependencyOverrides);
 
         /// <summary>
         /// Returns a factory method which can be used to activate a type.

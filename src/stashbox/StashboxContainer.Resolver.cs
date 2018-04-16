@@ -6,20 +6,20 @@ namespace Stashbox
     public partial class StashboxContainer
     {
         /// <inheritdoc />
-        public object Resolve(Type typeFrom, bool nullResultAllowed = false) =>
-           this.rootResolver.Resolve(typeFrom, nullResultAllowed);
+        public object Resolve(Type typeFrom, bool nullResultAllowed = false, object[] dependencyOverrides = null) =>
+           this.rootResolver.Resolve(typeFrom, nullResultAllowed, dependencyOverrides);
 
         /// <inheritdoc />
-        public object Resolve(Type typeFrom, object name, bool nullResultAllowed = false) =>
-            this.rootResolver.Resolve(typeFrom, name, nullResultAllowed);
+        public object Resolve(Type typeFrom, object name, bool nullResultAllowed = false, object[] dependencyOverrides = null) =>
+            this.rootResolver.Resolve(typeFrom, name, nullResultAllowed, dependencyOverrides);
 
         /// <inheritdoc />
-        public IEnumerable<TKey> ResolveAll<TKey>() =>
-            this.rootResolver.ResolveAll<TKey>();
+        public IEnumerable<TKey> ResolveAll<TKey>(object[] dependencyOverrides = null) =>
+            this.rootResolver.ResolveAll<TKey>(dependencyOverrides);
 
         /// <inheritdoc />
-        public IEnumerable<object> ResolveAll(Type typeFrom) =>
-            this.rootResolver.ResolveAll(typeFrom);
+        public IEnumerable<object> ResolveAll(Type typeFrom, object[] dependencyOverrides = null) =>
+            this.rootResolver.ResolveAll(typeFrom, dependencyOverrides);
 
         /// <inheritdoc />
         public Delegate ResolveFactory(Type typeFrom, object name = null, bool nullResultAllowed = false, params Type[] parameterTypes) =>
