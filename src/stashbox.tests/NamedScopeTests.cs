@@ -288,6 +288,53 @@ namespace Stashbox.Tests
             Assert.IsNull(container.BeginScope("A").Resolve<Test2>(nullResultAllowed: true));
         }
 
+        [TestMethod]
+        public void NamedScope_ChildContainer()
+        {
+            var container = new StashboxContainer()
+                .RegisterType<Test2>(config => config.DefinesScope("A"))
+                .RegisterType<ITest, Test>(config => config.InNamedScope("A"));
+
+            var child = container.CreateChildContainer()
+                .RegisterType<ITest, Test1>(config => config.InNamedScope("A"));
+
+            var inst = child.Resolve<Test2>();
+
+            Assert.IsInstanceOfType(inst.Test, typeof(Test1));
+        }
+
+        [TestMethod]
+        public void NamedScope_ChildContainer_Chain()
+        {
+            var container = new StashboxContainer()
+                .RegisterType<Test2>(config => config.DefinesScope("B").InNamedScope("A"));
+
+            var child = container.CreateChildContainer()
+                .RegisterType<ITest, Test1>(config => config.InNamedScope("B"))
+                .RegisterType<Test4>(config => config.DefinesScope("A"));
+
+            var inst = child.Resolve<Test4>();
+
+            Assert.IsNotNull(inst.Test);
+            Assert.IsNotNull(inst.Test.Test);
+        }
+
+        [TestMethod]
+        public void NamedScope_ChildContainer_Chain_Reverse()
+        {
+            var container = new StashboxContainer()
+                .RegisterType<Test4>(config => config.DefinesScope("A"))
+                .RegisterType<ITest, Test1>(config => config.InNamedScope("B"));
+
+            var child = container.CreateChildContainer()
+                .RegisterType<Test2>(config => config.DefinesScope("B").InNamedScope("A"));
+
+            var inst = child.Resolve<Test4>();
+
+            Assert.IsNotNull(inst.Test);
+            Assert.IsNotNull(inst.Test.Test);
+        }
+
         interface ITest
         { }
 
@@ -321,6 +368,16 @@ namespace Stashbox.Tests
             }
 
             public ITest Test { get; }
+        }
+
+        class Test4
+        {
+            public Test4(Test2 test)
+            {
+                Test = test;
+            }
+
+            public Test2 Test { get; }
         }
 
         class Test3

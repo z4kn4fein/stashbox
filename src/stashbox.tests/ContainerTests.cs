@@ -177,6 +177,36 @@ namespace Stashbox.Tests
             Assert.IsTrue(regs[0].RegistrationContext.Lifetime is SingletonLifetime);
         }
 
+        [TestMethod]
+        public void ContainerTests_ChildContainer_Singleton()
+        {
+            var container = new StashboxContainer();
+            container.RegisterSingleton<ITest1, Test1>();
+
+            var child = container.CreateChildContainer();
+            child.RegisterSingleton<ITest2, Test2>();
+
+            var test = child.Resolve<ITest2>();
+
+            Assert.IsNotNull(test);
+            Assert.IsInstanceOfType(test, typeof(Test2));
+        }
+
+        [TestMethod]
+        public void ContainerTests_ChildContainer_Scoped()
+        {
+            var container = new StashboxContainer();
+            container.RegisterScoped<ITest1, Test1>();
+
+            var child = container.CreateChildContainer();
+            child.RegisterType<ITest2, Test2>();
+
+            var test = child.Resolve<ITest2>();
+
+            Assert.IsNotNull(test);
+            Assert.IsInstanceOfType(test, typeof(Test2));
+        }
+
         public interface ITest1 { }
 
         public interface ITest2 { }

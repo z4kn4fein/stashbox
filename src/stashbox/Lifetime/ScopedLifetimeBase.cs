@@ -11,10 +11,6 @@ namespace Stashbox.Lifetime
     /// </summary>
     public abstract class ScopedLifetimeBase : LifetimeBase
     {
-        private readonly object syncObject = new object();
-
-        private volatile Func<IResolutionScope, object> factoryDelegate;
-
         /// <summary>
         /// The id of the scope.
         /// </summary>
@@ -31,16 +27,8 @@ namespace Stashbox.Lifetime
         /// <returns></returns>
         public Func<IResolutionScope, object> GetFactoryDelegate(IContainerContext containerContext, IServiceRegistration serviceRegistration, IObjectBuilder objectBuilder, ResolutionContext resolutionContext, Type resolveType)
         {
-            if (this.factoryDelegate != null) return this.factoryDelegate;
-            lock (this.syncObject)
-            {
-                if (this.factoryDelegate != null) return this.factoryDelegate;
-                var expr = base.GetExpression(containerContext, serviceRegistration, objectBuilder, resolutionContext, resolveType);
-                if (expr == null)
-                    return null;
-
-                return this.factoryDelegate = expr.CompileDelegate(resolutionContext);
-            }
+            var expr = base.GetExpression(containerContext, serviceRegistration, objectBuilder, resolutionContext, resolveType);
+            return expr?.CompileDelegate(resolutionContext);
         }
 
         /// <summary>
