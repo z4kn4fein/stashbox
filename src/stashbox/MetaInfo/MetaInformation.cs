@@ -115,45 +115,62 @@ namespace Stashbox.MetaInfo
 
         private IEnumerable<MemberInformation> FillMembers(TypeInfo typeInfo)
         {
-            return typeInfo.DeclaredProperties.Where(property => property.CanWrite && !property.IsIndexer())
-                   .Select(propertyInfo =>
-                   {
-                       var attr = propertyInfo.GetDependencyAttribute();
-                       return new MemberInformation
-                       {
-                           TypeInformation = new TypeInformation
-                           {
-                               Type = propertyInfo.PropertyType,
-                               DependencyName = attr?.Name,
-                               ForcedDependency = attr != null,
-                               ParentType = this.type,
-                               CustomAttributes = propertyInfo.GetCustomAttributes()?.CastToArray(),
-                               ParameterName = propertyInfo.Name,
-                               IsMember = true
-                           },
-                           MemberInfo = propertyInfo
-                       };
-                   })
-                   .Concat(typeInfo.DeclaredFields.Where(field => !field.IsInitOnly && !field.IsBackingField())
-                           .Select(fieldInfo =>
-                           {
-                               var attr = fieldInfo.GetDependencyAttribute();
-                               return new MemberInformation
-                               {
-                                   TypeInformation = new TypeInformation
-                                   {
-                                       Type = fieldInfo.FieldType,
-                                       DependencyName = attr?.Name,
-                                       ForcedDependency = attr != null,
-                                       ParentType = this.type,
-                                       CustomAttributes = fieldInfo.GetCustomAttributes()?.CastToArray(),
-                                       ParameterName = fieldInfo.Name,
-                                       IsMember = true
-                                   },
-                                   MemberInfo = fieldInfo
-                               };
-                           }));
+            var members = this.CollectProperties(typeInfo)
+                   .Concat(this.CollectFields(typeInfo));
+
+            var baseType = typeInfo.BaseType;
+            while (baseType != null && !baseType.IsObjectType())
+            {
+                var baseTypeInfo = baseType.GetTypeInfo();
+                members = members.Concat(this.CollectProperties(baseTypeInfo)
+                    .Concat(this.CollectFields(baseTypeInfo)));
+                baseType = baseTypeInfo.BaseType;
+            }
+
+            return members;
         }
+
+        private IEnumerable<MemberInformation> CollectProperties(TypeInfo typeInfo) =>
+           typeInfo.DeclaredProperties.Where(property => property.CanWrite && !property.IsIndexer())
+                .Select(propertyInfo =>
+                {
+                    var attr = propertyInfo.GetDependencyAttribute();
+                    return new MemberInformation
+                    {
+                        TypeInformation = new TypeInformation
+                        {
+                            Type = propertyInfo.PropertyType,
+                            DependencyName = attr?.Name,
+                            ForcedDependency = attr != null,
+                            ParentType = this.type,
+                            CustomAttributes = propertyInfo.GetCustomAttributes()?.CastToArray(),
+                            ParameterName = propertyInfo.Name,
+                            IsMember = true
+                        },
+                        MemberInfo = propertyInfo
+                    };
+                });
+
+        private IEnumerable<MemberInformation> CollectFields(TypeInfo typeInfo) =>
+            typeInfo.DeclaredFields.Where(field => !field.IsInitOnly && !field.IsBackingField())
+                .Select(fieldInfo =>
+                {
+                    var attr = fieldInfo.GetDependencyAttribute();
+                    return new MemberInformation
+                    {
+                        TypeInformation = new TypeInformation
+                        {
+                            Type = fieldInfo.FieldType,
+                            DependencyName = attr?.Name,
+                            ForcedDependency = attr != null,
+                            ParentType = this.type,
+                            CustomAttributes = fieldInfo.GetCustomAttributes()?.CastToArray(),
+                            ParameterName = fieldInfo.Name,
+                            IsMember = true
+                        },
+                        MemberInfo = fieldInfo
+                    };
+                });
 
         private void CollectGenericConstraints(TypeInfo typeInfo)
         {

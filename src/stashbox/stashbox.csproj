@@ -25,7 +25,7 @@
         <PackageVersion>1.0.0</PackageVersion>
         <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
         <DebugType>portable</DebugType>
-        <PackageReleaseNotes>bugfix: #42 Circular dependency tracking doesn't work with factory resolution</PackageReleaseNotes>
+        <PackageReleaseNotes>bugfix: #43 Issue with Member Injection with Attribute but private setter</PackageReleaseNotes>
     </PropertyGroup>
     <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.0'">
         <AssemblyTitle>Stashbox .NET Standard 1.0</AssemblyTitle>
