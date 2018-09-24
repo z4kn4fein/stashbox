@@ -35,6 +35,8 @@ build_script:
 
 after_build:
 - SonarQube.Scanner.MSBuild.exe end /d:"sonar.login=%sonarqube_token%"
+- dotnet tool install -g InheritDocTool
+- inheritdoc -o
 - msbuild /t:Pack /p:IncludeSymbols=true /p:Configuration=%configuration% /p:PackageOutputPath=..\artifacts src\stashbox.csproj
 
 test_script:
