@@ -50,12 +50,12 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<ITest, Test>();
+                container.Register<ITest, Test>();
 
                 var test1 = new Test1();
                 container.WireUpAs<ITest1>(test1);
 
-                container.RegisterType<Test2>();
+                container.Register<Test2>();
 
                 var inst = container.Resolve<Test2>();
 
@@ -72,14 +72,14 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<ITest, Test>();
+                container.Register<ITest, Test>();
 
                 var test1 = new Test1();
                 container.WireUpAs<ITest1>(test1);
 
                 container.ReMap<ITest, Test>();
 
-                container.RegisterType<Test2>();
+                container.Register<Test2>();
 
                 var inst = container.Resolve<Test2>();
 
@@ -96,7 +96,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<ITest, Test>();
+                container.Register<ITest, Test>();
                 var test1 = new Test1();
                 container.WireUp(test1);
                 var inst = container.Resolve<Test1>();
@@ -113,7 +113,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<ITest, Test>();
+                container.Register<ITest, Test>();
                 object test1 = new Test1();
                 container.WireUp(typeof(Test1), test1);
                 var inst = container.Resolve<Test1>();

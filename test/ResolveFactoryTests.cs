@@ -10,7 +10,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<Test>();
+                container.Register<Test>();
                 var factory = container.ResolveFactory<Test>();
 
                 Assert.IsNotNull(factory());
@@ -22,8 +22,8 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<IService, Service>(c => c.WithName("service"));
-                container.RegisterType<IService, Service1>(c => c.WithName("service1"));
+                container.Register<IService, Service>(c => c.WithName("service"));
+                container.Register<IService, Service1>(c => c.WithName("service1"));
                 var factory = container.ResolveFactory<IService>("service");
 
                 Assert.IsInstanceOfType(factory(), typeof(Service));
@@ -35,7 +35,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<Test>();
+                container.Register<Test>();
 
                 using (var scope = container.BeginScope())
                 {
@@ -51,7 +51,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<Test1>();
+                container.Register<Test1>();
                 var factory = container.ResolveFactory<Test, Test1>();
 
                 var test = new Test();
@@ -66,7 +66,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<Test1>();
+                container.Register<Test1>();
 
                 using (var scope = container.BeginScope())
                 {
@@ -85,7 +85,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<Test2>();
+                container.Register<Test2>();
                 var factory = container.ResolveFactory<Test, Test1, Test2>();
 
                 var test = new Test();
@@ -102,7 +102,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<Test2>();
+                container.Register<Test2>();
 
                 using (var scope = container.BeginScope())
                 {
@@ -123,7 +123,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<Test3>();
+                container.Register<Test3>();
                 var factory = container.ResolveFactory<Test, Test1, Test2, Test3>();
 
                 var test = new Test();
@@ -142,7 +142,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<Test3>();
+                container.Register<Test3>();
 
                 using (var scope = container.BeginScope())
                 {
@@ -165,7 +165,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<Test4>();
+                container.Register<Test4>();
                 var factory = container.ResolveFactory<Test, Test1, Test2, Test3, Test4>();
 
                 var test = new Test();
@@ -186,7 +186,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<Test4>();
+                container.Register<Test4>();
 
                 using (var scope = container.BeginScope())
                 {

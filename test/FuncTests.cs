@@ -14,7 +14,7 @@ namespace Stashbox.Tests
         public void FuncTests_Resolve()
         {
             var container = new StashboxContainer();
-            container.RegisterType<ITest, Test>();
+            container.Register<ITest, Test>();
             var inst = container.Resolve<Func<ITest>>();
 
             Assert.IsNotNull(inst);
@@ -35,7 +35,7 @@ namespace Stashbox.Tests
         public void FuncTests_Resolve_Lazy()
         {
             var container = new StashboxContainer();
-            container.RegisterType<ITest, Test>();
+            container.Register<ITest, Test>();
             var inst = container.Resolve<Func<Lazy<ITest>>>();
 
             Assert.IsNotNull(inst);
@@ -56,7 +56,7 @@ namespace Stashbox.Tests
         public void FuncTests_Resolve_Enumerable()
         {
             var container = new StashboxContainer();
-            container.RegisterType<ITest, Test>();
+            container.Register<ITest, Test>();
             var inst = container.Resolve<Func<IEnumerable<ITest>>>();
 
             Assert.IsNotNull(inst);
@@ -77,8 +77,8 @@ namespace Stashbox.Tests
         public void FuncTests_Resolve_ConstructorDependency()
         {
             var container = new StashboxContainer();
-            container.RegisterType<ITest, Test>();
-            container.RegisterType<Test2>();
+            container.Register<ITest, Test>();
+            container.Register<Test2>();
             var inst = container.Resolve<Test2>();
 
             Assert.IsNotNull(inst.Test);
@@ -90,7 +90,7 @@ namespace Stashbox.Tests
         public void FuncTests_Resolve_ConstructorDependency_Null()
         {
             var container = new StashboxContainer();
-            container.RegisterType<Test2>();
+            container.Register<Test2>();
             var inst = container.Resolve<Test2>(nullResultAllowed: true);
 
             Assert.IsNull(inst);
@@ -100,7 +100,7 @@ namespace Stashbox.Tests
         public void FuncTests_Resolve_ParameterInjection()
         {
             var container = new StashboxContainer();
-            container.RegisterType<IFTest1, FTest1>();
+            container.Register<IFTest1, FTest1>();
             var inst = container.Resolve<Func<ITest, IFTest1>>();
 
             var t = new Test();
@@ -113,7 +113,7 @@ namespace Stashbox.Tests
         public void FuncTests_Resolve_ParameterInjection_2Params()
         {
             var container = new StashboxContainer();
-            container.RegisterType<IFTest2, FTest2>();
+            container.Register<IFTest2, FTest2>();
             var inst = container.Resolve<Func<ITest, IFTest1, IFTest2>>();
 
             var t = new Test();
@@ -128,7 +128,7 @@ namespace Stashbox.Tests
         public void FuncTests_Resolve_ParameterInjection_3Params()
         {
             var container = new StashboxContainer();
-            container.RegisterType<IFTest3, FTest3>();
+            container.Register<IFTest3, FTest3>();
             var inst = container.Resolve<Func<ITest, IFTest1, IFTest2, IFTest3>>();
 
             var t = new Test();
@@ -145,8 +145,8 @@ namespace Stashbox.Tests
         public void FuncTests_Resolve_ParameterInjection_SubDependency()
         {
             var container = new StashboxContainer();
-            container.RegisterType<FunctTest2>();
-            container.RegisterType<FuncTest>();
+            container.Register<FunctTest2>();
+            container.Register<FuncTest>();
             var inst = container.Resolve<Func<ITest, FuncTest>>();
 
             var t = new Test();
@@ -159,10 +159,10 @@ namespace Stashbox.Tests
         public void FuncTests_Resolve_ParameterInjection_Mixed()
         {
             var container = new StashboxContainer();
-            container.RegisterType<FuncTest3>();
-            container.RegisterType<FuncTest4>();
-            container.RegisterType<Dep2>();
-            container.RegisterType<Dep4>();
+            container.Register<FuncTest3>();
+            container.Register<FuncTest4>();
+            container.Register<Dep2>();
+            container.Register<Dep4>();
             var inst = container.Resolve<FuncTest3>();
 
             var d1 = new Dep1();
@@ -180,10 +180,10 @@ namespace Stashbox.Tests
         public void FuncTests_Resolve_ParameterInjection_Mixed2()
         {
             var container = new StashboxContainer();
-            container.RegisterType<FuncTest5>();
-            container.RegisterType<FuncTest6>();
-            container.RegisterType<Dep2>();
-            container.RegisterType<Dep4>();
+            container.Register<FuncTest5>();
+            container.Register<FuncTest6>();
+            container.Register<Dep2>();
+            container.Register<Dep4>();
             var inst = container.Resolve<FuncTest5>();
 
             var d3 = new Dep3();
@@ -352,7 +352,7 @@ namespace Stashbox.Tests
         {
             var container = new StashboxContainer();
 
-            container.RegisterType<ITest, Test>();
+            container.Register<ITest, Test>();
             container.RegisterFunc(resolver => resolver.Resolve<ITest>());
 
             Assert.IsNotNull(container.Resolve<Func<ITest>>()());

@@ -16,7 +16,7 @@ namespace Stashbox.Tests
             ITest test;
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<ITest, Test>(context => context.WithInitializer((t, resolver) => t.Method()));
+                container.Register<ITest, Test>(context => context.WithInitializer((t, resolver) => t.Method()));
                 test = container.Resolve<ITest>();
             }
 
@@ -29,8 +29,8 @@ namespace Stashbox.Tests
             ITest test;
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<Test1>();
-                container.RegisterType<ITest, Test>(context => context.WithInitializer((t, resolver) => t.ImplMethod(resolver.Resolve<Test1>())));
+                container.Register<Test1>();
+                container.Register<ITest, Test>(context => context.WithInitializer((t, resolver) => t.ImplMethod(resolver.Resolve<Test1>())));
                 test = container.Resolve<ITest>();
             }
 
@@ -49,8 +49,8 @@ namespace Stashbox.Tests
                     It.IsAny<IServiceRegistration>(), It.IsAny<Type>())).Returns<object, IContainerContext, ResolutionContext, IServiceRegistration, Type>((o, c, r, sr, t) => o);
 
                 container.RegisterExtension(post.Object);
-                container.RegisterType<Test1>();
-                container.RegisterType<ITest, Test>(context => context.WithInitializer((t, resolver) => t.ImplMethod(resolver.Resolve<Test1>())));
+                container.Register<Test1>();
+                container.Register<ITest, Test>(context => context.WithInitializer((t, resolver) => t.ImplMethod(resolver.Resolve<Test1>())));
                 test = container.Resolve<ITest>();
 
                 post.Verify(p => p.PostBuild(It.IsAny<object>(), container.ContainerContext, It.IsAny<ResolutionContext>(), It.IsAny<IServiceRegistration>(), It.IsAny<Type>()), Times.Exactly(2));
@@ -60,12 +60,12 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
-        public void FinalizerTests_RegisterType()
+        public void FinalizerTests_Register()
         {
             ITest test;
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<ITest, Test>(context => context.WithFinalizer(t => t.Method()));
+                container.Register<ITest, Test>(context => context.WithFinalizer(t => t.Method()));
                 test = container.Resolve<ITest>();
             }
 
@@ -73,12 +73,12 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
-        public void FinalizerTests_RegisterType_ByInterface()
+        public void FinalizerTests_Register_ByInterface()
         {
             ITest test;
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<ITest>(typeof(Test), context => context.WithFinalizer(t => t.Method()));
+                container.Register<ITest>(typeof(Test), context => context.WithFinalizer(t => t.Method()));
                 test = container.Resolve<ITest>();
             }
 
@@ -86,12 +86,12 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
-        public void FinalizerTests_RegisterType_ByImplementation()
+        public void FinalizerTests_Register_ByImplementation()
         {
             Test test;
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<Test>(context => context.WithFinalizer(t => t.Method()));
+                container.Register<Test>(context => context.WithFinalizer(t => t.Method()));
                 test = container.Resolve<Test>();
             }
 
@@ -104,7 +104,7 @@ namespace Stashbox.Tests
             ITest test;
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<ITest, Test>(context => context.WithFinalizer(t => t.Method()));
+                container.Register<ITest, Test>(context => context.WithFinalizer(t => t.Method()));
                 container.ReMap<ITest, Test>(context => context.WithFinalizer(t => t.Method()));
                 test = container.Resolve<ITest>();
             }
@@ -118,7 +118,7 @@ namespace Stashbox.Tests
             ITest test;
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<ITest>(typeof(Test), context => context.WithFinalizer(t => t.Method()));
+                container.Register<ITest>(typeof(Test), context => context.WithFinalizer(t => t.Method()));
                 container.ReMap<ITest>(typeof(Test), context => context.WithFinalizer(t => t.Method()));
                 test = container.Resolve<ITest>();
             }
@@ -132,7 +132,7 @@ namespace Stashbox.Tests
             Test test;
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<Test>(context => context.WithFinalizer(t => t.Method()));
+                container.Register<Test>(context => context.WithFinalizer(t => t.Method()));
                 container.ReMap<Test>(context => context.WithFinalizer(t => t.Method()));
                 test = container.Resolve<Test>();
             }
@@ -193,11 +193,11 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
-        public void FinalizerTests_RegisterType_Multiple_Shouldnt_Throw()
+        public void FinalizerTests_Register_Multiple_Shouldnt_Throw()
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<ITest, Test>(context => context.WithFinalizer(t => t.Method()));
+                container.Register<ITest, Test>(context => context.WithFinalizer(t => t.Method()));
                 for (var i = 0; i < 10; i++)
                 {
                     var test = container.Resolve<ITest>();
@@ -207,11 +207,11 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
-        public void FinalizerTests_RegisterType_Singleton_Multiple_Shouldnt_Throw()
+        public void FinalizerTests_Register_Singleton_Multiple_Shouldnt_Throw()
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<ITest, Test>(context => context.WithFinalizer(t => t.Method()).WithSingletonLifetime());
+                container.Register<ITest, Test>(context => context.WithFinalizer(t => t.Method()).WithSingletonLifetime());
                 for (var i = 0; i < 10; i++)
                 {
                     var test = container.Resolve<ITest>();
@@ -221,11 +221,11 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
-        public void FinalizerTests_RegisterType_Scoped_Multiple_Shouldnt_Throw()
+        public void FinalizerTests_Register_Scoped_Multiple_Shouldnt_Throw()
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<ITest, Test>(context => context.WithFinalizer(t => t.Method()).WithScopedLifetime());
+                container.Register<ITest, Test>(context => context.WithFinalizer(t => t.Method()).WithScopedLifetime());
                 for (var i = 0; i < 10; i++)
                 {
                     ITest test;

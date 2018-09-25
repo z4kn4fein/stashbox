@@ -12,8 +12,8 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<ITest, Test>(context => context.WithFactory(() => new Test("test")));
-                container.RegisterType<ITest1, Test12>();
+                container.Register<ITest, Test>(context => context.WithFactory(() => new Test("test")));
+                container.Register<ITest1, Test12>();
 
                 var inst = container.Resolve<ITest1>();
 
@@ -27,8 +27,8 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<ITest, Test>(context => context.WithFactory(() => new Test("test")));
-                container.RegisterType<ITest2, Test2>();
+                container.Register<ITest, Test>(context => context.WithFactory(() => new Test("test")));
+                container.Register<ITest2, Test2>();
                 container.ReMap<ITest, Test>(context => context.WithFactory(() => new Test("test1")));
                 var inst = container.Resolve<ITest2>();
 
@@ -42,8 +42,8 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<ITest, Test>(context => context.WithFactory(() => new Test("test")));
-                container.RegisterType<ITest1, Test1>();
+                container.Register<ITest, Test>(context => context.WithFactory(() => new Test("test")));
+                container.Register<ITest1, Test1>();
 
                 var inst = container.Resolve<ITest1>();
 
@@ -57,8 +57,8 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<ITest, Test>(context => context.WithInjectionParameters(new InjectionParameter { Value = "test", Name = "name" }));
-                container.RegisterType<ITest1>(context => context.WithFactory(cont =>
+                container.Register<ITest, Test>(context => context.WithInjectionParameters(new InjectionParameter { Value = "test", Name = "name" }));
+                container.Register<ITest1>(context => context.WithFactory(cont =>
                 {
                     var test1 = cont.Resolve<ITest>();
                     return new Test12(test1);
@@ -76,8 +76,8 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<Test3>();
-                container.RegisterType<ITest>(context => context.WithFactory(c => c.Resolve<Test3>()));
+                container.Register<Test3>();
+                container.Register<ITest>(context => context.WithFactory(c => c.Resolve<Test3>()));
 
                 var inst = container.Resolve<ITest>();
 
@@ -90,9 +90,9 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<Test3>();
-                container.RegisterType<ITest1, Test12>();
-                container.RegisterType(typeof(ITest), context => context.WithFactory(c => c.Resolve<Test3>()));
+                container.Register<Test3>();
+                container.Register<ITest1, Test12>();
+                container.Register(typeof(ITest), context => context.WithFactory(c => c.Resolve<Test3>()));
 
                 var test1 = container.Resolve<ITest1>();
                 Assert.IsInstanceOfType(test1.Test, typeof(Test3));

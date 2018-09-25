@@ -14,9 +14,9 @@ namespace Stashbox.Tests
         public void EnumerableTests_Resolve_Array_PreserveOrder()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterType<ITest1, Test1>();
-            container.RegisterType<ITest1, Test11>();
-            container.RegisterType<ITest1, Test12>();
+            container.Register<ITest1, Test1>();
+            container.Register<ITest1, Test11>();
+            container.Register<ITest1, Test12>();
 
             var all = container.Resolve<ITest1[]>();
 
@@ -27,9 +27,9 @@ namespace Stashbox.Tests
         public void EnumerableTests_Resolve_IList()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterType<ITest1, Test1>();
-            container.RegisterType<ITest1, Test11>();
-            container.RegisterType<ITest1, Test12>();
+            container.Register<ITest1, Test1>();
+            container.Register<ITest1, Test11>();
+            container.Register<ITest1, Test12>();
 
             var all = container.Resolve<IList<ITest1>>();
 
@@ -40,9 +40,9 @@ namespace Stashbox.Tests
         public void EnumerableTests_Resolve_ICollection()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterType<ITest1, Test1>();
-            container.RegisterType<ITest1, Test11>();
-            container.RegisterType<ITest1, Test12>();
+            container.Register<ITest1, Test1>();
+            container.Register<ITest1, Test11>();
+            container.Register<ITest1, Test12>();
 
             var all = container.Resolve<ICollection<ITest1>>();
 
@@ -53,9 +53,9 @@ namespace Stashbox.Tests
         public void EnumerableTests_Resolve_IReadonlyCollection()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterType<ITest1, Test1>();
-            container.RegisterType<ITest1, Test11>();
-            container.RegisterType<ITest1, Test12>();
+            container.Register<ITest1, Test1>();
+            container.Register<ITest1, Test11>();
+            container.Register<ITest1, Test12>();
 
             var all = container.Resolve<IReadOnlyCollection<ITest1>>();
 
@@ -66,9 +66,9 @@ namespace Stashbox.Tests
         public void EnumerableTests_Resolve_IReadOnlyList()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterType<ITest1, Test1>();
-            container.RegisterType<ITest1, Test11>();
-            container.RegisterType<ITest1, Test12>();
+            container.Register<ITest1, Test1>();
+            container.Register<ITest1, Test11>();
+            container.Register<ITest1, Test12>();
 
             var all = container.Resolve<IReadOnlyList<ITest1>>();
 
@@ -79,11 +79,11 @@ namespace Stashbox.Tests
         public void EnumerableTests_Resolve()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterType<ITest1, Test1>();
-            container.RegisterType<ITest1, Test11>();
-            container.RegisterType<ITest1, Test12>();
-            container.RegisterType<ITest2, Test2>(context => context.WithName("enumerable"));
-            container.RegisterType<ITest2, Test22>(context => context.WithName("array"));
+            container.Register<ITest1, Test1>();
+            container.Register<ITest1, Test11>();
+            container.Register<ITest1, Test12>();
+            container.Register<ITest2, Test2>(context => context.WithName("enumerable"));
+            container.Register<ITest2, Test22>(context => context.WithName("array"));
 
             container.Resolve<ITest2>("enumerable");
             container.Resolve<ITest2>("array");
@@ -125,9 +125,9 @@ namespace Stashbox.Tests
         public void EnumerableTests_Resolve_Scoped()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterType<ITest1, Test1>();
-            container.RegisterType<ITest1, Test11>();
-            container.RegisterType<ITest1, Test12>();
+            container.Register<ITest1, Test1>();
+            container.Register<ITest1, Test11>();
+            container.Register<ITest1, Test12>();
 
             var child = container.BeginScope();
 
@@ -140,9 +140,9 @@ namespace Stashbox.Tests
         public void EnumerableTests_Resolve_Parent()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterType<ITest1, Test1>();
-            container.RegisterType<ITest1, Test11>();
-            container.RegisterType<ITest1, Test12>();
+            container.Register<ITest1, Test1>();
+            container.Register<ITest1, Test11>();
+            container.Register<ITest1, Test12>();
 
             var child = container.CreateChildContainer();
 
@@ -167,9 +167,9 @@ namespace Stashbox.Tests
         public void EnumerableTests_Resolve_Scoped_Lazy()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterType<ITest1, Test1>();
-            container.RegisterType<ITest1, Test11>();
-            container.RegisterType<ITest1, Test12>();
+            container.Register<ITest1, Test1>();
+            container.Register<ITest1, Test11>();
+            container.Register<ITest1, Test12>();
 
             var child = container.BeginScope();
 
@@ -182,9 +182,9 @@ namespace Stashbox.Tests
         public void EnumerableTests_Resolve_Parent_Lazy()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterType<ITest1, Test1>();
-            container.RegisterType<ITest1, Test11>();
-            container.RegisterType<ITest1, Test12>();
+            container.Register<ITest1, Test1>();
+            container.Register<ITest1, Test11>();
+            container.Register<ITest1, Test12>();
 
             var child = container.CreateChildContainer();
 
@@ -221,9 +221,9 @@ namespace Stashbox.Tests
         public void EnumerableTests_Resolve_Scoped_Func()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterType<ITest1, Test1>();
-            container.RegisterType<ITest1, Test11>();
-            container.RegisterType<ITest1, Test12>();
+            container.Register<ITest1, Test1>();
+            container.Register<ITest1, Test11>();
+            container.Register<ITest1, Test12>();
 
             var child = container.BeginScope();
 
@@ -236,9 +236,9 @@ namespace Stashbox.Tests
         public void EnumerableTests_Resolve_Parent_Func()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterType<ITest1, Test1>();
-            container.RegisterType<ITest1, Test11>();
-            container.RegisterType<ITest1, Test12>();
+            container.Register<ITest1, Test1>();
+            container.Register<ITest1, Test11>();
+            container.Register<ITest1, Test12>();
 
             var child = container.CreateChildContainer();
 
@@ -275,9 +275,9 @@ namespace Stashbox.Tests
         public void EnumerableTests_Resolve_Lazy()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterType<ITest1, Test1>();
-            container.RegisterType<ITest1, Test11>();
-            container.RegisterType<ITest1, Test12>();
+            container.Register<ITest1, Test1>();
+            container.Register<ITest1, Test11>();
+            container.Register<ITest1, Test12>();
 
             var all = container.Resolve<IEnumerable<Lazy<ITest1>>>();
 
@@ -298,9 +298,9 @@ namespace Stashbox.Tests
         public void EnumerableTests_Resolve_Func()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterType<ITest1, Test1>();
-            container.RegisterType<ITest1, Test11>();
-            container.RegisterType<ITest1, Test12>();
+            container.Register<ITest1, Test1>();
+            container.Register<ITest1, Test11>();
+            container.Register<ITest1, Test12>();
 
             var all = container.Resolve<IEnumerable<Func<ITest1>>>();
 
@@ -321,11 +321,11 @@ namespace Stashbox.Tests
         public void EnumerableTests_ResolveNonGeneric()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterType<ITest1, Test1>();
-            container.RegisterType<ITest1, Test11>();
-            container.RegisterType<ITest1, Test12>();
-            container.RegisterType<ITest2, Test2>(context => context.WithName("enumerable"));
-            container.RegisterType<ITest2, Test22>(context => context.WithName("array"));
+            container.Register<ITest1, Test1>();
+            container.Register<ITest1, Test11>();
+            container.Register<ITest1, Test12>();
+            container.Register<ITest2, Test2>(context => context.WithName("enumerable"));
+            container.Register<ITest2, Test22>(context => context.WithName("array"));
 
             container.Resolve<ITest2>("enumerable");
             container.Resolve<ITest2>("array");
@@ -343,11 +343,11 @@ namespace Stashbox.Tests
         public void EnumerableTests_ResolveNonGeneric_Scoped()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterType<ITest1, Test1>();
-            container.RegisterType<ITest1, Test11>();
-            container.RegisterType<ITest1, Test12>();
-            container.RegisterType<ITest2, Test2>(context => context.WithName("enumerable"));
-            container.RegisterType<ITest2, Test22>(context => context.WithName("array"));
+            container.Register<ITest1, Test1>();
+            container.Register<ITest1, Test11>();
+            container.Register<ITest1, Test12>();
+            container.Register<ITest2, Test2>(context => context.WithName("enumerable"));
+            container.Register<ITest2, Test22>(context => context.WithName("array"));
 
             var scope = container.BeginScope();
 
@@ -367,11 +367,11 @@ namespace Stashbox.Tests
         public void EnumerableTests_Parallel_Resolve()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterType<ITest1, Test1>();
-            container.RegisterType<ITest1, Test11>();
-            container.RegisterType<ITest1, Test12>();
-            container.RegisterType<ITest2, Test2>(context => context.WithName("enumerable"));
-            container.RegisterType<ITest2, Test22>(context => context.WithName("array"));
+            container.Register<ITest1, Test1>();
+            container.Register<ITest1, Test11>();
+            container.Register<ITest1, Test12>();
+            container.Register<ITest2, Test2>(context => context.WithName("enumerable"));
+            container.Register<ITest2, Test22>(context => context.WithName("array"));
 
             Parallel.For(0, 10000, (i) =>
             {
@@ -387,11 +387,11 @@ namespace Stashbox.Tests
         public void EnumerableTests_Parallel_Resolve_NonGeneric()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterType<ITest1, Test1>();
-            container.RegisterType<ITest1, Test11>();
-            container.RegisterType<ITest1, Test12>();
-            container.RegisterType<ITest2, Test2>(context => context.WithName("enumerable"));
-            container.RegisterType<ITest2, Test22>(context => context.WithName("array"));
+            container.Register<ITest1, Test1>();
+            container.Register<ITest1, Test11>();
+            container.Register<ITest1, Test12>();
+            container.Register<ITest2, Test2>(context => context.WithName("enumerable"));
+            container.Register<ITest2, Test22>(context => context.WithName("array"));
 
             Parallel.For(0, 10000, (i) =>
             {
@@ -410,9 +410,9 @@ namespace Stashbox.Tests
         public void EnumerableTests_Resolve_PreserveOrder()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterType<ITest1, Test1>();
-            container.RegisterType<ITest1, Test11>();
-            container.RegisterType<ITest1, Test12>();
+            container.Register<ITest1, Test1>();
+            container.Register<ITest1, Test11>();
+            container.Register<ITest1, Test12>();
 
             var services = container.Resolve<IEnumerable<ITest1>>().ToArray();
 
@@ -425,9 +425,9 @@ namespace Stashbox.Tests
         public void EnumerableTests_ResolveAll_PreserveOrder()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterType<ITest1, Test1>();
-            container.RegisterType<ITest1, Test11>();
-            container.RegisterType<ITest1, Test12>();
+            container.Register<ITest1, Test1>();
+            container.Register<ITest1, Test11>();
+            container.Register<ITest1, Test12>();
 
             var services = container.ResolveAll<ITest1>().ToArray();
 
@@ -441,9 +441,9 @@ namespace Stashbox.Tests
         {
             IStashboxContainer container = new StashboxContainer();
 
-            container.RegisterType<ITest1, Test1>();
-            container.RegisterType<ITest1, Test11>();
-            container.RegisterType<ITest1, Test12>();
+            container.Register<ITest1, Test1>();
+            container.Register<ITest1, Test11>();
+            container.Register<ITest1, Test12>();
 
             var child = container.BeginScope();
 
@@ -459,9 +459,9 @@ namespace Stashbox.Tests
         {
             IStashboxContainer container = new StashboxContainer();
 
-            container.RegisterType<ITest1, Test1>();
-            container.RegisterType<ITest1, Test11>();
-            container.RegisterType<ITest1, Test12>();
+            container.Register<ITest1, Test1>();
+            container.Register<ITest1, Test11>();
+            container.Register<ITest1, Test12>();
 
             var child = container.CreateChildContainer();
 
@@ -477,9 +477,9 @@ namespace Stashbox.Tests
         {
             IStashboxContainer container = new StashboxContainer();
 
-            container.RegisterType<ITest1, Test1>();
-            container.RegisterType<ITest1, Test11>();
-            container.RegisterType<ITest1, Test12>();
+            container.Register<ITest1, Test1>();
+            container.Register<ITest1, Test11>();
+            container.Register<ITest1, Test12>();
 
             var child = container.BeginScope();
 
@@ -495,9 +495,9 @@ namespace Stashbox.Tests
         {
             IStashboxContainer container = new StashboxContainer();
 
-            container.RegisterType<ITest1, Test1>();
-            container.RegisterType<ITest1, Test11>();
-            container.RegisterType<ITest1, Test12>();
+            container.Register<ITest1, Test1>();
+            container.Register<ITest1, Test11>();
+            container.Register<ITest1, Test12>();
 
             var child = container.CreateChildContainer();
 
@@ -513,9 +513,9 @@ namespace Stashbox.Tests
         {
             IStashboxContainer container = new StashboxContainer();
 
-            container.RegisterType<ITest1, Test1>();
-            container.RegisterType<ITest1, Test11>();
-            container.RegisterType<ITest1, Test12>();
+            container.Register<ITest1, Test1>();
+            container.Register<ITest1, Test11>();
+            container.Register<ITest1, Test12>();
 
             var child = container.BeginScope();
 
@@ -531,9 +531,9 @@ namespace Stashbox.Tests
         {
             IStashboxContainer container = new StashboxContainer();
 
-            container.RegisterType<ITest1, Test1>();
-            container.RegisterType<ITest1, Test11>();
-            container.RegisterType<ITest1, Test12>();
+            container.Register<ITest1, Test1>();
+            container.Register<ITest1, Test11>();
+            container.Register<ITest1, Test12>();
 
             var child = container.CreateChildContainer();
 
@@ -548,9 +548,9 @@ namespace Stashbox.Tests
         public void EnumerableTests_Resolve_PreserveOrder_Lazy()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterType<ITest1, Test1>();
-            container.RegisterType<ITest1, Test11>();
-            container.RegisterType<ITest1, Test12>();
+            container.Register<ITest1, Test1>();
+            container.Register<ITest1, Test11>();
+            container.Register<ITest1, Test12>();
 
             var services = container.Resolve<IEnumerable<Lazy<ITest1>>>().ToArray();
 
@@ -563,9 +563,9 @@ namespace Stashbox.Tests
         public void EnumerableTests_Resolve_PreserveOrder_Func()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterType<ITest1, Test1>();
-            container.RegisterType<ITest1, Test11>();
-            container.RegisterType<ITest1, Test12>();
+            container.Register<ITest1, Test1>();
+            container.Register<ITest1, Test11>();
+            container.Register<ITest1, Test12>();
 
             var services = container.Resolve<IEnumerable<Func<ITest1>>>().ToArray();
 
@@ -578,9 +578,9 @@ namespace Stashbox.Tests
         public void EnumerableTests_Resolve_UniqueIds()
         {
             IStashboxContainer container = new StashboxContainer(config => config.WithUniqueRegistrationIdentifiers());
-            container.RegisterType<ITest1, Test1>();
-            container.RegisterType<ITest1, Test1>();
-            container.RegisterType<ITest1, Test1>();
+            container.Register<ITest1, Test1>();
+            container.Register<ITest1, Test1>();
+            container.Register<ITest1, Test1>();
 
             Assert.AreEqual(3, container.Resolve<IEnumerable<ITest1>>().Count());
         }

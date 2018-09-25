@@ -18,7 +18,7 @@ namespace Stashbox.Tests
             {
                 container.RegisterExtension(post.Object);
                 var obj = new object();
-                container.RegisterType<object>(context => context.WithFactory(() => obj));
+                container.Register<object>(context => context.WithFactory(() => obj));
 
                 post.Setup(p => p.PostBuild(obj, container.ContainerContext, It.IsAny<ResolutionContext>(),
                     It.IsAny<IServiceRegistration>(), It.IsAny<Type>())).Returns(obj).Verifiable();
@@ -37,7 +37,7 @@ namespace Stashbox.Tests
             using (var container = new StashboxContainer())
             {
                 container.RegisterExtension(post.Object);
-                container.RegisterType<ITest, Test>();
+                container.Register<ITest, Test>();
 
                 bool called = false;
                 post.Setup(p => p.PostBuild(It.IsAny<object>(), container.ContainerContext, It.IsAny<ResolutionContext>(),

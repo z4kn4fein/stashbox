@@ -9,10 +9,10 @@ using System.Reflection;
 namespace Stashbox.Tests
 {
     [TestClass]
-    public class RegisterTypesTests
+    public class RegistersTests
     {
         [TestMethod]
-        public void RegisterTypesTests_RegisterTypesAs()
+        public void RegistersTests_RegistersAs()
         {
             IStashboxContainer container = new StashboxContainer();
             container.RegisterTypesAs<ITest1>(new[] { typeof(Test1), typeof(Test11), typeof(Test12) });
@@ -23,7 +23,7 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
-        public void RegisterTypesTests_RegisterTypesAs_Selector()
+        public void RegistersTests_RegistersAs_Selector()
         {
             IStashboxContainer container = new StashboxContainer();
             container.RegisterTypesAs<ITest1>(new[] { typeof(Test1), typeof(Test11), typeof(Test12) }, type => type == typeof(Test12));
@@ -34,7 +34,7 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
-        public void RegisterTypesTests_RegisterTypesAsSelf_Selector()
+        public void RegistersTests_RegistersAsSelf_Selector()
         {
             IStashboxContainer container = new StashboxContainer();
             container.RegisterTypes(new[] { typeof(Test1), typeof(Test11), typeof(Test12) }, type => type == typeof(Test12));
@@ -43,7 +43,7 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
-        public void RegisterTypesTests_RegisterTypesAs_Scoped()
+        public void RegistersTests_RegistersAs_Scoped()
         {
             IStashboxContainer container = new StashboxContainer();
             container.RegisterTypesAs<ITest1>(new[] { typeof(Test1), typeof(Test11), typeof(Test12), typeof(Test2) }, configurator: context => context.WithScopedLifetime());
@@ -55,7 +55,7 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
-        public void RegisterTypesTests_RegisterTypesAsSelf_Scoped_Selector()
+        public void RegistersTests_RegistersAsSelf_Scoped_Selector()
         {
             IStashboxContainer container = new StashboxContainer();
             container.RegisterTypes(new[] { typeof(Test1), typeof(Test11), typeof(Test12) }, type => type == typeof(Test12), context => context.WithScopedLifetime());
@@ -67,7 +67,7 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
-        public void RegisterTypesTests_RegisterTypes()
+        public void RegistersTests_Registers()
         {
             IStashboxContainer container = new StashboxContainer();
             container.RegisterTypes(new[] { typeof(Test), typeof(Test1), typeof(Test11), typeof(Test12) });
@@ -82,7 +82,7 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
-        public void RegisterTypesTests_RegisterTypes_Selector()
+        public void RegistersTests_Registers_Selector()
         {
             IStashboxContainer container = new StashboxContainer();
             container.RegisterTypes(new[] { typeof(Test), typeof(Test1), typeof(Test11), typeof(Test12) }, type => type == typeof(Test12));
@@ -97,7 +97,7 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
-        public void RegisterTypesTests_RegisterTypes_Configurator()
+        public void RegistersTests_Registers_Configurator()
         {
             IStashboxContainer container = new StashboxContainer();
             container.RegisterTypes(new[] { typeof(Test), typeof(Test1), typeof(Test11), typeof(Test12) }, configurator: context =>
@@ -119,7 +119,7 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
-        public void RegisterTypesTests_RegisterAssembly()
+        public void RegistersTests_RegisterAssembly()
         {
             IStashboxContainer container = new StashboxContainer();
             container.RegisterAssemblyContaining<ITest1>();
@@ -130,7 +130,7 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
-        public void RegisterTypesTests_RegisterAssembly_AsSelf()
+        public void RegistersTests_RegisterAssembly_AsSelf()
         {
             IStashboxContainer container = new StashboxContainer();
             container.RegisterAssemblyContaining<ITest1>();
@@ -142,7 +142,7 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
-        public void RegisterTypesTests_RegisterAssemblies()
+        public void RegistersTests_RegisterAssemblies()
         {
             IStashboxContainer container = new StashboxContainer();
 
@@ -158,7 +158,7 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
-        public void RegisterTypesTests_RegisterAssemblies_AsSelf()
+        public void RegistersTests_RegisterAssemblies_AsSelf()
         {
             IStashboxContainer container = new StashboxContainer();
 
@@ -174,7 +174,7 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
-        public void RegisterTypesTests_RegisterAssembly_Selector()
+        public void RegistersTests_RegisterAssembly_Selector()
         {
             IStashboxContainer container = new StashboxContainer();
             container.RegisterAssemblyContaining<ITest1>(type => type == typeof(Test));
@@ -186,7 +186,7 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
-        public void RegisterTypesTests_RegisterAssembly_Configurator()
+        public void RegistersTests_RegisterAssembly_Configurator()
         {
             IStashboxContainer container = new StashboxContainer();
             container.RegisterAssemblyContaining<ITest1>(configurator: context =>
@@ -201,7 +201,7 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
-        public void RegisterTypesTests_RegisterAssembly_Configurator_AsSelf()
+        public void RegistersTests_RegisterAssembly_Configurator_AsSelf()
         {
             IStashboxContainer container = new StashboxContainer();
             container.RegisterAssemblyContaining<ITest1>(configurator: context =>
@@ -216,7 +216,7 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
-        public void RegisterTypesTests_ComposeBy()
+        public void RegistersTests_ComposeBy()
         {
             IStashboxContainer container = new StashboxContainer();
             container.ComposeBy(typeof(TestCompositionRoot));
@@ -230,14 +230,14 @@ namespace Stashbox.Tests
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
-        public void RegisterTypesTests_ComposeBy_Throw_DoesntImplement_ICompositionRoot()
+        public void RegistersTests_ComposeBy_Throw_DoesntImplement_ICompositionRoot()
         {
             IStashboxContainer container = new StashboxContainer();
             container.ComposeBy(typeof(Test));
         }
 
         [TestMethod]
-        public void RegisterTypesTests_ComposeBy_Generic()
+        public void RegistersTests_ComposeBy_Generic()
         {
             IStashboxContainer container = new StashboxContainer();
             container.ComposeBy<TestCompositionRoot>();
@@ -250,7 +250,7 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
-        public void RegisterTypesTests_ComposeAssembly()
+        public void RegistersTests_ComposeAssembly()
         {
             IStashboxContainer container = new StashboxContainer();
             container.ComposeAssembly(this.GetType().GetTypeInfo().Assembly);
@@ -265,7 +265,7 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
-        public void RegisterTypesTests_ComposeAssemblies()
+        public void RegistersTests_ComposeAssemblies()
         {
             IStashboxContainer container = new StashboxContainer();
             container.ComposeAssemblies(new[] { this.GetType().GetTypeInfo().Assembly });
@@ -281,17 +281,17 @@ namespace Stashbox.Tests
 
         [TestMethod]
         [ExpectedException(typeof(CompositionRootNotFoundException))]
-        public void RegisterTypesTests_ComposeAssembly_CompositionRootNotFound()
+        public void RegistersTests_ComposeAssembly_CompositionRootNotFound()
         {
             IStashboxContainer container = new StashboxContainer();
             container.ComposeAssemblies(new[] { typeof(IStashboxContainer).GetTypeInfo().Assembly });
         }
 
         [TestMethod]
-        public void RegisterTypesTests_AsImplementedTypes_Interfaces()
+        public void RegistersTests_AsImplementedTypes_Interfaces()
         {
             var container = new StashboxContainer();
-            container.RegisterType<Test12>(context => context.AsImplementedTypes());
+            container.Register<Test12>(context => context.AsImplementedTypes());
 
             var regs = container.ContainerContext.RegistrationRepository.GetAllRegistrations().OrderBy(r => r.RegistrationNumber).ToArray();
 
@@ -303,10 +303,10 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
-        public void RegisterTypesTests_AsImplementedTypes_Interfaces_ReMap()
+        public void RegistersTests_AsImplementedTypes_Interfaces_ReMap()
         {
             var container = new StashboxContainer();
-            container.RegisterType<Test12>(context => context.AsImplementedTypes());
+            container.Register<Test12>(context => context.AsImplementedTypes());
 
             var regs = container.ContainerContext.RegistrationRepository.GetAllRegistrations().OrderBy(r => r.RegistrationNumber).ToArray();
 
@@ -322,10 +322,10 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
-        public void RegisterTypesTests_AsImplementedTypes_BaseType()
+        public void RegistersTests_AsImplementedTypes_BaseType()
         {
             var container = new StashboxContainer();
-            container.RegisterType<Test14>(context => context.AsImplementedTypes());
+            container.Register<Test14>(context => context.AsImplementedTypes());
 
             var regs = container.ContainerContext.RegistrationRepository.GetAllRegistrations().OrderBy(r => r.RegistrationNumber).ToArray();
 
@@ -339,10 +339,10 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
-        public void RegisterTypesTests_AsImplementedTypes_BaseType_ReMap()
+        public void RegistersTests_AsImplementedTypes_BaseType_ReMap()
         {
             var container = new StashboxContainer();
-            container.RegisterType<Test14>(context => context.AsImplementedTypes());
+            container.Register<Test14>(context => context.AsImplementedTypes());
 
             var regs = container.ContainerContext.RegistrationRepository.GetAllRegistrations().OrderBy(r => r.RegistrationNumber).ToArray();
 
@@ -360,7 +360,7 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
-        public void RegisterTypesTests_Generic_ByInterface()
+        public void RegistersTests_Generic_ByInterface()
         {
             var container = new StashboxContainer();
             container.RegisterTypesAs(typeof(IGenTest<>), typeof(IGenTest<>).GetTypeInfo().Assembly);
@@ -386,7 +386,7 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
-        public void RegisterTypesTests_Generic_ByBase()
+        public void RegistersTests_Generic_ByBase()
         {
             var container = new StashboxContainer();
             container.RegisterTypesAs(typeof(GenTest<>), typeof(IGenTest<>).GetTypeInfo().Assembly);
@@ -445,8 +445,8 @@ namespace Stashbox.Tests
         {
             public void Compose(IStashboxContainer container)
             {
-                container.RegisterType<ITest, Test>();
-                container.RegisterType<ITest1, Test1>();
+                container.Register<ITest, Test>();
+                container.Register<ITest1, Test1>();
             }
         }
 
@@ -454,8 +454,8 @@ namespace Stashbox.Tests
         {
             public void Compose(IStashboxContainer container)
             {
-                container.RegisterType<ITest1, Test11>();
-                container.RegisterType<ITest2, Test12>();
+                container.Register<ITest1, Test11>();
+                container.Register<ITest2, Test12>();
             }
         }
     }

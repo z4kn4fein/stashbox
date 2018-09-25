@@ -15,14 +15,14 @@ namespace Stashbox.Tests
         public void OverrideTests_Resolve()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterType<ITest1, Test1>();
-            container.RegisterType<ITest2, Test2>(context => context.WithInjectionParameters(new InjectionParameter { Value = new Test1 { Name = "fakeName" }, Name = "test1" }));
+            container.Register<ITest1, Test1>();
+            container.Register<ITest2, Test2>(context => context.WithInjectionParameters(new InjectionParameter { Value = new Test1 { Name = "fakeName" }, Name = "test1" }));
             var inst2 = container.Resolve<ITest2>();
 
             Assert.IsInstanceOfType(inst2, typeof(Test2));
             Assert.AreEqual("fakeName", inst2.Name);
 
-            container.RegisterType<ITest3, Test3>();
+            container.Register<ITest3, Test3>();
 
             var inst1 = container.Resolve<ITest1>();
             inst1.Name = "test1";
@@ -40,14 +40,14 @@ namespace Stashbox.Tests
         public void OverrideTests_Resolve_Parallel()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterType<ITest1, Test1>();
-            container.RegisterType<ITest2, Test2>(context => context.WithInjectionParameters(new InjectionParameter { Value = new Test1 { Name = "fakeName" }, Name = "test1" }));
+            container.Register<ITest1, Test1>();
+            container.Register<ITest2, Test2>(context => context.WithInjectionParameters(new InjectionParameter { Value = new Test1 { Name = "fakeName" }, Name = "test1" }));
             var inst2 = container.Resolve<ITest2>();
 
             Assert.IsInstanceOfType(inst2, typeof(Test2));
             Assert.AreEqual("fakeName", inst2.Name);
 
-            container.RegisterType<ITest3, Test3>();
+            container.Register<ITest3, Test3>();
 
             Parallel.For(0, 50000, (i) =>
             {
@@ -66,8 +66,8 @@ namespace Stashbox.Tests
         public void OverrideTests_Resolve_Factory_NonGeneric()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterType<ITest1, Test1>();
-            container.RegisterType<ITest2, Test2>();
+            container.Register<ITest1, Test1>();
+            container.Register<ITest2, Test2>();
 
             var inst1 = container.Resolve<ITest1>();
             inst1.Name = "test1";
@@ -85,7 +85,7 @@ namespace Stashbox.Tests
         public void OverrideTests_Resolve_Factory_NonGeneric_DerivedParam()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterType<ITest2, Test2>();
+            container.Register<ITest2, Test2>();
 
             var inst1 = new Test1 { Name = "test" };
 
@@ -100,8 +100,8 @@ namespace Stashbox.Tests
         public void OverrideTests_Resolve_Factory()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterType<ITest1, Test1>();
-            container.RegisterType<ITest2, Test2>();
+            container.Register<ITest1, Test1>();
+            container.Register<ITest2, Test2>();
 
             var inst1 = container.Resolve<ITest1>();
             inst1.Name = "test1";
@@ -119,8 +119,8 @@ namespace Stashbox.Tests
         public void OverrideTests_Resolve_Factory_NonGeneric_Lazy()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterType<ITest1, Test1>();
-            container.RegisterType<ITest2, Test2>();
+            container.Register<ITest1, Test1>();
+            container.Register<ITest2, Test2>();
 
             var inst1 = container.Resolve<ITest1>();
             inst1.Name = "test1";
@@ -138,8 +138,8 @@ namespace Stashbox.Tests
         public void OverrideTests_Resolve_Factory_Lazy()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterType<ITest1, Test1>();
-            container.RegisterType<ITest2, Test2>();
+            container.Register<ITest1, Test1>();
+            container.Register<ITest2, Test2>();
 
             var inst1 = container.Resolve<ITest1>();
             inst1.Name = "test1";
@@ -157,14 +157,14 @@ namespace Stashbox.Tests
         public void OverrideTests_Resolve_Parallel_Lazy()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterType<ITest1, Test1>();
-            container.RegisterType<ITest2, Test2>(context => context.WithInjectionParameters(new InjectionParameter { Value = new Test1 { Name = "fakeName" }, Name = "test1" }));
+            container.Register<ITest1, Test1>();
+            container.Register<ITest2, Test2>(context => context.WithInjectionParameters(new InjectionParameter { Value = new Test1 { Name = "fakeName" }, Name = "test1" }));
             var inst2 = container.Resolve<Lazy<ITest2>>();
 
             Assert.IsInstanceOfType(inst2.Value, typeof(Test2));
             Assert.AreEqual("fakeName", inst2.Value.Name);
 
-            container.RegisterType<ITest3, Test3>();
+            container.Register<ITest3, Test3>();
 
             Parallel.For(0, 50000, (i) =>
             {
@@ -185,9 +185,9 @@ namespace Stashbox.Tests
         public void OverrideTests_Resolve_Multiple()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterType<ITest2, Test2>();
-            container.RegisterType<ITest4, Test4>();
-            container.RegisterType<ITest6, Test6>();
+            container.Register<ITest2, Test2>();
+            container.Register<ITest4, Test4>();
+            container.Register<ITest6, Test6>();
 
             var inst4 = container.Resolve<ITest4>();
 
@@ -200,7 +200,7 @@ namespace Stashbox.Tests
         public void OverrideTests_Resolve_DependencyOverride()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterType<ITest2, Test2>();
+            container.Register<ITest2, Test2>();
 
             var inst = container.Resolve<ITest2>(dependencyOverrides: new object[] { new Test1 { Name = "test" } });
 
@@ -213,7 +213,7 @@ namespace Stashbox.Tests
         public void OverrideTests_Resolve_DependencyOverride_ShouldntCached()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterType<ITest2, Test2>();
+            container.Register<ITest2, Test2>();
 
             var inst = container.Resolve<ITest2>(dependencyOverrides: new object[] { new Test1 { Name = "test" } });
 
@@ -232,7 +232,7 @@ namespace Stashbox.Tests
         public void OverrideTests_Resolve_DependencyOverride_NonGeneric()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterType<ITest2, Test2>();
+            container.Register<ITest2, Test2>();
 
             var inst = (ITest2)container.Resolve(typeof(ITest2), dependencyOverrides: new object[] { new Test1 { Name = "test" } });
 
@@ -245,7 +245,7 @@ namespace Stashbox.Tests
         public void OverrideTests_Resolve_DependencyOverride_All()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterType<ITest2, Test2>();
+            container.Register<ITest2, Test2>();
 
             var inst = container.ResolveAll<ITest2>(new object[] { new Test1 { Name = "test" } }).First();
 
@@ -258,7 +258,7 @@ namespace Stashbox.Tests
         public void OverrideTests_Resolve_DependencyOverride_All_NonGeneric()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterType<ITest2, Test2>();
+            container.Register<ITest2, Test2>();
 
             var inst = (ITest2)container.ResolveAll(typeof(ITest2), new object[] { new Test1 { Name = "test" } }).First();
 

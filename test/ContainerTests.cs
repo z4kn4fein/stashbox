@@ -17,11 +17,11 @@ namespace Stashbox.Tests
         public void ContainerTests_ChildContainer()
         {
             var container = new StashboxContainer();
-            container.RegisterType<ITest1, Test1>();
-            container.RegisterType<ITest2, Test2>();
+            container.Register<ITest1, Test1>();
+            container.Register<ITest2, Test2>();
 
             var child = container.CreateChildContainer();
-            child.RegisterType<ITest3, Test3>();
+            child.Register<ITest3, Test3>();
 
             var test3 = child.Resolve<ITest3>();
 
@@ -34,7 +34,7 @@ namespace Stashbox.Tests
         public void ContainerTests_ChildContainer_ResolveFromParent()
         {
             var container = new StashboxContainer();
-            container.RegisterType<ITest1, Test1>();
+            container.Register<ITest1, Test1>();
 
             var child = container.CreateChildContainer();
 
@@ -50,7 +50,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<ITest2, Test2>();
+                container.Register<ITest2, Test2>();
                 container.Validate();
             }
         }
@@ -61,8 +61,8 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer(config => config.WithCircularDependencyTracking()))
             {
-                container.RegisterType<ITest1, Test4>();
-                container.RegisterType<ITest3, Test3>();
+                container.Register<ITest1, Test4>();
+                container.Register<ITest3, Test3>();
                 container.Validate();
             }
         }
@@ -72,8 +72,8 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<ITest1, Test1>();
-                container.RegisterType<ITest2, Test2>();
+                container.Register<ITest1, Test1>();
+                container.Register<ITest2, Test2>();
                 container.Validate();
             }
         }
@@ -83,7 +83,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<ITest1, Test1>();
+                container.Register<ITest1, Test1>();
 
                 var reg = container.ContainerContext.RegistrationRepository.GetAllRegistrations().FirstOrDefault(r => r.ServiceType == typeof(ITest1));
 
@@ -99,8 +99,8 @@ namespace Stashbox.Tests
         public void ContainerTests_CanResolve()
         {
             var container = new StashboxContainer();
-            container.RegisterType<ITest1, Test1>();
-            container.RegisterType<ITest2, Test2>();
+            container.Register<ITest1, Test1>();
+            container.Register<ITest2, Test2>();
 
             var child = container.CreateChildContainer();
 
@@ -127,8 +127,8 @@ namespace Stashbox.Tests
         public void ContainerTests_IsRegistered()
         {
             var container = new StashboxContainer();
-            container.RegisterType<ITest1, Test1>();
-            container.RegisterType<ITest2, Test2>(context => context.WithName("test"));
+            container.Register<ITest1, Test1>();
+            container.Register<ITest2, Test2>(context => context.WithName("test"));
 
             var child = container.CreateChildContainer();
 
@@ -199,7 +199,7 @@ namespace Stashbox.Tests
             container.RegisterScoped<ITest1, Test1>();
 
             var child = container.CreateChildContainer();
-            child.RegisterType<ITest2, Test2>();
+            child.Register<ITest2, Test2>();
 
             var test = child.Resolve<ITest2>();
 

@@ -12,8 +12,8 @@ namespace Stashbox.Tests
         public void TupleTests_Resolve()
         {
             var container = new StashboxContainer();
-            container.RegisterType<ITest, Test>();
-            container.RegisterType<ITest1, Test1>();
+            container.Register<ITest, Test>();
+            container.Register<ITest1, Test1>();
             var inst = container.Resolve<Tuple<ITest, ITest1>>();
 
             Assert.IsNotNull(inst);
@@ -26,7 +26,7 @@ namespace Stashbox.Tests
         public void TupleTests_Resolve_Null()
         {
             var container = new StashboxContainer();
-            container.RegisterType<ITest, Test>();
+            container.Register<ITest, Test>();
             var inst = container.Resolve<Tuple<ITest, ITest1>>(nullResultAllowed: true);
 
             Assert.IsNull(inst);
@@ -36,8 +36,8 @@ namespace Stashbox.Tests
         public void TupleTests_Resolve_Lazy()
         {
             var container = new StashboxContainer();
-            container.RegisterType<ITest, Test>();
-            container.RegisterType<ITest1, Test1>();
+            container.Register<ITest, Test>();
+            container.Register<ITest1, Test1>();
             var inst = container.Resolve<Tuple<ITest, Lazy<ITest1>>>();
 
             Assert.IsNotNull(inst);
@@ -50,8 +50,8 @@ namespace Stashbox.Tests
         public void TupleTests_Resolve_Func()
         {
             var container = new StashboxContainer();
-            container.RegisterType<ITest, Test>();
-            container.RegisterType<ITest1, Test1>();
+            container.Register<ITest, Test>();
+            container.Register<ITest1, Test1>();
             var inst = container.Resolve<Tuple<ITest, Func<ITest1>>>();
 
             Assert.IsNotNull(inst);
@@ -64,8 +64,8 @@ namespace Stashbox.Tests
         public void TupleTests_Resolve_Enumerable()
         {
             var container = new StashboxContainer();
-            container.RegisterType<ITest, Test>();
-            container.RegisterType<ITest1, Test1>();
+            container.Register<ITest, Test>();
+            container.Register<ITest1, Test1>();
             var inst = container.Resolve<Tuple<IEnumerable<ITest>, Func<ITest1>>>();
 
             Assert.IsNotNull(inst);
@@ -78,9 +78,9 @@ namespace Stashbox.Tests
         public void TupleTests_Resolve_Constructor()
         {
             var container = new StashboxContainer();
-            container.RegisterType<ITest, Test>();
-            container.RegisterType<ITest1, Test1>();
-            container.RegisterType<Test2>();
+            container.Register<ITest, Test>();
+            container.Register<ITest1, Test1>();
+            container.Register<Test2>();
             var inst = container.Resolve<Test2>();
 
             Assert.IsNotNull(inst);

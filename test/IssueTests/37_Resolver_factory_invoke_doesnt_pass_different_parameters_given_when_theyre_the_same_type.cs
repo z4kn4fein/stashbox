@@ -10,7 +10,7 @@ namespace Stashbox.Tests.IssueTests
         public void Resolver_factory_invoke_doesnt_pass_different_parameters_given_when_theyre_the_same_type()
         {
             var factory = new StashboxContainer()
-                .RegisterType<IFoo, Foobar>()
+                .Register<IFoo, Foobar>()
                 .ResolveFactory(typeof(IFoo), parameterTypes: new[] { typeof(string), typeof(string) });
 
             Assert.AreEqual("foobar", ((IFoo)factory.DynamicInvoke("foo", "bar")).Result);
@@ -20,7 +20,7 @@ namespace Stashbox.Tests.IssueTests
         public void Resolver_factory_invoke_doesnt_pass_different_parameters_given_when_theyre_the_same_type_func()
         {
             var factory = new StashboxContainer()
-                .RegisterType<IFoo, Foobar>()
+                .Register<IFoo, Foobar>()
                 .Resolve<Func<string, string, IFoo>>();
 
             Assert.AreEqual("foobar", factory("foo", "bar").Result);

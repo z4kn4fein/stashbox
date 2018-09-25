@@ -25,7 +25,7 @@ namespace Stashbox.Tests
             {
                 var dep = new Test();
                 container.RegisterInstanceAs<ITest>(dep);
-                container.RegisterType<ITest1, Test1>();
+                container.Register<ITest1, Test1>();
 
                 var inst = container.Resolve<ITest1>();
 
@@ -39,7 +39,7 @@ namespace Stashbox.Tests
             using (var container = new StashboxContainer())
             {
                 var dep = new Test();
-                container.RegisterType<ITest>(context => context.WithInstance(dep));
+                container.Register<ITest>(context => context.WithInstance(dep));
                 var inst = container.Resolve<ITest>();
 
                 Assert.AreSame(inst, dep);
@@ -53,7 +53,7 @@ namespace Stashbox.Tests
             {
                 var dep = new Test();
                 var dep1 = new Test();
-                container.RegisterType<ITest>(context => context.WithInstance(dep));
+                container.Register<ITest>(context => context.WithInstance(dep));
                 container.ReMap<ITest>(context => context.WithInstance(dep1));
                 var inst = container.Resolve<ITest>();
 
@@ -68,7 +68,7 @@ namespace Stashbox.Tests
             {
                 var dep = new Test();
                 var dep1 = new Test();
-                container.RegisterType(dep.GetType(), context => context.WithInstance(dep));
+                container.Register(dep.GetType(), context => context.WithInstance(dep));
                 container.ReMap(dep1.GetType(), context => context.WithInstance(dep1));
                 var inst = container.Resolve<Test>();
 
@@ -82,8 +82,8 @@ namespace Stashbox.Tests
             using (var container = new StashboxContainer())
             {
                 var dep = new Test();
-                container.RegisterType<ITest>(context => context.WithInstance(dep));
-                container.RegisterType<ITest1, Test1>();
+                container.Register<ITest>(context => context.WithInstance(dep));
+                container.Register<ITest1, Test1>();
 
                 var inst = container.Resolve<ITest1>();
 

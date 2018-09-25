@@ -12,8 +12,8 @@ namespace Stashbox.Tests
         public void InjectionMemberTests_Resolve()
         {
             var container = new StashboxContainer();
-            container.RegisterType<ITest, Test>();
-            container.RegisterType<ITest1, Test1>();
+            container.Register<ITest, Test>();
+            container.Register<ITest1, Test1>();
 
             var inst = container.Resolve<ITest1>();
 
@@ -45,7 +45,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<ITest, Test>();
+                container.Register<ITest, Test>();
 
                 var test1 = new Test1();
                 container.WireUpAs<ITest1>(test1);
@@ -66,7 +66,7 @@ namespace Stashbox.Tests
         public void InjectionMemberTests_Resolve_InjectionParameter()
         {
             var container = new StashboxContainer();
-            container.RegisterType<ITest2, Test2>(context => context.WithInjectionParameters(new InjectionParameter { Name = "Name", Value = "test" }));
+            container.Register<ITest2, Test2>(context => context.WithInjectionParameters(new InjectionParameter { Name = "Name", Value = "test" }));
 
             var inst = container.Resolve<ITest2>();
 
@@ -79,9 +79,9 @@ namespace Stashbox.Tests
         public void InjectionMemberTests_Inject_With_Config()
         {
             var container = new StashboxContainer();
-            container.RegisterType<Test3>(context => context.InjectMember("Test1", "test1").InjectMember("test2", "test2"))
-                .RegisterType<ITest, TestM1>(context => context.WithName("test1"))
-                .RegisterType<ITest, TestM2>(context => context.WithName("test2"));
+            container.Register<Test3>(context => context.InjectMember("Test1", "test1").InjectMember("test2", "test2"))
+                .Register<ITest, TestM1>(context => context.WithName("test1"))
+                .Register<ITest, TestM2>(context => context.WithName("test2"));
 
             var inst = container.Resolve<Test3>();
 
@@ -95,7 +95,7 @@ namespace Stashbox.Tests
         public void InjectionMemberTests_Inject_With_Invalid_Config()
         {
             var container = new StashboxContainer();
-            container.RegisterType<Test3>(context => context.InjectMember("Test3"));
+            container.Register<Test3>(context => context.InjectMember("Test3"));
 
             var inst = container.Resolve<Test3>();
 
@@ -107,9 +107,9 @@ namespace Stashbox.Tests
         public void InjectionMemberTests_Inject_With_Config_Generic()
         {
             var container = new StashboxContainer();
-            container.RegisterType<Test3>(context => context.InjectMember(x => x.Test1, "test1").InjectMember(x => x.Test2, "test2"))
-                .RegisterType<ITest, TestM1>(context => context.WithName("test1"))
-                .RegisterType<ITest, TestM2>(context => context.WithName("test2"));
+            container.Register<Test3>(context => context.InjectMember(x => x.Test1, "test1").InjectMember(x => x.Test2, "test2"))
+                .Register<ITest, TestM1>(context => context.WithName("test1"))
+                .Register<ITest, TestM2>(context => context.WithName("test2"));
 
             var inst = container.Resolve<Test3>();
 
@@ -124,7 +124,7 @@ namespace Stashbox.Tests
         public void InjectionMemberTests_Inject_With_Config_Generic_Throws()
         {
             var container = new StashboxContainer();
-            container.RegisterType<Test3>(context => context.InjectMember(x => 50));
+            container.Register<Test3>(context => context.InjectMember(x => 50));
         }
 
         public interface ITest { }

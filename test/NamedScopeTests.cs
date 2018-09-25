@@ -14,9 +14,9 @@ namespace Stashbox.Tests
         public void NamedScope_Simple_Resolve_Prefer_Named()
         {
             var inst = new StashboxContainer()
-                .RegisterType<ITest, Test11>()
-                .RegisterType<ITest, Test>(config => config.InNamedScope("A"))
-                .RegisterType<ITest, Test1>()
+                .Register<ITest, Test11>()
+                .Register<ITest, Test>(config => config.InNamedScope("A"))
+                .Register<ITest, Test1>()
                 .BeginScope("A")
                 .Resolve<ITest>();
 
@@ -27,10 +27,10 @@ namespace Stashbox.Tests
         public void NamedScope_Dependency_Resolve_Prefer_Named()
         {
             var inst = new StashboxContainer()
-                .RegisterType<Test2>()
-                .RegisterType<ITest, Test11>()
-                .RegisterType<ITest, Test>(config => config.InNamedScope("A"))
-                .RegisterType<ITest, Test1>()
+                .Register<Test2>()
+                .Register<ITest, Test11>()
+                .Register<ITest, Test>(config => config.InNamedScope("A"))
+                .Register<ITest, Test1>()
                 .BeginScope("A")
                 .Resolve<Test2>();
 
@@ -41,9 +41,9 @@ namespace Stashbox.Tests
         public void NamedScope_Simple_Resolve_Wrapper_Prefer_Named()
         {
             var scope = new StashboxContainer()
-                .RegisterType<ITest, Test11>()
-                .RegisterType<ITest, Test>(config => config.InNamedScope("A"))
-                .RegisterType<ITest, Test1>()
+                .Register<ITest, Test11>()
+                .Register<ITest, Test>(config => config.InNamedScope("A"))
+                .Register<ITest, Test1>()
                 .BeginScope("A");
 
             var func = scope.Resolve<Func<ITest>>();
@@ -63,10 +63,10 @@ namespace Stashbox.Tests
         public void NamedScope_Dependency_Resolve_Wrapper_Prefer_Named()
         {
             var inst = new StashboxContainer()
-                .RegisterType<Test3>()
-                .RegisterType<ITest, Test11>()
-                .RegisterType<ITest, Test>(config => config.InNamedScope("A"))
-                .RegisterType<ITest, Test1>()
+                .Register<Test3>()
+                .Register<ITest, Test11>()
+                .Register<ITest, Test>(config => config.InNamedScope("A"))
+                .Register<ITest, Test1>()
                 .BeginScope("A")
                 .Resolve<Test3>();
 
@@ -80,9 +80,9 @@ namespace Stashbox.Tests
         public void NamedScope_Simple_Resolve_Prefer_Named_Last()
         {
             var inst = new StashboxContainer()
-                .RegisterType<ITest, Test11>(config => config.InNamedScope("A"))
-                .RegisterType<ITest, Test>()
-                .RegisterType<ITest, Test1>(config => config.InNamedScope("A"))
+                .Register<ITest, Test11>(config => config.InNamedScope("A"))
+                .Register<ITest, Test>()
+                .Register<ITest, Test1>(config => config.InNamedScope("A"))
                 .BeginScope("A")
                 .Resolve<ITest>();
 
@@ -93,8 +93,8 @@ namespace Stashbox.Tests
         public void NamedScope_Simple_Resolve_Gets_Same_Within_Scope()
         {
             var scope = new StashboxContainer()
-                .RegisterType<ITest, Test>()
-                .RegisterType<ITest, Test1>(config => config.InNamedScope("A"))
+                .Register<ITest, Test>()
+                .Register<ITest, Test1>(config => config.InNamedScope("A"))
                 .BeginScope("A");
 
             var a = scope.Resolve<ITest>();
@@ -107,9 +107,9 @@ namespace Stashbox.Tests
         public void NamedScope_Simple_Resolve_Gets_Named_Within_Scope()
         {
             var scope = new StashboxContainer()
-                .RegisterType<ITest, Test11>(config => config.InNamedScope("A"))
-                .RegisterType<ITest, Test>(config => config.InNamedScope("A").WithName("T"))
-                .RegisterType<ITest, Test1>(config => config.InNamedScope("A"))
+                .Register<ITest, Test11>(config => config.InNamedScope("A"))
+                .Register<ITest, Test>(config => config.InNamedScope("A").WithName("T"))
+                .Register<ITest, Test1>(config => config.InNamedScope("A"))
                 .BeginScope("A");
 
             var a = scope.Resolve<ITest>("T");
@@ -125,9 +125,9 @@ namespace Stashbox.Tests
         public void NamedScope_Simple_Resolve_Gets_Named_When_Scoped_Doesnt_Exist()
         {
             var scope = new StashboxContainer()
-                .RegisterType<ITest, Test11>()
-                .RegisterType<ITest, Test>(config => config.WithName("T"))
-                .RegisterType<ITest, Test1>()
+                .Register<ITest, Test11>()
+                .Register<ITest, Test>(config => config.WithName("T"))
+                .Register<ITest, Test1>()
                 .BeginScope("A");
 
             var a = scope.Resolve<ITest>("T");
@@ -143,9 +143,9 @@ namespace Stashbox.Tests
         public void NamedScope_Dependency_Resolve_Wrapper_Gets_Same_Within_Scope()
         {
             var inst = new StashboxContainer()
-                .RegisterType<Test3>()
-                .RegisterType<ITest, Test>(config => config.InNamedScope("A"))
-                .RegisterType<ITest, Test1>()
+                .Register<Test3>()
+                .Register<ITest, Test>(config => config.InNamedScope("A"))
+                .Register<ITest, Test1>()
                 .BeginScope("A")
                 .Resolve<Test3>();
 
@@ -158,8 +158,8 @@ namespace Stashbox.Tests
         public void NamedScope_Simple_Resolve_Get_Last_If_Scoped_Doesnt_Exist()
         {
             var inst = new StashboxContainer()
-                .RegisterType<ITest, Test>()
-                .RegisterType<ITest, Test1>()
+                .Register<ITest, Test>()
+                .Register<ITest, Test1>()
                 .BeginScope("A")
                 .Resolve<ITest>();
 
@@ -170,9 +170,9 @@ namespace Stashbox.Tests
         public void NamedScope_Dependency_Get_Last_If_Scoped_Doesnt_Exist()
         {
             var inst = new StashboxContainer()
-                .RegisterType<Test3>()
-                .RegisterType<ITest, Test>()
-                .RegisterType<ITest, Test1>()
+                .Register<Test3>()
+                .Register<ITest, Test>()
+                .Register<ITest, Test1>()
                 .BeginScope("A")
                 .Resolve<Test3>();
 
@@ -186,10 +186,10 @@ namespace Stashbox.Tests
         public void NamedScope_Defines_Scope_Prefer_Named()
         {
             var inst = new StashboxContainer()
-                .RegisterType<Test3>(config => config.DefinesScope("A"))
-                .RegisterType<ITest, Test11>()
-                .RegisterType<ITest, Test>(config => config.InNamedScope("A"))
-                .RegisterType<ITest, Test1>()
+                .Register<Test3>(config => config.DefinesScope("A"))
+                .Register<ITest, Test11>()
+                .Register<ITest, Test>(config => config.InNamedScope("A"))
+                .Register<ITest, Test1>()
                 .Resolve<Test3>();
 
             Assert.IsInstanceOfType(inst.Func(), typeof(Test));
@@ -206,7 +206,7 @@ namespace Stashbox.Tests
         public void NamedScope_Preserve_Instance_Through_Nested_Scopes()
         {
             var container = new StashboxContainer()
-                .RegisterType<ITest, Test>(config => config.InNamedScope("A"));
+                .Register<ITest, Test>(config => config.InNamedScope("A"));
 
             using (var s1 = container.BeginScope("A"))
             {
@@ -224,7 +224,7 @@ namespace Stashbox.Tests
         public void NamedScope_Dispose_Instance_Through_Nested_Scopes()
         {
             var container = new StashboxContainer()
-                .RegisterType<ITest, Test12>(config => config.InNamedScope("A"));
+                .Register<ITest, Test12>(config => config.InNamedScope("A"));
 
             ITest i1;
             using (var s1 = container.BeginScope("A"))
@@ -247,8 +247,8 @@ namespace Stashbox.Tests
         public void NamedScope_Dispose_Instance_Defines_Named_Scope()
         {
             var container = new StashboxContainer()
-                .RegisterType<ITest, Test12>(config => config.InNamedScope("A"))
-                .RegisterType<Test2>(config => config.DefinesScope("A"));
+                .Register<ITest, Test12>(config => config.InNamedScope("A"))
+                .Register<Test2>(config => config.DefinesScope("A"));
 
             Test2 i1;
             using (var s1 = container.BeginScope())
@@ -263,7 +263,7 @@ namespace Stashbox.Tests
         public void NamedScope_Lifetime_Check()
         {
             var inst = new StashboxContainer()
-                .RegisterType<ITest, Test>(config => config.InNamedScope("A"))
+                .Register<ITest, Test>(config => config.InNamedScope("A"))
                 .ContainerContext.RegistrationRepository.GetAllRegistrations().First(reg => reg.ServiceType == typeof(ITest));
 
             Assert.IsInstanceOfType(inst.RegistrationContext.Lifetime, typeof(NamedScopeLifetime));
@@ -274,7 +274,7 @@ namespace Stashbox.Tests
         public void NamedScope_Throws_ResolutionFailedException_Without_Scope()
         {
             var container = new StashboxContainer()
-                .RegisterType<ITest, Test>(config => config.InNamedScope("A"));
+                .Register<ITest, Test>(config => config.InNamedScope("A"));
 
             container.Resolve<ITest>();
         }
@@ -283,7 +283,7 @@ namespace Stashbox.Tests
         public void NamedScope_WithNull()
         {
             var container = new StashboxContainer()
-                .RegisterType<Test2>(config => config.InNamedScope("A"));
+                .Register<Test2>(config => config.InNamedScope("A"));
 
             Assert.IsNull(container.BeginScope("A").Resolve<Test2>(nullResultAllowed: true));
         }
@@ -292,11 +292,11 @@ namespace Stashbox.Tests
         public void NamedScope_ChildContainer()
         {
             var container = new StashboxContainer()
-                .RegisterType<Test2>(config => config.DefinesScope("A"))
-                .RegisterType<ITest, Test>(config => config.InNamedScope("A"));
+                .Register<Test2>(config => config.DefinesScope("A"))
+                .Register<ITest, Test>(config => config.InNamedScope("A"));
 
             var child = container.CreateChildContainer()
-                .RegisterType<ITest, Test1>(config => config.InNamedScope("A"));
+                .Register<ITest, Test1>(config => config.InNamedScope("A"));
 
             var inst = child.Resolve<Test2>();
 
@@ -307,11 +307,11 @@ namespace Stashbox.Tests
         public void NamedScope_ChildContainer_Chain()
         {
             var container = new StashboxContainer()
-                .RegisterType<Test2>(config => config.DefinesScope("B").InNamedScope("A"));
+                .Register<Test2>(config => config.DefinesScope("B").InNamedScope("A"));
 
             var child = container.CreateChildContainer()
-                .RegisterType<ITest, Test1>(config => config.InNamedScope("B"))
-                .RegisterType<Test4>(config => config.DefinesScope("A"));
+                .Register<ITest, Test1>(config => config.InNamedScope("B"))
+                .Register<Test4>(config => config.DefinesScope("A"));
 
             var inst = child.Resolve<Test4>();
 
@@ -323,11 +323,11 @@ namespace Stashbox.Tests
         public void NamedScope_ChildContainer_Chain_Reverse()
         {
             var container = new StashboxContainer()
-                .RegisterType<Test4>(config => config.DefinesScope("A"))
-                .RegisterType<ITest, Test1>(config => config.InNamedScope("B"));
+                .Register<Test4>(config => config.DefinesScope("A"))
+                .Register<ITest, Test1>(config => config.InNamedScope("B"));
 
             var child = container.CreateChildContainer()
-                .RegisterType<Test2>(config => config.DefinesScope("B").InNamedScope("A"));
+                .Register<Test2>(config => config.DefinesScope("B").InNamedScope("A"));
 
             var inst = child.Resolve<Test4>();
 

@@ -14,7 +14,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType(typeof(ITest1<,>), typeof(Test1<,>));
+                container.Register(typeof(ITest1<,>), typeof(Test1<,>));
                 var inst = container.Resolve<ITest1<int, string>>();
 
                 Assert.IsNotNull(inst);
@@ -57,7 +57,7 @@ namespace Stashbox.Tests
                 var inst = new Test1<int, string>();
                 container.RegisterSingleton(typeof(ITest1<int, string>), typeof(Test1<int, string>));
                 container.RegisterSingleton(typeof(ITest1<,>), typeof(Test1<,>));
-                container.RegisterType(typeof(ITest1<int, string>), typeof(Test1<int, string>), config => config.WithInstance(inst));
+                container.Register(typeof(ITest1<int, string>), typeof(Test1<int, string>), config => config.WithInstance(inst));
                 var en = container.Resolve<IEnumerable<ITest1<int, string>>>().ToArray();
 
                 Assert.AreEqual(3, en.Length);
@@ -70,7 +70,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType(typeof(ITest1<,>), typeof(Test1<,>));
+                container.Register(typeof(ITest1<,>), typeof(Test1<,>));
                 var inst = container.Resolve<ITest1<int, string>>();
                 var inst2 = container.Resolve<ITest1<int, int>>();
 
@@ -104,7 +104,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType(typeof(ITest1<,>), typeof(Test1<,>));
+                container.Register(typeof(ITest1<,>), typeof(Test1<,>));
                 Assert.IsTrue(container.CanResolve(typeof(ITest1<,>)));
                 Assert.IsTrue(container.CanResolve(typeof(ITest1<int, int>)));
             }
@@ -115,8 +115,8 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType(typeof(ITest1<,>), typeof(Test1<,>), config => config.WithName("G1"));
-                container.RegisterType(typeof(ITest1<,>), typeof(Test12<,>), config => config.WithName("G2"));
+                container.Register(typeof(ITest1<,>), typeof(Test1<,>), config => config.WithName("G1"));
+                container.Register(typeof(ITest1<,>), typeof(Test12<,>), config => config.WithName("G2"));
 
                 Assert.IsInstanceOfType(container.Resolve<ITest1<int, string>>("G1"), typeof(Test1<int, string>));
                 Assert.IsInstanceOfType(container.Resolve<ITest1<int, double>>("G2"), typeof(Test12<int, double>));
@@ -128,8 +128,8 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType(typeof(ITest1<,>), typeof(Test1<,>));
-                container.RegisterType(typeof(ITest2<,>), typeof(Test2<,>));
+                container.Register(typeof(ITest1<,>), typeof(Test1<,>));
+                container.Register(typeof(ITest2<,>), typeof(Test2<,>));
                 var inst = container.Resolve<ITest2<int, string>>();
 
                 Assert.IsNotNull(inst.Test);
@@ -142,7 +142,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType(typeof(ITest1<,>), typeof(Test1<,>));
+                container.Register(typeof(ITest1<,>), typeof(Test1<,>));
                 var inst = container.Resolve<ITest1<int, string>>();
 
                 Assert.IsNotNull(inst);
@@ -155,7 +155,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType(typeof(ITest1<,>), typeof(Test1<,>));
+                container.Register(typeof(ITest1<,>), typeof(Test1<,>));
                 container.ReMap(typeof(ITest1<,>), typeof(Test12<,>));
                 var inst = container.Resolve<ITest1<int, string>>();
 
@@ -169,7 +169,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType(typeof(ITest1<,>), typeof(Test1<,>));
+                container.Register(typeof(ITest1<,>), typeof(Test1<,>));
                 container.ReMap(typeof(ITest1<,>), typeof(Test12<,>));
                 var inst = container.Resolve<ITest1<int, string>>();
 
@@ -183,7 +183,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType(typeof(ITest1<,>), typeof(Test1<,>));
+                container.Register(typeof(ITest1<,>), typeof(Test1<,>));
 
                 Parallel.For(0, 50000, (i) =>
                 {
@@ -200,8 +200,8 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType(typeof(IConstraintTest<>), typeof(ConstraintTest<>));
-                container.RegisterType(typeof(IConstraintTest<>), typeof(ConstraintTest2<>));
+                container.Register(typeof(IConstraintTest<>), typeof(ConstraintTest<>));
+                container.Register(typeof(IConstraintTest<>), typeof(ConstraintTest2<>));
 
                 var inst = container.ResolveAll<IConstraintTest<ConstraintArgument>>().ToArray();
                 Assert.AreEqual(1, inst.Length);
@@ -213,8 +213,8 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType(typeof(IConstraintTest<>), typeof(ConstraintTest2<>));
-                container.RegisterType(typeof(IConstraintTest<>), typeof(ConstraintTest<>));
+                container.Register(typeof(IConstraintTest<>), typeof(ConstraintTest2<>));
+                container.Register(typeof(IConstraintTest<>), typeof(ConstraintTest<>));
 
                 var inst = container.Resolve<IConstraintTest<ConstraintArgument>>();
                 Assert.IsInstanceOfType(inst, typeof(ConstraintTest<ConstraintArgument>));
@@ -227,7 +227,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType(typeof(IConstraintTest<>), typeof(ConstraintTest2<>));
+                container.Register(typeof(IConstraintTest<>), typeof(ConstraintTest2<>));
                 container.Resolve<IConstraintTest<ConstraintArgument>>();
             }
         }
@@ -237,9 +237,9 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType(typeof(IConstraintTest<>), typeof(ConstraintTest<>));
-                container.RegisterType(typeof(IConstraintTest<>), typeof(ConstraintTest2<>));
-                container.RegisterType<ConstraintTest3>();
+                container.Register(typeof(IConstraintTest<>), typeof(ConstraintTest<>));
+                container.Register(typeof(IConstraintTest<>), typeof(ConstraintTest2<>));
+                container.Register<ConstraintTest3>();
                 var inst = container.Resolve<ConstraintTest3>();
 
                 Assert.IsInstanceOfType(inst.Test, typeof(ConstraintTest<ConstraintArgument>));
@@ -251,8 +251,8 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType(typeof(IConstraintTest<>), typeof(ConstraintTest2<>));
-                container.RegisterType(typeof(IConstraintTest<>), typeof(ConstraintTest3<>));
+                container.Register(typeof(IConstraintTest<>), typeof(ConstraintTest2<>));
+                container.Register(typeof(IConstraintTest<>), typeof(ConstraintTest3<>));
 
                 var inst = container.Resolve<IConstraintTest<ConstraintArgument1>>();
                 Assert.IsInstanceOfType(inst, typeof(ConstraintTest3<ConstraintArgument1>));
@@ -263,8 +263,8 @@ namespace Stashbox.Tests
         public void GenericTests_Resolve_Prefer_Open_Generic_In_Named_Scope()
         {
             var container = new StashboxContainer(config => config.WithUniqueRegistrationIdentifiers())
-               .RegisterType<ITest1<int, string>, Test1<int, string>>()
-               .RegisterType(typeof(ITest1<,>), typeof(Test1<,>), config => config.InNamedScope("A"));
+               .Register<ITest1<int, string>, Test1<int, string>>()
+               .Register(typeof(ITest1<,>), typeof(Test1<,>), config => config.InNamedScope("A"));
 
             container.BeginScope("A").Resolve<ITest1<int, string>>();
 
@@ -275,8 +275,8 @@ namespace Stashbox.Tests
         public void GenericTests_Resolve_Prefer_Open_Generic_Enumerable_In_Named_Scope()
         {
             var container = new StashboxContainer(config => config.WithUniqueRegistrationIdentifiers())
-               .RegisterType<ITest1<int, string>, Test1<int, string>>(config => config.InNamedScope("A"))
-               .RegisterType(typeof(ITest1<,>), typeof(Test1<,>), config => config.InNamedScope("A"));
+               .Register<ITest1<int, string>, Test1<int, string>>(config => config.InNamedScope("A"))
+               .Register(typeof(ITest1<,>), typeof(Test1<,>), config => config.InNamedScope("A"));
 
             var res = container.BeginScope("A").Resolve<IEnumerable<ITest1<int, string>>>();
 
@@ -287,8 +287,8 @@ namespace Stashbox.Tests
         public void GenericTests_Resolve_Prefer_Valid_Constraint_In_Named_Scope()
         {
             var inst = new StashboxContainer()
-               .RegisterType(typeof(IConstraintTest<>), typeof(ConstraintTest3<>), config => config.InNamedScope("A"))
-               .RegisterType(typeof(IConstraintTest<>), typeof(ConstraintTest2<>), config => config.InNamedScope("A"))
+               .Register(typeof(IConstraintTest<>), typeof(ConstraintTest3<>), config => config.InNamedScope("A"))
+               .Register(typeof(IConstraintTest<>), typeof(ConstraintTest2<>), config => config.InNamedScope("A"))
                .BeginScope("A")
                .Resolve<IConstraintTest<ConstraintArgument1>>();
 
@@ -299,8 +299,8 @@ namespace Stashbox.Tests
         public void GenericTests_Resolve_Prefer_Valid_Constraint_In_Named_Scope_Enumerable()
         {
             var inst = new StashboxContainer()
-               .RegisterType(typeof(IConstraintTest<>), typeof(ConstraintTest3<>), config => config.InNamedScope("A"))
-               .RegisterType(typeof(IConstraintTest<>), typeof(ConstraintTest2<>), config => config.InNamedScope("A"))
+               .Register(typeof(IConstraintTest<>), typeof(ConstraintTest3<>), config => config.InNamedScope("A"))
+               .Register(typeof(IConstraintTest<>), typeof(ConstraintTest2<>), config => config.InNamedScope("A"))
                .BeginScope("A")
                .ResolveAll<IConstraintTest<ConstraintArgument1>>();
 
@@ -311,9 +311,9 @@ namespace Stashbox.Tests
         public void GenericTests_Nested_Generics()
         {
             var inst = new StashboxContainer()
-               .RegisterType(typeof(IGen1<>), typeof(Gen1<>))
-               .RegisterType(typeof(IGen2<>), typeof(Gen2<>))
-               .RegisterType<ConstraintArgument>()
+               .Register(typeof(IGen1<>), typeof(Gen1<>))
+               .Register(typeof(IGen2<>), typeof(Gen2<>))
+               .Register<ConstraintArgument>()
                .Resolve<IGen2<IGen1<ConstraintArgument>>>();
 
             Assert.IsNotNull(inst.Value);
@@ -327,9 +327,9 @@ namespace Stashbox.Tests
         public void GenericTests_Nested_Generics_Decorator()
         {
             var inst = new StashboxContainer()
-               .RegisterType(typeof(IGen3<>), typeof(Gen3<>))
+               .Register(typeof(IGen3<>), typeof(Gen3<>))
                .RegisterDecorator(typeof(IGen3<>), typeof(Gen3Decorator<>))
-               .RegisterType<ConstraintArgument>()
+               .Register<ConstraintArgument>()
                .Resolve<IGen3<ConstraintArgument>>();
 
             Assert.IsNotNull(inst.Value);

@@ -12,7 +12,7 @@ namespace Stashbox.Tests
         public void LazyTests_Resolve()
         {
             var container = new StashboxContainer();
-            container.RegisterType<ITest, Test>();
+            container.Register<ITest, Test>();
             var inst = container.Resolve<Lazy<ITest>>();
 
             Assert.IsNotNull(inst);
@@ -34,7 +34,7 @@ namespace Stashbox.Tests
         public void LazyTests_Resolve_Func()
         {
             var container = new StashboxContainer();
-            container.RegisterType<ITest, Test>();
+            container.Register<ITest, Test>();
             var inst = container.Resolve<Lazy<Func<ITest>>>();
 
             Assert.IsNotNull(inst);
@@ -47,7 +47,7 @@ namespace Stashbox.Tests
         public void LazyTests_Resolve_Func_Param()
         {
             var container = new StashboxContainer(config => config.WithCircularDependencyWithLazy());
-            container.RegisterType<ITest2, Test3>();
+            container.Register<ITest2, Test3>();
             var inst = container.Resolve<Lazy<Func<int, Lazy<ITest2>>>>();
 
             Assert.IsNotNull(inst);
@@ -70,7 +70,7 @@ namespace Stashbox.Tests
         public void LazyTests_Resolve_Enumerable()
         {
             var container = new StashboxContainer();
-            container.RegisterType<ITest, Test>();
+            container.Register<ITest, Test>();
             var inst = container.Resolve<Lazy<IEnumerable<ITest>>>();
 
             Assert.IsNotNull(inst);
@@ -92,8 +92,8 @@ namespace Stashbox.Tests
         public void LazyTests_Resolve_ConstructorDependency()
         {
             var container = new StashboxContainer();
-            container.RegisterType<ITest, Test>();
-            container.RegisterType<Test2>();
+            container.Register<ITest, Test>();
+            container.Register<Test2>();
             var inst = container.Resolve<Test2>();
 
             Assert.IsNotNull(inst.Test);
@@ -106,7 +106,7 @@ namespace Stashbox.Tests
         public void LazyTests_Resolve_ConstructorDependency_Null()
         {
             var container = new StashboxContainer();
-            container.RegisterType<Test2>();
+            container.Register<Test2>();
             var inst = container.Resolve<Test2>(nullResultAllowed: true);
 
             Assert.IsNull(inst);
@@ -136,8 +136,8 @@ namespace Stashbox.Tests
             config.WithCircularDependencyTracking()
             .WithCircularDependencyWithLazy());
 
-            container.RegisterType<Circular1>();
-            container.RegisterType<Circular2>();
+            container.Register<Circular1>();
+            container.Register<Circular2>();
 
             var inst1 = container.Resolve<Circular1>();
 

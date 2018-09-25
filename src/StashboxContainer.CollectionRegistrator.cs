@@ -52,12 +52,12 @@ namespace Stashbox
             foreach (var type in types.Where(t => t.IsValidForRegistration()))
             {
                 foreach (var interfaceType in type.GetRegisterableInterfaceTypes())
-                    this.RegisterType(interfaceType, type, configurator);
+                    this.Register(interfaceType, type, configurator);
 
                 foreach (var baseType in type.GetRegisterableBaseTypes())
-                    this.RegisterType(baseType, type, configurator);
+                    this.Register(baseType, type, configurator);
 
-                this.RegisterType(type, configurator);
+                this.Register(type, configurator);
             }
 
             return this;
@@ -78,9 +78,9 @@ namespace Stashbox
         private void RegisterTypeAs(Type typeFrom, Type type, Action<IFluentServiceRegistrator> configurator)
         {
             if (configurator == null)
-                this.RegisterType(typeFrom, type);
+                this.Register(typeFrom, type);
             else
-                this.RegisterType(typeFrom, type, configurator);
+                this.Register(typeFrom, type, configurator);
         }
     }
 }

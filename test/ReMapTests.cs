@@ -12,8 +12,8 @@ namespace Stashbox.Tests
         public void ReMapTests_Replace_SingleResolve()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterType<ITest1, Test1>(context => context.WithName("teszt"));
-            container.RegisterType<ITest1, Test12>(context => context.WithName("teszt2"));
+            container.Register<ITest1, Test1>(context => context.WithName("teszt"));
+            container.Register<ITest1, Test12>(context => context.WithName("teszt2"));
 
             var test1 = container.Resolve<ITest1>("teszt");
             var test2 = container.Resolve<ITest1>("teszt2");
@@ -21,7 +21,7 @@ namespace Stashbox.Tests
             Assert.IsInstanceOfType(test1, typeof(Test1));
             Assert.IsInstanceOfType(test2, typeof(Test12));
 
-            container.RegisterType<ITest1, Test11>(context => context.WithName("teszt").ReplaceExisting());
+            container.Register<ITest1, Test11>(context => context.WithName("teszt").ReplaceExisting());
 
             var test11 = container.Resolve<ITest1>("teszt");
             var test12 = container.Resolve<ITest1>("teszt2");
@@ -34,15 +34,15 @@ namespace Stashbox.Tests
         public void ReMapTests_Replace_Enumerable_Named()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterType<ITest1, Test1>(context => context.WithName("teszt"));
-            container.RegisterType<ITest1, Test12>(context => context.WithName("teszt2"));
+            container.Register<ITest1, Test1>(context => context.WithName("teszt"));
+            container.Register<ITest1, Test12>(context => context.WithName("teszt2"));
 
             var coll = container.Resolve<IEnumerable<ITest1>>().ToArray();
 
             Assert.IsInstanceOfType(coll[0], typeof(Test1));
             Assert.IsInstanceOfType(coll[1], typeof(Test12));
 
-            container.RegisterType<ITest1, Test11>(context => context.WithName("teszt").ReplaceExisting());
+            container.Register<ITest1, Test11>(context => context.WithName("teszt").ReplaceExisting());
 
             var coll2 = container.Resolve<IEnumerable<ITest1>>().ToArray();
 
@@ -54,8 +54,8 @@ namespace Stashbox.Tests
         public void ReMapTests_Enumerable_Named()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterType<ITest1, Test1>(context => context.WithName("teszt"));
-            container.RegisterType<ITest1, Test12>(context => context.WithName("teszt2"));
+            container.Register<ITest1, Test1>(context => context.WithName("teszt"));
+            container.Register<ITest1, Test12>(context => context.WithName("teszt2"));
 
             var coll = container.Resolve<IEnumerable<ITest1>>().ToArray();
 
@@ -75,8 +75,8 @@ namespace Stashbox.Tests
         public void ReMapTests_Func_Named()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterType<ITest1, Test12>(context => context.WithName("teszt2"));
-            container.RegisterType<ITest1, Test1>(context => context.WithName("teszt"));
+            container.Register<ITest1, Test12>(context => context.WithName("teszt2"));
+            container.Register<ITest1, Test1>(context => context.WithName("teszt"));
 
             container.Resolve<Func<ITest1>>("teszt2");
 
@@ -95,8 +95,8 @@ namespace Stashbox.Tests
         public void ReMapTests_Lazy_Named()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterType<ITest1, Test12>(context => context.WithName("teszt2"));
-            container.RegisterType<ITest1, Test1>(context => context.WithName("teszt"));
+            container.Register<ITest1, Test12>(context => context.WithName("teszt2"));
+            container.Register<ITest1, Test1>(context => context.WithName("teszt"));
 
             container.Resolve<Lazy<ITest1>>("teszt");
 
@@ -115,7 +115,7 @@ namespace Stashbox.Tests
         public void ReMapTests_Enumerable()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterType<ITest1, Test1>();
+            container.Register<ITest1, Test1>();
 
             var coll = container.Resolve<IEnumerable<ITest1>>().ToArray();
 
@@ -132,7 +132,7 @@ namespace Stashbox.Tests
         public void ReMapTests_Func()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterType<ITest1, Test1>();
+            container.Register<ITest1, Test1>();
 
             var func = container.Resolve<Func<ITest1>>();
 
@@ -149,7 +149,7 @@ namespace Stashbox.Tests
         public void ReMapTests_Lazy()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterType<ITest1, Test1>();
+            container.Register<ITest1, Test1>();
 
             var lazy = container.Resolve<Lazy<ITest1>>();
 
@@ -166,8 +166,8 @@ namespace Stashbox.Tests
         public void ReMapTests_DependencyResolve()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterType<ITest1, Test1>();
-            container.RegisterType<ITest2, Test2>();
+            container.Register<ITest1, Test1>();
+            container.Register<ITest2, Test2>();
 
             var test2 = container.Resolve<ITest2>();
 
@@ -187,7 +187,7 @@ namespace Stashbox.Tests
         {
             IStashboxContainer container = new StashboxContainer();
             container.RegisterSingleton<Test11>();
-            container.RegisterType<Test3>();
+            container.Register<Test3>();
 
             var inst = container.Resolve<Test3>();
 
@@ -210,8 +210,8 @@ namespace Stashbox.Tests
         public void ReMapTests_DependencyResolve_Fluent()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterType<ITest1>(typeof(Test1));
-            container.RegisterType<ITest2, Test2>();
+            container.Register<ITest1>(typeof(Test1));
+            container.Register<ITest2, Test2>();
 
             var test2 = container.Resolve<ITest2>();
 

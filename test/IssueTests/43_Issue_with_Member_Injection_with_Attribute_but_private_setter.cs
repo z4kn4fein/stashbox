@@ -11,7 +11,7 @@ namespace Stashbox.Tests.IssueTests
         {
             using (var container = new StashboxContainer(config => config.WithUnknownTypeResolution()))
             {
-                var test = container.RegisterType<Test2>(config => config.WithAutoMemberInjection(Rules.AutoMemberInjectionRules.PropertiesWithLimitedAccess))
+                var test = container.Register<Test2>(config => config.WithAutoMemberInjection(Rules.AutoMemberInjectionRules.PropertiesWithLimitedAccess))
                     .Resolve<Test2>();
 
                 Assert.IsNotNull(test.Test1Prop2, "test.Test1Prop2 != null");
@@ -24,7 +24,7 @@ namespace Stashbox.Tests.IssueTests
         {
             using (var container = new StashboxContainer(config => config.WithUnknownTypeResolution()))
             {
-                var test = container.RegisterType<Test4>(config => config.WithAutoMemberInjection(Rules.AutoMemberInjectionRules.PrivateFields))
+                var test = container.Register<Test4>(config => config.WithAutoMemberInjection(Rules.AutoMemberInjectionRules.PrivateFields))
                     .Resolve<Test4>();
 
                 Assert.IsNotNull(test.Test1Prop2, "test.Test1Prop2 != null");
@@ -37,7 +37,7 @@ namespace Stashbox.Tests.IssueTests
         {
             using (var container = new StashboxContainer(config => config.WithUnknownTypeResolution()))
             {
-                var test = container.RegisterType<Test6>(config => config.WithAutoMemberInjection())
+                var test = container.Register<Test6>(config => config.WithAutoMemberInjection())
                     .Resolve<Test6>();
 
                 Assert.IsNotNull(test.Test1Prop2, "test.Test1Prop2 != null");

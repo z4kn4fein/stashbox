@@ -16,7 +16,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<ITest1, Test1>();
+                container.Register<ITest1, Test1>();
                 container.RegisterDecorator<ITest1, TestDecorator1>();
                 var test = container.Resolve<ITest1>();
 
@@ -33,7 +33,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<ITest1, Test1>();
+                container.Register<ITest1, Test1>();
                 container.RegisterDecorator<ITest1>(typeof(TestDecorator1));
                 var test = container.Resolve<ITest1>();
 
@@ -50,7 +50,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<ITest1, Test1>();
+                container.Register<ITest1, Test1>();
                 container.RegisterDecorator(typeof(ITest1), typeof(TestDecorator1));
                 var test = container.Resolve<ITest1>();
 
@@ -67,7 +67,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<ITest1, Test1>();
+                container.Register<ITest1, Test1>();
                 container.RegisterDecorator<ITest1, TestDecorator1>();
                 var test = container.Resolve<Lazy<ITest1>>();
 
@@ -84,7 +84,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<ITest1, Test1>();
+                container.Register<ITest1, Test1>();
                 container.RegisterDecorator<ITest1, TestDecorator1>();
                 var test = container.Resolve<Func<ITest1>>();
 
@@ -101,8 +101,8 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<ITest1, Test1>();
-                container.RegisterType<ITest1, Test11>();
+                container.Register<ITest1, Test1>();
+                container.Register<ITest1, Test11>();
                 container.RegisterDecorator<ITest1, TestDecorator1>();
                 var test = container.Resolve<IEnumerable<ITest1>>();
 
@@ -130,7 +130,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<ITest1, Test1>();
+                container.Register<ITest1, Test1>();
                 container.RegisterDecorator<ITest1, TestDecorator6>();
                 var test = container.Resolve<ITest1>();
 
@@ -147,7 +147,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<ITest1, Test1>();
+                container.Register<ITest1, Test1>();
                 container.RegisterDecorator<ITest1, TestDecorator7>();
                 var test = container.Resolve<ITest1>();
 
@@ -164,7 +164,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<ITest1, Test1>();
+                container.Register<ITest1, Test1>();
                 container.RegisterDecorator<ITest1, TestDecorator8>();
                 var test = container.Resolve<ITest1>();
 
@@ -181,7 +181,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<ITest1, Test1>();
+                container.Register<ITest1, Test1>();
                 container.RegisterDecorator<ITest1, TestDecorator3>();
                 var test = container.Resolve<ITest1>();
 
@@ -198,7 +198,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<ITest1, Test1>();
+                container.Register<ITest1, Test1>();
                 container.RegisterDecorator<ITest1, TestDecorator3Attributeless>(config => config.InjectMember("Test"));
                 var test = container.Resolve<ITest1>();
 
@@ -215,7 +215,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<ITest1, Test1>();
+                container.Register<ITest1, Test1>();
                 container.RegisterDecorator<ITest1, TestDecorator4>(context => context.WithAutoMemberInjection(Rules.AutoMemberInjectionRules.PropertiesWithLimitedAccess));
                 var test = container.Resolve<ITest1>();
 
@@ -232,7 +232,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<ITest1, Test1>();
+                container.Register<ITest1, Test1>();
                 container.RegisterDecorator<ITest1, TestDecorator4>(context => context
                     .WithAutoMemberInjection(Rules.AutoMemberInjectionRules.PropertiesWithLimitedAccess)
                     .WithInjectionParameters(new InjectionParameter { Name = "Name", Value = "test" }));
@@ -252,7 +252,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<ITest1, Test1>();
+                container.Register<ITest1, Test1>();
                 container.RegisterDecorator<ITest1, TestDecorator5>(context => context.WithConstructorSelectionRule(Rules.ConstructorSelection.PreferLeastParameters));
                 var test = container.Resolve<ITest1>();
 
@@ -268,7 +268,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<ITest1, Test1>();
+                container.Register<ITest1, Test1>();
                 container.RegisterDecorator<ITest1, TestDecorator5>(context => context.WithConstructorSelectionRule(Rules.ConstructorSelection.PreferMostParameters));
                 var test = container.Resolve<ITest1>();
 
@@ -285,7 +285,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<ITest1, Test1>();
+                container.Register<ITest1, Test1>();
                 container.RegisterDecorator<ITest1, TestDecorator1>();
                 container.RegisterDecorator<ITest1, TestDecorator2>();
                 var test = container.Resolve<ITest1>();
@@ -331,7 +331,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType(typeof(ITest1<>), typeof(Test1<>));
+                container.Register(typeof(ITest1<>), typeof(Test1<>));
                 container.RegisterDecorator(typeof(ITest1<>), typeof(TestDecorator1<>));
                 var test = container.Resolve<ITest1<int>>();
 
@@ -348,7 +348,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<ITest1, Test1>();
+                container.Register<ITest1, Test1>();
                 container.RegisterDecorator<ITest1, TestDecorator9>();
 
                 var inst = container.Resolve<ITest1>(nullResultAllowed: true);
@@ -362,7 +362,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<ITest1, Test12>();
+                container.Register<ITest1, Test12>();
                 container.RegisterDecorator<ITest1, TestDecorator9>();
 
                 var inst = container.Resolve<ITest1>(nullResultAllowed: true);
@@ -377,7 +377,7 @@ namespace Stashbox.Tests
             IDisp test;
             using (var container = new StashboxContainer(config => config.WithDisposableTransientTracking()))
             {
-                container.RegisterType<IDisp, TestDisp>();
+                container.Register<IDisp, TestDisp>();
                 container.RegisterDecorator<IDisp, TestDispDecorator>();
 
                 test = container.Resolve<IDisp>();
@@ -396,7 +396,7 @@ namespace Stashbox.Tests
             IDisp test;
             using (var container = new StashboxContainer(config => config.WithDisposableTransientTracking()))
             {
-                container.RegisterType<IDisp, TestDisp>(context => context.WithoutDisposalTracking());
+                container.Register<IDisp, TestDisp>(context => context.WithoutDisposalTracking());
                 container.RegisterDecorator<IDisp, TestDispDecorator>();
 
                 test = container.Resolve<IDisp>();
@@ -415,7 +415,7 @@ namespace Stashbox.Tests
             IDisp test;
             using (var container = new StashboxContainer(config => config.WithDisposableTransientTracking()))
             {
-                container.RegisterType<IDisp, TestDisp>(context => context.WithoutDisposalTracking());
+                container.Register<IDisp, TestDisp>(context => context.WithoutDisposalTracking());
                 container.RegisterDecorator<IDisp, TestDispDecorator>(context => context.WithoutDisposalTracking());
 
                 test = container.Resolve<IDisp>();
@@ -433,7 +433,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<ITest1, Test1>();
+                container.Register<ITest1, Test1>();
                 container.RegisterDecorator<ITest1, TestDecorator1>();
 
                 var test = container.Resolve<ITest1>();
@@ -455,7 +455,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<ITest1, Test1>();
+                container.Register<ITest1, Test1>();
                 container.RegisterDecorator<ITest1, TestDecorator1>();
                 container.RegisterDecorator<ITest1, TestDecorator2>();
 
@@ -479,7 +479,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<ITest1, Test1>();
+                container.Register<ITest1, Test1>();
                 container.RegisterDecorator<ITest1, TestDecorator1>();
                 container.RegisterDecorator<ITest1, TestDecorator2>();
 
@@ -503,7 +503,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<ITest1, Test1>();
+                container.Register<ITest1, Test1>();
                 container.RegisterDecorator<ITest1, TestDecorator1>();
                 container.RegisterDecorator<ITest1, TestDecorator2>();
 

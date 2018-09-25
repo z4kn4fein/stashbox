@@ -16,7 +16,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer(config => config.WithCircularDependencyTracking()))
             {
-                container.RegisterType<ITest1, Test1>();
+                container.Register<ITest1, Test1>();
                 container.Resolve<ITest1>();
             }
         }
@@ -26,7 +26,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer(config => config.WithCircularDependencyTracking()))
             {
-                container.RegisterType<ITest1, Test4>();
+                container.Register<ITest1, Test4>();
                 Parallel.For(0, 50000, i =>
                 {
                     container.Resolve<ITest1>();
@@ -39,7 +39,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer(config => config.WithCircularDependencyTracking(true)))
             {
-                container.RegisterType<ITest1, Test4>();
+                container.Register<ITest1, Test4>();
                 Parallel.For(0, 50000, i =>
                 {
                     container.Resolve<ITest1>();
@@ -53,7 +53,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer(config => config.WithCircularDependencyTracking()))
             {
-                container.RegisterType<ITest1, Test2>();
+                container.Register<ITest1, Test2>();
                 container.Resolve<ITest1>();
             }
         }
@@ -64,7 +64,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer(config => config.WithCircularDependencyTracking()))
             {
-                container.RegisterType<ITest1, Test3>();
+                container.Register<ITest1, Test3>();
                 container.Resolve<ITest1>();
             }
         }
@@ -75,7 +75,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer(config => config.WithCircularDependencyTracking()))
             {
-                container.RegisterType(typeof(ITest1<,>), typeof(Test1<,>));
+                container.Register(typeof(ITest1<,>), typeof(Test1<,>));
                 container.Resolve<ITest1<int, int>>();
             }
         }
@@ -86,7 +86,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer(config => config.WithCircularDependencyTracking()))
             {
-                container.RegisterType(typeof(ITest1<,>), typeof(Test2<,>));
+                container.Register(typeof(ITest1<,>), typeof(Test2<,>));
                 container.Resolve<ITest1<int, int>>();
             }
         }
@@ -97,7 +97,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer(config => config.WithCircularDependencyTracking()))
             {
-                container.RegisterType(typeof(ITest1<,>), typeof(Test3<,>));
+                container.Register(typeof(ITest1<,>), typeof(Test3<,>));
                 container.Resolve<ITest1<int, int>>();
             }
         }
@@ -108,7 +108,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer(config => config.WithCircularDependencyTracking()))
             {
-                container.RegisterType<ITest1, Test5>();
+                container.Register<ITest1, Test5>();
                 container.Resolve<ITest1>();
             }
         }
@@ -119,7 +119,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer(config => config.WithCircularDependencyTracking()))
             {
-                container.RegisterType<ITest1, Test6>();
+                container.Register<ITest1, Test6>();
                 container.Resolve<ITest1>();
             }
         }
@@ -130,7 +130,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer(config => config.WithCircularDependencyTracking()))
             {
-                container.RegisterType<ITest1, Test7>();
+                container.Register<ITest1, Test7>();
                 container.Resolve<ITest1>();
             }
         }
@@ -141,7 +141,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer(config => config.WithCircularDependencyTracking()))
             {
-                container.RegisterType<ITest1, Test8>();
+                container.Register<ITest1, Test8>();
                 container.Resolve<ITest1>();
             }
         }
@@ -152,7 +152,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer(config => config.WithCircularDependencyTracking(true)))
             {
-                container.RegisterType<ITest1, Test1>(config => config.WithFactory(() => container.Resolve<ITest1>()));
+                container.Register<ITest1, Test1>(config => config.WithFactory(() => container.Resolve<ITest1>()));
                 container.Resolve<ITest1>();
             }
         }
@@ -163,7 +163,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer(config => config.WithCircularDependencyTracking(true)))
             {
-                container.RegisterType<ITest1, Test1>(config => config.WithFactory(r => r.Resolve<ITest1>()));
+                container.Register<ITest1, Test1>(config => config.WithFactory(r => r.Resolve<ITest1>()));
                 container.Resolve<ITest1>();
             }
         }

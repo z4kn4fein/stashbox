@@ -16,9 +16,9 @@ namespace Stashbox.Tests
         {
             using (IStashboxContainer container = new StashboxContainer())
             {
-                container.RegisterType<ITest1, Test1>();
-                container.RegisterType<ITest2, Test2>();
-                container.RegisterType<ITest3, Test3>();
+                container.Register<ITest1, Test1>();
+                container.Register<ITest2, Test2>();
+                container.Register<ITest3, Test3>();
 
                 var test3 = container.Resolve<ITest3>();
                 var test2 = container.Resolve<ITest2>();
@@ -62,7 +62,7 @@ namespace Stashbox.Tests
         {
             using (IStashboxContainer container = new StashboxContainer())
             {
-                container.RegisterType<ITest1, Test1>();
+                container.Register<ITest1, Test1>();
                 var test1 = container.ResolveFactory(typeof(ITest1)).DynamicInvoke();
 
                 Assert.IsNotNull(test1);
@@ -75,7 +75,7 @@ namespace Stashbox.Tests
         {
             using (IStashboxContainer container = new StashboxContainer())
             {
-                container.RegisterType<ITest1, Test1>();
+                container.Register<ITest1, Test1>();
                 using (var child = container.BeginScope())
                 {
                     var test1 = child.ResolveFactory(typeof(ITest1)).DynamicInvoke();
@@ -113,7 +113,7 @@ namespace Stashbox.Tests
         {
             using (IStashboxContainer container = new StashboxContainer())
             {
-                container.RegisterType<ITest2, Test2>();
+                container.Register<ITest2, Test2>();
                 container.Resolve<ITest2>();
             }
         }
@@ -123,7 +123,7 @@ namespace Stashbox.Tests
         {
             using (IStashboxContainer container = new StashboxContainer())
             {
-                container.RegisterType<ITest2, Test2>();
+                container.Register<ITest2, Test2>();
                 var result = container.Resolve<ITest2>(nullResultAllowed: true);
 
                 Assert.IsNull(result);
@@ -155,16 +155,16 @@ namespace Stashbox.Tests
         public void StandardResolveTests_Resolve_Parallel()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterType<ITest1, Test1>();
-            container.RegisterType<ITest2, Test2>();
-            container.RegisterType<ITest3, Test3>();
+            container.Register<ITest1, Test1>();
+            container.Register<ITest2, Test2>();
+            container.Register<ITest3, Test3>();
 
             Parallel.For(0, 50000, (i) =>
             {
                 if (i % 100 == 0)
                 {
-                    container.RegisterType<ITest1, Test1>(context => context.WithName(i.ToString()));
-                    container.RegisterType<ITest3, Test3>(context => context.WithName($"ITest3{i.ToString()}"));
+                    container.Register<ITest1, Test1>(context => context.WithName(i.ToString()));
+                    container.Register<ITest3, Test3>(context => context.WithName($"ITest3{i.ToString()}"));
                     var test33 = container.Resolve<ITest3>($"ITest3{i.ToString()}");
                     var test11 = container.Resolve(typeof(ITest1), i.ToString());
                     Assert.IsNotNull(test33);
@@ -192,16 +192,16 @@ namespace Stashbox.Tests
         public void StandardResolveTests_Resolve_Parallel_Lazy()
         {
             var container = new StashboxContainer();
-            container.RegisterType<ITest1, Test1>();
-            container.RegisterType<ITest2, Test2>();
-            container.RegisterType<ITest3, Test3>();
+            container.Register<ITest1, Test1>();
+            container.Register<ITest2, Test2>();
+            container.Register<ITest3, Test3>();
 
             Parallel.For(0, 50000, (i) =>
             {
                 if (i % 100 == 0)
                 {
-                    container.RegisterType<ITest1, Test1>();
-                    container.RegisterType<ITest3, Test3>();
+                    container.Register<ITest1, Test1>();
+                    container.Register<ITest3, Test3>();
                 }
 
                 var test3 = container.Resolve<Lazy<ITest3>>();
@@ -334,9 +334,9 @@ namespace Stashbox.Tests
         {
             using (IStashboxContainer container = new StashboxContainer())
             {
-                container.RegisterType(typeof(ITest1), typeof(Test1));
-                container.RegisterType(typeof(ITest1), typeof(Test11));
-                container.RegisterType(typeof(ITest1), typeof(Test12));
+                container.Register(typeof(ITest1), typeof(Test1));
+                container.Register(typeof(ITest1), typeof(Test11));
+                container.Register(typeof(ITest1), typeof(Test12));
 
                 var inst = container.Resolve<ITest1>();
 
@@ -350,8 +350,8 @@ namespace Stashbox.Tests
             using (IStashboxContainer container = new StashboxContainer(config =>
             config.WithConstructorSelectionRule(Rules.ConstructorSelection.PreferMostParameters)))
             {
-                container.RegisterType(typeof(ITest1), typeof(Test1));
-                container.RegisterType(typeof(ITest2), typeof(Test22));
+                container.Register(typeof(ITest1), typeof(Test1));
+                container.Register(typeof(ITest2), typeof(Test22));
 
                 var inst = container.Resolve<ITest2>();
             }
@@ -363,9 +363,9 @@ namespace Stashbox.Tests
             using (IStashboxContainer container = new StashboxContainer(config =>
             config.WithConstructorSelectionRule(Rules.ConstructorSelection.PreferMostParameters)))
             {
-                container.RegisterType(typeof(ITest1), typeof(Test1), context => context.WithName("test1"));
-                container.RegisterType(typeof(ITest1), typeof(Test12), context => context.WithName("test12"));
-                container.RegisterType(typeof(ITest2), typeof(Test222));
+                container.Register(typeof(ITest1), typeof(Test1), context => context.WithName("test1"));
+                container.Register(typeof(ITest1), typeof(Test12), context => context.WithName("test12"));
+                container.Register(typeof(ITest2), typeof(Test222));
 
                 var inst = container.Resolve<ITest2>();
             }
@@ -377,8 +377,8 @@ namespace Stashbox.Tests
             using (IStashboxContainer container = new StashboxContainer(config =>
             config.WithConstructorSelectionRule(Rules.ConstructorSelection.PreferLeastParameters)))
             {
-                container.RegisterType(typeof(ITest1), typeof(Test1));
-                container.RegisterType(typeof(ITest2), typeof(Test2222));
+                container.Register(typeof(ITest1), typeof(Test1));
+                container.Register(typeof(ITest2), typeof(Test2222));
 
                 var inst = container.Resolve<ITest2>();
             }
@@ -391,7 +391,7 @@ namespace Stashbox.Tests
             using (IStashboxContainer container = new StashboxContainer(config =>
             config.WithConstructorSelectionRule(Rules.ConstructorSelection.PreferLeastParameters)))
             {
-                container.RegisterType(typeof(ITest2), typeof(Test222));
+                container.Register(typeof(ITest2), typeof(Test222));
 
                 container.Resolve<ITest2>();
             }
@@ -427,7 +427,7 @@ namespace Stashbox.Tests
             var finalized = false;
             using (IStashboxContainer container = new StashboxContainer())
             {
-                container.RegisterType<Test1>(context => context.WithFinalizer(_ => finalized = true));
+                container.Register<Test1>(context => context.WithFinalizer(_ => finalized = true));
                 container.Resolve<Test1>();
             }
 

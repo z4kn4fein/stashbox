@@ -15,8 +15,8 @@ namespace Stashbox.Tests
             using (IStashboxContainer container = new StashboxContainer())
             {
                 container.RegisterSingleton<ITest1, Test1>();
-                container.RegisterType<ITest2, Test2>();
-                container.RegisterType<ITest3, Test3>();
+                container.Register<ITest2, Test2>();
+                container.Register<ITest3, Test3>();
 
                 var test1 = container.Resolve<ITest1>();
                 test1.Name = "test1";
@@ -35,8 +35,8 @@ namespace Stashbox.Tests
             using (IStashboxContainer container = new StashboxContainer())
             {
                 container.RegisterSingleton(typeof(ITest1), typeof(Test1));
-                container.RegisterType<ITest2, Test2>();
-                container.RegisterType<ITest3, Test3>();
+                container.Register<ITest2, Test2>();
+                container.Register<ITest3, Test3>();
 
                 Parallel.For(0, 50000, (i) =>
                 {
@@ -57,9 +57,9 @@ namespace Stashbox.Tests
         {
             using (IStashboxContainer container = new StashboxContainer())
             {
-                container.RegisterType<ITest1, Test1>(context => context.WithLifetime(new SingletonLifetime()));
-                container.RegisterType<ITest2, Test2>();
-                container.RegisterType<ITest3, Test3>();
+                container.Register<ITest1, Test1>(context => context.WithLifetime(new SingletonLifetime()));
+                container.Register<ITest2, Test2>();
+                container.Register<ITest3, Test3>();
 
                 Parallel.For(0, 50000, (i) =>
                 {
@@ -80,9 +80,9 @@ namespace Stashbox.Tests
         {
             using (IStashboxContainer container = new StashboxContainer())
             {
-                container.RegisterType<Test5>(context => context.WithPerResolutionRequestLifetime())
-                .RegisterType<Test6>()
-                .RegisterType<Test7>();
+                container.Register<Test5>(context => context.WithPerResolutionRequestLifetime())
+                .Register<Test6>()
+                .Register<Test7>();
 
                 var inst1 = container.Resolve<Test7>();
                 var inst2 = container.Resolve<Test7>();
@@ -99,7 +99,7 @@ namespace Stashbox.Tests
         {
             using (IStashboxContainer container = new StashboxContainer())
             {
-                container.RegisterType<Test6>(context => context.WithPerResolutionRequestLifetime());
+                container.Register<Test6>(context => context.WithPerResolutionRequestLifetime());
 
                 Assert.IsNull(container.Resolve<Test6>(nullResultAllowed: true));
             }
@@ -110,7 +110,7 @@ namespace Stashbox.Tests
         {
             using (IStashboxContainer container = new StashboxContainer())
             {
-                container.RegisterType<Test5>(context => context.WithPerResolutionRequestLifetime());
+                container.Register<Test5>(context => context.WithPerResolutionRequestLifetime());
 
                 var inst1 = container.Resolve<Test5>();
                 var inst2 = container.Resolve<Test5>();

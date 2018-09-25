@@ -13,7 +13,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<ITest, Test>();
+                container.Register<ITest, Test>();
 
                 var test1 = new Test1();
                 container.WireUpAs<ITest1>(test1);

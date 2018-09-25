@@ -11,7 +11,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer(config => config.WithUnknownTypeResolution()))
             {
-                container.RegisterType<Test>(context => context.WithConstructorByArgumentTypes(typeof(Dep), typeof(Dep2)));
+                container.Register<Test>(context => context.WithConstructorByArgumentTypes(typeof(Dep), typeof(Dep2)));
                 container.Resolve<Test>();
             }
         }
@@ -24,7 +24,7 @@ namespace Stashbox.Tests
                 var dep = new Dep();
                 var dep2 = new Dep2();
 
-                container.RegisterType<Test>(context => context.WithConstructorByArguments(dep, dep2));
+                container.Register<Test>(context => context.WithConstructorByArguments(dep, dep2));
                 var test = container.Resolve<Test>();
 
                 Assert.AreSame(dep, test.Dep);
@@ -38,7 +38,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<Test>(context => context.WithConstructorByArgumentTypes(typeof(Dep), typeof(Dep2)));
+                container.Register<Test>(context => context.WithConstructorByArgumentTypes(typeof(Dep), typeof(Dep2)));
                 container.Resolve<Test>();
             }
         }
@@ -49,7 +49,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<Test>(context => context.WithConstructorByArgumentTypes());
+                container.Register<Test>(context => context.WithConstructorByArgumentTypes());
                 container.Resolve<Test>();
             }
         }
@@ -60,7 +60,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<Test>(context => context.WithConstructorByArguments());
+                container.Register<Test>(context => context.WithConstructorByArguments());
                 container.Resolve<Test>();
             }
         }
@@ -71,7 +71,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<Test>(context => context.WithConstructorByArguments(new object()));
+                container.Register<Test>(context => context.WithConstructorByArguments(new object()));
                 container.Resolve<Test>();
             }
         }
@@ -82,7 +82,7 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<Test>(context => context.WithConstructorByArguments(new object(), new object()));
+                container.Register<Test>(context => context.WithConstructorByArguments(new object(), new object()));
                 container.Resolve<Test>();
             }
         }
@@ -123,7 +123,7 @@ namespace Stashbox.Tests
                 var arg = new Arg();
                 var arg1 = new Arg1();
 
-                container.RegisterType<Test1>(context => context.WithConstructorByArguments(arg, arg1));
+                container.Register<Test1>(context => context.WithConstructorByArguments(arg, arg1));
                 var test = container.Resolve<Test1>();
 
                 Assert.AreSame(arg, test.PArg);

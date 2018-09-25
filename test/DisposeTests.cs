@@ -16,8 +16,8 @@ namespace Stashbox.Tests
             Test3 test3;
             using (IStashboxContainer container = new StashboxContainer())
             {
-                container.RegisterType<ITest2, Test2>();
-                container.RegisterType<Test3>();
+                container.Register<ITest2, Test2>();
+                container.Register<Test3>();
                 container.RegisterSingleton<ITest1, Test1>();
                 test = container.Resolve<ITest1>();
                 test2 = container.Resolve<ITest2>();
@@ -37,9 +37,9 @@ namespace Stashbox.Tests
             Test3 test3;
             using (IStashboxContainer container = new StashboxContainer())
             {
-                container.RegisterType<ITest2, Test2>();
-                container.RegisterType<Test3>();
-                container.RegisterType<ITest1, Test1>(context => context.WithLifetime(new SingletonLifetime()).WithoutDisposalTracking());
+                container.Register<ITest2, Test2>();
+                container.Register<Test3>();
+                container.Register<ITest1, Test1>(context => context.WithLifetime(new SingletonLifetime()).WithoutDisposalTracking());
                 test = container.Resolve<ITest1>();
                 test2 = container.Resolve<ITest2>();
                 test3 = container.Resolve<Test3>();
@@ -58,8 +58,8 @@ namespace Stashbox.Tests
             Test3 test3;
             using (IStashboxContainer container = new StashboxContainer())
             {
-                container.RegisterType<ITest2, Test2>();
-                container.RegisterType<Test3>();
+                container.Register<ITest2, Test2>();
+                container.Register<Test3>();
                 container.RegisterInstanceAs(test);
                 test2 = container.Resolve<ITest2>();
                 test3 = container.Resolve<Test3>();
@@ -78,8 +78,8 @@ namespace Stashbox.Tests
             Test3 test3;
             using (IStashboxContainer container = new StashboxContainer())
             {
-                container.RegisterType<ITest2, Test2>();
-                container.RegisterType<Test3>();
+                container.Register<ITest2, Test2>();
+                container.Register<Test3>();
                 container.RegisterInstanceAs(test, withoutDisposalTracking: true);
                 test2 = container.Resolve<ITest2>();
                 test3 = container.Resolve<Test3>();
@@ -98,8 +98,8 @@ namespace Stashbox.Tests
             Test3 test3;
             using (IStashboxContainer container = new StashboxContainer())
             {
-                container.RegisterType<ITest2, Test2>();
-                container.RegisterType<Test3>();
+                container.Register<ITest2, Test2>();
+                container.Register<Test3>();
                 container.RegisterInstance(typeof(ITest1), test, withoutDisposalTracking: true);
                 test2 = container.Resolve<ITest2>();
                 test3 = container.Resolve<Test3>();
@@ -118,9 +118,9 @@ namespace Stashbox.Tests
             Test3 test3;
             using (IStashboxContainer container = new StashboxContainer())
             {
-                container.RegisterType<ITest2, Test2>();
-                container.RegisterType<Test3>();
-                container.RegisterType<ITest1>(context => context.WithInstance(test).WithoutDisposalTracking());
+                container.Register<ITest2, Test2>();
+                container.Register<Test3>();
+                container.Register<ITest1>(context => context.WithInstance(test).WithoutDisposalTracking());
                 test2 = container.Resolve<ITest2>();
                 test3 = container.Resolve<Test3>();
             }
@@ -138,8 +138,8 @@ namespace Stashbox.Tests
             Test3 test3;
             using (IStashboxContainer container = new StashboxContainer())
             {
-                container.RegisterType<ITest2, Test2>();
-                container.RegisterType<Test3>();
+                container.Register<ITest2, Test2>();
+                container.Register<Test3>();
                 container.WireUpAs(test);
                 test2 = container.Resolve<ITest2>();
                 test3 = container.Resolve<Test3>();
@@ -158,9 +158,9 @@ namespace Stashbox.Tests
             Test3 test3;
             using (IStashboxContainer container = new StashboxContainer(config => config.WithDisposableTransientTracking()))
             {
-                container.RegisterType<ITest2, Test2>();
-                container.RegisterType<Test3>();
-                container.RegisterType<ITest1, Test1>();
+                container.Register<ITest2, Test2>();
+                container.Register<Test3>();
+                container.Register<ITest1, Test1>();
                 test = container.Resolve<ITest1>();
                 test2 = container.Resolve<ITest2>();
                 test3 = container.Resolve<Test3>();
@@ -218,8 +218,8 @@ namespace Stashbox.Tests
             var test = new Test1();
             using (IStashboxContainer container = new StashboxContainer())
             {
-                container.RegisterType<ITest2, Test2>();
-                container.RegisterType<Test3>();
+                container.Register<ITest2, Test2>();
+                container.Register<Test3>();
 
                 container.PutInstanceInScope<ITest1>(test);
 
@@ -241,8 +241,8 @@ namespace Stashbox.Tests
             var test = new Test1();
             using (IStashboxContainer container = new StashboxContainer())
             {
-                container.RegisterType<ITest2, Test2>();
-                container.RegisterType<Test3>();
+                container.Register<ITest2, Test2>();
+                container.Register<Test3>();
 
                 container.PutInstanceInScope<ITest1>(test, true);
 
@@ -311,8 +311,8 @@ namespace Stashbox.Tests
         {
             using (IStashboxContainer container = new StashboxContainer())
             {
-                container.RegisterType<ITest2, Test2>();
-                container.RegisterType<Test3>();
+                container.Register<ITest2, Test2>();
+                container.Register<Test3>();
 
                 var test = new Test1();
 
@@ -382,9 +382,9 @@ namespace Stashbox.Tests
                 ITest2 test5;
                 Test3 test6;
 
-                container.RegisterType<ITest2, Test2>(context => context.WithLifetime(new ScopedLifetime()).WithoutDisposalTracking());
-                container.RegisterType<Test3>(context => context.WithLifetime(new ScopedLifetime()).WithoutDisposalTracking());
-                container.RegisterType<ITest1, Test1>(context => context.WithLifetime(new ScopedLifetime()).WithoutDisposalTracking());
+                container.Register<ITest2, Test2>(context => context.WithLifetime(new ScopedLifetime()).WithoutDisposalTracking());
+                container.Register<Test3>(context => context.WithLifetime(new ScopedLifetime()).WithoutDisposalTracking());
+                container.Register<ITest1, Test1>(context => context.WithLifetime(new ScopedLifetime()).WithoutDisposalTracking());
 
                 test = container.Resolve<ITest1>();
                 test2 = container.Resolve<ITest2>();
@@ -419,9 +419,9 @@ namespace Stashbox.Tests
                 ITest2 test5;
                 Test3 test6;
 
-                container.RegisterType<ITest2, Test2>();
-                container.RegisterType<Test3>();
-                container.RegisterType<ITest1, Test1>();
+                container.Register<ITest2, Test2>();
+                container.Register<Test3>();
+                container.Register<ITest1, Test1>();
 
                 test = container.Resolve<ITest1>();
                 test2 = container.Resolve<ITest2>();
@@ -456,9 +456,9 @@ namespace Stashbox.Tests
                 ITest2 test5;
                 Test3 test6;
 
-                container.RegisterType<ITest2, Test2>();
-                container.RegisterType<Test3>();
-                container.RegisterType<ITest1, Test1>();
+                container.Register<ITest2, Test2>();
+                container.Register<Test3>();
+                container.Register<ITest1, Test1>();
 
                 test = container.ResolveFactory<ITest1>()();
                 test2 = container.ResolveFactory<ITest2>()();
@@ -493,9 +493,9 @@ namespace Stashbox.Tests
                 ITest2 test5;
                 Test3 test6;
 
-                container.RegisterType<ITest2, Test2>();
-                container.RegisterType<Test3>();
-                container.RegisterType<ITest1, Test1>(context => context.WithoutDisposalTracking());
+                container.Register<ITest2, Test2>();
+                container.Register<Test3>();
+                container.Register<ITest1, Test1>(context => context.WithoutDisposalTracking());
 
                 test = container.Resolve<ITest1>();
                 test2 = container.Resolve<ITest2>();
@@ -523,9 +523,9 @@ namespace Stashbox.Tests
         {
             using (IStashboxContainer container = new StashboxContainer(config => config.WithDisposableTransientTracking()))
             {
-                container.RegisterType<ITest2, Test2>();
-                container.RegisterType<Test3>();
-                container.RegisterType<ITest1, Test1>();
+                container.Register<ITest2, Test2>();
+                container.Register<Test3>();
+                container.Register<ITest1, Test1>();
 
                 ITest1 test;
                 ITest2 test2;
@@ -571,9 +571,9 @@ namespace Stashbox.Tests
             ITest2 test5;
             Test3 test6;
 
-            container.RegisterType<ITest2, Test2>();
-            container.RegisterType<Test3>();
-            container.RegisterType<ITest1, Test1>();
+            container.Register<ITest2, Test2>();
+            container.Register<Test3>();
+            container.Register<ITest1, Test1>();
 
             using (var child = container.CreateChildContainer())
             using (var scope = child.BeginScope())
@@ -594,8 +594,8 @@ namespace Stashbox.Tests
             var container = new StashboxContainer(config => config.WithDisposableTransientTracking());
 
 
-            container.RegisterType<ITest2, Test2>();
-            container.RegisterType<Test3>();
+            container.Register<ITest2, Test2>();
+            container.Register<Test3>();
             container.RegisterSingleton<ITest1, Test1>();
 
             ITest1 test4;
@@ -630,7 +630,7 @@ namespace Stashbox.Tests
             IStashboxContainer container = new StashboxContainer(config => config.WithDisposableTransientTracking());
             ITest11 test1;
 
-            container.RegisterType<ITest11, Test4>();
+            container.Register<ITest11, Test4>();
 
             using (var child = container.BeginScope())
             {
@@ -688,7 +688,7 @@ namespace Stashbox.Tests
             ITest1 test;
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<ITest1, Test1>(context => context.WithFactory(() => new Test1()));
+                container.Register<ITest1, Test1>(context => context.WithFactory(() => new Test1()));
                 test = container.Resolve<ITest1>();
             }
 
@@ -701,7 +701,7 @@ namespace Stashbox.Tests
             ITest1 test;
             using (var container = new StashboxContainer(config => config.WithDisposableTransientTracking()))
             {
-                container.RegisterType<ITest1, Test1>(context => context.WithFactory(() => new Test1()));
+                container.Register<ITest1, Test1>(context => context.WithFactory(() => new Test1()));
                 test = container.Resolve<ITest1>();
             }
 
@@ -714,7 +714,7 @@ namespace Stashbox.Tests
             ITest1 test;
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<ITest1, Test1>(context => context.WithLifetime(new ScopedLifetime()).WithFactory(() => new Test1()));
+                container.Register<ITest1, Test1>(context => context.WithLifetime(new ScopedLifetime()).WithFactory(() => new Test1()));
                 test = container.Resolve<ITest1>();
             }
 
@@ -727,7 +727,7 @@ namespace Stashbox.Tests
             ITest1 test;
             using (var container = new StashboxContainer())
             {
-                container.RegisterType<ITest1, Test1>(context => context.WithLifetime(new ScopedLifetime()).WithFactory(() => new Test1()).WithoutDisposalTracking());
+                container.Register<ITest1, Test1>(context => context.WithLifetime(new ScopedLifetime()).WithFactory(() => new Test1()).WithoutDisposalTracking());
                 test = container.Resolve<ITest1>();
             }
 
