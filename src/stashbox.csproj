@@ -16,7 +16,7 @@
         <RepositoryType>git</RepositoryType>
         <PackageTags>Stashbox di dependencyinjection ioc dotnet netstandard</PackageTags>
         <Description>Stashbox is a lightweight, portable dependency injection framework for .NET based solutions.</Description>
-        <WarningsAsErrors>true</WarningsAsErrors>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <SignAssembly>true</SignAssembly>
         <AssemblyOriginatorKeyFile>../sn.snk</AssemblyOriginatorKeyFile>
