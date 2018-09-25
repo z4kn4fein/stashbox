@@ -21,6 +21,7 @@ install:
 - ps: |
     $env:build_version = Get-Content ".version"
     Update-AppveyorBuild -Version "$env:build_version-$env:appveyor_build_number"
+    dotnet tool install -g InheritDocTool
 
 before_build:
 - ps: . .\patch-version.ps1 "src\stashbox.csproj" $env:build_version $env:build_version
@@ -30,8 +31,7 @@ build_script:
 - msbuild /t:Build /p:Configuration=%configuration% stashbox.sln
 
 after_build:
-- dotnet tool install -g InheritDocTool
-- inheritdoc -o
+- dotnet inheritdoc -o
 - msbuild /t:Pack /p:IncludeSymbols=true /p:Configuration=%configuration% /p:PackageOutputPath=..\artifacts src\stashbox.csproj
 
 artifacts:
