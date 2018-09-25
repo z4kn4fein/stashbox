@@ -27,8 +27,8 @@ install:
 
 before_build:
 - ps: . .\patch-version.ps1 "src\stashbox.csproj" $env:build_version $env:appveyor_build_version 
-- ps: if ($env:appveyor_pull_request_number) { dotnet sonarscanner begin /k:"stashbox" /d:"sonar.host.url=https://sonarcloud.io" /d:"sonar.sources=src/**" /d:"sonar.exclusions=**/BuildUp/Expressions/**" /d:"sonar.login=$env:sonarqube_token" /o:"z4kn4fein-github" /d:"sonar.analysis.mode=preview" /d:"sonar.github.pullRequest=$env:APPVEYOR_PULL_REQUEST_NUMBER" /d:"sonar.github.repository=z4kn4fein/stashbox" /d:"sonar.github.oauth=$env:github_auth_token" /v:$env:appveyor_build_version }
-- ps: if (-Not $env:appveyor_pull_request_number) { dotnet sonarscanner begin /k:"stashbox" /d:"sonar.host.url=https://sonarcloud.io" /d:"sonar.sources=src/**" /d:"sonar.exclusions=**/BuildUp/Expressions/**" /d:"sonar.login=$env:sonarqube_token" /o:"z4kn4fein-github" /v:$env:appveyor_build_version }
+- ps: if ($env:appveyor_pull_request_number) { dotnet sonarscanner begin /k:"stashbox" /d:"sonar.host.url=https://sonarcloud.io" /d:"sonar.sources=src" /d:"sonar.exclusions=src/BuildUp/Expressions/**/*" /d:"sonar.login=$env:sonarqube_token" /o:"z4kn4fein-github" /d:"sonar.analysis.mode=preview" /d:"sonar.github.pullRequest=$env:APPVEYOR_PULL_REQUEST_NUMBER" /d:"sonar.github.repository=z4kn4fein/stashbox" /d:"sonar.github.oauth=$env:github_auth_token" /v:$env:appveyor_build_version }
+- ps: if (-Not $env:appveyor_pull_request_number) { dotnet sonarscanner begin /k:"stashbox" /d:"sonar.host.url=https://sonarcloud.io" /d:"sonar.sources=src" /d:"sonar.exclusions=src/BuildUp/Expressions/**/*" /d:"sonar.login=$env:sonarqube_token" /o:"z4kn4fein-github" /v:$env:appveyor_build_version }
 
 build_script:
 - msbuild /t:Restore /p:Configuration=%configuration% stashbox.sln
