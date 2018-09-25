@@ -8,38 +8,38 @@ Github (stable) | NuGet (stable) | MyGet (pre-release)
 
 ## Features
 
- - **Fluent interface** - for faster and easier configuration, attributes also can be used.
- - **Interface/type mapping** - single service, instance registration, remapping of existing registrations also supported.
- - **Resolution via delegates** - any number of parameters can be injected, they will be reused for subdenpendency resolution as well.
- - **Named registration** - multiple registrations with the same interface type.
- - **Assembly registration** - service lookup in assemblies, composition root implementations also supported.
- - **Factory registration** - factories with several parameters can be registered.
+ - **Fluent interface** - for faster and easier configuration, attribute based configuration is supported also.
+ - **Interface/type mapping** - single service, instance registration, remapping of existing registrations.
+ - **Resolution via delegates** - dynamic dependency overrides with delegate parameters.
+ - **Keyed registrations** - multiple implementations identified with a key for the same service type.
+ - **Assembly registration** - service lookup in assemblies with auto determined service types.
+ - **Factory registration** - factory delegates with several parameters can be registered.
  - **Initializer / finalizer** - custom initializer and finalizer actions can be set.
  - **Multiple service resolution** - all implementation registered for an interface can be obtained.
  - **Unknown type resolution** - unregistered services can be resolved or injected.
- - **Default and optional value injection** - primitive types or dependencies with default or optional value can be injected.
- - **Open generic type resolution** - concrete generic types can be resolved from open generic definitions, constraint checking and nested generic definitions are checked.
- - **Constructor, property and field injection** - supports attribute driven injection and auto injection as well, where there is no chance to decorate members with attributes.
- - **Injection method** - methods decorated with `InjectionMethod` attribute will be called at resolution time.
+ - **Default and optional value injection** - primitive types or dependencies with default or optional value can be resolved.
+ - **Open generic type resolution** - concrete generic types can be resolved from open generic definitions with constraint and nested generic definition checking.
+ - **Constructor, property and field injection** - attribute driven resolution or automatic injection, when there is no chance to decorate members with attributes.
+ - **Injection method** - methods decorated with `InjectionMethod` attribute are called at resolution time.
  - **Wiring into container** - member injection can be executed on existing instances.
- - **Building up existing instance** - member injection can be executed on existing instance without registering it into the container.
- - **Child scopes** - parent/child container support.
+ - **Building up existing instance** - member injection can be executed on existing instances without wiring them into the container.
+ - **Child container** - parent/child container support.
  - **Lifetime scopes** - hierarchical/named scoping support.
- - **Lifetime management** - including `Singleton`, `Transient`, `Scoped`, `NamedScope` and `PerResolutionRequest` lifetime, custom user defined lifetimes can also be used.
+ - **Lifetime management** - including `Singleton`, `Transient`, `Scoped`, `NamedScope` and `PerResolutionRequest` lifetime, custom user-defined lifetimes also can be used.
  - **Conditional resolution** - attribute, parent-type and custom user defined conditions can be specified.
  - **IDisposable object tracking** - `IDisposable` objects are being disposed by the container.
- - **Cleanup delegates** - custom delegate can be configured which'll be called when the container/scope is being disposed.
- - **Circular dependency tracking** - the container checks the dependency graph for circular dependencies, specific excpetion will be thrown if any found.
+ - **Cleanup delegates** - custom finalizer delegate can be configured to be called when the container or scope which created the service is being disposed.
+ - **Circular dependency tracking** - the container checks the resolution graph for circular dependencies, it throws a specific excpetion if it finds any.
  - **Special types** - generic wrappers:
      - Collections: everything assignable to `IEnumerable<T>` e.g. `T[]`, `ICollection<T>`, `IReadOnlyCollection<T>`, `IList<T>` etc.
      - `Lazy<>`, `Func<>`, `Tuple<>`
-     - Parameter injection over factory method arguments e.g. `Func<TParam, TService>`, `Func<TParam1, TParam2, TService>`, etc. applied to subdependencies as well.
+     - Parameter injection over delegate arguments e.g. `Func<TParam, TService>`, `Func<TParam1, TParam2, TService>`, etc. applied to subdependencies as well.
      - Nested wrappers e.g. `Tuple<TService, IEnumerable<Func<TParam, Lazy<TService1>>>>`.
  - **Custom resolvers** - the existing activation rutines can be extended with custom resolvers.
- - **Container extensions** - the container's functionality can be extended with custom extensions, e.g. [Auto configuration parser extension](https://github.com/z4kn4fein/stashbox-configuration-extension)
+ - **Container extensions** - the containers functionality can be extended with custom extensions, e.g. [Auto configuration parser extension](https://github.com/z4kn4fein/stashbox-configuration-extension)
  - **Custom configuration** - the behavior of the container can be controlled with custom configurations.
  - **Container validation** - the resolution graph can be validated by calling the `Validate()` function.
- - **Decorator support / Interception** - service decorators can be registered and also can used for interception with Castle DynamicProxy
+ - **Decorator support / Interception** - decorator services can be registered and used for interception with Castle DynamicProxy
 
 ## Supported platforms
 
@@ -70,20 +70,26 @@ container.RegisterType<IBarbarian, Wulfgar>();
 var wulfgar = container.Resolve<IBarbarian>();
 ```
 ## Extensions
- - [Decorator extension](https://github.com/z4kn4fein/stashbox-decoratorextension) (obsolate, the decorator pattern support is a built-in feature from version 2.3.0)
- - [Stashbox.Web.WebApi](https://github.com/z4kn4fein/stashbox-web-webapi)
- - [Stashbox.AspNet.WebApi.Owin](https://github.com/z4kn4fein/stashbox-webapi-owin)
- - [Stashbox.Web.Mvc](https://github.com/z4kn4fein/stashbox-web-mvc)
- - [Stashbox.AspNet.SingalR](https://github.com/z4kn4fein/stashbox-signalr)
- - [Stashbox.AspNet.SingalR.Owin](https://github.com/z4kn4fein/stashbox-signalr-owin)
- - [Stashbox.Owin](https://github.com/z4kn4fein/stashbox-owin)
- - [Stashbox.Extension.Wcf](https://github.com/devworker55/stashbox-extension-wcf)
- - [Stashbox.Extensions.Dependencyinjection](https://github.com/z4kn4fein/stashbox-extensions-dependencyinjection)
-     - [Microsoft.Extensions.DependencyInjection](https://github.com/aspnet/DependencyInjection) adapter for ASP.NET Core.
-     - [Microsoft.AspNetCore.Hosting](https://github.com/aspnet/Hosting) `IWebHostBuilder` extension.
-     - [Microsoft.Extensions.Hosting](https://github.com/aspnet/Hosting/tree/master/src/Microsoft.Extensions.Hosting.Abstractions) `IHostBuilder` extension.
- - [Stashbox.Mocking](https://github.com/z4kn4fein/stashbox-mocking) (Moq, FakeItEasy, NSubstitute, RhinoMocks, Rocks)
- - [Stashbox.Configuration](https://github.com/z4kn4fein/stashbox-configuration-extension) auto configuration parser
+- ASP.NET Core
+    - [Stashbox.Extensions.Dependencyinjection](https://github.com/z4kn4fein/stashbox-extensions-dependencyinjection) package contains:
+        - [Microsoft.Extensions.DependencyInjection](https://github.com/aspnet/DependencyInjection) `IServiceCollection` adapter.
+        - [Microsoft.AspNetCore.Hosting](https://github.com/aspnet/Hosting) `IWebHostBuilder` extension.
+        - [Microsoft.Extensions.Hosting](https://github.com/aspnet/Hosting/tree/master/src/Microsoft.Extensions.Hosting.Abstractions) `IHostBuilder` extension.
+- ASP.NET
+    - [Stashbox.Web.WebApi](https://github.com/z4kn4fein/stashbox-web-webapi)
+    - [Stashbox.Web.Mvc](https://github.com/z4kn4fein/stashbox-web-mvc)
+    - [Stashbox.AspNet.SingalR](https://github.com/z4kn4fein/stashbox-signalr)
+- WCF
+    - [Stashbox.Extension.Wcf](https://github.com/devworker55/stashbox-extension-wcf)
+- OWIN
+    - [Stashbox.Owin](https://github.com/z4kn4fein/stashbox-owin)
+    - [Stashbox.AspNet.WebApi.Owin](https://github.com/z4kn4fein/stashbox-webapi-owin)
+    - [Stashbox.AspNet.SingalR.Owin](https://github.com/z4kn4fein/stashbox-signalr-owin)
+- Mocking
+    - [Stashbox.Mocking](https://github.com/z4kn4fein/stashbox-mocking) (Moq, FakeItEasy, NSubstitute, RhinoMocks, Rocks)
+- Other
+    - [Decorator extension](https://github.com/z4kn4fein/stashbox-decoratorextension) (obsolate, the decorator pattern support is a built-in feature from version 2.3.0)
+    - [Stashbox.Configuration](https://github.com/z4kn4fein/stashbox-configuration-extension) auto configuration parser
 
 ## Documentation
  - [Wiki](https://github.com/z4kn4fein/stashbox/wiki)
