@@ -159,7 +159,7 @@ namespace Stashbox.Utils
                     return item.Value;
             }
 
-            return default(TValue);
+            return default;
         }
 
         IEnumerator IEnumerable.GetEnumerator() => this.Repository.GetEnumerator();

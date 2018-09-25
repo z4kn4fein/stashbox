@@ -35,17 +35,15 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
                 generator.Emit(OpCodes.Ldc_I8, (long)value);
             else if (type == typeof(float))
                 generator.Emit(OpCodes.Ldc_R8, (float)value);
-            else if (type == typeof(double))
-                generator.Emit(OpCodes.Ldc_R8, (double)value);
             else if (type == typeof(string))
                 generator.Emit(OpCodes.Ldstr, (string)value);
             else if (type == typeof(bool))
                 generator.Emit((bool)value ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0);
             else if (type == typeof(double))
                 generator.Emit(OpCodes.Ldc_R8, (double)value);
-            else if (value is Type)
+            else if (value is Type typeValue)
             {
-                generator.Emit(OpCodes.Ldtoken, (Type)value);
+                generator.Emit(OpCodes.Ldtoken, typeValue);
                 generator.Emit(OpCodes.Call, typeof(Type).GetSingleMethod("GetTypeFromHandle"));
             }
             else if (context.HasClosure)

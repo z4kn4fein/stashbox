@@ -9,7 +9,7 @@ namespace Stashbox.Utils
     {
         public static readonly AvlTree<TValue> Empty = new AvlTree<TValue>();
 
-        private readonly TValue defaultValue = default(TValue);
+        private readonly TValue defaultValue = default;
         private readonly int storedHash;
         private readonly TValue storedValue;
 
@@ -35,7 +35,7 @@ namespace Stashbox.Utils
 
         private AvlTree()
         { }
-        
+
         public AvlTree<TValue> AddOrUpdate(int key, TValue value, Func<TValue, TValue, TValue> updateDelegate = null) =>
             this.Add(key, value, updateDelegate);
 
@@ -88,67 +88,31 @@ namespace Stashbox.Utils
 
         private int GetBalance() => this.leftNode.height - this.rightNode.height;
 
-        public IEnumerator<TValue> GetEnumerator() => new AvlTreeEnumerator(this);
-
-        IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
-
-        internal class AvlTreeEnumerator : IEnumerator<TValue>
+        private IEnumerable<TValue> Walk()
         {
-            private TValue current;
-            private AvlTree<TValue> currentNode;
-            private int index;
-            private readonly AvlTree<TValue>[] nodes;
-            private readonly AvlTree<TValue> root;
+            var nodes = new AvlTree<TValue>[this.height];
+            var currentNode = this;
+            var index = -1;
 
-            public object Current => this.current;
-            TValue IEnumerator<TValue>.Current => this.current;
-
-            public AvlTreeEnumerator(AvlTree<TValue> root)
+            while (!currentNode.IsEmpty || index != -1)
             {
-                this.nodes = new AvlTree<TValue>[root.height];
-                this.root = root;
-
-                this.Initialize();
-            }
-
-            private void Initialize()
-            {
-                this.index = -1;
-                this.currentNode = this.root;
-                while (!this.currentNode.IsEmpty)
+                if (!currentNode.IsEmpty)
                 {
-                    this.nodes[++this.index] = this.currentNode;
-                    this.currentNode = this.currentNode.leftNode;
+                    nodes[++index] = currentNode;
+                    currentNode = currentNode.leftNode;
                 }
-            }
-
-            public bool MoveNext()
-            {
-                while (!this.currentNode.IsEmpty || this.index != -1)
+                else
                 {
-                    if (!this.currentNode.IsEmpty)
-                    {
-                        this.nodes[++this.index] = this.currentNode;
-                        this.currentNode = this.currentNode.leftNode;
-                    }
-                    else
-                    {
-                        this.currentNode = this.nodes[this.index--];
-                        this.current = this.currentNode.storedValue;
-                        this.currentNode = this.currentNode.rightNode;
-                        return true;
-                    }
+                    currentNode = nodes[index--];
+                    yield return currentNode.storedValue;
+
+                    currentNode = currentNode.rightNode;
                 }
-
-                return false;
-            }
-
-            public void Reset() => this.Initialize();
-
-            public void Dispose()
-            {
-                // do nothing
             }
         }
+
+        public IEnumerator<TValue> GetEnumerator() => this.Walk().GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
     }
 }

@@ -8,7 +8,7 @@ using System.Threading;
 
 namespace Stashbox.BuildUp.Expressions.Compile
 {
-    internal class DynamicModule
+    internal static class DynamicModule
     {
 #if NETSTANDARD
         public static readonly Lazy<ModuleBuilder> ModuleBuilder = new Lazy<ModuleBuilder>(() =>

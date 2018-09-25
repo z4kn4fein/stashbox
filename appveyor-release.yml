@@ -31,7 +31,7 @@ build_script:
 - msbuild /t:Build /p:Configuration=%configuration% stashbox.sln
 
 after_build:
-- dotnet inheritdoc -o
+- inheritdoc -o
 - msbuild /t:Pack /p:IncludeSymbols=true /p:Configuration=%configuration% /p:PackageOutputPath=..\artifacts src\stashbox.csproj
 
 artifacts:

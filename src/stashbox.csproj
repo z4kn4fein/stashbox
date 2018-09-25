@@ -25,6 +25,7 @@
         <PackageVersion>1.0.0</PackageVersion>
         <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
         <DebugType>portable</DebugType>
+        <LangVersion>latest</LangVersion>
         <PackageReleaseNotes>bugfix: #43 Issue with Member Injection with Attribute but private setter</PackageReleaseNotes>
     </PropertyGroup>
     <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.0'">
