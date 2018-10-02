@@ -49,4 +49,4 @@ notifications:
 - provider: Slack
   auth_token:
     secure: /KAOQIEOWc7w1EUl6J01qNam+f+ujntrwh53yJ0zg4qRWsdfWbkjKP2UG7tQDW7/hSVJHqF7Hz/IPdS6Cp5ilsfgH6xYroLB/sawQ/pdC5k=
-  channel: '#ci'
+  channel: '#stashbox'

@@ -45,7 +45,7 @@ namespace Stashbox.Utils
             var node = this;
             while (!node.IsEmpty && node.storedHash != key)
                 node = key < node.storedHash ? node.leftNode : node.rightNode;
-            return !node.IsEmpty ? node.storedValue : defaultValue;
+            return !node.IsEmpty ? node.storedValue : this.defaultValue;
         }
 
         private AvlTree<TValue> Add(int hash, TValue value, Func<TValue, TValue, TValue> updateDelegate)
