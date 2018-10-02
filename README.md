@@ -64,8 +64,8 @@ class Wulfgar : IBarbarian
 
 var container = new StashboxContainer();
 
-container.RegisterType<IWeapon, AegisFang>();
-container.RegisterType<IBarbarian, Wulfgar>();
+container.Register<IWeapon, AegisFang>();
+container.Register<IBarbarian, Wulfgar>();
 
 var wulfgar = container.Resolve<IBarbarian>();
 ```
