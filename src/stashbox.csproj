@@ -26,7 +26,10 @@
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <DebugType>portable</DebugType>
     <LangVersion>latest</LangVersion>
-    <PackageReleaseNotes>bugfix: #43 Issue with Member Injection with Attribute but private setter</PackageReleaseNotes>
+    <PackageReleaseNotes>
+      - renamed: insted of RegisterType(...) to Register(...)
+      - added: SourceLink support (https://github.com/dotnet/sourcelink)
+    </PackageReleaseNotes>
     <Configurations>Debug;Release;Benchmark</Configurations>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Benchmark'">
@@ -55,8 +58,18 @@
     <NugetTargetMoniker>.NETPortable,Version=v0.0,Profile=Profile259</NugetTargetMoniker>
     <LanguageTargets>$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets</LanguageTargets>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+  </PropertyGroup>
+
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.3' Or '$(TargetFramework)' == 'netstandard2.0'">
     <PackageReference Include="System.Reflection.Emit" Version="4.3.0" />
     <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.3.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(OS)' == 'Windows_NT'">
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta-63127-02" PrivateAssets="All"/>
   </ItemGroup>
 </Project>
