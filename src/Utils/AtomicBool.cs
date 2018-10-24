@@ -37,8 +37,8 @@ namespace Stashbox.Utils
         /// </summary>
         public bool Value
         {
-            get { return this.IntToBool(this.currentValue); }
-            set { this.currentValue = this.BoolToInt(value); }
+            get => this.IntToBool(this.currentValue);
+            set => this.currentValue = this.BoolToInt(value);
         }
 
         /// <summary>

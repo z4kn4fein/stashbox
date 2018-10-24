@@ -27,7 +27,7 @@
     <DebugType>portable</DebugType>
     <LangVersion>latest</LangVersion>
     <PackageReleaseNotes>
-      - renamed: insted of RegisterType(...) to Register(...)
+      - renamed: RegisterType(...) to Register(...)
       - added: SourceLink support (https://github.com/dotnet/sourcelink)
     </PackageReleaseNotes>
     <Configurations>Debug;Release;Benchmark</Configurations>
