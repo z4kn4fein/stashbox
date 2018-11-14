@@ -3,6 +3,7 @@ using Stashbox.Registration;
 using Stashbox.Resolution;
 using System;
 using System.Linq.Expressions;
+using System.Threading;
 
 namespace Stashbox.Lifetime
 {
@@ -11,10 +12,17 @@ namespace Stashbox.Lifetime
     /// </summary>
     public abstract class ScopedLifetimeBase : LifetimeBase
     {
+        private static int scopeIdCounter;
+
         /// <summary>
         /// The id of the scope.
         /// </summary>
-        protected readonly object ScopeId = new object();
+        protected readonly int ScopeId = Interlocked.Increment(ref scopeIdCounter);
+
+        /// <summary>
+        /// The object used to synchronization.
+        /// </summary>
+        protected readonly object Sync = new object();
 
         /// <summary>
         /// Produces a cached factory delegate to create scoped instances.

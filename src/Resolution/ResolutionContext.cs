@@ -29,9 +29,9 @@ namespace Stashbox.Resolution
         /// </summary>
         public ParameterExpression CurrentScopeParameter { get; }
 
-        private AvlTree<Expression> expressionOverrides;
-        private AvlTree<Type> currentlyDecoratingTypes;
-        private AvlTreeKeyValue<int, bool> circularDependencyBarrier;
+        private AvlTreeKeyValue<Type, Expression> expressionOverrides;
+        private AvlTreeKeyValue<Type, Type> currentlyDecoratingTypes;
+        private AvlTree<bool> circularDependencyBarrier;
 
         private readonly ArrayStoreKeyed<object, ParameterExpression> knownVariables;
 
@@ -52,7 +52,7 @@ namespace Stashbox.Resolution
         internal ArrayStoreKeyed<object, ParameterExpression> DefinedVariables { get; private set; }
 
         private ResolutionContext(IResolutionScope scope, bool nullResultAllowed, object[] dependencyOverrides)
-            : this(scope, AvlTreeKeyValue<int, bool>.Empty, AvlTree<Expression>.Empty, AvlTree<Type>.Empty, ArrayStore<ArrayStoreKeyed<bool, ParameterExpression>>.Empty, scope.GetActiveScopeNames(),
+            : this(scope, AvlTree<bool>.Empty, AvlTreeKeyValue<Type, Expression>.Empty, AvlTreeKeyValue<Type, Type>.Empty, ArrayStore<ArrayStoreKeyed<bool, ParameterExpression>>.Empty, scope.GetActiveScopeNames(),
                   null, nullResultAllowed, Constants.ResolutionScopeParameter, ArrayStoreKeyed<object, ParameterExpression>.Empty, dependencyOverrides == null)
         {
             this.ProcessDependencyOverrides(dependencyOverrides);
@@ -74,8 +74,8 @@ namespace Stashbox.Resolution
             }
         }
 
-        private ResolutionContext(IResolutionScope scope, AvlTreeKeyValue<int, bool> circularDependencyBarrier, AvlTree<Expression> expressionOverrides,
-            AvlTree<Type> currentlyDecoratingTypes, ArrayStore<ArrayStoreKeyed<bool, ParameterExpression>> parameterExpressions, ISet<object> scopeNames,
+        private ResolutionContext(IResolutionScope scope, AvlTree<bool> circularDependencyBarrier, AvlTreeKeyValue<Type, Expression> expressionOverrides,
+            AvlTreeKeyValue<Type, Type> currentlyDecoratingTypes, ArrayStore<ArrayStoreKeyed<bool, ParameterExpression>> parameterExpressions, ISet<object> scopeNames,
             IContainerContext childContext, bool nullResultAllowed, ParameterExpression currentScope, ArrayStoreKeyed<object, ParameterExpression> knownVariables, bool shouldCacheFactoryDelegate)
         {
             this.DefinedVariables = ArrayStoreKeyed<object, ParameterExpression>.Empty;
@@ -125,19 +125,19 @@ namespace Stashbox.Resolution
             this.DefinedVariables.GetOrDefault(key) ?? this.knownVariables.GetOrDefault(key);
 
         internal bool IsCurrentlyDecorating(Type type) =>
-            this.currentlyDecoratingTypes.GetOrDefault(type.GetHashCode()) != null;
+            this.currentlyDecoratingTypes.GetOrDefault(type) != null;
 
         internal void AddCurrentlyDecoratingType(Type type) =>
-            this.currentlyDecoratingTypes = this.currentlyDecoratingTypes.AddOrUpdate(type.GetHashCode(), type);
+            this.currentlyDecoratingTypes = this.currentlyDecoratingTypes.AddOrUpdate(type, type);
 
         internal void ClearCurrentlyDecoratingType(Type type) =>
-            this.currentlyDecoratingTypes = this.currentlyDecoratingTypes.AddOrUpdate(type.GetHashCode(), null, (oldValue, newValue) => newValue);
+            this.currentlyDecoratingTypes = this.currentlyDecoratingTypes.AddOrUpdate(type, null, (oldValue, newValue) => newValue);
 
         internal Expression GetExpressionOverrideOrDefault(Type type) =>
-            this.expressionOverrides.GetOrDefault(type.GetHashCode());
+            this.expressionOverrides.GetOrDefault(type);
 
         internal void SetExpressionOverride(Type type, Expression expression) =>
-            this.expressionOverrides = this.expressionOverrides.AddOrUpdate(type.GetHashCode(), expression, (oldValue, newValue) => newValue);
+            this.expressionOverrides = this.expressionOverrides.AddOrUpdate(type, expression, (oldValue, newValue) => newValue);
 
         internal void AddParameterExpressions(Type scopeType, ParameterExpression[] parameterExpressions)
         {

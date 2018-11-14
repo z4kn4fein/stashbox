@@ -40,15 +40,16 @@ namespace Stashbox.Utils
         public AvlTreeKeyValue<TKey, TValue> AddOrUpdate(TKey key, TValue value, Func<TValue, TValue, TValue> updateDelegate = null) =>
             this.Add(key.GetHashCode(), key, value, updateDelegate);
 
-        public AvlTreeKeyValue<TKey, TValue> AddOrUpdate(int hash, TKey key, TValue value, Func<TValue, TValue, TValue> updateDelegate = null) =>
-            this.Add(hash, key, value, updateDelegate);
+        //public AvlTreeKeyValue<TKey, TValue> AddOrUpdate(int hash, TKey key, TValue value, Func<TValue, TValue, TValue> updateDelegate = null) =>
+        //    this.Add(hash, key, value, updateDelegate);
 
-        public TValue GetOrDefault(TKey key) =>
-            this.GetOrDefault(key.GetHashCode(), key);
+        //[MethodImpl(Constants.Inline)]
+        //public TValue GetOrDefault(TKey key) => this.IsEmpty ? default : this.GetOrDefault(key.GetHashCode(), key);
 
         [MethodImpl(Constants.Inline)]
-        public TValue GetOrDefault(int hash, TKey key)
+        public TValue GetOrDefault(TKey key)
         {
+            var hash = key.GetHashCode();
             var node = this;
             while (!node.IsEmpty && node.StoredHash != hash)
                 node = hash < node.StoredHash ? node.LeftNode : node.RightNode;
