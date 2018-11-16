@@ -14,6 +14,12 @@ namespace Stashbox
 {
     internal class ResolutionScope : IResolutionScope, IDependencyResolver
     {
+        private class DelegateCache
+        {
+            public AvlTreeKeyValue<object, Func<IResolutionScope, object>> ServiceDelegates = AvlTreeKeyValue<object, Func<IResolutionScope, object>>.Empty;
+            public AvlTreeKeyValue<object, Func<IResolutionScope, Delegate>> FactoryDelegates = AvlTreeKeyValue<object, Func<IResolutionScope, Delegate>>.Empty;
+        }
+
         private class DisposableItem
         {
             public IDisposable Item;
@@ -43,8 +49,7 @@ namespace Stashbox
         private AvlTree<ThreadLocal<bool>> circularDependencyBarrier = AvlTree<ThreadLocal<bool>>.Empty;
 
         //private readonly int indexBound;
-        private AvlTreeKeyValue<object, Func<IResolutionScope, object>> serviceDelegates;
-        private AvlTreeKeyValue<object, Func<IResolutionScope, Delegate>> factoryDelegates;
+        private readonly DelegateCache delegateCache;
 
         /// <inheritdoc />
         public bool HasScopedInstances => !this.scopedInstances.IsEmpty;
@@ -60,8 +65,7 @@ namespace Stashbox
 
         private ResolutionScope(IResolverSelector resolverSelector, IServiceRegistrator serviceRegistrator,
             IExpressionBuilder expressionBuilder, IContainerContext containerContext,
-            AvlTreeKeyValue<object, Func<IResolutionScope, object>> serviceDelegateCache,
-            AvlTreeKeyValue<object, Func<IResolutionScope, Delegate>> factoryDelegates, object name)
+            DelegateCache delegateCache, object name)
         {
             this.disposed = new AtomicBool();
             this.rootItem = DisposableItem.Empty;
@@ -73,25 +77,21 @@ namespace Stashbox
             this.expressionBuilder = expressionBuilder;
             this.containerContext = containerContext;
             this.Name = name;
-            this.serviceDelegates = serviceDelegateCache;
-            this.factoryDelegates = factoryDelegates;
+            this.delegateCache = delegateCache;
             //this.indexBound = this.serviceDelegates.Length - 1;
         }
 
-        public ResolutionScope(IResolverSelector resolverSelector, IServiceRegistrator serviceRegistrator,
-            IExpressionBuilder expressionBuilder, IContainerContext containerContext, object name = null)
+        internal ResolutionScope(IResolverSelector resolverSelector, IServiceRegistrator serviceRegistrator,
+            IExpressionBuilder expressionBuilder, IContainerContext containerContext)
             : this(resolverSelector, serviceRegistrator, expressionBuilder, containerContext,
-                  AvlTreeKeyValue<object, Func<IResolutionScope, object>>.Empty,
-                  AvlTreeKeyValue<object, Func<IResolutionScope, Delegate>>.Empty, name)
+                  new DelegateCache(), null)
         {
             this.RootScope = this;
-            this.InvalidateDelegateCache();
         }
 
-        public ResolutionScope(IResolverSelector resolverSelector, IServiceRegistrator serviceRegistrator, IExpressionBuilder expressionBuilder,
-            IContainerContext containerContext, IResolutionScope rootScope, IResolutionScope parent, AvlTreeKeyValue<object, Func<IResolutionScope, object>> serviceDelegateCache,
-            AvlTreeKeyValue<object, Func<IResolutionScope, Delegate>> factoryDelegates, object name = null)
-            : this(resolverSelector, serviceRegistrator, expressionBuilder, containerContext, serviceDelegateCache, factoryDelegates, name)
+        private ResolutionScope(IResolverSelector resolverSelector, IServiceRegistrator serviceRegistrator, IExpressionBuilder expressionBuilder,
+            IContainerContext containerContext, IResolutionScope rootScope, IResolutionScope parent, DelegateCache delegateCache, object name = null)
+            : this(resolverSelector, serviceRegistrator, expressionBuilder, containerContext, delegateCache, name)
         {
             this.RootScope = rootScope;
             this.ParentScope = parent;
@@ -100,14 +100,14 @@ namespace Stashbox
         public object Resolve(Type typeFrom, bool nullResultAllowed = false, object[] dependencyOverrides = null)
         {
             //var hash = typeFrom.GetHashCode();
-            var cachedFactory = this.serviceDelegates.GetOrDefault(typeFrom);
+            var cachedFactory = this.delegateCache.ServiceDelegates.GetOrDefault(typeFrom);
             return cachedFactory != null ? cachedFactory(this) : this.Activate(ResolutionContext.New(this, nullResultAllowed, dependencyOverrides), typeFrom);
         }
 
         public object Resolve(Type typeFrom, object name, bool nullResultAllowed = false, object[] dependencyOverrides = null)
         {
             //var hash = name.GetHashCode();
-            var cachedFactory = this.serviceDelegates.GetOrDefault(name);
+            var cachedFactory = this.delegateCache.ServiceDelegates.GetOrDefault(name);
             return cachedFactory != null ? cachedFactory(this) : this.Activate(ResolutionContext.New(this, nullResultAllowed, dependencyOverrides), typeFrom, name);
         }
 
@@ -121,7 +121,7 @@ namespace Stashbox
         {
             var key = name ?? typeFrom;
             //var hash = key.GetHashCode();
-            var cachedFactory = this.factoryDelegates.GetOrDefault(key);
+            var cachedFactory = this.delegateCache.FactoryDelegates.GetOrDefault(key);
             return cachedFactory != null ? cachedFactory(this) : this.ActivateFactoryDelegate(typeFrom, parameterTypes, this, name, nullResultAllowed);
         }
 
@@ -129,7 +129,7 @@ namespace Stashbox
         {
             var scope = new ResolutionScope(this.resolverSelector, this.serviceRegistrator,
                 this.expressionBuilder, this.containerContext, this.RootScope, this,
-                this.serviceDelegates, this.factoryDelegates, name);
+                this.delegateCache, name);
 
             return attachToParent ? this.AddDisposableTracking(scope) : scope;
         }
@@ -198,16 +198,16 @@ namespace Stashbox
 
                 item = factory(this);
                 Swap.SwapValue(ref this.scopedItems, items => items.AddOrUpdate(key, item));
-            }
 
-            return item;
+                return item;
+            }
         }
 
         /// <inheritdoc />
         public void InvalidateDelegateCache()
         {
-            this.serviceDelegates = AvlTreeKeyValue<object, Func<IResolutionScope, object>>.Empty;
-            this.factoryDelegates = AvlTreeKeyValue<object, Func<IResolutionScope, Delegate>>.Empty;
+            this.delegateCache.ServiceDelegates = AvlTreeKeyValue<object, Func<IResolutionScope, object>>.Empty;
+            this.delegateCache.FactoryDelegates = AvlTreeKeyValue<object, Func<IResolutionScope, Delegate>>.Empty;
 
             //for (var i = 0; i < this.serviceDelegates.Length; i++)
             //    this.serviceDelegates[i] = AvlTreeKeyValue<object, Func<IResolutionScope, object>>.Empty;
@@ -296,7 +296,7 @@ namespace Stashbox
                     return null;
 
                 if (resolutionContext.ShouldCacheFactoryDelegate)
-                    Swap.SwapValue(ref this.serviceDelegates, c => c.AddOrUpdate(name ?? type, ragistrationFactory));
+                    Swap.SwapValue(ref this.delegateCache.ServiceDelegates, c => c.AddOrUpdate(name ?? type, ragistrationFactory));
 
                 return ragistrationFactory(resolutionContext.ResolutionScope);
             }
@@ -311,7 +311,7 @@ namespace Stashbox
             var factory = expr.CompileDelegate(resolutionContext);
 
             if (resolutionContext.ShouldCacheFactoryDelegate)
-                Swap.SwapValue(ref this.serviceDelegates, c => c.AddOrUpdate(name ?? type, factory));
+                Swap.SwapValue(ref this.delegateCache.ServiceDelegates, c => c.AddOrUpdate(name ?? type, factory));
 
             return factory(resolutionContext.ResolutionScope);
         }
@@ -337,7 +337,7 @@ namespace Stashbox
             var expression = initExpression.AsLambda(resolutionContext.ParameterExpressions.SelectMany(x => x));
 
             var factory = expression.CompileDynamicDelegate(resolutionContext);
-            Swap.SwapValue(ref this.factoryDelegates, c => c.AddOrUpdate(name ?? type, factory));
+            Swap.SwapValue(ref this.delegateCache.FactoryDelegates, c => c.AddOrUpdate(name ?? type, factory));
             return factory(resolutionScope);
         }
     }
