@@ -131,13 +131,13 @@ namespace Stashbox.Resolution
             this.currentlyDecoratingTypes = this.currentlyDecoratingTypes.AddOrUpdate(type, type);
 
         internal void ClearCurrentlyDecoratingType(Type type) =>
-            this.currentlyDecoratingTypes = this.currentlyDecoratingTypes.AddOrUpdate(type, null, (oldValue, newValue) => newValue);
+            this.currentlyDecoratingTypes = this.currentlyDecoratingTypes.AddOrUpdate(type, null, true);
 
         internal Expression GetExpressionOverrideOrDefault(Type type) =>
             this.expressionOverrides.GetOrDefault(type);
 
         internal void SetExpressionOverride(Type type, Expression expression) =>
-            this.expressionOverrides = this.expressionOverrides.AddOrUpdate(type, expression, (oldValue, newValue) => newValue);
+            this.expressionOverrides = this.expressionOverrides.AddOrUpdate(type, expression, true);
 
         internal void AddParameterExpressions(Type scopeType, ParameterExpression[] parameterExpressions)
         {
@@ -149,7 +149,7 @@ namespace Stashbox.Resolution
         }
 
         internal void SetCircularDependencyBarrier(int key, bool value) =>
-            Swap.SwapValue(ref this.circularDependencyBarrier, barrier => barrier.AddOrUpdate(key, value, (old, @new) => @new));
+            this.circularDependencyBarrier = this.circularDependencyBarrier.AddOrUpdate(key, value, true);
 
         internal bool GetCircularDependencyBarrier(int key) =>
             this.circularDependencyBarrier.GetOrDefault(key);

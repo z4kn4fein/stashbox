@@ -19,8 +19,8 @@ namespace Stashbox.Registration
     /// </summary>
     public class ServiceRegistration : IServiceRegistration
     {
-        private static int GlobalRegistrationNumber;
-        private static AvlTreeKeyValue<Type, MetaInformation> MetaRepository = AvlTreeKeyValue<Type, MetaInformation>.Empty;
+        internal static int GlobalRegistrationNumber;
+        internal static AvlTreeKeyValue<Type, MetaInformation> MetaRepository = AvlTreeKeyValue<Type, MetaInformation>.Empty;
         private readonly IContainerConfigurator containerConfigurator;
         private readonly IObjectBuilder objectBuilder;
 

@@ -47,8 +47,7 @@ namespace Stashbox
         private AvlTree<object> scopedItems;
         private AvlTreeKeyValue<Type, object> scopedInstances;
         private AvlTree<ThreadLocal<bool>> circularDependencyBarrier = AvlTree<ThreadLocal<bool>>.Empty;
-
-        //private readonly int indexBound;
+        
         private readonly DelegateCache delegateCache;
 
         /// <inheritdoc />
@@ -78,7 +77,6 @@ namespace Stashbox
             this.containerContext = containerContext;
             this.Name = name;
             this.delegateCache = delegateCache;
-            //this.indexBound = this.serviceDelegates.Length - 1;
         }
 
         internal ResolutionScope(IResolverSelector resolverSelector, IServiceRegistrator serviceRegistrator,
@@ -99,14 +97,12 @@ namespace Stashbox
 
         public object Resolve(Type typeFrom, bool nullResultAllowed = false, object[] dependencyOverrides = null)
         {
-            //var hash = typeFrom.GetHashCode();
             var cachedFactory = this.delegateCache.ServiceDelegates.GetOrDefault(typeFrom);
             return cachedFactory != null ? cachedFactory(this) : this.Activate(ResolutionContext.New(this, nullResultAllowed, dependencyOverrides), typeFrom);
         }
 
         public object Resolve(Type typeFrom, object name, bool nullResultAllowed = false, object[] dependencyOverrides = null)
         {
-            //var hash = name.GetHashCode();
             var cachedFactory = this.delegateCache.ServiceDelegates.GetOrDefault(name);
             return cachedFactory != null ? cachedFactory(this) : this.Activate(ResolutionContext.New(this, nullResultAllowed, dependencyOverrides), typeFrom, name);
         }
@@ -120,7 +116,6 @@ namespace Stashbox
         public Delegate ResolveFactory(Type typeFrom, object name = null, bool nullResultAllowed = false, params Type[] parameterTypes)
         {
             var key = name ?? typeFrom;
-            //var hash = key.GetHashCode();
             var cachedFactory = this.delegateCache.FactoryDelegates.GetOrDefault(key);
             return cachedFactory != null ? cachedFactory(this) : this.ActivateFactoryDelegate(typeFrom, parameterTypes, this, name, nullResultAllowed);
         }
@@ -208,12 +203,6 @@ namespace Stashbox
         {
             this.delegateCache.ServiceDelegates = AvlTreeKeyValue<object, Func<IResolutionScope, object>>.Empty;
             this.delegateCache.FactoryDelegates = AvlTreeKeyValue<object, Func<IResolutionScope, Delegate>>.Empty;
-
-            //for (var i = 0; i < this.serviceDelegates.Length; i++)
-            //    this.serviceDelegates[i] = AvlTreeKeyValue<object, Func<IResolutionScope, object>>.Empty;
-
-            //for (var i = 0; i < this.factoryDelegates.Length; i++)
-            //    this.factoryDelegates[i] = AvlTreeKeyValue<object, Func<IResolutionScope, Delegate>>.Empty;
         }
 
         /// <inheritdoc />

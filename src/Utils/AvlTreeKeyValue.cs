@@ -8,6 +8,7 @@ namespace Stashbox.Utils
     internal class AvlTreeKeyValue<TKey, TValue> : IEnumerable<TValue>
     {
         public static readonly AvlTreeKeyValue<TKey, TValue> Empty = new AvlTreeKeyValue<TKey, TValue>();
+        private static readonly TValue DefaultValue = default;
 
         private readonly int height;
 
@@ -38,17 +39,17 @@ namespace Stashbox.Utils
         }
 
         public AvlTreeKeyValue<TKey, TValue> AddOrUpdate(TKey key, TValue value, Func<TValue, TValue, TValue> updateDelegate = null) =>
-            this.Add(key.GetHashCode(), key, value, updateDelegate);
+            this.Add(key.GetHashCode(), key, value, updateDelegate, false);
 
-        //public AvlTreeKeyValue<TKey, TValue> AddOrUpdate(int hash, TKey key, TValue value, Func<TValue, TValue, TValue> updateDelegate = null) =>
-        //    this.Add(hash, key, value, updateDelegate);
-
-        //[MethodImpl(Constants.Inline)]
-        //public TValue GetOrDefault(TKey key) => this.IsEmpty ? default : this.GetOrDefault(key.GetHashCode(), key);
+        public AvlTreeKeyValue<TKey, TValue> AddOrUpdate(TKey key, TValue value, bool forceUpdate) =>
+            this.Add(key.GetHashCode(), key, value, null, forceUpdate);
 
         [MethodImpl(Constants.Inline)]
         public TValue GetOrDefault(TKey key)
         {
+            if (this.IsEmpty)
+                return DefaultValue;
+
             var hash = key.GetHashCode();
             var node = this;
             while (!node.IsEmpty && node.StoredHash != hash)
@@ -57,33 +58,36 @@ namespace Stashbox.Utils
                 node.StoredValue : node.Collisions.GetOrDefault(key);
         }
 
-        private AvlTreeKeyValue<TKey, TValue> Add(int hash, TKey key, TValue value, Func<TValue, TValue, TValue> updateDelegate)
+        private AvlTreeKeyValue<TKey, TValue> Add(int hash, TKey key, TValue value, Func<TValue, TValue, TValue> updateDelegate, bool forceUpdate)
         {
             if (this.IsEmpty)
                 return new AvlTreeKeyValue<TKey, TValue>(hash, key, value, Empty, Empty, ArrayStoreKeyed<TKey, TValue>.Empty);
 
             if (hash == this.StoredHash)
-                return this.CheckCollision(hash, key, value, updateDelegate);
+                return this.CheckCollision(hash, key, value, updateDelegate, forceUpdate);
 
             var result = hash < this.StoredHash
-                ? this.SelfCopy(this.LeftNode.Add(hash, key, value, updateDelegate), this.RightNode)
-                : this.SelfCopy(this.LeftNode, this.RightNode.Add(hash, key, value, updateDelegate));
+                ? this.SelfCopy(this.LeftNode.Add(hash, key, value, updateDelegate, forceUpdate), this.RightNode)
+                : this.SelfCopy(this.LeftNode, this.RightNode.Add(hash, key, value, updateDelegate, forceUpdate));
 
             return result.Balance();
         }
 
-        private AvlTreeKeyValue<TKey, TValue> CheckCollision(int hash, TKey key, TValue value, Func<TValue, TValue, TValue> updateDelegate)
+        private AvlTreeKeyValue<TKey, TValue> CheckCollision(int hash, TKey key, TValue value, Func<TValue, TValue, TValue> updateDelegate, bool forceUpdate)
         {
             if (ReferenceEquals(key, this.StoredKey) || key.Equals(this.StoredKey))
-                return updateDelegate == null ? this : new AvlTreeKeyValue<TKey, TValue>(hash, key,
-                    updateDelegate(this.StoredValue, value), this.LeftNode, this.RightNode, this.Collisions);
+                return updateDelegate != null 
+                    ? new AvlTreeKeyValue<TKey, TValue>(hash, key, updateDelegate(this.StoredValue, value), this.LeftNode, this.RightNode, this.Collisions) 
+                    : forceUpdate 
+                        ? new AvlTreeKeyValue<TKey, TValue>(hash, key, value, this.LeftNode, this.RightNode, this.Collisions)
+                        : this;
 
             if (this.Collisions == null)
                 return new AvlTreeKeyValue<TKey, TValue>(hash, key, value, this.LeftNode, this.RightNode,
                     ArrayStoreKeyed<TKey, TValue>.Empty.Add(key, value));
 
             return new AvlTreeKeyValue<TKey, TValue>(hash, key, value, this.LeftNode, this.RightNode,
-                this.Collisions.AddOrUpdate(key, updateDelegate == null ? value : updateDelegate(this.StoredValue, value)));
+                this.Collisions.AddOrUpdate(key, updateDelegate == null || forceUpdate ? value : updateDelegate(this.StoredValue, value)));
         }
 
         private AvlTreeKeyValue<TKey, TValue> Balance()

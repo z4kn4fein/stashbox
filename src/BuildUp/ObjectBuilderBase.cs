@@ -58,14 +58,14 @@ namespace Stashbox.BuildUp
                 expr = this.BuildFinalizerExpression(expr, serviceRegistration, resolutionContext.CurrentScopeParameter);
 
             if (!serviceRegistration.ShouldHandleDisposal || !expr.Type.IsDisposable())
-                return this.BuildRuntimeCircularDependencyCheckExpression(expr, containerContext, serviceRegistration, resolutionContext, resolveType);
+                return this.CheckRuntimeCircularDependencyExpression(expr, containerContext, serviceRegistration, resolutionContext, resolveType);
 
             var method = Constants.AddDisposalMethod.MakeGenericMethod(expr.Type);
-            return this.BuildRuntimeCircularDependencyCheckExpression(resolutionContext.CurrentScopeParameter.CallMethod(method, expr),
+            return this.CheckRuntimeCircularDependencyExpression(resolutionContext.CurrentScopeParameter.CallMethod(method, expr),
                 containerContext, serviceRegistration, resolutionContext, resolveType);
         }
 
-        private Expression BuildRuntimeCircularDependencyCheckExpression(Expression expression, IContainerContext containerContext,
+        private Expression CheckRuntimeCircularDependencyExpression(Expression expression, IContainerContext containerContext,
             IServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType)
         {
             if (!containerContext.ContainerConfigurator.ContainerConfiguration.RuntimeCircularDependencyTrackingEnabled)

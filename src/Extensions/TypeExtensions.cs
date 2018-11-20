@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using Stashbox.Attributes;
+using DependencyAttribute = Stashbox.Attributes.DependencyAttribute;
 
 #if NET40
 namespace System.Reflection
@@ -58,22 +60,22 @@ namespace System
             return typeInfo.IsGenericType && typeInfo.ContainsGenericParameters;
         }
 
-        public static Stashbox.Attributes.DependencyAttribute GetDependencyAttribute(this MemberInfo property)
+        public static DependencyAttribute GetDependencyAttribute(this MemberInfo property)
         {
-            var attr = property.GetCustomAttributes(Constants.DependencyAttributeType, false)?.FirstOrDefault();
-            return attr != null ? (Stashbox.Attributes.DependencyAttribute)attr : null;
+            var attr = property.GetCustomAttributes(Constants.DependencyAttributeType, false).FirstOrDefault();
+            return (DependencyAttribute) attr;
         }
 
-        public static Stashbox.Attributes.DependencyAttribute GetDependencyAttribute(this ParameterInfo parameter)
+        public static DependencyAttribute GetDependencyAttribute(this ParameterInfo parameter)
         {
-            var attr = parameter.GetCustomAttributes(Constants.DependencyAttributeType, false)?.FirstOrDefault();
-            return attr != null ? (Stashbox.Attributes.DependencyAttribute)attr : null;
+            var attr = parameter.GetCustomAttributes(Constants.DependencyAttributeType, false).FirstOrDefault();
+            return (DependencyAttribute) attr;
         }
 
-        public static Stashbox.Attributes.InjectionMethodAttribute GetInjectionAttribute(this MemberInfo method)
+        public static InjectionMethodAttribute GetInjectionAttribute(this MemberInfo method)
         {
-            var attr = method.GetCustomAttributes(Constants.InjectionAttributeType, false)?.FirstOrDefault();
-            return attr != null ? (Stashbox.Attributes.InjectionMethodAttribute)attr : null;
+            var attr = method.GetCustomAttributes(Constants.InjectionAttributeType, false).FirstOrDefault();
+            return (InjectionMethodAttribute) attr;
         }
 
         public static Type[] GetGenericArguments(this Type type) =>

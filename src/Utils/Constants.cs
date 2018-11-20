@@ -54,7 +54,5 @@ namespace Stashbox.Utils
         internal static readonly Type InjectionAttributeType = typeof(Attributes.InjectionMethodAttribute);
 
         internal const MethodImplOptions Inline = (MethodImplOptions)256;
-
-        internal const int HashMapLength = 64;
     }
 }

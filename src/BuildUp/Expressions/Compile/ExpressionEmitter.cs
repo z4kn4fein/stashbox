@@ -1,4 +1,4 @@
-﻿#if NET45 || NET40 || IL_EMIT
+﻿#if IL_EMIT
 using Stashbox.BuildUp.Expressions.Compile.Emitters;
 using System;
 using System.Collections.Generic;
