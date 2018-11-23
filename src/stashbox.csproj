@@ -48,9 +48,9 @@
     <AssemblyTitle>Stashbox .NET Standard 2.0</AssemblyTitle>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.3' Or '$(TargetFramework)' == 'netstandard2.0'">
-    <DefineConstants>NETSTANDARD</DefineConstants>
+    <DefineConstants>NETSTANDARD;IL_EMIT</DefineConstants>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.3' Or '$(TargetFramework)' == 'netstandard2.0' Or '$(TargetFramework)' == 'net40' Or '$(TargetFramework)' == 'net45'">
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net40' Or '$(TargetFramework)' == 'net45'">
     <DefineConstants>IL_EMIT</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'portable-net45+win8+wpa81+wp8' And '$(MSBuildRuntimeType)' == 'Full'">
