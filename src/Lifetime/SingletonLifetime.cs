@@ -14,9 +14,17 @@ namespace Stashbox.Lifetime
         /// <inheritdoc />
         public override Expression GetExpression(IContainerContext containerContext, IServiceRegistration serviceRegistration, IObjectBuilder objectBuilder, ResolutionContext resolutionContext, Type resolveType)
         {
-            var factory = base.GetFactoryDelegate(containerContext, serviceRegistration, objectBuilder, resolutionContext, resolveType);
-            return factory == null ? null : resolutionContext.RootScope.GetOrAddScopedItem(base.ScopeId, base.Sync, factory).AsConstant();
+            var expression = base.GetExpression(containerContext, serviceRegistration, objectBuilder, resolutionContext, resolveType);
+            if (expression == null)
+                return null;
+
+            var factory = expression.NodeType == ExpressionType.New && ((NewExpression)expression).Arguments.Count > 0
+                ? scope => Activator.CreateInstance(expression.Type)
+                : expression.CompileDelegate(resolutionContext);
+
+            return base.StoreExpressionIntoLocalVariable(resolutionContext.RootScope.GetOrAddScopedItem(base.ScopeId, base.Sync, factory).AsConstant(), resolutionContext, resolveType);
         }
+
         /// <inheritdoc />
         public override ILifetime Create() => new SingletonLifetime();
     }

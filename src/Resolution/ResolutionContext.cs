@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 
 namespace Stashbox.Resolution
 {
@@ -32,6 +33,7 @@ namespace Stashbox.Resolution
         private AvlTreeKeyValue<Type, Expression> expressionOverrides;
         private AvlTreeKeyValue<Type, Type> currentlyDecoratingTypes;
         private AvlTree<bool> circularDependencyBarrier;
+        private AvlTree<Expression> expressionCache;
 
         private readonly ArrayStoreKeyed<object, ParameterExpression> knownVariables;
 
@@ -53,7 +55,7 @@ namespace Stashbox.Resolution
 
         private ResolutionContext(IResolutionScope scope, bool nullResultAllowed, object[] dependencyOverrides)
             : this(scope, AvlTree<bool>.Empty, AvlTreeKeyValue<Type, Expression>.Empty, AvlTreeKeyValue<Type, Type>.Empty, ArrayStore<ArrayStoreKeyed<bool, ParameterExpression>>.Empty, scope.GetActiveScopeNames(),
-                  null, nullResultAllowed, Constants.ResolutionScopeParameter, ArrayStoreKeyed<object, ParameterExpression>.Empty, dependencyOverrides == null)
+                  null, nullResultAllowed, Constants.ResolutionScopeParameter, ArrayStoreKeyed<object, ParameterExpression>.Empty, AvlTree<Expression>.Empty,  dependencyOverrides == null)
         {
             this.ProcessDependencyOverrides(dependencyOverrides);
         }
@@ -76,7 +78,7 @@ namespace Stashbox.Resolution
 
         private ResolutionContext(IResolutionScope scope, AvlTree<bool> circularDependencyBarrier, AvlTreeKeyValue<Type, Expression> expressionOverrides,
             AvlTreeKeyValue<Type, Type> currentlyDecoratingTypes, ArrayStore<ArrayStoreKeyed<bool, ParameterExpression>> parameterExpressions, ISet<object> scopeNames,
-            IContainerContext childContext, bool nullResultAllowed, ParameterExpression currentScope, ArrayStoreKeyed<object, ParameterExpression> knownVariables, bool shouldCacheFactoryDelegate)
+            IContainerContext childContext, bool nullResultAllowed, ParameterExpression currentScope, ArrayStoreKeyed<object, ParameterExpression> knownVariables, AvlTree<Expression> expressionCache, bool shouldCacheFactoryDelegate)
         {
             this.DefinedVariables = ArrayStoreKeyed<object, ParameterExpression>.Empty;
             this.SingleInstructions = ArrayStore<Expression>.Empty;
@@ -92,6 +94,7 @@ namespace Stashbox.Resolution
             this.knownVariables = knownVariables;
             this.circularDependencyBarrier = circularDependencyBarrier;
             this.ShouldCacheFactoryDelegate = shouldCacheFactoryDelegate;
+            this.expressionCache = expressionCache;
         }
 
         /// <summary>
@@ -139,6 +142,12 @@ namespace Stashbox.Resolution
         internal void SetExpressionOverride(Type type, Expression expression) =>
             this.expressionOverrides = this.expressionOverrides.AddOrUpdate(type, expression, true);
 
+        internal void CacheExpression(int key, Expression expression) =>
+            this.expressionCache = this.expressionCache.AddOrUpdate(key, expression);
+
+        internal Expression GetCachedExpression(int key) =>
+            this.expressionCache.GetOrDefault(key);
+
         internal void AddParameterExpressions(Type scopeType, ParameterExpression[] parameterExpressions)
         {
             var length = parameterExpressions.Length;
@@ -166,7 +175,7 @@ namespace Stashbox.Resolution
             return new ResolutionContext(this.ResolutionScope, this.circularDependencyBarrier, this.expressionOverrides,
                  this.currentlyDecoratingTypes, this.ParameterExpressions, scopeNames, childContext ?? this.ChildContext,
                  this.NullResultAllowed, scopeParameter == null ? this.CurrentScopeParameter : scopeParameter.Value,
-                 this.DefinedVariables, this.ShouldCacheFactoryDelegate);
+                 this.DefinedVariables, this.expressionCache, this.ShouldCacheFactoryDelegate);
         }
     }
 }
