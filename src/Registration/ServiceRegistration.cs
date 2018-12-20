@@ -2,7 +2,6 @@
 using Stashbox.Configuration;
 using Stashbox.Entity;
 using Stashbox.Lifetime;
-using Stashbox.MetaInfo;
 using Stashbox.Resolution;
 using Stashbox.Utils;
 using System;

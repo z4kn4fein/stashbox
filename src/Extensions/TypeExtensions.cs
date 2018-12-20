@@ -1,9 +1,9 @@
-﻿using Stashbox.Utils;
+﻿using Stashbox.Attributes;
+using Stashbox.Utils;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using Stashbox.Attributes;
 using DependencyAttribute = Stashbox.Attributes.DependencyAttribute;
 
 #if NET40
@@ -63,19 +63,19 @@ namespace System
         public static DependencyAttribute GetDependencyAttribute(this MemberInfo property)
         {
             var attr = property.GetCustomAttributes(Constants.DependencyAttributeType, false).FirstOrDefault();
-            return (DependencyAttribute) attr;
+            return (DependencyAttribute)attr;
         }
 
         public static DependencyAttribute GetDependencyAttribute(this ParameterInfo parameter)
         {
             var attr = parameter.GetCustomAttributes(Constants.DependencyAttributeType, false).FirstOrDefault();
-            return (DependencyAttribute) attr;
+            return (DependencyAttribute)attr;
         }
 
         public static InjectionMethodAttribute GetInjectionAttribute(this MemberInfo method)
         {
             var attr = method.GetCustomAttributes(Constants.InjectionAttributeType, false).FirstOrDefault();
-            return (InjectionMethodAttribute) attr;
+            return (InjectionMethodAttribute)attr;
         }
 
         public static Type[] GetGenericArguments(this Type type) =>
@@ -92,6 +92,9 @@ namespace System
 
         public static bool HasDefaultValue(this ParameterInfo parameter) =>
             parameter.IsOptional;
+
+        public static bool HasPublicParameterlessConstructor(this TypeInfo info) =>
+            info.DeclaredConstructors.FirstOrDefault(c => c.IsPublic && c.GetParameters().Length == 0) != null;
 
         public static MethodInfo GetSingleMethod(this Type type, string name, bool includeNonPublic = false)
         {
@@ -155,16 +158,15 @@ namespace System
         public static bool IsObjectType(this Type type) => type == Constants.ObjectType;
 
         public static bool Implements(this Type type, Type interfaceType) =>
-            interfaceType.GetTypeInfo().IsAssignableFrom(type.GetTypeInfo());
+            type.GetTypeInfo().Implements(interfaceType);
+
+        public static bool Implements(this TypeInfo typeInfo, Type interfaceType) =>
+            interfaceType.GetTypeInfo().IsAssignableFrom(typeInfo);
 
         public static ConstructorInfo GetConstructorByTypes(this Type type, params Type[] types)
         {
             if (types.Length == 0)
                 return type.GetConstructor(Constants.EmptyTypes);
-
-            var ctor = type.GetConstructor(types);
-            if (ctor != null)
-                return ctor;
 
             return type.GetTypeInfo().DeclaredConstructors.FirstOrDefault(constructor =>
             {

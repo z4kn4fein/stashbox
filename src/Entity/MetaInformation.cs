@@ -1,10 +1,9 @@
-﻿using Stashbox.Entity;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace Stashbox.MetaInfo
+namespace Stashbox.Entity
 {
     /// <summary>
     /// Holds meta information about a service.
@@ -26,14 +25,14 @@ namespace Stashbox.MetaInfo
         /// </summary>
         public MemberInformation[] InjectionMembers { get; }
 
-        private readonly IDictionary<int, Type[]> genericTypeConstraints;
+        private readonly IDictionary<int, GenericConstraintInfo> genericTypeConstraints;
         private readonly Type type;
 
         internal MetaInformation(Type typeTo)
         {
             this.type = typeTo;
             var typeInfo = this.type.GetTypeInfo();
-            this.genericTypeConstraints = new Dictionary<int, Type[]>();
+            this.genericTypeConstraints = new Dictionary<int, GenericConstraintInfo>();
             this.Constructors = this.CollectConstructors(typeInfo.DeclaredConstructors);
             this.InjectionMethods = this.CollectMethods(typeInfo.DeclaredMethods);
             this.InjectionMembers = this.CollectMembers(typeInfo);
@@ -54,8 +53,23 @@ namespace Stashbox.MetaInfo
             var length = typeInfo.GenericTypeArguments.Length;
 
             for (var i = 0; i < length; i++)
-                if (this.genericTypeConstraints.ContainsKey(i) && !this.genericTypeConstraints[i].Any(constraint => typeInfo.GenericTypeArguments[i].Implements(constraint)))
-                    return false;
+            {
+                var genericArgument = typeInfo.GenericTypeArguments[i];
+                var genericArgumentInfo = genericArgument.GetTypeInfo();
+                if (this.genericTypeConstraints.TryGetValue(i, out var constraint))
+                {
+                    if (constraint.GenericParameterConstraints.HasFlag(GenericParameterAttributes.DefaultConstructorConstraint) &&
+                        !genericArgumentInfo.HasPublicParameterlessConstructor())
+                        return false;
+
+                    if (constraint.GenericParameterConstraints.HasFlag(GenericParameterAttributes.ReferenceTypeConstraint) &&
+                        !genericArgumentInfo.IsClass)
+                        return false;
+
+                    if (constraint.TypeConstraints.Length > 0 && !constraint.TypeConstraints.Any(c => genericArgumentInfo.Implements(c)))
+                        return false;
+                }
+            }
 
             return true;
         }
@@ -179,11 +193,13 @@ namespace Stashbox.MetaInfo
                 var typeInfoGenericTypeParameter = typeInfo.GenericTypeParameters[i];
                 var paramTypeInfo = typeInfoGenericTypeParameter.GetTypeInfo();
                 var cons = paramTypeInfo.GetGenericParameterConstraints();
+                var attributes = paramTypeInfo.GenericParameterAttributes;
 
-                if (cons.Length <= 0) continue;
-
-                var pos = paramTypeInfo.GenericParameterPosition;
-                this.genericTypeConstraints.Add(pos, cons);
+                if (cons.Length > 0 || attributes.HasFlag(GenericParameterAttributes.DefaultConstructorConstraint) || attributes.HasFlag(GenericParameterAttributes.ReferenceTypeConstraint))
+                {
+                    var pos = paramTypeInfo.GenericParameterPosition;
+                    this.genericTypeConstraints.Add(pos, new GenericConstraintInfo { TypeConstraints = cons, GenericParameterConstraints = attributes });
+                }
             }
         }
     }
