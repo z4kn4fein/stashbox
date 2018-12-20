@@ -64,5 +64,14 @@ namespace Stashbox.Entity
             clone.Type = type;
             return clone;
         }
+
+        /// <summary>
+        /// Creates a clone of this instance.
+        /// </summary>
+        /// <returns></returns>
+        public TypeInformation Clone()
+        {
+            return (TypeInformation)this.MemberwiseClone();
+        }
     }
 }

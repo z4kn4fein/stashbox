@@ -52,6 +52,9 @@ namespace Stashbox.Registration
         public bool HasName { get; }
 
         /// <inheritdoc />
+        public MemberInformation[] InjectionMembers { get; }
+
+        /// <inheritdoc />
         public bool HasScopeName { get; }
 
         /// <inheritdoc />
@@ -65,7 +68,8 @@ namespace Stashbox.Registration
             this.containerConfigurator = containerConfigurator;
             this.ImplementationType = implementationType;
             this.ServiceType = serviceType;
-            this.MetaInformation = GetOrCreateMetaInfo(implementationType, registrationContextData);
+            this.MetaInformation = GetOrCreateMetaInfo(implementationType);
+            this.InjectionMembers = this.ConstructInjectionMembers(registrationContextData, this.MetaInformation);
             this.RegistrationNumber = ReserveRegistrationNumber();
             this.RegistrationContext = registrationContextData;
             this.IsDecorator = isDecorator;
@@ -84,6 +88,33 @@ namespace Stashbox.Registration
                 : implementationType);
         }
 
+        private MemberInformation[] ConstructInjectionMembers(RegistrationContextData registrationContextData, MetaInformation metaInformation)
+        {
+            if (registrationContextData.InjectionMemberNames.Count == 0)
+                return metaInformation.InjectionMembers;
+
+            var length = metaInformation.InjectionMembers.Length;
+            var members = new MemberInformation[length];
+            for (var i = 0; i < length; i++)
+            {
+                var member = metaInformation.InjectionMembers[i];
+                if (registrationContextData.InjectionMemberNames.TryGetValue(member.MemberInfo.Name,
+                    out var dependencyName))
+                {
+                    var copy = member.Clone();
+                    copy.TypeInformation.ForcedDependency = true;
+                    copy.TypeInformation.DependencyName = dependencyName;
+                    members[i] = copy;
+                }
+                else
+                {
+                    members[i] = member;
+                }
+            }
+
+            return members;
+        }
+        
         /// <inheritdoc />
         public bool IsUsableForCurrentContext(TypeInformation typeInfo) =>
             !this.HasCondition ||
@@ -143,12 +174,12 @@ namespace Stashbox.Registration
         private bool HasResolutionConditionAndMatch(TypeInformation typeInfo) =>
             this.RegistrationContext.ResolutionCondition != null && this.RegistrationContext.ResolutionCondition(typeInfo);
 
-        private static MetaInformation GetOrCreateMetaInfo(Type typeTo, RegistrationContextData registrationContextData)
+        private static MetaInformation GetOrCreateMetaInfo(Type typeTo)
         {
             var found = MetaRepository.GetOrDefault(typeTo);
             if (found != null) return found;
 
-            var meta = new MetaInformation(typeTo, registrationContextData);
+            var meta = new MetaInformation(typeTo);
             Swap.SwapValue(ref MetaRepository, repo => repo.AddOrUpdate(typeTo, meta));
             return meta;
         }

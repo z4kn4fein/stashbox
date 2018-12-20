@@ -36,7 +36,7 @@ namespace Stashbox.BuildUp.Expressions
 
             block.Add(assign);
 
-            if (serviceRegistration.MetaInformation.InjectionMembers.Length > 0)
+            if (serviceRegistration.InjectionMembers.Length > 0)
                 block.AddRange(this.FillMembersExpression(containerContext, serviceRegistration, resolutionContext, variable));
 
             if (serviceRegistration.MetaInformation.InjectionMethods.Length > 0 || serviceRegistration.RegistrationContext.Initializer != null || this.containerExtensionManager.HasPostBuildExtensions)
@@ -53,7 +53,7 @@ namespace Stashbox.BuildUp.Expressions
             if (initExpression == null)
                 return null;
 
-            if (serviceRegistration.MetaInformation.InjectionMembers.Length > 0)
+            if (serviceRegistration.InjectionMembers.Length > 0)
             {
                 var bindings = this.GetMemberBindings(containerContext, serviceRegistration, resolutionContext);
                 if (bindings.Count > 0)
@@ -206,13 +206,13 @@ namespace Stashbox.BuildUp.Expressions
 
         private IEnumerable<Expression> FillMembersExpression(IContainerContext containerContext, IServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Expression instance)
         {
-            var length = serviceRegistration.MetaInformation.InjectionMembers.Length;
+            var length = serviceRegistration.InjectionMembers.Length;
 
             var expressions = new List<Expression>();
 
             for (var i = 0; i < length; i++)
             {
-                var member = serviceRegistration.MetaInformation.InjectionMembers[i];
+                var member = serviceRegistration.InjectionMembers[i];
 
                 if (!serviceRegistration.CanInjectMember(member)) continue;
 
@@ -251,12 +251,12 @@ namespace Stashbox.BuildUp.Expressions
 
         private IList<MemberBinding> GetMemberBindings(IContainerContext containerContext, IServiceRegistration serviceRegistration, ResolutionContext resolutionContext)
         {
-            var length = serviceRegistration.MetaInformation.InjectionMembers.Length;
+            var length = serviceRegistration.InjectionMembers.Length;
             var members = new List<MemberBinding>();
 
             for (var i = 0; i < length; i++)
             {
-                var info = serviceRegistration.MetaInformation.InjectionMembers[i];
+                var info = serviceRegistration.InjectionMembers[i];
                 if (!serviceRegistration.CanInjectMember(info)) continue;
 
                 var expression = containerContext.ResolutionStrategy

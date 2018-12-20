@@ -18,11 +18,11 @@ namespace Stashbox.Lifetime
             if (expression == null)
                 return null;
 
-            var factory = expression.NodeType == ExpressionType.New && ((NewExpression)expression).Arguments.Count > 0
+            var factory = expression.NodeType == ExpressionType.New && ((NewExpression)expression).Arguments.Count == 0
                 ? scope => Activator.CreateInstance(expression.Type)
                 : expression.CompileDelegate(resolutionContext);
 
-            return base.StoreExpressionIntoLocalVariable(resolutionContext.RootScope.GetOrAddScopedItem(base.ScopeId, base.Sync, factory).AsConstant(), resolutionContext, resolveType);
+            return resolutionContext.RootScope.GetOrAddScopedItem(base.ScopeId, base.Sync, factory).AsConstant();
         }
 
         /// <inheritdoc />

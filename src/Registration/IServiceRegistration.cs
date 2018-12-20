@@ -68,6 +68,11 @@ namespace Stashbox.Registration
         bool HasName { get; }
 
         /// <summary>
+        /// Holds the injection member of the service.
+        /// </summary>
+        MemberInformation[] InjectionMembers { get; }
+
+        /// <summary>
         /// Creates an expression for creating the resolved instance.
         /// </summary>
         /// <param name="containerContext">The container context.</param>

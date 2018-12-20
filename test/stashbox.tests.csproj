@@ -7,6 +7,7 @@
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../sn.snk</AssemblyOriginatorKeyFile>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>

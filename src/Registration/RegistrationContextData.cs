@@ -70,7 +70,7 @@ namespace Stashbox.Registration
         /// <summary>
         /// Member names which are explicitly set to be filled by the container.
         /// </summary>
-        public HashSet<KeyValuePair<string, object>> InjectionMemberNames { get; internal set; }
+        public Dictionary<string, object> InjectionMemberNames { get; internal set; }
 
         /// <summary>
         /// The already stored instance which was provided by instance or wireup registration.
@@ -128,7 +128,7 @@ namespace Stashbox.Registration
         public RegistrationContextData()
         {
             this.AttributeConditions = new HashSet<Type>();
-            this.InjectionMemberNames = new HashSet<KeyValuePair<string, object>>();
+            this.InjectionMemberNames = new Dictionary<string, object>();
             this.AutoMemberInjectionEnabled = false;
         }
 

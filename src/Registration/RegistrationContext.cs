@@ -19,7 +19,7 @@ namespace Stashbox.Registration
         {
             if (expression.Body is MemberExpression memberExpression)
             {
-                this.Context.InjectionMemberNames.Add(new KeyValuePair<string, object>(memberExpression.Member.Name, dependencyName));
+                this.Context.InjectionMemberNames.Add(memberExpression.Member.Name, dependencyName);
                 return this;
             }
 
@@ -213,7 +213,7 @@ namespace Stashbox.Registration
 
         public IFluentServiceRegistrator InjectMember(string memberName, object dependencyName = null)
         {
-            this.Context.InjectionMemberNames.Add(new KeyValuePair<string, object>(memberName, dependencyName));
+            this.Context.InjectionMemberNames.Add(memberName, dependencyName);
             return this;
         }
 
