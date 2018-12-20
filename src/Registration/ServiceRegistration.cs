@@ -23,9 +23,7 @@ namespace Stashbox.Registration
         internal static AvlTreeKeyValue<Type, MetaInformation> MetaRepository = AvlTreeKeyValue<Type, MetaInformation>.Empty;
         private readonly IContainerConfigurator containerConfigurator;
         private readonly IObjectBuilder objectBuilder;
-
-        /// <inheritdoc />
-        public MetaInformation MetaInformation { get; }
+        private readonly MetaInformation metaInformation;
 
         /// <inheritdoc />
         public Type ServiceType { get; }
@@ -55,6 +53,15 @@ namespace Stashbox.Registration
         public MemberInformation[] InjectionMembers { get; }
 
         /// <inheritdoc />
+        public ConstructorInformation[] Constructors { get; }
+
+        /// <inheritdoc />
+        public ConstructorInformation SelectedConstructor { get; }
+
+        /// <inheritdoc />
+        public MethodInformation[] InjectionMethods { get; }
+
+        /// <inheritdoc />
         public bool HasScopeName { get; }
 
         /// <inheritdoc />
@@ -68,8 +75,11 @@ namespace Stashbox.Registration
             this.containerConfigurator = containerConfigurator;
             this.ImplementationType = implementationType;
             this.ServiceType = serviceType;
-            this.MetaInformation = GetOrCreateMetaInfo(implementationType);
-            this.InjectionMembers = this.ConstructInjectionMembers(registrationContextData, this.MetaInformation);
+            this.metaInformation = GetOrCreateMetaInfo(implementationType);
+            this.Constructors = this.metaInformation.Constructors;
+            this.InjectionMethods = this.metaInformation.InjectionMethods;
+            this.InjectionMembers = this.ConstructInjectionMembers(registrationContextData, this.metaInformation);
+            this.SelectedConstructor = this.FindSelectedConstructor(registrationContextData, this.metaInformation);
             this.RegistrationNumber = ReserveRegistrationNumber();
             this.RegistrationContext = registrationContextData;
             this.IsDecorator = isDecorator;
@@ -88,33 +98,6 @@ namespace Stashbox.Registration
                 : implementationType);
         }
 
-        private MemberInformation[] ConstructInjectionMembers(RegistrationContextData registrationContextData, MetaInformation metaInformation)
-        {
-            if (registrationContextData.InjectionMemberNames.Count == 0)
-                return metaInformation.InjectionMembers;
-
-            var length = metaInformation.InjectionMembers.Length;
-            var members = new MemberInformation[length];
-            for (var i = 0; i < length; i++)
-            {
-                var member = metaInformation.InjectionMembers[i];
-                if (registrationContextData.InjectionMemberNames.TryGetValue(member.MemberInfo.Name,
-                    out var dependencyName))
-                {
-                    var copy = member.Clone();
-                    copy.TypeInformation.ForcedDependency = true;
-                    copy.TypeInformation.DependencyName = dependencyName;
-                    members[i] = copy;
-                }
-                else
-                {
-                    members[i] = member;
-                }
-            }
-
-            return members;
-        }
-        
         /// <inheritdoc />
         public bool IsUsableForCurrentContext(TypeInformation typeInfo) =>
             !this.HasCondition ||
@@ -124,7 +107,7 @@ namespace Stashbox.Registration
 
         /// <inheritdoc />
         public bool ValidateGenericContraints(Type type) =>
-            this.MetaInformation.GenericTypeConstraints.Count == 0 || this.MetaInformation.ValidateGenericContraints(type);
+            this.metaInformation.ValidateGenericContraints(type);
 
         /// <inheritdoc />
         public Expression GetExpression(IContainerContext containerContext, ResolutionContext resolutionContext, Type resolveType)
@@ -158,7 +141,48 @@ namespace Stashbox.Registration
         /// <inheritdoc />
         public bool CanInjectIntoNamedScope(ISet<object> scopeNames) => scopeNames.Contains(((NamedScopeLifetime)this.RegistrationContext.Lifetime).ScopeName);
 
-        private Expression ConstructExpression(IContainerContext containerContext, ResolutionContext resolutionContext, Type resolveType) => 
+        private ConstructorInformation FindSelectedConstructor(RegistrationContextData registrationContextData, MetaInformation metaInfo)
+        {
+            if (registrationContextData.SelectedConstructor == null)
+                return null;
+
+            var length = metaInfo.Constructors.Length;
+            for (var i = 0; i < length; i++)
+            {
+                var current = metaInfo.Constructors[i];
+                if (current.Constructor == registrationContextData.SelectedConstructor)
+                    return current;
+            }
+
+            return null;
+        }
+
+        private MemberInformation[] ConstructInjectionMembers(RegistrationContextData registrationContextData, MetaInformation metaInfo)
+        {
+            if (registrationContextData.InjectionMemberNames.Count == 0)
+                return metaInfo.InjectionMembers;
+
+            var length = metaInfo.InjectionMembers.Length;
+            var members = new MemberInformation[length];
+            for (var i = 0; i < length; i++)
+            {
+                var member = metaInfo.InjectionMembers[i];
+                if (registrationContextData.InjectionMemberNames.TryGetValue(member.MemberInfo.Name,
+                    out var dependencyName))
+                {
+                    var copy = member.Clone();
+                    copy.TypeInformation.ForcedDependency = true;
+                    copy.TypeInformation.DependencyName = dependencyName;
+                    members[i] = copy;
+                }
+                else
+                    members[i] = member;
+            }
+
+            return members;
+        }
+
+        private Expression ConstructExpression(IContainerContext containerContext, ResolutionContext resolutionContext, Type resolveType) =>
             this.RegistrationContext.Lifetime == null || this.ServiceType.IsOpenGenericType()
                 ? this.objectBuilder.GetExpression(containerContext, this, resolutionContext, resolveType)
                 : this.RegistrationContext.Lifetime.GetExpression(containerContext, this, this.objectBuilder,
