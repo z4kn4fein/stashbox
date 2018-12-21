@@ -53,12 +53,12 @@ namespace System
             var typeInfo = type.GetTypeInfo();
             return typeInfo.IsGenericType && !typeInfo.IsGenericTypeDefinition;
         }
-        
-        public static bool IsOpenGenericType(this Type type)
-        {
-            var typeInfo = type.GetTypeInfo();
-            return typeInfo.IsGenericType && typeInfo.ContainsGenericParameters;
-        }
+
+        public static bool IsOpenGenericType(this Type type) =>
+            type.GetTypeInfo().IsOpenGenericType();
+
+        public static bool IsOpenGenericType(this TypeInfo typeInfo) =>
+            typeInfo.IsGenericType && typeInfo.ContainsGenericParameters;
 
         public static DependencyAttribute GetDependencyAttribute(this MemberInfo property)
         {

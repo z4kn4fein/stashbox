@@ -10,6 +10,9 @@ namespace Stashbox.Entity
     /// </summary>
     internal class MetaInformation
     {
+        private readonly IDictionary<int, GenericConstraintInfo> genericTypeConstraints;
+        private readonly Type type;
+
         /// <summary>
         /// Holds the constructors of the service.
         /// </summary>
@@ -25,13 +28,16 @@ namespace Stashbox.Entity
         /// </summary>
         public MemberInformation[] InjectionMembers { get; }
 
-        private readonly IDictionary<int, GenericConstraintInfo> genericTypeConstraints;
-        private readonly Type type;
+        /// <summary>
+        /// Returns true if the underlying type is open generic, otherwise false.
+        /// </summary>
+        public bool IsOpenGenericType { get; }
 
         internal MetaInformation(Type typeTo)
         {
             this.type = typeTo;
             var typeInfo = this.type.GetTypeInfo();
+            this.IsOpenGenericType = typeInfo.IsOpenGenericType();
             this.genericTypeConstraints = new Dictionary<int, GenericConstraintInfo>();
             this.Constructors = this.CollectConstructors(typeInfo.DeclaredConstructors);
             this.InjectionMethods = this.CollectMethods(typeInfo.DeclaredMethods);
@@ -58,7 +64,7 @@ namespace Stashbox.Entity
                 var genericArgumentInfo = genericArgument.GetTypeInfo();
                 if (this.genericTypeConstraints.TryGetValue(i, out var constraint))
                 {
-                    if ((constraint.GenericParameterConstraints & GenericParameterAttributes.DefaultConstructorConstraint) == GenericParameterAttributes.DefaultConstructorConstraint && 
+                    if ((constraint.GenericParameterConstraints & GenericParameterAttributes.DefaultConstructorConstraint) == GenericParameterAttributes.DefaultConstructorConstraint &&
                         !genericArgumentInfo.IsPrimitive &&
                         !genericArgumentInfo.HasPublicParameterlessConstructor())
                         return false;
@@ -200,7 +206,7 @@ namespace Stashbox.Entity
                 var cons = paramTypeInfo.GetGenericParameterConstraints();
                 var attributes = paramTypeInfo.GenericParameterAttributes;
 
-                if (cons.Length > 0 || (attributes & GenericParameterAttributes.DefaultConstructorConstraint) == GenericParameterAttributes.DefaultConstructorConstraint || 
+                if (cons.Length > 0 || (attributes & GenericParameterAttributes.DefaultConstructorConstraint) == GenericParameterAttributes.DefaultConstructorConstraint ||
                     (attributes & GenericParameterAttributes.ReferenceTypeConstraint) == GenericParameterAttributes.ReferenceTypeConstraint)
                 {
                     var pos = paramTypeInfo.GenericParameterPosition;

@@ -23,7 +23,6 @@ namespace Stashbox.Registration
         private readonly IContainerConfigurator containerConfigurator;
         private readonly IObjectBuilder objectBuilder;
         private readonly MetaInformation metaInformation;
-        private readonly bool isOpenGeneric;
 
         /// <inheritdoc />
         public Type ServiceType { get; }
@@ -76,7 +75,6 @@ namespace Stashbox.Registration
             this.ImplementationType = implementationType;
             this.ServiceType = serviceType;
             this.metaInformation = GetOrCreateMetaInfo(implementationType);
-            this.isOpenGeneric = implementationType.IsOpenGenericType();
             this.Constructors = this.metaInformation.Constructors;
             this.InjectionMethods = this.metaInformation.InjectionMethods;
             this.InjectionMembers = this.ConstructInjectionMembers(registrationContextData, this.metaInformation);
@@ -113,7 +111,7 @@ namespace Stashbox.Registration
         /// <inheritdoc />
         public Expression GetExpression(IContainerContext containerContext, ResolutionContext resolutionContext, Type resolveType)
         {
-            if (this.IsDecorator || this.isOpenGeneric) return this.ConstructExpression(containerContext, resolutionContext, resolveType);
+            if (this.IsDecorator || this.metaInformation.IsOpenGenericType) return this.ConstructExpression(containerContext, resolutionContext, resolveType);
 
             var expression = resolutionContext.GetCachedExpression(this.RegistrationNumber);
             if (expression != null) return expression;
@@ -132,10 +130,10 @@ namespace Stashbox.Registration
 
             if (autoMemberInjectionEnabled)
                 return member.TypeInformation.ForcedDependency ||
-                       member.TypeInformation.MemberType == MemberType.Field && 
+                       member.TypeInformation.MemberType == MemberType.Field &&
                            (autoMemberInjectionRule & Rules.AutoMemberInjectionRules.PrivateFields) == Rules.AutoMemberInjectionRules.PrivateFields ||
-                       member.TypeInformation.MemberType == MemberType.Property && 
-                           ((autoMemberInjectionRule & Rules.AutoMemberInjectionRules.PropertiesWithPublicSetter) == Rules.AutoMemberInjectionRules.PropertiesWithPublicSetter && 
+                       member.TypeInformation.MemberType == MemberType.Property &&
+                           ((autoMemberInjectionRule & Rules.AutoMemberInjectionRules.PropertiesWithPublicSetter) == Rules.AutoMemberInjectionRules.PropertiesWithPublicSetter &&
                            ((PropertyInfo)member.MemberInfo).HasSetMethod() ||
                            (autoMemberInjectionRule & Rules.AutoMemberInjectionRules.PropertiesWithLimitedAccess) == Rules.AutoMemberInjectionRules.PropertiesWithLimitedAccess);
 
