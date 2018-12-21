@@ -58,15 +58,20 @@ namespace Stashbox.Entity
                 var genericArgumentInfo = genericArgument.GetTypeInfo();
                 if (this.genericTypeConstraints.TryGetValue(i, out var constraint))
                 {
-                    if (constraint.GenericParameterConstraints.HasFlag(GenericParameterAttributes.DefaultConstructorConstraint) &&
+                    if ((constraint.GenericParameterConstraints & GenericParameterAttributes.DefaultConstructorConstraint) == GenericParameterAttributes.DefaultConstructorConstraint && 
+                        !genericArgumentInfo.IsPrimitive &&
                         !genericArgumentInfo.HasPublicParameterlessConstructor())
                         return false;
 
-                    if (constraint.GenericParameterConstraints.HasFlag(GenericParameterAttributes.ReferenceTypeConstraint) &&
+                    if ((constraint.GenericParameterConstraints & GenericParameterAttributes.ReferenceTypeConstraint) == GenericParameterAttributes.ReferenceTypeConstraint &&
                         !genericArgumentInfo.IsClass)
                         return false;
 
-                    if (constraint.TypeConstraints.Length > 0 && !constraint.TypeConstraints.Any(c => genericArgumentInfo.Implements(c)))
+                    if (constraint.TypeConstraints.Length > 0 && !constraint.TypeConstraints.Any(c =>
+                    {
+                        var con = c.IsClosedGenericType() ? c.GetGenericTypeDefinition().MakeGenericType(genericArgument) : c;
+                        return genericArgumentInfo.Implements(con);
+                    }))
                         return false;
                 }
             }
@@ -155,7 +160,7 @@ namespace Stashbox.Entity
                             ParentType = this.type,
                             CustomAttributes = propertyInfo.GetCustomAttributes()?.CastToArray(),
                             ParameterName = propertyInfo.Name,
-                            IsMember = true
+                            MemberType = MemberType.Property
                         },
                         MemberInfo = propertyInfo
                     };
@@ -176,7 +181,7 @@ namespace Stashbox.Entity
                             ParentType = this.type,
                             CustomAttributes = fieldInfo.GetCustomAttributes()?.CastToArray(),
                             ParameterName = fieldInfo.Name,
-                            IsMember = true
+                            MemberType = MemberType.Field
                         },
                         MemberInfo = fieldInfo
                     };
@@ -195,7 +200,8 @@ namespace Stashbox.Entity
                 var cons = paramTypeInfo.GetGenericParameterConstraints();
                 var attributes = paramTypeInfo.GenericParameterAttributes;
 
-                if (cons.Length > 0 || attributes.HasFlag(GenericParameterAttributes.DefaultConstructorConstraint) || attributes.HasFlag(GenericParameterAttributes.ReferenceTypeConstraint))
+                if (cons.Length > 0 || (attributes & GenericParameterAttributes.DefaultConstructorConstraint) == GenericParameterAttributes.DefaultConstructorConstraint || 
+                    (attributes & GenericParameterAttributes.ReferenceTypeConstraint) == GenericParameterAttributes.ReferenceTypeConstraint)
                 {
                     var pos = paramTypeInfo.GenericParameterPosition;
                     this.genericTypeConstraints.Add(pos, new GenericConstraintInfo { TypeConstraints = cons, GenericParameterConstraints = attributes });

@@ -17,19 +17,24 @@ namespace Stashbox.Configuration
         public enum AutoMemberInjectionRules
         {
             /// <summary>
+            /// None will be injected.
+            /// </summary>
+            None = 0,
+
+            /// <summary>
             /// With this flag the container will perform auto injection on properties which has a public setter.
             /// </summary>
-            PropertiesWithPublicSetter,
+            PropertiesWithPublicSetter = 4,
 
             /// <summary>
             /// With this flag the container will perform auto injection on properties which has a non public setter as well.
             /// </summary>
-            PropertiesWithLimitedAccess,
+            PropertiesWithLimitedAccess = 8,
 
             /// <summary>
             /// With this flag the container will perform auto injection on private fields too.
             /// </summary>
-            PrivateFields
+            PrivateFields = 16
         }
 
         /// <summary>

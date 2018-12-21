@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Stashbox.Tests.IssueTests
@@ -30,7 +27,7 @@ namespace Stashbox.Tests.IssueTests
             var container = new StashboxContainer();
             var poco = new PocoClass();
             var comparable = new ClassImplementingIComparable();
-            container.Register(typeof(IFakeOpenGenericService<>), typeof(ClassWithNoConstraints<>))
+            container.Register(typeof(IFakeOpenGenericService<>), typeof(FakeOpenGenericService<>))
                 .Register(typeof(IFakeOpenGenericService<>), typeof(ClassWithSelfReferencingConstraint<>))
                 .RegisterInstance(poco)
                 .RegisterInstance(comparable);

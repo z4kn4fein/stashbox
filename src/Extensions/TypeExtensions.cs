@@ -51,9 +51,9 @@ namespace System
         public static bool IsClosedGenericType(this Type type)
         {
             var typeInfo = type.GetTypeInfo();
-            return typeInfo.IsGenericType && !typeInfo.ContainsGenericParameters;
+            return typeInfo.IsGenericType && !typeInfo.IsGenericTypeDefinition;
         }
-
+        
         public static bool IsOpenGenericType(this Type type)
         {
             var typeInfo = type.GetTypeInfo();

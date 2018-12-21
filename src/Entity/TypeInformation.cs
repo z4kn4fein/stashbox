@@ -46,7 +46,7 @@ namespace Stashbox.Entity
         /// <summary>
         /// Property or field.
         /// </summary>
-        public bool IsMember { get; internal set; }
+        public MemberType MemberType { get; internal set; }
 
         /// <summary>
         /// True if the dependency explicitly set to be injected.

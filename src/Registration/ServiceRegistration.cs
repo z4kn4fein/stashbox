@@ -130,9 +130,12 @@ namespace Stashbox.Registration
 
             if (autoMemberInjectionEnabled)
                 return member.TypeInformation.ForcedDependency ||
-                       member.MemberInfo is FieldInfo && autoMemberInjectionRule.HasFlag(Rules.AutoMemberInjectionRules.PrivateFields) ||
-                       member.MemberInfo is PropertyInfo && (autoMemberInjectionRule.HasFlag(Rules.AutoMemberInjectionRules.PropertiesWithPublicSetter) && ((PropertyInfo)member.MemberInfo).HasSetMethod() ||
-                       autoMemberInjectionRule.HasFlag(Rules.AutoMemberInjectionRules.PropertiesWithLimitedAccess));
+                       member.TypeInformation.MemberType == MemberType.Field && 
+                           (autoMemberInjectionRule & Rules.AutoMemberInjectionRules.PrivateFields) == Rules.AutoMemberInjectionRules.PrivateFields ||
+                       member.TypeInformation.MemberType == MemberType.Property && 
+                           ((autoMemberInjectionRule & Rules.AutoMemberInjectionRules.PropertiesWithPublicSetter) == Rules.AutoMemberInjectionRules.PropertiesWithPublicSetter && 
+                           ((PropertyInfo)member.MemberInfo).HasSetMethod() ||
+                           (autoMemberInjectionRule & Rules.AutoMemberInjectionRules.PropertiesWithLimitedAccess) == Rules.AutoMemberInjectionRules.PropertiesWithLimitedAccess);
 
             return member.TypeInformation.ForcedDependency;
         }
