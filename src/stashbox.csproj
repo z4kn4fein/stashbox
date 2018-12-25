@@ -27,8 +27,10 @@
     <DebugType>portable</DebugType>
     <LangVersion>latest</LangVersion>
     <PackageReleaseNotes>
-      - renamed: RegisterType(...) to Register(...)
-      - added: SourceLink support (https://github.com/dotnet/sourcelink)
+      <![CDATA[
+- bugfix: #46 Fix for the failing aspnet/DI open generic tests
+- bugfix: #45 Member injection not working when there are different configurations registered for the same implementation
+    ]]>
     </PackageReleaseNotes>
     <Configurations>Debug;Release;Benchmark</Configurations>
   </PropertyGroup>
