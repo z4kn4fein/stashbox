@@ -1,4 +1,4 @@
-﻿#if NET45 || NET40 || IL_EMIT
+﻿#if IL_EMIT
 using System;
 using System.Linq.Expressions;
 using System.Reflection.Emit;

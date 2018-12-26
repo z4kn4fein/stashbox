@@ -17,7 +17,7 @@ namespace Stashbox.Benchmarks
         [GlobalSetup]
         public void Setup()
         {
-            this.oldContainer.RegisterType<DisposableObj2>().RegisterType<DisposableObj1>();
+            this.oldContainer.Register<DisposableObj2>().Register<DisposableObj1>();
             this.newContainer.Register<DisposableObj2>().Register<DisposableObj1>();
         }
 

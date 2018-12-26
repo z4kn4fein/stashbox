@@ -2,7 +2,6 @@
 using Stashbox.Configuration;
 using Stashbox.Entity;
 using Stashbox.Lifetime;
-using Stashbox.MetaInfo;
 using Stashbox.Resolution;
 using Stashbox.Utils;
 using System;
@@ -19,13 +18,11 @@ namespace Stashbox.Registration
     /// </summary>
     public class ServiceRegistration : IServiceRegistration
     {
-        private static int GlobalRegistrationNumber;
-        private static AvlTreeKeyValue<Type, MetaInformation> MetaRepository = AvlTreeKeyValue<Type, MetaInformation>.Empty;
+        internal static int GlobalRegistrationNumber;
+        internal static AvlTreeKeyValue<Type, MetaInformation> MetaRepository = AvlTreeKeyValue<Type, MetaInformation>.Empty;
         private readonly IContainerConfigurator containerConfigurator;
         private readonly IObjectBuilder objectBuilder;
-
-        /// <inheritdoc />
-        public MetaInformation MetaInformation { get; }
+        private readonly MetaInformation metaInformation;
 
         /// <inheritdoc />
         public Type ServiceType { get; }
@@ -52,6 +49,18 @@ namespace Stashbox.Registration
         public bool HasName { get; }
 
         /// <inheritdoc />
+        public MemberInformation[] InjectionMembers { get; }
+
+        /// <inheritdoc />
+        public ConstructorInformation[] Constructors { get; }
+
+        /// <inheritdoc />
+        public ConstructorInformation SelectedConstructor { get; }
+
+        /// <inheritdoc />
+        public MethodInformation[] InjectionMethods { get; }
+
+        /// <inheritdoc />
         public bool HasScopeName { get; }
 
         /// <inheritdoc />
@@ -65,7 +74,11 @@ namespace Stashbox.Registration
             this.containerConfigurator = containerConfigurator;
             this.ImplementationType = implementationType;
             this.ServiceType = serviceType;
-            this.MetaInformation = GetOrCreateMetaInfo(implementationType, registrationContextData);
+            this.metaInformation = GetOrCreateMetaInfo(implementationType);
+            this.Constructors = this.metaInformation.Constructors;
+            this.InjectionMethods = this.metaInformation.InjectionMethods;
+            this.InjectionMembers = this.ConstructInjectionMembers(registrationContextData, this.metaInformation);
+            this.SelectedConstructor = this.FindSelectedConstructor(registrationContextData, this.metaInformation);
             this.RegistrationNumber = ReserveRegistrationNumber();
             this.RegistrationContext = registrationContextData;
             this.IsDecorator = isDecorator;
@@ -93,13 +106,20 @@ namespace Stashbox.Registration
 
         /// <inheritdoc />
         public bool ValidateGenericContraints(Type type) =>
-            this.MetaInformation.GenericTypeConstraints.Count == 0 || this.MetaInformation.ValidateGenericContraints(type);
+            this.metaInformation.ValidateGenericContraints(type);
 
         /// <inheritdoc />
-        public Expression GetExpression(IContainerContext containerContext, ResolutionContext resolutionContext, Type resolveType) =>
-            this.RegistrationContext.Lifetime == null || this.ServiceType.IsOpenGenericType() ?
-                this.objectBuilder.GetExpression(containerContext, this, resolutionContext, resolveType) :
-                this.RegistrationContext.Lifetime.GetExpression(containerContext, this, this.objectBuilder, resolutionContext, resolveType);
+        public Expression GetExpression(IContainerContext containerContext, ResolutionContext resolutionContext, Type resolveType)
+        {
+            if (this.IsDecorator || this.metaInformation.IsOpenGenericType) return this.ConstructExpression(containerContext, resolutionContext, resolveType);
+
+            var expression = resolutionContext.GetCachedExpression(this.RegistrationNumber);
+            if (expression != null) return expression;
+
+            expression = this.ConstructExpression(containerContext, resolutionContext, resolveType);
+            resolutionContext.CacheExpression(this.RegistrationNumber, expression);
+            return expression;
+        }
 
         /// <inheritdoc />
         public bool CanInjectMember(MemberInformation member)
@@ -110,15 +130,65 @@ namespace Stashbox.Registration
 
             if (autoMemberInjectionEnabled)
                 return member.TypeInformation.ForcedDependency ||
-                       member.MemberInfo is FieldInfo && autoMemberInjectionRule.HasFlag(Rules.AutoMemberInjectionRules.PrivateFields) ||
-                       member.MemberInfo is PropertyInfo && (autoMemberInjectionRule.HasFlag(Rules.AutoMemberInjectionRules.PropertiesWithPublicSetter) && ((PropertyInfo)member.MemberInfo).HasSetMethod() ||
-                       autoMemberInjectionRule.HasFlag(Rules.AutoMemberInjectionRules.PropertiesWithLimitedAccess));
+                       member.TypeInformation.MemberType == MemberType.Field &&
+                           (autoMemberInjectionRule & Rules.AutoMemberInjectionRules.PrivateFields) == Rules.AutoMemberInjectionRules.PrivateFields ||
+                       member.TypeInformation.MemberType == MemberType.Property &&
+                           ((autoMemberInjectionRule & Rules.AutoMemberInjectionRules.PropertiesWithPublicSetter) == Rules.AutoMemberInjectionRules.PropertiesWithPublicSetter &&
+                           ((PropertyInfo)member.MemberInfo).HasSetMethod() ||
+                           (autoMemberInjectionRule & Rules.AutoMemberInjectionRules.PropertiesWithLimitedAccess) == Rules.AutoMemberInjectionRules.PropertiesWithLimitedAccess);
 
             return member.TypeInformation.ForcedDependency;
         }
 
         /// <inheritdoc />
         public bool CanInjectIntoNamedScope(ISet<object> scopeNames) => scopeNames.Contains(((NamedScopeLifetime)this.RegistrationContext.Lifetime).ScopeName);
+
+        private ConstructorInformation FindSelectedConstructor(RegistrationContextData registrationContextData, MetaInformation metaInfo)
+        {
+            if (registrationContextData.SelectedConstructor == null)
+                return null;
+
+            var length = metaInfo.Constructors.Length;
+            for (var i = 0; i < length; i++)
+            {
+                var current = metaInfo.Constructors[i];
+                if (current.Constructor == registrationContextData.SelectedConstructor)
+                    return current;
+            }
+
+            return null;
+        }
+
+        private MemberInformation[] ConstructInjectionMembers(RegistrationContextData registrationContextData, MetaInformation metaInfo)
+        {
+            if (registrationContextData.InjectionMemberNames.Count == 0)
+                return metaInfo.InjectionMembers;
+
+            var length = metaInfo.InjectionMembers.Length;
+            var members = new MemberInformation[length];
+            for (var i = 0; i < length; i++)
+            {
+                var member = metaInfo.InjectionMembers[i];
+                if (registrationContextData.InjectionMemberNames.TryGetValue(member.MemberInfo.Name,
+                    out var dependencyName))
+                {
+                    var copy = member.Clone();
+                    copy.TypeInformation.ForcedDependency = true;
+                    copy.TypeInformation.DependencyName = dependencyName;
+                    members[i] = copy;
+                }
+                else
+                    members[i] = member;
+            }
+
+            return members;
+        }
+
+        private Expression ConstructExpression(IContainerContext containerContext, ResolutionContext resolutionContext, Type resolveType) =>
+            this.RegistrationContext.Lifetime == null || this.ServiceType.IsOpenGenericType()
+                ? this.objectBuilder.GetExpression(containerContext, this, resolutionContext, resolveType)
+                : this.RegistrationContext.Lifetime.GetExpression(containerContext, this, this.objectBuilder,
+                    resolutionContext, resolveType);
 
         private bool HasParentTypeConditionAndMatch(TypeInformation typeInfo) =>
             this.RegistrationContext.TargetTypeCondition != null && typeInfo.ParentType != null && this.RegistrationContext.TargetTypeCondition == typeInfo.ParentType;
@@ -130,12 +200,12 @@ namespace Stashbox.Registration
         private bool HasResolutionConditionAndMatch(TypeInformation typeInfo) =>
             this.RegistrationContext.ResolutionCondition != null && this.RegistrationContext.ResolutionCondition(typeInfo);
 
-        private static MetaInformation GetOrCreateMetaInfo(Type typeTo, RegistrationContextData registrationContextData)
+        private static MetaInformation GetOrCreateMetaInfo(Type typeTo)
         {
             var found = MetaRepository.GetOrDefault(typeTo);
             if (found != null) return found;
 
-            var meta = new MetaInformation(typeTo, registrationContextData);
+            var meta = new MetaInformation(typeTo);
             Swap.SwapValue(ref MetaRepository, repo => repo.AddOrUpdate(typeTo, meta));
             return meta;
         }

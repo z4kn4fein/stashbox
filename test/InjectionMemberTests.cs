@@ -107,16 +107,14 @@ namespace Stashbox.Tests
         public void InjectionMemberTests_Inject_With_Config_Generic()
         {
             var container = new StashboxContainer();
-            container.Register<Test3>(context => context.InjectMember(x => x.Test1, "test1").InjectMember(x => x.Test2, "test2"))
-                .Register<ITest, TestM1>(context => context.WithName("test1"))
+            container.Register<Test3>(context => context.InjectMember(x => x.Test1, "test2"))
                 .Register<ITest, TestM2>(context => context.WithName("test2"));
 
             var inst = container.Resolve<Test3>();
-
+            
             Assert.IsNotNull(inst.Test1);
-            Assert.IsNotNull(inst.Test2);
-            Assert.IsInstanceOfType(inst.Test1, typeof(TestM1));
-            Assert.IsInstanceOfType(inst.Test2, typeof(TestM2));
+            Assert.IsNull(inst.Test2);
+            Assert.IsInstanceOfType(inst.Test1, typeof(TestM2));
         }
 
         [TestMethod]
@@ -127,17 +125,17 @@ namespace Stashbox.Tests
             container.Register<Test3>(context => context.InjectMember(x => 50));
         }
 
-        public interface ITest { }
+        interface ITest { }
 
-        public interface ITest1 { ITest Test { get; } }
+        interface ITest1 { ITest Test { get; } }
 
-        public class Test : ITest { }
+        class Test : ITest { }
 
-        public class TestM1 : ITest { }
+        class TestM1 : ITest { }
 
-        public class TestM2 : ITest { }
+        class TestM2 : ITest { }
 
-        public class Test1 : ITest1
+        class Test1 : ITest1
         {
             [Dependency]
             private ITest testField = null;
@@ -148,15 +146,15 @@ namespace Stashbox.Tests
             public ITest Test { get; set; }
         }
 
-        public interface ITest2 { string Name { get; set; } }
+        interface ITest2 { string Name { get; set; } }
 
-        public class Test2 : ITest2
+        class Test2 : ITest2
         {
             [Dependency]
             public string Name { get; set; }
         }
 
-        public class Test3
+        class Test3
         {
             public ITest Test1 { get; set; }
 

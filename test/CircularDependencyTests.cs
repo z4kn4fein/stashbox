@@ -27,7 +27,7 @@ namespace Stashbox.Tests
             using (var container = new StashboxContainer(config => config.WithCircularDependencyTracking()))
             {
                 container.Register<ITest1, Test4>();
-                Parallel.For(0, 50000, i =>
+                Parallel.For(0, 5000, i =>
                 {
                     container.Resolve<ITest1>();
                 });
@@ -40,7 +40,7 @@ namespace Stashbox.Tests
             using (var container = new StashboxContainer(config => config.WithCircularDependencyTracking(true)))
             {
                 container.Register<ITest1, Test4>();
-                Parallel.For(0, 50000, i =>
+                Parallel.For(0, 5000, i =>
                 {
                     container.Resolve<ITest1>();
                 });

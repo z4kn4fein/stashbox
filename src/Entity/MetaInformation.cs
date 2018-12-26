@@ -1,26 +1,27 @@
-﻿using Stashbox.Entity;
-using Stashbox.Registration;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace Stashbox.MetaInfo
+namespace Stashbox.Entity
 {
     /// <summary>
     /// Holds meta information about a service.
     /// </summary>
-    public class MetaInformation
+    internal class MetaInformation
     {
+        private readonly IDictionary<int, GenericConstraintInfo> genericTypeConstraints;
+        private readonly Type type;
+
         /// <summary>
         /// Holds the constructors of the service.
         /// </summary>
-        public ConstructorInformation[] Constructors { get; private set; }
+        public ConstructorInformation[] Constructors { get; }
 
         /// <summary>
         /// Holds the injection methods of the service.
         /// </summary>
-        public MethodInformation[] InjectionMethods { get; private set; }
+        public MethodInformation[] InjectionMethods { get; }
 
         /// <summary>
         /// Holds the injection member of the service.
@@ -28,22 +29,20 @@ namespace Stashbox.MetaInfo
         public MemberInformation[] InjectionMembers { get; }
 
         /// <summary>
-        /// Holds the generic type constraints of the service.
+        /// Returns true if the underlying type is open generic, otherwise false.
         /// </summary>
-        public IDictionary<int, Type[]> GenericTypeConstraints { get; }
+        public bool IsOpenGenericType { get; }
 
-        private readonly Type type;
-
-        internal MetaInformation(Type typeTo, RegistrationContextData registrationContextData)
+        internal MetaInformation(Type typeTo)
         {
             this.type = typeTo;
             var typeInfo = this.type.GetTypeInfo();
-            this.GenericTypeConstraints = new Dictionary<int, Type[]>();
-            this.AddConstructors(typeInfo.DeclaredConstructors);
-            this.AddMethods(typeInfo.DeclaredMethods);
-            this.InjectionMembers = this.FillMembers(typeInfo).CastToArray();
+            this.IsOpenGenericType = typeInfo.IsOpenGenericType();
+            this.genericTypeConstraints = new Dictionary<int, GenericConstraintInfo>();
+            this.Constructors = this.CollectConstructors(typeInfo.DeclaredConstructors);
+            this.InjectionMethods = this.CollectMethods(typeInfo.DeclaredMethods);
+            this.InjectionMembers = this.CollectMembers(typeInfo);
             this.CollectGenericConstraints(typeInfo);
-            this.SetMemberInjections(registrationContextData);
         }
 
         /// <summary>
@@ -53,12 +52,35 @@ namespace Stashbox.MetaInfo
         /// <returns>True if the given type is valid, otherwise false.</returns>
         public bool ValidateGenericContraints(Type typeForValidation)
         {
+            if (this.genericTypeConstraints.Count == 0)
+                return true;
+
             var typeInfo = typeForValidation.GetTypeInfo();
             var length = typeInfo.GenericTypeArguments.Length;
 
             for (var i = 0; i < length; i++)
-                if (this.GenericTypeConstraints.ContainsKey(i) && !this.GenericTypeConstraints[i].Any(constraint => typeInfo.GenericTypeArguments[i].Implements(constraint)))
-                    return false;
+            {
+                var genericArgument = typeInfo.GenericTypeArguments[i];
+                var genericArgumentInfo = genericArgument.GetTypeInfo();
+                if (this.genericTypeConstraints.TryGetValue(i, out var constraint))
+                {
+                    if ((constraint.GenericParameterConstraints & GenericParameterAttributes.DefaultConstructorConstraint) == GenericParameterAttributes.DefaultConstructorConstraint &&
+                        !genericArgumentInfo.IsPrimitive &&
+                        !genericArgumentInfo.HasPublicParameterlessConstructor())
+                        return false;
+
+                    if ((constraint.GenericParameterConstraints & GenericParameterAttributes.ReferenceTypeConstraint) == GenericParameterAttributes.ReferenceTypeConstraint &&
+                        !genericArgumentInfo.IsClass)
+                        return false;
+
+                    if (constraint.TypeConstraints.Length > 0 && !constraint.TypeConstraints.Any(c =>
+                    {
+                        var con = c.IsClosedGenericType() ? c.GetGenericTypeDefinition().MakeGenericType(genericArgument) : c;
+                        return genericArgumentInfo.Implements(con);
+                    }))
+                        return false;
+                }
+            }
 
             return true;
         }
@@ -85,24 +107,23 @@ namespace Stashbox.MetaInfo
             };
         }
 
-        private void AddConstructors(IEnumerable<ConstructorInfo> constructors) =>
-            this.Constructors = constructors
-            .Where(constructor => !constructor.IsStatic && constructor.IsPublic)
+        private ConstructorInformation[] CollectConstructors(IEnumerable<ConstructorInfo> constructors) =>
+            constructors.Where(constructor => !constructor.IsStatic && constructor.IsPublic)
             .Select(info => new ConstructorInformation
             {
-                Parameters = this.FillParameters(info.GetParameters()),
+                Parameters = this.CollectParameters(info.GetParameters()),
                 Constructor = info
             }).CastToArray();
 
 
-        private void AddMethods(IEnumerable<MethodInfo> infos) =>
-            this.InjectionMethods = infos.Where(methodInfo => methodInfo.GetInjectionAttribute() != null).Select(info => new MethodInformation
+        private MethodInformation[] CollectMethods(IEnumerable<MethodInfo> infos) =>
+            infos.Where(methodInfo => methodInfo.GetInjectionAttribute() != null).Select(info => new MethodInformation
             {
                 Method = info,
-                Parameters = this.FillParameters(info.GetParameters())
+                Parameters = this.CollectParameters(info.GetParameters())
             }).CastToArray();
 
-        private TypeInformation[] FillParameters(ParameterInfo[] parameters)
+        private TypeInformation[] CollectParameters(ParameterInfo[] parameters)
         {
             var length = parameters.Length;
             var types = new TypeInformation[length];
@@ -113,7 +134,7 @@ namespace Stashbox.MetaInfo
             return types;
         }
 
-        private IEnumerable<MemberInformation> FillMembers(TypeInfo typeInfo)
+        private MemberInformation[] CollectMembers(TypeInfo typeInfo)
         {
             var members = this.CollectProperties(typeInfo)
                    .Concat(this.CollectFields(typeInfo));
@@ -127,7 +148,7 @@ namespace Stashbox.MetaInfo
                 baseType = baseTypeInfo.BaseType;
             }
 
-            return members;
+            return members.CastToArray();
         }
 
         private IEnumerable<MemberInformation> CollectProperties(TypeInfo typeInfo) =>
@@ -145,7 +166,7 @@ namespace Stashbox.MetaInfo
                             ParentType = this.type,
                             CustomAttributes = propertyInfo.GetCustomAttributes()?.CastToArray(),
                             ParameterName = propertyInfo.Name,
-                            IsMember = true
+                            MemberType = MemberType.Property
                         },
                         MemberInfo = propertyInfo
                     };
@@ -166,7 +187,7 @@ namespace Stashbox.MetaInfo
                             ParentType = this.type,
                             CustomAttributes = fieldInfo.GetCustomAttributes()?.CastToArray(),
                             ParameterName = fieldInfo.Name,
-                            IsMember = true
+                            MemberType = MemberType.Field
                         },
                         MemberInfo = fieldInfo
                     };
@@ -183,23 +204,14 @@ namespace Stashbox.MetaInfo
                 var typeInfoGenericTypeParameter = typeInfo.GenericTypeParameters[i];
                 var paramTypeInfo = typeInfoGenericTypeParameter.GetTypeInfo();
                 var cons = paramTypeInfo.GetGenericParameterConstraints();
+                var attributes = paramTypeInfo.GenericParameterAttributes;
 
-                if (cons.Length <= 0) continue;
-
-                var pos = paramTypeInfo.GenericParameterPosition;
-                this.GenericTypeConstraints.Add(pos, cons);
-            }
-        }
-
-        private void SetMemberInjections(RegistrationContextData registrationContextData)
-        {
-            foreach (var member in registrationContextData.InjectionMemberNames)
-            {
-                var knownMember = this.InjectionMembers.FirstOrDefault(m => m.MemberInfo.Name == member.Key);
-                if (knownMember == null) continue;
-
-                knownMember.TypeInformation.ForcedDependency = true;
-                knownMember.TypeInformation.DependencyName = member.Value;
+                if (cons.Length > 0 || (attributes & GenericParameterAttributes.DefaultConstructorConstraint) == GenericParameterAttributes.DefaultConstructorConstraint ||
+                    (attributes & GenericParameterAttributes.ReferenceTypeConstraint) == GenericParameterAttributes.ReferenceTypeConstraint)
+                {
+                    var pos = paramTypeInfo.GenericParameterPosition;
+                    this.genericTypeConstraints.Add(pos, new GenericConstraintInfo { TypeConstraints = cons, GenericParameterConstraints = attributes });
+                }
             }
         }
     }

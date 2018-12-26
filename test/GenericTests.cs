@@ -341,23 +341,34 @@ namespace Stashbox.Tests
             Assert.IsInstanceOfType(decorator.Decorated, typeof(Gen3<ConstraintArgument>));
         }
 
-        public interface IConstraint { }
+        [TestMethod]
+        public void GenericTests_Nested_Within_Same_Request()
+        {
+            var inst = new StashboxContainer()
+                .Register<Gen>()
+                .Register(typeof(IGen<>), typeof(Gen<>))
+                .Resolve<Gen>();
 
-        public interface IConstraint1 { }
+            Assert.IsNotNull(inst);
+        }
 
-        public interface IConstraintTest<T> { }
+        interface IConstraint { }
 
-        public class ConstraintTest<T> : IConstraintTest<T> { }
+        interface IConstraint1 { }
 
-        public class ConstraintTest2<T> : IConstraintTest<T> where T : IConstraint { }
+        interface IConstraintTest<T> { }
 
-        public class ConstraintTest3<T> : IConstraintTest<T> where T : IConstraint1 { }
+        class ConstraintTest<T> : IConstraintTest<T> { }
 
-        public class ConstraintArgument { }
+        class ConstraintTest2<T> : IConstraintTest<T> where T : IConstraint { }
 
-        public class ConstraintArgument1 : IConstraint1 { }
+        class ConstraintTest3<T> : IConstraintTest<T> where T : IConstraint1 { }
 
-        public class ConstraintTest3
+        class ConstraintArgument { }
+
+        class ConstraintArgument1 : IConstraint1 { }
+
+        class ConstraintTest3
         {
             public IConstraintTest<ConstraintArgument> Test { get; set; }
 
@@ -367,30 +378,30 @@ namespace Stashbox.Tests
             }
         }
 
-        public interface ITest1<I, K>
+        interface ITest1<I, K>
         {
             I IProp { get; }
             K KProp { get; }
         }
 
-        public interface ITest2<I, K>
+        interface ITest2<I, K>
         {
             ITest1<I, K> Test { get; }
         }
 
-        public class Test1<I, K> : ITest1<I, K>
+        class Test1<I, K> : ITest1<I, K>
         {
             public I IProp { get; }
             public K KProp { get; }
         }
 
-        public class Test12<I, K> : ITest1<I, K>
+        class Test12<I, K> : ITest1<I, K>
         {
             public I IProp { get; }
             public K KProp { get; }
         }
 
-        public class Test2<I, K> : ITest2<I, K>
+        class Test2<I, K> : ITest2<I, K>
         {
             public ITest1<I, K> Test { get; private set; }
 
@@ -447,6 +458,20 @@ namespace Stashbox.Tests
             }
 
             public T Value { get; }
+        }
+
+        class Stub { }
+        class Stub1 { }
+
+        interface IGen<T>
+        { }
+
+        class Gen<T> : IGen<T> { }
+
+        class Gen
+        {
+            public Gen(IGen<Stub> stub, IGen<Stub1> stub1)
+            { }
         }
     }
 }

@@ -9,7 +9,7 @@ namespace Stashbox.Utils
     {
         public static readonly AvlTree<TValue> Empty = new AvlTree<TValue>();
 
-        private readonly TValue defaultValue = default;
+        private static readonly TValue DefaultValue = default;
         private readonly int storedHash;
         private readonly TValue storedValue;
 
@@ -37,7 +37,10 @@ namespace Stashbox.Utils
         { }
 
         public AvlTree<TValue> AddOrUpdate(int key, TValue value, Func<TValue, TValue, TValue> updateDelegate = null) =>
-            this.Add(key, value, updateDelegate);
+            this.Add(key, value, updateDelegate, false);
+
+        public AvlTree<TValue> AddOrUpdate(int key, TValue value, bool forceUpdate) =>
+            this.Add(key, value, null, true);
 
         [MethodImpl(Constants.Inline)]
         public TValue GetOrDefault(int key)
@@ -45,20 +48,24 @@ namespace Stashbox.Utils
             var node = this;
             while (!node.IsEmpty && node.storedHash != key)
                 node = key < node.storedHash ? node.leftNode : node.rightNode;
-            return !node.IsEmpty ? node.storedValue : this.defaultValue;
+            return !node.IsEmpty ? node.storedValue : DefaultValue;
         }
 
-        private AvlTree<TValue> Add(int hash, TValue value, Func<TValue, TValue, TValue> updateDelegate)
+        private AvlTree<TValue> Add(int hash, TValue value, Func<TValue, TValue, TValue> updateDelegate, bool forceUpdate)
         {
             if (this.IsEmpty)
                 return new AvlTree<TValue>(hash, value);
 
             if (hash == this.storedHash)
-                return updateDelegate == null ? this : new AvlTree<TValue>(hash, updateDelegate(this.storedValue, value), this.leftNode, this.rightNode);
+                return updateDelegate != null 
+                    ? new AvlTree<TValue>(hash, updateDelegate(this.storedValue, value), this.leftNode, this.rightNode) 
+                    : forceUpdate 
+                        ? new AvlTree<TValue>(hash, value, this.leftNode, this.rightNode) 
+                        : this;
 
             var result = hash < this.storedHash
-                ? this.SelfCopy(this.leftNode.Add(hash, value, updateDelegate), this.rightNode)
-                : this.SelfCopy(this.leftNode, this.rightNode.Add(hash, value, updateDelegate));
+                ? this.SelfCopy(this.leftNode.Add(hash, value, updateDelegate, forceUpdate), this.rightNode)
+                : this.SelfCopy(this.leftNode, this.rightNode.Add(hash, value, updateDelegate, forceUpdate));
 
             return result.Balance();
         }

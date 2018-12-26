@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 
 namespace Stashbox.Resolution
 {
@@ -29,9 +30,10 @@ namespace Stashbox.Resolution
         /// </summary>
         public ParameterExpression CurrentScopeParameter { get; }
 
-        private AvlTree<Expression> expressionOverrides;
-        private AvlTree<Type> currentlyDecoratingTypes;
-        private AvlTreeKeyValue<int, bool> circularDependencyBarrier;
+        private AvlTreeKeyValue<Type, Expression> expressionOverrides;
+        private AvlTreeKeyValue<Type, Type> currentlyDecoratingTypes;
+        private AvlTree<bool> circularDependencyBarrier;
+        private AvlTree<Expression> expressionCache;
 
         private readonly ArrayStoreKeyed<object, ParameterExpression> knownVariables;
 
@@ -52,8 +54,8 @@ namespace Stashbox.Resolution
         internal ArrayStoreKeyed<object, ParameterExpression> DefinedVariables { get; private set; }
 
         private ResolutionContext(IResolutionScope scope, bool nullResultAllowed, object[] dependencyOverrides)
-            : this(scope, AvlTreeKeyValue<int, bool>.Empty, AvlTree<Expression>.Empty, AvlTree<Type>.Empty, ArrayStore<ArrayStoreKeyed<bool, ParameterExpression>>.Empty, scope.GetActiveScopeNames(),
-                  null, nullResultAllowed, Constants.ResolutionScopeParameter, ArrayStoreKeyed<object, ParameterExpression>.Empty, dependencyOverrides == null)
+            : this(scope, AvlTree<bool>.Empty, AvlTreeKeyValue<Type, Expression>.Empty, AvlTreeKeyValue<Type, Type>.Empty, ArrayStore<ArrayStoreKeyed<bool, ParameterExpression>>.Empty, scope.GetActiveScopeNames(),
+                  null, nullResultAllowed, Constants.ResolutionScopeParameter, ArrayStoreKeyed<object, ParameterExpression>.Empty, AvlTree<Expression>.Empty,  dependencyOverrides == null)
         {
             this.ProcessDependencyOverrides(dependencyOverrides);
         }
@@ -74,9 +76,9 @@ namespace Stashbox.Resolution
             }
         }
 
-        private ResolutionContext(IResolutionScope scope, AvlTreeKeyValue<int, bool> circularDependencyBarrier, AvlTree<Expression> expressionOverrides,
-            AvlTree<Type> currentlyDecoratingTypes, ArrayStore<ArrayStoreKeyed<bool, ParameterExpression>> parameterExpressions, ISet<object> scopeNames,
-            IContainerContext childContext, bool nullResultAllowed, ParameterExpression currentScope, ArrayStoreKeyed<object, ParameterExpression> knownVariables, bool shouldCacheFactoryDelegate)
+        private ResolutionContext(IResolutionScope scope, AvlTree<bool> circularDependencyBarrier, AvlTreeKeyValue<Type, Expression> expressionOverrides,
+            AvlTreeKeyValue<Type, Type> currentlyDecoratingTypes, ArrayStore<ArrayStoreKeyed<bool, ParameterExpression>> parameterExpressions, ISet<object> scopeNames,
+            IContainerContext childContext, bool nullResultAllowed, ParameterExpression currentScope, ArrayStoreKeyed<object, ParameterExpression> knownVariables, AvlTree<Expression> expressionCache, bool shouldCacheFactoryDelegate)
         {
             this.DefinedVariables = ArrayStoreKeyed<object, ParameterExpression>.Empty;
             this.SingleInstructions = ArrayStore<Expression>.Empty;
@@ -92,6 +94,7 @@ namespace Stashbox.Resolution
             this.knownVariables = knownVariables;
             this.circularDependencyBarrier = circularDependencyBarrier;
             this.ShouldCacheFactoryDelegate = shouldCacheFactoryDelegate;
+            this.expressionCache = expressionCache;
         }
 
         /// <summary>
@@ -125,19 +128,25 @@ namespace Stashbox.Resolution
             this.DefinedVariables.GetOrDefault(key) ?? this.knownVariables.GetOrDefault(key);
 
         internal bool IsCurrentlyDecorating(Type type) =>
-            this.currentlyDecoratingTypes.GetOrDefault(type.GetHashCode()) != null;
+            this.currentlyDecoratingTypes.GetOrDefault(type) != null;
 
         internal void AddCurrentlyDecoratingType(Type type) =>
-            this.currentlyDecoratingTypes = this.currentlyDecoratingTypes.AddOrUpdate(type.GetHashCode(), type);
+            this.currentlyDecoratingTypes = this.currentlyDecoratingTypes.AddOrUpdate(type, type);
 
         internal void ClearCurrentlyDecoratingType(Type type) =>
-            this.currentlyDecoratingTypes = this.currentlyDecoratingTypes.AddOrUpdate(type.GetHashCode(), null, (oldValue, newValue) => newValue);
+            this.currentlyDecoratingTypes = this.currentlyDecoratingTypes.AddOrUpdate(type, null, true);
 
         internal Expression GetExpressionOverrideOrDefault(Type type) =>
-            this.expressionOverrides.GetOrDefault(type.GetHashCode());
+            this.expressionOverrides.GetOrDefault(type);
 
         internal void SetExpressionOverride(Type type, Expression expression) =>
-            this.expressionOverrides = this.expressionOverrides.AddOrUpdate(type.GetHashCode(), expression, (oldValue, newValue) => newValue);
+            this.expressionOverrides = this.expressionOverrides.AddOrUpdate(type, expression, true);
+
+        internal void CacheExpression(int key, Expression expression) =>
+            this.expressionCache = this.expressionCache.AddOrUpdate(key, expression);
+
+        internal Expression GetCachedExpression(int key) =>
+            this.expressionCache.GetOrDefault(key);
 
         internal void AddParameterExpressions(Type scopeType, ParameterExpression[] parameterExpressions)
         {
@@ -149,7 +158,7 @@ namespace Stashbox.Resolution
         }
 
         internal void SetCircularDependencyBarrier(int key, bool value) =>
-            Swap.SwapValue(ref this.circularDependencyBarrier, barrier => barrier.AddOrUpdate(key, value, (old, @new) => @new));
+            this.circularDependencyBarrier = this.circularDependencyBarrier.AddOrUpdate(key, value, true);
 
         internal bool GetCircularDependencyBarrier(int key) =>
             this.circularDependencyBarrier.GetOrDefault(key);
@@ -166,7 +175,7 @@ namespace Stashbox.Resolution
             return new ResolutionContext(this.ResolutionScope, this.circularDependencyBarrier, this.expressionOverrides,
                  this.currentlyDecoratingTypes, this.ParameterExpressions, scopeNames, childContext ?? this.ChildContext,
                  this.NullResultAllowed, scopeParameter == null ? this.CurrentScopeParameter : scopeParameter.Value,
-                 this.DefinedVariables, this.ShouldCacheFactoryDelegate);
+                 this.DefinedVariables, this.expressionCache, this.ShouldCacheFactoryDelegate);
         }
     }
 }

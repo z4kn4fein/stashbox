@@ -16,5 +16,14 @@ namespace Stashbox.Entity
         /// Stores the type information about the member.
         /// </summary>
         public TypeInformation TypeInformation { get; set; }
+
+        /// <summary>
+        /// Creates a clone of this instance.
+        /// </summary>
+        /// <returns></returns>
+        public MemberInformation Clone()
+        {
+            return new MemberInformation { MemberInfo = this.MemberInfo, TypeInformation = this.TypeInformation.Clone() };
+        }
     }
 }

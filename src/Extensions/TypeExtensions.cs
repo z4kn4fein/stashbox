@@ -1,8 +1,10 @@
-﻿using Stashbox.Utils;
+﻿using Stashbox.Attributes;
+using Stashbox.Utils;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using DependencyAttribute = Stashbox.Attributes.DependencyAttribute;
 
 #if NET40
 namespace System.Reflection
@@ -49,31 +51,31 @@ namespace System
         public static bool IsClosedGenericType(this Type type)
         {
             var typeInfo = type.GetTypeInfo();
-            return typeInfo.IsGenericType && !typeInfo.ContainsGenericParameters;
+            return typeInfo.IsGenericType && !typeInfo.IsGenericTypeDefinition;
         }
 
-        public static bool IsOpenGenericType(this Type type)
+        public static bool IsOpenGenericType(this Type type) =>
+            type.GetTypeInfo().IsOpenGenericType();
+
+        public static bool IsOpenGenericType(this TypeInfo typeInfo) =>
+            typeInfo.IsGenericType && typeInfo.ContainsGenericParameters;
+
+        public static DependencyAttribute GetDependencyAttribute(this MemberInfo property)
         {
-            var typeInfo = type.GetTypeInfo();
-            return typeInfo.IsGenericType && typeInfo.ContainsGenericParameters;
+            var attr = property.GetCustomAttributes(Constants.DependencyAttributeType, false).FirstOrDefault();
+            return (DependencyAttribute)attr;
         }
 
-        public static Stashbox.Attributes.DependencyAttribute GetDependencyAttribute(this MemberInfo property)
+        public static DependencyAttribute GetDependencyAttribute(this ParameterInfo parameter)
         {
-            var attr = property.GetCustomAttributes(Constants.DependencyAttributeType, false)?.FirstOrDefault();
-            return attr != null ? (Stashbox.Attributes.DependencyAttribute)attr : null;
+            var attr = parameter.GetCustomAttributes(Constants.DependencyAttributeType, false).FirstOrDefault();
+            return (DependencyAttribute)attr;
         }
 
-        public static Stashbox.Attributes.DependencyAttribute GetDependencyAttribute(this ParameterInfo parameter)
+        public static InjectionMethodAttribute GetInjectionAttribute(this MemberInfo method)
         {
-            var attr = parameter.GetCustomAttributes(Constants.DependencyAttributeType, false)?.FirstOrDefault();
-            return attr != null ? (Stashbox.Attributes.DependencyAttribute)attr : null;
-        }
-
-        public static Stashbox.Attributes.InjectionMethodAttribute GetInjectionAttribute(this MemberInfo method)
-        {
-            var attr = method.GetCustomAttributes(Constants.InjectionAttributeType, false)?.FirstOrDefault();
-            return attr != null ? (Stashbox.Attributes.InjectionMethodAttribute)attr : null;
+            var attr = method.GetCustomAttributes(Constants.InjectionAttributeType, false).FirstOrDefault();
+            return (InjectionMethodAttribute)attr;
         }
 
         public static Type[] GetGenericArguments(this Type type) =>
@@ -90,6 +92,9 @@ namespace System
 
         public static bool HasDefaultValue(this ParameterInfo parameter) =>
             parameter.IsOptional;
+
+        public static bool HasPublicParameterlessConstructor(this TypeInfo info) =>
+            info.DeclaredConstructors.FirstOrDefault(c => c.IsPublic && c.GetParameters().Length == 0) != null;
 
         public static MethodInfo GetSingleMethod(this Type type, string name, bool includeNonPublic = false)
         {
@@ -153,16 +158,15 @@ namespace System
         public static bool IsObjectType(this Type type) => type == Constants.ObjectType;
 
         public static bool Implements(this Type type, Type interfaceType) =>
-            interfaceType.GetTypeInfo().IsAssignableFrom(type.GetTypeInfo());
+            type.GetTypeInfo().Implements(interfaceType);
+
+        public static bool Implements(this TypeInfo typeInfo, Type interfaceType) =>
+            interfaceType.GetTypeInfo().IsAssignableFrom(typeInfo);
 
         public static ConstructorInfo GetConstructorByTypes(this Type type, params Type[] types)
         {
             if (types.Length == 0)
                 return type.GetConstructor(Constants.EmptyTypes);
-
-            var ctor = type.GetConstructor(types);
-            if (ctor != null)
-                return ctor;
 
             return type.GetTypeInfo().DeclaredConstructors.FirstOrDefault(constructor =>
             {

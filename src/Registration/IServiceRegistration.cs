@@ -1,5 +1,4 @@
 ﻿using Stashbox.Entity;
-using Stashbox.MetaInfo;
 using Stashbox.Resolution;
 using System;
 using System.Collections.Generic;
@@ -21,11 +20,6 @@ namespace Stashbox.Registration
         /// The implementation type.
         /// </summary>
         Type ImplementationType { get; }
-
-        /// <summary>
-        /// The meta info.
-        /// </summary>
-        MetaInformation MetaInformation { get; }
 
         /// <summary>
         /// The registration context.
@@ -66,6 +60,26 @@ namespace Stashbox.Registration
         /// True if the registration has a name set.
         /// </summary>
         bool HasName { get; }
+
+        /// <summary>
+        /// Holds the injection member of the service.
+        /// </summary>
+        MemberInformation[] InjectionMembers { get; }
+
+        /// <summary>
+        /// Holds the constructors of the service.
+        /// </summary>
+        ConstructorInformation[] Constructors { get; }
+
+        /// <summary>
+        /// Holds the injection methods of the service.
+        /// </summary>
+        MethodInformation[] InjectionMethods { get; }
+
+        /// <summary>
+        /// Holds the information about the constructor, selected by the user at configuration time.
+        /// </summary>
+        ConstructorInformation SelectedConstructor { get; }
 
         /// <summary>
         /// Creates an expression for creating the resolved instance.

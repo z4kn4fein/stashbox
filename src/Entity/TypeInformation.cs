@@ -46,7 +46,7 @@ namespace Stashbox.Entity
         /// <summary>
         /// Property or field.
         /// </summary>
-        public bool IsMember { get; internal set; }
+        public MemberType MemberType { get; internal set; }
 
         /// <summary>
         /// True if the dependency explicitly set to be injected.
@@ -63,6 +63,15 @@ namespace Stashbox.Entity
             var clone = (TypeInformation)this.MemberwiseClone();
             clone.Type = type;
             return clone;
+        }
+
+        /// <summary>
+        /// Creates a clone of this instance.
+        /// </summary>
+        /// <returns></returns>
+        public TypeInformation Clone()
+        {
+            return (TypeInformation)this.MemberwiseClone();
         }
     }
 }
