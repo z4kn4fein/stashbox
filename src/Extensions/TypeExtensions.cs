@@ -62,19 +62,19 @@ namespace System
 
         public static DependencyAttribute GetDependencyAttribute(this MemberInfo property)
         {
-            var attr = property.GetCustomAttributes(Constants.DependencyAttributeType, false).FirstOrDefault();
+            var attr = property.GetCustomAttributes(Constants.DependencyAttributeType, false)?.FirstOrDefault();
             return (DependencyAttribute)attr;
         }
 
         public static DependencyAttribute GetDependencyAttribute(this ParameterInfo parameter)
         {
-            var attr = parameter.GetCustomAttributes(Constants.DependencyAttributeType, false).FirstOrDefault();
+            var attr = parameter.GetCustomAttributes(Constants.DependencyAttributeType, false)?.FirstOrDefault();
             return (DependencyAttribute)attr;
         }
 
         public static InjectionMethodAttribute GetInjectionAttribute(this MemberInfo method)
         {
-            var attr = method.GetCustomAttributes(Constants.InjectionAttributeType, false).FirstOrDefault();
+            var attr = method.GetCustomAttributes(Constants.InjectionAttributeType, false)?.FirstOrDefault();
             return (InjectionMethodAttribute)attr;
         }
 
