@@ -30,6 +30,7 @@
       <![CDATA[
 - bugfix: #46 Fix for the failing aspnet/DI open generic tests
 - bugfix: #45 Member injection not working when there are different configurations registered for the same implementation
+- hotfix: Fix attribute reading on netcoreapp1.1 target
     ]]>
     </PackageReleaseNotes>
     <Configurations>Debug;Release;Benchmark</Configurations>
