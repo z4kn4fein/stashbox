@@ -8,20 +8,22 @@ using Stashbox.Registration;
 using Stashbox.Resolution;
 using Stashbox.Utils;
 using System;
+using System.Threading;
 
 namespace Stashbox
 {
     /// <summary>
     /// Represents the stashbox dependency injection container.
     /// </summary>
-    public partial class StashboxContainer : IStashboxContainer
+    public sealed partial class StashboxContainer : IStashboxContainer
     {
         private readonly IContainerExtensionManager containerExtensionManager;
         private readonly IResolverSelector resolverSelector;
         private readonly IRegistrationRepository registrationRepository = new RegistrationRepository();
-        private readonly AtomicBool disposed;
         private readonly IObjectBuilderSelector objectBuilderSelector;
         private readonly IDependencyResolver rootResolver;
+
+        private int disposed;
 
         /// <summary>
         /// Constructs a <see cref="StashboxContainer"/>
@@ -44,7 +46,6 @@ namespace Stashbox
         internal StashboxContainer(IContainerExtensionManager containerExtensionManager, IResolverSelector resolverSelector,
             IContainerConfigurator containerConfigurator, IDecoratorRepository decoratorRepository, Action<IContainerConfigurator> config = null)
         {
-            this.disposed = new AtomicBool();
             this.containerExtensionManager = containerExtensionManager;
             this.resolverSelector = resolverSelector;
 
@@ -136,17 +137,9 @@ namespace Stashbox
         /// <inheritdoc />
         public void Dispose()
         {
-            this.Dispose(true);
-            GC.SuppressFinalize(this);
-        }
+            if (Interlocked.CompareExchange(ref this.disposed, 1, 0) != 0)
+                return;
 
-        /// <summary>
-        /// Disposes the container.
-        /// </summary>
-        /// <param name="disposing">Indicates the container is disposing or not.</param>
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!this.disposed.CompareExchange(false, true) || !disposing) return;
             this.RootScope.Dispose();
             this.containerExtensionManager.CleanUp();
         }

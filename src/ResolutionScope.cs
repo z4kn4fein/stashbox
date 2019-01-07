@@ -12,7 +12,7 @@ using System.Threading;
 
 namespace Stashbox
 {
-    internal class ResolutionScope : IResolutionScope, IDependencyResolver
+    internal sealed class ResolutionScope : IResolutionScope, IDependencyResolver
     {
         private class DelegateCache
         {
@@ -41,7 +41,8 @@ namespace Stashbox
         private readonly IServiceRegistrator serviceRegistrator;
         private readonly IExpressionBuilder expressionBuilder;
         private readonly IContainerContext containerContext;
-        private readonly AtomicBool disposed;
+
+        private int disposed;
         private DisposableItem rootItem;
         private FinalizableItem rootFinalizableItem;
         private AvlTree<object> scopedItems;
@@ -66,7 +67,6 @@ namespace Stashbox
             IExpressionBuilder expressionBuilder, IContainerContext containerContext,
             DelegateCache delegateCache, object name)
         {
-            this.disposed = new AtomicBool();
             this.rootItem = DisposableItem.Empty;
             this.rootFinalizableItem = FinalizableItem.Empty;
             this.scopedItems = AvlTree<object>.Empty;
@@ -242,17 +242,8 @@ namespace Stashbox
         /// <inheritdoc />
         public void Dispose()
         {
-            this.Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        /// <summary>
-        /// Disposes the scope.
-        /// </summary>
-        /// <param name="disposing">Indicates the scope is disposing or not.</param>
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!this.disposed.CompareExchange(false, true) || !disposing) return;
+            if (Interlocked.CompareExchange(ref this.disposed, 1, 0) != 0)
+                return;
 
             var rootFinalizable = this.rootFinalizableItem;
             while (!ReferenceEquals(rootFinalizable, FinalizableItem.Empty))
@@ -267,11 +258,14 @@ namespace Stashbox
                 root.Item.Dispose();
                 root = root.Next;
             }
+            
+            if(this.circularDependencyBarrier.IsEmpty)
+                return;
 
-            foreach (var threadLocal in this.circularDependencyBarrier)
+            foreach (var threadLocal in this.circularDependencyBarrier.Walk())
                 threadLocal.Dispose();
         }
-
+        
         private object Activate(ResolutionContext resolutionContext, Type type, object name = null)
         {
             if (type == Constants.ResolverType)

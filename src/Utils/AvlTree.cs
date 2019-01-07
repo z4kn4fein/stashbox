@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 
 namespace Stashbox.Utils
 {
-    internal class AvlTree<TValue> : IEnumerable<TValue>
+    internal class AvlTree<TValue>
     {
         public static readonly AvlTree<TValue> Empty = new AvlTree<TValue>();
 
@@ -95,8 +95,11 @@ namespace Stashbox.Utils
 
         private int GetBalance() => this.leftNode.height - this.rightNode.height;
 
-        private IEnumerable<TValue> Walk()
+        public IEnumerable<TValue> Walk()
         {
+            if (this.height == 0)
+                yield break;
+
             var nodes = new AvlTree<TValue>[this.height];
             var currentNode = this;
             var index = -1;
@@ -117,9 +120,5 @@ namespace Stashbox.Utils
                 }
             }
         }
-
-        public IEnumerator<TValue> GetEnumerator() => this.Walk().GetEnumerator();
-
-        IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
     }
 }
