@@ -25,18 +25,18 @@ namespace Stashbox.Lifetime
         protected readonly object Sync = new object();
 
         /// <summary>
-        /// Produces a cached factory delegate to create scoped instances.
+        /// Produces a factory expression to produce scoped instances.
         /// </summary>
         /// <param name="containerContext">The container context.</param>
         /// <param name="serviceRegistration">The service registration.</param>
         /// <param name="objectBuilder">The object builder.</param>
         /// <param name="resolutionContext">The resolution context.</param>
         /// <param name="resolveType">The resolve type.</param>
-        /// <returns></returns>
-        public Func<IResolutionScope, object> GetFactoryDelegate(IContainerContext containerContext, IServiceRegistration serviceRegistration, IObjectBuilder objectBuilder, ResolutionContext resolutionContext, Type resolveType)
+        /// <returns>The factory expression.</returns>
+        public Expression GetFactoryExpression(IContainerContext containerContext, IServiceRegistration serviceRegistration, IObjectBuilder objectBuilder, ResolutionContext resolutionContext, Type resolveType)
         {
             var expr = base.GetExpression(containerContext, serviceRegistration, objectBuilder, resolutionContext, resolveType);
-            return expr?.CompileDelegate(resolutionContext);
+            return expr?.AsLambda(resolutionContext.CurrentScopeParameter);
         }
 
         /// <summary>

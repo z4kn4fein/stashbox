@@ -49,10 +49,18 @@ namespace Stashbox.BuildUp
             resolutionContext.AddDefinedVariable(variable);
             resolutionContext.AddInstruction(variable.AssignTo(newScope.ConvertTo(Constants.ResolutionScopeType)));
 
-            return this.expressionBuilder.CreateExpression(containerContext,
-                serviceRegistration, resolutionContext.CreateNew(scopeParameter:
-                    new KeyValue<object, ParameterExpression>(serviceRegistration.RegistrationContext.DefinedScopeName, variable)),
-                resolveType);
+            var newContext = resolutionContext.CreateNew(scopeParameter:
+                    new KeyValue<object, ParameterExpression>(serviceRegistration.RegistrationContext.DefinedScopeName, variable));
+
+            var expression = this.expressionBuilder.CreateExpression(containerContext, serviceRegistration, newContext, resolveType);
+
+            foreach (var definedVariable in newContext.DefinedVariables.Repository)
+                resolutionContext.AddDefinedVariable(definedVariable.Key, definedVariable.Value);
+
+            foreach (var instruction in newContext.SingleInstructions)
+                resolutionContext.AddInstruction(instruction);
+
+            return expression;
         }
     }
 }

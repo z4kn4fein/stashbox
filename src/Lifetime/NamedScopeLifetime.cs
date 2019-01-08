@@ -34,12 +34,12 @@ namespace Stashbox.Lifetime
         /// <inheritdoc />
         public override Expression GetExpression(IContainerContext containerContext, IServiceRegistration serviceRegistration, IObjectBuilder objectBuilder, ResolutionContext resolutionContext, Type resolveType)
         {
-            var factory = base.GetFactoryDelegate(containerContext, serviceRegistration, objectBuilder, resolutionContext, resolveType);
+            var factory = base.GetFactoryExpression(containerContext, serviceRegistration, objectBuilder, resolutionContext, resolveType);
             if (factory == null)
                 return null;
 
             var genericMethod = GetScopeValueMethod.MakeGenericMethod(resolveType);
-            return genericMethod.InvokeMethod(resolutionContext.CurrentScopeParameter, factory.AsConstant(),
+            return genericMethod.InvokeMethod(resolutionContext.CurrentScopeParameter, factory,
                 base.ScopeId.AsConstant(), base.Sync.AsConstant(), this.ScopeName.AsConstant());
         }
 

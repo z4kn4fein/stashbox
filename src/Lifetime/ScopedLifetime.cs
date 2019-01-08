@@ -22,12 +22,12 @@ namespace Stashbox.Lifetime
             if (variable != null)
                 return variable;
 
-            var factory = base.GetFactoryDelegate(containerContext, serviceRegistration, objectBuilder, resolutionContext, resolveType);
+            var factory = base.GetFactoryExpression(containerContext, serviceRegistration, objectBuilder, resolutionContext, resolveType);
             if (factory == null)
                 return null;
 
             var expression = resolutionContext.CurrentScopeParameter
-                .CallMethod(Constants.GetOrAddScopedItemMethod, base.ScopeId.AsConstant(), base.Sync.AsConstant(), factory.AsConstant())
+                .CallMethod(Constants.GetOrAddScopedItemMethod, base.ScopeId.AsConstant(), base.Sync.AsConstant(), factory)
                 .ConvertTo(resolveType);
 
             return base.StoreExpressionIntoLocalVariable(expression, resolutionContext, resolveType);

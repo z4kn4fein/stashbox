@@ -289,6 +289,22 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void NamedScope_ChildContainer_Chain()
+        {
+            var container = new StashboxContainer()
+                .Register<Test2>(config => config.DefinesScope("B").InNamedScope("A"));
+
+            var child = container.CreateChildContainer()
+                .Register<ITest, Test1>(config => config.InNamedScope("B"))
+                .Register<Test4>(config => config.DefinesScope("A"));
+
+            var inst = child.Resolve<Test4>();
+
+            Assert.IsNotNull(inst.Test);
+            Assert.IsNotNull(inst.Test.Test);
+        }
+
+        [TestMethod]
         public void NamedScope_ChildContainer()
         {
             var container = new StashboxContainer()
@@ -304,16 +320,14 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
-        public void NamedScope_ChildContainer_Chain()
+        public void NamedScope_Chain()
         {
             var container = new StashboxContainer()
-                .Register<Test2>(config => config.DefinesScope("B").InNamedScope("A"));
-
-            var child = container.CreateChildContainer()
+                .Register<Test2>(config => config.DefinesScope("B").InNamedScope("A"))
                 .Register<ITest, Test1>(config => config.InNamedScope("B"))
                 .Register<Test4>(config => config.DefinesScope("A"));
 
-            var inst = child.Resolve<Test4>();
+            var inst = container.Resolve<Test4>();
 
             Assert.IsNotNull(inst.Test);
             Assert.IsNotNull(inst.Test.Test);
