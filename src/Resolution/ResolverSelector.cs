@@ -59,9 +59,11 @@ namespace Stashbox.Resolution
 
         public void AddResolver(IResolver resolver)
         {
-            Swap.SwapValue(ref this.resolverRepository, repo => repo.Add(resolver));
+            Swap.SwapValue(ref this.resolverRepository, (t1, t2, t3, t4, repo) =>
+                repo.Add(t1), resolver, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
             if (resolver is IMultiServiceResolver multiServiceResolver)
-                Swap.SwapValue(ref this.multiServiceResolverRepository, repo => repo.Add(multiServiceResolver));
+                Swap.SwapValue(ref this.multiServiceResolverRepository, (t1, t2, t3, t4, repo) =>
+                    repo.Add(t1), multiServiceResolver, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
         }
     }
 }

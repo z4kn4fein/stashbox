@@ -32,10 +32,13 @@ namespace Stashbox.Registration
             var newRepository = new ArrayStoreKeyed<object, IServiceRegistration>(registration.RegistrationId, registration);
 
             if (remap)
-                Swap.SwapValue(ref repository, repo => repo.AddOrUpdate(registration.ServiceType, newRepository, true));
+                Swap.SwapValue(ref repository, (t1, t2, t3, t4, repo) =>
+                    repo.AddOrUpdate(t1, t2, true), registration.ServiceType, newRepository, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
             else
-                Swap.SwapValue(ref repository, repo => repo.AddOrUpdate(registration.ServiceType, newRepository,
-                    (oldValue, newValue) => oldValue.AddOrUpdate(registration.RegistrationId, registration, replace)));
+                Swap.SwapValue(ref repository, (t1, t2, t3, t4, repo) =>
+                    repo.AddOrUpdate(t1.ServiceType, t2,
+                        (oldValue, newValue) => oldValue.AddOrUpdate(t1.RegistrationId, t1, t3)),
+                        registration, newRepository, replace, Constants.DelegatePlaceholder);
         }
 
         public IServiceRegistration GetRegistrationOrDefault(Type type, ResolutionContext resolutionContext, object name = null) =>

@@ -48,7 +48,7 @@ namespace Stashbox
         private AvlTree<object> scopedItems;
         private AvlTreeKeyValue<Type, object> scopedInstances;
         private AvlTree<ThreadLocal<bool>> circularDependencyBarrier = AvlTree<ThreadLocal<bool>>.Empty;
-        
+
         private readonly DelegateCache delegateCache;
 
         /// <inheritdoc />
@@ -157,15 +157,15 @@ namespace Stashbox
         public TDisposable AddDisposableTracking<TDisposable>(TDisposable disposable)
             where TDisposable : IDisposable
         {
-            Swap.SwapValue(ref this.rootItem, root =>
-                new DisposableItem { Item = disposable, Next = root });
+            Swap.SwapValue(ref this.rootItem, (t1, t2, t3, t4, root) =>
+                new DisposableItem { Item = t1, Next = root }, disposable, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
 
             return disposable;
         }
 
         /// <inheritdoc />
         public void AddScopedInstance(Type key, object value) =>
-            Swap.SwapValue(ref this.scopedInstances, instances => instances.AddOrUpdate(key, value));
+            Swap.SwapValue(ref this.scopedInstances, (t1, t2, t3, t4, instances) => instances.AddOrUpdate(t1, t2), key, value, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
 
         /// <inheritdoc />
         public object GetScopedInstanceOrDefault(Type key) =>
@@ -174,8 +174,8 @@ namespace Stashbox
         /// <inheritdoc />
         public TService AddWithFinalizer<TService>(TService finalizable, Action<TService> finalizer)
         {
-            Swap.SwapValue(ref this.rootFinalizableItem, root =>
-                new FinalizableItem { Item = finalizable, Finalizer = f => finalizer((TService)f), Next = root });
+            Swap.SwapValue(ref this.rootFinalizableItem, (t1, t2, t3, t4, root) =>
+                new FinalizableItem { Item = t1, Finalizer = f => t2((TService)f), Next = root }, finalizable, finalizer, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
 
             return finalizable;
         }
@@ -192,7 +192,8 @@ namespace Stashbox
                 if (item != null) return item;
 
                 item = factory(this);
-                Swap.SwapValue(ref this.scopedItems, items => items.AddOrUpdate(key, item));
+                Swap.SwapValue(ref this.scopedItems, (t1, t2, t3, t4, items) =>
+                    items.AddOrUpdate(t1, t2), key, item, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
 
                 return item;
             }
@@ -228,8 +229,8 @@ namespace Stashbox
             if (check != null && check.Value)
                 throw new CircularDependencyException(type);
 
-            Swap.SwapValue(ref this.circularDependencyBarrier, barrier => barrier.AddOrUpdate(key, new ThreadLocal<bool>(), (old, @new) =>
-                { old.Value = true; return old; }));
+            Swap.SwapValue(ref this.circularDependencyBarrier, (t1, t2, t3, t4, barrier) => barrier.AddOrUpdate(t1, new ThreadLocal<bool>(), (old, @new) =>
+                { old.Value = true; return old; }), key, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
         }
 
         public void ResetRuntimetCircularDependencyBarrier(int key)
@@ -258,14 +259,14 @@ namespace Stashbox
                 root.Item.Dispose();
                 root = root.Next;
             }
-            
-            if(this.circularDependencyBarrier.IsEmpty)
+
+            if (this.circularDependencyBarrier.IsEmpty)
                 return;
 
             foreach (var threadLocal in this.circularDependencyBarrier.Walk())
                 threadLocal.Dispose();
         }
-        
+
         private object Activate(ResolutionContext resolutionContext, Type type, object name = null)
         {
             if (type == Constants.ResolverType)
@@ -279,7 +280,8 @@ namespace Stashbox
                     return null;
 
                 if (resolutionContext.ShouldCacheFactoryDelegate)
-                    Swap.SwapValue(ref this.delegateCache.ServiceDelegates, c => c.AddOrUpdate(name ?? type, ragistrationFactory));
+                    Swap.SwapValue(ref this.delegateCache.ServiceDelegates, (t1, t2, t3, t4, c) =>
+                    c.AddOrUpdate(t1, t2), name ?? type, ragistrationFactory, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
 
                 return ragistrationFactory(resolutionContext.ResolutionScope);
             }
@@ -294,7 +296,8 @@ namespace Stashbox
             var factory = expr.CompileDelegate(resolutionContext);
 
             if (resolutionContext.ShouldCacheFactoryDelegate)
-                Swap.SwapValue(ref this.delegateCache.ServiceDelegates, c => c.AddOrUpdate(name ?? type, factory));
+                Swap.SwapValue(ref this.delegateCache.ServiceDelegates, (t1, t2, t3, t4, c) =>
+                c.AddOrUpdate(t1, t2), name ?? type, factory, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
 
             return factory(resolutionContext.ResolutionScope);
         }
@@ -320,7 +323,8 @@ namespace Stashbox
             var expression = initExpression.AsLambda(resolutionContext.ParameterExpressions.SelectMany(x => x));
 
             var factory = expression.CompileDynamicDelegate(resolutionContext);
-            Swap.SwapValue(ref this.delegateCache.FactoryDelegates, c => c.AddOrUpdate(name ?? type, factory));
+            Swap.SwapValue(ref this.delegateCache.FactoryDelegates, (t1, t2, t3, t4, c) =>
+                c.AddOrUpdate(t1, t2), name ?? type, factory, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
             return factory(resolutionScope);
         }
     }

@@ -27,7 +27,8 @@ namespace Stashbox.ContainerExtension
             if (containerExtension is IRegistrationExtension)
                 this.HasRegistrationExtensions = true;
 
-            Swap.SwapValue(ref this.repository, repo => repo.Add(containerExtension));
+            Swap.SwapValue(ref this.repository, (t1, t2, t3, t4, repo) =>
+                repo.Add(t1), containerExtension, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
         }
 
         public object ExecutePostBuildExtensions(object instance, IContainerContext containerContext, ResolutionContext resolutionContext,

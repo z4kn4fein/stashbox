@@ -93,7 +93,8 @@ namespace Stashbox.BuildUp.Expressions.Compile
 #else
             var type = typeBuilder.CreateType();
 #endif
-            Swap.SwapValue(ref TargetTypes, t => t.AddOrUpdate(length, type));
+            Swap.SwapValue(ref TargetTypes, (t1, t2, t3, t4, t) =>
+                t.AddOrUpdate(t1, t2), length, type, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
             return type.MakeGenericType(types);
         }
 
@@ -142,7 +143,8 @@ namespace Stashbox.BuildUp.Expressions.Compile
 #else
             var type = typeBuilder.CreateType();
 #endif
-            Swap.SwapValue(ref CapturedArgumentTypes, t => t.AddOrUpdate(length, type));
+            Swap.SwapValue(ref CapturedArgumentTypes, (t1, t2, t3, t4, t) =>
+                t.AddOrUpdate(t1, t2), length, type, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
             return type.MakeGenericType(types);
         }
     }

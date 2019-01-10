@@ -206,7 +206,8 @@ namespace Stashbox.Registration
             if (found != null) return found;
 
             var meta = new MetaInformation(typeTo);
-            Swap.SwapValue(ref MetaRepository, repo => repo.AddOrUpdate(typeTo, meta));
+            Swap.SwapValue(ref MetaRepository, (t1, t2, t3, t4, repo) =>
+                repo.AddOrUpdate(t1, t2), typeTo, meta, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
             return meta;
         }
 
