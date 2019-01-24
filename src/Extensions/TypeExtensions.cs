@@ -163,6 +163,9 @@ namespace System
         public static bool Implements(this TypeInfo typeInfo, Type interfaceType) =>
             interfaceType.GetTypeInfo().IsAssignableFrom(typeInfo);
 
+        public static ConstructorInfo GetFirstConstructor(this Type type) =>
+            type.GetTypeInfo().DeclaredConstructors.FirstOrDefault();
+
         public static ConstructorInfo GetConstructorByTypes(this Type type, params Type[] types)
         {
             if (types.Length == 0)
@@ -190,6 +193,9 @@ namespace System
                 return true;
             });
         }
+
+        public static bool IsNullableType(this Type type) =>
+            type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
 
         public static MethodInfo GetMethod(this Delegate @delegate) =>
 #if NET40

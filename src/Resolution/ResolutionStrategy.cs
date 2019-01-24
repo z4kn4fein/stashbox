@@ -38,7 +38,9 @@ namespace Stashbox.Resolution
 
             var matchingParam = injectionParameters?.FirstOrDefault(param => param.Name == typeInformation.ParameterName);
             if (matchingParam != null)
-                return matchingParam.Value.AsConstant();
+                return matchingParam.Value.GetType() == typeInformation.Type
+                    ? matchingParam.Value.AsConstant()
+                    : matchingParam.Value.AsConstant().ConvertTo(typeInformation.Type);
 
             var exprOverride = resolutionContext.GetExpressionOverrideOrDefault(typeInformation.Type);
             if (exprOverride != null)

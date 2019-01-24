@@ -106,6 +106,18 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void ResolverTests_DefaultValue_Nullable()
+        {
+            using (var container = new StashboxContainer(config => config.WithOptionalAndDefaultValueInjection()))
+            {
+                container.Register<Test9>();
+                var inst = container.Resolve<Test9>();
+
+                Assert.IsNull(inst.I);
+            }
+        }
+
+        [TestMethod]
         public void ResolverTests_UnknownType()
         {
             using (var container = new StashboxContainer(config => config.WithUnknownTypeResolution()))
@@ -269,7 +281,7 @@ namespace Stashbox.Tests
             }
         }
 
-        public class Test
+        class Test
         {
             public int I { get; set; }
 
@@ -279,7 +291,7 @@ namespace Stashbox.Tests
             }
         }
 
-        public class Test1
+        class Test1
         {
             public int I { get; private set; }
 
@@ -289,7 +301,7 @@ namespace Stashbox.Tests
             }
         }
 
-        public class Test2
+        class Test2
         {
             public RefDep I { get; set; }
 
@@ -299,7 +311,7 @@ namespace Stashbox.Tests
             }
         }
 
-        public class Test3
+        class Test3
         {
             public RefDep I { get; set; }
 
@@ -309,7 +321,7 @@ namespace Stashbox.Tests
             }
         }
 
-        public class Test4
+        class Test4
         {
             public string I { get; set; }
 
@@ -319,24 +331,24 @@ namespace Stashbox.Tests
             }
         }
 
-        public class Test5
+        class Test5
         {
             public RefDep I { get; set; }
         }
 
-        public class Test6
+        class Test6
         {
             public RefDep I => this.i;
 
             private RefDep i = null;
         }
 
-        public class Test7
+        class Test7
         {
             public RefDep I { get; private set; }
         }
 
-        public class Test8
+        class Test8
         {
             public RefDep I1 { get; private set; }
 
@@ -345,7 +357,17 @@ namespace Stashbox.Tests
             private RefDep i = null;
         }
 
-        public class RefDep
+        class Test9
+        {
+            public Test9(int? i = null)
+            {
+                this.I = i;
+            }
+
+            public int? I { get; private set; }
+        }
+
+        class RefDep
         { }
     }
 }

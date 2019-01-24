@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Reflection.Emit;
 
 namespace Stashbox.BuildUp.Expressions.Compile.Emitters
@@ -13,7 +14,10 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
             var value = expression.Value;
             if (value == null)
             {
-                generator.Emit(OpCodes.Ldnull);
+                if (expression.Type.GetTypeInfo().IsValueType)
+                    generator.InitValueType(expression.Type);
+                else
+                    generator.Emit(OpCodes.Ldnull);
                 return true;
             }
 

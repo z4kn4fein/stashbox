@@ -74,6 +74,42 @@ namespace System.Linq.Expressions
         }
 
         /// <summary>
+        /// Compiles a <see cref="LambdaExpression"/> to a <see cref="Delegate"/>. For testing purposes.
+        /// </summary>
+        /// <param name="expression">The expression.</param>
+        /// <returns>The delegate.</returns>
+        public static Delegate CompileDelegate(this LambdaExpression expression)
+        {
+#if IL_EMIT
+            if (!expression.TryEmit(out var result))
+                throw new InvalidOperationException("Could not compile the given expression!");
+
+            return result;
+#else
+            throw new InvalidOperationException("Could not compile the given expression!");
+#endif
+        }
+
+        /// <summary>
+        /// Compiles a lambda expression into a Func delegate.
+        /// </summary>
+        /// <typeparam name="T">The result type.</typeparam>
+        /// <param name="expression">The expression</param>
+        /// <returns>The delegate.</returns>
+        public static Func<T> CompileFunc<T>(this Expression<Func<T>> expression) =>
+            (Func<T>)expression.CompileDelegate();
+
+        /// <summary>
+        /// Compiles a lambda expression into a Func delegate.
+        /// </summary>
+        /// <typeparam name="T1">First parameter type.</typeparam>
+        /// <typeparam name="T">The result type.</typeparam>
+        /// <param name="expression">The expression</param>
+        /// <returns>The delegate.</returns>
+        public static Func<T1, T> CompileFunc<T1, T>(this Expression<Func<T1, T>> expression) =>
+            (Func<T1, T>)expression.CompileDelegate();
+
+        /// <summary>
         /// Constructs an assigment expression, => Expression.Assign(left, right)
         /// </summary>
         /// <param name="left">The left part.</param>
@@ -138,6 +174,15 @@ namespace System.Linq.Expressions
         /// <returns>The lambda expression.</returns>
         public static LambdaExpression AsLambda(this Expression expression, IEnumerable<ParameterExpression> parameters) =>
             Expression.Lambda(expression, parameters);
+
+        /// <summary>
+        /// Constructs a lambda expression from an expression and parameters, => Expression.Lambda{TDelegate}(expression, parameters)
+        /// </summary>
+        /// <param name="expression">The expression.</param>
+        /// <param name="parameters">The parameters.</param>
+        /// <returns>The lambda expression.</returns>
+        public static Expression<TDelegate> AsLambda<TDelegate>(this Expression expression, params ParameterExpression[] parameters) =>
+            Expression.Lambda<TDelegate>(expression, parameters);
 
         /// <summary>
         /// Constructs a variable expression from a type, => Expression.Variable(type, name)

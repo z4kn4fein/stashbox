@@ -1,8 +1,8 @@
 ﻿#if IL_EMIT
+using Stashbox.BuildUp.Expressions.Compile;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using Stashbox.BuildUp.Expressions.Compile;
 
 namespace System.Reflection.Emit
 {
@@ -109,6 +109,14 @@ namespace System.Reflection.Emit
                         generator.Emit(OpCodes.Ldarg, index);
                     break;
             }
+        }
+
+        public static void InitValueType(this ILGenerator generator, Type type)
+        {
+            var lb = generator.DeclareLocal(type);
+            generator.Emit(OpCodes.Ldloca, lb);
+            generator.Emit(OpCodes.Initobj, type);
+            generator.Emit(OpCodes.Ldloc, lb);
         }
     }
 }

@@ -1,37 +1,41 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 namespace Stashbox.Utils
 {
-    internal class AvlTree<TValue>
+    internal sealed class AvlTree<TValue>
     {
         public static readonly AvlTree<TValue> Empty = new AvlTree<TValue>();
 
-        private static readonly TValue DefaultValue = default;
-        private readonly int storedHash;
-        private readonly TValue storedValue;
+        private readonly int StoredHash;
+        private readonly TValue StoredValue;
 
-        private readonly AvlTree<TValue> leftNode;
-        private readonly AvlTree<TValue> rightNode;
+        private readonly AvlTree<TValue> LeftNode;
+        private readonly AvlTree<TValue> RightNode;
 
         private readonly int height;
         public bool IsEmpty = true;
 
         private AvlTree(int hash, TValue value, AvlTree<TValue> left, AvlTree<TValue> right)
         {
-            this.storedHash = hash;
-            this.leftNode = left;
-            this.rightNode = right;
-            this.storedValue = value;
+            this.StoredHash = hash;
+            this.LeftNode = left;
+            this.RightNode = right;
+            this.StoredValue = value;
             this.IsEmpty = false;
             this.height = 1 + (left.height > right.height ? left.height : right.height);
         }
 
         private AvlTree(int hash, TValue value)
-            : this(hash, value, Empty, Empty)
-        { }
+        {
+            this.StoredHash = hash;
+            this.LeftNode = Empty;
+            this.RightNode = Empty;
+            this.StoredValue = value;
+            this.IsEmpty = false;
+            this.height = 1;
+        }
 
         private AvlTree()
         { }
@@ -46,9 +50,9 @@ namespace Stashbox.Utils
         public TValue GetOrDefault(int key)
         {
             var node = this;
-            while (!node.IsEmpty && node.storedHash != key)
-                node = key < node.storedHash ? node.leftNode : node.rightNode;
-            return !node.IsEmpty ? node.storedValue : DefaultValue;
+            while (!node.IsEmpty && node.StoredHash != key)
+                node = key < node.StoredHash ? node.LeftNode : node.RightNode;
+            return !node.IsEmpty ? node.StoredValue : default;
         }
 
         private AvlTree<TValue> Add(int hash, TValue value, Func<TValue, TValue, TValue> updateDelegate, bool forceUpdate)
@@ -56,48 +60,73 @@ namespace Stashbox.Utils
             if (this.IsEmpty)
                 return new AvlTree<TValue>(hash, value);
 
-            if (hash == this.storedHash)
-                return updateDelegate != null 
-                    ? new AvlTree<TValue>(hash, updateDelegate(this.storedValue, value), this.leftNode, this.rightNode) 
-                    : forceUpdate 
-                        ? new AvlTree<TValue>(hash, value, this.leftNode, this.rightNode) 
+            if (hash == this.StoredHash)
+                return updateDelegate != null
+                    ? new AvlTree<TValue>(hash, updateDelegate(this.StoredValue, value), this.LeftNode, this.RightNode)
+                    : forceUpdate
+                        ? new AvlTree<TValue>(hash, value, this.LeftNode, this.RightNode)
                         : this;
 
-            var result = hash < this.storedHash
-                ? this.SelfCopy(this.leftNode.Add(hash, value, updateDelegate, forceUpdate), this.rightNode)
-                : this.SelfCopy(this.leftNode, this.rightNode.Add(hash, value, updateDelegate, forceUpdate));
-
-            return result.Balance();
+            return hash < this.StoredHash
+                ? this.height == 1
+                    ? new AvlTree<TValue>(this.StoredHash, this.StoredValue,
+                        new AvlTree<TValue>(hash, value), this.RightNode)
+                    : Balance(this.StoredHash, this.StoredValue, this.LeftNode.Add(hash, value, updateDelegate, forceUpdate), this.RightNode)
+                : this.height == 1
+                    ? new AvlTree<TValue>(this.StoredHash, this.StoredValue, this.LeftNode,
+                        new AvlTree<TValue>(hash, value))
+                    : Balance(this.StoredHash, this.StoredValue, this.LeftNode, this.RightNode.Add(hash, value, updateDelegate, forceUpdate));
         }
 
-        private AvlTree<TValue> Balance()
+        private static AvlTree<TValue> Balance(int hash, TValue value, AvlTree<TValue> left, AvlTree<TValue> right)
         {
-            var balance = this.GetBalance();
+            var balance = left.height - right.height;
 
             if (balance >= 2)
-                return this.leftNode.GetBalance() == -1 ? this.RotateLeftRight() : this.RotateRight();
+                return left.LeftNode.height - left.RightNode.height == -1
+                    ? RotateLeftRight(hash, value, left, right)
+                    : RotateRight(hash, value, left, right);
 
             if (balance <= -2)
-                return this.rightNode.GetBalance() == 1 ? this.RotateRightLeft() : this.RotateLeft();
+                return right.LeftNode.height - right.RightNode.height == 1
+                    ? RotateRightLeft(hash, value, left, right)
+                    : RotateLeft(hash, value, left, right);
 
-            return this;
+            return new AvlTree<TValue>(hash, value, left, right);
         }
 
-        private AvlTree<TValue> RotateLeft() => this.rightNode.SelfCopy(this.SelfCopy(this.leftNode, this.rightNode.leftNode), this.rightNode.rightNode);
-        private AvlTree<TValue> RotateRight() => this.leftNode.SelfCopy(this.leftNode.leftNode, this.SelfCopy(this.leftNode.rightNode, this.rightNode));
+        private static AvlTree<TValue> RotateRight(int hash, TValue value, AvlTree<TValue> left, AvlTree<TValue> right)
+        {
+            var r = new AvlTree<TValue>(hash, value, left.RightNode, right);
+            return new AvlTree<TValue>(left.StoredHash, left.StoredValue, left.LeftNode, r);
+        }
 
-        private AvlTree<TValue> RotateRightLeft() => this.SelfCopy(this.leftNode, this.rightNode.RotateRight()).RotateLeft();
-        private AvlTree<TValue> RotateLeftRight() => this.SelfCopy(this.leftNode.RotateLeft(), this.rightNode).RotateRight();
+        private static AvlTree<TValue> RotateLeft(int hash, TValue value, AvlTree<TValue> left, AvlTree<TValue> right)
+        {
+            var l = new AvlTree<TValue>(hash, value, left, right.LeftNode);
+            return new AvlTree<TValue>(right.StoredHash, right.StoredValue, l, right.RightNode);
+        }
 
-        private AvlTree<TValue> SelfCopy(AvlTree<TValue> left, AvlTree<TValue> right) =>
-            left == this.leftNode && right == this.rightNode ? this :
-            new AvlTree<TValue>(this.storedHash, this.storedValue, left, right);
+        private static AvlTree<TValue> RotateRightLeft(int hash, TValue value, AvlTree<TValue> left, AvlTree<TValue> right)
+        {
+            var l = new AvlTree<TValue>(hash, value, left, right.LeftNode.LeftNode);
+            var r = new AvlTree<TValue>(right.StoredHash, right.StoredValue, right.LeftNode.RightNode, right.RightNode);
+            return new AvlTree<TValue>(right.LeftNode.StoredHash, right.LeftNode.StoredValue, l, r);
+        }
 
-        private int GetBalance() => this.leftNode.height - this.rightNode.height;
+        private static AvlTree<TValue> RotateLeftRight(int hash, TValue value, AvlTree<TValue> left, AvlTree<TValue> right)
+        {
+            var l = new AvlTree<TValue>(left.StoredHash, left.StoredValue, left.LeftNode, left.RightNode.LeftNode);
+            var r = new AvlTree<TValue>(hash, value, left.RightNode.RightNode, right);
+            return new AvlTree<TValue>(left.RightNode.StoredHash, left.RightNode.StoredValue, l, r);
+        }
+
+        public override string ToString() => this.IsEmpty ? "empty" : $"{this.StoredHash} : {this.StoredValue}";
+
 
         public IEnumerable<TValue> Walk()
         {
-            if (this.height == 0)
+            if (this.IsEmpty)
                 yield break;
 
             var nodes = new AvlTree<TValue>[this.height];
@@ -109,14 +138,14 @@ namespace Stashbox.Utils
                 if (!currentNode.IsEmpty)
                 {
                     nodes[++index] = currentNode;
-                    currentNode = currentNode.leftNode;
+                    currentNode = currentNode.LeftNode;
                 }
                 else
                 {
                     currentNode = nodes[index--];
-                    yield return currentNode.storedValue;
+                    yield return currentNode.StoredValue;
 
-                    currentNode = currentNode.rightNode;
+                    currentNode = currentNode.RightNode;
                 }
             }
         }

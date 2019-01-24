@@ -36,12 +36,7 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
             else if (type == typeof(double))
                 generator.Emit(OpCodes.Ldc_R8, default(double));
             else if (type.GetTypeInfo().IsValueType)
-            {
-                var lb = generator.DeclareLocal(type);
-                generator.Emit(OpCodes.Ldloca, lb);
-                generator.Emit(OpCodes.Initobj, type);
-                generator.Emit(OpCodes.Ldloc, lb);
-            }
+                generator.InitValueType(type);
             else
                 generator.Emit(OpCodes.Ldnull);
 

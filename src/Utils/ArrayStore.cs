@@ -112,7 +112,8 @@ namespace Stashbox.Utils
         internal ArrayStoreKeyed(TKey key, TValue value)
         {
             this.Repository = new[] { new KeyValue<TKey, TValue>(key, value) };
-            this.Length = 1;}
+            this.Length = 1;
+        }
 
         public ArrayStoreKeyed()
         {

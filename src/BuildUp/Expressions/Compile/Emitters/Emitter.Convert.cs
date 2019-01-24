@@ -1,4 +1,5 @@
 ﻿#if IL_EMIT
+using System;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -17,6 +18,15 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
 
             if (typeFrom == typeTo)
                 return true;
+
+            var typeToIsNullable = typeTo.IsNullableType();
+            var typeToUnderlyingType = Nullable.GetUnderlyingType(typeTo);
+
+            if (typeToIsNullable && typeFrom == typeToUnderlyingType)
+            {
+                generator.Emit(OpCodes.Newobj, typeTo.GetFirstConstructor());
+                return true;
+            }
 
             if (!typeFrom.GetTypeInfo().IsValueType && typeTo.GetTypeInfo().IsValueType)
                 generator.Emit(OpCodes.Unbox_Any, typeTo);
