@@ -12,8 +12,8 @@ namespace Stashbox.BuildUp.Resolution
         public Expression GetExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext)
         {
             var resolution = resolutionContext.ChildContext == null
-                ? resolutionContext.CreateNew(containerContext)
-                : resolutionContext.CreateNew(resolutionContext.ChildContext);
+                ? resolutionContext.Clone(containerContext)
+                : resolutionContext.Clone(resolutionContext.ChildContext);
 
             var result = containerContext.Container.ParentContainer.ContainerContext.ResolutionStrategy
                 .BuildResolutionExpression(containerContext.Container.ParentContainer.ContainerContext, resolution, typeInfo, null);
@@ -30,8 +30,8 @@ namespace Stashbox.BuildUp.Resolution
         public Expression[] GetExpressions(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext)
         {
             var resolution = resolutionContext.ChildContext == null
-                ? resolutionContext.CreateNew(containerContext)
-                : resolutionContext.CreateNew(resolutionContext.ChildContext);
+                ? resolutionContext.Clone(containerContext)
+                : resolutionContext.Clone(resolutionContext.ChildContext);
 
             var result = containerContext.Container.ParentContainer.ContainerContext.ResolutionStrategy
                 .BuildResolutionExpressions(containerContext.Container.ParentContainer.ContainerContext, resolution, typeInfo);

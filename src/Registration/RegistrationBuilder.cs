@@ -19,14 +19,10 @@ namespace Stashbox.Registration
         public IServiceRegistration BuildServiceRegistration(IRegistrationContext registrationContext, bool isDecorator)
         {
             this.PreProcessExistingInstanceIfNeeded(registrationContext);
-
             registrationContext.Context.Lifetime = this.ChooseLifeTime(registrationContext);
 
-            var objectBuilder = this.CreateObjectBuilder(registrationContext);
-
             var shouldHandleDisposal = this.ShouldHandleDisposal(registrationContext);
-
-            return this.ProduceServiceRegistration(objectBuilder, registrationContext, isDecorator, shouldHandleDisposal);
+            return this.ProduceServiceRegistration(registrationContext, isDecorator, shouldHandleDisposal);
         }
 
         private void PreProcessExistingInstanceIfNeeded(IRegistrationContext registrationContext)
@@ -56,26 +52,9 @@ namespace Stashbox.Registration
             return registrationContext.Context.Lifetime != null;
         }
 
-        private IObjectBuilder CreateObjectBuilder(IRegistrationContext registrationContext)
-        {
-            if (registrationContext.ImplementationType.IsOpenGenericType())
-                return this.objectBuilderSelector.Get(ObjectBuilder.Generic);
-
-            if (registrationContext.Context.ExistingInstance != null)
-                return registrationContext.Context.IsWireUp
-                    ? this.objectBuilderSelector.Get(ObjectBuilder.WireUp)
-                    : this.objectBuilderSelector.Get(ObjectBuilder.Instance);
-
-            return registrationContext.Context.ContainerFactory != null
-                ? this.objectBuilderSelector.Get(ObjectBuilder.Factory)
-                : this.objectBuilderSelector.Get(registrationContext.Context.SingleFactory != null
-                    ? ObjectBuilder.Factory
-                    : ObjectBuilder.Default);
-        }
-
-        private IServiceRegistration ProduceServiceRegistration(IObjectBuilder objectBuilder, IRegistrationContext registrationContext, bool isDecorator, bool shouldHandleDisposal) =>
+        private IServiceRegistration ProduceServiceRegistration(IRegistrationContext registrationContext, bool isDecorator, bool shouldHandleDisposal) =>
             new ServiceRegistration(registrationContext.ImplementationType, this.containerContext.ContainerConfigurator,
-                objectBuilder, registrationContext.Context, isDecorator, shouldHandleDisposal);
+                this.objectBuilderSelector, registrationContext.Context, isDecorator, shouldHandleDisposal);
 
 
         private ILifetime ChooseLifeTime(IRegistrationContext registrationContext) => registrationContext.Context.ExistingInstance != null

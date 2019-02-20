@@ -21,6 +21,7 @@ namespace Stashbox.Registration
         internal static int GlobalRegistrationNumber;
         internal static AvlTreeKeyValue<Type, MetaInformation> MetaRepository = AvlTreeKeyValue<Type, MetaInformation>.Empty;
         private readonly IContainerConfigurator containerConfigurator;
+        private readonly IObjectBuilderSelector objectBuilderSelector;
         private readonly IObjectBuilder objectBuilder;
         private readonly MetaInformation metaInformation;
 
@@ -64,11 +65,11 @@ namespace Stashbox.Registration
         public bool HasCondition { get; }
 
         internal ServiceRegistration(Type implementationType, IContainerConfigurator containerConfigurator,
-             IObjectBuilder objectBuilder, RegistrationContextData registrationContextData,
+             IObjectBuilderSelector objectBuilderSelector, RegistrationContextData registrationContextData,
              bool isDecorator, bool shouldHandleDisposal)
         {
-            this.objectBuilder = objectBuilder;
             this.containerConfigurator = containerConfigurator;
+            this.objectBuilderSelector = objectBuilderSelector;
             this.ImplementationType = implementationType;
             this.metaInformation = GetOrCreateMetaInfo(implementationType);
             this.Constructors = this.metaInformation.Constructors;
@@ -91,6 +92,8 @@ namespace Stashbox.Registration
                 (containerConfigurator.ContainerConfiguration.SetUniqueRegistrationNames
                 ? (object)this.RegistrationNumber
                 : implementationType);
+
+            this.objectBuilder = this.SelectObjectBuilder();
         }
 
         /// <inheritdoc />
@@ -140,8 +143,9 @@ namespace Stashbox.Registration
         public bool CanInjectIntoNamedScope(ISet<object> scopeNames) => scopeNames.Contains(((NamedScopeLifetime)this.RegistrationContext.Lifetime).ScopeName);
 
         /// <inheritdoc />
-        public IServiceRegistration Clone(Type implementationType, IObjectBuilder builder) =>
-            new ServiceRegistration(implementationType, this.containerConfigurator, builder, this.RegistrationContext.Clone(), this.IsDecorator, this.ShouldHandleDisposal);
+        public IServiceRegistration Clone(Type implementationType) =>
+            new ServiceRegistration(implementationType, this.containerConfigurator, this.objectBuilderSelector,
+                this.RegistrationContext.Clone(), this.IsDecorator, this.ShouldHandleDisposal);
 
         private ConstructorInformation FindSelectedConstructor(RegistrationContextData registrationContextData, MetaInformation metaInfo)
         {
@@ -209,6 +213,26 @@ namespace Stashbox.Registration
             Swap.SwapValue(ref MetaRepository, (t1, t2, t3, t4, repo) =>
                 repo.AddOrUpdate(t1, t2), typeTo, meta, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
             return meta;
+        }
+
+        private IObjectBuilder SelectObjectBuilder()
+        {
+            if (this.ImplementationType.IsFuncType())
+                return this.objectBuilderSelector.Get(ObjectBuilder.Func);
+
+            if (this.ImplementationType.IsOpenGenericType())
+                return this.objectBuilderSelector.Get(ObjectBuilder.Generic);
+
+            if (this.RegistrationContext.ExistingInstance != null)
+                return this.RegistrationContext.IsWireUp
+                    ? this.objectBuilderSelector.Get(ObjectBuilder.WireUp)
+                    : this.objectBuilderSelector.Get(ObjectBuilder.Instance);
+
+            return this.RegistrationContext.ContainerFactory != null
+                ? this.objectBuilderSelector.Get(ObjectBuilder.Factory)
+                : this.objectBuilderSelector.Get(this.RegistrationContext.SingleFactory != null
+                    ? ObjectBuilder.Factory
+                    : ObjectBuilder.Default);
         }
 
         private static int ReserveRegistrationNumber() =>

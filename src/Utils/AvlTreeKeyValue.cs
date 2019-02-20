@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Stashbox.Entity;
+using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
@@ -61,9 +62,9 @@ namespace Stashbox.Utils
             var node = this;
             while (!node.IsEmpty && node.storedHash != hash)
                 node = hash < node.storedHash ? node.leftNode : node.rightNode;
-            return !node.IsEmpty && (ReferenceEquals(key, node.storedKey) || key.Equals(node.storedKey)) 
-                ? node.storedValue 
-                : node.collisions == null 
+            return !node.IsEmpty && (ReferenceEquals(key, node.storedKey) || key.Equals(node.storedKey))
+                ? node.storedValue
+                : node.collisions == null
                     ? default
                     : node.collisions.GetOrDefault(key);
         }
@@ -149,7 +150,7 @@ namespace Stashbox.Utils
 
         public override string ToString() => this.IsEmpty ? "empty" : $"{this.storedKey} : {this.storedValue}";
 
-        public IEnumerable<KeyValuePair<TKey, TValue>> Walk()
+        public IEnumerable<KeyValue<TKey, TValue>> Walk()
         {
             if (this.IsEmpty)
                 yield break;
@@ -168,11 +169,11 @@ namespace Stashbox.Utils
                 else
                 {
                     currentNode = nodes[index--];
-                    yield return new KeyValuePair<TKey, TValue>(currentNode.storedKey, currentNode.storedValue);
+                    yield return new KeyValue<TKey, TValue>(currentNode.storedKey, currentNode.storedValue);
 
                     if (currentNode.collisions != null && currentNode.collisions.Length > 0)
                         for (var i = 0; i < currentNode.collisions.Length; i++)
-                            yield return currentNode.collisions.GetKeyValue(i);
+                            yield return currentNode.collisions.Repository[i];
 
                     currentNode = currentNode.rightNode;
                 }

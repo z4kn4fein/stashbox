@@ -49,7 +49,7 @@ namespace Stashbox.BuildUp
             resolutionContext.AddDefinedVariable(variable);
             resolutionContext.AddInstruction(variable.AssignTo(newScope.ConvertTo(Constants.ResolutionScopeType)));
 
-            var newContext = resolutionContext.CreateNew(scopeParameter:
+            var newContext = resolutionContext.Clone(scopeParameter:
                     new KeyValue<object, ParameterExpression>(serviceRegistration.RegistrationContext.DefinedScopeName, variable));
 
             var expression = this.expressionBuilder.CreateExpression(containerContext, serviceRegistration, newContext, resolveType);

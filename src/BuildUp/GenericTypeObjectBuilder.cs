@@ -8,12 +8,10 @@ namespace Stashbox.BuildUp
     internal class GenericTypeObjectBuilder : ObjectBuilderBase
     {
         private readonly IServiceRegistrator serviceRegistrator;
-        private readonly IObjectBuilderSelector objectBuilderSelector;
 
-        public GenericTypeObjectBuilder(IServiceRegistrator serviceRegistrator, IObjectBuilderSelector objectBuilderSelector)
+        public GenericTypeObjectBuilder(IServiceRegistrator serviceRegistrator)
         {
             this.serviceRegistrator = serviceRegistrator;
-            this.objectBuilderSelector = objectBuilderSelector;
         }
 
         protected override Expression GetExpressionInternal(IContainerContext containerContext, IServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType)
@@ -25,8 +23,7 @@ namespace Stashbox.BuildUp
 
         private IServiceRegistration RegisterConcreteGenericType(IServiceRegistration serviceRegistration, Type resolveType, Type genericType)
         {
-            var newRegistration = serviceRegistration.Clone(genericType,
-                this.objectBuilderSelector.Get(ObjectBuilder.Default));
+            var newRegistration = serviceRegistration.Clone(genericType);
 
             newRegistration.RegistrationContext.Name = null;
             this.serviceRegistrator.Register(newRegistration, resolveType, false);

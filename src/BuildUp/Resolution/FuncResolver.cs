@@ -9,7 +9,7 @@ namespace Stashbox.BuildUp.Resolution
 {
     internal class FuncResolver : IMultiServiceResolver
     {
-        private readonly HashSet<Type> supportedTypes = new HashSet<Type>
+        internal static readonly HashSet<Type> SupportedTypes = new HashSet<Type>
         {
             typeof(Func<>),
             typeof(Func<,>),
@@ -54,7 +54,7 @@ namespace Stashbox.BuildUp.Resolution
         }
 
         public bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext) =>
-            typeInfo.Type.IsClosedGenericType() && this.supportedTypes.Contains(typeInfo.Type.GetGenericTypeDefinition());
+            typeInfo.Type.IsFuncType();
 
         private ParameterExpression[] PrepareExtraParameters(Type wrappedType, ResolutionContext resolutionContext, Type[] args)
         {

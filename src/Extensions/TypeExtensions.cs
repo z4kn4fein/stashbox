@@ -1,4 +1,5 @@
 ﻿using Stashbox.Attributes;
+using Stashbox.BuildUp.Resolution;
 using Stashbox.Utils;
 using System.Collections.Generic;
 using System.Linq;
@@ -162,6 +163,9 @@ namespace System
 
         public static bool Implements(this TypeInfo typeInfo, Type interfaceType) =>
             interfaceType.GetTypeInfo().IsAssignableFrom(typeInfo);
+
+        public static bool IsFuncType(this Type type) =>
+            type.IsClosedGenericType() && FuncResolver.SupportedTypes.Contains(type.GetGenericTypeDefinition());
 
         public static ConstructorInfo GetFirstConstructor(this Type type) =>
             type.GetTypeInfo().DeclaredConstructors.FirstOrDefault();

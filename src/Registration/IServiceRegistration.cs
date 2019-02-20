@@ -115,11 +115,10 @@ namespace Stashbox.Registration
         bool CanInjectIntoNamedScope(ISet<object> scopeNames);
 
         /// <summary>
-        /// Clones the registration with new underlying types.
+        /// Clones the registration with new underlying type.
         /// </summary>
         /// <param name="implementationType">The implementation type.</param>
-        /// <param name="builder">The object builder.</param>
         /// <returns>The new registration.</returns>
-        IServiceRegistration Clone(Type implementationType, IObjectBuilder builder);
+        IServiceRegistration Clone(Type implementationType);
     }
 }

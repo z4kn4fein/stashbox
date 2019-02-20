@@ -26,8 +26,9 @@ namespace Stashbox.Resolution
                 var length = resolutionContext.ParameterExpressions.Length;
                 for (var i = length; i-- > 0;)
                 {
-                    var parameters = resolutionContext.ParameterExpressions[i].WhereOrDefault(p => p.Value.Type == typeInformation.Type ||
-                                                                                                   p.Value.Type.Implements(typeInformation.Type));
+                    var parameters = resolutionContext.ParameterExpressions[i]
+                        .WhereOrDefault(p => p.Value.Type == typeInformation.Type ||
+                                        p.Value.Type.Implements(typeInformation.Type));
 
                     if (parameters == null) continue;
                     var selected = parameters.Repository.FirstOrDefault(parameter => !parameter.Key) ?? parameters.Repository.Last();

@@ -54,7 +54,7 @@ namespace Stashbox.Resolution
 
         private ResolutionContext(IResolutionScope scope, bool nullResultAllowed, object[] dependencyOverrides)
             : this(scope, AvlTree<bool>.Empty, AvlTreeKeyValue<Type, Expression>.Empty, AvlTreeKeyValue<Type, Type>.Empty, ArrayStore<ArrayStoreKeyed<bool, ParameterExpression>>.Empty, scope.GetActiveScopeNames(),
-                  null, nullResultAllowed, Constants.ResolutionScopeParameter, ArrayStoreKeyed<object, ParameterExpression>.Empty, AvlTree<Expression>.Empty,  dependencyOverrides == null)
+                  null, nullResultAllowed, Constants.ResolutionScopeParameter, ArrayStoreKeyed<object, ParameterExpression>.Empty, AvlTree<Expression>.Empty, dependencyOverrides == null)
         {
             this.ProcessDependencyOverrides(dependencyOverrides);
         }
@@ -162,7 +162,7 @@ namespace Stashbox.Resolution
         internal bool GetCircularDependencyBarrier(int key) =>
             this.circularDependencyBarrier.GetOrDefault(key);
 
-        internal ResolutionContext CreateNew(IContainerContext childContext = null, KeyValue<object, ParameterExpression> scopeParameter = null)
+        internal ResolutionContext Clone(IContainerContext childContext = null, KeyValue<object, ParameterExpression> scopeParameter = null)
         {
             var scopeNames = this.ScopeNames;
             if (scopeParameter != null)

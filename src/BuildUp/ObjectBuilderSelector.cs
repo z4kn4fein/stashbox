@@ -13,7 +13,7 @@ namespace Stashbox.BuildUp
             {
                 new DefaultObjectBuilder(expressionBuilder),
                 new FactoryObjectBuilder(expressionBuilder),
-                new GenericTypeObjectBuilder(serviceRegistrator, this),
+                new GenericTypeObjectBuilder(serviceRegistrator),
                 new InstanceObjectBuilder(),
                 new WireUpObjectBuilder(expressionBuilder),
                 new FuncObjectBuilder()
