@@ -1,4 +1,5 @@
 ﻿using Stashbox.BuildUp.Expressions;
+using Stashbox.Registration;
 
 namespace Stashbox.BuildUp
 {
@@ -6,13 +7,13 @@ namespace Stashbox.BuildUp
     {
         private readonly IObjectBuilder[] builderRepository;
 
-        public ObjectBuilderSelector(IExpressionBuilder expressionBuilder)
+        public ObjectBuilderSelector(IExpressionBuilder expressionBuilder, IServiceRegistrator serviceRegistrator)
         {
             this.builderRepository = new IObjectBuilder[]
             {
                 new DefaultObjectBuilder(expressionBuilder),
                 new FactoryObjectBuilder(expressionBuilder),
-                new GenericTypeObjectBuilder(),
+                new GenericTypeObjectBuilder(serviceRegistrator, this),
                 new InstanceObjectBuilder(),
                 new WireUpObjectBuilder(expressionBuilder),
                 new FuncObjectBuilder()

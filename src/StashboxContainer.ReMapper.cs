@@ -11,18 +11,18 @@ namespace Stashbox
             where TFrom : class
             where TTo : class, TFrom
         {
-            var context = this.ServiceRegistrator.PrepareContext<TTo>(typeof(TFrom), typeof(TTo));
+            var context = this.serviceRegistrator.PrepareContext<TTo>(typeof(TFrom), typeof(TTo));
             configurator?.Invoke(context);
-            return context.ReMap();
+            return this.ReMap(context);
         }
 
         /// <inheritdoc />
         public IStashboxContainer ReMap<TFrom>(Type typeTo, Action<IFluentServiceRegistrator<TFrom>> configurator = null)
             where TFrom : class
         {
-            var context = this.ServiceRegistrator.PrepareContext<TFrom>(typeof(TFrom), typeTo);
+            var context = this.serviceRegistrator.PrepareContext<TFrom>(typeof(TFrom), typeTo);
             configurator?.Invoke(context);
-            return context.ReMap();
+            return this.ReMap(context);
         }
 
         /// <inheritdoc />
@@ -31,9 +31,9 @@ namespace Stashbox
             Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
             Shield.EnsureNotNull(typeTo, nameof(typeTo));
 
-            var context = this.ServiceRegistrator.PrepareContext(typeFrom, typeTo);
+            var context = this.serviceRegistrator.PrepareContext(typeFrom, typeTo);
             configurator?.Invoke(context);
-            return context.ReMap();
+            return this.ReMap(context);
         }
 
         /// <inheritdoc />
@@ -41,9 +41,9 @@ namespace Stashbox
              where TTo : class
         {
             var type = typeof(TTo);
-            var context = this.ServiceRegistrator.PrepareContext<TTo>(type, type);
+            var context = this.serviceRegistrator.PrepareContext<TTo>(type, type);
             configurator?.Invoke(context);
-            return context.ReMap();
+            return this.ReMap(context);
         }
 
         /// <inheritdoc />
@@ -52,9 +52,12 @@ namespace Stashbox
             Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
             Shield.EnsureNotNull(typeTo, nameof(typeTo));
 
-            var context = this.ServiceRegistrator.PrepareDecoratorContext(typeFrom, typeTo);
+            var context = this.serviceRegistrator.PrepareDecoratorContext(typeFrom, typeTo);
             configurator?.Invoke(context);
-            return context.ReMap();
+            return this.ReMap(context.RegistrationContext, true);
         }
+
+        private IStashboxContainer ReMap(IRegistrationContext registrationContext, bool isDecorator = false) =>
+            this.serviceRegistrator.ReMap(this.registrationBuilder.BuildServiceRegistration(registrationContext, isDecorator));
     }
 }

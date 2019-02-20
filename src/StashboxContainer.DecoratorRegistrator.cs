@@ -12,9 +12,10 @@ namespace Stashbox
             Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
             Shield.EnsureNotNull(typeTo, nameof(typeTo));
 
-            var context = this.ServiceRegistrator.PrepareDecoratorContext(typeFrom, typeTo);
+            var context = this.serviceRegistrator.PrepareDecoratorContext(typeFrom, typeTo);
             configurator?.Invoke(context);
-            return context.Register();
+            return this.serviceRegistrator.Register(this.registrationBuilder.BuildServiceRegistration(context.RegistrationContext, true), 
+                context.RegistrationContext.ReplaceExistingRegistration);
         }
     }
 }

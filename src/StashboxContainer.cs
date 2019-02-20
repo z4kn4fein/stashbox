@@ -6,7 +6,6 @@ using Stashbox.ContainerExtension;
 using Stashbox.Entity;
 using Stashbox.Registration;
 using Stashbox.Resolution;
-using Stashbox.Utils;
 using System;
 using System.Threading;
 
@@ -22,6 +21,8 @@ namespace Stashbox
         private readonly IRegistrationRepository registrationRepository = new RegistrationRepository();
         private readonly IObjectBuilderSelector objectBuilderSelector;
         private readonly IDependencyResolver rootResolver;
+        private readonly IServiceRegistrator serviceRegistrator;
+        private readonly IRegistrationBuilder registrationBuilder;
 
         private int disposed;
 
@@ -55,12 +56,11 @@ namespace Stashbox
                 new ResolutionStrategy(this.resolverSelector), containerConfigurator, decoratorRepository);
 
             var expressionBuilder = new ExpressionBuilder(this.containerExtensionManager);
-            this.objectBuilderSelector = new ObjectBuilderSelector(expressionBuilder);
-            this.ServiceRegistrator = new ServiceRegistrator(this.ContainerContext, this.containerExtensionManager, this.objectBuilderSelector);
+            this.serviceRegistrator = new ServiceRegistrator(this.ContainerContext, this.containerExtensionManager);
+            this.objectBuilderSelector = new ObjectBuilderSelector(expressionBuilder, this.serviceRegistrator);
+            this.registrationBuilder = new RegistrationBuilder(this.ContainerContext, this.objectBuilderSelector);
 
-            this.RootScope = new ResolutionScope(this.resolverSelector,
-            this.ServiceRegistrator, expressionBuilder, this.ContainerContext);
-
+            this.RootScope = new ResolutionScope(this.resolverSelector, this.serviceRegistrator, expressionBuilder, this.ContainerContext, this.registrationBuilder);
             this.rootResolver = (IDependencyResolver)this.RootScope;
         }
 
@@ -107,9 +107,6 @@ namespace Stashbox
 
         /// <inheritdoc />
         public IResolutionScope RootScope { get; }
-
-        /// <inheritdoc />
-        public IServiceRegistrator ServiceRegistrator { get; }
 
         /// <inheritdoc />
         public IStashboxContainer CreateChildContainer() =>

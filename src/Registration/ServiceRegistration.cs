@@ -143,6 +143,10 @@ namespace Stashbox.Registration
         /// <inheritdoc />
         public bool CanInjectIntoNamedScope(ISet<object> scopeNames) => scopeNames.Contains(((NamedScopeLifetime)this.RegistrationContext.Lifetime).ScopeName);
 
+        /// <inheritdoc />
+        public IServiceRegistration Clone(Type serviceType, Type implementationType, IObjectBuilder builder) =>
+            new ServiceRegistration(serviceType, implementationType, this.containerConfigurator, builder, this.RegistrationContext.Clone(), this.IsDecorator, this.ShouldHandleDisposal);
+
         private ConstructorInformation FindSelectedConstructor(RegistrationContextData registrationContextData, MetaInformation metaInfo)
         {
             if (registrationContextData.SelectedConstructor == null)

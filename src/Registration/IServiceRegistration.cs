@@ -3,6 +3,7 @@ using Stashbox.Resolution;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using Stashbox.BuildUp;
 
 namespace Stashbox.Registration
 {
@@ -117,5 +118,14 @@ namespace Stashbox.Registration
         /// <param name="scopeNames">The scope names.</param>
         /// <returns>True if the registration could be injected into a named scope, otherwise false.</returns>
         bool CanInjectIntoNamedScope(ISet<object> scopeNames);
+
+        /// <summary>
+        /// Clones the registration with new underlying types.
+        /// </summary>
+        /// <param name="serviceType">The service type.</param>
+        /// <param name="implementationType">The implementation type.</param>
+        /// <param name="builder">The object builder.</param>
+        /// <returns>The new registration.</returns>
+        IServiceRegistration Clone(Type serviceType, Type implementationType, IObjectBuilder builder);
     }
 }

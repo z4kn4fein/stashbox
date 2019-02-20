@@ -2,6 +2,7 @@
 using Stashbox.Resolution;
 using System;
 using System.Linq.Expressions;
+using Stashbox.Registration;
 
 namespace Stashbox.BuildUp.Resolution
 {
@@ -13,11 +14,8 @@ namespace Stashbox.BuildUp.Resolution
 
         public Expression GetExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext)
         {
-            var context = containerContext.Container.ServiceRegistrator.PrepareContext(typeInfo.Type, typeInfo.Type);
-            context.WithName(typeInfo.DependencyName);
-            containerContext.ContainerConfigurator.ContainerConfiguration.UnknownTypeConfigurator?.Invoke(context);
-            context.Register();
-
+            containerContext.Container.Register(typeInfo.Type,
+                containerContext.ContainerConfigurator.ContainerConfiguration.UnknownTypeConfigurator);
             return containerContext.ResolutionStrategy.BuildResolutionExpression(containerContext, resolutionContext, typeInfo, null);
         }
     }

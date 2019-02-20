@@ -1,6 +1,5 @@
 ﻿#if IL_EMIT
 using Stashbox.Entity;
-using Stashbox.Utils;
 using System.Linq.Expressions;
 using System.Reflection.Emit;
 using System.Threading;

@@ -6,13 +6,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Stashbox.Utils;
 
 namespace Stashbox.Registration
 {
     internal class RegistrationContext<TService> : RegistrationContext, IRegistrationContext<TService>
     {
-        public RegistrationContext(Type serviceType, Type implementationType, IServiceRegistrator registrator)
-            : base(serviceType, implementationType, registrator)
+        public RegistrationContext(Type serviceType, Type implementationType)
+            : base(serviceType, implementationType)
         { }
 
         public IFluentServiceRegistrator<TService> InjectMember<TResult>(Expression<Func<TService, TResult>> expression, object dependencyName = null)
@@ -39,30 +40,28 @@ namespace Stashbox.Registration
         }
     }
 
-    internal class RegistrationContext : IRegistrationContext, IRegistrationContextMeta
+    internal class RegistrationContext : IRegistrationContext
     {
-        private readonly IServiceRegistrator registrator;
-
         public Type ServiceType { get; }
 
         public Type ImplementationType { get; }
 
         public RegistrationContextData Context { get; }
 
-        private bool replaceExistingRegistration;
+        public bool ReplaceExistingRegistration { get; private set; }
 
-        private bool withImplementedTypes;
+        public ArrayStore<Type> AdditionalServiceTypes { get; private set; }
 
-        public RegistrationContext(Type serviceType, Type implementationType, IServiceRegistrator registrator)
-            : this(serviceType, implementationType, registrator, RegistrationContextData.New())
+        public RegistrationContext(Type serviceType, Type implementationType)
+            : this(serviceType, implementationType, RegistrationContextData.New())
         { }
 
-        public RegistrationContext(Type serviceType, Type implementationType, IServiceRegistrator registrator, RegistrationContextData registrationContextData)
+        public RegistrationContext(Type serviceType, Type implementationType, RegistrationContextData registrationContextData)
         {
-            this.registrator = registrator;
             this.ServiceType = serviceType;
             this.ImplementationType = implementationType;
             this.Context = registrationContextData;
+            this.AdditionalServiceTypes = ArrayStore<Type>.Empty;
         }
 
         public IFluentServiceRegistrator WhenDependantIs<TTarget>() where TTarget : class
@@ -161,13 +160,10 @@ namespace Stashbox.Registration
             this.Context.IsLifetimeExternallyOwned = true;
             return this;
         }
-
-        public IServiceRegistration CreateServiceRegistration(bool isDecorator) =>
-            this.registrator.CreateServiceRegistration(this, isDecorator);
-
+        
         public IFluentServiceRegistrator ReplaceExisting()
         {
-            this.replaceExistingRegistration = true;
+            this.ReplaceExistingRegistration = true;
             return this;
         }
 
@@ -195,7 +191,7 @@ namespace Stashbox.Registration
 
         public IFluentServiceRegistrator AsImplementedTypes()
         {
-            this.withImplementedTypes = true;
+            this.AdditionalServiceTypes = new ArrayStore<Type>(this.ImplementationType.GetRegisterableInterfaceTypes().Concat(this.ImplementationType.GetRegisterableBaseTypes()).CastToArray());
             return this;
         }
 
@@ -215,50 +211,6 @@ namespace Stashbox.Registration
         {
             this.Context.InjectionMemberNames.Add(memberName, dependencyName);
             return this;
-        }
-
-        public IStashboxContainer Register()
-        {
-            if (this.withImplementedTypes)
-            {
-                var interfaceTypes = this.ImplementationType.GetRegisterableInterfaceTypes();
-                foreach (var interfaceType in interfaceTypes)
-                {
-                    var context = new RegistrationContext(interfaceType, this.ImplementationType, this.registrator, this.Context.CreateCopy());
-                    this.registrator.Register(context, false, this.replaceExistingRegistration);
-                }
-
-                var baseTypes = this.ImplementationType.GetRegisterableBaseTypes();
-                foreach (var baseType in baseTypes)
-                {
-                    var context = new RegistrationContext(baseType, this.ImplementationType, this.registrator, this.Context.CreateCopy());
-                    this.registrator.Register(context, false, this.replaceExistingRegistration);
-                }
-            }
-
-            return this.registrator.Register(this, false, this.replaceExistingRegistration);
-        }
-
-        public IStashboxContainer ReMap()
-        {
-            if (this.withImplementedTypes)
-            {
-                var interfaceTypes = this.ImplementationType.GetRegisterableInterfaceTypes();
-                foreach (var interfaceType in interfaceTypes)
-                {
-                    var context = new RegistrationContext(interfaceType, this.ImplementationType, this.registrator, this.Context.CreateCopy());
-                    this.registrator.ReMap(context, false);
-                }
-
-                var baseTypes = this.ImplementationType.GetRegisterableBaseTypes();
-                foreach (var baseType in baseTypes)
-                {
-                    var context = new RegistrationContext(baseType, this.ImplementationType, this.registrator, this.Context.CreateCopy());
-                    this.registrator.ReMap(context, false);
-                }
-            }
-
-            return this.registrator.ReMap(this, false);
         }
 
         private void ThrowConstructorNotFoundException(Type type, params Type[] argTypes)

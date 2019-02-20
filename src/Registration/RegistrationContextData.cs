@@ -136,7 +136,7 @@ namespace Stashbox.Registration
         /// Creates a copy of this object.
         /// </summary>
         /// <returns>The copy of this instance.</returns>
-        public RegistrationContextData CreateCopy()
+        public RegistrationContextData Clone()
         {
             var data = (RegistrationContextData)this.MemberwiseClone();
             data.Lifetime = data.Lifetime?.Create();

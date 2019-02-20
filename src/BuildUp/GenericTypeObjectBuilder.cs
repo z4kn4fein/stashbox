@@ -7,29 +7,30 @@ namespace Stashbox.BuildUp
 {
     internal class GenericTypeObjectBuilder : ObjectBuilderBase
     {
+        private readonly IServiceRegistrator serviceRegistrator;
+        private readonly IObjectBuilderSelector objectBuilderSelector;
+
+        public GenericTypeObjectBuilder(IServiceRegistrator serviceRegistrator, IObjectBuilderSelector objectBuilderSelector)
+        {
+            this.serviceRegistrator = serviceRegistrator;
+            this.objectBuilderSelector = objectBuilderSelector;
+        }
+
         protected override Expression GetExpressionInternal(IContainerContext containerContext, IServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType)
         {
             var genericType = serviceRegistration.ImplementationType.MakeGenericType(resolveType.GetGenericArguments());
-            var registration = RegisterConcreteGenericType(containerContext, serviceRegistration, resolveType, genericType);
+            var registration = this.RegisterConcreteGenericType(serviceRegistration, resolveType, genericType);
             return registration.GetExpression(containerContext, resolutionContext, resolveType);
         }
 
-        private static IServiceRegistration RegisterConcreteGenericType(IContainerContext containerContext, IServiceRegistration serviceRegistration, Type resolveType, Type genericType)
+        private IServiceRegistration RegisterConcreteGenericType(IServiceRegistration serviceRegistration, Type resolveType, Type genericType)
         {
-            var newData = serviceRegistration.RegistrationContext.CreateCopy();
-            newData.Name = null;
+            var newRegistration = serviceRegistration.Clone(resolveType, genericType,
+                this.objectBuilderSelector.Get(ObjectBuilder.Default));
 
-            var registration = containerContext.Container.ServiceRegistrator.PrepareContext(resolveType,
-                genericType, newData).CreateServiceRegistration(serviceRegistration.IsDecorator);
-
-            if (!serviceRegistration.IsDecorator)
-            {
-                containerContext.RegistrationRepository.AddOrUpdateRegistration(registration, false, false);
-                return registration;
-            }
-
-            containerContext.DecoratorRepository.AddDecorator(resolveType, registration, false, false);
-            return registration;
+            newRegistration.RegistrationContext.Name = null;
+            this.serviceRegistrator.Register(newRegistration, false);
+            return newRegistration;
         }
     }
 }

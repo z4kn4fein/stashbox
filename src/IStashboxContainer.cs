@@ -1,5 +1,4 @@
 ﻿using Stashbox.ContainerExtension;
-using Stashbox.Registration;
 using Stashbox.Resolution;
 using System;
 
@@ -41,11 +40,6 @@ namespace Stashbox
         /// The root scope.
         /// </summary>
         IResolutionScope RootScope { get; }
-
-        /// <summary>
-        /// The service registrator.
-        /// </summary>
-        IServiceRegistrator ServiceRegistrator { get; }
 
         /// <summary>
         /// Checks a type can be resolved by the container.
