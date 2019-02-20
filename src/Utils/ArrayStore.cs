@@ -122,6 +122,9 @@ namespace Stashbox.Utils
 
         public TValue this[int i] => this.Repository[i].Value;
 
+        public KeyValuePair<TKey, TValue> GetKeyValue(int i) =>
+            new KeyValuePair<TKey, TValue>(this.Repository[i].Key, this.Repository[i].Value);
+
         public ArrayStoreKeyed<TKey, TValue> Add(TKey key, TValue value) =>
            new ArrayStoreKeyed<TKey, TValue>(new KeyValue<TKey, TValue>(key, value), this.Repository);
 

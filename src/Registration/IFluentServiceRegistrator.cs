@@ -31,6 +31,12 @@ namespace Stashbox.Registration
         /// <param name="dependencyName">The name of the dependency.</param>
         /// <returns>The <see cref="IFluentServiceRegistrator{TService}"/> which on this method was called.</returns>
         IFluentServiceRegistrator<TService> InjectMember<TResult>(Expression<Func<TService, TResult>> expression, object dependencyName = null);
+
+        /// <summary>
+        /// Binds the currently configured registration to an additional service type.
+        /// </summary>
+        /// <returns>The <see cref="IFluentServiceRegistrator{TService}"/> which on this method was called.</returns>
+        IFluentServiceRegistrator AsServiceAlso<TAdditionalService>();
     }
 
     /// <summary>
@@ -126,6 +132,13 @@ namespace Stashbox.Registration
         /// </summary>
         /// <returns>The <see cref="IFluentServiceRegistrator"/> which on this method was called.</returns>
         IFluentServiceRegistrator AsImplementedTypes();
+
+        /// <summary>
+        /// Binds the currently configured registration to an additional service type.
+        /// </summary>
+        /// <param name="serviceType">The additional service type.</param>
+        /// <returns>The <see cref="IFluentServiceRegistrator"/> which on this method was called.</returns>
+        IFluentServiceRegistrator AsServiceAlso(Type serviceType);
 
         /// <summary>
         /// Sets a scope name condition for the registration, it will be used only when a scope with the given name requests it.

@@ -58,6 +58,6 @@ namespace Stashbox
         }
 
         private IStashboxContainer ReMap(IRegistrationContext registrationContext, bool isDecorator = false) =>
-            this.serviceRegistrator.ReMap(this.registrationBuilder.BuildServiceRegistration(registrationContext, isDecorator));
+            this.serviceRegistrator.ReMap(this.registrationBuilder.BuildServiceRegistration(registrationContext, isDecorator), registrationContext);
     }
 }

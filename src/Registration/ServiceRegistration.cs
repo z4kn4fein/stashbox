@@ -25,9 +25,6 @@ namespace Stashbox.Registration
         private readonly MetaInformation metaInformation;
 
         /// <inheritdoc />
-        public Type ServiceType { get; }
-
-        /// <inheritdoc />
         public Type ImplementationType { get; }
 
         /// <inheritdoc />
@@ -66,14 +63,13 @@ namespace Stashbox.Registration
         /// <inheritdoc />
         public bool HasCondition { get; }
 
-        internal ServiceRegistration(Type serviceType, Type implementationType, IContainerConfigurator containerConfigurator,
+        internal ServiceRegistration(Type implementationType, IContainerConfigurator containerConfigurator,
              IObjectBuilder objectBuilder, RegistrationContextData registrationContextData,
              bool isDecorator, bool shouldHandleDisposal)
         {
             this.objectBuilder = objectBuilder;
             this.containerConfigurator = containerConfigurator;
             this.ImplementationType = implementationType;
-            this.ServiceType = serviceType;
             this.metaInformation = GetOrCreateMetaInfo(implementationType);
             this.Constructors = this.metaInformation.Constructors;
             this.InjectionMethods = this.metaInformation.InjectionMethods;
@@ -144,8 +140,8 @@ namespace Stashbox.Registration
         public bool CanInjectIntoNamedScope(ISet<object> scopeNames) => scopeNames.Contains(((NamedScopeLifetime)this.RegistrationContext.Lifetime).ScopeName);
 
         /// <inheritdoc />
-        public IServiceRegistration Clone(Type serviceType, Type implementationType, IObjectBuilder builder) =>
-            new ServiceRegistration(serviceType, implementationType, this.containerConfigurator, builder, this.RegistrationContext.Clone(), this.IsDecorator, this.ShouldHandleDisposal);
+        public IServiceRegistration Clone(Type implementationType, IObjectBuilder builder) =>
+            new ServiceRegistration(implementationType, this.containerConfigurator, builder, this.RegistrationContext.Clone(), this.IsDecorator, this.ShouldHandleDisposal);
 
         private ConstructorInformation FindSelectedConstructor(RegistrationContextData registrationContextData, MetaInformation metaInfo)
         {
@@ -189,7 +185,7 @@ namespace Stashbox.Registration
         }
 
         private Expression ConstructExpression(IContainerContext containerContext, ResolutionContext resolutionContext, Type resolveType) =>
-            this.RegistrationContext.Lifetime == null || this.ServiceType.IsOpenGenericType()
+            this.RegistrationContext.Lifetime == null || this.metaInformation.IsOpenGenericType
                 ? this.objectBuilder.GetExpression(containerContext, this, resolutionContext, resolveType)
                 : this.RegistrationContext.Lifetime.GetExpression(containerContext, this, this.objectBuilder,
                     resolutionContext, resolveType);

@@ -95,8 +95,8 @@ namespace Stashbox
         /// <inheritdoc />
         public void Validate()
         {
-            foreach (var serviceRegistration in this.registrationRepository.GetAllRegistrations())
-                serviceRegistration.GetExpression(this.ContainerContext, ResolutionContext.New(this.RootScope), serviceRegistration.ServiceType);
+            foreach (var serviceRegistration in this.registrationRepository.GetRegistrationMappings())
+                serviceRegistration.Value.GetExpression(this.ContainerContext, ResolutionContext.New(this.RootScope), serviceRegistration.Key);
         }
 
         /// <inheritdoc />

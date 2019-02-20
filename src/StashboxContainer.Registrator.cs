@@ -134,8 +134,20 @@ namespace Stashbox
             });
         }
 
+        /// <inheritdoc />
+        public IStashboxContainer RegisterDecorator(Type typeFrom, Type typeTo, Action<IFluentDecoratorRegistrator> configurator = null)
+        {
+            Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
+            Shield.EnsureNotNull(typeTo, nameof(typeTo));
+
+            var context = this.serviceRegistrator.PrepareDecoratorContext(typeFrom, typeTo);
+            configurator?.Invoke(context);
+            return this.serviceRegistrator.Register(this.registrationBuilder.BuildServiceRegistration(context.RegistrationContext, true),
+                context.RegistrationContext);
+        }
+
         private IStashboxContainer Register(IRegistrationContext registrationContext) =>
             this.serviceRegistrator.Register(this.registrationBuilder.BuildServiceRegistration(registrationContext, false),
-                registrationContext.ReplaceExistingRegistration);
+                registrationContext);
     }
 }

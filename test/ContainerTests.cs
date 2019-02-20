@@ -85,11 +85,12 @@ namespace Stashbox.Tests
             {
                 container.Register<ITest1, Test1>();
 
-                var reg = container.ContainerContext.RegistrationRepository.GetAllRegistrations().FirstOrDefault(r => r.ServiceType == typeof(ITest1));
+                var reg = container.ContainerContext.RegistrationRepository
+                    .GetRegistrationMappings().FirstOrDefault(r => r.Key == typeof(ITest1));
 
                 Assert.IsNotNull(reg);
 
-                reg = container.ContainerContext.RegistrationRepository.GetAllRegistrations().FirstOrDefault(r => r.ImplementationType == typeof(Test1));
+                reg = container.ContainerContext.RegistrationRepository.GetRegistrationMappings().FirstOrDefault(r => r.Value.ImplementationType == typeof(Test1));
 
                 Assert.IsNotNull(reg);
             }
@@ -170,11 +171,11 @@ namespace Stashbox.Tests
 
             container.Resolve<Test1>();
 
-            var regs = container.ContainerContext.RegistrationRepository.GetAllRegistrations().ToArray();
+            var regs = container.ContainerContext.RegistrationRepository.GetRegistrationMappings().ToArray();
 
             Assert.AreEqual(1, regs.Length);
-            Assert.AreEqual(regs[0].ServiceType, typeof(Test1));
-            Assert.IsTrue(regs[0].RegistrationContext.Lifetime is SingletonLifetime);
+            Assert.AreEqual(regs[0].Key, typeof(Test1));
+            Assert.IsTrue(regs[0].Value.RegistrationContext.Lifetime is SingletonLifetime);
         }
 
         [TestMethod]

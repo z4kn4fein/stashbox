@@ -268,7 +268,7 @@ namespace Stashbox.Tests
 
             container.BeginScope("A").Resolve<ITest1<int, string>>();
 
-            Assert.AreEqual(3, container.ContainerContext.RegistrationRepository.GetAllRegistrations().Count());
+            Assert.AreEqual(3, container.ContainerContext.RegistrationRepository.GetRegistrationMappings().Count());
         }
 
         [TestMethod]

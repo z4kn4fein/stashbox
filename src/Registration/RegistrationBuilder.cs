@@ -1,7 +1,7 @@
-﻿using System;
-using Stashbox.BuildUp;
+﻿using Stashbox.BuildUp;
 using Stashbox.Lifetime;
 using Stashbox.Utils;
+using System;
 
 namespace Stashbox.Registration
 {
@@ -73,15 +73,15 @@ namespace Stashbox.Registration
                     : ObjectBuilder.Default);
         }
 
-        private IServiceRegistration ProduceServiceRegistration(IObjectBuilder objectBuilder, IRegistrationContext meta, bool isDecorator, bool shouldHandleDisposal) =>
-            new ServiceRegistration(meta.ServiceType, meta.ImplementationType, this.containerContext.ContainerConfigurator,
-                objectBuilder, meta.Context, isDecorator, shouldHandleDisposal);
+        private IServiceRegistration ProduceServiceRegistration(IObjectBuilder objectBuilder, IRegistrationContext registrationContext, bool isDecorator, bool shouldHandleDisposal) =>
+            new ServiceRegistration(registrationContext.ImplementationType, this.containerContext.ContainerConfigurator,
+                objectBuilder, registrationContext.Context, isDecorator, shouldHandleDisposal);
 
 
-        private ILifetime ChooseLifeTime(IRegistrationContext meta) => meta.Context.ExistingInstance != null
-            ? meta.Context.IsWireUp
+        private ILifetime ChooseLifeTime(IRegistrationContext registrationContext) => registrationContext.Context.ExistingInstance != null
+            ? registrationContext.Context.IsWireUp
                 ? new SingletonLifetime()
                 : null
-            : meta.Context.Lifetime;
+            : registrationContext.Context.Lifetime;
     }
 }

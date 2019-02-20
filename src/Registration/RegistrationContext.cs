@@ -2,11 +2,11 @@
 using Stashbox.Entity;
 using Stashbox.Exceptions;
 using Stashbox.Lifetime;
+using Stashbox.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using Stashbox.Utils;
 
 namespace Stashbox.Registration
 {
@@ -36,6 +36,12 @@ namespace Stashbox.Registration
         public IFluentServiceRegistrator<TService> WithInitializer(Action<TService, IDependencyResolver> initializer)
         {
             base.Context.Initializer = initializer;
+            return this;
+        }
+
+        public IFluentServiceRegistrator AsServiceAlso<TAdditionalService>()
+        {
+            base.AsServiceAlso(typeof(TAdditionalService));
             return this;
         }
     }
@@ -160,7 +166,7 @@ namespace Stashbox.Registration
             this.Context.IsLifetimeExternallyOwned = true;
             return this;
         }
-        
+
         public IFluentServiceRegistrator ReplaceExisting()
         {
             this.ReplaceExistingRegistration = true;
@@ -191,7 +197,8 @@ namespace Stashbox.Registration
 
         public IFluentServiceRegistrator AsImplementedTypes()
         {
-            this.AdditionalServiceTypes = new ArrayStore<Type>(this.ImplementationType.GetRegisterableInterfaceTypes().Concat(this.ImplementationType.GetRegisterableBaseTypes()).CastToArray());
+            this.AdditionalServiceTypes = new ArrayStore<Type>(this.ImplementationType.GetRegisterableInterfaceTypes()
+                    .Concat(this.ImplementationType.GetRegisterableBaseTypes()).CastToArray());
             return this;
         }
 
@@ -210,6 +217,15 @@ namespace Stashbox.Registration
         public IFluentServiceRegistrator InjectMember(string memberName, object dependencyName = null)
         {
             this.Context.InjectionMemberNames.Add(memberName, dependencyName);
+            return this;
+        }
+
+        public IFluentServiceRegistrator AsServiceAlso(Type serviceType)
+        {
+            if (!this.ImplementationType.Implements(serviceType))
+                throw new ArgumentException("The given service type is not assignable from the current implementation type.");
+
+            this.AdditionalServiceTypes = this.AdditionalServiceTypes.Add(serviceType);
             return this;
         }
 

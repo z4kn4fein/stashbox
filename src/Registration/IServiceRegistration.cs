@@ -1,9 +1,9 @@
-﻿using Stashbox.Entity;
+﻿using Stashbox.BuildUp;
+using Stashbox.Entity;
 using Stashbox.Resolution;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using Stashbox.BuildUp;
 
 namespace Stashbox.Registration
 {
@@ -12,11 +12,6 @@ namespace Stashbox.Registration
     /// </summary>
     public interface IServiceRegistration
     {
-        /// <summary>
-        /// The service type.
-        /// </summary>
-        Type ServiceType { get; }
-
         /// <summary>
         /// The implementation type.
         /// </summary>
@@ -122,10 +117,9 @@ namespace Stashbox.Registration
         /// <summary>
         /// Clones the registration with new underlying types.
         /// </summary>
-        /// <param name="serviceType">The service type.</param>
         /// <param name="implementationType">The implementation type.</param>
         /// <param name="builder">The object builder.</param>
         /// <returns>The new registration.</returns>
-        IServiceRegistration Clone(Type serviceType, Type implementationType, IObjectBuilder builder);
+        IServiceRegistration Clone(Type implementationType, IObjectBuilder builder);
     }
 }

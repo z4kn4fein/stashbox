@@ -264,9 +264,9 @@ namespace Stashbox.Tests
         {
             var inst = new StashboxContainer()
                 .Register<ITest, Test>(config => config.InNamedScope("A"))
-                .ContainerContext.RegistrationRepository.GetAllRegistrations().First(reg => reg.ServiceType == typeof(ITest));
+                .ContainerContext.RegistrationRepository.GetRegistrationMappings().First(reg => reg.Key == typeof(ITest));
 
-            Assert.IsInstanceOfType(inst.RegistrationContext.Lifetime, typeof(NamedScopeLifetime));
+            Assert.IsInstanceOfType(inst.Value.RegistrationContext.Lifetime, typeof(NamedScopeLifetime));
         }
 
         [TestMethod]

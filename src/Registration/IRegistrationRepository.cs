@@ -13,10 +13,11 @@ namespace Stashbox.Registration
         /// <summary>
         /// Adds or updates an element in the repository.
         /// </summary>
+        /// <param name="registration">The registration.</param>
+        /// <param name="serviceType">The service type of the registration. Used as the key for the registration mapping.</param>
         /// <param name="remap">If true, all the registrations mapped to a service type will be replaced.</param>
         /// <param name="replace">If true, only one existing registration will be replaced when multiple exists.</param>
-        /// <param name="registration">The registration.</param>
-        void AddOrUpdateRegistration(IServiceRegistration registration, bool remap, bool replace);
+        void AddOrUpdateRegistration(IServiceRegistration registration, Type serviceType, bool remap, bool replace);
 
         /// <summary>
         /// Retrieves a registration.
@@ -44,10 +45,10 @@ namespace Stashbox.Registration
         IEnumerable<KeyValue<object, IServiceRegistration>> GetRegistrationsOrDefault(Type type, ResolutionContext resolutionContext);
 
         /// <summary>
-        /// Retrieves all registrations.
+        /// Retrieves all registration mappings.
         /// </summary>
-        /// <returns>The registrations.</returns>
-        IEnumerable<IServiceRegistration> GetAllRegistrations();
+        /// <returns>The registration mappings.</returns>
+        IEnumerable<KeyValuePair<Type, IServiceRegistration>> GetRegistrationMappings();
 
         /// <summary>
         /// Check a type exists with conditions.

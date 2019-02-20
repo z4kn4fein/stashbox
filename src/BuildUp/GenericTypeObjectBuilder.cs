@@ -25,11 +25,11 @@ namespace Stashbox.BuildUp
 
         private IServiceRegistration RegisterConcreteGenericType(IServiceRegistration serviceRegistration, Type resolveType, Type genericType)
         {
-            var newRegistration = serviceRegistration.Clone(resolveType, genericType,
+            var newRegistration = serviceRegistration.Clone(genericType,
                 this.objectBuilderSelector.Get(ObjectBuilder.Default));
 
             newRegistration.RegistrationContext.Name = null;
-            this.serviceRegistrator.Register(newRegistration, false);
+            this.serviceRegistrator.Register(newRegistration, resolveType, false);
             return newRegistration;
         }
     }

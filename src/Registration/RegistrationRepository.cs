@@ -19,26 +19,26 @@ namespace Stashbox.Registration
             this.namedScopeRepository = AvlTreeKeyValue<Type, ArrayStoreKeyed<object, IServiceRegistration>>.Empty;
         }
 
-        public void AddOrUpdateRegistration(IServiceRegistration registration, bool remap, bool replace)
+        public void AddOrUpdateRegistration(IServiceRegistration registration, Type serviceType, bool remap, bool replace)
         {
             if (registration.HasScopeName)
-                this.AddOrUpdateRegistration(ref this.namedScopeRepository, registration, remap, replace);
+                this.AddOrUpdateRegistration(ref this.namedScopeRepository, registration, serviceType, remap, replace);
             else
-                this.AddOrUpdateRegistration(ref this.serviceRepository, registration, remap, replace);
+                this.AddOrUpdateRegistration(ref this.serviceRepository, registration, serviceType, remap, replace);
         }
 
-        private void AddOrUpdateRegistration(ref AvlTreeKeyValue<Type, ArrayStoreKeyed<object, IServiceRegistration>> repository, IServiceRegistration registration, bool remap, bool replace)
+        private void AddOrUpdateRegistration(ref AvlTreeKeyValue<Type, ArrayStoreKeyed<object, IServiceRegistration>> repository, IServiceRegistration registration, Type serviceType, bool remap, bool replace)
         {
             var newRepository = new ArrayStoreKeyed<object, IServiceRegistration>(registration.RegistrationId, registration);
 
             if (remap)
                 Swap.SwapValue(ref repository, (t1, t2, t3, t4, repo) =>
-                    repo.AddOrUpdate(t1, t2, true), registration.ServiceType, newRepository, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
+                    repo.AddOrUpdate(t1, t2, true), serviceType, newRepository, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
             else
                 Swap.SwapValue(ref repository, (t1, t2, t3, t4, repo) =>
-                    repo.AddOrUpdate(t1.ServiceType, t2,
-                        (oldValue, newValue) => oldValue.AddOrUpdate(t1.RegistrationId, t1, t3)),
-                        registration, newRepository, replace, Constants.DelegatePlaceholder);
+                    repo.AddOrUpdate(t2, t3,
+                        (oldValue, newValue) => oldValue.AddOrUpdate(t1.RegistrationId, t1, t4)),
+                        registration, serviceType, newRepository, replace);
         }
 
         public IServiceRegistration GetRegistrationOrDefault(Type type, ResolutionContext resolutionContext, object name = null) =>
@@ -59,8 +59,9 @@ namespace Stashbox.Registration
             return this.GetAllScopedRegistrationsOrDefault(type, resolutionContext) ?? this.GetAllRegistrationsOrDefault(type);
         }
 
-        public IEnumerable<IServiceRegistration> GetAllRegistrations() =>
-            this.serviceRepository.Walk().SelectMany(reg => reg).Concat(this.namedScopeRepository.Walk().SelectMany(reg => reg));
+        public IEnumerable<KeyValuePair<Type, IServiceRegistration>> GetRegistrationMappings() =>
+             this.serviceRepository.Walk().SelectMany(reg => reg.Value.Select(r => new KeyValuePair<Type, IServiceRegistration>(reg.Key, r)))
+                .Concat(this.namedScopeRepository.Walk().SelectMany(reg => reg.Value.Select(r => new KeyValuePair<Type, IServiceRegistration>(reg.Key, r))));
 
         public bool ContainsRegistration(Type type, object name) =>
             this.serviceRepository.ContainsRegistration(type, name) || this.namedScopeRepository.ContainsRegistration(type, name);

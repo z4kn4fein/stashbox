@@ -28,17 +28,14 @@ namespace Stashbox
 
         private IStashboxContainer RegisterFuncInternal(Delegate factory, Type factoryType, string name)
         {
-            var internalFactoryType = factory.GetType();
-
             var data = RegistrationContextData.New();
             data.Name = name;
             data.FuncDelegate = factory;
 
-            var registration = new ServiceRegistration(factoryType, internalFactoryType,
-                this.ContainerContext.ContainerConfigurator, this.objectBuilderSelector.Get(ObjectBuilder.Func),
-                data, false, false);
+            var registration = new ServiceRegistration(factoryType, this.ContainerContext.ContainerConfigurator,
+                this.objectBuilderSelector.Get(ObjectBuilder.Func), data, false, false);
 
-            this.registrationRepository.AddOrUpdateRegistration(registration, false, false);
+            this.registrationRepository.AddOrUpdateRegistration(registration, factoryType, false, false);
             this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.ContainerContext, registration);
             return this;
         }
