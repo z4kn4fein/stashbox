@@ -1,7 +1,6 @@
 ﻿using Stashbox.BuildUp.Expressions;
 using Stashbox.Entity;
 using Stashbox.Exceptions;
-using Stashbox.Registration;
 using Stashbox.Resolution;
 using Stashbox.Utils;
 using System;
@@ -38,10 +37,8 @@ namespace Stashbox
         }
 
         private readonly IResolverSelector resolverSelector;
-        private readonly IServiceRegistrator serviceRegistrator;
         private readonly IExpressionBuilder expressionBuilder;
         private readonly IContainerContext containerContext;
-        private readonly IRegistrationBuilder registrationBuilder;
 
         private int disposed;
         private DisposableItem rootItem;
@@ -64,8 +61,8 @@ namespace Stashbox
         /// <inheritdoc />
         public IResolutionScope ParentScope { get; }
 
-        private ResolutionScope(IResolverSelector resolverSelector, IServiceRegistrator serviceRegistrator,
-            IExpressionBuilder expressionBuilder, IContainerContext containerContext, IRegistrationBuilder registrationBuilder,
+        private ResolutionScope(IResolverSelector resolverSelector,
+            IExpressionBuilder expressionBuilder, IContainerContext containerContext,
             DelegateCache delegateCache, object name)
         {
             this.rootItem = DisposableItem.Empty;
@@ -73,25 +70,23 @@ namespace Stashbox
             this.scopedItems = AvlTree<object>.Empty;
             this.scopedInstances = AvlTreeKeyValue<Type, object>.Empty;
             this.resolverSelector = resolverSelector;
-            this.serviceRegistrator = serviceRegistrator;
             this.expressionBuilder = expressionBuilder;
             this.containerContext = containerContext;
-            this.registrationBuilder = registrationBuilder;
             this.Name = name;
             this.delegateCache = delegateCache;
         }
 
-        internal ResolutionScope(IResolverSelector resolverSelector, IServiceRegistrator serviceRegistrator,
-            IExpressionBuilder expressionBuilder, IContainerContext containerContext, IRegistrationBuilder registrationBuilder)
-            : this(resolverSelector, serviceRegistrator, expressionBuilder, containerContext, registrationBuilder,
+        internal ResolutionScope(IResolverSelector resolverSelector,
+            IExpressionBuilder expressionBuilder, IContainerContext containerContext)
+            : this(resolverSelector, expressionBuilder, containerContext,
                   new DelegateCache(), null)
         {
             this.RootScope = this;
         }
 
-        private ResolutionScope(IResolverSelector resolverSelector, IServiceRegistrator serviceRegistrator, IExpressionBuilder expressionBuilder,
-            IContainerContext containerContext, IRegistrationBuilder registrationBuilder, IResolutionScope rootScope, IResolutionScope parent, DelegateCache delegateCache, object name = null)
-            : this(resolverSelector, serviceRegistrator, expressionBuilder, containerContext, registrationBuilder, delegateCache, name)
+        private ResolutionScope(IResolverSelector resolverSelector, IExpressionBuilder expressionBuilder,
+            IContainerContext containerContext, IResolutionScope rootScope, IResolutionScope parent, DelegateCache delegateCache, object name = null)
+            : this(resolverSelector, expressionBuilder, containerContext, delegateCache, name)
         {
             this.RootScope = rootScope;
             this.ParentScope = parent;
@@ -124,9 +119,8 @@ namespace Stashbox
 
         public IDependencyResolver BeginScope(object name = null, bool attachToParent = false)
         {
-            var scope = new ResolutionScope(this.resolverSelector, this.serviceRegistrator,
-                this.expressionBuilder, this.containerContext, this.registrationBuilder, this.RootScope, this,
-                this.delegateCache, name);
+            var scope = new ResolutionScope(this.resolverSelector, this.expressionBuilder,
+                this.containerContext, this.RootScope, this, this.delegateCache, name);
 
             return attachToParent ? this.AddDisposableTracking(scope) : scope;
         }
@@ -147,10 +141,10 @@ namespace Stashbox
         public TTo BuildUp<TTo>(TTo instance)
         {
             var typeTo = instance.GetType();
-            var registration = this.serviceRegistrator.PrepareContext(typeTo, typeTo);
             var resolutionContext = ResolutionContext.New(this);
-            var expr = this.expressionBuilder.CreateFillExpression(this.containerContext, this.registrationBuilder.BuildServiceRegistration(registration, false),
-                instance.AsConstant(), resolutionContext, typeTo);
+            var metaInfo = MetaInformation.GetOrCreateMetaInfo(typeTo);
+            var expr = this.expressionBuilder.CreateBasicFillExpression(this.containerContext,
+                metaInfo.InjectionMembers, metaInfo.InjectionMethods, instance.AsConstant(), resolutionContext, typeTo);
             var factory = expr.CompileDelegate(resolutionContext);
             return (TTo)factory(this);
         }

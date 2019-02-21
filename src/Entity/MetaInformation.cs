@@ -1,36 +1,23 @@
-﻿using System;
+﻿using Stashbox.Utils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
 namespace Stashbox.Entity
 {
-    /// <summary>
-    /// Holds meta information about a service.
-    /// </summary>
     internal class MetaInformation
     {
+        private static AvlTreeKeyValue<Type, MetaInformation> MetaRepository = AvlTreeKeyValue<Type, MetaInformation>.Empty;
         private readonly IDictionary<int, GenericConstraintInfo> genericTypeConstraints;
         private readonly Type type;
 
-        /// <summary>
-        /// Holds the constructors of the service.
-        /// </summary>
         public ConstructorInformation[] Constructors { get; }
 
-        /// <summary>
-        /// Holds the injection methods of the service.
-        /// </summary>
         public MethodInformation[] InjectionMethods { get; }
 
-        /// <summary>
-        /// Holds the injection member of the service.
-        /// </summary>
         public MemberInformation[] InjectionMembers { get; }
 
-        /// <summary>
-        /// Returns true if the underlying type is open generic, otherwise false.
-        /// </summary>
         public bool IsOpenGenericType { get; }
 
         internal MetaInformation(Type typeTo)
@@ -45,11 +32,6 @@ namespace Stashbox.Entity
             this.CollectGenericConstraints(typeInfo);
         }
 
-        /// <summary>
-        /// Validates a type against the generic constraints of the service.
-        /// </summary>
-        /// <param name="typeForValidation">The validated type.</param>
-        /// <returns>True if the given type is valid, otherwise false.</returns>
         public bool ValidateGenericContraints(Type typeForValidation)
         {
             if (this.genericTypeConstraints.Count == 0)
@@ -85,11 +67,6 @@ namespace Stashbox.Entity
             return true;
         }
 
-        /// <summary>
-        /// Converts a <see cref="ParameterInfo"/> to <see cref="TypeInformation"/>.
-        /// </summary>
-        /// <param name="parameter">The parameter info.</param>
-        /// <returns>The converted type info.</returns>
         public TypeInformation GetTypeInformationForParameter(ParameterInfo parameter)
         {
             var customAttributes = parameter.GetCustomAttributes();
@@ -105,6 +82,17 @@ namespace Stashbox.Entity
                 HasDefaultValue = parameter.HasDefaultValue(),
                 DefaultValue = parameter.DefaultValue
             };
+        }
+
+        public static MetaInformation GetOrCreateMetaInfo(Type typeTo)
+        {
+            var found = MetaRepository.GetOrDefault(typeTo);
+            if (found != null) return found;
+
+            var meta = new MetaInformation(typeTo);
+            Swap.SwapValue(ref MetaRepository, (t1, t2, t3, t4, repo) =>
+                repo.AddOrUpdate(t1, t2), typeTo, meta, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
+            return meta;
         }
 
         private ConstructorInformation[] CollectConstructors(IEnumerable<ConstructorInfo> constructors) =>

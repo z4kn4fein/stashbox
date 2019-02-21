@@ -60,7 +60,7 @@ namespace Stashbox
             this.objectBuilderSelector = new ObjectBuilderSelector(expressionBuilder, this.serviceRegistrator);
             this.registrationBuilder = new RegistrationBuilder(this.ContainerContext, this.objectBuilderSelector);
 
-            this.RootScope = new ResolutionScope(this.resolverSelector, this.serviceRegistrator, expressionBuilder, this.ContainerContext, this.registrationBuilder);
+            this.RootScope = new ResolutionScope(this.resolverSelector, expressionBuilder, this.ContainerContext);
             this.rootResolver = (IDependencyResolver)this.RootScope;
         }
 

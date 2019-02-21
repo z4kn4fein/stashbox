@@ -3,7 +3,6 @@ using Stashbox.Configuration;
 using Stashbox.Entity;
 using Stashbox.Lifetime;
 using Stashbox.Resolution;
-using Stashbox.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,7 +18,6 @@ namespace Stashbox.Registration
     public class ServiceRegistration : IServiceRegistration
     {
         internal static int GlobalRegistrationNumber;
-        internal static AvlTreeKeyValue<Type, MetaInformation> MetaRepository = AvlTreeKeyValue<Type, MetaInformation>.Empty;
         private readonly IContainerConfigurator containerConfigurator;
         private readonly IObjectBuilderSelector objectBuilderSelector;
         private readonly IObjectBuilder objectBuilder;
@@ -71,7 +69,7 @@ namespace Stashbox.Registration
             this.containerConfigurator = containerConfigurator;
             this.objectBuilderSelector = objectBuilderSelector;
             this.ImplementationType = implementationType;
-            this.metaInformation = GetOrCreateMetaInfo(implementationType);
+            this.metaInformation = MetaInformation.GetOrCreateMetaInfo(implementationType);
             this.Constructors = this.metaInformation.Constructors;
             this.InjectionMethods = this.metaInformation.InjectionMethods;
             this.InjectionMembers = this.ConstructInjectionMembers(registrationContextData, this.metaInformation);
@@ -94,6 +92,11 @@ namespace Stashbox.Registration
                 : implementationType);
 
             this.objectBuilder = this.SelectObjectBuilder();
+        }
+
+        internal ServiceRegistration()
+        {
+
         }
 
         /// <inheritdoc />
@@ -119,26 +122,7 @@ namespace Stashbox.Registration
             resolutionContext.CacheExpression(this.RegistrationNumber, expression);
             return expression;
         }
-
-        /// <inheritdoc />
-        public bool CanInjectMember(MemberInformation member)
-        {
-            var autoMemberInjectionEnabled = this.containerConfigurator.ContainerConfiguration.MemberInjectionWithoutAnnotationEnabled || this.RegistrationContext.AutoMemberInjectionEnabled;
-            var autoMemberInjectionRule = this.RegistrationContext.AutoMemberInjectionEnabled ? this.RegistrationContext.AutoMemberInjectionRule :
-                this.containerConfigurator.ContainerConfiguration.MemberInjectionWithoutAnnotationRule;
-
-            if (autoMemberInjectionEnabled)
-                return member.TypeInformation.ForcedDependency ||
-                       member.TypeInformation.MemberType == MemberType.Field &&
-                           (autoMemberInjectionRule & Rules.AutoMemberInjectionRules.PrivateFields) == Rules.AutoMemberInjectionRules.PrivateFields ||
-                       member.TypeInformation.MemberType == MemberType.Property &&
-                           ((autoMemberInjectionRule & Rules.AutoMemberInjectionRules.PropertiesWithPublicSetter) == Rules.AutoMemberInjectionRules.PropertiesWithPublicSetter &&
-                           ((PropertyInfo)member.MemberInfo).HasSetMethod() ||
-                           (autoMemberInjectionRule & Rules.AutoMemberInjectionRules.PropertiesWithLimitedAccess) == Rules.AutoMemberInjectionRules.PropertiesWithLimitedAccess);
-
-            return member.TypeInformation.ForcedDependency;
-        }
-
+        
         /// <inheritdoc />
         public bool CanInjectIntoNamedScope(ISet<object> scopeNames) => scopeNames.Contains(((NamedScopeLifetime)this.RegistrationContext.Lifetime).ScopeName);
 
@@ -203,17 +187,6 @@ namespace Stashbox.Registration
 
         private bool HasResolutionConditionAndMatch(TypeInformation typeInfo) =>
             this.RegistrationContext.ResolutionCondition != null && this.RegistrationContext.ResolutionCondition(typeInfo);
-
-        private static MetaInformation GetOrCreateMetaInfo(Type typeTo)
-        {
-            var found = MetaRepository.GetOrDefault(typeTo);
-            if (found != null) return found;
-
-            var meta = new MetaInformation(typeTo);
-            Swap.SwapValue(ref MetaRepository, (t1, t2, t3, t4, repo) =>
-                repo.AddOrUpdate(t1, t2), typeTo, meta, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
-            return meta;
-        }
 
         private IObjectBuilder SelectObjectBuilder()
         {

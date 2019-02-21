@@ -15,6 +15,11 @@ namespace Stashbox.Registration
         /// <summary>
         /// Empty registration data.
         /// </summary>
+        public readonly static RegistrationContextData Empty = New();
+
+        /// <summary>
+        /// Empty registration data.
+        /// </summary>
         public static RegistrationContextData New() => new RegistrationContextData();
 
         /// <summary>
