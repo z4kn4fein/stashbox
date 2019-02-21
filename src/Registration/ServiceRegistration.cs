@@ -1,5 +1,4 @@
 ﻿using Stashbox.BuildUp;
-using Stashbox.Configuration;
 using Stashbox.Entity;
 using Stashbox.Lifetime;
 using Stashbox.Resolution;
@@ -7,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using System.Threading;
 
 namespace Stashbox.Registration
@@ -94,11 +92,6 @@ namespace Stashbox.Registration
             this.objectBuilder = this.SelectObjectBuilder();
         }
 
-        internal ServiceRegistration()
-        {
-
-        }
-
         /// <inheritdoc />
         public bool IsUsableForCurrentContext(TypeInformation typeInfo) =>
             !this.HasCondition ||
@@ -122,7 +115,7 @@ namespace Stashbox.Registration
             resolutionContext.CacheExpression(this.RegistrationNumber, expression);
             return expression;
         }
-        
+
         /// <inheritdoc />
         public bool CanInjectIntoNamedScope(ISet<object> scopeNames) => scopeNames.Contains(((NamedScopeLifetime)this.RegistrationContext.Lifetime).ScopeName);
 

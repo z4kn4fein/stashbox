@@ -20,10 +20,6 @@ namespace Stashbox.Registration
         public IRegistrationContext<TService> PrepareContext<TService>(Type serviceType, Type implementationType) =>
             new RegistrationContext<TService>(serviceType, implementationType);
 
-        public IRegistrationContext PrepareContext(Type serviceType, Type implementationType,
-             RegistrationContextData registrationContextData) =>
-            new RegistrationContext(serviceType, implementationType, registrationContextData);
-
         public IDecoratorRegistrationContext PrepareDecoratorContext(Type serviceType, Type implementationType) =>
             new DecoratorRegistrationContext(new RegistrationContext(serviceType, implementationType));
 

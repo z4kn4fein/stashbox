@@ -8,8 +8,6 @@ namespace Stashbox.Registration
 
         IRegistrationContext<TService> PrepareContext<TService>(Type serviceType, Type implementationType);
 
-        IRegistrationContext PrepareContext(Type serviceType, Type implementationType, RegistrationContextData registrationContextData);
-
         IDecoratorRegistrationContext PrepareDecoratorContext(Type serviceType, Type implementationType);
 
         IStashboxContainer Register(IServiceRegistration serviceRegistration, IRegistrationContext registrationContext);
