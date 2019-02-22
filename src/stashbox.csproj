@@ -28,7 +28,8 @@
     <LangVersion>latest</LangVersion>
     <PackageReleaseNotes>
       <![CDATA[
-- bugfix: #49 Unable to use nullable types with injection parameters
+- bugfix: #50 Generate one instance for multiple interfaces
+- api change: container.GetAllRegistrations() renamed to GetRegistrationMappings() which returns now an IEnumerable<KeyValue<Type, IServiceRegistration>> where the first generic parameter is the ServiceType.
     ]]>
     </PackageReleaseNotes>
     <Configurations>Debug;Release;Benchmark</Configurations>
