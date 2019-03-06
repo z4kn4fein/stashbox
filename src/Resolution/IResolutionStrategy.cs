@@ -15,9 +15,10 @@ namespace Stashbox.Resolution
         /// <param name="resolutionContext">The resolution info.</param>
         /// <param name="typeInformation">The type info of the requested service.</param>
         /// <param name="injectionParameters">The injection parameters.</param>
+        /// <param name="forceSkipUnknownTypeCheck">If true, the unknown type resolution will be skipped even if it's enabled by the container configuration.</param>
         /// <returns>The created resolution target.</returns>
         Expression BuildResolutionExpression(IContainerContext containerContext, ResolutionContext resolutionContext, TypeInformation typeInformation,
-            InjectionParameter[] injectionParameters);
+            InjectionParameter[] injectionParameters = null, bool forceSkipUnknownTypeCheck = false);
 
         /// <summary>
         /// Builds resolution expressions for an enumerable dependency.

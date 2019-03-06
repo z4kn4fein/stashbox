@@ -28,8 +28,7 @@
     <LangVersion>latest</LangVersion>
     <PackageReleaseNotes>
       <![CDATA[
-- bugfix: #50 Generate one instance for multiple interfaces
-- api change: container.GetAllRegistrations() renamed to GetRegistrationMappings() which returns now an IEnumerable<KeyValue<Type, IServiceRegistration>> where the first generic parameter is the ServiceType.
+- bugfix: #51 WithUnknownTypeResolution breaks Constructor selection rules
     ]]>
     </PackageReleaseNotes>
     <Configurations>Debug;Release;Benchmark</Configurations>

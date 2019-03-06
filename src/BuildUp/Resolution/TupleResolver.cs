@@ -32,7 +32,7 @@ namespace Stashbox.BuildUp.Resolution
             for (var i = 0; i < length; i++)
             {
                 var argumentInfo = new TypeInformation { Type = args[i] };
-                var expr = containerContext.ResolutionStrategy.BuildResolutionExpression(containerContext, resolutionContext, argumentInfo, null);
+                var expr = containerContext.ResolutionStrategy.BuildResolutionExpression(containerContext, resolutionContext, argumentInfo);
 
                 if (expr != null)
                     expressions[i] = expr;

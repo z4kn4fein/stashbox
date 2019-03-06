@@ -16,7 +16,7 @@ namespace Stashbox.Resolution
         }
 
         public Expression BuildResolutionExpression(IContainerContext containerContext, ResolutionContext resolutionContext, TypeInformation typeInformation,
-            InjectionParameter[] injectionParameters)
+            InjectionParameter[] injectionParameters = null, bool forceSkipUnknownTypeCheck = false)
         {
             if (typeInformation.Type == Constants.ResolverType)
                 return resolutionContext.CurrentScopeParameter.ConvertTo(Constants.ResolverType);
@@ -49,7 +49,7 @@ namespace Stashbox.Resolution
 
             var registration = containerContext.RegistrationRepository.GetRegistrationOrDefault(typeInformation, resolutionContext);
             return registration != null ? registration.GetExpression(resolutionContext.ChildContext ?? containerContext, resolutionContext, typeInformation.Type) :
-                this.resolverSelector.GetResolverExpression(containerContext, typeInformation, resolutionContext);
+                this.resolverSelector.GetResolverExpression(containerContext, typeInformation, resolutionContext, forceSkipUnknownTypeCheck);
         }
 
         public Expression[] BuildResolutionExpressions(IContainerContext containerContext, ResolutionContext resolutionContext, TypeInformation typeInformation)

@@ -28,7 +28,7 @@ namespace Stashbox.BuildUp.Resolution
             var funcArgumentInfo = typeInfo.Clone(wrappedType);
 
             var parameters = this.PrepareExtraParameters(wrappedType, resolutionContext, args);
-            var expression = containerContext.ResolutionStrategy.BuildResolutionExpression(containerContext, resolutionContext, funcArgumentInfo, null);
+            var expression = containerContext.ResolutionStrategy.BuildResolutionExpression(containerContext, resolutionContext, funcArgumentInfo);
 
             return expression?.AsLambda(parameters);
         }

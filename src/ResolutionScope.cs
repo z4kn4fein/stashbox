@@ -49,16 +49,12 @@ namespace Stashbox
 
         private readonly DelegateCache delegateCache;
 
-        /// <inheritdoc />
         public bool HasScopedInstances => !this.scopedInstances.IsEmpty;
 
-        /// <inheritdoc />
         public IResolutionScope RootScope { get; }
 
-        /// <inheritdoc />
         public object Name { get; }
 
-        /// <inheritdoc />
         public IResolutionScope ParentScope { get; }
 
         private ResolutionScope(IResolverSelector resolverSelector,
@@ -137,7 +133,6 @@ namespace Stashbox
             return this;
         }
 
-        /// <inheritdoc />
         public TTo BuildUp<TTo>(TTo instance)
         {
             var typeTo = instance.GetType();
@@ -149,7 +144,6 @@ namespace Stashbox
             return (TTo)factory(this);
         }
 
-        /// <inheritdoc />
         public TDisposable AddDisposableTracking<TDisposable>(TDisposable disposable)
             where TDisposable : IDisposable
         {
@@ -159,15 +153,12 @@ namespace Stashbox
             return disposable;
         }
 
-        /// <inheritdoc />
         public void AddScopedInstance(Type key, object value) =>
             Swap.SwapValue(ref this.scopedInstances, (t1, t2, t3, t4, instances) => instances.AddOrUpdate(t1, t2), key, value, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
 
-        /// <inheritdoc />
         public object GetScopedInstanceOrDefault(Type key) =>
             this.scopedInstances.GetOrDefault(key);
 
-        /// <inheritdoc />
         public TService AddWithFinalizer<TService>(TService finalizable, Action<TService> finalizer)
         {
             Swap.SwapValue(ref this.rootFinalizableItem, (t1, t2, t3, t4, root) =>
@@ -176,7 +167,6 @@ namespace Stashbox
             return finalizable;
         }
 
-        /// <inheritdoc />
         public object GetOrAddScopedItem(int key, object sync, Func<IResolutionScope, object> factory)
         {
             var item = this.scopedItems.GetOrDefault(key);
@@ -195,14 +185,12 @@ namespace Stashbox
             }
         }
 
-        /// <inheritdoc />
         public void InvalidateDelegateCache()
         {
             this.delegateCache.ServiceDelegates = AvlTreeKeyValue<object, Func<IResolutionScope, object>>.Empty;
             this.delegateCache.FactoryDelegates = AvlTreeKeyValue<object, Func<IResolutionScope, Delegate>>.Empty;
         }
 
-        /// <inheritdoc />
         public ISet<object> GetActiveScopeNames()
         {
             var set = new HashSet<object>();
@@ -236,7 +224,6 @@ namespace Stashbox
                 check.Value = false;
         }
 
-        /// <inheritdoc />
         public void Dispose()
         {
             if (Interlocked.CompareExchange(ref this.disposed, 1, 0) != 0)

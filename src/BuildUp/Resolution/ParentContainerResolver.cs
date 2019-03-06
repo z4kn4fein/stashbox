@@ -16,7 +16,7 @@ namespace Stashbox.BuildUp.Resolution
                 : resolutionContext.Clone(resolutionContext.ChildContext);
 
             var result = containerContext.Container.ParentContainer.ContainerContext.ResolutionStrategy
-                .BuildResolutionExpression(containerContext.Container.ParentContainer.ContainerContext, resolution, typeInfo, null);
+                .BuildResolutionExpression(containerContext.Container.ParentContainer.ContainerContext, resolution, typeInfo);
 
             foreach (var definedVariable in resolution.DefinedVariables.Repository)
                 resolutionContext.AddDefinedVariable(definedVariable.Key, definedVariable.Value);

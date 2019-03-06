@@ -3,42 +3,17 @@ using System.Linq.Expressions;
 
 namespace Stashbox.Resolution
 {
-    /// <summary>
-    /// Represents the resolver selector.
-    /// </summary>
-    public interface IResolverSelector
+    internal interface IResolverSelector
     {
-        /// <summary>
-        /// True if a type is resolvable by any of the stored resolvers, otherwise false.
-        /// </summary>
-        /// <param name="containerContext">The container context.</param>
-        /// <param name="typeInfo">The type info.</param>
-        /// <param name="resolutionContext">The resolution info.</param>
-        /// <returns></returns>
-        bool CanResolve(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext);
+        bool CanResolve(IContainerContext containerContext, TypeInformation typeInfo,
+            ResolutionContext resolutionContext);
 
-        /// <summary>
-        /// Gets an expression built by a selected <see cref="IResolver"/>.
-        /// </summary>
-        /// <param name="containerContext">The container context.</param>
-        /// <param name="typeInfo">The type info.</param>
-        /// <param name="resolutionContext">The resolution info.</param>
-        /// <returns>The expression.</returns>
-        Expression GetResolverExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext);
+        Expression GetResolverExpression(IContainerContext containerContext, TypeInformation typeInfo,
+            ResolutionContext resolutionContext, bool forceSkipUnknownTypeCheck = false);
 
-        /// <summary>
-        /// Gets the expressions built by a selected <see cref="IMultiServiceResolver"/>.
-        /// </summary>
-        /// <param name="containerContext">The container context.</param>
-        /// <param name="typeInfo">The type info.</param>
-        /// <param name="resolutionContext">The resolution info.</param>
-        /// <returns>The expressions.</returns>
-        Expression[] GetResolverExpressions(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext);
+        Expression[] GetResolverExpressions(IContainerContext containerContext,
+            TypeInformation typeInfo, ResolutionContext resolutionContext);
 
-        /// <summary>
-        /// Adds a resolver to the selector.
-        /// </summary>
-        /// <param name="resolver">The resolver.</param>
         void AddResolver(IResolver resolver);
     }
 }

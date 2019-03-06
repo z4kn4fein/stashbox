@@ -30,7 +30,10 @@ namespace Stashbox.Resolution
                 this.unknownTypeResolver.CanUseForResolution(containerContext, typeInfo, resolutionContext);
         }
 
-        public Expression GetResolverExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext)
+        public Expression GetResolverExpression(IContainerContext containerContext,
+            TypeInformation typeInfo,
+            ResolutionContext resolutionContext,
+            bool forceSkipUnknownTypeCheck = false)
         {
             for (var i = 0; i < this.resolverRepository.Length; i++)
             {
@@ -42,7 +45,9 @@ namespace Stashbox.Resolution
             if (this.parentContainerResolver.CanUseForResolution(containerContext, typeInfo, resolutionContext))
                 return this.parentContainerResolver.GetExpression(containerContext, typeInfo, resolutionContext);
 
-            return this.unknownTypeResolver.CanUseForResolution(containerContext, typeInfo, resolutionContext) ? this.unknownTypeResolver.GetExpression(containerContext, typeInfo, resolutionContext) : null;
+            return !forceSkipUnknownTypeCheck && this.unknownTypeResolver.CanUseForResolution(containerContext, typeInfo, resolutionContext)
+                ? this.unknownTypeResolver.GetExpression(containerContext, typeInfo, resolutionContext)
+                : null;
         }
 
         public Expression[] GetResolverExpressions(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext)

@@ -170,38 +170,25 @@ namespace Stashbox.BuildUp.Expressions
             for (var i = 0; i < length; i++)
             {
                 var constructor = constructors[i];
-                var paramLength = constructor.Parameters.Length;
-                var parameterExpressions = new Expression[paramLength];
 
-                var hasNullParameter = false;
-                TypeInformation failedParameter = null;
-                for (var j = 0; j < paramLength; j++)
+                if (!this.TryBuildResolutionConstructor(constructor, resolutionContext, containerContext,
+                    serviceRegistration, out var failedParameter, out var parameterExpressions, true))
                 {
-                    var parameter = constructor.Parameters[j];
-
-                    var expression = containerContext.ResolutionStrategy.BuildResolutionExpression(containerContext,
-                        resolutionContext, parameter, serviceRegistration.RegistrationContext.InjectionParameters);
-
-                    if (expression == null)
-                    {
-                        hasNullParameter = true;
-                        failedParameter = parameter;
-                        break;
-                    }
-
-                    parameterExpressions[j] = expression;
-                }
-
-                if (hasNullParameter)
-                {
-                    if (!resolutionContext.NullResultAllowed)
-                        checkedConstructors.Add(constructor.Constructor, failedParameter);
-
+                    checkedConstructors.Add(constructor.Constructor, failedParameter);
                     continue;
                 }
 
                 return new ResolutionConstructor { Constructor = constructor.Constructor, Parameters = parameterExpressions };
             }
+
+            if (containerContext.ContainerConfigurator.ContainerConfiguration.UnknownTypeResolutionEnabled)
+                for (var i = 0; i < length; i++)
+                {
+                    var constructor = constructors[i];
+                    if (this.TryBuildResolutionConstructor(constructor, resolutionContext, containerContext,
+                        serviceRegistration, out var failedParameter, out var parameterExpressions))
+                        return new ResolutionConstructor { Constructor = constructor.Constructor, Parameters = parameterExpressions };
+                }
 
             if (resolutionContext.NullResultAllowed)
                 return null;
@@ -211,6 +198,35 @@ namespace Stashbox.BuildUp.Expressions
                 stringBuilder.AppendLine($"Checked constructor {checkedConstructor.Key}, unresolvable parameter: ({checkedConstructor.Value.Type}){checkedConstructor.Value.ParameterName}");
 
             throw new ResolutionFailedException(serviceRegistration.ImplementationType, stringBuilder.ToString());
+        }
+
+        private bool TryBuildResolutionConstructor(
+            ConstructorInformation constructor,
+            ResolutionContext resolutionContext,
+            IContainerContext containerContext,
+            IServiceRegistration serviceRegistration,
+            out TypeInformation failedParameter,
+            out Expression[] parameterExpressions,
+            bool skipUknownResolution = false)
+        {
+            var paramLength = constructor.Parameters.Length;
+            parameterExpressions = new Expression[paramLength];
+            failedParameter = null;
+            for (var i = 0; i < paramLength; i++)
+            {
+                var parameter = constructor.Parameters[i];
+
+                parameterExpressions[i] = containerContext.ResolutionStrategy.BuildResolutionExpression(containerContext, resolutionContext,
+                    parameter, serviceRegistration.RegistrationContext.InjectionParameters, skipUknownResolution);
+
+                if (parameterExpressions[i] == null)
+                {
+                    failedParameter = parameter;
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         private Expression[] CreatePostWorkExpressionIfAny(IContainerContext containerContext,
