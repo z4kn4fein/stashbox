@@ -1,7 +1,5 @@
 ﻿using Stashbox.ContainerExtension;
 using Stashbox.Entity;
-using Stashbox.Entity.Resolution;
-using Stashbox.Exceptions;
 using Stashbox.Registration;
 using Stashbox.Resolution;
 using Stashbox.Utils;
@@ -9,18 +7,18 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
-using System.Text;
 
 namespace Stashbox.BuildUp.Expressions
 {
     internal class ExpressionBuilder : IExpressionBuilder
     {
         private readonly IContainerExtensionManager containerExtensionManager;
+        private readonly IConstructorSelector constructorSelector;
 
-        public ExpressionBuilder(IContainerExtensionManager containerExtensionManager)
+        public ExpressionBuilder(IContainerExtensionManager containerExtensionManager, IConstructorSelector constructorSelector)
         {
             this.containerExtensionManager = containerExtensionManager;
+            this.constructorSelector = constructorSelector;
         }
 
         public Expression CreateFillExpression(IContainerContext containerContext,
@@ -128,106 +126,20 @@ namespace Stashbox.BuildUp.Expressions
                     return serviceRegistration.SelectedConstructor.Constructor
                         .MakeNew(serviceRegistration.RegistrationContext.ConstructorArguments.Select(Expression.Constant));
 
-                return this.CreateResolutionConstructor(containerContext, serviceRegistration, resolutionContext, serviceRegistration.SelectedConstructor)
+                return this.constructorSelector.CreateResolutionConstructor(containerContext, serviceRegistration,
+                    resolutionContext, serviceRegistration.SelectedConstructor)
                     .MakeNew();
             }
 
-            var rule = serviceRegistration.RegistrationContext.ConstructorSelectionRule ?? containerContext.ContainerConfigurator.ContainerConfiguration.ConstructorSelectionRule;
+            var rule = serviceRegistration.RegistrationContext.ConstructorSelectionRule ??
+                containerContext.ContainerConfigurator.ContainerConfiguration.ConstructorSelectionRule;
             var constructors = rule(serviceRegistration.Constructors).ToArray();
 
-            return this.SelectConstructor(containerContext, serviceRegistration, resolutionContext, constructors)?.MakeNew();
+            return this.constructorSelector.SelectConstructor(containerContext,
+                serviceRegistration, resolutionContext, constructors)?.MakeNew();
         }
 
-        private ResolutionConstructor CreateResolutionConstructor(IContainerContext containerContext,
-            IServiceRegistration serviceRegistration,
-            ResolutionContext resolutionContext,
-            ConstructorInformation constructor)
-        {
-            var paramLength = constructor.Parameters.Length;
-            var parameterExpressions = new Expression[paramLength];
 
-            for (var i = 0; i < paramLength; i++)
-            {
-                var parameter = constructor.Parameters[i];
-
-                var expression = containerContext.ResolutionStrategy.BuildResolutionExpression(containerContext,
-                    resolutionContext, parameter, serviceRegistration.RegistrationContext.InjectionParameters);
-
-                parameterExpressions[i] = expression ?? throw new ResolutionFailedException(serviceRegistration.ImplementationType,
-                    $"Constructor {constructor.Constructor}, unresolvable parameter: ({parameter.Type}){parameter.ParameterName}");
-            }
-
-            return new ResolutionConstructor { Constructor = constructor.Constructor, Parameters = parameterExpressions };
-        }
-
-        private ResolutionConstructor SelectConstructor(IContainerContext containerContext,
-            IServiceRegistration serviceRegistration,
-            ResolutionContext resolutionContext,
-            ConstructorInformation[] constructors)
-        {
-            var length = constructors.Length;
-            var checkedConstructors = new Dictionary<ConstructorInfo, TypeInformation>();
-            for (var i = 0; i < length; i++)
-            {
-                var constructor = constructors[i];
-
-                if (!this.TryBuildResolutionConstructor(constructor, resolutionContext, containerContext,
-                    serviceRegistration, out var failedParameter, out var parameterExpressions, true))
-                {
-                    checkedConstructors.Add(constructor.Constructor, failedParameter);
-                    continue;
-                }
-
-                return new ResolutionConstructor { Constructor = constructor.Constructor, Parameters = parameterExpressions };
-            }
-
-            if (containerContext.ContainerConfigurator.ContainerConfiguration.UnknownTypeResolutionEnabled)
-                for (var i = 0; i < length; i++)
-                {
-                    var constructor = constructors[i];
-                    if (this.TryBuildResolutionConstructor(constructor, resolutionContext, containerContext,
-                        serviceRegistration, out var failedParameter, out var parameterExpressions))
-                        return new ResolutionConstructor { Constructor = constructor.Constructor, Parameters = parameterExpressions };
-                }
-
-            if (resolutionContext.NullResultAllowed)
-                return null;
-
-            var stringBuilder = new StringBuilder();
-            foreach (var checkedConstructor in checkedConstructors)
-                stringBuilder.AppendLine($"Checked constructor {checkedConstructor.Key}, unresolvable parameter: ({checkedConstructor.Value.Type}){checkedConstructor.Value.ParameterName}");
-
-            throw new ResolutionFailedException(serviceRegistration.ImplementationType, stringBuilder.ToString());
-        }
-
-        private bool TryBuildResolutionConstructor(
-            ConstructorInformation constructor,
-            ResolutionContext resolutionContext,
-            IContainerContext containerContext,
-            IServiceRegistration serviceRegistration,
-            out TypeInformation failedParameter,
-            out Expression[] parameterExpressions,
-            bool skipUknownResolution = false)
-        {
-            var paramLength = constructor.Parameters.Length;
-            parameterExpressions = new Expression[paramLength];
-            failedParameter = null;
-            for (var i = 0; i < paramLength; i++)
-            {
-                var parameter = constructor.Parameters[i];
-
-                parameterExpressions[i] = containerContext.ResolutionStrategy.BuildResolutionExpression(containerContext, resolutionContext,
-                    parameter, serviceRegistration.RegistrationContext.InjectionParameters, skipUknownResolution);
-
-                if (parameterExpressions[i] == null)
-                {
-                    failedParameter = parameter;
-                    return false;
-                }
-            }
-
-            return true;
-        }
 
         private Expression[] CreatePostWorkExpressionIfAny(IContainerContext containerContext,
             IServiceRegistration serviceRegistration,

@@ -55,7 +55,7 @@ namespace Stashbox
             this.ContainerContext = new ContainerContext(this.registrationRepository, this,
                 new ResolutionStrategy(this.resolverSelector), containerConfigurator, decoratorRepository);
 
-            var expressionBuilder = new ExpressionBuilder(this.containerExtensionManager);
+            var expressionBuilder = new ExpressionBuilder(this.containerExtensionManager, new ConstructorSelector());
             this.serviceRegistrator = new ServiceRegistrator(this.ContainerContext, this.containerExtensionManager);
             this.objectBuilderSelector = new ObjectBuilderSelector(expressionBuilder, this.serviceRegistrator);
             this.registrationBuilder = new RegistrationBuilder(this.ContainerContext, this.objectBuilderSelector);
