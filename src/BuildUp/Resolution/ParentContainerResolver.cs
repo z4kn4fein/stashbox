@@ -15,7 +15,7 @@ namespace Stashbox.BuildUp.Resolution
                 ? resolutionContext.Clone(containerContext)
                 : resolutionContext.Clone(resolutionContext.ChildContext);
 
-            var result = containerContext.Container.ParentContainer.ContainerContext.ResolutionStrategy
+            var result = containerContext.ResolutionStrategy
                 .BuildResolutionExpression(containerContext.Container.ParentContainer.ContainerContext, resolution, typeInfo);
 
             foreach (var definedVariable in resolution.DefinedVariables.Repository)
@@ -33,7 +33,7 @@ namespace Stashbox.BuildUp.Resolution
                 ? resolutionContext.Clone(containerContext)
                 : resolutionContext.Clone(resolutionContext.ChildContext);
 
-            var result = containerContext.Container.ParentContainer.ContainerContext.ResolutionStrategy
+            var result = containerContext.ResolutionStrategy
                 .BuildResolutionExpressions(containerContext.Container.ParentContainer.ContainerContext, resolution, typeInfo);
 
             foreach (var definedVariable in resolution.DefinedVariables.Repository)

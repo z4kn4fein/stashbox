@@ -51,8 +51,6 @@ namespace Stashbox
 
         public bool HasScopedInstances => !this.scopedInstances.IsEmpty;
 
-        public IResolutionScope RootScope { get; }
-
         public object Name { get; }
 
         public IResolutionScope ParentScope { get; }
@@ -76,15 +74,12 @@ namespace Stashbox
             IExpressionBuilder expressionBuilder, IContainerContext containerContext)
             : this(resolverSelector, expressionBuilder, containerContext,
                   new DelegateCache(), null)
-        {
-            this.RootScope = this;
-        }
+        { }
 
         private ResolutionScope(IResolverSelector resolverSelector, IExpressionBuilder expressionBuilder,
-            IContainerContext containerContext, IResolutionScope rootScope, IResolutionScope parent, DelegateCache delegateCache, object name = null)
+            IContainerContext containerContext, IResolutionScope parent, DelegateCache delegateCache, object name = null)
             : this(resolverSelector, expressionBuilder, containerContext, delegateCache, name)
         {
-            this.RootScope = rootScope;
             this.ParentScope = parent;
         }
 
@@ -116,7 +111,7 @@ namespace Stashbox
         public IDependencyResolver BeginScope(object name = null, bool attachToParent = false)
         {
             var scope = new ResolutionScope(this.resolverSelector, this.expressionBuilder,
-                this.containerContext, this.RootScope, this, this.delegateCache, name);
+                this.containerContext, this, this.delegateCache, name);
 
             return attachToParent ? this.AddDisposableTracking(scope) : scope;
         }

@@ -18,7 +18,7 @@ namespace Stashbox
     {
         private readonly IContainerExtensionManager containerExtensionManager;
         private readonly IResolverSelector resolverSelector;
-        private readonly IRegistrationRepository registrationRepository = new RegistrationRepository();
+        private readonly IRegistrationRepository registrationRepository;
         private readonly IObjectBuilderSelector objectBuilderSelector;
         private readonly IDependencyResolver rootResolver;
         private readonly IServiceRegistrator serviceRegistrator;
@@ -51,6 +51,8 @@ namespace Stashbox
             this.resolverSelector = resolverSelector;
 
             config?.Invoke(containerConfigurator);
+
+            this.registrationRepository = new RegistrationRepository();
 
             this.ContainerContext = new ContainerContext(this.registrationRepository, this,
                 new ResolutionStrategy(this.resolverSelector), containerConfigurator, decoratorRepository);

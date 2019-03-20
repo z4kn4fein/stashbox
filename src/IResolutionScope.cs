@@ -10,11 +10,6 @@ namespace Stashbox
     public interface IResolutionScope : IDisposable
     {
         /// <summary>
-        /// The root scope.
-        /// </summary>
-        IResolutionScope RootScope { get; }
-
-        /// <summary>
         /// The parent scope.
         /// </summary>
         IResolutionScope ParentScope { get; }

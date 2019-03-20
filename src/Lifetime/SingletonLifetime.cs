@@ -9,20 +9,29 @@ namespace Stashbox.Lifetime
     /// <summary>
     /// Represents a singleton lifetime manager.
     /// </summary>
-    public class SingletonLifetime : ScopedLifetimeBase
+    public class SingletonLifetime : LifetimeBase
     {
+        private readonly object sync = new object();
+        private volatile Expression instanceExpression;
+
         /// <inheritdoc />
         public override Expression GetExpression(IContainerContext containerContext, IServiceRegistration serviceRegistration, IObjectBuilder objectBuilder, ResolutionContext resolutionContext, Type resolveType)
         {
-            var expression = base.GetExpression(containerContext, serviceRegistration, objectBuilder, resolutionContext, resolveType);
-            if (expression == null)
-                return null;
+            if (this.instanceExpression != null) return this.instanceExpression;
+            lock (this.sync)
+            {
+                if (this.instanceExpression != null) return this.instanceExpression;
 
-            var factory = expression.NodeType == ExpressionType.New && ((NewExpression)expression).Arguments.Count == 0
-                ? scope => Activator.CreateInstance(expression.Type)
-                : expression.CompileDelegate(resolutionContext);
+                var expression = base.GetExpression(containerContext, serviceRegistration, objectBuilder, resolutionContext, resolveType);
+                if (expression == null)
+                    return null;
 
-            return resolutionContext.RootScope.GetOrAddScopedItem(base.ScopeId, base.Sync, factory).AsConstant();
+                var instance = expression.NodeType == ExpressionType.New && ((NewExpression)expression).Arguments.Count == 0
+                    ? Activator.CreateInstance(expression.Type)
+                    : expression.CompileDelegate(resolutionContext)(containerContext.Container.RootScope);
+
+                return this.instanceExpression = instance.AsConstant();
+            }
         }
 
         /// <inheritdoc />

@@ -40,8 +40,6 @@ namespace Stashbox.Resolution
 
         internal IResolutionScope ResolutionScope { get; }
 
-        internal IResolutionScope RootScope { get; }
-
         internal IContainerContext ChildContext { get; }
 
         internal ISet<object> ScopeNames { get; }
@@ -85,7 +83,6 @@ namespace Stashbox.Resolution
             this.currentlyDecoratingTypes = currentlyDecoratingTypes;
             this.NullResultAllowed = nullResultAllowed;
             this.ResolutionScope = scope;
-            this.RootScope = scope.RootScope;
             this.CurrentScopeParameter = currentScope;
             this.ParameterExpressions = parameterExpressions;
             this.ChildContext = childContext;
