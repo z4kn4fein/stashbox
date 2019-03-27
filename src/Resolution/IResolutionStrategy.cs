@@ -1,4 +1,5 @@
 ﻿using Stashbox.Entity;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 
 namespace Stashbox.Resolution
@@ -18,7 +19,7 @@ namespace Stashbox.Resolution
         /// <param name="forceSkipUnknownTypeCheck">If true, the unknown type resolution will be skipped even if it's enabled by the container configuration.</param>
         /// <returns>The created resolution target.</returns>
         Expression BuildResolutionExpression(IContainerContext containerContext, ResolutionContext resolutionContext, TypeInformation typeInformation,
-            InjectionParameter[] injectionParameters = null, bool forceSkipUnknownTypeCheck = false);
+            IEnumerable<InjectionParameter> injectionParameters = null, bool forceSkipUnknownTypeCheck = false);
 
         /// <summary>
         /// Builds resolution expressions for an enumerable dependency.

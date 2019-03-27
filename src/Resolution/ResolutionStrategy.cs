@@ -1,6 +1,7 @@
 ﻿using Stashbox.Entity;
 using Stashbox.Utils;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 
@@ -16,7 +17,7 @@ namespace Stashbox.Resolution
         }
 
         public Expression BuildResolutionExpression(IContainerContext containerContext, ResolutionContext resolutionContext, TypeInformation typeInformation,
-            InjectionParameter[] injectionParameters = null, bool forceSkipUnknownTypeCheck = false)
+            IEnumerable<InjectionParameter> injectionParameters = null, bool forceSkipUnknownTypeCheck = false)
         {
             if (typeInformation.Type == Constants.ResolverType)
                 return resolutionContext.CurrentScopeParameter.ConvertTo(Constants.ResolverType);

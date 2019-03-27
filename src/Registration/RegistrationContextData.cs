@@ -1,6 +1,7 @@
 ﻿using Stashbox.Configuration;
 using Stashbox.Entity;
 using Stashbox.Lifetime;
+using Stashbox.Utils;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -40,7 +41,7 @@ namespace Stashbox.Registration
         /// <summary>
         /// Injection parameters of the registration.
         /// </summary>
-        public InjectionParameter[] InjectionParameters { get; internal set; }
+        public IEnumerable<InjectionParameter> InjectionParameters { get; internal set; }
 
         /// <summary>
         /// The selected constructor if any was set.
@@ -70,7 +71,7 @@ namespace Stashbox.Registration
         /// <summary>
         /// Attribute condition collection of the registration.
         /// </summary>
-        public HashSet<Type> AttributeConditions { get; internal set; }
+        public IEnumerable<Type> AttributeConditions { get; internal set; }
 
         /// <summary>
         /// Member names which are explicitly set to be filled by the container.
@@ -132,7 +133,8 @@ namespace Stashbox.Registration
         /// </summary>
         public RegistrationContextData()
         {
-            this.AttributeConditions = new HashSet<Type>();
+            this.AttributeConditions = ArrayStore<Type>.Empty;
+            this.InjectionParameters = ArrayStore<InjectionParameter>.Empty;
             this.InjectionMemberNames = new Dictionary<string, object>();
             this.AutoMemberInjectionEnabled = false;
         }

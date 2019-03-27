@@ -24,6 +24,12 @@ namespace Stashbox.Registration
             return this;
         }
 
+        public IFluentDecoratorRegistrator WithInjectionParameter(string name, object value)
+        {
+            this.RegistrationContext.WithInjectionParameter(name, value);
+            return this;
+        }
+
         public IFluentDecoratorRegistrator WithAutoMemberInjection(
             Rules.AutoMemberInjectionRules rule = Rules.AutoMemberInjectionRules.PropertiesWithPublicSetter)
         {

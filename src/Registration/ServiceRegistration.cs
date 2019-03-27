@@ -82,7 +82,7 @@ namespace Stashbox.Registration
             this.HasScopeName = this.RegistrationContext.Lifetime is NamedScopeLifetime;
 
             this.HasCondition = this.RegistrationContext.TargetTypeCondition != null || this.RegistrationContext.ResolutionCondition != null ||
-                this.RegistrationContext.AttributeConditions != null && this.RegistrationContext.AttributeConditions.Count > 0;
+                this.RegistrationContext.AttributeConditions != null && this.RegistrationContext.AttributeConditions.Any();
 
             this.RegistrationId = this.RegistrationContext.Name ??
                 (containerConfigurator.ContainerConfiguration.SetUniqueRegistrationNames

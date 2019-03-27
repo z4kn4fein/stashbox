@@ -84,13 +84,15 @@ namespace Stashbox.Registration
 
         public IFluentServiceRegistrator WhenHas<TAttribute>() where TAttribute : Attribute
         {
-            this.Context.AttributeConditions.Add(typeof(TAttribute));
+            var store = (ArrayStore<Type>)this.Context.AttributeConditions;
+            this.Context.AttributeConditions = store.Add(typeof(TAttribute));
             return this;
         }
 
         public IFluentServiceRegistrator WhenHas(Type attributeType)
         {
-            this.Context.AttributeConditions.Add(attributeType);
+            var store = (ArrayStore<Type>)this.Context.AttributeConditions;
+            this.Context.AttributeConditions = store.Add(attributeType);
             return this;
         }
 
@@ -113,7 +115,15 @@ namespace Stashbox.Registration
 
         public IFluentServiceRegistrator WithInjectionParameters(params InjectionParameter[] injectionParameters)
         {
-            this.Context.InjectionParameters = injectionParameters;
+            var length = injectionParameters.Length;
+            for (int i = 0; i < length; i++)
+                this.AddInjectionParameter(injectionParameters[i]);
+            return this;
+        }
+
+        public IFluentServiceRegistrator WithInjectionParameter(string name, object value)
+        {
+            this.AddInjectionParameter(new InjectionParameter { Name = name, Value = value });
             return this;
         }
 
@@ -238,6 +248,12 @@ namespace Stashbox.Registration
                 throw new ConstructorNotFoundException(type, argTypes[0]);
 
             throw new ConstructorNotFoundException(type, argTypes);
+        }
+
+        private void AddInjectionParameter(InjectionParameter injectionParameter)
+        {
+            var store = (ArrayStore<InjectionParameter>)this.Context.InjectionParameters;
+            this.Context.InjectionParameters = store.Add(injectionParameter);
         }
     }
 }

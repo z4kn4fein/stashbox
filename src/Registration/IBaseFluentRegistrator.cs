@@ -29,6 +29,14 @@ namespace Stashbox.Registration
         TFluentRegistrator WithInjectionParameters(params InjectionParameter[] injectionParameters);
 
         /// <summary>
+        /// Sets injection parameters for the registration.
+        /// </summary>
+        /// <param name="name">The name of the injection parameter.</param>
+        /// <param name="value">The value of the injection parameter.</param>
+        /// <returns>The fluent registrator.</returns>
+        TFluentRegistrator WithInjectionParameter(string name, object value);
+
+        /// <summary>
         /// Enables auto member injection on the registration.
         /// </summary>
         /// <param name="rule">The auto member injection rule.</param>

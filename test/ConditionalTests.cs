@@ -202,20 +202,34 @@ namespace Stashbox.Tests
             Assert.IsInstanceOfType(test3.test12, typeof(Test1));
         }
 
-        public interface ITest1 { }
+        [TestMethod]
+        public void ConditionalTests_GenericCondition()
+        {
+            var container = new StashboxContainer();
+            container.Register<ITest1, Test1>(context => context.When(t => t.ParameterName == "Test1"));
+            container.Register<ITest1, Test11>(context => context.When(t => t.ParameterName == "Test11"));
+            container.Register<Test5>(c => c.WithAutoMemberInjection());
 
-        public interface ITest2 { ITest1 test1 { get; set; } ITest1 test12 { get; set; } }
+            var test5 = container.Resolve<Test5>();
 
-        public class Test1 : ITest1
+            Assert.IsInstanceOfType(test5.Test1, typeof(Test1));
+            Assert.IsInstanceOfType(test5.Test11, typeof(Test11));
+        }
+
+        interface ITest1 { }
+
+        interface ITest2 { ITest1 test1 { get; set; } ITest1 test12 { get; set; } }
+
+        class Test1 : ITest1
         { }
 
-        public class Test11 : ITest1
+        class Test11 : ITest1
         { }
 
-        public class Test12 : ITest1
+        class Test12 : ITest1
         { }
 
-        public class Test2 : ITest2
+        class Test2 : ITest2
         {
             [Dependency]
             public ITest1 test1 { get; set; }
@@ -227,7 +241,7 @@ namespace Stashbox.Tests
             }
         }
 
-        public class Test3 : ITest2
+        class Test3 : ITest2
         {
             [Dependency, TestCondition]
             public ITest1 test1 { get; set; }
@@ -241,13 +255,20 @@ namespace Stashbox.Tests
         }
 
         [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property | AttributeTargets.Parameter)]
-        public class TestConditionAttribute : Attribute
+        class TestConditionAttribute : Attribute
         {
         }
 
         [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property | AttributeTargets.Parameter)]
-        public class TestCondition2Attribute : Attribute
+        class TestCondition2Attribute : Attribute
         {
+        }
+
+        class Test5
+        {
+            public ITest1 Test1 { get; set; }
+
+            public ITest1 Test11 { get; set; }
         }
     }
 }
