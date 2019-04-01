@@ -248,6 +248,26 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void DecoratorTests_AutoMemberInjection_InjectionParameter_Fluent()
+        {
+            using (var container = new StashboxContainer())
+            {
+                container.Register<ITest1, Test1>();
+                container.RegisterDecorator<ITest1, TestDecorator4>(context => context
+                    .WithAutoMemberInjection(Rules.AutoMemberInjectionRules.PropertiesWithLimitedAccess)
+                    .WithInjectionParameter("Name", "test"));
+                var test = container.Resolve<ITest1>();
+
+                Assert.IsNotNull(test);
+                Assert.IsInstanceOfType(test, typeof(TestDecorator4));
+
+                Assert.IsNotNull(test.Test);
+                Assert.IsInstanceOfType(test.Test, typeof(Test1));
+                Assert.AreEqual("test", ((TestDecorator4)test).Name);
+            }
+        }
+
+        [TestMethod]
         public void DecoratorTests_ConstructorSelection_LeastParameters()
         {
             using (var container = new StashboxContainer())
