@@ -253,9 +253,12 @@ namespace Stashbox.Tests
         public void RegistersTests_ComposeAssembly()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.ComposeAssembly(this.GetType().GetTypeInfo().Assembly);
+            container.ComposeAssembly(this.GetType().GetTypeInfo().Assembly, type => !type.FullName.Contains("IssueTests"));
 
-            var regs = container.ContainerContext.RegistrationRepository.GetRegistrationMappings().OrderBy(r => r.Value.RegistrationNumber).ToArray();
+            var regs = container.ContainerContext.RegistrationRepository
+                .GetRegistrationMappings()
+                .OrderBy(r => r.Value.RegistrationNumber)
+                .ToArray();
 
             Assert.AreEqual(4, regs.Length);
             Assert.AreSame(regs[0].Value.ImplementationType, typeof(Test));
@@ -268,9 +271,12 @@ namespace Stashbox.Tests
         public void RegistersTests_ComposeAssemblies()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.ComposeAssemblies(new[] { this.GetType().GetTypeInfo().Assembly });
+            container.ComposeAssemblies(new[] { this.GetType().GetTypeInfo().Assembly }, type => !type.FullName.Contains("IssueTests"));
 
-            var regs = container.ContainerContext.RegistrationRepository.GetRegistrationMappings().OrderBy(r => r.Value.RegistrationNumber).ToArray();
+            var regs = container.ContainerContext.RegistrationRepository
+                .GetRegistrationMappings()
+                .OrderBy(r => r.Value.RegistrationNumber)
+                .ToArray();
 
             Assert.AreEqual(4, regs.Length);
             Assert.AreSame(regs[0].Value.ImplementationType, typeof(Test));

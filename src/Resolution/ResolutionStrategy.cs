@@ -38,7 +38,7 @@ namespace Stashbox.Resolution
                 }
             }
 
-            var matchingParam = injectionParameters?.FirstOrDefault(param => param.Name == typeInformation.ParameterName);
+            var matchingParam = injectionParameters?.FirstOrDefault(param => param.Name == typeInformation.ParameterOrMemberName);
             if (matchingParam != null)
                 return matchingParam.Value.GetType() == typeInformation.Type
                     ? matchingParam.Value.AsConstant()

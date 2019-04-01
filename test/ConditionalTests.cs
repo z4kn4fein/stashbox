@@ -202,20 +202,6 @@ namespace Stashbox.Tests
             Assert.IsInstanceOfType(test3.test12, typeof(Test1));
         }
 
-        [TestMethod]
-        public void ConditionalTests_GenericCondition()
-        {
-            var container = new StashboxContainer();
-            container.Register<ITest1, Test1>(context => context.When(t => t.ParameterName == "Test1"));
-            container.Register<ITest1, Test11>(context => context.When(t => t.ParameterName == "Test11"));
-            container.Register<Test5>(c => c.WithAutoMemberInjection());
-
-            var test5 = container.Resolve<Test5>();
-
-            Assert.IsInstanceOfType(test5.Test1, typeof(Test1));
-            Assert.IsInstanceOfType(test5.Test11, typeof(Test11));
-        }
-
         interface ITest1 { }
 
         interface ITest2 { ITest1 test1 { get; set; } ITest1 test12 { get; set; } }
@@ -262,13 +248,6 @@ namespace Stashbox.Tests
         [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property | AttributeTargets.Parameter)]
         class TestCondition2Attribute : Attribute
         {
-        }
-
-        class Test5
-        {
-            public ITest1 Test1 { get; set; }
-
-            public ITest1 Test11 { get; set; }
         }
     }
 }

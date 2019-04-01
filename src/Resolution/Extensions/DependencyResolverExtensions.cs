@@ -107,5 +107,16 @@ namespace Stashbox
         /// <returns>The scope.</returns>
         public static IDependencyResolver PutInstanceInScope<TFrom>(this IDependencyResolver resolver, TFrom instance, bool withoutDisposalTracking = false) =>
             resolver.PutInstanceInScope(typeof(TFrom), instance, withoutDisposalTracking);
+
+        /// <summary>
+        /// On the fly activates an object without registering it into the container. If you want to resolve a
+        /// registered service use the <see cref="IDependencyResolver.Resolve(Type, bool, object[])" /> instead.
+        /// </summary>
+        /// <typeparam name="TTo">The service type.</typeparam>
+        /// <param name="resolver">The dependency resolver.</param>
+        /// <param name="arguments">Optional dependency overrides.</param>
+        /// <returns>The built object.</returns>
+        public static TTo Activate<TTo>(this IDependencyResolver resolver, params object[] arguments) =>
+            (TTo)resolver.Activate(typeof(TTo), arguments);
     }
 }

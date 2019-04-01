@@ -1,0 +1,43 @@
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Stashbox.Attributes;
+
+namespace Stashbox.Tests
+{
+    [TestClass]
+    public class ActivateTests
+    {
+        [TestMethod]
+        public void ActivateTests_Constructor()
+        {
+            var inst = new StashboxContainer().Register<Test>().Activate<Test1>();
+
+            Assert.IsNotNull(inst.Test);
+            Assert.IsNotNull(inst.Test2);
+
+            Assert.IsTrue(inst.InjectionMethodCalled);
+        }
+
+        class Test { }
+
+        class Test1
+        {
+            public bool InjectionMethodCalled { get; set; }
+
+            public Test Test { get; set; }
+
+            [Dependency]
+            public Test Test2 { get; set; }
+
+            public Test1(Test test)
+            {
+                this.Test = test;
+            }
+
+            [InjectionMethod]
+            public void InjectMethod()
+            {
+                this.InjectionMethodCalled = true;
+            }
+        }
+    }
+}

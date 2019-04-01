@@ -3,6 +3,7 @@ using Stashbox.Entity.Resolution;
 using Stashbox.Exceptions;
 using Stashbox.Registration;
 using Stashbox.Resolution;
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -12,7 +13,8 @@ namespace Stashbox.BuildUp.Expressions
 {
     internal class ConstructorSelector : IConstructorSelector
     {
-        public ResolutionConstructor CreateResolutionConstructor(IContainerContext containerContext,
+        public ResolutionConstructor CreateResolutionConstructor(
+            IContainerContext containerContext,
             IServiceRegistration serviceRegistration,
             ResolutionContext resolutionContext,
             ConstructorInformation constructor)
@@ -28,16 +30,18 @@ namespace Stashbox.BuildUp.Expressions
                     resolutionContext, parameter, serviceRegistration.RegistrationContext.InjectionParameters);
 
                 parameterExpressions[i] = expression ?? throw new ResolutionFailedException(serviceRegistration.ImplementationType,
-                    $"Constructor {constructor.Constructor}, unresolvable parameter: ({parameter.Type}){parameter.ParameterName}");
+                    $"Constructor {constructor.Constructor}, unresolvable parameter: ({parameter.Type}){parameter.ParameterOrMemberName}");
             }
 
             return new ResolutionConstructor { Constructor = constructor.Constructor, Parameters = parameterExpressions };
         }
 
-        public ResolutionConstructor SelectConstructor(IContainerContext containerContext,
-            IServiceRegistration serviceRegistration,
+        public ResolutionConstructor SelectConstructor(
+            Type implementationType,
+            IContainerContext containerContext,
             ResolutionContext resolutionContext,
-            ConstructorInformation[] constructors)
+            ConstructorInformation[] constructors,
+            IEnumerable<InjectionParameter> injectionParameters)
         {
             var length = constructors.Length;
             var checkedConstructors = new Dictionary<ConstructorInfo, TypeInformation>();
@@ -46,7 +50,7 @@ namespace Stashbox.BuildUp.Expressions
                 var constructor = constructors[i];
 
                 if (!this.TryBuildResolutionConstructor(constructor, resolutionContext, containerContext,
-                    serviceRegistration, out var failedParameter, out var parameterExpressions, true))
+                    injectionParameters, out var failedParameter, out var parameterExpressions, true))
                 {
                     checkedConstructors.Add(constructor.Constructor, failedParameter);
                     continue;
@@ -60,7 +64,7 @@ namespace Stashbox.BuildUp.Expressions
                 {
                     var constructor = constructors[i];
                     if (this.TryBuildResolutionConstructor(constructor, resolutionContext, containerContext,
-                        serviceRegistration, out var failedParameter, out var parameterExpressions))
+                        injectionParameters, out var failedParameter, out var parameterExpressions))
                         return new ResolutionConstructor { Constructor = constructor.Constructor, Parameters = parameterExpressions };
                 }
 
@@ -69,16 +73,16 @@ namespace Stashbox.BuildUp.Expressions
 
             var stringBuilder = new StringBuilder();
             foreach (var checkedConstructor in checkedConstructors)
-                stringBuilder.AppendLine($"Checked constructor {checkedConstructor.Key}, unresolvable parameter: ({checkedConstructor.Value.Type}){checkedConstructor.Value.ParameterName}");
+                stringBuilder.AppendLine($"Checked constructor {checkedConstructor.Key}, unresolvable parameter: ({checkedConstructor.Value.Type}){checkedConstructor.Value.ParameterOrMemberName}");
 
-            throw new ResolutionFailedException(serviceRegistration.ImplementationType, stringBuilder.ToString());
+            throw new ResolutionFailedException(implementationType, stringBuilder.ToString());
         }
 
         private bool TryBuildResolutionConstructor(
             ConstructorInformation constructor,
             ResolutionContext resolutionContext,
             IContainerContext containerContext,
-            IServiceRegistration serviceRegistration,
+            IEnumerable<InjectionParameter> injectionParameters,
             out TypeInformation failedParameter,
             out Expression[] parameterExpressions,
             bool skipUknownResolution = false)
@@ -90,8 +94,8 @@ namespace Stashbox.BuildUp.Expressions
             {
                 var parameter = constructor.Parameters[i];
 
-                parameterExpressions[i] = containerContext.ResolutionStrategy.BuildResolutionExpression(containerContext, resolutionContext,
-                    parameter, serviceRegistration.RegistrationContext.InjectionParameters, skipUknownResolution);
+                parameterExpressions[i] = containerContext.ResolutionStrategy.BuildResolutionExpression(containerContext,
+                    resolutionContext, parameter, injectionParameters, skipUknownResolution);
 
                 if (parameterExpressions[i] == null)
                 {

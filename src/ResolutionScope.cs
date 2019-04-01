@@ -130,13 +130,24 @@ namespace Stashbox
 
         public TTo BuildUp<TTo>(TTo instance)
         {
-            var typeTo = instance.GetType();
+            var typeTo = typeof(TTo);
             var resolutionContext = ResolutionContext.New(this);
             var metaInfo = MetaInformation.GetOrCreateMetaInfo(typeTo);
-            var expr = this.expressionBuilder.CreateBasicFillExpression(this.containerContext,
-                metaInfo.InjectionMembers, metaInfo.InjectionMethods, instance.AsConstant(), resolutionContext, typeTo);
-            var factory = expr.CompileDelegate(resolutionContext);
-            return (TTo)factory(this);
+            var expression = this.expressionBuilder.CreateBasicFillExpression(this.containerContext,
+                metaInfo, instance.AsConstant(), resolutionContext, typeTo);
+            return (TTo)expression.CompileDelegate(resolutionContext)(this);
+        }
+
+        public object Activate(Type type, params object[] arguments)
+        {
+            if (!type.IsResolvableType())
+                throw new ArgumentException($"The given type ({type.FullName}) could not be activated on the fly by the container.");
+
+            var resolutionContext = ResolutionContext.New(this, dependencyOverrides: arguments);
+            var metaInfo = MetaInformation.GetOrCreateMetaInfo(type);
+            var expression = this.expressionBuilder.CreateBasicExpression(this.containerContext, metaInfo,
+                resolutionContext, type);
+            return expression.CompileDelegate(resolutionContext)(this);
         }
 
         public TDisposable AddDisposableTracking<TDisposable>(TDisposable disposable)

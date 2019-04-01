@@ -15,14 +15,18 @@ namespace Stashbox.BuildUp.Expressions
             Type serviceType);
 
         Expression CreateBasicFillExpression(IContainerContext containerContext,
-            MemberInformation[] members,
-            MethodInformation[] methods,
+            MetaInformation metaInformation,
             Expression instance,
             ResolutionContext resolutionContext,
             Type serviceType);
 
         Expression CreateExpression(IContainerContext containerContext,
             IServiceRegistration serviceRegistration,
+            ResolutionContext resolutionContext,
+            Type serviceType);
+
+        Expression CreateBasicExpression(IContainerContext containerContext,
+            MetaInformation metaInformation,
             ResolutionContext resolutionContext,
             Type serviceType);
     }

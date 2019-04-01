@@ -18,7 +18,7 @@ namespace Stashbox
             if (selector != null)
                 types = types.Where(selector);
 
-            foreach (var type in types.Where(t => t.IsValidForRegistration()))
+            foreach (var type in types.Where(t => t.IsResolvableType()))
             {
                 if (type.Implements(typeFrom))
                 {
@@ -49,7 +49,7 @@ namespace Stashbox
             if (selector != null)
                 types = types.Where(selector);
 
-            foreach (var type in types.Where(t => t.IsValidForRegistration()))
+            foreach (var type in types.Where(t => t.IsResolvableType()))
             {
                 foreach (var interfaceType in type.GetRegisterableInterfaceTypes())
                     this.Register(interfaceType, type, configurator);
@@ -64,14 +64,21 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public IStashboxContainer ComposeBy(Type compositionRootType)
+        public IStashboxContainer ComposeBy(Type compositionRootType, params object[] compositionRootArguments)
         {
             Shield.EnsureNotNull(compositionRootType, nameof(compositionRootType));
             Shield.EnsureTrue(compositionRootType.IsCompositionRoot(), $"The given type {compositionRootType} doesn't implement ICompositionRoot.");
 
-            var compositionRoot = (ICompositionRoot)Activator.CreateInstance(compositionRootType);
+            var compositionRoot = (ICompositionRoot)this.Activate(compositionRootType, compositionRootArguments);
             compositionRoot.Compose(this);
 
+            return this;
+        }
+
+        /// <inheritdoc />
+        public IStashboxContainer ComposeBy(ICompositionRoot compositionRoot)
+        {
+            compositionRoot.Compose(this);
             return this;
         }
 

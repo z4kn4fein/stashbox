@@ -2,6 +2,8 @@
 using Stashbox.Entity.Resolution;
 using Stashbox.Registration;
 using Stashbox.Resolution;
+using System;
+using System.Collections.Generic;
 
 namespace Stashbox.BuildUp.Expressions
 {
@@ -12,9 +14,11 @@ namespace Stashbox.BuildUp.Expressions
             ResolutionContext resolutionContext,
             ConstructorInformation constructor);
 
-        ResolutionConstructor SelectConstructor(IContainerContext containerContext,
-            IServiceRegistration serviceRegistration,
+        ResolutionConstructor SelectConstructor(
+            Type implementationType,
+            IContainerContext containerContext,
             ResolutionContext resolutionContext,
-            ConstructorInformation[] constructors);
+            ConstructorInformation[] constructors,
+            IEnumerable<InjectionParameter> injectionParameters);
     }
 }

@@ -32,5 +32,9 @@ namespace Stashbox
         /// <inheritdoc />
         public TTo BuildUp<TTo>(TTo instance) =>
             this.rootResolver.BuildUp(instance);
+
+        /// <inheritdoc />
+        public object Activate(Type type, params object[] arguments) =>
+            this.rootResolver.Activate(type, arguments);
     }
 }

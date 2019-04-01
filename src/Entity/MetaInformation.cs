@@ -78,7 +78,7 @@ namespace Stashbox.Entity
                 ForcedDependency = dependencyAttribute != null,
                 ParentType = this.type,
                 CustomAttributes = customAttributes,
-                ParameterName = parameter.Name,
+                ParameterOrMemberName = parameter.Name,
                 HasDefaultValue = parameter.HasDefaultValue(),
                 DefaultValue = parameter.DefaultValue
             };
@@ -153,7 +153,7 @@ namespace Stashbox.Entity
                             ForcedDependency = attr != null,
                             ParentType = this.type,
                             CustomAttributes = propertyInfo.GetCustomAttributes()?.CastToArray(),
-                            ParameterName = propertyInfo.Name,
+                            ParameterOrMemberName = propertyInfo.Name,
                             MemberType = MemberType.Property
                         },
                         MemberInfo = propertyInfo
@@ -174,7 +174,7 @@ namespace Stashbox.Entity
                             ForcedDependency = attr != null,
                             ParentType = this.type,
                             CustomAttributes = fieldInfo.GetCustomAttributes()?.CastToArray(),
-                            ParameterName = fieldInfo.Name,
+                            ParameterOrMemberName = fieldInfo.Name,
                             MemberType = MemberType.Field
                         },
                         MemberInfo = fieldInfo

@@ -32,7 +32,15 @@ namespace Stashbox
         /// Composes services by calling the <see cref="ICompositionRoot.Compose"/> method of the given type.
         /// </summary>
         /// <param name="compositionRootType">The type of an <see cref="ICompositionRoot"/> implementation.</param>
+        /// <param name="compositionRootArguments">Optional composition root constructor arguments.</param>
         /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns>
-        IStashboxContainer ComposeBy(Type compositionRootType);
+        IStashboxContainer ComposeBy(Type compositionRootType, params object[] compositionRootArguments);
+
+        /// <summary>
+        /// Composes services by calling the <see cref="ICompositionRoot.Compose"/> method of the given root.
+        /// </summary>
+        /// <param name="compositionRoot">The composition root instance.</param>
+        /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns>
+        IStashboxContainer ComposeBy(ICompositionRoot compositionRoot);
     }
 }

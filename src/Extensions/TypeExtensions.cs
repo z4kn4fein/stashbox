@@ -133,7 +133,7 @@ namespace System
         public static bool IsCompositionRoot(this Type type) =>
             type.Implements(Constants.CompositionRootType);
 
-        public static bool IsValidForRegistration(this Type type)
+        public static bool IsResolvableType(this Type type)
         {
             var typeInfo = type.GetTypeInfo();
             return !typeInfo.IsAbstract &&

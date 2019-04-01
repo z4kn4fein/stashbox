@@ -78,5 +78,14 @@ namespace Stashbox
         /// <param name="instance">The instance to build up.</param>
         /// <returns>The built object.</returns>
         TTo BuildUp<TTo>(TTo instance);
+
+        /// <summary>
+        /// On the fly activates an object without registering it into the container. If you want to resolve a
+        /// registered service use the <see cref="IDependencyResolver.Resolve(Type, bool, object[])" /> instead.
+        /// </summary>
+        /// <param name="type">The type to activate.</param>
+        /// <param name="arguments">Optional dependency overrides.</param>
+        /// <returns>The built object.</returns>
+        object Activate(Type type, params object[] arguments);
     }
 }

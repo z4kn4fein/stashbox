@@ -108,13 +108,14 @@ namespace Stashbox
         /// </summary>
         /// <param name="registrator">The registrator.</param>
         /// <param name="assemblies">The assemblies to scan.</param>
+        /// <param name="selector">The type selector.</param>
         /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns>
-        public static IStashboxContainer ComposeAssemblies(this IDependencyCollectionRegistrator registrator, IEnumerable<Assembly> assemblies)
+        public static IStashboxContainer ComposeAssemblies(this IDependencyCollectionRegistrator registrator, IEnumerable<Assembly> assemblies, Func<Type, bool> selector = null)
         {
             Shield.EnsureNotNull(assemblies, nameof(assemblies));
 
             foreach (var assembly in assemblies)
-                registrator.ComposeAssembly(assembly);
+                registrator.ComposeAssembly(assembly, selector);
 
             return (IStashboxContainer)registrator;
         }
@@ -124,30 +125,31 @@ namespace Stashbox
         /// </summary>
         /// <typeparam name="TCompositionRoot">The type of an <see cref="ICompositionRoot"/> implementation.</typeparam>
         /// <param name="registrator">The registrator.</param>
+        /// <param name="compositionRootArguments">Optional composition root constructor arguments.</param>
         /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns>
-        public static IStashboxContainer ComposeBy<TCompositionRoot>(this IDependencyCollectionRegistrator registrator)
-            where TCompositionRoot : ICompositionRoot, new() =>
-            registrator.ComposeBy(typeof(TCompositionRoot));
+        public static IStashboxContainer ComposeBy<TCompositionRoot>(this IDependencyCollectionRegistrator registrator, params object[] compositionRootArguments)
+            where TCompositionRoot : class, ICompositionRoot =>
+            registrator.ComposeBy(typeof(TCompositionRoot), compositionRootArguments);
 
         /// <summary>
         /// Searches the given assembly for <see cref="ICompositionRoot"/> implementations and invokes their <see cref="ICompositionRoot.Compose"/> method.
         /// </summary>
         /// <param name="registrator">The registrator.</param>
         /// <param name="assembly">The assembly to scan.</param>
+        /// <param name="selector">The type selector.</param>
         /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns>
-        public static IStashboxContainer ComposeAssembly(this IDependencyCollectionRegistrator registrator, Assembly assembly)
+        public static IStashboxContainer ComposeAssembly(this IDependencyCollectionRegistrator registrator, Assembly assembly, Func<Type, bool> selector = null)
         {
             Shield.EnsureNotNull(assembly, nameof(assembly));
 
-            var compositionRootTypes = assembly.CollectTypes().Where(type => !type.GetTypeInfo().IsAbstract && type.IsCompositionRoot()).ToArray();
+            var types = selector == null ? assembly.CollectTypes() : assembly.CollectTypes().Where(selector);
+            var compositionRootTypes = types.Where(type => type.IsResolvableType() && type.IsCompositionRoot());
 
-            var length = compositionRootTypes.Length;
-
-            if (length == 0)
+            if (!compositionRootTypes.Any())
                 throw new CompositionRootNotFoundException(assembly);
 
-            for (var i = 0; i < length; i++)
-                registrator.ComposeBy(compositionRootTypes[i]);
+            foreach (var compositionRootType in compositionRootTypes)
+                registrator.ComposeBy(compositionRootType);
 
             return (IStashboxContainer)registrator;
         }

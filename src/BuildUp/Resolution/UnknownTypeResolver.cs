@@ -9,7 +9,7 @@ namespace Stashbox.BuildUp.Resolution
     {
         public bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext) =>
             containerContext.ContainerConfigurator.ContainerConfiguration.UnknownTypeResolutionEnabled &&
-                       typeInfo.Type.IsValidForRegistration();
+                       typeInfo.Type.IsResolvableType();
 
         public Expression GetExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext)
         {

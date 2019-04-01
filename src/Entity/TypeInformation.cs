@@ -29,9 +29,9 @@ namespace Stashbox.Entity
         public IEnumerable<Attribute> CustomAttributes { get; internal set; }
 
         /// <summary>
-        /// The parameter name of the dependency if it's a param of a method.
+        /// If the dependency is a method or constructor parameter this property holds the parameter name, if it's a class member then the member name.
         /// </summary>
-        public string ParameterName { get; internal set; }
+        public string ParameterOrMemberName { get; internal set; }
 
         /// <summary>
         /// It's true if the dependency has default value.
