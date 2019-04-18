@@ -111,7 +111,7 @@ namespace Stashbox.Tests
                 .Register<ITest, TestM2>(context => context.WithName("test2"));
 
             var inst = container.Resolve<Test3>();
-            
+
             Assert.IsNotNull(inst.Test1);
             Assert.IsNull(inst.Test2);
             Assert.IsInstanceOfType(inst.Test1, typeof(TestM2));
@@ -131,8 +131,7 @@ namespace Stashbox.Tests
             var inst = new StashboxContainer(config =>
                     config.WithUnknownTypeResolution()
                         .WithMemberInjectionWithoutAnnotation(filter: info => info.Type != typeof(Test4)))
-                .Register<Test6>()
-                .Resolve<Test6>();
+                .Activate<Test6>();
 
             Assert.IsNull(inst.Test4);
             Assert.IsNotNull(inst.Test5);

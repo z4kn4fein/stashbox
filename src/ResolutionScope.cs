@@ -1,6 +1,7 @@
 ﻿using Stashbox.BuildUp.Expressions;
 using Stashbox.Entity;
 using Stashbox.Exceptions;
+using Stashbox.Registration;
 using Stashbox.Resolution;
 using Stashbox.Utils;
 using System;
@@ -134,7 +135,12 @@ namespace Stashbox
             var resolutionContext = ResolutionContext.New(this);
             var metaInfo = MetaInformation.GetOrCreateMetaInfo(typeTo);
             var expression = this.expressionBuilder.CreateBasicFillExpression(this.containerContext,
-                metaInfo, instance.AsConstant(), resolutionContext, typeTo);
+                metaInfo.SelectInjectionMembers(RegistrationContextData.Empty,
+                    this.containerContext.ContainerConfigurator.ContainerConfiguration),
+                metaInfo.GetInjectionMethods(),
+                instance.AsConstant(),
+                resolutionContext,
+                typeTo);
             return (TTo)expression.CompileDelegate(resolutionContext)(this);
         }
 
@@ -145,8 +151,13 @@ namespace Stashbox
 
             var resolutionContext = ResolutionContext.New(this, dependencyOverrides: arguments);
             var metaInfo = MetaInformation.GetOrCreateMetaInfo(type);
-            var expression = this.expressionBuilder.CreateBasicExpression(this.containerContext, metaInfo,
-                resolutionContext, type);
+            var expression = this.expressionBuilder.CreateBasicExpression(this.containerContext,
+                metaInfo.GetConstructors(),
+                metaInfo.SelectInjectionMembers(RegistrationContextData.Empty,
+                    this.containerContext.ContainerConfigurator.ContainerConfiguration),
+                metaInfo.GetInjectionMethods(),
+                resolutionContext,
+                type);
             return expression.CompileDelegate(resolutionContext)(this);
         }
 

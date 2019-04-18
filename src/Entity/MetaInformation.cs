@@ -1,4 +1,6 @@
-﻿using Stashbox.Utils;
+﻿using Stashbox.Configuration;
+using Stashbox.Registration;
+using Stashbox.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,12 +13,9 @@ namespace Stashbox.Entity
         private static AvlTreeKeyValue<Type, MetaInformation> MetaRepository = AvlTreeKeyValue<Type, MetaInformation>.Empty;
         private readonly IDictionary<int, GenericConstraintInfo> genericTypeConstraints;
         private readonly Type type;
-
-        public ConstructorInformation[] Constructors { get; }
-
-        public MethodInformation[] InjectionMethods { get; }
-
-        public MemberInformation[] InjectionMembers { get; }
+        private readonly ConstructorInformation[] constructors;
+        private readonly MethodInformation[] injectionMethods;
+        private readonly MemberInformation[] injectionMembers;
 
         public bool IsOpenGenericType { get; }
 
@@ -26,9 +25,9 @@ namespace Stashbox.Entity
             var typeInfo = this.type.GetTypeInfo();
             this.IsOpenGenericType = typeInfo.IsOpenGenericType();
             this.genericTypeConstraints = new Dictionary<int, GenericConstraintInfo>();
-            this.Constructors = this.CollectConstructors(typeInfo.DeclaredConstructors);
-            this.InjectionMethods = this.CollectMethods(typeInfo.DeclaredMethods);
-            this.InjectionMembers = this.CollectMembers(typeInfo);
+            this.constructors = this.CollectConstructors(typeInfo.DeclaredConstructors);
+            this.injectionMethods = this.CollectMethods(typeInfo.DeclaredMethods);
+            this.injectionMembers = this.CollectMembers(typeInfo);
             this.CollectGenericConstraints(typeInfo);
         }
 
@@ -93,6 +92,65 @@ namespace Stashbox.Entity
             Swap.SwapValue(ref MetaRepository, (t1, t2, t3, t4, repo) =>
                 repo.AddOrUpdate(t1, t2), typeTo, meta, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
             return meta;
+        }
+
+        public ConstructorInformation[] GetConstructors() => this.constructors;
+
+        public MethodInformation[] GetInjectionMethods() => this.injectionMethods;
+
+        public ConstructorInformation FindSelectedConstructor(RegistrationContextData registrationContextData)
+        {
+            if (registrationContextData.SelectedConstructor == null)
+                return null;
+
+            var length = this.constructors.Length;
+            for (var i = 0; i < length; i++)
+            {
+                var current = this.constructors[i];
+                if (current.Constructor == registrationContextData.SelectedConstructor)
+                    return current;
+            }
+
+            return null;
+        }
+
+        public MemberInformation[] SelectInjectionMembers(RegistrationContextData contextData, ContainerConfiguration containerConfiguration)
+        {
+            if (contextData.InjectionMemberNames.Count == 0 &&
+                containerConfiguration.MemberInjectionFilter == null &&
+                contextData.MemberInjectionFilter == null)
+                return this.injectionMembers;
+
+            var infos = containerConfiguration.MemberInjectionFilter != null
+                ? this.injectionMembers.Where(member =>
+                    containerConfiguration.MemberInjectionFilter(member.TypeInformation))
+                : this.injectionMembers;
+
+            infos = contextData.MemberInjectionFilter != null
+                ? infos.Where(member =>
+                    contextData.MemberInjectionFilter(member.TypeInformation))
+                : infos;
+
+            var infosArray = infos.CastToArray();
+
+            var length = infosArray.Length;
+            var members = new MemberInformation[length];
+            for (var i = 0; i < length; i++)
+            {
+                var member = infosArray[i];
+                if (contextData.InjectionMemberNames.TryGetValue(member.MemberInfo.Name,
+                    out var dependencyName))
+                {
+                    var copy = member.Clone();
+                    copy.TypeInformation.ForcedDependency = true;
+                    copy.TypeInformation.DependencyName = dependencyName;
+                    members[i] = copy;
+                }
+                else
+                    members[i] = member;
+            }
+
+            return members;
         }
 
         private ConstructorInformation[] CollectConstructors(IEnumerable<ConstructorInfo> constructors) =>

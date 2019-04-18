@@ -68,10 +68,11 @@ namespace Stashbox.Registration
             this.objectBuilderSelector = objectBuilderSelector;
             this.ImplementationType = implementationType;
             this.metaInformation = MetaInformation.GetOrCreateMetaInfo(implementationType);
-            this.Constructors = this.metaInformation.Constructors;
-            this.InjectionMethods = this.metaInformation.InjectionMethods;
-            this.InjectionMembers = this.ConstructInjectionMembers(registrationContextData, this.metaInformation);
-            this.SelectedConstructor = this.FindSelectedConstructor(registrationContextData, this.metaInformation);
+            this.Constructors = this.metaInformation.GetConstructors();
+            this.InjectionMethods = this.metaInformation.GetInjectionMethods();
+            this.InjectionMembers = this.metaInformation.SelectInjectionMembers(registrationContextData,
+                containerConfigurator.ContainerConfiguration);
+            this.SelectedConstructor = this.metaInformation.FindSelectedConstructor(registrationContextData);
             this.RegistrationNumber = ReserveRegistrationNumber();
             this.RegistrationContext = registrationContextData;
             this.IsDecorator = isDecorator;
@@ -123,61 +124,6 @@ namespace Stashbox.Registration
         public IServiceRegistration Clone(Type implementationType) =>
             new ServiceRegistration(implementationType, this.containerConfigurator, this.objectBuilderSelector,
                 this.RegistrationContext.Clone(), this.IsDecorator, this.ShouldHandleDisposal);
-
-        private ConstructorInformation FindSelectedConstructor(RegistrationContextData registrationContextData, MetaInformation metaInfo)
-        {
-            if (registrationContextData.SelectedConstructor == null)
-                return null;
-
-            var length = metaInfo.Constructors.Length;
-            for (var i = 0; i < length; i++)
-            {
-                var current = metaInfo.Constructors[i];
-                if (current.Constructor == registrationContextData.SelectedConstructor)
-                    return current;
-            }
-
-            return null;
-        }
-
-        private MemberInformation[] ConstructInjectionMembers(RegistrationContextData registrationContextData, MetaInformation metaInfo)
-        {
-            if (registrationContextData.InjectionMemberNames.Count == 0 &&
-                this.containerConfigurator.ContainerConfiguration.MemberInjectionFilter == null &&
-                registrationContextData.MemberInjectionFilter == null)
-                return metaInfo.InjectionMembers;
-
-            var infos = this.containerConfigurator.ContainerConfiguration.MemberInjectionFilter != null
-                ? metaInfo.InjectionMembers.Where(member =>
-                    this.containerConfigurator.ContainerConfiguration.MemberInjectionFilter(member.TypeInformation))
-                : metaInfo.InjectionMembers;
-
-            infos = registrationContextData.MemberInjectionFilter != null
-                ? infos.Where(member =>
-                    registrationContextData.MemberInjectionFilter(member.TypeInformation))
-                : infos;
-
-            var infosArray = infos.CastToArray();
-
-            var length = infosArray.Length;
-            var members = new MemberInformation[length];
-            for (var i = 0; i < length; i++)
-            {
-                var member = infosArray[i];
-                if (registrationContextData.InjectionMemberNames.TryGetValue(member.MemberInfo.Name,
-                    out var dependencyName))
-                {
-                    var copy = member.Clone();
-                    copy.TypeInformation.ForcedDependency = true;
-                    copy.TypeInformation.DependencyName = dependencyName;
-                    members[i] = copy;
-                }
-                else
-                    members[i] = member;
-            }
-
-            return members;
-        }
 
         private Expression ConstructExpression(IContainerContext containerContext, ResolutionContext resolutionContext, Type resolveType) =>
             this.RegistrationContext.Lifetime == null || this.metaInformation.IsOpenGenericType

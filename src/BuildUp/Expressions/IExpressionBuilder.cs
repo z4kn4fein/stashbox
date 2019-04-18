@@ -15,7 +15,8 @@ namespace Stashbox.BuildUp.Expressions
             Type serviceType);
 
         Expression CreateBasicFillExpression(IContainerContext containerContext,
-            MetaInformation metaInformation,
+            MemberInformation[] injectionMembers,
+            MethodInformation[] injectionMethods,
             Expression instance,
             ResolutionContext resolutionContext,
             Type serviceType);
@@ -26,7 +27,9 @@ namespace Stashbox.BuildUp.Expressions
             Type serviceType);
 
         Expression CreateBasicExpression(IContainerContext containerContext,
-            MetaInformation metaInformation,
+            ConstructorInformation[] constructors,
+            MemberInformation[] injectionMembers,
+            MethodInformation[] injectionMethods,
             ResolutionContext resolutionContext,
             Type serviceType);
     }

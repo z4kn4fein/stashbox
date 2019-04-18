@@ -6,53 +6,50 @@ using System.Runtime.CompilerServices;
 
 namespace Stashbox.Utils
 {
-    /// <summary>
-    /// Holds the constant values used by the conainer.
-    /// </summary>
-    public static class Constants
+    internal static class Constants
     {
-        internal static readonly Type ResolutionScopeType = typeof(IResolutionScope);
+        public static readonly Type ResolutionScopeType = typeof(IResolutionScope);
 
-        internal static readonly Type ResolverType = typeof(IDependencyResolver);
+        public static readonly Type ResolverType = typeof(IDependencyResolver);
 
-        internal static readonly ParameterExpression ResolutionScopeParameter = ResolutionScopeType.AsParameter("scope");
+        public static readonly ParameterExpression ResolutionScopeParameter = ResolutionScopeType.AsParameter("scope");
 
-        internal static readonly MethodInfo AddDisposalMethod = ResolutionScopeType.GetSingleMethod("AddDisposableTracking");
+        public static readonly MethodInfo AddDisposalMethod = ResolutionScopeType.GetSingleMethod("AddDisposableTracking");
 
-        internal static readonly MethodInfo GetOrAddScopedItemMethod = ResolutionScopeType.GetSingleMethod("GetOrAddScopedItem");
+        public static readonly MethodInfo GetOrAddScopedItemMethod = ResolutionScopeType.GetSingleMethod("GetOrAddScopedItem");
 
-        internal static readonly MethodInfo AddWithFinalizerMethod = ResolutionScopeType.GetSingleMethod("AddWithFinalizer");
+        public static readonly MethodInfo AddWithFinalizerMethod = ResolutionScopeType.GetSingleMethod("AddWithFinalizer");
 
-        internal static readonly MethodInfo GetScopedInstanceMethod = ResolutionScopeType.GetSingleMethod("GetScopedInstanceOrDefault");
+        public static readonly MethodInfo GetScopedInstanceMethod = ResolutionScopeType.GetSingleMethod("GetScopedInstanceOrDefault");
 
-        internal static readonly MethodInfo CheckRuntimeCircularDependencyBarrierMethod = ResolutionScopeType.GetSingleMethod("CheckRuntimeCircularDependencyBarrier");
+        public static readonly MethodInfo CheckRuntimeCircularDependencyBarrierMethod = ResolutionScopeType.GetSingleMethod("CheckRuntimeCircularDependencyBarrier");
 
-        internal static readonly MethodInfo ResetRuntimetCircularDependencyBarrierMethod = ResolutionScopeType.GetSingleMethod("ResetRuntimetCircularDependencyBarrier");
+        public static readonly MethodInfo ResetRuntimetCircularDependencyBarrierMethod = ResolutionScopeType.GetSingleMethod("ResetRuntimetCircularDependencyBarrier");
 
-        internal static readonly MethodInfo BuildExtensionMethod = typeof(IContainerExtensionManager).GetSingleMethod("ExecutePostBuildExtensions");
+        public static readonly MethodInfo BuildExtensionMethod = typeof(IContainerExtensionManager).GetSingleMethod("ExecutePostBuildExtensions");
 
-        internal static readonly MethodInfo BeginScopeMethod = ResolverType.GetSingleMethod("BeginScope");
+        public static readonly MethodInfo BeginScopeMethod = ResolverType.GetSingleMethod("BeginScope");
 
-        internal static readonly Type DisposableType = typeof(IDisposable);
+        public static readonly Type DisposableType = typeof(IDisposable);
 
-        internal static readonly Type FuncType = typeof(Func<>);
+        public static readonly Type FuncType = typeof(Func<>);
 
-        internal static readonly Type[] EmptyTypes = new Type[0];
+        public static readonly Type[] EmptyTypes = new Type[0];
 
-        internal static readonly Expression[] EmptyExpressions = new Expression[0];
+        public static readonly Expression[] EmptyExpressions = new Expression[0];
 
-        internal static readonly Type ObjectType = typeof(object);
+        public static readonly Type ObjectType = typeof(object);
 
-        internal static readonly ConstructorInfo ObjectConstructor = ObjectType.GetConstructor(EmptyTypes);
+        public static readonly ConstructorInfo ObjectConstructor = ObjectType.GetConstructor(EmptyTypes);
 
-        internal static readonly Type CompositionRootType = typeof(ICompositionRoot);
+        public static readonly Type CompositionRootType = typeof(ICompositionRoot);
 
-        internal static readonly Type DependencyAttributeType = typeof(Attributes.DependencyAttribute);
+        public static readonly Type DependencyAttributeType = typeof(Attributes.DependencyAttribute);
 
-        internal static readonly Type InjectionAttributeType = typeof(Attributes.InjectionMethodAttribute);
+        public static readonly Type InjectionAttributeType = typeof(Attributes.InjectionMethodAttribute);
 
-        internal const MethodImplOptions Inline = (MethodImplOptions)256;
+        public const MethodImplOptions Inline = (MethodImplOptions)256;
 
-        internal const byte DelegatePlaceholder = 0;
+        public const byte DelegatePlaceholder = 0;
     }
 }

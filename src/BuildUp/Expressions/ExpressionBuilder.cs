@@ -52,7 +52,8 @@ namespace Stashbox.BuildUp.Expressions
 
         public Expression CreateBasicFillExpression(
             IContainerContext containerContext,
-            MetaInformation metaInformation,
+            MemberInformation[] injectionMembers,
+            MethodInformation[] injectionMethods,
             Expression instance,
             ResolutionContext resolutionContext,
             Type serviceType)
@@ -67,14 +68,14 @@ namespace Stashbox.BuildUp.Expressions
 
             lines.Add(assign);
 
-            if (metaInformation.InjectionMembers.Length > 0)
-                lines.AddRange(this.FillMembersExpression(containerContext, metaInformation.InjectionMembers,
+            if (injectionMembers.Length > 0)
+                lines.AddRange(this.FillMembersExpression(containerContext, injectionMembers,
                     RegistrationContextData.Empty, resolutionContext, variable));
 
-            if (metaInformation.InjectionMethods.Length > 0)
+            if (injectionMethods.Length > 0)
             {
-                var methodExpressions = new Expression[metaInformation.InjectionMethods.Length];
-                this.CreateMethodExpressions(containerContext, metaInformation.InjectionMethods,
+                var methodExpressions = new Expression[injectionMethods.Length];
+                this.CreateMethodExpressions(containerContext, injectionMethods,
                      RegistrationContextData.Empty, resolutionContext, instance, methodExpressions);
                 lines.AddRange(methodExpressions);
             }
@@ -124,30 +125,32 @@ namespace Stashbox.BuildUp.Expressions
 
         public Expression CreateBasicExpression(
             IContainerContext containerContext,
-            MetaInformation metaInformation,
+            ConstructorInformation[] constructors,
+            MemberInformation[] injectionMembers,
+            MethodInformation[] injectionMethods,
             ResolutionContext resolutionContext,
             Type serviceType)
         {
             var initExpression = (Expression)this.constructorSelector.SelectConstructor(serviceType,
-                containerContext, resolutionContext, metaInformation.Constructors, null)?.MakeNew();
+                containerContext, resolutionContext, constructors, null)?.MakeNew();
             if (initExpression == null)
                 return null;
 
-            if (metaInformation.InjectionMembers.Length > 0)
+            if (injectionMembers.Length > 0)
             {
-                var bindings = this.GetMemberBindings(containerContext, metaInformation.InjectionMembers,
+                var bindings = this.GetMemberBindings(containerContext, injectionMembers,
                     RegistrationContextData.Empty, resolutionContext);
                 if (bindings.Count > 0)
                     initExpression = initExpression.InitMembers(bindings);
             }
 
-            if (metaInformation.InjectionMethods.Length > 0)
+            if (injectionMethods.Length > 0)
             {
                 var variable = initExpression.Type.AsVariable();
                 var assign = variable.AssignTo(initExpression);
 
-                var methodExpressions = new Expression[metaInformation.InjectionMethods.Length];
-                this.CreateMethodExpressions(containerContext, metaInformation.InjectionMethods,
+                var methodExpressions = new Expression[injectionMethods.Length];
+                this.CreateMethodExpressions(containerContext, injectionMethods,
                      RegistrationContextData.Empty, resolutionContext, variable, methodExpressions);
 
                 var lines = new List<Expression>(methodExpressions.Length + 1) { assign };
