@@ -87,10 +87,10 @@ namespace Stashbox.Registration
             var conditionals = registrations.Where(reg => reg.HasCondition);
 
             return typeInfo.Type.IsClosedGenericType()
-                ? conditionals.LastOrDefault(reg => reg.ValidateGenericContraints(typeInfo.Type) &&
+                ? conditionals.LastOrDefault(reg => reg.ValidateGenericConstraints(typeInfo.Type) &&
                                                     reg.IsUsableForCurrentContext(typeInfo) &&
                                                     !reg.HasName) ??
-                  registrations.LastOrDefault(reg => reg.ValidateGenericContraints(typeInfo.Type) &&
+                  registrations.LastOrDefault(reg => reg.ValidateGenericConstraints(typeInfo.Type) &&
                                                      !reg.HasName)
 
                 : conditionals.LastOrDefault(reg => reg.IsUsableForCurrentContext(typeInfo) &&
@@ -108,7 +108,7 @@ namespace Stashbox.Registration
                 return registrations.Last;
 
             return type.IsClosedGenericType()
-                ? registrations.LastOrDefault(reg => reg.ValidateGenericContraints(type) && !reg.HasName)
+                ? registrations.LastOrDefault(reg => reg.ValidateGenericConstraints(type) && !reg.HasName)
                 : registrations.LastOrDefault(reg => !reg.HasName);
         }
 
@@ -146,7 +146,10 @@ namespace Stashbox.Registration
             if (!type.IsClosedGenericType()) return registrations?.Repository;
 
             var generics = this.serviceRepository.GetOrDefault(type.GetGenericTypeDefinition());
-            return generics == null ? registrations?.Repository : registrations?.Repository.Concat(generics.Repository.Where(reg => reg.Value.ValidateGenericContraints(type))).OrderBy(reg => reg.Value.RegistrationNumber) ?? generics.Repository.Where(reg => reg.Value.ValidateGenericContraints(type));
+            return generics == null 
+                ? registrations?.Repository 
+                : registrations?.Repository.Concat(generics.Repository.Where(reg => reg.Value.ValidateGenericConstraints(type)))
+                      .OrderBy(reg => reg.Value.RegistrationNumber) ?? generics.Repository.Where(reg => reg.Value.ValidateGenericConstraints(type));
         }
 
         private IEnumerable<KeyValue<object, IServiceRegistration>> GetAllScopedRegistrationsOrDefault(Type type, ResolutionContext resolutionContext)
@@ -156,7 +159,10 @@ namespace Stashbox.Registration
             if (!type.IsClosedGenericType()) return registrations?.Repository;
 
             var generics = this.namedScopeRepository.GetOrDefault(type.GetGenericTypeDefinition())?.WhereOrDefault(kv => kv.Value.CanInjectIntoNamedScope(resolutionContext.ScopeNames));
-            return generics == null ? registrations?.Repository : registrations?.Repository.Concat(generics.Repository.Where(reg => reg.Value.ValidateGenericContraints(type))).OrderBy(reg => reg.Value.RegistrationNumber) ?? generics.Repository.Where(reg => reg.Value.ValidateGenericContraints(type));
+            return generics == null 
+                ? registrations?.Repository 
+                : registrations?.Repository.Concat(generics.Repository.Where(reg => reg.Value.ValidateGenericConstraints(type)))
+                      .OrderBy(reg => reg.Value.RegistrationNumber) ?? generics.Repository.Where(reg => reg.Value.ValidateGenericConstraints(type));
         }
     }
 }

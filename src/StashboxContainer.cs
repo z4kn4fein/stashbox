@@ -120,8 +120,12 @@ namespace Stashbox
             this.rootResolver.BeginScope(name, attachToParent);
 
         /// <inheritdoc />
-        public void Configure(Action<IContainerConfigurator> config) =>
+        public void Configure(Action<IContainerConfigurator> config)
+        {
             config?.Invoke(this.ContainerContext.ContainerConfigurator);
+            this.ContainerContext.ContainerConfigurator.ContainerConfiguration.ConfigurationChangedEvent?
+                .Invoke(this.ContainerContext.ContainerConfigurator.ContainerConfiguration);
+        }
 
         private void RegisterResolvers()
         {

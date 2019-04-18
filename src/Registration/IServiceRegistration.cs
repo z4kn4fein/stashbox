@@ -93,11 +93,11 @@ namespace Stashbox.Registration
         bool IsUsableForCurrentContext(TypeInformation typeInfo);
 
         /// <summary>
-        /// Validates that the given type's generic argument fullfills the generic constraint or not 
+        /// Validates that the given type's generic argument fulfills the generic constraint or not 
         /// </summary>
         /// <param name="type">The type information.</param>
         /// <returns>True if the argument is valid.</returns>
-        bool ValidateGenericContraints(Type type);
+        bool ValidateGenericConstraints(Type type);
 
         /// <summary>
         /// Checks that the registration can be injected into a named scope.

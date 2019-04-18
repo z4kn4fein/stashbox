@@ -93,16 +93,16 @@ namespace Stashbox.Registration
         IFluentServiceRegistrator WithInstance(object instance, bool wireUp = false);
 
         /// <summary>
-        /// Sets a dependant target condition for the registration.
+        /// Sets a parent target condition for the registration.
         /// </summary>
-        /// <typeparam name="TTarget">The type of the dependant.</typeparam>
+        /// <typeparam name="TTarget">The type of the parent.</typeparam>
         /// <returns>The <see cref="IFluentServiceRegistrator"/> which on this method was called.</returns>
         IFluentServiceRegistrator WhenDependantIs<TTarget>() where TTarget : class;
 
         /// <summary>
-        /// Sets a dependant target condition for the registration.
+        /// Sets a parent target condition for the registration.
         /// </summary>
-        /// <param name="targetType">The type of the dependant.</param>
+        /// <param name="targetType">The type of the parent.</param>
         /// <returns>The <see cref="IFluentServiceRegistrator"/> which on this method was called.</returns>
         IFluentServiceRegistrator WhenDependantIs(Type targetType);
 

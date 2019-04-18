@@ -50,7 +50,7 @@ namespace Stashbox.Configuration
         public bool UnknownTypeResolutionEnabled { get; internal set; }
 
         /// <summary>
-        /// If it's set to true, the container will inject members even whithout <see cref="DependencyAttribute"/>.
+        /// If it's set to true, the container will inject members even without <see cref="DependencyAttribute"/>.
         /// </summary>
         public bool MemberInjectionWithoutAnnotationEnabled { get; internal set; }
 
@@ -60,9 +60,14 @@ namespace Stashbox.Configuration
         public bool CircularDependenciesWithLazyEnabled { get; internal set; }
 
         /// <summary>
-        /// The annotationless member injection rule.
+        /// The member injection rule.
         /// </summary>
         public Rules.AutoMemberInjectionRules MemberInjectionWithoutAnnotationRule { get; internal set; }
+
+        /// <summary>
+        /// The constructor selection rule.
+        /// </summary>
+        public Func<IEnumerable<ConstructorInformation>, IEnumerable<ConstructorInformation>> ConstructorSelectionRule { get; internal set; }
 
         /// <summary>
         /// Represents the configuration which will be invoked when an unknown type being registered.
@@ -70,9 +75,14 @@ namespace Stashbox.Configuration
         public Action<IFluentServiceRegistrator> UnknownTypeConfigurator { get; internal set; }
 
         /// <summary>
-        /// The constructor selection rule.
+        /// The action which will be invoked when the container configuration changes.
         /// </summary>
-        public Func<IEnumerable<ConstructorInformation>, IEnumerable<ConstructorInformation>> ConstructorSelectionRule { get; internal set; }
+        public Action<ContainerConfiguration> ConfigurationChangedEvent { get; internal set; }
+
+        /// <summary>
+        /// A filter delegate used to determine which members should be auto injected and which are not.
+        /// </summary>
+        public Func<TypeInformation, bool> MemberInjectionFilter { get; internal set; }
 
         internal ContainerConfiguration()
         {

@@ -40,8 +40,9 @@ namespace Stashbox.Registration
         /// Enables auto member injection on the registration.
         /// </summary>
         /// <param name="rule">The auto member injection rule.</param>
+        /// <param name="filter">A filter delegate used to determine which members should be auto injected and which are not.</param>
         /// <returns>The fluent registrator.</returns>
-        TFluentRegistrator WithAutoMemberInjection(Rules.AutoMemberInjectionRules rule = Rules.AutoMemberInjectionRules.PropertiesWithPublicSetter);
+        TFluentRegistrator WithAutoMemberInjection(Rules.AutoMemberInjectionRules rule = Rules.AutoMemberInjectionRules.PropertiesWithPublicSetter, Func<TypeInformation, bool> filter = null);
 
         /// <summary>
         /// The constructor selection rule.

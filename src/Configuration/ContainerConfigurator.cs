@@ -65,10 +65,11 @@ namespace Stashbox.Configuration
         }
 
         /// <inheritdoc />
-        public IContainerConfigurator WithMemberInjectionWithoutAnnotation(Rules.AutoMemberInjectionRules rule = Rules.AutoMemberInjectionRules.PropertiesWithPublicSetter)
+        public IContainerConfigurator WithMemberInjectionWithoutAnnotation(Rules.AutoMemberInjectionRules rule = Rules.AutoMemberInjectionRules.PropertiesWithPublicSetter, Func<TypeInformation, bool> filter = null)
         {
             this.ContainerConfiguration.MemberInjectionWithoutAnnotationEnabled = true;
             this.ContainerConfiguration.MemberInjectionWithoutAnnotationRule = rule;
+            this.ContainerConfiguration.MemberInjectionFilter = filter;
             return this;
         }
 
@@ -76,6 +77,13 @@ namespace Stashbox.Configuration
         public IContainerConfigurator WithConstructorSelectionRule(Func<IEnumerable<ConstructorInformation>, IEnumerable<ConstructorInformation>> selectionRule)
         {
             this.ContainerConfiguration.ConstructorSelectionRule = selectionRule;
+            return this;
+        }
+
+        /// <inheritdoc />
+        public IContainerConfigurator OnContainerConfigurationChanged(Action<ContainerConfiguration> configurationChanged)
+        {
+            this.ContainerConfiguration.ConfigurationChangedEvent = configurationChanged;
             return this;
         }
     }

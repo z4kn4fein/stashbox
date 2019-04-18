@@ -158,10 +158,11 @@ namespace Stashbox.Registration
             return this;
         }
 
-        public IFluentServiceRegistrator WithAutoMemberInjection(Rules.AutoMemberInjectionRules rule = Rules.AutoMemberInjectionRules.PropertiesWithPublicSetter)
+        public IFluentServiceRegistrator WithAutoMemberInjection(Rules.AutoMemberInjectionRules rule = Rules.AutoMemberInjectionRules.PropertiesWithPublicSetter, Func<TypeInformation, bool> filter = null)
         {
             this.Context.AutoMemberInjectionEnabled = true;
             this.Context.AutoMemberInjectionRule = rule;
+            this.Context.MemberInjectionFilter = filter;
             return this;
         }
 

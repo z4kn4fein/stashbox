@@ -16,7 +16,7 @@ namespace Stashbox.Registration
         /// <summary>
         /// Empty registration data.
         /// </summary>
-        public readonly static RegistrationContextData Empty = New();
+        public static readonly RegistrationContextData Empty = New();
 
         /// <summary>
         /// Empty registration data.
@@ -94,7 +94,7 @@ namespace Stashbox.Registration
         public object Initializer { get; internal set; }
 
         /// <summary>
-        /// The auto memeber injection rule for the registration.
+        /// The auto member injection rule for the registration.
         /// </summary>
         public Rules.AutoMemberInjectionRules AutoMemberInjectionRule { get; internal set; }
 
@@ -127,6 +127,11 @@ namespace Stashbox.Registration
         /// The constructor selection rule.
         /// </summary>
         public Func<IEnumerable<ConstructorInformation>, IEnumerable<ConstructorInformation>> ConstructorSelectionRule { get; internal set; }
+
+        /// <summary>
+        /// A filter delegate used to determine which members should be auto injected and which are not.
+        /// </summary>
+        public Func<TypeInformation, bool> MemberInjectionFilter { get; internal set; }
 
         /// <summary>
         /// Constructs a <see cref="RegistrationContextData"/>

@@ -29,11 +29,11 @@ namespace Stashbox.Registration
             this.RegistrationContext.WithInjectionParameter(name, value);
             return this;
         }
-
+        
         public IFluentDecoratorRegistrator WithAutoMemberInjection(
-            Rules.AutoMemberInjectionRules rule = Rules.AutoMemberInjectionRules.PropertiesWithPublicSetter)
+            Rules.AutoMemberInjectionRules rule = Rules.AutoMemberInjectionRules.PropertiesWithPublicSetter, Func<TypeInformation, bool> filter = null)
         {
-            this.RegistrationContext.WithAutoMemberInjection(rule);
+            this.RegistrationContext.WithAutoMemberInjection(rule, filter);
             return this;
         }
 

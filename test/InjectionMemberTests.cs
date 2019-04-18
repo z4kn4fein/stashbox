@@ -125,6 +125,31 @@ namespace Stashbox.Tests
             container.Register<Test3>(context => context.InjectMember(x => 50));
         }
 
+        [TestMethod]
+        public void InjectionMemberTests_Exclude_Globally()
+        {
+            var inst = new StashboxContainer(config =>
+                    config.WithUnknownTypeResolution()
+                        .WithMemberInjectionWithoutAnnotation(filter: info => info.Type != typeof(Test4)))
+                .Register<Test6>()
+                .Resolve<Test6>();
+
+            Assert.IsNull(inst.Test4);
+            Assert.IsNotNull(inst.Test5);
+        }
+
+        [TestMethod]
+        public void InjectionMemberTests_Exclude_PerReg()
+        {
+            var inst = new StashboxContainer(config =>
+                    config.WithUnknownTypeResolution())
+                .Register<Test6>(config => config.WithAutoMemberInjection(filter: info => info.Type != typeof(Test4)))
+                .Resolve<Test6>();
+
+            Assert.IsNull(inst.Test4);
+            Assert.IsNotNull(inst.Test5);
+        }
+
         interface ITest { }
 
         interface ITest1 { ITest Test { get; } }
@@ -163,6 +188,17 @@ namespace Stashbox.Tests
             public ITest Test2 => this.test2;
 
             public void Test() { }
+        }
+
+        class Test4 { }
+
+        class Test5 { }
+
+        class Test6
+        {
+            public Test4 Test4 { get; set; }
+
+            public Test5 Test5 { get; set; }
         }
     }
 }

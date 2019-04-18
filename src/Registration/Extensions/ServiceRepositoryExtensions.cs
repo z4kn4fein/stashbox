@@ -15,7 +15,7 @@ namespace Stashbox.Registration.Extensions
             if (registrations != null || !type.IsClosedGenericType()) return registrations != null;
 
             registrations = repository.GetOrDefault(type.GetGenericTypeDefinition());
-            return registrations?.Any(reg => reg.ValidateGenericContraints(type)) ?? false;
+            return registrations?.Any(reg => reg.ValidateGenericConstraints(type)) ?? false;
         }
     }
 }

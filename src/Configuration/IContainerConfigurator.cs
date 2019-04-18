@@ -57,12 +57,18 @@ namespace Stashbox
         /// Enables the member injection without annotation.
         /// </summary>
         /// <returns>The container configurator.</returns>
-        IContainerConfigurator WithMemberInjectionWithoutAnnotation(Rules.AutoMemberInjectionRules rule = Rules.AutoMemberInjectionRules.PropertiesWithPublicSetter);
+        IContainerConfigurator WithMemberInjectionWithoutAnnotation(Rules.AutoMemberInjectionRules rule = Rules.AutoMemberInjectionRules.PropertiesWithPublicSetter, Func<TypeInformation, bool> filter = null);
 
         /// <summary>
         /// Sets the constructor selection rule.
         /// </summary>
         /// <returns>The container configurator.</returns>
         IContainerConfigurator WithConstructorSelectionRule(Func<IEnumerable<ConstructorInformation>, IEnumerable<ConstructorInformation>> selectionRule);
+
+        /// <summary>
+        /// Sets a callback delegate to call when the container configuration changes.
+        /// </summary>
+        /// <returns>The container configurator.</returns>
+        IContainerConfigurator OnContainerConfigurationChanged(Action<ContainerConfiguration> configurationChanged);
     }
 }

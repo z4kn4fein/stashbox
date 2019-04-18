@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Stashbox.Configuration;
 
 namespace Stashbox.Tests
 {
@@ -206,6 +207,16 @@ namespace Stashbox.Tests
 
             Assert.IsNotNull(test);
             Assert.IsInstanceOfType(test, typeof(Test2));
+        }
+        
+        [TestMethod]
+        public void ContainerTests_ConfigurationChanged()
+        {
+            ContainerConfiguration newConfig = null;
+            var container = new StashboxContainer(config => config.OnContainerConfigurationChanged(nc => newConfig = nc));
+            container.Configure(config => config.WithUnknownTypeResolution());
+
+            Assert.IsTrue(newConfig.UnknownTypeResolutionEnabled);
         }
 
         public interface ITest1 { }

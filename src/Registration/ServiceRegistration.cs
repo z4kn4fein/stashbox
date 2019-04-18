@@ -100,7 +100,7 @@ namespace Stashbox.Registration
             this.HasResolutionConditionAndMatch(typeInfo);
 
         /// <inheritdoc />
-        public bool ValidateGenericContraints(Type type) =>
+        public bool ValidateGenericConstraints(Type type) =>
             this.metaInformation.ValidateGenericContraints(type);
 
         /// <inheritdoc />
@@ -142,14 +142,28 @@ namespace Stashbox.Registration
 
         private MemberInformation[] ConstructInjectionMembers(RegistrationContextData registrationContextData, MetaInformation metaInfo)
         {
-            if (registrationContextData.InjectionMemberNames.Count == 0)
+            if (registrationContextData.InjectionMemberNames.Count == 0 &&
+                this.containerConfigurator.ContainerConfiguration.MemberInjectionFilter == null &&
+                registrationContextData.MemberInjectionFilter == null)
                 return metaInfo.InjectionMembers;
 
-            var length = metaInfo.InjectionMembers.Length;
+            var infos = this.containerConfigurator.ContainerConfiguration.MemberInjectionFilter != null
+                ? metaInfo.InjectionMembers.Where(member =>
+                    this.containerConfigurator.ContainerConfiguration.MemberInjectionFilter(member.TypeInformation))
+                : metaInfo.InjectionMembers;
+
+            infos = registrationContextData.MemberInjectionFilter != null
+                ? infos.Where(member =>
+                    registrationContextData.MemberInjectionFilter(member.TypeInformation))
+                : infos;
+
+            var infosArray = infos.CastToArray();
+
+            var length = infosArray.Length;
             var members = new MemberInformation[length];
             for (var i = 0; i < length; i++)
             {
-                var member = metaInfo.InjectionMembers[i];
+                var member = infosArray[i];
                 if (registrationContextData.InjectionMemberNames.TryGetValue(member.MemberInfo.Name,
                     out var dependencyName))
                 {
