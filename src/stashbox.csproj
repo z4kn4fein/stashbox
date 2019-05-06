@@ -28,7 +28,11 @@
     <LangVersion>latest</LangVersion>
     <PackageReleaseNotes>
       <![CDATA[
-- bugfix: #51 WithUnknownTypeResolution breaks Constructor selection rules
+- feature: #53 ComposeBy / ICompositionRoot with an instance and / or injection
+- feature: #54 Make InjectionParameter configuration more fluent
+- feature: #55 Conditions on member name are not easy to recognize and not well documented
+- feature: #56 Exclude filter for member injection without annotation
+- feature: #57 Container configuration changed event
     ]]>
     </PackageReleaseNotes>
     <Configurations>Debug;Release;Benchmark</Configurations>
