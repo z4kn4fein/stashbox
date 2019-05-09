@@ -79,12 +79,14 @@ var wulfgar = container.Resolve<IBarbarian>();
     - [Stashbox.Web.WebApi](https://github.com/z4kn4fein/stashbox-web-webapi)
     - [Stashbox.Web.Mvc](https://github.com/z4kn4fein/stashbox-web-mvc)
     - [Stashbox.AspNet.SingalR](https://github.com/z4kn4fein/stashbox-signalr)
-- WCF
-    - [Stashbox.Extension.Wcf](https://github.com/devworker55/stashbox-extension-wcf)
 - OWIN
     - [Stashbox.Owin](https://github.com/z4kn4fein/stashbox-owin)
     - [Stashbox.AspNet.WebApi.Owin](https://github.com/z4kn4fein/stashbox-webapi-owin)
     - [Stashbox.AspNet.SingalR.Owin](https://github.com/z4kn4fein/stashbox-signalr-owin)
+- WCF
+    - [Stashbox.Extension.Wcf](https://github.com/devworker55/stashbox-extension-wcf)
+- Hangfire
+    - [Stashbox.Hangfire](https://github.com/z4kn4fein/stashbox-hangfire)
 - Mocking
     - [Stashbox.Mocking](https://github.com/z4kn4fein/stashbox-mocking) (Moq, FakeItEasy, NSubstitute, RhinoMocks, Rocks)
 - Other
