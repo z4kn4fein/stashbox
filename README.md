@@ -72,9 +72,9 @@ var wulfgar = container.Resolve<IBarbarian>();
 ## Extensions
 - ASP.NET Core
     - [Stashbox.Extensions.Dependencyinjection](https://github.com/z4kn4fein/stashbox-extensions-dependencyinjection) package contains:
-        - [Microsoft.Extensions.DependencyInjection](https://github.com/aspnet/DependencyInjection) `IServiceCollection` adapter.
-        - [Microsoft.AspNetCore.Hosting](https://github.com/aspnet/Hosting) `IWebHostBuilder` extension.
-        - [Microsoft.Extensions.Hosting](https://github.com/aspnet/Hosting/tree/master/src/Microsoft.Extensions.Hosting.Abstractions) `IHostBuilder` extension.
+        - [Microsoft.Extensions.DependencyInjection](https://github.com/aspnet/Extensions/tree/master/src/DependencyInjection) `IServiceCollection` adapter.
+        - [Microsoft.AspNetCore.Hosting](https://github.com/aspnet/AspNetCore/tree/master/src/Hosting) `IWebHostBuilder` extension.
+        - [Microsoft.Extensions.Hosting](https://github.com/aspnet/Extensions) `IHostBuilder` extension.
 - ASP.NET
     - [Stashbox.Web.WebApi](https://github.com/z4kn4fein/stashbox-web-webapi)
     - [Stashbox.Web.Mvc](https://github.com/z4kn4fein/stashbox-web-mvc)
