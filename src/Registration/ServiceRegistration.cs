@@ -110,7 +110,10 @@ namespace Stashbox.Registration
             if (this.IsDecorator || this.metaInformation.IsOpenGenericType) return this.ConstructExpression(containerContext, resolutionContext, resolveType);
 
             var expression = resolutionContext.GetCachedExpression(this.RegistrationNumber);
-            if (expression != null) return expression;
+            if (expression != null)
+            {
+                return expression;
+            }
 
             expression = this.ConstructExpression(containerContext, resolutionContext, resolveType);
             resolutionContext.CacheExpression(this.RegistrationNumber, expression);

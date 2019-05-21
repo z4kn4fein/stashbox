@@ -22,7 +22,8 @@ namespace Stashbox.Registration
             registrationContext.Context.Lifetime = this.ChooseLifeTime(registrationContext);
 
             var shouldHandleDisposal = this.ShouldHandleDisposal(registrationContext);
-            return this.ProduceServiceRegistration(registrationContext, isDecorator, shouldHandleDisposal);
+            return new ServiceRegistration(registrationContext.ImplementationType, this.containerContext.ContainerConfigurator,
+                this.objectBuilderSelector, registrationContext.Context, isDecorator, shouldHandleDisposal);
         }
 
         private void PreProcessExistingInstanceIfNeeded(IRegistrationContext registrationContext)
@@ -51,11 +52,6 @@ namespace Stashbox.Registration
 
             return registrationContext.Context.Lifetime != null;
         }
-
-        private IServiceRegistration ProduceServiceRegistration(IRegistrationContext registrationContext, bool isDecorator, bool shouldHandleDisposal) =>
-            new ServiceRegistration(registrationContext.ImplementationType, this.containerContext.ContainerConfigurator,
-                this.objectBuilderSelector, registrationContext.Context, isDecorator, shouldHandleDisposal);
-
 
         private ILifetime ChooseLifeTime(IRegistrationContext registrationContext) => registrationContext.Context.ExistingInstance != null
             ? registrationContext.Context.IsWireUp

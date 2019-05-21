@@ -14,15 +14,6 @@ namespace Stashbox.Registration
             this.containerExtensionManager = containerExtensionManager;
         }
 
-        public IRegistrationContext PrepareContext(Type serviceType, Type implementationType) =>
-            new RegistrationContext(serviceType, implementationType);
-
-        public IRegistrationContext<TService> PrepareContext<TService>(Type serviceType, Type implementationType) =>
-            new RegistrationContext<TService>(serviceType, implementationType);
-
-        public IDecoratorRegistrationContext PrepareDecoratorContext(Type serviceType, Type implementationType) =>
-            new DecoratorRegistrationContext(new RegistrationContext(serviceType, implementationType));
-
         public IStashboxContainer Register(IServiceRegistration serviceRegistration, IRegistrationContext registrationContext)
         {
             if (serviceRegistration.IsDecorator)

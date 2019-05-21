@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Stashbox.Tests.IssueTests
 {
@@ -58,6 +58,23 @@ namespace Stashbox.Tests.IssueTests
         }
 
         [TestMethod]
+        public void ContainerTests_ChildContainer_Resolve_Dependency_Across_Childs_3()
+        {
+            var container = new StashboxContainer();
+            container.Register<ITest3, Test3>();
+
+            var child = container.CreateChildContainer();
+            child.Register<ITest2, Test2>();
+
+            var child2 = child.CreateChildContainer();
+            child2.Register<ITest1, Test1>();
+
+            var test3 = child2.Resolve<ITest3>();
+
+            Assert.IsNotNull(test3);
+        }
+
+        [TestMethod]
         public void ContainerTests_ChildContainer_Resolve_Dependency_Across_Childs_Wrapper()
         {
             var container = new StashboxContainer();
@@ -98,20 +115,20 @@ namespace Stashbox.Tests.IssueTests
         }
 
         class Test1 : ITest1
-        {}
+        { }
 
         class Test2 : ITest2
         {
             public Test2(ITest1 test1)
-            {}
+            { }
         }
 
         class Test3 : ITest3
         {
             public Test3(ITest1 test1, ITest2 test2)
-            {}
+            { }
         }
-        
+
         class Test5 : ITest5
         {
             public Test5(Func<ITest2> func, Lazy<ITest2> lazy, IEnumerable<ITest3> enumerable, Tuple<ITest2, ITest3> tuple)

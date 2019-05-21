@@ -40,7 +40,7 @@ namespace Stashbox
             where TFrom : class
             where TTo : class, TFrom
         {
-            var context = this.serviceRegistrator.PrepareContext<TTo>(typeof(TFrom), typeof(TTo));
+            var context = new RegistrationContext<TTo>(typeof(TFrom), typeof(TTo));
             configurator?.Invoke(context);
             return this.Register(context);
         }
@@ -49,7 +49,7 @@ namespace Stashbox
         public IStashboxContainer Register<TFrom>(Type typeTo, Action<IFluentServiceRegistrator<TFrom>> configurator = null)
             where TFrom : class
         {
-            var context = this.serviceRegistrator.PrepareContext<TFrom>(typeof(TFrom), typeTo);
+            var context = new RegistrationContext<TFrom>(typeof(TFrom), typeTo);
             configurator?.Invoke(context);
             return this.Register(context);
         }
@@ -60,7 +60,7 @@ namespace Stashbox
             Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
             Shield.EnsureNotNull(typeTo, nameof(typeTo));
 
-            var context = this.serviceRegistrator.PrepareContext(typeFrom, typeTo);
+            var context = new RegistrationContext(typeFrom, typeTo);
             configurator?.Invoke(context);
             return this.Register(context);
         }
@@ -70,7 +70,7 @@ namespace Stashbox
             where TTo : class
         {
             var type = typeof(TTo);
-            var context = this.serviceRegistrator.PrepareContext<TTo>(type, type);
+            var context = new RegistrationContext<TTo>(type, type);
             configurator?.Invoke(context);
             return this.Register(context);
         }
@@ -140,7 +140,7 @@ namespace Stashbox
             Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
             Shield.EnsureNotNull(typeTo, nameof(typeTo));
 
-            var context = this.serviceRegistrator.PrepareDecoratorContext(typeFrom, typeTo);
+            var context = new DecoratorRegistrationContext(new RegistrationContext(typeFrom, typeTo));
             configurator?.Invoke(context);
             return this.serviceRegistrator.Register(this.registrationBuilder.BuildServiceRegistration(context.RegistrationContext, true),
                 context.RegistrationContext);
