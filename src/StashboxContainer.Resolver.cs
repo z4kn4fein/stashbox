@@ -36,5 +36,11 @@ namespace Stashbox
         /// <inheritdoc />
         public object Activate(Type type, params object[] arguments) =>
             this.rootResolver.Activate(type, arguments);
+
+#if HAS_SERVICEPROVIDER
+        /// <inheritdoc />
+        public object GetService(Type serviceType) =>
+            this.rootResolver.GetService(serviceType);
+#endif
     }
 }

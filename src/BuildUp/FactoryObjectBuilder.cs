@@ -20,9 +20,13 @@ namespace Stashbox.BuildUp
         {
             Expression<Func<IDependencyResolver, object>> lambda;
             if (serviceRegistration.RegistrationContext.ContainerFactory != null)
-                lambda = scope => serviceRegistration.RegistrationContext.ContainerFactory(scope);
+                lambda = serviceRegistration.RegistrationContext.ContainerFactory.GetMethod()
+                    .CallMethod(serviceRegistration.RegistrationContext.ContainerFactory.Target.AsConstant(), resolutionContext.CurrentScopeParameter.ConvertTo(Constants.ResolverType))
+                    .AsLambda<Func<IDependencyResolver, object>>(Constants.ResolverType.AsParameter());
             else
-                lambda = scope => serviceRegistration.RegistrationContext.SingleFactory();
+                lambda = serviceRegistration.RegistrationContext.SingleFactory.GetMethod()
+                    .CallMethod(serviceRegistration.RegistrationContext.SingleFactory.Target.AsConstant())
+                    .AsLambda<Func<IDependencyResolver, object>>(Constants.ResolverType.AsParameter());
 
             var expr = lambda.InvokeLambda(resolutionContext.CurrentScopeParameter.ConvertTo(Constants.ResolverType));
 

@@ -220,6 +220,16 @@ namespace System.Linq.Expressions
             Expression.Call(target, methodInfo, parameters);
 
         /// <summary>
+        /// Constructs a method call expression from a target expression, method info and parameters, => Expression.Call(target, methodInfo, parameters)
+        /// </summary>
+        /// <param name="target">The target expression.</param>
+        /// <param name="methodInfo">The method info.</param>
+        /// <param name="parameters">The parameters.</param>
+        /// <returns>The call expression.</returns>
+        public static MethodCallExpression CallMethod(this MethodInfo methodInfo, Expression target, params Expression[] parameters) =>
+            Expression.Call(target, methodInfo, parameters);
+
+        /// <summary>
         /// Constructs a convert expression, => Expression.Convert(expression, type)
         /// </summary>
         /// <param name="expression">The expression.</param>

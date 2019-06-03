@@ -7,7 +7,11 @@ namespace Stashbox
     /// <summary>
     /// Represents a dependency resolver.
     /// </summary>
-    public interface IDependencyResolver : IDisposable
+    public interface IDependencyResolver :
+#if HAS_SERVICEPROVIDER
+        IServiceProvider,
+#endif
+        IDisposable
     {
         /// <summary>
         /// Resolves an instance from the container.

@@ -28,11 +28,7 @@
     <LangVersion>latest</LangVersion>
     <PackageReleaseNotes>
       <![CDATA[
-- feature: #53 ComposeBy / ICompositionRoot with an instance and / or injection
-- feature: #54 Make InjectionParameter configuration more fluent
-- feature: #55 Conditions on member name are not easy to recognize and not well documented
-- feature: #56 Exclude filter for member injection without annotation
-- feature: #57 Container configuration changed event
+- bugfix: #58 NullReferenceException in ResolutionStrategy.cs when InjectionParameter value is null
     ]]>
     </PackageReleaseNotes>
     <Configurations>Debug;Release;Benchmark</Configurations>
@@ -48,17 +44,17 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">
     <AssemblyTitle>Stashbox .NET Standard 1.3</AssemblyTitle>
+    <DefineConstants>NETSTANDARD;IL_EMIT</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <AssemblyTitle>Stashbox .NET Standard 2.0</AssemblyTitle>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.3' Or '$(TargetFramework)' == 'netstandard2.0'">
-    <DefineConstants>NETSTANDARD;IL_EMIT</DefineConstants>
-  </PropertyGroup>
+    <DefineConstants>NETSTANDARD;IL_EMIT;HAS_SERVICEPROVIDER</DefineConstants>
+  </PropertyGroup>  
   <PropertyGroup Condition="'$(TargetFramework)' == 'net40' Or '$(TargetFramework)' == 'net45'">
-    <DefineConstants>IL_EMIT</DefineConstants>
+    <DefineConstants>IL_EMIT;HAS_SERVICEPROVIDER</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'portable-net45+win8+wpa81+wp8' And '$(MSBuildRuntimeType)' == 'Full'">
+    <DefineConstants>HAS_SERVICEPROVIDER</DefineConstants>
     <IncludeProjectPriFile>false</IncludeProjectPriFile>
     <TargetFrameworkIdentifier>.NETPortable</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>

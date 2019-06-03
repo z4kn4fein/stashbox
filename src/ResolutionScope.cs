@@ -42,10 +42,10 @@ namespace Stashbox
         private readonly IContainerContext containerContext;
 
         private int disposed;
-        private DisposableItem rootItem;
-        private FinalizableItem rootFinalizableItem;
-        private AvlTree<object> scopedItems;
-        private AvlTreeKeyValue<Type, object> scopedInstances;
+        private DisposableItem rootItem = DisposableItem.Empty;
+        private FinalizableItem rootFinalizableItem = FinalizableItem.Empty;
+        private AvlTree<object> scopedItems = AvlTree<object>.Empty;
+        private AvlTreeKeyValue<Type, object> scopedInstances = AvlTreeKeyValue<Type, object>.Empty;
         private AvlTree<ThreadLocal<bool>> circularDependencyBarrier = AvlTree<ThreadLocal<bool>>.Empty;
 
         private readonly DelegateCache delegateCache;
@@ -60,10 +60,6 @@ namespace Stashbox
             IExpressionBuilder expressionBuilder, IContainerContext containerContext,
             DelegateCache delegateCache, object name)
         {
-            this.rootItem = DisposableItem.Empty;
-            this.rootFinalizableItem = FinalizableItem.Empty;
-            this.scopedItems = AvlTree<object>.Empty;
-            this.scopedInstances = AvlTreeKeyValue<Type, object>.Empty;
             this.resolverSelector = resolverSelector;
             this.expressionBuilder = expressionBuilder;
             this.containerContext = containerContext;
@@ -95,6 +91,11 @@ namespace Stashbox
             var cachedFactory = this.delegateCache.ServiceDelegates.GetOrDefault(name);
             return cachedFactory != null ? cachedFactory(this) : this.Activate(ResolutionContext.New(this, nullResultAllowed, dependencyOverrides), typeFrom, name);
         }
+
+#if HAS_SERVICEPROVIDER
+        public object GetService(Type serviceType) =>
+            this.Resolve(serviceType, true);
+#endif
 
         public IEnumerable<TKey> ResolveAll<TKey>(object[] dependencyOverrides = null) =>
             (IEnumerable<TKey>)this.Resolve(typeof(IEnumerable<TKey>), dependencyOverrides: dependencyOverrides);
