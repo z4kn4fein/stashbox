@@ -18,17 +18,14 @@ namespace Stashbox.BuildUp
 
         protected override Expression GetExpressionInternal(IContainerContext containerContext, IServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType)
         {
-            Expression<Func<IDependencyResolver, object>> lambda;
+            MethodCallExpression expr;
             if (serviceRegistration.RegistrationContext.ContainerFactory != null)
-                lambda = serviceRegistration.RegistrationContext.ContainerFactory.GetMethod()
-                    .CallMethod(serviceRegistration.RegistrationContext.ContainerFactory.Target.AsConstant(), resolutionContext.CurrentScopeParameter.ConvertTo(Constants.ResolverType))
-                    .AsLambda<Func<IDependencyResolver, object>>(Constants.ResolverType.AsParameter());
+                expr = serviceRegistration.RegistrationContext.ContainerFactory.GetMethod()
+                    .CallMethod(serviceRegistration.RegistrationContext.ContainerFactory.Target.AsConstant(),
+                        resolutionContext.CurrentScopeParameter.ConvertTo(Constants.ResolverType));
             else
-                lambda = serviceRegistration.RegistrationContext.SingleFactory.GetMethod()
-                    .CallMethod(serviceRegistration.RegistrationContext.SingleFactory.Target.AsConstant())
-                    .AsLambda<Func<IDependencyResolver, object>>(Constants.ResolverType.AsParameter());
-
-            var expr = lambda.InvokeLambda(resolutionContext.CurrentScopeParameter.ConvertTo(Constants.ResolverType));
+                expr = serviceRegistration.RegistrationContext.SingleFactory.GetMethod()
+                    .CallMethod(serviceRegistration.RegistrationContext.SingleFactory.Target.AsConstant());
 
             return this.expressionBuilder.CreateFillExpression(containerContext, serviceRegistration, expr, resolutionContext, resolveType);
         }

@@ -99,22 +99,13 @@ namespace System
 
         public static MethodInfo GetSingleMethod(this Type type, string name, bool includeNonPublic = false)
         {
-            var found = type.GetTypeInfo().DeclaredMethods.FirstOrDefault(method => (includeNonPublic || method.IsPublic) && method.Name == name);
+            var found = type.GetSingleMethodOrDefault(name, includeNonPublic);
             if (found == null)
                 throw new InvalidOperationException($"'{name}' method not found on {type.FullName}.");
 
             return found;
         }
-
-        public static PropertyInfo GetSingleProperty(this Type type, string name)
-        {
-            var found = type.GetTypeInfo().DeclaredProperties.FirstOrDefault(property => property.Name == name);
-            if (found == null)
-                throw new InvalidOperationException($"'{name}' property not found on {type.FullName}.");
-
-            return found;
-        }
-
+        
         public static MethodInfo GetSingleMethodOrDefault(this Type type, string name, bool includeNonPublic = false) =>
             type.GetTypeInfo().DeclaredMethods.FirstOrDefault(method => (includeNonPublic || method.IsPublic) && method.Name == name);
 
