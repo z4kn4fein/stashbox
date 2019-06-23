@@ -20,12 +20,21 @@ namespace Stashbox.BuildUp
         {
             MethodCallExpression expr;
             if (serviceRegistration.RegistrationContext.ContainerFactory != null)
-                expr = serviceRegistration.RegistrationContext.ContainerFactory.GetMethod()
-                    .CallMethod(serviceRegistration.RegistrationContext.ContainerFactory.Target.AsConstant(),
-                        resolutionContext.CurrentScopeParameter.ConvertTo(Constants.ResolverType));
+            {
+                var resolverParam = resolutionContext.CurrentScopeParameter.ConvertTo(Constants.ResolverType);
+                var method = serviceRegistration.RegistrationContext.ContainerFactory.GetMethod();
+                expr = method.IsStatic
+                        ? method.InvokeMethod(resolverParam)
+                        : method.CallMethod(serviceRegistration.RegistrationContext.ContainerFactory.Target.AsConstant(), resolverParam);
+
+            }
             else
-                expr = serviceRegistration.RegistrationContext.SingleFactory.GetMethod()
-                    .CallMethod(serviceRegistration.RegistrationContext.SingleFactory.Target.AsConstant());
+            {
+                var method = serviceRegistration.RegistrationContext.SingleFactory.GetMethod();
+                expr = method.IsStatic
+                        ? method.InvokeMethod()
+                        : method.CallMethod(serviceRegistration.RegistrationContext.SingleFactory.Target.AsConstant());
+            }
 
             return this.expressionBuilder.CreateFillExpression(containerContext, serviceRegistration, expr, resolutionContext, resolveType);
         }

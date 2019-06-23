@@ -28,7 +28,7 @@
     <LangVersion>latest</LangVersion>
     <PackageReleaseNotes>
       <![CDATA[
-- bugfix: #58 NullReferenceException in ResolutionStrategy.cs when InjectionParameter value is null
+- bugfix: #59 Static factory registration fails
     ]]>
     </PackageReleaseNotes>
     <Configurations>Debug;Release;Benchmark</Configurations>
