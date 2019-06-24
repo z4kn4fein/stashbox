@@ -105,7 +105,7 @@ namespace System
 
             return found;
         }
-        
+
         public static MethodInfo GetSingleMethodOrDefault(this Type type, string name, bool includeNonPublic = false) =>
             type.GetTypeInfo().DeclaredMethods.FirstOrDefault(method => (includeNonPublic || method.IsPublic) && method.Name == name);
 
@@ -198,6 +198,10 @@ namespace System
 #else
             @delegate.GetMethodInfo();
 #endif
+
+        public static bool IsCompiledLambda(this Delegate @delegate) =>
+            @delegate.Target != null && @delegate.Target.GetType().FullName == "System.Runtime.CompilerServices.Closure";
+
         private static bool IsAssignableToGenericType(Type type, Type genericType)
         {
             if (type == null || genericType == null) return false;

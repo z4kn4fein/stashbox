@@ -201,12 +201,12 @@ namespace System.Linq.Expressions
         public static ParameterExpression AsParameter(this Type type, string name = null) => Expression.Parameter(type, name);
 
         /// <summary>
-        /// Constructs a method call expression from a <see cref="MethodInfo"/> and parameters, => Expression.Call(methodInfo, parameters)
+        /// Constructs a static method call expression from a <see cref="MethodInfo"/> and its parameters, => Expression.Call(methodInfo, parameters)
         /// </summary>
-        /// <param name="methodInfo">The method info.</param>
+        /// <param name="methodInfo">The static method info.</param>
         /// <param name="parameters">The parameters.</param>
         /// <returns>The call expression.</returns>
-        public static MethodCallExpression InvokeMethod(this MethodInfo methodInfo, params Expression[] parameters) =>
+        public static MethodCallExpression CallStaticMethod(this MethodInfo methodInfo, params Expression[] parameters) =>
             Expression.Call(methodInfo, parameters);
 
         /// <summary>
@@ -227,7 +227,7 @@ namespace System.Linq.Expressions
         /// <param name="parameters">The parameters.</param>
         /// <returns>The call expression.</returns>
         public static MethodCallExpression CallMethod(this MethodInfo methodInfo, Expression target, params Expression[] parameters) =>
-            Expression.Call(target, methodInfo, parameters);
+            target.CallMethod(methodInfo, parameters);
 
         /// <summary>
         /// Constructs a convert expression, => Expression.Convert(expression, type)
@@ -245,6 +245,15 @@ namespace System.Linq.Expressions
         /// <returns>The invocation expression.</returns>
         public static InvocationExpression InvokeLambda(this LambdaExpression expression, params Expression[] parameters) =>
             Expression.Invoke(expression, parameters);
+
+        /// <summary>
+        /// Constructs an invocation expression, => Expression.Invoke(delegate.AsConstant(), parameters)
+        /// </summary>
+        /// <param name="delegate">The delegate to invoke.</param>
+        /// <param name="parameters">The delegate parameters.</param>
+        /// <returns>The invocation expression.</returns>
+        public static InvocationExpression InvokeDelegate(this Delegate @delegate, params Expression[] parameters) =>
+            Expression.Invoke(@delegate.AsConstant(), parameters);
 
         internal static NewExpression MakeNew(this ResolutionConstructor constructor) =>
             Expression.New(constructor.Constructor, constructor.Parameters);
@@ -270,7 +279,7 @@ namespace System.Linq.Expressions
         /// <summary>
         /// Constructs a member access expression, => Expression.Property(expression, prop) or Expression.Field(expression, field)
         /// </summary>
-        /// <param name="expression">The expression.</param>
+        /// <param name="expression">The target expression.</param>
         /// <param name="memberInfo">The property or field info.</param>
         /// <returns>The member access expression.</returns>
         public static MemberExpression Member(this Expression expression, MemberInfo memberInfo) =>
@@ -279,10 +288,19 @@ namespace System.Linq.Expressions
         /// <summary>
         /// Constructs a property access expression, => Expression.Property(expression, prop)
         /// </summary>
-        /// <param name="expression">The expression.</param>
+        /// <param name="expression">The target expression.</param>
         /// <param name="propertyInfo">The property info.</param>
         /// <returns>The property access expression.</returns>
         public static MemberExpression Prop(this Expression expression, PropertyInfo propertyInfo) =>
+            Expression.Property(expression, propertyInfo);
+
+        /// <summary>
+        /// Constructs a property access expression, => Expression.Property(expression, prop)
+        /// </summary>
+        /// <param name="propertyInfo">The property info.</param>
+        /// <param name="expression">The target expression.</param>
+        /// <returns>The property access expression.</returns>
+        public static MemberExpression Access(this PropertyInfo propertyInfo, Expression expression) =>
             Expression.Property(expression, propertyInfo);
 
         /// <summary>

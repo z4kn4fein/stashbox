@@ -85,7 +85,7 @@ namespace Stashbox.BuildUp.Resolution
 
 
 
-            var callExpression = DelegateCacheMethod.InvokeMethod(
+            var callExpression = DelegateCacheMethod.CallStaticMethod(
                 containerContext.AsConstant(),
                 serviceRegistration.AsConstant(),
                 resolutionContext.AsConstant(),

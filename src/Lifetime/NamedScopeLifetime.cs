@@ -39,7 +39,7 @@ namespace Stashbox.Lifetime
                 return null;
 
             var genericMethod = GetScopeValueMethod.MakeGenericMethod(resolveType);
-            return genericMethod.InvokeMethod(resolutionContext.CurrentScopeParameter, factory,
+            return genericMethod.CallStaticMethod(resolutionContext.CurrentScopeParameter, factory,
                 base.ScopeId.AsConstant(), base.Sync.AsConstant(), this.ScopeName.AsConstant());
         }
 

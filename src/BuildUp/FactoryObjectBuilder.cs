@@ -18,25 +18,24 @@ namespace Stashbox.BuildUp
 
         protected override Expression GetExpressionInternal(IContainerContext containerContext, IServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType)
         {
-            MethodCallExpression expr;
-            if (serviceRegistration.RegistrationContext.ContainerFactory != null)
-            {
-                var resolverParam = resolutionContext.CurrentScopeParameter.ConvertTo(Constants.ResolverType);
-                var method = serviceRegistration.RegistrationContext.ContainerFactory.GetMethod();
-                expr = method.IsStatic
-                        ? method.InvokeMethod(resolverParam)
-                        : method.CallMethod(serviceRegistration.RegistrationContext.ContainerFactory.Target.AsConstant(), resolverParam);
+            var expression = serviceRegistration.RegistrationContext.ContainerFactory != null
+                ? ConstructFactoryExpression(serviceRegistration.RegistrationContext.ContainerFactory,
+                    resolutionContext,
+                    resolutionContext.CurrentScopeParameter.ConvertTo(Constants.ResolverType))
+                : ConstructFactoryExpression(serviceRegistration.RegistrationContext.SingleFactory, resolutionContext);
 
-            }
-            else
-            {
-                var method = serviceRegistration.RegistrationContext.SingleFactory.GetMethod();
-                expr = method.IsStatic
-                        ? method.InvokeMethod()
-                        : method.CallMethod(serviceRegistration.RegistrationContext.SingleFactory.Target.AsConstant());
-            }
+            return this.expressionBuilder.CreateFillExpression(containerContext, serviceRegistration, expression, resolutionContext, resolveType);
+        }
 
-            return this.expressionBuilder.CreateFillExpression(containerContext, serviceRegistration, expr, resolutionContext, resolveType);
+        private static Expression ConstructFactoryExpression(Delegate @delegate, ResolutionContext resolutionContext, params Expression[] parameters)
+        {
+            if (@delegate.IsCompiledLambda())
+                return @delegate.InvokeDelegate(parameters);
+
+            var method = @delegate.GetMethod();
+            return method.IsStatic
+                ? method.CallStaticMethod(parameters)
+                : method.CallMethod(@delegate.Target.AsConstant(), parameters);
         }
     }
 }

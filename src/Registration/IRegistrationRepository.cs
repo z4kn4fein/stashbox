@@ -20,7 +20,7 @@ namespace Stashbox.Registration
         void AddOrUpdateRegistration(IServiceRegistration registration, Type serviceType, bool remap, bool replace);
 
         /// <summary>
-        /// Retrieves a registration.
+        /// Returns a registration.
         /// </summary>
         /// <param name="type">The requested type.</param>
         /// <param name="resolutionContext">The resolution context.</param>
@@ -29,7 +29,7 @@ namespace Stashbox.Registration
         IServiceRegistration GetRegistrationOrDefault(Type type, ResolutionContext resolutionContext, object name = null);
 
         /// <summary>
-        /// Retrieves a registration.
+        /// Returns a registration.
         /// </summary>
         /// <param name="typeInfo">The type info.</param>
         /// <param name="resolutionContext">The resolution context.</param>
@@ -37,7 +37,7 @@ namespace Stashbox.Registration
         IServiceRegistration GetRegistrationOrDefault(TypeInformation typeInfo, ResolutionContext resolutionContext);
 
         /// <summary>
-        /// Retrieves all registrations for a type.
+        /// Returns all registrations for a type.
         /// </summary>
         /// <param name="type">The requested type.</param>
         /// <param name="resolutionContext">The resolution context.</param>
@@ -45,7 +45,7 @@ namespace Stashbox.Registration
         IEnumerable<KeyValue<object, IServiceRegistration>> GetRegistrationsOrDefault(Type type, ResolutionContext resolutionContext);
 
         /// <summary>
-        /// Retrieves all registration mappings.
+        /// Returns all registration mappings.
         /// </summary>
         /// <returns>The registration mappings.</returns>
         IEnumerable<KeyValue<Type, IServiceRegistration>> GetRegistrationMappings();
