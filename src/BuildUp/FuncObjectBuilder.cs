@@ -17,9 +17,13 @@ namespace Stashbox.BuildUp
             var internalMethodInfo = serviceRegistration.RegistrationContext.FuncDelegate.GetMethod();
 
             var parameters = GetFuncParametersWithScope(serviceRegistration.ImplementationType.GetSingleMethod("Invoke").GetParameters(), resolutionContext);
-            var expr = internalMethodInfo.IsStatic ?
-                internalMethodInfo.CallStaticMethod(parameters) :
-                serviceRegistration.RegistrationContext.FuncDelegate.Target.AsConstant().CallMethod(internalMethodInfo, parameters);
+            if (serviceRegistration.RegistrationContext.FuncDelegate.IsCompiledLambda())
+                return serviceRegistration.RegistrationContext.FuncDelegate.InvokeDelegate(parameters)
+                    .AsLambda(parameters.Take(parameters.Length - 1).Cast<ParameterExpression>());
+
+            var expr = internalMethodInfo.IsStatic
+                ? internalMethodInfo.CallStaticMethod(parameters)
+                : serviceRegistration.RegistrationContext.FuncDelegate.Target.AsConstant().CallMethod(internalMethodInfo, parameters);
 
             return expr.AsLambda(parameters.Take(parameters.Length - 1).Cast<ParameterExpression>());
         }

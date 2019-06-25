@@ -3,6 +3,8 @@ using Stashbox.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace Stashbox.Tests
@@ -375,6 +377,20 @@ namespace Stashbox.Tests
 
                 Assert.IsNotNull(test);
             });
+        }
+
+        [TestMethod]
+        public void FuncTests_Register_Compiled_Lambda()
+        {
+            var inst = new StashboxContainer()
+                .RegisterFunc(typeof(Test)
+                    .GetConstructor(Type.EmptyTypes)
+                    .MakeNew()
+                    .AsLambda<Func<IDependencyResolver, ITest>>(typeof(IDependencyResolver).AsParameter())
+                    .Compile())
+                .Resolve<Func<ITest>>()();
+
+            Assert.IsNotNull(inst);
         }
 
         public class RegisteredFuncTest
