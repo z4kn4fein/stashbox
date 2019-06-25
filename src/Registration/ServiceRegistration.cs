@@ -15,7 +15,7 @@ namespace Stashbox.Registration
     /// </summary>
     public class ServiceRegistration : IServiceRegistration
     {
-        internal static int GlobalRegistrationNumber;
+        private static int GlobalRegistrationNumber;
         private readonly IContainerConfigurator containerConfigurator;
         private readonly IObjectBuilderSelector objectBuilderSelector;
         private readonly IObjectBuilder objectBuilder;

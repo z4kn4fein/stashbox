@@ -20,14 +20,13 @@ namespace Stashbox.BuildUp
         {
             var expression = serviceRegistration.RegistrationContext.ContainerFactory != null
                 ? ConstructFactoryExpression(serviceRegistration.RegistrationContext.ContainerFactory,
-                    resolutionContext,
                     resolutionContext.CurrentScopeParameter.ConvertTo(Constants.ResolverType))
-                : ConstructFactoryExpression(serviceRegistration.RegistrationContext.SingleFactory, resolutionContext);
+                : ConstructFactoryExpression(serviceRegistration.RegistrationContext.SingleFactory);
 
             return this.expressionBuilder.CreateFillExpression(containerContext, serviceRegistration, expression, resolutionContext, resolveType);
         }
 
-        private static Expression ConstructFactoryExpression(Delegate @delegate, ResolutionContext resolutionContext, params Expression[] parameters)
+        private static Expression ConstructFactoryExpression(Delegate @delegate, params Expression[] parameters)
         {
             if (@delegate.IsCompiledLambda())
                 return @delegate.InvokeDelegate(parameters);
