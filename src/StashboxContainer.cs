@@ -1,11 +1,11 @@
 ﻿using Stashbox.BuildUp;
 using Stashbox.BuildUp.Expressions;
-using Stashbox.BuildUp.Resolution;
 using Stashbox.Configuration;
 using Stashbox.ContainerExtension;
 using Stashbox.Entity;
 using Stashbox.Registration;
 using Stashbox.Resolution;
+using Stashbox.Resolution.Resolvers;
 using System;
 using System.Threading;
 

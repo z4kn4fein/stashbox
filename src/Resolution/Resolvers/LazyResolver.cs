@@ -1,13 +1,12 @@
 ﻿using Stashbox.Entity;
 using Stashbox.Registration;
-using Stashbox.Resolution;
 using Stashbox.Utils;
 using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace Stashbox.BuildUp.Resolution
+namespace Stashbox.Resolution.Resolvers
 {
     internal class LazyResolver : IMultiServiceResolver
     {

@@ -23,7 +23,7 @@ namespace Stashbox.Registration
 
             var shouldHandleDisposal = this.ShouldHandleDisposal(registrationContext);
             return new ServiceRegistration(registrationContext.ImplementationType, this.containerContext.ContainerConfigurator,
-                this.objectBuilderSelector, registrationContext.Context, isDecorator, shouldHandleDisposal);
+                this.SelectObjectBuilder(registrationContext), registrationContext.Context, isDecorator, shouldHandleDisposal);
         }
 
         private void PreProcessExistingInstanceIfNeeded(IRegistrationContext registrationContext)
@@ -58,5 +58,22 @@ namespace Stashbox.Registration
                 ? new SingletonLifetime()
                 : null
             : registrationContext.Context.Lifetime;
+
+        private IObjectBuilder SelectObjectBuilder(IRegistrationContext registrationContext)
+        {
+            if (registrationContext.ImplementationType.IsOpenGenericType())
+                return this.objectBuilderSelector.Get(ObjectBuilder.Generic);
+
+            if (registrationContext.Context.ExistingInstance != null)
+                return registrationContext.Context.IsWireUp
+                    ? this.objectBuilderSelector.Get(ObjectBuilder.WireUp)
+                    : this.objectBuilderSelector.Get(ObjectBuilder.Instance);
+
+            return registrationContext.Context.ContainerFactory != null
+                ? this.objectBuilderSelector.Get(ObjectBuilder.Factory)
+                : this.objectBuilderSelector.Get(registrationContext.Context.SingleFactory != null
+                    ? ObjectBuilder.Factory
+                    : ObjectBuilder.Default);
+        }
     }
 }

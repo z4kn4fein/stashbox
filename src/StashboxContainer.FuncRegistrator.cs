@@ -1,4 +1,6 @@
-﻿using Stashbox.Registration;
+﻿using Stashbox.BuildUp;
+using Stashbox.Lifetime;
+using Stashbox.Registration;
 using System;
 
 namespace Stashbox
@@ -29,10 +31,11 @@ namespace Stashbox
         {
             var data = RegistrationContextData.New();
             data.Name = name;
+            data.Lifetime = new SingletonLifetime();
             data.FuncDelegate = factory;
 
             var registration = new ServiceRegistration(factoryType, this.ContainerContext.ContainerConfigurator,
-                this.objectBuilderSelector, data, false, false);
+                this.objectBuilderSelector.Get(ObjectBuilder.Func), data, false, false);
 
             this.registrationRepository.AddOrUpdateRegistration(registration, factoryType, false, false);
             this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.ContainerContext, registration);

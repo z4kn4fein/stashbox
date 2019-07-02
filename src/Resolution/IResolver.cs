@@ -1,5 +1,5 @@
-﻿using Stashbox.BuildUp.Resolution;
-using Stashbox.Entity;
+﻿using Stashbox.Entity;
+using Stashbox.Resolution.Resolvers;
 using System.Linq.Expressions;
 
 namespace Stashbox.Resolution

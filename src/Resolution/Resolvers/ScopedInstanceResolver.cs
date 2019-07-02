@@ -1,9 +1,8 @@
 ﻿using Stashbox.Entity;
-using Stashbox.Resolution;
 using Stashbox.Utils;
 using System.Linq.Expressions;
 
-namespace Stashbox.BuildUp.Resolution
+namespace Stashbox.Resolution.Resolvers
 {
     internal class ScopedInstanceResolver : IResolver
     {

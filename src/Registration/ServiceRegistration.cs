@@ -17,7 +17,6 @@ namespace Stashbox.Registration
     {
         private static int GlobalRegistrationNumber;
         private readonly IContainerConfigurator containerConfigurator;
-        private readonly IObjectBuilderSelector objectBuilderSelector;
         private readonly IObjectBuilder objectBuilder;
         private readonly MetaInformation metaInformation;
 
@@ -61,11 +60,11 @@ namespace Stashbox.Registration
         public bool HasCondition { get; }
 
         internal ServiceRegistration(Type implementationType, IContainerConfigurator containerConfigurator,
-             IObjectBuilderSelector objectBuilderSelector, RegistrationContextData registrationContextData,
+             IObjectBuilder objectBuilder, RegistrationContextData registrationContextData,
              bool isDecorator, bool shouldHandleDisposal)
         {
             this.containerConfigurator = containerConfigurator;
-            this.objectBuilderSelector = objectBuilderSelector;
+            this.objectBuilder = objectBuilder;
             this.ImplementationType = implementationType;
             this.metaInformation = MetaInformation.GetOrCreateMetaInfo(implementationType);
             this.Constructors = this.metaInformation.GetConstructors();
@@ -89,8 +88,6 @@ namespace Stashbox.Registration
                 (containerConfigurator.ContainerConfiguration.SetUniqueRegistrationNames
                 ? (object)this.RegistrationNumber
                 : implementationType);
-
-            this.objectBuilder = this.SelectObjectBuilder();
         }
 
         /// <inheritdoc />
@@ -124,8 +121,8 @@ namespace Stashbox.Registration
         public bool CanInjectIntoNamedScope(ISet<object> scopeNames) => scopeNames.Contains(((NamedScopeLifetime)this.RegistrationContext.Lifetime).ScopeName);
 
         /// <inheritdoc />
-        public IServiceRegistration Clone(Type implementationType) =>
-            new ServiceRegistration(implementationType, this.containerConfigurator, this.objectBuilderSelector,
+        public IServiceRegistration Clone(Type implementationType, IObjectBuilder objectBuilder) =>
+            new ServiceRegistration(implementationType, this.containerConfigurator, objectBuilder,
                 this.RegistrationContext.Clone(), this.IsDecorator, this.ShouldHandleDisposal);
 
         private Expression ConstructExpression(IContainerContext containerContext, ResolutionContext resolutionContext, Type resolveType) =>
@@ -143,26 +140,6 @@ namespace Stashbox.Registration
 
         private bool HasResolutionConditionAndMatch(TypeInformation typeInfo) =>
             this.RegistrationContext.ResolutionCondition != null && this.RegistrationContext.ResolutionCondition(typeInfo);
-
-        private IObjectBuilder SelectObjectBuilder()
-        {
-            if (this.ImplementationType.IsFuncType())
-                return this.objectBuilderSelector.Get(ObjectBuilder.Func);
-
-            if (this.ImplementationType.IsOpenGenericType())
-                return this.objectBuilderSelector.Get(ObjectBuilder.Generic);
-
-            if (this.RegistrationContext.ExistingInstance != null)
-                return this.RegistrationContext.IsWireUp
-                    ? this.objectBuilderSelector.Get(ObjectBuilder.WireUp)
-                    : this.objectBuilderSelector.Get(ObjectBuilder.Instance);
-
-            return this.RegistrationContext.ContainerFactory != null
-                ? this.objectBuilderSelector.Get(ObjectBuilder.Factory)
-                : this.objectBuilderSelector.Get(this.RegistrationContext.SingleFactory != null
-                    ? ObjectBuilder.Factory
-                    : ObjectBuilder.Default);
-        }
 
         private static int ReserveRegistrationNumber() =>
             Interlocked.Increment(ref GlobalRegistrationNumber);

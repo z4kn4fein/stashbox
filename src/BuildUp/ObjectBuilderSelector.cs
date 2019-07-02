@@ -1,4 +1,5 @@
 ﻿using Stashbox.BuildUp.Expressions;
+using Stashbox.BuildUp.ObjectBuilders;
 using Stashbox.Registration;
 
 namespace Stashbox.BuildUp
@@ -9,11 +10,12 @@ namespace Stashbox.BuildUp
 
         public ObjectBuilderSelector(IExpressionBuilder expressionBuilder, IServiceRegistrator serviceRegistrator)
         {
+            var defaultObjectBuilder = new DefaultObjectBuilder(expressionBuilder);
             this.builderRepository = new IObjectBuilder[]
             {
-                new DefaultObjectBuilder(expressionBuilder),
+                defaultObjectBuilder,
                 new FactoryObjectBuilder(expressionBuilder),
-                new GenericTypeObjectBuilder(serviceRegistrator),
+                new GenericTypeObjectBuilder(serviceRegistrator, defaultObjectBuilder),
                 new InstanceObjectBuilder(),
                 new WireUpObjectBuilder(expressionBuilder),
                 new FuncObjectBuilder()

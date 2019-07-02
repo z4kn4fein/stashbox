@@ -1,9 +1,8 @@
 ﻿using Stashbox.Entity;
-using Stashbox.Resolution;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace Stashbox.BuildUp.Resolution
+namespace Stashbox.Resolution.Resolvers
 {
     internal class DefaultValueResolver : IResolver
     {

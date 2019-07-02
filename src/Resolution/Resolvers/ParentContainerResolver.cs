@@ -1,8 +1,7 @@
 ﻿using Stashbox.Entity;
-using Stashbox.Resolution;
 using System.Linq.Expressions;
 
-namespace Stashbox.BuildUp.Resolution
+namespace Stashbox.Resolution.Resolvers
 {
     internal class ParentContainerResolver : IMultiServiceResolver
     {

@@ -1,10 +1,9 @@
 ﻿using Stashbox.Entity;
-using Stashbox.Resolution;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 
-namespace Stashbox.BuildUp.Resolution
+namespace Stashbox.Resolution.Resolvers
 {
     internal class TupleResolver : IResolver
     {

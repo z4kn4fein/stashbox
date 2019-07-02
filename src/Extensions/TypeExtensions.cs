@@ -1,5 +1,5 @@
 ﻿using Stashbox.Attributes;
-using Stashbox.BuildUp.Resolution;
+using Stashbox.Resolution.Resolvers;
 using Stashbox.Utils;
 using System.Collections.Generic;
 using System.Linq;

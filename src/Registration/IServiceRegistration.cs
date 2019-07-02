@@ -1,4 +1,5 @@
-﻿using Stashbox.Entity;
+﻿using Stashbox.BuildUp;
+using Stashbox.Entity;
 using Stashbox.Resolution;
 using System;
 using System.Collections.Generic;
@@ -110,7 +111,8 @@ namespace Stashbox.Registration
         /// Clones the registration with new underlying type.
         /// </summary>
         /// <param name="implementationType">The implementation type.</param>
+        /// <param name="objectBuilder">The object builder.</param>
         /// <returns>The new registration.</returns>
-        IServiceRegistration Clone(Type implementationType);
+        IServiceRegistration Clone(Type implementationType, IObjectBuilder objectBuilder);
     }
 }

@@ -3,7 +3,7 @@ using Stashbox.Resolution;
 using System;
 using System.Linq.Expressions;
 
-namespace Stashbox.BuildUp
+namespace Stashbox.BuildUp.ObjectBuilders
 {
     internal class InstanceObjectBuilder : ObjectBuilderBase
     {
