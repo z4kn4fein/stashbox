@@ -1,4 +1,5 @@
 ﻿using Stashbox.ContainerExtension;
+using Stashbox.Registration.Fluent;
 using System;
 
 namespace Stashbox.Registration

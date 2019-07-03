@@ -1,4 +1,4 @@
-﻿using Stashbox.Registration;
+﻿using Stashbox.Registration.Fluent;
 using System;
 
 namespace Stashbox
@@ -15,7 +15,7 @@ namespace Stashbox
         /// <typeparam name="TTo">Type that will be returned.</typeparam>
         /// <param name="configurator">The configurator for the registered types.</param>
         /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns>
-        IStashboxContainer ReMap<TFrom, TTo>(Action<IFluentServiceRegistrator<TTo>> configurator = null)
+        IStashboxContainer ReMap<TFrom, TTo>(Action<IFluentServiceConfigurator<TTo>> configurator = null)
             where TFrom : class
             where TTo : class, TFrom;
 
@@ -26,7 +26,7 @@ namespace Stashbox
         /// <param name="typeTo">Type that will be returned.</param>
         /// <param name="configurator">The configurator for the registered types.</param>
         /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns>
-        IStashboxContainer ReMap<TFrom>(Type typeTo, Action<IFluentServiceRegistrator<TFrom>> configurator = null)
+        IStashboxContainer ReMap<TFrom>(Type typeTo, Action<IFluentServiceConfigurator<TFrom>> configurator = null)
             where TFrom : class;
 
         /// <summary>
@@ -36,7 +36,7 @@ namespace Stashbox
         /// <param name="typeTo">Type that will be returned.</param>
         /// <param name="configurator">The configurator for the registered types.</param>
         /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns>
-        IStashboxContainer ReMap(Type typeFrom, Type typeTo, Action<IFluentServiceRegistrator> configurator = null);
+        IStashboxContainer ReMap(Type typeFrom, Type typeTo, Action<IFluentServiceConfigurator> configurator = null);
 
         /// <summary>
         /// Replaces an existing registration mapping.
@@ -44,7 +44,7 @@ namespace Stashbox
         /// <typeparam name="TTo">Type that will be returned.</typeparam>
         /// <param name="configurator">The configurator for the registered types.</param>
         /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns>
-        IStashboxContainer ReMap<TTo>(Action<IFluentServiceRegistrator<TTo>> configurator = null)
+        IStashboxContainer ReMap<TTo>(Action<IFluentServiceConfigurator<TTo>> configurator = null)
              where TTo : class;
 
         /// <summary>
@@ -54,6 +54,6 @@ namespace Stashbox
         /// <param name="typeTo">Type that will be returned.</param>
         /// <param name="configurator">The configurator for the registered types.</param>
         /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns>
-        IStashboxContainer ReMapDecorator(Type typeFrom, Type typeTo, Action<IFluentDecoratorRegistrator> configurator = null);
+        IStashboxContainer ReMapDecorator(Type typeFrom, Type typeTo, Action<IFluentDecoratorConfigurator> configurator = null);
     }
 }

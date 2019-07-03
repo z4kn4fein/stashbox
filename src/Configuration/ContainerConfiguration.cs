@@ -1,6 +1,6 @@
 ﻿using Stashbox.Attributes;
 using Stashbox.Entity;
-using Stashbox.Registration;
+using Stashbox.Registration.Fluent;
 using System;
 using System.Collections.Generic;
 
@@ -72,7 +72,7 @@ namespace Stashbox.Configuration
         /// <summary>
         /// Represents the configuration which will be invoked when an unknown type being registered.
         /// </summary>
-        public Action<IFluentServiceRegistrator> UnknownTypeConfigurator { get; internal set; }
+        public Action<IFluentServiceConfigurator> UnknownTypeConfigurator { get; internal set; }
 
         /// <summary>
         /// The action which will be invoked when the container configuration changes.

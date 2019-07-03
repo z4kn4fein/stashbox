@@ -1,5 +1,6 @@
 ﻿using Stashbox.BuildUp;
 using Stashbox.Lifetime;
+using Stashbox.Registration.Fluent;
 using Stashbox.Utils;
 using System;
 

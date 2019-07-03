@@ -1,4 +1,4 @@
-﻿using Stashbox.Registration;
+﻿using Stashbox.Registration.Fluent;
 using System;
 
 namespace Stashbox
@@ -15,7 +15,7 @@ namespace Stashbox
         /// <param name="typeTo">Type that will be returned.</param>
         /// <param name="configurator">The configurator for the registered types.</param>
         /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns>
-        public static IStashboxContainer ReMap(this IDependencyReMapper reMapper, Type typeTo, Action<IFluentServiceRegistrator> configurator = null) =>
+        public static IStashboxContainer ReMap(this IDependencyReMapper reMapper, Type typeTo, Action<IFluentServiceConfigurator> configurator = null) =>
             reMapper.ReMap(typeTo, typeTo, configurator);
 
         /// <summary>
@@ -26,7 +26,7 @@ namespace Stashbox
         /// <param name="reMapper">The remapper.</param>
         /// <param name="configurator">The configurator for the registered types.</param>
         /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns>
-        public static IStashboxContainer ReMapDecorator<TFrom, TTo>(this IDependencyReMapper reMapper, Action<IFluentDecoratorRegistrator> configurator = null)
+        public static IStashboxContainer ReMapDecorator<TFrom, TTo>(this IDependencyReMapper reMapper, Action<IFluentDecoratorConfigurator> configurator = null)
             where TFrom : class
             where TTo : class, TFrom =>
             reMapper.ReMapDecorator(typeof(TFrom), typeof(TTo), configurator);
@@ -39,7 +39,7 @@ namespace Stashbox
         /// <param name="typeTo">Type that will be returned.</param>
         /// <param name="configurator">The configurator for the registered types.</param>
         /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns>
-        public static IStashboxContainer ReMapDecorator<TFrom>(this IDependencyReMapper reMapper, Type typeTo, Action<IFluentDecoratorRegistrator> configurator = null)
+        public static IStashboxContainer ReMapDecorator<TFrom>(this IDependencyReMapper reMapper, Type typeTo, Action<IFluentDecoratorConfigurator> configurator = null)
             where TFrom : class =>
             reMapper.ReMapDecorator(typeof(TFrom), typeTo, configurator);
 

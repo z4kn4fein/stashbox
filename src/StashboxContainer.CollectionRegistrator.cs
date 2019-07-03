@@ -1,4 +1,4 @@
-﻿using Stashbox.Registration;
+﻿using Stashbox.Registration.Fluent;
 using Stashbox.Utils;
 using System;
 using System.Collections.Generic;
@@ -10,7 +10,7 @@ namespace Stashbox
     public partial class StashboxContainer
     {
         /// <inheritdoc />
-        public IStashboxContainer RegisterTypesAs(Type typeFrom, IEnumerable<Type> types, Func<Type, bool> selector = null, Action<IFluentServiceRegistrator> configurator = null)
+        public IStashboxContainer RegisterTypesAs(Type typeFrom, IEnumerable<Type> types, Func<Type, bool> selector = null, Action<IFluentServiceConfigurator> configurator = null)
         {
             Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
             Shield.EnsureNotNull(types, nameof(types));
@@ -42,7 +42,7 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public IStashboxContainer RegisterTypes(IEnumerable<Type> types, Func<Type, bool> selector = null, Action<IFluentServiceRegistrator> configurator = null)
+        public IStashboxContainer RegisterTypes(IEnumerable<Type> types, Func<Type, bool> selector = null, Action<IFluentServiceConfigurator> configurator = null)
         {
             Shield.EnsureNotNull(types, nameof(types));
 
@@ -82,7 +82,7 @@ namespace Stashbox
             return this;
         }
 
-        private void RegisterTypeAs(Type typeFrom, Type type, Action<IFluentServiceRegistrator> configurator)
+        private void RegisterTypeAs(Type typeFrom, Type type, Action<IFluentServiceConfigurator> configurator)
         {
             if (configurator == null)
                 this.Register(typeFrom, type);

@@ -1,4 +1,4 @@
-﻿using Stashbox.Registration;
+﻿using Stashbox.Registration.Fluent;
 using Stashbox.Utils;
 using System;
 
@@ -8,35 +8,35 @@ namespace Stashbox
     {
         /// <inheritdoc />
         [Obsolete("RegisterType has been renamed to Register.")]
-        public IStashboxContainer RegisterType<TFrom, TTo>(Action<IFluentServiceRegistrator<TTo>> configurator = null)
+        public IStashboxContainer RegisterType<TFrom, TTo>(Action<IFluentServiceConfigurator<TTo>> configurator = null)
             where TFrom : class
             where TTo : class, TFrom =>
             this.Register<TFrom, TTo>(configurator);
 
         /// <inheritdoc />
         [Obsolete("RegisterType has been renamed to Register.")]
-        public IStashboxContainer RegisterType<TFrom>(Type typeTo, Action<IFluentServiceRegistrator<TFrom>> configurator = null)
+        public IStashboxContainer RegisterType<TFrom>(Type typeTo, Action<IFluentServiceConfigurator<TFrom>> configurator = null)
             where TFrom : class =>
             this.Register(typeTo, configurator);
 
         /// <inheritdoc />
         [Obsolete("RegisterType has been renamed to Register.")]
-        public IStashboxContainer RegisterType(Type typeFrom, Type typeTo, Action<IFluentServiceRegistrator> configurator = null) =>
+        public IStashboxContainer RegisterType(Type typeFrom, Type typeTo, Action<IFluentServiceConfigurator> configurator = null) =>
             this.Register(typeFrom, typeTo, configurator);
 
         /// <inheritdoc />
         [Obsolete("RegisterType has been renamed to Register.")]
-        public IStashboxContainer RegisterType<TTo>(Action<IFluentServiceRegistrator<TTo>> configurator = null)
+        public IStashboxContainer RegisterType<TTo>(Action<IFluentServiceConfigurator<TTo>> configurator = null)
             where TTo : class =>
             this.Register(configurator);
 
         /// <inheritdoc />
         [Obsolete("RegisterType has been renamed to Register.")]
-        public IStashboxContainer RegisterType(Type typeTo, Action<IFluentServiceRegistrator> configurator = null) =>
+        public IStashboxContainer RegisterType(Type typeTo, Action<IFluentServiceConfigurator> configurator = null) =>
             this.Register(typeTo, typeTo, configurator);
 
         /// <inheritdoc />
-        public IStashboxContainer Register<TFrom, TTo>(Action<IFluentServiceRegistrator<TTo>> configurator = null)
+        public IStashboxContainer Register<TFrom, TTo>(Action<IFluentServiceConfigurator<TTo>> configurator = null)
             where TFrom : class
             where TTo : class, TFrom
         {
@@ -46,7 +46,7 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public IStashboxContainer Register<TFrom>(Type typeTo, Action<IFluentServiceRegistrator<TFrom>> configurator = null)
+        public IStashboxContainer Register<TFrom>(Type typeTo, Action<IFluentServiceConfigurator<TFrom>> configurator = null)
             where TFrom : class
         {
             var context = new RegistrationContext<TFrom>(typeof(TFrom), typeTo);
@@ -55,7 +55,7 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public IStashboxContainer Register(Type typeFrom, Type typeTo, Action<IFluentServiceRegistrator> configurator = null)
+        public IStashboxContainer Register(Type typeFrom, Type typeTo, Action<IFluentServiceConfigurator> configurator = null)
         {
             Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
             Shield.EnsureNotNull(typeTo, nameof(typeTo));
@@ -66,7 +66,7 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public IStashboxContainer Register<TTo>(Action<IFluentServiceRegistrator<TTo>> configurator = null)
+        public IStashboxContainer Register<TTo>(Action<IFluentServiceConfigurator<TTo>> configurator = null)
             where TTo : class
         {
             var type = typeof(TTo);
@@ -76,7 +76,7 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public IStashboxContainer Register(Type typeTo, Action<IFluentServiceRegistrator> configurator = null) =>
+        public IStashboxContainer Register(Type typeTo, Action<IFluentServiceConfigurator> configurator = null) =>
             this.Register(typeTo, typeTo, configurator);
 
         /// <inheritdoc />
@@ -135,7 +135,7 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public IStashboxContainer RegisterDecorator(Type typeFrom, Type typeTo, Action<IFluentDecoratorRegistrator> configurator = null)
+        public IStashboxContainer RegisterDecorator(Type typeFrom, Type typeTo, Action<IFluentDecoratorConfigurator> configurator = null)
         {
             Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
             Shield.EnsureNotNull(typeTo, nameof(typeTo));

@@ -1,4 +1,4 @@
-﻿using Stashbox.Registration;
+﻿using Stashbox.Registration.Fluent;
 using Stashbox.Utils;
 using System;
 
@@ -7,7 +7,7 @@ namespace Stashbox
     public partial class StashboxContainer
     {
         /// <inheritdoc />
-        public IStashboxContainer ReMap<TFrom, TTo>(Action<IFluentServiceRegistrator<TTo>> configurator = null)
+        public IStashboxContainer ReMap<TFrom, TTo>(Action<IFluentServiceConfigurator<TTo>> configurator = null)
             where TFrom : class
             where TTo : class, TFrom
         {
@@ -17,7 +17,7 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public IStashboxContainer ReMap<TFrom>(Type typeTo, Action<IFluentServiceRegistrator<TFrom>> configurator = null)
+        public IStashboxContainer ReMap<TFrom>(Type typeTo, Action<IFluentServiceConfigurator<TFrom>> configurator = null)
             where TFrom : class
         {
             var context = new RegistrationContext<TFrom>(typeof(TFrom), typeTo);
@@ -26,7 +26,7 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public IStashboxContainer ReMap(Type typeFrom, Type typeTo, Action<IFluentServiceRegistrator> configurator = null)
+        public IStashboxContainer ReMap(Type typeFrom, Type typeTo, Action<IFluentServiceConfigurator> configurator = null)
         {
             Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
             Shield.EnsureNotNull(typeTo, nameof(typeTo));
@@ -37,7 +37,7 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public IStashboxContainer ReMap<TTo>(Action<IFluentServiceRegistrator<TTo>> configurator = null)
+        public IStashboxContainer ReMap<TTo>(Action<IFluentServiceConfigurator<TTo>> configurator = null)
              where TTo : class
         {
             var type = typeof(TTo);
@@ -47,7 +47,7 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public IStashboxContainer ReMapDecorator(Type typeFrom, Type typeTo, Action<IFluentDecoratorRegistrator> configurator = null)
+        public IStashboxContainer ReMapDecorator(Type typeFrom, Type typeTo, Action<IFluentDecoratorConfigurator> configurator = null)
         {
             Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
             Shield.EnsureNotNull(typeTo, nameof(typeTo));

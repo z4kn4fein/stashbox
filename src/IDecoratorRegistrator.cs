@@ -1,4 +1,4 @@
-﻿using Stashbox.Registration;
+﻿using Stashbox.Registration.Fluent;
 using System;
 
 namespace Stashbox
@@ -15,6 +15,6 @@ namespace Stashbox
         /// <param name="typeTo">Type that will be returned.</param>
         /// <param name="configurator">The configurator for the registered types.</param>
         /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns>
-        IStashboxContainer RegisterDecorator(Type typeFrom, Type typeTo, Action<IFluentDecoratorRegistrator> configurator = null);
+        IStashboxContainer RegisterDecorator(Type typeFrom, Type typeTo, Action<IFluentDecoratorConfigurator> configurator = null);
     }
 }

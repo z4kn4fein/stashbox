@@ -1,7 +1,9 @@
-﻿namespace Stashbox.Registration
+﻿using Stashbox.Registration.Fluent;
+
+namespace Stashbox.Registration
 {
     internal interface IRegistrationBuilder
     {
-        IServiceRegistration BuildServiceRegistration(IRegistrationContext registrationContext, bool isDecorator);
+        IServiceRegistration BuildServiceRegistration(RegistrationContext registrationContext, bool isDecorator);
     }
 }
