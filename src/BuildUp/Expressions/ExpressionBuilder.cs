@@ -70,13 +70,13 @@ namespace Stashbox.BuildUp.Expressions
 
             if (injectionMembers.Length > 0)
                 lines.AddRange(this.FillMembersExpression(containerContext, injectionMembers,
-                    RegistrationContextData.Empty, resolutionContext, variable));
+                    RegistrationContext.Empty, resolutionContext, variable));
 
             if (injectionMethods.Length > 0)
             {
                 var methodExpressions = new Expression[injectionMethods.Length];
                 this.CreateMethodExpressions(containerContext, injectionMethods,
-                     RegistrationContextData.Empty, resolutionContext, instance, methodExpressions);
+                     RegistrationContext.Empty, resolutionContext, instance, methodExpressions);
                 lines.AddRange(methodExpressions);
             }
 
@@ -139,7 +139,7 @@ namespace Stashbox.BuildUp.Expressions
             if (injectionMembers.Length > 0)
             {
                 var bindings = this.GetMemberBindings(containerContext, injectionMembers,
-                    RegistrationContextData.Empty, resolutionContext);
+                    RegistrationContext.Empty, resolutionContext);
                 if (bindings.Count > 0)
                     initExpression = initExpression.InitMembers(bindings);
             }
@@ -151,7 +151,7 @@ namespace Stashbox.BuildUp.Expressions
 
                 var methodExpressions = new Expression[injectionMethods.Length];
                 this.CreateMethodExpressions(containerContext, injectionMethods,
-                     RegistrationContextData.Empty, resolutionContext, variable, methodExpressions);
+                     RegistrationContext.Empty, resolutionContext, variable, methodExpressions);
 
                 var lines = new List<Expression>(methodExpressions.Length + 1) { assign };
                 lines.AddRange(methodExpressions);
@@ -236,7 +236,7 @@ namespace Stashbox.BuildUp.Expressions
         private IEnumerable<Expression> FillMembersExpression(
             IContainerContext containerContext,
             MemberInformation[] injectionMembers,
-            RegistrationContextData registrationContext,
+            RegistrationContext registrationContext,
             ResolutionContext resolutionContext,
             Expression instance)
         {
@@ -266,7 +266,7 @@ namespace Stashbox.BuildUp.Expressions
         private void CreateMethodExpressions(
             IContainerContext containerContext,
             MethodInformation[] injectionMethods,
-            RegistrationContextData registrationContext,
+            RegistrationContext registrationContext,
             ResolutionContext resolutionContext,
             Expression newExpression,
             Expression[] buffer)
@@ -295,7 +295,7 @@ namespace Stashbox.BuildUp.Expressions
         private IList<MemberBinding> GetMemberBindings(
             IContainerContext containerContext,
             MemberInformation[] injectionMembers,
-            RegistrationContextData registrationContext,
+            RegistrationContext registrationContext,
             ResolutionContext resolutionContext)
         {
             var length = injectionMembers.Length;

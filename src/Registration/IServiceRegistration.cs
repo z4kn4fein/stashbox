@@ -20,7 +20,7 @@ namespace Stashbox.Registration
         /// <summary>
         /// The registration context.
         /// </summary>
-        RegistrationContextData RegistrationContext { get; }
+        RegistrationContext RegistrationContext { get; }
 
         /// <summary>
         /// The registration number.

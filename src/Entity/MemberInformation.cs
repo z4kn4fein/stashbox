@@ -35,7 +35,7 @@ namespace Stashbox.Entity
         /// <param name="configuration">The container configuration to determine that the container allows the auto injection or not.</param>
         /// <param name="contextData">The registration context to determine that the registration allows the auto injection or not.</param>
         /// <returns>True if the member is injectable, otherwise false.</returns>
-        public bool CanInject(ContainerConfiguration configuration, RegistrationContextData contextData)
+        public bool CanInject(ContainerConfiguration configuration, RegistrationContext contextData)
         {
             var autoMemberInjectionEnabled = configuration.MemberInjectionWithoutAnnotationEnabled || contextData.AutoMemberInjectionEnabled;
             var autoMemberInjectionRule = contextData.AutoMemberInjectionEnabled ? contextData.AutoMemberInjectionRule :

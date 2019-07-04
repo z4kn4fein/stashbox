@@ -29,7 +29,7 @@ namespace Stashbox
 
         private IStashboxContainer RegisterFuncInternal(Delegate factory, Type factoryType, string name)
         {
-            var data = RegistrationContextData.New();
+            var data = RegistrationContext.New();
             data.Name = name;
             data.Lifetime = new SingletonLifetime();
             data.FuncDelegate = factory;

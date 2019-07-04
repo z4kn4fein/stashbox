@@ -11,17 +11,17 @@ namespace Stashbox.Registration
     /// <summary>
     /// Represents the state of a scoped registration.
     /// </summary>
-    public class RegistrationContextData
+    public class RegistrationContext
     {
         /// <summary>
         /// Empty registration data.
         /// </summary>
-        public static readonly RegistrationContextData Empty = New();
+        public static readonly RegistrationContext Empty = New();
 
         /// <summary>
         /// Empty registration data.
         /// </summary>
-        public static RegistrationContextData New() => new RegistrationContextData();
+        public static RegistrationContext New() => new RegistrationContext();
 
         /// <summary>
         /// Name of the registration.
@@ -134,9 +134,9 @@ namespace Stashbox.Registration
         public Func<TypeInformation, bool> MemberInjectionFilter { get; internal set; }
 
         /// <summary>
-        /// Constructs a <see cref="RegistrationContextData"/>
+        /// Constructs a <see cref="RegistrationContext"/>
         /// </summary>
-        public RegistrationContextData()
+        public RegistrationContext()
         {
             this.AttributeConditions = ArrayStore<Type>.Empty;
             this.InjectionParameters = ArrayStore<InjectionParameter>.Empty;
@@ -148,9 +148,9 @@ namespace Stashbox.Registration
         /// Creates a copy of this object.
         /// </summary>
         /// <returns>The copy of this instance.</returns>
-        public RegistrationContextData Clone()
+        public RegistrationContext Clone()
         {
-            var data = (RegistrationContextData)this.MemberwiseClone();
+            var data = (RegistrationContext)this.MemberwiseClone();
             data.Lifetime = data.Lifetime?.Create();
             return data;
         }

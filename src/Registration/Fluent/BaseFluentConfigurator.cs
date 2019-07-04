@@ -19,17 +19,16 @@ namespace Stashbox.Registration.Fluent
 
         internal Type ImplementationType { get; }
 
-        internal RegistrationContextData Context { get; }
-
         internal bool ReplaceExistingRegistration { get; private set; }
 
         internal IEnumerable<Type> AdditionalServiceTypes { get; set; }
 
+
         internal BaseFluentConfigurator(Type serviceType, Type implementationType)
-            : this(serviceType, implementationType, RegistrationContextData.New())
+            : this(serviceType, implementationType, RegistrationContext.New())
         { }
 
-        internal BaseFluentConfigurator(Type serviceType, Type implementationType, RegistrationContextData registrationContextData)
+        internal BaseFluentConfigurator(Type serviceType, Type implementationType, RegistrationContext registrationContextData)
         {
             this.ServiceType = serviceType;
             this.ImplementationType = implementationType;

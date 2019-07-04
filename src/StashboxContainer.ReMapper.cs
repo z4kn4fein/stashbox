@@ -11,7 +11,7 @@ namespace Stashbox
             where TFrom : class
             where TTo : class, TFrom
         {
-            var context = new RegistrationContext<TTo>(typeof(TFrom), typeof(TTo));
+            var context = new RegistrationConfigurator<TTo>(typeof(TFrom), typeof(TTo));
             configurator?.Invoke(context);
             return this.ReMap(context);
         }
@@ -20,7 +20,7 @@ namespace Stashbox
         public IStashboxContainer ReMap<TFrom>(Type typeTo, Action<IFluentServiceConfigurator<TFrom>> configurator = null)
             where TFrom : class
         {
-            var context = new RegistrationContext<TFrom>(typeof(TFrom), typeTo);
+            var context = new RegistrationConfigurator<TFrom>(typeof(TFrom), typeTo);
             configurator?.Invoke(context);
             return this.ReMap(context);
         }
@@ -31,7 +31,7 @@ namespace Stashbox
             Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
             Shield.EnsureNotNull(typeTo, nameof(typeTo));
 
-            var context = new RegistrationContext(typeFrom, typeTo);
+            var context = new RegistrationConfigurator(typeFrom, typeTo);
             configurator?.Invoke(context);
             return this.ReMap(context);
         }
@@ -41,7 +41,7 @@ namespace Stashbox
              where TTo : class
         {
             var type = typeof(TTo);
-            var context = new RegistrationContext<TTo>(type, type);
+            var context = new RegistrationConfigurator<TTo>(type, type);
             configurator?.Invoke(context);
             return this.ReMap(context);
         }
@@ -52,7 +52,7 @@ namespace Stashbox
             Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
             Shield.EnsureNotNull(typeTo, nameof(typeTo));
 
-            var context = new DecoratorRegistrationContext(new RegistrationContext(typeFrom, typeTo));
+            var context = new DecoratorConfigurator(new RegistrationConfigurator(typeFrom, typeTo));
             configurator?.Invoke(context);
             return this.ReMap(context.RegistrationContext, true);
         }

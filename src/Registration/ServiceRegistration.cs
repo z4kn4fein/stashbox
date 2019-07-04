@@ -24,7 +24,7 @@ namespace Stashbox.Registration
         public Type ImplementationType { get; }
 
         /// <inheritdoc />
-        public RegistrationContextData RegistrationContext { get; }
+        public RegistrationContext RegistrationContext { get; }
 
         /// <inheritdoc />
         public bool IsDecorator { get; }
@@ -60,7 +60,7 @@ namespace Stashbox.Registration
         public bool HasCondition { get; }
 
         internal ServiceRegistration(Type implementationType, IContainerConfigurator containerConfigurator,
-             IObjectBuilder objectBuilder, RegistrationContextData registrationContextData,
+             IObjectBuilder objectBuilder, RegistrationContext registrationContextData,
              bool isDecorator, bool shouldHandleDisposal)
         {
             this.containerConfigurator = containerConfigurator;

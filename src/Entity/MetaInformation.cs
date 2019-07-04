@@ -98,7 +98,7 @@ namespace Stashbox.Entity
 
         public MethodInformation[] GetInjectionMethods() => this.injectionMethods;
 
-        public ConstructorInformation FindSelectedConstructor(RegistrationContextData registrationContextData)
+        public ConstructorInformation FindSelectedConstructor(RegistrationContext registrationContextData)
         {
             if (registrationContextData.SelectedConstructor == null)
                 return null;
@@ -114,7 +114,7 @@ namespace Stashbox.Entity
             return null;
         }
 
-        public MemberInformation[] SelectInjectionMembers(RegistrationContextData contextData, ContainerConfiguration containerConfiguration)
+        public MemberInformation[] SelectInjectionMembers(RegistrationContext contextData, ContainerConfiguration containerConfiguration)
         {
             if (contextData.InjectionMemberNames.Count == 0 &&
                 containerConfiguration.MemberInjectionFilter == null &&
