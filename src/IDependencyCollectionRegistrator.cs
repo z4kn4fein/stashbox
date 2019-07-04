@@ -17,7 +17,7 @@ namespace Stashbox
         /// <param name="selector">The type selector.</param>
         /// <param name="configurator">The configurator for the registered types.</param>
         /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns>
-        IStashboxContainer RegisterTypesAs(Type typeFrom, IEnumerable<Type> types, Func<Type, bool> selector = null, Action<IFluentServiceConfigurator> configurator = null);
+        IStashboxContainer RegisterTypesAs(Type typeFrom, IEnumerable<Type> types, Func<Type, bool> selector = null, Action<RegistrationConfigurator> configurator = null);
 
         /// <summary>
         /// Registers types into the container.
@@ -26,7 +26,7 @@ namespace Stashbox
         /// <param name="selector">The type selector.</param>
         /// <param name="configurator">The configurator for the registered types.</param>
         /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns>
-        IStashboxContainer RegisterTypes(IEnumerable<Type> types, Func<Type, bool> selector = null, Action<IFluentServiceConfigurator> configurator = null);
+        IStashboxContainer RegisterTypes(IEnumerable<Type> types, Func<Type, bool> selector = null, Action<RegistrationConfigurator> configurator = null);
 
         /// <summary>
         /// Composes services by calling the <see cref="ICompositionRoot.Compose"/> method of the given type.

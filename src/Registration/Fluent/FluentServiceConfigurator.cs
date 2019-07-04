@@ -8,19 +8,12 @@ using System.Linq.Expressions;
 namespace Stashbox.Registration.Fluent
 {
     /// <summary>
-    /// 
+    /// Represents the generic fluent service registration api.
     /// </summary>
-    /// <typeparam name="TService"></typeparam>
-    /// <typeparam name="TConfigurator"></typeparam>
     public class FluentServiceConfigurator<TService, TConfigurator> : FluentServiceConfigurator<TConfigurator>, IFluentServiceConfigurator<TService, TConfigurator>
         where TConfigurator : FluentServiceConfigurator<TService, TConfigurator>
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="serviceType"></param>
-        /// <param name="implementationType"></param>
-        public FluentServiceConfigurator(Type serviceType, Type implementationType)
+        internal FluentServiceConfigurator(Type serviceType, Type implementationType)
             : base(serviceType, implementationType)
         { }
 
@@ -59,17 +52,11 @@ namespace Stashbox.Registration.Fluent
     }
 
     /// <summary>
-    /// 
+    /// Represents the fluent service registraton api.
     /// </summary>
-    /// <typeparam name="TConfigurator"></typeparam>
     public class FluentServiceConfigurator<TConfigurator> : BaseFluentConfigurator<TConfigurator>, IFluentServiceConfigurator<TConfigurator>
         where TConfigurator : FluentServiceConfigurator<TConfigurator>
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="serviceType"></param>
-        /// <param name="implementationType"></param>
         internal FluentServiceConfigurator(Type serviceType, Type implementationType)
             : base(serviceType, implementationType)
         { }
@@ -164,7 +151,7 @@ namespace Stashbox.Registration.Fluent
         /// <inheritdoc />
         public TConfigurator AsImplementedTypes()
         {
-            this.AdditionalServiceTypes = new ArrayStore<Type>(this.ImplementationType.GetRegisterableInterfaceTypes()
+            this.Context.AdditionalServiceTypes = new ArrayStore<Type>(this.ImplementationType.GetRegisterableInterfaceTypes()
                     .Concat(this.ImplementationType.GetRegisterableBaseTypes()).CastToArray());
             return (TConfigurator)this;
         }
@@ -190,7 +177,7 @@ namespace Stashbox.Registration.Fluent
             if (!this.ImplementationType.Implements(serviceType))
                 throw new ArgumentException("The given service type is not assignable from the current implementation type.");
 
-            this.AdditionalServiceTypes = ((ArrayStore<Type>)this.AdditionalServiceTypes).Add(serviceType);
+            this.Context.AdditionalServiceTypes = ((ArrayStore<Type>)this.Context.AdditionalServiceTypes).Add(serviceType);
             return (TConfigurator)this;
         }
     }

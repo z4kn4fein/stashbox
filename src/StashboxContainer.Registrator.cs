@@ -8,75 +8,75 @@ namespace Stashbox
     {
         /// <inheritdoc />
         [Obsolete("RegisterType has been renamed to Register.")]
-        public IStashboxContainer RegisterType<TFrom, TTo>(Action<IFluentServiceConfigurator<TTo>> configurator = null)
+        public IStashboxContainer RegisterType<TFrom, TTo>(Action<RegistrationConfigurator<TTo>> configurator = null)
             where TFrom : class
             where TTo : class, TFrom =>
             this.Register<TFrom, TTo>(configurator);
 
         /// <inheritdoc />
         [Obsolete("RegisterType has been renamed to Register.")]
-        public IStashboxContainer RegisterType<TFrom>(Type typeTo, Action<IFluentServiceConfigurator<TFrom>> configurator = null)
+        public IStashboxContainer RegisterType<TFrom>(Type typeTo, Action<RegistrationConfigurator<TFrom>> configurator = null)
             where TFrom : class =>
             this.Register(typeTo, configurator);
 
         /// <inheritdoc />
         [Obsolete("RegisterType has been renamed to Register.")]
-        public IStashboxContainer RegisterType(Type typeFrom, Type typeTo, Action<IFluentServiceConfigurator> configurator = null) =>
+        public IStashboxContainer RegisterType(Type typeFrom, Type typeTo, Action<RegistrationConfigurator> configurator = null) =>
             this.Register(typeFrom, typeTo, configurator);
 
         /// <inheritdoc />
         [Obsolete("RegisterType has been renamed to Register.")]
-        public IStashboxContainer RegisterType<TTo>(Action<IFluentServiceConfigurator<TTo>> configurator = null)
+        public IStashboxContainer RegisterType<TTo>(Action<RegistrationConfigurator<TTo>> configurator = null)
             where TTo : class =>
             this.Register(configurator);
 
         /// <inheritdoc />
         [Obsolete("RegisterType has been renamed to Register.")]
-        public IStashboxContainer RegisterType(Type typeTo, Action<IFluentServiceConfigurator> configurator = null) =>
+        public IStashboxContainer RegisterType(Type typeTo, Action<RegistrationConfigurator> configurator = null) =>
             this.Register(typeTo, typeTo, configurator);
 
         /// <inheritdoc />
-        public IStashboxContainer Register<TFrom, TTo>(Action<IFluentServiceConfigurator<TTo>> configurator = null)
+        public IStashboxContainer Register<TFrom, TTo>(Action<RegistrationConfigurator<TTo>> configurator = null)
             where TFrom : class
             where TTo : class, TFrom
         {
-            var context = new RegistrationConfigurator<TTo>(typeof(TFrom), typeof(TTo));
-            configurator?.Invoke(context);
-            return this.Register(context);
+            var registrationConfigurator = new RegistrationConfigurator<TTo>(typeof(TFrom), typeof(TTo));
+            configurator?.Invoke(registrationConfigurator);
+            return this.RegisterInternal(registrationConfigurator);
         }
 
         /// <inheritdoc />
-        public IStashboxContainer Register<TFrom>(Type typeTo, Action<IFluentServiceConfigurator<TFrom>> configurator = null)
+        public IStashboxContainer Register<TFrom>(Type typeTo, Action<RegistrationConfigurator<TFrom>> configurator = null)
             where TFrom : class
         {
-            var context = new RegistrationConfigurator<TFrom>(typeof(TFrom), typeTo);
-            configurator?.Invoke(context);
-            return this.Register(context);
+            var registrationConfigurator = new RegistrationConfigurator<TFrom>(typeof(TFrom), typeTo);
+            configurator?.Invoke(registrationConfigurator);
+            return this.RegisterInternal(registrationConfigurator);
         }
 
         /// <inheritdoc />
-        public IStashboxContainer Register(Type typeFrom, Type typeTo, Action<IFluentServiceConfigurator> configurator = null)
+        public IStashboxContainer Register(Type typeFrom, Type typeTo, Action<RegistrationConfigurator> configurator = null)
         {
             Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
             Shield.EnsureNotNull(typeTo, nameof(typeTo));
 
-            var context = new RegistrationConfigurator(typeFrom, typeTo);
-            configurator?.Invoke(context);
-            return this.Register(context);
+            var registrationConfigurator = new RegistrationConfigurator(typeFrom, typeTo);
+            configurator?.Invoke(registrationConfigurator);
+            return this.RegisterInternal(registrationConfigurator);
         }
 
         /// <inheritdoc />
-        public IStashboxContainer Register<TTo>(Action<IFluentServiceConfigurator<TTo>> configurator = null)
+        public IStashboxContainer Register<TTo>(Action<RegistrationConfigurator<TTo>> configurator = null)
             where TTo : class
         {
             var type = typeof(TTo);
-            var context = new RegistrationConfigurator<TTo>(type, type);
-            configurator?.Invoke(context);
-            return this.Register(context);
+            var registrationConfigurator = new RegistrationConfigurator<TTo>(type, type);
+            configurator?.Invoke(registrationConfigurator);
+            return this.RegisterInternal(registrationConfigurator);
         }
 
         /// <inheritdoc />
-        public IStashboxContainer Register(Type typeTo, Action<IFluentServiceConfigurator> configurator = null) =>
+        public IStashboxContainer Register(Type typeTo, Action<RegistrationConfigurator> configurator = null) =>
             this.Register(typeTo, typeTo, configurator);
 
         /// <inheritdoc />
@@ -135,19 +135,21 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public IStashboxContainer RegisterDecorator(Type typeFrom, Type typeTo, Action<IFluentDecoratorConfigurator> configurator = null)
+        public IStashboxContainer RegisterDecorator(Type typeFrom, Type typeTo, Action<DecoratorConfigurator> configurator = null)
         {
             Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
             Shield.EnsureNotNull(typeTo, nameof(typeTo));
 
-            var context = new DecoratorConfigurator(new RegistrationConfigurator(typeFrom, typeTo));
-            configurator?.Invoke(context);
-            return this.serviceRegistrator.Register(this.registrationBuilder.BuildServiceRegistration(context.RegistrationContext, true),
-                context.RegistrationContext);
+            var decoratorConfigurator = new DecoratorConfigurator(typeFrom, typeTo);
+            configurator?.Invoke(decoratorConfigurator);
+            return this.serviceRegistrator.Register(this.registrationBuilder.BuildServiceRegistration(decoratorConfigurator, true),
+                typeFrom,
+                decoratorConfigurator.Context);
         }
 
-        private IStashboxContainer Register(IRegistrationContext registrationContext) =>
-            this.serviceRegistrator.Register(this.registrationBuilder.BuildServiceRegistration(registrationContext, false),
-                registrationContext);
+        private IStashboxContainer RegisterInternal(IRegistrationConfiguration registrationConfiguration) =>
+            this.serviceRegistrator.Register(this.registrationBuilder.BuildServiceRegistration(registrationConfiguration, false),
+                registrationConfiguration.ServiceType,
+                registrationConfiguration.Context);
     }
 }

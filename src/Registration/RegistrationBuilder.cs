@@ -17,62 +17,64 @@ namespace Stashbox.Registration
             this.objectBuilderSelector = objectBuilderSelector;
         }
 
-        public IServiceRegistration BuildServiceRegistration(IRegistrationContext registrationContext, bool isDecorator)
+        public IServiceRegistration BuildServiceRegistration(IRegistrationConfiguration registrationConfiguration, bool isDecorator)
         {
-            this.PreProcessExistingInstanceIfNeeded(registrationContext);
-            registrationContext.Context.Lifetime = this.ChooseLifeTime(registrationContext);
+            this.PreProcessExistingInstanceIfNeeded(registrationConfiguration.Context, registrationConfiguration.ImplementationType);
+            registrationConfiguration.Context.Lifetime = this.ChooseLifeTime(registrationConfiguration.Context);
 
-            var shouldHandleDisposal = this.ShouldHandleDisposal(registrationContext);
-            return new ServiceRegistration(registrationContext.ImplementationType, this.containerContext.ContainerConfigurator,
-                this.SelectObjectBuilder(registrationContext), registrationContext.Context, isDecorator, shouldHandleDisposal);
+            var shouldHandleDisposal = this.ShouldHandleDisposal(registrationConfiguration.Context);
+
+            return new ServiceRegistration(registrationConfiguration.ImplementationType, this.containerContext.ContainerConfigurator,
+                this.SelectObjectBuilder(registrationConfiguration.Context, registrationConfiguration.ImplementationType),
+                registrationConfiguration.Context, isDecorator, shouldHandleDisposal);
         }
 
-        private void PreProcessExistingInstanceIfNeeded(IRegistrationContext registrationContext)
+        private void PreProcessExistingInstanceIfNeeded(RegistrationContext registrationContext, Type implementationType)
         {
-            if (registrationContext.Context.ExistingInstance == null) return;
+            if (registrationContext.ExistingInstance == null) return;
 
-            if (!registrationContext.Context.IsLifetimeExternallyOwned && registrationContext.Context.ExistingInstance is IDisposable disposable)
+            if (!registrationContext.IsLifetimeExternallyOwned && registrationContext.ExistingInstance is IDisposable disposable)
                 this.containerContext.Container.RootScope.AddDisposableTracking(disposable);
 
-            if (registrationContext.Context.Finalizer == null) return;
+            if (registrationContext.Finalizer == null) return;
 
-            var method = Constants.AddWithFinalizerMethod.MakeGenericMethod(registrationContext.ServiceType);
-            method.Invoke(this.containerContext.Container.RootScope, new[] { registrationContext.Context.ExistingInstance, registrationContext.Context.Finalizer });
+            var method = Constants.AddWithFinalizerMethod.MakeGenericMethod(implementationType);
+            method.Invoke(this.containerContext.Container.RootScope, new[] { registrationContext.ExistingInstance, registrationContext.Finalizer });
         }
 
-        private bool ShouldHandleDisposal(IRegistrationContext registrationContext)
+        private bool ShouldHandleDisposal(RegistrationContext registrationContext)
         {
-            if (registrationContext.Context.IsLifetimeExternallyOwned)
+            if (registrationContext.IsLifetimeExternallyOwned)
                 return false;
 
-            if (registrationContext.Context.ExistingInstance != null)
+            if (registrationContext.ExistingInstance != null)
                 return false;
 
-            if (registrationContext.Context.Lifetime == null && this.containerContext.ContainerConfigurator.ContainerConfiguration.TrackTransientsForDisposalEnabled)
+            if (registrationContext.Lifetime == null && this.containerContext.ContainerConfigurator.ContainerConfiguration.TrackTransientsForDisposalEnabled)
                 return true;
 
-            return registrationContext.Context.Lifetime != null;
+            return registrationContext.Lifetime != null;
         }
 
-        private ILifetime ChooseLifeTime(IRegistrationContext registrationContext) => registrationContext.Context.ExistingInstance != null
-            ? registrationContext.Context.IsWireUp
+        private ILifetime ChooseLifeTime(RegistrationContext registrationContext) => registrationContext.ExistingInstance != null
+            ? registrationContext.IsWireUp
                 ? new SingletonLifetime()
                 : null
-            : registrationContext.Context.Lifetime;
+            : registrationContext.Lifetime;
 
-        private IObjectBuilder SelectObjectBuilder(IRegistrationContext registrationContext)
+        private IObjectBuilder SelectObjectBuilder(RegistrationContext registrationContext, Type implementationType)
         {
-            if (registrationContext.ImplementationType.IsOpenGenericType())
+            if (implementationType.IsOpenGenericType())
                 return this.objectBuilderSelector.Get(ObjectBuilder.Generic);
 
-            if (registrationContext.Context.ExistingInstance != null)
-                return registrationContext.Context.IsWireUp
+            if (registrationContext.ExistingInstance != null)
+                return registrationContext.IsWireUp
                     ? this.objectBuilderSelector.Get(ObjectBuilder.WireUp)
                     : this.objectBuilderSelector.Get(ObjectBuilder.Instance);
 
-            return registrationContext.Context.ContainerFactory != null
+            return registrationContext.ContainerFactory != null
                 ? this.objectBuilderSelector.Get(ObjectBuilder.Factory)
-                : this.objectBuilderSelector.Get(registrationContext.Context.SingleFactory != null
+                : this.objectBuilderSelector.Get(registrationContext.SingleFactory != null
                     ? ObjectBuilder.Factory
                     : ObjectBuilder.Default);
         }

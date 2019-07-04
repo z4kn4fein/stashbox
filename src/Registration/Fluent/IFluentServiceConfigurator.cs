@@ -6,7 +6,7 @@ using System.Linq.Expressions;
 namespace Stashbox.Registration.Fluent
 {
     /// <summary>
-    /// Represents a generic fluent service registration configurator.
+    /// Represents the generic fluent service registration api.
     /// </summary>
     public interface IFluentServiceConfigurator<TService, TConfigurator> : IFluentServiceConfigurator<TConfigurator>
         where TConfigurator : IFluentServiceConfigurator<TService, TConfigurator>
@@ -41,7 +41,7 @@ namespace Stashbox.Registration.Fluent
     }
 
     /// <summary>
-    /// Represents a fluent service registrator.
+    /// Represents the fluent service registraton api.
     /// </summary>
     public interface IFluentServiceConfigurator<TConfigurator> : IBaseFluentConfigurator<TConfigurator>
         where TConfigurator : IFluentServiceConfigurator<TConfigurator>

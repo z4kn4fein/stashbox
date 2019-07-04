@@ -51,7 +51,7 @@ namespace Stashbox
         /// Enables the unknown type resolution.
         /// </summary>
         /// <returns>The container configurator.</returns>
-        IContainerConfigurator WithUnknownTypeResolution(Action<IFluentServiceConfigurator> configurator = null);
+        IContainerConfigurator WithUnknownTypeResolution(Action<RegistrationConfigurator> configurator = null);
 
         /// <summary>
         /// Enables the member injection without annotation.

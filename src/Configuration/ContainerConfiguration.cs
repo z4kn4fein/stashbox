@@ -72,7 +72,7 @@ namespace Stashbox.Configuration
         /// <summary>
         /// Represents the configuration which will be invoked when an unknown type being registered.
         /// </summary>
-        public Action<IFluentServiceConfigurator> UnknownTypeConfigurator { get; internal set; }
+        public Action<RegistrationConfigurator> UnknownTypeConfigurator { get; internal set; }
 
         /// <summary>
         /// The action which will be invoked when the container configuration changes.

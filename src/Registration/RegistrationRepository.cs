@@ -146,8 +146,8 @@ namespace Stashbox.Registration
             if (!type.IsClosedGenericType()) return registrations?.Repository;
 
             var generics = this.serviceRepository.GetOrDefault(type.GetGenericTypeDefinition());
-            return generics == null 
-                ? registrations?.Repository 
+            return generics == null
+                ? registrations?.Repository
                 : registrations?.Repository.Concat(generics.Repository.Where(reg => reg.Value.ValidateGenericConstraints(type)))
                       .OrderBy(reg => reg.Value.RegistrationNumber) ?? generics.Repository.Where(reg => reg.Value.ValidateGenericConstraints(type));
         }
@@ -159,8 +159,8 @@ namespace Stashbox.Registration
             if (!type.IsClosedGenericType()) return registrations?.Repository;
 
             var generics = this.namedScopeRepository.GetOrDefault(type.GetGenericTypeDefinition())?.WhereOrDefault(kv => kv.Value.CanInjectIntoNamedScope(resolutionContext.ScopeNames));
-            return generics == null 
-                ? registrations?.Repository 
+            return generics == null
+                ? registrations?.Repository
                 : registrations?.Repository.Concat(generics.Repository.Where(reg => reg.Value.ValidateGenericConstraints(type)))
                       .OrderBy(reg => reg.Value.RegistrationNumber) ?? generics.Repository.Where(reg => reg.Value.ValidateGenericConstraints(type));
         }

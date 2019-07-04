@@ -22,7 +22,7 @@ namespace Stashbox
         /// <param name="selector">The type selector.</param>
         /// <param name="configurator">The configurator for the registered types.</param>
         /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns>
-        public static IStashboxContainer RegisterTypesAs<TFrom>(this IDependencyCollectionRegistrator registrator, IEnumerable<Type> types, Func<Type, bool> selector = null, Action<IFluentServiceConfigurator> configurator = null)
+        public static IStashboxContainer RegisterTypesAs<TFrom>(this IDependencyCollectionRegistrator registrator, IEnumerable<Type> types, Func<Type, bool> selector = null, Action<RegistrationConfigurator> configurator = null)
             where TFrom : class =>
             registrator.RegisterTypesAs(typeof(TFrom), types, selector, configurator);
 
@@ -35,7 +35,7 @@ namespace Stashbox
         /// <param name="selector">The type selector.</param>
         /// <param name="configurator">The configurator for the registered types.</param>
         /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns>
-        public static IStashboxContainer RegisterTypesAs<TFrom>(this IDependencyCollectionRegistrator registrator, Assembly assembly, Func<Type, bool> selector = null, Action<IFluentServiceConfigurator> configurator = null)
+        public static IStashboxContainer RegisterTypesAs<TFrom>(this IDependencyCollectionRegistrator registrator, Assembly assembly, Func<Type, bool> selector = null, Action<RegistrationConfigurator> configurator = null)
             where TFrom : class =>
             registrator.RegisterTypesAs(typeof(TFrom), assembly.CollectTypes(), selector, configurator);
 
@@ -48,7 +48,7 @@ namespace Stashbox
         /// <param name="selector">The type selector.</param>
         /// <param name="configurator">The configurator for the registered types.</param>
         /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns>
-        public static IStashboxContainer RegisterTypesAs(this IDependencyCollectionRegistrator registrator, Type typeFrom, Assembly assembly, Func<Type, bool> selector = null, Action<IFluentServiceConfigurator> configurator = null) =>
+        public static IStashboxContainer RegisterTypesAs(this IDependencyCollectionRegistrator registrator, Type typeFrom, Assembly assembly, Func<Type, bool> selector = null, Action<RegistrationConfigurator> configurator = null) =>
             registrator.RegisterTypesAs(typeFrom, assembly.CollectTypes(), selector, configurator);
 
         /// <summary>
@@ -59,7 +59,7 @@ namespace Stashbox
         /// <param name="selector">The type selector.</param>
         /// <param name="configurator">The configurator for the registered types.</param>
         /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns>
-        public static IStashboxContainer RegisterAssembly(this IDependencyCollectionRegistrator registrator, Assembly assembly, Func<Type, bool> selector = null, Action<IFluentServiceConfigurator> configurator = null) =>
+        public static IStashboxContainer RegisterAssembly(this IDependencyCollectionRegistrator registrator, Assembly assembly, Func<Type, bool> selector = null, Action<RegistrationConfigurator> configurator = null) =>
             registrator.RegisterTypes(assembly.CollectTypes(), selector, configurator);
 
         /// <summary>
@@ -70,7 +70,7 @@ namespace Stashbox
         /// <param name="selector">The type selector.</param>
         /// <param name="configurator">The configurator for the registered types.</param>
         /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns>
-        public static IStashboxContainer RegisterAssemblies(this IDependencyCollectionRegistrator registrator, IEnumerable<Assembly> assemblies, Func<Type, bool> selector = null, Action<IFluentServiceConfigurator> configurator = null)
+        public static IStashboxContainer RegisterAssemblies(this IDependencyCollectionRegistrator registrator, IEnumerable<Assembly> assemblies, Func<Type, bool> selector = null, Action<RegistrationConfigurator> configurator = null)
         {
             Shield.EnsureNotNull(assemblies, nameof(assemblies));
 
@@ -88,7 +88,7 @@ namespace Stashbox
         /// <param name="selector">The type selector.</param>
         /// <param name="configurator">The configurator for the registered types.</param>
         /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns>
-        public static IStashboxContainer RegisterAssemblyContaining<TFrom>(this IDependencyCollectionRegistrator registrator, Func<Type, bool> selector = null, Action<IFluentServiceConfigurator> configurator = null)
+        public static IStashboxContainer RegisterAssemblyContaining<TFrom>(this IDependencyCollectionRegistrator registrator, Func<Type, bool> selector = null, Action<RegistrationConfigurator> configurator = null)
             where TFrom : class =>
             registrator.RegisterAssemblyContaining(typeof(TFrom), selector, configurator);
 
@@ -100,7 +100,7 @@ namespace Stashbox
         /// <param name="selector">The type selector.</param>
         /// <param name="configurator">The configurator for the registered types.</param>
         /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns>
-        public static IStashboxContainer RegisterAssemblyContaining(this IDependencyCollectionRegistrator registrator, Type typeFrom, Func<Type, bool> selector = null, Action<IFluentServiceConfigurator> configurator = null) =>
+        public static IStashboxContainer RegisterAssemblyContaining(this IDependencyCollectionRegistrator registrator, Type typeFrom, Func<Type, bool> selector = null, Action<RegistrationConfigurator> configurator = null) =>
             registrator.RegisterAssembly(typeFrom.GetTypeInfo().Assembly, selector, configurator);
 
         /// <summary>

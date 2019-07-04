@@ -24,6 +24,16 @@ namespace Stashbox.Registration
         public static RegistrationContext New() => new RegistrationContext();
 
         /// <summary>
+        /// Indicates that the current registration should replace an existing one.
+        /// </summary>
+        public bool ReplaceExistingRegistration { get; internal set; }
+
+        /// <summary>
+        /// Contains the additional service types the current registration mapped to.
+        /// </summary>
+        public IEnumerable<Type> AdditionalServiceTypes { get; internal set; }
+
+        /// <summary>
         /// Name of the registration.
         /// </summary>
         public object Name { get; internal set; }
@@ -139,6 +149,7 @@ namespace Stashbox.Registration
         public RegistrationContext()
         {
             this.AttributeConditions = ArrayStore<Type>.Empty;
+            this.AdditionalServiceTypes = ArrayStore<Type>.Empty;
             this.InjectionParameters = ArrayStore<InjectionParameter>.Empty;
             this.InjectionMemberNames = new Dictionary<string, object>();
             this.AutoMemberInjectionEnabled = false;

@@ -9,31 +9,32 @@ using System.Linq;
 namespace Stashbox.Registration.Fluent
 {
     /// <summary>
-    /// 
+    /// Represents the base of the fluent registration api.
     /// </summary>
     /// <typeparam name="TConfigurator"></typeparam>
-    public class BaseFluentConfigurator<TConfigurator> : IBaseFluentConfigurator<TConfigurator>
+    public class BaseFluentConfigurator<TConfigurator> : IBaseFluentConfigurator<TConfigurator>, IRegistrationConfiguration
         where TConfigurator : BaseFluentConfigurator<TConfigurator>
     {
-        internal Type ServiceType { get; }
+        /// <summary>
+        /// The service type.
+        /// </summary>
+        public Type ServiceType { get; }
 
-        internal Type ImplementationType { get; }
+        /// <summary>
+        /// The implementation type.
+        /// </summary>
+        public Type ImplementationType { get; }
 
-        internal bool ReplaceExistingRegistration { get; private set; }
-
-        internal IEnumerable<Type> AdditionalServiceTypes { get; set; }
-
+        /// <summary>
+        /// The registration context.
+        /// </summary>
+        public RegistrationContext Context { get; }
 
         internal BaseFluentConfigurator(Type serviceType, Type implementationType)
-            : this(serviceType, implementationType, RegistrationContext.New())
-        { }
-
-        internal BaseFluentConfigurator(Type serviceType, Type implementationType, RegistrationContext registrationContextData)
         {
             this.ServiceType = serviceType;
             this.ImplementationType = implementationType;
-            this.Context = registrationContextData;
-            this.AdditionalServiceTypes = ArrayStore<Type>.Empty;
+            this.Context = RegistrationContext.New();
         }
 
         /// <inheritdoc />
@@ -109,7 +110,7 @@ namespace Stashbox.Registration.Fluent
         /// <inheritdoc />
         public TConfigurator ReplaceExisting()
         {
-            this.ReplaceExistingRegistration = true;
+            this.Context.ReplaceExistingRegistration = true;
             return (TConfigurator)this;
         }
 

@@ -57,7 +57,7 @@ namespace Stashbox.Configuration
         }
 
         /// <inheritdoc />
-        public IContainerConfigurator WithUnknownTypeResolution(Action<IFluentServiceConfigurator> configurator = null)
+        public IContainerConfigurator WithUnknownTypeResolution(Action<RegistrationConfigurator> configurator = null)
         {
             this.ContainerConfiguration.UnknownTypeResolutionEnabled = true;
             this.ContainerConfiguration.UnknownTypeConfigurator = configurator;
