@@ -9,12 +9,12 @@ namespace Stashbox
     public interface IContainerContext
     {
         /// <summary>
-        /// The repository of the registrations.
+        /// The rservice registration repository.
         /// </summary>
         IRegistrationRepository RegistrationRepository { get; }
 
         /// <summary>
-        /// The decorator repository.
+        /// The service decorator registration repository.
         /// </summary>
         IDecoratorRepository DecoratorRepository { get; }
 
@@ -29,7 +29,7 @@ namespace Stashbox
         IResolutionStrategy ResolutionStrategy { get; }
 
         /// <summary>
-        /// Indicates that the container should track transient objects for disposal or not.
+        /// The container configurator.
         /// </summary>
         IContainerConfigurator ContainerConfigurator { get; }
     }
