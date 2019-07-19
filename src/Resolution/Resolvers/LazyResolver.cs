@@ -26,7 +26,7 @@ namespace Stashbox.Resolution.Resolvers
 
             var registration = containerContext.RegistrationRepository.GetRegistrationOrDefault(lazyArgumentInfo, resolutionContext);
             if (registration != null)
-                return !containerContext.ContainerConfigurator.ContainerConfiguration.CircularDependenciesWithLazyEnabled ?
+                return !containerContext.ContainerConfiguration.CircularDependenciesWithLazyEnabled ?
                            lazyConstructor.MakeNew(registration.GetExpression(containerContext, resolutionContext, lazyArgumentInfo.Type).AsLambda()) :
                             CreateLazyExpressionCall(containerContext, registration, lazyArgumentInfo.Type, lazyConstructor, resolutionContext);
 
@@ -48,7 +48,7 @@ namespace Stashbox.Resolution.Resolvers
                 var regLength = registrations.Length;
                 var regExpressions = new Expression[regLength];
                 for (var i = 0; i < regLength; i++)
-                    if (!containerContext.ContainerConfigurator.ContainerConfiguration.CircularDependenciesWithLazyEnabled)
+                    if (!containerContext.ContainerConfiguration.CircularDependenciesWithLazyEnabled)
                         regExpressions[i] = lazyConstructor.MakeNew(registrations[i].Value.GetExpression(containerContext, resolutionContext, lazyArgumentInfo.Type).AsLambda());
                     else
                         regExpressions[i] = CreateLazyExpressionCall(containerContext, registrations[i].Value, lazyArgumentInfo.Type, lazyConstructor, resolutionContext);

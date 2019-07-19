@@ -23,6 +23,7 @@ namespace Stashbox
         private readonly IDependencyResolver rootResolver;
         private readonly IServiceRegistrator serviceRegistrator;
         private readonly IRegistrationBuilder registrationBuilder;
+        private readonly IContainerConfigurator containerConfigurator;
 
         private int disposed;
 
@@ -49,13 +50,14 @@ namespace Stashbox
         {
             this.containerExtensionManager = containerExtensionManager;
             this.resolverSelector = resolverSelector;
+            this.containerConfigurator = containerConfigurator;
 
-            config?.Invoke(containerConfigurator);
+            config?.Invoke(this.containerConfigurator);
 
             this.registrationRepository = new RegistrationRepository();
 
             this.ContainerContext = new ContainerContext(this.registrationRepository, this,
-                new ResolutionStrategy(this.resolverSelector), containerConfigurator, decoratorRepository);
+                new ResolutionStrategy(this.resolverSelector), this.containerConfigurator.ContainerConfiguration, decoratorRepository);
 
             var expressionBuilder = new ExpressionBuilder(this.containerExtensionManager, new ConstructorSelector());
             this.serviceRegistrator = new ServiceRegistrator(this.ContainerContext, this.containerExtensionManager);
@@ -113,7 +115,7 @@ namespace Stashbox
         /// <inheritdoc />
         public IStashboxContainer CreateChildContainer() =>
              new StashboxContainer(this, this.containerExtensionManager.CreateCopy(), this.resolverSelector,
-                 this.ContainerContext.ContainerConfigurator, this.ContainerContext.DecoratorRepository);
+                 this.containerConfigurator, this.ContainerContext.DecoratorRepository);
 
         /// <inheritdoc />
         public IDependencyResolver BeginScope(object name = null, bool attachToParent = false) =>
@@ -122,9 +124,9 @@ namespace Stashbox
         /// <inheritdoc />
         public void Configure(Action<IContainerConfigurator> config)
         {
-            config?.Invoke(this.ContainerContext.ContainerConfigurator);
-            this.ContainerContext.ContainerConfigurator.ContainerConfiguration.ConfigurationChangedEvent?
-                .Invoke(this.ContainerContext.ContainerConfigurator.ContainerConfiguration);
+            config?.Invoke(this.containerConfigurator);
+            this.containerConfigurator.ContainerConfiguration.ConfigurationChangedEvent?
+                .Invoke(this.containerConfigurator.ContainerConfiguration);
         }
 
         private void RegisterResolvers()

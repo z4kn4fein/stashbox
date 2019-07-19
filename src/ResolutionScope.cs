@@ -137,7 +137,7 @@ namespace Stashbox
             var metaInfo = MetaInformation.GetOrCreateMetaInfo(typeTo);
             var expression = this.expressionBuilder.CreateBasicFillExpression(this.containerContext,
                 metaInfo.SelectInjectionMembers(RegistrationContext.Empty,
-                    this.containerContext.ContainerConfigurator.ContainerConfiguration),
+                    this.containerContext.ContainerConfiguration),
                 metaInfo.GetInjectionMethods(),
                 instance.AsConstant(),
                 resolutionContext,
@@ -155,7 +155,7 @@ namespace Stashbox
             var expression = this.expressionBuilder.CreateBasicExpression(this.containerContext,
                 metaInfo.GetConstructors(),
                 metaInfo.SelectInjectionMembers(RegistrationContext.Empty,
-                    this.containerContext.ContainerConfigurator.ContainerConfiguration),
+                    this.containerContext.ContainerConfiguration),
                 metaInfo.GetInjectionMethods(),
                 resolutionContext,
                 type);

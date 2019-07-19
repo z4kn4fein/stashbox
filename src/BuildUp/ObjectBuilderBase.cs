@@ -68,7 +68,7 @@ namespace Stashbox.BuildUp
         private Expression CheckRuntimeCircularDependencyExpression(Expression expression, IContainerContext containerContext,
             IServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType)
         {
-            if (!containerContext.ContainerConfigurator.ContainerConfiguration.RuntimeCircularDependencyTrackingEnabled)
+            if (!containerContext.ContainerConfiguration.RuntimeCircularDependencyTrackingEnabled)
                 return expression;
 
             var exprs = new List<Expression>();

@@ -28,7 +28,8 @@
     <LangVersion>latest</LangVersion>
     <PackageReleaseNotes>
       <![CDATA[
-- bugfix: #59 Static factory registration fails
+- Fluent service registration API refinement
+- Container context interface refinement
     ]]>
     </PackageReleaseNotes>
     <Configurations>Debug;Release;Benchmark</Configurations>

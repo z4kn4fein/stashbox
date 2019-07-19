@@ -1,4 +1,5 @@
 ﻿using Stashbox.BuildUp;
+using Stashbox.Configuration;
 using Stashbox.Entity;
 using Stashbox.Lifetime;
 using Stashbox.Resolution;
@@ -16,7 +17,7 @@ namespace Stashbox.Registration
     public class ServiceRegistration : IServiceRegistration
     {
         private static int GlobalRegistrationNumber;
-        private readonly IContainerConfigurator containerConfigurator;
+        private readonly ContainerConfiguration containerConfiguration;
         private readonly IObjectBuilder objectBuilder;
         private readonly MetaInformation metaInformation;
 
@@ -59,21 +60,21 @@ namespace Stashbox.Registration
         /// <inheritdoc />
         public bool HasCondition { get; }
 
-        internal ServiceRegistration(Type implementationType, IContainerConfigurator containerConfigurator,
-             IObjectBuilder objectBuilder, RegistrationContext registrationContextData,
+        internal ServiceRegistration(Type implementationType, ContainerConfiguration containerConfiguration,
+             IObjectBuilder objectBuilder, RegistrationContext registrationContext,
              bool isDecorator, bool shouldHandleDisposal)
         {
-            this.containerConfigurator = containerConfigurator;
+            this.containerConfiguration = containerConfiguration;
             this.objectBuilder = objectBuilder;
             this.ImplementationType = implementationType;
             this.metaInformation = MetaInformation.GetOrCreateMetaInfo(implementationType);
             this.Constructors = this.metaInformation.GetConstructors();
             this.InjectionMethods = this.metaInformation.GetInjectionMethods();
-            this.InjectionMembers = this.metaInformation.SelectInjectionMembers(registrationContextData,
-                containerConfigurator.ContainerConfiguration);
-            this.SelectedConstructor = this.metaInformation.FindSelectedConstructor(registrationContextData);
+            this.InjectionMembers = this.metaInformation.SelectInjectionMembers(registrationContext,
+                containerConfiguration);
+            this.SelectedConstructor = this.metaInformation.FindSelectedConstructor(registrationContext);
             this.RegistrationNumber = ReserveRegistrationNumber();
-            this.RegistrationContext = registrationContextData;
+            this.RegistrationContext = registrationContext;
             this.IsDecorator = isDecorator;
             this.ShouldHandleDisposal = shouldHandleDisposal;
 
@@ -85,7 +86,7 @@ namespace Stashbox.Registration
                 this.RegistrationContext.AttributeConditions != null && this.RegistrationContext.AttributeConditions.Any();
 
             this.RegistrationId = this.RegistrationContext.Name ??
-                (containerConfigurator.ContainerConfiguration.SetUniqueRegistrationNames
+                (containerConfiguration.SetUniqueRegistrationNames
                 ? (object)this.RegistrationNumber
                 : implementationType);
         }
@@ -122,7 +123,7 @@ namespace Stashbox.Registration
 
         /// <inheritdoc />
         public IServiceRegistration Clone(Type implementationType, IObjectBuilder objectBuilder) =>
-            new ServiceRegistration(implementationType, this.containerConfigurator, objectBuilder,
+            new ServiceRegistration(implementationType, this.containerConfiguration, objectBuilder,
                 this.RegistrationContext.Clone(), this.IsDecorator, this.ShouldHandleDisposal);
 
         private Expression ConstructExpression(IContainerContext containerContext, ResolutionContext resolutionContext, Type resolveType) =>

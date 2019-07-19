@@ -180,7 +180,7 @@ namespace Stashbox.BuildUp.Expressions
             }
 
             var rule = serviceRegistration.RegistrationContext.ConstructorSelectionRule ??
-                containerContext.ContainerConfigurator.ContainerConfiguration.ConstructorSelectionRule;
+                containerContext.ContainerConfiguration.ConstructorSelectionRule;
             var constructors = rule(serviceRegistration.Constructors).ToArray();
 
             return this.constructorSelector.SelectConstructor(serviceRegistration.ImplementationType,
@@ -248,7 +248,7 @@ namespace Stashbox.BuildUp.Expressions
             {
                 var member = injectionMembers[i];
 
-                if (!member.CanInject(containerContext.ContainerConfigurator.ContainerConfiguration,
+                if (!member.CanInject(containerContext.ContainerConfiguration,
                     registrationContext)) continue;
 
                 var expression = containerContext.ResolutionStrategy
@@ -304,7 +304,7 @@ namespace Stashbox.BuildUp.Expressions
             for (var i = 0; i < length; i++)
             {
                 var info = injectionMembers[i];
-                if (!info.CanInject(containerContext.ContainerConfigurator.ContainerConfiguration,
+                if (!info.CanInject(containerContext.ContainerConfiguration,
                     registrationContext)) continue;
 
                 var expression = containerContext.ResolutionStrategy

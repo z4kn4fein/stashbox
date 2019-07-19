@@ -59,7 +59,7 @@ namespace Stashbox.BuildUp.Expressions
                 return new ResolutionConstructor { Constructor = constructor.Constructor, Parameters = parameterExpressions };
             }
 
-            if (containerContext.ContainerConfigurator.ContainerConfiguration.UnknownTypeResolutionEnabled)
+            if (containerContext.ContainerConfiguration.UnknownTypeResolutionEnabled)
                 for (var i = 0; i < length; i++)
                 {
                     var constructor = constructors[i];

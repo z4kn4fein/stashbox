@@ -1,4 +1,5 @@
-﻿using Stashbox.Registration;
+﻿using Stashbox.Configuration;
+using Stashbox.Registration;
 using Stashbox.Resolution;
 
 namespace Stashbox
@@ -9,12 +10,12 @@ namespace Stashbox
     public class ContainerContext : IContainerContext
     {
         internal ContainerContext(IRegistrationRepository registrationRepository, IStashboxContainer container,
-            IResolutionStrategy resolutionStrategy, IContainerConfigurator containerConfigurator, IDecoratorRepository decoratorRepository)
+            IResolutionStrategy resolutionStrategy, ContainerConfiguration containerConfiguration, IDecoratorRepository decoratorRepository)
         {
             this.ResolutionStrategy = resolutionStrategy;
             this.RegistrationRepository = registrationRepository;
             this.Container = container;
-            this.ContainerConfigurator = containerConfigurator;
+            this.ContainerConfiguration = containerConfiguration;
             this.DecoratorRepository = decoratorRepository;
         }
 
@@ -31,6 +32,6 @@ namespace Stashbox
         public IResolutionStrategy ResolutionStrategy { get; }
 
         /// <inheritdoc />
-        public IContainerConfigurator ContainerConfigurator { get; internal set; }
+        public ContainerConfiguration ContainerConfiguration { get; internal set; }
     }
 }

@@ -24,7 +24,7 @@ namespace Stashbox.Registration
 
             var shouldHandleDisposal = this.ShouldHandleDisposal(registrationConfiguration.Context);
 
-            return new ServiceRegistration(registrationConfiguration.ImplementationType, this.containerContext.ContainerConfigurator,
+            return new ServiceRegistration(registrationConfiguration.ImplementationType, this.containerContext.ContainerConfiguration,
                 this.SelectObjectBuilder(registrationConfiguration.Context, registrationConfiguration.ImplementationType),
                 registrationConfiguration.Context, isDecorator, shouldHandleDisposal);
         }
@@ -50,7 +50,7 @@ namespace Stashbox.Registration
             if (registrationContext.ExistingInstance != null)
                 return false;
 
-            if (registrationContext.Lifetime == null && this.containerContext.ContainerConfigurator.ContainerConfiguration.TrackTransientsForDisposalEnabled)
+            if (registrationContext.Lifetime == null && this.containerContext.ContainerConfiguration.TrackTransientsForDisposalEnabled)
                 return true;
 
             return registrationContext.Lifetime != null;

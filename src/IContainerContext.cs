@@ -1,4 +1,5 @@
-﻿using Stashbox.Registration;
+﻿using Stashbox.Configuration;
+using Stashbox.Registration;
 using Stashbox.Resolution;
 
 namespace Stashbox
@@ -29,8 +30,8 @@ namespace Stashbox
         IResolutionStrategy ResolutionStrategy { get; }
 
         /// <summary>
-        /// The container configurator.
+        /// The container configuration.
         /// </summary>
-        IContainerConfigurator ContainerConfigurator { get; }
+        ContainerConfiguration ContainerConfiguration { get; }
     }
 }

@@ -20,7 +20,7 @@ namespace Stashbox.BuildUp.ObjectBuilders
 
         protected override Expression GetExpressionInternal(IContainerContext containerContext, IServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType)
         {
-            if (!containerContext.ContainerConfigurator.ContainerConfiguration.CircularDependencyTrackingEnabled)
+            if (!containerContext.ContainerConfiguration.CircularDependencyTrackingEnabled)
                 return this.PrepareExpression(containerContext, serviceRegistration, resolutionContext, resolveType);
 
             if (resolutionContext.GetCircularDependencyBarrier(serviceRegistration.RegistrationNumber))
