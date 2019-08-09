@@ -68,8 +68,8 @@ namespace Stashbox.Registration
             this.objectBuilder = objectBuilder;
             this.ImplementationType = implementationType;
             this.metaInformation = MetaInformation.GetOrCreateMetaInfo(implementationType);
-            this.Constructors = this.metaInformation.GetConstructors();
-            this.InjectionMethods = this.metaInformation.GetInjectionMethods();
+            this.Constructors = this.metaInformation.GetConstructors(registrationContext);
+            this.InjectionMethods = this.metaInformation.GetInjectionMethods(registrationContext);
             this.InjectionMembers = this.metaInformation.SelectInjectionMembers(registrationContext,
                 containerConfiguration);
             this.SelectedConstructor = this.metaInformation.FindSelectedConstructor(registrationContext);

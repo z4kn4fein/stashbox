@@ -89,6 +89,11 @@ namespace Stashbox.Registration
         public Dictionary<string, object> InjectionMemberNames { get; internal set; }
 
         /// <summary>
+        /// Dependency names or types that are bound to named registrations.
+        /// </summary>
+        public Dictionary<object, object> DependencyBindings { get; internal set; }
+
+        /// <summary>
         /// The already stored instance which was provided by instance or wireup registration.
         /// </summary>
         public object ExistingInstance { get; internal set; }
@@ -152,6 +157,7 @@ namespace Stashbox.Registration
             this.AdditionalServiceTypes = ArrayStore<Type>.Empty;
             this.InjectionParameters = ArrayStore<InjectionParameter>.Empty;
             this.InjectionMemberNames = new Dictionary<string, object>();
+            this.DependencyBindings = new Dictionary<object, object>();
             this.AutoMemberInjectionEnabled = false;
         }
 

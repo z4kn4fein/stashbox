@@ -59,12 +59,30 @@ namespace Stashbox.Registration.Fluent
         TFluentConfigurator WithConstructorByArguments(params object[] arguments);
 
         /// <summary>
-        /// Set a member (property / field) with the given name as a dependency should be filled by the container.
+        /// Set a member (property / field) with the given name as a dependency that should be filled by the container.
         /// </summary>
         /// <param name="memberName">The name of the member.</param>
         /// <param name="dependencyName">The name of the dependency.</param>
         /// <returns>The fluent configurator.</returns>
         TFluentConfigurator InjectMember(string memberName, object dependencyName = null);
+
+        /// <summary>
+        /// Binds a constructor or method parameter to a named registration, so the container will perform a named resolution on the bound dependency.  
+        /// </summary>
+        /// <param name="dependencyType">The type of the dependency to search for.</param>
+        /// <param name="dependencyName">The name used during the named resolution.</param>
+        /// <returns>The fluent configurator.</returns>
+        /// <returns></returns>
+        TFluentConfigurator InjectDependency(Type dependencyType, object dependencyName);
+
+        /// <summary>
+        /// Binds a constructor or method parameter to a named registration, so the container will perform a named resolution on the bound dependency.  
+        /// </summary>
+        /// <param name="parameterName">The parameter name of the dependency to search for.</param>
+        /// <param name="dependencyName">The name used during the named resolution.</param>
+        /// <returns>The fluent configurator.</returns>
+        /// <returns></returns>
+        TFluentConfigurator InjectDependency(string parameterName, object dependencyName);
 
         /// <summary>
         /// Tells the container that it shouldn't track the resolved transient object for disposal.

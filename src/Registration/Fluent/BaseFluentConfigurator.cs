@@ -101,6 +101,28 @@ namespace Stashbox.Registration.Fluent
         }
 
         /// <inheritdoc />
+        public TConfigurator InjectDependency(Type dependencyType, object dependencyName)
+        {
+            Shield.EnsureNotNull(dependencyType, nameof(dependencyType));
+            Shield.EnsureNotNull(dependencyName, nameof(dependencyName));
+
+            this.Context.DependencyBindings.Add(dependencyType, dependencyName);
+
+            return (TConfigurator)this;
+        }
+
+        /// <inheritdoc />
+        public TConfigurator InjectDependency(string parameterName, object dependencyName)
+        {
+            Shield.EnsureNotNull(parameterName, nameof(parameterName));
+            Shield.EnsureNotNull(dependencyName, nameof(dependencyName));
+
+            this.Context.DependencyBindings.Add(parameterName, dependencyName);
+
+            return (TConfigurator)this;
+        }
+
+        /// <inheritdoc />
         public TConfigurator WithoutDisposalTracking()
         {
             this.Context.IsLifetimeExternallyOwned = true;

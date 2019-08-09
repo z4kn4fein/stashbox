@@ -19,7 +19,7 @@ namespace Stashbox.Entity
 
         public bool IsOpenGenericType { get; }
 
-        internal MetaInformation(Type typeTo)
+        private MetaInformation(Type typeTo)
         {
             this.type = typeTo;
             var typeInfo = this.type.GetTypeInfo();
@@ -94,9 +94,41 @@ namespace Stashbox.Entity
             return meta;
         }
 
-        public ConstructorInformation[] GetConstructors() => this.constructors;
+        public ConstructorInformation[] GetConstructors(RegistrationContext registrationContext)
+        {
+            if (registrationContext.DependencyBindings.Count == 0)
+                return this.constructors;
 
-        public MethodInformation[] GetInjectionMethods() => this.injectionMethods;
+            var length = this.constructors.Length;
+            var constructors = new ConstructorInformation[length];
+            for (int constructorIndex = 0; constructorIndex < length; constructorIndex++)
+            {
+                var constructor = this.constructors[constructorIndex];
+                var @params = this.OverrideParameters(constructor.Parameters, registrationContext);
+
+                constructors[constructorIndex] = new ConstructorInformation { Constructor = constructor.Constructor, Parameters = @params };
+            }
+
+            return constructors;
+        }
+
+        public MethodInformation[] GetInjectionMethods(RegistrationContext registrationContext)
+        {
+            if (registrationContext.DependencyBindings.Count == 0)
+                return this.injectionMethods;
+
+            var length = this.injectionMethods.Length;
+            var methods = new MethodInformation[length];
+            for (int methodIndex = 0; methodIndex < length; methodIndex++)
+            {
+                var method = this.injectionMethods[methodIndex];
+                var @params = this.OverrideParameters(method.Parameters, registrationContext);
+
+                methods[methodIndex] = new MethodInformation { Method = method.Method, Parameters = @params };
+            }
+
+            return methods;
+        }
 
         public ConstructorInformation FindSelectedConstructor(RegistrationContext registrationContextData)
         {
@@ -151,6 +183,34 @@ namespace Stashbox.Entity
             }
 
             return members;
+        }
+
+        private TypeInformation[] OverrideParameters(TypeInformation[] parameters, RegistrationContext registrationContext)
+        {
+            var paramLength = parameters.Length;
+            var @params = new TypeInformation[paramLength];
+            for (int paramIndex = 0; paramIndex < paramLength; paramIndex++)
+            {
+                var param = parameters[paramIndex];
+                if (registrationContext.DependencyBindings.TryGetValue(param.Type, out var foundTypedDependencyName))
+                {
+                    var newParam = param.Clone();
+                    newParam.DependencyName = foundTypedDependencyName;
+                    @params[paramIndex] = newParam;
+                }
+                else if (registrationContext.DependencyBindings.TryGetValue(param.ParameterOrMemberName, out var foundNamedDependencyName))
+                {
+                    var newParam = param.Clone();
+                    newParam.DependencyName = foundNamedDependencyName;
+                    @params[paramIndex] = newParam;
+                }
+                else
+                {
+                    @params[paramIndex] = param;
+                }
+            }
+
+            return @params;
         }
 
         private ConstructorInformation[] CollectConstructors(IEnumerable<ConstructorInfo> constructors) =>
