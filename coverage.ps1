@@ -3,7 +3,7 @@
 } 
 
 choco install opencover.portable --no-progress
-choco install codecov --no-progress
+choco install codecov --version 1.6.1 --no-progress
 
 $testPath = Join-Path $PSScriptRoot "test\stashbox.tests.csproj"
 $coverageReportDir = Join-Path $PSScriptRoot "coverageresults"
