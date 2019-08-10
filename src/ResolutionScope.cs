@@ -276,15 +276,15 @@ namespace Stashbox
             var registration = this.containerContext.RegistrationRepository.GetRegistrationOrDefault(type, resolutionContext, name);
             if (registration != null)
             {
-                var ragistrationFactory = registration.GetExpression(this.containerContext, resolutionContext, type)?.CompileDelegate(resolutionContext);
-                if (ragistrationFactory == null)
+                var registrationFactory = registration.GetExpression(this.containerContext, resolutionContext, type)?.CompileDelegate(resolutionContext);
+                if (registrationFactory == null)
                     return null;
 
                 if (resolutionContext.ShouldCacheFactoryDelegate)
                     Swap.SwapValue(ref this.delegateCache.ServiceDelegates, (t1, t2, t3, t4, c) =>
-                    c.AddOrUpdate(t1, t2), name ?? type, ragistrationFactory, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
+                    c.AddOrUpdate(t1, t2), name ?? type, registrationFactory, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
 
-                return ragistrationFactory(resolutionContext.ResolutionScope);
+                return registrationFactory(resolutionContext.ResolutionScope);
             }
 
             var expr = this.resolverSelector.GetResolverExpression(this.containerContext, new TypeInformation { Type = type, DependencyName = name }, resolutionContext);

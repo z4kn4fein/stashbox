@@ -70,19 +70,19 @@ namespace Stashbox.Registration.Fluent
         /// Binds a constructor or method parameter to a named registration, so the container will perform a named resolution on the bound dependency.  
         /// </summary>
         /// <param name="dependencyType">The type of the dependency to search for.</param>
-        /// <param name="dependencyName">The name used during the named resolution.</param>
+        /// <param name="dependencyName">The name of the bound named registration.</param>
         /// <returns>The fluent configurator.</returns>
         /// <returns></returns>
-        TFluentConfigurator InjectDependency(Type dependencyType, object dependencyName);
+        TFluentConfigurator WithDependencyBinding(Type dependencyType, object dependencyName);
 
         /// <summary>
         /// Binds a constructor or method parameter to a named registration, so the container will perform a named resolution on the bound dependency.  
         /// </summary>
         /// <param name="parameterName">The parameter name of the dependency to search for.</param>
-        /// <param name="dependencyName">The name used during the named resolution.</param>
+        /// <param name="dependencyName">The name of the bound named registration.</param>
         /// <returns>The fluent configurator.</returns>
         /// <returns></returns>
-        TFluentConfigurator InjectDependency(string parameterName, object dependencyName);
+        TFluentConfigurator WithDependencyBinding(string parameterName, object dependencyName);
 
         /// <summary>
         /// Tells the container that it shouldn't track the resolved transient object for disposal.

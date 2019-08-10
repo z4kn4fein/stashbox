@@ -8,6 +8,19 @@ namespace Stashbox
     public static class DependencyRegistratorExtensions
     {
         /// <summary>
+        /// Registers a type.
+        /// </summary>
+        /// <typeparam name="TFrom">Type that will be requested.</typeparam>
+        /// <typeparam name="TTo">Type that will be returned.</typeparam>
+        /// <param name="registrator">The dependency registrator.</param>
+        /// <param name="name">The name of the registration.</param>
+        /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns>
+        public static IStashboxContainer Register<TFrom, TTo>(this IDependencyRegistrator registrator, object name = null)
+            where TFrom : class
+            where TTo : class, TFrom =>
+            registrator.Register<TFrom, TTo>(context => context.WithName(name));
+
+        /// <summary>
         /// Registers an already constructed instance into the container.
         /// </summary>
         /// <param name="registrator">The dependency registrator.</param>

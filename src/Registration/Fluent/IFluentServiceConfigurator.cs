@@ -34,6 +34,13 @@ namespace Stashbox.Registration.Fluent
         TConfigurator InjectMember<TResult>(Expression<Func<TService, TResult>> expression, object dependencyName = null);
 
         /// <summary>
+        /// Binds a constructor or method parameter to a named registration, so the container will perform a named resolution on the bound dependency.  
+        /// </summary>
+        /// <param name="dependencyName">The name of the bound named registration.</param>
+        /// <returns>The configurator itself.</returns>
+        TConfigurator WithDependencyBinding<TDependency>(object dependencyName);
+
+        /// <summary>
         /// Binds the currently configured registration to an additional service type.
         /// </summary>
         /// <returns>The configurator itself.</returns>

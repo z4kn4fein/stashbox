@@ -30,6 +30,10 @@ namespace Stashbox.Registration.Fluent
         }
 
         /// <inheritdoc />
+        public TConfigurator WithDependencyBinding<TDependency>(object dependencyName) =>
+            this.WithDependencyBinding(typeof(TDependency), dependencyName);
+
+        /// <inheritdoc />
         public TConfigurator WithFinalizer(Action<TService> finalizer)
         {
             base.Context.Finalizer = finalizer;

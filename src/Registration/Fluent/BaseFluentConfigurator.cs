@@ -101,7 +101,7 @@ namespace Stashbox.Registration.Fluent
         }
 
         /// <inheritdoc />
-        public TConfigurator InjectDependency(Type dependencyType, object dependencyName)
+        public TConfigurator WithDependencyBinding(Type dependencyType, object dependencyName)
         {
             Shield.EnsureNotNull(dependencyType, nameof(dependencyType));
             Shield.EnsureNotNull(dependencyName, nameof(dependencyName));
@@ -112,7 +112,7 @@ namespace Stashbox.Registration.Fluent
         }
 
         /// <inheritdoc />
-        public TConfigurator InjectDependency(string parameterName, object dependencyName)
+        public TConfigurator WithDependencyBinding(string parameterName, object dependencyName)
         {
             Shield.EnsureNotNull(parameterName, nameof(parameterName));
             Shield.EnsureNotNull(dependencyName, nameof(dependencyName));

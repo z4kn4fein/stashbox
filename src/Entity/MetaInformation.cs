@@ -100,16 +100,16 @@ namespace Stashbox.Entity
                 return this.constructors;
 
             var length = this.constructors.Length;
-            var constructors = new ConstructorInformation[length];
-            for (int constructorIndex = 0; constructorIndex < length; constructorIndex++)
+            var ctors = new ConstructorInformation[length];
+            for (var constructorIndex = 0; constructorIndex < length; constructorIndex++)
             {
                 var constructor = this.constructors[constructorIndex];
                 var @params = this.OverrideParameters(constructor.Parameters, registrationContext);
 
-                constructors[constructorIndex] = new ConstructorInformation { Constructor = constructor.Constructor, Parameters = @params };
+                ctors[constructorIndex] = new ConstructorInformation { Constructor = constructor.Constructor, Parameters = @params };
             }
 
-            return constructors;
+            return ctors;
         }
 
         public MethodInformation[] GetInjectionMethods(RegistrationContext registrationContext)
@@ -119,7 +119,7 @@ namespace Stashbox.Entity
 
             var length = this.injectionMethods.Length;
             var methods = new MethodInformation[length];
-            for (int methodIndex = 0; methodIndex < length; methodIndex++)
+            for (var methodIndex = 0; methodIndex < length; methodIndex++)
             {
                 var method = this.injectionMethods[methodIndex];
                 var @params = this.OverrideParameters(method.Parameters, registrationContext);
@@ -189,19 +189,19 @@ namespace Stashbox.Entity
         {
             var paramLength = parameters.Length;
             var @params = new TypeInformation[paramLength];
-            for (int paramIndex = 0; paramIndex < paramLength; paramIndex++)
+            for (var paramIndex = 0; paramIndex < paramLength; paramIndex++)
             {
                 var param = parameters[paramIndex];
-                if (registrationContext.DependencyBindings.TryGetValue(param.Type, out var foundTypedDependencyName))
-                {
-                    var newParam = param.Clone();
-                    newParam.DependencyName = foundTypedDependencyName;
-                    @params[paramIndex] = newParam;
-                }
-                else if (registrationContext.DependencyBindings.TryGetValue(param.ParameterOrMemberName, out var foundNamedDependencyName))
+                if (registrationContext.DependencyBindings.TryGetValue(param.ParameterOrMemberName, out var foundNamedDependencyName))
                 {
                     var newParam = param.Clone();
                     newParam.DependencyName = foundNamedDependencyName;
+                    @params[paramIndex] = newParam;
+                }
+                else if (registrationContext.DependencyBindings.TryGetValue(param.Type, out var foundTypedDependencyName))
+                {
+                    var newParam = param.Clone();
+                    newParam.DependencyName = foundTypedDependencyName;
                     @params[paramIndex] = newParam;
                 }
                 else
