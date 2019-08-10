@@ -12,20 +12,26 @@ namespace Stashbox.Resolution
         /// <summary>
         /// Produces an expression for creating an instance.
         /// </summary>
-        /// <param name="containerContext">The container context.</param>
-        /// <param name="typeInfo">The type info.</param>
-        /// <param name="resolutionContext">The info about the actual resolution.</param>
-        /// <returns>The expression.</returns>
-        Expression GetExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext);
+        /// <param name="containerContext">The contextual information about the container.</param>
+        /// <param name="resolutionStrategy">The resolution strategy used to build the underlying resolution expression tree.</param>
+        /// <param name="typeInfo">The information about the type to resolve.</param>
+        /// <param name="resolutionContext">The contextual information about the current resolution call.</param>
+        /// <returns>The built resolution expression.</returns>
+        Expression GetExpression(IContainerContext containerContext,
+            IResolutionStrategy resolutionStrategy,
+            TypeInformation typeInfo,
+            ResolutionContext resolutionContext);
 
         /// <summary>
         /// Returns true, if the resolver can be used to activate the requested service, otherwise false.
         /// </summary>
-        /// <param name="containerContext">The container context.</param>
-        /// <param name="typeInfo">The type info.</param>
-        /// <param name="resolutionContext">The info about the actual resolution.</param>
+        /// <param name="containerContext">The contextual information about the container.</param>
+        /// <param name="typeInfo">The information about the type to resolve.</param>
+        /// <param name="resolutionContext">The contextual information about the current resolution call.</param>
         /// <returns>Returns true, if the resolver can be used to activate the requested service, otherwise false.</returns>
-        bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext);
+        bool CanUseForResolution(IContainerContext containerContext,
+            TypeInformation typeInfo,
+            ResolutionContext resolutionContext);
     }
 
     /// <summary>
@@ -36,10 +42,14 @@ namespace Stashbox.Resolution
         /// <summary>
         /// Produces an array of expressions, one for every registered service identified by the requested type.
         /// </summary>
-        /// <param name="containerContext">The container context.</param>
-        /// <param name="typeInfo">The type info.</param>
-        /// <param name="resolutionContext">The resolution info.</param>
-        /// <returns>The enumerable item expressions.</returns>
-        Expression[] GetExpressions(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext);
+        /// <param name="containerContext">The contextual information about the container.</param>
+        /// <param name="resolutionStrategy">The resolution strategy used to build the underlying resolution expression tree.</param>
+        /// <param name="typeInfo">The information about the type to resolve.</param>
+        /// <param name="resolutionContext">The contextual information about the current resolution call.</param>
+        /// <returns>The array of all the resolution expression built by the resolver.</returns>
+        Expression[] GetAllExpressions(IContainerContext containerContext,
+            IResolutionStrategy resolutionStrategy,
+            TypeInformation typeInfo,
+            ResolutionContext resolutionContext);
     }
 }

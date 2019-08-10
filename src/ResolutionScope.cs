@@ -37,7 +37,7 @@ namespace Stashbox
             public static readonly FinalizableItem Empty = new FinalizableItem();
         }
 
-        private readonly IResolverSelector resolverSelector;
+        private readonly IResolverSupportedResolutionStrategy resolutionStrategy;
         private readonly IExpressionBuilder expressionBuilder;
         private readonly IContainerContext containerContext;
 
@@ -56,26 +56,26 @@ namespace Stashbox
 
         public IResolutionScope ParentScope { get; }
 
-        private ResolutionScope(IResolverSelector resolverSelector,
+        private ResolutionScope(IResolverSupportedResolutionStrategy resolutionStrategy,
             IExpressionBuilder expressionBuilder, IContainerContext containerContext,
             DelegateCache delegateCache, object name)
         {
-            this.resolverSelector = resolverSelector;
+            this.resolutionStrategy = resolutionStrategy;
             this.expressionBuilder = expressionBuilder;
             this.containerContext = containerContext;
             this.Name = name;
             this.delegateCache = delegateCache;
         }
 
-        internal ResolutionScope(IResolverSelector resolverSelector,
+        internal ResolutionScope(IResolverSupportedResolutionStrategy resolutionStrategy,
             IExpressionBuilder expressionBuilder, IContainerContext containerContext)
-            : this(resolverSelector, expressionBuilder, containerContext,
+            : this(resolutionStrategy, expressionBuilder, containerContext,
                   new DelegateCache(), null)
         { }
 
-        private ResolutionScope(IResolverSelector resolverSelector, IExpressionBuilder expressionBuilder,
+        private ResolutionScope(IResolverSupportedResolutionStrategy resolutionStrategy, IExpressionBuilder expressionBuilder,
             IContainerContext containerContext, IResolutionScope parent, DelegateCache delegateCache, object name = null)
-            : this(resolverSelector, expressionBuilder, containerContext, delegateCache, name)
+            : this(resolutionStrategy, expressionBuilder, containerContext, delegateCache, name)
         {
             this.ParentScope = parent;
         }
@@ -112,7 +112,7 @@ namespace Stashbox
 
         public IDependencyResolver BeginScope(object name = null, bool attachToParent = false)
         {
-            var scope = new ResolutionScope(this.resolverSelector, this.expressionBuilder,
+            var scope = new ResolutionScope(this.resolutionStrategy, this.expressionBuilder,
                 this.containerContext, this, this.delegateCache, name);
 
             return attachToParent ? this.AddDisposableTracking(scope) : scope;
@@ -287,7 +287,8 @@ namespace Stashbox
                 return registrationFactory(resolutionContext.ResolutionScope);
             }
 
-            var expr = this.resolverSelector.GetResolverExpression(this.containerContext, new TypeInformation { Type = type, DependencyName = name }, resolutionContext);
+            var expr = this.resolutionStrategy.BuildResolutionExpressionUsingResolvers(this.containerContext,
+                new TypeInformation { Type = type, DependencyName = name }, resolutionContext);
             if (expr == null)
                 if (resolutionContext.NullResultAllowed)
                     return null;
@@ -303,7 +304,11 @@ namespace Stashbox
             return factory(resolutionContext.ResolutionScope);
         }
 
-        private Delegate ActivateFactoryDelegate(Type type, Type[] parameterTypes, IResolutionScope resolutionScope, object name, bool nullResultAllowed)
+        private Delegate ActivateFactoryDelegate(Type type,
+            Type[] parameterTypes,
+            IResolutionScope resolutionScope,
+            object name,
+            bool nullResultAllowed)
         {
             var resolutionContext = ResolutionContext.New(resolutionScope, nullResultAllowed);
             resolutionContext.AddParameterExpressions(type, parameterTypes.Select(p => p.AsParameter()).ToArray());
@@ -312,7 +317,7 @@ namespace Stashbox
             var registration = this.containerContext.RegistrationRepository.GetRegistrationOrDefault(typeInfo, resolutionContext);
 
             var initExpression = registration == null ?
-                this.resolverSelector.GetResolverExpression(this.containerContext, typeInfo, resolutionContext) :
+                this.resolutionStrategy.BuildResolutionExpressionUsingResolvers(this.containerContext, typeInfo, resolutionContext) :
                 registration.GetExpression(this.containerContext, resolutionContext, type);
 
             if (initExpression == null)

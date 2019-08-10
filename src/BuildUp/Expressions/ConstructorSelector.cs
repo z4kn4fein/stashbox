@@ -13,6 +13,13 @@ namespace Stashbox.BuildUp.Expressions
 {
     internal class ConstructorSelector : IConstructorSelector
     {
+        private readonly IResolutionStrategy resolutionStrategy;
+
+        public ConstructorSelector(IResolutionStrategy resolutionStrategy)
+        {
+            this.resolutionStrategy = resolutionStrategy;
+        }
+
         public ResolutionConstructor CreateResolutionConstructor(
             IContainerContext containerContext,
             IServiceRegistration serviceRegistration,
@@ -26,7 +33,7 @@ namespace Stashbox.BuildUp.Expressions
             {
                 var parameter = constructor.Parameters[i];
 
-                var expression = containerContext.ResolutionStrategy.BuildResolutionExpression(containerContext,
+                var expression = this.resolutionStrategy.BuildResolutionExpression(containerContext,
                     resolutionContext, parameter, serviceRegistration.RegistrationContext.InjectionParameters);
 
                 parameterExpressions[i] = expression ?? throw new ResolutionFailedException(serviceRegistration.ImplementationType,
@@ -94,7 +101,7 @@ namespace Stashbox.BuildUp.Expressions
             {
                 var parameter = constructor.Parameters[i];
 
-                parameterExpressions[i] = containerContext.ResolutionStrategy.BuildResolutionExpression(containerContext,
+                parameterExpressions[i] = this.resolutionStrategy.BuildResolutionExpression(containerContext,
                     resolutionContext, parameter, injectionParameters, skipUknownResolution);
 
                 if (parameterExpressions[i] == null)

@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Stashbox.Configuration;
 using Stashbox.Entity;
 using Stashbox.Exceptions;
 using Stashbox.Lifetime;
@@ -7,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using Stashbox.Configuration;
 
 namespace Stashbox.Tests
 {
@@ -208,7 +208,7 @@ namespace Stashbox.Tests
             Assert.IsNotNull(test);
             Assert.IsInstanceOfType(test, typeof(Test2));
         }
-        
+
         [TestMethod]
         public void ContainerTests_ConfigurationChanged()
         {
@@ -277,12 +277,16 @@ namespace Stashbox.Tests
 
         public class TestResolver : IResolver
         {
-            public bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionInfo)
+            public bool CanUseForResolution(IContainerContext containerContext,
+                TypeInformation typeInfo, ResolutionContext resolutionInfo)
             {
                 return typeInfo.Type == typeof(ITest1);
             }
 
-            public Expression GetExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionInfo)
+            public Expression GetExpression(IContainerContext containerContext,
+                IResolutionStrategy resolutionStrategy,
+                TypeInformation typeInfo,
+                ResolutionContext resolutionInfo)
             {
                 return Expression.Constant(new Test1());
             }
@@ -290,17 +294,24 @@ namespace Stashbox.Tests
 
         public class TestResolver2 : IMultiServiceResolver
         {
-            public bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionInfo)
+            public bool CanUseForResolution(IContainerContext containerContext,
+                TypeInformation typeInfo, ResolutionContext resolutionInfo)
             {
                 return typeInfo.Type == typeof(ITest1);
             }
 
-            public Expression GetExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionInfo)
+            public Expression GetExpression(IContainerContext containerContext,
+                IResolutionStrategy resolutionStrategy,
+                TypeInformation typeInfo,
+                ResolutionContext resolutionInfo)
             {
                 return Expression.Constant(new Test1());
             }
 
-            public Expression[] GetExpressions(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionInfo)
+            public Expression[] GetAllExpressions(IContainerContext containerContext,
+                IResolutionStrategy resolutionStrategy,
+                TypeInformation typeInfo,
+                ResolutionContext resolutionInfo)
             {
                 return new Expression[] { Expression.Constant(new Test1()) };
             }

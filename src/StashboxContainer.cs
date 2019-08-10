@@ -17,7 +17,7 @@ namespace Stashbox
     public sealed partial class StashboxContainer : IStashboxContainer
     {
         private readonly IContainerExtensionManager containerExtensionManager;
-        private readonly IResolverSelector resolverSelector;
+        private readonly IResolverSupportedResolutionStrategy resolutionStrategy;
         private readonly IRegistrationRepository registrationRepository;
         private readonly IObjectBuilderSelector objectBuilderSelector;
         private readonly IDependencyResolver rootResolver;
@@ -31,25 +31,25 @@ namespace Stashbox
         /// Constructs a <see cref="StashboxContainer"/>
         /// </summary>
         public StashboxContainer(Action<IContainerConfigurator> config = null)
-            : this(new BuildExtensionManager(), new ResolverSelector(), new ContainerConfigurator(), new DecoratorRepository(), config)
+            : this(new BuildExtensionManager(), new ResolutionStrategy(), new ContainerConfigurator(), new DecoratorRepository(), config)
         {
             this.RegisterResolvers();
         }
 
         internal StashboxContainer(IStashboxContainer parentContainer, IContainerExtensionManager containerExtensionManager,
-            IResolverSelector resolverSelector, IContainerConfigurator containerConfigurator, IDecoratorRepository decoratorRepository)
-            : this(containerExtensionManager, resolverSelector, containerConfigurator, decoratorRepository)
+            IResolverSupportedResolutionStrategy resolutionStrategy, IContainerConfigurator containerConfigurator, IDecoratorRepository decoratorRepository)
+            : this(containerExtensionManager, resolutionStrategy, containerConfigurator, decoratorRepository)
         {
             this.ParentContainer = parentContainer;
             this.containerExtensionManager.ReinitalizeExtensions(this.ContainerContext);
 
         }
 
-        internal StashboxContainer(IContainerExtensionManager containerExtensionManager, IResolverSelector resolverSelector,
+        internal StashboxContainer(IContainerExtensionManager containerExtensionManager, IResolverSupportedResolutionStrategy resolutionStrategy,
             IContainerConfigurator containerConfigurator, IDecoratorRepository decoratorRepository, Action<IContainerConfigurator> config = null)
         {
+            this.resolutionStrategy = resolutionStrategy;
             this.containerExtensionManager = containerExtensionManager;
-            this.resolverSelector = resolverSelector;
             this.containerConfigurator = containerConfigurator;
 
             config?.Invoke(this.containerConfigurator);
@@ -57,14 +57,16 @@ namespace Stashbox
             this.registrationRepository = new RegistrationRepository();
 
             this.ContainerContext = new ContainerContext(this.registrationRepository, this,
-                new ResolutionStrategy(this.resolverSelector), this.containerConfigurator.ContainerConfiguration, decoratorRepository);
+                this.containerConfigurator.ContainerConfiguration, decoratorRepository);
 
-            var expressionBuilder = new ExpressionBuilder(this.containerExtensionManager, new ConstructorSelector());
+            var expressionBuilder = new ExpressionBuilder(this.containerExtensionManager, 
+                new ConstructorSelector(this.resolutionStrategy), this.resolutionStrategy);
+
             this.serviceRegistrator = new ServiceRegistrator(this.ContainerContext, this.containerExtensionManager);
             this.objectBuilderSelector = new ObjectBuilderSelector(expressionBuilder, this.serviceRegistrator);
             this.registrationBuilder = new RegistrationBuilder(this.ContainerContext, this.objectBuilderSelector);
 
-            this.RootScope = new ResolutionScope(this.resolverSelector, expressionBuilder, this.ContainerContext);
+            this.RootScope = new ResolutionScope(this.resolutionStrategy, expressionBuilder, this.ContainerContext);
             this.rootResolver = (IDependencyResolver)this.RootScope;
         }
 
@@ -77,7 +79,7 @@ namespace Stashbox
 
         /// <inheritdoc />
         public void RegisterResolver(IResolver resolver) =>
-            this.resolverSelector.AddResolver(resolver);
+            this.resolutionStrategy.RegisterResolver(resolver);
 
         /// <inheritdoc />
         public bool CanResolve<TFrom>(object name = null) =>
@@ -86,7 +88,7 @@ namespace Stashbox
         /// <inheritdoc />
         public bool CanResolve(Type typeFrom, object name = null) =>
             this.registrationRepository.ContainsRegistration(typeFrom, name) ||
-                this.resolverSelector.CanResolve(this.ContainerContext, new TypeInformation { Type = typeFrom, DependencyName = name }, ResolutionContext.New(this.RootScope));
+                this.resolutionStrategy.CanResolveType(this.ContainerContext, new TypeInformation { Type = typeFrom, DependencyName = name }, ResolutionContext.New(this.RootScope));
 
         /// <inheritdoc />
         public bool IsRegistered<TFrom>(object name = null) =>
@@ -114,7 +116,7 @@ namespace Stashbox
 
         /// <inheritdoc />
         public IStashboxContainer CreateChildContainer() =>
-             new StashboxContainer(this, this.containerExtensionManager.CreateCopy(), this.resolverSelector,
+             new StashboxContainer(this, this.containerExtensionManager.CreateCopy(), this.resolutionStrategy,
                  this.containerConfigurator, this.ContainerContext.DecoratorRepository);
 
         /// <inheritdoc />
@@ -131,12 +133,12 @@ namespace Stashbox
 
         private void RegisterResolvers()
         {
-            this.resolverSelector.AddResolver(new EnumerableResolver());
-            this.resolverSelector.AddResolver(new LazyResolver(this.resolverSelector));
-            this.resolverSelector.AddResolver(new FuncResolver());
-            this.resolverSelector.AddResolver(new TupleResolver());
-            this.resolverSelector.AddResolver(new ScopedInstanceResolver());
-            this.resolverSelector.AddResolver(new DefaultValueResolver());
+            this.resolutionStrategy.RegisterResolver(new EnumerableResolver());
+            this.resolutionStrategy.RegisterResolver(new LazyResolver());
+            this.resolutionStrategy.RegisterResolver(new FuncResolver());
+            this.resolutionStrategy.RegisterResolver(new TupleResolver());
+            this.resolutionStrategy.RegisterResolver(new ScopedInstanceResolver());
+            this.resolutionStrategy.RegisterResolver(new DefaultValueResolver());
         }
 
         /// <inheritdoc />
