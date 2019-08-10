@@ -1,4 +1,5 @@
 ﻿using Stashbox.Entity;
+using Stashbox.Resolution.Resolvers;
 using Stashbox.Utils;
 using System;
 using System.Collections.Generic;
@@ -7,14 +8,12 @@ using System.Linq.Expressions;
 
 namespace Stashbox.Resolution
 {
-    internal class ResolutionStrategy : IResolutionStrategy
+    internal class ResolutionStrategy : IResolverSupportedResolutionStrategy
     {
-        private readonly IResolverSelector resolverSelector;
-
-        internal ResolutionStrategy(IResolverSelector resolverSelector)
-        {
-            this.resolverSelector = resolverSelector;
-        }
+        private ArrayStore<IMultiServiceResolver> multiServiceResolverRepository = ArrayStore<IMultiServiceResolver>.Empty;
+        private ArrayStore<IResolver> resolverRepository = ArrayStore<IResolver>.Empty;
+        private readonly UnknownTypeResolver unknownTypeResolver = new UnknownTypeResolver();
+        private readonly ParentContainerResolver parentContainerResolver = new ParentContainerResolver();
 
         public Expression BuildResolutionExpression(IContainerContext containerContext, ResolutionContext resolutionContext, TypeInformation typeInformation,
             IEnumerable<InjectionParameter> injectionParameters = null, bool forceSkipUnknownTypeCheck = false)
@@ -41,7 +40,7 @@ namespace Stashbox.Resolution
             var matchingParam = injectionParameters?.FirstOrDefault(param => param.Name == typeInformation.ParameterOrMemberName);
             if (matchingParam != null)
             {
-                if(matchingParam.Value == null)
+                if (matchingParam.Value == null)
                     return typeInformation.Type == Constants.ObjectType
                         ? matchingParam.Value.AsConstant()
                         : matchingParam.Value.AsConstant().ConvertTo(typeInformation.Type);
@@ -50,7 +49,7 @@ namespace Stashbox.Resolution
                     ? matchingParam.Value.AsConstant()
                     : matchingParam.Value.AsConstant().ConvertTo(typeInformation.Type);
             }
-                
+
 
             var exprOverride = resolutionContext.GetExpressionOverrideOrDefault(typeInformation.Type);
             if (exprOverride != null)
@@ -58,14 +57,14 @@ namespace Stashbox.Resolution
 
             var registration = containerContext.RegistrationRepository.GetRegistrationOrDefault(typeInformation, resolutionContext);
             return registration != null ? registration.GetExpression(resolutionContext.ChildContext ?? containerContext, resolutionContext, typeInformation.Type) :
-                this.resolverSelector.GetResolverExpression(containerContext, typeInformation, resolutionContext, forceSkipUnknownTypeCheck);
+                this.BuildResolutionExpressionUsingResolvers(containerContext, typeInformation, resolutionContext, forceSkipUnknownTypeCheck);
         }
 
-        public Expression[] BuildResolutionExpressions(IContainerContext containerContext, ResolutionContext resolutionContext, TypeInformation typeInformation)
+        public Expression[] BuildAllResolutionExpressions(IContainerContext containerContext, ResolutionContext resolutionContext, TypeInformation typeInformation)
         {
             var registrations = containerContext.RegistrationRepository.GetRegistrationsOrDefault(typeInformation.Type, resolutionContext)?.CastToArray();
             if (registrations == null)
-                return this.resolverSelector.GetResolverExpressions(containerContext, typeInformation, resolutionContext);
+                return this.BuildAllResolverExpressionsUsingResolvers(containerContext, typeInformation, resolutionContext);
 
             var lenght = registrations.Length;
             var expressions = new Expression[lenght];
@@ -73,6 +72,56 @@ namespace Stashbox.Resolution
                 expressions[i] = registrations[i].Value.GetExpression(resolutionContext.ChildContext ?? containerContext, resolutionContext, typeInformation.Type);
 
             return expressions;
+        }
+
+        public Expression BuildResolutionExpressionUsingResolvers(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext, bool forceSkipUnknownTypeCheck = false)
+        {
+            for (var i = 0; i < this.resolverRepository.Length; i++)
+            {
+                var item = this.resolverRepository.Get(i);
+                if (item.CanUseForResolution(containerContext, typeInfo, resolutionContext))
+                    return item.GetExpression(containerContext, this, typeInfo, resolutionContext);
+            }
+
+            if (this.parentContainerResolver.CanUseForResolution(containerContext, typeInfo, resolutionContext))
+                return this.parentContainerResolver.GetExpression(containerContext, this, typeInfo, resolutionContext);
+
+            return !forceSkipUnknownTypeCheck && this.unknownTypeResolver.CanUseForResolution(containerContext, typeInfo, resolutionContext)
+                ? this.unknownTypeResolver.GetExpression(containerContext, this, typeInfo, resolutionContext)
+                : null;
+        }
+
+        public bool CanResolveType(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext)
+        {
+            for (var i = 0; i < this.resolverRepository.Length; i++)
+                if (this.resolverRepository.Get(i).CanUseForResolution(containerContext, typeInfo, resolutionContext))
+                    return true;
+
+            return this.parentContainerResolver.CanUseForResolution(containerContext, typeInfo, resolutionContext) ||
+                this.unknownTypeResolver.CanUseForResolution(containerContext, typeInfo, resolutionContext);
+        }
+
+        public void RegisterResolver(IResolver resolver)
+        {
+            Swap.SwapValue(ref this.resolverRepository, (t1, t2, t3, t4, repo) =>
+               repo.Add(t1), resolver, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
+            if (resolver is IMultiServiceResolver multiServiceResolver)
+                Swap.SwapValue(ref this.multiServiceResolverRepository, (t1, t2, t3, t4, repo) =>
+                    repo.Add(t1), multiServiceResolver, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
+        }
+
+        private Expression[] BuildAllResolverExpressionsUsingResolvers(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext)
+        {
+            for (var i = 0; i < this.multiServiceResolverRepository.Length; i++)
+            {
+                var item = this.multiServiceResolverRepository.Get(i);
+                if (item.CanUseForResolution(containerContext, typeInfo, resolutionContext))
+                    return item.GetAllExpressions(containerContext, this, typeInfo, resolutionContext);
+            }
+
+            return this.parentContainerResolver.CanUseForResolution(containerContext, typeInfo, resolutionContext)
+                ? this.parentContainerResolver.GetAllExpressions(containerContext, this, typeInfo, resolutionContext)
+                : null;
         }
     }
 }

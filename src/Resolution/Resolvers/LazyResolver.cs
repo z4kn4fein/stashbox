@@ -10,14 +10,10 @@ namespace Stashbox.Resolution.Resolvers
 {
     internal class LazyResolver : IMultiServiceResolver
     {
-        private readonly IResolverSelector resolverSelector;
-
-        public LazyResolver(IResolverSelector resolverSelector)
-        {
-            this.resolverSelector = resolverSelector;
-        }
-
-        public Expression GetExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext)
+        public Expression GetExpression(IContainerContext containerContext,
+            IResolutionStrategy resolutionStrategy,
+            TypeInformation typeInfo,
+            ResolutionContext resolutionContext)
         {
             var lazyArgumentInfo = typeInfo.Clone(typeInfo.Type.GetGenericArguments()[0]);
 
@@ -30,12 +26,15 @@ namespace Stashbox.Resolution.Resolvers
                            lazyConstructor.MakeNew(registration.GetExpression(containerContext, resolutionContext, lazyArgumentInfo.Type).AsLambda()) :
                             CreateLazyExpressionCall(containerContext, registration, lazyArgumentInfo.Type, lazyConstructor, resolutionContext);
 
-            var expression = this.resolverSelector.GetResolverExpression(containerContext, lazyArgumentInfo, resolutionContext);
+            var expression = resolutionStrategy.BuildResolutionExpression(containerContext, resolutionContext, lazyArgumentInfo);
 
             return expression == null ? null : lazyConstructor.MakeNew(expression.AsLambda());
         }
 
-        public Expression[] GetExpressions(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext)
+        public Expression[] GetAllExpressions(IContainerContext containerContext,
+            IResolutionStrategy resolutionStrategy,
+            TypeInformation typeInfo,
+            ResolutionContext resolutionContext)
         {
             var lazyArgumentInfo = typeInfo.Clone(typeInfo.Type.GetGenericArguments()[0]);
 
@@ -56,7 +55,7 @@ namespace Stashbox.Resolution.Resolvers
                 return regExpressions;
             }
 
-            var exprs = this.resolverSelector.GetResolverExpressions(containerContext, lazyArgumentInfo, resolutionContext);
+            var exprs = resolutionStrategy.BuildAllResolutionExpressions(containerContext, resolutionContext, lazyArgumentInfo);
             if (exprs == null)
                 return null;
 
@@ -95,7 +94,8 @@ namespace Stashbox.Resolution.Resolvers
         }
 
         public bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext) =>
-            typeInfo.Type.IsClosedGenericType() && typeInfo.Type.GetGenericTypeDefinition() == typeof(Lazy<>);
+            typeInfo.Type.IsClosedGenericType() &&
+            typeInfo.Type.GetGenericTypeDefinition() == typeof(Lazy<>);
 
         private static readonly MethodInfo DelegateCacheMethod = typeof(LazyResolver).GetSingleMethod(nameof(CreateLazyDelegate), true);
 

@@ -6,10 +6,13 @@ namespace Stashbox.Resolution.Resolvers
 {
     internal class EnumerableResolver : IResolver
     {
-        public Expression GetExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext)
+        public Expression GetExpression(IContainerContext containerContext,
+            IResolutionStrategy resolutionStrategy,
+            TypeInformation typeInfo,
+            ResolutionContext resolutionContext)
         {
             var enumerableType = new TypeInformation { Type = typeInfo.Type.GetEnumerableType() };
-            var expressions = containerContext.ResolutionStrategy.BuildResolutionExpressions(containerContext, resolutionContext, enumerableType);
+            var expressions = resolutionStrategy.BuildAllResolutionExpressions(containerContext, resolutionContext, enumerableType);
 
             return expressions == null ? enumerableType.Type.InitNewArray() :
                     enumerableType.Type.InitNewArray(expressions);

@@ -20,26 +20,32 @@ namespace Stashbox.Resolution.Resolvers
             typeof(Func<,,,,,,,>)
         };
 
-        public Expression GetExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext)
+        public Expression GetExpression(IContainerContext containerContext,
+            IResolutionStrategy resolutionStrategy,
+            TypeInformation typeInfo,
+            ResolutionContext resolutionContext)
         {
             var args = typeInfo.Type.GetGenericArguments();
             var wrappedType = args.Last();
             var funcArgumentInfo = typeInfo.Clone(wrappedType);
 
             var parameters = this.PrepareExtraParameters(wrappedType, resolutionContext, args);
-            var expression = containerContext.ResolutionStrategy.BuildResolutionExpression(containerContext, resolutionContext, funcArgumentInfo);
+            var expression = resolutionStrategy.BuildResolutionExpression(containerContext, resolutionContext, funcArgumentInfo);
 
             return expression?.AsLambda(parameters);
         }
 
-        public Expression[] GetExpressions(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext)
+        public Expression[] GetAllExpressions(IContainerContext containerContext,
+            IResolutionStrategy resolutionStrategy,
+            TypeInformation typeInfo,
+            ResolutionContext resolutionContext)
         {
             var args = typeInfo.Type.GetGenericArguments();
             var wrappedType = args.Last();
             var funcArgumentInfo = typeInfo.Clone(wrappedType);
 
             var parameters = this.PrepareExtraParameters(wrappedType, resolutionContext, args);
-            var expressions = containerContext.ResolutionStrategy.BuildResolutionExpressions(containerContext, resolutionContext, funcArgumentInfo);
+            var expressions = resolutionStrategy.BuildAllResolutionExpressions(containerContext, resolutionContext, funcArgumentInfo);
 
             if (expressions == null)
                 return null;

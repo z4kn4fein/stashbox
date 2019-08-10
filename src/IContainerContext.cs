@@ -1,6 +1,5 @@
 ﻿using Stashbox.Configuration;
 using Stashbox.Registration;
-using Stashbox.Resolution;
 
 namespace Stashbox
 {
@@ -23,11 +22,6 @@ namespace Stashbox
         /// The container itself.
         /// </summary>
         IStashboxContainer Container { get; }
-
-        /// <summary>
-        /// The resolution strategy.
-        /// </summary>
-        IResolutionStrategy ResolutionStrategy { get; }
 
         /// <summary>
         /// The container configuration.

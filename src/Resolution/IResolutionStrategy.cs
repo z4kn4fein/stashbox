@@ -22,13 +22,13 @@ namespace Stashbox.Resolution
             IEnumerable<InjectionParameter> injectionParameters = null, bool forceSkipUnknownTypeCheck = false);
 
         /// <summary>
-        /// Builds resolution expressions for an enumerable dependency.
+        /// Builds all the resolution expressions for an enumerable dependency.
         /// </summary>
         /// <param name="containerContext">The <see cref="IContainerContext"/> of the <see cref="StashboxContainer"/></param>
         /// <param name="resolutionContext">The resolution info.</param>
         /// <param name="typeInformation">The type info of the requested service.</param>
         /// <returns>The created resolution target.</returns>
-        Expression[] BuildResolutionExpressions(IContainerContext containerContext, ResolutionContext resolutionContext,
+        Expression[] BuildAllResolutionExpressions(IContainerContext containerContext, ResolutionContext resolutionContext,
             TypeInformation typeInformation);
     }
 }

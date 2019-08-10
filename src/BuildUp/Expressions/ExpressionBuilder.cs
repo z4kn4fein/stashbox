@@ -14,11 +14,15 @@ namespace Stashbox.BuildUp.Expressions
     {
         private readonly IContainerExtensionManager containerExtensionManager;
         private readonly IConstructorSelector constructorSelector;
+        private readonly IResolutionStrategy resolutionStrategy;
 
-        public ExpressionBuilder(IContainerExtensionManager containerExtensionManager, IConstructorSelector constructorSelector)
+        public ExpressionBuilder(IContainerExtensionManager containerExtensionManager,
+            IConstructorSelector constructorSelector,
+            IResolutionStrategy resolutionStrategy)
         {
             this.containerExtensionManager = containerExtensionManager;
             this.constructorSelector = constructorSelector;
+            this.resolutionStrategy = resolutionStrategy;
         }
 
         public Expression CreateFillExpression(
@@ -251,7 +255,7 @@ namespace Stashbox.BuildUp.Expressions
                 if (!member.CanInject(containerContext.ContainerConfiguration,
                     registrationContext)) continue;
 
-                var expression = containerContext.ResolutionStrategy
+                var expression = this.resolutionStrategy
                     .BuildResolutionExpression(containerContext, resolutionContext,
                         member.TypeInformation, registrationContext.InjectionParameters);
 
@@ -283,7 +287,7 @@ namespace Stashbox.BuildUp.Expressions
                 {
                     var parameters = new Expression[paramLength];
                     for (var j = 0; j < paramLength; j++)
-                        parameters[j] = containerContext.ResolutionStrategy
+                        parameters[j] = this.resolutionStrategy
                             .BuildResolutionExpression(containerContext, resolutionContext,
                             info.Parameters[j], registrationContext.InjectionParameters);
 
@@ -307,7 +311,7 @@ namespace Stashbox.BuildUp.Expressions
                 if (!info.CanInject(containerContext.ContainerConfiguration,
                     registrationContext)) continue;
 
-                var expression = containerContext.ResolutionStrategy
+                var expression = this.resolutionStrategy
                     .BuildResolutionExpression(containerContext, resolutionContext,
                     info.TypeInformation, registrationContext.InjectionParameters);
 

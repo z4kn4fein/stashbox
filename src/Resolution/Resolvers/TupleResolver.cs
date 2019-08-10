@@ -20,9 +20,13 @@ namespace Stashbox.Resolution.Resolvers
         };
 
         public bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext) =>
-            typeInfo.Type.IsClosedGenericType() && this.supportedTypes.Contains(typeInfo.Type.GetGenericTypeDefinition());
+            typeInfo.Type.IsClosedGenericType() &&
+            this.supportedTypes.Contains(typeInfo.Type.GetGenericTypeDefinition());
 
-        public Expression GetExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext)
+        public Expression GetExpression(IContainerContext containerContext,
+            IResolutionStrategy resolutionStrategy,
+            TypeInformation typeInfo,
+            ResolutionContext resolutionContext)
         {
             var args = typeInfo.Type.GetGenericArguments();
             var tupleConstructor = typeInfo.Type.GetConstructor(args);
@@ -31,7 +35,7 @@ namespace Stashbox.Resolution.Resolvers
             for (var i = 0; i < length; i++)
             {
                 var argumentInfo = new TypeInformation { Type = args[i] };
-                var expr = containerContext.ResolutionStrategy.BuildResolutionExpression(containerContext, resolutionContext, argumentInfo);
+                var expr = resolutionStrategy.BuildResolutionExpression(containerContext, resolutionContext, argumentInfo);
 
                 if (expr != null)
                     expressions[i] = expr;

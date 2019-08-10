@@ -10,11 +10,14 @@ namespace Stashbox.Resolution.Resolvers
             containerContext.ContainerConfiguration.UnknownTypeResolutionEnabled &&
                        typeInfo.Type.IsResolvableType();
 
-        public Expression GetExpression(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext)
+        public Expression GetExpression(IContainerContext containerContext,
+            IResolutionStrategy resolutionStrategy,
+            TypeInformation typeInfo,
+            ResolutionContext resolutionContext)
         {
             containerContext.Container.Register(typeInfo.Type,
                 containerContext.ContainerConfiguration.UnknownTypeConfigurator);
-            return containerContext.ResolutionStrategy.BuildResolutionExpression(containerContext, resolutionContext, typeInfo);
+            return resolutionStrategy.BuildResolutionExpression(containerContext, resolutionContext, typeInfo);
         }
     }
 }
