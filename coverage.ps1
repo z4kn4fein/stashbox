@@ -8,6 +8,6 @@ choco install codecov --no-progress
 $testPath = Join-Path $PSScriptRoot "test\stashbox.tests.csproj"
 
 $arguments = "-returntargetcode", "-register:user", "`"-filter:+[*]Stashbox.* -[Stashbox.Tests]* -[Stashbox]*.Utils* -[Stashbox]*.Expressions.Compile*`"", "-target:dotnet.exe", "`"-targetargs:test $testPath -f net45 -c Release`"", "-output:coverage.xml", "-skipautoprops", "-hideskipped:All"
-. type coverage.xml
 . OpenCover.Console.exe $arguments
-. codecov -f coverage.xml
+. type coverage.xml
+. codecov -f coverage.xml 
