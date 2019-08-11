@@ -142,14 +142,21 @@ namespace Stashbox
 
             var decoratorConfigurator = new DecoratorConfigurator(typeFrom, typeTo);
             configurator?.Invoke(decoratorConfigurator);
-            return this.serviceRegistrator.Register(this.registrationBuilder.BuildServiceRegistration(decoratorConfigurator, true),
+            this.serviceRegistrator.Register(this.registrationBuilder.BuildServiceRegistration(decoratorConfigurator, true),
                 typeFrom,
                 decoratorConfigurator.Context);
+
+            return this;
         }
 
-        private IStashboxContainer RegisterInternal(RegistrationConfiguration registrationConfiguration) =>
-            this.serviceRegistrator.Register(this.registrationBuilder.BuildServiceRegistration(registrationConfiguration, false),
+        private IStashboxContainer RegisterInternal(RegistrationConfiguration registrationConfiguration)
+        {
+            this.serviceRegistrator.Register(
+                this.registrationBuilder.BuildServiceRegistration(registrationConfiguration, false),
                 registrationConfiguration.ServiceType,
                 registrationConfiguration.Context);
+
+            return this;
+        }
     }
 }

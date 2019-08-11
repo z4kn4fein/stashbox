@@ -9,7 +9,7 @@ namespace Stashbox
     public interface IContainerContext
     {
         /// <summary>
-        /// The rservice registration repository.
+        /// The service registration repository.
         /// </summary>
         IRegistrationRepository RegistrationRepository { get; }
 

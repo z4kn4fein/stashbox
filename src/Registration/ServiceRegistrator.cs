@@ -15,19 +15,18 @@ namespace Stashbox.Registration
             this.containerExtensionManager = containerExtensionManager;
         }
 
-        public IStashboxContainer Register(IServiceRegistration serviceRegistration, Type serviceType, RegistrationContext registrationContext)
+        public void Register(IServiceRegistration serviceRegistration, Type serviceType, RegistrationContext registrationContext)
         {
             if (serviceRegistration.IsDecorator)
-                return this.Register(serviceRegistration, serviceType, registrationContext.ReplaceExistingRegistration);
-
-            if (registrationContext.AdditionalServiceTypes.Any())
+                this.Register(serviceRegistration, serviceType, registrationContext.ReplaceExistingRegistration);
+            else if (registrationContext.AdditionalServiceTypes.Any())
                 foreach (var additionalServiceType in registrationContext.AdditionalServiceTypes)
                     this.Register(serviceRegistration, additionalServiceType, registrationContext.ReplaceExistingRegistration);
 
-            return this.Register(serviceRegistration, serviceType, registrationContext.ReplaceExistingRegistration);
+            this.Register(serviceRegistration, serviceType, registrationContext.ReplaceExistingRegistration);
         }
 
-        public IStashboxContainer Register(IServiceRegistration serviceRegistration, Type serviceType, bool replace)
+        public void Register(IServiceRegistration serviceRegistration, Type serviceType, bool replace)
         {
             if (serviceRegistration.IsDecorator)
             {
@@ -41,11 +40,9 @@ namespace Stashbox.Registration
                 this.containerContext.Container.RootScope.InvalidateDelegateCache();
 
             this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.containerContext, serviceRegistration);
-
-            return this.containerContext.Container;
         }
 
-        public IStashboxContainer ReMap(IServiceRegistration serviceRegistration, Type serviceType, RegistrationContext registrationContext)
+        public void ReMap(IServiceRegistration serviceRegistration, Type serviceType, RegistrationContext registrationContext)
         {
             if (serviceRegistration.IsDecorator)
                 this.containerContext.DecoratorRepository.AddDecorator(serviceType, serviceRegistration, true, false);
@@ -61,8 +58,6 @@ namespace Stashbox.Registration
             this.containerContext.Container.RootScope.InvalidateDelegateCache();
 
             this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.containerContext, serviceRegistration);
-
-            return this.containerContext.Container;
         }
     }
 }
