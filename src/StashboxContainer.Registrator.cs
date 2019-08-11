@@ -147,7 +147,7 @@ namespace Stashbox
                 decoratorConfigurator.Context);
         }
 
-        private IStashboxContainer RegisterInternal(IRegistrationConfiguration registrationConfiguration) =>
+        private IStashboxContainer RegisterInternal(RegistrationConfiguration registrationConfiguration) =>
             this.serviceRegistrator.Register(this.registrationBuilder.BuildServiceRegistration(registrationConfiguration, false),
                 registrationConfiguration.ServiceType,
                 registrationConfiguration.Context);

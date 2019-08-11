@@ -17,7 +17,7 @@ namespace Stashbox.Registration
             this.objectBuilderSelector = objectBuilderSelector;
         }
 
-        public IServiceRegistration BuildServiceRegistration(IRegistrationConfiguration registrationConfiguration, bool isDecorator)
+        public IServiceRegistration BuildServiceRegistration(RegistrationConfiguration registrationConfiguration, bool isDecorator)
         {
             this.PreProcessExistingInstanceIfNeeded(registrationConfiguration.Context, registrationConfiguration.ImplementationType);
             registrationConfiguration.Context.Lifetime = this.ChooseLifeTime(registrationConfiguration.Context);

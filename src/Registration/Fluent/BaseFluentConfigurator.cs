@@ -12,30 +12,12 @@ namespace Stashbox.Registration.Fluent
     /// Represents the base of the fluent registration api.
     /// </summary>
     /// <typeparam name="TConfigurator"></typeparam>
-    public class BaseFluentConfigurator<TConfigurator> : IBaseFluentConfigurator<TConfigurator>, IRegistrationConfiguration
+    public class BaseFluentConfigurator<TConfigurator> : RegistrationConfiguration, IBaseFluentConfigurator<TConfigurator>
         where TConfigurator : BaseFluentConfigurator<TConfigurator>
     {
-        /// <summary>
-        /// The service type.
-        /// </summary>
-        public Type ServiceType { get; }
-
-        /// <summary>
-        /// The implementation type.
-        /// </summary>
-        public Type ImplementationType { get; }
-
-        /// <summary>
-        /// The registration context.
-        /// </summary>
-        public RegistrationContext Context { get; }
-
         internal BaseFluentConfigurator(Type serviceType, Type implementationType)
-        {
-            this.ServiceType = serviceType;
-            this.ImplementationType = implementationType;
-            this.Context = RegistrationContext.New();
-        }
+            :base(serviceType, implementationType)
+        { }
 
         /// <inheritdoc />
         public TConfigurator WithInjectionParameters(params InjectionParameter[] injectionParameters)

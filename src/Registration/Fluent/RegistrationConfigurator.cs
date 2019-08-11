@@ -13,7 +13,7 @@ namespace Stashbox.Registration.Fluent
     }
 
     /// <summary>
-    /// Represents the fluent service registraton api.
+    /// Represents the fluent service registration api.
     /// </summary>
     public class RegistrationConfigurator : FluentServiceConfigurator<RegistrationConfigurator>
     {
