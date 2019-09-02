@@ -1,4 +1,5 @@
 ﻿using Stashbox.BuildUp;
+using Stashbox.Configuration;
 using Stashbox.Lifetime;
 using Stashbox.Registration.Fluent;
 using Stashbox.Utils;
@@ -8,12 +9,14 @@ namespace Stashbox.Registration
 {
     internal class RegistrationBuilder : IRegistrationBuilder
     {
-        private readonly IContainerContext containerContext;
+        private readonly ContainerConfiguration containerConfiguration;
+        private readonly IResolutionScope rootScope;
         private readonly IObjectBuilderSelector objectBuilderSelector;
 
-        public RegistrationBuilder(IContainerContext containerContext, IObjectBuilderSelector objectBuilderSelector)
+        public RegistrationBuilder(ContainerConfiguration containerConfiguration, IResolutionScope rootScope, IObjectBuilderSelector objectBuilderSelector)
         {
-            this.containerContext = containerContext;
+            this.containerConfiguration = containerConfiguration;
+            this.rootScope = rootScope;
             this.objectBuilderSelector = objectBuilderSelector;
         }
 
@@ -24,7 +27,7 @@ namespace Stashbox.Registration
 
             var shouldHandleDisposal = this.ShouldHandleDisposal(registrationConfiguration.Context);
 
-            return new ServiceRegistration(registrationConfiguration.ImplementationType, this.containerContext.ContainerConfiguration,
+            return new ServiceRegistration(registrationConfiguration.ImplementationType, this.containerConfiguration,
                 this.SelectObjectBuilder(registrationConfiguration.Context, registrationConfiguration.ImplementationType),
                 registrationConfiguration.Context, isDecorator, shouldHandleDisposal);
         }
@@ -34,12 +37,12 @@ namespace Stashbox.Registration
             if (registrationContext.ExistingInstance == null) return;
 
             if (!registrationContext.IsLifetimeExternallyOwned && registrationContext.ExistingInstance is IDisposable disposable)
-                this.containerContext.Container.RootScope.AddDisposableTracking(disposable);
+                this.rootScope.AddDisposableTracking(disposable);
 
             if (registrationContext.Finalizer == null) return;
 
             var method = Constants.AddWithFinalizerMethod.MakeGenericMethod(implementationType);
-            method.Invoke(this.containerContext.Container.RootScope, new[] { registrationContext.ExistingInstance, registrationContext.Finalizer });
+            method.Invoke(this.rootScope, new[] { registrationContext.ExistingInstance, registrationContext.Finalizer });
         }
 
         private bool ShouldHandleDisposal(RegistrationContext registrationContext)
@@ -50,7 +53,7 @@ namespace Stashbox.Registration
             if (registrationContext.ExistingInstance != null)
                 return false;
 
-            if (registrationContext.Lifetime == null && this.containerContext.ContainerConfiguration.TrackTransientsForDisposalEnabled)
+            if (registrationContext.Lifetime == null && this.containerConfiguration.TrackTransientsForDisposalEnabled)
                 return true;
 
             return registrationContext.Lifetime != null;

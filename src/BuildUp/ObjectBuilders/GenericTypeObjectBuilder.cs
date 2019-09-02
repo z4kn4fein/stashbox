@@ -19,16 +19,16 @@ namespace Stashbox.BuildUp.ObjectBuilders
         protected override Expression GetExpressionInternal(IContainerContext containerContext, IServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType)
         {
             var genericType = serviceRegistration.ImplementationType.MakeGenericType(resolveType.GetGenericArguments());
-            var registration = this.RegisterConcreteGenericType(serviceRegistration, resolveType, genericType);
+            var registration = this.RegisterConcreteGenericType(containerContext, serviceRegistration, resolveType, genericType);
             return registration.GetExpression(containerContext, resolutionContext, resolveType);
         }
 
-        private IServiceRegistration RegisterConcreteGenericType(IServiceRegistration serviceRegistration, Type resolveType, Type genericType)
+        private IServiceRegistration RegisterConcreteGenericType(IContainerContext containerContext, IServiceRegistration serviceRegistration, Type resolveType, Type genericType)
         {
             var newRegistration = serviceRegistration.Clone(genericType, this.defaultObjectBuilder);
 
             newRegistration.RegistrationContext.Name = null;
-            this.serviceRegistrator.Register(newRegistration, resolveType, false);
+            this.serviceRegistrator.Register(containerContext, newRegistration, resolveType, false);
             return newRegistration;
         }
     }

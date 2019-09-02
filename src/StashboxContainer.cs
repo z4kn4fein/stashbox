@@ -59,14 +59,14 @@ namespace Stashbox
             this.ContainerContext = new ContainerContext(this.registrationRepository, this,
                 this.containerConfigurator.ContainerConfiguration, decoratorRepository);
 
-            var expressionBuilder = new ExpressionBuilder(this.containerExtensionManager, 
+            var expressionBuilder = new ExpressionBuilder(this.containerExtensionManager,
                 new ConstructorSelector(this.resolutionStrategy), this.resolutionStrategy);
 
-            this.serviceRegistrator = new ServiceRegistrator(this.ContainerContext, this.containerExtensionManager);
+            this.serviceRegistrator = new ServiceRegistrator(this.containerExtensionManager);
             this.objectBuilderSelector = new ObjectBuilderSelector(expressionBuilder, this.serviceRegistrator);
-            this.registrationBuilder = new RegistrationBuilder(this.ContainerContext, this.objectBuilderSelector);
 
             this.RootScope = new ResolutionScope(this.resolutionStrategy, expressionBuilder, this.ContainerContext);
+            this.registrationBuilder = new RegistrationBuilder(this.containerConfigurator.ContainerConfiguration, this.RootScope, this.objectBuilderSelector);
             this.rootResolver = (IDependencyResolver)this.RootScope;
         }
 

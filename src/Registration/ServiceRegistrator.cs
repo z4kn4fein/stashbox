@@ -6,58 +6,56 @@ namespace Stashbox.Registration
 {
     internal class ServiceRegistrator : IServiceRegistrator
     {
-        private readonly IContainerContext containerContext;
         private readonly IContainerExtensionManager containerExtensionManager;
 
-        internal ServiceRegistrator(IContainerContext containerContext, IContainerExtensionManager containerExtensionManager)
+        internal ServiceRegistrator(IContainerExtensionManager containerExtensionManager)
         {
-            this.containerContext = containerContext;
             this.containerExtensionManager = containerExtensionManager;
         }
 
-        public void Register(IServiceRegistration serviceRegistration, Type serviceType, RegistrationContext registrationContext)
+        public void Register(IContainerContext containerContext, IServiceRegistration serviceRegistration, Type serviceType, RegistrationContext registrationContext)
         {
             if (serviceRegistration.IsDecorator)
-                this.Register(serviceRegistration, serviceType, registrationContext.ReplaceExistingRegistration);
+                this.Register(containerContext, serviceRegistration, serviceType, registrationContext.ReplaceExistingRegistration);
             else if (registrationContext.AdditionalServiceTypes.Any())
                 foreach (var additionalServiceType in registrationContext.AdditionalServiceTypes)
-                    this.Register(serviceRegistration, additionalServiceType, registrationContext.ReplaceExistingRegistration);
+                    this.Register(containerContext, serviceRegistration, additionalServiceType, registrationContext.ReplaceExistingRegistration);
 
-            this.Register(serviceRegistration, serviceType, registrationContext.ReplaceExistingRegistration);
+            this.Register(containerContext, serviceRegistration, serviceType, registrationContext.ReplaceExistingRegistration);
         }
 
-        public void Register(IServiceRegistration serviceRegistration, Type serviceType, bool replace)
+        public void Register(IContainerContext containerContext, IServiceRegistration serviceRegistration, Type serviceType, bool replace)
         {
             if (serviceRegistration.IsDecorator)
             {
-                this.containerContext.DecoratorRepository.AddDecorator(serviceType, serviceRegistration, false, replace);
-                this.containerContext.Container.RootScope.InvalidateDelegateCache();
+                containerContext.DecoratorRepository.AddDecorator(serviceType, serviceRegistration, false, replace);
+                containerContext.Container.RootScope.InvalidateDelegateCache();
             }
             else
-                this.containerContext.RegistrationRepository.AddOrUpdateRegistration(serviceRegistration, serviceType, false, replace);
+                containerContext.RegistrationRepository.AddOrUpdateRegistration(serviceRegistration, serviceType, false, replace);
 
             if (replace)
-                this.containerContext.Container.RootScope.InvalidateDelegateCache();
+                containerContext.Container.RootScope.InvalidateDelegateCache();
 
-            this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.containerContext, serviceRegistration);
+            this.containerExtensionManager.ExecuteOnRegistrationExtensions(containerContext, serviceRegistration);
         }
 
-        public void ReMap(IServiceRegistration serviceRegistration, Type serviceType, RegistrationContext registrationContext)
+        public void ReMap(IContainerContext containerContext, IServiceRegistration serviceRegistration, Type serviceType, RegistrationContext registrationContext)
         {
             if (serviceRegistration.IsDecorator)
-                this.containerContext.DecoratorRepository.AddDecorator(serviceType, serviceRegistration, true, false);
+                containerContext.DecoratorRepository.AddDecorator(serviceType, serviceRegistration, true, false);
             else
             {
                 if (registrationContext.AdditionalServiceTypes.Any())
                     foreach (var additionalServiceType in registrationContext.AdditionalServiceTypes)
-                        this.containerContext.RegistrationRepository.AddOrUpdateRegistration(serviceRegistration, additionalServiceType, true, false);
+                        containerContext.RegistrationRepository.AddOrUpdateRegistration(serviceRegistration, additionalServiceType, true, false);
 
-                this.containerContext.RegistrationRepository.AddOrUpdateRegistration(serviceRegistration, serviceType, true, false);
+                containerContext.RegistrationRepository.AddOrUpdateRegistration(serviceRegistration, serviceType, true, false);
             }
 
-            this.containerContext.Container.RootScope.InvalidateDelegateCache();
+            containerContext.Container.RootScope.InvalidateDelegateCache();
 
-            this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.containerContext, serviceRegistration);
+            this.containerExtensionManager.ExecuteOnRegistrationExtensions(containerContext, serviceRegistration);
         }
     }
 }

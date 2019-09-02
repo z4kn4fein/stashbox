@@ -4,10 +4,10 @@ namespace Stashbox.Registration
 {
     internal interface IServiceRegistrator
     {
-        void Register(IServiceRegistration serviceRegistration, Type serviceType, RegistrationContext registrationContext);
+        void Register(IContainerContext containerContext, IServiceRegistration serviceRegistration, Type serviceType, RegistrationContext registrationContext);
 
-        void Register(IServiceRegistration serviceRegistration, Type serviceType, bool replace);
+        void Register(IContainerContext containerContext, IServiceRegistration serviceRegistration, Type serviceType, bool replace);
 
-        void ReMap(IServiceRegistration serviceRegistration, Type serviceType, RegistrationContext registrationContext);
+        void ReMap(IContainerContext containerContext, IServiceRegistration serviceRegistration, Type serviceType, RegistrationContext registrationContext);
     }
 }

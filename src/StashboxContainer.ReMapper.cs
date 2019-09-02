@@ -61,6 +61,7 @@ namespace Stashbox
             bool isDecorator = false)
         {
             this.serviceRegistrator.ReMap(
+                this.ContainerContext,
                 this.registrationBuilder.BuildServiceRegistration(registrationConfiguration, isDecorator),
                 registrationConfiguration.ServiceType,
                 registrationConfiguration.Context);
