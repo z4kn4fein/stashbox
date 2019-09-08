@@ -59,9 +59,9 @@ namespace Stashbox.Registration
             return this.GetAllScopedRegistrationsOrDefault(type, resolutionContext) ?? this.GetAllRegistrationsOrDefault(type);
         }
 
-        public IEnumerable<KeyValue<Type, IServiceRegistration>> GetRegistrationMappings() =>
-             this.serviceRepository.Walk().SelectMany(reg => reg.Value.Select(r => new KeyValue<Type, IServiceRegistration>(reg.Key, r)))
-                .Concat(this.namedScopeRepository.Walk().SelectMany(reg => reg.Value.Select(r => new KeyValue<Type, IServiceRegistration>(reg.Key, r))));
+        public IEnumerable<KeyValuePair<Type, IServiceRegistration>> GetRegistrationMappings() =>
+             this.serviceRepository.Walk().SelectMany(reg => reg.Value.Select(r => new KeyValuePair<Type, IServiceRegistration>(reg.Key, r)))
+                .Concat(this.namedScopeRepository.Walk().SelectMany(reg => reg.Value.Select(r => new KeyValuePair<Type, IServiceRegistration>(reg.Key, r))));
 
         public bool ContainsRegistration(Type type, object name) =>
             this.serviceRepository.ContainsRegistration(type, name) || this.namedScopeRepository.ContainsRegistration(type, name);

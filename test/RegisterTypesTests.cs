@@ -255,7 +255,7 @@ namespace Stashbox.Tests
             IStashboxContainer container = new StashboxContainer();
             container.ComposeAssembly(this.GetType().GetTypeInfo().Assembly, type => !type.FullName.Contains("IssueTests"));
 
-            var regs = container.ContainerContext.RegistrationRepository
+            var regs = container
                 .GetRegistrationMappings()
                 .OrderBy(r => r.Value.RegistrationNumber)
                 .ToArray();

@@ -48,7 +48,7 @@ namespace Stashbox.Registration
         /// Returns all registration mappings.
         /// </summary>
         /// <returns>The registration mappings.</returns>
-        IEnumerable<KeyValue<Type, IServiceRegistration>> GetRegistrationMappings();
+        IEnumerable<KeyValuePair<Type, IServiceRegistration>> GetRegistrationMappings();
 
         /// <summary>
         /// Check a type exists with conditions.

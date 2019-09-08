@@ -1,6 +1,8 @@
 ﻿using Stashbox.ContainerExtension;
+using Stashbox.Registration;
 using Stashbox.Resolution;
 using System;
+using System.Collections.Generic;
 
 namespace Stashbox
 {
@@ -83,5 +85,11 @@ namespace Stashbox
         /// Validates the current state of the container.
         /// </summary>
         void Validate();
+
+        /// <summary>
+        /// Returns all registration mappings.
+        /// </summary>
+        /// <returns>The registration mappings.</returns>
+        IEnumerable<KeyValuePair<Type, IServiceRegistration>> GetRegistrationMappings();
     }
 }

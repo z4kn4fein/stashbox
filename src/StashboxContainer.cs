@@ -7,6 +7,7 @@ using Stashbox.Registration;
 using Stashbox.Resolution;
 using Stashbox.Resolution.Resolvers;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 
 namespace Stashbox
@@ -130,6 +131,11 @@ namespace Stashbox
             this.containerConfigurator.ContainerConfiguration.ConfigurationChangedEvent?
                 .Invoke(this.containerConfigurator.ContainerConfiguration);
         }
+
+        /// <inheritdoc />
+        public IEnumerable<KeyValuePair<Type, IServiceRegistration>> GetRegistrationMappings() =>
+             this.ContainerContext.RegistrationRepository.GetRegistrationMappings();
+
 
         private void RegisterResolvers()
         {
