@@ -205,9 +205,7 @@ namespace Stashbox.Entity
                     @params[paramIndex] = newParam;
                 }
                 else
-                {
                     @params[paramIndex] = param;
-                }
             }
 
             return @params;

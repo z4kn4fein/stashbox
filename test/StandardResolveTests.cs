@@ -434,6 +434,18 @@ namespace Stashbox.Tests
             Assert.IsTrue(finalized);
         }
 
+#if HAS_SERVICEPROVIDER
+        [TestMethod]
+        public void StandardResolveTests_ServiceProvider()
+        {
+            var inst = new StashboxContainer()
+                .Register<ITest1, Test1>()
+                .Resolve<ITest1>();
+
+            Assert.IsNotNull(inst);
+        }
+#endif
+
         public interface ITest1 { string Name { get; set; } }
 
         public interface ITest2 { string Name { get; set; } }

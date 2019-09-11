@@ -6,6 +6,7 @@ using Stashbox.Entity;
 using Stashbox.Registration;
 using Stashbox.Resolution;
 using Stashbox.Resolution.Resolvers;
+using Stashbox.Utils;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -127,7 +128,9 @@ namespace Stashbox
         /// <inheritdoc />
         public void Configure(Action<IContainerConfigurator> config)
         {
-            config?.Invoke(this.containerConfigurator);
+            Shield.EnsureNotNull(config, "The config parameter cannot be null!");
+
+            config.Invoke(this.containerConfigurator);
             this.containerConfigurator.ContainerConfiguration.ConfigurationChangedEvent?
                 .Invoke(this.containerConfigurator.ContainerConfiguration);
         }

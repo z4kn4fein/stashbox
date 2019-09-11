@@ -127,6 +127,16 @@ namespace Stashbox.Tests
             });
         }
 
+        [TestMethod]
+        public void AttributeTests_InjectionMethod_WithoutMembers()
+        {
+            var inst = new StashboxContainer()
+                .Register<Test5>()
+                .Resolve<Test5>();
+
+            Assert.IsTrue(inst.MethodInvoked);
+        }
+
         public interface ITest1 { }
 
         public interface ITest2 { ITest1 test1 { get; set; } }
@@ -214,6 +224,17 @@ namespace Stashbox.Tests
 
                 Shield.EnsureTypeOf<Test12>(test1.Value);
                 Shield.EnsureTypeOf<Test2>(test2.Value);
+            }
+
+            public bool MethodInvoked { get; set; }
+        }
+
+        public class Test5
+        {
+            [InjectionMethod]
+            public void MethodTest()
+            {
+                this.MethodInvoked = true;
             }
 
             public bool MethodInvoked { get; set; }

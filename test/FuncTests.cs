@@ -393,6 +393,19 @@ namespace Stashbox.Tests
             Assert.IsNotNull(inst);
         }
 
+        [TestMethod]
+        public void FuncTests_Register_Static_Factory()
+        {
+            var inst = new StashboxContainer()
+                .RegisterFunc(Create)
+                .Resolve<Func<ITest>>()();
+
+            Assert.IsNotNull(inst);
+        }
+
+        public static ITest Create(IDependencyResolver resolver) =>
+            new Test();
+
         public class RegisteredFuncTest
         {
             public string Name { get; }

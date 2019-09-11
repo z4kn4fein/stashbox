@@ -219,6 +219,14 @@ namespace Stashbox.Tests
             Assert.IsTrue(newConfig.UnknownTypeResolutionEnabled);
         }
 
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void ContainerTests_ConfigurationChange_Null()
+        {
+            new StashboxContainer()
+             .Configure(null);
+        }
+
         public interface ITest1 { }
 
         public interface ITest2 { }

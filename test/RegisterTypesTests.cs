@@ -23,6 +23,18 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        public void RegistersTests_RegistersAs_Assembly()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            container.RegisterTypesAs<ITest1>(typeof(ITest1).GetTypeInfo().Assembly,
+                t => t == typeof(Test1) || t == typeof(Test11) || t == typeof(Test12));
+
+            var all = container.Resolve<IEnumerable<ITest1>>();
+
+            Assert.AreEqual(3, all.Count());
+        }
+
+        [TestMethod]
         public void RegistersTests_RegistersAs_Selector()
         {
             IStashboxContainer container = new StashboxContainer();
