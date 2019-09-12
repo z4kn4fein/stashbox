@@ -132,7 +132,7 @@ namespace Stashbox
 
         public TTo BuildUp<TTo>(TTo instance)
         {
-            var typeTo = typeof(TTo);
+            var typeTo = instance.GetType();
             var resolutionContext = ResolutionContext.New(this);
             var metaInfo = MetaInformation.GetOrCreateMetaInfo(typeTo);
             var expression = this.expressionBuilder.CreateBasicFillExpression(this.containerContext,

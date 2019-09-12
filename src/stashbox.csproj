@@ -30,6 +30,7 @@
       <![CDATA[
 - Fluent service registration API refinement
 - Container context interface refinement
+- Fix BuildUp type handling
     ]]>
     </PackageReleaseNotes>
     <Configurations>Debug;Release;Benchmark</Configurations>
