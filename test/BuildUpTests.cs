@@ -35,6 +35,19 @@ namespace Stashbox.Tests
         {
             using (var container = new StashboxContainer())
             {
+                container.Register<ITest3, Test3>().Register<ITest, Test>();
+                var test3 = new Test3();
+                var inst = (Test3)container.BuildUp<ITest3>(test3);
+
+                Assert.IsNotNull(inst.Test);
+            }
+        }
+
+        [TestMethod]
+        public void BuildUpTests_BuildUp_As_InterfaceType()
+        {
+            using (var container = new StashboxContainer())
+            {
                 container.RegisterScoped<ITest, Test>();
 
                 var test1 = new Test1();
@@ -59,6 +72,8 @@ namespace Stashbox.Tests
         public interface ITest : IDisposable { bool Disposed { get; } }
 
         public interface ITest1 { ITest Test { get; } }
+
+        public interface ITest3 { }
 
         public class Test : ITest
         {
@@ -89,6 +104,12 @@ namespace Stashbox.Tests
         {
             [Dependency]
             public ITest1 Test1 { get; set; }
+        }
+        
+        public class Test3 : ITest3
+        {
+            [Dependency]
+            public ITest Test { get; set; }
         }
     }
 }
