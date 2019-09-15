@@ -70,6 +70,11 @@ namespace Stashbox.Configuration
         public bool ResolutionOfUnNamedRegistrationWhenNamedNotFoundEnabled { get; internal set; }
 
         /// <summary>
+        /// If it's set to true, the container will use the default Microsoft expression compiler.
+        /// </summary>
+        public bool ForceUseMicrosoftExpressionCompiler { get; internal set; }
+
+        /// <summary>
         /// The member injection rule.
         /// </summary>
         public Rules.AutoMemberInjectionRules MemberInjectionWithoutAnnotationRule { get; internal set; }
@@ -105,6 +110,7 @@ namespace Stashbox.Configuration
             this.SetUniqueRegistrationNames = false;
             this.TreatingParameterOrMemberNamesAsDependencyNameEnabled = false;
             this.ResolutionOfUnNamedRegistrationWhenNamedNotFoundEnabled = false;
+            this.ForceUseMicrosoftExpressionCompiler = false;
         }
     }
 }

@@ -103,7 +103,7 @@ namespace Stashbox.Resolution.Resolvers
         {
             var expr = serviceRegistration.GetExpression(containerContext, resolutionContext, type);
             return expr.AsLambda(resolutionContext.ParameterExpressions.SelectMany(x => x))
-                .CompileDynamicDelegate(resolutionContext)(resolutionContext.ResolutionScope).DynamicInvoke(arguments);
+                .CompileDynamicDelegate(resolutionContext, containerContext.ContainerConfiguration)(resolutionContext.ResolutionScope).DynamicInvoke(arguments);
         }
     }
 }

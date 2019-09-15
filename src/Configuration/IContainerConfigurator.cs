@@ -82,5 +82,11 @@ namespace Stashbox
         /// </summary>
         /// <returns>The container configurator.</returns>
         IContainerConfigurator WithUnNamedDependencyResolutionWhenNamedIsNotAvailable();
+
+        /// <summary>
+        /// Forces the usage of Microsoft expression compiler to compile expression trees.
+        /// </summary>
+        /// <returns>The container configurator.</returns>
+        IContainerConfigurator WithMicrosoftExpressionCompiler();
     }
 }

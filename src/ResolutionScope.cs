@@ -142,7 +142,7 @@ namespace Stashbox
                 instance.AsConstant(),
                 resolutionContext,
                 typeTo);
-            return (TTo)expression.CompileDelegate(resolutionContext)(this);
+            return (TTo)expression.CompileDelegate(resolutionContext, this.containerContext.ContainerConfiguration)(this);
         }
 
         public object Activate(Type type, params object[] arguments)
@@ -159,7 +159,7 @@ namespace Stashbox
                 metaInfo.GetInjectionMethods(RegistrationContext.Empty, this.containerContext.ContainerConfiguration),
                 resolutionContext,
                 type);
-            return expression.CompileDelegate(resolutionContext)(this);
+            return expression.CompileDelegate(resolutionContext, this.containerContext.ContainerConfiguration)(this);
         }
 
         public TDisposable AddDisposableTracking<TDisposable>(TDisposable disposable)
@@ -276,7 +276,8 @@ namespace Stashbox
             var registration = this.containerContext.RegistrationRepository.GetRegistrationOrDefault(type, resolutionContext, name);
             if (registration != null)
             {
-                var registrationFactory = registration.GetExpression(this.containerContext, resolutionContext, type)?.CompileDelegate(resolutionContext);
+                var registrationFactory = registration.GetExpression(this.containerContext, resolutionContext, type)?
+                    .CompileDelegate(resolutionContext, this.containerContext.ContainerConfiguration);
                 if (registrationFactory == null)
                     return null;
 
@@ -295,7 +296,7 @@ namespace Stashbox
                 else
                     throw new ResolutionFailedException(type);
 
-            var factory = expr.CompileDelegate(resolutionContext);
+            var factory = expr.CompileDelegate(resolutionContext, this.containerContext.ContainerConfiguration);
 
             if (resolutionContext.ShouldCacheFactoryDelegate)
                 Swap.SwapValue(ref this.delegateCache.ServiceDelegates, (t1, t2, t3, t4, c) =>
@@ -328,7 +329,7 @@ namespace Stashbox
 
             var expression = initExpression.AsLambda(resolutionContext.ParameterExpressions.SelectMany(x => x));
 
-            var factory = expression.CompileDynamicDelegate(resolutionContext);
+            var factory = expression.CompileDynamicDelegate(resolutionContext, this.containerContext.ContainerConfiguration);
             Swap.SwapValue(ref this.delegateCache.FactoryDelegates, (t1, t2, t3, t4, c) =>
                 c.AddOrUpdate(t1, t2), name ?? type, factory, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
             return factory(resolutionScope);

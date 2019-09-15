@@ -2,6 +2,7 @@
 using System.Reflection;
 using System.Collections.Generic;
 using Stashbox;
+using Stashbox.Configuration;
 using Stashbox.Entity.Resolution;
 
 #if IL_EMIT
@@ -20,8 +21,10 @@ namespace System.Linq.Expressions
         /// </summary>
         /// <param name="expression">The expression.</param>
         /// <param name="resolutionContext">The resolution context.</param>
+        /// <param name="containerConfiguration">The container configuration.</param>
         /// <returns>The compiled delegate.</returns>
-        public static Func<IResolutionScope, object> CompileDelegate(this Expression expression, ResolutionContext resolutionContext)
+        public static Func<IResolutionScope, object> CompileDelegate(this Expression expression, 
+            ResolutionContext resolutionContext, ContainerConfiguration containerConfiguration)
         {
             if (expression.NodeType == ExpressionType.Constant)
             {
@@ -37,7 +40,8 @@ namespace System.Linq.Expressions
             }
 
 #if IL_EMIT
-            if (!expression.TryEmit(out Delegate factory, typeof(Func<IResolutionScope, object>), typeof(object),
+            if (containerConfiguration.ForceUseMicrosoftExpressionCompiler || 
+                !expression.TryEmit(out Delegate factory, typeof(Func<IResolutionScope, object>), typeof(object),
                 resolutionContext.CurrentScopeParameter))
                 factory = Expression.Lambda(expression, resolutionContext.CurrentScopeParameter).Compile();
 
@@ -52,8 +56,10 @@ namespace System.Linq.Expressions
         /// </summary>
         /// <param name="expression">The expression.</param>
         /// <param name="resolutionContext">The resolution context.</param>
+        /// <param name="containerConfiguration">The container configuration.</param>
         /// <returns>The compiled delegate.</returns>
-        public static Func<IResolutionScope, Delegate> CompileDynamicDelegate(this Expression expression, ResolutionContext resolutionContext)
+        public static Func<IResolutionScope, Delegate> CompileDynamicDelegate(this Expression expression, 
+            ResolutionContext resolutionContext, ContainerConfiguration containerConfiguration)
         {
             if (resolutionContext.DefinedVariables.Length > 0)
             {
@@ -63,7 +69,8 @@ namespace System.Linq.Expressions
             }
 
 #if IL_EMIT
-            if (!expression.TryEmit(out Delegate factory, typeof(Func<IResolutionScope, Delegate>), typeof(Delegate),
+            if (containerConfiguration.ForceUseMicrosoftExpressionCompiler || 
+                !expression.TryEmit(out Delegate factory, typeof(Func<IResolutionScope, Delegate>), typeof(Delegate),
                 resolutionContext.CurrentScopeParameter))
                 factory = Expression.Lambda<Func<IResolutionScope, Delegate>>(expression, resolutionContext.CurrentScopeParameter).Compile();
 

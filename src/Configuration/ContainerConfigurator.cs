@@ -100,5 +100,12 @@ namespace Stashbox.Configuration
             this.ContainerConfiguration.ResolutionOfUnNamedRegistrationWhenNamedNotFoundEnabled = true;
             return this;
         }
+
+        /// <inheritdoc />
+        public IContainerConfigurator WithMicrosoftExpressionCompiler()
+        {
+            this.ContainerConfiguration.ForceUseMicrosoftExpressionCompiler = true;
+            return this;
+        }
     }
 }

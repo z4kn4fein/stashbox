@@ -28,7 +28,7 @@ namespace Stashbox.Lifetime
 
                 var instance = expression.NodeType == ExpressionType.New && ((NewExpression)expression).Arguments.Count == 0
                     ? Activator.CreateInstance(expression.Type)
-                    : expression.CompileDelegate(resolutionContext)(containerContext.Container.RootScope);
+                    : expression.CompileDelegate(resolutionContext, containerContext.ContainerConfiguration)(containerContext.Container.RootScope);
 
                 return this.instanceExpression = instance.AsConstant();
             }
