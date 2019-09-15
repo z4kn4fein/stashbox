@@ -446,30 +446,30 @@ namespace Stashbox.Tests
         }
 #endif
 
-        public interface ITest1 { string Name { get; set; } }
+        interface ITest1 { string Name { get; set; } }
 
-        public interface ITest2 { string Name { get; set; } }
+        interface ITest2 { string Name { get; set; } }
 
-        public interface ITest3 { string Name { get; set; } }
+        interface ITest3 { string Name { get; set; } }
 
-        public interface ITest4 { ITest1 Test { get; } ITest1 Test2 { get; } }
+        interface ITest4 { ITest1 Test { get; } ITest1 Test2 { get; } }
 
-        public class Test1 : ITest1
+        class Test1 : ITest1
         {
             public string Name { get; set; }
         }
 
-        public class Test11 : ITest1
+        class Test11 : ITest1
         {
             public string Name { get; set; }
         }
 
-        public class Test12 : ITest1
+        class Test12 : ITest1
         {
             public string Name { get; set; }
         }
 
-        public class Test2 : ITest2
+        class Test2 : ITest2
         {
             public string Name { get; set; }
 
@@ -480,7 +480,7 @@ namespace Stashbox.Tests
             }
         }
 
-        public class Test22 : ITest2
+        class Test22 : ITest2
         {
             public string Name { get; set; }
 
@@ -496,7 +496,7 @@ namespace Stashbox.Tests
             }
         }
 
-        public class Test222 : ITest2
+        class Test222 : ITest2
         {
             public string Name { get; set; }
 
@@ -514,7 +514,7 @@ namespace Stashbox.Tests
             }
         }
 
-        public class Test2222 : ITest2
+        class Test2222 : ITest2
         {
             public string Name { get; set; }
 
@@ -530,7 +530,7 @@ namespace Stashbox.Tests
             }
         }
 
-        public class Test3 : ITest3
+        class Test3 : ITest3
         {
             public string Name { get; set; }
 
@@ -543,7 +543,7 @@ namespace Stashbox.Tests
             }
         }
 
-        public class Test4 : ITest4
+        class Test4 : ITest4
         {
             public ITest1 Test { get; }
 
@@ -556,14 +556,14 @@ namespace Stashbox.Tests
             }
         }
 
-        public class Test5
+        class Test5
         {
             public Test5(ITest1 test)
             {
             }
         }
 
-        public class ResolverTest
+        class ResolverTest
         {
             public IDependencyResolver DependencyResolver { get; }
 

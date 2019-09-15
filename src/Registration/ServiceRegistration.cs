@@ -43,6 +43,9 @@ namespace Stashbox.Registration
         public bool HasName { get; }
 
         /// <inheritdoc />
+        public bool IsResolvableByUnnamedRequest { get; }
+
+        /// <inheritdoc />
         public MemberInformation[] InjectionMembers { get; }
 
         /// <inheritdoc />
@@ -68,8 +71,8 @@ namespace Stashbox.Registration
             this.objectBuilder = objectBuilder;
             this.ImplementationType = implementationType;
             this.metaInformation = MetaInformation.GetOrCreateMetaInfo(implementationType);
-            this.Constructors = this.metaInformation.GetConstructors(registrationContext);
-            this.InjectionMethods = this.metaInformation.GetInjectionMethods(registrationContext);
+            this.Constructors = this.metaInformation.GetConstructors(registrationContext, containerConfiguration);
+            this.InjectionMethods = this.metaInformation.GetInjectionMethods(registrationContext, containerConfiguration);
             this.InjectionMembers = this.metaInformation.SelectInjectionMembers(registrationContext,
                 containerConfiguration);
             this.SelectedConstructor = this.metaInformation.FindSelectedConstructor(registrationContext);
@@ -79,6 +82,7 @@ namespace Stashbox.Registration
             this.ShouldHandleDisposal = shouldHandleDisposal;
 
             this.HasName = this.RegistrationContext.Name != null;
+            this.IsResolvableByUnnamedRequest = !this.HasName || containerConfiguration.ResolutionOfUnNamedRegistrationWhenNamedNotFoundEnabled;
 
             this.HasScopeName = this.RegistrationContext.Lifetime is NamedScopeLifetime;
 

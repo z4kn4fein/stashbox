@@ -585,20 +585,20 @@ namespace Stashbox.Tests
             Assert.AreEqual(3, container.Resolve<IEnumerable<ITest1>>().Count());
         }
 
-        public interface ITest1 { }
+        interface ITest1 { }
 
-        public interface ITest2 { }
+        interface ITest2 { }
 
-        public class Test1 : ITest1
+        class Test1 : ITest1
         { }
 
-        public class Test11 : ITest1
+        class Test11 : ITest1
         { }
 
-        public class Test12 : ITest1
+        class Test12 : ITest1
         { }
 
-        public class Test2 : ITest2
+        class Test2 : ITest2
         {
             public Test2(IEnumerable<ITest1> tests)
             {
@@ -607,7 +607,7 @@ namespace Stashbox.Tests
             }
         }
 
-        public class Test22 : ITest2
+        class Test22 : ITest2
         {
             public Test22(ITest1[] tests)
             {

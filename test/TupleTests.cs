@@ -89,19 +89,19 @@ namespace Stashbox.Tests
             Assert.IsInstanceOfType(inst.Test.Item2, typeof(Test1));
         }
 
-        public interface ITest
+        interface ITest
         { }
 
-        public interface ITest1
+        interface ITest1
         { }
 
-        public class Test : ITest
+        class Test : ITest
         { }
 
-        public class Test1 : ITest1
+        class Test1 : ITest1
         { }
 
-        public class Test2
+        class Test2
         {
             public Tuple<ITest, ITest1> Test { get; }
 

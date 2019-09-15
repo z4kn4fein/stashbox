@@ -86,5 +86,19 @@ namespace Stashbox.Configuration
             this.ContainerConfiguration.ConfigurationChangedEvent = configurationChanged;
             return this;
         }
+
+        /// <inheritdoc />
+        public IContainerConfigurator TreatParameterOrMemberNamesAsDependencyName()
+        {
+            this.ContainerConfiguration.TreatingParameterOrMemberNamesAsDependencyNameEnabled = true;
+            return this;
+        }
+
+        /// <inheritdoc />
+        public IContainerConfigurator WithUnNamedDependencyResolutionWhenNamedIsNotAvailable()
+        {
+            this.ContainerConfiguration.ResolutionOfUnNamedRegistrationWhenNamedNotFoundEnabled = true;
+            return this;
+        }
     }
 }

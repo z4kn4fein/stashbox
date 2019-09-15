@@ -555,32 +555,32 @@ namespace Stashbox.Tests
             }
         }
 
-        public interface ITest1 { ITest1 Test { get; } }
+        interface ITest1 { ITest1 Test { get; } }
 
-        public interface IDecoratorDep { }
+        interface IDecoratorDep { }
 
-        public interface IDep { }
+        interface IDep { }
 
-        public interface ITest1<T> { ITest1<T> Test { get; } }
+        interface ITest1<T> { ITest1<T> Test { get; } }
 
-        public interface IDisp : IDisposable
+        interface IDisp : IDisposable
         {
             IDisp Test { get; }
 
             bool Disposed { get; }
         }
 
-        public class Test1 : ITest1
+        class Test1 : ITest1
         {
             public ITest1 Test { get; }
         }
 
-        public class Test11 : ITest1
+        class Test11 : ITest1
         {
             public ITest1 Test { get; }
         }
 
-        public class Test12 : ITest1
+        class Test12 : ITest1
         {
             public ITest1 Test { get; }
 
@@ -590,7 +590,7 @@ namespace Stashbox.Tests
             }
         }
 
-        public class TestDisp : IDisp
+        class TestDisp : IDisp
         {
             public void Dispose()
             {
@@ -604,7 +604,7 @@ namespace Stashbox.Tests
             public IDisp Test { get; }
         }
 
-        public class TestDispDecorator : IDisp
+        class TestDispDecorator : IDisp
         {
             public TestDispDecorator(IDisp disp)
             {
@@ -623,12 +623,12 @@ namespace Stashbox.Tests
             public IDisp Test { get; }
         }
 
-        public class Test1<T> : ITest1<T>
+        class Test1<T> : ITest1<T>
         {
             public ITest1<T> Test { get; }
         }
 
-        public class TestDecorator1<T> : ITest1<T>
+        class TestDecorator1<T> : ITest1<T>
         {
             public ITest1<T> Test { get; }
 
@@ -638,7 +638,7 @@ namespace Stashbox.Tests
             }
         }
 
-        public class TestDecorator1 : ITest1
+        class TestDecorator1 : ITest1
         {
             public ITest1 Test { get; }
 
@@ -648,7 +648,7 @@ namespace Stashbox.Tests
             }
         }
 
-        public class TestDecorator2 : ITest1
+        class TestDecorator2 : ITest1
         {
             public ITest1 Test { get; }
 
@@ -658,25 +658,25 @@ namespace Stashbox.Tests
             }
         }
 
-        public class TestDecorator3 : ITest1
+        class TestDecorator3 : ITest1
         {
             [Dependency]
             public ITest1 Test { get; set; }
         }
 
-        public class TestDecorator3Attributeless : ITest1
+        class TestDecorator3Attributeless : ITest1
         {
             public ITest1 Test { get; set; }
         }
 
-        public class TestDecorator4 : ITest1
+        class TestDecorator4 : ITest1
         {
             public string Name { get; private set; }
 
             public ITest1 Test { get; private set; }
         }
 
-        public class TestDecorator5 : ITest1
+        class TestDecorator5 : ITest1
         {
             public ITest1 Test { get; }
 
@@ -689,7 +689,7 @@ namespace Stashbox.Tests
             }
         }
 
-        public class TestDecorator6 : ITest1
+        class TestDecorator6 : ITest1
         {
             public ITest1 Test { get; }
 
@@ -699,7 +699,7 @@ namespace Stashbox.Tests
             }
         }
 
-        public class TestDecorator7 : ITest1
+        class TestDecorator7 : ITest1
         {
             public ITest1 Test { get; }
 
@@ -709,7 +709,7 @@ namespace Stashbox.Tests
             }
         }
 
-        public class TestDecorator8 : ITest1
+        class TestDecorator8 : ITest1
         {
             public ITest1 Test { get; }
 
@@ -719,7 +719,7 @@ namespace Stashbox.Tests
             }
         }
 
-        public class TestDecorator9 : ITest1
+        class TestDecorator9 : ITest1
         {
             public ITest1 Test { get; }
 

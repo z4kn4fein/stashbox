@@ -60,6 +60,16 @@ namespace Stashbox.Configuration
         public bool CircularDependenciesWithLazyEnabled { get; internal set; }
 
         /// <summary>
+        /// If it's set to true, the container will treat the name of a constructor/method parameter or member name as a dependency name used by named resolution.
+        /// </summary>
+        public bool TreatingParameterOrMemberNamesAsDependencyNameEnabled { get; internal set; }
+
+        /// <summary>
+        /// If it's set to true, the container will use an unnamed registration when a named one not found for a request with dependency name.
+        /// </summary>
+        public bool ResolutionOfUnNamedRegistrationWhenNamedNotFoundEnabled { get; internal set; }
+
+        /// <summary>
         /// The member injection rule.
         /// </summary>
         public Rules.AutoMemberInjectionRules MemberInjectionWithoutAnnotationRule { get; internal set; }
@@ -93,6 +103,8 @@ namespace Stashbox.Configuration
             this.MemberInjectionWithoutAnnotationEnabled = false;
             this.CircularDependenciesWithLazyEnabled = false;
             this.SetUniqueRegistrationNames = false;
+            this.TreatingParameterOrMemberNamesAsDependencyNameEnabled = false;
+            this.ResolutionOfUnNamedRegistrationWhenNamedNotFoundEnabled = false;
         }
     }
 }

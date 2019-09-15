@@ -69,13 +69,13 @@ namespace Stashbox.Tests
             }
         }
 
-        public interface ITest : IDisposable { bool Disposed { get; } }
+        interface ITest : IDisposable { bool Disposed { get; } }
 
-        public interface ITest1 { ITest Test { get; } }
+        interface ITest1 { ITest Test { get; } }
 
-        public interface ITest3 { }
+        interface ITest3 { }
 
-        public class Test : ITest
+        class Test : ITest
         {
             public void Dispose()
             {
@@ -88,7 +88,7 @@ namespace Stashbox.Tests
             public bool Disposed { get; private set; }
         }
 
-        public class Test1 : ITest1
+        class Test1 : ITest1
         {
             [Dependency]
             public ITest Test { get; set; }
@@ -100,13 +100,13 @@ namespace Stashbox.Tests
             }
         }
 
-        public class Test2
+        class Test2
         {
             [Dependency]
             public ITest1 Test1 { get; set; }
         }
         
-        public class Test3 : ITest3
+        class Test3 : ITest3
         {
             [Dependency]
             public ITest Test { get; set; }

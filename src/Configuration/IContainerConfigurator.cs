@@ -70,5 +70,17 @@ namespace Stashbox
         /// </summary>
         /// <returns>The container configurator.</returns>
         IContainerConfigurator OnContainerConfigurationChanged(Action<ContainerConfiguration> configurationChanged);
+
+        /// <summary>
+        /// Enables the treating of constructor/method parameter or member names as dependency names used by named resolution.
+        /// </summary>
+        /// <returns>The container configurator.</returns>
+        IContainerConfigurator TreatParameterOrMemberNamesAsDependencyName();
+
+        /// <summary>
+        /// Enables the resolution of an unnamed registration when a named one not found for a request with dependency name.
+        /// </summary>
+        /// <returns>The container configurator.</returns>
+        IContainerConfigurator WithUnNamedDependencyResolutionWhenNamedIsNotAvailable();
     }
 }

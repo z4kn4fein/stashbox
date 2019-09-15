@@ -92,8 +92,8 @@ namespace Stashbox.Tests
             post.Verify(p => p.CleanUp());
         }
 
-        public interface ITest { }
+        interface ITest { }
 
-        public class Test : ITest { }
+        class Test : ITest { }
     }
 }

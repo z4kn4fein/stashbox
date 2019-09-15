@@ -226,23 +226,23 @@ namespace Stashbox.Tests
             Assert.IsInstanceOfType(test22.Test1, typeof(Test11));
         }
 
-        public interface ITest1 { }
+        interface ITest1 { }
 
-        public interface ITest2
+        interface ITest2
         {
             ITest1 Test1 { get; }
         }
 
-        public class Test1 : ITest1
+        class Test1 : ITest1
         { }
 
-        public class Test11 : ITest1
+        class Test11 : ITest1
         { }
 
-        public class Test12 : ITest1
+        class Test12 : ITest1
         { }
 
-        public class Test2 : ITest2
+        class Test2 : ITest2
         {
             public ITest1 Test1 { get; }
 
@@ -252,7 +252,7 @@ namespace Stashbox.Tests
             }
         }
 
-        public class Test3
+        class Test3
         {
             public Test11 Test1 { get; }
 

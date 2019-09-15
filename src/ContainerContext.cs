@@ -8,13 +8,12 @@ namespace Stashbox
     /// </summary>
     public class ContainerContext : IContainerContext
     {
-        internal ContainerContext(IRegistrationRepository registrationRepository, IStashboxContainer container,
-             ContainerConfiguration containerConfiguration, IDecoratorRepository decoratorRepository)
+        internal ContainerContext(IStashboxContainer container, ContainerConfiguration containerConfiguration)
         {
-            this.RegistrationRepository = registrationRepository;
             this.Container = container;
             this.ContainerConfiguration = containerConfiguration;
-            this.DecoratorRepository = decoratorRepository;
+            this.RegistrationRepository = new RegistrationRepository();
+            this.DecoratorRepository = new DecoratorRepository();
         }
 
         /// <inheritdoc />

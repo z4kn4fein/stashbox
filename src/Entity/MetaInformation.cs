@@ -94,9 +94,9 @@ namespace Stashbox.Entity
             return meta;
         }
 
-        public ConstructorInformation[] GetConstructors(RegistrationContext registrationContext)
+        public ConstructorInformation[] GetConstructors(RegistrationContext registrationContext, ContainerConfiguration containerConfiguration)
         {
-            if (registrationContext.DependencyBindings.Count == 0)
+            if (registrationContext.DependencyBindings.Count == 0 && !containerConfiguration.TreatingParameterOrMemberNamesAsDependencyNameEnabled)
                 return this.constructors;
 
             var length = this.constructors.Length;
@@ -104,7 +104,7 @@ namespace Stashbox.Entity
             for (var constructorIndex = 0; constructorIndex < length; constructorIndex++)
             {
                 var constructor = this.constructors[constructorIndex];
-                var @params = this.OverrideParameters(constructor.Parameters, registrationContext);
+                var @params = this.OverrideParameters(constructor.Parameters, registrationContext, containerConfiguration);
 
                 ctors[constructorIndex] = new ConstructorInformation { Constructor = constructor.Constructor, Parameters = @params };
             }
@@ -112,9 +112,9 @@ namespace Stashbox.Entity
             return ctors;
         }
 
-        public MethodInformation[] GetInjectionMethods(RegistrationContext registrationContext)
+        public MethodInformation[] GetInjectionMethods(RegistrationContext registrationContext, ContainerConfiguration containerConfiguration)
         {
-            if (registrationContext.DependencyBindings.Count == 0)
+            if (registrationContext.DependencyBindings.Count == 0 && !containerConfiguration.TreatingParameterOrMemberNamesAsDependencyNameEnabled)
                 return this.injectionMethods;
 
             var length = this.injectionMethods.Length;
@@ -122,7 +122,7 @@ namespace Stashbox.Entity
             for (var methodIndex = 0; methodIndex < length; methodIndex++)
             {
                 var method = this.injectionMethods[methodIndex];
-                var @params = this.OverrideParameters(method.Parameters, registrationContext);
+                var @params = this.OverrideParameters(method.Parameters, registrationContext, containerConfiguration);
 
                 methods[methodIndex] = new MethodInformation { Method = method.Method, Parameters = @params };
             }
@@ -150,7 +150,8 @@ namespace Stashbox.Entity
         {
             if (contextData.InjectionMemberNames.Count == 0 &&
                 containerConfiguration.MemberInjectionFilter == null &&
-                contextData.MemberInjectionFilter == null)
+                contextData.MemberInjectionFilter == null && 
+                !containerConfiguration.TreatingParameterOrMemberNamesAsDependencyNameEnabled)
                 return this.injectionMembers;
 
             var infos = containerConfiguration.MemberInjectionFilter != null
@@ -178,6 +179,12 @@ namespace Stashbox.Entity
                     copy.TypeInformation.DependencyName = dependencyName;
                     members[i] = copy;
                 }
+                else if (containerConfiguration.TreatingParameterOrMemberNamesAsDependencyNameEnabled)
+                {
+                    var copy = member.Clone();
+                    copy.TypeInformation.DependencyName = member.TypeInformation.ParameterOrMemberName;
+                    members[i] = copy;
+                }
                 else
                     members[i] = member;
             }
@@ -185,7 +192,7 @@ namespace Stashbox.Entity
             return members;
         }
 
-        private TypeInformation[] OverrideParameters(TypeInformation[] parameters, RegistrationContext registrationContext)
+        private TypeInformation[] OverrideParameters(TypeInformation[] parameters, RegistrationContext registrationContext, ContainerConfiguration containerConfiguration)
         {
             var paramLength = parameters.Length;
             var @params = new TypeInformation[paramLength];
@@ -202,6 +209,12 @@ namespace Stashbox.Entity
                 {
                     var newParam = param.Clone();
                     newParam.DependencyName = foundTypedDependencyName;
+                    @params[paramIndex] = newParam;
+                }
+                else if (containerConfiguration.TreatingParameterOrMemberNamesAsDependencyNameEnabled)
+                {
+                    var newParam = param.Clone();
+                    newParam.DependencyName = param.ParameterOrMemberName;
                     @params[paramIndex] = newParam;
                 }
                 else

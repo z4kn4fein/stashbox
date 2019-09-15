@@ -37,7 +37,7 @@ namespace Stashbox
             var registration = new ServiceRegistration(factoryType, this.ContainerContext.ContainerConfiguration,
                 this.objectBuilderSelector.Get(ObjectBuilder.Func), data, false, false);
 
-            this.registrationRepository.AddOrUpdateRegistration(registration, factoryType, false, false);
+            this.ContainerContext.RegistrationRepository.AddOrUpdateRegistration(registration, factoryType, false, false);
             this.containerExtensionManager.ExecuteOnRegistrationExtensions(this.ContainerContext, registration);
             return this;
         }

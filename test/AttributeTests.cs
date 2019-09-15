@@ -137,26 +137,26 @@ namespace Stashbox.Tests
             Assert.IsTrue(inst.MethodInvoked);
         }
 
-        public interface ITest1 { }
+        interface ITest1 { }
 
-        public interface ITest2 { ITest1 test1 { get; set; } }
+        interface ITest2 { ITest1 test1 { get; set; } }
 
-        public interface ITest3 { ITest2 test2 { get; set; } ITest1 test1 { get; set; } bool MethodInvoked { get; set; } bool MethodInvoked2 { get; set; } }
+        interface ITest3 { ITest2 test2 { get; set; } ITest1 test1 { get; set; } bool MethodInvoked { get; set; } bool MethodInvoked2 { get; set; } }
 
-        public interface ITest4 { Lazy<ITest2> test2 { get; set; } Lazy<ITest1> test1 { get; set; } bool MethodInvoked { get; set; } }
+        interface ITest4 { Lazy<ITest2> test2 { get; set; } Lazy<ITest1> test1 { get; set; } bool MethodInvoked { get; set; } }
 
-        public class Test1 : ITest1
+        class Test1 : ITest1
         { }
 
-        public class Test11 : ITest1
+        class Test11 : ITest1
         { }
 
-        public class Test12 : ITest1
+        class Test12 : ITest1
         { }
 
-        public class Test22 : ITest2 { public ITest1 test1 { get; set; } }
+        class Test22 : ITest2 { public ITest1 test1 { get; set; } }
 
-        public class Test2 : ITest2
+        class Test2 : ITest2
         {
             public ITest1 test1 { get; set; }
 
@@ -167,7 +167,7 @@ namespace Stashbox.Tests
             }
         }
 
-        public class Test3 : ITest3
+        class Test3 : ITest3
         {
             [Dependency("test11")]
             public ITest1 test1 { get; set; }
@@ -202,7 +202,7 @@ namespace Stashbox.Tests
             public bool MethodInvoked2 { get; set; }
         }
 
-        public class Test4 : ITest4
+        class Test4 : ITest4
         {
             [Dependency("test11")]
             public Lazy<ITest1> test1 { get; set; }
@@ -229,7 +229,7 @@ namespace Stashbox.Tests
             public bool MethodInvoked { get; set; }
         }
 
-        public class Test5
+        class Test5
         {
             [InjectionMethod]
             public void MethodTest()

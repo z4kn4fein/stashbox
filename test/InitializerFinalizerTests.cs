@@ -258,17 +258,17 @@ namespace Stashbox.Tests
             Assert.IsTrue(test.MethodCalled);
         }
 
-        public interface ITest
+        interface ITest
         {
             bool MethodCalled { get; }
 
             void Method();
         }
 
-        public class Test1
+        class Test1
         { }
 
-        public class Test : ITest
+        class Test : ITest
         {
             public void Method()
             {

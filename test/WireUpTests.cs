@@ -127,13 +127,13 @@ namespace Stashbox.Tests
             }
         }
 
-        public interface ITest { }
+        interface ITest { }
 
-        public interface ITest1 { ITest Test { get; } }
+        interface ITest1 { ITest Test { get; } }
 
-        public class Test : ITest { }
+        class Test : ITest { }
 
-        public class Test1 : ITest1
+        class Test1 : ITest1
         {
             [Dependency]
             public ITest test;
@@ -148,7 +148,7 @@ namespace Stashbox.Tests
             }
         }
 
-        public class Test2
+        class Test2
         {
             public ITest1 Test1 { get; set; }
 

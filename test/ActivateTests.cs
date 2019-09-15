@@ -34,7 +34,7 @@ namespace Stashbox.Tests
         [ExpectedException(typeof(ArgumentException))]
         public void ActivateTests_Fail()
         {
-            new StashboxContainer().Activate<ITest1>();
+            new StashboxContainer().Activate<ITest>();
         }
 
         interface ITest { }

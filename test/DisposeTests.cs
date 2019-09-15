@@ -761,15 +761,15 @@ namespace Stashbox.Tests
             Assert.IsTrue(test.Disposed);
         }
 
-        public interface ITest11 { }
+        interface ITest11 { }
 
-        public interface ITest12 { }
+        interface ITest12 { }
 
-        public interface ITest1 : ITest11, ITest12, IDisposable { bool Disposed { get; } }
+        interface ITest1 : ITest11, ITest12, IDisposable { bool Disposed { get; } }
 
-        public interface ITest2 { ITest1 Test1 { get; } }
+        interface ITest2 { ITest1 Test1 { get; } }
 
-        public class Test1 : ITest1
+        class Test1 : ITest1
         {
             public bool Disposed { get; private set; }
 
@@ -784,7 +784,7 @@ namespace Stashbox.Tests
             }
         }
 
-        public class Test2 : ITest2
+        class Test2 : ITest2
         {
             public ITest1 Test1 { get; private set; }
 
@@ -794,13 +794,13 @@ namespace Stashbox.Tests
             }
         }
 
-        public class Test3
+        class Test3
         {
             [Dependency]
             public ITest1 Test1 { get; set; }
         }
 
-        public class Test4 : ITest11, IDisposable
+        class Test4 : ITest11, IDisposable
         {
             public bool Disposed { get; private set; }
 

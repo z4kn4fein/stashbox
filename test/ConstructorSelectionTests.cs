@@ -131,16 +131,16 @@ namespace Stashbox.Tests
             }
         }
 
-        public class Dep
+        class Dep
         { }
 
-        public class Dep2
+        class Dep2
         { }
 
-        public class Dep3
+        class Dep3
         { }
 
-        public class DepDecorator : Dep
+        class DepDecorator : Dep
         {
             public Dep Dep { get; }
             public Dep2 Dep2 { get; }
@@ -162,7 +162,7 @@ namespace Stashbox.Tests
             }
         }
 
-        public class Test
+        class Test
         {
             public Dep Dep { get; }
             public Dep2 Dep2 { get; }
@@ -184,15 +184,15 @@ namespace Stashbox.Tests
             }
         }
 
-        public interface IArg { }
+        interface IArg { }
 
-        public interface IArg1 { }
+        interface IArg1 { }
 
-        public class Arg : IArg { }
+        class Arg : IArg { }
 
-        public class Arg1 : IArg1 { }
+        class Arg1 : IArg1 { }
 
-        public class Test1
+        class Test1
         {
             public IArg PArg { get; }
             public IArg1 PArg1 { get; }

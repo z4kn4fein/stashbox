@@ -403,10 +403,10 @@ namespace Stashbox.Tests
             Assert.IsNotNull(inst);
         }
 
-        public static ITest Create(IDependencyResolver resolver) =>
+        static ITest Create(IDependencyResolver resolver) =>
             new Test();
 
-        public class RegisteredFuncTest
+        class RegisteredFuncTest
         {
             public string Name { get; }
 
@@ -416,7 +416,7 @@ namespace Stashbox.Tests
             }
         }
 
-        public class RegisteredFuncTest2
+        class RegisteredFuncTest2
         {
             public string Name { get; }
             public ITest Test1 { get; }
@@ -428,7 +428,7 @@ namespace Stashbox.Tests
             }
         }
 
-        public class RegisteredFuncTest3
+        class RegisteredFuncTest3
         {
             public ITest Test1 { get; }
             public ITest Test2 { get; }
@@ -440,7 +440,7 @@ namespace Stashbox.Tests
             }
         }
 
-        public class RegisteredFuncTest4
+        class RegisteredFuncTest4
         {
             public ITest Test1 { get; }
             public ITest Test2 { get; }
@@ -454,7 +454,7 @@ namespace Stashbox.Tests
             }
         }
 
-        public class RegisteredFuncTest5
+        class RegisteredFuncTest5
         {
             public ITest Test1 { get; }
             public ITest Test2 { get; }
@@ -470,7 +470,7 @@ namespace Stashbox.Tests
             }
         }
 
-        public class ScopedFuncTest
+        class ScopedFuncTest
         {
             public Func<ITest> Factory { get; set; }
 
@@ -480,7 +480,7 @@ namespace Stashbox.Tests
             }
         }
 
-        public class FuncTest
+        class FuncTest
         {
             public FunctTest2 Func2 { get; set; }
 
@@ -490,7 +490,7 @@ namespace Stashbox.Tests
             }
         }
 
-        public class FunctTest2
+        class FunctTest2
         {
             public ITest Test { get; set; }
 
@@ -500,7 +500,7 @@ namespace Stashbox.Tests
             }
         }
 
-        public class FuncTest3
+        class FuncTest3
         {
             public Func<Dep1, Dep3, FuncTest4> Dep { get; set; }
 
@@ -510,7 +510,7 @@ namespace Stashbox.Tests
             }
         }
 
-        public class FuncTest4
+        class FuncTest4
         {
             public Func<Dep1, Dep2> Dep { get; set; }
             public Func<Dep3, Dep4> Dep1 { get; set; }
@@ -522,7 +522,7 @@ namespace Stashbox.Tests
             }
         }
 
-        public class FuncTest5
+        class FuncTest5
         {
             public Func<Dep3, FuncTest6> Dep { get; set; }
 
@@ -532,7 +532,7 @@ namespace Stashbox.Tests
             }
         }
 
-        public class FuncTest6
+        class FuncTest6
         {
             public Dep3 Dep1 { get; set; }
             public Func<Dep3, Dep4> Dep { get; set; }
@@ -544,12 +544,12 @@ namespace Stashbox.Tests
             }
         }
 
-        public class Dep1
+        class Dep1
         {
 
         }
 
-        public class Dep2
+        class Dep2
         {
             public Dep1 Dep { get; set; }
 
@@ -559,12 +559,12 @@ namespace Stashbox.Tests
             }
         }
 
-        public class Dep3
+        class Dep3
         {
 
         }
 
-        public class Dep4
+        class Dep4
         {
             public Dep3 Dep { get; set; }
 
@@ -574,22 +574,22 @@ namespace Stashbox.Tests
             }
         }
 
-        public interface ITest
+        interface ITest
         { }
 
-        public interface IFTest1
+        interface IFTest1
         {
             ITest Test { get; set; }
         }
 
-        public interface IFTest2
+        interface IFTest2
         {
             IFTest1 Test1 { get; set; }
 
             ITest Test { get; set; }
         }
 
-        public interface IFTest3
+        interface IFTest3
         {
             IFTest2 Test2 { get; set; }
 
@@ -598,7 +598,7 @@ namespace Stashbox.Tests
             ITest Test { get; set; }
         }
 
-        public class FTest1 : IFTest1
+        class FTest1 : IFTest1
         {
             public ITest Test { get; set; }
 
@@ -609,7 +609,7 @@ namespace Stashbox.Tests
             }
         }
 
-        public class FTest2 : IFTest2
+        class FTest2 : IFTest2
         {
             [Dependency]
             public ITest Test { get; set; }
@@ -622,7 +622,7 @@ namespace Stashbox.Tests
             }
         }
 
-        public class FTest3 : IFTest3
+        class FTest3 : IFTest3
         {
             [Dependency]
             public IFTest2 Test2 { get; set; }
@@ -643,10 +643,10 @@ namespace Stashbox.Tests
             }
         }
 
-        public class Test : ITest
+        class Test : ITest
         { }
 
-        public class Test2
+        class Test2
         {
             public Func<ITest> Test { get; private set; }
 

@@ -143,18 +143,18 @@ namespace Stashbox.Tests
             Assert.IsInstanceOfType(perResolution.Create(), typeof(ResolutionRequestLifetime));
         }
 
-        public interface ITest1 { string Name { get; set; } }
+        interface ITest1 { string Name { get; set; } }
 
-        public interface ITest2 { string Name { get; set; } }
+        interface ITest2 { string Name { get; set; } }
 
-        public interface ITest3 { string Name { get; set; } }
+        interface ITest3 { string Name { get; set; } }
 
-        public class Test1 : ITest1
+        class Test1 : ITest1
         {
             public string Name { get; set; }
         }
 
-        public class Test2 : ITest2
+        class Test2 : ITest2
         {
             public ITest1 Test1 { get; }
             public string Name { get; set; }
@@ -168,7 +168,7 @@ namespace Stashbox.Tests
             }
         }
 
-        public class Test3 : ITest3
+        class Test3 : ITest3
         {
             public ITest1 Test1 { get; }
             public ITest2 Test2 { get; }
@@ -187,7 +187,7 @@ namespace Stashbox.Tests
             }
         }
 
-        public class Test4
+        class Test4
         {
             public static bool IsConstructed;
 

@@ -227,13 +227,13 @@ namespace Stashbox.Tests
              .Configure(null);
         }
 
-        public interface ITest1 { }
+        interface ITest1 { }
 
-        public interface ITest2 { }
+        interface ITest2 { }
 
-        public interface ITest3 { }
+        interface ITest3 { }
 
-        public interface ITest5
+        interface ITest5
         {
             Func<ITest2> Func { get; }
             Lazy<ITest2> Lazy { get; }
@@ -241,25 +241,25 @@ namespace Stashbox.Tests
             Tuple<ITest2, ITest3> Tuple { get; }
         }
 
-        public class Test1 : ITest1
+        class Test1 : ITest1
         {
         }
 
-        public class Test2 : ITest2
+        class Test2 : ITest2
         {
             public Test2(ITest1 test1)
             {
             }
         }
 
-        public class Test3 : ITest3
+        class Test3 : ITest3
         {
             public Test3(ITest1 test1, ITest2 test2)
             {
             }
         }
 
-        public class Test4 : ITest1
+        class Test4 : ITest1
         {
             public Test4(ITest3 test3)
             {
@@ -267,7 +267,7 @@ namespace Stashbox.Tests
             }
         }
 
-        public class Test5 : ITest5
+        class Test5 : ITest5
         {
             public Test5(Func<ITest2> func, Lazy<ITest2> lazy, IEnumerable<ITest3> enumerable, Tuple<ITest2, ITest3> tuple)
             {
@@ -283,7 +283,7 @@ namespace Stashbox.Tests
             public Tuple<ITest2, ITest3> Tuple { get; }
         }
 
-        public class TestResolver : IResolver
+        class TestResolver : IResolver
         {
             public bool CanUseForResolution(IContainerContext containerContext,
                 TypeInformation typeInfo, ResolutionContext resolutionInfo)
@@ -300,7 +300,7 @@ namespace Stashbox.Tests
             }
         }
 
-        public class TestResolver2 : IMultiServiceResolver
+        class TestResolver2 : IMultiServiceResolver
         {
             public bool CanUseForResolution(IContainerContext containerContext,
                 TypeInformation typeInfo, ResolutionContext resolutionInfo)

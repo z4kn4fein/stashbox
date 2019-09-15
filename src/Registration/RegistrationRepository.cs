@@ -5,20 +5,15 @@ using Stashbox.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Stashbox.Configuration;
 
 namespace Stashbox.Registration
 {
     internal class RegistrationRepository : IRegistrationRepository
     {
-        private AvlTreeKeyValue<Type, ArrayStoreKeyed<object, IServiceRegistration>> serviceRepository;
-        private AvlTreeKeyValue<Type, ArrayStoreKeyed<object, IServiceRegistration>> namedScopeRepository;
-
-        public RegistrationRepository()
-        {
-            this.serviceRepository = AvlTreeKeyValue<Type, ArrayStoreKeyed<object, IServiceRegistration>>.Empty;
-            this.namedScopeRepository = AvlTreeKeyValue<Type, ArrayStoreKeyed<object, IServiceRegistration>>.Empty;
-        }
-
+        private AvlTreeKeyValue<Type, ArrayStoreKeyed<object, IServiceRegistration>> serviceRepository = AvlTreeKeyValue<Type, ArrayStoreKeyed<object, IServiceRegistration>>.Empty;
+        private AvlTreeKeyValue<Type, ArrayStoreKeyed<object, IServiceRegistration>> namedScopeRepository = AvlTreeKeyValue<Type, ArrayStoreKeyed<object, IServiceRegistration>>.Empty;
+        
         public void AddOrUpdateRegistration(IServiceRegistration registration, Type serviceType, bool remap, bool replace)
         {
             if (registration.HasScopeName)
@@ -81,7 +76,7 @@ namespace Stashbox.Registration
 
             if (registrations == null) return null;
 
-            if (registrations.Length == 1 && !registrations.Last.HasName)
+            if (registrations.Length == 1 && registrations.Last.IsResolvableByUnnamedRequest)
                 return registrations.Last;
 
             var conditionals = registrations.Where(reg => reg.HasCondition);
@@ -89,13 +84,13 @@ namespace Stashbox.Registration
             return typeInfo.Type.IsClosedGenericType()
                 ? conditionals.LastOrDefault(reg => reg.ValidateGenericConstraints(typeInfo.Type) &&
                                                     reg.IsUsableForCurrentContext(typeInfo) &&
-                                                    !reg.HasName) ??
+                                                    reg.IsResolvableByUnnamedRequest) ??
                   registrations.LastOrDefault(reg => reg.ValidateGenericConstraints(typeInfo.Type) &&
-                                                     !reg.HasName)
+                                                     reg.IsResolvableByUnnamedRequest)
 
                 : conditionals.LastOrDefault(reg => reg.IsUsableForCurrentContext(typeInfo) &&
-                                                    !reg.HasName) ??
-                  registrations.LastOrDefault(reg => !reg.HasName);
+                                                    reg.IsResolvableByUnnamedRequest) ??
+                  registrations.LastOrDefault(reg => reg.IsResolvableByUnnamedRequest);
         }
 
         private IServiceRegistration GetDefaultRegistrationOrDefault(Type type, ResolutionContext resolutionContext)
@@ -104,12 +99,12 @@ namespace Stashbox.Registration
 
             if (registrations == null) return null;
 
-            if (registrations.Length == 1 && !registrations.Last.HasName)
+            if (registrations.Length == 1 && registrations.Last.IsResolvableByUnnamedRequest)
                 return registrations.Last;
 
             return type.IsClosedGenericType()
-                ? registrations.LastOrDefault(reg => reg.ValidateGenericConstraints(type) && !reg.HasName)
-                : registrations.LastOrDefault(reg => !reg.HasName);
+                ? registrations.LastOrDefault(reg => reg.ValidateGenericConstraints(type) && reg.IsResolvableByUnnamedRequest)
+                : registrations.LastOrDefault(reg => reg.IsResolvableByUnnamedRequest);
         }
 
         private ArrayStoreKeyed<object, IServiceRegistration> GetDefaultOrScopedRegistrationsOrDefault(Type type, ResolutionContext resolutionContext)

@@ -28,9 +28,7 @@
     <LangVersion>latest</LangVersion>
     <PackageReleaseNotes>
       <![CDATA[
-- Fluent service registration API refinement
-- Container context interface refinement
-- Fix BuildUp type handling
+- Added new configuration option which enables treating parameter or member names as dependency identifiers.
     ]]>
     </PackageReleaseNotes>
     <Configurations>Debug;Release;Benchmark</Configurations>

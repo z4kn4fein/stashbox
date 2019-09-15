@@ -176,18 +176,18 @@ namespace Stashbox.Tests
             Assert.AreSame(inst1, inst2.Dep.First().Value);
         }
 
-        public interface ITest
+        interface ITest
         { }
 
-        public class Test : ITest
+        class Test : ITest
         { }
 
-        public interface ITest2
+        interface ITest2
         {
             int T { get; }
         }
 
-        public class Test3 : ITest2
+        class Test3 : ITest2
         {
             public Test3(int t)
             {
@@ -197,7 +197,7 @@ namespace Stashbox.Tests
             public int T { get; }
         }
 
-        public class Test2
+        class Test2
         {
             public Lazy<ITest> Test { get; }
 
@@ -207,7 +207,7 @@ namespace Stashbox.Tests
             }
         }
 
-        public class Circular1
+        class Circular1
         {
             public Lazy<Circular2> Dep { get; set; }
 
@@ -217,7 +217,7 @@ namespace Stashbox.Tests
             }
         }
 
-        public class Circular2
+        class Circular2
         {
             public Lazy<Circular1> Dep { get; set; }
 
@@ -227,7 +227,7 @@ namespace Stashbox.Tests
             }
         }
 
-        public class Circular3
+        class Circular3
         {
             public IEnumerable<Lazy<Circular4>> Dep { get; set; }
 
@@ -237,7 +237,7 @@ namespace Stashbox.Tests
             }
         }
 
-        public class Circular4
+        class Circular4
         {
             public IEnumerable<Lazy<Circular3>> Dep { get; set; }
 

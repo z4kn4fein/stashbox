@@ -206,19 +206,19 @@ namespace Stashbox.Tests
             }
         }
 
-        public interface IService
+        interface IService
         { }
 
-        public class Service : IService
+        class Service : IService
         { }
 
-        public class Service1 : IService
+        class Service1 : IService
         { }
 
-        public class Test
+        class Test
         { }
 
-        public class Test1
+        class Test1
         {
             public Test1(Test test)
             {
@@ -228,7 +228,7 @@ namespace Stashbox.Tests
             public Test Test { get; }
         }
 
-        public class Test2
+        class Test2
         {
             public Test2(Test1 test1, Test test)
             {
@@ -240,7 +240,7 @@ namespace Stashbox.Tests
             public Test Test { get; }
         }
 
-        public class Test3
+        class Test3
         {
             public Test3(Test1 test1, Test test, Test2 test2)
             {
@@ -254,7 +254,7 @@ namespace Stashbox.Tests
             public Test2 Test2 { get; }
         }
 
-        public class Test4
+        class Test4
         {
             public Test4(Test1 test1, Test test, Test2 test2, Test3 test3)
             {

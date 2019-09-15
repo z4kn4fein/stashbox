@@ -97,11 +97,11 @@ namespace Stashbox.Tests
             using (var container = new StashboxContainer())
             {
                 var dep = new Test();
-                var dep2 = new Test2();
+                var dep2 = new Test1(new Test());
                 container.RegisterInstance(dep);
                 container.RegisterInstance(dep2);
                 container.Resolve<Test>();
-                var inst = container.Resolve<Test2>();
+                var inst = container.Resolve<Test1>();
 
                 Assert.AreSame(inst, dep2);
             }

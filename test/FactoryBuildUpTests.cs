@@ -99,18 +99,18 @@ namespace Stashbox.Tests
             }
         }
 
-        public interface ITest { string Name { get; } }
+        interface ITest { string Name { get; } }
 
-        public interface ITest1 { ITest Test { get; } }
+        interface ITest1 { ITest Test { get; } }
 
-        public interface ITest2 { ITest Test { get; } }
+        interface ITest2 { ITest Test { get; } }
 
-        public class Test3 : ITest
+        class Test3 : ITest
         {
             public string Name { get; }
         }
 
-        public class Test : ITest
+        class Test : ITest
         {
             public string Name { get; }
 
@@ -120,13 +120,13 @@ namespace Stashbox.Tests
             }
         }
 
-        public class Test2 : ITest2
+        class Test2 : ITest2
         {
             [Dependency]
             public ITest Test { get; set; }
         }
 
-        public class Test1 : ITest1
+        class Test1 : ITest1
         {
             public ITest Test { get; set; }
 
@@ -137,7 +137,7 @@ namespace Stashbox.Tests
             }
         }
 
-        public class Test12 : ITest1
+        class Test12 : ITest1
         {
             public ITest Test { get; set; }
 

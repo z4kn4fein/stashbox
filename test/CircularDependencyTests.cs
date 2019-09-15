@@ -167,83 +167,83 @@ namespace Stashbox.Tests
                 container.Resolve<ITest1>();
             }
         }
-    }
 
-    interface ITest1 { }
+        interface ITest1 { }
 
-    interface ITest2 { }
+        interface ITest2 { }
 
-    interface ITest3 { }
+        interface ITest3 { }
 
-    interface ITest1<I, K> { }
+        interface ITest1<I, K> { }
 
-    class Test4 : ITest1 { }
+        class Test4 : ITest1 { }
 
-    class Test1<I, K> : ITest1<I, K>
-    {
-        public Test1(ITest1<I, K> test1)
+        class Test1<I, K> : ITest1<I, K>
         {
+            public Test1(ITest1<I, K> test1)
+            {
+            }
         }
-    }
 
-    class Test2<I, K> : ITest1<I, K>
-    {
-        [Dependency]
-        public ITest1<I, K> Test1 { get; set; }
-    }
-
-    class Test3<I, K> : ITest1<I, K>
-    {
-        [InjectionMethod]
-        public void Inject(ITest1<I, K> test1)
-        { }
-    }
-
-    class Test1 : ITest1
-    {
-        public Test1(ITest1 test1)
+        class Test2<I, K> : ITest1<I, K>
         {
+            [Dependency]
+            public ITest1<I, K> Test1 { get; set; }
         }
-    }
 
-    class Test2 : ITest1
-    {
-        [Dependency]
-        public ITest1 Test1 { get; set; }
-    }
-
-    class Test3 : ITest1
-    {
-        [InjectionMethod]
-        public void Inject(ITest1 test1)
-        { }
-    }
-
-    class Test5 : ITest1
-    {
-        public Test5(Func<ITest1> test1)
+        class Test3<I, K> : ITest1<I, K>
         {
+            [InjectionMethod]
+            public void Inject(ITest1<I, K> test1)
+            { }
         }
-    }
 
-    class Test6 : ITest1
-    {
-        public Test6(Lazy<ITest1> test1)
+        class Test1 : ITest1
         {
+            public Test1(ITest1 test1)
+            {
+            }
         }
-    }
 
-    class Test7 : ITest1
-    {
-        public Test7(Tuple<ITest1> test1)
+        class Test2 : ITest1
         {
+            [Dependency]
+            public ITest1 Test1 { get; set; }
         }
-    }
 
-    class Test8 : ITest1
-    {
-        public Test8(IEnumerable<ITest1> test1)
+        class Test3 : ITest1
         {
+            [InjectionMethod]
+            public void Inject(ITest1 test1)
+            { }
+        }
+
+        class Test5 : ITest1
+        {
+            public Test5(Func<ITest1> test1)
+            {
+            }
+        }
+
+        class Test6 : ITest1
+        {
+            public Test6(Lazy<ITest1> test1)
+            {
+            }
+        }
+
+        class Test7 : ITest1
+        {
+            public Test7(Tuple<ITest1> test1)
+            {
+            }
+        }
+
+        class Test8 : ITest1
+        {
+            public Test8(IEnumerable<ITest1> test1)
+            {
+            }
         }
     }
 }

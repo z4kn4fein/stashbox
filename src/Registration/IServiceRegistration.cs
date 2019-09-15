@@ -58,6 +58,11 @@ namespace Stashbox.Registration
         bool HasName { get; }
 
         /// <summary>
+        /// True if the registration can used by an unnamed resolution request.
+        /// </summary>
+        bool IsResolvableByUnnamedRequest { get; }
+
+        /// <summary>
         /// Holds the injection member of the service.
         /// </summary>
         MemberInformation[] InjectionMembers { get; }

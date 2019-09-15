@@ -22,5 +22,7 @@ namespace Stashbox.Tests.IssueTests
                 }
             }
         }
+
+        class Test4 { }
     }
 }
