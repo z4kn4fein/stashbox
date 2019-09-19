@@ -62,12 +62,12 @@ namespace Stashbox.Configuration
         /// <summary>
         /// If it's set to true, the container will treat the name of a constructor/method parameter or member name as a dependency name used by named resolution.
         /// </summary>
-        public bool TreatingParameterOrMemberNamesAsDependencyNameEnabled { get; internal set; }
+        public bool TreatingParameterAndMemberNameAsDependencyNameEnabled { get; internal set; }
 
         /// <summary>
         /// If it's set to true, the container will use an unnamed registration when a named one not found for a request with dependency name.
         /// </summary>
-        public bool ResolutionOfUnNamedRegistrationWhenNamedNotFoundEnabled { get; internal set; }
+        public bool NamedDependencyResolutionForUnNamedRequestsEnabled { get; internal set; }
 
         /// <summary>
         /// If it's set to true, the container will use the default Microsoft expression compiler.
@@ -108,8 +108,8 @@ namespace Stashbox.Configuration
             this.MemberInjectionWithoutAnnotationEnabled = false;
             this.CircularDependenciesWithLazyEnabled = false;
             this.SetUniqueRegistrationNames = false;
-            this.TreatingParameterOrMemberNamesAsDependencyNameEnabled = false;
-            this.ResolutionOfUnNamedRegistrationWhenNamedNotFoundEnabled = false;
+            this.TreatingParameterAndMemberNameAsDependencyNameEnabled = false;
+            this.NamedDependencyResolutionForUnNamedRequestsEnabled = false;
             this.ForceUseMicrosoftExpressionCompiler = false;
         }
     }

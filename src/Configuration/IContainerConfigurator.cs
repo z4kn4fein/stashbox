@@ -72,16 +72,16 @@ namespace Stashbox
         IContainerConfigurator OnContainerConfigurationChanged(Action<ContainerConfiguration> configurationChanged);
 
         /// <summary>
-        /// Enables the treating of constructor/method parameter or member names as dependency names used by named resolution.
+        /// Enables conventional resolution, which means the container treats the constructor/method parameter or member names as dependency names used by named resolution.
         /// </summary>
         /// <returns>The container configurator.</returns>
-        IContainerConfigurator TreatParameterOrMemberNamesAsDependencyName();
+        IContainerConfigurator TreatParameterAndMemberNameAsDependencyName();
 
         /// <summary>
-        /// Enables the resolution of an unnamed registration when a named one not found for a request with dependency name.
+        /// Enables the resolution of a named registration when a request ha been made without dependency name but with the same type.
         /// </summary>
         /// <returns>The container configurator.</returns>
-        IContainerConfigurator WithUnNamedDependencyResolutionWhenNamedIsNotAvailable();
+        IContainerConfigurator WithNamedDependencyResolutionForUnNamedRequests();
 
         /// <summary>
         /// Forces the usage of Microsoft expression compiler to compile expression trees.

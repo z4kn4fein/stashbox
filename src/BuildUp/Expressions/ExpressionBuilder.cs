@@ -34,10 +34,10 @@ namespace Stashbox.BuildUp.Expressions
         {
             var lines = new List<Expression>();
 
-            if (instance.Type != serviceType)
-                instance = instance.ConvertTo(serviceType);
+            if (instance.Type != serviceRegistration.ImplementationType)
+                instance = instance.ConvertTo(serviceRegistration.ImplementationType);
 
-            var variable = serviceType.AsVariable();
+            var variable = instance.Type.AsVariable();
             var assign = variable.AssignTo(instance);
 
             lines.Add(assign);
@@ -49,7 +49,7 @@ namespace Stashbox.BuildUp.Expressions
             if (serviceRegistration.InjectionMethods.Length > 0 || serviceRegistration.RegistrationContext.Initializer != null || this.containerExtensionManager.HasPostBuildExtensions)
                 lines.AddRange(this.CreatePostWorkExpressionIfAny(containerContext, serviceRegistration, resolutionContext, serviceType, variable));
 
-            lines.Add(variable); //block returns with the variable
+            lines.Add(variable.Type != serviceType ? variable.ConvertTo(serviceType) : variable); //block returns with the variable
 
             return lines.AsBlock(variable);
         }
@@ -60,14 +60,14 @@ namespace Stashbox.BuildUp.Expressions
             MethodInformation[] injectionMethods,
             Expression instance,
             ResolutionContext resolutionContext,
-            Type serviceType)
+            Type requestedType)
         {
             var lines = new List<Expression>();
 
-            if (instance.Type != serviceType)
-                instance = instance.ConvertTo(serviceType);
+            if (instance.Type != requestedType)
+                instance = instance.ConvertTo(requestedType);
 
-            var variable = serviceType.AsVariable();
+            var variable = requestedType.AsVariable();
             var assign = variable.AssignTo(instance);
 
             lines.Add(assign);
@@ -133,9 +133,9 @@ namespace Stashbox.BuildUp.Expressions
             MemberInformation[] injectionMembers,
             MethodInformation[] injectionMethods,
             ResolutionContext resolutionContext,
-            Type serviceType)
+            Type requestedType)
         {
-            var initExpression = (Expression)this.constructorSelector.SelectConstructor(serviceType,
+            var initExpression = (Expression)this.constructorSelector.SelectConstructor(requestedType,
                 containerContext, resolutionContext, constructors, null)?.MakeNew();
             if (initExpression == null)
                 return null;

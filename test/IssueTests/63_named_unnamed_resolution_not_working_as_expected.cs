@@ -9,7 +9,7 @@ namespace Stashbox.Tests.IssueTests
         [TestMethod]
         public void Ensures_Named_Dependency_Selected_When_Convention_Enabled()
         {
-            var inst = new StashboxContainer(c => c.TreatParameterOrMemberNamesAsDependencyName())
+            var inst = new StashboxContainer(c => c.TreatParameterAndMemberNameAsDependencyName())
                 .Register<ITest, Test1>(c => c.WithName("t1"))
                 .Register<ITest, Test2>(c => c.WithName("t2"))
                 .Register<Test3>()
@@ -22,7 +22,7 @@ namespace Stashbox.Tests.IssueTests
         [TestMethod]
         public void Ensures_Named_Dependency_Selected_When_Convention_Enabled_InjectionMembers()
         {
-            var inst = new StashboxContainer(c => c.TreatParameterOrMemberNamesAsDependencyName())
+            var inst = new StashboxContainer(c => c.TreatParameterAndMemberNameAsDependencyName())
                 .Register<ITest, Test1>(c => c.WithName("T1"))
                 .Register<ITest, Test2>(c => c.WithName("T2"))
                 .Register<Test4>(c => c.WithAutoMemberInjection())
@@ -35,7 +35,7 @@ namespace Stashbox.Tests.IssueTests
         [TestMethod]
         public void Ensures_Named_Dependency_Selected_When_Convention_Enabled_InjectionMethod()
         {
-            var inst = new StashboxContainer(c => c.TreatParameterOrMemberNamesAsDependencyName())
+            var inst = new StashboxContainer(c => c.TreatParameterAndMemberNameAsDependencyName())
                 .Register<ITest, Test1>(c => c.WithName("t1"))
                 .Register<ITest, Test2>(c => c.WithName("t2"))
                 .Register<Test5>()
@@ -48,7 +48,7 @@ namespace Stashbox.Tests.IssueTests
         [TestMethod]
         public void Ensures_UnNamed_Dependency_Selected_When_Named_Not_Available()
         {
-            var container = new StashboxContainer(c => c.WithUnNamedDependencyResolutionWhenNamedIsNotAvailable())
+            var container = new StashboxContainer(c => c.WithNamedDependencyResolutionForUnNamedRequests())
                 .Register<ITest, Test1>(c => c.WithName("t1").WithSingletonLifetime());
 
             var inst = container.Resolve<ITest>("t1");

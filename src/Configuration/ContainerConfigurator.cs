@@ -88,16 +88,16 @@ namespace Stashbox.Configuration
         }
 
         /// <inheritdoc />
-        public IContainerConfigurator TreatParameterOrMemberNamesAsDependencyName()
+        public IContainerConfigurator TreatParameterAndMemberNameAsDependencyName()
         {
-            this.ContainerConfiguration.TreatingParameterOrMemberNamesAsDependencyNameEnabled = true;
+            this.ContainerConfiguration.TreatingParameterAndMemberNameAsDependencyNameEnabled = true;
             return this;
         }
 
         /// <inheritdoc />
-        public IContainerConfigurator WithUnNamedDependencyResolutionWhenNamedIsNotAvailable()
+        public IContainerConfigurator WithNamedDependencyResolutionForUnNamedRequests()
         {
-            this.ContainerConfiguration.ResolutionOfUnNamedRegistrationWhenNamedNotFoundEnabled = true;
+            this.ContainerConfiguration.NamedDependencyResolutionForUnNamedRequestsEnabled = true;
             return this;
         }
 

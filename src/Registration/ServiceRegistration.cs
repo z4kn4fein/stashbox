@@ -82,7 +82,7 @@ namespace Stashbox.Registration
             this.ShouldHandleDisposal = shouldHandleDisposal;
 
             this.HasName = this.RegistrationContext.Name != null;
-            this.IsResolvableByUnnamedRequest = !this.HasName || containerConfiguration.ResolutionOfUnNamedRegistrationWhenNamedNotFoundEnabled;
+            this.IsResolvableByUnnamedRequest = !this.HasName || containerConfiguration.NamedDependencyResolutionForUnNamedRequestsEnabled;
 
             this.HasScopeName = this.RegistrationContext.Lifetime is NamedScopeLifetime;
 

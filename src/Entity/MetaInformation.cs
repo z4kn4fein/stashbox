@@ -96,7 +96,7 @@ namespace Stashbox.Entity
 
         public ConstructorInformation[] GetConstructors(RegistrationContext registrationContext, ContainerConfiguration containerConfiguration)
         {
-            if (registrationContext.DependencyBindings.Count == 0 && !containerConfiguration.TreatingParameterOrMemberNamesAsDependencyNameEnabled)
+            if (registrationContext.DependencyBindings.Count == 0 && !containerConfiguration.TreatingParameterAndMemberNameAsDependencyNameEnabled)
                 return this.constructors;
 
             var length = this.constructors.Length;
@@ -114,7 +114,7 @@ namespace Stashbox.Entity
 
         public MethodInformation[] GetInjectionMethods(RegistrationContext registrationContext, ContainerConfiguration containerConfiguration)
         {
-            if (registrationContext.DependencyBindings.Count == 0 && !containerConfiguration.TreatingParameterOrMemberNamesAsDependencyNameEnabled)
+            if (registrationContext.DependencyBindings.Count == 0 && !containerConfiguration.TreatingParameterAndMemberNameAsDependencyNameEnabled)
                 return this.injectionMethods;
 
             var length = this.injectionMethods.Length;
@@ -151,7 +151,7 @@ namespace Stashbox.Entity
             if (contextData.InjectionMemberNames.Count == 0 &&
                 containerConfiguration.MemberInjectionFilter == null &&
                 contextData.MemberInjectionFilter == null && 
-                !containerConfiguration.TreatingParameterOrMemberNamesAsDependencyNameEnabled)
+                !containerConfiguration.TreatingParameterAndMemberNameAsDependencyNameEnabled)
                 return this.injectionMembers;
 
             var infos = containerConfiguration.MemberInjectionFilter != null
@@ -179,7 +179,7 @@ namespace Stashbox.Entity
                     copy.TypeInformation.DependencyName = dependencyName;
                     members[i] = copy;
                 }
-                else if (containerConfiguration.TreatingParameterOrMemberNamesAsDependencyNameEnabled)
+                else if (containerConfiguration.TreatingParameterAndMemberNameAsDependencyNameEnabled)
                 {
                     var copy = member.Clone();
                     copy.TypeInformation.DependencyName = member.TypeInformation.ParameterOrMemberName;
@@ -211,7 +211,7 @@ namespace Stashbox.Entity
                     newParam.DependencyName = foundTypedDependencyName;
                     @params[paramIndex] = newParam;
                 }
-                else if (containerConfiguration.TreatingParameterOrMemberNamesAsDependencyNameEnabled)
+                else if (containerConfiguration.TreatingParameterAndMemberNameAsDependencyNameEnabled)
                 {
                     var newParam = param.Clone();
                     newParam.DependencyName = param.ParameterOrMemberName;
