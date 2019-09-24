@@ -28,9 +28,7 @@
     <LangVersion>latest</LangVersion>
     <PackageReleaseNotes>
       <![CDATA[
-- Added new configuration option which enables treating parameter or member names as dependency identifiers.
-- Added new configuration option which enables the usage of unnamed registration when named ones are not available for named resolution requests.
-- Added new configuration option which forces the usage of the Microsoft expression compiler instead of the built-in one.
+- Fix stack overflow caused by treating parameter names as dependency identifier and unknown type resolution.
     ]]>
     </PackageReleaseNotes>
     <Configurations>Debug;Release;Benchmark</Configurations>

@@ -15,8 +15,11 @@ namespace Stashbox.Resolution.Resolvers
             TypeInformation typeInfo,
             ResolutionContext resolutionContext)
         {
-            containerContext.Container.Register(typeInfo.Type,
-                containerContext.ContainerConfiguration.UnknownTypeConfigurator);
+            containerContext.Container.Register(typeInfo.Type, context =>
+            {
+                context.WithName(typeInfo.DependencyName);
+                containerContext.ContainerConfiguration.UnknownTypeConfigurator?.Invoke(context);
+            });
             return resolutionStrategy.BuildResolutionExpression(containerContext, resolutionContext, typeInfo);
         }
     }
