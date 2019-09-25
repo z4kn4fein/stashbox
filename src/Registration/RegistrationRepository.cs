@@ -11,9 +11,15 @@ namespace Stashbox.Registration
 {
     internal class RegistrationRepository : IRegistrationRepository
     {
+        private readonly ContainerConfiguration containerConfiguration;
         private AvlTreeKeyValue<Type, ArrayStoreKeyed<object, IServiceRegistration>> serviceRepository = AvlTreeKeyValue<Type, ArrayStoreKeyed<object, IServiceRegistration>>.Empty;
         private AvlTreeKeyValue<Type, ArrayStoreKeyed<object, IServiceRegistration>> namedScopeRepository = AvlTreeKeyValue<Type, ArrayStoreKeyed<object, IServiceRegistration>>.Empty;
-        
+
+        public RegistrationRepository(ContainerConfiguration containerConfiguration)
+        {
+            this.containerConfiguration = containerConfiguration;
+        }
+
         public void AddOrUpdateRegistration(IServiceRegistration registration, Type serviceType, bool remap, bool replace)
         {
             if (registration.HasScopeName)
@@ -42,7 +48,7 @@ namespace Stashbox.Registration
         public IServiceRegistration GetRegistrationOrDefault(TypeInformation typeInfo, ResolutionContext resolutionContext)
         {
             return typeInfo.DependencyName != null ?
-                this.GetNamedRegistrationOrDefault(typeInfo.Type, typeInfo.DependencyName, resolutionContext) :
+                this.GetNamedRegistrationOrDefault(typeInfo, resolutionContext) :
                 this.GetDefaultRegistrationOrDefault(typeInfo, resolutionContext);
         }
 
@@ -68,6 +74,30 @@ namespace Stashbox.Registration
 
             return this.GetScopedRegistrationsOrDefault(type, resolutionContext)?.GetOrDefault(dependencyName) ??
                 this.GetDefaultRegistrationsOrDefault(type)?.GetOrDefault(dependencyName);
+        }
+
+        private IServiceRegistration GetNamedRegistrationOrDefault(TypeInformation typeInfo, ResolutionContext resolutionContext)
+        {
+            if (resolutionContext.ScopeNames == null)
+            {
+                var registrations = this.GetDefaultRegistrationsOrDefault(typeInfo.Type);
+                return this.containerConfiguration.TreatingParameterAndMemberNameAsDependencyNameEnabled
+                    ? registrations?.GetOrDefault(typeInfo.DependencyName) ?? this.GetDefaultRegistrationOrDefault(typeInfo, resolutionContext)
+                    : registrations?.GetOrDefault(typeInfo.DependencyName);
+            }
+
+            if (!this.containerConfiguration.TreatingParameterAndMemberNameAsDependencyNameEnabled)
+                return this.GetScopedRegistrationsOrDefault(typeInfo.Type, resolutionContext)?.GetOrDefault(typeInfo.DependencyName) ??
+                       this.GetDefaultRegistrationsOrDefault(typeInfo.Type)?.GetOrDefault(typeInfo.DependencyName);
+
+            var scopedRegistrations = this.GetScopedRegistrationsOrDefault(typeInfo.Type, resolutionContext);
+            if (scopedRegistrations == null)
+            {
+                return this.GetDefaultRegistrationsOrDefault(typeInfo.Type)?.GetOrDefault(typeInfo.DependencyName) ??
+                       this.GetDefaultRegistrationOrDefault(typeInfo, resolutionContext);
+            }
+
+            return scopedRegistrations.GetOrDefault(typeInfo.DependencyName) ?? this.GetDefaultRegistrationOrDefault(typeInfo, resolutionContext);
         }
 
         private IServiceRegistration GetDefaultRegistrationOrDefault(TypeInformation typeInfo, ResolutionContext resolutionContext)

@@ -1,5 +1,7 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Stashbox.Attributes;
+using Stashbox.Exceptions;
 
 namespace Stashbox.Tests.IssueTests
 {
@@ -57,6 +59,48 @@ namespace Stashbox.Tests.IssueTests
             Assert.IsNotNull(inst);
             Assert.IsNotNull(inst2);
             Assert.AreEqual(inst, inst2);
+        }
+
+        [TestMethod]
+        public void Ensures_UnNamed_Dependency_Selected_When_Convention_Enabled_But_Named_Preferred()
+        {
+            var container = new StashboxContainer(c => c
+                    .TreatParameterAndMemberNameAsDependencyName()
+                    .WithNamedDependencyResolutionForUnNamedRequests())
+                .Register<Test3>()
+                .Register<ITest, Test1>("t1");
+
+            var inst = container.Resolve<Test3>();
+
+            Assert.IsInstanceOfType(inst.T1, typeof(Test1));
+            Assert.IsInstanceOfType(inst.T2, typeof(Test1));
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ResolutionFailedException))]
+        public void Ensures_Dont_Resolve_Named_When_Not_Enabled()
+        {
+            var container = new StashboxContainer(c => c
+                    .TreatParameterAndMemberNameAsDependencyName())
+                .Register<Test3>()
+                .Register<ITest, Test1>("t1");
+
+            container.Resolve<Test3>();
+        }
+
+        [TestMethod]
+        public void Ensures_UnNamed_Dependency_Selected_When_Named_Not_Available_With_Treating_Param_Names_As_Dependency_Names()
+        {
+            var container = new StashboxContainer(c => c
+                    .TreatParameterAndMemberNameAsDependencyName())
+                .Register<Test3>()
+                .Register<ITest, Test1>("t1")
+                .Register<ITest, Test2>();
+
+            var inst = container.Resolve<Test3>();
+
+            Assert.IsInstanceOfType(inst.T1, typeof(Test1));
+            Assert.IsInstanceOfType(inst.T2, typeof(Test2));
         }
 
         interface ITest { }
