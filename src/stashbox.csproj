@@ -28,7 +28,8 @@
     <LangVersion>latest</LangVersion>
     <PackageReleaseNotes>
       <![CDATA[
-- Fix stack overflow caused by treating parameter names as dependency identifier and unknown type resolution.
+- Fix stack overflow caused by the conventional and unknown type resolution.
+- Fix other conventional resolution issues caused by required dependency naming, now it's less strict.
     ]]>
     </PackageReleaseNotes>
     <Configurations>Debug;Release;Benchmark</Configurations>
