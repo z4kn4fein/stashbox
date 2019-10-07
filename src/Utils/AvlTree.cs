@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using Stashbox.Entity;
 
 namespace Stashbox.Utils
 {
@@ -124,7 +125,7 @@ namespace Stashbox.Utils
         public override string ToString() => this.IsEmpty ? "empty" : $"{this.storedHash} : {this.storedValue}";
 
 
-        public IEnumerable<TValue> Walk()
+        public IEnumerable<KeyValue<int,TValue>> Walk()
         {
             if (this.IsEmpty)
                 yield break;
@@ -143,7 +144,7 @@ namespace Stashbox.Utils
                 else
                 {
                     currentNode = nodes[index--];
-                    yield return currentNode.storedValue;
+                    yield return new KeyValue<int, TValue>(currentNode.storedHash, currentNode.storedValue);
 
                     currentNode = currentNode.rightNode;
                 }

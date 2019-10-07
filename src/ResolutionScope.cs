@@ -265,7 +265,7 @@ namespace Stashbox
                 return;
 
             foreach (var threadLocal in this.circularDependencyBarrier.Walk())
-                threadLocal.Dispose();
+                threadLocal.Value.Dispose();
         }
 
         private object Activate(ResolutionContext resolutionContext, Type type, object name = null)

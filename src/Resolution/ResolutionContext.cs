@@ -32,7 +32,6 @@ namespace Stashbox.Resolution
         private AvlTreeKeyValue<Type, Expression> expressionOverrides;
         private AvlTreeKeyValue<Type, Type> currentlyDecoratingTypes;
         private AvlTree<bool> circularDependencyBarrier;
-        private AvlTree<Expression> expressionCache;
 
         private readonly ArrayStoreKeyed<object, ParameterExpression> knownVariables;
 
@@ -49,6 +48,8 @@ namespace Stashbox.Resolution
         internal ArrayStore<Expression> SingleInstructions { get; private set; }
 
         internal ArrayStoreKeyed<object, ParameterExpression> DefinedVariables { get; private set; }
+
+        internal AvlTree<Expression> ExpressionCache { get; private set; }
 
         private ResolutionContext(IResolutionScope scope, bool nullResultAllowed, object[] dependencyOverrides)
             : this(scope, AvlTree<bool>.Empty, AvlTreeKeyValue<Type, Expression>.Empty, AvlTreeKeyValue<Type, Type>.Empty, ArrayStore<ArrayStoreKeyed<bool, ParameterExpression>>.Empty, scope.GetActiveScopeNames(),
@@ -90,7 +91,7 @@ namespace Stashbox.Resolution
             this.knownVariables = knownVariables;
             this.circularDependencyBarrier = circularDependencyBarrier;
             this.ShouldCacheFactoryDelegate = shouldCacheFactoryDelegate;
-            this.expressionCache = expressionCache;
+            this.ExpressionCache = expressionCache;
         }
 
         /// <summary>
@@ -139,10 +140,10 @@ namespace Stashbox.Resolution
             this.expressionOverrides = this.expressionOverrides.AddOrUpdate(type, expression, true);
 
         internal void CacheExpression(int key, Expression expression) =>
-            this.expressionCache = this.expressionCache.AddOrUpdate(key, expression);
+            this.ExpressionCache = this.ExpressionCache.AddOrUpdate(key, expression);
 
         internal Expression GetCachedExpression(int key) =>
-            this.expressionCache.GetOrDefault(key);
+            this.ExpressionCache.GetOrDefault(key);
 
         internal void AddParameterExpressions(Type scopeType, ParameterExpression[] parameterExpressions)
         {
@@ -171,7 +172,7 @@ namespace Stashbox.Resolution
             return new ResolutionContext(this.ResolutionScope, this.circularDependencyBarrier, this.expressionOverrides,
                  this.currentlyDecoratingTypes, this.ParameterExpressions, scopeNames, childContext ?? this.ChildContext,
                  this.NullResultAllowed, scopeParameter == null ? this.CurrentScopeParameter : scopeParameter.Value,
-                 this.DefinedVariables, this.expressionCache, this.ShouldCacheFactoryDelegate);
+                 this.DefinedVariables, this.ExpressionCache, this.ShouldCacheFactoryDelegate);
         }
     }
 }

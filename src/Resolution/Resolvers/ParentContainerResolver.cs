@@ -27,6 +27,9 @@ namespace Stashbox.Resolution.Resolvers
             foreach (var instruction in resolution.SingleInstructions)
                 resolutionContext.AddInstruction(instruction);
 
+            foreach (var cache in resolution.ExpressionCache.Walk())
+                resolutionContext.CacheExpression(cache.Key, cache.Value);
+
             return result;
         }
 
