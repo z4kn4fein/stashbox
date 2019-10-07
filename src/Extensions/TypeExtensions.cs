@@ -43,7 +43,7 @@ namespace System
             if (typeInfo.IsArray)
                 return type.GetElementType();
 
-            if (IsAssignableToGenericType(type, typeof(IEnumerable<>)) && type != typeof(string))
+            if (IsAssignableToGenericType(type, typeof(IEnumerable<>)) && type != typeof(string) && typeInfo.GenericTypeArguments.Length == 1)
                 return typeInfo.GenericTypeArguments[0];
 
             return null;

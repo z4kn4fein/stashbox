@@ -7,35 +7,6 @@ namespace Stashbox
     public partial class StashboxContainer
     {
         /// <inheritdoc />
-        [Obsolete("RegisterType has been renamed to Register.")]
-        public IStashboxContainer RegisterType<TFrom, TTo>(Action<RegistrationConfigurator<TTo>> configurator = null)
-            where TFrom : class
-            where TTo : class, TFrom =>
-            this.Register<TFrom, TTo>(configurator);
-
-        /// <inheritdoc />
-        [Obsolete("RegisterType has been renamed to Register.")]
-        public IStashboxContainer RegisterType<TFrom>(Type typeTo, Action<RegistrationConfigurator<TFrom>> configurator = null)
-            where TFrom : class =>
-            this.Register(typeTo, configurator);
-
-        /// <inheritdoc />
-        [Obsolete("RegisterType has been renamed to Register.")]
-        public IStashboxContainer RegisterType(Type typeFrom, Type typeTo, Action<RegistrationConfigurator> configurator = null) =>
-            this.Register(typeFrom, typeTo, configurator);
-
-        /// <inheritdoc />
-        [Obsolete("RegisterType has been renamed to Register.")]
-        public IStashboxContainer RegisterType<TTo>(Action<RegistrationConfigurator<TTo>> configurator = null)
-            where TTo : class =>
-            this.Register(configurator);
-
-        /// <inheritdoc />
-        [Obsolete("RegisterType has been renamed to Register.")]
-        public IStashboxContainer RegisterType(Type typeTo, Action<RegistrationConfigurator> configurator = null) =>
-            this.Register(typeTo, typeTo, configurator);
-
-        /// <inheritdoc />
         public IStashboxContainer Register<TFrom, TTo>(Action<RegistrationConfigurator<TTo>> configurator = null)
             where TFrom : class
             where TTo : class, TFrom
