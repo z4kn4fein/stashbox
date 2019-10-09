@@ -29,14 +29,16 @@ namespace Stashbox
         /// </summary>
         /// <param name="key">The key.</param>
         /// <param name="value">The value.</param>
-        void AddScopedInstance(Type key, object value);
+        /// <param name="name">The identifier.</param>
+        void AddScopedInstance(Type key, object value, object name = null);
 
         /// <summary>
         /// Gets an instance from the scope.
         /// </summary>
         /// <param name="key">The key.</param>
+        /// <param name="name">The identifier.</param>
         /// <returns>The item or null if it doesn't exists.</returns>
-        object GetScopedInstanceOrDefault(Type key);
+        object GetScopedInstanceOrDefault(Type key, object name = null);
 
         /// <summary>
         /// Adds a service for further disposable tracking.

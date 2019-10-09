@@ -244,7 +244,7 @@ namespace Stashbox.Tests
                 container.Register<ITest2, Test2>();
                 container.Register<Test3>();
 
-                container.PutInstanceInScope<ITest1>(test, true);
+                container.PutInstanceInScope<ITest1>(test, withoutDisposalTracking: true);
 
                 var test1 = container.Resolve<ITest1>();
                 var test2 = container.Resolve(typeof(ITest2));
@@ -318,7 +318,7 @@ namespace Stashbox.Tests
 
                 using (var child = container.BeginScope())
                 {
-                    child.PutInstanceInScope<ITest1>(test, true);
+                    child.PutInstanceInScope<ITest1>(test, withoutDisposalTracking: true);
 
                     var test1 = child.Resolve<ITest1>();
                     var test2 = child.Resolve<ITest2>();
@@ -330,6 +330,33 @@ namespace Stashbox.Tests
                 }
 
                 Assert.IsFalse(test.Disposed);
+            }
+        }
+
+        [TestMethod]
+        public void DisposeTests_PutInScope_Named()
+        {
+            using (IStashboxContainer container = new StashboxContainer())
+            {
+                container.Register<Test5>();
+
+                var dummy1 = new Test1();
+                var dummy2 = new Test1();
+
+                using (var child = container.BeginScope())
+                {
+                    child.PutInstanceInScope<ITest1>(dummy1, "d1", withoutDisposalTracking: true);
+                    child.PutInstanceInScope<ITest1>(dummy2, "d2", withoutDisposalTracking: true);
+
+                    var test1 = child.Resolve<ITest1>("d2");
+                    var test2 = child.Resolve<Test5>();
+
+                    Assert.AreSame(dummy2, test1);
+                    Assert.AreSame(dummy2, test2.Test1);
+                }
+
+                Assert.IsFalse(dummy1.Disposed);
+                Assert.IsFalse(dummy2.Disposed);
             }
         }
 
@@ -813,6 +840,11 @@ namespace Stashbox.Tests
 
                 this.Disposed = true;
             }
+        }
+        class Test5
+        {
+            [Dependency("d2")]
+            public ITest1 Test1 { get; set; }
         }
     }
 }

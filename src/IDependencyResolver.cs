@@ -71,9 +71,10 @@ namespace Stashbox
         /// </summary>
         /// <param name="typeFrom">The service type.</param>
         /// <param name="instance">The instance.</param>
+        /// <param name="name">The identifier.</param>
         /// <param name="withoutDisposalTracking">If it's set to true the container will exclude the instance from the disposal tracking.</param>
         /// <returns>The scope.</returns>
-        IDependencyResolver PutInstanceInScope(Type typeFrom, object instance, bool withoutDisposalTracking = false);
+        IDependencyResolver PutInstanceInScope(Type typeFrom, object instance, object name = null, bool withoutDisposalTracking = false);
 
         /// <summary>
         /// Builds up an instance, the container will perform injections and extensions on it.

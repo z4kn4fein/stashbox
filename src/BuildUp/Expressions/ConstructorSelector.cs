@@ -80,7 +80,7 @@ namespace Stashbox.BuildUp.Expressions
 
             var stringBuilder = new StringBuilder();
             foreach (var checkedConstructor in checkedConstructors)
-                stringBuilder.AppendLine($"Checked constructor {checkedConstructor.Key}, unresolvable parameter: ({checkedConstructor.Value.Type}){checkedConstructor.Value.ParameterOrMemberName}");
+                stringBuilder.AppendLine($"Checked constructor: {checkedConstructor.Key}, unresolvable parameter: ({checkedConstructor.Value.Type.FullName}){checkedConstructor.Value.ParameterOrMemberName}.");
 
             throw new ResolutionFailedException(implementationType, stringBuilder.ToString());
         }

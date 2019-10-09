@@ -2,6 +2,7 @@
 using Stashbox.Attributes;
 using Stashbox.Configuration;
 using Stashbox.Entity;
+using Stashbox.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -211,7 +212,8 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
-        public void DecoratorTests_AutoMemberInjection()
+        [ExpectedException(typeof(ResolutionFailedException))]
+        public void DecoratorTests_AutoMemberInjection_Throw_When_Member_Unresolvable()
         {
             using (var container = new StashboxContainer())
             {

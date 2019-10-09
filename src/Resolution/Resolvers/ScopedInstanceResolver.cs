@@ -11,11 +11,13 @@ namespace Stashbox.Resolution.Resolvers
             TypeInformation typeInfo,
             ResolutionContext resolutionContext) =>
             resolutionContext.CurrentScopeParameter
-                .CallMethod(Constants.GetScopedInstanceMethod, typeInfo.Type.AsConstant())
+                .CallMethod(Constants.GetScopedInstanceMethod,
+                    typeInfo.Type.AsConstant(),
+                    typeInfo.DependencyName.AsConstant())
                 .ConvertTo(typeInfo.Type);
 
         public bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext) =>
             resolutionContext.ResolutionScope.HasScopedInstances &&
-            resolutionContext.ResolutionScope.GetScopedInstanceOrDefault(typeInfo.Type) != null;
+            resolutionContext.ResolutionScope.GetScopedInstanceOrDefault(typeInfo.Type, typeInfo.DependencyName) != null;
     }
 }

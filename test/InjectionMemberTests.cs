@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Stashbox.Attributes;
 using Stashbox.Entity;
+using Stashbox.Exceptions;
 using System;
 
 namespace Stashbox.Tests
@@ -27,17 +28,14 @@ namespace Stashbox.Tests
         }
 
         [TestMethod]
+        [ExpectedException(typeof(ResolutionFailedException))]
         public void InjectionMemberTests_Resolve_WithoutRegistered()
         {
             var container = new StashboxContainer();
             var test1 = new Test1();
             container.WireUpAs<ITest1>(test1);
 
-            var inst = container.Resolve<ITest1>();
-
-            Assert.IsNotNull(inst);
-            Assert.IsNull(inst.Test);
-            Assert.IsNull(((Test1)inst).TestFieldProperty);
+            container.Resolve<ITest1>();
         }
 
         [TestMethod]

@@ -1,5 +1,6 @@
 ﻿using Stashbox.ContainerExtension;
 using Stashbox.Entity;
+using Stashbox.Exceptions;
 using Stashbox.Registration;
 using Stashbox.Resolution;
 using Stashbox.Utils;
@@ -251,13 +252,8 @@ namespace Stashbox.BuildUp.Expressions
             for (var i = 0; i < length; i++)
             {
                 var member = injectionMembers[i];
-
-                if (!member.CanInject(containerContext.ContainerConfiguration,
-                    registrationContext)) continue;
-
-                var expression = this.resolutionStrategy
-                    .BuildResolutionExpression(containerContext, resolutionContext,
-                        member.TypeInformation, registrationContext.InjectionParameters);
+                var expression = this.GetMemberExpression(member, registrationContext,
+                    containerContext, resolutionContext);
 
                 if (expression == null) continue;
 
@@ -308,12 +304,8 @@ namespace Stashbox.BuildUp.Expressions
             for (var i = 0; i < length; i++)
             {
                 var info = injectionMembers[i];
-                if (!info.CanInject(containerContext.ContainerConfiguration,
-                    registrationContext)) continue;
-
-                var expression = this.resolutionStrategy
-                    .BuildResolutionExpression(containerContext, resolutionContext,
-                    info.TypeInformation, registrationContext.InjectionParameters);
+                var expression = this.GetMemberExpression(info, registrationContext,
+                    containerContext, resolutionContext);
 
                 if (expression == null) continue;
 
@@ -321,6 +313,27 @@ namespace Stashbox.BuildUp.Expressions
             }
 
             return members;
+        }
+
+        private Expression GetMemberExpression(MemberInformation member, RegistrationContext registrationContext,
+            IContainerContext containerContext, ResolutionContext resolutionContext)
+        {
+            if (!member.CanInject(containerContext.ContainerConfiguration,
+                    registrationContext)) return null;
+
+            var memberExpression = this.resolutionStrategy
+                .BuildResolutionExpression(containerContext, resolutionContext,
+                    member.TypeInformation, registrationContext.InjectionParameters);
+
+            if (memberExpression == null && !resolutionContext.NullResultAllowed)
+                throw new ResolutionFailedException(member.TypeInformation.ParentType,
+                    $"Unresolvable member: ({member.TypeInformation.Type.FullName}){member.TypeInformation.ParameterOrMemberName}.");
+
+
+            if (memberExpression is ConstantExpression constant && constant.Value == null)
+                return null;
+
+            return memberExpression;
         }
     }
 }

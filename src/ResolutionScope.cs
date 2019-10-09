@@ -45,7 +45,7 @@ namespace Stashbox
         private DisposableItem rootItem = DisposableItem.Empty;
         private FinalizableItem rootFinalizableItem = FinalizableItem.Empty;
         private AvlTree<object> scopedItems = AvlTree<object>.Empty;
-        private AvlTreeKeyValue<Type, object> scopedInstances = AvlTreeKeyValue<Type, object>.Empty;
+        private AvlTreeKeyValue<Type, AvlTreeKeyValue<object, object>> scopedInstances = AvlTreeKeyValue<Type, AvlTreeKeyValue<object, object>>.Empty;
         private AvlTree<ThreadLocal<bool>> circularDependencyBarrier = AvlTree<ThreadLocal<bool>>.Empty;
 
         private readonly DelegateCache delegateCache;
@@ -118,12 +118,12 @@ namespace Stashbox
             return attachToParent ? this.AddDisposableTracking(scope) : scope;
         }
 
-        public IDependencyResolver PutInstanceInScope(Type typeFrom, object instance, bool withoutDisposalTracking = false)
+        public IDependencyResolver PutInstanceInScope(Type typeFrom, object instance, object name = null, bool withoutDisposalTracking = false)
         {
             Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
             Shield.EnsureNotNull(instance, nameof(instance));
 
-            this.AddScopedInstance(typeFrom, instance);
+            this.AddScopedInstance(typeFrom, instance, name);
             if (!withoutDisposalTracking && instance is IDisposable disposable)
                 this.AddDisposableTracking(disposable);
 
@@ -171,11 +171,17 @@ namespace Stashbox
             return disposable;
         }
 
-        public void AddScopedInstance(Type key, object value) =>
-            Swap.SwapValue(ref this.scopedInstances, (t1, t2, t3, t4, instances) => instances.AddOrUpdate(t1, t2), key, value, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
+        public void AddScopedInstance(Type key, object value, object name = null)
+        {
+            var subKey = name ?? key;
+            var newRepo = AvlTreeKeyValue<object, object>.Empty.AddOrUpdate(subKey, value);
+            Swap.SwapValue(ref this.scopedInstances, (t1, t2, t3, t4, instances) =>
+                instances.AddOrUpdate(t1, t3,
+                    (old, @new) => old.AddOrUpdate(t4, t2, true)), key, value, newRepo, subKey);
+        }
 
-        public object GetScopedInstanceOrDefault(Type key) =>
-            this.scopedInstances.GetOrDefault(key);
+        public object GetScopedInstanceOrDefault(Type key, object name = null) =>
+            this.scopedInstances.GetOrDefault(key)?.GetOrDefault(name ?? key);
 
         public TService AddWithFinalizer<TService>(TService finalizable, Action<TService> finalizer)
         {

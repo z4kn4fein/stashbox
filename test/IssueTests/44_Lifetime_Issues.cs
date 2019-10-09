@@ -2,7 +2,6 @@
 using Stashbox.Registration.Fluent;
 using System;
 using System.Linq;
-using Stashbox.Lifetime;
 
 namespace Stashbox.Tests.IssueTests
 {
@@ -40,9 +39,8 @@ namespace Stashbox.Tests.IssueTests
 
             public override Type Target { get; } = _Target;
         }
-        
+
         [TestMethod]
-        [Ignore]
         public void ContextEstablishedInChildContainersCanBeAccessedWhenUsingAParentScopeConstruction()
         {
             StashboxContainer sb1 = CreateContainer(c => c.WithSingletonLifetime());
@@ -62,7 +60,7 @@ namespace Stashbox.Tests.IssueTests
             }
 
         }
-        
+
         [TestMethod]
         public void ContextEstablishedInChildContainersCanBeAccessedWhenUsingAParentScopeConstructionWithChildContainer()
         {
