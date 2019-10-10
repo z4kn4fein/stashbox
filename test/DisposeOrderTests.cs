@@ -1,13 +1,13 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Xunit;
 using System;
 using System.Collections.Generic;
 
 namespace Stashbox.Tests
 {
-    [TestClass]
+    
     public class DisposeOrderTests
     {
-        [TestMethod]
+        [Fact]
         public void Ensure_Services_Are_Disposed_In_The_Right_Order()
         {
             var disposables = new List<IDisposable>();
@@ -18,16 +18,16 @@ namespace Stashbox.Tests
                     .Register<DisposableObj3>()
                     .Resolve<DisposableObj3>(dependencyOverrides: new object[] { disposables });
 
-                Assert.IsNotNull(obj);
+                Assert.NotNull(obj);
             }
 
-            Assert.IsInstanceOfType(disposables[0], typeof(DisposableObj3));
-            Assert.IsInstanceOfType(disposables[1], typeof(DisposableObj1));
-            Assert.IsInstanceOfType(disposables[2], typeof(DisposableObj2));
-            Assert.IsInstanceOfType(disposables[3], typeof(DisposableObj1));
+            Assert.IsType<DisposableObj3>(disposables[0]);
+            Assert.IsType<DisposableObj1>(disposables[1]);
+            Assert.IsType<DisposableObj2>(disposables[2]);
+            Assert.IsType<DisposableObj1>(disposables[3]);
         }
 
-        [TestMethod]
+        [Fact]
         public void Ensure_Services_Are_Disposed_In_The_Right_Order_InScope()
         {
             var disposables = new List<IDisposable>();
@@ -40,14 +40,14 @@ namespace Stashbox.Tests
                 using (var scope = container.BeginScope())
                 {
                     var obj = scope.Resolve<DisposableObj3>(dependencyOverrides: new object[] { disposables });
-                    Assert.IsNotNull(obj);
+                    Assert.NotNull(obj);
                 }
             }
 
-            Assert.IsInstanceOfType(disposables[0], typeof(DisposableObj3));
-            Assert.IsInstanceOfType(disposables[1], typeof(DisposableObj1));
-            Assert.IsInstanceOfType(disposables[2], typeof(DisposableObj2));
-            Assert.IsInstanceOfType(disposables[3], typeof(DisposableObj1));
+            Assert.IsType<DisposableObj3>(disposables[0]);
+            Assert.IsType<DisposableObj1>(disposables[1]);
+            Assert.IsType<DisposableObj2>(disposables[2]);
+            Assert.IsType<DisposableObj1>(disposables[3]);
         }
 
 

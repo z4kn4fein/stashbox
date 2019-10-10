@@ -1,11 +1,11 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Xunit;
 
 namespace Stashbox.Tests.IssueTests
 {
-    [TestClass]
+    
     public class ChainedNamedScopesAreNotWorkingProperly
     {
-        [TestMethod]
+        [Fact]
         public void Chained_named_scopes_are_not_working_properly()
         {
             var container = new StashboxContainer()

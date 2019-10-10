@@ -1,11 +1,11 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Xunit;
 
 namespace Stashbox.Tests.IssueTests
 {
-    [TestClass]
+    
     public class WithUnknownTypeResolutionBreaksConstructorSelectionRules
     {
-        [TestMethod]
+        [Fact]
         public void WithUnknownTypeResolution_breaks_constructor_selection_rules()
         {
             var container = new StashboxContainer(config => config.WithUnknownTypeResolution());
@@ -14,11 +14,11 @@ namespace Stashbox.Tests.IssueTests
                 .Register<Dep1>()
                 .Resolve<Test>();
 
-            Assert.IsNotNull(inst.Dep1);
-            Assert.IsNull(inst.Dep);
+            Assert.NotNull(inst.Dep1);
+            Assert.Null(inst.Dep);
         }
 
-        [TestMethod]
+        [Fact]
         public void WithUnknownTypeResolution_breaks_constructor_selection_rules_ensure_ok_without_unknown_type_resolver()
         {
             var container = new StashboxContainer();
@@ -27,8 +27,8 @@ namespace Stashbox.Tests.IssueTests
                 .Register<Dep1>()
                 .Resolve<Test>();
 
-            Assert.IsNotNull(inst.Dep1);
-            Assert.IsNull(inst.Dep);
+            Assert.NotNull(inst.Dep1);
+            Assert.Null(inst.Dep);
         }
 
         class Dep { }

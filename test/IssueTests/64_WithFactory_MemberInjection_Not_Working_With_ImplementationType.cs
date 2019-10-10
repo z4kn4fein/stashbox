@@ -1,18 +1,18 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Xunit;
 
 namespace Stashbox.Tests.IssueTests
 {
-    [TestClass]
+    
     public class WithFactoryMemberInjectionNotWorkingWithImplementationType
     {
-        [TestMethod]
+        [Fact]
         public void Ensure_MemberInjection_Works_WithFactory()
         {
             var inst = new StashboxContainer(c => c.WithUnknownTypeResolution().WithMemberInjectionWithoutAnnotation())
                 .Register<ITest, Test>(ctx => ctx.WithFactory(r => new Test()))
                 .Resolve<ITest>();
 
-            Assert.IsNotNull(((Test)inst).Dummy);
+            Assert.NotNull(((Test)inst).Dummy);
         }
 
         class Dummy { }

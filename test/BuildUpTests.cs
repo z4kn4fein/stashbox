@@ -1,14 +1,14 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Stashbox.Attributes;
+﻿using Stashbox.Attributes;
 using Stashbox.Utils;
 using System;
+using Xunit;
 
 namespace Stashbox.Tests
 {
-    [TestClass]
+
     public class BuildUpTests
     {
-        [TestMethod]
+        [Fact]
         public void BuildUpTests_BuildUp()
         {
             using (var container = new StashboxContainer())
@@ -21,16 +21,16 @@ namespace Stashbox.Tests
                 var test2 = new Test2();
                 var inst = container.BuildUp(test2);
 
-                Assert.AreEqual(test2, inst);
-                Assert.IsNotNull(inst);
-                Assert.IsNotNull(inst.Test1);
-                Assert.IsInstanceOfType(inst, typeof(Test2));
-                Assert.IsInstanceOfType(inst.Test1, typeof(Test1));
-                Assert.IsInstanceOfType(inst.Test1.Test, typeof(Test));
+                Assert.Equal(test2, inst);
+                Assert.NotNull(inst);
+                Assert.NotNull(inst.Test1);
+                Assert.IsType<Test2>(inst);
+                Assert.IsType<Test1>(inst.Test1);
+                Assert.IsType<Test>(inst.Test1.Test);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void BuildUpTests_BuildUp_Scoped()
         {
             using (var container = new StashboxContainer())
@@ -39,11 +39,11 @@ namespace Stashbox.Tests
                 var test3 = new Test3();
                 var inst = (Test3)container.BuildUp<ITest3>(test3);
 
-                Assert.IsNotNull(inst.Test);
+                Assert.NotNull(inst.Test);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void BuildUpTests_BuildUp_As_InterfaceType()
         {
             using (var container = new StashboxContainer())
@@ -54,18 +54,18 @@ namespace Stashbox.Tests
                 using (var scope = container.BeginScope())
                 {
                     scope.BuildUp(test1);
-                    Assert.IsFalse(test1.Test.Disposed);
+                    Assert.False(test1.Test.Disposed);
                 }
 
-                Assert.IsTrue(test1.Test.Disposed);
+                Assert.True(test1.Test.Disposed);
 
                 using (var scope = container.BeginScope())
                 {
                     scope.BuildUp(test1);
-                    Assert.IsFalse(test1.Test.Disposed);
+                    Assert.False(test1.Test.Disposed);
                 }
 
-                Assert.IsTrue(test1.Test.Disposed);
+                Assert.True(test1.Test.Disposed);
             }
         }
 
@@ -105,7 +105,7 @@ namespace Stashbox.Tests
             [Dependency]
             public ITest1 Test1 { get; set; }
         }
-        
+
         class Test3 : ITest3
         {
             [Dependency]

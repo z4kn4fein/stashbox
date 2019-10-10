@@ -1,5 +1,4 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Stashbox.Configuration;
+﻿using Stashbox.Configuration;
 using Stashbox.Entity;
 using Stashbox.Exceptions;
 using Stashbox.Lifetime;
@@ -8,13 +7,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Xunit;
 
 namespace Stashbox.Tests
 {
-    [TestClass]
+
     public class ContainerTests
     {
-        [TestMethod]
+        [Fact]
         public void ContainerTests_ChildContainer()
         {
             var container = new StashboxContainer();
@@ -26,12 +26,12 @@ namespace Stashbox.Tests
 
             var test3 = child.Resolve<ITest3>();
 
-            Assert.IsNotNull(test3);
-            Assert.IsInstanceOfType(test3, typeof(Test3));
-            Assert.AreEqual(container, child.ParentContainer);
+            Assert.NotNull(test3);
+            Assert.IsType<Test3>(test3);
+            Assert.Equal(container, child.ParentContainer);
         }
 
-        [TestMethod]
+        [Fact]
         public void ContainerTests_ChildContainer_ResolveFromParent()
         {
             var container = new StashboxContainer();
@@ -41,34 +41,32 @@ namespace Stashbox.Tests
 
             var test1 = child.Resolve<ITest1>();
 
-            Assert.IsNotNull(test1);
-            Assert.IsInstanceOfType(test1, typeof(Test1));
+            Assert.NotNull(test1);
+            Assert.IsType<Test1>(test1);
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(ResolutionFailedException))]
+        [Fact]
         public void ContainerTests_Validate_MissingDependency()
         {
             using (var container = new StashboxContainer())
             {
                 container.Register<ITest2, Test2>();
-                container.Validate();
+                Assert.Throws<ResolutionFailedException>(() => container.Validate());
             }
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(CircularDependencyException))]
+        [Fact]
         public void ContainerTests_Validate_CircularDependency()
         {
             using (var container = new StashboxContainer(config => config.WithCircularDependencyTracking()))
             {
                 container.Register<ITest1, Test4>();
                 container.Register<ITest3, Test3>();
-                container.Validate();
+                Assert.Throws<CircularDependencyException>(() => container.Validate());
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void ContainerTests_Validate_Ok()
         {
             using (var container = new StashboxContainer())
@@ -79,7 +77,7 @@ namespace Stashbox.Tests
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void ContainerTests_CheckRegistration()
         {
             using (var container = new StashboxContainer())
@@ -89,15 +87,15 @@ namespace Stashbox.Tests
                 var reg = container.ContainerContext.RegistrationRepository
                     .GetRegistrationMappings().FirstOrDefault(r => r.Key == typeof(ITest1));
 
-                Assert.IsNotNull(reg);
+                Assert.Equal(typeof(Test1), reg.Value.ImplementationType);
 
                 reg = container.ContainerContext.RegistrationRepository.GetRegistrationMappings().FirstOrDefault(r => r.Value.ImplementationType == typeof(Test1));
 
-                Assert.IsNotNull(reg);
+                Assert.Equal(typeof(Test1), reg.Value.ImplementationType);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void ContainerTests_CanResolve()
         {
             var container = new StashboxContainer();
@@ -106,26 +104,26 @@ namespace Stashbox.Tests
 
             var child = container.CreateChildContainer();
 
-            Assert.IsTrue(container.CanResolve<ITest1>());
-            Assert.IsTrue(container.CanResolve(typeof(ITest2)));
-            Assert.IsTrue(container.CanResolve<IEnumerable<ITest2>>());
-            Assert.IsTrue(container.CanResolve<Lazy<ITest2>>());
-            Assert.IsTrue(container.CanResolve<Func<ITest2>>());
-            Assert.IsTrue(container.CanResolve<Tuple<ITest2>>());
+            Assert.True(container.CanResolve<ITest1>());
+            Assert.True(container.CanResolve(typeof(ITest2)));
+            Assert.True(container.CanResolve<IEnumerable<ITest2>>());
+            Assert.True(container.CanResolve<Lazy<ITest2>>());
+            Assert.True(container.CanResolve<Func<ITest2>>());
+            Assert.True(container.CanResolve<Tuple<ITest2>>());
 
-            Assert.IsTrue(child.CanResolve<ITest1>());
-            Assert.IsTrue(child.CanResolve(typeof(ITest2)));
-            Assert.IsTrue(child.CanResolve<IEnumerable<ITest2>>());
-            Assert.IsTrue(child.CanResolve<Lazy<ITest2>>());
-            Assert.IsTrue(child.CanResolve<Func<ITest2>>());
-            Assert.IsTrue(child.CanResolve<Tuple<ITest2>>());
+            Assert.True(child.CanResolve<ITest1>());
+            Assert.True(child.CanResolve(typeof(ITest2)));
+            Assert.True(child.CanResolve<IEnumerable<ITest2>>());
+            Assert.True(child.CanResolve<Lazy<ITest2>>());
+            Assert.True(child.CanResolve<Func<ITest2>>());
+            Assert.True(child.CanResolve<Tuple<ITest2>>());
 
-            Assert.IsFalse(container.CanResolve<ITest3>());
-            Assert.IsFalse(container.CanResolve<ITest1>("test"));
-            Assert.IsFalse(container.CanResolve(typeof(ITest1), "test"));
+            Assert.False(container.CanResolve<ITest3>());
+            Assert.False(container.CanResolve<ITest1>("test"));
+            Assert.False(container.CanResolve(typeof(ITest1), "test"));
         }
 
-        [TestMethod]
+        [Fact]
         public void ContainerTests_IsRegistered()
         {
             var container = new StashboxContainer();
@@ -134,37 +132,37 @@ namespace Stashbox.Tests
 
             var child = container.CreateChildContainer();
 
-            Assert.IsTrue(container.IsRegistered<ITest1>());
-            Assert.IsTrue(container.IsRegistered<ITest2>("test"));
-            Assert.IsTrue(container.IsRegistered(typeof(ITest1)));
-            Assert.IsFalse(container.IsRegistered<IEnumerable<ITest1>>());
+            Assert.True(container.IsRegistered<ITest1>());
+            Assert.True(container.IsRegistered<ITest2>("test"));
+            Assert.True(container.IsRegistered(typeof(ITest1)));
+            Assert.False(container.IsRegistered<IEnumerable<ITest1>>());
 
-            Assert.IsFalse(child.IsRegistered<ITest1>());
-            Assert.IsFalse(child.IsRegistered(typeof(ITest1)));
-            Assert.IsFalse(child.IsRegistered<IEnumerable<ITest1>>());
+            Assert.False(child.IsRegistered<ITest1>());
+            Assert.False(child.IsRegistered(typeof(ITest1)));
+            Assert.False(child.IsRegistered<IEnumerable<ITest1>>());
         }
 
-        [TestMethod]
+        [Fact]
         public void ContainerTests_ResolverTest()
         {
             var container = new StashboxContainer();
             container.RegisterResolver(new TestResolver());
             var inst = container.Resolve<ITest1>();
 
-            Assert.IsInstanceOfType(inst, typeof(Test1));
+            Assert.IsType<Test1>(inst);
         }
 
-        [TestMethod]
+        [Fact]
         public void ContainerTests_ResolverTest_SupportsMany()
         {
             var container = new StashboxContainer();
             container.RegisterResolver(new TestResolver2());
             var inst = container.Resolve<IEnumerable<ITest1>>();
 
-            Assert.IsInstanceOfType(inst.First(), typeof(Test1));
+            Assert.IsType<Test1>(inst.First());
         }
 
-        [TestMethod]
+        [Fact]
         public void ContainerTests_UnknownType_Config()
         {
             var container = new StashboxContainer(config => config
@@ -174,12 +172,12 @@ namespace Stashbox.Tests
 
             var regs = container.ContainerContext.RegistrationRepository.GetRegistrationMappings().ToArray();
 
-            Assert.AreEqual(1, regs.Length);
-            Assert.AreEqual(regs[0].Key, typeof(Test1));
-            Assert.IsTrue(regs[0].Value.RegistrationContext.Lifetime is SingletonLifetime);
+            Assert.Single(regs);
+            Assert.Equal(typeof(Test1), regs[0].Key);
+            Assert.True(regs[0].Value.RegistrationContext.Lifetime is SingletonLifetime);
         }
 
-        [TestMethod]
+        [Fact]
         public void ContainerTests_ChildContainer_Singleton()
         {
             var container = new StashboxContainer();
@@ -190,11 +188,11 @@ namespace Stashbox.Tests
 
             var test = child.Resolve<ITest2>();
 
-            Assert.IsNotNull(test);
-            Assert.IsInstanceOfType(test, typeof(Test2));
+            Assert.NotNull(test);
+            Assert.IsType<Test2>(test);
         }
 
-        [TestMethod]
+        [Fact]
         public void ContainerTests_ChildContainer_Scoped()
         {
             var container = new StashboxContainer();
@@ -205,26 +203,24 @@ namespace Stashbox.Tests
 
             var test = child.Resolve<ITest2>();
 
-            Assert.IsNotNull(test);
-            Assert.IsInstanceOfType(test, typeof(Test2));
+            Assert.NotNull(test);
+            Assert.IsType<Test2>(test);
         }
 
-        [TestMethod]
+        [Fact]
         public void ContainerTests_ConfigurationChanged()
         {
             ContainerConfiguration newConfig = null;
             var container = new StashboxContainer(config => config.OnContainerConfigurationChanged(nc => newConfig = nc));
             container.Configure(config => config.WithUnknownTypeResolution());
 
-            Assert.IsTrue(newConfig.UnknownTypeResolutionEnabled);
+            Assert.True(newConfig.UnknownTypeResolutionEnabled);
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
+        [Fact]
         public void ContainerTests_ConfigurationChange_Null()
         {
-            new StashboxContainer()
-             .Configure(null);
+            Assert.Throws<ArgumentNullException>(() => new StashboxContainer().Configure(null));
         }
 
         interface ITest1 { }

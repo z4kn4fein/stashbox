@@ -1,12 +1,12 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using Xunit;
 
 namespace Stashbox.Tests.IssueTests
 {
-    [TestClass]
+
     public class ScopedLifetimeThreadSafeTests
     {
-        [TestMethod]
+        [Fact]
         public void ScopedLifetime_thread_safety()
         {
             for (var i = 0; i < 1000; i++)

@@ -103,11 +103,11 @@ namespace Stashbox
         /// <typeparam name="TFrom">The service type.</typeparam>
         /// <param name="resolver">The dependency resolver.</param>
         /// <param name="instance">The instance.</param>
-        /// <param name="name">The identifier.</param>
         /// <param name="withoutDisposalTracking">If it's set to true the container will exclude the instance from the disposal tracking.</param>
+        /// <param name="name">The identifier.</param>
         /// <returns>The scope.</returns>
-        public static IDependencyResolver PutInstanceInScope<TFrom>(this IDependencyResolver resolver, TFrom instance, object name = null, bool withoutDisposalTracking = false) =>
-            resolver.PutInstanceInScope(typeof(TFrom), instance, name, withoutDisposalTracking);
+        public static IDependencyResolver PutInstanceInScope<TFrom>(this IDependencyResolver resolver, TFrom instance, bool withoutDisposalTracking = false, object name = null) =>
+            resolver.PutInstanceInScope(typeof(TFrom), instance, withoutDisposalTracking, name);
 
         /// <summary>
         /// On the fly activates an object without registering it into the container. If you want to resolve a

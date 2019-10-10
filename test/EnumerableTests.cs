@@ -1,16 +1,16 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Stashbox.Utils;
+﻿using Stashbox.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Xunit;
 
 namespace Stashbox.Tests
 {
-    [TestClass]
+
     public class EnumerableTests
     {
-        [TestMethod]
+        [Fact]
         public void EnumerableTests_Resolve_Array_PreserveOrder()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -20,10 +20,10 @@ namespace Stashbox.Tests
 
             var all = container.Resolve<ITest1[]>();
 
-            Assert.AreEqual(3, all.Length);
+            Assert.Equal(3, all.Length);
         }
 
-        [TestMethod]
+        [Fact]
         public void EnumerableTests_Resolve_IList()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -33,10 +33,10 @@ namespace Stashbox.Tests
 
             var all = container.Resolve<IList<ITest1>>();
 
-            Assert.AreEqual(3, all.Count);
+            Assert.Equal(3, all.Count);
         }
 
-        [TestMethod]
+        [Fact]
         public void EnumerableTests_Resolve_ICollection()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -46,10 +46,10 @@ namespace Stashbox.Tests
 
             var all = container.Resolve<ICollection<ITest1>>();
 
-            Assert.AreEqual(3, all.Count);
+            Assert.Equal(3, all.Count);
         }
 
-        [TestMethod]
+        [Fact]
         public void EnumerableTests_Resolve_IReadonlyCollection()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -59,10 +59,10 @@ namespace Stashbox.Tests
 
             var all = container.Resolve<IReadOnlyCollection<ITest1>>();
 
-            Assert.AreEqual(3, all.Count);
+            Assert.Equal(3, all.Count);
         }
 
-        [TestMethod]
+        [Fact]
         public void EnumerableTests_Resolve_IReadOnlyList()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -72,10 +72,10 @@ namespace Stashbox.Tests
 
             var all = container.Resolve<IReadOnlyList<ITest1>>();
 
-            Assert.AreEqual(3, all.Count);
+            Assert.Equal(3, all.Count);
         }
 
-        [TestMethod]
+        [Fact]
         public void EnumerableTests_Resolve()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -91,11 +91,11 @@ namespace Stashbox.Tests
             var all = container.Resolve<IEnumerable<ITest2>>();
             var all2 = container.ResolveAll<ITest2>();
 
-            Assert.AreEqual(2, all.Count());
-            Assert.AreEqual(2, all2.Count());
+            Assert.Equal(2, all.Count());
+            Assert.Equal(2, all2.Count());
         }
 
-        [TestMethod]
+        [Fact]
         public void EnumerableTests_Resolve_Null()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -103,11 +103,11 @@ namespace Stashbox.Tests
             var all = container.Resolve<IEnumerable<ITest2>>();
             var all2 = container.ResolveAll<ITest2>();
 
-            Assert.AreEqual(0, all.Count());
-            Assert.AreEqual(0, all2.Count());
+            Assert.Empty(all);
+            Assert.Empty(all2);
         }
 
-        [TestMethod]
+        [Fact]
         public void EnumerableTests_Resolve_Scoped_Null()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -117,11 +117,11 @@ namespace Stashbox.Tests
             var all = scope.Resolve<IEnumerable<ITest2>>();
             var all2 = scope.ResolveAll<ITest2>();
 
-            Assert.AreEqual(0, all.Count());
-            Assert.AreEqual(0, all2.Count());
+            Assert.Empty(all);
+            Assert.Empty(all2);
         }
 
-        [TestMethod]
+        [Fact]
         public void EnumerableTests_Resolve_Scoped()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -133,10 +133,10 @@ namespace Stashbox.Tests
 
             var all = child.Resolve<IEnumerable<ITest1>>();
 
-            Assert.AreEqual(3, all.Count());
+            Assert.Equal(3, all.Count());
         }
 
-        [TestMethod]
+        [Fact]
         public void EnumerableTests_Resolve_Parent()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -148,10 +148,10 @@ namespace Stashbox.Tests
 
             var all = child.Resolve<IEnumerable<ITest1>>();
 
-            Assert.AreEqual(3, all.Count());
+            Assert.Equal(3, all.Count());
         }
 
-        [TestMethod]
+        [Fact]
         public void EnumerableTests_Resolve_Parent_Null()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -160,10 +160,10 @@ namespace Stashbox.Tests
 
             var all = child.Resolve<IEnumerable<ITest1>>();
 
-            Assert.AreEqual(0, all.Count());
+            Assert.Empty(all);
         }
 
-        [TestMethod]
+        [Fact]
         public void EnumerableTests_Resolve_Scoped_Lazy()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -175,10 +175,10 @@ namespace Stashbox.Tests
 
             var all = child.Resolve<IEnumerable<Lazy<ITest1>>>();
 
-            Assert.AreEqual(3, all.Count());
+            Assert.Equal(3, all.Count());
         }
 
-        [TestMethod]
+        [Fact]
         public void EnumerableTests_Resolve_Parent_Lazy()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -190,10 +190,10 @@ namespace Stashbox.Tests
 
             var all = child.Resolve<IEnumerable<Lazy<ITest1>>>();
 
-            Assert.AreEqual(3, all.Count());
+            Assert.Equal(3, all.Count());
         }
 
-        [TestMethod]
+        [Fact]
         public void EnumerableTests_Resolve_Scoped_Lazy_Null()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -202,10 +202,10 @@ namespace Stashbox.Tests
 
             var all = child.Resolve<IEnumerable<Lazy<ITest1>>>();
 
-            Assert.AreEqual(0, all.Count());
+            Assert.Empty(all);
         }
 
-        [TestMethod]
+        [Fact]
         public void EnumerableTests_Resolve_Parent_Lazy_Null()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -214,10 +214,10 @@ namespace Stashbox.Tests
 
             var all = child.Resolve<IEnumerable<Lazy<ITest1>>>();
 
-            Assert.AreEqual(0, all.Count());
+            Assert.Empty(all);
         }
 
-        [TestMethod]
+        [Fact]
         public void EnumerableTests_Resolve_Scoped_Func()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -229,10 +229,10 @@ namespace Stashbox.Tests
 
             var all = child.Resolve<IEnumerable<Func<ITest1>>>();
 
-            Assert.AreEqual(3, all.Count());
+            Assert.Equal(3, all.Count());
         }
 
-        [TestMethod]
+        [Fact]
         public void EnumerableTests_Resolve_Parent_Func()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -244,10 +244,10 @@ namespace Stashbox.Tests
 
             var all = child.Resolve<IEnumerable<Func<ITest1>>>();
 
-            Assert.AreEqual(3, all.Count());
+            Assert.Equal(3, all.Count());
         }
 
-        [TestMethod]
+        [Fact]
         public void EnumerableTests_Resolve_Scoped_Func_Null()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -256,10 +256,10 @@ namespace Stashbox.Tests
 
             var all = child.Resolve<IEnumerable<Func<ITest1>>>();
 
-            Assert.AreEqual(0, all.Count());
+            Assert.Empty(all);
         }
 
-        [TestMethod]
+        [Fact]
         public void EnumerableTests_Resolve_Parent_Func_Null()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -268,10 +268,10 @@ namespace Stashbox.Tests
 
             var all = child.Resolve<IEnumerable<Func<ITest1>>>();
 
-            Assert.AreEqual(0, all.Count());
+            Assert.Empty(all);
         }
 
-        [TestMethod]
+        [Fact]
         public void EnumerableTests_Resolve_Lazy()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -281,20 +281,20 @@ namespace Stashbox.Tests
 
             var all = container.Resolve<IEnumerable<Lazy<ITest1>>>();
 
-            Assert.AreEqual(3, all.Count());
+            Assert.Equal(3, all.Count());
         }
 
-        [TestMethod]
+        [Fact]
         public void EnumerableTests_Resolve_Lazy_Null()
         {
             IStashboxContainer container = new StashboxContainer();
 
             var all = container.Resolve<IEnumerable<Lazy<ITest1>>>();
 
-            Assert.AreEqual(0, all.Count());
+            Assert.Empty(all);
         }
 
-        [TestMethod]
+        [Fact]
         public void EnumerableTests_Resolve_Func()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -304,20 +304,20 @@ namespace Stashbox.Tests
 
             var all = container.Resolve<IEnumerable<Func<ITest1>>>();
 
-            Assert.AreEqual(3, all.Count());
+            Assert.Equal(3, all.Count());
         }
 
-        [TestMethod]
+        [Fact]
         public void EnumerableTests_Resolve_Func_Null()
         {
             IStashboxContainer container = new StashboxContainer();
 
             var all = container.Resolve<IEnumerable<Func<ITest1>>>();
 
-            Assert.AreEqual(0, all.Count());
+            Assert.Empty(all);
         }
 
-        [TestMethod]
+        [Fact]
         public void EnumerableTests_ResolveNonGeneric()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -334,12 +334,12 @@ namespace Stashbox.Tests
             var all2 = (IEnumerable<ITest2>)container.ResolveAll(typeof(ITest2));
             var all3 = container.ResolveAll(typeof(ITest2));
 
-            Assert.AreEqual(2, all.Count());
-            Assert.AreEqual(2, all2.Count());
-            Assert.AreEqual(2, all3.Count());
+            Assert.Equal(2, all.Count());
+            Assert.Equal(2, all2.Count());
+            Assert.Equal(2, all3.Count());
         }
 
-        [TestMethod]
+        [Fact]
         public void EnumerableTests_ResolveNonGeneric_Scoped()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -358,12 +358,12 @@ namespace Stashbox.Tests
             var all2 = (IEnumerable<ITest2>)scope.ResolveAll(typeof(ITest2));
             var all3 = scope.ResolveAll(typeof(ITest2));
 
-            Assert.AreEqual(2, all.Count());
-            Assert.AreEqual(2, all2.Count());
-            Assert.AreEqual(2, all3.Count());
+            Assert.Equal(2, all.Count());
+            Assert.Equal(2, all2.Count());
+            Assert.Equal(2, all3.Count());
         }
 
-        [TestMethod]
+        [Fact]
         public void EnumerableTests_Parallel_Resolve()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -379,11 +379,11 @@ namespace Stashbox.Tests
                 container.Resolve<ITest2>("array");
                 var all = container.Resolve<IEnumerable<ITest2>>();
 
-                Assert.AreEqual(2, all.Count());
+                Assert.Equal(2, all.Count());
             });
         }
 
-        [TestMethod]
+        [Fact]
         public void EnumerableTests_Parallel_Resolve_NonGeneric()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -401,12 +401,12 @@ namespace Stashbox.Tests
                 var all = container.Resolve<IEnumerable<ITest2>>();
                 var all2 = (IEnumerable<ITest2>)container.ResolveAll(typeof(ITest2));
 
-                Assert.AreEqual(2, all2.Count());
-                Assert.AreEqual(2, all.Count());
+                Assert.Equal(2, all2.Count());
+                Assert.Equal(2, all.Count());
             });
         }
 
-        [TestMethod]
+        [Fact]
         public void EnumerableTests_Resolve_PreserveOrder()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -416,12 +416,12 @@ namespace Stashbox.Tests
 
             var services = container.Resolve<IEnumerable<ITest1>>().ToArray();
 
-            Assert.IsInstanceOfType(services[0], typeof(Test1));
-            Assert.IsInstanceOfType(services[1], typeof(Test11));
-            Assert.IsInstanceOfType(services[2], typeof(Test12));
+            Assert.IsType<Test1>(services[0]);
+            Assert.IsType<Test11>(services[1]);
+            Assert.IsType<Test12>(services[2]);
         }
 
-        [TestMethod]
+        [Fact]
         public void EnumerableTests_ResolveAll_PreserveOrder()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -431,12 +431,12 @@ namespace Stashbox.Tests
 
             var services = container.ResolveAll<ITest1>().ToArray();
 
-            Assert.IsInstanceOfType(services[0], typeof(Test1));
-            Assert.IsInstanceOfType(services[1], typeof(Test11));
-            Assert.IsInstanceOfType(services[2], typeof(Test12));
+            Assert.IsType<Test1>(services[0]);
+            Assert.IsType<Test11>(services[1]);
+            Assert.IsType<Test12>(services[2]);
         }
 
-        [TestMethod]
+        [Fact]
         public void EnumerableTests_Resolve_PreserveOrder_Scoped()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -449,12 +449,12 @@ namespace Stashbox.Tests
 
             var services = child.Resolve<IEnumerable<ITest1>>().ToArray();
 
-            Assert.IsInstanceOfType(services[0], typeof(Test1));
-            Assert.IsInstanceOfType(services[1], typeof(Test11));
-            Assert.IsInstanceOfType(services[2], typeof(Test12));
+            Assert.IsType<Test1>(services[0]);
+            Assert.IsType<Test11>(services[1]);
+            Assert.IsType<Test12>(services[2]);
         }
 
-        [TestMethod]
+        [Fact]
         public void EnumerableTests_Resolve_PreserveOrder_Parent()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -467,12 +467,12 @@ namespace Stashbox.Tests
 
             var services = child.Resolve<IEnumerable<ITest1>>().ToArray();
 
-            Assert.IsInstanceOfType(services[0], typeof(Test1));
-            Assert.IsInstanceOfType(services[1], typeof(Test11));
-            Assert.IsInstanceOfType(services[2], typeof(Test12));
+            Assert.IsType<Test1>(services[0]);
+            Assert.IsType<Test11>(services[1]);
+            Assert.IsType<Test12>(services[2]);
         }
 
-        [TestMethod]
+        [Fact]
         public void EnumerableTests_Resolve_PreserveOrder_Scoped_Lazy()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -485,12 +485,12 @@ namespace Stashbox.Tests
 
             var services = child.Resolve<IEnumerable<Lazy<ITest1>>>().ToArray();
 
-            Assert.IsInstanceOfType(services[0].Value, typeof(Test1));
-            Assert.IsInstanceOfType(services[1].Value, typeof(Test11));
-            Assert.IsInstanceOfType(services[2].Value, typeof(Test12));
+            Assert.IsType<Test1>(services[0].Value);
+            Assert.IsType<Test11>(services[1].Value);
+            Assert.IsType<Test12>(services[2].Value);
         }
 
-        [TestMethod]
+        [Fact]
         public void EnumerableTests_Resolve_PreserveOrder_Parent_Lazy()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -503,12 +503,12 @@ namespace Stashbox.Tests
 
             var services = child.Resolve<IEnumerable<Lazy<ITest1>>>().ToArray();
 
-            Assert.IsInstanceOfType(services[0].Value, typeof(Test1));
-            Assert.IsInstanceOfType(services[1].Value, typeof(Test11));
-            Assert.IsInstanceOfType(services[2].Value, typeof(Test12));
+            Assert.IsType<Test1>(services[0].Value);
+            Assert.IsType<Test11>(services[1].Value);
+            Assert.IsType<Test12>(services[2].Value);
         }
 
-        [TestMethod]
+        [Fact]
         public void EnumerableTests_Resolve_PreserveOrder_Scoped_Func()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -521,12 +521,12 @@ namespace Stashbox.Tests
 
             var services = child.Resolve<IEnumerable<Func<ITest1>>>().ToArray();
 
-            Assert.IsInstanceOfType(services[0](), typeof(Test1));
-            Assert.IsInstanceOfType(services[1](), typeof(Test11));
-            Assert.IsInstanceOfType(services[2](), typeof(Test12));
+            Assert.IsType<Test1>(services[0]());
+            Assert.IsType<Test11>(services[1]());
+            Assert.IsType<Test12>(services[2]());
         }
 
-        [TestMethod]
+        [Fact]
         public void EnumerableTests_Resolve_PreserveOrder_Parent_Func()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -539,12 +539,12 @@ namespace Stashbox.Tests
 
             var services = child.Resolve<IEnumerable<Func<ITest1>>>().ToArray();
 
-            Assert.IsInstanceOfType(services[0](), typeof(Test1));
-            Assert.IsInstanceOfType(services[1](), typeof(Test11));
-            Assert.IsInstanceOfType(services[2](), typeof(Test12));
+            Assert.IsType<Test1>(services[0]());
+            Assert.IsType<Test11>(services[1]());
+            Assert.IsType<Test12>(services[2]());
         }
 
-        [TestMethod]
+        [Fact]
         public void EnumerableTests_Resolve_PreserveOrder_Lazy()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -554,12 +554,12 @@ namespace Stashbox.Tests
 
             var services = container.Resolve<IEnumerable<Lazy<ITest1>>>().ToArray();
 
-            Assert.IsInstanceOfType(services[0].Value, typeof(Test1));
-            Assert.IsInstanceOfType(services[1].Value, typeof(Test11));
-            Assert.IsInstanceOfType(services[2].Value, typeof(Test12));
+            Assert.IsType<Test1>(services[0].Value);
+            Assert.IsType<Test11>(services[1].Value);
+            Assert.IsType<Test12>(services[2].Value);
         }
 
-        [TestMethod]
+        [Fact]
         public void EnumerableTests_Resolve_PreserveOrder_Func()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -569,12 +569,12 @@ namespace Stashbox.Tests
 
             var services = container.Resolve<IEnumerable<Func<ITest1>>>().ToArray();
 
-            Assert.IsInstanceOfType(services[0](), typeof(Test1));
-            Assert.IsInstanceOfType(services[1](), typeof(Test11));
-            Assert.IsInstanceOfType(services[2](), typeof(Test12));
+            Assert.IsType<Test1>(services[0]());
+            Assert.IsType<Test11>(services[1]());
+            Assert.IsType<Test12>(services[2]());
         }
 
-        [TestMethod]
+        [Fact]
         public void EnumerableTests_Resolve_UniqueIds()
         {
             IStashboxContainer container = new StashboxContainer(config => config.WithUniqueRegistrationIdentifiers());
@@ -582,7 +582,7 @@ namespace Stashbox.Tests
             container.Register<ITest1, Test1>();
             container.Register<ITest1, Test1>();
 
-            Assert.AreEqual(3, container.Resolve<IEnumerable<ITest1>>().Count());
+            Assert.Equal(3, container.Resolve<IEnumerable<ITest1>>().Count());
         }
 
         interface ITest1 { }
@@ -603,7 +603,7 @@ namespace Stashbox.Tests
             public Test2(IEnumerable<ITest1> tests)
             {
                 Shield.EnsureNotNull(tests, nameof(tests));
-                Assert.AreEqual(3, tests.Count());
+                Assert.Equal(3, tests.Count());
             }
         }
 
@@ -612,7 +612,7 @@ namespace Stashbox.Tests
             public Test22(ITest1[] tests)
             {
                 Shield.EnsureNotNull(tests, nameof(tests));
-                Assert.AreEqual(3, tests.Count());
+                Assert.Equal(3, tests.Count());
             }
         }
     }

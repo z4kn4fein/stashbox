@@ -1,14 +1,14 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Xunit;
 
 namespace Stashbox.Tests.IssueTests
 {
-    [TestClass]
+
     public class ResolutionFromParentContainerTests
     {
-        [TestMethod]
+        [Fact]
         public void ContainerTests_ChildContainer_Resolve_Dependency_From_Child()
         {
             var container = new StashboxContainer();
@@ -20,12 +20,12 @@ namespace Stashbox.Tests.IssueTests
 
             var test3 = child.Resolve<ITest3>();
 
-            Assert.IsNotNull(test3);
-            Assert.IsInstanceOfType(test3, typeof(Test3));
-            Assert.AreEqual(container, child.ParentContainer);
+            Assert.NotNull(test3);
+            Assert.IsType<Test3>(test3);
+            Assert.Equal(container, child.ParentContainer);
         }
 
-        [TestMethod]
+        [Fact]
         public void ContainerTests_ChildContainer_Resolve_Dependency_Across_Childs()
         {
             var container = new StashboxContainer();
@@ -37,10 +37,10 @@ namespace Stashbox.Tests.IssueTests
 
             var test3 = child.Resolve<ITest3>();
 
-            Assert.IsNotNull(test3);
+            Assert.NotNull(test3);
         }
 
-        [TestMethod]
+        [Fact]
         public void ContainerTests_ChildContainer_Resolve_Dependency_Across_Childs_2()
         {
             var container = new StashboxContainer();
@@ -54,10 +54,10 @@ namespace Stashbox.Tests.IssueTests
 
             var test3 = child2.Resolve<ITest3>();
 
-            Assert.IsNotNull(test3);
+            Assert.NotNull(test3);
         }
 
-        [TestMethod]
+        [Fact]
         public void ContainerTests_ChildContainer_Resolve_Dependency_Across_Childs_3()
         {
             var container = new StashboxContainer();
@@ -71,10 +71,10 @@ namespace Stashbox.Tests.IssueTests
 
             var test3 = child2.Resolve<ITest3>();
 
-            Assert.IsNotNull(test3);
+            Assert.NotNull(test3);
         }
 
-        [TestMethod]
+        [Fact]
         public void ContainerTests_ChildContainer_Resolve_Dependency_Across_Childs_Wrapper()
         {
             var container = new StashboxContainer();
@@ -91,13 +91,13 @@ namespace Stashbox.Tests.IssueTests
 
             var test3 = child3.Resolve<ITest5>();
 
-            Assert.IsNotNull(test3);
-            Assert.IsNotNull(test3.Func());
-            Assert.IsNotNull(test3.Lazy.Value);
-            Assert.IsNotNull(test3.Enumerable);
-            Assert.AreEqual(1, test3.Enumerable.Count());
-            Assert.IsNotNull(test3.Tuple.Item1);
-            Assert.IsNotNull(test3.Tuple.Item2);
+            Assert.NotNull(test3);
+            Assert.NotNull(test3.Func());
+            Assert.NotNull(test3.Lazy.Value);
+            Assert.NotNull(test3.Enumerable);
+            Assert.Single(test3.Enumerable);
+            Assert.NotNull(test3.Tuple.Item1);
+            Assert.NotNull(test3.Tuple.Item2);
         }
 
         interface ITest1 { }

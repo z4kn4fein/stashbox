@@ -1,12 +1,12 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Xunit;
 using Stashbox.Attributes;
 
 namespace Stashbox.Tests
 {
-    [TestClass]
+    
     public class DependencyBindingTests
     {
-        [TestMethod]
+        [Fact]
         public void DependencyBindingTests_Bind_To_The_Same_Type()
         {
             var inst = new StashboxContainer()
@@ -16,13 +16,13 @@ namespace Stashbox.Tests
                 .Register<Test>(ctx => ctx.WithDependencyBinding(typeof(ITest1), "test2"))
                 .Resolve<Test>();
 
-            Assert.IsInstanceOfType(inst.Test1, typeof(Test11));
-            Assert.IsInstanceOfType(inst.Test2, typeof(Test11));
-            Assert.IsInstanceOfType(inst.Test3, typeof(Test11));
+            Assert.IsType<Test11>(inst.Test1);
+            Assert.IsType<Test11>(inst.Test2);
+            Assert.IsType<Test11>(inst.Test3);
 
         }
 
-        [TestMethod]
+        [Fact]
         public void DependencyBindingTests_Bind_To_Different_Types()
         {
             var inst = new StashboxContainer()
@@ -35,13 +35,13 @@ namespace Stashbox.Tests
                     .WithDependencyBinding("test3", "test3"))
                 .Resolve<Test>();
 
-            Assert.IsInstanceOfType(inst.Test1, typeof(Test1));
-            Assert.IsInstanceOfType(inst.Test2, typeof(Test11));
-            Assert.IsInstanceOfType(inst.Test3, typeof(Test12));
+            Assert.IsType<Test1>(inst.Test1);
+            Assert.IsType<Test11>(inst.Test2);
+            Assert.IsType<Test12>(inst.Test3);
 
         }
 
-        [TestMethod]
+        [Fact]
         public void DependencyBindingTests_Override_Typed_Bindings()
         {
             var inst = new StashboxContainer()
@@ -53,13 +53,13 @@ namespace Stashbox.Tests
                     .WithDependencyBinding<ITest1>("test2"))
                 .Resolve<Test>();
 
-            Assert.IsInstanceOfType(inst.Test1, typeof(Test11));
-            Assert.IsInstanceOfType(inst.Test2, typeof(Test11));
-            Assert.IsInstanceOfType(inst.Test3, typeof(Test12));
+            Assert.IsType<Test11>(inst.Test1);
+            Assert.IsType<Test11>(inst.Test2);
+            Assert.IsType<Test12>(inst.Test3);
 
         }
 
-        [TestMethod]
+        [Fact]
         public void DependencyBindingTests_Override_Typed_Bindings_Injection_Method()
         {
             var inst = new StashboxContainer()
@@ -71,9 +71,9 @@ namespace Stashbox.Tests
                     .WithDependencyBinding<ITest1>("test2"))
                 .Resolve<TestMethodInjection>();
 
-            Assert.IsInstanceOfType(inst.Test1, typeof(Test11));
-            Assert.IsInstanceOfType(inst.Test2, typeof(Test11));
-            Assert.IsInstanceOfType(inst.Test3, typeof(Test12));
+            Assert.IsType<Test11>(inst.Test1);
+            Assert.IsType<Test11>(inst.Test2);
+            Assert.IsType<Test12>(inst.Test3);
 
         }
 

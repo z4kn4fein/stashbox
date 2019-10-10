@@ -1,11 +1,11 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Xunit;
 
 namespace Stashbox.Tests.IssueTests
 {
-    [TestClass]
+
     public class ConditionsOnMemberNameAreNotEasyToRecognize
     {
-        [TestMethod]
+        [Fact]
         public void ConditionsOnMemberNameAreNotEasyToRecognize_UseParameterOrMemberName()
         {
             var container = new StashboxContainer();
@@ -15,8 +15,8 @@ namespace Stashbox.Tests.IssueTests
 
             var test5 = container.Resolve<Test2>();
 
-            Assert.IsInstanceOfType(test5.Test1, typeof(Test1));
-            Assert.IsInstanceOfType(test5.Test11, typeof(Test11));
+            Assert.IsType<Test1>(test5.Test1);
+            Assert.IsType<Test11>(test5.Test11);
         }
 
         interface ITest1 { }

@@ -1,12 +1,12 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 
 namespace Stashbox.Tests.IssueTests
 {
-    [TestClass]
+    
     public class ParentChildResolutionChickenEgg
     {
-        [TestMethod]
+        [Fact]
         public void Parent_child_resolution_chicken_egg()
         {
             var container = new StashboxContainer(options => options.WithCircularDependencyWithLazy());
@@ -15,7 +15,7 @@ namespace Stashbox.Tests.IssueTests
                 .Register<ILatencyCheck, LatencyCheck>(options => options.InjectMember(check => check.Server).WithSingletonLifetime())
                 .Resolve<IPsnServer>();
 
-            Assert.AreSame(instance, instance.LatencyCheck.Value.Server);
+            Assert.Same(instance, instance.LatencyCheck.Value.Server);
         }
     }
 

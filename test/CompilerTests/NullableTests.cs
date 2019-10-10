@@ -1,46 +1,46 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Xunit;
 using System;
 using System.Linq.Expressions;
 
 namespace Stashbox.Tests.CompilerTests
 {
-    [TestClass]
+    
     public class NullableTests
     {
-        [TestMethod]
+        [Fact]
         public void Compile_Nullable_Primitive()
         {
             Expression<Func<int?>> expr = () => 5;
             var func = expr.CompileFunc();
 
-            Assert.AreEqual(5, func().Value);
+            Assert.Equal(5, func().Value);
         }
 
-        [TestMethod]
+        [Fact]
         public void Compile_Nullable_Primitive_Null()
         {
             Expression<Func<int?>> expr = () => null;
             var func = expr.CompileFunc();
 
-            Assert.IsFalse(func().HasValue);
+            Assert.False(func().HasValue);
         }
 
-        [TestMethod]
+        [Fact]
         public void Compile_Nullable_ValueType()
         {
             Expression<Func<TimeSpan?>> expr = () => TimeSpan.FromSeconds(1);
             var func = expr.CompileFunc();
 
-            Assert.AreEqual(TimeSpan.FromSeconds(1), func().Value);
+            Assert.Equal(TimeSpan.FromSeconds(1), func().Value);
         }
 
-        [TestMethod]
+        [Fact]
         public void Compile_Nullable_ValueType_Null()
         {
             Expression<Func<TimeSpan?>> expr = () => null;
             var func = expr.CompileFunc();
 
-            Assert.IsFalse(func().HasValue);
+            Assert.False(func().HasValue);
         }
     }
 }

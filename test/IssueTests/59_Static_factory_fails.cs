@@ -1,30 +1,30 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+﻿using System;
 using System.Linq.Expressions;
 using System.Reflection;
+using Xunit;
 
 namespace Stashbox.Tests.IssueTests
 {
-    [TestClass]
+
     public class StaticFactoryFails
     {
-        [TestMethod]
+        [Fact]
         public void Ensure_Static_Factory_Registration_Works()
         {
             var inst = new StashboxContainer().Register<T>(c => c.WithFactory(Factory)).Resolve<T>();
 
-            Assert.IsNotNull(inst);
+            Assert.NotNull(inst);
         }
 
-        [TestMethod]
+        [Fact]
         public void Ensure_Static_Factory_Registration_With_Resolver_Works()
         {
             var inst = new StashboxContainer().Register<T>(c => c.WithFactory(ResolverFactory)).Resolve<T>();
 
-            Assert.IsNotNull(inst);
+            Assert.NotNull(inst);
         }
 
-        [TestMethod]
+        [Fact]
         public void Ensure_Static_Factory_Registration_WithProperty_Works()
         {
             var prop = typeof(St)
@@ -36,10 +36,10 @@ namespace Stashbox.Tests.IssueTests
                     .Compile()))
                 .Resolve<T>();
 
-            Assert.IsNotNull(inst);
+            Assert.NotNull(inst);
         }
 
-        [TestMethod]
+        [Fact]
         public void Ensure_Static_Factory_Registration_CompiledLambda_Works()
         {
             var param = typeof(IDependencyResolver).AsParameter();
@@ -52,7 +52,7 @@ namespace Stashbox.Tests.IssueTests
                     .Compile()))
                 .Resolve<T>();
 
-            Assert.IsNotNull(inst);
+            Assert.NotNull(inst);
         }
 
         private static T Factory() => new T();

@@ -1,15 +1,15 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Stashbox.Attributes;
+﻿using Stashbox.Attributes;
 using Stashbox.Entity;
 using Stashbox.Exceptions;
 using System;
+using Xunit;
 
 namespace Stashbox.Tests
 {
-    [TestClass]
+
     public class InjectionMemberTests
     {
-        [TestMethod]
+        [Fact]
         public void InjectionMemberTests_Resolve()
         {
             var container = new StashboxContainer();
@@ -18,27 +18,26 @@ namespace Stashbox.Tests
 
             var inst = container.Resolve<ITest1>();
 
-            Assert.IsNotNull(inst);
-            Assert.IsNotNull(inst.Test);
-            Assert.IsInstanceOfType(inst, typeof(Test1));
-            Assert.IsInstanceOfType(inst.Test, typeof(Test));
+            Assert.NotNull(inst);
+            Assert.NotNull(inst.Test);
+            Assert.IsType<Test1>(inst);
+            Assert.IsType<Test>(inst.Test);
 
-            Assert.IsNotNull(((Test1)inst).TestFieldProperty);
-            Assert.IsInstanceOfType(((Test1)inst).TestFieldProperty, typeof(Test));
+            Assert.NotNull(((Test1)inst).TestFieldProperty);
+            Assert.IsType<Test>(((Test1)inst).TestFieldProperty);
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(ResolutionFailedException))]
+        [Fact]
         public void InjectionMemberTests_Resolve_WithoutRegistered()
         {
             var container = new StashboxContainer();
             var test1 = new Test1();
             container.WireUpAs<ITest1>(test1);
 
-            container.Resolve<ITest1>();
+            Assert.Throws<ResolutionFailedException>(() => container.Resolve<ITest1>());
         }
 
-        [TestMethod]
+        [Fact]
         public void InjectionMemberTests_WireUp()
         {
             using (var container = new StashboxContainer())
@@ -50,17 +49,17 @@ namespace Stashbox.Tests
 
                 var inst = container.Resolve<ITest1>();
 
-                Assert.IsNotNull(inst);
-                Assert.IsNotNull(inst.Test);
-                Assert.IsInstanceOfType(inst, typeof(Test1));
-                Assert.IsInstanceOfType(inst.Test, typeof(Test));
+                Assert.NotNull(inst);
+                Assert.NotNull(inst.Test);
+                Assert.IsType<Test1>(inst);
+                Assert.IsType<Test>(inst.Test);
 
-                Assert.IsNotNull(((Test1)inst).TestFieldProperty);
-                Assert.IsInstanceOfType(((Test1)inst).TestFieldProperty, typeof(Test));
+                Assert.NotNull(((Test1)inst).TestFieldProperty);
+                Assert.IsType<Test>(((Test1)inst).TestFieldProperty);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void InjectionMemberTests_Resolve_InjectionParameter()
         {
             var container = new StashboxContainer();
@@ -68,12 +67,12 @@ namespace Stashbox.Tests
 
             var inst = container.Resolve<ITest2>();
 
-            Assert.IsNotNull(inst);
-            Assert.IsInstanceOfType(inst, typeof(Test2));
-            Assert.AreEqual("test", inst.Name);
+            Assert.NotNull(inst);
+            Assert.IsType<Test2>(inst);
+            Assert.Equal("test", inst.Name);
         }
 
-        [TestMethod]
+        [Fact]
         public void InjectionMemberTests_Inject_With_Config()
         {
             var container = new StashboxContainer();
@@ -83,13 +82,13 @@ namespace Stashbox.Tests
 
             var inst = container.Resolve<Test3>();
 
-            Assert.IsNotNull(inst.Test1);
-            Assert.IsNotNull(inst.Test2);
-            Assert.IsInstanceOfType(inst.Test1, typeof(TestM1));
-            Assert.IsInstanceOfType(inst.Test2, typeof(TestM2));
+            Assert.NotNull(inst.Test1);
+            Assert.NotNull(inst.Test2);
+            Assert.IsType<TestM1>(inst.Test1);
+            Assert.IsType<TestM2>(inst.Test2);
         }
 
-        [TestMethod]
+        [Fact]
         public void InjectionMemberTests_Inject_With_Invalid_Config()
         {
             var container = new StashboxContainer();
@@ -97,11 +96,11 @@ namespace Stashbox.Tests
 
             var inst = container.Resolve<Test3>();
 
-            Assert.IsNull(inst.Test1);
-            Assert.IsNull(inst.Test2);
+            Assert.Null(inst.Test1);
+            Assert.Null(inst.Test2);
         }
 
-        [TestMethod]
+        [Fact]
         public void InjectionMemberTests_Inject_With_Config_Generic()
         {
             var container = new StashboxContainer();
@@ -110,20 +109,19 @@ namespace Stashbox.Tests
 
             var inst = container.Resolve<Test3>();
 
-            Assert.IsNotNull(inst.Test1);
-            Assert.IsNull(inst.Test2);
-            Assert.IsInstanceOfType(inst.Test1, typeof(TestM2));
+            Assert.NotNull(inst.Test1);
+            Assert.Null(inst.Test2);
+            Assert.IsType<TestM2>(inst.Test1);
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
+        [Fact]
         public void InjectionMemberTests_Inject_With_Config_Generic_Throws()
         {
             var container = new StashboxContainer();
-            container.Register<Test3>(context => context.InjectMember(x => 50));
+            Assert.Throws<ArgumentException>(() => container.Register<Test3>(context => context.InjectMember(x => 50)));
         }
 
-        [TestMethod]
+        [Fact]
         public void InjectionMemberTests_Exclude_Globally()
         {
             var inst = new StashboxContainer(config =>
@@ -131,11 +129,11 @@ namespace Stashbox.Tests
                         .WithMemberInjectionWithoutAnnotation(filter: info => info.Type != typeof(Test4)))
                 .Activate<Test6>();
 
-            Assert.IsNull(inst.Test4);
-            Assert.IsNotNull(inst.Test5);
+            Assert.Null(inst.Test4);
+            Assert.NotNull(inst.Test5);
         }
 
-        [TestMethod]
+        [Fact]
         public void InjectionMemberTests_Exclude_PerReg()
         {
             var inst = new StashboxContainer(config =>
@@ -143,8 +141,8 @@ namespace Stashbox.Tests
                 .Register<Test6>(config => config.WithAutoMemberInjection(filter: info => info.Type != typeof(Test4)))
                 .Resolve<Test6>();
 
-            Assert.IsNull(inst.Test4);
-            Assert.IsNotNull(inst.Test5);
+            Assert.Null(inst.Test4);
+            Assert.NotNull(inst.Test5);
         }
 
         interface ITest { }

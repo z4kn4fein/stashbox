@@ -1,29 +1,29 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Xunit;
 using System;
 
 namespace Stashbox.Tests.IssueTests
 {
-    [TestClass]
+    
     public class ResolverFactoryIssue
     {
-        [TestMethod]
+        [Fact]
         public void Resolver_factory_invoke_doesnt_pass_different_parameters_given_when_theyre_the_same_type()
         {
             var factory = new StashboxContainer()
                 .Register<IFoo, Foobar>()
                 .ResolveFactory(typeof(IFoo), parameterTypes: new[] { typeof(string), typeof(string) });
 
-            Assert.AreEqual("foobar", ((IFoo)factory.DynamicInvoke("foo", "bar")).Result);
+            Assert.Equal("foobar", ((IFoo)factory.DynamicInvoke("foo", "bar")).Result);
         }
 
-        [TestMethod]
+        [Fact]
         public void Resolver_factory_invoke_doesnt_pass_different_parameters_given_when_theyre_the_same_type_func()
         {
             var factory = new StashboxContainer()
                 .Register<IFoo, Foobar>()
                 .Resolve<Func<string, string, IFoo>>();
 
-            Assert.AreEqual("foobar", factory("foo", "bar").Result);
+            Assert.Equal("foobar", factory("foo", "bar").Result);
         }
 
         interface IFoo

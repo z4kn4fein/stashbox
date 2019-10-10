@@ -1,11 +1,11 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Stashbox.Registration.Fluent;
+﻿using Stashbox.Registration.Fluent;
 using System;
 using System.Linq;
+using Xunit;
 
 namespace Stashbox.Tests.IssueTests
 {
-    [TestClass]
+
     public class LifetimeIssues
     {
         class DoResolveAttribute : Attribute { }
@@ -40,7 +40,7 @@ namespace Stashbox.Tests.IssueTests
             public override Type Target { get; } = _Target;
         }
 
-        [TestMethod]
+        [Fact]
         public void ContextEstablishedInChildContainersCanBeAccessedWhenUsingAParentScopeConstruction()
         {
             StashboxContainer sb1 = CreateContainer(c => c.WithSingletonLifetime());
@@ -61,7 +61,7 @@ namespace Stashbox.Tests.IssueTests
 
         }
 
-        [TestMethod]
+        [Fact]
         public void ContextEstablishedInChildContainersCanBeAccessedWhenUsingAParentScopeConstructionWithChildContainer()
         {
             StashboxContainer sb1 = CreateContainer(c => c.WithScopedLifetime());

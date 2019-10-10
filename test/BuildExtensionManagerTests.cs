@@ -1,16 +1,16 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
+﻿using Moq;
 using Stashbox.ContainerExtension;
 using Stashbox.Registration;
 using Stashbox.Resolution;
 using System;
+using Xunit;
 
 namespace Stashbox.Tests
 {
-    [TestClass]
+
     public class BuildExtensionManagerTests
     {
-        [TestMethod]
+        [Fact]
         public void BuildExtensionManagerTests_AddPostBuildExtension()
         {
             var post = new Mock<IPostBuildExtension>();
@@ -30,7 +30,7 @@ namespace Stashbox.Tests
             post.Verify(p => p.CleanUp());
         }
 
-        [TestMethod]
+        [Fact]
         public void BuildExtensionManagerTests_AddPostBuildExtension_WithDefaultReg()
         {
             var post = new Mock<IPostBuildExtension>();
@@ -44,7 +44,7 @@ namespace Stashbox.Tests
                     It.IsAny<IServiceRegistration>(), It.IsAny<Type>())).Returns(It.IsAny<object>()).Callback(() => called = true).Verifiable();
 
                 var inst = container.Resolve<ITest>();
-                Assert.IsTrue(called);
+                Assert.True(called);
 
                 post.Verify(p => p.Initialize(container.ContainerContext));
             }
@@ -52,7 +52,7 @@ namespace Stashbox.Tests
             post.Verify(p => p.CleanUp());
         }
 
-        [TestMethod]
+        [Fact]
         public void BuildExtensionManagerTests_AddRegistrationBuildExtension()
         {
             var post = new Mock<IRegistrationExtension>();
@@ -67,7 +67,7 @@ namespace Stashbox.Tests
             post.Verify(p => p.CleanUp());
         }
 
-        [TestMethod]
+        [Fact]
         public void BuildExtensionManagerTests_CreateCopy()
         {
             var post = new Mock<IRegistrationExtension>();

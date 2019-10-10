@@ -1,14 +1,14 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Xunit;
 
 namespace Stashbox.Tests
 {
-    [TestClass]
+
     public class TupleTests
     {
-        [TestMethod]
+        [Fact]
         public void TupleTests_Resolve()
         {
             var container = new StashboxContainer();
@@ -16,23 +16,23 @@ namespace Stashbox.Tests
             container.Register<ITest1, Test1>();
             var inst = container.Resolve<Tuple<ITest, ITest1>>();
 
-            Assert.IsNotNull(inst);
-            Assert.IsInstanceOfType(inst, typeof(Tuple<ITest, ITest1>));
-            Assert.IsInstanceOfType(inst.Item1, typeof(Test));
-            Assert.IsInstanceOfType(inst.Item2, typeof(Test1));
+            Assert.NotNull(inst);
+            Assert.IsType<Tuple<ITest, ITest1>>(inst);
+            Assert.IsType<Test>(inst.Item1);
+            Assert.IsType<Test1>(inst.Item2);
         }
 
-        [TestMethod]
+        [Fact]
         public void TupleTests_Resolve_Null()
         {
             var container = new StashboxContainer();
             container.Register<ITest, Test>();
             var inst = container.Resolve<Tuple<ITest, ITest1>>(nullResultAllowed: true);
 
-            Assert.IsNull(inst);
+            Assert.Null(inst);
         }
 
-        [TestMethod]
+        [Fact]
         public void TupleTests_Resolve_Lazy()
         {
             var container = new StashboxContainer();
@@ -40,13 +40,13 @@ namespace Stashbox.Tests
             container.Register<ITest1, Test1>();
             var inst = container.Resolve<Tuple<ITest, Lazy<ITest1>>>();
 
-            Assert.IsNotNull(inst);
-            Assert.IsInstanceOfType(inst, typeof(Tuple<ITest, Lazy<ITest1>>));
-            Assert.IsInstanceOfType(inst.Item1, typeof(Test));
-            Assert.IsInstanceOfType(inst.Item2.Value, typeof(Test1));
+            Assert.NotNull(inst);
+            Assert.IsType<Tuple<ITest, Lazy<ITest1>>>(inst);
+            Assert.IsType<Test>(inst.Item1);
+            Assert.IsType<Test1>(inst.Item2.Value);
         }
 
-        [TestMethod]
+        [Fact]
         public void TupleTests_Resolve_Func()
         {
             var container = new StashboxContainer();
@@ -54,13 +54,13 @@ namespace Stashbox.Tests
             container.Register<ITest1, Test1>();
             var inst = container.Resolve<Tuple<ITest, Func<ITest1>>>();
 
-            Assert.IsNotNull(inst);
-            Assert.IsInstanceOfType(inst, typeof(Tuple<ITest, Func<ITest1>>));
-            Assert.IsInstanceOfType(inst.Item1, typeof(Test));
-            Assert.IsInstanceOfType(inst.Item2(), typeof(Test1));
+            Assert.NotNull(inst);
+            Assert.IsType<Tuple<ITest, Func<ITest1>>>(inst);
+            Assert.IsType<Test>(inst.Item1);
+            Assert.IsType<Test1>(inst.Item2());
         }
 
-        [TestMethod]
+        [Fact]
         public void TupleTests_Resolve_Enumerable()
         {
             var container = new StashboxContainer();
@@ -68,13 +68,13 @@ namespace Stashbox.Tests
             container.Register<ITest1, Test1>();
             var inst = container.Resolve<Tuple<IEnumerable<ITest>, Func<ITest1>>>();
 
-            Assert.IsNotNull(inst);
-            Assert.IsInstanceOfType(inst, typeof(Tuple<IEnumerable<ITest>, Func<ITest1>>));
-            Assert.IsInstanceOfType(inst.Item1.First(), typeof(Test));
-            Assert.IsInstanceOfType(inst.Item2(), typeof(Test1));
+            Assert.NotNull(inst);
+            Assert.IsType<Tuple<IEnumerable<ITest>, Func<ITest1>>>(inst);
+            Assert.IsType<Test>(inst.Item1.First());
+            Assert.IsType<Test1>(inst.Item2());
         }
 
-        [TestMethod]
+        [Fact]
         public void TupleTests_Resolve_Constructor()
         {
             var container = new StashboxContainer();
@@ -83,10 +83,10 @@ namespace Stashbox.Tests
             container.Register<Test2>();
             var inst = container.Resolve<Test2>();
 
-            Assert.IsNotNull(inst);
-            Assert.IsInstanceOfType(inst.Test, typeof(Tuple<ITest, ITest1>));
-            Assert.IsInstanceOfType(inst.Test.Item1, typeof(Test));
-            Assert.IsInstanceOfType(inst.Test.Item2, typeof(Test1));
+            Assert.NotNull(inst);
+            Assert.IsType<Tuple<ITest, ITest1>>(inst.Test);
+            Assert.IsType<Test>(inst.Test.Item1);
+            Assert.IsType<Test1>(inst.Test.Item2);
         }
 
         interface ITest

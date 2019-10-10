@@ -1,11 +1,11 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Xunit;
 
 namespace Stashbox.Tests
 {
-    [TestClass]
+
     public class ResolveFactoryTests
     {
-        [TestMethod]
+        [Fact]
         public void ResolveFactoryTests_ParameterLess()
         {
             using (var container = new StashboxContainer())
@@ -13,11 +13,11 @@ namespace Stashbox.Tests
                 container.Register<Test>();
                 var factory = container.ResolveFactory<Test>();
 
-                Assert.IsNotNull(factory());
+                Assert.NotNull(factory());
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void ResolveFactoryTests_ParameterLess_Named()
         {
             using (var container = new StashboxContainer())
@@ -26,11 +26,11 @@ namespace Stashbox.Tests
                 container.Register<IService, Service1>(c => c.WithName("service1"));
                 var factory = container.ResolveFactory<IService>("service");
 
-                Assert.IsInstanceOfType(factory(), typeof(Service));
+                Assert.IsType<Service>(factory());
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void ResolveFactoryTests_ParameterLess_Scoped()
         {
             using (var container = new StashboxContainer())
@@ -41,12 +41,12 @@ namespace Stashbox.Tests
                 {
                     var factory = scope.ResolveFactory<Test>();
 
-                    Assert.IsNotNull(factory());
+                    Assert.NotNull(factory());
                 }
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void ResolveFactoryTests_OneParam()
         {
             using (var container = new StashboxContainer())
@@ -57,11 +57,11 @@ namespace Stashbox.Tests
                 var test = new Test();
                 var inst = factory(test);
 
-                Assert.AreSame(test, inst.Test);
+                Assert.Same(test, inst.Test);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void ResolveFactoryTests_OneParam_Scoped()
         {
             using (var container = new StashboxContainer())
@@ -75,12 +75,12 @@ namespace Stashbox.Tests
                     var test = new Test();
                     var inst = factory(test);
 
-                    Assert.AreSame(test, inst.Test);
+                    Assert.Same(test, inst.Test);
                 }
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void ResolveFactoryTests_TwoParams()
         {
             using (var container = new StashboxContainer())
@@ -92,12 +92,12 @@ namespace Stashbox.Tests
                 var test1 = new Test1(test);
                 var inst = factory(test, test1);
 
-                Assert.AreSame(test, inst.Test);
-                Assert.AreSame(test1, inst.Test1);
+                Assert.Same(test, inst.Test);
+                Assert.Same(test1, inst.Test1);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void ResolveFactoryTests_TwoParams_Scoped()
         {
             using (var container = new StashboxContainer())
@@ -112,13 +112,13 @@ namespace Stashbox.Tests
                     var test1 = new Test1(test);
                     var inst = factory(test, test1);
 
-                    Assert.AreSame(test, inst.Test);
-                    Assert.AreSame(test1, inst.Test1);
+                    Assert.Same(test, inst.Test);
+                    Assert.Same(test1, inst.Test1);
                 }
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void ResolveFactoryTests_ThreeParams()
         {
             using (var container = new StashboxContainer())
@@ -131,13 +131,13 @@ namespace Stashbox.Tests
                 var test2 = new Test2(test1, test);
                 var inst = factory(test, test1, test2);
 
-                Assert.AreSame(test, inst.Test);
-                Assert.AreSame(test1, inst.Test1);
-                Assert.AreSame(test2, inst.Test2);
+                Assert.Same(test, inst.Test);
+                Assert.Same(test1, inst.Test1);
+                Assert.Same(test2, inst.Test2);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void ResolveFactoryTests_ThreeParams_Scoped()
         {
             using (var container = new StashboxContainer())
@@ -153,14 +153,14 @@ namespace Stashbox.Tests
                     var test2 = new Test2(test1, test);
                     var inst = factory(test, test1, test2);
 
-                    Assert.AreSame(test, inst.Test);
-                    Assert.AreSame(test1, inst.Test1);
-                    Assert.AreSame(test2, inst.Test2);
+                    Assert.Same(test, inst.Test);
+                    Assert.Same(test1, inst.Test1);
+                    Assert.Same(test2, inst.Test2);
                 }
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void ResolveFactoryTests_FourParams()
         {
             using (var container = new StashboxContainer())
@@ -174,14 +174,14 @@ namespace Stashbox.Tests
                 var test3 = new Test3(test1, test, test2);
                 var inst = factory(test, test1, test2, test3);
 
-                Assert.AreSame(test, inst.Test);
-                Assert.AreSame(test1, inst.Test1);
-                Assert.AreSame(test2, inst.Test2);
-                Assert.AreSame(test3, inst.Test3);
+                Assert.Same(test, inst.Test);
+                Assert.Same(test1, inst.Test1);
+                Assert.Same(test2, inst.Test2);
+                Assert.Same(test3, inst.Test3);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void ResolveFactoryTests_FourParams_Scoped()
         {
             using (var container = new StashboxContainer())
@@ -198,10 +198,10 @@ namespace Stashbox.Tests
                     var test3 = new Test3(test1, test, test2);
                     var inst = factory(test, test1, test2, test3);
 
-                    Assert.AreSame(test, inst.Test);
-                    Assert.AreSame(test1, inst.Test1);
-                    Assert.AreSame(test2, inst.Test2);
-                    Assert.AreSame(test3, inst.Test3);
+                    Assert.Same(test, inst.Test);
+                    Assert.Same(test1, inst.Test1);
+                    Assert.Same(test2, inst.Test2);
+                    Assert.Same(test3, inst.Test3);
                 }
             }
         }

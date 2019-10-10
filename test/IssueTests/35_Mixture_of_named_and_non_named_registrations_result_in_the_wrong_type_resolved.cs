@@ -1,11 +1,11 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Xunit;
 
 namespace Stashbox.Tests.IssueTests
 {
-    [TestClass]
+
     public class MixtureOfNamedAndNonNamedRegistrationTests
     {
-        [TestMethod]
+        [Fact]
         public void Mixture_of_named_and_non_named_registrations_result_in_the_wrong_type_resolved()
         {
             var sb = new StashboxContainer();
@@ -15,8 +15,8 @@ namespace Stashbox.Tests.IssueTests
             sb.RegisterSingleton(typeof(ITest), typeof(Test2), "Test3");
             var test = sb.Resolve<ITest>();
 
-            Assert.IsNotNull(test);
-            Assert.IsInstanceOfType(test, typeof(Test));
+            Assert.NotNull(test);
+            Assert.IsType<Test>(test);
         }
 
         interface ITest

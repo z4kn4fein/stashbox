@@ -1,81 +1,81 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Stashbox.Attributes;
+﻿using Stashbox.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
+using Xunit;
 
 namespace Stashbox.Tests
 {
-    [TestClass]
+
     public class FuncTests
     {
-        [TestMethod]
+        [Fact]
         public void FuncTests_Resolve()
         {
             var container = new StashboxContainer();
             container.Register<ITest, Test>();
             var inst = container.Resolve<Func<ITest>>();
 
-            Assert.IsNotNull(inst);
-            Assert.IsInstanceOfType(inst, typeof(Func<ITest>));
-            Assert.IsInstanceOfType(inst(), typeof(Test));
+            Assert.NotNull(inst);
+            Assert.IsType<Func<ITest>>(inst);
+            Assert.IsType<Test>(inst());
         }
 
-        [TestMethod]
+        [Fact]
         public void FuncTests_Resolve_Null()
         {
             var container = new StashboxContainer();
             var inst = container.Resolve<Func<ITest>>(nullResultAllowed: true);
 
-            Assert.IsNull(inst);
+            Assert.Null(inst);
         }
 
-        [TestMethod]
+        [Fact]
         public void FuncTests_Resolve_Lazy()
         {
             var container = new StashboxContainer();
             container.Register<ITest, Test>();
             var inst = container.Resolve<Func<Lazy<ITest>>>();
 
-            Assert.IsNotNull(inst);
-            Assert.IsInstanceOfType(inst, typeof(Func<Lazy<ITest>>));
-            Assert.IsInstanceOfType(inst().Value, typeof(Test));
+            Assert.NotNull(inst);
+            Assert.IsType<Func<Lazy<ITest>>>(inst);
+            Assert.IsType<Test>(inst().Value);
         }
 
-        [TestMethod]
+        [Fact]
         public void FuncTests_Resolve_Lazy_Null()
         {
             var container = new StashboxContainer();
             var inst = container.Resolve<Func<Lazy<ITest>>>(nullResultAllowed: true);
 
-            Assert.IsNull(inst);
+            Assert.Null(inst);
         }
 
-        [TestMethod]
+        [Fact]
         public void FuncTests_Resolve_Enumerable()
         {
             var container = new StashboxContainer();
             container.Register<ITest, Test>();
             var inst = container.Resolve<Func<IEnumerable<ITest>>>();
 
-            Assert.IsNotNull(inst);
-            Assert.IsInstanceOfType(inst, typeof(Func<IEnumerable<ITest>>));
-            Assert.IsInstanceOfType(inst().First(), typeof(Test));
+            Assert.NotNull(inst);
+            Assert.IsType<Func<IEnumerable<ITest>>>(inst);
+            Assert.IsType<Test>(inst().First());
         }
 
-        [TestMethod]
+        [Fact]
         public void FuncTests_Resolve_Enumerable_Null()
         {
             var container = new StashboxContainer();
             var inst = container.Resolve<Func<IEnumerable<ITest>>>();
 
-            Assert.AreEqual(0, inst().Count());
+            Assert.Empty(inst());
         }
 
-        [TestMethod]
+        [Fact]
         public void FuncTests_Resolve_ConstructorDependency()
         {
             var container = new StashboxContainer();
@@ -83,22 +83,22 @@ namespace Stashbox.Tests
             container.Register<Test2>();
             var inst = container.Resolve<Test2>();
 
-            Assert.IsNotNull(inst.Test);
-            Assert.IsInstanceOfType(inst.Test, typeof(Func<ITest>));
-            Assert.IsInstanceOfType(inst.Test(), typeof(Test));
+            Assert.NotNull(inst.Test);
+            Assert.IsType<Func<ITest>>(inst.Test);
+            Assert.IsType<Test>(inst.Test());
         }
 
-        [TestMethod]
+        [Fact]
         public void FuncTests_Resolve_ConstructorDependency_Null()
         {
             var container = new StashboxContainer();
             container.Register<Test2>();
             var inst = container.Resolve<Test2>(nullResultAllowed: true);
 
-            Assert.IsNull(inst);
+            Assert.Null(inst);
         }
 
-        [TestMethod]
+        [Fact]
         public void FuncTests_Resolve_ParameterInjection()
         {
             var container = new StashboxContainer();
@@ -108,10 +108,10 @@ namespace Stashbox.Tests
             var t = new Test();
             var r = inst(t);
 
-            Assert.AreSame(t, r.Test);
+            Assert.Same(t, r.Test);
         }
 
-        [TestMethod]
+        [Fact]
         public void FuncTests_Resolve_ParameterInjection_2Params()
         {
             var container = new StashboxContainer();
@@ -122,11 +122,11 @@ namespace Stashbox.Tests
             var t1 = new FTest1();
             var r = inst(t, t1);
 
-            Assert.AreSame(t, r.Test);
-            Assert.AreSame(t1, r.Test1);
+            Assert.Same(t, r.Test);
+            Assert.Same(t1, r.Test1);
         }
 
-        [TestMethod]
+        [Fact]
         public void FuncTests_Resolve_ParameterInjection_3Params()
         {
             var container = new StashboxContainer();
@@ -138,12 +138,12 @@ namespace Stashbox.Tests
             var t2 = new FTest2(null);
             var r = inst(t, t1, t2);
 
-            Assert.AreSame(t, r.Test);
-            Assert.AreSame(t1, r.Test1);
-            Assert.AreSame(t2, r.Test2);
+            Assert.Same(t, r.Test);
+            Assert.Same(t1, r.Test1);
+            Assert.Same(t2, r.Test2);
         }
 
-        [TestMethod]
+        [Fact]
         public void FuncTests_Resolve_ParameterInjection_SubDependency()
         {
             var container = new StashboxContainer();
@@ -154,10 +154,10 @@ namespace Stashbox.Tests
             var t = new Test();
             var r = inst(t);
 
-            Assert.AreSame(t, r.Func2.Test);
+            Assert.Same(t, r.Func2.Test);
         }
 
-        [TestMethod]
+        [Fact]
         public void FuncTests_Resolve_ParameterInjection_Mixed()
         {
             var container = new StashboxContainer();
@@ -174,11 +174,11 @@ namespace Stashbox.Tests
 
             var d12 = new Dep1();
 
-            Assert.AreNotSame(d1, d.Dep(d12).Dep);
-            Assert.AreSame(d12, d.Dep(d12).Dep);
+            Assert.NotSame(d1, d.Dep(d12).Dep);
+            Assert.Same(d12, d.Dep(d12).Dep);
         }
 
-        [TestMethod]
+        [Fact]
         public void FuncTests_Resolve_ParameterInjection_Mixed2()
         {
             var container = new StashboxContainer();
@@ -194,44 +194,44 @@ namespace Stashbox.Tests
 
             var d32 = new Dep3();
 
-            Assert.IsNotNull(d.Dep(d32).Dep);
-            Assert.AreNotSame(d3, d.Dep(d32).Dep);
-            Assert.AreSame(d3, d.Dep1);
+            Assert.NotNull(d.Dep(d32).Dep);
+            Assert.NotSame(d3, d.Dep(d32).Dep);
+            Assert.Same(d3, d.Dep1);
         }
 
-        [TestMethod]
+        [Fact]
         public void FuncTests_Register_FuncDelegate()
         {
             var container = new StashboxContainer();
             container.RegisterFunc<string, RegisteredFuncTest>((name, resolver) =>
             {
-                Assert.IsNotNull(name);
-                Assert.IsNotNull(resolver);
+                Assert.NotNull(name);
+                Assert.NotNull(resolver);
                 return new RegisteredFuncTest(name);
             });
 
             var test = container.Resolve<Func<string, RegisteredFuncTest>>()("test");
 
-            Assert.AreEqual("test", test.Name);
+            Assert.Equal("test", test.Name);
         }
 
-        [TestMethod]
+        [Fact]
         public void FuncTests_Register_FuncDelegate_Lazy()
         {
             var container = new StashboxContainer();
             container.RegisterFunc<string, RegisteredFuncTest>((name, resolver) =>
             {
-                Assert.IsNotNull(name);
-                Assert.IsNotNull(resolver);
+                Assert.NotNull(name);
+                Assert.NotNull(resolver);
                 return new RegisteredFuncTest(name);
             });
 
             var test = container.Resolve<Lazy<Func<string, RegisteredFuncTest>>>().Value("test");
 
-            Assert.AreEqual("test", test.Name);
+            Assert.Equal("test", test.Name);
         }
 
-        [TestMethod]
+        [Fact]
         public void FuncTests_Register_FuncDelegate_Resolver()
         {
             var container = new StashboxContainer();
@@ -241,11 +241,11 @@ namespace Stashbox.Tests
 
             var test = container.Resolve<Func<string, RegisteredFuncTest2>>()("test");
 
-            Assert.AreSame(test1, test.Test1);
-            Assert.AreEqual("test", test.Name);
+            Assert.Same(test1, test.Test1);
+            Assert.Equal("test", test.Name);
         }
 
-        [TestMethod]
+        [Fact]
         public void FuncTests_Register_FuncDelegate_TwoParams()
         {
             var container = new StashboxContainer();
@@ -255,11 +255,11 @@ namespace Stashbox.Tests
 
             var test = container.Resolve<Func<ITest, ITest, RegisteredFuncTest3>>()(t1, t2);
 
-            Assert.AreSame(t1, test.Test1);
-            Assert.AreSame(t2, test.Test2);
+            Assert.Same(t1, test.Test1);
+            Assert.Same(t2, test.Test2);
         }
 
-        [TestMethod]
+        [Fact]
         public void FuncTests_Register_FuncDelegate_ThreeParams()
         {
             var container = new StashboxContainer();
@@ -270,12 +270,12 @@ namespace Stashbox.Tests
 
             var test = container.Resolve<Func<ITest, ITest, ITest, RegisteredFuncTest4>>()(t1, t2, t3);
 
-            Assert.AreSame(t1, test.Test1);
-            Assert.AreSame(t2, test.Test2);
-            Assert.AreSame(t3, test.Test3);
+            Assert.Same(t1, test.Test1);
+            Assert.Same(t2, test.Test2);
+            Assert.Same(t3, test.Test3);
         }
 
-        [TestMethod]
+        [Fact]
         public void FuncTests_Register_FuncDelegate_FourParams()
         {
             var container = new StashboxContainer();
@@ -287,13 +287,13 @@ namespace Stashbox.Tests
 
             var test = container.Resolve<Func<ITest, ITest, ITest, ITest, RegisteredFuncTest5>>()(t1, t2, t3, t4);
 
-            Assert.AreSame(t1, test.Test1);
-            Assert.AreSame(t2, test.Test2);
-            Assert.AreSame(t3, test.Test3);
-            Assert.AreSame(t4, test.Test4);
+            Assert.Same(t1, test.Test1);
+            Assert.Same(t2, test.Test2);
+            Assert.Same(t3, test.Test3);
+            Assert.Same(t4, test.Test4);
         }
 
-        [TestMethod]
+        [Fact]
         public async Task FuncTests_Register_FuncDelegate_Async()
         {
             var container = new StashboxContainer();
@@ -304,11 +304,11 @@ namespace Stashbox.Tests
             var inst = await container.Resolve<Func<Task<Test>>>()();
             var inst2 = await container.Resolve<Func<Task<Test>>>()();
 
-            Assert.AreSame(test, inst);
-            Assert.AreSame(inst, inst2);
+            Assert.Same(test, inst);
+            Assert.Same(inst, inst2);
         }
 
-        [TestMethod]
+        [Fact]
         public async Task FuncTests_Register_FuncDelegate_Async_Longrun()
         {
             var container = new StashboxContainer();
@@ -322,10 +322,10 @@ namespace Stashbox.Tests
 
             var inst = await container.Resolve<Func<Task<Test>>>()();
 
-            Assert.AreSame(test, inst);
+            Assert.Same(test, inst);
         }
 
-        [TestMethod]
+        [Fact]
         public void FuncTests_Register_Named()
         {
             var container = new StashboxContainer();
@@ -334,10 +334,10 @@ namespace Stashbox.Tests
 
             var test = container.Resolve<Func<ITest>>("teszt")();
 
-            Assert.IsNotNull(test);
+            Assert.NotNull(test);
         }
 
-        [TestMethod]
+        [Fact]
         public void FuncTests_Register_Multiple()
         {
             var container = new StashboxContainer();
@@ -349,7 +349,7 @@ namespace Stashbox.Tests
             container.Resolve<Func<Dep1>>();
         }
 
-        [TestMethod]
+        [Fact]
         public void FuncTests_Register_Multiple_ReMap()
         {
             var container = new StashboxContainer();
@@ -357,14 +357,14 @@ namespace Stashbox.Tests
             container.Register<ITest, Test>();
             container.RegisterFunc(resolver => resolver.Resolve<ITest>());
 
-            Assert.IsNotNull(container.Resolve<Func<ITest>>()());
+            Assert.NotNull(container.Resolve<Func<ITest>>()());
 
             container.ReMap<ITest, Test>();
 
-            Assert.IsNotNull(container.Resolve<Func<ITest>>()());
+            Assert.NotNull(container.Resolve<Func<ITest>>()());
         }
 
-        [TestMethod]
+        [Fact]
         public void FuncTests_Register_Parallel()
         {
             var container = new StashboxContainer();
@@ -375,11 +375,11 @@ namespace Stashbox.Tests
 
                 var test = container.Resolve<Func<ITest>>(i.ToString())();
 
-                Assert.IsNotNull(test);
+                Assert.NotNull(test);
             });
         }
 
-        [TestMethod]
+        [Fact]
         public void FuncTests_Register_Compiled_Lambda()
         {
             var inst = new StashboxContainer()
@@ -390,17 +390,17 @@ namespace Stashbox.Tests
                     .Compile())
                 .Resolve<Func<ITest>>()();
 
-            Assert.IsNotNull(inst);
+            Assert.NotNull(inst);
         }
 
-        [TestMethod]
+        [Fact]
         public void FuncTests_Register_Static_Factory()
         {
             var inst = new StashboxContainer()
                 .RegisterFunc(Create)
                 .Resolve<Func<ITest>>()();
 
-            Assert.IsNotNull(inst);
+            Assert.NotNull(inst);
         }
 
         static ITest Create(IDependencyResolver resolver) =>

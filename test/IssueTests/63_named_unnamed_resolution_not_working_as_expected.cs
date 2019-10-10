@@ -1,14 +1,13 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Stashbox.Attributes;
+﻿using Stashbox.Attributes;
 using Stashbox.Exceptions;
+using Xunit;
 
 namespace Stashbox.Tests.IssueTests
 {
-    [TestClass]
+
     public class NamedUnnamedResolutionNotWorkingAsExpected
     {
-        [TestMethod]
+        [Fact]
         public void Ensures_Named_Dependency_Selected_When_Convention_Enabled()
         {
             var inst = new StashboxContainer(c => c.TreatParameterAndMemberNameAsDependencyName())
@@ -17,11 +16,11 @@ namespace Stashbox.Tests.IssueTests
                 .Register<Test3>()
                 .Resolve<Test3>();
 
-            Assert.IsInstanceOfType(inst.T1, typeof(Test1));
-            Assert.IsInstanceOfType(inst.T2, typeof(Test2));
+            Assert.IsType<Test1>(inst.T1);
+            Assert.IsType<Test2>(inst.T2);
         }
 
-        [TestMethod]
+        [Fact]
         public void Ensures_Named_Dependency_Selected_When_Convention_Enabled_InjectionMembers()
         {
             var inst = new StashboxContainer(c => c.TreatParameterAndMemberNameAsDependencyName())
@@ -30,11 +29,11 @@ namespace Stashbox.Tests.IssueTests
                 .Register<Test4>(c => c.WithAutoMemberInjection())
                 .Resolve<Test4>();
 
-            Assert.IsInstanceOfType(inst.T1, typeof(Test1));
-            Assert.IsInstanceOfType(inst.T2, typeof(Test2));
+            Assert.IsType<Test1>(inst.T1);
+            Assert.IsType<Test2>(inst.T2);
         }
 
-        [TestMethod]
+        [Fact]
         public void Ensures_Named_Dependency_Selected_When_Convention_Enabled_InjectionMethod()
         {
             var inst = new StashboxContainer(c => c.TreatParameterAndMemberNameAsDependencyName())
@@ -43,11 +42,11 @@ namespace Stashbox.Tests.IssueTests
                 .Register<Test5>()
                 .Resolve<Test5>();
 
-            Assert.IsInstanceOfType(inst.T1, typeof(Test1));
-            Assert.IsInstanceOfType(inst.T2, typeof(Test2));
+            Assert.IsType<Test1>(inst.T1);
+            Assert.IsType<Test2>(inst.T2);
         }
 
-        [TestMethod]
+        [Fact]
         public void Ensures_UnNamed_Dependency_Selected_When_Named_Not_Available()
         {
             var container = new StashboxContainer(c => c.WithNamedDependencyResolutionForUnNamedRequests())
@@ -56,12 +55,12 @@ namespace Stashbox.Tests.IssueTests
             var inst = container.Resolve<ITest>("t1");
             var inst2 = container.Resolve<ITest>();
 
-            Assert.IsNotNull(inst);
-            Assert.IsNotNull(inst2);
-            Assert.AreEqual(inst, inst2);
+            Assert.NotNull(inst);
+            Assert.NotNull(inst2);
+            Assert.Equal(inst, inst2);
         }
 
-        [TestMethod]
+        [Fact]
         public void Ensures_UnNamed_Dependency_Selected_When_Convention_Enabled_But_Named_Preferred()
         {
             var container = new StashboxContainer(c => c
@@ -72,12 +71,11 @@ namespace Stashbox.Tests.IssueTests
 
             var inst = container.Resolve<Test3>();
 
-            Assert.IsInstanceOfType(inst.T1, typeof(Test1));
-            Assert.IsInstanceOfType(inst.T2, typeof(Test1));
+            Assert.IsType<Test1>(inst.T1);
+            Assert.IsType<Test1>(inst.T2);
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(ResolutionFailedException))]
+        [Fact]
         public void Ensures_Dont_Resolve_Named_When_Not_Enabled()
         {
             var container = new StashboxContainer(c => c
@@ -85,10 +83,10 @@ namespace Stashbox.Tests.IssueTests
                 .Register<Test3>()
                 .Register<ITest, Test1>("t1");
 
-            container.Resolve<Test3>();
+            Assert.Throws<ResolutionFailedException>(() => container.Resolve<Test3>());
         }
 
-        [TestMethod]
+        [Fact]
         public void Ensures_UnNamed_Dependency_Selected_When_Named_Not_Available_With_Treating_Param_Names_As_Dependency_Names()
         {
             var container = new StashboxContainer(c => c
@@ -99,8 +97,8 @@ namespace Stashbox.Tests.IssueTests
 
             var inst = container.Resolve<Test3>();
 
-            Assert.IsInstanceOfType(inst.T1, typeof(Test1));
-            Assert.IsInstanceOfType(inst.T2, typeof(Test2));
+            Assert.IsType<Test1>(inst.T1);
+            Assert.IsType<Test2>(inst.T2);
         }
 
         interface ITest { }

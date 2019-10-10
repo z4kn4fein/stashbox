@@ -1,17 +1,17 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Stashbox.Exceptions;
+﻿using Stashbox.Exceptions;
 using Stashbox.Lifetime;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Xunit;
 
 namespace Stashbox.Tests
 {
-    [TestClass]
+
     public class RegistersTests
     {
-        [TestMethod]
+        [Fact]
         public void RegistersTests_RegistersAs()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -19,10 +19,10 @@ namespace Stashbox.Tests
 
             var all = container.Resolve<IEnumerable<ITest1>>();
 
-            Assert.AreEqual(3, all.Count());
+            Assert.Equal(3, all.Count());
         }
 
-        [TestMethod]
+        [Fact]
         public void RegistersTests_RegistersAs_Assembly()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -31,10 +31,10 @@ namespace Stashbox.Tests
 
             var all = container.Resolve<IEnumerable<ITest1>>();
 
-            Assert.AreEqual(3, all.Count());
+            Assert.Equal(3, all.Count());
         }
 
-        [TestMethod]
+        [Fact]
         public void RegistersTests_RegistersAs_Selector()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -42,19 +42,19 @@ namespace Stashbox.Tests
 
             var all = container.Resolve<IEnumerable<ITest1>>();
 
-            Assert.AreEqual(1, all.Count());
+            Assert.Single(all);
         }
 
-        [TestMethod]
+        [Fact]
         public void RegistersTests_RegistersAsSelf_Selector()
         {
             IStashboxContainer container = new StashboxContainer();
             container.RegisterTypes(new[] { typeof(Test1), typeof(Test11), typeof(Test12) }, type => type == typeof(Test12));
 
-            Assert.IsNotNull(container.Resolve<Test12>());
+            Assert.NotNull(container.Resolve<Test12>());
         }
 
-        [TestMethod]
+        [Fact]
         public void RegistersTests_RegistersAs_Scoped()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -62,11 +62,11 @@ namespace Stashbox.Tests
 
             var regs = container.ContainerContext.RegistrationRepository.GetRegistrationMappings().ToArray();
 
-            Assert.AreEqual(3, regs.Length);
-            Assert.IsTrue(regs.All(reg => reg.Value.RegistrationContext.Lifetime is ScopedLifetime));
+            Assert.Equal(3, regs.Length);
+            Assert.True(regs.All(reg => reg.Value.RegistrationContext.Lifetime is ScopedLifetime));
         }
 
-        [TestMethod]
+        [Fact]
         public void RegistersTests_RegistersAsSelf_Scoped_Selector()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -74,11 +74,11 @@ namespace Stashbox.Tests
 
             var regs = container.ContainerContext.RegistrationRepository.GetRegistrationMappings().ToArray();
 
-            Assert.AreEqual(4, regs.Length);
-            Assert.IsTrue(regs.All(reg => reg.Value.RegistrationContext.Lifetime is ScopedLifetime));
+            Assert.Equal(4, regs.Length);
+            Assert.True(regs.All(reg => reg.Value.RegistrationContext.Lifetime is ScopedLifetime));
         }
 
-        [TestMethod]
+        [Fact]
         public void RegistersTests_Registers()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -88,12 +88,12 @@ namespace Stashbox.Tests
             var test1 = container.ResolveAll<ITest1>();
             var test2 = container.ResolveAll<ITest2>();
 
-            Assert.AreEqual(3, test.Count());
-            Assert.AreEqual(3, test1.Count());
-            Assert.AreEqual(2, test2.Count());
+            Assert.Equal(3, test.Count());
+            Assert.Equal(3, test1.Count());
+            Assert.Equal(2, test2.Count());
         }
 
-        [TestMethod]
+        [Fact]
         public void RegistersTests_Registers_Selector()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -103,12 +103,12 @@ namespace Stashbox.Tests
             var test1 = container.ResolveAll<ITest1>();
             var test2 = container.ResolveAll<ITest2>();
 
-            Assert.AreEqual(1, test.Count());
-            Assert.AreEqual(1, test1.Count());
-            Assert.AreEqual(1, test2.Count());
+            Assert.Single(test);
+            Assert.Single(test1);
+            Assert.Single(test2);
         }
 
-        [TestMethod]
+        [Fact]
         public void RegistersTests_Registers_Configurator()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -124,13 +124,13 @@ namespace Stashbox.Tests
 
             var scopeds = container.ContainerContext.RegistrationRepository.GetRegistrationMappings().Where(r => r.Value.RegistrationContext.Lifetime is ScopedLifetime).ToArray();
 
-            Assert.AreEqual(3, test.Count());
-            Assert.AreEqual(3, test1.Count());
-            Assert.AreEqual(2, test2.Count());
-            Assert.AreEqual(2, scopeds.Length);
+            Assert.Equal(3, test.Count());
+            Assert.Equal(3, test1.Count());
+            Assert.Equal(2, test2.Count());
+            Assert.Equal(2, scopeds.Length);
         }
 
-        [TestMethod]
+        [Fact]
         public void RegistersTests_RegisterAssembly()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -138,10 +138,10 @@ namespace Stashbox.Tests
 
             var regs = container.ContainerContext.RegistrationRepository.GetRegistrationMappings().ToArray();
 
-            Assert.IsTrue(regs.Length > 0);
+            Assert.True(regs.Length > 0);
         }
 
-        [TestMethod]
+        [Fact]
         public void RegistersTests_RegisterAssembly_AsSelf()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -149,11 +149,11 @@ namespace Stashbox.Tests
 
             var regs = container.ContainerContext.RegistrationRepository.GetRegistrationMappings().ToArray();
 
-            Assert.IsTrue(regs.Length > 0);
-            Assert.IsTrue(regs.Any(reg => reg.Key == typeof(Test)));
+            Assert.True(regs.Length > 0);
+            Assert.Contains(regs, reg => reg.Key == typeof(Test));
         }
 
-        [TestMethod]
+        [Fact]
         public void RegistersTests_RegisterAssemblies()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -165,11 +165,11 @@ namespace Stashbox.Tests
 
             var regs = container.ContainerContext.RegistrationRepository.GetRegistrationMappings();
 
-            Assert.IsTrue(regs.Any(r => r.Key == typeof(IStashboxContainer)));
-            Assert.IsTrue(regs.Any(r => r.Key == typeof(ITest1)));
+            Assert.Contains(regs, r => r.Key == typeof(IStashboxContainer));
+            Assert.Contains(regs, r => r.Key == typeof(ITest1));
         }
 
-        [TestMethod]
+        [Fact]
         public void RegistersTests_RegisterAssemblies_AsSelf()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -181,11 +181,11 @@ namespace Stashbox.Tests
 
             var regs = container.ContainerContext.RegistrationRepository.GetRegistrationMappings();
 
-            Assert.IsTrue(regs.Any(r => r.Key == typeof(StashboxContainer)));
-            Assert.IsTrue(regs.Any(r => r.Key == typeof(Test1)));
+            Assert.Contains(regs, r => r.Key == typeof(StashboxContainer));
+            Assert.Contains(regs, r => r.Key == typeof(Test1));
         }
 
-        [TestMethod]
+        [Fact]
         public void RegistersTests_RegisterAssembly_Selector()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -193,11 +193,11 @@ namespace Stashbox.Tests
 
             var regs = container.ContainerContext.RegistrationRepository.GetRegistrationMappings();
 
-            Assert.IsTrue(regs.Any(reg => reg.Key == typeof(ITest)));
-            Assert.IsTrue(regs.Any(reg => reg.Key == typeof(Test)));
+            Assert.Contains(regs, reg => reg.Key == typeof(ITest));
+            Assert.Contains(regs, reg => reg.Key == typeof(Test));
         }
 
-        [TestMethod]
+        [Fact]
         public void RegistersTests_RegisterAssembly_Configurator()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -209,10 +209,10 @@ namespace Stashbox.Tests
 
             var regs = container.ContainerContext.RegistrationRepository.GetRegistrationMappings().Where(r => r.Value.RegistrationContext.Lifetime is ScopedLifetime).ToArray();
 
-            Assert.IsTrue(regs.Length > 0);
+            Assert.True(regs.Length > 0);
         }
 
-        [TestMethod]
+        [Fact]
         public void RegistersTests_RegisterAssembly_Configurator_AsSelf()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -224,10 +224,10 @@ namespace Stashbox.Tests
 
             var regs = container.ContainerContext.RegistrationRepository.GetRegistrationMappings().Where(r => r.Value.RegistrationContext.Lifetime is ScopedLifetime).ToArray();
 
-            Assert.IsTrue(regs.Length > 0);
+            Assert.True(regs.Length > 0);
         }
 
-        [TestMethod]
+        [Fact]
         public void RegistersTests_ComposeBy()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -235,20 +235,19 @@ namespace Stashbox.Tests
 
             var regs = container.ContainerContext.RegistrationRepository.GetRegistrationMappings().OrderBy(r => r.Value.RegistrationNumber).ToArray();
 
-            Assert.AreEqual(2, regs.Length);
-            Assert.AreSame(regs[0].Value.ImplementationType, typeof(Test));
-            Assert.AreSame(regs[1].Value.ImplementationType, typeof(Test1));
+            Assert.Equal(2, regs.Length);
+            Assert.Same(regs[0].Value.ImplementationType, typeof(Test));
+            Assert.Same(regs[1].Value.ImplementationType, typeof(Test1));
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
+        [Fact]
         public void RegistersTests_ComposeBy_Throw_DoesntImplement_ICompositionRoot()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.ComposeBy(typeof(Test));
+            Assert.Throws<ArgumentException>(() => container.ComposeBy(typeof(Test)));
         }
 
-        [TestMethod]
+        [Fact]
         public void RegistersTests_ComposeBy_Generic()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -256,12 +255,12 @@ namespace Stashbox.Tests
 
             var regs = container.ContainerContext.RegistrationRepository.GetRegistrationMappings().OrderBy(r => r.Value.RegistrationNumber).ToArray();
 
-            Assert.AreEqual(2, regs.Length);
-            Assert.AreSame(regs[0].Value.ImplementationType, typeof(Test));
-            Assert.AreSame(regs[1].Value.ImplementationType, typeof(Test1));
+            Assert.Equal(2, regs.Length);
+            Assert.Same(regs[0].Value.ImplementationType, typeof(Test));
+            Assert.Same(regs[1].Value.ImplementationType, typeof(Test1));
         }
 
-        [TestMethod]
+        [Fact]
         public void RegistersTests_ComposeAssembly()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -272,14 +271,14 @@ namespace Stashbox.Tests
                 .OrderBy(r => r.Value.RegistrationNumber)
                 .ToArray();
 
-            Assert.AreEqual(4, regs.Length);
-            Assert.AreSame(regs[0].Value.ImplementationType, typeof(Test));
-            Assert.AreSame(regs[1].Value.ImplementationType, typeof(Test1));
-            Assert.AreSame(regs[2].Value.ImplementationType, typeof(Test11));
-            Assert.AreSame(regs[3].Value.ImplementationType, typeof(Test12));
+            Assert.Equal(4, regs.Length);
+            Assert.Same(regs[0].Value.ImplementationType, typeof(Test));
+            Assert.Same(regs[1].Value.ImplementationType, typeof(Test1));
+            Assert.Same(regs[2].Value.ImplementationType, typeof(Test11));
+            Assert.Same(regs[3].Value.ImplementationType, typeof(Test12));
         }
 
-        [TestMethod]
+        [Fact]
         public void RegistersTests_ComposeAssemblies()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -290,22 +289,22 @@ namespace Stashbox.Tests
                 .OrderBy(r => r.Value.RegistrationNumber)
                 .ToArray();
 
-            Assert.AreEqual(4, regs.Length);
-            Assert.AreSame(regs[0].Value.ImplementationType, typeof(Test));
-            Assert.AreSame(regs[1].Value.ImplementationType, typeof(Test1));
-            Assert.AreSame(regs[2].Value.ImplementationType, typeof(Test11));
-            Assert.AreSame(regs[3].Value.ImplementationType, typeof(Test12));
+            Assert.Equal(4, regs.Length);
+            Assert.Same(regs[0].Value.ImplementationType, typeof(Test));
+            Assert.Same(regs[1].Value.ImplementationType, typeof(Test1));
+            Assert.Same(regs[2].Value.ImplementationType, typeof(Test11));
+            Assert.Same(regs[3].Value.ImplementationType, typeof(Test12));
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(CompositionRootNotFoundException))]
+        [Fact]
         public void RegistersTests_ComposeAssembly_CompositionRootNotFound()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.ComposeAssemblies(new[] { typeof(IStashboxContainer).GetTypeInfo().Assembly });
+            Assert.Throws<CompositionRootNotFoundException>(() =>
+            container.ComposeAssemblies(new[] { typeof(IStashboxContainer).GetTypeInfo().Assembly }));
         }
 
-        [TestMethod]
+        [Fact]
         public void RegistersTests_AsImplementedTypes_Interfaces()
         {
             var container = new StashboxContainer();
@@ -313,14 +312,14 @@ namespace Stashbox.Tests
 
             var regs = container.ContainerContext.RegistrationRepository.GetRegistrationMappings().OrderBy(r => r.Key.Name).ToArray();
 
-            Assert.AreEqual(4, regs.Length);
-            Assert.AreSame(regs[0].Key, typeof(ITest));
-            Assert.AreSame(regs[1].Key, typeof(ITest1));
-            Assert.AreSame(regs[2].Key, typeof(ITest2));
-            Assert.AreSame(regs[3].Key, typeof(Test12));
+            Assert.Equal(4, regs.Length);
+            Assert.Same(regs[0].Key, typeof(ITest));
+            Assert.Same(regs[1].Key, typeof(ITest1));
+            Assert.Same(regs[2].Key, typeof(ITest2));
+            Assert.Same(regs[3].Key, typeof(Test12));
         }
 
-        [TestMethod]
+        [Fact]
         public void RegistersTests_AsImplementedTypes_Interfaces_ReMap()
         {
             var container = new StashboxContainer();
@@ -332,14 +331,14 @@ namespace Stashbox.Tests
 
             var regs2 = container.ContainerContext.RegistrationRepository.GetRegistrationMappings().OrderBy(r => r.Key.Name).ToArray();
 
-            Assert.AreEqual(regs.Length, regs2.Length);
-            Assert.AreNotEqual(regs[0].Value.RegistrationNumber, regs2[0].Value.RegistrationNumber);
-            Assert.AreNotEqual(regs[1].Value.RegistrationNumber, regs2[1].Value.RegistrationNumber);
-            Assert.AreNotEqual(regs[2].Value.RegistrationNumber, regs2[2].Value.RegistrationNumber);
-            Assert.AreNotEqual(regs[3].Value.RegistrationNumber, regs2[3].Value.RegistrationNumber);
+            Assert.Equal(regs.Length, regs2.Length);
+            Assert.NotEqual(regs[0].Value.RegistrationNumber, regs2[0].Value.RegistrationNumber);
+            Assert.NotEqual(regs[1].Value.RegistrationNumber, regs2[1].Value.RegistrationNumber);
+            Assert.NotEqual(regs[2].Value.RegistrationNumber, regs2[2].Value.RegistrationNumber);
+            Assert.NotEqual(regs[3].Value.RegistrationNumber, regs2[3].Value.RegistrationNumber);
         }
 
-        [TestMethod]
+        [Fact]
         public void RegistersTests_AsImplementedTypes_BaseType()
         {
             var container = new StashboxContainer();
@@ -347,16 +346,16 @@ namespace Stashbox.Tests
 
             var regs = container.ContainerContext.RegistrationRepository.GetRegistrationMappings().OrderBy(r => r.Key.Name).ToArray();
 
-            Assert.AreEqual(6, regs.Length);
-            Assert.AreSame(regs[0].Key, typeof(ITest));
-            Assert.AreSame(regs[1].Key, typeof(ITest1));
-            Assert.AreSame(regs[2].Key, typeof(ITest2));
-            Assert.AreSame(regs[3].Key, typeof(Test12));
-            Assert.AreSame(regs[4].Key, typeof(Test13));
-            Assert.AreSame(regs[5].Key, typeof(Test14));
+            Assert.Equal(6, regs.Length);
+            Assert.Same(regs[0].Key, typeof(ITest));
+            Assert.Same(regs[1].Key, typeof(ITest1));
+            Assert.Same(regs[2].Key, typeof(ITest2));
+            Assert.Same(regs[3].Key, typeof(Test12));
+            Assert.Same(regs[4].Key, typeof(Test13));
+            Assert.Same(regs[5].Key, typeof(Test14));
         }
 
-        [TestMethod]
+        [Fact]
         public void RegistersTests_AsImplementedTypes_BaseType_ReMap()
         {
             var container = new StashboxContainer();
@@ -368,16 +367,16 @@ namespace Stashbox.Tests
 
             var regs2 = container.ContainerContext.RegistrationRepository.GetRegistrationMappings().OrderBy(r => r.Key.Name).ToArray();
 
-            Assert.AreEqual(regs.Length, regs2.Length);
-            Assert.AreNotEqual(regs[0].Value.RegistrationNumber, regs2[0].Value.RegistrationNumber);
-            Assert.AreNotEqual(regs[1].Value.RegistrationNumber, regs2[1].Value.RegistrationNumber);
-            Assert.AreNotEqual(regs[2].Value.RegistrationNumber, regs2[2].Value.RegistrationNumber);
-            Assert.AreNotEqual(regs[3].Value.RegistrationNumber, regs2[3].Value.RegistrationNumber);
-            Assert.AreNotEqual(regs[4].Value.RegistrationNumber, regs2[4].Value.RegistrationNumber);
-            Assert.AreNotEqual(regs[5].Value.RegistrationNumber, regs2[5].Value.RegistrationNumber);
+            Assert.Equal(regs.Length, regs2.Length);
+            Assert.NotEqual(regs[0].Value.RegistrationNumber, regs2[0].Value.RegistrationNumber);
+            Assert.NotEqual(regs[1].Value.RegistrationNumber, regs2[1].Value.RegistrationNumber);
+            Assert.NotEqual(regs[2].Value.RegistrationNumber, regs2[2].Value.RegistrationNumber);
+            Assert.NotEqual(regs[3].Value.RegistrationNumber, regs2[3].Value.RegistrationNumber);
+            Assert.NotEqual(regs[4].Value.RegistrationNumber, regs2[4].Value.RegistrationNumber);
+            Assert.NotEqual(regs[5].Value.RegistrationNumber, regs2[5].Value.RegistrationNumber);
         }
 
-        [TestMethod]
+        [Fact]
         public void RegistersTests_Generic_ByInterface()
         {
             var container = new StashboxContainer();
@@ -385,25 +384,25 @@ namespace Stashbox.Tests
 
             var regs = container.ContainerContext.RegistrationRepository.GetRegistrationMappings().OrderBy(r => r.Value.RegistrationNumber).ToArray();
 
-            Assert.AreEqual(7, regs.Length);
-            Assert.AreEqual(typeof(IGenTest<>), regs[0].Key);
-            Assert.AreEqual(typeof(IGenTest<int>), regs[1].Key);
-            Assert.AreEqual(typeof(IGenTest<double>), regs[2].Key);
-            Assert.AreEqual(typeof(IGenTest<object>), regs[3].Key);
-            Assert.AreEqual(typeof(IGenTest<int>), regs[4].Key);
-            Assert.AreEqual(typeof(IGenTest<double>), regs[5].Key);
-            Assert.AreEqual(typeof(IGenTest<object>), regs[6].Key);
+            Assert.Equal(7, regs.Length);
+            Assert.Equal(typeof(IGenTest<>), regs[0].Key);
+            Assert.Equal(typeof(IGenTest<int>), regs[1].Key);
+            Assert.Equal(typeof(IGenTest<double>), regs[2].Key);
+            Assert.Equal(typeof(IGenTest<object>), regs[3].Key);
+            Assert.Equal(typeof(IGenTest<int>), regs[4].Key);
+            Assert.Equal(typeof(IGenTest<double>), regs[5].Key);
+            Assert.Equal(typeof(IGenTest<object>), regs[6].Key);
 
-            Assert.AreEqual(typeof(GenTest<>), regs[0].Value.ImplementationType);
-            Assert.AreEqual(typeof(GenTest1), regs[1].Value.ImplementationType);
-            Assert.AreEqual(typeof(GenTest2), regs[2].Value.ImplementationType);
-            Assert.AreEqual(typeof(GenTest3), regs[3].Value.ImplementationType);
-            Assert.AreEqual(typeof(GenTest4), regs[4].Value.ImplementationType);
-            Assert.AreEqual(typeof(GenTest5), regs[5].Value.ImplementationType);
-            Assert.AreEqual(typeof(GenTest6), regs[6].Value.ImplementationType);
+            Assert.Equal(typeof(GenTest<>), regs[0].Value.ImplementationType);
+            Assert.Equal(typeof(GenTest1), regs[1].Value.ImplementationType);
+            Assert.Equal(typeof(GenTest2), regs[2].Value.ImplementationType);
+            Assert.Equal(typeof(GenTest3), regs[3].Value.ImplementationType);
+            Assert.Equal(typeof(GenTest4), regs[4].Value.ImplementationType);
+            Assert.Equal(typeof(GenTest5), regs[5].Value.ImplementationType);
+            Assert.Equal(typeof(GenTest6), regs[6].Value.ImplementationType);
         }
 
-        [TestMethod]
+        [Fact]
         public void RegistersTests_Generic_ByBase()
         {
             var container = new StashboxContainer();
@@ -411,27 +410,26 @@ namespace Stashbox.Tests
 
             var regs = container.ContainerContext.RegistrationRepository.GetRegistrationMappings().OrderBy(r => r.Value.RegistrationNumber).ToArray();
 
-            Assert.AreEqual(4, regs.Length);
-            Assert.AreEqual(typeof(GenTest<>), regs[0].Key);
-            Assert.AreEqual(typeof(GenTest<int>), regs[1].Key);
-            Assert.AreEqual(typeof(GenTest<double>), regs[2].Key);
-            Assert.AreEqual(typeof(GenTest<object>), regs[3].Key);
+            Assert.Equal(4, regs.Length);
+            Assert.Equal(typeof(GenTest<>), regs[0].Key);
+            Assert.Equal(typeof(GenTest<int>), regs[1].Key);
+            Assert.Equal(typeof(GenTest<double>), regs[2].Key);
+            Assert.Equal(typeof(GenTest<object>), regs[3].Key);
 
-            Assert.AreEqual(typeof(GenTest<>), regs[0].Value.ImplementationType);
-            Assert.AreEqual(typeof(GenTest1), regs[1].Value.ImplementationType);
-            Assert.AreEqual(typeof(GenTest2), regs[2].Value.ImplementationType);
-            Assert.AreEqual(typeof(GenTest3), regs[3].Value.ImplementationType);
+            Assert.Equal(typeof(GenTest<>), regs[0].Value.ImplementationType);
+            Assert.Equal(typeof(GenTest1), regs[1].Value.ImplementationType);
+            Assert.Equal(typeof(GenTest2), regs[2].Value.ImplementationType);
+            Assert.Equal(typeof(GenTest3), regs[3].Value.ImplementationType);
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
+        [Fact]
         public void RegistersTests_AsServiceAlso_Fail()
         {
             var container = new StashboxContainer();
-            container.Register<Test1>(context => context.AsServiceAlso<Test2>());
+            Assert.Throws<ArgumentException>(() => container.Register<Test1>(context => context.AsServiceAlso<Test2>()));
         }
 
-        [TestMethod]
+        [Fact]
         public void RegistersTests_AsServiceAlso_Transient()
         {
             var container = new StashboxContainer();
@@ -439,13 +437,13 @@ namespace Stashbox.Tests
 
             var inst = container.Resolve<ITest>();
             var inst1 = container.Resolve<ITest1>();
-            Assert.IsNotNull(inst);
-            Assert.IsNotNull(inst1);
-            Assert.IsInstanceOfType(inst, typeof(Test1));
-            Assert.IsInstanceOfType(inst1, typeof(Test1));
+            Assert.NotNull(inst);
+            Assert.NotNull(inst1);
+            Assert.IsType<Test1>(inst);
+            Assert.IsType<Test1>(inst1);
         }
 
-        [TestMethod]
+        [Fact]
         public void RegistersTests_AsServiceAlso_Singleton()
         {
             var container = new StashboxContainer();
@@ -453,7 +451,7 @@ namespace Stashbox.Tests
 
             var inst = container.Resolve<ITest>();
             var inst1 = container.Resolve<ITest1>();
-            Assert.AreSame(inst, inst1);
+            Assert.Same(inst, inst1);
         }
 
         interface ITest { }

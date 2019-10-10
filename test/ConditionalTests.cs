@@ -1,13 +1,13 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Stashbox.Attributes;
+﻿using Stashbox.Attributes;
 using System;
+using Xunit;
 
 namespace Stashbox.Tests
 {
-    [TestClass]
+
     public class ConditionalTests
     {
-        [TestMethod]
+        [Fact]
         public void ConditionalTests_ParentTypeCondition_First()
         {
             var container = new StashboxContainer();
@@ -18,11 +18,11 @@ namespace Stashbox.Tests
 
             var test2 = container.Resolve<ITest2>();
 
-            Assert.IsInstanceOfType(test2.test1, typeof(Test1));
-            Assert.IsInstanceOfType(test2.test12, typeof(Test1));
+            Assert.IsType<Test1>(test2.test1);
+            Assert.IsType<Test1>(test2.test12);
         }
 
-        [TestMethod]
+        [Fact]
         public void ConditionalTests_ParentTypeCondition_When_First()
         {
             var container = new StashboxContainer();
@@ -33,11 +33,11 @@ namespace Stashbox.Tests
 
             var test2 = container.Resolve<ITest2>();
 
-            Assert.IsInstanceOfType(test2.test1, typeof(Test1));
-            Assert.IsInstanceOfType(test2.test12, typeof(Test1));
+            Assert.IsType<Test1>(test2.test1);
+            Assert.IsType<Test1>(test2.test12);
         }
 
-        [TestMethod]
+        [Fact]
         public void ConditionalTests_ParentTypeCondition_First_NonGeneric()
         {
             var container = new StashboxContainer();
@@ -48,11 +48,11 @@ namespace Stashbox.Tests
 
             var test2 = container.Resolve<ITest2>();
 
-            Assert.IsInstanceOfType(test2.test1, typeof(Test1));
-            Assert.IsInstanceOfType(test2.test12, typeof(Test1));
+            Assert.IsType<Test1>(test2.test1);
+            Assert.IsType<Test1>(test2.test12);
         }
 
-        [TestMethod]
+        [Fact]
         public void ConditionalTests_ParentTypeCondition_Second()
         {
             var container = new StashboxContainer();
@@ -63,11 +63,11 @@ namespace Stashbox.Tests
 
             var test2 = container.Resolve<ITest2>();
 
-            Assert.IsInstanceOfType(test2.test1, typeof(Test11));
-            Assert.IsInstanceOfType(test2.test12, typeof(Test11));
+            Assert.IsType<Test11>(test2.test1);
+            Assert.IsType<Test11>(test2.test12);
         }
 
-        [TestMethod]
+        [Fact]
         public void ConditionalTests_ParentTypeCondition_Second_NonGeneric()
         {
             var container = new StashboxContainer();
@@ -78,11 +78,11 @@ namespace Stashbox.Tests
 
             var test2 = container.Resolve<ITest2>();
 
-            Assert.IsInstanceOfType(test2.test1, typeof(Test11));
-            Assert.IsInstanceOfType(test2.test12, typeof(Test11));
+            Assert.IsType<Test11>(test2.test1);
+            Assert.IsType<Test11>(test2.test12);
         }
 
-        [TestMethod]
+        [Fact]
         public void ConditionalTests_ParentTypeCondition_Third()
         {
             var container = new StashboxContainer();
@@ -93,11 +93,11 @@ namespace Stashbox.Tests
 
             var test2 = container.Resolve<ITest2>();
 
-            Assert.IsInstanceOfType(test2.test1, typeof(Test12));
-            Assert.IsInstanceOfType(test2.test12, typeof(Test12));
+            Assert.IsType<Test12>(test2.test1);
+            Assert.IsType<Test12>(test2.test12);
         }
 
-        [TestMethod]
+        [Fact]
         public void ConditionalTests_ParentTypeCondition_Third_NonGeneric()
         {
             var container = new StashboxContainer();
@@ -108,11 +108,11 @@ namespace Stashbox.Tests
 
             var test2 = container.Resolve<ITest2>();
 
-            Assert.IsInstanceOfType(test2.test1, typeof(Test12));
-            Assert.IsInstanceOfType(test2.test12, typeof(Test12));
+            Assert.IsType<Test12>(test2.test1);
+            Assert.IsType<Test12>(test2.test12);
         }
 
-        [TestMethod]
+        [Fact]
         public void ConditionalTests_AttributeCondition_First()
         {
             var container = new StashboxContainer();
@@ -123,11 +123,11 @@ namespace Stashbox.Tests
 
             var test3 = container.Resolve<ITest2>();
 
-            Assert.IsInstanceOfType(test3.test1, typeof(Test1));
-            Assert.IsInstanceOfType(test3.test12, typeof(Test12));
+            Assert.IsType<Test1>(test3.test1);
+            Assert.IsType<Test12>(test3.test12);
         }
 
-        [TestMethod]
+        [Fact]
         public void ConditionalTests_AttributeCondition_First_NonGeneric()
         {
             var container = new StashboxContainer();
@@ -138,11 +138,11 @@ namespace Stashbox.Tests
 
             var test3 = container.Resolve<ITest2>();
 
-            Assert.IsInstanceOfType(test3.test1, typeof(Test1));
-            Assert.IsInstanceOfType(test3.test12, typeof(Test12));
+            Assert.IsType<Test1>(test3.test1);
+            Assert.IsType<Test12>(test3.test12);
         }
 
-        [TestMethod]
+        [Fact]
         public void ConditionalTests_AttributeCondition_Second()
         {
             var container = new StashboxContainer();
@@ -153,11 +153,11 @@ namespace Stashbox.Tests
 
             var test3 = container.Resolve<ITest2>();
 
-            Assert.IsInstanceOfType(test3.test1, typeof(Test12));
-            Assert.IsInstanceOfType(test3.test12, typeof(Test11));
+            Assert.IsType<Test12>(test3.test1);
+            Assert.IsType<Test11>(test3.test12);
         }
 
-        [TestMethod]
+        [Fact]
         public void ConditionalTests_AttributeCondition_Second_NonGeneric()
         {
             var container = new StashboxContainer();
@@ -168,11 +168,11 @@ namespace Stashbox.Tests
 
             var test3 = container.Resolve<ITest2>();
 
-            Assert.IsInstanceOfType(test3.test1, typeof(Test12));
-            Assert.IsInstanceOfType(test3.test12, typeof(Test11));
+            Assert.IsType<Test12>(test3.test1);
+            Assert.IsType<Test11>(test3.test12);
         }
 
-        [TestMethod]
+        [Fact]
         public void ConditionalTests_AttributeCondition_Third()
         {
             var container = new StashboxContainer();
@@ -183,11 +183,11 @@ namespace Stashbox.Tests
 
             var test3 = container.Resolve<ITest2>();
 
-            Assert.IsInstanceOfType(test3.test1, typeof(Test11));
-            Assert.IsInstanceOfType(test3.test12, typeof(Test1));
+            Assert.IsType<Test11>(test3.test1);
+            Assert.IsType<Test1>(test3.test12);
         }
 
-        [TestMethod]
+        [Fact]
         public void ConditionalTests_AttributeCondition_Third_NonGeneric()
         {
             var container = new StashboxContainer();
@@ -198,8 +198,8 @@ namespace Stashbox.Tests
 
             var test3 = container.Resolve<ITest2>();
 
-            Assert.IsInstanceOfType(test3.test1, typeof(Test11));
-            Assert.IsInstanceOfType(test3.test12, typeof(Test1));
+            Assert.IsType<Test11>(test3.test1);
+            Assert.IsType<Test1>(test3.test12);
         }
 
         interface ITest1 { }

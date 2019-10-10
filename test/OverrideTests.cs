@@ -1,17 +1,17 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Stashbox.Attributes;
+﻿using Stashbox.Attributes;
 using Stashbox.Entity;
 using Stashbox.Utils;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Xunit;
 
 namespace Stashbox.Tests
 {
-    [TestClass]
+
     public class OverrideTests
     {
-        [TestMethod]
+        [Fact]
         public void OverrideTests_Resolve()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -19,8 +19,8 @@ namespace Stashbox.Tests
             container.Register<ITest2, Test2>(context => context.WithInjectionParameters(new InjectionParameter { Value = new Test1 { Name = "fakeName" }, Name = "test1" }));
             var inst2 = container.Resolve<ITest2>();
 
-            Assert.IsInstanceOfType(inst2, typeof(Test2));
-            Assert.AreEqual("fakeName", inst2.Name);
+            Assert.IsType<Test2>(inst2);
+            Assert.Equal("fakeName", inst2.Name);
 
             container.Register<ITest3, Test3>();
 
@@ -31,12 +31,12 @@ namespace Stashbox.Tests
             var factory = container.Resolve<Func<ITest1, ITest2, ITest3>>();
             var inst3 = factory(inst1, inst2);
 
-            Assert.IsNotNull(inst3);
-            Assert.IsInstanceOfType(inst3, typeof(Test3));
-            Assert.AreEqual("test1fakeNametest1", inst3.Name);
+            Assert.NotNull(inst3);
+            Assert.IsType<Test3>(inst3);
+            Assert.Equal("test1fakeNametest1", inst3.Name);
         }
 
-        [TestMethod]
+        [Fact]
         public void OverrideTests_Resolve_Parallel()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -44,8 +44,8 @@ namespace Stashbox.Tests
             container.Register<ITest2, Test2>(context => context.WithInjectionParameters(new InjectionParameter { Value = new Test1 { Name = "fakeName" }, Name = "test1" }));
             var inst2 = container.Resolve<ITest2>();
 
-            Assert.IsInstanceOfType(inst2, typeof(Test2));
-            Assert.AreEqual("fakeName", inst2.Name);
+            Assert.IsType<Test2>(inst2);
+            Assert.Equal("fakeName", inst2.Name);
 
             container.Register<ITest3, Test3>();
 
@@ -56,13 +56,13 @@ namespace Stashbox.Tests
                 var factory = container.Resolve<Func<ITest1, ITest2, ITest3>>();
                 var inst3 = factory(inst1, inst2);
 
-                Assert.IsNotNull(inst3);
-                Assert.IsInstanceOfType(inst3, typeof(Test3));
-                Assert.AreEqual("test1fakeNametest1", inst3.Name);
+                Assert.NotNull(inst3);
+                Assert.IsType<Test3>(inst3);
+                Assert.Equal("test1fakeNametest1", inst3.Name);
             });
         }
 
-        [TestMethod]
+        [Fact]
         public void OverrideTests_Resolve_Factory_NonGeneric()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -76,12 +76,12 @@ namespace Stashbox.Tests
             var factory = container.ResolveFactory(typeof(ITest2), parameterTypes: typeof(ITest1));
             var inst2 = ((Func<ITest1, ITest2>)factory)(inst1);
 
-            Assert.IsNotNull(inst2);
-            Assert.IsInstanceOfType(inst2, typeof(Test2));
-            Assert.AreEqual("test1", inst2.Name);
+            Assert.NotNull(inst2);
+            Assert.IsType<Test2>(inst2);
+            Assert.Equal("test1", inst2.Name);
         }
 
-        [TestMethod]
+        [Fact]
         public void OverrideTests_Resolve_Factory_NonGeneric_DerivedParam()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -92,11 +92,11 @@ namespace Stashbox.Tests
             var factory = container.ResolveFactory(typeof(ITest2), parameterTypes: inst1.GetType());
             var inst2 = (ITest2)factory.DynamicInvoke(inst1);
 
-            Assert.IsNotNull(inst2);
-            Assert.AreEqual("test", inst2.Name);
+            Assert.NotNull(inst2);
+            Assert.Equal("test", inst2.Name);
         }
 
-        [TestMethod]
+        [Fact]
         public void OverrideTests_Resolve_Factory()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -110,12 +110,12 @@ namespace Stashbox.Tests
             var factory = container.ResolveFactory<ITest1, ITest2>();
             var inst2 = factory(inst1);
 
-            Assert.IsNotNull(inst2);
-            Assert.IsInstanceOfType(inst2, typeof(Test2));
-            Assert.AreEqual("test1", inst2.Name);
+            Assert.NotNull(inst2);
+            Assert.IsType<Test2>(inst2);
+            Assert.Equal("test1", inst2.Name);
         }
 
-        [TestMethod]
+        [Fact]
         public void OverrideTests_Resolve_Factory_NonGeneric_Lazy()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -129,12 +129,12 @@ namespace Stashbox.Tests
             var factory = container.ResolveFactory(typeof(Lazy<ITest2>), parameterTypes: typeof(ITest1));
             var inst2 = ((Func<ITest1, Lazy<ITest2>>)factory)(inst1);
 
-            Assert.IsNotNull(inst2);
-            Assert.IsInstanceOfType(inst2, typeof(Lazy<ITest2>));
-            Assert.AreEqual("test1", inst2.Value.Name);
+            Assert.NotNull(inst2);
+            Assert.IsType<Lazy<ITest2>>(inst2);
+            Assert.Equal("test1", inst2.Value.Name);
         }
 
-        [TestMethod]
+        [Fact]
         public void OverrideTests_Resolve_Factory_Lazy()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -148,12 +148,12 @@ namespace Stashbox.Tests
             var factory = container.ResolveFactory<ITest1, Lazy<ITest2>>();
             var inst2 = factory(inst1);
 
-            Assert.IsNotNull(inst2);
-            Assert.IsInstanceOfType(inst2, typeof(Lazy<ITest2>));
-            Assert.AreEqual("test1", inst2.Value.Name);
+            Assert.NotNull(inst2);
+            Assert.IsType<Lazy<ITest2>>(inst2);
+            Assert.Equal("test1", inst2.Value.Name);
         }
 
-        [TestMethod]
+        [Fact]
         public void OverrideTests_Resolve_Parallel_Lazy()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -161,8 +161,8 @@ namespace Stashbox.Tests
             container.Register<ITest2, Test2>(context => context.WithInjectionParameters(new InjectionParameter { Value = new Test1 { Name = "fakeName" }, Name = "test1" }));
             var inst2 = container.Resolve<Lazy<ITest2>>();
 
-            Assert.IsInstanceOfType(inst2.Value, typeof(Test2));
-            Assert.AreEqual("fakeName", inst2.Value.Name);
+            Assert.IsType<Test2>(inst2.Value);
+            Assert.Equal("fakeName", inst2.Value.Name);
 
             container.Register<ITest3, Test3>();
 
@@ -174,14 +174,14 @@ namespace Stashbox.Tests
                 var factory = container.Resolve<Func<ITest1, ITest2, Lazy<ITest3>>>();
                 var inst3 = factory(inst1.Value, inst2.Value);
 
-                Assert.IsNotNull(inst3);
-                Assert.IsInstanceOfType(inst3.Value, typeof(Test3));
-                Assert.AreEqual("test1fakeNametest1", inst3.Value.Name);
-                Assert.IsTrue(inst3.Value.MethodInvoked);
+                Assert.NotNull(inst3);
+                Assert.IsType<Test3>(inst3.Value);
+                Assert.Equal("test1fakeNametest1", inst3.Value.Name);
+                Assert.True(inst3.Value.MethodInvoked);
             });
         }
 
-        [TestMethod]
+        [Fact]
         public void OverrideTests_Resolve_Multiple()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -191,12 +191,12 @@ namespace Stashbox.Tests
 
             var inst4 = container.Resolve<ITest4>();
 
-            Assert.IsNotNull(inst4);
-            Assert.IsInstanceOfType(inst4, typeof(Test4));
-            Assert.AreEqual("test2Test6", inst4.Name);
+            Assert.NotNull(inst4);
+            Assert.IsType<Test4>(inst4);
+            Assert.Equal("test2Test6", inst4.Name);
         }
 
-        [TestMethod]
+        [Fact]
         public void OverrideTests_Resolve_DependencyOverride()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -204,12 +204,12 @@ namespace Stashbox.Tests
 
             var inst = container.Resolve<ITest2>(dependencyOverrides: new object[] { new Test1 { Name = "test" } });
 
-            Assert.IsNotNull(inst);
-            Assert.IsInstanceOfType(inst, typeof(Test2));
-            Assert.AreEqual("test", inst.Name);
+            Assert.NotNull(inst);
+            Assert.IsType<Test2>(inst);
+            Assert.Equal("test", inst.Name);
         }
 
-        [TestMethod]
+        [Fact]
         public void OverrideTests_Resolve_DependencyOverride_ShouldntCached()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -217,18 +217,18 @@ namespace Stashbox.Tests
 
             var inst = container.Resolve<ITest2>(dependencyOverrides: new object[] { new Test1 { Name = "test" } });
 
-            Assert.IsNotNull(inst);
-            Assert.IsInstanceOfType(inst, typeof(Test2));
-            Assert.AreEqual("test", inst.Name);
+            Assert.NotNull(inst);
+            Assert.IsType<Test2>(inst);
+            Assert.Equal("test", inst.Name);
 
             var inst2 = container.Resolve<ITest2>(dependencyOverrides: new object[] { new Test1 { Name = "test2" } });
 
-            Assert.IsNotNull(inst2);
-            Assert.IsInstanceOfType(inst2, typeof(Test2));
-            Assert.AreEqual("test2", inst2.Name);
+            Assert.NotNull(inst2);
+            Assert.IsType<Test2>(inst2);
+            Assert.Equal("test2", inst2.Name);
         }
 
-        [TestMethod]
+        [Fact]
         public void OverrideTests_Resolve_DependencyOverride_NonGeneric()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -236,12 +236,12 @@ namespace Stashbox.Tests
 
             var inst = (ITest2)container.Resolve(typeof(ITest2), dependencyOverrides: new object[] { new Test1 { Name = "test" } });
 
-            Assert.IsNotNull(inst);
-            Assert.IsInstanceOfType(inst, typeof(Test2));
-            Assert.AreEqual("test", inst.Name);
+            Assert.NotNull(inst);
+            Assert.IsType<Test2>(inst);
+            Assert.Equal("test", inst.Name);
         }
 
-        [TestMethod]
+        [Fact]
         public void OverrideTests_Resolve_DependencyOverride_All()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -249,12 +249,12 @@ namespace Stashbox.Tests
 
             var inst = container.ResolveAll<ITest2>(new object[] { new Test1 { Name = "test" } }).First();
 
-            Assert.IsNotNull(inst);
-            Assert.IsInstanceOfType(inst, typeof(Test2));
-            Assert.AreEqual("test", inst.Name);
+            Assert.NotNull(inst);
+            Assert.IsType<Test2>(inst);
+            Assert.Equal("test", inst.Name);
         }
 
-        [TestMethod]
+        [Fact]
         public void OverrideTests_Resolve_DependencyOverride_All_NonGeneric()
         {
             IStashboxContainer container = new StashboxContainer();
@@ -262,9 +262,9 @@ namespace Stashbox.Tests
 
             var inst = (ITest2)container.ResolveAll(typeof(ITest2), new object[] { new Test1 { Name = "test" } }).First();
 
-            Assert.IsNotNull(inst);
-            Assert.IsInstanceOfType(inst, typeof(Test2));
-            Assert.AreEqual("test", inst.Name);
+            Assert.NotNull(inst);
+            Assert.IsType<Test2>(inst);
+            Assert.Equal("test", inst.Name);
         }
 
         interface ITest1 { string Name { get; set; } }

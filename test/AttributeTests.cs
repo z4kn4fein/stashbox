@@ -1,15 +1,15 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Stashbox.Attributes;
+﻿using Stashbox.Attributes;
 using Stashbox.Utils;
 using System;
 using System.Threading.Tasks;
+using Xunit;
 
 namespace Stashbox.Tests
 {
-    [TestClass]
+
     public class AttributeTest
     {
-        [TestMethod]
+        [Fact]
         public void AttributeTests_Resolve()
         {
             var container = new StashboxContainer();
@@ -27,19 +27,19 @@ namespace Stashbox.Tests
             var test3 = container.Resolve<ITest3>();
             var test4 = container.Resolve<Lazy<ITest4>>();
 
-            Assert.IsNotNull(test1);
-            Assert.IsNotNull(test2);
-            Assert.IsNotNull(test3);
-            Assert.IsNotNull(test4.Value);
+            Assert.NotNull(test1);
+            Assert.NotNull(test2);
+            Assert.NotNull(test3);
+            Assert.NotNull(test4.Value);
 
-            Assert.IsTrue(test3.MethodInvoked);
-            Assert.IsTrue(test3.MethodInvoked2);
+            Assert.True(test3.MethodInvoked);
+            Assert.True(test3.MethodInvoked2);
 
-            Assert.IsInstanceOfType(test3.test1, typeof(Test11));
-            Assert.IsInstanceOfType(test3.test2, typeof(Test22));
+            Assert.IsType<Test11>(test3.test1);
+            Assert.IsType<Test22>(test3.test2);
         }
 
-        [TestMethod]
+        [Fact]
         public void AttributeTests_Named_Resolution()
         {
             var container = new StashboxContainer();
@@ -55,14 +55,14 @@ namespace Stashbox.Tests
             var test2 = container.Resolve<ITest2>("test2");
             var test22 = container.Resolve<ITest2>("test22");
 
-            Assert.IsInstanceOfType(test1, typeof(Test1));
-            Assert.IsInstanceOfType(test11, typeof(Test11));
-            Assert.IsInstanceOfType(test12, typeof(Test12));
-            Assert.IsInstanceOfType(test2, typeof(Test2));
-            Assert.IsInstanceOfType(test22, typeof(Test22));
+            Assert.IsType<Test1>(test1);
+            Assert.IsType<Test11>(test11);
+            Assert.IsType<Test12>(test12);
+            Assert.IsType<Test2>(test2);
+            Assert.IsType<Test22>(test22);
         }
 
-        [TestMethod]
+        [Fact]
         public void AttributeTests_Parallel_Resolve()
         {
             var container = new StashboxContainer();
@@ -80,18 +80,18 @@ namespace Stashbox.Tests
                 var test2 = container.Resolve<ITest2>("test2");
                 var test3 = container.Resolve<ITest3>();
 
-                Assert.IsNotNull(test1);
-                Assert.IsNotNull(test2);
-                Assert.IsNotNull(test3);
+                Assert.NotNull(test1);
+                Assert.NotNull(test2);
+                Assert.NotNull(test3);
 
-                Assert.IsTrue(test3.MethodInvoked);
+                Assert.True(test3.MethodInvoked);
 
-                Assert.IsInstanceOfType(test3.test1, typeof(Test11));
-                Assert.IsInstanceOfType(test3.test2, typeof(Test22));
+                Assert.IsType<Test11>(test3.test1);
+                Assert.IsType<Test22>(test3.test2);
             });
         }
 
-        [TestMethod]
+        [Fact]
         public void AttributeTests_Parallel_Lazy_Resolve()
         {
             var container = new StashboxContainer();
@@ -111,30 +111,30 @@ namespace Stashbox.Tests
                 var test3 = container.Resolve<Lazy<ITest3>>();
                 var test4 = container.Resolve<Lazy<ITest4>>();
 
-                Assert.IsNotNull(test1.Value);
-                Assert.IsNotNull(test2.Value);
-                Assert.IsNotNull(test3.Value);
-                Assert.IsNotNull(test4.Value);
+                Assert.NotNull(test1.Value);
+                Assert.NotNull(test2.Value);
+                Assert.NotNull(test3.Value);
+                Assert.NotNull(test4.Value);
 
-                Assert.IsTrue(test3.Value.MethodInvoked);
-                Assert.IsTrue(test4.Value.MethodInvoked);
+                Assert.True(test3.Value.MethodInvoked);
+                Assert.True(test4.Value.MethodInvoked);
 
-                Assert.IsInstanceOfType(test3.Value.test1, typeof(Test11));
-                Assert.IsInstanceOfType(test3.Value.test2, typeof(Test22));
+                Assert.IsType<Test11>(test3.Value.test1);
+                Assert.IsType<Test22>(test3.Value.test2);
 
-                Assert.IsInstanceOfType(test4.Value.test1.Value, typeof(Test11));
-                Assert.IsInstanceOfType(test4.Value.test2.Value, typeof(Test22));
+                Assert.IsType<Test11>(test4.Value.test1.Value);
+                Assert.IsType<Test22>(test4.Value.test2.Value);
             });
         }
 
-        [TestMethod]
+        [Fact]
         public void AttributeTests_InjectionMethod_WithoutMembers()
         {
             var inst = new StashboxContainer()
                 .Register<Test5>()
                 .Resolve<Test5>();
 
-            Assert.IsTrue(inst.MethodInvoked);
+            Assert.True(inst.MethodInvoked);
         }
 
         interface ITest1 { }

@@ -1,40 +1,39 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Stashbox.Attributes;
+﻿using Stashbox.Attributes;
 using System;
+using Xunit;
 
 namespace Stashbox.Tests
 {
-    [TestClass]
+
     public class ActivateTests
     {
-        [TestMethod]
+        [Fact]
         public void ActivateTests_Full()
         {
             var inst = new StashboxContainer().Register<Test>().Activate<Test1>();
 
-            Assert.IsNotNull(inst.Test);
-            Assert.IsNotNull(inst.Test2);
+            Assert.NotNull(inst.Test);
+            Assert.NotNull(inst.Test2);
 
-            Assert.IsTrue(inst.InjectionMethodCalled);
+            Assert.True(inst.InjectionMethodCalled);
         }
 
-        [TestMethod]
+        [Fact]
         public void ActivateTests_Full_DepOverride()
         {
             var test = new Test();
             var inst = new StashboxContainer().Activate<Test1>(test);
 
-            Assert.AreSame(test, inst.Test);
-            Assert.AreSame(test, inst.Test2);
+            Assert.Same(test, inst.Test);
+            Assert.Same(test, inst.Test2);
 
-            Assert.IsTrue(inst.InjectionMethodCalled);
+            Assert.True(inst.InjectionMethodCalled);
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
+        [Fact]
         public void ActivateTests_Fail()
         {
-            new StashboxContainer().Activate<ITest>();
+            Assert.Throws<ArgumentException>(() => new StashboxContainer().Activate<ITest>());
         }
 
         interface ITest { }

@@ -1,13 +1,13 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Stashbox.Configuration;
+﻿using Stashbox.Configuration;
 using Stashbox.Exceptions;
+using Xunit;
 
 namespace Stashbox.Tests
 {
-    [TestClass]
+
     public class ResolverTests
     {
-        [TestMethod]
+        [Fact]
         public void ResolverTests_DefaultValue()
         {
             using (var container = new StashboxContainer(config => config.WithOptionalAndDefaultValueInjection()))
@@ -15,11 +15,11 @@ namespace Stashbox.Tests
                 container.Register<Test>();
                 var inst = container.Resolve<Test>();
 
-                Assert.AreEqual(inst.I, default(int));
+                Assert.Equal(default(int), inst.I);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void ResolverTests_DefaultValue_WithOptional()
         {
             using (var container = new StashboxContainer(config => config.WithOptionalAndDefaultValueInjection()
@@ -28,11 +28,11 @@ namespace Stashbox.Tests
                 container.Register<Test1>();
                 var inst = container.Resolve<Test1>();
 
-                Assert.AreEqual(5, inst.I);
+                Assert.Equal(5, inst.I);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void ResolverTests_DefaultValue_WithOptional_LateConfig()
         {
             using (var container = new StashboxContainer())
@@ -42,11 +42,11 @@ namespace Stashbox.Tests
                     .WithOptionalAndDefaultValueInjection());
                 var inst = container.Resolve<Test1>();
 
-                Assert.AreEqual(5, inst.I);
+                Assert.Equal(5, inst.I);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void ResolverTests_DefaultValue_RefType_WithOptional()
         {
             using (var container = new StashboxContainer(config => config.WithOptionalAndDefaultValueInjection()))
@@ -54,22 +54,21 @@ namespace Stashbox.Tests
                 container.Register<Test2>();
                 var inst = container.Resolve<Test2>();
 
-                Assert.IsNull(inst.I);
+                Assert.Null(inst.I);
             }
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(ResolutionFailedException))]
+        [Fact]
         public void ResolverTests_DefaultValue_RefType_WithOutOptional()
         {
             using (var container = new StashboxContainer(config => config.WithOptionalAndDefaultValueInjection()))
             {
                 container.Register<Test3>();
-                container.Resolve<Test3>();
+                Assert.Throws<ResolutionFailedException>(() => container.Resolve<Test3>());
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void ResolverTests_DefaultValue_RefType_WithOutOptional_AllowNull()
         {
             using (var container = new StashboxContainer(config => config.WithOptionalAndDefaultValueInjection()))
@@ -77,11 +76,11 @@ namespace Stashbox.Tests
                 container.Register<Test3>();
                 var result = container.Resolve<Test3>(nullResultAllowed: true);
 
-                Assert.IsNull(result);
+                Assert.Null(result);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void ResolverTests_DefaultValue_String()
         {
             using (var container = new StashboxContainer(config => config.WithOptionalAndDefaultValueInjection()))
@@ -89,11 +88,11 @@ namespace Stashbox.Tests
                 container.Register<Test4>();
                 var inst = container.Resolve<Test4>();
 
-                Assert.IsNull(inst.I);
+                Assert.Null(inst.I);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void ResolverTests_DefaultValue_Null()
         {
             using (var container = new StashboxContainer())
@@ -101,11 +100,11 @@ namespace Stashbox.Tests
                 container.Register<Test4>();
                 var inst = container.Resolve<Test4>(nullResultAllowed: true);
 
-                Assert.IsNull(inst);
+                Assert.Null(inst);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void ResolverTests_DefaultValue_Nullable()
         {
             using (var container = new StashboxContainer(config => config.WithOptionalAndDefaultValueInjection()))
@@ -113,22 +112,22 @@ namespace Stashbox.Tests
                 container.Register<Test9>();
                 var inst = container.Resolve<Test9>();
 
-                Assert.IsNull(inst.I);
+                Assert.Null(inst.I);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void ResolverTests_UnknownType()
         {
             using (var container = new StashboxContainer(config => config.WithUnknownTypeResolution()))
             {
                 var inst = container.Resolve<RefDep>();
 
-                Assert.IsNotNull(inst);
+                Assert.NotNull(inst);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void ResolverTests_UnknownType_Dependency()
         {
             using (var container = new StashboxContainer(config => config.WithUnknownTypeResolution()))
@@ -136,11 +135,11 @@ namespace Stashbox.Tests
                 container.Register<Test3>();
                 var inst = container.Resolve<Test3>();
 
-                Assert.IsNotNull(inst.I);
+                Assert.NotNull(inst.I);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void ResolverTests_PreferDefaultValueOverUnknownType()
         {
             using (var container = new StashboxContainer(config => config.WithUnknownTypeResolution().WithOptionalAndDefaultValueInjection()))
@@ -148,11 +147,11 @@ namespace Stashbox.Tests
                 container.Register<Test2>();
                 var inst = container.Resolve<Test2>();
 
-                Assert.IsNull(inst.I);
+                Assert.Null(inst.I);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void ResolverTests_MemberInject_WithoutAnnotation()
         {
             using (var container = new StashboxContainer(config => config
@@ -162,11 +161,11 @@ namespace Stashbox.Tests
                 container.Register<Test5>();
                 var inst = container.Resolve<Test5>();
 
-                Assert.IsNotNull(inst.I);
+                Assert.NotNull(inst.I);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void ResolverTests_MemberInject_WithoutAnnotation_LateConfig()
         {
             using (var container = new StashboxContainer())
@@ -175,11 +174,11 @@ namespace Stashbox.Tests
                 container.Configure(config => config.WithUnknownTypeResolution().WithMemberInjectionWithoutAnnotation());
                 var inst = container.Resolve<Test5>();
 
-                Assert.IsNotNull(inst.I);
+                Assert.NotNull(inst.I);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void ResolverTests_MemberInject_WithAutoMemberInjection()
         {
             using (var container = new StashboxContainer(config => config.WithUnknownTypeResolution()))
@@ -187,11 +186,11 @@ namespace Stashbox.Tests
                 container.Register<Test5>(context => context.WithAutoMemberInjection());
                 var inst = container.Resolve<Test5>();
 
-                Assert.IsNotNull(inst.I);
+                Assert.NotNull(inst.I);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void ResolverTests_MemberInject_WithAutoMemberInjection_Field()
         {
             using (var container = new StashboxContainer(config => config.WithUnknownTypeResolution()))
@@ -199,16 +198,16 @@ namespace Stashbox.Tests
                 container.Register<Test6>(context => context.WithName("fail").WithAutoMemberInjection());
                 var inst = container.Resolve<Test6>("fail");
 
-                Assert.IsNull(inst.I);
+                Assert.Null(inst.I);
 
                 container.Register<Test6>(context => context.WithName("success").WithAutoMemberInjection(Rules.AutoMemberInjectionRules.PrivateFields));
                 var inst1 = container.Resolve<Test6>("success");
 
-                Assert.IsNotNull(inst1.I);
+                Assert.NotNull(inst1.I);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void ResolverTests_MemberInject_WithAutoMemberInjection_PrivateSetter()
         {
             using (var container = new StashboxContainer(config => config.WithUnknownTypeResolution()))
@@ -216,16 +215,16 @@ namespace Stashbox.Tests
                 container.Register<Test7>(context => context.WithName("fail").WithAutoMemberInjection());
                 var inst = container.Resolve<Test7>("fail");
 
-                Assert.IsNull(inst.I);
+                Assert.Null(inst.I);
 
                 container.Register<Test7>(context => context.WithName("success").WithAutoMemberInjection(Rules.AutoMemberInjectionRules.PropertiesWithLimitedAccess));
                 var inst1 = container.Resolve<Test7>("success");
 
-                Assert.IsNotNull(inst1.I);
+                Assert.NotNull(inst1.I);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void ResolverTests_MemberInject_WithAutoMemberInjection_Mixed()
         {
             using (var container = new StashboxContainer(config => config.WithUnknownTypeResolution()))
@@ -233,25 +232,25 @@ namespace Stashbox.Tests
                 container.Register<Test8>(context => context.WithName("justfield").WithAutoMemberInjection(Rules.AutoMemberInjectionRules.PrivateFields));
                 var inst = container.Resolve<Test8>("justfield");
 
-                Assert.IsNotNull(inst.I);
-                Assert.IsNull(inst.I1);
+                Assert.NotNull(inst.I);
+                Assert.Null(inst.I1);
 
                 container.Register<Test8>(context => context.WithName("justprivatesetter").WithAutoMemberInjection(Rules.AutoMemberInjectionRules.PropertiesWithLimitedAccess));
                 var inst1 = container.Resolve<Test8>("justprivatesetter");
 
-                Assert.IsNotNull(inst1.I1);
-                Assert.IsNull(inst1.I);
+                Assert.NotNull(inst1.I1);
+                Assert.Null(inst1.I);
 
                 container.Register<Test8>(context => context.WithName("mixed")
                     .WithAutoMemberInjection(Rules.AutoMemberInjectionRules.PropertiesWithLimitedAccess | Rules.AutoMemberInjectionRules.PrivateFields));
                 var inst2 = container.Resolve<Test8>("mixed");
 
-                Assert.IsNotNull(inst2.I1);
-                Assert.IsNotNull(inst2.I);
+                Assert.NotNull(inst2.I1);
+                Assert.NotNull(inst2.I);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void ResolverTests_MemberInject_WithAutoMemberInjection_Mixed_ContainerConfig()
         {
             using (var container = new StashboxContainer(config => config
@@ -261,12 +260,12 @@ namespace Stashbox.Tests
                 container.Register<Test8>(context => context.WithAutoMemberInjection(Rules.AutoMemberInjectionRules.PropertiesWithLimitedAccess | Rules.AutoMemberInjectionRules.PrivateFields));
                 var inst2 = container.Resolve<Test8>();
 
-                Assert.IsNotNull(inst2.I1);
-                Assert.IsNotNull(inst2.I);
+                Assert.NotNull(inst2.I1);
+                Assert.NotNull(inst2.I);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void ResolverTests_MemberInject_WithAutoMemberInjection_Mixed_PreferRegistrationRuleOverContainerRule()
         {
             using (var container = new StashboxContainer(config => config
@@ -276,8 +275,8 @@ namespace Stashbox.Tests
                 container.Register<Test8>(context => context.WithAutoMemberInjection(Rules.AutoMemberInjectionRules.PrivateFields));
                 var inst2 = container.Resolve<Test8>();
 
-                Assert.IsNull(inst2.I1);
-                Assert.IsNotNull(inst2.I);
+                Assert.Null(inst2.I1);
+                Assert.NotNull(inst2.I);
             }
         }
 

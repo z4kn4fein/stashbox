@@ -1,13 +1,13 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Stashbox.Attributes;
+﻿using Stashbox.Attributes;
 using Stashbox.Utils;
+using Xunit;
 
 namespace Stashbox.Tests
 {
-    [TestClass]
+
     public class WireUpTests
     {
-        [TestMethod]
+        [Fact]
         public void WireUp_Multiple()
         {
             using (var container = new StashboxContainer())
@@ -21,12 +21,12 @@ namespace Stashbox.Tests
                 var inst = container.Resolve<ITest1>();
                 var inst2 = container.Resolve<ITest>();
 
-                Assert.AreSame(test1, inst);
-                Assert.AreSame(test2, inst2);
+                Assert.Same(test1, inst);
+                Assert.Same(test2, inst2);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void WireUp_Multiple_Named()
         {
             using (var container = new StashboxContainer())
@@ -40,12 +40,12 @@ namespace Stashbox.Tests
                 var inst = container.Resolve<ITest>("test1");
                 var inst2 = container.Resolve<ITest>("test2");
 
-                Assert.AreSame(test1, inst);
-                Assert.AreSame(test2, inst2);
+                Assert.Same(test1, inst);
+                Assert.Same(test2, inst2);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void WireUpTests_InjectionMember()
         {
             using (var container = new StashboxContainer())
@@ -59,15 +59,15 @@ namespace Stashbox.Tests
 
                 var inst = container.Resolve<Test2>();
 
-                Assert.IsNotNull(inst);
-                Assert.IsNotNull(inst.Test1);
-                Assert.IsInstanceOfType(inst, typeof(Test2));
-                Assert.IsInstanceOfType(inst.Test1, typeof(Test1));
-                Assert.IsInstanceOfType(inst.Test1.Test, typeof(Test));
+                Assert.NotNull(inst);
+                Assert.NotNull(inst.Test1);
+                Assert.IsType<Test2>(inst);
+                Assert.IsType<Test1>(inst.Test1);
+                Assert.IsType<Test>(inst.Test1.Test);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void WireUpTests_InjectionMember_ServiceUpdated()
         {
             using (var container = new StashboxContainer())
@@ -83,15 +83,15 @@ namespace Stashbox.Tests
 
                 var inst = container.Resolve<Test2>();
 
-                Assert.IsNotNull(inst);
-                Assert.IsNotNull(inst.Test1);
-                Assert.IsInstanceOfType(inst, typeof(Test2));
-                Assert.IsInstanceOfType(inst.Test1, typeof(Test1));
-                Assert.IsInstanceOfType(inst.Test1.Test, typeof(Test));
+                Assert.NotNull(inst);
+                Assert.NotNull(inst.Test1);
+                Assert.IsType<Test2>(inst);
+                Assert.IsType<Test1>(inst.Test1);
+                Assert.IsType<Test>(inst.Test1.Test);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void WireUpTests_InjectionMember_WithoutService()
         {
             using (var container = new StashboxContainer())
@@ -101,14 +101,14 @@ namespace Stashbox.Tests
                 container.WireUp(test1);
                 var inst = container.Resolve<Test1>();
 
-                Assert.IsNotNull(inst);
-                Assert.IsNotNull(inst.Test);
-                Assert.IsInstanceOfType(inst, typeof(Test1));
-                Assert.IsInstanceOfType(inst.Test, typeof(Test));
+                Assert.NotNull(inst);
+                Assert.NotNull(inst.Test);
+                Assert.IsType<Test1>(inst);
+                Assert.IsType<Test>(inst.Test);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void WireUpTests_WithoutService_NonGeneric()
         {
             using (var container = new StashboxContainer())
@@ -118,12 +118,12 @@ namespace Stashbox.Tests
                 container.WireUp(typeof(Test1), test1);
                 var inst = container.Resolve<Test1>();
 
-                Assert.IsNotNull(inst);
-                Assert.IsNotNull(inst.Test);
-                Assert.IsNotNull(inst.test);
-                Assert.IsInstanceOfType(inst, typeof(Test1));
-                Assert.IsInstanceOfType(inst.Test, typeof(Test));
-                Assert.IsInstanceOfType(inst.test, typeof(Test));
+                Assert.NotNull(inst);
+                Assert.NotNull(inst.Test);
+                Assert.NotNull(inst.test);
+                Assert.IsType<Test1>(inst);
+                Assert.IsType<Test>(inst.Test);
+                Assert.IsType<Test>(inst.test);
             }
         }
 

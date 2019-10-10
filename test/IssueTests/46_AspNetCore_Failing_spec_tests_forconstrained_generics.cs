@@ -1,13 +1,13 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+﻿using System;
 using System.Linq;
+using Xunit;
 
 namespace Stashbox.Tests.IssueTests
 {
-    [TestClass]
+
     public class AspNetCoreFailingSpecTestsForConstrainedGenerics
     {
-        [TestMethod]
+        [Fact]
         public void PublicNoArgCtorConstrainedOpenGenericServicesCanBeResolved()
         {
             var container = new StashboxContainer();
@@ -17,11 +17,11 @@ namespace Stashbox.Tests.IssueTests
             var allServices = container.ResolveAll<IFakeOpenGenericService<PocoClass>>().ToList();
             var constrainedServices = container.ResolveAll<IFakeOpenGenericService<ClassWithPrivateCtor>>().ToList();
 
-            Assert.AreEqual(2, allServices.Count);
-            Assert.AreEqual(1, constrainedServices.Count);
+            Assert.Equal(2, allServices.Count);
+            Assert.Single(constrainedServices);
         }
 
-        [TestMethod]
+        [Fact]
         public void SelfReferencingConstrainedOpenGenericServicesCanBeResolved()
         {
             var container = new StashboxContainer();
@@ -35,14 +35,14 @@ namespace Stashbox.Tests.IssueTests
             var allServices = container.ResolveAll<IFakeOpenGenericService<ClassImplementingIComparable>>().ToList();
             var constrainedServices = container.ResolveAll<IFakeOpenGenericService<PocoClass>>().ToList();
 
-            Assert.AreEqual(2, allServices.Count);
-            Assert.AreSame(comparable, allServices[0].Value);
-            Assert.AreSame(comparable, allServices[1].Value);
-            Assert.AreEqual(1, constrainedServices.Count);
-            Assert.AreSame(poco, constrainedServices[0].Value);
+            Assert.Equal(2, allServices.Count);
+            Assert.Same(comparable, allServices[0].Value);
+            Assert.Same(comparable, allServices[1].Value);
+            Assert.Single(constrainedServices);
+            Assert.Same(poco, constrainedServices[0].Value);
         }
 
-        [TestMethod]
+        [Fact]
         public void ClassConstrainedOpenGenericServicesCanBeResolved()
         {
             var container = new StashboxContainer();
@@ -52,11 +52,11 @@ namespace Stashbox.Tests.IssueTests
             var allServices = container.ResolveAll<IFakeOpenGenericService<PocoClass>>().ToList();
             var constrainedServices = container.ResolveAll<IFakeOpenGenericService<int>>().ToList();
 
-            Assert.AreEqual(2, allServices.Count);
-            Assert.AreEqual(1, constrainedServices.Count);
+            Assert.Equal(2, allServices.Count);
+            Assert.Single(constrainedServices);
         }
 
-        [TestMethod]
+        [Fact]
         public void StructConstrainedOpenGenericServicesCanBeResolved()
         {
             var container = new StashboxContainer();
@@ -66,8 +66,8 @@ namespace Stashbox.Tests.IssueTests
             var allServices = container.ResolveAll<IFakeOpenGenericService<int>>().ToList();
             var constrainedServices = container.ResolveAll<IFakeOpenGenericService<PocoClass>>().ToList();
 
-            Assert.AreEqual(2, allServices.Count);
-            Assert.AreEqual(1, constrainedServices.Count);
+            Assert.Equal(2, allServices.Count);
+            Assert.Single(constrainedServices);
         }
     }
 

@@ -118,7 +118,7 @@ namespace Stashbox
             return attachToParent ? this.AddDisposableTracking(scope) : scope;
         }
 
-        public IDependencyResolver PutInstanceInScope(Type typeFrom, object instance, object name = null, bool withoutDisposalTracking = false)
+        public IDependencyResolver PutInstanceInScope(Type typeFrom, object instance, bool withoutDisposalTracking = false, object name = null)
         {
             Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
             Shield.EnsureNotNull(instance, nameof(instance));

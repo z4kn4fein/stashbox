@@ -1,11 +1,11 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Xunit;
 
 namespace Stashbox.Tests
 {
-    [TestClass]
+    
     public class InstanceBuilderTests
     {
-        [TestMethod]
+        [Fact]
         public void InstanceBuilderTests_Resolve()
         {
             using (var container = new StashboxContainer())
@@ -14,11 +14,11 @@ namespace Stashbox.Tests
                 container.RegisterInstanceAs<ITest>(dep);
                 var inst = container.Resolve<ITest>();
 
-                Assert.AreSame(inst, dep);
+                Assert.Same(inst, dep);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void InstanceBuilderTests_DependencyResolve()
         {
             using (var container = new StashboxContainer())
@@ -29,11 +29,11 @@ namespace Stashbox.Tests
 
                 var inst = container.Resolve<ITest1>();
 
-                Assert.AreSame(inst.Test, dep);
+                Assert.Same(inst.Test, dep);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void InstanceBuilderTests_Resolve_Fluent()
         {
             using (var container = new StashboxContainer())
@@ -42,11 +42,11 @@ namespace Stashbox.Tests
                 container.Register<ITest>(context => context.WithInstance(dep));
                 var inst = container.Resolve<ITest>();
 
-                Assert.AreSame(inst, dep);
+                Assert.Same(inst, dep);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void InstanceBuilderTests_Resolve_Fluent_ReMap()
         {
             using (var container = new StashboxContainer())
@@ -57,11 +57,11 @@ namespace Stashbox.Tests
                 container.ReMap<ITest>(context => context.WithInstance(dep1));
                 var inst = container.Resolve<ITest>();
 
-                Assert.AreSame(inst, dep1);
+                Assert.Same(inst, dep1);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void InstanceBuilderTests_Resolve_Fluent_ReMap_Self()
         {
             using (var container = new StashboxContainer())
@@ -72,11 +72,11 @@ namespace Stashbox.Tests
                 container.ReMap(dep1.GetType(), context => context.WithInstance(dep1));
                 var inst = container.Resolve<Test>();
 
-                Assert.AreSame(inst, dep1);
+                Assert.Same(inst, dep1);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void InstanceBuilderTests_DependencyResolve_Fluent()
         {
             using (var container = new StashboxContainer())
@@ -87,11 +87,11 @@ namespace Stashbox.Tests
 
                 var inst = container.Resolve<ITest1>();
 
-                Assert.AreSame(inst.Test, dep);
+                Assert.Same(inst.Test, dep);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void InstanceBuilderTests_Multiple()
         {
             using (var container = new StashboxContainer())
@@ -103,7 +103,7 @@ namespace Stashbox.Tests
                 container.Resolve<Test>();
                 var inst = container.Resolve<Test1>();
 
-                Assert.AreSame(inst, dep2);
+                Assert.Same(inst, dep2);
             }
         }
 

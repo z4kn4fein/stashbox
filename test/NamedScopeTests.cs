@@ -1,16 +1,16 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Stashbox.Exceptions;
+﻿using Stashbox.Exceptions;
 using Stashbox.Lifetime;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Xunit;
 
 namespace Stashbox.Tests
 {
-    [TestClass]
+
     public class NamedScopeTests
     {
-        [TestMethod]
+        [Fact]
         public void NamedScope_Simple_Resolve_Prefer_Named()
         {
             var inst = new StashboxContainer()
@@ -20,10 +20,10 @@ namespace Stashbox.Tests
                 .BeginScope("A")
                 .Resolve<ITest>();
 
-            Assert.IsInstanceOfType(inst, typeof(Test));
+            Assert.IsType<Test>(inst);
         }
 
-        [TestMethod]
+        [Fact]
         public void NamedScope_Dependency_Resolve_Prefer_Named()
         {
             var inst = new StashboxContainer()
@@ -34,10 +34,10 @@ namespace Stashbox.Tests
                 .BeginScope("A")
                 .Resolve<Test2>();
 
-            Assert.IsInstanceOfType(inst.Test, typeof(Test));
+            Assert.IsType<Test>(inst.Test);
         }
 
-        [TestMethod]
+        [Fact]
         public void NamedScope_Simple_Resolve_Wrapper_Prefer_Named()
         {
             var scope = new StashboxContainer()
@@ -52,14 +52,14 @@ namespace Stashbox.Tests
             var enumerable = scope.Resolve<IEnumerable<ITest>>();
             var all = scope.ResolveAll<ITest>();
 
-            Assert.IsInstanceOfType(func(), typeof(Test));
-            Assert.IsInstanceOfType(lazy.Value, typeof(Test));
-            Assert.IsInstanceOfType(tuple.Item1, typeof(Test));
-            Assert.IsInstanceOfType(enumerable.Last(), typeof(Test));
-            Assert.IsInstanceOfType(all.First(), typeof(Test));
+            Assert.IsType<Test>(func());
+            Assert.IsType<Test>(lazy.Value);
+            Assert.IsType<Test>(tuple.Item1);
+            Assert.IsType<Test>(enumerable.Last());
+            Assert.IsType<Test>(all.First());
         }
 
-        [TestMethod]
+        [Fact]
         public void NamedScope_Dependency_Resolve_Wrapper_Prefer_Named()
         {
             var inst = new StashboxContainer()
@@ -70,13 +70,13 @@ namespace Stashbox.Tests
                 .BeginScope("A")
                 .Resolve<Test3>();
 
-            Assert.IsInstanceOfType(inst.Func(), typeof(Test));
-            Assert.IsInstanceOfType(inst.Lazy.Value, typeof(Test));
-            Assert.IsInstanceOfType(inst.Enumerable.Last(), typeof(Test));
-            Assert.IsInstanceOfType(inst.Tuple.Item1, typeof(Test));
+            Assert.IsType<Test>(inst.Func());
+            Assert.IsType<Test>(inst.Lazy.Value);
+            Assert.IsType<Test>(inst.Enumerable.Last());
+            Assert.IsType<Test>(inst.Tuple.Item1);
         }
 
-        [TestMethod]
+        [Fact]
         public void NamedScope_Simple_Resolve_Prefer_Named_Last()
         {
             var inst = new StashboxContainer()
@@ -86,10 +86,10 @@ namespace Stashbox.Tests
                 .BeginScope("A")
                 .Resolve<ITest>();
 
-            Assert.IsInstanceOfType(inst, typeof(Test1));
+            Assert.IsType<Test1>(inst);
         }
 
-        [TestMethod]
+        [Fact]
         public void NamedScope_Simple_Resolve_Gets_Same_Within_Scope()
         {
             var scope = new StashboxContainer()
@@ -100,10 +100,10 @@ namespace Stashbox.Tests
             var a = scope.Resolve<ITest>();
             var b = scope.Resolve<ITest>();
 
-            Assert.AreSame(a, b);
+            Assert.Same(a, b);
         }
 
-        [TestMethod]
+        [Fact]
         public void NamedScope_Simple_Resolve_Gets_Named_Within_Scope()
         {
             var scope = new StashboxContainer()
@@ -116,12 +116,12 @@ namespace Stashbox.Tests
             var b = scope.Resolve<ITest>("T");
             var c = scope.Resolve<ITest>();
 
-            Assert.AreSame(a, b);
-            Assert.AreNotSame(a, c);
-            Assert.IsInstanceOfType(a, typeof(Test));
+            Assert.Same(a, b);
+            Assert.NotSame(a, c);
+            Assert.IsType<Test>(a);
         }
 
-        [TestMethod]
+        [Fact]
         public void NamedScope_Simple_Resolve_Gets_Named_When_Scoped_Doesnt_Exist()
         {
             var scope = new StashboxContainer()
@@ -134,12 +134,12 @@ namespace Stashbox.Tests
             var b = scope.Resolve<ITest>("T");
             var c = scope.Resolve<ITest>();
 
-            Assert.IsInstanceOfType(c, typeof(Test1));
-            Assert.IsInstanceOfType(b, typeof(Test));
-            Assert.IsInstanceOfType(a, typeof(Test));
+            Assert.IsType<Test1>(c);
+            Assert.IsType<Test>(b);
+            Assert.IsType<Test>(a);
         }
 
-        [TestMethod]
+        [Fact]
         public void NamedScope_Dependency_Resolve_Wrapper_Gets_Same_Within_Scope()
         {
             var inst = new StashboxContainer()
@@ -149,12 +149,12 @@ namespace Stashbox.Tests
                 .BeginScope("A")
                 .Resolve<Test3>();
 
-            Assert.AreSame(inst.Func(), inst.Lazy.Value);
-            Assert.AreSame(inst.Lazy.Value, inst.Enumerable.Last());
-            Assert.AreSame(inst.Enumerable.Last(), inst.Tuple.Item1);
+            Assert.Same(inst.Func(), inst.Lazy.Value);
+            Assert.Same(inst.Lazy.Value, inst.Enumerable.Last());
+            Assert.Same(inst.Enumerable.Last(), inst.Tuple.Item1);
         }
 
-        [TestMethod]
+        [Fact]
         public void NamedScope_Simple_Resolve_Get_Last_If_Scoped_Doesnt_Exist()
         {
             var inst = new StashboxContainer()
@@ -163,10 +163,10 @@ namespace Stashbox.Tests
                 .BeginScope("A")
                 .Resolve<ITest>();
 
-            Assert.IsInstanceOfType(inst, typeof(Test1));
+            Assert.IsType<Test1>(inst);
         }
 
-        [TestMethod]
+        [Fact]
         public void NamedScope_Dependency_Get_Last_If_Scoped_Doesnt_Exist()
         {
             var inst = new StashboxContainer()
@@ -176,13 +176,13 @@ namespace Stashbox.Tests
                 .BeginScope("A")
                 .Resolve<Test3>();
 
-            Assert.IsInstanceOfType(inst.Func(), typeof(Test1));
-            Assert.IsInstanceOfType(inst.Lazy.Value, typeof(Test1));
-            Assert.IsInstanceOfType(inst.Enumerable.Last(), typeof(Test1));
-            Assert.IsInstanceOfType(inst.Tuple.Item1, typeof(Test1));
+            Assert.IsType<Test1>(inst.Func());
+            Assert.IsType<Test1>(inst.Lazy.Value);
+            Assert.IsType<Test1>(inst.Enumerable.Last());
+            Assert.IsType<Test1>(inst.Tuple.Item1);
         }
 
-        [TestMethod]
+        [Fact]
         public void NamedScope_Defines_Scope_Prefer_Named()
         {
             var inst = new StashboxContainer()
@@ -192,17 +192,17 @@ namespace Stashbox.Tests
                 .Register<ITest, Test1>()
                 .Resolve<Test3>();
 
-            Assert.IsInstanceOfType(inst.Func(), typeof(Test));
-            Assert.IsInstanceOfType(inst.Lazy.Value, typeof(Test));
-            Assert.IsInstanceOfType(inst.Enumerable.Last(), typeof(Test));
-            Assert.IsInstanceOfType(inst.Tuple.Item1, typeof(Test));
+            Assert.IsType<Test>(inst.Func());
+            Assert.IsType<Test>(inst.Lazy.Value);
+            Assert.IsType<Test>(inst.Enumerable.Last());
+            Assert.IsType<Test>(inst.Tuple.Item1);
 
-            Assert.AreSame(inst.Func(), inst.Lazy.Value);
-            Assert.AreSame(inst.Lazy.Value, inst.Enumerable.Last());
-            Assert.AreSame(inst.Enumerable.Last(), inst.Tuple.Item1);
+            Assert.Same(inst.Func(), inst.Lazy.Value);
+            Assert.Same(inst.Lazy.Value, inst.Enumerable.Last());
+            Assert.Same(inst.Enumerable.Last(), inst.Tuple.Item1);
         }
 
-        [TestMethod]
+        [Fact]
         public void NamedScope_Preserve_Instance_Through_Nested_Scopes()
         {
             var container = new StashboxContainer()
@@ -215,12 +215,12 @@ namespace Stashbox.Tests
                 {
                     var i2 = s2.Resolve<ITest>();
 
-                    Assert.AreSame(i2, i1);
+                    Assert.Same(i2, i1);
                 }
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void NamedScope_Dispose_Instance_Through_Nested_Scopes()
         {
             var container = new StashboxContainer()
@@ -234,16 +234,16 @@ namespace Stashbox.Tests
                 {
                     var i2 = s2.Resolve<ITest>();
 
-                    Assert.AreSame(i2, i1);
+                    Assert.Same(i2, i1);
                 }
 
-                Assert.IsFalse(((Test12)i1).Disposed);
+                Assert.False(((Test12)i1).Disposed);
             }
 
-            Assert.IsTrue(((Test12)i1).Disposed);
+            Assert.True(((Test12)i1).Disposed);
         }
 
-        [TestMethod]
+        [Fact]
         public void NamedScope_Dispose_Instance_Defines_Named_Scope()
         {
             var container = new StashboxContainer()
@@ -256,39 +256,38 @@ namespace Stashbox.Tests
                 i1 = s1.Resolve<Test2>();
             }
 
-            Assert.IsTrue(((Test12)i1.Test).Disposed);
+            Assert.True(((Test12)i1.Test).Disposed);
         }
 
-        [TestMethod]
+        [Fact]
         public void NamedScope_Lifetime_Check()
         {
             var inst = new StashboxContainer()
                 .Register<ITest, Test>(config => config.InNamedScope("A"))
                 .ContainerContext.RegistrationRepository.GetRegistrationMappings().First(reg => reg.Key == typeof(ITest));
 
-            Assert.IsInstanceOfType(inst.Value.RegistrationContext.Lifetime, typeof(NamedScopeLifetime));
+            Assert.IsType<NamedScopeLifetime>(inst.Value.RegistrationContext.Lifetime);
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(ResolutionFailedException))]
+        [Fact]
         public void NamedScope_Throws_ResolutionFailedException_Without_Scope()
         {
             var container = new StashboxContainer()
                 .Register<ITest, Test>(config => config.InNamedScope("A"));
 
-            container.Resolve<ITest>();
+            Assert.Throws<ResolutionFailedException>(() => container.Resolve<ITest>());
         }
 
-        [TestMethod]
+        [Fact]
         public void NamedScope_WithNull()
         {
             var container = new StashboxContainer()
                 .Register<Test2>(config => config.InNamedScope("A"));
 
-            Assert.IsNull(container.BeginScope("A").Resolve<Test2>(nullResultAllowed: true));
+            Assert.Null(container.BeginScope("A").Resolve<Test2>(nullResultAllowed: true));
         }
 
-        [TestMethod]
+        [Fact]
         public void NamedScope_ChildContainer_Chain()
         {
             var container = new StashboxContainer()
@@ -300,11 +299,11 @@ namespace Stashbox.Tests
 
             var inst = child.Resolve<Test4>();
 
-            Assert.IsNotNull(inst.Test);
-            Assert.IsNotNull(inst.Test.Test);
+            Assert.NotNull(inst.Test);
+            Assert.NotNull(inst.Test.Test);
         }
 
-        [TestMethod]
+        [Fact]
         public void NamedScope_ChildContainer()
         {
             var container = new StashboxContainer()
@@ -316,10 +315,10 @@ namespace Stashbox.Tests
 
             var inst = child.Resolve<Test2>();
 
-            Assert.IsInstanceOfType(inst.Test, typeof(Test1));
+            Assert.IsType<Test1>(inst.Test);
         }
 
-        [TestMethod]
+        [Fact]
         public void NamedScope_Chain()
         {
             var container = new StashboxContainer()
@@ -329,11 +328,11 @@ namespace Stashbox.Tests
 
             var inst = container.Resolve<Test4>();
 
-            Assert.IsNotNull(inst.Test);
-            Assert.IsNotNull(inst.Test.Test);
+            Assert.NotNull(inst.Test);
+            Assert.NotNull(inst.Test.Test);
         }
 
-        [TestMethod]
+        [Fact]
         public void NamedScope_ChildContainer_Chain_Reverse()
         {
             var container = new StashboxContainer()
@@ -345,8 +344,8 @@ namespace Stashbox.Tests
 
             var inst = child.Resolve<Test4>();
 
-            Assert.IsNotNull(inst.Test);
-            Assert.IsNotNull(inst.Test.Test);
+            Assert.NotNull(inst.Test);
+            Assert.NotNull(inst.Test.Test);
         }
 
         interface ITest

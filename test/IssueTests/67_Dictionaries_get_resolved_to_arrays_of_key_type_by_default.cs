@@ -1,13 +1,13 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Stashbox.Configuration;
+﻿using Stashbox.Configuration;
 using System.Collections.Generic;
+using Xunit;
 
 namespace Stashbox.Tests.IssueTests
 {
-    [TestClass]
+
     public class DictionariesGetResolvedToArraysOfKeyTypeByDefault
     {
-        [TestMethod]
+        [Fact]
         public void Ensure_Dictionary_Resolves()
         {
             var container = new StashboxContainer(c => c.WithUnknownTypeResolution(c2 =>

@@ -26,8 +26,8 @@ namespace Stashbox
             this.rootResolver.ResolveFactory(typeFrom, name, nullResultAllowed, parameterTypes);
 
         /// <inheritdoc />
-        public IDependencyResolver PutInstanceInScope(Type typeFrom, object instance, object name = null, bool withoutDisposalTracking = false) =>
-            this.rootResolver.PutInstanceInScope(typeFrom, instance, name, withoutDisposalTracking);
+        public IDependencyResolver PutInstanceInScope(Type typeFrom, object instance, bool withoutDisposalTracking = false, object name = null) =>
+            this.rootResolver.PutInstanceInScope(typeFrom, instance, withoutDisposalTracking, name);
 
         /// <inheritdoc />
         public TTo BuildUp<TTo>(TTo instance) =>

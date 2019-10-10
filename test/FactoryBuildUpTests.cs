@@ -1,13 +1,13 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Stashbox.Attributes;
+﻿using Stashbox.Attributes;
 using Stashbox.Entity;
+using Xunit;
 
 namespace Stashbox.Tests
 {
-    [TestClass]
+
     public class FactoryBuildUpTests
     {
-        [TestMethod]
+        [Fact]
         public void FactoryBuildUpTests_DependencyResolve()
         {
             using (var container = new StashboxContainer())
@@ -17,12 +17,12 @@ namespace Stashbox.Tests
 
                 var inst = container.Resolve<ITest1>();
 
-                Assert.IsInstanceOfType(inst.Test, typeof(Test));
-                Assert.AreEqual("test", inst.Test.Name);
+                Assert.IsType<Test>(inst.Test);
+                Assert.Equal("test", inst.Test.Name);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void FactoryBuildUpTests_DependencyResolve_ServiceUpdated()
         {
             using (var container = new StashboxContainer())
@@ -32,12 +32,12 @@ namespace Stashbox.Tests
                 container.ReMap<ITest, Test>(context => context.WithFactory(() => new Test("test1")));
                 var inst = container.Resolve<ITest2>();
 
-                Assert.IsInstanceOfType(inst.Test, typeof(Test));
-                Assert.AreEqual("test1", inst.Test.Name);
+                Assert.IsType<Test>(inst.Test);
+                Assert.Equal("test1", inst.Test.Name);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void FactoryBuildUpTests_Resolve()
         {
             using (var container = new StashboxContainer())
@@ -47,12 +47,12 @@ namespace Stashbox.Tests
 
                 var inst = container.Resolve<ITest1>();
 
-                Assert.IsInstanceOfType(inst.Test, typeof(Test));
-                Assert.AreEqual("test", inst.Test.Name);
+                Assert.IsType<Test>(inst.Test);
+                Assert.Equal("test", inst.Test.Name);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void FactoryBuildUpTests_Resolve_NotSame()
         {
             using (var container = new StashboxContainer())
@@ -67,11 +67,11 @@ namespace Stashbox.Tests
                 var inst1 = container.Resolve<ITest1>();
                 var inst2 = container.Resolve<ITest1>();
 
-                Assert.AreNotSame(inst1.Test, inst2.Test);
+                Assert.NotSame(inst1.Test, inst2.Test);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void FactoryBuildUpTests_Resolve_ContainerFactory()
         {
             using (var container = new StashboxContainer())
@@ -81,11 +81,11 @@ namespace Stashbox.Tests
 
                 var inst = container.Resolve<ITest>();
 
-                Assert.IsInstanceOfType(inst, typeof(Test3));
+                Assert.IsType<Test3>(inst);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void FactoryBuildUpTests_Resolve_ContainerFactory_Constructor()
         {
             using (var container = new StashboxContainer())
@@ -95,7 +95,7 @@ namespace Stashbox.Tests
                 container.Register(typeof(ITest), context => context.WithFactory(c => c.Resolve<Test3>()));
 
                 var test1 = container.Resolve<ITest1>();
-                Assert.IsInstanceOfType(test1.Test, typeof(Test3));
+                Assert.IsType<Test3>(test1.Test);
             }
         }
 

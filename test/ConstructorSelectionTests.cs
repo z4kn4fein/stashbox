@@ -1,12 +1,12 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Stashbox.Exceptions;
+﻿using Stashbox.Exceptions;
+using Xunit;
 
 namespace Stashbox.Tests
 {
-    [TestClass]
+
     public class ConstructorSelectionTests
     {
-        [TestMethod]
+        [Fact]
         public void ConstructorSelectionTests_ArgTypes()
         {
             using (var container = new StashboxContainer(config => config.WithUnknownTypeResolution()))
@@ -16,7 +16,7 @@ namespace Stashbox.Tests
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void ConstructorSelectionTests_Args()
         {
             using (var container = new StashboxContainer())
@@ -27,67 +27,62 @@ namespace Stashbox.Tests
                 container.Register<Test>(context => context.WithConstructorByArguments(dep, dep2));
                 var test = container.Resolve<Test>();
 
-                Assert.AreSame(dep, test.Dep);
-                Assert.AreSame(dep2, test.Dep2);
+                Assert.Same(dep, test.Dep);
+                Assert.Same(dep2, test.Dep2);
             }
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(ResolutionFailedException))]
+        [Fact]
         public void ConstructorSelectionTests_ArgTypes_Throws_ResolutionFailed()
         {
             using (var container = new StashboxContainer())
             {
                 container.Register<Test>(context => context.WithConstructorByArgumentTypes(typeof(Dep), typeof(Dep2)));
-                container.Resolve<Test>();
+                Assert.Throws<ResolutionFailedException>(() => container.Resolve<Test>());
             }
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(ConstructorNotFoundException))]
+        [Fact]
         public void ConstructorSelectionTests_ArgTypes_Throws_MissingConstructor()
         {
             using (var container = new StashboxContainer())
             {
-                container.Register<Test>(context => context.WithConstructorByArgumentTypes());
-                container.Resolve<Test>();
+                Assert.Throws<ConstructorNotFoundException>(() => container.Register<Test>(context => context.WithConstructorByArgumentTypes()));
             }
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(ConstructorNotFoundException))]
+        [Fact]
         public void ConstructorSelectionTests_Args_Throws_MissingConstructor()
         {
             using (var container = new StashboxContainer())
             {
-                container.Register<Test>(context => context.WithConstructorByArguments());
-                container.Resolve<Test>();
+                Assert.Throws<ConstructorNotFoundException>(() =>
+                container.Register<Test>(context => context.WithConstructorByArguments()));
             }
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(ConstructorNotFoundException))]
+        [Fact]
         public void ConstructorSelectionTests_Args_Throws_MissingConstructor_OneParam()
         {
             using (var container = new StashboxContainer())
             {
-                container.Register<Test>(context => context.WithConstructorByArguments(new object()));
-                container.Resolve<Test>();
+                Assert.Throws<ConstructorNotFoundException>(() =>
+                container.Register<Test>(context => context.WithConstructorByArguments(new object())));
             }
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(ConstructorNotFoundException))]
+        [Fact]
         public void ConstructorSelectionTests_Args_Throws_MissingConstructor_MoreParams()
         {
             using (var container = new StashboxContainer())
             {
-                container.Register<Test>(context => context.WithConstructorByArguments(new object(), new object()));
-                container.Resolve<Test>();
+                Assert.Throws<ConstructorNotFoundException>(() =>
+                    container.Register<Test>(context =>
+                        context.WithConstructorByArguments(new object(), new object())));
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void ConstructorSelectionTests_Decorator_ArgTypes()
         {
             using (var container = new StashboxContainer(config => config.WithUnknownTypeResolution()))
@@ -95,11 +90,11 @@ namespace Stashbox.Tests
                 container.RegisterDecorator<Dep, DepDecorator>(context => context.WithConstructorByArgumentTypes(typeof(Dep), typeof(Dep2)));
                 var test = container.Resolve<Dep>();
 
-                Assert.IsInstanceOfType(test, typeof(DepDecorator));
+                Assert.IsType<DepDecorator>(test);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void ConstructorSelectionTests_Decorator_Args()
         {
             using (var container = new StashboxContainer(config => config.WithUnknownTypeResolution()))
@@ -110,12 +105,12 @@ namespace Stashbox.Tests
                 container.RegisterDecorator<Dep, DepDecorator>(context => context.WithConstructorByArguments(dep, dep2));
                 var test = container.Resolve<Dep>();
 
-                Assert.AreSame(dep, ((DepDecorator)test).Dep);
-                Assert.AreSame(dep2, ((DepDecorator)test).Dep2);
+                Assert.Same(dep, ((DepDecorator)test).Dep);
+                Assert.Same(dep2, ((DepDecorator)test).Dep2);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void ConstructorSelectionTests_Arg_ByInterface()
         {
             using (var container = new StashboxContainer())
@@ -126,8 +121,8 @@ namespace Stashbox.Tests
                 container.Register<Test1>(context => context.WithConstructorByArguments(arg, arg1));
                 var test = container.Resolve<Test1>();
 
-                Assert.AreSame(arg, test.PArg);
-                Assert.AreSame(arg1, test.PArg1);
+                Assert.Same(arg, test.PArg);
+                Assert.Same(arg1, test.PArg1);
             }
         }
 
@@ -147,7 +142,7 @@ namespace Stashbox.Tests
 
             public DepDecorator(Dep dep)
             {
-                Assert.Fail("wrong constructor");
+                Assert.True(false, "wrong constructor");
             }
 
             public DepDecorator(Dep dep, Dep2 dep2)
@@ -158,7 +153,7 @@ namespace Stashbox.Tests
 
             public DepDecorator(Dep dep, Dep2 dep2, Dep3 dep3)
             {
-                Assert.Fail("wrong constructor");
+                Assert.True(false, "wrong constructor");
             }
         }
 
@@ -169,7 +164,7 @@ namespace Stashbox.Tests
 
             public Test(Dep dep)
             {
-                Assert.Fail("wrong constructor");
+                Assert.True(false, "wrong constructor");
             }
 
             public Test(Dep dep, Dep2 dep2)
@@ -180,7 +175,7 @@ namespace Stashbox.Tests
 
             public Test(Dep dep, Dep2 dep2, Dep3 dep3)
             {
-                Assert.Fail("wrong constructor");
+                Assert.True(false, "wrong constructor");
             }
         }
 

@@ -1,12 +1,12 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Stashbox.Entity;
+﻿using Stashbox.Entity;
+using Xunit;
 
 namespace Stashbox.Tests.IssueTests
 {
-    [TestClass]
+
     public class UnableToUseNullableTypesWithInjectionParameters
     {
-        [TestMethod]
+        [Fact]
         public void Unable_to_use_nullable_types_with_injection_parameters()
         {
             var container = new StashboxContainer(config => config
@@ -23,12 +23,12 @@ namespace Stashbox.Tests.IssueTests
                         Value = someInt
                     })).Resolve<IExample>();
 
-            Assert.IsNotNull(inst);
-            Assert.IsInstanceOfType(inst, typeof(ExampleClass));
-            Assert.AreEqual(someInt, inst.ExampleProperty.Value);
+            Assert.NotNull(inst);
+            Assert.IsType<ExampleClass>(inst);
+            Assert.Equal(someInt, inst.ExampleProperty.Value);
         }
 
-        [TestMethod]
+        [Fact]
         public void Unable_to_use_nullable_types_with_injection_parameters_member()
         {
             var container = new StashboxContainer(config => config
@@ -46,9 +46,9 @@ namespace Stashbox.Tests.IssueTests
                         Value = someInt
                     })).Resolve<IExample>();
 
-            Assert.IsNotNull(inst);
-            Assert.IsInstanceOfType(inst, typeof(ExampleClass2));
-            Assert.AreEqual(someInt, inst.ExampleProperty.Value);
+            Assert.NotNull(inst);
+            Assert.IsType<ExampleClass2>(inst);
+            Assert.Equal(someInt, inst.ExampleProperty.Value);
         }
 
         interface IExample

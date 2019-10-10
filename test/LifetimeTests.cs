@@ -1,15 +1,15 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Stashbox.Lifetime;
+﻿using Stashbox.Lifetime;
 using Stashbox.Utils;
 using System;
 using System.Threading.Tasks;
+using Xunit;
 
 namespace Stashbox.Tests
 {
-    [TestClass]
+
     public class LifetimeTests
     {
-        [TestMethod]
+        [Fact]
         public void LifetimeTests_Resolve()
         {
             using (IStashboxContainer container = new StashboxContainer())
@@ -23,13 +23,13 @@ namespace Stashbox.Tests
                 var test2 = container.Resolve<ITest2>();
                 var test3 = container.Resolve<ITest3>();
 
-                Assert.IsNotNull(test1);
-                Assert.IsNotNull(test2);
-                Assert.IsNotNull(test3);
+                Assert.NotNull(test1);
+                Assert.NotNull(test2);
+                Assert.NotNull(test3);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void LifetimeTests_Resolve_Parallel()
         {
             using (IStashboxContainer container = new StashboxContainer())
@@ -45,14 +45,14 @@ namespace Stashbox.Tests
                     var test2 = container.Resolve<ITest2>();
                     var test3 = container.Resolve<ITest3>();
 
-                    Assert.IsNotNull(test1);
-                    Assert.IsNotNull(test2);
-                    Assert.IsNotNull(test3);
+                    Assert.NotNull(test1);
+                    Assert.NotNull(test2);
+                    Assert.NotNull(test3);
                 });
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void LifetimeTests_Resolve_Parallel_Lazy()
         {
             using (IStashboxContainer container = new StashboxContainer())
@@ -68,14 +68,14 @@ namespace Stashbox.Tests
                     var test2 = container.Resolve<Lazy<ITest2>>();
                     var test3 = container.Resolve<Lazy<ITest3>>();
 
-                    Assert.IsNotNull(test1.Value);
-                    Assert.IsNotNull(test2.Value);
-                    Assert.IsNotNull(test3.Value);
+                    Assert.NotNull(test1.Value);
+                    Assert.NotNull(test2.Value);
+                    Assert.NotNull(test3.Value);
                 });
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void LifetimeTests_Per_Resolution_Request_Dependency()
         {
             using (IStashboxContainer container = new StashboxContainer())
@@ -87,25 +87,25 @@ namespace Stashbox.Tests
                 var inst1 = container.Resolve<Test7>();
                 var inst2 = container.Resolve<Test7>();
 
-                Assert.AreSame(inst1.Test5, inst1.Test6.Test5);
-                Assert.AreSame(inst2.Test5, inst2.Test6.Test5);
-                Assert.AreNotSame(inst1.Test5, inst2.Test6.Test5);
-                Assert.AreNotSame(inst2.Test5, inst1.Test6.Test5);
+                Assert.Same(inst1.Test5, inst1.Test6.Test5);
+                Assert.Same(inst2.Test5, inst2.Test6.Test5);
+                Assert.NotSame(inst1.Test5, inst2.Test6.Test5);
+                Assert.NotSame(inst2.Test5, inst1.Test6.Test5);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void LifetimeTests_Per_Resolution_Request_Dependency_WithNull()
         {
             using (IStashboxContainer container = new StashboxContainer())
             {
                 container.Register<Test6>(context => context.WithPerResolutionRequestLifetime());
 
-                Assert.IsNull(container.Resolve<Test6>(nullResultAllowed: true));
+                Assert.Null(container.Resolve<Test6>(nullResultAllowed: true));
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void LifetimeTests_Per_Resolution_Request()
         {
             using (IStashboxContainer container = new StashboxContainer())
@@ -115,32 +115,32 @@ namespace Stashbox.Tests
                 var inst1 = container.Resolve<Test5>();
                 var inst2 = container.Resolve<Test5>();
 
-                Assert.AreNotSame(inst1, inst2);
+                Assert.NotSame(inst1, inst2);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void LifetimeTests_Scoped_WithNull()
         {
             using (IStashboxContainer container = new StashboxContainer())
             {
                 container.RegisterScoped<Test6>();
 
-                Assert.IsNull(container.BeginScope().Resolve<Test6>(nullResultAllowed: true));
+                Assert.Null(container.BeginScope().Resolve<Test6>(nullResultAllowed: true));
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void LifetimeTests_StateCheck()
         {
             var scoped = new ScopedLifetime();
-            Assert.IsInstanceOfType(scoped.Create(), typeof(ScopedLifetime));
+            Assert.IsType<ScopedLifetime>(scoped.Create());
 
             var singleton = new SingletonLifetime();
-            Assert.IsInstanceOfType(singleton.Create(), typeof(SingletonLifetime));
+            Assert.IsType<SingletonLifetime>(singleton.Create());
 
             var perResolution = new ResolutionRequestLifetime();
-            Assert.IsInstanceOfType(perResolution.Create(), typeof(ResolutionRequestLifetime));
+            Assert.IsType<ResolutionRequestLifetime>(perResolution.Create());
         }
 
         interface ITest1 { string Name { get; set; } }

@@ -1,11 +1,11 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Xunit;
 
 namespace Stashbox.Tests.IssueTests
 {
-    [TestClass]
+    
     public class InjectingContainerItself
     {
-        [TestMethod]
+        [Fact]
         public void Injecting_container_itself()
         {
             var container = new StashboxContainer();
@@ -13,17 +13,17 @@ namespace Stashbox.Tests.IssueTests
                 .RegisterSingleton<ICoreFactory, CoreFactory>()
                 .Resolve<ICoreFactory>();
 
-            Assert.IsNotNull(factory);
+            Assert.NotNull(factory);
         }
 
-        [TestMethod]
+        [Fact]
         public void Injecting_container_itself2()
         {
             var factory = new StashboxContainer()
                 .RegisterSingleton<ICoreFactory, CoreFactory2>()
                 .Resolve<ICoreFactory>();
 
-            Assert.IsNotNull(factory);
+            Assert.NotNull(factory);
         }
     }
 

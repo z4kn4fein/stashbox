@@ -1,16 +1,16 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
+﻿using Moq;
 using Stashbox.ContainerExtension;
 using Stashbox.Registration;
 using Stashbox.Resolution;
 using System;
+using Xunit;
 
 namespace Stashbox.Tests
 {
-    [TestClass]
+
     public class InitializerFinalizerTests
     {
-        [TestMethod]
+        [Fact]
         public void InitializerTests_Interface_Method()
         {
             ITest test;
@@ -20,10 +20,10 @@ namespace Stashbox.Tests
                 test = container.Resolve<ITest>();
             }
 
-            Assert.IsTrue(test.MethodCalled);
+            Assert.True(test.MethodCalled);
         }
 
-        [TestMethod]
+        [Fact]
         public void InitializerTests_ImplOnly_Method()
         {
             ITest test;
@@ -34,10 +34,10 @@ namespace Stashbox.Tests
                 test = container.Resolve<ITest>();
             }
 
-            Assert.IsTrue(test.MethodCalled);
+            Assert.True(test.MethodCalled);
         }
 
-        [TestMethod]
+        [Fact]
         public void InitializerTests_With_Post_Build_Extension()
         {
             ITest test;
@@ -56,10 +56,10 @@ namespace Stashbox.Tests
                 post.Verify(p => p.PostBuild(It.IsAny<object>(), container.ContainerContext, It.IsAny<ResolutionContext>(), It.IsAny<IServiceRegistration>(), It.IsAny<Type>()), Times.Exactly(2));
             }
 
-            Assert.IsTrue(test.MethodCalled);
+            Assert.True(test.MethodCalled);
         }
 
-        [TestMethod]
+        [Fact]
         public void FinalizerTests_Register()
         {
             ITest test;
@@ -69,10 +69,10 @@ namespace Stashbox.Tests
                 test = container.Resolve<ITest>();
             }
 
-            Assert.IsTrue(test.MethodCalled);
+            Assert.True(test.MethodCalled);
         }
 
-        [TestMethod]
+        [Fact]
         public void FinalizerTests_Register_ByInterface()
         {
             ITest test;
@@ -82,10 +82,10 @@ namespace Stashbox.Tests
                 test = container.Resolve<ITest>();
             }
 
-            Assert.IsTrue(test.MethodCalled);
+            Assert.True(test.MethodCalled);
         }
 
-        [TestMethod]
+        [Fact]
         public void FinalizerTests_Register_ByImplementation()
         {
             Test test;
@@ -95,10 +95,10 @@ namespace Stashbox.Tests
                 test = container.Resolve<Test>();
             }
 
-            Assert.IsTrue(test.MethodCalled);
+            Assert.True(test.MethodCalled);
         }
 
-        [TestMethod]
+        [Fact]
         public void FinalizerTests_ReMap()
         {
             ITest test;
@@ -109,10 +109,10 @@ namespace Stashbox.Tests
                 test = container.Resolve<ITest>();
             }
 
-            Assert.IsTrue(test.MethodCalled);
+            Assert.True(test.MethodCalled);
         }
 
-        [TestMethod]
+        [Fact]
         public void FinalizerTests_ReMap_ByInterface()
         {
             ITest test;
@@ -123,10 +123,10 @@ namespace Stashbox.Tests
                 test = container.Resolve<ITest>();
             }
 
-            Assert.IsTrue(test.MethodCalled);
+            Assert.True(test.MethodCalled);
         }
 
-        [TestMethod]
+        [Fact]
         public void FinalizerTests_ReMap_ByImplementation()
         {
             Test test;
@@ -137,10 +137,10 @@ namespace Stashbox.Tests
                 test = container.Resolve<Test>();
             }
 
-            Assert.IsTrue(test.MethodCalled);
+            Assert.True(test.MethodCalled);
         }
 
-        [TestMethod]
+        [Fact]
         public void FinalizerTests_Instance_Interface()
         {
             var test = new Test();
@@ -150,10 +150,10 @@ namespace Stashbox.Tests
                 test = (Test)container.Resolve<ITest>();
             }
 
-            Assert.IsTrue(test.MethodCalled);
+            Assert.True(test.MethodCalled);
         }
 
-        [TestMethod]
+        [Fact]
         public void FinalizerTests_Instance_Implementation()
         {
             var test = new Test();
@@ -163,10 +163,10 @@ namespace Stashbox.Tests
                 test = container.Resolve<Test>();
             }
 
-            Assert.IsTrue(test.MethodCalled);
+            Assert.True(test.MethodCalled);
         }
 
-        [TestMethod]
+        [Fact]
         public void FinalizerTests_WireUp_Interface()
         {
             var test = new Test();
@@ -176,10 +176,10 @@ namespace Stashbox.Tests
                 test = (Test)container.Resolve<ITest>();
             }
 
-            Assert.IsTrue(test.MethodCalled);
+            Assert.True(test.MethodCalled);
         }
 
-        [TestMethod]
+        [Fact]
         public void FinalizerTests_WireUp_Implementation()
         {
             var test = new Test();
@@ -189,10 +189,10 @@ namespace Stashbox.Tests
                 test = container.Resolve<Test>();
             }
 
-            Assert.IsTrue(test.MethodCalled);
+            Assert.True(test.MethodCalled);
         }
 
-        [TestMethod]
+        [Fact]
         public void FinalizerTests_Register_Multiple_Shouldnt_Throw()
         {
             using (var container = new StashboxContainer())
@@ -201,12 +201,12 @@ namespace Stashbox.Tests
                 for (var i = 0; i < 10; i++)
                 {
                     var test = container.Resolve<ITest>();
-                    Assert.IsFalse(test.MethodCalled);
+                    Assert.False(test.MethodCalled);
                 }
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void FinalizerTests_Register_Singleton_Multiple_Shouldnt_Throw()
         {
             using (var container = new StashboxContainer())
@@ -215,12 +215,12 @@ namespace Stashbox.Tests
                 for (var i = 0; i < 10; i++)
                 {
                     var test = container.Resolve<ITest>();
-                    Assert.IsFalse(test.MethodCalled);
+                    Assert.False(test.MethodCalled);
                 }
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void FinalizerTests_Register_Scoped_Multiple_Shouldnt_Throw()
         {
             using (var container = new StashboxContainer())
@@ -232,15 +232,15 @@ namespace Stashbox.Tests
                     using (var scope = container.BeginScope())
                     {
                         test = scope.Resolve<ITest>();
-                        Assert.IsFalse(test.MethodCalled);
+                        Assert.False(test.MethodCalled);
                     }
 
-                    Assert.IsTrue(test.MethodCalled);
+                    Assert.True(test.MethodCalled);
                 }
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void FinalizerTests_Instance_Implementation_Multiple_Shouldnt_Throw()
         {
             var test = new Test();
@@ -250,12 +250,12 @@ namespace Stashbox.Tests
                 for (var i = 0; i < 10; i++)
                 {
                     var test1 = container.Resolve<Test>();
-                    Assert.IsFalse(test1.MethodCalled);
-                    Assert.AreSame(test, test1);
+                    Assert.False(test1.MethodCalled);
+                    Assert.Same(test, test1);
                 }
             }
 
-            Assert.IsTrue(test.MethodCalled);
+            Assert.True(test.MethodCalled);
         }
 
         interface ITest

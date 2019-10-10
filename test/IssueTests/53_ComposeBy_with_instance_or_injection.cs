@@ -1,12 +1,12 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Xunit;
 using Moq;
 
 namespace Stashbox.Tests.IssueTests
 {
-    [TestClass]
+    
     public class ComposeByWithInstanceOrInjection
     {
-        [TestMethod]
+        [Fact]
         public void ComposeByWithInstance()
         {
             var mock = new Mock<ICompositionRoot>();
@@ -14,7 +14,7 @@ namespace Stashbox.Tests.IssueTests
             mock.Verify(m => m.Compose(container), Times.Once);
         }
 
-        [TestMethod]
+        [Fact]
         public void ComposeByWithInjection()
         {
             new StashboxContainer()
@@ -22,7 +22,7 @@ namespace Stashbox.Tests.IssueTests
                 .ComposeBy<TestRoot1>();
         }
 
-        [TestMethod]
+        [Fact]
         public void ComposeByWithMemberInjection()
         {
             new StashboxContainer(c => c.WithMemberInjectionWithoutAnnotation())
@@ -30,7 +30,7 @@ namespace Stashbox.Tests.IssueTests
                 .ComposeBy<TestRoot>();
         }
 
-        [TestMethod]
+        [Fact]
         public void ComposeByWithInjectionWithDependencyOverride()
         {
             new StashboxContainer()
@@ -46,7 +46,7 @@ namespace Stashbox.Tests.IssueTests
             public void Compose(IStashboxContainer container)
             {
                 if (this.Test == null)
-                    Assert.Fail("Dependency not resolved");
+                    Assert.True(false, "Dependency not resolved");
             }
         }
 
@@ -62,7 +62,7 @@ namespace Stashbox.Tests.IssueTests
             public void Compose(IStashboxContainer container)
             {
                 if (this.Test == null)
-                    Assert.Fail("Dependency not resolved");
+                    Assert.True(false, "Dependency not resolved");
             }
         }
 
@@ -78,7 +78,7 @@ namespace Stashbox.Tests.IssueTests
             public void Compose(IStashboxContainer container)
             {
                 if (this.Test != 5)
-                    Assert.Fail("Dependency not resolved");
+                    Assert.True(false, "Dependency not resolved");
             }
         }
     }

@@ -1,28 +1,28 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Xunit;
 
 namespace Stashbox.Tests.IssueTests
 {
-    [TestClass]
+    
     public class InjectionParameterNullReference
     {
-        [TestMethod]
+        [Fact]
         public void InjectionParameter_NullReference()
         {
             var inst = new StashboxContainer()
                 .Register<Test>(c => c.WithInjectionParameter("arg", null))
                 .Resolve<Test>();
 
-            Assert.IsNotNull(inst);
+            Assert.NotNull(inst);
         }
 
-        [TestMethod]
+        [Fact]
         public void InjectionParameter_NullReference_Object()
         {
             var inst = new StashboxContainer()
                 .Register<Test2>(c => c.WithInjectionParameter("arg", null))
                 .Resolve<Test2>();
 
-            Assert.IsNotNull(inst);
+            Assert.NotNull(inst);
         }
 
         class Test

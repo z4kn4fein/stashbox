@@ -1,18 +1,18 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Stashbox.Attributes;
+﻿using Stashbox.Attributes;
 using Stashbox.Configuration;
 using Stashbox.Entity;
 using Stashbox.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Xunit;
 
 namespace Stashbox.Tests
 {
-    [TestClass]
+
     public class DecoratorTests
     {
-        [TestMethod]
+        [Fact]
         public void DecoratorTests_Simple()
         {
             using (var container = new StashboxContainer())
@@ -21,15 +21,15 @@ namespace Stashbox.Tests
                 container.RegisterDecorator<ITest1, TestDecorator1>();
                 var test = container.Resolve<ITest1>();
 
-                Assert.IsNotNull(test);
-                Assert.IsInstanceOfType(test, typeof(TestDecorator1));
+                Assert.NotNull(test);
+                Assert.IsType<TestDecorator1>(test);
 
-                Assert.IsNotNull(test.Test);
-                Assert.IsInstanceOfType(test.Test, typeof(Test1));
+                Assert.NotNull(test.Test);
+                Assert.IsType<Test1>(test.Test);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void DecoratorTests_Simple2()
         {
             using (var container = new StashboxContainer())
@@ -38,15 +38,15 @@ namespace Stashbox.Tests
                 container.RegisterDecorator<ITest1>(typeof(TestDecorator1));
                 var test = container.Resolve<ITest1>();
 
-                Assert.IsNotNull(test);
-                Assert.IsInstanceOfType(test, typeof(TestDecorator1));
+                Assert.NotNull(test);
+                Assert.IsType<TestDecorator1>(test);
 
-                Assert.IsNotNull(test.Test);
-                Assert.IsInstanceOfType(test.Test, typeof(Test1));
+                Assert.NotNull(test.Test);
+                Assert.IsType<Test1>(test.Test);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void DecoratorTests_Simple3()
         {
             using (var container = new StashboxContainer())
@@ -55,15 +55,15 @@ namespace Stashbox.Tests
                 container.RegisterDecorator(typeof(ITest1), typeof(TestDecorator1));
                 var test = container.Resolve<ITest1>();
 
-                Assert.IsNotNull(test);
-                Assert.IsInstanceOfType(test, typeof(TestDecorator1));
+                Assert.NotNull(test);
+                Assert.IsType<TestDecorator1>(test);
 
-                Assert.IsNotNull(test.Test);
-                Assert.IsInstanceOfType(test.Test, typeof(Test1));
+                Assert.NotNull(test.Test);
+                Assert.IsType<Test1>(test.Test);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void DecoratorTests_Simple_Lazy()
         {
             using (var container = new StashboxContainer())
@@ -72,15 +72,15 @@ namespace Stashbox.Tests
                 container.RegisterDecorator<ITest1, TestDecorator1>();
                 var test = container.Resolve<Lazy<ITest1>>();
 
-                Assert.IsNotNull(test.Value);
-                Assert.IsInstanceOfType(test.Value, typeof(TestDecorator1));
+                Assert.NotNull(test.Value);
+                Assert.IsType<TestDecorator1>(test.Value);
 
-                Assert.IsNotNull(test.Value.Test);
-                Assert.IsInstanceOfType(test.Value.Test, typeof(Test1));
+                Assert.NotNull(test.Value.Test);
+                Assert.IsType<Test1>(test.Value.Test);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void DecoratorTests_Simple_Func()
         {
             using (var container = new StashboxContainer())
@@ -89,15 +89,15 @@ namespace Stashbox.Tests
                 container.RegisterDecorator<ITest1, TestDecorator1>();
                 var test = container.Resolve<Func<ITest1>>();
 
-                Assert.IsNotNull(test());
-                Assert.IsInstanceOfType(test(), typeof(TestDecorator1));
+                Assert.NotNull(test());
+                Assert.IsType<TestDecorator1>(test());
 
-                Assert.IsNotNull(test().Test);
-                Assert.IsInstanceOfType(test().Test, typeof(Test1));
+                Assert.NotNull(test().Test);
+                Assert.IsType<Test1>(test().Test);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void DecoratorTests_Simple_Enumerable()
         {
             using (var container = new StashboxContainer())
@@ -107,26 +107,26 @@ namespace Stashbox.Tests
                 container.RegisterDecorator<ITest1, TestDecorator1>();
                 var test = container.Resolve<IEnumerable<ITest1>>();
 
-                Assert.IsNotNull(test);
-                Assert.IsInstanceOfType(test, typeof(IEnumerable<ITest1>));
+                Assert.NotNull(test);
+                Assert.IsAssignableFrom<IEnumerable<ITest1>>(test);
 
                 var arr = test.ToArray();
 
-                Assert.IsNotNull(arr[0]);
-                Assert.IsInstanceOfType(arr[0], typeof(TestDecorator1));
+                Assert.NotNull(arr[0]);
+                Assert.IsType<TestDecorator1>(arr[0]);
 
-                Assert.IsNotNull(arr[1]);
-                Assert.IsInstanceOfType(arr[1], typeof(TestDecorator1));
+                Assert.NotNull(arr[1]);
+                Assert.IsType<TestDecorator1>(arr[1]);
 
-                Assert.IsNotNull(arr[0].Test);
-                Assert.IsInstanceOfType(arr[0].Test, typeof(Test1));
+                Assert.NotNull(arr[0].Test);
+                Assert.IsType<Test1>(arr[0].Test);
 
-                Assert.IsNotNull(arr[1].Test);
-                Assert.IsInstanceOfType(arr[1].Test, typeof(Test11));
+                Assert.NotNull(arr[1].Test);
+                Assert.IsType<Test11>(arr[1].Test);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void DecoratorTests_Decorator_Holds_Lazy()
         {
             using (var container = new StashboxContainer())
@@ -135,15 +135,15 @@ namespace Stashbox.Tests
                 container.RegisterDecorator<ITest1, TestDecorator6>();
                 var test = container.Resolve<ITest1>();
 
-                Assert.IsNotNull(test);
-                Assert.IsInstanceOfType(test, typeof(TestDecorator6));
+                Assert.NotNull(test);
+                Assert.IsType<TestDecorator6>(test);
 
-                Assert.IsNotNull(test.Test);
-                Assert.IsInstanceOfType(test.Test, typeof(Test1));
+                Assert.NotNull(test.Test);
+                Assert.IsType<Test1>(test.Test);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void DecoratorTests_Decorator_Holds_Func()
         {
             using (var container = new StashboxContainer())
@@ -152,15 +152,15 @@ namespace Stashbox.Tests
                 container.RegisterDecorator<ITest1, TestDecorator7>();
                 var test = container.Resolve<ITest1>();
 
-                Assert.IsNotNull(test);
-                Assert.IsInstanceOfType(test, typeof(TestDecorator7));
+                Assert.NotNull(test);
+                Assert.IsType<TestDecorator7>(test);
 
-                Assert.IsNotNull(test.Test);
-                Assert.IsInstanceOfType(test.Test, typeof(Test1));
+                Assert.NotNull(test.Test);
+                Assert.IsType<Test1>(test.Test);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void DecoratorTests_Decorator_Holds_Enumerable()
         {
             using (var container = new StashboxContainer())
@@ -169,15 +169,15 @@ namespace Stashbox.Tests
                 container.RegisterDecorator<ITest1, TestDecorator8>();
                 var test = container.Resolve<ITest1>();
 
-                Assert.IsNotNull(test);
-                Assert.IsInstanceOfType(test, typeof(TestDecorator8));
+                Assert.NotNull(test);
+                Assert.IsType<TestDecorator8>(test);
 
-                Assert.IsNotNull(test.Test);
-                Assert.IsInstanceOfType(test.Test, typeof(Test1));
+                Assert.NotNull(test.Test);
+                Assert.IsType<Test1>(test.Test);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void DecoratorTests_Dependency()
         {
             using (var container = new StashboxContainer())
@@ -186,15 +186,15 @@ namespace Stashbox.Tests
                 container.RegisterDecorator<ITest1, TestDecorator3>();
                 var test = container.Resolve<ITest1>();
 
-                Assert.IsNotNull(test);
-                Assert.IsInstanceOfType(test, typeof(TestDecorator3));
+                Assert.NotNull(test);
+                Assert.IsType<TestDecorator3>(test);
 
-                Assert.IsNotNull(test.Test);
-                Assert.IsInstanceOfType(test.Test, typeof(Test1));
+                Assert.NotNull(test.Test);
+                Assert.IsType<Test1>(test.Test);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void DecoratorTests_Inject_Member_With_Config()
         {
             using (var container = new StashboxContainer())
@@ -203,33 +203,26 @@ namespace Stashbox.Tests
                 container.RegisterDecorator<ITest1, TestDecorator3Attributeless>(config => config.InjectMember("Test"));
                 var test = container.Resolve<ITest1>();
 
-                Assert.IsNotNull(test);
-                Assert.IsInstanceOfType(test, typeof(TestDecorator3Attributeless));
+                Assert.NotNull(test);
+                Assert.IsType<TestDecorator3Attributeless>(test);
 
-                Assert.IsNotNull(test.Test);
-                Assert.IsInstanceOfType(test.Test, typeof(Test1));
+                Assert.NotNull(test.Test);
+                Assert.IsType<Test1>(test.Test);
             }
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(ResolutionFailedException))]
+        [Fact]
         public void DecoratorTests_AutoMemberInjection_Throw_When_Member_Unresolvable()
         {
             using (var container = new StashboxContainer())
             {
                 container.Register<ITest1, Test1>();
                 container.RegisterDecorator<ITest1, TestDecorator4>(context => context.WithAutoMemberInjection(Rules.AutoMemberInjectionRules.PropertiesWithLimitedAccess));
-                var test = container.Resolve<ITest1>();
-
-                Assert.IsNotNull(test);
-                Assert.IsInstanceOfType(test, typeof(TestDecorator4));
-
-                Assert.IsNotNull(test.Test);
-                Assert.IsInstanceOfType(test.Test, typeof(Test1));
+                Assert.Throws<ResolutionFailedException>(() => container.Resolve<ITest1>());
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void DecoratorTests_AutoMemberInjection_InjectionParameter()
         {
             using (var container = new StashboxContainer())
@@ -240,16 +233,16 @@ namespace Stashbox.Tests
                     .WithInjectionParameters(new InjectionParameter { Name = "Name", Value = "test" }));
                 var test = container.Resolve<ITest1>();
 
-                Assert.IsNotNull(test);
-                Assert.IsInstanceOfType(test, typeof(TestDecorator4));
+                Assert.NotNull(test);
+                Assert.IsType<TestDecorator4>(test);
 
-                Assert.IsNotNull(test.Test);
-                Assert.IsInstanceOfType(test.Test, typeof(Test1));
-                Assert.AreEqual("test", ((TestDecorator4)test).Name);
+                Assert.NotNull(test.Test);
+                Assert.IsType<Test1>(test.Test);
+                Assert.Equal("test", ((TestDecorator4)test).Name);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void DecoratorTests_AutoMemberInjection_InjectionParameter_Fluent()
         {
             using (var container = new StashboxContainer())
@@ -260,16 +253,16 @@ namespace Stashbox.Tests
                     .WithInjectionParameter("Name", "test"));
                 var test = container.Resolve<ITest1>();
 
-                Assert.IsNotNull(test);
-                Assert.IsInstanceOfType(test, typeof(TestDecorator4));
+                Assert.NotNull(test);
+                Assert.IsType<TestDecorator4>(test);
 
-                Assert.IsNotNull(test.Test);
-                Assert.IsInstanceOfType(test.Test, typeof(Test1));
-                Assert.AreEqual("test", ((TestDecorator4)test).Name);
+                Assert.NotNull(test.Test);
+                Assert.IsType<Test1>(test.Test);
+                Assert.Equal("test", ((TestDecorator4)test).Name);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void DecoratorTests_ConstructorSelection_LeastParameters()
         {
             using (var container = new StashboxContainer())
@@ -278,14 +271,14 @@ namespace Stashbox.Tests
                 container.RegisterDecorator<ITest1, TestDecorator5>(context => context.WithConstructorSelectionRule(Rules.ConstructorSelection.PreferLeastParameters));
                 var test = container.Resolve<ITest1>();
 
-                Assert.IsNotNull(test);
-                Assert.IsInstanceOfType(test, typeof(TestDecorator5));
+                Assert.NotNull(test);
+                Assert.IsType<TestDecorator5>(test);
 
-                Assert.IsNull(test.Test);
+                Assert.Null(test.Test);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void DecoratorTests_ConstructorSelection_MostParameters()
         {
             using (var container = new StashboxContainer())
@@ -294,15 +287,15 @@ namespace Stashbox.Tests
                 container.RegisterDecorator<ITest1, TestDecorator5>(context => context.WithConstructorSelectionRule(Rules.ConstructorSelection.PreferMostParameters));
                 var test = container.Resolve<ITest1>();
 
-                Assert.IsNotNull(test);
-                Assert.IsInstanceOfType(test, typeof(TestDecorator5));
+                Assert.NotNull(test);
+                Assert.IsType<TestDecorator5>(test);
 
-                Assert.IsNotNull(test.Test);
-                Assert.IsInstanceOfType(test.Test, typeof(Test1));
+                Assert.NotNull(test.Test);
+                Assert.IsType<Test1>(test.Test);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void DecoratorTests_Multiple()
         {
             using (var container = new StashboxContainer())
@@ -312,18 +305,18 @@ namespace Stashbox.Tests
                 container.RegisterDecorator<ITest1, TestDecorator2>();
                 var test = container.Resolve<ITest1>();
 
-                Assert.IsNotNull(test);
-                Assert.IsInstanceOfType(test, typeof(TestDecorator2));
+                Assert.NotNull(test);
+                Assert.IsType<TestDecorator2>(test);
 
-                Assert.IsNotNull(test.Test);
-                Assert.IsInstanceOfType(test.Test, typeof(TestDecorator1));
+                Assert.NotNull(test.Test);
+                Assert.IsType<TestDecorator1>(test.Test);
 
-                Assert.IsNotNull(test.Test.Test);
-                Assert.IsInstanceOfType(test.Test.Test, typeof(Test1));
+                Assert.NotNull(test.Test.Test);
+                Assert.IsType<Test1>(test.Test.Test);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void DecoratorTests_Multiple_Scoped()
         {
             using (var container = new StashboxContainer())
@@ -336,19 +329,19 @@ namespace Stashbox.Tests
                 {
                     var test = child.Resolve<ITest1>();
 
-                    Assert.IsNotNull(test);
-                    Assert.IsInstanceOfType(test, typeof(TestDecorator2));
+                    Assert.NotNull(test);
+                    Assert.IsType<TestDecorator2>(test);
 
-                    Assert.IsNotNull(test.Test);
-                    Assert.IsInstanceOfType(test.Test, typeof(TestDecorator1));
+                    Assert.NotNull(test.Test);
+                    Assert.IsType<TestDecorator1>(test.Test);
 
-                    Assert.IsNotNull(test.Test.Test);
-                    Assert.IsInstanceOfType(test.Test.Test, typeof(Test1));
+                    Assert.NotNull(test.Test.Test);
+                    Assert.IsType<Test1>(test.Test.Test);
                 }
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void DecoratorTests_OpenGeneric()
         {
             using (var container = new StashboxContainer())
@@ -357,15 +350,15 @@ namespace Stashbox.Tests
                 container.RegisterDecorator(typeof(ITest1<>), typeof(TestDecorator1<>));
                 var test = container.Resolve<ITest1<int>>();
 
-                Assert.IsNotNull(test);
-                Assert.IsInstanceOfType(test, typeof(TestDecorator1<int>));
+                Assert.NotNull(test);
+                Assert.IsType<TestDecorator1<int>>(test);
 
-                Assert.IsNotNull(test.Test);
-                Assert.IsInstanceOfType(test.Test, typeof(Test1<int>));
+                Assert.NotNull(test.Test);
+                Assert.IsType<Test1<int>>(test.Test);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void DecoratorTests_DecoratorDependency_Null()
         {
             using (var container = new StashboxContainer())
@@ -375,11 +368,11 @@ namespace Stashbox.Tests
 
                 var inst = container.Resolve<ITest1>(nullResultAllowed: true);
 
-                Assert.IsNull(inst);
+                Assert.Null(inst);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void DecoratorTests_DecoreteeDependency_Null()
         {
             using (var container = new StashboxContainer())
@@ -389,11 +382,11 @@ namespace Stashbox.Tests
 
                 var inst = container.Resolve<ITest1>(nullResultAllowed: true);
 
-                Assert.IsNull(inst);
+                Assert.Null(inst);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void DecoratorTests_Disposed()
         {
             IDisp test;
@@ -404,15 +397,15 @@ namespace Stashbox.Tests
 
                 test = container.Resolve<IDisp>();
 
-                Assert.IsNotNull(test);
-                Assert.IsNotNull(test.Test);
+                Assert.NotNull(test);
+                Assert.NotNull(test.Test);
             }
 
-            Assert.IsTrue(test.Disposed);
-            Assert.IsTrue(test.Test.Disposed);
+            Assert.True(test.Disposed);
+            Assert.True(test.Test.Disposed);
         }
 
-        [TestMethod]
+        [Fact]
         public void DecoratorTests_Disposed_OnlyDecoreteeDisposal()
         {
             IDisp test;
@@ -423,15 +416,15 @@ namespace Stashbox.Tests
 
                 test = container.Resolve<IDisp>();
 
-                Assert.IsNotNull(test);
-                Assert.IsNotNull(test.Test);
+                Assert.NotNull(test);
+                Assert.NotNull(test.Test);
             }
 
-            Assert.IsTrue(test.Disposed);
-            Assert.IsFalse(test.Test.Disposed);
+            Assert.True(test.Disposed);
+            Assert.False(test.Test.Disposed);
         }
 
-        [TestMethod]
+        [Fact]
         public void DecoratorTests_Disposed_BothDisposal()
         {
             IDisp test;
@@ -442,15 +435,15 @@ namespace Stashbox.Tests
 
                 test = container.Resolve<IDisp>();
 
-                Assert.IsNotNull(test);
-                Assert.IsNotNull(test.Test);
+                Assert.NotNull(test);
+                Assert.NotNull(test.Test);
             }
 
-            Assert.IsFalse(test.Disposed);
-            Assert.IsFalse(test.Test.Disposed);
+            Assert.False(test.Disposed);
+            Assert.False(test.Test.Disposed);
         }
 
-        [TestMethod]
+        [Fact]
         public void DecoratorTests_ReplaceDecorator()
         {
             using (var container = new StashboxContainer())
@@ -460,19 +453,19 @@ namespace Stashbox.Tests
 
                 var test = container.Resolve<ITest1>();
 
-                Assert.IsInstanceOfType(test, typeof(TestDecorator1));
-                Assert.IsInstanceOfType(test.Test, typeof(Test1));
+                Assert.IsType<TestDecorator1>(test);
+                Assert.IsType<Test1>(test.Test);
 
                 container.RegisterDecorator<ITest1, TestDecorator1>(context => context.ReplaceExisting());
 
                 test = container.Resolve<ITest1>();
 
-                Assert.IsInstanceOfType(test, typeof(TestDecorator1));
-                Assert.IsInstanceOfType(test.Test, typeof(Test1));
+                Assert.IsType<TestDecorator1>(test);
+                Assert.IsType<Test1>(test.Test);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void DecoratorTests_RemapDecorator()
         {
             using (var container = new StashboxContainer())
@@ -483,20 +476,20 @@ namespace Stashbox.Tests
 
                 var test = container.Resolve<ITest1>();
 
-                Assert.IsInstanceOfType(test, typeof(TestDecorator2));
-                Assert.IsInstanceOfType(test.Test, typeof(TestDecorator1));
-                Assert.IsInstanceOfType(test.Test.Test, typeof(Test1));
+                Assert.IsType<TestDecorator2>(test);
+                Assert.IsType<TestDecorator1>(test.Test);
+                Assert.IsType<Test1>(test.Test.Test);
 
                 container.ReMapDecorator<ITest1, TestDecorator3>();
 
                 test = container.Resolve<ITest1>();
 
-                Assert.IsInstanceOfType(test, typeof(TestDecorator3));
-                Assert.IsInstanceOfType(test.Test, typeof(Test1));
+                Assert.IsType<TestDecorator3>(test);
+                Assert.IsType<Test1>(test.Test);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void DecoratorTests_RemapDecorator_V2()
         {
             using (var container = new StashboxContainer())
@@ -507,20 +500,20 @@ namespace Stashbox.Tests
 
                 var test = container.Resolve<ITest1>();
 
-                Assert.IsInstanceOfType(test, typeof(TestDecorator2));
-                Assert.IsInstanceOfType(test.Test, typeof(TestDecorator1));
-                Assert.IsInstanceOfType(test.Test.Test, typeof(Test1));
+                Assert.IsType<TestDecorator2>(test);
+                Assert.IsType<TestDecorator1>(test.Test);
+                Assert.IsType<Test1>(test.Test.Test);
 
                 container.ReMapDecorator<ITest1>(typeof(TestDecorator3));
 
                 test = container.Resolve<ITest1>();
 
-                Assert.IsInstanceOfType(test, typeof(TestDecorator3));
-                Assert.IsInstanceOfType(test.Test, typeof(Test1));
+                Assert.IsType<TestDecorator3>(test);
+                Assert.IsType<Test1>(test.Test);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void DecoratorTests_RemapDecorator_WithConfig()
         {
             using (var container = new StashboxContainer())
@@ -531,28 +524,28 @@ namespace Stashbox.Tests
 
                 var test = container.Resolve<ITest1>();
 
-                Assert.IsInstanceOfType(test, typeof(TestDecorator2));
-                Assert.IsInstanceOfType(test.Test, typeof(TestDecorator1));
-                Assert.IsInstanceOfType(test.Test.Test, typeof(Test1));
+                Assert.IsType<TestDecorator2>(test);
+                Assert.IsType<TestDecorator1>(test.Test);
+                Assert.IsType<Test1>(test.Test.Test);
 
                 container.ReMapDecorator(typeof(ITest1), typeof(TestDecorator3), context => context.WithoutDisposalTracking());
 
                 test = container.Resolve<ITest1>();
 
-                Assert.IsInstanceOfType(test, typeof(TestDecorator3));
-                Assert.IsInstanceOfType(test.Test, typeof(Test1));
+                Assert.IsType<TestDecorator3>(test);
+                Assert.IsType<Test1>(test.Test);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void DecoratorTests_Service_ImplementationType()
         {
             using (var container = new StashboxContainer())
             {
                 container.RegisterDecorator<ITest1, TestDecorator1>(context =>
                 {
-                    Assert.AreEqual(typeof(ITest1), context.ServiceType);
-                    Assert.AreEqual(typeof(TestDecorator1), context.ImplementationType);
+                    Assert.Equal(typeof(ITest1), context.ServiceType);
+                    Assert.Equal(typeof(TestDecorator1), context.ImplementationType);
                 });
             }
         }

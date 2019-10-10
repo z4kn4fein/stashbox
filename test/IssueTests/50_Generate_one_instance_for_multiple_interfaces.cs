@@ -1,11 +1,11 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Xunit;
 
 namespace Stashbox.Tests.IssueTests
 {
-    [TestClass]
+
     public class GenerateOneInstanceForMultipleInterfaces
     {
-        [TestMethod]
+        [Fact]
         public void Generate_one_instance_for_multiple_interfaces()
         {
             var container = new StashboxContainer();
@@ -16,13 +16,13 @@ namespace Stashbox.Tests.IssueTests
             var inst4 = container.Resolve<Test>();
             var inst5 = container.Resolve<Test2>();
 
-            Assert.AreNotSame(inst1, inst2);
-            Assert.AreNotSame(inst2, inst3);
-            Assert.AreNotSame(inst3, inst4);
-            Assert.AreNotSame(inst4, inst5);
+            Assert.NotSame(inst1, inst2);
+            Assert.NotSame(inst2, inst3);
+            Assert.NotSame(inst3, inst4);
+            Assert.NotSame(inst4, inst5);
         }
 
-        [TestMethod]
+        [Fact]
         public void Generate_one_instance_for_multiple_interfaces_singleton()
         {
             var container = new StashboxContainer();
@@ -33,13 +33,13 @@ namespace Stashbox.Tests.IssueTests
             var inst4 = container.Resolve<Test>();
             var inst5 = container.Resolve<Test2>();
 
-            Assert.AreSame(inst1, inst2);
-            Assert.AreSame(inst2, inst3);
-            Assert.AreSame(inst3, inst4);
-            Assert.AreSame(inst4, inst5);
+            Assert.Same(inst1, inst2);
+            Assert.Same(inst2, inst3);
+            Assert.Same(inst3, inst4);
+            Assert.Same(inst4, inst5);
         }
 
-        [TestMethod]
+        [Fact]
         public void Generate_one_instance_for_multiple_interfaces_scoped()
         {
             var container = new StashboxContainer();
@@ -52,13 +52,13 @@ namespace Stashbox.Tests.IssueTests
             var inst4 = scope.Resolve<Test>();
             var inst5 = scope.Resolve<Test2>();
 
-            Assert.AreSame(inst1, inst2);
-            Assert.AreSame(inst2, inst3);
-            Assert.AreSame(inst3, inst4);
-            Assert.AreSame(inst4, inst5);
+            Assert.Same(inst1, inst2);
+            Assert.Same(inst2, inst3);
+            Assert.Same(inst3, inst4);
+            Assert.Same(inst4, inst5);
         }
 
-        [TestMethod]
+        [Fact]
         public void Generate_one_instance_for_multiple_interfaces_named_scope()
         {
             var container = new StashboxContainer();
@@ -71,10 +71,10 @@ namespace Stashbox.Tests.IssueTests
             var inst4 = scope.Resolve<Test>();
             var inst5 = scope.Resolve<Test2>();
 
-            Assert.AreSame(inst1, inst2);
-            Assert.AreSame(inst2, inst3);
-            Assert.AreSame(inst3, inst4);
-            Assert.AreSame(inst4, inst5);
+            Assert.Same(inst1, inst2);
+            Assert.Same(inst2, inst3);
+            Assert.Same(inst3, inst4);
+            Assert.Same(inst4, inst5);
         }
 
         interface ITest { }

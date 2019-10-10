@@ -32,7 +32,7 @@ namespace Stashbox.Resolution.Resolvers
             var parameters = this.PrepareExtraParameters(wrappedType, resolutionContext, args);
             var expression = resolutionStrategy.BuildResolutionExpression(containerContext, resolutionContext, funcArgumentInfo);
 
-            return expression?.AsLambda(parameters);
+            return expression?.AsLambda(typeInfo.Type, parameters);
         }
 
         public Expression[] GetAllExpressions(IContainerContext containerContext,
@@ -53,7 +53,7 @@ namespace Stashbox.Resolution.Resolvers
             var length = expressions.Length;
             var funcExpressions = new Expression[length];
             for (var i = 0; i < length; i++)
-                funcExpressions[i] = expressions[i].AsLambda(parameters);
+                funcExpressions[i] = expressions[i].AsLambda(typeInfo.Type, parameters);
 
             return funcExpressions;
         }

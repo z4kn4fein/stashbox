@@ -23,7 +23,7 @@ namespace System.Linq.Expressions
         /// <param name="resolutionContext">The resolution context.</param>
         /// <param name="containerConfiguration">The container configuration.</param>
         /// <returns>The compiled delegate.</returns>
-        public static Func<IResolutionScope, object> CompileDelegate(this Expression expression, 
+        public static Func<IResolutionScope, object> CompileDelegate(this Expression expression,
             ResolutionContext resolutionContext, ContainerConfiguration containerConfiguration)
         {
             if (expression.NodeType == ExpressionType.Constant)
@@ -40,7 +40,7 @@ namespace System.Linq.Expressions
             }
 
 #if IL_EMIT
-            if (containerConfiguration.ForceUseMicrosoftExpressionCompiler || 
+            if (containerConfiguration.ForceUseMicrosoftExpressionCompiler ||
                 !expression.TryEmit(out Delegate factory, typeof(Func<IResolutionScope, object>), typeof(object),
                 resolutionContext.CurrentScopeParameter))
                 factory = Expression.Lambda(expression, resolutionContext.CurrentScopeParameter).Compile();
@@ -58,7 +58,7 @@ namespace System.Linq.Expressions
         /// <param name="resolutionContext">The resolution context.</param>
         /// <param name="containerConfiguration">The container configuration.</param>
         /// <returns>The compiled delegate.</returns>
-        public static Func<IResolutionScope, Delegate> CompileDynamicDelegate(this Expression expression, 
+        public static Func<IResolutionScope, Delegate> CompileDynamicDelegate(this Expression expression,
             ResolutionContext resolutionContext, ContainerConfiguration containerConfiguration)
         {
             if (resolutionContext.DefinedVariables.Length > 0)
@@ -69,7 +69,7 @@ namespace System.Linq.Expressions
             }
 
 #if IL_EMIT
-            if (containerConfiguration.ForceUseMicrosoftExpressionCompiler || 
+            if (containerConfiguration.ForceUseMicrosoftExpressionCompiler ||
                 !expression.TryEmit(out Delegate factory, typeof(Func<IResolutionScope, Delegate>), typeof(Delegate),
                 resolutionContext.CurrentScopeParameter))
                 factory = Expression.Lambda<Func<IResolutionScope, Delegate>>(expression, resolutionContext.CurrentScopeParameter).Compile();
@@ -172,6 +172,16 @@ namespace System.Linq.Expressions
         /// <returns>The lambda expression.</returns>
         public static LambdaExpression AsLambda(this Expression expression, params ParameterExpression[] parameters) =>
             Expression.Lambda(expression, parameters);
+
+        /// <summary>
+        /// Constructs a lambda expression from an expression and parameters, => Expression.Lambda(expression, parameters)
+        /// </summary>
+        /// <param name="delegateType">The type of the delegate.</param>
+        /// <param name="expression">The expression.</param>
+        /// <param name="parameters">The parameters.</param>
+        /// <returns>The lambda expression.</returns>
+        public static LambdaExpression AsLambda(this Expression expression, Type delegateType, params ParameterExpression[] parameters) =>
+            Expression.Lambda(delegateType, expression, parameters);
 
         /// <summary>
         /// Constructs a lambda expression from an expression and parameters, => Expression.Lambda(expression, parameters)
