@@ -351,6 +351,60 @@ namespace Stashbox.Tests
             Assert.NotNull(inst);
         }
 
+        [Fact]
+        public void PublicNoArgCtorConstrainedOpenGenericServicesCanBeResolved()
+        {
+            // Arrange
+            var container = new StashboxContainer()
+                .Register(typeof(IFakeOpenGenericService<>), typeof(ClassWithNoConstraints<>))
+                .Register(typeof(IFakeOpenGenericService<>), typeof(ClassWithNewConstraint<>));
+           
+            // Act
+            var allServices = container.ResolveAll<IFakeOpenGenericService<PocoClass>>().ToList();
+            var constrainedServices = container.ResolveAll<IFakeOpenGenericService<ClassWithPrivateCtor>>().ToList();
+            // Assert
+            Assert.Equal(2, allServices.Count);
+            Assert.Equal(1, constrainedServices.Count);
+        }
+
+        [Fact]
+        public void ClassConstrainedOpenGenericServicesCanBeResolved()
+        {
+            // Arrange
+            var container = new StashboxContainer()
+                .Register(typeof(IFakeOpenGenericService<>), typeof(ClassWithNoConstraints<>))
+                .Register(typeof(IFakeOpenGenericService<>), typeof(ClassWithClassConstraint<>));
+
+            // Act
+            var allServices = container.ResolveAll<IFakeOpenGenericService<PocoClass>>().ToList();
+            var constrainedServices = container.ResolveAll<IFakeOpenGenericService<int>>().ToList();
+            // Assert
+            Assert.Equal(2, allServices.Count);
+            Assert.Equal(1, constrainedServices.Count);
+        }
+
+        [Fact]
+        public void SelfReferencingConstrainedOpenGenericServicesCanBeResolved()
+        {
+            // Arrange
+            var container = new StashboxContainer()
+                .Register(typeof(IFakeOpenGenericService<>), typeof(FakeOpenGenericService<>))
+                .Register(typeof(IFakeOpenGenericService<>), typeof(ClassWithSelfReferencingConstraint<>));
+            var poco = new PocoClass();
+            container.RegisterInstance(poco);
+            var selfComparable = new ClassImplementingIComparable();
+            container.RegisterInstance(selfComparable);
+            // Act
+            var allServices = container.ResolveAll<IFakeOpenGenericService<ClassImplementingIComparable>>().ToList();
+            var constrainedServices = container.ResolveAll<IFakeOpenGenericService<PocoClass>>().ToList();
+            // Assert
+            Assert.Equal(2, allServices.Count);
+            Assert.Same(selfComparable, allServices[0].Value);
+            Assert.Same(selfComparable, allServices[1].Value);
+            Assert.Equal(1, constrainedServices.Count);
+            Assert.Same(poco, constrainedServices[0].Value);
+        }
+
         interface IConstraint { }
 
         interface IConstraint1 { }
@@ -471,6 +525,62 @@ namespace Stashbox.Tests
         {
             public Gen(IGen<Stub> stub, IGen<Stub1> stub1)
             { }
+        }
+
+        interface IFakeOpenGenericService<out TValue>
+        {
+            TValue Value { get; }
+        }
+
+        class ClassWithNoConstraints<T> : IFakeOpenGenericService<T>
+        {
+            public T Value { get; } = default;
+        }
+
+        class ClassWithNewConstraint<T> : IFakeOpenGenericService<T>
+            where T : new()
+        {
+            public T Value { get; } = new T();
+        }
+
+        class PocoClass
+        {
+        }
+
+        class FakeOpenGenericService<TVal> : IFakeOpenGenericService<TVal>
+        {
+            public FakeOpenGenericService(TVal value)
+            {
+                Value = value;
+            }
+
+            public TVal Value { get; }
+        }
+
+        class ClassWithSelfReferencingConstraint<T> : IFakeOpenGenericService<T>
+            where T : IComparable<T>
+        {
+            public ClassWithSelfReferencingConstraint(T value) => Value = value;
+
+            public T Value { get; }
+        }
+
+        class ClassImplementingIComparable : IComparable<ClassImplementingIComparable>
+        {
+            public int CompareTo(ClassImplementingIComparable other) => 0;
+        }
+
+        class ClassWithClassConstraint<T> : IFakeOpenGenericService<T>
+            where T : class
+        {
+            public T Value { get; } = default;
+        }
+
+        class ClassWithPrivateCtor
+        {
+            private ClassWithPrivateCtor()
+            {
+            }
         }
     }
 }
