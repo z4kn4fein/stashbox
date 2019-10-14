@@ -54,7 +54,7 @@ namespace Stashbox
             this.containerConfigurator = containerConfigurator;
 
             config?.Invoke(this.containerConfigurator);
-            
+
             this.ContainerContext = new ContainerContext(this, this.containerConfigurator.ContainerConfiguration);
 
             var expressionBuilder = new ExpressionBuilder(this.containerExtensionManager,
@@ -114,7 +114,7 @@ namespace Stashbox
 
         /// <inheritdoc />
         public IStashboxContainer CreateChildContainer() =>
-             new StashboxContainer(this, this.containerExtensionManager.CreateCopy(), 
+             new StashboxContainer(this, this.containerExtensionManager.CreateCopy(),
                  this.resolutionStrategy, this.containerConfigurator);
 
         /// <inheritdoc />
@@ -142,7 +142,6 @@ namespace Stashbox
             this.resolutionStrategy.RegisterResolver(new LazyResolver());
             this.resolutionStrategy.RegisterResolver(new FuncResolver());
             this.resolutionStrategy.RegisterResolver(new TupleResolver());
-            this.resolutionStrategy.RegisterResolver(new ScopedInstanceResolver());
             this.resolutionStrategy.RegisterResolver(new DefaultValueResolver());
         }
 

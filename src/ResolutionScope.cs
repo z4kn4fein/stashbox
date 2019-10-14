@@ -279,6 +279,14 @@ namespace Stashbox
             if (type == Constants.ResolverType)
                 return resolutionContext.ResolutionScope;
 
+            if (resolutionContext.ResolutionScope.HasScopedInstances)
+            {
+                var scopedInstance = resolutionContext.ResolutionScope
+                    .GetScopedInstanceOrDefault(type, name);
+                if (scopedInstance != null)
+                    return scopedInstance;
+            }
+
             var registration = this.containerContext.RegistrationRepository.GetRegistrationOrDefault(type, resolutionContext, name);
             if (registration != null)
             {

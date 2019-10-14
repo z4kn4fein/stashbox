@@ -279,6 +279,8 @@ namespace Stashbox.Tests
                     Assert.Same(test, test1);
                     Assert.Same(test, test2.Test1);
                     Assert.Same(test, test3.Test1);
+
+                    Assert.False(test.Disposed);
                 }
 
                 Assert.True(test.Disposed);
@@ -300,6 +302,8 @@ namespace Stashbox.Tests
                     Assert.NotSame(test, test1);
                     Assert.NotSame(test, test2.Test1);
                     Assert.NotSame(test, test3.Test1);
+
+                    Assert.False(test4.Disposed);
                 }
 
                 Assert.True(test4.Disposed);

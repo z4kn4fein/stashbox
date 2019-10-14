@@ -25,6 +25,19 @@ namespace Stashbox.Tests
         }
 
         [Fact]
+        public void FuncTests_Resolve_Choose_Last()
+        {
+            var inst = new StashboxContainer()
+                .Register<ITest, Test>()
+                .Register<ITest, Test1>()
+                .Resolve<Func<ITest>>();
+
+            Assert.NotNull(inst);
+            Assert.IsType<Func<ITest>>(inst);
+            Assert.IsType<Test1>(inst());
+        }
+
+        [Fact]
         public void FuncTests_Resolve_Null()
         {
             var container = new StashboxContainer();
@@ -644,6 +657,9 @@ namespace Stashbox.Tests
         }
 
         class Test : ITest
+        { }
+
+        class Test1 : ITest
         { }
 
         class Test2

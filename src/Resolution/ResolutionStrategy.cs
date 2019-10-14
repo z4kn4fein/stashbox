@@ -21,6 +21,18 @@ namespace Stashbox.Resolution
             if (typeInformation.Type == Constants.ResolverType)
                 return resolutionContext.CurrentScopeParameter.ConvertTo(Constants.ResolverType);
 
+            if (resolutionContext.ResolutionScope.HasScopedInstances)
+            {
+                var scopedInstance = resolutionContext.ResolutionScope
+                    .GetScopedInstanceOrDefault(typeInformation.Type, typeInformation.DependencyName);
+                if (scopedInstance != null)
+                    return resolutionContext.CurrentScopeParameter
+                        .CallMethod(Constants.GetScopedInstanceMethod,
+                            typeInformation.Type.AsConstant(),
+                            typeInformation.DependencyName.AsConstant())
+                        .ConvertTo(typeInformation.Type);
+            }
+
             if (resolutionContext.ParameterExpressions.Length > 0)
             {
                 var length = resolutionContext.ParameterExpressions.Length;
