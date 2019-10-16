@@ -25,6 +25,18 @@ namespace Stashbox.Tests
         }
 
         [Fact]
+        public void FuncTests_Resolve_AssignableFrom()
+        {
+            var container = new StashboxContainer();
+            container.Register<ITest, Test>();
+            var inst = container.Resolve<Func<ITest>>();
+
+            Assert.NotNull(inst);
+            Assert.IsAssignableFrom<Func<ITest>>(inst);
+            Assert.IsType<Test>(inst());
+        }
+
+        [Fact]
         public void FuncTests_Resolve_Choose_Last()
         {
             var inst = new StashboxContainer()
@@ -35,6 +47,32 @@ namespace Stashbox.Tests
             Assert.NotNull(inst);
             Assert.IsType<Func<ITest>>(inst);
             Assert.IsType<Test1>(inst());
+        }
+
+        [Fact]
+        public void FuncTests_Resolve_Scoped()
+        {
+            var container = new StashboxContainer()
+                .RegisterScoped<ITest, Test>();
+
+            using (var scope = container.BeginScope())
+            {
+                var factory = scope.Resolve<Func<ITest>>();
+                var inst1 = factory();
+                var inst2 = factory();
+
+                Assert.Same(inst1, inst2);
+
+                using (var scope2 = scope.BeginScope())
+                {
+                    var factory1 = scope2.Resolve<Func<ITest>>();
+                    var inst3 = factory1();
+                    var inst4 = factory1();
+
+                    Assert.Same(inst3, inst4);
+                    Assert.NotSame(inst1, inst3);
+                }
+            }
         }
 
         [Fact]
