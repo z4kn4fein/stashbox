@@ -4,10 +4,10 @@ namespace Stashbox.Tests.IssueTests
 {
     public class UnkownTypOverridesInstanceInScope
     {
-        [Fact(Skip = "Not working yet")]
+        [Fact]
         public void Ensure_UnknownType_Doesnt_Overrides_Instance_In_Scope()
         {
-            var container = new StashboxContainer(c => c.WithUnknownTypeResolution());
+            var container = new StashboxContainer(c => c.WithUnknownTypeResolution(ctx => ctx.WithoutFactoryCache()));
             var inst = container.Resolve<object>();
 
             using (var scope = container.BeginScope())

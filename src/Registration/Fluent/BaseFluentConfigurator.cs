@@ -16,7 +16,7 @@ namespace Stashbox.Registration.Fluent
         where TConfigurator : BaseFluentConfigurator<TConfigurator>
     {
         internal BaseFluentConfigurator(Type serviceType, Type implementationType)
-            :base(serviceType, implementationType)
+            : base(serviceType, implementationType)
         { }
 
         /// <inheritdoc />
@@ -115,6 +115,13 @@ namespace Stashbox.Registration.Fluent
         public TConfigurator ReplaceExisting()
         {
             this.Context.ReplaceExistingRegistration = true;
+            return (TConfigurator)this;
+        }
+
+        /// <inheritdoc />
+        public TConfigurator WithoutFactoryCache()
+        {
+            this.Context.FactoryCacheDisabled = true;
             return (TConfigurator)this;
         }
 

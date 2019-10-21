@@ -29,6 +29,11 @@ namespace Stashbox.Registration
         public bool ReplaceExistingRegistration { get; internal set; }
 
         /// <summary>
+        /// Indicates that the factory delegate for the current registration shouldn't be cached.
+        /// </summary>
+        public bool FactoryCacheDisabled { get; internal set; }
+
+        /// <summary>
         /// Contains the additional service types the current registration mapped to.
         /// </summary>
         public IEnumerable<Type> AdditionalServiceTypes { get; internal set; }

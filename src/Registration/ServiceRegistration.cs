@@ -115,6 +115,9 @@ namespace Stashbox.Registration
             if (expression != null)
                 return expression;
 
+            if (this.RegistrationContext.FactoryCacheDisabled)
+                resolutionContext.ShouldCacheFactoryDelegate = false;
+
             expression = this.ConstructExpression(containerContext, resolutionContext, resolveType);
             resolutionContext.CacheExpression(this.RegistrationNumber, expression);
             return expression;

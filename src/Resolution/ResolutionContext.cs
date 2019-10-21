@@ -35,7 +35,7 @@ namespace Stashbox.Resolution
 
         private readonly ArrayStoreKeyed<object, ParameterExpression> knownVariables;
 
-        internal bool ShouldCacheFactoryDelegate { get; }
+        internal bool ShouldCacheFactoryDelegate { get; set; }
 
         internal IResolutionScope ResolutionScope { get; }
 

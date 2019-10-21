@@ -95,5 +95,11 @@ namespace Stashbox.Registration.Fluent
         /// </summary>
         /// <returns>The fluent configurator.</returns>
         TFluentConfigurator ReplaceExisting();
+
+        /// <summary>
+        /// Tells the container that it shouldn't cache the built expression delegate for this registration.
+        /// </summary>
+        /// <returns>The fluent configurator.</returns>
+        TFluentConfigurator WithoutFactoryCache();
     }
 }
