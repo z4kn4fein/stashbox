@@ -83,15 +83,17 @@ namespace Stashbox.Registration.Fluent
         /// Sets a parameterless factory delegate for the registration.
         /// </summary>
         /// <param name="singleFactory">The factory delegate.</param>
+        /// <param name="isCompiledLambda">Flag that indicates the passed factory delegate is a compiled lambda from <see cref="Expression"/>.</param>
         /// <returns>The configurator itself.</returns>
-        TConfigurator WithFactory(Func<object> singleFactory);
+        TConfigurator WithFactory(Func<object> singleFactory, bool isCompiledLambda = false);
 
         /// <summary>
         /// Sets a container factory delegate for the registration.
         /// </summary>
         /// <param name="containerFactory">The container factory delegate.</param>
+        /// <param name="isCompiledLambda">Flag that indicates the passed factory delegate is a compiled lambda from <see cref="Expression"/>.</param>
         /// <returns>The configurator itself.</returns>
-        TConfigurator WithFactory(Func<IDependencyResolver, object> containerFactory);
+        TConfigurator WithFactory(Func<IDependencyResolver, object> containerFactory, bool isCompiledLambda = false);
 
         /// <summary>
         /// Sets an instance as the resolution target of the registration.

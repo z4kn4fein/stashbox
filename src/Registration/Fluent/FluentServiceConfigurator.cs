@@ -103,16 +103,18 @@ namespace Stashbox.Registration.Fluent
         }
 
         /// <inheritdoc />
-        public TConfigurator WithFactory(Func<IDependencyResolver, object> containerFactory)
+        public TConfigurator WithFactory(Func<IDependencyResolver, object> containerFactory, bool isCompiledLambda = false)
         {
             this.Context.ContainerFactory = containerFactory;
+            this.Context.IsFactoryDelegateACompiledLambda = isCompiledLambda;
             return (TConfigurator)this;
         }
 
         /// <inheritdoc />
-        public TConfigurator WithFactory(Func<object> singleFactory)
+        public TConfigurator WithFactory(Func<object> singleFactory, bool isCompiledLambda = false)
         {
             this.Context.SingleFactory = singleFactory;
+            this.Context.IsFactoryDelegateACompiledLambda = isCompiledLambda;
             return (TConfigurator)this;
         }
 

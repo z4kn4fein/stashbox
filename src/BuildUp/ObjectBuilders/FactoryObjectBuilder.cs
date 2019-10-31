@@ -20,15 +20,15 @@ namespace Stashbox.BuildUp.ObjectBuilders
         {
             var expression = serviceRegistration.RegistrationContext.ContainerFactory != null
                 ? ConstructFactoryExpression(serviceRegistration.RegistrationContext.ContainerFactory,
-                    resolutionContext.CurrentScopeParameter.ConvertTo(Constants.ResolverType))
-                : ConstructFactoryExpression(serviceRegistration.RegistrationContext.SingleFactory);
+                    serviceRegistration, resolutionContext.CurrentScopeParameter.ConvertTo(Constants.ResolverType))
+                : ConstructFactoryExpression(serviceRegistration.RegistrationContext.SingleFactory, serviceRegistration);
 
             return this.expressionBuilder.CreateFillExpression(containerContext, serviceRegistration, expression, resolutionContext, resolveType);
         }
 
-        private static Expression ConstructFactoryExpression(Delegate @delegate, params Expression[] parameters)
+        private static Expression ConstructFactoryExpression(Delegate @delegate, IServiceRegistration serviceRegistration, params Expression[] parameters)
         {
-            if (@delegate.IsCompiledLambda())
+            if (serviceRegistration.RegistrationContext.IsFactoryDelegateACompiledLambda || @delegate.IsCompiledLambda())
                 return @delegate.InvokeDelegate(parameters);
 
             var method = @delegate.GetMethod();

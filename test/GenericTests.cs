@@ -364,7 +364,7 @@ namespace Stashbox.Tests
             var constrainedServices = container.ResolveAll<IFakeOpenGenericService<ClassWithPrivateCtor>>().ToList();
             // Assert
             Assert.Equal(2, allServices.Count);
-            Assert.Equal(1, constrainedServices.Count);
+            Assert.Single(constrainedServices);
         }
 
         [Fact]
@@ -380,7 +380,7 @@ namespace Stashbox.Tests
             var constrainedServices = container.ResolveAll<IFakeOpenGenericService<int>>().ToList();
             // Assert
             Assert.Equal(2, allServices.Count);
-            Assert.Equal(1, constrainedServices.Count);
+            Assert.Single(constrainedServices);
         }
 
         [Fact]
@@ -401,7 +401,7 @@ namespace Stashbox.Tests
             Assert.Equal(2, allServices.Count);
             Assert.Same(selfComparable, allServices[0].Value);
             Assert.Same(selfComparable, allServices[1].Value);
-            Assert.Equal(1, constrainedServices.Count);
+            Assert.Single(constrainedServices);
             Assert.Same(poco, constrainedServices[0].Value);
         }
 

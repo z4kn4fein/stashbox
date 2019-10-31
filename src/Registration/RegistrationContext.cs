@@ -4,6 +4,7 @@ using Stashbox.Lifetime;
 using Stashbox.Utils;
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Reflection;
 
 namespace Stashbox.Registration
@@ -142,6 +143,11 @@ namespace Stashbox.Registration
         /// If true, the existing instance will be wired into the container, it will perform member and method injection on it.
         /// </summary>
         public bool IsWireUp { get; set; }
+
+        /// <summary>
+        /// Flag that indicates the passed factory delegate is a compiled lambda from <see cref="Expression"/>.
+        /// </summary>
+        public bool IsFactoryDelegateACompiledLambda { get; set; }
 
         /// <summary>
         /// The constructor selection rule.
