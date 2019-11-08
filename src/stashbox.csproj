@@ -28,8 +28,12 @@
     <LangVersion>latest</LangVersion>
     <PackageReleaseNotes>
       <![CDATA[
-- Fix stack overflow caused by the conventional and unknown type resolution.
-- Fix other conventional resolution issues caused by required dependency naming, now it's less strict.
+- Add option to put named instances into scopes. #66
+- Add option to register more instances at once. #68
+- Add WithoutFactoryCache() registration option, to allow expression re-evaluation on every request. #70
+- Add option to indicate that a resolution delegate used with .WithFactory() is a dynamically compiled lambda. #71
+- Fix member resolution by throwing exception when unresolvable found. #69
+- Fix Dictionary resolution. #67
     ]]>
     </PackageReleaseNotes>
     <Configurations>Debug;Release;Benchmark</Configurations>
