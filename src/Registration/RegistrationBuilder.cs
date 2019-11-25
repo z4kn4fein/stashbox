@@ -63,7 +63,7 @@ namespace Stashbox.Registration
             ? registrationContext.IsWireUp
                 ? new SingletonLifetime()
                 : null
-            : registrationContext.Lifetime;
+            : registrationContext.Lifetime ?? this.containerConfiguration.DefaultLifetime?.Create();
 
         private IObjectBuilder SelectObjectBuilder(RegistrationContext registrationContext, Type implementationType)
         {

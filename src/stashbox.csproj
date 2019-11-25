@@ -28,12 +28,7 @@
     <LangVersion>latest</LangVersion>
     <PackageReleaseNotes>
       <![CDATA[
-- Add option to put named instances into scopes. #66
-- Add option to register more instances at once. #68
-- Add WithoutFactoryCache() registration option, to allow expression re-evaluation on every request. #70
-- Add option to indicate that a resolution delegate used with .WithFactory() is a dynamically compiled lambda. #71
-- Fix member resolution by throwing exception when unresolvable found. #69
-- Fix Dictionary resolution. #67
+- Add option to set the default lifetime for registrations. #72
     ]]>
     </PackageReleaseNotes>
     <Configurations>Debug;Release;Benchmark</Configurations>

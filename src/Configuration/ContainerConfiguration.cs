@@ -1,5 +1,6 @@
 ﻿using Stashbox.Attributes;
 using Stashbox.Entity;
+using Stashbox.Lifetime;
 using Stashbox.Registration.Fluent;
 using System;
 using System.Collections.Generic;
@@ -98,6 +99,11 @@ namespace Stashbox.Configuration
         /// A filter delegate used to determine which members should be auto injected and which are not.
         /// </summary>
         public Func<TypeInformation, bool> MemberInjectionFilter { get; internal set; }
+
+        /// <summary>
+        /// The default lifetime, used when a service isn't configured with a lifetime.
+        /// </summary>
+        public ILifetime DefaultLifetime { get; internal set; }
 
         internal ContainerConfiguration()
         {

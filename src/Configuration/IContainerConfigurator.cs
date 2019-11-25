@@ -1,5 +1,6 @@
 ﻿using Stashbox.Configuration;
 using Stashbox.Entity;
+using Stashbox.Lifetime;
 using Stashbox.Registration.Fluent;
 using System;
 using System.Collections.Generic;
@@ -88,5 +89,12 @@ namespace Stashbox
         /// </summary>
         /// <returns>The container configurator.</returns>
         IContainerConfigurator WithMicrosoftExpressionCompiler();
+
+        /// <summary>
+        /// Sets the default lifetime, used when a service doesn't have a configured one.
+        /// </summary>
+        /// <param name="lifetime">The default lifetime.</param>
+        /// <returns>The container configurator.</returns>
+        IContainerConfigurator WithDefaultLifetime(ILifetime lifetime);
     }
 }

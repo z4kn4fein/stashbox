@@ -1,4 +1,5 @@
 ﻿using Stashbox.Entity;
+using Stashbox.Lifetime;
 using Stashbox.Registration.Fluent;
 using System;
 using System.Collections.Generic;
@@ -105,6 +106,13 @@ namespace Stashbox.Configuration
         public IContainerConfigurator WithMicrosoftExpressionCompiler()
         {
             this.ContainerConfiguration.ForceUseMicrosoftExpressionCompiler = true;
+            return this;
+        }
+
+        /// <inheritdoc />
+        public IContainerConfigurator WithDefaultLifetime(ILifetime lifetime)
+        {
+            this.ContainerConfiguration.DefaultLifetime = lifetime;
             return this;
         }
     }
