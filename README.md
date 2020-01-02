@@ -8,38 +8,34 @@ Github (stable) | NuGet (stable) | MyGet (pre-release) | Open Hub
 
 ## Features
 
- - **Fluent interface** - for faster and easier configuration, attribute based configuration is supported also.
- - **Interface/type mapping** - single service, instance registration, remapping of existing registrations.
- - **Resolution via delegates** - dynamic dependency overrides with delegate parameters.
- - **Keyed registrations** - multiple implementations identified with a key for the same service type.
- - **Assembly registration** - service lookup in assemblies with auto determined service types.
- - **Factory registration** - factory delegates with several parameters can be registered.
- - **Initializer / finalizer** - custom initializer and finalizer actions can be set.
- - **Multiple service resolution** - all implementation registered for an interface can be obtained.
- - **Unknown type resolution** - unregistered services can be resolved or injected.
- - **Default and optional value injection** - primitive types or dependencies with default or optional value can be resolved.
- - **Open generic type resolution** - concrete generic types can be resolved from open generic definitions with constraint and nested generic definition checking.
- - **Constructor, property and field injection** - attribute driven resolution or automatic injection, when there is no chance to decorate members with attributes.
- - **Injection method** - methods decorated with `InjectionMethod` attribute are called at resolution time.
- - **Wiring into container** - member injection can be executed on existing instances.
- - **Building up existing instance** - member injection can be executed on existing instances without wiring them into the container.
- - **Child container** - parent/child container support.
- - **Lifetime scopes** - hierarchical/named scoping support.
- - **Lifetime management** - including `Singleton`, `Transient`, `Scoped`, `NamedScope` and `PerResolutionRequest` lifetime, custom user-defined lifetimes also can be used.
- - **Conditional resolution** - attribute, parent-type and custom user defined conditions can be specified.
- - **IDisposable object tracking** - `IDisposable` objects are being disposed by the container.
- - **Cleanup delegates** - custom finalizer delegate can be configured to be called when the container or scope which created the service is being disposed.
- - **Circular dependency tracking** - the container checks the resolution graph for circular dependencies, it throws a specific excpetion if it finds any.
- - **Special types** - generic wrappers:
+ - **[Fluent interface](https://github.com/z4kn4fein/stashbox/wiki/Fluent-registration-api)** - for faster and easier configuration, [attribute based](https://github.com/z4kn4fein/stashbox/wiki/Resolution-by-attributes) and [conventional resolution](https://github.com/z4kn4fein/stashbox/wiki/Conventional-resolution) is also supported.
+ - **[Interface/implementation mapping](https://github.com/z4kn4fein/stashbox/wiki/Service-registration)** - [single service](https://github.com/z4kn4fein/stashbox/wiki/Service-registration#standard), [instance registration](https://github.com/z4kn4fein/stashbox/wiki/Service-registration#instance), [remapping](https://github.com/z4kn4fein/stashbox/wiki/Service-registration#remap) and replacing is also supported.
+ - **[Named registration](https://github.com/z4kn4fein/stashbox/wiki/Service-registration#named)** - multiple implementations are identifiable with names.
+ - **[Assembly registration](https://github.com/z4kn4fein/stashbox/wiki/Assembly-registration)** - service lookup in assemblies and auto determining the interface types is also supported.
+ - **[Factory delegate registration](https://github.com/z4kn4fein/stashbox/wiki/Factory-registration)** - factory delegates registration with several parameters is also supported. 
+ - **[Open generic registration](https://github.com/z4kn4fein/stashbox/wiki/Generics)** - closed generic types are constructed from open generic definitions with constraint and nested generic definition checking.
+ - **[Wiring into the container](https://github.com/z4kn4fein/stashbox/wiki/Service-registration#wireup)** - further operations like member and method injection is executed on existing instances.
+ - **[Initializer / finalizer](https://github.com/z4kn4fein/stashbox/wiki/Scopes#cleanup-delegate)** - custom initializer *(called when a service is instantiated by the container)* and finalizer *(called when the container or scope which created the service is being disposed)* actions can be set.
+ - **[Multiple service resolution](https://github.com/z4kn4fein/stashbox/wiki/Multi-resolution)** - all implementation of a registered interface can be obtained.
+ - **[Unknown type resolution](https://github.com/z4kn4fein/stashbox/wiki/Container-configuration#options-available)** - non-registered services can be resolved or injected.
+ - **[Default and optional value injection](https://github.com/z4kn4fein/stashbox/wiki/Container-configuration#options-available)** - primitive types or dependencies with default or optional values can be injected.
+ - **[Building up existing instances](https://github.com/z4kn4fein/stashbox/wiki/Service-resolution#buildup)** - member and method injection is executed on existing instances without wiring them into the container.
+ - **[Child containers](https://github.com/z4kn4fein/stashbox/wiki/Scopes#child-scopes)** - building up and maintaining the parent/child hierarchy between the containers is also supported.
+ - **[Lifetime scopes](https://github.com/z4kn4fein/stashbox/wiki/Scopes#lifetime-scope)** - opening and maintaining lifetime scopes is also supported.
+ - **[Lifetime management](https://github.com/z4kn4fein/stashbox/wiki/Lifetimes)** - including `Singleton`, `Scoped`, `NamedScope` and `PerResolutionRequest` lifetime, and custom, user-defined lifetimes are also supported.
+ - **[Conditional resolution](https://github.com/z4kn4fein/stashbox/wiki/Conditional-resolution)** - attribute, parent-type and custom, user-defined conditions can be specified.
+ - **[IDisposable object tracking](https://github.com/z4kn4fein/stashbox/wiki/Scopes#disposal)** - `IDisposable` objects are being disposed by the container.
+ - **[Circular dependency tracking](https://github.com/z4kn4fein/stashbox/wiki/Container-configuration#options-available)** - the container checks the resolution graph for circular dependencies and it throws a specific `CircularDependencyException` if it finds any.
+ - **[Generic wrappers](https://github.com/z4kn4fein/stashbox/wiki/Generic-wrappers)**
      - Collections: everything assignable to `IEnumerable<T>` e.g. `T[]`, `ICollection<T>`, `IReadOnlyCollection<T>`, `IList<T>` etc.
      - `Lazy<>`, `Func<>`, `Tuple<>`
-     - Parameter injection over delegate arguments e.g. `Func<TParam, TService>`, `Func<TParam1, TParam2, TService>`, etc. applied to subdependencies as well.
-     - Nested wrappers e.g. `Tuple<TService, IEnumerable<Func<TParam, Lazy<TService1>>>>`.
- - **Custom resolvers** - the existing activation rutines can be extended with custom resolvers.
- - **Container extensions** - the containers functionality can be extended with custom extensions, e.g. [Auto configuration parser extension](https://github.com/z4kn4fein/stashbox-configuration-extension)
- - **Custom configuration** - the behavior of the container can be controlled with custom configurations.
- - **Container validation** - the resolution graph can be validated by calling the `Validate()` function.
- - **Decorator support / Interception** - decorator services can be registered and used for interception with Castle DynamicProxy
+     - [Parameter injection over delegate arguments](https://github.com/z4kn4fein/stashbox/wiki/Delegate-resolution) (e.g. `Func<TParam, TService>`, `Func<TParam1, TParam2, TService>`) applied to subdependencies as well.
+     - Nested wrappers like `Tuple<TService, IEnumerable<Func<TParam, Lazy<TService1>>>>`.
+ - **[Custom resolvers](https://github.com/z4kn4fein/stashbox/wiki/Resolvers)** - the existing activation rutines are extendable with custom resolvers.
+ - **[Container extensions](https://github.com/z4kn4fein/stashbox/wiki/Extensions)** - the containers functionality is extendable with custom extensions, e.g. [Auto configuration parser extension](https://github.com/z4kn4fein/stashbox-configuration-extension)
+ - **[Custom configuration](https://github.com/z4kn4fein/stashbox/wiki/Container-configuration)** - the behavior of the container can be controlled with custom configuration options.
+ - **Graph validation** - the resolution graph can be validated by calling the `Validate()` function of the container.
+ - **[Decorator support / Interception](https://github.com/z4kn4fein/stashbox/wiki/Decorators)** - decorator services can be registered and used for interception with [Castle DynamicProxy](http://www.castleproject.org/projects/dynamicproxy).
 
 ## Supported platforms
 
@@ -56,9 +52,11 @@ Github (stable) | NuGet (stable) | MyGet (pre-release) | Open Hub
 ```c#
 class Wulfgar : IBarbarian
 {
+    private readonly IWeapon weapon;
+    
     public Wulfgar(IWeapon weapon)
     {
-        //...
+        this.weapon = weapon;
     }
 }
 
