@@ -35,8 +35,10 @@ after_build:
 - msbuild /t:Pack /p:IncludeSymbols=true /p:Configuration=%configuration% /p:PackageOutputPath=..\artifacts src\stashbox.csproj
 
 artifacts:
-- path: artifacts\Stashbox.*.nupkg
-  name: NuGet
+  - path: artifacts\Stashbox.*.nupkg
+    name: NuGet Packages
+  - path: artifacts\Stashbox.*.snupkg
+    name: NuGet Symbol Packages
 
 notifications:
 - provider: Email

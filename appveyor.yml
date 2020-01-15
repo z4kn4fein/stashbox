@@ -49,8 +49,10 @@ after_test:
 - ps: . .\coverage.ps1
 
 artifacts:
-- path: artifacts\Stashbox.*.nupkg
-  name: NuGet
+  - path: artifacts\Stashbox.*.nupkg
+    name: NuGet Packages
+  - path: artifacts\Stashbox.*.snupkg
+    name: NuGet Symbol Packages
 
 notifications:
 - provider: Email
