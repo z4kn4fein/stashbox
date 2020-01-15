@@ -7,10 +7,8 @@ environment:
 
 deploy:
 - provider: NuGet
-  server: https://www.myget.org/F/pcsajtai/api/v2/package
-  symbol_server: https://www.myget.org/F/pcsajtai/symbols/api/v2/package
   api_key:
-    secure: 2bITagXOj2s3bTJaGXh8/iyWtST8OQOFaMM+0GAKgZts9OjCVCiV7C+E/0SYsM6M
+    secure: doqtwSE1NadH7pf4jqYifDu4tcXzsNiJtPWOccnbUrhSnIJX+5js7m8z+kV9LNJ2
 
 skip_tags: true
 
