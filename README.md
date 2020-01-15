@@ -2,7 +2,7 @@
 
 Stashbox is a lightweight, portable dependency injection framework for .NET based solutions. [![Join the chat at https://gitter.im/z4kn4fein/stashbox](https://img.shields.io/gitter/room/z4kn4fein/stashbox.svg)](https://gitter.im/z4kn4fein/stashbox?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Slack](https://img.shields.io/badge/chat-on%20slack-orange.svg?style=flat)](https://pcsajtai-dev-slack-in.herokuapp.com/)
 
-Github (stable) | NuGet (stable) | NuGet (pre-release) | Open Hub 
+Github (stable) | NuGet (stable) | NuGet (latest) | Open Hub 
 --- | --- | --- | ---
 [![Github release](https://img.shields.io/github/release/z4kn4fein/stashbox.svg)](https://github.com/z4kn4fein/stashbox/releases) | [![NuGet Version](https://buildstats.info/nuget/Stashbox)](https://www.nuget.org/packages/Stashbox/) | [![MyGet package](https://img.shields.io/nuget/vpre/Stashbox)](https://www.nuget.org/packages/Stashbox/) | [![OpenHub](https://www.openhub.net/p/stashbox/widgets/project_thin_badge?format=gif)](https://www.openhub.net/p/stashbox)
 
