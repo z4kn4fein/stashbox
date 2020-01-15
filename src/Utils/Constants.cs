@@ -10,6 +10,10 @@ namespace Stashbox.Utils
     {
         public static readonly Type ResolutionScopeType = typeof(IResolutionScope);
 
+#if HAS_SERVICEPROVIDER
+        public static readonly Type ServiceProviderType = typeof(IServiceProvider);
+#endif
+
         public static readonly Type ResolverType = typeof(IDependencyResolver);
 
         public static readonly ParameterExpression ResolutionScopeParameter = ResolutionScopeType.AsParameter("scope");

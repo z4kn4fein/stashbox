@@ -21,6 +21,11 @@ namespace Stashbox.Resolution
             if (typeInformation.Type == Constants.ResolverType)
                 return resolutionContext.CurrentScopeParameter.ConvertTo(Constants.ResolverType);
 
+#if HAS_SERVICEPROVIDER
+            if (typeInformation.Type == Constants.ServiceProviderType)
+                return resolutionContext.CurrentScopeParameter.ConvertTo(Constants.ServiceProviderType);
+#endif
+
             if (resolutionContext.ResolutionScope.HasScopedInstances)
             {
                 var scopedInstance = resolutionContext.ResolutionScope

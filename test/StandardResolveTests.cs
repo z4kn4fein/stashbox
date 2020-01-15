@@ -440,6 +440,27 @@ namespace Stashbox.Tests
 
             Assert.NotNull(inst);
         }
+
+        [Fact]
+        public void StandardResolveTests_ServiceProvider_Scope_Self()
+        {
+            var scope = new StashboxContainer()
+                .Register<ScopeDependent>()
+                .BeginScope();
+
+            Assert.Same(scope, scope.Resolve<IServiceProvider>());
+            Assert.Same(scope, scope.Resolve<ScopeDependent>().ServiceProvider);
+        }
+
+        class ScopeDependent
+        {
+            public ScopeDependent(IServiceProvider serviceProvider)
+            {
+                ServiceProvider = serviceProvider;
+            }
+
+            public IServiceProvider ServiceProvider { get; }
+        }
 #endif
 
         interface ITest1 { string Name { get; set; } }

@@ -279,6 +279,11 @@ namespace Stashbox
             if (type == Constants.ResolverType)
                 return resolutionContext.ResolutionScope;
 
+#if HAS_SERVICEPROVIDER
+            if (type == Constants.ServiceProviderType)
+                return resolutionContext.ResolutionScope;
+#endif
+
             if (resolutionContext.ResolutionScope.HasScopedInstances)
             {
                 var scopedInstance = resolutionContext.ResolutionScope

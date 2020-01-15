@@ -28,7 +28,7 @@
     <LangVersion>latest</LangVersion>
     <PackageReleaseNotes>
       <![CDATA[
-- Add option to set the default lifetime for registrations. #72
+- Fix: IServiceProvider resolution
     ]]>
     </PackageReleaseNotes>
     <Configurations>Debug;Release;Benchmark</Configurations>
