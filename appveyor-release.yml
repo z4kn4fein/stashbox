@@ -8,7 +8,7 @@ deploy:
   release: Stashbox v$(build_version)
   auth_token:
     secure: TaIug8cHioxT2qDznFpGtDinZiDi+20pEMQZUVAATWCvGLG9Y5LrjaxDUQtGyt38
-  artifact: /.*\.nupkg/
+  artifact: /.*\.nupkg|.*\.snupkg/
 
 environment:
   build_version: ''
