@@ -124,7 +124,7 @@ namespace Stashbox.Registration
         }
 
         /// <inheritdoc />
-        public bool CanInjectIntoNamedScope(ISet<object> scopeNames) => scopeNames.Contains(((NamedScopeLifetime)this.RegistrationContext.Lifetime).ScopeName);
+        public bool CanInjectIntoNamedScope(ISet<object> scopeNames) => scopeNames.Last() == ((NamedScopeLifetime)this.RegistrationContext.Lifetime).ScopeName;
 
         /// <inheritdoc />
         public IServiceRegistration Clone(Type implementationType, IObjectBuilder objectBuilder) =>
