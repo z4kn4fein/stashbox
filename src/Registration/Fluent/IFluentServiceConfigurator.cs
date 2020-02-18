@@ -159,11 +159,24 @@ namespace Stashbox.Registration.Fluent
         TConfigurator InNamedScope(object scopeName);
 
         /// <summary>
+        /// Sets a condition for the registration that it will be used only within the scope defined by the given type.
+        /// </summary>
+        /// <param name="type">The type which defines the scope.</param>
+        /// <returns>The configurator itself.</returns>
+        TConfigurator InScopeDefinedBy(Type type);
+
+        /// <summary>
+        /// Sets a condition for the registration that it will be used only within the scope defined by the given type.
+        /// </summary>
+        /// <returns>The configurator itself.</returns>
+        TConfigurator InScopeDefinedBy<TScopeDefiner>();
+
+        /// <summary>
         /// It means this registration would be used as a logical scope for it's dependencies, the dependencies registered with the <see cref="InNamedScope"/> and with the same name as it's param will be preffered during reolution.
         /// </summary>
-        /// <param name="scopeName">The name of the scope.</param>
+        /// <param name="scopeName">The name of the scope. When the name is null, the type which defines the scope is used as name.</param>
         /// <returns>The configurator itself.</returns>
-        TConfigurator DefinesScope(object scopeName);
+        TConfigurator DefinesScope(object scopeName = null);
 
         /// <summary>
         /// Sets the lifetime to <see cref="ResolutionRequestLifetime"/>. The container will inject this registration in a singleton per resolution request manner.

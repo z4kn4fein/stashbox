@@ -27,6 +27,30 @@ namespace Stashbox.Tests
             Assert.IsType<Test5>(((Test2)((Test)r).Subs[1]).Subs[0]);
             Assert.IsType<Test6>(((Test2)((Test)r).Subs[1]).Subs[1]);
         }
+
+        [Fact]
+        public void NamedScope_Hierarchy_Respected_WithoutNames()
+        {
+            var container = new StashboxContainer(c => c
+                    .WithMemberInjectionWithoutAnnotation()
+                    .WithCircularDependencyTracking())
+               .Register<ITest, Test>(c => c.DefinesScope().WithName("root"))
+               .Register<ITest, Test1>(c => c.InScopeDefinedBy<Test>().DefinesScope())
+               .Register<ITest, Test2>(c => c.InScopeDefinedBy<Test>().DefinesScope())
+               .Register<ITest, Test3>(c => c.InScopeDefinedBy(typeof(Test1)))
+               .Register<ITest, Test4>(c => c.InScopeDefinedBy(typeof(Test1)))
+               .Register<ITest, Test5>(c => c.InScopeDefinedBy<Test2>())
+               .Register<ITest, Test6>(c => c.InScopeDefinedBy<Test2>());
+
+            var r = container.Resolve<ITest>("root");
+
+            Assert.IsType<Test1>(((Test)r).Subs[0]);
+            Assert.IsType<Test2>(((Test)r).Subs[1]);
+            Assert.IsType<Test3>(((Test1)((Test)r).Subs[0]).Subs[0]);
+            Assert.IsType<Test4>(((Test1)((Test)r).Subs[0]).Subs[1]);
+            Assert.IsType<Test5>(((Test2)((Test)r).Subs[1]).Subs[0]);
+            Assert.IsType<Test6>(((Test2)((Test)r).Subs[1]).Subs[1]);
+        }
     }
 
     interface ITest

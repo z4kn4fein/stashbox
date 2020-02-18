@@ -167,9 +167,17 @@ namespace Stashbox.Registration.Fluent
             this.WithLifetime(new NamedScopeLifetime(scopeName));
 
         /// <inheritdoc />
-        public TConfigurator DefinesScope(object scopeName)
+        public TConfigurator InScopeDefinedBy(Type type) =>
+            this.WithLifetime(new NamedScopeLifetime(type));
+
+        /// <inheritdoc />
+        public TConfigurator InScopeDefinedBy<TScopeDefiner>() =>
+            this.WithLifetime(new NamedScopeLifetime(typeof(TScopeDefiner)));
+
+        /// <inheritdoc />
+        public TConfigurator DefinesScope(object scopeName = null)
         {
-            this.Context.DefinedScopeName = scopeName;
+            this.Context.DefinedScopeName = scopeName ?? this.ImplementationType;
             return (TConfigurator)this;
         }
 
