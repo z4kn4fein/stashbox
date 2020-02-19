@@ -41,7 +41,7 @@ namespace Stashbox.Resolution.Resolvers
             var ctorParamType = Constants.FuncType.MakeGenericType(lazyArgumentInfo.Type);
             var lazyConstructor = typeInfo.Type.GetConstructor(ctorParamType);
 
-            var registrations = containerContext.RegistrationRepository.GetRegistrationsOrDefault(lazyArgumentInfo.Type, resolutionContext)?.CastToArray();
+            var registrations = containerContext.RegistrationRepository.GetRegistrationsOrDefault(lazyArgumentInfo, resolutionContext)?.CastToArray();
             if (registrations != null)
             {
                 var regLength = registrations.Length;

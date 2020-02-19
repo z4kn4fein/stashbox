@@ -2,7 +2,7 @@
 
 namespace Stashbox.Tests
 {
-    public class NamedScopeHierarchyTests
+    public class HierarchyTests
     {
         [Fact]
         public void NamedScope_Hierarchy_Respected()
@@ -51,10 +51,39 @@ namespace Stashbox.Tests
             Assert.IsType<Test5>(((Test2)((Test)r).Subs[1]).Subs[0]);
             Assert.IsType<Test6>(((Test2)((Test)r).Subs[1]).Subs[1]);
         }
+
+        [Fact]
+        public void Conditional_Hierarchy_Respected()
+        {
+            var container = new StashboxContainer(c => c
+                    .WithMemberInjectionWithoutAnnotation()
+                    .WithCircularDependencyTracking())
+               .Register<R>(c => c.WithName("root"))
+               .Register<ITest, Test1>(c => c.WhenDependantIs<R>())
+               .Register<ITest, Test2>(c => c.WhenDependantIs<R>())
+               .Register<ITest, Test3>(c => c.WhenDependantIs(typeof(Test1)))
+               .Register<ITest, Test4>(c => c.WhenDependantIs(typeof(Test1)))
+               .Register<ITest, Test5>(c => c.WhenDependantIs<Test2>())
+               .Register<ITest, Test6>(c => c.WhenDependantIs<Test2>());
+
+            var r = container.Resolve<R>("root");
+
+            Assert.IsType<Test1>(r.Subs[0]);
+            Assert.IsType<Test2>(r.Subs[1]);
+            Assert.IsType<Test3>(((Test1)r.Subs[0]).Subs[0]);
+            Assert.IsType<Test4>(((Test1)r.Subs[0]).Subs[1]);
+            Assert.IsType<Test5>(((Test2)r.Subs[1]).Subs[0]);
+            Assert.IsType<Test6>(((Test2)r.Subs[1]).Subs[1]);
+        }
     }
 
     interface ITest
     { }
+
+    class R
+    {
+        public ITest[] Subs { get; set; }
+    }
 
     class Test : ITest
     {

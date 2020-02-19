@@ -11,7 +11,7 @@ namespace Stashbox.Resolution.Resolvers
             TypeInformation typeInfo,
             ResolutionContext resolutionContext)
         {
-            var enumerableType = new TypeInformation { Type = typeInfo.Type.GetEnumerableType() };
+            var enumerableType = typeInfo.Clone(typeInfo.Type.GetEnumerableType());
             var expressions = resolutionStrategy.BuildAllResolutionExpressions(containerContext, resolutionContext, enumerableType);
 
             return expressions == null ? enumerableType.Type.InitNewArray() :

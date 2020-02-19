@@ -1,11 +1,11 @@
-﻿using Stashbox.Entity;
+﻿using Stashbox.Configuration;
+using Stashbox.Entity;
 using Stashbox.Registration.Extensions;
 using Stashbox.Resolution;
 using Stashbox.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Stashbox.Configuration;
 
 namespace Stashbox.Registration
 {
@@ -52,12 +52,12 @@ namespace Stashbox.Registration
                 this.GetDefaultRegistrationOrDefault(typeInfo, resolutionContext);
         }
 
-        public IEnumerable<KeyValue<object, IServiceRegistration>> GetRegistrationsOrDefault(Type type, ResolutionContext resolutionContext)
+        public IEnumerable<KeyValue<object, IServiceRegistration>> GetRegistrationsOrDefault(TypeInformation typeInfo, ResolutionContext resolutionContext)
         {
             if (resolutionContext.ScopeNames == null)
-                return this.GetAllRegistrationsOrDefault(type);
+                return this.GetAllRegistrationsOrDefault(typeInfo);
 
-            return this.GetAllScopedRegistrationsOrDefault(type, resolutionContext) ?? this.GetAllRegistrationsOrDefault(type);
+            return this.GetAllScopedRegistrationsOrDefault(typeInfo, resolutionContext) ?? this.GetAllRegistrationsOrDefault(typeInfo);
         }
 
         public IEnumerable<KeyValuePair<Type, IServiceRegistration>> GetRegistrationMappings() =>
@@ -164,30 +164,34 @@ namespace Stashbox.Registration
             return scopedRegistrations;
         }
 
-        private IEnumerable<KeyValue<object, IServiceRegistration>> GetAllRegistrationsOrDefault(Type type)
+        private IEnumerable<KeyValue<object, IServiceRegistration>> GetAllRegistrationsOrDefault(TypeInformation typeInfo)
         {
-            var registrations = this.serviceRepository.GetOrDefault(type);
+            var registrations = this.serviceRepository.GetOrDefault(typeInfo.Type)?.WhereOrDefault(kv => kv.Value.IsUsableForCurrentContext(typeInfo));
 
-            if (!type.IsClosedGenericType()) return registrations?.Repository;
+            if (!typeInfo.Type.IsClosedGenericType()) return registrations?.Repository;
 
-            var generics = this.serviceRepository.GetOrDefault(type.GetGenericTypeDefinition());
+            var generics = this.serviceRepository.GetOrDefault(typeInfo.Type.GetGenericTypeDefinition())?.WhereOrDefault(kv => kv.Value.IsUsableForCurrentContext(typeInfo));
             return generics == null
                 ? registrations?.Repository
-                : registrations?.Repository.Concat(generics.Repository.Where(reg => reg.Value.ValidateGenericConstraints(type)))
-                      .OrderBy(reg => reg.Value.RegistrationNumber) ?? generics.Repository.Where(reg => reg.Value.ValidateGenericConstraints(type));
+                : registrations?.Repository.Concat(generics.Repository.Where(reg => reg.Value.ValidateGenericConstraints(typeInfo.Type)))
+                      .OrderBy(reg => reg.Value.RegistrationNumber) ?? generics.Repository.Where(reg => reg.Value.ValidateGenericConstraints(typeInfo.Type));
         }
 
-        private IEnumerable<KeyValue<object, IServiceRegistration>> GetAllScopedRegistrationsOrDefault(Type type, ResolutionContext resolutionContext)
+        private IEnumerable<KeyValue<object, IServiceRegistration>> GetAllScopedRegistrationsOrDefault(TypeInformation typeInfo, ResolutionContext resolutionContext)
         {
-            var registrations = this.namedScopeRepository.GetOrDefault(type)?.WhereOrDefault(kv => kv.Value.CanInjectIntoNamedScope(resolutionContext.ScopeNames));
+            var registrations = this.namedScopeRepository.GetOrDefault(typeInfo.Type)?
+                .WhereOrDefault(kv => kv.Value.CanInjectIntoNamedScope(resolutionContext.ScopeNames) &&
+                    kv.Value.IsUsableForCurrentContext(typeInfo));
 
-            if (!type.IsClosedGenericType()) return registrations?.Repository;
+            if (!typeInfo.Type.IsClosedGenericType()) return registrations?.Repository;
 
-            var generics = this.namedScopeRepository.GetOrDefault(type.GetGenericTypeDefinition())?.WhereOrDefault(kv => kv.Value.CanInjectIntoNamedScope(resolutionContext.ScopeNames));
+            var generics = this.namedScopeRepository.GetOrDefault(typeInfo.Type.GetGenericTypeDefinition())?
+                .WhereOrDefault(kv => kv.Value.CanInjectIntoNamedScope(resolutionContext.ScopeNames) &&
+                    kv.Value.IsUsableForCurrentContext(typeInfo));
             return generics == null
                 ? registrations?.Repository
-                : registrations?.Repository.Concat(generics.Repository.Where(reg => reg.Value.ValidateGenericConstraints(type)))
-                      .OrderBy(reg => reg.Value.RegistrationNumber) ?? generics.Repository.Where(reg => reg.Value.ValidateGenericConstraints(type));
+                : registrations?.Repository.Concat(generics.Repository.Where(reg => reg.Value.ValidateGenericConstraints(typeInfo.Type)))
+                      .OrderBy(reg => reg.Value.RegistrationNumber) ?? generics.Repository.Where(reg => reg.Value.ValidateGenericConstraints(typeInfo.Type));
         }
     }
 }

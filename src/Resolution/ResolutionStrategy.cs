@@ -79,7 +79,7 @@ namespace Stashbox.Resolution
 
         public Expression[] BuildAllResolutionExpressions(IContainerContext containerContext, ResolutionContext resolutionContext, TypeInformation typeInformation)
         {
-            var registrations = containerContext.RegistrationRepository.GetRegistrationsOrDefault(typeInformation.Type, resolutionContext)?.CastToArray();
+            var registrations = containerContext.RegistrationRepository.GetRegistrationsOrDefault(typeInformation, resolutionContext)?.CastToArray();
             if (registrations == null)
                 return this.BuildAllResolverExpressionsUsingResolvers(containerContext, typeInformation, resolutionContext);
 
