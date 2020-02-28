@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using Stashbox;
 using Stashbox.Configuration;
 using Stashbox.Entity.Resolution;
-
+using Stashbox.Utils;
 #if IL_EMIT
 using Stashbox.BuildUp.Expressions.Compile;
 #endif
@@ -34,9 +34,10 @@ namespace System.Linq.Expressions
 
             if (resolutionContext.DefinedVariables.Length > 0)
             {
-                var originalExpression = expression;
-                expression = Expression.Block(resolutionContext.DefinedVariables,
-                    resolutionContext.SingleInstructions.Add(originalExpression));
+                var instructions = new ArrayList<Expression>(resolutionContext.SingleInstructions) { expression };
+                expression = Expression.Block(resolutionContext.DefinedVariables, instructions);
+                
+                resolutionContext.SingleInstructions.Clear();
             }
 
 #if IL_EMIT
@@ -63,9 +64,10 @@ namespace System.Linq.Expressions
         {
             if (resolutionContext.DefinedVariables.Length > 0)
             {
-                var originalExpression = expression;
-                expression = Expression.Block(resolutionContext.DefinedVariables,
-                    resolutionContext.SingleInstructions.Add(originalExpression));
+                var instructions = new ArrayList<Expression>(resolutionContext.SingleInstructions) { expression };
+                expression = Expression.Block(resolutionContext.DefinedVariables, instructions);
+                
+                resolutionContext.SingleInstructions.Clear();
             }
 
 #if IL_EMIT

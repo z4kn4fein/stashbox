@@ -10,8 +10,8 @@ namespace Stashbox.Resolution
 {
     internal class ResolutionStrategy : IResolverSupportedResolutionStrategy
     {
-        private ArrayStore<IMultiServiceResolver> multiServiceResolverRepository = ArrayStore<IMultiServiceResolver>.Empty;
-        private ArrayStore<IResolver> resolverRepository = ArrayStore<IResolver>.Empty;
+        private ImmutableArray<IMultiServiceResolver> multiServiceResolverRepository = ImmutableArray<IMultiServiceResolver>.Empty;
+        private ImmutableArray<IResolver> resolverRepository = ImmutableArray<IResolver>.Empty;
         private readonly UnknownTypeResolver unknownTypeResolver = new UnknownTypeResolver();
         private readonly ParentContainerResolver parentContainerResolver = new ParentContainerResolver();
 
@@ -48,7 +48,7 @@ namespace Stashbox.Resolution
                                         p.Value.Type.Implements(typeInformation.Type));
 
                     if (parameters == null) continue;
-                    var selected = parameters.Repository.FirstOrDefault(parameter => !parameter.Key) ?? parameters.Repository.Last();
+                    var selected = parameters.Enumerate().FirstOrDefault(parameter => !parameter.Key) ?? parameters.Enumerate().Last();
                     selected.Key = true;
                     return selected.Value;
                 }

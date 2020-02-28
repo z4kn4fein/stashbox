@@ -31,9 +31,9 @@ namespace Stashbox.BuildUp.Expressions.Compile
 #endif
         private static int typeCounter;
 
-        private static AvlTree<Type> TargetTypes = AvlTree<Type>.Empty;
+        private static ImmutableTree<Type> TargetTypes = ImmutableTree<Type>.Empty;
 
-        private static AvlTree<Type> CapturedArgumentTypes = AvlTree<Type>.Empty;
+        private static ImmutableTree<Type> CapturedArgumentTypes = ImmutableTree<Type>.Empty;
 
         public static Type GetOrAddTargetType(Type[] types)
         {

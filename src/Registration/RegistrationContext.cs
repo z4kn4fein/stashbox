@@ -164,9 +164,9 @@ namespace Stashbox.Registration
         /// </summary>
         public RegistrationContext()
         {
-            this.AttributeConditions = ArrayStore<Type>.Empty;
-            this.AdditionalServiceTypes = ArrayStore<Type>.Empty;
-            this.InjectionParameters = ArrayStore<InjectionParameter>.Empty;
+            this.AttributeConditions = ImmutableArray<Type>.Empty;
+            this.AdditionalServiceTypes = ImmutableArray<Type>.Empty;
+            this.InjectionParameters = ImmutableArray<InjectionParameter>.Empty;
             this.InjectionMemberNames = new Dictionary<string, object>();
             this.DependencyBindings = new Dictionary<object, object>();
             this.AutoMemberInjectionEnabled = false;

@@ -10,7 +10,7 @@ namespace Stashbox.Entity
 {
     internal class MetaInformation
     {
-        private static AvlTreeKeyValue<Type, MetaInformation> MetaRepository = AvlTreeKeyValue<Type, MetaInformation>.Empty;
+        private static ImmutableTree<Type, MetaInformation> MetaRepository = ImmutableTree<Type, MetaInformation>.Empty;
         private readonly IDictionary<int, GenericConstraintInfo> genericTypeConstraints;
         private readonly Type type;
         private readonly ConstructorInformation[] constructors;

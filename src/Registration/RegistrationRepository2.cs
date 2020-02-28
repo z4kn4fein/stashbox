@@ -12,7 +12,7 @@ namespace Stashbox.Registration
     internal class RegistrationRepository2 : IRegistrationRepository
     {
         private readonly ContainerConfiguration containerConfiguration;
-        private AvlTreeKeyValue<Type, ArrayStoreKeyed<object, IServiceRegistration>> serviceRepository = AvlTreeKeyValue<Type, ArrayStoreKeyed<object, IServiceRegistration>>.Empty;
+        private ImmutableTree<Type, ImmutableArray<object, IServiceRegistration>> serviceRepository = ImmutableTree<Type, ImmutableArray<object, IServiceRegistration>>.Empty;
 
         public RegistrationRepository2(ContainerConfiguration containerConfiguration)
         {
@@ -21,7 +21,7 @@ namespace Stashbox.Registration
 
         public void AddOrUpdateRegistration(IServiceRegistration registration, Type serviceType, bool remap, bool replace)
         {
-            var newRepository = new ArrayStoreKeyed<object, IServiceRegistration>(registration.RegistrationId, registration);
+            var newRepository = new ImmutableArray<object, IServiceRegistration>(registration.RegistrationId, registration);
 
             if (remap)
                 Swap.SwapValue(ref this.serviceRepository, (t1, t2, t3, t4, repo) =>
@@ -54,7 +54,7 @@ namespace Stashbox.Registration
             throw new NotImplementedException();
         }
 
-        private ArrayStoreKeyed<object, IServiceRegistration> GetRegistrationsForType(Type type)
+        private ImmutableArray<object, IServiceRegistration> GetRegistrationsForType(Type type)
         {
             var registrations = this.serviceRepository.GetOrDefault(type);
             if (registrations == null && type.IsClosedGenericType())

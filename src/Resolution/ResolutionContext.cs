@@ -29,11 +29,11 @@ namespace Stashbox.Resolution
         /// </summary>
         public ParameterExpression CurrentScopeParameter { get; }
 
-        private AvlTreeKeyValue<Type, Expression> expressionOverrides;
-        private AvlTreeKeyValue<Type, Type> currentlyDecoratingTypes;
-        private AvlTree<bool> circularDependencyBarrier;
+        private ImmutableTree<Type, Expression> expressionOverrides;
+        private ImmutableTree<Type, Type> currentlyDecoratingTypes;
+        private ImmutableTree<bool> circularDependencyBarrier;
 
-        private readonly ArrayStoreKeyed<object, ParameterExpression> knownVariables;
+        private readonly ArrayList<object, ParameterExpression> knownVariables;
 
         internal bool ShouldCacheFactoryDelegate { get; set; }
 
@@ -43,17 +43,17 @@ namespace Stashbox.Resolution
 
         internal ISet<object> ScopeNames { get; }
 
-        internal ArrayStore<ArrayStoreKeyed<bool, ParameterExpression>> ParameterExpressions { get; private set; }
+        internal ArrayList<ArrayList<bool, ParameterExpression>> ParameterExpressions { get; private set; }
 
-        internal ArrayStore<Expression> SingleInstructions { get; private set; }
+        internal ArrayList<Expression> SingleInstructions { get; private set; }
 
-        internal ArrayStoreKeyed<object, ParameterExpression> DefinedVariables { get; private set; }
+        internal ArrayList<object, ParameterExpression> DefinedVariables { get; private set; }
 
-        internal AvlTree<Expression> ExpressionCache { get; private set; }
+        internal ImmutableTree<Expression> ExpressionCache { get; private set; }
 
         private ResolutionContext(IResolutionScope scope, bool nullResultAllowed, object[] dependencyOverrides)
-            : this(scope, AvlTree<bool>.Empty, AvlTreeKeyValue<Type, Expression>.Empty, AvlTreeKeyValue<Type, Type>.Empty, ArrayStore<ArrayStoreKeyed<bool, ParameterExpression>>.Empty, scope.GetActiveScopeNames(),
-                  null, nullResultAllowed, Constants.ResolutionScopeParameter, ArrayStoreKeyed<object, ParameterExpression>.Empty, AvlTree<Expression>.Empty, dependencyOverrides == null)
+            : this(scope, ImmutableTree<bool>.Empty, ImmutableTree<Type, Expression>.Empty, ImmutableTree<Type, Type>.Empty, ArrayList<ArrayList<bool, ParameterExpression>>.Empty, scope.GetActiveScopeNames(),
+                  null, nullResultAllowed, Constants.ResolutionScopeParameter, ArrayList<object, ParameterExpression>.Empty, ImmutableTree<Expression>.Empty, dependencyOverrides == null)
         {
             this.ProcessDependencyOverrides(dependencyOverrides);
         }
@@ -74,12 +74,12 @@ namespace Stashbox.Resolution
             }
         }
 
-        private ResolutionContext(IResolutionScope scope, AvlTree<bool> circularDependencyBarrier, AvlTreeKeyValue<Type, Expression> expressionOverrides,
-            AvlTreeKeyValue<Type, Type> currentlyDecoratingTypes, ArrayStore<ArrayStoreKeyed<bool, ParameterExpression>> parameterExpressions, ISet<object> scopeNames,
-            IContainerContext childContext, bool nullResultAllowed, ParameterExpression currentScope, ArrayStoreKeyed<object, ParameterExpression> knownVariables, AvlTree<Expression> expressionCache, bool shouldCacheFactoryDelegate)
+        private ResolutionContext(IResolutionScope scope, ImmutableTree<bool> circularDependencyBarrier, ImmutableTree<Type, Expression> expressionOverrides,
+            ImmutableTree<Type, Type> currentlyDecoratingTypes, ArrayList<ArrayList<bool, ParameterExpression>> parameterExpressions, ISet<object> scopeNames,
+            IContainerContext childContext, bool nullResultAllowed, ParameterExpression currentScope, ArrayList<object, ParameterExpression> knownVariables, ImmutableTree<Expression> expressionCache, bool shouldCacheFactoryDelegate)
         {
-            this.DefinedVariables = ArrayStoreKeyed<object, ParameterExpression>.Empty;
-            this.SingleInstructions = ArrayStore<Expression>.Empty;
+            this.DefinedVariables = ArrayList<object, ParameterExpression>.Empty;
+            this.SingleInstructions = ArrayList<Expression>.Empty;
             this.expressionOverrides = expressionOverrides;
             this.currentlyDecoratingTypes = currentlyDecoratingTypes;
             this.NullResultAllowed = nullResultAllowed;
@@ -99,7 +99,7 @@ namespace Stashbox.Resolution
         /// </summary>
         /// <param name="instruction">The custom expression.</param>
         public void AddInstruction(Expression instruction) =>
-            this.SingleInstructions = this.SingleInstructions.Add(instruction);
+            this.SingleInstructions.Add(instruction);
 
         /// <summary>
         /// Adds a global keyed variable to the compiled expression tree.
@@ -107,14 +107,14 @@ namespace Stashbox.Resolution
         /// <param name="key">The key of the variable.</param>
         /// <param name="parameter">The variable.</param>
         public void AddDefinedVariable(object key, ParameterExpression parameter) =>
-            this.DefinedVariables = this.DefinedVariables.AddOrUpdate(key, parameter);
+            this.DefinedVariables.Add(key, parameter);
 
         /// <summary>
         /// Adds a global variable to the compiled expression tree.
         /// </summary>
         /// <param name="parameter">The variable.</param>
         public void AddDefinedVariable(ParameterExpression parameter) =>
-            this.DefinedVariables = this.DefinedVariables.AddOrUpdate(parameter, parameter);
+            this.DefinedVariables.Add(parameter, parameter);
 
         /// <summary>
         /// Gets an already defined global variable.
@@ -151,7 +151,7 @@ namespace Stashbox.Resolution
             var newItems = new KeyValue<bool, ParameterExpression>[length];
             for (var i = 0; i < length; i++)
                 newItems[i] = new KeyValue<bool, ParameterExpression>(false, parameterExpressions[i]);
-            this.ParameterExpressions = this.ParameterExpressions.Add(new ArrayStoreKeyed<bool, ParameterExpression>(newItems));
+            this.ParameterExpressions.Add(new ArrayList<bool, ParameterExpression>(newItems));
         }
 
         internal void SetCircularDependencyBarrier(int key, bool value) =>

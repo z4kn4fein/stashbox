@@ -8,7 +8,7 @@ namespace Stashbox.ContainerExtension
 {
     internal class BuildExtensionManager : IContainerExtensionManager
     {
-        private ArrayStore<IContainerExtension> repository;
+        private ImmutableArray<IContainerExtension> repository;
 
         public bool HasPostBuildExtensions { get; private set; }
 
@@ -16,7 +16,7 @@ namespace Stashbox.ContainerExtension
 
         public BuildExtensionManager()
         {
-            this.repository = ArrayStore<IContainerExtension>.Empty;
+            this.repository = ImmutableArray<IContainerExtension>.Empty;
         }
 
         public void AddExtension(IContainerExtension containerExtension)

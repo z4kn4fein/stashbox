@@ -7,15 +7,15 @@ using System.Runtime.CompilerServices;
 
 namespace Stashbox.Utils
 {
-    internal class ArrayStore<TValue> : IEnumerable<TValue>
+    internal class ImmutableArray<TValue> : IEnumerable<TValue>
     {
-        public static readonly ArrayStore<TValue> Empty = new ArrayStore<TValue>();
+        public static readonly ImmutableArray<TValue> Empty = new ImmutableArray<TValue>();
 
         private readonly TValue[] repository;
 
         public int Length;
 
-        private ArrayStore(TValue item, TValue[] old)
+        private ImmutableArray(TValue item, TValue[] old)
         {
             if (old.Length == 0)
                 this.repository = new[] { item };
@@ -29,41 +29,19 @@ namespace Stashbox.Utils
             this.Length = old.Length + 1;
         }
 
-        private ArrayStore(TValue[] items, TValue[] old)
-        {
-            if (old.Length == 0)
-            {
-                this.repository = items;
-                this.Length = items.Length;
-            }
-            else
-            {
-                var oldLength = old.Length;
-                var itemsLength = items.Length;
-                var newLength = oldLength + itemsLength;
-                this.repository = new TValue[newLength];
-                Array.Copy(old, this.repository, oldLength);
-                Array.Copy(items, 0, this.repository, oldLength, itemsLength);
-                this.Length = newLength;
-            }
-        }
-
-        public ArrayStore()
+        public ImmutableArray()
         {
             this.repository = new TValue[0];
         }
 
-        public ArrayStore(TValue[] initial)
+        public ImmutableArray(TValue[] initial)
         {
             this.repository = initial;
             this.Length = initial.Length;
         }
 
-        public ArrayStore<TValue> Add(TValue value) =>
-            new ArrayStore<TValue>(value, this.repository);
-
-        public ArrayStore<TValue> AddRange(TValue[] items) =>
-            new ArrayStore<TValue>(items, this.repository);
+        public ImmutableArray<TValue> Add(TValue value) =>
+            new ImmutableArray<TValue>(value, this.repository);
 
         public TValue this[int i] => this.repository[i];
 
@@ -79,9 +57,9 @@ namespace Stashbox.Utils
         }
     }
 
-    internal class ArrayStoreKeyed<TKey, TValue> : IEnumerable<TValue>
+    internal class ImmutableArray<TKey, TValue> : IEnumerable<TValue>
     {
-        public static readonly ArrayStoreKeyed<TKey, TValue> Empty = new ArrayStoreKeyed<TKey, TValue>();
+        public static readonly ImmutableArray<TKey, TValue> Empty = new ImmutableArray<TKey, TValue>();
 
         public KeyValue<TKey, TValue>[] Repository { get; }
 
@@ -89,7 +67,7 @@ namespace Stashbox.Utils
 
         public int Length { get; }
 
-        private ArrayStoreKeyed(KeyValue<TKey, TValue> item, KeyValue<TKey, TValue>[] old)
+        private ImmutableArray(KeyValue<TKey, TValue> item, KeyValue<TKey, TValue>[] old)
         {
             if (old.Length == 0)
                 this.Repository = new[] { item };
@@ -103,32 +81,29 @@ namespace Stashbox.Utils
             this.Length = old.Length + 1;
         }
 
-        internal ArrayStoreKeyed(KeyValue<TKey, TValue>[] initial)
+        internal ImmutableArray(KeyValue<TKey, TValue>[] initial)
         {
             this.Repository = initial;
             this.Length = initial.Length;
         }
 
-        internal ArrayStoreKeyed(TKey key, TValue value)
+        internal ImmutableArray(TKey key, TValue value)
         {
             this.Repository = new[] { new KeyValue<TKey, TValue>(key, value) };
             this.Length = 1;
         }
 
-        public ArrayStoreKeyed()
+        public ImmutableArray()
         {
             this.Repository = new KeyValue<TKey, TValue>[0];
         }
 
         public TValue this[int i] => this.Repository[i].Value;
 
-        public KeyValuePair<TKey, TValue> GetKeyValue(int i) =>
-            new KeyValuePair<TKey, TValue>(this.Repository[i].Key, this.Repository[i].Value);
+        public ImmutableArray<TKey, TValue> Add(TKey key, TValue value) =>
+           new ImmutableArray<TKey, TValue>(new KeyValue<TKey, TValue>(key, value), this.Repository);
 
-        public ArrayStoreKeyed<TKey, TValue> Add(TKey key, TValue value) =>
-           new ArrayStoreKeyed<TKey, TValue>(new KeyValue<TKey, TValue>(key, value), this.Repository);
-
-        public ArrayStoreKeyed<TKey, TValue> AddOrUpdate(TKey key, TValue value, bool allowUpdate = true)
+        public ImmutableArray<TKey, TValue> AddOrUpdate(TKey key, TValue value, bool allowUpdate = true)
         {
             var length = this.Repository.Length;
             var count = length - 1;
@@ -143,13 +118,13 @@ namespace Stashbox.Utils
             var newRepository = new KeyValue<TKey, TValue>[length];
             Array.Copy(this.Repository, newRepository, length);
             newRepository[count] = new KeyValue<TKey, TValue>(key, value);
-            return new ArrayStoreKeyed<TKey, TValue>(newRepository);
+            return new ImmutableArray<TKey, TValue>(newRepository);
         }
 
-        internal ArrayStoreKeyed<TKey, TValue> WhereOrDefault(Func<KeyValue<TKey, TValue>, bool> predicate)
+        internal ImmutableArray<TKey, TValue> WhereOrDefault(Func<KeyValue<TKey, TValue>, bool> predicate)
         {
             var initial = this.Repository.Where(predicate).ToArray();
-            return initial.Length == 0 ? null : new ArrayStoreKeyed<TKey, TValue>(initial);
+            return initial.Length == 0 ? null : new ImmutableArray<TKey, TValue>(initial);
         }
 
         [MethodImpl(Constants.Inline)]

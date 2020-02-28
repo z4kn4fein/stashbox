@@ -12,8 +12,8 @@ namespace Stashbox.Registration
     internal class RegistrationRepository : IRegistrationRepository
     {
         private readonly ContainerConfiguration containerConfiguration;
-        private AvlTreeKeyValue<Type, ArrayStoreKeyed<object, IServiceRegistration>> serviceRepository = AvlTreeKeyValue<Type, ArrayStoreKeyed<object, IServiceRegistration>>.Empty;
-        private AvlTreeKeyValue<Type, ArrayStoreKeyed<object, IServiceRegistration>> namedScopeRepository = AvlTreeKeyValue<Type, ArrayStoreKeyed<object, IServiceRegistration>>.Empty;
+        private ImmutableTree<Type, ImmutableArray<object, IServiceRegistration>> serviceRepository = ImmutableTree<Type, ImmutableArray<object, IServiceRegistration>>.Empty;
+        private ImmutableTree<Type, ImmutableArray<object, IServiceRegistration>> namedScopeRepository = ImmutableTree<Type, ImmutableArray<object, IServiceRegistration>>.Empty;
 
         public RegistrationRepository(ContainerConfiguration containerConfiguration)
         {
@@ -28,9 +28,9 @@ namespace Stashbox.Registration
                 this.AddOrUpdateRegistration(ref this.serviceRepository, registration, serviceType, remap, replace);
         }
 
-        private void AddOrUpdateRegistration(ref AvlTreeKeyValue<Type, ArrayStoreKeyed<object, IServiceRegistration>> repository, IServiceRegistration registration, Type serviceType, bool remap, bool replace)
+        private void AddOrUpdateRegistration(ref ImmutableTree<Type, ImmutableArray<object, IServiceRegistration>> repository, IServiceRegistration registration, Type serviceType, bool remap, bool replace)
         {
-            var newRepository = new ArrayStoreKeyed<object, IServiceRegistration>(registration.RegistrationId, registration);
+            var newRepository = new ImmutableArray<object, IServiceRegistration>(registration.RegistrationId, registration);
 
             if (remap)
                 Swap.SwapValue(ref repository, (t1, t2, t3, t4, repo) =>
@@ -137,7 +137,7 @@ namespace Stashbox.Registration
                 : registrations.LastOrDefault(reg => reg.IsResolvableByUnnamedRequest);
         }
 
-        private ArrayStoreKeyed<object, IServiceRegistration> GetDefaultOrScopedRegistrationsOrDefault(Type type, ResolutionContext resolutionContext)
+        private ImmutableArray<object, IServiceRegistration> GetDefaultOrScopedRegistrationsOrDefault(Type type, ResolutionContext resolutionContext)
         {
             if (resolutionContext.ScopeNames == null)
                 return this.GetDefaultRegistrationsOrDefault(type);
@@ -145,7 +145,7 @@ namespace Stashbox.Registration
             return this.GetScopedRegistrationsOrDefault(type, resolutionContext) ?? this.GetDefaultRegistrationsOrDefault(type);
         }
 
-        private ArrayStoreKeyed<object, IServiceRegistration> GetDefaultRegistrationsOrDefault(Type type)
+        private ImmutableArray<object, IServiceRegistration> GetDefaultRegistrationsOrDefault(Type type)
         {
             var registrations = this.serviceRepository.GetOrDefault(type);
             if (registrations == null && type.IsClosedGenericType())
@@ -154,7 +154,7 @@ namespace Stashbox.Registration
             return registrations;
         }
 
-        private ArrayStoreKeyed<object, IServiceRegistration> GetScopedRegistrationsOrDefault(Type type, ResolutionContext resolutionContext)
+        private ImmutableArray<object, IServiceRegistration> GetScopedRegistrationsOrDefault(Type type, ResolutionContext resolutionContext)
         {
             var scopedRegistrations = this.namedScopeRepository.GetOrDefault(type)?.WhereOrDefault(kv => kv.Value.CanInjectIntoNamedScope(resolutionContext.ScopeNames));
             if (scopedRegistrations == null && type.IsClosedGenericType())

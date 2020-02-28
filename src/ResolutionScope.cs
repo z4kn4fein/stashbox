@@ -16,8 +16,8 @@ namespace Stashbox
     {
         private class DelegateCache
         {
-            public AvlTreeKeyValue<object, Func<IResolutionScope, object>> ServiceDelegates = AvlTreeKeyValue<object, Func<IResolutionScope, object>>.Empty;
-            public AvlTreeKeyValue<object, Func<IResolutionScope, Delegate>> FactoryDelegates = AvlTreeKeyValue<object, Func<IResolutionScope, Delegate>>.Empty;
+            public ImmutableTree<object, Func<IResolutionScope, object>> ServiceDelegates = ImmutableTree<object, Func<IResolutionScope, object>>.Empty;
+            public ImmutableTree<object, Func<IResolutionScope, Delegate>> FactoryDelegates = ImmutableTree<object, Func<IResolutionScope, Delegate>>.Empty;
         }
 
         private class DisposableItem
@@ -44,9 +44,9 @@ namespace Stashbox
         private int disposed;
         private DisposableItem rootItem = DisposableItem.Empty;
         private FinalizableItem rootFinalizableItem = FinalizableItem.Empty;
-        private AvlTree<object> scopedItems = AvlTree<object>.Empty;
-        private AvlTreeKeyValue<Type, AvlTreeKeyValue<object, object>> scopedInstances = AvlTreeKeyValue<Type, AvlTreeKeyValue<object, object>>.Empty;
-        private AvlTree<ThreadLocal<bool>> circularDependencyBarrier = AvlTree<ThreadLocal<bool>>.Empty;
+        private ImmutableTree<object> scopedItems = ImmutableTree<object>.Empty;
+        private ImmutableTree<Type, ImmutableTree<object, object>> scopedInstances = ImmutableTree<Type, ImmutableTree<object, object>>.Empty;
+        private ImmutableTree<ThreadLocal<bool>> circularDependencyBarrier = ImmutableTree<ThreadLocal<bool>>.Empty;
 
         private readonly DelegateCache delegateCache;
 
@@ -174,7 +174,7 @@ namespace Stashbox
         public void AddScopedInstance(Type key, object value, object name = null)
         {
             var subKey = name ?? key;
-            var newRepo = AvlTreeKeyValue<object, object>.Empty.AddOrUpdate(subKey, value);
+            var newRepo = ImmutableTree<object, object>.Empty.AddOrUpdate(subKey, value);
             Swap.SwapValue(ref this.scopedInstances, (t1, t2, t3, t4, instances) =>
                 instances.AddOrUpdate(t1, t3,
                     (old, @new) => old.AddOrUpdate(t4, t2, true)), key, value, newRepo, subKey);
@@ -211,8 +211,8 @@ namespace Stashbox
 
         public void InvalidateDelegateCache()
         {
-            this.delegateCache.ServiceDelegates = AvlTreeKeyValue<object, Func<IResolutionScope, object>>.Empty;
-            this.delegateCache.FactoryDelegates = AvlTreeKeyValue<object, Func<IResolutionScope, Delegate>>.Empty;
+            this.delegateCache.ServiceDelegates = ImmutableTree<object, Func<IResolutionScope, object>>.Empty;
+            this.delegateCache.FactoryDelegates = ImmutableTree<object, Func<IResolutionScope, Delegate>>.Empty;
         }
 
         public ISet<object> GetActiveScopeNames()

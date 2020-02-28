@@ -9,20 +9,20 @@ namespace Stashbox.Registration
     /// </summary>
     public class DecoratorRepository : IDecoratorRepository
     {
-        private AvlTreeKeyValue<Type, ArrayStoreKeyed<Type, IServiceRegistration>> repository;
+        private ImmutableTree<Type, ImmutableArray<Type, IServiceRegistration>> repository;
 
         /// <summary>
         /// Constructs a <see cref="DecoratorRepository"/>.
         /// </summary>
         public DecoratorRepository()
         {
-            this.repository = AvlTreeKeyValue<Type, ArrayStoreKeyed<Type, IServiceRegistration>>.Empty;
+            this.repository = ImmutableTree<Type, ImmutableArray<Type, IServiceRegistration>>.Empty;
         }
 
         /// <inheritdoc />
         public void AddDecorator(Type type, IServiceRegistration serviceRegistration, bool remap, bool replace)
         {
-            var newRepository = new ArrayStoreKeyed<Type, IServiceRegistration>(serviceRegistration.ImplementationType, serviceRegistration);
+            var newRepository = new ImmutableArray<Type, IServiceRegistration>(serviceRegistration.ImplementationType, serviceRegistration);
 
             if (remap)
                 Swap.SwapValue(ref this.repository, (t1, t2, t3, t4, repo) =>
