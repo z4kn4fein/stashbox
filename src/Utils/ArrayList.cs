@@ -14,8 +14,13 @@ namespace Stashbox.Utils
         private TItem[] internalStore;
 
         public int Length;
-        
+
         public ArrayList() { }
+
+        public ArrayList(int minimalCapacity)
+        {
+            this.internalStore = new TItem[minimalCapacity];
+        }
 
         public ArrayList(ArrayList<TItem> initial)
         {
@@ -39,7 +44,7 @@ namespace Stashbox.Utils
 
         private int EnsureSize()
         {
-            if(this.internalStore == null)
+            if (this.internalStore == null)
                 this.internalStore = new TItem[8];
 
             var newSize = this.Length + 1;

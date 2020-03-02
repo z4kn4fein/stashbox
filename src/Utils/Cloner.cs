@@ -25,7 +25,7 @@ namespace Stashbox.Utils
             generator.Emit(OpCodes.Newobj, constructor);
             generator.Emit(OpCodes.Stloc, loc1);
 
-            var fields = type.GetTypeInfo().DeclaredFields;
+            var fields = type.GetTypeInfo().DeclaredFields.Where(f => !f.IsStatic);
             foreach (var field in fields)
             {
                 generator.Emit(OpCodes.Ldloc, loc1);

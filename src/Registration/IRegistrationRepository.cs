@@ -42,7 +42,7 @@ namespace Stashbox.Registration
         /// <param name="typeInfo">The requested type.</param>
         /// <param name="resolutionContext">The resolution context.</param>
         /// <returns>The registrations or null, if it doesn't exist.</returns>
-        IEnumerable<KeyValue<object, IServiceRegistration>> GetRegistrationsOrDefault(TypeInformation typeInfo, ResolutionContext resolutionContext);
+        IEnumerable<IServiceRegistration> GetRegistrationsOrDefault(TypeInformation typeInfo, ResolutionContext resolutionContext);
 
         /// <summary>
         /// Returns all registration mappings.

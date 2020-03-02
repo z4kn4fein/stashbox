@@ -142,12 +142,12 @@ namespace Stashbox.Registration
         /// <summary>
         /// If true, the existing instance will be wired into the container, it will perform member and method injection on it.
         /// </summary>
-        public bool IsWireUp { get; set; }
+        public bool IsWireUp { get; internal set; }
 
         /// <summary>
         /// Flag that indicates the passed factory delegate is a compiled lambda from <see cref="Expression"/>.
         /// </summary>
-        public bool IsFactoryDelegateACompiledLambda { get; set; }
+        public bool IsFactoryDelegateACompiledLambda { get; internal set; }
 
         /// <summary>
         /// The constructor selection rule.
@@ -178,7 +178,11 @@ namespace Stashbox.Registration
         /// <returns>The copy of this instance.</returns>
         public RegistrationContext Clone()
         {
+#if IL_EMIT
+            var data = Cloner<RegistrationContext>.Clone(this);
+#else
             var data = (RegistrationContext)this.MemberwiseClone();
+#endif
             data.Lifetime = data.Lifetime?.Create();
             return data;
         }

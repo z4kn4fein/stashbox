@@ -41,17 +41,29 @@ namespace Stashbox.Registration
 
         public IServiceRegistration GetRegistrationOrDefault(Type type, ResolutionContext resolutionContext, object name = null)
         {
-            throw new NotImplementedException();
+            var registrations = this.GetRegistrationsForType(type);
+            if (registrations == null) return null;
+
+            var filtered = this.GetTopLevelWightedRegistrations(type, name, resolutionContext, registrations, out var maxIndex);
+            return filtered?[maxIndex].Key;
         }
 
         public IServiceRegistration GetRegistrationOrDefault(TypeInformation typeInfo, ResolutionContext resolutionContext)
         {
-            throw new NotImplementedException();
+            var registrations = this.GetRegistrationsForType(typeInfo.Type);
+            if (registrations == null) return null;
+
+            var filtered = this.GetWightedRegistrations(typeInfo, resolutionContext, registrations, out var maxIndex);
+            return filtered?[maxIndex].Key;
         }
 
-        public IEnumerable<KeyValue<object, IServiceRegistration>> GetRegistrationsOrDefault(TypeInformation typeInfo, ResolutionContext resolutionContext)
+        public IEnumerable<IServiceRegistration> GetRegistrationsOrDefault(TypeInformation typeInfo, ResolutionContext resolutionContext)
         {
-            throw new NotImplementedException();
+            var registrations = this.GetRegistrationsForType(typeInfo.Type);
+            if (registrations == null) return null;
+
+            var filtered = this.GetWightedRegistrations(typeInfo, resolutionContext, registrations, out var _);
+            return filtered?.Select(reg => reg.Key);
         }
 
         private ImmutableArray<object, IServiceRegistration> GetRegistrationsForType(Type type)
@@ -62,5 +74,113 @@ namespace Stashbox.Registration
 
             return registrations;
         }
+
+        private ArrayList<KeyValuePair<IServiceRegistration, int>> GetWightedRegistrations(
+            TypeInformation typeInformation,
+            ResolutionContext resolutionContext,
+            ImmutableArray<object, IServiceRegistration> registrations,
+            out int maxIndex)
+        {
+            maxIndex = 0;
+            var length = registrations.Length;
+            var result = new ArrayList<KeyValuePair<IServiceRegistration, int>>(length);
+            var isOpenGeneric = typeInformation.Type.IsOpenGenericType();
+            var maxWeight = 0;
+
+            for (var i = 0; i < length; i++)
+            {
+                var weight = 0;
+                var current = registrations.Repository[i];
+
+                if (isOpenGeneric && !current.Value.ValidateGenericConstraints(typeInformation.Type))
+                    continue;
+
+                if (!this.CheckName(typeInformation.DependencyName, current, out var increaseWeight))
+                    continue;
+
+                if (increaseWeight)
+                    weight++;
+
+                if (this.CheckScopeNames(current, resolutionContext))
+                    weight++;
+
+                if (current.Value.HasCondition && current.Value.IsUsableForCurrentContext(typeInformation))
+                    weight++;
+
+                result.Add(new KeyValuePair<IServiceRegistration, int>(current.Value, weight));
+
+                if (weight < maxWeight) continue;
+                maxWeight = weight;
+                maxIndex = result.Length - 1;
+            }
+
+            return result;
+        }
+
+        private ArrayList<KeyValuePair<IServiceRegistration, int>> GetTopLevelWightedRegistrations(
+            Type type,
+            object name,
+            ResolutionContext resolutionContext,
+            ImmutableArray<object, IServiceRegistration> registrations,
+            out int maxIndex)
+        {
+            maxIndex = 0;
+            var length = registrations.Length;
+            var result = new ArrayList<KeyValuePair<IServiceRegistration, int>>(length);
+            var isOpenGeneric = type.IsOpenGenericType();
+            var maxWeight = 0;
+
+            for (var i = 0; i < length; i++)
+            {
+                var weight = 0;
+                var current = registrations.Repository[i];
+
+                if (isOpenGeneric && !current.Value.ValidateGenericConstraints(type))
+                    continue;
+
+                if (!this.CheckName(name, current, out var increaseWeight))
+                    continue;
+
+                if (increaseWeight)
+                    weight++;
+
+                if (this.CheckScopeNames(current, resolutionContext))
+                    weight++;
+
+                result.Add(new KeyValuePair<IServiceRegistration, int>(current.Value, weight));
+
+                if (weight < maxWeight) continue;
+                maxWeight = weight;
+                maxIndex = result.Length - 1;
+            }
+
+            return result;
+        }
+
+        private bool CheckName(object name, KeyValue<object, IServiceRegistration> current, out bool increaseWeight)
+        {
+            increaseWeight = false;
+
+            if (name != null &&
+                !current.Value.HasName &&
+                !this.containerConfiguration.NamedDependencyResolutionForUnNamedRequestsEnabled &&
+                !this.containerConfiguration.TreatingParameterAndMemberNameAsDependencyNameEnabled)
+                return false;
+
+            if (name == null &&
+                !current.Value.HasName)
+                increaseWeight = true;
+
+            if (name != null &&
+                current.Key.Equals(name))
+                increaseWeight = true;
+
+            return true;
+        }
+
+        private bool CheckScopeNames(KeyValue<object, IServiceRegistration> current, ResolutionContext resolutionContext) =>
+            resolutionContext.ScopeNames != null &&
+                   current.Value.HasScopeName &&
+                   current.Value.CanInjectIntoNamedScope(resolutionContext.ScopeNames);
     }
 }
