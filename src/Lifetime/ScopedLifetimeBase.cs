@@ -35,8 +35,9 @@ namespace Stashbox.Lifetime
         /// <returns>The factory expression.</returns>
         public Expression GetFactoryExpression(IContainerContext containerContext, IServiceRegistration serviceRegistration, IObjectBuilder objectBuilder, ResolutionContext resolutionContext, Type resolveType)
         {
-            var expr = base.GetExpression(containerContext, serviceRegistration, objectBuilder, resolutionContext, resolveType);
-            return expr?.CompileDelegate(resolutionContext, containerContext.ContainerConfiguration).AsConstant();
+            var newContext = resolutionContext.Clone();
+            var expr = base.GetExpression(containerContext, serviceRegistration, objectBuilder, newContext, resolveType);
+            return expr?.CompileDelegate(newContext, containerContext.ContainerConfiguration).AsConstant();
         }
 
         /// <summary>

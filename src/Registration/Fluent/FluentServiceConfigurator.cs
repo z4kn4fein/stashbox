@@ -82,16 +82,16 @@ namespace Stashbox.Registration.Fluent
         /// <inheritdoc />
         public TConfigurator WhenHas<TAttribute>() where TAttribute : Attribute
         {
-            var store = (ImmutableArray<Type>)this.Context.AttributeConditions;
-            this.Context.AttributeConditions = store.Add(typeof(TAttribute));
+            var store = (ArrayList<Type>)this.Context.AttributeConditions;
+            store.Add(typeof(TAttribute));
             return (TConfigurator)this;
         }
 
         /// <inheritdoc />
         public TConfigurator WhenHas(Type attributeType)
         {
-            var store = (ImmutableArray<Type>)this.Context.AttributeConditions;
-            this.Context.AttributeConditions = store.Add(attributeType);
+            var store = (ArrayList<Type>)this.Context.AttributeConditions;
+            store.Add(attributeType);
             return (TConfigurator)this;
         }
 
@@ -157,7 +157,7 @@ namespace Stashbox.Registration.Fluent
         /// <inheritdoc />
         public TConfigurator AsImplementedTypes()
         {
-            this.Context.AdditionalServiceTypes = new ImmutableArray<Type>(this.ImplementationType.GetRegisterableInterfaceTypes()
+            this.Context.AdditionalServiceTypes = new ArrayList<Type>(this.ImplementationType.GetRegisterableInterfaceTypes()
                     .Concat(this.ImplementationType.GetRegisterableBaseTypes()).CastToArray());
             return (TConfigurator)this;
         }
@@ -191,7 +191,7 @@ namespace Stashbox.Registration.Fluent
             if (!this.ImplementationType.Implements(serviceType))
                 throw new ArgumentException("The given service type is not assignable from the current implementation type.");
 
-            this.Context.AdditionalServiceTypes = ((ImmutableArray<Type>)this.Context.AdditionalServiceTypes).Add(serviceType);
+            ((ArrayList<Type>)this.Context.AdditionalServiceTypes).Add(serviceType);
             return (TConfigurator)this;
         }
     }

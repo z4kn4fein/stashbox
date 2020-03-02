@@ -14,15 +14,18 @@ namespace Stashbox.Utils
         private TItem[] internalStore;
 
         public int Length;
-
-        public ArrayList()
-        {
-            this.internalStore = new TItem[8];
-        }
+        
+        public ArrayList() { }
 
         public ArrayList(ArrayList<TItem> initial)
         {
             this.internalStore = initial.internalStore;
+            this.Length = initial.Length;
+        }
+
+        public ArrayList(TItem[] initial)
+        {
+            this.internalStore = initial;
             this.Length = initial.Length;
         }
 
@@ -36,6 +39,9 @@ namespace Stashbox.Utils
 
         private int EnsureSize()
         {
+            if(this.internalStore == null)
+                this.internalStore = new TItem[8];
+
             var newSize = this.Length + 1;
             if (newSize > this.internalStore.Length)
             {
@@ -70,10 +76,7 @@ namespace Stashbox.Utils
 
         public int Length;
 
-        public ArrayList()
-        {
-            this.internalStore = new KeyValue<TKey, TItem>[8];
-        }
+        public ArrayList() { }
 
         public ArrayList(KeyValue<TKey, TItem>[] initial)
         {
@@ -123,6 +126,9 @@ namespace Stashbox.Utils
 
         private int EnsureSize()
         {
+            if (this.internalStore == null)
+                this.internalStore = new KeyValue<TKey, TItem>[8];
+
             var newSize = this.Length + 1;
             if (newSize > this.internalStore.Length)
             {

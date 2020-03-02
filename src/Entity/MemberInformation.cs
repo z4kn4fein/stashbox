@@ -21,15 +21,6 @@ namespace Stashbox.Entity
         public TypeInformation TypeInformation { get; set; }
 
         /// <summary>
-        /// Creates a clone of this instance.
-        /// </summary>
-        /// <returns></returns>
-        public MemberInformation Clone()
-        {
-            return new MemberInformation { MemberInfo = this.MemberInfo, TypeInformation = this.TypeInformation.Clone() };
-        }
-
-        /// <summary>
         /// Determines that the member is injectable in the current context.
         /// </summary>
         /// <param name="configuration">The container configuration to determine that the container allows the auto injection or not.</param>
@@ -51,6 +42,11 @@ namespace Stashbox.Entity
                            (autoMemberInjectionRule & Rules.AutoMemberInjectionRules.PropertiesWithLimitedAccess) == Rules.AutoMemberInjectionRules.PropertiesWithLimitedAccess);
 
             return this.TypeInformation.ForcedDependency;
+        }
+
+        internal MemberInformation Clone()
+        {
+            return new MemberInformation { MemberInfo = this.MemberInfo, TypeInformation = this.TypeInformation.Clone() };
         }
     }
 }

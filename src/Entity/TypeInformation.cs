@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Stashbox.Utils;
 
 namespace Stashbox.Entity
 {
@@ -52,26 +53,21 @@ namespace Stashbox.Entity
         /// True if the dependency explicitly set to be injected.
         /// </summary>
         public bool ForcedDependency { get; internal set; }
-
-        /// <summary>
-        /// Creates a clone of this instance.
-        /// </summary>
-        /// <param name="type">The type param to override.</param>
-        /// <returns></returns>
-        public TypeInformation Clone(Type type)
+        
+        internal TypeInformation Clone(Type type)
         {
-            var clone = (TypeInformation)this.MemberwiseClone();
+            var clone = this.Clone();
             clone.Type = type;
             return clone;
         }
-
-        /// <summary>
-        /// Creates a clone of this instance.
-        /// </summary>
-        /// <returns></returns>
-        public TypeInformation Clone()
+        
+        internal TypeInformation Clone()
         {
+#if IL_EMIT
+            return Cloner<TypeInformation>.Clone(this);
+#else
             return (TypeInformation)this.MemberwiseClone();
+#endif
         }
     }
 }

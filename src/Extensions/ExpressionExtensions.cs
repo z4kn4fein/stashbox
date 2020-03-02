@@ -36,8 +36,6 @@ namespace System.Linq.Expressions
             {
                 var instructions = new ArrayList<Expression>(resolutionContext.SingleInstructions) { expression };
                 expression = Expression.Block(resolutionContext.DefinedVariables, instructions);
-                
-                resolutionContext.SingleInstructions.Clear();
             }
 
 #if IL_EMIT
@@ -66,8 +64,6 @@ namespace System.Linq.Expressions
             {
                 var instructions = new ArrayList<Expression>(resolutionContext.SingleInstructions) { expression };
                 expression = Expression.Block(resolutionContext.DefinedVariables, instructions);
-                
-                resolutionContext.SingleInstructions.Clear();
             }
 
 #if IL_EMIT

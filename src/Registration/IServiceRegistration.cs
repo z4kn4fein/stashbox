@@ -110,7 +110,7 @@ namespace Stashbox.Registration
         /// </summary>
         /// <param name="scopeNames">The scope names.</param>
         /// <returns>True if the registration could be injected into a named scope, otherwise false.</returns>
-        bool CanInjectIntoNamedScope(ISet<object> scopeNames);
+        bool CanInjectIntoNamedScope(IEnumerable<object> scopeNames);
 
         /// <summary>
         /// Clones the registration with new underlying type.

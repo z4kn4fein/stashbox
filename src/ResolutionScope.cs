@@ -215,20 +215,20 @@ namespace Stashbox
             this.delegateCache.FactoryDelegates = ImmutableTree<object, Func<IResolutionScope, Delegate>>.Empty;
         }
 
-        public ISet<object> GetActiveScopeNames()
+        public IEnumerable<object> GetActiveScopeNames()
         {
-            var set = new HashSet<object>();
+            var names = ArrayList<object>.Empty;
             IResolutionScope current = this;
 
             while (current != null)
             {
                 if (current.Name != null)
-                    set.Add(current.Name);
+                    names.Add(current.Name);
 
                 current = current.ParentScope;
             }
 
-            return set.Count > 0 ? set : null;
+            return names.Length > 0 ? names : null;
         }
 
         public void CheckRuntimeCircularDependencyBarrier(int key, Type type)

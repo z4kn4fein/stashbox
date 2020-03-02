@@ -22,41 +22,54 @@ namespace Stashbox.Resolution
         /// <summary>
         /// True if null result is allowed, otherwise false.
         /// </summary>
-        public bool NullResultAllowed { get; }
+        public bool NullResultAllowed { get; private set; }
 
         /// <summary>
         /// The currently resolving scope.
         /// </summary>
-        public ParameterExpression CurrentScopeParameter { get; }
+        public ParameterExpression CurrentScopeParameter { get; private set; }
 
-        private ImmutableTree<Type, Expression> expressionOverrides;
-        private ImmutableTree<Type, Type> currentlyDecoratingTypes;
-        private ImmutableTree<bool> circularDependencyBarrier;
+        internal IContainerContext ChildContext { get; private set; }
 
-        private readonly ArrayList<object, ParameterExpression> knownVariables;
-
-        internal bool ShouldCacheFactoryDelegate { get; set; }
-
-        internal IResolutionScope ResolutionScope { get; }
-
-        internal IContainerContext ChildContext { get; }
-
-        internal ISet<object> ScopeNames { get; }
-
-        internal ArrayList<ArrayList<bool, ParameterExpression>> ParameterExpressions { get; private set; }
+        internal ImmutableTree<Expression> ExpressionCache { get; private set; }
 
         internal ArrayList<Expression> SingleInstructions { get; private set; }
 
         internal ArrayList<object, ParameterExpression> DefinedVariables { get; private set; }
 
-        internal ImmutableTree<Expression> ExpressionCache { get; private set; }
+        private ImmutableTree<Type, Expression> expressionOverrides;
+        private ImmutableTree<Type, Type> currentlyDecoratingTypes;
+        private ImmutableTree<bool> circularDependencyBarrier;
+
+        internal bool ShouldCacheFactoryDelegate { get; set; }
+
+        internal IResolutionScope ResolutionScope { get; private set; }
+
+        internal ArrayList<object> ScopeNames { get; private set; }
+
+        internal ArrayList<ArrayList<bool, ParameterExpression>> ParameterExpressions { get; private set; }
 
         private ResolutionContext(IResolutionScope scope, bool nullResultAllowed, object[] dependencyOverrides)
-            : this(scope, ImmutableTree<bool>.Empty, ImmutableTree<Type, Expression>.Empty, ImmutableTree<Type, Type>.Empty, ArrayList<ArrayList<bool, ParameterExpression>>.Empty, scope.GetActiveScopeNames(),
-                  null, nullResultAllowed, Constants.ResolutionScopeParameter, ArrayList<object, ParameterExpression>.Empty, ImmutableTree<Expression>.Empty, dependencyOverrides == null)
         {
+
+            this.DefinedVariables = ArrayList<object, ParameterExpression>.Empty;
+            this.SingleInstructions = ArrayList<Expression>.Empty;
+            this.expressionOverrides = ImmutableTree<Type, Expression>.Empty;
+            this.currentlyDecoratingTypes = ImmutableTree<Type, Type>.Empty;
+            this.NullResultAllowed = nullResultAllowed;
+            this.ResolutionScope = scope;
+            this.CurrentScopeParameter = Constants.ResolutionScopeParameter;
+            this.ParameterExpressions = ArrayList<ArrayList<bool, ParameterExpression>>.Empty;
+            this.ScopeNames = (ArrayList<object>)scope.GetActiveScopeNames();
+            this.circularDependencyBarrier = ImmutableTree<bool>.Empty;
+            this.ShouldCacheFactoryDelegate = dependencyOverrides == null;
+            this.ExpressionCache = ImmutableTree<Expression>.Empty;
+
             this.ProcessDependencyOverrides(dependencyOverrides);
         }
+
+        internal ResolutionContext()
+        { }
 
         private void ProcessDependencyOverrides(object[] dependencyOverrides)
         {
@@ -72,26 +85,6 @@ namespace Stashbox.Resolution
                 foreach (var baseType in type.GetRegisterableInterfaceTypes().Concat(type.GetRegisterableBaseTypes()))
                     this.SetExpressionOverride(baseType, expression);
             }
-        }
-
-        private ResolutionContext(IResolutionScope scope, ImmutableTree<bool> circularDependencyBarrier, ImmutableTree<Type, Expression> expressionOverrides,
-            ImmutableTree<Type, Type> currentlyDecoratingTypes, ArrayList<ArrayList<bool, ParameterExpression>> parameterExpressions, ISet<object> scopeNames,
-            IContainerContext childContext, bool nullResultAllowed, ParameterExpression currentScope, ArrayList<object, ParameterExpression> knownVariables, ImmutableTree<Expression> expressionCache, bool shouldCacheFactoryDelegate)
-        {
-            this.DefinedVariables = ArrayList<object, ParameterExpression>.Empty;
-            this.SingleInstructions = ArrayList<Expression>.Empty;
-            this.expressionOverrides = expressionOverrides;
-            this.currentlyDecoratingTypes = currentlyDecoratingTypes;
-            this.NullResultAllowed = nullResultAllowed;
-            this.ResolutionScope = scope;
-            this.CurrentScopeParameter = currentScope;
-            this.ParameterExpressions = parameterExpressions;
-            this.ChildContext = childContext;
-            this.ScopeNames = scopeNames;
-            this.knownVariables = knownVariables;
-            this.circularDependencyBarrier = circularDependencyBarrier;
-            this.ShouldCacheFactoryDelegate = shouldCacheFactoryDelegate;
-            this.ExpressionCache = expressionCache;
         }
 
         /// <summary>
@@ -122,7 +115,7 @@ namespace Stashbox.Resolution
         /// <param name="key">The key of the variable.</param>
         /// <returns>The variable.</returns>
         public ParameterExpression GetKnownVariableOrDefault(object key) =>
-            this.DefinedVariables.GetOrDefault(key) ?? this.knownVariables.GetOrDefault(key);
+            this.DefinedVariables.GetOrDefault(key);
 
         internal bool IsCurrentlyDecorating(Type type) =>
             this.currentlyDecoratingTypes.GetOrDefault(type) != null;
@@ -160,19 +153,33 @@ namespace Stashbox.Resolution
         internal bool GetCircularDependencyBarrier(int key) =>
             this.circularDependencyBarrier.GetOrDefault(key);
 
-        internal ResolutionContext Clone(IContainerContext childContext = null, KeyValue<object, ParameterExpression> scopeParameter = null)
+        internal ResolutionContext Clone(IContainerContext childContext, KeyValue<object, ParameterExpression> scopeParameter = null)
         {
             var scopeNames = this.ScopeNames;
             if (scopeParameter != null)
             {
-                scopeNames = scopeNames ?? new HashSet<object>();
+                scopeNames = scopeNames ?? ArrayList<object>.Empty;
                 scopeNames.Add(scopeParameter.Key);
             }
 
-            return new ResolutionContext(this.ResolutionScope, this.circularDependencyBarrier, this.expressionOverrides,
-                 this.currentlyDecoratingTypes, this.ParameterExpressions, scopeNames, childContext ?? this.ChildContext,
-                 this.NullResultAllowed, scopeParameter == null ? this.CurrentScopeParameter : scopeParameter.Value,
-                 this.DefinedVariables, this.ExpressionCache, this.ShouldCacheFactoryDelegate);
+            var clone = this.Clone();
+            clone.CurrentScopeParameter = scopeParameter == null ? this.CurrentScopeParameter : scopeParameter.Value;
+            clone.ChildContext = childContext ?? this.ChildContext;
+            clone.ScopeNames = scopeNames;
+
+            return clone;
+        }
+        
+        internal ResolutionContext Clone()
+        {
+#if IL_EMIT
+            var clone = Cloner<ResolutionContext>.Clone(this);
+#else
+            var clone = (ResolutionContext)this.MemberwiseClone();
+#endif
+            clone.DefinedVariables = ArrayList<object, ParameterExpression>.Empty;
+            clone.SingleInstructions = ArrayList<Expression>.Empty;
+            return clone;
         }
     }
 }

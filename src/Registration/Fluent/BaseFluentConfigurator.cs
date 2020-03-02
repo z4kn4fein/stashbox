@@ -127,8 +127,8 @@ namespace Stashbox.Registration.Fluent
 
         private void AddInjectionParameter(InjectionParameter injectionParameter)
         {
-            var store = (ImmutableArray<InjectionParameter>)this.Context.InjectionParameters;
-            this.Context.InjectionParameters = store.Add(injectionParameter);
+            var store = (ArrayList<InjectionParameter>)this.Context.InjectionParameters;
+            store.Add(injectionParameter);
         }
 
         private void ThrowConstructorNotFoundException(Type type, params Type[] argTypes)
