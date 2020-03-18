@@ -2,7 +2,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace Stashbox.Utils
@@ -33,13 +32,7 @@ namespace Stashbox.Utils
         {
             this.repository = new TValue[0];
         }
-
-        public ImmutableArray(TValue[] initial)
-        {
-            this.repository = initial;
-            this.Length = initial.Length;
-        }
-
+        
         public ImmutableArray<TValue> Add(TValue value) =>
             new ImmutableArray<TValue>(value, this.repository);
 
@@ -81,13 +74,13 @@ namespace Stashbox.Utils
             this.Length = old.Length + 1;
         }
 
-        internal ImmutableArray(KeyValue<TKey, TValue>[] initial)
+        public ImmutableArray(KeyValue<TKey, TValue>[] initial)
         {
             this.Repository = initial;
             this.Length = initial.Length;
         }
 
-        internal ImmutableArray(TKey key, TValue value)
+        public ImmutableArray(TKey key, TValue value)
         {
             this.Repository = new[] { new KeyValue<TKey, TValue>(key, value) };
             this.Length = 1;
@@ -119,12 +112,6 @@ namespace Stashbox.Utils
             Array.Copy(this.Repository, newRepository, length);
             newRepository[count] = new KeyValue<TKey, TValue>(key, value);
             return new ImmutableArray<TKey, TValue>(newRepository);
-        }
-
-        internal ImmutableArray<TKey, TValue> WhereOrDefault(Func<KeyValue<TKey, TValue>, bool> predicate)
-        {
-            var initial = this.Repository.Where(predicate).ToArray();
-            return initial.Length == 0 ? null : new ImmutableArray<TKey, TValue>(initial);
         }
 
         [MethodImpl(Constants.Inline)]

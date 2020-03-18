@@ -5,7 +5,7 @@ namespace System.Linq
     internal static class EnumerableExtensions
     {
         public static TEnumerable[] CastToArray<TEnumerable>(this IEnumerable<TEnumerable> enumerable) =>
-            enumerable is TEnumerable[] ? (TEnumerable[])enumerable : enumerable.ToArray();
+            enumerable is TEnumerable[] array ? array : enumerable.ToArray();
 
         public static TElement[] AddElement<TElement>(this TElement[] array, TElement element)
         {

@@ -16,7 +16,7 @@ namespace Stashbox.Registration
     /// </summary>
     public class ServiceRegistration : IServiceRegistration
     {
-        private static int GlobalRegistrationNumber;
+        private static int globalRegistrationNumber;
         private readonly ContainerConfiguration containerConfiguration;
         private readonly IObjectBuilder objectBuilder;
         private readonly MetaInformation metaInformation;
@@ -148,6 +148,6 @@ namespace Stashbox.Registration
             this.RegistrationContext.ResolutionCondition != null && this.RegistrationContext.ResolutionCondition(typeInfo);
 
         private static int ReserveRegistrationNumber() =>
-            Interlocked.Increment(ref GlobalRegistrationNumber);
+            Interlocked.Increment(ref globalRegistrationNumber);
     }
 }

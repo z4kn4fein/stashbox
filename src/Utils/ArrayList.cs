@@ -40,7 +40,7 @@ namespace Stashbox.Utils
             this.internalStore[index] = item;
         }
 
-        public TItem this[int i] => this.internalStore[i];
+        public TItem this[int i] => this.internalStore == null ? default : this.internalStore[i];
 
         private int EnsureSize()
         {

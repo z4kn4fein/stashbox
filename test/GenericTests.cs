@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Stashbox.Exceptions;
 using Xunit;
 
 namespace Stashbox.Tests
@@ -227,7 +228,7 @@ namespace Stashbox.Tests
             using (var container = new StashboxContainer())
             {
                 container.Register(typeof(IConstraintTest<>), typeof(ConstraintTest2<>));
-                Assert.Throws<ArgumentException>(() => container.Resolve<IConstraintTest<ConstraintArgument>>());
+                Assert.Throws<ResolutionFailedException>(() => container.Resolve<IConstraintTest<ConstraintArgument>>());
             }
         }
 
@@ -275,7 +276,7 @@ namespace Stashbox.Tests
         {
             var container = new StashboxContainer(config => config.WithUniqueRegistrationIdentifiers())
                .Register<ITest1<int, string>, Test1<int, string>>(config => config.InNamedScope("A"))
-               .Register(typeof(ITest1<,>), typeof(Test1<,>), config => config.InNamedScope("A"));
+               .Register(typeof(ITest1<,>), typeof(Test1<,>), config => config.InNamedScope("A")); 
 
             var res = container.BeginScope("A").Resolve<IEnumerable<ITest1<int, string>>>();
 
