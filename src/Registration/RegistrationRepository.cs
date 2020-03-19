@@ -1,6 +1,6 @@
 ﻿using Stashbox.Entity;
 using Stashbox.Registration.Extensions;
-using Stashbox.Registration.Filters;
+using Stashbox.Registration.SelectionRules;
 using Stashbox.Resolution;
 using Stashbox.Utils;
 using System;
@@ -13,26 +13,26 @@ namespace Stashbox.Registration
     {
         private ImmutableTree<Type, ImmutableArray<object, IServiceRegistration>> serviceRepository = ImmutableTree<Type, ImmutableArray<object, IServiceRegistration>>.Empty;
 
-        private readonly IRegistrationFilter[] filters =
+        private readonly IRegistrationSelectionRule[] filters =
         {
-            RegistrationFilters.GenericFilter,
-            RegistrationFilters.NameFilter,
-            RegistrationFilters.ScopeNameFilter,
-            RegistrationFilters.ConditionFilter
+            RegistrationSelectionRules.GenericFilter,
+            RegistrationSelectionRules.NameFilter,
+            RegistrationSelectionRules.ScopeNameFilter,
+            RegistrationSelectionRules.ConditionFilter
         };
 
-        private readonly IRegistrationFilter[] topLevelFilters =
+        private readonly IRegistrationSelectionRule[] topLevelFilters =
         {
-            RegistrationFilters.GenericFilter,
-            RegistrationFilters.NameFilter,
-            RegistrationFilters.ScopeNameFilter
+            RegistrationSelectionRules.GenericFilter,
+            RegistrationSelectionRules.NameFilter,
+            RegistrationSelectionRules.ScopeNameFilter
         };
 
-        private readonly IRegistrationFilter[] enumerableFilters =
+        private readonly IRegistrationSelectionRule[] enumerableFilters =
         {
-            RegistrationFilters.GenericFilter,
-            RegistrationFilters.ScopeNameFilter,
-            RegistrationFilters.ConditionFilter
+            RegistrationSelectionRules .GenericFilter,
+            RegistrationSelectionRules .ScopeNameFilter,
+            RegistrationSelectionRules .ConditionFilter
         };
         
         public void AddOrUpdateRegistration(IServiceRegistration registration, Type serviceType, bool remap, bool replace)
@@ -60,7 +60,7 @@ namespace Stashbox.Registration
             var registrations = this.GetRegistrationsForType(type);
             if (registrations == null) return null;
 
-            var filtered = registrations.FilterOrDefault(new TypeInformation { Type = type, DependencyName = name }, resolutionContext, this.topLevelFilters, out var maxIndex);
+            var filtered = registrations.SelectOrDefault(new TypeInformation { Type = type, DependencyName = name }, resolutionContext, this.topLevelFilters, out var maxIndex);
             return filtered?[maxIndex].Key;
         }
 
@@ -69,7 +69,7 @@ namespace Stashbox.Registration
             var registrations = this.GetRegistrationsForType(typeInfo.Type);
             if (registrations == null) return null;
 
-            var filtered = registrations.FilterOrDefault(typeInfo, resolutionContext, this.filters, out var maxIndex);
+            var filtered = registrations.SelectOrDefault(typeInfo, resolutionContext, this.filters, out var maxIndex);
             return filtered?[maxIndex].Key;
         }
 
@@ -83,13 +83,11 @@ namespace Stashbox.Registration
         {
             var registrations = serviceRepository.GetOrDefault(type);
             if (!type.IsClosedGenericType()) return registrations;
-
+            
             var openGenerics = serviceRepository.GetOrDefault(type.GetGenericTypeDefinition());
 
             if (openGenerics == null) return registrations;
-            if (registrations == null) return openGenerics;
-
-            return openGenerics.Concat(registrations).OrderBy(reg => reg.RegistrationNumber);
+            return registrations == null ? openGenerics : openGenerics.Concat(registrations);
         }
     }
 }

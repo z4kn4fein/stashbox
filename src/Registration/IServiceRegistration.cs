@@ -53,11 +53,6 @@ namespace Stashbox.Registration
         bool ShouldHandleDisposal { get; }
 
         /// <summary>
-        /// True if the registration has a name set.
-        /// </summary>
-        bool HasName { get; }
-
-        /// <summary>
         /// True if the registration can used by an unnamed resolution request.
         /// </summary>
         bool IsResolvableByUnnamedRequest { get; }

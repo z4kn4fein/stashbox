@@ -10,7 +10,7 @@ namespace Stashbox.Entity
 {
     internal class MetaInformation
     {
-        private static ImmutableTree<Type, MetaInformation> MetaRepository = ImmutableTree<Type, MetaInformation>.Empty;
+        private static ImmutableTree<Type, MetaInformation> metaRepository = ImmutableTree<Type, MetaInformation>.Empty;
         private readonly IDictionary<int, GenericConstraintInfo> genericTypeConstraints;
         private readonly Type type;
         private readonly ConstructorInformation[] constructors;
@@ -85,11 +85,11 @@ namespace Stashbox.Entity
 
         public static MetaInformation GetOrCreateMetaInfo(Type typeTo)
         {
-            var found = MetaRepository.GetOrDefault(typeTo);
+            var found = metaRepository.GetOrDefault(typeTo);
             if (found != null) return found;
 
             var meta = new MetaInformation(typeTo);
-            Swap.SwapValue(ref MetaRepository, (t1, t2, t3, t4, repo) =>
+            Swap.SwapValue(ref metaRepository, (t1, t2, t3, t4, repo) =>
                 repo.AddOrUpdate(t1, t2), typeTo, meta, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
             return meta;
         }

@@ -40,9 +40,6 @@ namespace Stashbox.Registration
         public object RegistrationId { get; }
 
         /// <inheritdoc />
-        public bool HasName { get; }
-
-        /// <inheritdoc />
         public bool IsResolvableByUnnamedRequest { get; }
 
         /// <inheritdoc />
@@ -80,9 +77,8 @@ namespace Stashbox.Registration
             this.RegistrationContext = registrationContext;
             this.IsDecorator = isDecorator;
             this.ShouldHandleDisposal = shouldHandleDisposal;
-
-            this.HasName = this.RegistrationContext.Name != null;
-            this.IsResolvableByUnnamedRequest = !this.HasName || containerConfiguration.NamedDependencyResolutionForUnNamedRequestsEnabled;
+            
+            this.IsResolvableByUnnamedRequest = this.RegistrationContext.Name == null || containerConfiguration.NamedDependencyResolutionForUnNamedRequestsEnabled;
 
             this.HasScopeName = this.RegistrationContext.Lifetime is NamedScopeLifetime;
 

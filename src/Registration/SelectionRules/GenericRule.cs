@@ -2,9 +2,9 @@
 using Stashbox.Entity;
 using Stashbox.Resolution;
 
-namespace Stashbox.Registration.Filters
+namespace Stashbox.Registration.SelectionRules
 {
-    internal class GenericFilter : IRegistrationFilter
+    internal class GenericRule : IRegistrationSelectionRule
     {
         public bool IsValidForCurrentRequest(TypeInformation typeInformation,
             IServiceRegistration registration,

@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Stashbox.Entity;
-using Stashbox.Registration.Filters;
+using Stashbox.Registration.SelectionRules;
 using Stashbox.Resolution;
 
 namespace Stashbox.Registration.Extensions
@@ -22,10 +22,10 @@ namespace Stashbox.Registration.Extensions
             return registrations?.Any(reg => reg.ValidateGenericConstraints(type)) ?? false;
         }
 
-        public static ArrayList<KeyValuePair<IServiceRegistration, int>> FilterOrDefault(this IEnumerable<IServiceRegistration> registrations,
+        public static ArrayList<KeyValuePair<IServiceRegistration, int>> SelectOrDefault(this IEnumerable<IServiceRegistration> registrations,
             TypeInformation typeInformation,
             ResolutionContext resolutionContext,
-            IRegistrationFilter[] registrationFilters,
+            IRegistrationSelectionRule[] registrationSelectionRules,
             out int maxIndex)
         {
             maxIndex = 0;
@@ -34,7 +34,7 @@ namespace Stashbox.Registration.Extensions
 
             foreach (var serviceRegistration in registrations)
             {
-                if (!registrationFilters.AreFiltersPassed(typeInformation, serviceRegistration, resolutionContext, out var weight))
+                if (!registrationSelectionRules.IsSelectionPassed(typeInformation, serviceRegistration, resolutionContext, out var weight))
                     continue;
 
                 result.Add(new KeyValuePair<IServiceRegistration, int>(serviceRegistration, weight));
@@ -50,14 +50,14 @@ namespace Stashbox.Registration.Extensions
         public static IEnumerable<IServiceRegistration> FilterOrDefault(this IEnumerable<IServiceRegistration> registrations,
             TypeInformation typeInformation,
             ResolutionContext resolutionContext,
-            IRegistrationFilter[] registrationFilters)
+            IRegistrationSelectionRule[] registrationSelectionRules)
         {
             var common = new ArrayList<IServiceRegistration>();
             var priority = new ArrayList<IServiceRegistration>();
 
             foreach (var serviceRegistration in registrations)
             {
-                if (!registrationFilters.AreFiltersPassed(typeInformation, serviceRegistration, resolutionContext, out var weight))
+                if (!registrationSelectionRules.IsSelectionPassed(typeInformation, serviceRegistration, resolutionContext, out var weight))
                     continue;
 
                 if (weight > 0)
@@ -73,18 +73,18 @@ namespace Stashbox.Registration.Extensions
                     : common;
         }
 
-        private static bool AreFiltersPassed(this IRegistrationFilter[] registrationFilters,
+        private static bool IsSelectionPassed(this IRegistrationSelectionRule[] registrationSelectionRules,
             TypeInformation typeInformation, IServiceRegistration serviceRegistration,
             ResolutionContext resolutionContext, out int weight)
         {
             weight = 0;
-            var filterLength = registrationFilters.Length;
+            var filterLength = registrationSelectionRules.Length;
             for (var i = 0; i < filterLength; i++)
             {
-                if (!registrationFilters[i].IsValidForCurrentRequest(typeInformation, serviceRegistration, resolutionContext))
+                if (!registrationSelectionRules[i].IsValidForCurrentRequest(typeInformation, serviceRegistration, resolutionContext))
                     return false;
 
-                if (registrationFilters[i].ShouldIncrementWeight(typeInformation, serviceRegistration, resolutionContext))
+                if (registrationSelectionRules[i].ShouldIncrementWeight(typeInformation, serviceRegistration, resolutionContext))
                     weight++;
             }
 

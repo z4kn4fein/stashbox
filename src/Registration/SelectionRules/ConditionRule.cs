@@ -1,9 +1,9 @@
 ﻿ using Stashbox.Entity;
 using Stashbox.Resolution;
 
-namespace Stashbox.Registration.Filters
+namespace Stashbox.Registration.SelectionRules
 {
-    internal class ConditionFilter : IRegistrationFilter
+    internal class ConditionRule : IRegistrationSelectionRule
     {
         public bool IsValidForCurrentRequest(TypeInformation typeInformation, IServiceRegistration registration,
             ResolutionContext resolutionContext) => true;

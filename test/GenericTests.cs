@@ -406,6 +406,22 @@ namespace Stashbox.Tests
             Assert.Same(poco, constrainedServices[0].Value);
         }
 
+        [Fact]
+        public void ClosedServicesPreferredOverOpenGenericServices()
+        {
+            // Arrange
+            var container = new StashboxContainer()
+            .Register(typeof(IFakeOpenGenericService<PocoClass>), typeof(FakeService))
+            .Register(typeof(IFakeOpenGenericService<>), typeof(FakeOpenGenericService<>))
+            .RegisterSingleton<PocoClass>();
+
+            // Act
+            var service = container.Resolve<IFakeOpenGenericService<PocoClass>>();
+
+            // Assert
+            Assert.IsType<FakeService>(service);
+        }
+
         interface IConstraint { }
 
         interface IConstraint1 { }
@@ -581,6 +597,23 @@ namespace Stashbox.Tests
         {
             private ClassWithPrivateCtor()
             {
+            }
+        }
+
+        class FakeService : IFakeOpenGenericService<PocoClass>, IDisposable
+        {
+            public PocoClass Value { get; set; }
+
+            public bool Disposed { get; private set; }
+
+            public void Dispose()
+            {
+                if (Disposed)
+                {
+                    throw new ObjectDisposedException(nameof(FakeService));
+                }
+
+                Disposed = true;
             }
         }
     }
