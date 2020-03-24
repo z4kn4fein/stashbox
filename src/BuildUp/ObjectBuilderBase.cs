@@ -75,9 +75,9 @@ namespace Stashbox.BuildUp
             var variable = resolveType.AsVariable();
 
             exprs.Add(resolutionContext.CurrentScopeParameter.CallMethod(Constants.CheckRuntimeCircularDependencyBarrierMethod,
-                serviceRegistration.RegistrationNumber.AsConstant(), resolveType.AsConstant()));
+                serviceRegistration.RegistrationId.AsConstant(), resolveType.AsConstant()));
             exprs.Add(variable.AssignTo(expression));
-            exprs.Add(resolutionContext.CurrentScopeParameter.CallMethod(Constants.ResetRuntimetCircularDependencyBarrierMethod, serviceRegistration.RegistrationNumber.AsConstant()));
+            exprs.Add(resolutionContext.CurrentScopeParameter.CallMethod(Constants.ResetRuntimetCircularDependencyBarrierMethod, serviceRegistration.RegistrationId.AsConstant()));
             exprs.Add(variable);
 
             return exprs.AsBlock(variable);

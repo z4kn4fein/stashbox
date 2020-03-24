@@ -32,10 +32,10 @@ namespace System.Linq.Expressions
                 return scope => instance;
             }
 
-            if (resolutionContext.DefinedVariables.Length > 0)
+            if (!resolutionContext.DefinedVariables.IsEmpty)
             {
-                var instructions = new ArrayList<Expression>(resolutionContext.SingleInstructions) { expression };
-                expression = Expression.Block(resolutionContext.DefinedVariables, instructions);
+                var instructions = new List<Expression>(resolutionContext.SingleInstructions) { expression };
+                expression = Expression.Block(resolutionContext.DefinedVariables.WalkOnValues(), instructions);
             }
 
 #if IL_EMIT
@@ -60,10 +60,10 @@ namespace System.Linq.Expressions
         public static Func<IResolutionScope, Delegate> CompileDynamicDelegate(this Expression expression,
             ResolutionContext resolutionContext, ContainerConfiguration containerConfiguration)
         {
-            if (resolutionContext.DefinedVariables.Length > 0)
+            if (!resolutionContext.DefinedVariables.IsEmpty)
             {
-                var instructions = new ArrayList<Expression>(resolutionContext.SingleInstructions) { expression };
-                expression = Expression.Block(resolutionContext.DefinedVariables, instructions);
+                var instructions = new List<Expression>(resolutionContext.SingleInstructions) { expression };
+                expression = Expression.Block(resolutionContext.DefinedVariables.WalkOnValues(), instructions);
             }
 
 #if IL_EMIT

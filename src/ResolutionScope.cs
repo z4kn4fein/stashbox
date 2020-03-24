@@ -215,9 +215,9 @@ namespace Stashbox
             this.delegateCache.FactoryDelegates = ImmutableTree<object, Func<IResolutionScope, Delegate>>.Empty;
         }
 
-        public IEnumerable<object> GetActiveScopeNames()
+        public List<object> GetActiveScopeNames()
         {
-            var names = ArrayList<object>.Empty;
+            var names = new List<object>();
             IResolutionScope current = this;
 
             while (current != null)
@@ -228,7 +228,7 @@ namespace Stashbox
                 current = current.ParentScope;
             }
 
-            return names.Length > 0 ? names : null;
+            return names;
         }
 
         public void CheckRuntimeCircularDependencyBarrier(int key, Type type)
@@ -241,7 +241,7 @@ namespace Stashbox
                 { old.Value = true; return old; }), key, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
         }
 
-        public void ResetRuntimetCircularDependencyBarrier(int key)
+        public void ResetRuntimeCircularDependencyBarrier(int key)
         {
             var check = this.circularDependencyBarrier.GetOrDefault(key);
             if (check != null)
@@ -346,7 +346,7 @@ namespace Stashbox
                 else
                     throw new ResolutionFailedException(type);
 
-            var expression = initExpression.AsLambda(resolutionContext.ParameterExpressions.SelectMany(x => x));
+            var expression = initExpression.AsLambda(resolutionContext.ParameterExpressions.SelectMany(x => x.Select(i => i.Value)));
 
             var factory = expression.CompileDynamicDelegate(resolutionContext, this.containerContext.ContainerConfiguration);
             Swap.SwapValue(ref this.delegateCache.FactoryDelegates, (t1, t2, t3, t4, c) =>

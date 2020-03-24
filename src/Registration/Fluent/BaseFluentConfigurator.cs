@@ -127,7 +127,7 @@ namespace Stashbox.Registration.Fluent
 
         private void AddInjectionParameter(InjectionParameter injectionParameter)
         {
-            var store = (ArrayList<InjectionParameter>)this.Context.InjectionParameters;
+            var store = (List<InjectionParameter>)this.Context.InjectionParameters;
             store.Add(injectionParameter);
         }
 

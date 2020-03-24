@@ -1,4 +1,5 @@
-﻿using Stashbox.Entity;
+﻿using System.Linq;
+using Stashbox.Entity;
 using Stashbox.Resolution;
 
 namespace Stashbox.Registration.SelectionRules
@@ -8,14 +9,14 @@ namespace Stashbox.Registration.SelectionRules
         public bool IsValidForCurrentRequest(TypeInformation typeInformation, IServiceRegistration registration,
             ResolutionContext resolutionContext)
         {
-            if (resolutionContext.ScopeNames == null && registration.HasScopeName)
+            if (resolutionContext.ScopeNames.IsEmpty() && registration.HasScopeName)
                 return false;
 
-            return resolutionContext.ScopeNames == null || !registration.HasScopeName || registration.CanInjectIntoNamedScope(resolutionContext.ScopeNames);
+            return resolutionContext.ScopeNames.IsEmpty() || !registration.HasScopeName || registration.CanInjectIntoNamedScope(resolutionContext.ScopeNames);
         }
 
         public bool ShouldIncrementWeight(TypeInformation typeInformation, IServiceRegistration registration,
-            ResolutionContext resolutionContext) => resolutionContext.ScopeNames != null &&
+            ResolutionContext resolutionContext) => !resolutionContext.ScopeNames.IsEmpty() &&
                                                     registration.HasScopeName &&
                                                     registration.CanInjectIntoNamedScope(resolutionContext.ScopeNames);
     }

@@ -37,7 +37,7 @@ namespace Stashbox.Registration
         
         public void AddOrUpdateRegistration(IServiceRegistration registration, Type serviceType, bool remap, bool replace)
         {
-            var newRepository = new ImmutableArray<object, IServiceRegistration>(registration.RegistrationId, registration);
+            var newRepository = new ImmutableArray<object, IServiceRegistration>(registration.RegistrationName, registration);
 
             if (remap)
                 Swap.SwapValue(ref serviceRepository, (t1, t2, t3, t4, repo) =>
@@ -45,7 +45,7 @@ namespace Stashbox.Registration
             else
                 Swap.SwapValue(ref serviceRepository, (t1, t2, t3, t4, repo) =>
                     repo.AddOrUpdate(t2, t3,
-                        (oldValue, newValue) => oldValue.AddOrUpdate(t1.RegistrationId, t1, t4)),
+                        (oldValue, newValue) => oldValue.AddOrUpdate(t1.RegistrationName, t1, t4, (old, @new) => @new.InheritIdFrom(old))),
                         registration, serviceType, newRepository, replace);
         }
 
@@ -58,25 +58,19 @@ namespace Stashbox.Registration
         public IServiceRegistration GetRegistrationOrDefault(Type type, ResolutionContext resolutionContext, object name = null)
         {
             var registrations = this.GetRegistrationsForType(type);
-            if (registrations == null) return null;
-
-            var filtered = registrations.SelectOrDefault(new TypeInformation { Type = type, DependencyName = name }, resolutionContext, this.topLevelFilters, out var maxIndex);
-            return filtered?[maxIndex].Key;
+            return registrations?.SelectOrDefault(new TypeInformation { Type = type, DependencyName = name }, resolutionContext, this.topLevelFilters);
         }
 
         public IServiceRegistration GetRegistrationOrDefault(TypeInformation typeInfo, ResolutionContext resolutionContext)
         {
             var registrations = this.GetRegistrationsForType(typeInfo.Type);
-            if (registrations == null) return null;
-
-            var filtered = registrations.SelectOrDefault(typeInfo, resolutionContext, this.filters, out var maxIndex);
-            return filtered?[maxIndex].Key;
+            return registrations?.SelectOrDefault(typeInfo, resolutionContext, this.filters);
         }
 
         public IEnumerable<IServiceRegistration> GetRegistrationsOrDefault(TypeInformation typeInfo, ResolutionContext resolutionContext)
         {
             var registrations = this.GetRegistrationsForType(typeInfo.Type);
-            return registrations?.FilterOrDefault(typeInfo, resolutionContext, this.enumerableFilters);
+            return registrations?.FilterOrDefault(typeInfo, resolutionContext, this.enumerableFilters)?.OrderBy(reg => reg.RegistrationId);
         }
 
         private IEnumerable<IServiceRegistration> GetRegistrationsForType(Type type)

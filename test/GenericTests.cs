@@ -422,6 +422,30 @@ namespace Stashbox.Tests
             Assert.IsType<FakeService>(service);
         }
 
+        [Fact]
+        public void ResolvesMixedOpenClosedGenericsAsEnumerable()
+        {
+            // Arrange
+            var container = new StashboxContainer();
+            var instance = new FakeOpenGenericService<PocoClass>(null);
+
+            container.Register<PocoClass, PocoClass>();
+            container.RegisterSingleton(typeof(IFakeOpenGenericService<PocoClass>), typeof(FakeService));
+            container.RegisterSingleton(typeof(IFakeOpenGenericService<>), typeof(FakeOpenGenericService<>));
+            container.RegisterInstanceAs<IFakeOpenGenericService<PocoClass>>(instance);
+
+            var enumerable = container.Resolve<IEnumerable<IFakeOpenGenericService<PocoClass>>>().ToArray();
+
+            // Assert
+            Assert.Equal(3, enumerable.Length);
+            Assert.NotNull(enumerable[0]);
+            Assert.NotNull(enumerable[1]);
+            Assert.NotNull(enumerable[2]);
+
+            Assert.Equal(instance, enumerable[2]);
+            Assert.IsType<FakeService>(enumerable[0]);
+        }
+
         interface IConstraint { }
 
         interface IConstraint1 { }

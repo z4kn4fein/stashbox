@@ -38,17 +38,17 @@ namespace Stashbox.Resolution
                         .ConvertTo(typeInformation.Type);
             }
 
-            if (resolutionContext.ParameterExpressions.Length > 0)
+            if (resolutionContext.ParameterExpressions.Count > 0)
             {
-                var length = resolutionContext.ParameterExpressions.Length;
+                var length = resolutionContext.ParameterExpressions.Count;
                 for (var i = length; i-- > 0;)
                 {
                     var parameters = resolutionContext.ParameterExpressions[i]
                         .WhereOrDefault(p => p.Value.Type == typeInformation.Type ||
-                                        p.Value.Type.Implements(typeInformation.Type));
+                                             p.Value.Type.Implements(typeInformation.Type));
 
                     if (parameters == null) continue;
-                    var selected = parameters.Enumerate().FirstOrDefault(parameter => !parameter.Key) ?? parameters.Enumerate().Last();
+                    var selected = parameters.FirstOrDefault(parameter => !parameter.Key) ?? parameters.Last();
                     selected.Key = true;
                     return selected.Value;
                 }

@@ -76,9 +76,9 @@ namespace Stashbox.Resolution.Resolvers
             if (resolutionContext.ParameterExpressions != null)
             {
                 var index = 0;
-                for (var i = 0; i < resolutionContext.ParameterExpressions.Length; i++)
+                for (var i = 0; i < resolutionContext.ParameterExpressions.Count; i++)
                     for (var j = 0; j < resolutionContext.ParameterExpressions[i].Length; j++)
-                        arguments[index++] = resolutionContext.ParameterExpressions[i][j].ConvertTo(typeof(object));
+                        arguments[index++] = resolutionContext.ParameterExpressions[i][j].Value.ConvertTo(typeof(object));
             }
 
 
@@ -102,7 +102,7 @@ namespace Stashbox.Resolution.Resolvers
         private static object CreateLazyDelegate(IContainerContext containerContext, IServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type type, object[] arguments)
         {
             var expr = serviceRegistration.GetExpression(containerContext, resolutionContext, type);
-            return expr.AsLambda(resolutionContext.ParameterExpressions.SelectMany(x => x))
+            return expr.AsLambda(resolutionContext.ParameterExpressions.SelectMany(x => x.Select(i => i.Value)))
                 .CompileDynamicDelegate(resolutionContext, containerContext.ContainerConfiguration)(resolutionContext.ResolutionScope).DynamicInvoke(arguments);
         }
     }

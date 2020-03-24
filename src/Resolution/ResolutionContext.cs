@@ -1,6 +1,7 @@
 ﻿using Stashbox.Entity;
 using Stashbox.Utils;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 
@@ -30,39 +31,39 @@ namespace Stashbox.Resolution
 
         internal IContainerContext ChildContext { get; private set; }
 
-        internal ImmutableTree<Expression> ExpressionCache { get; private set; }
+        internal HashTree<Expression> ExpressionCache { get; private set; }
 
-        internal ArrayList<Expression> SingleInstructions { get; private set; }
+        internal List<Expression> SingleInstructions { get; private set; }
 
-        internal ArrayList<object, ParameterExpression> DefinedVariables { get; private set; }
+        internal HashTree<object, ParameterExpression> DefinedVariables { get; private set; }
 
-        private ImmutableTree<Type, Expression> expressionOverrides;
-        private ImmutableTree<Type, Type> currentlyDecoratingTypes;
-        private ImmutableTree<bool> circularDependencyBarrier;
+        private HashTree<Type, Expression> expressionOverrides;
+        private HashTree<Type, Type> currentlyDecoratingTypes;
+        private HashTree<bool> circularDependencyBarrier;
 
         internal bool ShouldCacheFactoryDelegate { get; set; }
 
         internal IResolutionScope ResolutionScope { get; private set; }
 
-        internal ArrayList<object> ScopeNames { get; private set; }
+        internal List<object> ScopeNames { get; private set; }
 
-        internal ArrayList<ArrayList<bool, ParameterExpression>> ParameterExpressions { get; private set; }
+        internal List<KeyValue<bool, ParameterExpression>[]> ParameterExpressions { get; private set; }
 
         private ResolutionContext(IResolutionScope scope, bool nullResultAllowed, object[] dependencyOverrides)
         {
 
-            this.DefinedVariables = ArrayList<object, ParameterExpression>.Empty;
-            this.SingleInstructions = ArrayList<Expression>.Empty;
-            this.expressionOverrides = ImmutableTree<Type, Expression>.Empty;
-            this.currentlyDecoratingTypes = ImmutableTree<Type, Type>.Empty;
+            this.DefinedVariables = HashTree<object, ParameterExpression>.Empty;
+            this.SingleInstructions = new List<Expression>();
+            this.expressionOverrides = HashTree<Type, Expression>.Empty;
+            this.currentlyDecoratingTypes = HashTree<Type, Type>.Empty;
             this.NullResultAllowed = nullResultAllowed;
             this.ResolutionScope = scope;
             this.CurrentScopeParameter = Constants.ResolutionScopeParameter;
-            this.ParameterExpressions = ArrayList<ArrayList<bool, ParameterExpression>>.Empty;
-            this.ScopeNames = (ArrayList<object>)scope.GetActiveScopeNames();
-            this.circularDependencyBarrier = ImmutableTree<bool>.Empty;
+            this.ParameterExpressions = new List<KeyValue<bool, ParameterExpression>[]>();
+            this.ScopeNames = scope.GetActiveScopeNames();
+            this.circularDependencyBarrier = HashTree<bool>.Empty;
             this.ShouldCacheFactoryDelegate = dependencyOverrides == null;
-            this.ExpressionCache = ImmutableTree<Expression>.Empty;
+            this.ExpressionCache = HashTree<Expression>.Empty;
 
             this.ProcessDependencyOverrides(dependencyOverrides);
         }
@@ -99,14 +100,14 @@ namespace Stashbox.Resolution
         /// <param name="key">The key of the variable.</param>
         /// <param name="parameter">The variable.</param>
         public void AddDefinedVariable(object key, ParameterExpression parameter) =>
-            this.DefinedVariables.Add(key, parameter);
+            this.DefinedVariables.AddOrUpdate(key, parameter);
 
         /// <summary>
         /// Adds a global variable to the compiled expression tree.
         /// </summary>
         /// <param name="parameter">The variable.</param>
         public void AddDefinedVariable(ParameterExpression parameter) =>
-            this.DefinedVariables.Add(parameter, parameter);
+            this.DefinedVariables.AddOrUpdate(parameter, parameter);
 
         /// <summary>
         /// Gets an already defined global variable.
@@ -120,19 +121,19 @@ namespace Stashbox.Resolution
             this.currentlyDecoratingTypes.GetOrDefault(type) != null;
 
         internal void AddCurrentlyDecoratingType(Type type) =>
-            this.currentlyDecoratingTypes = this.currentlyDecoratingTypes.AddOrUpdate(type, type);
+            this.currentlyDecoratingTypes.AddOrUpdate(type, type);
 
         internal void ClearCurrentlyDecoratingType(Type type) =>
-            this.currentlyDecoratingTypes = this.currentlyDecoratingTypes.AddOrUpdate(type, null, true);
+            this.currentlyDecoratingTypes.AddOrUpdate(type, null);
 
         internal Expression GetExpressionOverrideOrDefault(Type type) =>
             this.expressionOverrides.GetOrDefault(type);
 
         internal void SetExpressionOverride(Type type, Expression expression) =>
-            this.expressionOverrides = this.expressionOverrides.AddOrUpdate(type, expression, true);
+            this.expressionOverrides.AddOrUpdate(type, expression);
 
         internal void CacheExpression(int key, Expression expression) =>
-            this.ExpressionCache = this.ExpressionCache.AddOrUpdate(key, expression);
+            this.ExpressionCache.AddOrUpdate(key, expression);
 
         internal Expression GetCachedExpression(int key) =>
             this.ExpressionCache.GetOrDefault(key);
@@ -143,11 +144,11 @@ namespace Stashbox.Resolution
             var newItems = new KeyValue<bool, ParameterExpression>[length];
             for (var i = 0; i < length; i++)
                 newItems[i] = new KeyValue<bool, ParameterExpression>(false, parameterExpressions[i]);
-            this.ParameterExpressions.Add(new ArrayList<bool, ParameterExpression>(newItems));
+            this.ParameterExpressions.Add(newItems);
         }
 
         internal void SetCircularDependencyBarrier(int key, bool value) =>
-            this.circularDependencyBarrier = this.circularDependencyBarrier.AddOrUpdate(key, value, true);
+            this.circularDependencyBarrier.AddOrUpdate(key, value);
 
         internal bool GetCircularDependencyBarrier(int key) =>
             this.circularDependencyBarrier.GetOrDefault(key);
@@ -156,10 +157,7 @@ namespace Stashbox.Resolution
         {
             var scopeNames = this.ScopeNames;
             if (scopeParameter != null)
-            {
-                scopeNames = scopeNames ?? ArrayList<object>.Empty;
                 scopeNames.Add(scopeParameter.Key);
-            }
 
             var clone = this.Clone();
             clone.CurrentScopeParameter = scopeParameter == null ? this.CurrentScopeParameter : scopeParameter.Value;
@@ -176,8 +174,8 @@ namespace Stashbox.Resolution
 #else
             var clone = (ResolutionContext)this.MemberwiseClone();
 #endif
-            clone.DefinedVariables = ArrayList<object, ParameterExpression>.Empty;
-            clone.SingleInstructions = ArrayList<Expression>.Empty;
+            clone.DefinedVariables = HashTree<object, ParameterExpression>.Empty;
+            clone.SingleInstructions = new List<Expression>();
             return clone;
         }
     }

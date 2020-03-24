@@ -23,12 +23,12 @@ namespace Stashbox.BuildUp.ObjectBuilders
             if (!containerContext.ContainerConfiguration.CircularDependencyTrackingEnabled)
                 return this.PrepareExpression(containerContext, serviceRegistration, resolutionContext, resolveType);
 
-            if (resolutionContext.GetCircularDependencyBarrier(serviceRegistration.RegistrationNumber))
+            if (resolutionContext.GetCircularDependencyBarrier(serviceRegistration.RegistrationId))
                 throw new CircularDependencyException(resolveType);
 
-            resolutionContext.SetCircularDependencyBarrier(serviceRegistration.RegistrationNumber, true);
+            resolutionContext.SetCircularDependencyBarrier(serviceRegistration.RegistrationId, true);
             var result = this.PrepareExpression(containerContext, serviceRegistration, resolutionContext, resolveType);
-            resolutionContext.SetCircularDependencyBarrier(serviceRegistration.RegistrationNumber, false);
+            resolutionContext.SetCircularDependencyBarrier(serviceRegistration.RegistrationId, false);
             return result;
         }
 
@@ -53,7 +53,7 @@ namespace Stashbox.BuildUp.ObjectBuilders
 
             var expression = this.expressionBuilder.CreateExpression(containerContext, serviceRegistration, newContext, resolveType);
 
-            foreach (var definedVariable in newContext.DefinedVariables.Enumerate())
+            foreach (var definedVariable in newContext.DefinedVariables.Walk())
                 resolutionContext.AddDefinedVariable(definedVariable.Key, definedVariable.Value);
 
             foreach (var instruction in newContext.SingleInstructions)

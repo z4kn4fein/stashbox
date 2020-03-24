@@ -233,7 +233,7 @@ namespace Stashbox.Tests
             IStashboxContainer container = new StashboxContainer();
             container.ComposeBy(typeof(TestCompositionRoot));
 
-            var regs = container.ContainerContext.RegistrationRepository.GetRegistrationMappings().OrderBy(r => r.Value.RegistrationNumber).ToArray();
+            var regs = container.ContainerContext.RegistrationRepository.GetRegistrationMappings().OrderBy(r => r.Value.RegistrationId).ToArray();
 
             Assert.Equal(2, regs.Length);
             Assert.Same(regs[0].Value.ImplementationType, typeof(Test));
@@ -253,7 +253,7 @@ namespace Stashbox.Tests
             IStashboxContainer container = new StashboxContainer();
             container.ComposeBy<TestCompositionRoot>();
 
-            var regs = container.ContainerContext.RegistrationRepository.GetRegistrationMappings().OrderBy(r => r.Value.RegistrationNumber).ToArray();
+            var regs = container.ContainerContext.RegistrationRepository.GetRegistrationMappings().OrderBy(r => r.Value.RegistrationId).ToArray();
 
             Assert.Equal(2, regs.Length);
             Assert.Same(regs[0].Value.ImplementationType, typeof(Test));
@@ -268,7 +268,7 @@ namespace Stashbox.Tests
 
             var regs = container
                 .GetRegistrationMappings()
-                .OrderBy(r => r.Value.RegistrationNumber)
+                .OrderBy(r => r.Value.RegistrationId)
                 .ToArray();
 
             Assert.Equal(4, regs.Length);
@@ -286,7 +286,7 @@ namespace Stashbox.Tests
 
             var regs = container.ContainerContext.RegistrationRepository
                 .GetRegistrationMappings()
-                .OrderBy(r => r.Value.RegistrationNumber)
+                .OrderBy(r => r.Value.RegistrationId)
                 .ToArray();
 
             Assert.Equal(4, regs.Length);
@@ -332,10 +332,10 @@ namespace Stashbox.Tests
             var regs2 = container.ContainerContext.RegistrationRepository.GetRegistrationMappings().OrderBy(r => r.Key.Name).ToArray();
 
             Assert.Equal(regs.Length, regs2.Length);
-            Assert.NotEqual(regs[0].Value.RegistrationNumber, regs2[0].Value.RegistrationNumber);
-            Assert.NotEqual(regs[1].Value.RegistrationNumber, regs2[1].Value.RegistrationNumber);
-            Assert.NotEqual(regs[2].Value.RegistrationNumber, regs2[2].Value.RegistrationNumber);
-            Assert.NotEqual(regs[3].Value.RegistrationNumber, regs2[3].Value.RegistrationNumber);
+            Assert.NotEqual(regs[0].Value.RegistrationId, regs2[0].Value.RegistrationId);
+            Assert.NotEqual(regs[1].Value.RegistrationId, regs2[1].Value.RegistrationId);
+            Assert.NotEqual(regs[2].Value.RegistrationId, regs2[2].Value.RegistrationId);
+            Assert.NotEqual(regs[3].Value.RegistrationId, regs2[3].Value.RegistrationId);
         }
 
         [Fact]
@@ -368,12 +368,12 @@ namespace Stashbox.Tests
             var regs2 = container.ContainerContext.RegistrationRepository.GetRegistrationMappings().OrderBy(r => r.Key.Name).ToArray();
 
             Assert.Equal(regs.Length, regs2.Length);
-            Assert.NotEqual(regs[0].Value.RegistrationNumber, regs2[0].Value.RegistrationNumber);
-            Assert.NotEqual(regs[1].Value.RegistrationNumber, regs2[1].Value.RegistrationNumber);
-            Assert.NotEqual(regs[2].Value.RegistrationNumber, regs2[2].Value.RegistrationNumber);
-            Assert.NotEqual(regs[3].Value.RegistrationNumber, regs2[3].Value.RegistrationNumber);
-            Assert.NotEqual(regs[4].Value.RegistrationNumber, regs2[4].Value.RegistrationNumber);
-            Assert.NotEqual(regs[5].Value.RegistrationNumber, regs2[5].Value.RegistrationNumber);
+            Assert.NotEqual(regs[0].Value.RegistrationId, regs2[0].Value.RegistrationId);
+            Assert.NotEqual(regs[1].Value.RegistrationId, regs2[1].Value.RegistrationId);
+            Assert.NotEqual(regs[2].Value.RegistrationId, regs2[2].Value.RegistrationId);
+            Assert.NotEqual(regs[3].Value.RegistrationId, regs2[3].Value.RegistrationId);
+            Assert.NotEqual(regs[4].Value.RegistrationId, regs2[4].Value.RegistrationId);
+            Assert.NotEqual(regs[5].Value.RegistrationId, regs2[5].Value.RegistrationId);
         }
 
         [Fact]
@@ -382,7 +382,7 @@ namespace Stashbox.Tests
             var container = new StashboxContainer();
             container.RegisterTypesAs(typeof(IGenTest<>), typeof(IGenTest<>).GetTypeInfo().Assembly);
 
-            var regs = container.ContainerContext.RegistrationRepository.GetRegistrationMappings().OrderBy(r => r.Value.RegistrationNumber).ToArray();
+            var regs = container.ContainerContext.RegistrationRepository.GetRegistrationMappings().OrderBy(r => r.Value.RegistrationId).ToArray();
 
             Assert.Equal(7, regs.Length);
             Assert.Equal(typeof(IGenTest<>), regs[0].Key);
@@ -408,7 +408,7 @@ namespace Stashbox.Tests
             var container = new StashboxContainer();
             container.RegisterTypesAs(typeof(GenTest<>), typeof(IGenTest<>).GetTypeInfo().Assembly);
 
-            var regs = container.ContainerContext.RegistrationRepository.GetRegistrationMappings().OrderBy(r => r.Value.RegistrationNumber).ToArray();
+            var regs = container.ContainerContext.RegistrationRepository.GetRegistrationMappings().OrderBy(r => r.Value.RegistrationId).ToArray();
 
             Assert.Equal(4, regs.Length);
             Assert.Equal(typeof(GenTest<>), regs[0].Key);

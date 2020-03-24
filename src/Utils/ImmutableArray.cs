@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 
 namespace Stashbox.Utils
 {
-    internal class ImmutableArray<TValue> : IEnumerable<TValue>
+    internal sealed class ImmutableArray<TValue> : IEnumerable<TValue>
     {
         public static readonly ImmutableArray<TValue> Empty = new ImmutableArray<TValue>();
 
@@ -50,7 +50,7 @@ namespace Stashbox.Utils
         }
     }
 
-    internal class ImmutableArray<TKey, TValue> : IEnumerable<TValue>
+    internal sealed class ImmutableArray<TKey, TValue> : IEnumerable<TValue>
     {
         public static readonly ImmutableArray<TKey, TValue> Empty = new ImmutableArray<TKey, TValue>();
 
@@ -96,7 +96,7 @@ namespace Stashbox.Utils
         public ImmutableArray<TKey, TValue> Add(TKey key, TValue value) =>
            new ImmutableArray<TKey, TValue>(new KeyValue<TKey, TValue>(key, value), this.Repository);
 
-        public ImmutableArray<TKey, TValue> AddOrUpdate(TKey key, TValue value, bool allowUpdate = true)
+        public ImmutableArray<TKey, TValue> AddOrUpdate(TKey key, TValue value, bool allowUpdate = true, Action<TValue, TValue> updateAction = null)
         {
             var length = this.Repository.Length;
             var count = length - 1;
@@ -107,9 +107,12 @@ namespace Stashbox.Utils
 
             if (!allowUpdate)
                 return this;
-
+            
             var newRepository = new KeyValue<TKey, TValue>[length];
             Array.Copy(this.Repository, newRepository, length);
+
+            updateAction?.Invoke(newRepository[count].Value, value);
+
             newRepository[count] = new KeyValue<TKey, TValue>(key, value);
             return new ImmutableArray<TKey, TValue>(newRepository);
         }

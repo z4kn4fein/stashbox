@@ -25,12 +25,12 @@ namespace Stashbox.Registration
         /// <summary>
         /// The registration number.
         /// </summary>
-        int RegistrationNumber { get; }
+        int RegistrationId { get; }
 
         /// <summary>
         /// The registration id.
         /// </summary>
-        object RegistrationId { get; }
+        object RegistrationName { get; }
 
         /// <summary>
         /// True if the registration contains any condition, otherwise false.
@@ -114,5 +114,11 @@ namespace Stashbox.Registration
         /// <param name="objectBuilder">The object builder.</param>
         /// <returns>The new registration.</returns>
         IServiceRegistration Clone(Type implementationType, IObjectBuilder objectBuilder);
+
+        /// <summary>
+        /// Copies the registration id from an other registration, used when a registration is replaced because we want to preserve the original order.
+        /// </summary>
+        /// <param name="serviceRegistration">The registration to copy the id from.</param>
+        void InheritIdFrom(IServiceRegistration serviceRegistration);
     }
 }

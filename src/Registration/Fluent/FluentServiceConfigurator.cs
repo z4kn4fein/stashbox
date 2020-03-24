@@ -2,6 +2,7 @@
 using Stashbox.Lifetime;
 using Stashbox.Utils;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 
@@ -82,7 +83,7 @@ namespace Stashbox.Registration.Fluent
         /// <inheritdoc />
         public TConfigurator WhenHas<TAttribute>() where TAttribute : Attribute
         {
-            var store = (ArrayList<Type>)this.Context.AttributeConditions;
+            var store = (List<Type>)this.Context.AttributeConditions;
             store.Add(typeof(TAttribute));
             return (TConfigurator)this;
         }
@@ -90,7 +91,7 @@ namespace Stashbox.Registration.Fluent
         /// <inheritdoc />
         public TConfigurator WhenHas(Type attributeType)
         {
-            var store = (ArrayList<Type>)this.Context.AttributeConditions;
+            var store = (List<Type>)this.Context.AttributeConditions;
             store.Add(attributeType);
             return (TConfigurator)this;
         }
@@ -157,8 +158,8 @@ namespace Stashbox.Registration.Fluent
         /// <inheritdoc />
         public TConfigurator AsImplementedTypes()
         {
-            this.Context.AdditionalServiceTypes = new ArrayList<Type>(this.ImplementationType.GetRegisterableInterfaceTypes()
-                    .Concat(this.ImplementationType.GetRegisterableBaseTypes()).CastToArray());
+            this.Context.AdditionalServiceTypes = new List<Type>(this.ImplementationType.GetRegisterableInterfaceTypes()
+                    .Concat(this.ImplementationType.GetRegisterableBaseTypes()));
             return (TConfigurator)this;
         }
 
@@ -191,7 +192,7 @@ namespace Stashbox.Registration.Fluent
             if (!this.ImplementationType.Implements(serviceType))
                 throw new ArgumentException("The given service type is not assignable from the current implementation type.");
 
-            ((ArrayList<Type>)this.Context.AdditionalServiceTypes).Add(serviceType);
+            ((List<Type>)this.Context.AdditionalServiceTypes).Add(serviceType);
             return (TConfigurator)this;
         }
     }

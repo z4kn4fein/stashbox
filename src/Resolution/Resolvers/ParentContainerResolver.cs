@@ -21,7 +21,7 @@ namespace Stashbox.Resolution.Resolvers
             var result = resolutionStrategy
                 .BuildResolutionExpression(containerContext.Container.ParentContainer.ContainerContext, resolution, typeInfo);
 
-            foreach (var definedVariable in resolution.DefinedVariables.Enumerate())
+            foreach (var definedVariable in resolution.DefinedVariables.Walk())
                 resolutionContext.AddDefinedVariable(definedVariable.Key, definedVariable.Value);
 
             foreach (var instruction in resolution.SingleInstructions)
@@ -45,7 +45,7 @@ namespace Stashbox.Resolution.Resolvers
             var result = resolutionStrategy
                 .BuildAllResolutionExpressions(containerContext.Container.ParentContainer.ContainerContext, resolution, typeInfo);
 
-            foreach (var definedVariable in resolution.DefinedVariables.Enumerate())
+            foreach (var definedVariable in resolution.DefinedVariables.Walk())
                 resolutionContext.AddDefinedVariable(definedVariable.Key, definedVariable.Value);
 
             foreach (var instruction in resolution.SingleInstructions)

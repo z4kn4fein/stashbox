@@ -76,7 +76,7 @@ namespace Stashbox
         /// Gets the names of the already opened scopes.
         /// </summary>
         /// <returns>The scope names.</returns>
-        IEnumerable<object> GetActiveScopeNames();
+        List<object> GetActiveScopeNames();
 
         /// <summary>
         /// Called by every node of the internal graph when the <see cref="ContainerConfiguration.RuntimeCircularDependencyTrackingEnabled"/> is true.
@@ -91,6 +91,6 @@ namespace Stashbox
         /// Resets the runtime circular dependency checks state for a node.
         /// </summary>
         /// <param name="key"></param>
-        void ResetRuntimetCircularDependencyBarrier(int key);
+        void ResetRuntimeCircularDependencyBarrier(int key);
     }
 }

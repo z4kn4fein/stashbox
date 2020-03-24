@@ -22,14 +22,13 @@ namespace Stashbox.Registration.Extensions
             return registrations?.Any(reg => reg.ValidateGenericConstraints(type)) ?? false;
         }
 
-        public static ArrayList<KeyValuePair<IServiceRegistration, int>> SelectOrDefault(this IEnumerable<IServiceRegistration> registrations,
+        public static IServiceRegistration SelectOrDefault(this IEnumerable<IServiceRegistration> registrations,
             TypeInformation typeInformation,
             ResolutionContext resolutionContext,
-            IRegistrationSelectionRule[] registrationSelectionRules,
-            out int maxIndex)
+            IRegistrationSelectionRule[] registrationSelectionRules)
         {
-            maxIndex = 0;
-            var result = new ArrayList<KeyValuePair<IServiceRegistration, int>>();
+            var maxIndex = 0;
+            var result = new List<IServiceRegistration>();
             var maxWeight = 0;
 
             foreach (var serviceRegistration in registrations)
@@ -37,14 +36,14 @@ namespace Stashbox.Registration.Extensions
                 if (!registrationSelectionRules.IsSelectionPassed(typeInformation, serviceRegistration, resolutionContext, out var weight))
                     continue;
 
-                result.Add(new KeyValuePair<IServiceRegistration, int>(serviceRegistration, weight));
+                result.Add(serviceRegistration);
 
                 if (weight < maxWeight) continue;
                 maxWeight = weight;
-                maxIndex = result.Length - 1;
+                maxIndex = result.Count - 1;
             }
 
-            return result.Length == 0 ? null : result;
+            return result.Count == 0 ? null : result[maxIndex];
         }
 
         public static IEnumerable<IServiceRegistration> FilterOrDefault(this IEnumerable<IServiceRegistration> registrations,
@@ -52,8 +51,8 @@ namespace Stashbox.Registration.Extensions
             ResolutionContext resolutionContext,
             IRegistrationSelectionRule[] registrationSelectionRules)
         {
-            var common = new ArrayList<IServiceRegistration>();
-            var priority = new ArrayList<IServiceRegistration>();
+            var common = new List<IServiceRegistration>();
+            var priority = new List<IServiceRegistration>();
 
             foreach (var serviceRegistration in registrations)
             {
@@ -66,9 +65,9 @@ namespace Stashbox.Registration.Extensions
                 common.Add(serviceRegistration);
             }
 
-            return common.Length == 0 
+            return common.Count == 0 
                 ? null 
-                : priority.Length > 0 
+                : priority.Count > 0 
                     ? priority 
                     : common;
         }

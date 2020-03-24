@@ -34,5 +34,14 @@ namespace System.Linq
                     return newArr;
             }
         }
+
+        public static bool IsEmpty<TEnumerable>(this List<TEnumerable> list) =>
+            list.Count == 0;
+
+        public static TEnumerable[] WhereOrDefault<TEnumerable>(this IEnumerable<TEnumerable> enumerable, Func<TEnumerable, bool> predicate)
+        {
+            var result = enumerable.Where(predicate).CastToArray();
+            return result.Length > 0 ? result : null;
+        }
     }
 }

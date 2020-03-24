@@ -28,7 +28,7 @@ namespace Stashbox.Utils
 
         public static readonly MethodInfo CheckRuntimeCircularDependencyBarrierMethod = ResolutionScopeType.GetSingleMethod("CheckRuntimeCircularDependencyBarrier");
 
-        public static readonly MethodInfo ResetRuntimetCircularDependencyBarrierMethod = ResolutionScopeType.GetSingleMethod("ResetRuntimetCircularDependencyBarrier");
+        public static readonly MethodInfo ResetRuntimetCircularDependencyBarrierMethod = ResolutionScopeType.GetSingleMethod("ResetRuntimeCircularDependencyBarrier");
 
         public static readonly MethodInfo BuildExtensionMethod = typeof(IContainerExtensionManager).GetSingleMethod("ExecutePostBuildExtensions");
 
@@ -39,8 +39,6 @@ namespace Stashbox.Utils
         public static readonly Type FuncType = typeof(Func<>);
 
         public static readonly Type[] EmptyTypes = new Type[0];
-
-        public static readonly Expression[] EmptyExpressions = new Expression[0];
 
         public static readonly Type ObjectType = typeof(object);
 

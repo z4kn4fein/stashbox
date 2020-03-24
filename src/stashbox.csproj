@@ -17,7 +17,7 @@
     <PackageTags>Stashbox di dependencyinjection ioc dotnet netstandard</PackageTags>
     <Description>Stashbox is a lightweight, portable dependency injection framework for .NET based solutions.</Description>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <!--<GenerateDocumentationFile>true</GenerateDocumentationFile>-->
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../sn.snk</AssemblyOriginatorKeyFile>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
