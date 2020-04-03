@@ -152,12 +152,12 @@ namespace Stashbox.Registration
         /// <summary>
         /// The constructor selection rule.
         /// </summary>
-        public Func<IEnumerable<ConstructorInformation>, IEnumerable<ConstructorInformation>> ConstructorSelectionRule { get; internal set; }
+        public Func<IEnumerable<ConstructorInfo>, IEnumerable<ConstructorInfo>> ConstructorSelectionRule { get; internal set; }
 
         /// <summary>
         /// A filter delegate used to determine which members should be auto injected and which are not.
         /// </summary>
-        public Func<TypeInformation, bool> MemberInjectionFilter { get; internal set; }
+        public Func<MemberInfo, bool> MemberInjectionFilter { get; internal set; }
 
         /// <summary>
         /// Constructs a <see cref="RegistrationContext"/>

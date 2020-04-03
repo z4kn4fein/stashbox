@@ -1,5 +1,4 @@
-﻿using Stashbox.ContainerExtension;
-using Stashbox.Registration;
+﻿using Stashbox.Registration;
 using Stashbox.Resolution;
 using System;
 using System.Collections.Generic;
@@ -11,12 +10,6 @@ namespace Stashbox
     /// </summary>
     public interface IStashboxContainer : IDependencyRegistrator, IDependencyResolver, IDependencyReMapper, IDependencyCollectionRegistrator, IDecoratorRegistrator, IFuncRegistrator
     {
-        /// <summary>
-        /// Registers a <see cref="IContainerExtension"/> into the container.
-        /// </summary>
-        /// <param name="containerExtension">The container extension.</param>
-        void RegisterExtension(IContainerExtension containerExtension);
-
         /// <summary>
         /// Registers an <see cref="IResolver"/> into the container.
         /// </summary>

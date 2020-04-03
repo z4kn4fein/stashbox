@@ -4,7 +4,8 @@ using System.Linq;
 
 namespace System.Reflection
 {
-    internal struct TypeInfo
+#pragma warning disable 1591
+    public struct TypeInfo
     {
         public Type Type { get; }
 
@@ -18,6 +19,7 @@ namespace System.Reflection
         public IEnumerable<MethodInfo> DeclaredMethods => this.Type.GetMethods(All);
         public IEnumerable<FieldInfo> DeclaredFields => this.Type.GetFields(All);
         public IEnumerable<PropertyInfo> DeclaredProperties => this.Type.GetProperties(All);
+        public IEnumerable<MemberInfo> DeclaredMembers => this.Type.GetMembers(All);
         public IEnumerable<Type> ImplementedInterfaces => this.Type.GetInterfaces();
         public IEnumerable<Attribute> GetCustomAttributes(Type attributeType, bool inherit) => this.Type.GetCustomAttributes(attributeType, inherit).Cast<Attribute>();
         public Type BaseType => this.Type.BaseType;
@@ -48,4 +50,6 @@ namespace System.Reflection
             BindingFlags.DeclaredOnly;
     }
 }
+#pragma warning restore 1591
+
 #endif

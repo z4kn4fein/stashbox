@@ -11,62 +11,56 @@ namespace Stashbox.Tests
         [Fact]
         public void BuildUpTests_BuildUp()
         {
-            using (var container = new StashboxContainer())
-            {
-                container.Register<ITest, Test>();
+            using var container = new StashboxContainer();
+            container.Register<ITest, Test>();
 
-                var test1 = new Test1();
-                container.WireUpAs<ITest1>(test1);
+            var test1 = new Test1();
+            container.WireUpAs<ITest1>(test1);
 
-                var test2 = new Test2();
-                var inst = container.BuildUp(test2);
+            var test2 = new Test2();
+            var inst = container.BuildUp(test2);
 
-                Assert.Equal(test2, inst);
-                Assert.NotNull(inst);
-                Assert.NotNull(inst.Test1);
-                Assert.IsType<Test2>(inst);
-                Assert.IsType<Test1>(inst.Test1);
-                Assert.IsType<Test>(inst.Test1.Test);
-            }
+            Assert.Equal(test2, inst);
+            Assert.NotNull(inst);
+            Assert.NotNull(inst.Test1);
+            Assert.IsType<Test2>(inst);
+            Assert.IsType<Test1>(inst.Test1);
+            Assert.IsType<Test>(inst.Test1.Test);
         }
 
         [Fact]
         public void BuildUpTests_BuildUp_Scoped()
         {
-            using (var container = new StashboxContainer())
-            {
-                container.Register<ITest3, Test3>().Register<ITest, Test>();
-                var test3 = new Test3();
-                var inst = (Test3)container.BuildUp<ITest3>(test3);
+            using var container = new StashboxContainer();
+            container.Register<ITest3, Test3>().Register<ITest, Test>();
+            var test3 = new Test3();
+            var inst = (Test3)container.BuildUp<ITest3>(test3);
 
-                Assert.NotNull(inst.Test);
-            }
+            Assert.NotNull(inst.Test);
         }
 
         [Fact]
         public void BuildUpTests_BuildUp_As_InterfaceType()
         {
-            using (var container = new StashboxContainer())
+            using var container = new StashboxContainer();
+            container.RegisterScoped<ITest, Test>();
+
+            var test1 = new Test1();
+            using (var scope = container.BeginScope())
             {
-                container.RegisterScoped<ITest, Test>();
-
-                var test1 = new Test1();
-                using (var scope = container.BeginScope())
-                {
-                    scope.BuildUp(test1);
-                    Assert.False(test1.Test.Disposed);
-                }
-
-                Assert.True(test1.Test.Disposed);
-
-                using (var scope = container.BeginScope())
-                {
-                    scope.BuildUp(test1);
-                    Assert.False(test1.Test.Disposed);
-                }
-
-                Assert.True(test1.Test.Disposed);
+                scope.BuildUp(test1);
+                Assert.False(test1.Test.Disposed);
             }
+
+            Assert.True(test1.Test.Disposed);
+
+            using (var scope = container.BeginScope())
+            {
+                scope.BuildUp(test1);
+                Assert.False(test1.Test.Disposed);
+            }
+
+            Assert.True(test1.Test.Disposed);
         }
 
         interface ITest : IDisposable { bool Disposed { get; } }

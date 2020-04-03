@@ -208,16 +208,12 @@ namespace Stashbox.Tests
             var container = new StashboxContainer()
                 .Register<ITest, Test>(config => config.InNamedScope("A"));
 
-            using (var s1 = container.BeginScope("A"))
-            {
-                var i1 = s1.Resolve<ITest>();
-                using (var s2 = s1.BeginScope("C"))
-                {
-                    var i2 = s2.Resolve<ITest>();
+            using var s1 = container.BeginScope("A");
+            var i1 = s1.Resolve<ITest>();
+            using var s2 = s1.BeginScope("C");
+            var i2 = s2.Resolve<ITest>();
 
-                    Assert.Same(i2, i1);
-                }
-            }
+            Assert.Same(i2, i1);
         }
 
         [Fact]

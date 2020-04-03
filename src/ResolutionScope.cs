@@ -134,13 +134,10 @@ namespace Stashbox
         {
             var typeTo = instance.GetType();
             var resolutionContext = ResolutionContext.New(this);
-            var metaInfo = MetaInformation.GetOrCreateMetaInfo(typeTo);
             var expression = this.expressionBuilder.CreateBasicFillExpression(this.containerContext,
-                metaInfo.SelectInjectionMembers(RegistrationContext.Empty,
-                    this.containerContext.ContainerConfiguration),
-                metaInfo.GetInjectionMethods(RegistrationContext.Empty, this.containerContext.ContainerConfiguration),
-                instance.AsConstant(),
+                RegistrationContext.Empty,
                 resolutionContext,
+                instance.AsConstant(),
                 typeTo);
             return (TTo)expression.CompileDelegate(resolutionContext, this.containerContext.ContainerConfiguration)(this);
         }
@@ -151,12 +148,9 @@ namespace Stashbox
                 throw new ArgumentException($"The given type ({type.FullName}) could not be activated on the fly by the container.");
 
             var resolutionContext = ResolutionContext.New(this, dependencyOverrides: arguments);
-            var metaInfo = MetaInformation.GetOrCreateMetaInfo(type);
-            var expression = this.expressionBuilder.CreateBasicExpression(this.containerContext,
-                metaInfo.GetConstructors(RegistrationContext.Empty, this.containerContext.ContainerConfiguration),
-                metaInfo.SelectInjectionMembers(RegistrationContext.Empty,
-                    this.containerContext.ContainerConfiguration),
-                metaInfo.GetInjectionMethods(RegistrationContext.Empty, this.containerContext.ContainerConfiguration),
+            var expression = this.expressionBuilder.CreateBasicExpression(
+                this.containerContext,
+                RegistrationContext.Empty,
                 resolutionContext,
                 type);
             return expression.CompileDelegate(resolutionContext, this.containerContext.ContainerConfiguration)(this);

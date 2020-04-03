@@ -1,6 +1,6 @@
-﻿using System;
-using Stashbox.Entity;
+﻿using Stashbox.Entity;
 using Stashbox.Resolution;
+using System;
 
 namespace Stashbox.Registration.SelectionRules
 {
@@ -8,8 +8,8 @@ namespace Stashbox.Registration.SelectionRules
     {
         public bool IsValidForCurrentRequest(TypeInformation typeInformation,
             IServiceRegistration registration,
-            ResolutionContext resolutionContext) => 
-            !typeInformation.Type.IsClosedGenericType() || registration.ValidateGenericConstraints(typeInformation.Type);
+            ResolutionContext resolutionContext) =>
+            !typeInformation.Type.IsClosedGenericType() || typeInformation.Type.SatisfiesGenericConstraintsOf(registration.ImplementationTypeInfo);
 
         public bool ShouldIncrementWeight(TypeInformation typeInformation, IServiceRegistration registration,
             ResolutionContext resolutionContext) => false;

@@ -14,138 +14,114 @@ namespace Stashbox.Tests
         [Fact]
         public void StandardResolveTests_Resolve()
         {
-            using (IStashboxContainer container = new StashboxContainer())
-            {
-                container.Register<ITest1, Test1>();
-                container.Register<ITest2, Test2>();
-                container.Register<ITest3, Test3>();
+            using IStashboxContainer container = new StashboxContainer();
+            container.Register<ITest1, Test1>();
+            container.Register<ITest2, Test2>();
+            container.Register<ITest3, Test3>();
 
-                var test3 = container.Resolve<ITest3>();
-                var test2 = container.Resolve<ITest2>();
-                var test1 = container.Resolve<ITest1>();
+            var test3 = container.Resolve<ITest3>();
+            var test2 = container.Resolve<ITest2>();
+            var test1 = container.Resolve<ITest1>();
 
-                Assert.NotNull(test3);
-                Assert.NotNull(test2);
-                Assert.NotNull(test1);
+            Assert.NotNull(test3);
+            Assert.NotNull(test2);
+            Assert.NotNull(test1);
 
-                Assert.IsType<Test1>(test1);
-                Assert.IsType<Test2>(test2);
-                Assert.IsType<Test3>(test3);
-            }
+            Assert.IsType<Test1>(test1);
+            Assert.IsType<Test2>(test2);
+            Assert.IsType<Test3>(test3);
         }
 
         [Fact]
         public void StandardResolveTests_Ensure_DependencyResolver_CanBeResolved()
         {
-            using (IStashboxContainer container = new StashboxContainer())
-            {
-                container.RegisterScoped<ResolverTest>();
-                var resolver = container.Resolve<IDependencyResolver>();
+            using IStashboxContainer container = new StashboxContainer();
+            container.RegisterScoped<ResolverTest>();
+            var resolver = container.Resolve<IDependencyResolver>();
 
-                var test = container.Resolve<ResolverTest>();
+            var test = container.Resolve<ResolverTest>();
 
-                Assert.Same(resolver, test.DependencyResolver);
+            Assert.Same(resolver, test.DependencyResolver);
 
-                using (var scope = container.BeginScope())
-                {
-                    var scopedResolver = scope.Resolve<IDependencyResolver>();
-                    var test1 = scope.Resolve<ResolverTest>();
+            using var scope = container.BeginScope();
+            var scopedResolver = scope.Resolve<IDependencyResolver>();
+            var test1 = scope.Resolve<ResolverTest>();
 
-                    Assert.Same(scope, scopedResolver);
-                    Assert.Same(scope, test1.DependencyResolver);
-                }
-            }
+            Assert.Same(scope, scopedResolver);
+            Assert.Same(scope, test1.DependencyResolver);
         }
 
         [Fact]
         public void StandardResolveTests_Factory()
         {
-            using (IStashboxContainer container = new StashboxContainer())
-            {
-                container.Register<ITest1, Test1>();
-                var test1 = container.ResolveFactory(typeof(ITest1)).DynamicInvoke();
+            using IStashboxContainer container = new StashboxContainer();
+            container.Register<ITest1, Test1>();
+            var test1 = container.ResolveFactory(typeof(ITest1)).DynamicInvoke();
 
-                Assert.NotNull(test1);
-                Assert.IsType<Test1>(test1);
-            }
+            Assert.NotNull(test1);
+            Assert.IsType<Test1>(test1);
         }
 
         [Fact]
         public void StandardResolveTests_Factory_Scoped()
         {
-            using (IStashboxContainer container = new StashboxContainer())
-            {
-                container.Register<ITest1, Test1>();
-                using (var child = container.BeginScope())
-                {
-                    var test1 = child.ResolveFactory(typeof(ITest1)).DynamicInvoke();
+            using IStashboxContainer container = new StashboxContainer();
+            container.Register<ITest1, Test1>();
+            using var child = container.BeginScope();
+            var test1 = child.ResolveFactory(typeof(ITest1)).DynamicInvoke();
 
-                    Assert.NotNull(test1);
-                    Assert.IsType<Test1>(test1);
-                }
-            }
+            Assert.NotNull(test1);
+            Assert.IsType<Test1>(test1);
         }
 
         [Fact]
         public void StandardResolveTests_Factory_ResolutionFailed()
         {
-            using (IStashboxContainer container = new StashboxContainer())
-            {
-                Assert.Throws<ResolutionFailedException>(() => container.ResolveFactory(typeof(ITest1)).DynamicInvoke());
-            }
+            using IStashboxContainer container = new StashboxContainer();
+            Assert.Throws<ResolutionFailedException>(() => container.ResolveFactory(typeof(ITest1)).DynamicInvoke());
         }
 
         [Fact]
         public void StandardResolveTests_Factory_ResolutionFailed_Null()
         {
-            using (IStashboxContainer container = new StashboxContainer())
-            {
-                var factory = container.ResolveFactory(typeof(ITest1), nullResultAllowed: true);
+            using IStashboxContainer container = new StashboxContainer();
+            var factory = container.ResolveFactory(typeof(ITest1), nullResultAllowed: true);
 
-                Assert.Null(factory);
-            }
+            Assert.Null(factory);
         }
 
         [Fact]
         public void StandardResolveTests_DependencyResolve_ResolutionFailed()
         {
-            using (IStashboxContainer container = new StashboxContainer())
-            {
-                container.Register<ITest2, Test2>();
-                Assert.Throws<ResolutionFailedException>(() => container.Resolve<ITest2>());
-            }
+            using IStashboxContainer container = new StashboxContainer();
+            container.Register<ITest2, Test2>();
+            Assert.Throws<ResolutionFailedException>(() => container.Resolve<ITest2>());
         }
 
         [Fact]
         public void StandardResolveTests_DependencyResolve_ResolutionFailed_AllowNull()
         {
-            using (IStashboxContainer container = new StashboxContainer())
-            {
-                container.Register<ITest2, Test2>();
-                var result = container.Resolve<ITest2>(nullResultAllowed: true);
+            using IStashboxContainer container = new StashboxContainer();
+            container.Register<ITest2, Test2>();
+            var result = container.Resolve<ITest2>(nullResultAllowed: true);
 
-                Assert.Null(result);
-            }
+            Assert.Null(result);
         }
 
         [Fact]
         public void StandardResolveTests_Resolve_ResolutionFailed()
         {
-            using (IStashboxContainer container = new StashboxContainer())
-            {
-                Assert.Throws<ResolutionFailedException>(() => container.Resolve<ITest1>());
-            }
+            using IStashboxContainer container = new StashboxContainer();
+            Assert.Throws<ResolutionFailedException>(() => container.Resolve<ITest1>());
         }
 
         [Fact]
         public void StandardResolveTests_Resolve_ResolutionFailed_AllowNull()
         {
-            using (IStashboxContainer container = new StashboxContainer())
-            {
-                var result = container.Resolve<ITest1>(nullResultAllowed: true);
+            using IStashboxContainer container = new StashboxContainer();
+            var result = container.Resolve<ITest1>(nullResultAllowed: true);
 
-                Assert.Null(result);
-            }
+            Assert.Null(result);
         }
 
         [Fact]
@@ -214,207 +190,177 @@ namespace Stashbox.Tests
         [Fact]
         public void StandardResolveTests_Resolve_Scoped()
         {
-            using (IStashboxContainer container = new StashboxContainer())
-            {
-                container.RegisterScoped<ITest1, Test1>();
+            using IStashboxContainer container = new StashboxContainer();
+            container.RegisterScoped<ITest1, Test1>();
 
-                var inst = container.Resolve<ITest1>();
-                var inst2 = container.Resolve<ITest1>();
+            var inst = container.Resolve<ITest1>();
+            var inst2 = container.Resolve<ITest1>();
 
-                Assert.Same(inst, inst2);
+            Assert.Same(inst, inst2);
 
-                using (var child = container.BeginScope())
-                {
-                    var inst3 = child.Resolve<ITest1>();
-                    var inst4 = child.Resolve<ITest1>();
+            using var child = container.BeginScope();
+            var inst3 = child.Resolve<ITest1>();
+            var inst4 = child.Resolve<ITest1>();
 
-                    Assert.NotSame(inst, inst3);
-                    Assert.Same(inst3, inst4);
-                }
-            }
+            Assert.NotSame(inst, inst3);
+            Assert.Same(inst3, inst4);
         }
 
         [Fact]
         public void StandardResolveTests_Resolve_Scoped_Factory()
         {
-            using (IStashboxContainer container = new StashboxContainer())
-            {
-                container.RegisterScoped<ITest1, Test1>();
+            using IStashboxContainer container = new StashboxContainer();
+            container.RegisterScoped<ITest1, Test1>();
 
-                var factory = container.ResolveFactory<ITest1>();
+            var factory = container.ResolveFactory<ITest1>();
 
-                var inst = factory();
-                var inst2 = factory();
+            var inst = factory();
+            var inst2 = factory();
 
-                Assert.Same(inst, inst2);
+            Assert.Same(inst, inst2);
 
-                using (var child = container.BeginScope())
-                {
-                    var scopeFactory = child.ResolveFactory<ITest1>();
-                    var inst3 = scopeFactory();
-                    var inst4 = scopeFactory();
+            using var child = container.BeginScope();
+            var scopeFactory = child.ResolveFactory<ITest1>();
+            var inst3 = scopeFactory();
+            var inst4 = scopeFactory();
 
-                    Assert.NotSame(inst, inst3);
-                    Assert.Same(inst3, inst4);
-                }
-            }
+            Assert.NotSame(inst, inst3);
+            Assert.Same(inst3, inst4);
         }
 
         [Fact]
         public void StandardResolveTests_Resolve_Scoped_Injection()
         {
-            using (IStashboxContainer container = new StashboxContainer())
-            {
-                container.RegisterScoped(typeof(ITest1), typeof(Test1));
-                container.RegisterScoped<ITest4, Test4>();
+            using IStashboxContainer container = new StashboxContainer();
+            container.RegisterScoped(typeof(ITest1), typeof(Test1));
+            container.RegisterScoped<ITest4, Test4>();
 
-                var inst = container.Resolve<ITest4>();
-                var inst2 = container.Resolve<ITest4>();
+            var inst = container.Resolve<ITest4>();
+            var inst2 = container.Resolve<ITest4>();
 
-                Assert.Same(inst.Test, inst2.Test);
-                Assert.Same(inst.Test2, inst2.Test2);
-                Assert.Same(inst.Test, inst2.Test2);
+            Assert.Same(inst.Test, inst2.Test);
+            Assert.Same(inst.Test2, inst2.Test2);
+            Assert.Same(inst.Test, inst2.Test2);
 
-                using (var child = container.BeginScope())
-                {
-                    var inst3 = child.Resolve<ITest4>();
-                    var inst4 = child.Resolve<ITest4>();
+            using var child = container.BeginScope();
+            var inst3 = child.Resolve<ITest4>();
+            var inst4 = child.Resolve<ITest4>();
 
-                    Assert.NotSame(inst.Test, inst4.Test);
-                    Assert.NotSame(inst.Test2, inst4.Test2);
-                    Assert.NotSame(inst.Test, inst4.Test2);
+            Assert.NotSame(inst.Test, inst4.Test);
+            Assert.NotSame(inst.Test2, inst4.Test2);
+            Assert.NotSame(inst.Test, inst4.Test2);
 
-                    Assert.Same(inst3.Test, inst4.Test);
-                    Assert.Same(inst3.Test2, inst4.Test2);
-                    Assert.Same(inst3.Test, inst4.Test2);
-                }
-            }
+            Assert.Same(inst3.Test, inst4.Test);
+            Assert.Same(inst3.Test2, inst4.Test2);
+            Assert.Same(inst3.Test, inst4.Test2);
         }
 
         [Fact]
         public void StandardResolveTests_Resolve_Scoped_Injection_Factory()
         {
-            using (IStashboxContainer container = new StashboxContainer())
-            {
-                container.RegisterScoped(typeof(ITest1), typeof(Test1));
-                container.RegisterScoped<ITest4, Test4>();
+            using IStashboxContainer container = new StashboxContainer();
+            container.RegisterScoped(typeof(ITest1), typeof(Test1));
+            container.RegisterScoped<ITest4, Test4>();
 
-                var factory = container.ResolveFactory<ITest4>();
+            var factory = container.ResolveFactory<ITest4>();
 
-                var inst = factory();
-                var inst2 = factory();
+            var inst = factory();
+            var inst2 = factory();
 
-                Assert.Same(inst.Test, inst2.Test);
-                Assert.Same(inst.Test2, inst2.Test2);
-                Assert.Same(inst.Test, inst2.Test2);
+            Assert.Same(inst.Test, inst2.Test);
+            Assert.Same(inst.Test2, inst2.Test2);
+            Assert.Same(inst.Test, inst2.Test2);
 
-                using (var child = container.BeginScope())
-                {
-                    var scopedFactory = child.ResolveFactory<ITest4>();
+            using var child = container.BeginScope();
+            var scopedFactory = child.ResolveFactory<ITest4>();
 
-                    var inst3 = scopedFactory();
-                    var inst4 = scopedFactory();
+            var inst3 = scopedFactory();
+            var inst4 = scopedFactory();
 
-                    Assert.NotSame(inst.Test, inst4.Test);
-                    Assert.NotSame(inst.Test2, inst4.Test2);
-                    Assert.NotSame(inst.Test, inst4.Test2);
+            Assert.NotSame(inst.Test, inst4.Test);
+            Assert.NotSame(inst.Test2, inst4.Test2);
+            Assert.NotSame(inst.Test, inst4.Test2);
 
-                    Assert.Same(inst3.Test, inst4.Test);
-                    Assert.Same(inst3.Test2, inst4.Test2);
-                    Assert.Same(inst3.Test, inst4.Test2);
-                }
-            }
+            Assert.Same(inst3.Test, inst4.Test);
+            Assert.Same(inst3.Test2, inst4.Test2);
+            Assert.Same(inst3.Test, inst4.Test2);
         }
 
         [Fact]
         public void StandardResolveTests_Resolve_LastService()
         {
-            using (IStashboxContainer container = new StashboxContainer())
-            {
-                container.Register(typeof(ITest1), typeof(Test1));
-                container.Register(typeof(ITest1), typeof(Test11));
-                container.Register(typeof(ITest1), typeof(Test12));
+            using IStashboxContainer container = new StashboxContainer();
+            container.Register(typeof(ITest1), typeof(Test1));
+            container.Register(typeof(ITest1), typeof(Test11));
+            container.Register(typeof(ITest1), typeof(Test12));
 
-                var inst = container.Resolve<ITest1>();
+            var inst = container.Resolve<ITest1>();
 
-                Assert.IsType<Test12>(inst);
-            }
+            Assert.IsType<Test12>(inst);
         }
 
         [Fact]
         public void StandardResolveTests_Resolve_MostParametersConstructor_WithoutDefault()
         {
-            using (IStashboxContainer container = new StashboxContainer(config =>
-            config.WithConstructorSelectionRule(Rules.ConstructorSelection.PreferMostParameters)))
-            {
-                container.Register(typeof(ITest1), typeof(Test1));
-                container.Register(typeof(ITest2), typeof(Test22));
+            using IStashboxContainer container = new StashboxContainer(config =>
+            config.WithConstructorSelectionRule(Rules.ConstructorSelection.PreferMostParameters));
+            container.Register(typeof(ITest1), typeof(Test1));
+            container.Register(typeof(ITest2), typeof(Test22));
 
-                var inst = container.Resolve<ITest2>();
-            }
+            var inst = container.Resolve<ITest2>();
         }
 
         [Fact]
         public void StandardResolveTests_Resolve_MostParametersConstructor()
         {
-            using (IStashboxContainer container = new StashboxContainer(config =>
-            config.WithConstructorSelectionRule(Rules.ConstructorSelection.PreferMostParameters)))
-            {
-                container.Register(typeof(ITest1), typeof(Test1), context => context.WithName("test1"));
-                container.Register(typeof(ITest1), typeof(Test12), context => context.WithName("test12"));
-                container.Register(typeof(ITest2), typeof(Test222));
+            using IStashboxContainer container = new StashboxContainer(config =>
+            config.WithConstructorSelectionRule(Rules.ConstructorSelection.PreferMostParameters));
+            container.Register(typeof(ITest1), typeof(Test1), context => context.WithName("test1"));
+            container.Register(typeof(ITest1), typeof(Test12), context => context.WithName("test12"));
+            container.Register(typeof(ITest2), typeof(Test222));
 
-                var inst = container.Resolve<ITest2>();
-            }
+            var inst = container.Resolve<ITest2>();
         }
 
         [Fact]
         public void StandardResolveTests_Resolve_LeastParametersConstructor()
         {
-            using (IStashboxContainer container = new StashboxContainer(config =>
-            config.WithConstructorSelectionRule(Rules.ConstructorSelection.PreferLeastParameters)))
-            {
-                container.Register(typeof(ITest1), typeof(Test1));
-                container.Register(typeof(ITest2), typeof(Test2222));
+            using IStashboxContainer container = new StashboxContainer(config =>
+            config.WithConstructorSelectionRule(Rules.ConstructorSelection.PreferLeastParameters));
+            container.Register(typeof(ITest1), typeof(Test1));
+            container.Register(typeof(ITest2), typeof(Test2222));
 
-                var inst = container.Resolve<ITest2>();
-            }
+            var inst = container.Resolve<ITest2>();
         }
 
         [Fact]
         public void StandardResolveTests_Resolve_None_Of_The_Constructors_Selected()
         {
-            using (IStashboxContainer container = new StashboxContainer(config =>
-            config.WithConstructorSelectionRule(Rules.ConstructorSelection.PreferLeastParameters)))
-            {
-                container.Register(typeof(ITest2), typeof(Test222));
+            using IStashboxContainer container = new StashboxContainer(config =>
+            config.WithConstructorSelectionRule(Rules.ConstructorSelection.PreferLeastParameters));
+            container.Register(typeof(ITest2), typeof(Test222));
 
-                Assert.Throws<ResolutionFailedException>(() => container.Resolve<ITest2>());
-            }
+            Assert.Throws<ResolutionFailedException>(() => container.Resolve<ITest2>());
         }
 
         [Fact]
         public void StandardResolveTests_Resolve_Scoped_NullDependency()
         {
-            using (IStashboxContainer container = new StashboxContainer())
-            {
-                container.RegisterScoped<Test5>();
-                var inst = container.Resolve<Test5>(nullResultAllowed: true);
+            using IStashboxContainer container = new StashboxContainer();
+            container.RegisterScoped<Test5>();
+            var inst = container.Resolve<Test5>(nullResultAllowed: true);
 
-                Assert.Null(inst);
-            }
+            Assert.Null(inst);
         }
 
         [Fact]
         public void StandardResolveTests_Resolve_Singleton_NullDependency()
         {
-            using (IStashboxContainer container = new StashboxContainer())
-            {
-                container.RegisterSingleton<Test5>();
-                var inst = container.Resolve<Test5>(nullResultAllowed: true);
+            using IStashboxContainer container = new StashboxContainer();
+            container.RegisterSingleton<Test5>();
+            var inst = container.Resolve<Test5>(nullResultAllowed: true);
 
-                Assert.Null(inst);
-            }
+            Assert.Null(inst);
         }
 
         [Fact]

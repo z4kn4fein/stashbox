@@ -52,12 +52,10 @@ namespace Stashbox.Tests.IssueTests
             ITier1 renderer = (ITier1)sb1.Resolve(typeof(ITier1));
 
 
-            using (var scope = sb2.BeginScope())
-            {
-                scope.PutInstanceInScope(typeof(PrivateArgs<ITier2>), PrivateArgs<ITier2>.Get("Bob"));
-                scope.PutInstanceInScope(typeof(PrivateArgs<TierBase>), PrivateArgs<TierBase>.Get(5));
-                ITier1 renderer2 = (ITier1)scope.Resolve(typeof(ITier1));
-            }
+            using var scope = sb2.BeginScope();
+            scope.PutInstanceInScope(typeof(PrivateArgs<ITier2>), PrivateArgs<ITier2>.Get("Bob"));
+            scope.PutInstanceInScope(typeof(PrivateArgs<TierBase>), PrivateArgs<TierBase>.Get(5));
+            ITier1 renderer2 = (ITier1)scope.Resolve(typeof(ITier1));
 
         }
 
@@ -73,15 +71,11 @@ namespace Stashbox.Tests.IssueTests
             ITier1 renderer = (ITier1)sb1.Resolve(typeof(ITier1));
 
             // This fails
-            using (var sbc = sb2.CreateChildContainer())
-            {
-                using (var scope = sbc.BeginScope())
-                {
-                    scope.PutInstanceInScope(typeof(PrivateArgs<ITier2>), PrivateArgs<ITier2>.Get("Bob"));
-                    scope.PutInstanceInScope(typeof(PrivateArgs<TierBase>), PrivateArgs<TierBase>.Get(5));
-                    ITier1 renderer2 = (ITier1)scope.Resolve(typeof(ITier1));
-                }
-            }
+            using var sbc = sb2.CreateChildContainer();
+            using var scope = sbc.BeginScope();
+            scope.PutInstanceInScope(typeof(PrivateArgs<ITier2>), PrivateArgs<ITier2>.Get("Bob"));
+            scope.PutInstanceInScope(typeof(PrivateArgs<TierBase>), PrivateArgs<TierBase>.Get(5));
+            ITier1 renderer2 = (ITier1)scope.Resolve(typeof(ITier1));
         }
 
         private static StashboxContainer CreateContainer(Action<RegistrationConfigurator> scopeConfig = null)

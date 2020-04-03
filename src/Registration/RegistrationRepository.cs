@@ -1,4 +1,5 @@
-﻿using Stashbox.Entity;
+﻿using Stashbox.Configuration;
+using Stashbox.Entity;
 using Stashbox.Registration.Extensions;
 using Stashbox.Registration.SelectionRules;
 using Stashbox.Resolution;
@@ -12,6 +13,7 @@ namespace Stashbox.Registration
     internal class RegistrationRepository : IRegistrationRepository
     {
         private ImmutableTree<Type, ImmutableArray<object, IServiceRegistration>> serviceRepository = ImmutableTree<Type, ImmutableArray<object, IServiceRegistration>>.Empty;
+        private readonly ContainerConfiguration containerConfiguration;
 
         private readonly IRegistrationSelectionRule[] filters =
         {
@@ -34,7 +36,12 @@ namespace Stashbox.Registration
             RegistrationSelectionRules .ScopeNameFilter,
             RegistrationSelectionRules .ConditionFilter
         };
-        
+
+        public RegistrationRepository(ContainerConfiguration containerConfiguration)
+        {
+            this.containerConfiguration = containerConfiguration;
+        }
+
         public void AddOrUpdateRegistration(IServiceRegistration registration, Type serviceType, bool remap, bool replace)
         {
             var newRepository = new ImmutableArray<object, IServiceRegistration>(registration.RegistrationName, registration);
@@ -45,8 +52,11 @@ namespace Stashbox.Registration
             else
                 Swap.SwapValue(ref serviceRepository, (t1, t2, t3, t4, repo) =>
                     repo.AddOrUpdate(t2, t3,
-                        (oldValue, newValue) => oldValue.AddOrUpdate(t1.RegistrationName, t1, t4, (old, @new) => @new.InheritIdFrom(old))),
-                        registration, serviceType, newRepository, replace);
+                        (oldValue, newValue) => oldValue.AddOrUpdate(t1.RegistrationName, t1, t4, (old, @new) => @new.Replaces(old))),
+                        registration, serviceType, newRepository,
+                        replace ||
+                        this.containerConfiguration.RegistrationBehavior == Rules.RegistrationBehavior.ReplaceExisting ||
+                        this.containerConfiguration.RegistrationBehavior == Rules.RegistrationBehavior.ThrowExceptionOnAlreadyRegistered);
         }
 
         public bool ContainsRegistration(Type type, object name) =>
@@ -77,7 +87,7 @@ namespace Stashbox.Registration
         {
             var registrations = serviceRepository.GetOrDefault(type);
             if (!type.IsClosedGenericType()) return registrations;
-            
+
             var openGenerics = serviceRepository.GetOrDefault(type.GetGenericTypeDefinition());
 
             if (openGenerics == null) return registrations;

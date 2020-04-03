@@ -1,5 +1,4 @@
-﻿using Stashbox.ContainerExtension;
-using System;
+﻿using System;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -29,8 +28,6 @@ namespace Stashbox.Utils
         public static readonly MethodInfo CheckRuntimeCircularDependencyBarrierMethod = ResolutionScopeType.GetSingleMethod("CheckRuntimeCircularDependencyBarrier");
 
         public static readonly MethodInfo ResetRuntimetCircularDependencyBarrierMethod = ResolutionScopeType.GetSingleMethod("ResetRuntimeCircularDependencyBarrier");
-
-        public static readonly MethodInfo BuildExtensionMethod = typeof(IContainerExtensionManager).GetSingleMethod("ExecutePostBuildExtensions");
 
         public static readonly MethodInfo BeginScopeMethod = ResolverType.GetSingleMethod("BeginScope");
 

@@ -3,6 +3,7 @@ using Stashbox.Entity;
 using Stashbox.Exceptions;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace Stashbox.Registration.Fluent
 {
@@ -33,14 +34,14 @@ namespace Stashbox.Registration.Fluent
         /// <param name="rule">The auto member injection rule.</param>
         /// <param name="filter">A filter delegate used to determine which members should be auto injected and which are not.</param>
         /// <returns>The fluent configurator.</returns>
-        TFluentConfigurator WithAutoMemberInjection(Rules.AutoMemberInjectionRules rule = Rules.AutoMemberInjectionRules.PropertiesWithPublicSetter, Func<TypeInformation, bool> filter = null);
+        TFluentConfigurator WithAutoMemberInjection(Rules.AutoMemberInjectionRules rule = Rules.AutoMemberInjectionRules.PropertiesWithPublicSetter, Func<MemberInfo, bool> filter = null);
 
         /// <summary>
         /// The constructor selection rule.
         /// </summary>
         /// <param name="rule">The constructor selection rule.</param>
         /// <returns>The fluent configurator.</returns>
-        TFluentConfigurator WithConstructorSelectionRule(Func<IEnumerable<ConstructorInformation>, IEnumerable<ConstructorInformation>> rule);
+        TFluentConfigurator WithConstructorSelectionRule(Func<IEnumerable<ConstructorInfo>, IEnumerable<ConstructorInfo>> rule);
 
         /// <summary>
         /// Sets the selected constructor.

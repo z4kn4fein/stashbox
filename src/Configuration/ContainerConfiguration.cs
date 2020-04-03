@@ -1,9 +1,9 @@
 ﻿using Stashbox.Attributes;
-using Stashbox.Entity;
 using Stashbox.Lifetime;
 using Stashbox.Registration.Fluent;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace Stashbox.Configuration
 {
@@ -28,7 +28,7 @@ namespace Stashbox.Configuration
         /// <summary>
         /// If it's set to true the container will set a unique registration name for every new registration even if the implementation type is the same.
         /// </summary>
-        public bool SetUniqueRegistrationNames { get; internal set; }
+        public Rules.RegistrationBehavior RegistrationBehavior { get; internal set; }
 
         /// <summary>
         /// If it's set to true the container will track circular dependencies in the dependency graph and will throw an exception if any of it found.
@@ -83,7 +83,7 @@ namespace Stashbox.Configuration
         /// <summary>
         /// The constructor selection rule.
         /// </summary>
-        public Func<IEnumerable<ConstructorInformation>, IEnumerable<ConstructorInformation>> ConstructorSelectionRule { get; internal set; }
+        public Func<IEnumerable<ConstructorInfo>, IEnumerable<ConstructorInfo>> ConstructorSelectionRule { get; internal set; }
 
         /// <summary>
         /// Represents the configuration which will be invoked when an unknown type being registered.
@@ -98,7 +98,7 @@ namespace Stashbox.Configuration
         /// <summary>
         /// A filter delegate used to determine which members should be auto injected and which are not.
         /// </summary>
-        public Func<TypeInformation, bool> MemberInjectionFilter { get; internal set; }
+        public Func<MemberInfo, bool> MemberInjectionFilter { get; internal set; }
 
         /// <summary>
         /// The default lifetime, used when a service isn't configured with a lifetime.
@@ -113,7 +113,6 @@ namespace Stashbox.Configuration
             this.UnknownTypeResolutionEnabled = false;
             this.MemberInjectionWithoutAnnotationEnabled = false;
             this.CircularDependenciesWithLazyEnabled = false;
-            this.SetUniqueRegistrationNames = false;
             this.TreatingParameterAndMemberNameAsDependencyNameEnabled = false;
             this.NamedDependencyResolutionForUnNamedRequestsEnabled = false;
             this.ForceUseMicrosoftExpressionCompiler = false;

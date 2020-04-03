@@ -1,8 +1,8 @@
-﻿using Stashbox.Entity;
-using Stashbox.Lifetime;
+﻿using Stashbox.Lifetime;
 using Stashbox.Registration.Fluent;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace Stashbox.Configuration
 {
@@ -29,9 +29,9 @@ namespace Stashbox.Configuration
         }
 
         /// <inheritdoc />
-        public IContainerConfigurator WithUniqueRegistrationIdentifiers()
+        public IContainerConfigurator WithRegistrationBehavior(Rules.RegistrationBehavior registrationBehavior)
         {
-            this.ContainerConfiguration.SetUniqueRegistrationNames = true;
+            this.ContainerConfiguration.RegistrationBehavior = registrationBehavior;
             return this;
         }
 
@@ -66,7 +66,7 @@ namespace Stashbox.Configuration
         }
 
         /// <inheritdoc />
-        public IContainerConfigurator WithMemberInjectionWithoutAnnotation(Rules.AutoMemberInjectionRules rule = Rules.AutoMemberInjectionRules.PropertiesWithPublicSetter, Func<TypeInformation, bool> filter = null)
+        public IContainerConfigurator WithMemberInjectionWithoutAnnotation(Rules.AutoMemberInjectionRules rule = Rules.AutoMemberInjectionRules.PropertiesWithPublicSetter, Func<MemberInfo, bool> filter = null)
         {
             this.ContainerConfiguration.MemberInjectionWithoutAnnotationEnabled = true;
             this.ContainerConfiguration.MemberInjectionWithoutAnnotationRule = rule;
@@ -75,7 +75,7 @@ namespace Stashbox.Configuration
         }
 
         /// <inheritdoc />
-        public IContainerConfigurator WithConstructorSelectionRule(Func<IEnumerable<ConstructorInformation>, IEnumerable<ConstructorInformation>> selectionRule)
+        public IContainerConfigurator WithConstructorSelectionRule(Func<IEnumerable<ConstructorInfo>, IEnumerable<ConstructorInfo>> selectionRule)
         {
             this.ContainerConfiguration.ConstructorSelectionRule = selectionRule;
             return this;

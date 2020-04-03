@@ -15,375 +15,331 @@ namespace Stashbox.Tests
         [Fact]
         public void DecoratorTests_Simple()
         {
-            using (var container = new StashboxContainer())
-            {
-                container.Register<ITest1, Test1>();
-                container.RegisterDecorator<ITest1, TestDecorator1>();
-                var test = container.Resolve<ITest1>();
+            using var container = new StashboxContainer();
+            container.Register<ITest1, Test1>();
+            container.RegisterDecorator<ITest1, TestDecorator1>();
+            var test = container.Resolve<ITest1>();
 
-                Assert.NotNull(test);
-                Assert.IsType<TestDecorator1>(test);
+            Assert.NotNull(test);
+            Assert.IsType<TestDecorator1>(test);
 
-                Assert.NotNull(test.Test);
-                Assert.IsType<Test1>(test.Test);
-            }
+            Assert.NotNull(test.Test);
+            Assert.IsType<Test1>(test.Test);
         }
 
         [Fact]
         public void DecoratorTests_Simple2()
         {
-            using (var container = new StashboxContainer())
-            {
-                container.Register<ITest1, Test1>();
-                container.RegisterDecorator<ITest1>(typeof(TestDecorator1));
-                var test = container.Resolve<ITest1>();
+            using var container = new StashboxContainer();
+            container.Register<ITest1, Test1>();
+            container.RegisterDecorator<ITest1>(typeof(TestDecorator1));
+            var test = container.Resolve<ITest1>();
 
-                Assert.NotNull(test);
-                Assert.IsType<TestDecorator1>(test);
+            Assert.NotNull(test);
+            Assert.IsType<TestDecorator1>(test);
 
-                Assert.NotNull(test.Test);
-                Assert.IsType<Test1>(test.Test);
-            }
+            Assert.NotNull(test.Test);
+            Assert.IsType<Test1>(test.Test);
         }
 
         [Fact]
         public void DecoratorTests_Simple3()
         {
-            using (var container = new StashboxContainer())
-            {
-                container.Register<ITest1, Test1>();
-                container.RegisterDecorator(typeof(ITest1), typeof(TestDecorator1));
-                var test = container.Resolve<ITest1>();
+            using var container = new StashboxContainer();
+            container.Register<ITest1, Test1>();
+            container.RegisterDecorator(typeof(ITest1), typeof(TestDecorator1));
+            var test = container.Resolve<ITest1>();
 
-                Assert.NotNull(test);
-                Assert.IsType<TestDecorator1>(test);
+            Assert.NotNull(test);
+            Assert.IsType<TestDecorator1>(test);
 
-                Assert.NotNull(test.Test);
-                Assert.IsType<Test1>(test.Test);
-            }
+            Assert.NotNull(test.Test);
+            Assert.IsType<Test1>(test.Test);
         }
 
         [Fact]
         public void DecoratorTests_Simple_Lazy()
         {
-            using (var container = new StashboxContainer())
-            {
-                container.Register<ITest1, Test1>();
-                container.RegisterDecorator<ITest1, TestDecorator1>();
-                var test = container.Resolve<Lazy<ITest1>>();
+            using var container = new StashboxContainer();
+            container.Register<ITest1, Test1>();
+            container.RegisterDecorator<ITest1, TestDecorator1>();
+            var test = container.Resolve<Lazy<ITest1>>();
 
-                Assert.NotNull(test.Value);
-                Assert.IsType<TestDecorator1>(test.Value);
+            Assert.NotNull(test.Value);
+            Assert.IsType<TestDecorator1>(test.Value);
 
-                Assert.NotNull(test.Value.Test);
-                Assert.IsType<Test1>(test.Value.Test);
-            }
+            Assert.NotNull(test.Value.Test);
+            Assert.IsType<Test1>(test.Value.Test);
         }
 
         [Fact]
         public void DecoratorTests_Simple_Func()
         {
-            using (var container = new StashboxContainer())
-            {
-                container.Register<ITest1, Test1>();
-                container.RegisterDecorator<ITest1, TestDecorator1>();
-                var test = container.Resolve<Func<ITest1>>();
+            using var container = new StashboxContainer();
+            container.Register<ITest1, Test1>();
+            container.RegisterDecorator<ITest1, TestDecorator1>();
+            var test = container.Resolve<Func<ITest1>>();
 
-                Assert.NotNull(test());
-                Assert.IsType<TestDecorator1>(test());
+            Assert.NotNull(test());
+            Assert.IsType<TestDecorator1>(test());
 
-                Assert.NotNull(test().Test);
-                Assert.IsType<Test1>(test().Test);
-            }
+            Assert.NotNull(test().Test);
+            Assert.IsType<Test1>(test().Test);
         }
 
         [Fact]
         public void DecoratorTests_Simple_Enumerable()
         {
-            using (var container = new StashboxContainer())
-            {
-                container.Register<ITest1, Test1>();
-                container.Register<ITest1, Test11>();
-                container.RegisterDecorator<ITest1, TestDecorator1>();
-                var test = container.Resolve<IEnumerable<ITest1>>();
+            using var container = new StashboxContainer();
+            container.Register<ITest1, Test1>();
+            container.Register<ITest1, Test11>();
+            container.RegisterDecorator<ITest1, TestDecorator1>();
+            var test = container.Resolve<IEnumerable<ITest1>>();
 
-                Assert.NotNull(test);
-                Assert.IsAssignableFrom<IEnumerable<ITest1>>(test);
+            Assert.NotNull(test);
+            Assert.IsAssignableFrom<IEnumerable<ITest1>>(test);
 
-                var arr = test.ToArray();
+            var arr = test.ToArray();
 
-                Assert.NotNull(arr[0]);
-                Assert.IsType<TestDecorator1>(arr[0]);
+            Assert.NotNull(arr[0]);
+            Assert.IsType<TestDecorator1>(arr[0]);
 
-                Assert.NotNull(arr[1]);
-                Assert.IsType<TestDecorator1>(arr[1]);
+            Assert.NotNull(arr[1]);
+            Assert.IsType<TestDecorator1>(arr[1]);
 
-                Assert.NotNull(arr[0].Test);
-                Assert.IsType<Test1>(arr[0].Test);
+            Assert.NotNull(arr[0].Test);
+            Assert.IsType<Test1>(arr[0].Test);
 
-                Assert.NotNull(arr[1].Test);
-                Assert.IsType<Test11>(arr[1].Test);
-            }
+            Assert.NotNull(arr[1].Test);
+            Assert.IsType<Test11>(arr[1].Test);
         }
 
         [Fact]
         public void DecoratorTests_Decorator_Holds_Lazy()
         {
-            using (var container = new StashboxContainer())
-            {
-                container.Register<ITest1, Test1>();
-                container.RegisterDecorator<ITest1, TestDecorator6>();
-                var test = container.Resolve<ITest1>();
+            using var container = new StashboxContainer();
+            container.Register<ITest1, Test1>();
+            container.RegisterDecorator<ITest1, TestDecorator6>();
+            var test = container.Resolve<ITest1>();
 
-                Assert.NotNull(test);
-                Assert.IsType<TestDecorator6>(test);
+            Assert.NotNull(test);
+            Assert.IsType<TestDecorator6>(test);
 
-                Assert.NotNull(test.Test);
-                Assert.IsType<Test1>(test.Test);
-            }
+            Assert.NotNull(test.Test);
+            Assert.IsType<Test1>(test.Test);
         }
 
         [Fact]
         public void DecoratorTests_Decorator_Holds_Func()
         {
-            using (var container = new StashboxContainer())
-            {
-                container.Register<ITest1, Test1>();
-                container.RegisterDecorator<ITest1, TestDecorator7>();
-                var test = container.Resolve<ITest1>();
+            using var container = new StashboxContainer();
+            container.Register<ITest1, Test1>();
+            container.RegisterDecorator<ITest1, TestDecorator7>();
+            var test = container.Resolve<ITest1>();
 
-                Assert.NotNull(test);
-                Assert.IsType<TestDecorator7>(test);
+            Assert.NotNull(test);
+            Assert.IsType<TestDecorator7>(test);
 
-                Assert.NotNull(test.Test);
-                Assert.IsType<Test1>(test.Test);
-            }
+            Assert.NotNull(test.Test);
+            Assert.IsType<Test1>(test.Test);
         }
 
         [Fact]
         public void DecoratorTests_Decorator_Holds_Enumerable()
         {
-            using (var container = new StashboxContainer())
-            {
-                container.Register<ITest1, Test1>();
-                container.RegisterDecorator<ITest1, TestDecorator8>();
-                var test = container.Resolve<ITest1>();
+            using var container = new StashboxContainer();
+            container.Register<ITest1, Test1>();
+            container.RegisterDecorator<ITest1, TestDecorator8>();
+            var test = container.Resolve<ITest1>();
 
-                Assert.NotNull(test);
-                Assert.IsType<TestDecorator8>(test);
+            Assert.NotNull(test);
+            Assert.IsType<TestDecorator8>(test);
 
-                Assert.NotNull(test.Test);
-                Assert.IsType<Test1>(test.Test);
-            }
+            Assert.NotNull(test.Test);
+            Assert.IsType<Test1>(test.Test);
         }
 
         [Fact]
         public void DecoratorTests_Dependency()
         {
-            using (var container = new StashboxContainer())
-            {
-                container.Register<ITest1, Test1>();
-                container.RegisterDecorator<ITest1, TestDecorator3>();
-                var test = container.Resolve<ITest1>();
+            using var container = new StashboxContainer();
+            container.Register<ITest1, Test1>();
+            container.RegisterDecorator<ITest1, TestDecorator3>();
+            var test = container.Resolve<ITest1>();
 
-                Assert.NotNull(test);
-                Assert.IsType<TestDecorator3>(test);
+            Assert.NotNull(test);
+            Assert.IsType<TestDecorator3>(test);
 
-                Assert.NotNull(test.Test);
-                Assert.IsType<Test1>(test.Test);
-            }
+            Assert.NotNull(test.Test);
+            Assert.IsType<Test1>(test.Test);
         }
 
         [Fact]
         public void DecoratorTests_Inject_Member_With_Config()
         {
-            using (var container = new StashboxContainer())
-            {
-                container.Register<ITest1, Test1>();
-                container.RegisterDecorator<ITest1, TestDecorator3Attributeless>(config => config.InjectMember("Test"));
-                var test = container.Resolve<ITest1>();
+            using var container = new StashboxContainer();
+            container.Register<ITest1, Test1>();
+            container.RegisterDecorator<ITest1, TestDecorator3Attributeless>(config => config.InjectMember("Test"));
+            var test = container.Resolve<ITest1>();
 
-                Assert.NotNull(test);
-                Assert.IsType<TestDecorator3Attributeless>(test);
+            Assert.NotNull(test);
+            Assert.IsType<TestDecorator3Attributeless>(test);
 
-                Assert.NotNull(test.Test);
-                Assert.IsType<Test1>(test.Test);
-            }
+            Assert.NotNull(test.Test);
+            Assert.IsType<Test1>(test.Test);
         }
 
         [Fact]
         public void DecoratorTests_AutoMemberInjection_Throw_When_Member_Unresolvable()
         {
-            using (var container = new StashboxContainer())
-            {
-                container.Register<ITest1, Test1>();
-                container.RegisterDecorator<ITest1, TestDecorator4>(context => context.WithAutoMemberInjection(Rules.AutoMemberInjectionRules.PropertiesWithLimitedAccess));
-                Assert.Throws<ResolutionFailedException>(() => container.Resolve<ITest1>());
-            }
+            using var container = new StashboxContainer();
+            container.Register<ITest1, Test1>();
+            container.RegisterDecorator<ITest1, TestDecorator4>(context => context.WithAutoMemberInjection(Rules.AutoMemberInjectionRules.PropertiesWithLimitedAccess));
+            Assert.Throws<ResolutionFailedException>(() => container.Resolve<ITest1>());
         }
 
         [Fact]
         public void DecoratorTests_AutoMemberInjection_InjectionParameter()
         {
-            using (var container = new StashboxContainer())
-            {
-                container.Register<ITest1, Test1>();
-                container.RegisterDecorator<ITest1, TestDecorator4>(context => context
-                    .WithAutoMemberInjection(Rules.AutoMemberInjectionRules.PropertiesWithLimitedAccess)
-                    .WithInjectionParameters(new InjectionParameter { Name = "Name", Value = "test" }));
-                var test = container.Resolve<ITest1>();
+            using var container = new StashboxContainer();
+            container.Register<ITest1, Test1>();
+            container.RegisterDecorator<ITest1, TestDecorator4>(context => context
+                .WithAutoMemberInjection(Rules.AutoMemberInjectionRules.PropertiesWithLimitedAccess)
+                .WithInjectionParameters(new InjectionParameter { Name = "Name", Value = "test" }));
+            var test = container.Resolve<ITest1>();
 
-                Assert.NotNull(test);
-                Assert.IsType<TestDecorator4>(test);
+            Assert.NotNull(test);
+            Assert.IsType<TestDecorator4>(test);
 
-                Assert.NotNull(test.Test);
-                Assert.IsType<Test1>(test.Test);
-                Assert.Equal("test", ((TestDecorator4)test).Name);
-            }
+            Assert.NotNull(test.Test);
+            Assert.IsType<Test1>(test.Test);
+            Assert.Equal("test", ((TestDecorator4)test).Name);
         }
 
         [Fact]
         public void DecoratorTests_AutoMemberInjection_InjectionParameter_Fluent()
         {
-            using (var container = new StashboxContainer())
-            {
-                container.Register<ITest1, Test1>();
-                container.RegisterDecorator<ITest1, TestDecorator4>(context => context
-                    .WithAutoMemberInjection(Rules.AutoMemberInjectionRules.PropertiesWithLimitedAccess)
-                    .WithInjectionParameter("Name", "test"));
-                var test = container.Resolve<ITest1>();
+            using var container = new StashboxContainer();
+            container.Register<ITest1, Test1>();
+            container.RegisterDecorator<ITest1, TestDecorator4>(context => context
+                .WithAutoMemberInjection(Rules.AutoMemberInjectionRules.PropertiesWithLimitedAccess)
+                .WithInjectionParameter("Name", "test"));
+            var test = container.Resolve<ITest1>();
 
-                Assert.NotNull(test);
-                Assert.IsType<TestDecorator4>(test);
+            Assert.NotNull(test);
+            Assert.IsType<TestDecorator4>(test);
 
-                Assert.NotNull(test.Test);
-                Assert.IsType<Test1>(test.Test);
-                Assert.Equal("test", ((TestDecorator4)test).Name);
-            }
+            Assert.NotNull(test.Test);
+            Assert.IsType<Test1>(test.Test);
+            Assert.Equal("test", ((TestDecorator4)test).Name);
         }
 
         [Fact]
         public void DecoratorTests_ConstructorSelection_LeastParameters()
         {
-            using (var container = new StashboxContainer())
-            {
-                container.Register<ITest1, Test1>();
-                container.RegisterDecorator<ITest1, TestDecorator5>(context => context.WithConstructorSelectionRule(Rules.ConstructorSelection.PreferLeastParameters));
-                var test = container.Resolve<ITest1>();
+            using var container = new StashboxContainer();
+            container.Register<ITest1, Test1>();
+            container.RegisterDecorator<ITest1, TestDecorator5>(context => context.WithConstructorSelectionRule(Rules.ConstructorSelection.PreferLeastParameters));
+            var test = container.Resolve<ITest1>();
 
-                Assert.NotNull(test);
-                Assert.IsType<TestDecorator5>(test);
+            Assert.NotNull(test);
+            Assert.IsType<TestDecorator5>(test);
 
-                Assert.Null(test.Test);
-            }
+            Assert.Null(test.Test);
         }
 
         [Fact]
         public void DecoratorTests_ConstructorSelection_MostParameters()
         {
-            using (var container = new StashboxContainer())
-            {
-                container.Register<ITest1, Test1>();
-                container.RegisterDecorator<ITest1, TestDecorator5>(context => context.WithConstructorSelectionRule(Rules.ConstructorSelection.PreferMostParameters));
-                var test = container.Resolve<ITest1>();
+            using var container = new StashboxContainer();
+            container.Register<ITest1, Test1>();
+            container.RegisterDecorator<ITest1, TestDecorator5>(context => context.WithConstructorSelectionRule(Rules.ConstructorSelection.PreferMostParameters));
+            var test = container.Resolve<ITest1>();
 
-                Assert.NotNull(test);
-                Assert.IsType<TestDecorator5>(test);
+            Assert.NotNull(test);
+            Assert.IsType<TestDecorator5>(test);
 
-                Assert.NotNull(test.Test);
-                Assert.IsType<Test1>(test.Test);
-            }
+            Assert.NotNull(test.Test);
+            Assert.IsType<Test1>(test.Test);
         }
 
         [Fact]
         public void DecoratorTests_Multiple()
         {
-            using (var container = new StashboxContainer())
-            {
-                container.Register<ITest1, Test1>();
-                container.RegisterDecorator<ITest1, TestDecorator1>();
-                container.RegisterDecorator<ITest1, TestDecorator2>();
-                var test = container.Resolve<ITest1>();
+            using var container = new StashboxContainer();
+            container.Register<ITest1, Test1>();
+            container.RegisterDecorator<ITest1, TestDecorator1>();
+            container.RegisterDecorator<ITest1, TestDecorator2>();
+            var test = container.Resolve<ITest1>();
 
-                Assert.NotNull(test);
-                Assert.IsType<TestDecorator2>(test);
+            Assert.NotNull(test);
+            Assert.IsType<TestDecorator2>(test);
 
-                Assert.NotNull(test.Test);
-                Assert.IsType<TestDecorator1>(test.Test);
+            Assert.NotNull(test.Test);
+            Assert.IsType<TestDecorator1>(test.Test);
 
-                Assert.NotNull(test.Test.Test);
-                Assert.IsType<Test1>(test.Test.Test);
-            }
+            Assert.NotNull(test.Test.Test);
+            Assert.IsType<Test1>(test.Test.Test);
         }
 
         [Fact]
         public void DecoratorTests_Multiple_Scoped()
         {
-            using (var container = new StashboxContainer())
-            {
-                container.RegisterScoped<ITest1, Test1>();
-                container.RegisterDecorator<ITest1, TestDecorator1>();
-                container.RegisterDecorator<ITest1, TestDecorator2>();
+            using var container = new StashboxContainer();
+            container.RegisterScoped<ITest1, Test1>();
+            container.RegisterDecorator<ITest1, TestDecorator1>();
+            container.RegisterDecorator<ITest1, TestDecorator2>();
 
-                using (var child = container.BeginScope())
-                {
-                    var test = child.Resolve<ITest1>();
+            using var child = container.BeginScope();
+            var test = child.Resolve<ITest1>();
 
-                    Assert.NotNull(test);
-                    Assert.IsType<TestDecorator2>(test);
+            Assert.NotNull(test);
+            Assert.IsType<TestDecorator2>(test);
 
-                    Assert.NotNull(test.Test);
-                    Assert.IsType<TestDecorator1>(test.Test);
+            Assert.NotNull(test.Test);
+            Assert.IsType<TestDecorator1>(test.Test);
 
-                    Assert.NotNull(test.Test.Test);
-                    Assert.IsType<Test1>(test.Test.Test);
-                }
-            }
+            Assert.NotNull(test.Test.Test);
+            Assert.IsType<Test1>(test.Test.Test);
         }
 
         [Fact]
         public void DecoratorTests_OpenGeneric()
         {
-            using (var container = new StashboxContainer())
-            {
-                container.Register(typeof(ITest1<>), typeof(Test1<>));
-                container.RegisterDecorator(typeof(ITest1<>), typeof(TestDecorator1<>));
-                var test = container.Resolve<ITest1<int>>();
+            using var container = new StashboxContainer();
+            container.Register(typeof(ITest1<>), typeof(Test1<>));
+            container.RegisterDecorator(typeof(ITest1<>), typeof(TestDecorator1<>));
+            var test = container.Resolve<ITest1<int>>();
 
-                Assert.NotNull(test);
-                Assert.IsType<TestDecorator1<int>>(test);
+            Assert.NotNull(test);
+            Assert.IsType<TestDecorator1<int>>(test);
 
-                Assert.NotNull(test.Test);
-                Assert.IsType<Test1<int>>(test.Test);
-            }
+            Assert.NotNull(test.Test);
+            Assert.IsType<Test1<int>>(test.Test);
         }
 
         [Fact]
         public void DecoratorTests_DecoratorDependency_Null()
         {
-            using (var container = new StashboxContainer())
-            {
-                container.Register<ITest1, Test1>();
-                container.RegisterDecorator<ITest1, TestDecorator9>();
+            using var container = new StashboxContainer();
+            container.Register<ITest1, Test1>();
+            container.RegisterDecorator<ITest1, TestDecorator9>();
 
-                var inst = container.Resolve<ITest1>(nullResultAllowed: true);
+            var inst = container.Resolve<ITest1>(nullResultAllowed: true);
 
-                Assert.Null(inst);
-            }
+            Assert.Null(inst);
         }
 
         [Fact]
         public void DecoratorTests_DecoreteeDependency_Null()
         {
-            using (var container = new StashboxContainer())
-            {
-                container.Register<ITest1, Test12>();
-                container.RegisterDecorator<ITest1, TestDecorator9>();
+            using var container = new StashboxContainer();
+            container.Register<ITest1, Test12>();
+            container.RegisterDecorator<ITest1, TestDecorator9>();
 
-                var inst = container.Resolve<ITest1>(nullResultAllowed: true);
+            var inst = container.Resolve<ITest1>(nullResultAllowed: true);
 
-                Assert.Null(inst);
-            }
+            Assert.Null(inst);
         }
 
         [Fact]
@@ -446,108 +402,98 @@ namespace Stashbox.Tests
         [Fact]
         public void DecoratorTests_ReplaceDecorator()
         {
-            using (var container = new StashboxContainer())
-            {
-                container.Register<ITest1, Test1>();
-                container.RegisterDecorator<ITest1, TestDecorator1>();
+            using var container = new StashboxContainer();
+            container.Register<ITest1, Test1>();
+            container.RegisterDecorator<ITest1, TestDecorator1>();
 
-                var test = container.Resolve<ITest1>();
+            var test = container.Resolve<ITest1>();
 
-                Assert.IsType<TestDecorator1>(test);
-                Assert.IsType<Test1>(test.Test);
+            Assert.IsType<TestDecorator1>(test);
+            Assert.IsType<Test1>(test.Test);
 
-                container.RegisterDecorator<ITest1, TestDecorator1>(context => context.ReplaceExisting());
+            container.RegisterDecorator<ITest1, TestDecorator1>(context => context.ReplaceExisting());
 
-                test = container.Resolve<ITest1>();
+            test = container.Resolve<ITest1>();
 
-                Assert.IsType<TestDecorator1>(test);
-                Assert.IsType<Test1>(test.Test);
-            }
+            Assert.IsType<TestDecorator1>(test);
+            Assert.IsType<Test1>(test.Test);
         }
 
         [Fact]
         public void DecoratorTests_RemapDecorator()
         {
-            using (var container = new StashboxContainer())
-            {
-                container.Register<ITest1, Test1>();
-                container.RegisterDecorator<ITest1, TestDecorator1>();
-                container.RegisterDecorator<ITest1, TestDecorator2>();
+            using var container = new StashboxContainer();
+            container.Register<ITest1, Test1>();
+            container.RegisterDecorator<ITest1, TestDecorator1>();
+            container.RegisterDecorator<ITest1, TestDecorator2>();
 
-                var test = container.Resolve<ITest1>();
+            var test = container.Resolve<ITest1>();
 
-                Assert.IsType<TestDecorator2>(test);
-                Assert.IsType<TestDecorator1>(test.Test);
-                Assert.IsType<Test1>(test.Test.Test);
+            Assert.IsType<TestDecorator2>(test);
+            Assert.IsType<TestDecorator1>(test.Test);
+            Assert.IsType<Test1>(test.Test.Test);
 
-                container.ReMapDecorator<ITest1, TestDecorator3>();
+            container.ReMapDecorator<ITest1, TestDecorator3>();
 
-                test = container.Resolve<ITest1>();
+            test = container.Resolve<ITest1>();
 
-                Assert.IsType<TestDecorator3>(test);
-                Assert.IsType<Test1>(test.Test);
-            }
+            Assert.IsType<TestDecorator3>(test);
+            Assert.IsType<Test1>(test.Test);
         }
 
         [Fact]
         public void DecoratorTests_RemapDecorator_V2()
         {
-            using (var container = new StashboxContainer())
-            {
-                container.Register<ITest1, Test1>();
-                container.RegisterDecorator<ITest1, TestDecorator1>();
-                container.RegisterDecorator<ITest1, TestDecorator2>();
+            using var container = new StashboxContainer();
+            container.Register<ITest1, Test1>();
+            container.RegisterDecorator<ITest1, TestDecorator1>();
+            container.RegisterDecorator<ITest1, TestDecorator2>();
 
-                var test = container.Resolve<ITest1>();
+            var test = container.Resolve<ITest1>();
 
-                Assert.IsType<TestDecorator2>(test);
-                Assert.IsType<TestDecorator1>(test.Test);
-                Assert.IsType<Test1>(test.Test.Test);
+            Assert.IsType<TestDecorator2>(test);
+            Assert.IsType<TestDecorator1>(test.Test);
+            Assert.IsType<Test1>(test.Test.Test);
 
-                container.ReMapDecorator<ITest1>(typeof(TestDecorator3));
+            container.ReMapDecorator<ITest1>(typeof(TestDecorator3));
 
-                test = container.Resolve<ITest1>();
+            test = container.Resolve<ITest1>();
 
-                Assert.IsType<TestDecorator3>(test);
-                Assert.IsType<Test1>(test.Test);
-            }
+            Assert.IsType<TestDecorator3>(test);
+            Assert.IsType<Test1>(test.Test);
         }
 
         [Fact]
         public void DecoratorTests_RemapDecorator_WithConfig()
         {
-            using (var container = new StashboxContainer())
-            {
-                container.Register<ITest1, Test1>();
-                container.RegisterDecorator<ITest1, TestDecorator1>();
-                container.RegisterDecorator<ITest1, TestDecorator2>();
+            using var container = new StashboxContainer();
+            container.Register<ITest1, Test1>();
+            container.RegisterDecorator<ITest1, TestDecorator1>();
+            container.RegisterDecorator<ITest1, TestDecorator2>();
 
-                var test = container.Resolve<ITest1>();
+            var test = container.Resolve<ITest1>();
 
-                Assert.IsType<TestDecorator2>(test);
-                Assert.IsType<TestDecorator1>(test.Test);
-                Assert.IsType<Test1>(test.Test.Test);
+            Assert.IsType<TestDecorator2>(test);
+            Assert.IsType<TestDecorator1>(test.Test);
+            Assert.IsType<Test1>(test.Test.Test);
 
-                container.ReMapDecorator(typeof(ITest1), typeof(TestDecorator3), context => context.WithoutDisposalTracking());
+            container.ReMapDecorator(typeof(ITest1), typeof(TestDecorator3), context => context.WithoutDisposalTracking());
 
-                test = container.Resolve<ITest1>();
+            test = container.Resolve<ITest1>();
 
-                Assert.IsType<TestDecorator3>(test);
-                Assert.IsType<Test1>(test.Test);
-            }
+            Assert.IsType<TestDecorator3>(test);
+            Assert.IsType<Test1>(test.Test);
         }
 
         [Fact]
         public void DecoratorTests_Service_ImplementationType()
         {
-            using (var container = new StashboxContainer())
-            {
-                container.RegisterDecorator<ITest1, TestDecorator1>(context =>
-                {
-                    Assert.Equal(typeof(ITest1), context.ServiceType);
-                    Assert.Equal(typeof(TestDecorator1), context.ImplementationType);
-                });
-            }
+            using var container = new StashboxContainer();
+            container.RegisterDecorator<ITest1, TestDecorator1>(context =>
+{
+Assert.Equal(typeof(ITest1), context.ServiceType);
+Assert.Equal(typeof(TestDecorator1), context.ImplementationType);
+});
         }
 
         interface ITest1 { ITest1 Test { get; } }

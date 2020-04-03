@@ -55,24 +55,20 @@ namespace Stashbox.Tests
             var container = new StashboxContainer()
                 .RegisterScoped<ITest, Test>();
 
-            using (var scope = container.BeginScope())
-            {
-                var factory = scope.Resolve<Func<ITest>>();
-                var inst1 = factory();
-                var inst2 = factory();
+            using var scope = container.BeginScope();
+            var factory = scope.Resolve<Func<ITest>>();
+            var inst1 = factory();
+            var inst2 = factory();
 
-                Assert.Same(inst1, inst2);
+            Assert.Same(inst1, inst2);
 
-                using (var scope2 = scope.BeginScope())
-                {
-                    var factory1 = scope2.Resolve<Func<ITest>>();
-                    var inst3 = factory1();
-                    var inst4 = factory1();
+            using var scope2 = scope.BeginScope();
+            var factory1 = scope2.Resolve<Func<ITest>>();
+            var inst3 = factory1();
+            var inst4 = factory1();
 
-                    Assert.Same(inst3, inst4);
-                    Assert.NotSame(inst1, inst3);
-                }
-            }
+            Assert.Same(inst3, inst4);
+            Assert.NotSame(inst1, inst3);
         }
 
         [Fact]

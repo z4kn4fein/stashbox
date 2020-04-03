@@ -10,15 +10,13 @@ namespace Stashbox.Tests.IssueTests
             var container = new StashboxContainer(c => c.WithUnknownTypeResolution(ctx => ctx.WithoutFactoryCache()));
             var inst = container.Resolve<object>();
 
-            using (var scope = container.BeginScope())
-            {
-                var @new = new object();
-                scope.PutInstanceInScope(@new);
+            using var scope = container.BeginScope();
+            var @new = new object();
+            scope.PutInstanceInScope(@new);
 
-                var scoped = scope.Resolve<object>();
-                Assert.NotSame(inst, scoped);
-                Assert.Same(@new, scoped);
-            }
+            var scoped = scope.Resolve<object>();
+            Assert.NotSame(inst, scoped);
+            Assert.Same(@new, scoped);
         }
     }
 }

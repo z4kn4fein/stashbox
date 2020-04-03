@@ -1,4 +1,5 @@
-﻿using Stashbox.Utils;
+﻿using Stashbox.Configuration;
+using Stashbox.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -577,7 +578,8 @@ namespace Stashbox.Tests
         [Fact]
         public void EnumerableTests_Resolve_UniqueIds()
         {
-            IStashboxContainer container = new StashboxContainer(config => config.WithUniqueRegistrationIdentifiers());
+            IStashboxContainer container = new StashboxContainer(config => config
+                .WithRegistrationBehavior(Rules.RegistrationBehavior.PreserveDuplications));
             container.Register<ITest1, Test1>();
             container.Register<ITest1, Test1>();
             container.Register<ITest1, Test1>();

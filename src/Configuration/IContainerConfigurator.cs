@@ -1,9 +1,9 @@
 ﻿using Stashbox.Configuration;
-using Stashbox.Entity;
 using Stashbox.Lifetime;
 using Stashbox.Registration.Fluent;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace Stashbox
 {
@@ -27,7 +27,7 @@ namespace Stashbox
         /// Enables the unique registration id generation for services even if the implementation type is the same.
         /// </summary>
         /// <returns>The container configurator.</returns>
-        IContainerConfigurator WithUniqueRegistrationIdentifiers();
+        IContainerConfigurator WithRegistrationBehavior(Rules.RegistrationBehavior registrationBehavior);
 
         /// <summary>
         /// Enables the circular dependency tracking.
@@ -58,13 +58,13 @@ namespace Stashbox
         /// Enables the member injection without annotation.
         /// </summary>
         /// <returns>The container configurator.</returns>
-        IContainerConfigurator WithMemberInjectionWithoutAnnotation(Rules.AutoMemberInjectionRules rule = Rules.AutoMemberInjectionRules.PropertiesWithPublicSetter, Func<TypeInformation, bool> filter = null);
+        IContainerConfigurator WithMemberInjectionWithoutAnnotation(Rules.AutoMemberInjectionRules rule = Rules.AutoMemberInjectionRules.PropertiesWithPublicSetter, Func<MemberInfo, bool> filter = null);
 
         /// <summary>
         /// Sets the constructor selection rule.
         /// </summary>
         /// <returns>The container configurator.</returns>
-        IContainerConfigurator WithConstructorSelectionRule(Func<IEnumerable<ConstructorInformation>, IEnumerable<ConstructorInformation>> selectionRule);
+        IContainerConfigurator WithConstructorSelectionRule(Func<IEnumerable<ConstructorInfo>, IEnumerable<ConstructorInfo>> selectionRule);
 
         /// <summary>
         /// Sets a callback delegate to call when the container configuration changes.

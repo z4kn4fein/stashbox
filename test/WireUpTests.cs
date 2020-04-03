@@ -10,121 +10,109 @@ namespace Stashbox.Tests
         [Fact]
         public void WireUp_Multiple()
         {
-            using (var container = new StashboxContainer())
-            {
-                var test1 = new Test1();
-                container.WireUpAs<ITest1>(test1);
+            using var container = new StashboxContainer();
+            var test1 = new Test1();
+            container.WireUpAs<ITest1>(test1);
 
-                var test2 = new Test();
-                container.WireUpAs<ITest>(test2);
+            var test2 = new Test();
+            container.WireUpAs<ITest>(test2);
 
-                var inst = container.Resolve<ITest1>();
-                var inst2 = container.Resolve<ITest>();
+            var inst = container.Resolve<ITest1>();
+            var inst2 = container.Resolve<ITest>();
 
-                Assert.Same(test1, inst);
-                Assert.Same(test2, inst2);
-            }
+            Assert.Same(test1, inst);
+            Assert.Same(test2, inst2);
         }
 
         [Fact]
         public void WireUp_Multiple_Named()
         {
-            using (var container = new StashboxContainer())
-            {
-                var test1 = new Test();
-                container.WireUpAs<ITest>(test1, "test1");
+            using var container = new StashboxContainer();
+            var test1 = new Test();
+            container.WireUpAs<ITest>(test1, "test1");
 
-                var test2 = new Test();
-                container.WireUpAs<ITest>(test2, "test2");
+            var test2 = new Test();
+            container.WireUpAs<ITest>(test2, "test2");
 
-                var inst = container.Resolve<ITest>("test1");
-                var inst2 = container.Resolve<ITest>("test2");
+            var inst = container.Resolve<ITest>("test1");
+            var inst2 = container.Resolve<ITest>("test2");
 
-                Assert.Same(test1, inst);
-                Assert.Same(test2, inst2);
-            }
+            Assert.Same(test1, inst);
+            Assert.Same(test2, inst2);
         }
 
         [Fact]
         public void WireUpTests_InjectionMember()
         {
-            using (var container = new StashboxContainer())
-            {
-                container.Register<ITest, Test>();
+            using var container = new StashboxContainer();
+            container.Register<ITest, Test>();
 
-                var test1 = new Test1();
-                container.WireUpAs<ITest1>(test1);
+            var test1 = new Test1();
+            container.WireUpAs<ITest1>(test1);
 
-                container.Register<Test2>();
+            container.Register<Test2>();
 
-                var inst = container.Resolve<Test2>();
+            var inst = container.Resolve<Test2>();
 
-                Assert.NotNull(inst);
-                Assert.NotNull(inst.Test1);
-                Assert.IsType<Test2>(inst);
-                Assert.IsType<Test1>(inst.Test1);
-                Assert.IsType<Test>(inst.Test1.Test);
-            }
+            Assert.NotNull(inst);
+            Assert.NotNull(inst.Test1);
+            Assert.IsType<Test2>(inst);
+            Assert.IsType<Test1>(inst.Test1);
+            Assert.IsType<Test>(inst.Test1.Test);
         }
 
         [Fact]
         public void WireUpTests_InjectionMember_ServiceUpdated()
         {
-            using (var container = new StashboxContainer())
-            {
-                container.Register<ITest, Test>();
+            using var container = new StashboxContainer();
+            container.Register<ITest, Test>();
 
-                var test1 = new Test1();
-                container.WireUpAs<ITest1>(test1);
+            var test1 = new Test1();
+            container.WireUpAs<ITest1>(test1);
 
-                container.ReMap<ITest, Test>();
+            container.ReMap<ITest, Test>();
 
-                container.Register<Test2>();
+            container.Register<Test2>();
 
-                var inst = container.Resolve<Test2>();
+            var inst = container.Resolve<Test2>();
 
-                Assert.NotNull(inst);
-                Assert.NotNull(inst.Test1);
-                Assert.IsType<Test2>(inst);
-                Assert.IsType<Test1>(inst.Test1);
-                Assert.IsType<Test>(inst.Test1.Test);
-            }
+            Assert.NotNull(inst);
+            Assert.NotNull(inst.Test1);
+            Assert.IsType<Test2>(inst);
+            Assert.IsType<Test1>(inst.Test1);
+            Assert.IsType<Test>(inst.Test1.Test);
         }
 
         [Fact]
         public void WireUpTests_InjectionMember_WithoutService()
         {
-            using (var container = new StashboxContainer())
-            {
-                container.Register<ITest, Test>();
-                var test1 = new Test1();
-                container.WireUp(test1);
-                var inst = container.Resolve<Test1>();
+            using var container = new StashboxContainer();
+            container.Register<ITest, Test>();
+            var test1 = new Test1();
+            container.WireUp(test1);
+            var inst = container.Resolve<Test1>();
 
-                Assert.NotNull(inst);
-                Assert.NotNull(inst.Test);
-                Assert.IsType<Test1>(inst);
-                Assert.IsType<Test>(inst.Test);
-            }
+            Assert.NotNull(inst);
+            Assert.NotNull(inst.Test);
+            Assert.IsType<Test1>(inst);
+            Assert.IsType<Test>(inst.Test);
         }
 
         [Fact]
         public void WireUpTests_WithoutService_NonGeneric()
         {
-            using (var container = new StashboxContainer())
-            {
-                container.Register<ITest, Test>();
-                object test1 = new Test1();
-                container.WireUp(typeof(Test1), test1);
-                var inst = container.Resolve<Test1>();
+            using var container = new StashboxContainer();
+            container.Register<ITest, Test>();
+            object test1 = new Test1();
+            container.WireUp(typeof(Test1), test1);
+            var inst = container.Resolve<Test1>();
 
-                Assert.NotNull(inst);
-                Assert.NotNull(inst.Test);
-                Assert.NotNull(inst.test);
-                Assert.IsType<Test1>(inst);
-                Assert.IsType<Test>(inst.Test);
-                Assert.IsType<Test>(inst.test);
-            }
+            Assert.NotNull(inst);
+            Assert.NotNull(inst.Test);
+            Assert.NotNull(inst.test);
+            Assert.IsType<Test1>(inst);
+            Assert.IsType<Test>(inst.Test);
+            Assert.IsType<Test>(inst.test);
         }
 
         interface ITest { }

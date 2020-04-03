@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net40;net45;netstandard1.0;netstandard1.3;netstandard2.0;portable-net45+win8+wpa81+wp8</TargetFrameworks>
+    <TargetFrameworks>net40;net45;netstandard1.0;netstandard1.3;netstandard2.0</TargetFrameworks>
     <AssemblyName>Stashbox</AssemblyName>
     <AssemblyTitle>Stashbox</AssemblyTitle>
     <RootNamespace>Stashbox</RootNamespace>
@@ -17,7 +17,7 @@
     <PackageTags>Stashbox di dependencyinjection ioc dotnet netstandard</PackageTags>
     <Description>Stashbox is a lightweight, portable dependency injection framework for .NET based solutions.</Description>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <!--<GenerateDocumentationFile>true</GenerateDocumentationFile>-->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../sn.snk</AssemblyOriginatorKeyFile>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
@@ -28,7 +28,13 @@
     <LangVersion>latest</LangVersion>
     <PackageReleaseNotes>
       <![CDATA[
-- Fix: IServiceProvider resolution
+- Fix: Nested named resolution could cause stack overflow
+- Fix: Improve support for Assemblies loaded into Collectible AssemblyLoadContexts
+
+Breaking changes:
+- WithUniqueRegistrationIdentifiers() option is removed, WithRegistrationBehavior() is added instead
+- Removed the legacy container extension functionality
+- Removed the support support of PCL v259
     ]]>
     </PackageReleaseNotes>
     <Configurations>Debug;Release;Benchmark</Configurations>
@@ -52,15 +58,6 @@
   </PropertyGroup>  
   <PropertyGroup Condition="'$(TargetFramework)' == 'net40' Or '$(TargetFramework)' == 'net45'">
     <DefineConstants>IL_EMIT;HAS_SERVICEPROVIDER</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(TargetFramework)' == 'portable-net45+win8+wpa81+wp8' And '$(MSBuildRuntimeType)' == 'Full'">
-    <DefineConstants>HAS_SERVICEPROVIDER</DefineConstants>
-    <IncludeProjectPriFile>false</IncludeProjectPriFile>
-    <TargetFrameworkIdentifier>.NETPortable</TargetFrameworkIdentifier>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <TargetFrameworkProfile>Profile259</TargetFrameworkProfile>
-    <NugetTargetMoniker>.NETPortable,Version=v0.0,Profile=Profile259</NugetTargetMoniker>
-    <LanguageTargets>$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets</LanguageTargets>
   </PropertyGroup>
   
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.3' Or '$(TargetFramework)' == 'netstandard2.0'">

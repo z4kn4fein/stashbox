@@ -9,40 +9,34 @@ namespace Stashbox.Tests.IssueTests
         [Fact]
         public void Issue_with_Member_Injection_with_Attribute_but_private_setter_private_property()
         {
-            using (var container = new StashboxContainer(config => config.WithUnknownTypeResolution()))
-            {
-                var test = container.Register<Test2>(config => config.WithAutoMemberInjection(Rules.AutoMemberInjectionRules.PropertiesWithLimitedAccess))
-                    .Resolve<Test2>();
+            using var container = new StashboxContainer(config => config.WithUnknownTypeResolution());
+            var test = container.Register<Test2>(config => config.WithAutoMemberInjection(Rules.AutoMemberInjectionRules.PropertiesWithLimitedAccess))
+.Resolve<Test2>();
 
-                Assert.True(test.Test1Prop2 != null, "test.Test1Prop2 != null");
-                Assert.True(test.Test1Prop != null, "test.Test1Prop != null");
-            }
+            Assert.True(test.Test1Prop2 != null, "test.Test1Prop2 != null");
+            Assert.True(test.Test1Prop != null, "test.Test1Prop != null");
         }
 
         [Fact]
         public void Issue_with_Member_Injection_with_Attribute_but_private_setter_private_field()
         {
-            using (var container = new StashboxContainer(config => config.WithUnknownTypeResolution()))
-            {
-                var test = container.Register<Test4>(config => config.WithAutoMemberInjection(Rules.AutoMemberInjectionRules.PrivateFields))
-                    .Resolve<Test4>();
+            using var container = new StashboxContainer(config => config.WithUnknownTypeResolution());
+            var test = container.Register<Test4>(config => config.WithAutoMemberInjection(Rules.AutoMemberInjectionRules.PrivateFields))
+.Resolve<Test4>();
 
-                Assert.True(test.Test1Prop2 != null, "test.Test1Prop2 != null");
-                Assert.True(test.Test1Prop != null, "test.Test1Prop != null");
-            }
+            Assert.True(test.Test1Prop2 != null, "test.Test1Prop2 != null");
+            Assert.True(test.Test1Prop != null, "test.Test1Prop != null");
         }
 
         [Fact]
         public void Issue_with_Member_Injection_with_Attribute_but_private_setter_public_property()
         {
-            using (var container = new StashboxContainer(config => config.WithUnknownTypeResolution()))
-            {
-                var test = container.Register<Test6>(config => config.WithAutoMemberInjection())
-                    .Resolve<Test6>();
+            using var container = new StashboxContainer(config => config.WithUnknownTypeResolution());
+            var test = container.Register<Test6>(config => config.WithAutoMemberInjection())
+.Resolve<Test6>();
 
-                Assert.True(test.Test1Prop2 != null, "test.Test1Prop2 != null");
-                Assert.True(test.Test1Prop != null, "test.Test1Prop != null");
-            }
+            Assert.True(test.Test1Prop2 != null, "test.Test1Prop2 != null");
+            Assert.True(test.Test1Prop != null, "test.Test1Prop != null");
         }
 
         class Test

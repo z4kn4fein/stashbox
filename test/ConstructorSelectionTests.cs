@@ -9,121 +9,101 @@ namespace Stashbox.Tests
         [Fact]
         public void ConstructorSelectionTests_ArgTypes()
         {
-            using (var container = new StashboxContainer(config => config.WithUnknownTypeResolution()))
-            {
-                container.Register<Test>(context => context.WithConstructorByArgumentTypes(typeof(Dep), typeof(Dep2)));
-                container.Resolve<Test>();
-            }
+            using var container = new StashboxContainer(config => config.WithUnknownTypeResolution());
+            container.Register<Test>(context => context.WithConstructorByArgumentTypes(typeof(Dep), typeof(Dep2)));
+            container.Resolve<Test>();
         }
 
         [Fact]
         public void ConstructorSelectionTests_Args()
         {
-            using (var container = new StashboxContainer())
-            {
-                var dep = new Dep();
-                var dep2 = new Dep2();
+            using var container = new StashboxContainer();
+            var dep = new Dep();
+            var dep2 = new Dep2();
 
-                container.Register<Test>(context => context.WithConstructorByArguments(dep, dep2));
-                var test = container.Resolve<Test>();
+            container.Register<Test>(context => context.WithConstructorByArguments(dep, dep2));
+            var test = container.Resolve<Test>();
 
-                Assert.Same(dep, test.Dep);
-                Assert.Same(dep2, test.Dep2);
-            }
+            Assert.Same(dep, test.Dep);
+            Assert.Same(dep2, test.Dep2);
         }
 
         [Fact]
         public void ConstructorSelectionTests_ArgTypes_Throws_ResolutionFailed()
         {
-            using (var container = new StashboxContainer())
-            {
-                container.Register<Test>(context => context.WithConstructorByArgumentTypes(typeof(Dep), typeof(Dep2)));
-                Assert.Throws<ResolutionFailedException>(() => container.Resolve<Test>());
-            }
+            using var container = new StashboxContainer();
+            container.Register<Test>(context => context.WithConstructorByArgumentTypes(typeof(Dep), typeof(Dep2)));
+            Assert.Throws<ResolutionFailedException>(() => container.Resolve<Test>());
         }
 
         [Fact]
         public void ConstructorSelectionTests_ArgTypes_Throws_MissingConstructor()
         {
-            using (var container = new StashboxContainer())
-            {
-                Assert.Throws<ConstructorNotFoundException>(() => container.Register<Test>(context => context.WithConstructorByArgumentTypes()));
-            }
+            using var container = new StashboxContainer();
+            Assert.Throws<ConstructorNotFoundException>(() => container.Register<Test>(context => context.WithConstructorByArgumentTypes()));
         }
 
         [Fact]
         public void ConstructorSelectionTests_Args_Throws_MissingConstructor()
         {
-            using (var container = new StashboxContainer())
-            {
-                Assert.Throws<ConstructorNotFoundException>(() =>
-                container.Register<Test>(context => context.WithConstructorByArguments()));
-            }
+            using var container = new StashboxContainer();
+            Assert.Throws<ConstructorNotFoundException>(() =>
+container.Register<Test>(context => context.WithConstructorByArguments()));
         }
 
         [Fact]
         public void ConstructorSelectionTests_Args_Throws_MissingConstructor_OneParam()
         {
-            using (var container = new StashboxContainer())
-            {
-                Assert.Throws<ConstructorNotFoundException>(() =>
-                container.Register<Test>(context => context.WithConstructorByArguments(new object())));
-            }
+            using var container = new StashboxContainer();
+            Assert.Throws<ConstructorNotFoundException>(() =>
+container.Register<Test>(context => context.WithConstructorByArguments(new object())));
         }
 
         [Fact]
         public void ConstructorSelectionTests_Args_Throws_MissingConstructor_MoreParams()
         {
-            using (var container = new StashboxContainer())
-            {
-                Assert.Throws<ConstructorNotFoundException>(() =>
-                    container.Register<Test>(context =>
-                        context.WithConstructorByArguments(new object(), new object())));
-            }
+            using var container = new StashboxContainer();
+            Assert.Throws<ConstructorNotFoundException>(() =>
+container.Register<Test>(context =>
+context.WithConstructorByArguments(new object(), new object())));
         }
 
         [Fact]
         public void ConstructorSelectionTests_Decorator_ArgTypes()
         {
-            using (var container = new StashboxContainer(config => config.WithUnknownTypeResolution()))
-            {
-                container.RegisterDecorator<Dep, DepDecorator>(context => context.WithConstructorByArgumentTypes(typeof(Dep), typeof(Dep2)));
-                var test = container.Resolve<Dep>();
+            using var container = new StashboxContainer(config => config.WithUnknownTypeResolution());
+            container.RegisterDecorator<Dep, DepDecorator>(context => context.WithConstructorByArgumentTypes(typeof(Dep), typeof(Dep2)));
+            var test = container.Resolve<Dep>();
 
-                Assert.IsType<DepDecorator>(test);
-            }
+            Assert.IsType<DepDecorator>(test);
         }
 
         [Fact]
         public void ConstructorSelectionTests_Decorator_Args()
         {
-            using (var container = new StashboxContainer(config => config.WithUnknownTypeResolution()))
-            {
-                var dep = new Dep();
-                var dep2 = new Dep2();
+            using var container = new StashboxContainer(config => config.WithUnknownTypeResolution());
+            var dep = new Dep();
+            var dep2 = new Dep2();
 
-                container.RegisterDecorator<Dep, DepDecorator>(context => context.WithConstructorByArguments(dep, dep2));
-                var test = container.Resolve<Dep>();
+            container.RegisterDecorator<Dep, DepDecorator>(context => context.WithConstructorByArguments(dep, dep2));
+            var test = container.Resolve<Dep>();
 
-                Assert.Same(dep, ((DepDecorator)test).Dep);
-                Assert.Same(dep2, ((DepDecorator)test).Dep2);
-            }
+            Assert.Same(dep, ((DepDecorator)test).Dep);
+            Assert.Same(dep2, ((DepDecorator)test).Dep2);
         }
 
         [Fact]
         public void ConstructorSelectionTests_Arg_ByInterface()
         {
-            using (var container = new StashboxContainer())
-            {
-                var arg = new Arg();
-                var arg1 = new Arg1();
+            using var container = new StashboxContainer();
+            var arg = new Arg();
+            var arg1 = new Arg1();
 
-                container.Register<Test1>(context => context.WithConstructorByArguments(arg, arg1));
-                var test = container.Resolve<Test1>();
+            container.Register<Test1>(context => context.WithConstructorByArguments(arg, arg1));
+            var test = container.Resolve<Test1>();
 
-                Assert.Same(arg, test.PArg);
-                Assert.Same(arg1, test.PArg1);
-            }
+            Assert.Same(arg, test.PArg);
+            Assert.Same(arg1, test.PArg1);
         }
 
         class Dep

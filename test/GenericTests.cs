@@ -1,8 +1,9 @@
-﻿using System;
+﻿using Stashbox.Configuration;
+using Stashbox.Exceptions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Stashbox.Exceptions;
 using Xunit;
 
 namespace Stashbox.Tests
@@ -13,256 +14,223 @@ namespace Stashbox.Tests
         [Fact]
         public void GenericTests_Resolve()
         {
-            using (var container = new StashboxContainer())
-            {
-                container.Register(typeof(ITest1<,>), typeof(Test1<,>));
-                var inst = container.Resolve<ITest1<int, string>>();
+            using var container = new StashboxContainer();
+            container.Register(typeof(ITest1<,>), typeof(Test1<,>));
+            var inst = container.Resolve<ITest1<int, string>>();
 
-                Assert.NotNull(inst);
-                Assert.IsType<Test1<int, string>>(inst);
-            }
+            Assert.NotNull(inst);
+            Assert.IsType<Test1<int, string>>(inst);
         }
 
         [Fact]
         public void GenericTests_Resolve_Singleton()
         {
-            using (var container = new StashboxContainer())
-            {
-                container.RegisterSingleton(typeof(ITest1<,>), typeof(Test1<,>));
-                var en = container.Resolve<IEnumerable<ITest1<int, string>>>();
-                var inst = container.Resolve<ITest1<int, string>>();
+            using var container = new StashboxContainer();
+            container.RegisterSingleton(typeof(ITest1<,>), typeof(Test1<,>));
+            var en = container.Resolve<IEnumerable<ITest1<int, string>>>();
+            var inst = container.Resolve<ITest1<int, string>>();
 
-                Assert.Equal(inst, en.ToArray()[0]);
-            }
+            Assert.Equal(inst, en.ToArray()[0]);
         }
 
         [Fact]
         public void GenericTests_Resolve_Singleton_Many()
         {
-            using (var container = new StashboxContainer(config => config.WithUniqueRegistrationIdentifiers()))
-            {
-                container.RegisterSingleton(typeof(ITest1<,>), typeof(Test1<,>));
-                container.RegisterSingleton(typeof(ITest1<,>), typeof(Test1<,>));
-                var en = container.Resolve<IEnumerable<ITest1<int, string>>>();
-                var inst = container.Resolve<ITest1<int, string>>();
+            using var container = new StashboxContainer(config => config
+                .WithRegistrationBehavior(Rules.RegistrationBehavior.PreserveDuplications));
+            container.RegisterSingleton(typeof(ITest1<,>), typeof(Test1<,>));
+            container.RegisterSingleton(typeof(ITest1<,>), typeof(Test1<,>));
+            var en = container.Resolve<IEnumerable<ITest1<int, string>>>();
+            var inst = container.Resolve<ITest1<int, string>>();
 
-                Assert.Equal(inst, en.ToArray()[1]);
-            }
+            Assert.Equal(inst, en.ToArray()[1]);
         }
 
         [Fact]
         public void GenericTests_Resolve_Singleton_Many_Mixed()
         {
-            using (var container = new StashboxContainer(config => config.WithUniqueRegistrationIdentifiers()))
-            {
-                var inst = new Test1<int, string>();
-                container.RegisterSingleton(typeof(ITest1<int, string>), typeof(Test1<int, string>));
-                container.RegisterSingleton(typeof(ITest1<,>), typeof(Test1<,>));
-                container.Register(typeof(ITest1<int, string>), typeof(Test1<int, string>), config => config.WithInstance(inst));
-                var en = container.Resolve<IEnumerable<ITest1<int, string>>>().ToArray();
+            using var container = new StashboxContainer(config => config
+                .WithRegistrationBehavior(Rules.RegistrationBehavior.PreserveDuplications));
+            var inst = new Test1<int, string>();
+            container.RegisterSingleton(typeof(ITest1<int, string>), typeof(Test1<int, string>));
+            container.RegisterSingleton(typeof(ITest1<,>), typeof(Test1<,>));
+            container.Register(typeof(ITest1<int, string>), typeof(Test1<int, string>), config => config.WithInstance(inst));
+            var en = container.Resolve<IEnumerable<ITest1<int, string>>>().ToArray();
 
-                Assert.Equal(3, en.Length);
-                Assert.Equal(inst, en[2]);
-            }
+            Assert.Equal(3, en.Length);
+            Assert.Equal(inst, en[2]);
         }
 
         [Fact]
         public void GenericTests_Resolve_SameTime_DifferentParameter()
         {
-            using (var container = new StashboxContainer())
-            {
-                container.Register(typeof(ITest1<,>), typeof(Test1<,>));
-                var inst = container.Resolve<ITest1<int, string>>();
-                var inst2 = container.Resolve<ITest1<int, int>>();
+            using var container = new StashboxContainer();
+            container.Register(typeof(ITest1<,>), typeof(Test1<,>));
+            var inst = container.Resolve<ITest1<int, string>>();
+            var inst2 = container.Resolve<ITest1<int, int>>();
 
-                Assert.NotNull(inst);
-                Assert.IsType<Test1<int, string>>(inst);
+            Assert.NotNull(inst);
+            Assert.IsType<Test1<int, string>>(inst);
 
-                Assert.NotNull(inst2);
-                Assert.IsType<Test1<int, int>>(inst2);
-            }
+            Assert.NotNull(inst2);
+            Assert.IsType<Test1<int, int>>(inst2);
         }
 
         [Fact]
         public void GenericTests_Resolve_SameTime_DifferentParameter_Singleton()
         {
-            using (var container = new StashboxContainer())
-            {
-                container.RegisterSingleton(typeof(ITest1<,>), typeof(Test1<,>));
-                var inst = container.Resolve<ITest1<int, string>>();
-                var inst2 = container.Resolve<ITest1<int, int>>();
+            using var container = new StashboxContainer();
+            container.RegisterSingleton(typeof(ITest1<,>), typeof(Test1<,>));
+            var inst = container.Resolve<ITest1<int, string>>();
+            var inst2 = container.Resolve<ITest1<int, int>>();
 
-                Assert.NotNull(inst);
-                Assert.IsType<Test1<int, string>>(inst);
+            Assert.NotNull(inst);
+            Assert.IsType<Test1<int, string>>(inst);
 
-                Assert.NotNull(inst2);
-                Assert.IsType<Test1<int, int>>(inst2);
-            }
+            Assert.NotNull(inst2);
+            Assert.IsType<Test1<int, int>>(inst2);
         }
 
         [Fact]
         public void GenericTests_CanResolve()
         {
-            using (var container = new StashboxContainer())
-            {
-                container.Register(typeof(ITest1<,>), typeof(Test1<,>));
-                Assert.True(container.CanResolve(typeof(ITest1<,>)));
-                Assert.True(container.CanResolve(typeof(ITest1<int, int>)));
-            }
+            using var container = new StashboxContainer();
+            container.Register(typeof(ITest1<,>), typeof(Test1<,>));
+            Assert.True(container.CanResolve(typeof(ITest1<,>)));
+            Assert.True(container.CanResolve(typeof(ITest1<int, int>)));
         }
 
         [Fact]
         public void GenericTests_Named()
         {
-            using (var container = new StashboxContainer())
-            {
-                container.Register(typeof(ITest1<,>), typeof(Test1<,>), config => config.WithName("G1"));
-                container.Register(typeof(ITest1<,>), typeof(Test12<,>), config => config.WithName("G2"));
+            using var container = new StashboxContainer();
+            container.Register(typeof(ITest1<,>), typeof(Test1<,>), config => config.WithName("G1"));
+            container.Register(typeof(ITest1<,>), typeof(Test12<,>), config => config.WithName("G2"));
 
-                Assert.IsType<Test1<int, string>>(container.Resolve<ITest1<int, string>>("G1"));
-                Assert.IsType<Test12<int, double>>(container.Resolve<ITest1<int, double>>("G2"));
-            }
+            Assert.IsType<Test1<int, string>>(container.Resolve<ITest1<int, string>>("G1"));
+            Assert.IsType<Test12<int, double>>(container.Resolve<ITest1<int, double>>("G2"));
         }
 
         [Fact]
         public void GenericTests_DependencyResolve()
         {
-            using (var container = new StashboxContainer())
-            {
-                container.Register(typeof(ITest1<,>), typeof(Test1<,>));
-                container.Register(typeof(ITest2<,>), typeof(Test2<,>));
-                var inst = container.Resolve<ITest2<int, string>>();
+            using var container = new StashboxContainer();
+            container.Register(typeof(ITest1<,>), typeof(Test1<,>));
+            container.Register(typeof(ITest2<,>), typeof(Test2<,>));
+            var inst = container.Resolve<ITest2<int, string>>();
 
-                Assert.NotNull(inst.Test);
-                Assert.IsType<Test1<int, string>>(inst.Test);
-            }
+            Assert.NotNull(inst.Test);
+            Assert.IsType<Test1<int, string>>(inst.Test);
         }
 
         [Fact]
         public void GenericTests_Resolve_Fluent()
         {
-            using (var container = new StashboxContainer())
-            {
-                container.Register(typeof(ITest1<,>), typeof(Test1<,>));
-                var inst = container.Resolve<ITest1<int, string>>();
+            using var container = new StashboxContainer();
+            container.Register(typeof(ITest1<,>), typeof(Test1<,>));
+            var inst = container.Resolve<ITest1<int, string>>();
 
-                Assert.NotNull(inst);
-                Assert.IsType<Test1<int, string>>(inst);
-            }
+            Assert.NotNull(inst);
+            Assert.IsType<Test1<int, string>>(inst);
         }
 
         [Fact]
         public void GenericTests_Resolve_ReMap()
         {
-            using (var container = new StashboxContainer())
-            {
-                container.Register(typeof(ITest1<,>), typeof(Test1<,>));
-                container.ReMap(typeof(ITest1<,>), typeof(Test12<,>));
-                var inst = container.Resolve<ITest1<int, string>>();
+            using var container = new StashboxContainer();
+            container.Register(typeof(ITest1<,>), typeof(Test1<,>));
+            container.ReMap(typeof(ITest1<,>), typeof(Test12<,>));
+            var inst = container.Resolve<ITest1<int, string>>();
 
-                Assert.NotNull(inst);
-                Assert.IsType<Test12<int, string>>(inst);
-            }
+            Assert.NotNull(inst);
+            Assert.IsType<Test12<int, string>>(inst);
         }
 
         [Fact]
         public void GenericTests_Resolve_ReMap_Fluent()
         {
-            using (var container = new StashboxContainer())
-            {
-                container.Register(typeof(ITest1<,>), typeof(Test1<,>));
-                container.ReMap(typeof(ITest1<,>), typeof(Test12<,>));
-                var inst = container.Resolve<ITest1<int, string>>();
+            using var container = new StashboxContainer();
+            container.Register(typeof(ITest1<,>), typeof(Test1<,>));
+            container.ReMap(typeof(ITest1<,>), typeof(Test12<,>));
+            var inst = container.Resolve<ITest1<int, string>>();
 
-                Assert.NotNull(inst);
-                Assert.IsType<Test12<int, string>>(inst);
-            }
+            Assert.NotNull(inst);
+            Assert.IsType<Test12<int, string>>(inst);
         }
 
         [Fact]
         public void GenericTests_Resolve_Parallel()
         {
-            using (var container = new StashboxContainer())
+            using var container = new StashboxContainer();
+            container.Register(typeof(ITest1<,>), typeof(Test1<,>));
+
+            Parallel.For(0, 50000, (i) =>
             {
-                container.Register(typeof(ITest1<,>), typeof(Test1<,>));
+                var inst = container.Resolve<ITest1<int, string>>();
 
-                Parallel.For(0, 50000, (i) =>
-                {
-                    var inst = container.Resolve<ITest1<int, string>>();
-
-                    Assert.NotNull(inst);
-                    Assert.IsType<Test1<int, string>>(inst);
-                });
-            }
+                Assert.NotNull(inst);
+                Assert.IsType<Test1<int, string>>(inst);
+            });
         }
 
         [Fact]
         public void GenericTests_Resolve_Constraint_Array()
         {
-            using (var container = new StashboxContainer())
-            {
-                container.Register(typeof(IConstraintTest<>), typeof(ConstraintTest<>));
-                container.Register(typeof(IConstraintTest<>), typeof(ConstraintTest2<>));
+            using var container = new StashboxContainer();
+            container.Register(typeof(IConstraintTest<>), typeof(ConstraintTest<>));
+            container.Register(typeof(IConstraintTest<>), typeof(ConstraintTest2<>));
 
-                var inst = container.ResolveAll<IConstraintTest<ConstraintArgument>>().ToArray();
-                Assert.Single(inst);
-            }
+            var inst = container.ResolveAll<IConstraintTest<ConstraintArgument>>().ToArray();
+            Assert.Single(inst);
         }
 
         [Fact]
         public void GenericTests_Resolve_Constraint_Multiple()
         {
-            using (var container = new StashboxContainer())
-            {
-                container.Register(typeof(IConstraintTest<>), typeof(ConstraintTest2<>));
-                container.Register(typeof(IConstraintTest<>), typeof(ConstraintTest<>));
+            using var container = new StashboxContainer();
+            container.Register(typeof(IConstraintTest<>), typeof(ConstraintTest2<>));
+            container.Register(typeof(IConstraintTest<>), typeof(ConstraintTest<>));
 
-                var inst = container.Resolve<IConstraintTest<ConstraintArgument>>();
-                Assert.IsType<ConstraintTest<ConstraintArgument>>(inst);
-            }
+            var inst = container.Resolve<IConstraintTest<ConstraintArgument>>();
+            Assert.IsType<ConstraintTest<ConstraintArgument>>(inst);
         }
 
         [Fact]
         public void GenericTests_Resolve_Constraint()
         {
-            using (var container = new StashboxContainer())
-            {
-                container.Register(typeof(IConstraintTest<>), typeof(ConstraintTest2<>));
-                Assert.Throws<ResolutionFailedException>(() => container.Resolve<IConstraintTest<ConstraintArgument>>());
-            }
+            using var container = new StashboxContainer();
+            container.Register(typeof(IConstraintTest<>), typeof(ConstraintTest2<>));
+            Assert.Throws<ResolutionFailedException>(() => container.Resolve<IConstraintTest<ConstraintArgument>>());
         }
 
         [Fact]
         public void GenericTests_Resolve_Constraint_Constructor()
         {
-            using (var container = new StashboxContainer())
-            {
-                container.Register(typeof(IConstraintTest<>), typeof(ConstraintTest<>));
-                container.Register(typeof(IConstraintTest<>), typeof(ConstraintTest2<>));
-                container.Register<ConstraintTest3>();
-                var inst = container.Resolve<ConstraintTest3>();
+            using var container = new StashboxContainer();
+            container.Register(typeof(IConstraintTest<>), typeof(ConstraintTest<>));
+            container.Register(typeof(IConstraintTest<>), typeof(ConstraintTest2<>));
+            container.Register<ConstraintTest3>();
+            var inst = container.Resolve<ConstraintTest3>();
 
-                Assert.IsType<ConstraintTest<ConstraintArgument>>(inst.Test);
-            }
+            Assert.IsType<ConstraintTest<ConstraintArgument>>(inst.Test);
         }
 
         [Fact]
         public void GenericTests_Resolve_Constraint_Pick_RightImpl()
         {
-            using (var container = new StashboxContainer())
-            {
-                container.Register(typeof(IConstraintTest<>), typeof(ConstraintTest2<>));
-                container.Register(typeof(IConstraintTest<>), typeof(ConstraintTest3<>));
+            using var container = new StashboxContainer();
+            container.Register(typeof(IConstraintTest<>), typeof(ConstraintTest2<>));
+            container.Register(typeof(IConstraintTest<>), typeof(ConstraintTest3<>));
 
-                var inst = container.Resolve<IConstraintTest<ConstraintArgument1>>();
-                Assert.IsType<ConstraintTest3<ConstraintArgument1>>(inst);
-            }
+            var inst = container.Resolve<IConstraintTest<ConstraintArgument1>>();
+            Assert.IsType<ConstraintTest3<ConstraintArgument1>>(inst);
         }
 
         [Fact]
         public void GenericTests_Resolve_Prefer_Open_Generic_In_Named_Scope()
         {
-            var container = new StashboxContainer(config => config.WithUniqueRegistrationIdentifiers())
+            var container = new StashboxContainer(config => config
+                    .WithRegistrationBehavior(Rules.RegistrationBehavior.PreserveDuplications))
                .Register<ITest1<int, string>, Test1<int, string>>()
                .Register(typeof(ITest1<,>), typeof(Test1<,>), config => config.InNamedScope("A"));
 
@@ -274,9 +242,10 @@ namespace Stashbox.Tests
         [Fact]
         public void GenericTests_Resolve_Prefer_Open_Generic_Enumerable_In_Named_Scope()
         {
-            var container = new StashboxContainer(config => config.WithUniqueRegistrationIdentifiers())
+            var container = new StashboxContainer(config => config
+                    .WithRegistrationBehavior(Rules.RegistrationBehavior.PreserveDuplications))
                .Register<ITest1<int, string>, Test1<int, string>>(config => config.InNamedScope("A"))
-               .Register(typeof(ITest1<,>), typeof(Test1<,>), config => config.InNamedScope("A")); 
+               .Register(typeof(ITest1<,>), typeof(Test1<,>), config => config.InNamedScope("A"));
 
             var res = container.BeginScope("A").Resolve<IEnumerable<ITest1<int, string>>>();
 
@@ -359,7 +328,7 @@ namespace Stashbox.Tests
             var container = new StashboxContainer()
                 .Register(typeof(IFakeOpenGenericService<>), typeof(ClassWithNoConstraints<>))
                 .Register(typeof(IFakeOpenGenericService<>), typeof(ClassWithNewConstraint<>));
-           
+
             // Act
             var allServices = container.ResolveAll<IFakeOpenGenericService<PocoClass>>().ToList();
             var constrainedServices = container.ResolveAll<IFakeOpenGenericService<ClassWithPrivateCtor>>().ToList();

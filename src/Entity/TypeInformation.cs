@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using Stashbox.Utils;
 
 namespace Stashbox.Entity
 {
     /// <summary>
     /// Represents type information about a dependency.
     /// </summary>
-    public class TypeInformation
+    public struct TypeInformation
     {
         /// <summary>
         /// The reflected type of the dependency.
@@ -49,25 +48,20 @@ namespace Stashbox.Entity
         /// </summary>
         public MemberType MemberType { get; internal set; }
 
-        /// <summary>
-        /// True if the dependency explicitly set to be injected.
-        /// </summary>
-        public bool ForcedDependency { get; internal set; }
-        
-        internal TypeInformation Clone(Type type)
-        {
-            var clone = this.Clone();
-            clone.Type = type;
-            return clone;
-        }
-        
-        internal TypeInformation Clone()
-        {
-#if IL_EMIT
-            return Cloner<TypeInformation>.Clone(this);
-#else
-            return (TypeInformation)this.MemberwiseClone();
-#endif
-        }
+        //        internal TypeInformation Clone(Type type)
+        //        {
+        //            var clone = this.Clone();
+        //            clone.Type = type;
+        //            return clone;
+        //        }
+
+        //        internal TypeInformation Clone()
+        //        {
+        //#if IL_EMIT
+        //            return Cloner<TypeInformation>.Clone(this);
+        //#else
+        //            return (TypeInformation)this.MemberwiseClone();
+        //#endif
+        //        }
     }
 }

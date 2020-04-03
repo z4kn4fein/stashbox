@@ -23,7 +23,7 @@ namespace Stashbox.BuildUp.ObjectBuilders
                     serviceRegistration, resolutionContext.CurrentScopeParameter.ConvertTo(Constants.ResolverType))
                 : ConstructFactoryExpression(serviceRegistration.RegistrationContext.SingleFactory, serviceRegistration);
 
-            return this.expressionBuilder.CreateFillExpression(containerContext, serviceRegistration, expression, resolutionContext, resolveType);
+            return this.expressionBuilder.CreateFillExpression(containerContext, serviceRegistration, resolutionContext, expression, resolveType);
         }
 
         private static Expression ConstructFactoryExpression(Delegate @delegate, IServiceRegistration serviceRegistration, params Expression[] parameters)

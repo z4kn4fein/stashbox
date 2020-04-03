@@ -27,7 +27,8 @@ namespace Stashbox.Resolution.Resolvers
         {
             var args = typeInfo.Type.GetGenericArguments();
             var wrappedType = args.Last();
-            var funcArgumentInfo = typeInfo.Clone(wrappedType);
+            var funcArgumentInfo = typeInfo;
+            funcArgumentInfo.Type = wrappedType;
 
             var parameters = this.PrepareExtraParameters(wrappedType, resolutionContext, args);
             var expression = resolutionStrategy.BuildResolutionExpression(containerContext, resolutionContext, funcArgumentInfo);
@@ -42,7 +43,8 @@ namespace Stashbox.Resolution.Resolvers
         {
             var args = typeInfo.Type.GetGenericArguments();
             var wrappedType = args.Last();
-            var funcArgumentInfo = typeInfo.Clone(wrappedType);
+            var funcArgumentInfo = typeInfo;
+            funcArgumentInfo.Type = wrappedType;
 
             var parameters = this.PrepareExtraParameters(wrappedType, resolutionContext, args);
             var expressions = resolutionStrategy.BuildAllResolutionExpressions(containerContext, resolutionContext, funcArgumentInfo);

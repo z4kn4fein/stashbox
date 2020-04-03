@@ -12,7 +12,7 @@ namespace Stashbox
         {
             this.Container = container;
             this.ContainerConfiguration = containerConfiguration;
-            this.RegistrationRepository = new RegistrationRepository();
+            this.RegistrationRepository = new RegistrationRepository(containerConfiguration);
             this.DecoratorRepository = new DecoratorRepository();
         }
 

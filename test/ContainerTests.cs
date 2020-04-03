@@ -48,51 +48,43 @@ namespace Stashbox.Tests
         [Fact]
         public void ContainerTests_Validate_MissingDependency()
         {
-            using (var container = new StashboxContainer())
-            {
-                container.Register<ITest2, Test2>();
-                Assert.Throws<ResolutionFailedException>(() => container.Validate());
-            }
+            using var container = new StashboxContainer();
+            container.Register<ITest2, Test2>();
+            Assert.Throws<ResolutionFailedException>(() => container.Validate());
         }
 
         [Fact]
         public void ContainerTests_Validate_CircularDependency()
         {
-            using (var container = new StashboxContainer(config => config.WithCircularDependencyTracking()))
-            {
-                container.Register<ITest1, Test4>();
-                container.Register<ITest3, Test3>();
-                Assert.Throws<CircularDependencyException>(() => container.Validate());
-            }
+            using var container = new StashboxContainer(config => config.WithCircularDependencyTracking());
+            container.Register<ITest1, Test4>();
+            container.Register<ITest3, Test3>();
+            Assert.Throws<CircularDependencyException>(() => container.Validate());
         }
 
         [Fact]
         public void ContainerTests_Validate_Ok()
         {
-            using (var container = new StashboxContainer())
-            {
-                container.Register<ITest1, Test1>();
-                container.Register<ITest2, Test2>();
-                container.Validate();
-            }
+            using var container = new StashboxContainer();
+            container.Register<ITest1, Test1>();
+            container.Register<ITest2, Test2>();
+            container.Validate();
         }
 
         [Fact]
         public void ContainerTests_CheckRegistration()
         {
-            using (var container = new StashboxContainer())
-            {
-                container.Register<ITest1, Test1>();
+            using var container = new StashboxContainer();
+            container.Register<ITest1, Test1>();
 
-                var reg = container.ContainerContext.RegistrationRepository
-                    .GetRegistrationMappings().FirstOrDefault(r => r.Key == typeof(ITest1));
+            var reg = container.ContainerContext.RegistrationRepository
+                .GetRegistrationMappings().FirstOrDefault(r => r.Key == typeof(ITest1));
 
-                Assert.Equal(typeof(Test1), reg.Value.ImplementationType);
+            Assert.Equal(typeof(Test1), reg.Value.ImplementationType);
 
-                reg = container.ContainerContext.RegistrationRepository.GetRegistrationMappings().FirstOrDefault(r => r.Value.ImplementationType == typeof(Test1));
+            reg = container.ContainerContext.RegistrationRepository.GetRegistrationMappings().FirstOrDefault(r => r.Value.ImplementationType == typeof(Test1));
 
-                Assert.Equal(typeof(Test1), reg.Value.ImplementationType);
-            }
+            Assert.Equal(typeof(Test1), reg.Value.ImplementationType);
         }
 
         [Fact]
@@ -223,6 +215,48 @@ namespace Stashbox.Tests
             Assert.Throws<ArgumentNullException>(() => new StashboxContainer().Configure(null));
         }
 
+        [Fact]
+        public void ContainerTests_Configuration_DuplicatedBheavior_Throws()
+        {
+            Assert.Throws<ServiceAlreadyRegisteredException>(() => new StashboxContainer(c =>
+                c.WithRegistrationBehavior(Rules.RegistrationBehavior.ThrowExceptionOnAlreadyRegistered))
+            .Register<S>().Register<S>());
+        }
+
+        [Fact]
+        public void ContainerTests_Configuration_DuplicatedBheavior_Skip()
+        {
+            using var container = new StashboxContainer(c =>
+                 c.WithRegistrationBehavior(Rules.RegistrationBehavior.SkipDuplicates))
+            .Register<S>(c => c.WithInitializer((s, r) => s.Id = 0)).Register<S>(c => c.WithInitializer((s, r) => s.Id = 1));
+            var regs = container.GetRegistrationMappings();
+
+            Assert.Single(regs);
+            Assert.Equal(0, container.Resolve<S>().Id);
+        }
+
+        [Fact]
+        public void ContainerTests_Configuration_DuplicatedBheavior_Preserve()
+        {
+            var regs = new StashboxContainer(c =>
+                c.WithRegistrationBehavior(Rules.RegistrationBehavior.PreserveDuplications))
+            .Register<Test>().Register<Test>().GetRegistrationMappings();
+
+            Assert.Equal(2, regs.Count());
+        }
+
+        [Fact]
+        public void ContainerTests_Configuration_DuplicatedBheavior_Replace()
+        {
+            using var container = new StashboxContainer(c =>
+                c.WithRegistrationBehavior(Rules.RegistrationBehavior.ReplaceExisting))
+           .Register<S>(c => c.WithInitializer((s, r) => s.Id = 0)).Register<S>(c => c.WithInitializer((s, r) => s.Id = 1));
+            var regs = container.GetRegistrationMappings();
+
+            Assert.Single(regs);
+            Assert.Equal(1, container.Resolve<S>().Id);
+        }
+
         interface ITest1 { }
 
         interface ITest2 { }
@@ -320,5 +354,7 @@ namespace Stashbox.Tests
                 return new Expression[] { Expression.Constant(new Test1()) };
             }
         }
+
+        class S { public int Id { get; set; } }
     }
 }

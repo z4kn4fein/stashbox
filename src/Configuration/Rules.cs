@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Stashbox.Entity;
+using System.Reflection;
 
 namespace Stashbox.Configuration
 {
@@ -10,6 +10,32 @@ namespace Stashbox.Configuration
     /// </summary>
     public static class Rules
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        public enum RegistrationBehavior
+        {
+            /// <summary>
+            /// 
+            /// </summary>
+            SkipDuplicates,
+
+            /// <summary>
+            /// 
+            /// </summary>
+            ThrowExceptionOnAlreadyRegistered,
+
+            /// <summary>
+            /// 
+            /// </summary>
+            ReplaceExisting,
+
+            /// <summary>
+            /// 
+            /// </summary>
+            PreserveDuplications
+        }
+
         /// <summary>
         /// Represents the rules for auto injecting members.
         /// </summary>
@@ -38,21 +64,21 @@ namespace Stashbox.Configuration
         }
 
         /// <summary>
-        /// Represents a constructor selection rules.
+        /// Represents the constructor selection rules.
         /// </summary>
         public static class ConstructorSelection
         {
             /// <summary>
             /// Prefers the constructor which has the longest parameter list.
             /// </summary>
-            public static readonly Func<IEnumerable<ConstructorInformation>, IEnumerable<ConstructorInformation>> PreferMostParameters =
-                constructors => constructors.OrderByDescending(constructor => constructor.Parameters.Length);
+            public static readonly Func<IEnumerable<ConstructorInfo>, IEnumerable<ConstructorInfo>> PreferMostParameters =
+                constructors => constructors.OrderByDescending(constructor => constructor.GetParameters().Length);
 
             /// <summary>
             /// Prefers the constructor which has the shortest parameter list.
             /// </summary>
-            public static readonly Func<IEnumerable<ConstructorInformation>, IEnumerable<ConstructorInformation>> PreferLeastParameters =
-                constructors => constructors.OrderBy(constructor => constructor.Parameters.Length);
+            public static readonly Func<IEnumerable<ConstructorInfo>, IEnumerable<ConstructorInfo>> PreferLeastParameters =
+                constructors => constructors.OrderBy(constructor => constructor.GetParameters().Length);
         }
     }
 }

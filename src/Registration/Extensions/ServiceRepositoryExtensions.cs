@@ -1,10 +1,10 @@
-﻿using Stashbox.Utils;
+﻿using Stashbox.Entity;
+using Stashbox.Registration.SelectionRules;
+using Stashbox.Resolution;
+using Stashbox.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Stashbox.Entity;
-using Stashbox.Registration.SelectionRules;
-using Stashbox.Resolution;
 
 namespace Stashbox.Registration.Extensions
 {
@@ -19,7 +19,7 @@ namespace Stashbox.Registration.Extensions
             if (registrations != null || !type.IsClosedGenericType()) return registrations != null;
 
             registrations = repository.GetOrDefault(type.GetGenericTypeDefinition());
-            return registrations?.Any(reg => reg.ValidateGenericConstraints(type)) ?? false;
+            return registrations?.Any(reg => type.SatisfiesGenericConstraintsOf(reg.ImplementationTypeInfo)) ?? false;
         }
 
         public static IServiceRegistration SelectOrDefault(this IEnumerable<IServiceRegistration> registrations,
@@ -65,10 +65,10 @@ namespace Stashbox.Registration.Extensions
                 common.Add(serviceRegistration);
             }
 
-            return common.Count == 0 
-                ? null 
-                : priority.Count > 0 
-                    ? priority 
+            return common.Count == 0
+                ? null
+                : priority.Count > 0
+                    ? priority
                     : common;
         }
 

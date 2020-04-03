@@ -40,23 +40,21 @@ namespace Stashbox.Tests
         [Fact]
         public void InjectionMemberTests_WireUp()
         {
-            using (var container = new StashboxContainer())
-            {
-                container.Register<ITest, Test>();
+            using var container = new StashboxContainer();
+            container.Register<ITest, Test>();
 
-                var test1 = new Test1();
-                container.WireUpAs<ITest1>(test1);
+            var test1 = new Test1();
+            container.WireUpAs<ITest1>(test1);
 
-                var inst = container.Resolve<ITest1>();
+            var inst = container.Resolve<ITest1>();
 
-                Assert.NotNull(inst);
-                Assert.NotNull(inst.Test);
-                Assert.IsType<Test1>(inst);
-                Assert.IsType<Test>(inst.Test);
+            Assert.NotNull(inst);
+            Assert.NotNull(inst.Test);
+            Assert.IsType<Test1>(inst);
+            Assert.IsType<Test>(inst.Test);
 
-                Assert.NotNull(((Test1)inst).TestFieldProperty);
-                Assert.IsType<Test>(((Test1)inst).TestFieldProperty);
-            }
+            Assert.NotNull(((Test1)inst).TestFieldProperty);
+            Assert.IsType<Test>(((Test1)inst).TestFieldProperty);
         }
 
         [Fact]
@@ -126,7 +124,7 @@ namespace Stashbox.Tests
         {
             var inst = new StashboxContainer(config =>
                     config.WithUnknownTypeResolution()
-                        .WithMemberInjectionWithoutAnnotation(filter: info => info.Type != typeof(Test4)))
+                        .WithMemberInjectionWithoutAnnotation(filter: info => info.Name != "Test4"))
                 .Activate<Test6>();
 
             Assert.Null(inst.Test4);
@@ -138,7 +136,7 @@ namespace Stashbox.Tests
         {
             var inst = new StashboxContainer(config =>
                     config.WithUnknownTypeResolution())
-                .Register<Test6>(config => config.WithAutoMemberInjection(filter: info => info.Type != typeof(Test4)))
+                .Register<Test6>(config => config.WithAutoMemberInjection(filter: info => info.Name != "Test4"))
                 .Resolve<Test6>();
 
             Assert.Null(inst.Test4);

@@ -1,18 +1,10 @@
-﻿using Stashbox.ContainerExtension;
-using System;
+﻿using System;
 using System.Linq;
 
 namespace Stashbox.Registration
 {
     internal class ServiceRegistrator : IServiceRegistrator
     {
-        private readonly IContainerExtensionManager containerExtensionManager;
-
-        internal ServiceRegistrator(IContainerExtensionManager containerExtensionManager)
-        {
-            this.containerExtensionManager = containerExtensionManager;
-        }
-
         public void Register(IContainerContext containerContext, IServiceRegistration serviceRegistration, Type serviceType, RegistrationContext registrationContext)
         {
             if (serviceRegistration.IsDecorator)
@@ -36,8 +28,6 @@ namespace Stashbox.Registration
 
             if (replace)
                 containerContext.Container.RootScope.InvalidateDelegateCache();
-
-            this.containerExtensionManager.ExecuteOnRegistrationExtensions(containerContext, serviceRegistration);
         }
 
         public void ReMap(IContainerContext containerContext, IServiceRegistration serviceRegistration, Type serviceType, RegistrationContext registrationContext)
@@ -54,8 +44,6 @@ namespace Stashbox.Registration
             }
 
             containerContext.Container.RootScope.InvalidateDelegateCache();
-
-            this.containerExtensionManager.ExecuteOnRegistrationExtensions(containerContext, serviceRegistration);
         }
     }
 }

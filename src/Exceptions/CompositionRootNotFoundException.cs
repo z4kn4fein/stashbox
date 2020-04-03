@@ -4,7 +4,7 @@ using System.Reflection;
 namespace Stashbox.Exceptions
 {
     /// <summary>
-    /// Threw when composing requested but no <see cref="ICompositionRoot"/> is present in the given assembly.
+    /// Occurs when composing requested but no <see cref="ICompositionRoot"/> is present in the given assembly.
     /// </summary>
     public class CompositionRootNotFoundException : Exception
     {

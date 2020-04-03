@@ -4,6 +4,7 @@ using Stashbox.Resolution;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace Stashbox.Registration
 {
@@ -16,6 +17,11 @@ namespace Stashbox.Registration
         /// The implementation type.
         /// </summary>
         Type ImplementationType { get; }
+
+        /// <summary>
+        /// The <see cref="TypeInfo"/> of the implementation type.
+        /// </summary>
+        TypeInfo ImplementationTypeInfo { get; }
 
         /// <summary>
         /// The registration context.
@@ -58,26 +64,6 @@ namespace Stashbox.Registration
         bool IsResolvableByUnnamedRequest { get; }
 
         /// <summary>
-        /// Holds the injection member of the service.
-        /// </summary>
-        MemberInformation[] InjectionMembers { get; }
-
-        /// <summary>
-        /// Holds the constructors of the service.
-        /// </summary>
-        ConstructorInformation[] Constructors { get; }
-
-        /// <summary>
-        /// Holds the injection methods of the service.
-        /// </summary>
-        MethodInformation[] InjectionMethods { get; }
-
-        /// <summary>
-        /// Holds the information about the constructor, selected by the user at configuration time.
-        /// </summary>
-        ConstructorInformation SelectedConstructor { get; }
-
-        /// <summary>
         /// Creates an expression for creating the resolved instance.
         /// </summary>
         /// <param name="containerContext">The container context.</param>
@@ -92,13 +78,6 @@ namespace Stashbox.Registration
         /// <param name="typeInfo">The type information.</param>
         /// <returns>True if the registration can be used for the current resolution, otherwise false.</returns>
         bool IsUsableForCurrentContext(TypeInformation typeInfo);
-
-        /// <summary>
-        /// Validates that the given type's generic argument fulfills the generic constraint or not 
-        /// </summary>
-        /// <param name="type">The type information.</param>
-        /// <returns>True if the argument is valid.</returns>
-        bool ValidateGenericConstraints(Type type);
 
         /// <summary>
         /// Checks that the registration can be injected into a named scope.
@@ -116,9 +95,9 @@ namespace Stashbox.Registration
         IServiceRegistration Clone(Type implementationType, IObjectBuilder objectBuilder);
 
         /// <summary>
-        /// Copies the registration id from an other registration, used when a registration is replaced because we want to preserve the original order.
+        /// Indicates that the current registration replaces another one, it copies the necessary information from the original.
         /// </summary>
         /// <param name="serviceRegistration">The registration to copy the id from.</param>
-        void InheritIdFrom(IServiceRegistration serviceRegistration);
+        void Replaces(IServiceRegistration serviceRegistration);
     }
 }

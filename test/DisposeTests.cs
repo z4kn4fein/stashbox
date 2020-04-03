@@ -261,107 +261,101 @@ namespace Stashbox.Tests
         [Fact]
         public void DisposeTests_PutInScope_Scoped()
         {
-            using (IStashboxContainer container = new StashboxContainer())
+            using IStashboxContainer container = new StashboxContainer();
+            container.RegisterScoped<ITest2, Test2>();
+            container.RegisterScoped<Test3>();
+
+            var test = new Test1();
+
+            using (var child = container.BeginScope())
             {
-                container.RegisterScoped<ITest2, Test2>();
-                container.RegisterScoped<Test3>();
+                child.PutInstanceInScope<ITest1>(test);
 
-                var test = new Test1();
+                var test1 = child.Resolve<ITest1>();
+                var test2 = child.Resolve<ITest2>();
+                var test3 = child.Resolve<Test3>();
 
-                using (var child = container.BeginScope())
-                {
-                    child.PutInstanceInScope<ITest1>(test);
+                Assert.Same(test, test1);
+                Assert.Same(test, test2.Test1);
+                Assert.Same(test, test3.Test1);
 
-                    var test1 = child.Resolve<ITest1>();
-                    var test2 = child.Resolve<ITest2>();
-                    var test3 = child.Resolve<Test3>();
-
-                    Assert.Same(test, test1);
-                    Assert.Same(test, test2.Test1);
-                    Assert.Same(test, test3.Test1);
-
-                    Assert.False(test.Disposed);
-                }
-
-                Assert.True(test.Disposed);
-
-                var test4 = new Test1();
-
-                using (var child = container.BeginScope())
-                {
-                    child.PutInstanceInScope<ITest1>(test4);
-
-                    var test1 = child.Resolve<ITest1>();
-                    var test2 = child.Resolve<ITest2>();
-                    var test3 = child.Resolve<Test3>();
-
-                    Assert.Same(test4, test1);
-                    Assert.Same(test4, test2.Test1);
-                    Assert.Same(test4, test3.Test1);
-
-                    Assert.NotSame(test, test1);
-                    Assert.NotSame(test, test2.Test1);
-                    Assert.NotSame(test, test3.Test1);
-
-                    Assert.False(test4.Disposed);
-                }
-
-                Assert.True(test4.Disposed);
+                Assert.False(test.Disposed);
             }
+
+            Assert.True(test.Disposed);
+
+            var test4 = new Test1();
+
+            using (var child = container.BeginScope())
+            {
+                child.PutInstanceInScope<ITest1>(test4);
+
+                var test1 = child.Resolve<ITest1>();
+                var test2 = child.Resolve<ITest2>();
+                var test3 = child.Resolve<Test3>();
+
+                Assert.Same(test4, test1);
+                Assert.Same(test4, test2.Test1);
+                Assert.Same(test4, test3.Test1);
+
+                Assert.NotSame(test, test1);
+                Assert.NotSame(test, test2.Test1);
+                Assert.NotSame(test, test3.Test1);
+
+                Assert.False(test4.Disposed);
+            }
+
+            Assert.True(test4.Disposed);
         }
 
         [Fact]
         public void DisposeTests_PutInScope_WithoutDispose()
         {
-            using (IStashboxContainer container = new StashboxContainer())
+            using IStashboxContainer container = new StashboxContainer();
+            container.Register<ITest2, Test2>();
+            container.Register<Test3>();
+
+            var test = new Test1();
+
+            using (var child = container.BeginScope())
             {
-                container.Register<ITest2, Test2>();
-                container.Register<Test3>();
+                child.PutInstanceInScope<ITest1>(test, withoutDisposalTracking: true);
 
-                var test = new Test1();
+                var test1 = child.Resolve<ITest1>();
+                var test2 = child.Resolve<ITest2>();
+                var test3 = child.Resolve<Test3>();
 
-                using (var child = container.BeginScope())
-                {
-                    child.PutInstanceInScope<ITest1>(test, withoutDisposalTracking: true);
-
-                    var test1 = child.Resolve<ITest1>();
-                    var test2 = child.Resolve<ITest2>();
-                    var test3 = child.Resolve<Test3>();
-
-                    Assert.Same(test, test1);
-                    Assert.Same(test, test2.Test1);
-                    Assert.Same(test, test3.Test1);
-                }
-
-                Assert.False(test.Disposed);
+                Assert.Same(test, test1);
+                Assert.Same(test, test2.Test1);
+                Assert.Same(test, test3.Test1);
             }
+
+            Assert.False(test.Disposed);
         }
 
         [Fact]
         public void DisposeTests_PutInScope_Named()
         {
-            using (IStashboxContainer container = new StashboxContainer())
+            using IStashboxContainer container = new StashboxContainer();
+            container.Register<Test5>();
+
+            var dummy1 = new Test1();
+            var dummy2 = new Test1();
+
+            using (var child = container.BeginScope())
             {
-                container.Register<Test5>();
+                child.PutInstanceInScope<ITest1>(dummy1, true, "d1");
+                child.PutInstanceInScope<ITest1>(dummy2, true, "d2");
 
-                var dummy1 = new Test1();
-                var dummy2 = new Test1();
+                var test1 = child.Resolve<ITest1>("d2");
+                var test2 = child.Resolve<Test5>();
 
-                using (var child = container.BeginScope())
-                {
-                    child.PutInstanceInScope<ITest1>(dummy1, true, "d1");
-                    child.PutInstanceInScope<ITest1>(dummy2, true, "d2");
-
-                    var test1 = child.Resolve<ITest1>("d2");
-                    var test2 = child.Resolve<Test5>();
-
-                    Assert.Same(dummy2, test1);
-                    Assert.Same(dummy2, test2.Test1);
-                }
-
-                Assert.False(dummy1.Disposed);
-                Assert.False(dummy2.Disposed);
+                Assert.Same(dummy2, test1);
+                Assert.Same(dummy2, test2.Test1);
             }
+
+            Assert.False(dummy1.Disposed);
+            Assert.False(dummy2.Disposed);
         }
 
         [Fact]
@@ -552,46 +546,44 @@ namespace Stashbox.Tests
         [Fact]
         public void DisposeTests_TrackTransientDisposal_ScopeOfScope_Transient()
         {
-            using (IStashboxContainer container = new StashboxContainer(config => config.WithDisposableTransientTracking()))
+            using IStashboxContainer container = new StashboxContainer(config => config.WithDisposableTransientTracking());
+            container.Register<ITest2, Test2>();
+            container.Register<Test3>();
+            container.Register<ITest1, Test1>();
+
+            ITest1 test;
+            ITest2 test2;
+            Test3 test3;
+
+            using (var scope = container.BeginScope())
             {
-                container.Register<ITest2, Test2>();
-                container.Register<Test3>();
-                container.Register<ITest1, Test1>();
+                test = scope.Resolve<ITest1>();
+                test2 = scope.Resolve<ITest2>();
+                test3 = scope.Resolve<Test3>();
 
-                ITest1 test;
-                ITest2 test2;
-                Test3 test3;
+                ITest1 test4;
+                ITest2 test5;
+                Test3 test6;
 
-                using (var scope = container.BeginScope())
+                using (var scope2 = scope.BeginScope())
                 {
-                    test = scope.Resolve<ITest1>();
-                    test2 = scope.Resolve<ITest2>();
-                    test3 = scope.Resolve<Test3>();
-
-                    ITest1 test4;
-                    ITest2 test5;
-                    Test3 test6;
-
-                    using (var scope2 = scope.BeginScope())
-                    {
-                        test4 = scope2.Resolve<ITest1>();
-                        test5 = scope2.Resolve<ITest2>();
-                        test6 = scope2.Resolve<Test3>();
-                    }
-
-                    Assert.True(test4.Disposed);
-                    Assert.True(test5.Test1.Disposed);
-                    Assert.True(test6.Test1.Disposed);
-
-                    Assert.False(test.Disposed);
-                    Assert.False(test2.Test1.Disposed);
-                    Assert.False(test3.Test1.Disposed);
+                    test4 = scope2.Resolve<ITest1>();
+                    test5 = scope2.Resolve<ITest2>();
+                    test6 = scope2.Resolve<Test3>();
                 }
 
-                Assert.True(test.Disposed);
-                Assert.True(test2.Test1.Disposed);
-                Assert.True(test3.Test1.Disposed);
+                Assert.True(test4.Disposed);
+                Assert.True(test5.Test1.Disposed);
+                Assert.True(test6.Test1.Disposed);
+
+                Assert.False(test.Disposed);
+                Assert.False(test2.Test1.Disposed);
+                Assert.False(test3.Test1.Disposed);
             }
+
+            Assert.True(test.Disposed);
+            Assert.True(test2.Test1.Disposed);
+            Assert.True(test3.Test1.Disposed);
         }
 
         [Fact]

@@ -1,8 +1,4 @@
-﻿using Moq;
-using Stashbox.ContainerExtension;
-using Stashbox.Registration;
-using Stashbox.Resolution;
-using System;
+﻿using System;
 using Xunit;
 
 namespace Stashbox.Tests
@@ -32,28 +28,6 @@ namespace Stashbox.Tests
                 container.Register<Test1>();
                 container.Register<ITest, Test>(context => context.WithInitializer((t, resolver) => t.ImplMethod(resolver.Resolve<Test1>())));
                 test = container.Resolve<ITest>();
-            }
-
-            Assert.True(test.MethodCalled);
-        }
-
-        [Fact]
-        public void InitializerTests_With_Post_Build_Extension()
-        {
-            ITest test;
-            using (var container = new StashboxContainer())
-            {
-                var post = new Mock<IPostBuildExtension>();
-
-                post.Setup(p => p.PostBuild(It.IsAny<object>(), container.ContainerContext, It.IsAny<ResolutionContext>(),
-                    It.IsAny<IServiceRegistration>(), It.IsAny<Type>())).Returns<object, IContainerContext, ResolutionContext, IServiceRegistration, Type>((o, c, r, sr, t) => o);
-
-                container.RegisterExtension(post.Object);
-                container.Register<Test1>();
-                container.Register<ITest, Test>(context => context.WithInitializer((t, resolver) => t.ImplMethod(resolver.Resolve<Test1>())));
-                test = container.Resolve<ITest>();
-
-                post.Verify(p => p.PostBuild(It.IsAny<object>(), container.ContainerContext, It.IsAny<ResolutionContext>(), It.IsAny<IServiceRegistration>(), It.IsAny<Type>()), Times.Exactly(2));
             }
 
             Assert.True(test.MethodCalled);
@@ -195,48 +169,42 @@ namespace Stashbox.Tests
         [Fact]
         public void FinalizerTests_Register_Multiple_Shouldnt_Throw()
         {
-            using (var container = new StashboxContainer())
+            using var container = new StashboxContainer();
+            container.Register<ITest, Test>(context => context.WithFinalizer(t => t.Method()));
+            for (var i = 0; i < 10; i++)
             {
-                container.Register<ITest, Test>(context => context.WithFinalizer(t => t.Method()));
-                for (var i = 0; i < 10; i++)
-                {
-                    var test = container.Resolve<ITest>();
-                    Assert.False(test.MethodCalled);
-                }
+                var test = container.Resolve<ITest>();
+                Assert.False(test.MethodCalled);
             }
         }
 
         [Fact]
         public void FinalizerTests_Register_Singleton_Multiple_Shouldnt_Throw()
         {
-            using (var container = new StashboxContainer())
+            using var container = new StashboxContainer();
+            container.Register<ITest, Test>(context => context.WithFinalizer(t => t.Method()).WithSingletonLifetime());
+            for (var i = 0; i < 10; i++)
             {
-                container.Register<ITest, Test>(context => context.WithFinalizer(t => t.Method()).WithSingletonLifetime());
-                for (var i = 0; i < 10; i++)
-                {
-                    var test = container.Resolve<ITest>();
-                    Assert.False(test.MethodCalled);
-                }
+                var test = container.Resolve<ITest>();
+                Assert.False(test.MethodCalled);
             }
         }
 
         [Fact]
         public void FinalizerTests_Register_Scoped_Multiple_Shouldnt_Throw()
         {
-            using (var container = new StashboxContainer())
+            using var container = new StashboxContainer();
+            container.Register<ITest, Test>(context => context.WithFinalizer(t => t.Method()).WithScopedLifetime());
+            for (var i = 0; i < 10; i++)
             {
-                container.Register<ITest, Test>(context => context.WithFinalizer(t => t.Method()).WithScopedLifetime());
-                for (var i = 0; i < 10; i++)
+                ITest test;
+                using (var scope = container.BeginScope())
                 {
-                    ITest test;
-                    using (var scope = container.BeginScope())
-                    {
-                        test = scope.Resolve<ITest>();
-                        Assert.False(test.MethodCalled);
-                    }
-
-                    Assert.True(test.MethodCalled);
+                    test = scope.Resolve<ITest>();
+                    Assert.False(test.MethodCalled);
                 }
+
+                Assert.True(test.MethodCalled);
             }
         }
 

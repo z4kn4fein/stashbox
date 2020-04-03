@@ -3,8 +3,6 @@ using System.Reflection;
 using System.Collections.Generic;
 using Stashbox;
 using Stashbox.Configuration;
-using Stashbox.Entity.Resolution;
-using Stashbox.Utils;
 #if IL_EMIT
 using Stashbox.BuildUp.Expressions.Compile;
 #endif
@@ -241,6 +239,16 @@ namespace System.Linq.Expressions
         /// <param name="methodInfo">The method info.</param>
         /// <param name="parameters">The parameters.</param>
         /// <returns>The call expression.</returns>
+        public static MethodCallExpression CallMethod(this Expression target, MethodInfo methodInfo, IEnumerable<Expression> parameters) =>
+            Expression.Call(target, methodInfo, parameters);
+
+        /// <summary>
+        /// Constructs a method call expression from a target expression, method info and parameters, => Expression.Call(target, methodInfo, parameters)
+        /// </summary>
+        /// <param name="target">The target expression.</param>
+        /// <param name="methodInfo">The method info.</param>
+        /// <param name="parameters">The parameters.</param>
+        /// <returns>The call expression.</returns>
         public static MethodCallExpression CallMethod(this MethodInfo methodInfo, Expression target, params Expression[] parameters) =>
             target.CallMethod(methodInfo, parameters);
 
@@ -269,9 +277,6 @@ namespace System.Linq.Expressions
         /// <returns>The invocation expression.</returns>
         public static InvocationExpression InvokeDelegate(this Delegate @delegate, params Expression[] parameters) =>
             Expression.Invoke(@delegate.AsConstant(), parameters);
-
-        internal static NewExpression MakeNew(this ResolutionConstructor constructor) =>
-            Expression.New(constructor.Constructor, constructor.Parameters);
 
         /// <summary>
         /// Constructs an new expression, => Expression.New(constructor, arguments)
@@ -324,7 +329,7 @@ namespace System.Linq.Expressions
         /// <param name="expression">The expression.</param>
         /// <param name="bindings">The member bindings.</param>
         /// <returns>The member init expression.</returns>
-        public static MemberInitExpression InitMembers(this Expression expression, IList<MemberBinding> bindings) =>
+        public static MemberInitExpression InitMembers(this Expression expression, IEnumerable<MemberBinding> bindings) =>
            Expression.MemberInit((NewExpression)expression, bindings);
 
         /// <summary>

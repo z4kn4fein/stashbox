@@ -37,11 +37,9 @@ namespace Stashbox.Tests
                     .Register<DisposableObj2>()
                     .Register<DisposableObj3>();
 
-                using (var scope = container.BeginScope())
-                {
-                    var obj = scope.Resolve<DisposableObj3>(dependencyOverrides: new object[] { disposables });
-                    Assert.NotNull(obj);
-                }
+                using var scope = container.BeginScope();
+                var obj = scope.Resolve<DisposableObj3>(dependencyOverrides: new object[] { disposables });
+                Assert.NotNull(obj);
             }
 
             Assert.IsType<DisposableObj3>(disposables[0]);
