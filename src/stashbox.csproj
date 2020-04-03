@@ -34,7 +34,7 @@
 Breaking changes:
 - WithUniqueRegistrationIdentifiers() option is removed, WithRegistrationBehavior() is added instead
 - Removed the legacy container extension functionality
-- Removed the support support of PCL v259
+- Removed the support of PCL v259
     ]]>
     </PackageReleaseNotes>
     <Configurations>Debug;Release;Benchmark</Configurations>
