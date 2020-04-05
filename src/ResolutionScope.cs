@@ -134,7 +134,7 @@ namespace Stashbox
         {
             var typeTo = instance.GetType();
             var resolutionContext = ResolutionContext.New(this);
-            var expression = this.expressionBuilder.CreateBasicFillExpression(this.containerContext,
+            var expression = this.expressionBuilder.ConstructBuildUpExpression(this.containerContext,
                 RegistrationContext.Empty,
                 resolutionContext,
                 instance.AsConstant(),
@@ -148,7 +148,7 @@ namespace Stashbox
                 throw new ArgumentException($"The given type ({type.FullName}) could not be activated on the fly by the container.");
 
             var resolutionContext = ResolutionContext.New(this, dependencyOverrides: arguments);
-            var expression = this.expressionBuilder.CreateBasicExpression(
+            var expression = this.expressionBuilder.ConstructExpression(
                 this.containerContext,
                 RegistrationContext.Empty,
                 resolutionContext,

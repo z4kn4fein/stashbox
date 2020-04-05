@@ -117,6 +117,21 @@ namespace Stashbox.Tests
         }
 
         [Fact]
+        public void LifetimeTests_Singleton_DefinesScope()
+        {
+            using IStashboxContainer container = new StashboxContainer(c => c.WithDefaultLifetime(new SingletonLifetime()));
+            container.Register<Test6>(c => c.DefinesScope());
+            container.Register<Test7>(c => c.DefinesScope());
+            container.RegisterScoped<Test5>();
+
+            var inst1 = container.Resolve<Test6>();
+            var inst2 = container.Resolve<Test7>();
+
+            Assert.NotSame(inst1.Test5, inst2.Test5);
+            Assert.Same(inst1, inst2.Test6);
+        }
+
+        [Fact]
         public void LifetimeTests_StateCheck()
         {
             var scoped = new ScopedLifetime();

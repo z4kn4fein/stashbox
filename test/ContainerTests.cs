@@ -219,7 +219,7 @@ namespace Stashbox.Tests
         public void ContainerTests_Configuration_DuplicatedBheavior_Throws()
         {
             Assert.Throws<ServiceAlreadyRegisteredException>(() => new StashboxContainer(c =>
-                c.WithRegistrationBehavior(Rules.RegistrationBehavior.ThrowExceptionOnAlreadyRegistered))
+                c.WithRegistrationBehavior(Rules.RegistrationBehavior.ThrowException))
             .Register<S>().Register<S>());
         }
 
@@ -227,7 +227,7 @@ namespace Stashbox.Tests
         public void ContainerTests_Configuration_DuplicatedBheavior_Skip()
         {
             using var container = new StashboxContainer(c =>
-                 c.WithRegistrationBehavior(Rules.RegistrationBehavior.SkipDuplicates))
+                 c.WithRegistrationBehavior(Rules.RegistrationBehavior.SkipDuplications))
             .Register<S>(c => c.WithInitializer((s, r) => s.Id = 0)).Register<S>(c => c.WithInitializer((s, r) => s.Id = 1));
             var regs = container.GetRegistrationMappings();
 

@@ -8,11 +8,7 @@ Github (stable) | NuGet (stable) | NuGet (latest) | Open Hub
 
 ## Features
 
-Stashbox is a lightweight, portable dependency injection framework for .NET based solutions.
-
-## Features
-
-- **[Fluent interface](https://github.com/z4kn4fein/stashbox/wiki/Fluent-registration-api)** - for faster and easier configuration, [attribute based](https://github.com/z4kn4fein/stashbox/wiki/Resolution-by-attributes) and [conventional resolution](https://github.com/z4kn4fein/stashbox/wiki/Conventional-resolution) is also supported.
+ - **[Fluent interface](https://github.com/z4kn4fein/stashbox/wiki/Fluent-registration-api)** - for faster and easier configuration, [attribute based](https://github.com/z4kn4fein/stashbox/wiki/Resolution-by-attributes) and [conventional resolution](https://github.com/z4kn4fein/stashbox/wiki/Conventional-resolution) is also supported.
  - **[Interface/implementation mapping](https://github.com/z4kn4fein/stashbox/wiki/Service-registration)** - [single service](https://github.com/z4kn4fein/stashbox/wiki/Service-registration#standard), [instance registration](https://github.com/z4kn4fein/stashbox/wiki/Service-registration#instance), service [remapping](https://github.com/z4kn4fein/stashbox/wiki/Service-registration#remap) and replacing is also supported.
  - **[Named registration](https://github.com/z4kn4fein/stashbox/wiki/Service-registration#named)** - multiple implementations are identifiable with names.
  - **[Assembly registration](https://github.com/z4kn4fein/stashbox/wiki/Assembly-registration)** - service lookup in assemblies and auto determining the interface types.
@@ -29,28 +25,26 @@ Stashbox is a lightweight, portable dependency injection framework for .NET base
  - **[Lifetime management](https://github.com/z4kn4fein/stashbox/wiki/Lifetimes)** - `Singleton`, `Scoped`, `NamedScope` and `PerResolutionRequest` are built-in, but custom, user-defined lifetimes are supported as well.
  - **[Conditional resolution](https://github.com/z4kn4fein/stashbox/wiki/Conditional-resolution)** - attribute, parent-type and custom, user-defined conditions can be specified.
  - **[IDisposable object tracking](https://github.com/z4kn4fein/stashbox/wiki/Scopes#disposal)** - `IDisposable` objects are disposed by the container.
- - **[Circular dependency tracking](https://github.com/z4kn4fein/stashbox/wiki/Container-configuration#options-available)** - the container checks the resolution graph for circular dependencies and it throws a specific `CircularDependencyException` if it finds any.
+ - **[Circular dependency tracking](https://github.com/z4kn4fein/stashbox/wiki/Container-configuration#options-available)** - the container checks the resolution graph for circular dependencies and it throws a specific [CircularDependencyException](https://github.com/z4kn4fein/stashbox/wiki/Error-handling#circulardependencyexception) if it finds any.
  - **[Generic wrappers](https://github.com/z4kn4fein/stashbox/wiki/Generic-wrappers)**
      - Collections: everything assignable to `IEnumerable<T>` e.g. `T[]`, `ICollection<T>`, `IReadOnlyCollection<T>`, `IList<T>` etc.
      - `Lazy<>`, `Func<>`, `Tuple<>`
-     - [Parameter injection over delegate arguments](https://github.com/z4kn4fein/stashbox/wiki/Delegate-resolution) (e.g. `Func<TParam, TService>`, `Func<TParam1, TParam2, TService>`) applied to subdependencies as well.
+     - [Parameter injection with delegate arguments](https://github.com/z4kn4fein/stashbox/wiki/Delegate-resolution) (e.g. `Func<TParam, TService>`, `Func<TParam1, TParam2, TService>`) applied to subdependencies as well.
      - Nested wrappers like `Tuple<TService, IEnumerable<Func<TParam, Lazy<TService1>>>>`.
  - **[Custom resolvers](https://github.com/z4kn4fein/stashbox/wiki/Resolvers)** - the existing activation rutines are extendable with custom resolvers.
- - **[Container extensions](https://github.com/z4kn4fein/stashbox/wiki/Extensions)** - the functionality of the container is extendable with custom extensions, e.g. [Auto configuration parser extension](https://github.com/z4kn4fein/stashbox-configuration-extension)
  - **[Custom configuration](https://github.com/z4kn4fein/stashbox/wiki/Container-configuration)** - the behavior of the container can be controlled by custom configuration options.
+ - **[Error detection](https://github.com/z4kn4fein/stashbox/wiki/Error-handling)** - the container throws specific exceptions when something goes wrong.
  - **Graph validation** - the resolution graph can be validated by calling the `Validate()` function of the container.
  - **[Decorator support / Interception](https://github.com/z4kn4fein/stashbox/wiki/Decorators)** - decorator services can be registered and used for interception with [Castle DynamicProxy](http://www.castleproject.org/projects/dynamicproxy).
 
 ## Supported platforms
 
  - .NET 4.0 and above
- - Windows 8/8.1/10
- - Windows Phone Silverlight 8/8.1
- - Windows Phone 8.1
- - Xamarin (Android/iOS/iOS Classic)
- - .NET Standard 1.0
- - .NET Standard 1.3
- - .NET Standard 2.0
+ - .NET Core
+ - Mono
+ - Universal Windows Platform
+ - Xamarin (Android/iOS/Mac)
+ - Unity
 
 ## Sample usage
 ```c#
@@ -91,9 +85,6 @@ var wulfgar = container.Resolve<IBarbarian>();
     - [Stashbox.Hangfire](https://github.com/z4kn4fein/stashbox-hangfire)
 - Mocking
     - [Stashbox.Mocking](https://github.com/z4kn4fein/stashbox-mocking) (Moq, FakeItEasy, NSubstitute, RhinoMocks, Rocks)
-- Other
-    - [Decorator extension](https://github.com/z4kn4fein/stashbox-decoratorextension) (obsolate, the decorator pattern support is a built-in feature from version 2.3.0)
-    - [Stashbox.Configuration](https://github.com/z4kn4fein/stashbox-configuration-extension) auto configuration parser
 
 ## Documentation
  - [Wiki](https://github.com/z4kn4fein/stashbox/wiki)
@@ -105,6 +96,6 @@ var wulfgar = container.Resolve<IBarbarian>();
 
 <br/>
 
-*Powered by [Jetbrains'](https://www.jetbrains.com) [Open Source License](https://www.jetbrains.com/community/opensource)*
+*Powered by [Jetbrains'](https://www.jetbrains.com/?from=Stashbox) [Open Source License](https://www.jetbrains.com/community/opensource)*
 
-[![Jetbrains](https://cdn.rawgit.com/z4kn4fein/stashbox/master/img/jetbrains.svg)](https://www.jetbrains.com)
+[![Jetbrains](https://cdn.rawgit.com/z4kn4fein/stashbox/master/img/jetbrains.svg)](https://www.jetbrains.com/?from=Stashbox)

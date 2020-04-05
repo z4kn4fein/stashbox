@@ -48,7 +48,7 @@ namespace Stashbox.Tests
         {
             using var container = new StashboxContainer();
             Assert.Throws<ConstructorNotFoundException>(() =>
-container.Register<Test>(context => context.WithConstructorByArguments()));
+                container.Register<Test>(context => context.WithConstructorByArguments()));
         }
 
         [Fact]
@@ -56,7 +56,7 @@ container.Register<Test>(context => context.WithConstructorByArguments()));
         {
             using var container = new StashboxContainer();
             Assert.Throws<ConstructorNotFoundException>(() =>
-container.Register<Test>(context => context.WithConstructorByArguments(new object())));
+                container.Register<Test>(context => context.WithConstructorByArguments(new object())));
         }
 
         [Fact]
@@ -64,8 +64,8 @@ container.Register<Test>(context => context.WithConstructorByArguments(new objec
         {
             using var container = new StashboxContainer();
             Assert.Throws<ConstructorNotFoundException>(() =>
-container.Register<Test>(context =>
-context.WithConstructorByArguments(new object(), new object())));
+                container.Register<Test>(context =>
+                context.WithConstructorByArguments(new object(), new object())));
         }
 
         [Fact]

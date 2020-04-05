@@ -24,8 +24,9 @@ namespace Stashbox
         IContainerConfigurator WithDisposableTransientTracking();
 
         /// <summary>
-        /// Enables the unique registration id generation for services even if the implementation type is the same.
+        /// Sets the actual behavior used when a new service is going to be registered into the container. See the <see cref="Rules.RegistrationBehavior"/> enum for available options.
         /// </summary>
+        /// <param name="registrationBehavior">The actual registration behavior.</param>
         /// <returns>The container configurator.</returns>
         IContainerConfigurator WithRegistrationBehavior(Rules.RegistrationBehavior registrationBehavior);
 

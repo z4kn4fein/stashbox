@@ -13,8 +13,8 @@ namespace Stashbox.Exceptions
         /// <param name="type">The type of the service.</param>
         /// <param name="message">The exception message.</param>
         /// <param name="innerException">The inner exception.</param>
-        public ResolutionFailedException(Type type, string message = "service not registered or unresolvable type requested.", Exception innerException = null)
-            : base(type, $"Could not resolve type {type.FullName}.{Environment.NewLine}Reason: {message}", innerException)
+        public ResolutionFailedException(Type type, string message = "Service is not registered or unresolvable type requested.", Exception innerException = null)
+            : base(type, $"Could not resolve type {type.FullName}.{Environment.NewLine}{message}", innerException)
         { }
     }
 }

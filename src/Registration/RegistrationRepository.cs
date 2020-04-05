@@ -32,9 +32,9 @@ namespace Stashbox.Registration
 
         private readonly IRegistrationSelectionRule[] enumerableFilters =
         {
-            RegistrationSelectionRules .GenericFilter,
-            RegistrationSelectionRules .ScopeNameFilter,
-            RegistrationSelectionRules .ConditionFilter
+            RegistrationSelectionRules.GenericFilter,
+            RegistrationSelectionRules.ScopeNameFilter,
+            RegistrationSelectionRules.ConditionFilter
         };
 
         public RegistrationRepository(ContainerConfiguration containerConfiguration)
@@ -56,7 +56,7 @@ namespace Stashbox.Registration
                         registration, serviceType, newRepository,
                         replace ||
                         this.containerConfiguration.RegistrationBehavior == Rules.RegistrationBehavior.ReplaceExisting ||
-                        this.containerConfiguration.RegistrationBehavior == Rules.RegistrationBehavior.ThrowExceptionOnAlreadyRegistered);
+                        this.containerConfiguration.RegistrationBehavior == Rules.RegistrationBehavior.ThrowException);
         }
 
         public bool ContainsRegistration(Type type, object name) =>
@@ -65,23 +65,14 @@ namespace Stashbox.Registration
         public IEnumerable<KeyValuePair<Type, IServiceRegistration>> GetRegistrationMappings() =>
              serviceRepository.Walk().SelectMany(reg => reg.Value.Select(r => new KeyValuePair<Type, IServiceRegistration>(reg.Key, r)));
 
-        public IServiceRegistration GetRegistrationOrDefault(Type type, ResolutionContext resolutionContext, object name = null)
-        {
-            var registrations = this.GetRegistrationsForType(type);
-            return registrations?.SelectOrDefault(new TypeInformation { Type = type, DependencyName = name }, resolutionContext, this.topLevelFilters);
-        }
+        public IServiceRegistration GetRegistrationOrDefault(Type type, ResolutionContext resolutionContext, object name = null) =>
+            this.GetRegistrationsForType(type)?.SelectOrDefault(new TypeInformation { Type = type, DependencyName = name }, resolutionContext, this.topLevelFilters);
 
-        public IServiceRegistration GetRegistrationOrDefault(TypeInformation typeInfo, ResolutionContext resolutionContext)
-        {
-            var registrations = this.GetRegistrationsForType(typeInfo.Type);
-            return registrations?.SelectOrDefault(typeInfo, resolutionContext, this.filters);
-        }
+        public IServiceRegistration GetRegistrationOrDefault(TypeInformation typeInfo, ResolutionContext resolutionContext) =>
+            this.GetRegistrationsForType(typeInfo.Type)?.SelectOrDefault(typeInfo, resolutionContext, this.filters);
 
-        public IEnumerable<IServiceRegistration> GetRegistrationsOrDefault(TypeInformation typeInfo, ResolutionContext resolutionContext)
-        {
-            var registrations = this.GetRegistrationsForType(typeInfo.Type);
-            return registrations?.FilterOrDefault(typeInfo, resolutionContext, this.enumerableFilters)?.OrderBy(reg => reg.RegistrationId);
-        }
+        public IEnumerable<IServiceRegistration> GetRegistrationsOrDefault(TypeInformation typeInfo, ResolutionContext resolutionContext) =>
+            this.GetRegistrationsForType(typeInfo.Type)?.FilterOrDefault(typeInfo, resolutionContext, this.enumerableFilters)?.OrderBy(reg => reg.RegistrationId);
 
         private IEnumerable<IServiceRegistration> GetRegistrationsForType(Type type)
         {

@@ -26,7 +26,7 @@ namespace Stashbox.Configuration
         public bool TrackTransientsForDisposalEnabled { get; internal set; }
 
         /// <summary>
-        /// If it's set to true the container will set a unique registration name for every new registration even if the implementation type is the same.
+        /// The actual behavior used when a new service is going to be registered into the container. See the <see cref="Rules.RegistrationBehavior"/> enum for available options.
         /// </summary>
         public Rules.RegistrationBehavior RegistrationBehavior { get; internal set; }
 

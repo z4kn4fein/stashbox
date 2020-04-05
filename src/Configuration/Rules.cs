@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Stashbox.Exceptions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -6,32 +7,32 @@ using System.Reflection;
 namespace Stashbox.Configuration
 {
     /// <summary>
-    /// Represents the predefined configuration rules of the <see cref="StashboxContainer"/>
+    /// Represents the predefined configuration rules of the <see cref="StashboxContainer"/>.
     /// </summary>
     public static class Rules
     {
         /// <summary>
-        /// 
+        /// Represents the actual behavior used when a new service is going to be registered into the container. These options does not affect named registrations.
         /// </summary>
         public enum RegistrationBehavior
         {
             /// <summary>
-            /// 
+            /// The container will skip new registrations when the given implementation type is already registered.
             /// </summary>
-            SkipDuplicates,
+            SkipDuplications,
 
             /// <summary>
-            /// 
+            /// The container will throw a <see cref="ServiceAlreadyRegisteredException"/> when the given implementation type is already registered.
             /// </summary>
-            ThrowExceptionOnAlreadyRegistered,
+            ThrowException,
 
             /// <summary>
-            /// 
+            /// The container will replace the already registered service with the given one when they have the same implementation type.
             /// </summary>
             ReplaceExisting,
 
             /// <summary>
-            /// 
+            /// The container will keep registering the new services with the same implementation type.
             /// </summary>
             PreserveDuplications
         }

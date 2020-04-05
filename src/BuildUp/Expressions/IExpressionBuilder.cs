@@ -7,27 +7,27 @@ namespace Stashbox.BuildUp.Expressions
 {
     internal interface IExpressionBuilder
     {
-        Expression CreateFillExpression(
+        Expression ConstructBuildUpExpression(
             IContainerContext containerContext,
             IServiceRegistration serviceRegistration,
             ResolutionContext resolutionContext,
             Expression instance,
             Type serviceType);
 
-        Expression CreateBasicFillExpression(
+        Expression ConstructBuildUpExpression(
             IContainerContext containerContext,
             RegistrationContext registrationContext,
             ResolutionContext resolutionContext,
             Expression instance,
             Type serviceType);
 
-        Expression CreateExpression(
+        Expression ConstructExpression(
             IContainerContext containerContext,
             IServiceRegistration serviceRegistration,
             ResolutionContext resolutionContext,
             Type serviceType);
 
-        Expression CreateBasicExpression(
+        Expression ConstructExpression(
             IContainerContext containerContext,
             RegistrationContext registrationContext,
             ResolutionContext resolutionContext,

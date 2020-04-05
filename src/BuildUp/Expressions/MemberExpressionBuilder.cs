@@ -1,4 +1,5 @@
-﻿using Stashbox.Exceptions;
+﻿using Stashbox.Entity;
+using Stashbox.Exceptions;
 using Stashbox.Registration;
 using Stashbox.Resolution;
 using System;
@@ -70,9 +71,11 @@ namespace Stashbox.BuildUp.Expressions
                     memberTypeInfo, registrationContext.InjectionParameters);
 
             if (memberExpression == null && !resolutionContext.NullResultAllowed)
+            {
+                var memberType = memberTypeInfo.MemberType == MemberType.Property ? "property" : "field";
                 throw new ResolutionFailedException(memberTypeInfo.ParentType,
-                    $"Unresolvable member: ({memberTypeInfo.Type.FullName}){memberTypeInfo.ParameterOrMemberName}.");
-
+                    $"Unresolvable {memberType}: ({memberTypeInfo.Type.FullName}){memberTypeInfo.ParameterOrMemberName}.");
+            }
 
             if (memberExpression is ConstantExpression constant && constant.Value == null)
                 return null;

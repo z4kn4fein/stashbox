@@ -114,7 +114,7 @@ namespace Stashbox.Registration
         /// <inheritdoc />
         public void Replaces(IServiceRegistration serviceRegistration)
         {
-            if (this.containerConfiguration.RegistrationBehavior == Rules.RegistrationBehavior.ThrowExceptionOnAlreadyRegistered)
+            if (this.containerConfiguration.RegistrationBehavior == Rules.RegistrationBehavior.ThrowException)
                 throw new ServiceAlreadyRegisteredException(this.ImplementationType);
 
             this.RegistrationId = serviceRegistration.RegistrationId;

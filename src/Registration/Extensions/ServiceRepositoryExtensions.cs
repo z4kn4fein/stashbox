@@ -28,8 +28,8 @@ namespace Stashbox.Registration.Extensions
             IRegistrationSelectionRule[] registrationSelectionRules)
         {
             var maxIndex = 0;
-            var result = new List<IServiceRegistration>();
             var maxWeight = 0;
+            var result = new List<IServiceRegistration>();
 
             foreach (var serviceRegistration in registrations)
             {

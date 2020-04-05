@@ -21,7 +21,7 @@ namespace Stashbox.BuildUp.Expressions
             this.memberExpressionBuilder = memberExpressionBuilder;
         }
 
-        public Expression CreateFillExpression(
+        public Expression ConstructBuildUpExpression(
             IContainerContext containerContext,
             IServiceRegistration serviceRegistration,
             ResolutionContext resolutionContext,
@@ -61,7 +61,7 @@ namespace Stashbox.BuildUp.Expressions
             return instance;
         }
 
-        public Expression CreateBasicFillExpression(
+        public Expression ConstructBuildUpExpression(
             IContainerContext containerContext,
             RegistrationContext registrationContext,
             ResolutionContext resolutionContext,
@@ -97,7 +97,7 @@ namespace Stashbox.BuildUp.Expressions
             return instance;
         }
 
-        public Expression CreateExpression(
+        public Expression ConstructExpression (
             IContainerContext containerContext,
             IServiceRegistration serviceRegistration,
             ResolutionContext resolutionContext,
@@ -138,7 +138,7 @@ namespace Stashbox.BuildUp.Expressions
             return initExpression;
         }
 
-        public Expression CreateBasicExpression(
+        public Expression ConstructExpression(
             IContainerContext containerContext,
             RegistrationContext registrationContext,
             ResolutionContext resolutionContext,

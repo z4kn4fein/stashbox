@@ -5,7 +5,7 @@ namespace Stashbox.Exceptions
 {
     /// <summary>
     /// Represents the exception the container throws when a registration process fails due to service duplication.
-    /// Occurs when the container is configured with <see cref="Rules.RegistrationBehavior.ThrowExceptionOnAlreadyRegistered"/>.
+    /// Occurs when the container is configured with <see cref="Rules.RegistrationBehavior.ThrowException"/>.
     /// </summary>
     public class ServiceAlreadyRegisteredException : ExceptionBaseException
     {

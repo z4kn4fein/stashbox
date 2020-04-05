@@ -35,7 +35,7 @@ namespace Stashbox.BuildUp.ObjectBuilders
         private Expression PrepareExpression(IContainerContext containerContext, IServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType)
         {
             if (serviceRegistration.RegistrationContext.DefinedScopeName == null)
-                return this.expressionBuilder.CreateExpression(containerContext, serviceRegistration, resolutionContext, resolveType);
+                return this.expressionBuilder.ConstructExpression(containerContext, serviceRegistration, resolutionContext, resolveType);
 
             var variable = Constants.ResolutionScopeType.AsVariable();
 
@@ -47,11 +47,11 @@ namespace Stashbox.BuildUp.ObjectBuilders
 
             var newContext = resolutionContext.Clone(null,
                     new KeyValue<object, ParameterExpression>(serviceRegistration.RegistrationContext.DefinedScopeName, variable));
-            
+
             resolutionContext.AddDefinedVariable(variable);
             resolutionContext.AddInstruction(variable.AssignTo(newScope.ConvertTo(Constants.ResolutionScopeType)));
 
-            var expression = this.expressionBuilder.CreateExpression(containerContext, serviceRegistration, newContext, resolveType);
+            var expression = this.expressionBuilder.ConstructExpression(containerContext, serviceRegistration, newContext, resolveType);
 
             foreach (var definedVariable in newContext.DefinedVariables.Walk())
                 resolutionContext.AddDefinedVariable(definedVariable.Key, definedVariable.Value);

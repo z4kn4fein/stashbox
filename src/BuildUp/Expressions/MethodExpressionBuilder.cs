@@ -32,7 +32,7 @@ namespace Stashbox.BuildUp.Expressions
                 var parameter = parameters[i].AsTypeInformation(method.DeclaringType, registrationContext, containerContext.ContainerConfiguration);
                 yield return this.resolutionStrategy.BuildResolutionExpression(containerContext,
                     resolutionContext, parameter, registrationContext.InjectionParameters) ?? throw new ResolutionFailedException(method.DeclaringType,
-                    $"Method {method}, unresolvable parameter: ({parameter.Type}){parameter.ParameterOrMemberName}");
+                    $"Method {method} found with unresolvable parameter: ({parameter.Type}){parameter.ParameterOrMemberName}");
             }
         }
 
@@ -74,7 +74,7 @@ namespace Stashbox.BuildUp.Expressions
 
             var stringBuilder = new StringBuilder();
             foreach (var checkedConstructor in checkedConstructors)
-                stringBuilder.AppendLine($"Checked constructor: {checkedConstructor.Key}, unresolvable parameter: ({checkedConstructor.Value.Type.FullName}){checkedConstructor.Value.ParameterOrMemberName}.");
+                stringBuilder.AppendLine($"Constructor {checkedConstructor.Key} found with unresolvable parameter: ({checkedConstructor.Value.Type.FullName}){checkedConstructor.Value.ParameterOrMemberName}.");
 
             throw new ResolutionFailedException(constructors[0].DeclaringType, stringBuilder.ToString());
         }

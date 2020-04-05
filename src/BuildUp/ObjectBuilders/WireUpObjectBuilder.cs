@@ -16,7 +16,7 @@ namespace Stashbox.BuildUp.ObjectBuilders
         }
 
         protected override Expression GetExpressionInternal(IContainerContext containerContext, IServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType) =>
-            this.expressionBuilder.CreateFillExpression(containerContext, serviceRegistration, resolutionContext,
+            this.expressionBuilder.ConstructBuildUpExpression(containerContext, serviceRegistration, resolutionContext,
                 serviceRegistration.RegistrationContext.ExistingInstance.AsConstant(), serviceRegistration.ImplementationType);
     }
 }

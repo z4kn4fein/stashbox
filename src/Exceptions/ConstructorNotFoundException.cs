@@ -15,7 +15,7 @@ namespace Stashbox.Exceptions
         /// <param name="argumentTypes">The arguments.</param>
         /// <param name="innerException">The inner exception</param>
         public ConstructorNotFoundException(Type type, Type[] argumentTypes, Exception innerException = null) :
-            base($"Constructor not found for {type.FullName} with the given argument types: {argumentTypes.Select(t => t.FullName).Aggregate((t1, t2) => $"{t1}, {t2}")}", innerException)
+            base($"Constructor not found for {type.FullName} with the given argument types: {argumentTypes.Select(t => t.FullName).Aggregate((t1, t2) => $"{t1}, {t2}")}.", innerException)
         { }
 
         /// <summary>
@@ -34,7 +34,7 @@ namespace Stashbox.Exceptions
         /// <param name="argument">The argument type.</param>
         /// <param name="innerException">The inner exception</param>
         public ConstructorNotFoundException(Type type, Type argument, Exception innerException = null) :
-            base($"Constructor not found for {type.FullName} with argument: {argument.FullName}", innerException)
+            base($"Constructor not found for {type.FullName} with the argument type: {argument.FullName}.", innerException)
         { }
     }
 }
