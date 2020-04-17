@@ -9,17 +9,26 @@ namespace Stashbox.BuildUp.Expressions.Compile
 {
     internal class TreeAnalyzer
     {
+        private readonly bool isNestedLambda;
+
         public Expression[] StoredExpressions { get; private set; } = new Expression[0];
 
         public Expression[] CapturedParameters { get; private set; } = new Expression[0];
 
         public Expression[] DefinedVariables { get; private set; } = new Expression[0];
 
-        public KeyValue<LambdaExpression, Expression[]>[] NestedLambdas { get; private set; } = new KeyValue<LambdaExpression, Expression[]>[0];
+        public LambdaExpression[] NestedLambdas { get; private set; } = new LambdaExpression[0];
+
+        public Expression[][] NestedLambdaVariables { get; private set; } = new Expression[0][];
 
         public Type[] StoredObjectTypes { get; private set; } = new Type[0];
 
         public object[] StoredObjects { get; private set; } = new object[0];
+
+        public TreeAnalyzer(bool isNestedLambda = false)
+        {
+            this.isNestedLambda = isNestedLambda;
+        }
 
         public bool Analyze(Expression expression, params ParameterExpression[] parameters)
         {
@@ -28,17 +37,19 @@ namespace Stashbox.BuildUp.Expressions.Compile
                 case ExpressionType.Parameter:
 
                     if (parameters.ContainsElement(expression) || this.DefinedVariables.ContainsElement(expression)) return true;
+                    if (!this.isNestedLambda) return false;
+
                     this.AddCapturedParameter((ParameterExpression)expression);
                     return true;
 
                 case ExpressionType.Lambda:
                     var lambda = (LambdaExpression)expression;
 
-                    var analyzer = new TreeAnalyzer();
+                    var analyzer = new TreeAnalyzer(true);
                     if (!analyzer.Analyze(lambda.Body, lambda.Parameters.CastToArray()))
                         return false;
 
-                    this.AddNestedLambda(new KeyValue<LambdaExpression, Expression[]>(lambda, analyzer.DefinedVariables));
+                    this.AddNestedLambda(lambda, analyzer.DefinedVariables);
 
                     var length = analyzer.StoredExpressions.Length;
                     for (var i = 0; i < length; i++)
@@ -46,7 +57,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
 
                     var lambdaLength = analyzer.NestedLambdas.Length;
                     for (var i = 0; i < lambdaLength; i++)
-                        this.AddNestedLambda(analyzer.NestedLambdas[i]);
+                        this.AddNestedLambda(analyzer.NestedLambdas[i], analyzer.NestedLambdaVariables[i]);
 
                     var capturedLength = analyzer.CapturedParameters.Length;
                     for (var i = 0; i < capturedLength; i++)
@@ -154,10 +165,11 @@ namespace Stashbox.BuildUp.Expressions.Compile
             this.DefinedVariables = this.DefinedVariables.AddElement(expression);
         }
 
-        private void AddNestedLambda(KeyValue<LambdaExpression, Expression[]> element)
+        private void AddNestedLambda(LambdaExpression lambda, Expression[] variables)
         {
-            if (this.NestedLambdas.ContainsElement(element)) return;
-            this.NestedLambdas = this.NestedLambdas.AddElement(element);
+            if (this.NestedLambdas.ContainsElement(lambda)) return;
+            this.NestedLambdas = this.NestedLambdas.AddElement(lambda);
+            this.NestedLambdaVariables = this.NestedLambdaVariables.AddElement(variables);
         }
 
         private static bool IsInPlaceEmittableConstant(Type type, object value)

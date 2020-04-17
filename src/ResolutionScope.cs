@@ -325,7 +325,7 @@ namespace Stashbox
             bool nullResultAllowed)
         {
             var resolutionContext = ResolutionContext.New(resolutionScope, nullResultAllowed);
-            resolutionContext.AddParameterExpressions(type, parameterTypes.Select(p => p.AsParameter()).ToArray());
+            resolutionContext.AddParameterExpressions(parameterTypes.Select(p => p.AsParameter()).ToArray());
 
             var typeInfo = new TypeInformation { Type = type, DependencyName = name };
             var registration = this.containerContext.RegistrationRepository.GetRegistrationOrDefault(typeInfo, resolutionContext);

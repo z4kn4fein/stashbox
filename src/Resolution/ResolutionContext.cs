@@ -138,7 +138,7 @@ namespace Stashbox.Resolution
         internal Expression GetCachedExpression(int key) =>
             this.ExpressionCache.GetOrDefault(key);
 
-        internal void AddParameterExpressions(Type scopeType, ParameterExpression[] parameterExpressions)
+        internal void AddParameterExpressions(ParameterExpression[] parameterExpressions)
         {
             var length = parameterExpressions.Length;
             var newItems = new KeyValue<bool, ParameterExpression>[length];
@@ -155,14 +155,12 @@ namespace Stashbox.Resolution
 
         internal ResolutionContext Clone(IContainerContext childContext, KeyValue<object, ParameterExpression> scopeParameter = null)
         {
-            var scopeNames = this.ScopeNames;
             if (scopeParameter != null)
-                scopeNames.Add(scopeParameter.Key);
+                this.ScopeNames.Add(scopeParameter.Key);
 
             var clone = this.Clone();
             clone.CurrentScopeParameter = scopeParameter == null ? this.CurrentScopeParameter : scopeParameter.Value;
             clone.ChildContext = childContext ?? this.ChildContext;
-            clone.ScopeNames = scopeNames;
 
             return clone;
         }
@@ -176,6 +174,7 @@ namespace Stashbox.Resolution
 #endif
             clone.DefinedVariables = HashTree<object, ParameterExpression>.Empty;
             clone.SingleInstructions = new List<Expression>();
+            clone.ExpressionCache = HashTree<Expression>.Empty;
             return clone;
         }
     }

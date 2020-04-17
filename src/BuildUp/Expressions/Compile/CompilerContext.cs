@@ -8,8 +8,6 @@ namespace Stashbox.BuildUp.Expressions.Compile
 {
     internal class CompilerContext
     {
-        private int hasCapturedVariablesArgumentConstructed;
-
         public Expression[] DefinedVariables { get; }
 
         public Expression[] CapturedArguments { get; }
@@ -26,23 +24,22 @@ namespace Stashbox.BuildUp.Expressions.Compile
 
         public LocalBuilder CapturedArgumentsHolderVariable { get; set; }
 
-        public KeyValue<LambdaExpression, Expression[]>[] NestedLambdas { get; }
+        public LambdaExpression[] NestedLambdas { get; }
+
+        public Expression[][] NestedLambdaVariables { get; }
 
         public bool HasClosure => this.Target != null;
 
         public bool HasCapturedVariablesArgument => this.CapturedArguments.Length > 0;
 
-        public bool HasCapturedVariablesArgumentConstructed => Interlocked.CompareExchange(ref this.hasCapturedVariablesArgumentConstructed, 1, 0) != 0;
-
         public CompilerContext(DelegateTarget target, Expression[] definedVariables, Expression[] storedExpressions, Expression[] capturedArguments,
-            KeyValue<LambdaExpression, Expression[]>[] nestedLambdas, CapturedArgumentsHolder capturedArgumentsHolder)
-            : this(target, definedVariables, storedExpressions, capturedArguments, nestedLambdas, capturedArgumentsHolder, false, 0)
+            LambdaExpression[] nestedLambdas, Expression[][] nestedLambdaVariables, CapturedArgumentsHolder capturedArgumentsHolder)
+            : this(target, definedVariables, storedExpressions, capturedArguments, nestedLambdas, nestedLambdaVariables, capturedArgumentsHolder, false)
         { }
 
         private CompilerContext(DelegateTarget target, Expression[] definedVariables, Expression[] storedExpressions, Expression[] capturedArguments,
-            KeyValue<LambdaExpression, Expression[]>[] nestedLambdas, CapturedArgumentsHolder capturedArgumentsHolder, bool isNestedLambda, int hasCapturedVariablesArgumentConstructed)
+            LambdaExpression[] nestedLambdas, Expression[][] nestedLambdaVariables, CapturedArgumentsHolder capturedArgumentsHolder, bool isNestedLambda)
         {
-            this.hasCapturedVariablesArgumentConstructed = hasCapturedVariablesArgumentConstructed;
             this.Target = target;
             this.DefinedVariables = definedVariables;
             this.StoredExpressions = storedExpressions;
@@ -50,11 +47,14 @@ namespace Stashbox.BuildUp.Expressions.Compile
             this.IsNestedLambda = isNestedLambda;
             this.CapturedArguments = capturedArguments;
             this.NestedLambdas = nestedLambdas;
+            this.NestedLambdaVariables = nestedLambdaVariables;
         }
 
         public CompilerContext CreateNew(Expression[] definedVariables, bool isNestedLambda) =>
-            new CompilerContext(this.Target, definedVariables, this.StoredExpressions, this.CapturedArguments, this.NestedLambdas,
-                this.CapturedArgumentsHolder, isNestedLambda, this.hasCapturedVariablesArgumentConstructed);
+            new CompilerContext(this.Target, definedVariables,
+                this.StoredExpressions, this.CapturedArguments,
+                this.NestedLambdas, this.NestedLambdaVariables,
+                this.CapturedArgumentsHolder, isNestedLambda);
     }
 }
 #endif

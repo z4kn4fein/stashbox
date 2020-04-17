@@ -40,7 +40,7 @@ namespace Stashbox.BuildUp.Expressions.Compile
                 : null;
 
             var context = new CompilerContext(delegateTarget, analyzer.DefinedVariables, analyzer.StoredExpressions,
-                analyzer.CapturedParameters, analyzer.NestedLambdas, capturedArgumentsHolder);
+                analyzer.CapturedParameters, analyzer.NestedLambdas, analyzer.NestedLambdaVariables, capturedArgumentsHolder);
 
             var method = Emitter.CreateDynamicMethod(context, returnType, parameters);
             var generator = method.GetILGenerator();
@@ -75,12 +75,12 @@ namespace Stashbox.BuildUp.Expressions.Compile
                 if (capturedArgumentType != null)
                 {
                     var type = Utils.MapDelegateType(capturedArgumentType
-                        .Append(lambda.Key.Parameters.GetTypes())
-                        .Append(lambda.Key.ReturnType));
-                    analyzer.AddStoredItem(lambda.Key, type);
+                        .Append(lambda.Parameters.GetTypes())
+                        .Append(lambda.ReturnType));
+                    analyzer.AddStoredItem(lambda, type);
                 }
                 else
-                    analyzer.AddStoredItem(lambda.Key, lambda.Key.Type);
+                    analyzer.AddStoredItem(lambda, lambda.Type);
             }
         }
     }

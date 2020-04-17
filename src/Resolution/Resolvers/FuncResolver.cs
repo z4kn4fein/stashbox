@@ -77,7 +77,7 @@ namespace Stashbox.Resolution.Resolvers
                 parameters[i] = parameter;
             }
 
-            resolutionContext.AddParameterExpressions(wrappedType, parameters);
+            resolutionContext.AddParameterExpressions(parameters);
             return parameters;
         }
     }

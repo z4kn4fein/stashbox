@@ -27,20 +27,20 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
                     generator.Emit(OpCodes.Ldarg_1);
             }
 
-            var lambda = context.NestedLambdas[lambdaIndex];
-
-            var lambdaExpression = lambda.Key;
-            var variables = lambda.Value;
+            var lambdaExpression = context.NestedLambdas[lambdaIndex];
+            var variables = context.NestedLambdaVariables[lambdaIndex];
 
             var nestedParameters = lambdaExpression.Parameters.CastToArray();
 
             var nestedContext = context.CreateNew(variables, true);
 
-            var method = nestedContext.HasCapturedVariablesArgument
-                ? new DynamicMethod(string.Empty, lambdaExpression.ReturnType, nestedContext.HasCapturedVariablesArgument
-                    ? new[] { nestedContext.Target.TargetType, nestedContext.CapturedArgumentsHolder.TargetType }.Append(nestedParameters.GetTypes())
-                    : nestedContext.Target.TargetType.Append(parameters.GetTypes()), nestedContext.Target.TargetType, true)
-                : new DynamicMethod(string.Empty, lambdaExpression.ReturnType, nestedContext.Target.TargetType.Append(nestedParameters.GetTypes()), nestedContext.Target.TargetType, true);
+            var method = new DynamicMethod(string.Empty,
+                    lambdaExpression.ReturnType,
+                    nestedContext.HasCapturedVariablesArgument
+                        ? new[] { nestedContext.Target.TargetType, nestedContext.CapturedArgumentsHolder.TargetType }.Append(nestedParameters.GetTypes())
+                        : nestedContext.Target.TargetType.Append(nestedParameters.GetTypes()),
+                    nestedContext.Target.TargetType,
+                    true);
 
             var nestedGenerator = method.GetILGenerator();
 
