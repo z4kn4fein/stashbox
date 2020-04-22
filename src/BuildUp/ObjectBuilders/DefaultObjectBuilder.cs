@@ -54,7 +54,7 @@ namespace Stashbox.BuildUp.ObjectBuilders
             var expression = this.expressionBuilder.ConstructExpression(containerContext, serviceRegistration, newContext, resolveType);
 
             foreach (var definedVariable in newContext.DefinedVariables.Walk())
-                resolutionContext.AddDefinedVariable(definedVariable.Key, definedVariable.Value);
+                resolutionContext.AddDefinedVariable(definedVariable.Value);
 
             foreach (var instruction in newContext.SingleInstructions)
                 resolutionContext.AddInstruction(instruction);

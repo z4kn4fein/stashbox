@@ -22,13 +22,10 @@ namespace Stashbox.Resolution.Resolvers
                 .BuildResolutionExpression(containerContext.Container.ParentContainer.ContainerContext, resolution, typeInfo);
 
             foreach (var definedVariable in resolution.DefinedVariables.Walk())
-                resolutionContext.AddDefinedVariable(definedVariable.Key, definedVariable.Value);
+                resolutionContext.AddDefinedVariable(definedVariable.Value);
 
             foreach (var instruction in resolution.SingleInstructions)
                 resolutionContext.AddInstruction(instruction);
-
-            foreach (var cache in resolution.ExpressionCache.Walk())
-                resolutionContext.CacheExpression(cache.Key, cache.Value);
 
             return result;
         }
