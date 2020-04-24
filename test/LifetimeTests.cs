@@ -52,7 +52,7 @@ namespace Stashbox.Tests
         public void LifetimeTests_Resolve_Parallel_Lazy()
         {
             using IStashboxContainer container = new StashboxContainer();
-            container.Register<ITest1, Test1>(context => context.WithLifetime(new SingletonLifetime()));
+            container.Register<ITest1, Test1>(context => context.WithSingletonLifetime());
             container.Register<ITest2, Test2>();
             container.Register<ITest3, Test3>();
 
@@ -119,7 +119,7 @@ namespace Stashbox.Tests
         [Fact]
         public void LifetimeTests_Singleton_DefinesScope()
         {
-            using IStashboxContainer container = new StashboxContainer(c => c.WithDefaultLifetime(new SingletonLifetime()));
+            using IStashboxContainer container = new StashboxContainer(c => c.WithDefaultLifetime(Lifetimes.Singleton));
             container.Register<Test6>(c => c.DefinesScope());
             container.Register<Test7>(c => c.DefinesScope());
             container.RegisterScoped<Test5>();
@@ -129,19 +129,6 @@ namespace Stashbox.Tests
 
             Assert.NotSame(inst1.Test5, inst2.Test5);
             Assert.Same(inst1, inst2.Test6);
-        }
-
-        [Fact]
-        public void LifetimeTests_StateCheck()
-        {
-            var scoped = new ScopedLifetime();
-            Assert.IsType<ScopedLifetime>(scoped.Create());
-
-            var singleton = new SingletonLifetime();
-            Assert.IsType<SingletonLifetime>(singleton.Create());
-
-            var perResolution = new ResolutionRequestLifetime();
-            Assert.IsType<ResolutionRequestLifetime>(perResolution.Create());
         }
 
         interface ITest1 { string Name { get; set; } }

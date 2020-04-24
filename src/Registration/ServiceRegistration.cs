@@ -2,7 +2,6 @@
 using Stashbox.Configuration;
 using Stashbox.Entity;
 using Stashbox.Exceptions;
-using Stashbox.Lifetime;
 using Stashbox.Resolution;
 using System;
 using System.Collections.Generic;
@@ -20,8 +19,6 @@ namespace Stashbox.Registration
     {
         private static int globalRegistrationOrder;
         private readonly ContainerConfiguration containerConfiguration;
-        private readonly IObjectBuilder objectBuilder;
-        private readonly bool isOpenGenericType;
 
         /// <inheritdoc />
         public Type ImplementationType { get; }
@@ -53,22 +50,27 @@ namespace Stashbox.Registration
         /// <inheritdoc />
         public bool HasCondition { get; }
 
+        /// <inheritdoc />
+        public bool ShouldCacheExpressionInResolutionRequest { get; }
+
+        /// <inheritdoc />
+        public IObjectBuilder ObjectBuilder { get; }
+
         internal ServiceRegistration(Type implementationType, ContainerConfiguration containerConfiguration,
              IObjectBuilder objectBuilder, RegistrationContext registrationContext,
              bool isDecorator, bool shouldHandleDisposal)
         {
             this.containerConfiguration = containerConfiguration;
-            this.objectBuilder = objectBuilder;
             this.ImplementationType = implementationType;
             this.ImplementationTypeInfo = implementationType.GetTypeInfo();
-            this.isOpenGenericType = this.ImplementationTypeInfo.IsOpenGenericType();
             this.RegistrationContext = registrationContext;
             this.IsDecorator = isDecorator;
             this.ShouldHandleDisposal = shouldHandleDisposal;
+            this.ObjectBuilder = objectBuilder;
 
             this.IsResolvableByUnnamedRequest = this.RegistrationContext.Name == null || containerConfiguration.NamedDependencyResolutionForUnNamedRequestsEnabled;
 
-            this.HasScopeName = this.RegistrationContext.Lifetime is NamedScopeLifetime;
+            this.HasScopeName = this.RegistrationContext.NamedScopeRestrictionIdentifier != null;
 
             this.HasCondition = this.RegistrationContext.TargetTypeCondition != null || this.RegistrationContext.ResolutionCondition != null ||
                 this.RegistrationContext.AttributeConditions != null && this.RegistrationContext.AttributeConditions.Any();
@@ -87,23 +89,15 @@ namespace Stashbox.Registration
             this.HasResolutionConditionAndMatch(typeInfo);
 
         /// <inheritdoc />
-        public bool CanInjectIntoNamedScope(IEnumerable<object> scopeNames) => scopeNames.Last() == ((NamedScopeLifetime)this.RegistrationContext.Lifetime).ScopeName;
+        public bool CanInjectIntoNamedScope(IEnumerable<object> scopeNames) => scopeNames.Last() == this.RegistrationContext.NamedScopeRestrictionIdentifier;
 
         /// <inheritdoc />
         public Expression GetExpression(IContainerContext containerContext, ResolutionContext resolutionContext, Type resolveType)
         {
-            if (this.IsDecorator || this.isOpenGenericType) return this.ConstructExpression(containerContext, resolutionContext, resolveType);
-
-            var expression = resolutionContext.GetCachedExpression(this.RegistrationId);
-            if (expression != null)
-                return expression;
-
             if (this.RegistrationContext.FactoryCacheDisabled)
                 resolutionContext.ShouldCacheFactoryDelegate = false;
 
-            expression = this.ConstructExpression(containerContext, resolutionContext, resolveType);
-            resolutionContext.CacheExpression(this.RegistrationId, expression);
-            return expression;
+            return this.RegistrationContext.Lifetime.GetExpression(containerContext, this, resolutionContext, resolveType);
         }
 
         /// <inheritdoc />
@@ -119,12 +113,6 @@ namespace Stashbox.Registration
 
             this.RegistrationId = serviceRegistration.RegistrationId;
         }
-
-        private Expression ConstructExpression(IContainerContext containerContext, ResolutionContext resolutionContext, Type resolveType) =>
-            this.RegistrationContext.Lifetime == null || this.isOpenGenericType
-                ? this.objectBuilder.GetExpression(containerContext, this, resolutionContext, resolveType)
-                : this.RegistrationContext.Lifetime.GetExpression(containerContext, this, this.objectBuilder,
-                    resolutionContext, resolveType);
 
         private bool HasParentTypeConditionAndMatch(TypeInformation typeInfo) =>
             this.RegistrationContext.TargetTypeCondition != null && typeInfo.ParentType != null && this.RegistrationContext.TargetTypeCondition == typeInfo.ParentType;

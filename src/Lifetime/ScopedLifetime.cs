@@ -1,5 +1,4 @@
-﻿using Stashbox.BuildUp;
-using Stashbox.Registration;
+﻿using Stashbox.Registration;
 using Stashbox.Resolution;
 using Stashbox.Utils;
 using System;
@@ -10,27 +9,23 @@ namespace Stashbox.Lifetime
     /// <summary>
     /// Represents a scoped lifetime.
     /// </summary>
-    public class ScopedLifetime : ScopedLifetimeBase
+    public class ScopedLifetime : LifetimeDescriptor
     {
         /// <inheritdoc />
-        public override ILifetime Create() => new ScopedLifetime();
+        protected override bool ShouldStoreResultInLocalVariable => true;
 
         /// <inheritdoc />
-        public override Expression GetExpression(IContainerContext containerContext, IServiceRegistration serviceRegistration, IObjectBuilder objectBuilder, ResolutionContext resolutionContext, Type resolveType)
+        protected override Expression GetLifetimeAppliedExpression(IContainerContext containerContext, IServiceRegistration serviceRegistration,
+            ResolutionContext resolutionContext, Type resolveType)
         {
-            var variable = resolutionContext.GetKnownVariableOrDefault(base.ScopeId);
-            if (variable != null)
-                return variable;
-
-            var factory = base.GetFactoryExpression(containerContext, serviceRegistration, objectBuilder, resolutionContext, resolveType);
+            var factory = base.GetFactoryDelegate(containerContext, serviceRegistration, resolutionContext, resolveType);
             if (factory == null)
                 return null;
 
-            var expression = resolutionContext.CurrentScopeParameter
-                .CallMethod(Constants.GetOrAddScopedItemMethod, base.ScopeId.AsConstant(), base.Sync.AsConstant(), factory)
+            return resolutionContext.CurrentScopeParameter
+                .CallMethod(Constants.GetOrAddScopedItemMethod, serviceRegistration.RegistrationId.AsConstant(),
+                    serviceRegistration.RegistrationName.AsConstant(Constants.ObjectType), factory.AsConstant())
                 .ConvertTo(resolveType);
-
-            return base.StoreExpressionIntoLocalVariable(expression, resolutionContext, resolveType);
         }
     }
 }

@@ -83,13 +83,13 @@ namespace Stashbox
         public object Resolve(Type typeFrom, bool nullResultAllowed = false, object[] dependencyOverrides = null)
         {
             var cachedFactory = this.delegateCache.ServiceDelegates.GetOrDefault(typeFrom);
-            return cachedFactory != null ? cachedFactory(this) : this.Activate(ResolutionContext.New(this, nullResultAllowed, dependencyOverrides), typeFrom);
+            return cachedFactory != null ? cachedFactory(this) : this.Activate(ResolutionContext.New(this, this.containerContext, nullResultAllowed, dependencyOverrides), typeFrom);
         }
 
         public object Resolve(Type typeFrom, object name, bool nullResultAllowed = false, object[] dependencyOverrides = null)
         {
             var cachedFactory = this.delegateCache.ServiceDelegates.GetOrDefault(name);
-            return cachedFactory != null ? cachedFactory(this) : this.Activate(ResolutionContext.New(this, nullResultAllowed, dependencyOverrides), typeFrom, name);
+            return cachedFactory != null ? cachedFactory(this) : this.Activate(ResolutionContext.New(this, this.containerContext, nullResultAllowed, dependencyOverrides), typeFrom, name);
         }
 
 #if HAS_SERVICEPROVIDER
@@ -107,7 +107,7 @@ namespace Stashbox
         {
             var key = name ?? typeFrom;
             var cachedFactory = this.delegateCache.FactoryDelegates.GetOrDefault(key);
-            return cachedFactory != null ? cachedFactory(this) : this.ActivateFactoryDelegate(typeFrom, parameterTypes, this, name, nullResultAllowed);
+            return cachedFactory != null ? cachedFactory(this) : this.ActivateFactoryDelegate(typeFrom, parameterTypes, name, nullResultAllowed);
         }
 
         public IDependencyResolver BeginScope(object name = null, bool attachToParent = false)
@@ -133,7 +133,7 @@ namespace Stashbox
         public TTo BuildUp<TTo>(TTo instance)
         {
             var typeTo = instance.GetType();
-            var resolutionContext = ResolutionContext.New(this);
+            var resolutionContext = ResolutionContext.New(this, this.containerContext);
             var expression = this.expressionBuilder.ConstructBuildUpExpression(this.containerContext,
                 RegistrationContext.Empty,
                 resolutionContext,
@@ -147,7 +147,7 @@ namespace Stashbox
             if (!type.IsResolvableType())
                 throw new ArgumentException($"The given type ({type.FullName}) could not be activated on the fly by the container.");
 
-            var resolutionContext = ResolutionContext.New(this, dependencyOverrides: arguments);
+            var resolutionContext = ResolutionContext.New(this, this.containerContext, dependencyOverrides: arguments);
             var expression = this.expressionBuilder.ConstructExpression(
                 this.containerContext,
                 RegistrationContext.Empty,
@@ -320,11 +320,10 @@ namespace Stashbox
 
         private Delegate ActivateFactoryDelegate(Type type,
             Type[] parameterTypes,
-            IResolutionScope resolutionScope,
             object name,
             bool nullResultAllowed)
         {
-            var resolutionContext = ResolutionContext.New(resolutionScope, nullResultAllowed);
+            var resolutionContext = ResolutionContext.New(this, this.containerContext, nullResultAllowed);
             resolutionContext.AddParameterExpressions(parameterTypes.Select(p => p.AsParameter()).ToArray());
 
             var typeInfo = new TypeInformation { Type = type, DependencyName = name };
@@ -345,7 +344,7 @@ namespace Stashbox
             var factory = expression.CompileDynamicDelegate(resolutionContext, this.containerContext.ContainerConfiguration);
             Swap.SwapValue(ref this.delegateCache.FactoryDelegates, (t1, t2, t3, t4, c) =>
                 c.AddOrUpdate(t1, t2), name ?? type, factory, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
-            return factory(resolutionScope);
+            return factory(this);
         }
     }
 }

@@ -9,6 +9,8 @@ namespace Stashbox.BuildUp
 {
     internal abstract class ObjectBuilderBase : IObjectBuilder
     {
+        public virtual bool ResultShouldBeLifetimeManaged => true;
+
         public Expression GetExpression(IContainerContext containerContext, IServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType)
         {
             if (serviceRegistration.IsDecorator || resolutionContext.IsCurrentlyDecorating(resolveType))

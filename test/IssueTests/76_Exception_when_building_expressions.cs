@@ -135,11 +135,9 @@ namespace Stashbox.Tests.IssueTests
             Assert.Equal(1, A.Counter);
             Assert.Equal(1, B.Counter);
             Assert.Equal(2, C.Counter);
-
-            // TODO: Fix these
-            //Assert.Equal(1, D.Counter);
-            //Assert.Equal(1, E.Counter);
-            //Assert.Equal(1, F.Counter);
+            Assert.Equal(1, D.Counter);
+            Assert.Equal(1, E.Counter);
+            Assert.Equal(1, F.Counter);
         }
 
         [Theory]
@@ -163,11 +161,11 @@ namespace Stashbox.Tests.IssueTests
                     if (useMicrosoftCompiler)
                         c.WithMicrosoftExpressionCompiler();
                 })
-                    .Register<A>(c => c.DefinesScope())
-                    .Register<B>(c => c.WithSingletonLifetime().DefinesScope())
-                    .Register<D>(c => c.DefinesScope().WithScopedLifetime())
-                    .Register<E>(c => c.DefinesScope())
-                    .Register<F>(c => c.DefinesScope())
+                    .Register<A>(c => c.DefinesScope("A"))
+                    .Register<B>(c => c.WithSingletonLifetime().DefinesScope("B"))
+                    .Register<D>(c => c.DefinesScope("D").WithScopedLifetime())
+                    .Register<E>(c => c.DefinesScope("E"))
+                    .Register<F>(c => c.DefinesScope("F"))
                     .Register<C>(c => c.WithFactory(r => new C()).WithoutDisposalTracking().WithScopedLifetime());
 
                 {
@@ -216,12 +214,10 @@ namespace Stashbox.Tests.IssueTests
 
             Assert.Equal(1, A.Counter);
             Assert.Equal(1, B.Counter);
-
-            // TODO: Fix these
-            //Assert.Equal(5, C.Counter);
-            //Assert.Equal(1, D.Counter);
-            //Assert.Equal(1, E.Counter);
-            //Assert.Equal(1, F.Counter);
+            Assert.Equal(5, C.Counter);
+            Assert.Equal(1, D.Counter);
+            Assert.Equal(1, E.Counter);
+            Assert.Equal(1, F.Counter);
         }
 
         [Theory]
@@ -310,6 +306,40 @@ namespace Stashbox.Tests.IssueTests
             Assert.Equal(5, D.Counter);
             Assert.Equal(5, E.Counter);
             Assert.Equal(5, F.Counter);
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void Ensure_expression_built_correctly_singleton_dispose(bool useMicrosoftCompiler)
+        {
+            C.Counter = 0;
+            D inst = null;
+            {
+                using var container = new StashboxContainer(c =>
+                {
+                    c.WithDisposableTransientTracking();
+
+                    if (useMicrosoftCompiler)
+                        c.WithMicrosoftExpressionCompiler();
+                })
+                    .Register<D>(c => c.WithScopedLifetime().DefinesScope())
+                    .Register<E>(c => c.WithSingletonLifetime().DefinesScope())
+                    .Register<F>(c => c.WithScopedLifetime().DefinesScope())
+                    .Register<C>(c => c.WithScopedLifetime());
+
+
+                {
+                    using var scope = container.BeginScope();
+                    inst = scope.Resolve<D>();
+                }
+
+                Assert.False(inst.E.Disposed);
+            }
+
+            Assert.True(inst.E.Disposed);
+
+            Assert.Equal(3, C.Counter);
         }
 
         class A : IDisposable

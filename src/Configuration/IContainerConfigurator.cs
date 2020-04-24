@@ -96,6 +96,6 @@ namespace Stashbox
         /// </summary>
         /// <param name="lifetime">The default lifetime.</param>
         /// <returns>The container configurator.</returns>
-        IContainerConfigurator WithDefaultLifetime(ILifetime lifetime);
+        IContainerConfigurator WithDefaultLifetime(LifetimeDescriptor lifetime);
     }
 }

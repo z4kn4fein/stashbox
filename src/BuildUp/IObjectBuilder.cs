@@ -19,5 +19,10 @@ namespace Stashbox.BuildUp
         /// <param name="resolveType">The requested type.</param>
         /// <returns>The created object.</returns>
         Expression GetExpression(IContainerContext containerContext, IServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType);
+
+        /// <summary>
+        /// When it's true, the constructed expression should be processed by the lifetime managers, otherwise they should bypass on it.
+        /// </summary>
+        bool ResultShouldBeLifetimeManaged { get; }
     }
 }

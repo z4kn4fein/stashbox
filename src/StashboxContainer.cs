@@ -81,7 +81,9 @@ namespace Stashbox
         /// <inheritdoc />
         public bool CanResolve(Type typeFrom, object name = null) =>
             this.ContainerContext.RegistrationRepository.ContainsRegistration(typeFrom, name) ||
-                this.resolutionStrategy.CanResolveType(this.ContainerContext, new TypeInformation { Type = typeFrom, DependencyName = name }, ResolutionContext.New(this.RootScope));
+                this.resolutionStrategy.CanResolveType(this.ContainerContext,
+                    new TypeInformation { Type = typeFrom, DependencyName = name },
+                    ResolutionContext.New(this.RootScope, this.ContainerContext));
 
         /// <inheritdoc />
         public bool IsRegistered<TFrom>(object name = null) =>
@@ -95,7 +97,7 @@ namespace Stashbox
         public void Validate()
         {
             foreach (var serviceRegistration in this.ContainerContext.RegistrationRepository.GetRegistrationMappings())
-                serviceRegistration.Value.GetExpression(this.ContainerContext, ResolutionContext.New(this.RootScope), serviceRegistration.Key);
+                serviceRegistration.Value.GetExpression(this.ContainerContext, ResolutionContext.New(this.RootScope, this.ContainerContext), serviceRegistration.Key);
         }
 
         /// <inheritdoc />

@@ -64,6 +64,11 @@ namespace Stashbox.Registration
         bool IsResolvableByUnnamedRequest { get; }
 
         /// <summary>
+        /// The object builder used to create the instantiation expression for this registration.
+        /// </summary>
+        IObjectBuilder ObjectBuilder { get; }
+
+        /// <summary>
         /// Creates an expression for creating the resolved instance.
         /// </summary>
         /// <param name="containerContext">The container context.</param>

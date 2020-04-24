@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using Xunit;
 
 namespace Stashbox.Tests.IssueTests
@@ -25,11 +26,41 @@ namespace Stashbox.Tests.IssueTests
             Assert.Equal(3, child2.BeginScope().Resolve<Scoped>().Id);
         }
 
-        private class Singleton
+        [Fact]
+        public void Verify_child_container_working_dispose()
+        {
+            Singleton s = null;
+            {
+                using var container = new StashboxContainer()
+                    .RegisterSingleton<Singleton>();
+                {
+                    {
+                        using var child = container.CreateChildContainer();
+                        s = child.Resolve<Singleton>();
+                    }
+
+                    Assert.False(s.Disposed);
+                }
+            }
+
+            Assert.True(s.Disposed);
+        }
+
+        private class Singleton : IDisposable
         {
             private static int seed;
 
             public int Id = Interlocked.Increment(ref seed);
+
+            public bool Disposed { get; private set; }
+
+            public void Dispose()
+            {
+                if (this.Disposed)
+                    throw new ObjectDisposedException(nameof(Singleton));
+
+                this.Disposed = true;
+            }
         }
 
         private class Scoped

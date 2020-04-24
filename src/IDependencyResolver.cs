@@ -86,7 +86,7 @@ namespace Stashbox
 
         /// <summary>
         /// On the fly activates an object without registering it into the container. If you want to resolve a
-        /// registered service use the <see cref="IDependencyResolver.Resolve(Type, bool, object[])" /> instead.
+        /// registered service use the <see cref="Resolve(Type, bool, object[])" /> instead.
         /// </summary>
         /// <param name="type">The type to activate.</param>
         /// <param name="arguments">Optional dependency overrides.</param>

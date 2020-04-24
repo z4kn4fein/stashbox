@@ -80,7 +80,7 @@ namespace Stashbox.Tests.IssueTests
 
         private static StashboxContainer CreateContainer(Action<RegistrationConfigurator> scopeConfig = null)
         {
-            var sb = new Stashbox.StashboxContainer(
+            var sb = new StashboxContainer(
                             config => config
                                 .WithUnknownTypeResolution(ctx => ctx.WhenHas<DoResolveAttribute>())
                                 .WithMemberInjectionWithoutAnnotation(

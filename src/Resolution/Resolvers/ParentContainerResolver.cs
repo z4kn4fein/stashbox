@@ -14,9 +14,9 @@ namespace Stashbox.Resolution.Resolvers
             TypeInformation typeInfo,
             ResolutionContext resolutionContext)
         {
-            var resolution = resolutionContext.ChildContext == null
-                ? resolutionContext.Clone(containerContext)
-                : resolutionContext.Clone(resolutionContext.ChildContext);
+            var resolution = resolutionContext.RequestInitiatorContainerContext == null
+                ? resolutionContext.Clone(containerContext, containerContext.Container.ParentContainer.ContainerContext)
+                : resolutionContext.Clone(resolutionContext.RequestInitiatorContainerContext, containerContext.Container.ParentContainer.ContainerContext);
 
             var result = resolutionStrategy
                 .BuildResolutionExpression(containerContext.Container.ParentContainer.ContainerContext, resolution, typeInfo);
@@ -35,9 +35,9 @@ namespace Stashbox.Resolution.Resolvers
             TypeInformation typeInfo,
             ResolutionContext resolutionContext)
         {
-            var resolution = resolutionContext.ChildContext == null
-                ? resolutionContext.Clone(containerContext)
-                : resolutionContext.Clone(resolutionContext.ChildContext);
+            var resolution = resolutionContext.RequestInitiatorContainerContext == null
+                ? resolutionContext.Clone(containerContext, containerContext.Container.ParentContainer.ContainerContext)
+                : resolutionContext.Clone(resolutionContext.RequestInitiatorContainerContext, containerContext.Container.ParentContainer.ContainerContext);
 
             var result = resolutionStrategy
                 .BuildAllResolutionExpressions(containerContext.Container.ParentContainer.ContainerContext, resolution, typeInfo);

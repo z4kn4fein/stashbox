@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using Stashbox.Entity;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using Stashbox.Entity;
 
 namespace Stashbox.Utils
 {
@@ -25,12 +25,19 @@ namespace Stashbox.Utils
         }
 
         private Node<TValue> root;
-        
+
+        public bool IsEmpty => this.root == null;
+
+        public void AddOrUpdate(TValue value)
+        {
+            this.root = AddOrUpdate(this.root, value.GetHashCode(), value);
+        }
+
         public void AddOrUpdate(int key, TValue value)
         {
             this.root = AddOrUpdate(this.root, key, value);
         }
-        
+
         [MethodImpl(Constants.Inline)]
         public TValue GetOrDefault(int key)
         {
@@ -155,6 +162,32 @@ namespace Stashbox.Utils
                 {
                     currentNode = nodes[index--];
                     yield return new KeyValue<int, TValue>(currentNode.storedKey, currentNode.storedValue);
+
+                    currentNode = currentNode.right;
+                }
+            }
+        }
+
+        public IEnumerable<TValue> WalkOnValues()
+        {
+            if (this.root == null)
+                yield break;
+
+            var nodes = new Node<TValue>[this.root.height];
+            var currentNode = this.root;
+            var index = -1;
+
+            while (currentNode != null || index != -1)
+            {
+                if (currentNode != null)
+                {
+                    nodes[++index] = currentNode;
+                    currentNode = currentNode.left;
+                }
+                else
+                {
+                    currentNode = nodes[index--];
+                    yield return currentNode.storedValue;
 
                     currentNode = currentNode.right;
                 }

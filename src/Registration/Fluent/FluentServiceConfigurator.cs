@@ -1,6 +1,5 @@
 ﻿using Stashbox.Entity;
 using Stashbox.Lifetime;
-using Stashbox.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -120,25 +119,17 @@ namespace Stashbox.Registration.Fluent
         }
 
         /// <inheritdoc />
-        public TConfigurator WithLifetime(ILifetime lifetime)
+        public TConfigurator WithLifetime(LifetimeDescriptor lifetime)
         {
             this.Context.Lifetime = lifetime;
             return (TConfigurator)this;
         }
 
         /// <inheritdoc />
-        public TConfigurator WithScopedLifetime()
-        {
-            this.Context.Lifetime = new ScopedLifetime();
-            return (TConfigurator)this;
-        }
+        public TConfigurator WithScopedLifetime() => this.WithLifetime(Lifetimes.Scoped);
 
         /// <inheritdoc />
-        public TConfigurator WithSingletonLifetime()
-        {
-            this.Context.Lifetime = new SingletonLifetime();
-            return (TConfigurator)this;
-        }
+        public TConfigurator WithSingletonLifetime() => this.WithLifetime(Lifetimes.Singleton);
 
         /// <inheritdoc />
         public TConfigurator WithName(object name)
@@ -164,16 +155,25 @@ namespace Stashbox.Registration.Fluent
         }
 
         /// <inheritdoc />
-        public TConfigurator InNamedScope(object scopeName) =>
-            this.WithLifetime(new NamedScopeLifetime(scopeName));
+        public TConfigurator InNamedScope(object scopeName)
+        {
+            this.Context.NamedScopeRestrictionIdentifier = scopeName;
+            return this.WithLifetime(Lifetimes.NamedScope);
+        }
 
         /// <inheritdoc />
-        public TConfigurator InScopeDefinedBy(Type type) =>
-            this.WithLifetime(new NamedScopeLifetime(type));
+        public TConfigurator InScopeDefinedBy(Type type)
+        {
+            this.Context.NamedScopeRestrictionIdentifier = type;
+            return this.WithLifetime(Lifetimes.NamedScope);
+        }
 
         /// <inheritdoc />
-        public TConfigurator InScopeDefinedBy<TScopeDefiner>() =>
-            this.WithLifetime(new NamedScopeLifetime(typeof(TScopeDefiner)));
+        public TConfigurator InScopeDefinedBy<TScopeDefiner>()
+        {
+            this.Context.NamedScopeRestrictionIdentifier = typeof(TScopeDefiner);
+            return this.WithLifetime(Lifetimes.NamedScope);
+        }
 
         /// <inheritdoc />
         public TConfigurator DefinesScope(object scopeName = null)
@@ -184,7 +184,7 @@ namespace Stashbox.Registration.Fluent
 
         /// <inheritdoc />
         public TConfigurator WithPerResolutionRequestLifetime() =>
-            this.WithLifetime(new ResolutionRequestLifetime());
+            this.WithLifetime(Lifetimes.PerRequest);
 
         /// <inheritdoc />
         public TConfigurator AsServiceAlso(Type serviceType)

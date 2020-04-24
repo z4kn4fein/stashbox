@@ -56,9 +56,9 @@ namespace Stashbox.Registration.Fluent
         /// <summary>
         /// Sets the lifetime of the registration.
         /// </summary>
-        /// <param name="lifetime">An <see cref="ILifetime"/> implementation.</param>
+        /// <param name="lifetime">An <see cref="LifetimeDescriptor"/> implementation.</param>
         /// <returns>The configurator itself.</returns>
-        TConfigurator WithLifetime(ILifetime lifetime);
+        TConfigurator WithLifetime(LifetimeDescriptor lifetime);
 
         /// <summary>
         /// Sets a scoped lifetime for the registration.

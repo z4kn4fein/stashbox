@@ -16,6 +16,8 @@ namespace Stashbox.BuildUp.ObjectBuilders
             this.defaultObjectBuilder = defaultObjectBuilder;
         }
 
+        public override bool ResultShouldBeLifetimeManaged => false;
+
         protected override Expression GetExpressionInternal(IContainerContext containerContext, IServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType)
         {
             var genericType = serviceRegistration.ImplementationType.MakeGenericType(resolveType.GetGenericArguments());

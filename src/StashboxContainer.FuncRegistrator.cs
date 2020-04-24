@@ -31,7 +31,7 @@ namespace Stashbox
         {
             var data = RegistrationContext.New();
             data.Name = name;
-            data.Lifetime = new SingletonLifetime();
+            data.Lifetime = Lifetimes.Singleton;
             data.FuncDelegate = factory;
 
             var registration = new ServiceRegistration(factoryType, this.ContainerContext.ContainerConfiguration,

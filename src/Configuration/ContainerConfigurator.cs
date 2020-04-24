@@ -110,7 +110,7 @@ namespace Stashbox.Configuration
         }
 
         /// <inheritdoc />
-        public IContainerConfigurator WithDefaultLifetime(ILifetime lifetime)
+        public IContainerConfigurator WithDefaultLifetime(LifetimeDescriptor lifetime)
         {
             this.ContainerConfiguration.DefaultLifetime = lifetime;
             return this;

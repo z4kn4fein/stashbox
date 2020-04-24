@@ -16,8 +16,11 @@ namespace Stashbox.Resolution
         /// Static factory for <see cref="ResolutionContext"/>.
         /// </summary>
         /// <returns>A new <see cref="ResolutionContext"/> instance.</returns>
-        public static ResolutionContext New(IResolutionScope scope, bool nullResultAllowed = false, object[] dependencyOverrides = null) =>
-            new ResolutionContext(scope, nullResultAllowed, dependencyOverrides);
+        public static ResolutionContext New(IResolutionScope scope,
+            IContainerContext currentContainerContext,
+            bool nullResultAllowed = false,
+            object[] dependencyOverrides = null) =>
+            new ResolutionContext(scope, currentContainerContext, nullResultAllowed, dependencyOverrides);
 
         /// <summary>
         /// True if null result is allowed, otherwise false.
@@ -29,13 +32,17 @@ namespace Stashbox.Resolution
         /// </summary>
         public ParameterExpression CurrentScopeParameter { get; private set; }
 
-        internal IContainerContext ChildContext { get; private set; }
+        internal IContainerContext RequestInitiatorContainerContext { get; private set; }
+
+        internal IContainerContext CurrentContainerContext { get; private set; }
 
         internal HashTree<Expression> ExpressionCache { get; private set; }
 
+        internal HashTree<Func<IResolutionScope, object>> FactoryCache { get; private set; }
+
         internal List<Expression> SingleInstructions { get; private set; }
 
-        internal HashTree<object, ParameterExpression> DefinedVariables { get; private set; }
+        internal HashTree<ParameterExpression> DefinedVariables { get; private set; }
 
         private HashTree<Type, Expression> expressionOverrides;
         private HashTree<Type, Type> currentlyDecoratingTypes;
@@ -49,10 +56,10 @@ namespace Stashbox.Resolution
 
         internal List<KeyValue<bool, ParameterExpression>[]> ParameterExpressions { get; private set; }
 
-        private ResolutionContext(IResolutionScope scope, bool nullResultAllowed, object[] dependencyOverrides)
+        private ResolutionContext(IResolutionScope scope, IContainerContext currentContainerContext, bool nullResultAllowed, object[] dependencyOverrides)
         {
 
-            this.DefinedVariables = HashTree<object, ParameterExpression>.Empty;
+            this.DefinedVariables = HashTree<ParameterExpression>.Empty;
             this.SingleInstructions = new List<Expression>();
             this.expressionOverrides = HashTree<Type, Expression>.Empty;
             this.currentlyDecoratingTypes = HashTree<Type, Type>.Empty;
@@ -64,6 +71,8 @@ namespace Stashbox.Resolution
             this.circularDependencyBarrier = HashTree<bool>.Empty;
             this.ShouldCacheFactoryDelegate = dependencyOverrides == null;
             this.ExpressionCache = HashTree<Expression>.Empty;
+            this.FactoryCache = HashTree<Func<IResolutionScope, object>>.Empty;
+            this.CurrentContainerContext = currentContainerContext;
 
             this.ProcessDependencyOverrides(dependencyOverrides);
         }
@@ -99,7 +108,7 @@ namespace Stashbox.Resolution
         /// </summary>
         /// <param name="key">The key of the variable.</param>
         /// <param name="parameter">The variable.</param>
-        public void AddDefinedVariable(object key, ParameterExpression parameter) =>
+        public void AddDefinedVariable(int key, ParameterExpression parameter) =>
             this.DefinedVariables.AddOrUpdate(key, parameter);
 
         /// <summary>
@@ -107,14 +116,14 @@ namespace Stashbox.Resolution
         /// </summary>
         /// <param name="parameter">The variable.</param>
         public void AddDefinedVariable(ParameterExpression parameter) =>
-            this.DefinedVariables.AddOrUpdate(parameter, parameter);
+            this.DefinedVariables.AddOrUpdate(parameter);
 
         /// <summary>
         /// Gets an already defined global variable.
         /// </summary>
         /// <param name="key">The key of the variable.</param>
         /// <returns>The variable.</returns>
-        public ParameterExpression GetKnownVariableOrDefault(object key) =>
+        public ParameterExpression GetKnownVariableOrDefault(int key) =>
             this.DefinedVariables.GetOrDefault(key);
 
         internal bool IsCurrentlyDecorating(Type type) =>
@@ -138,6 +147,12 @@ namespace Stashbox.Resolution
         internal Expression GetCachedExpression(int key) =>
             this.ExpressionCache.GetOrDefault(key);
 
+        internal void CacheFactory(int key, Func<IResolutionScope, object> factory) =>
+            this.FactoryCache.AddOrUpdate(key, factory);
+
+        internal Func<IResolutionScope, object> GetCachedFactory(int key) =>
+            this.FactoryCache.GetOrDefault(key);
+
         internal void AddParameterExpressions(ParameterExpression[] parameterExpressions)
         {
             var length = parameterExpressions.Length;
@@ -153,14 +168,15 @@ namespace Stashbox.Resolution
         internal bool GetCircularDependencyBarrier(int key) =>
             this.circularDependencyBarrier.GetOrDefault(key);
 
-        internal ResolutionContext Clone(IContainerContext childContext, KeyValue<object, ParameterExpression> scopeParameter = null)
+        internal ResolutionContext Clone(IContainerContext requestInitiatorContext = null, IContainerContext currentContainerContext = null, KeyValue<object, ParameterExpression> scopeParameter = null)
         {
             if (scopeParameter != null)
                 this.ScopeNames.Add(scopeParameter.Key);
 
             var clone = this.Clone();
             clone.CurrentScopeParameter = scopeParameter == null ? this.CurrentScopeParameter : scopeParameter.Value;
-            clone.ChildContext = childContext ?? this.ChildContext;
+            clone.RequestInitiatorContainerContext = requestInitiatorContext ?? this.RequestInitiatorContainerContext;
+            clone.CurrentContainerContext = currentContainerContext ?? this.CurrentContainerContext;
 
             return clone;
         }
@@ -172,9 +188,8 @@ namespace Stashbox.Resolution
 #else
             var clone = (ResolutionContext)this.MemberwiseClone();
 #endif
-            clone.DefinedVariables = HashTree<object, ParameterExpression>.Empty;
+            clone.DefinedVariables = HashTree<ParameterExpression>.Empty;
             clone.SingleInstructions = new List<Expression>();
-            clone.ExpressionCache = HashTree<Expression>.Empty;
             return clone;
         }
     }

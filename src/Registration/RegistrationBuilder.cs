@@ -53,17 +53,12 @@ namespace Stashbox.Registration
             if (registrationContext.ExistingInstance != null)
                 return false;
 
-            if (registrationContext.Lifetime == null && this.containerConfiguration.TrackTransientsForDisposalEnabled)
-                return true;
-
-            return registrationContext.Lifetime != null;
+            return this.containerConfiguration.TrackTransientsForDisposalEnabled || registrationContext.Lifetime != Lifetimes.Transient;
         }
 
-        private ILifetime ChooseLifeTime(RegistrationContext registrationContext) => registrationContext.ExistingInstance != null
-            ? registrationContext.IsWireUp
-                ? new SingletonLifetime()
-                : null
-            : registrationContext.Lifetime ?? this.containerConfiguration.DefaultLifetime?.Create();
+        private LifetimeDescriptor ChooseLifeTime(RegistrationContext registrationContext) => registrationContext.IsWireUp
+                ? Lifetimes.Singleton
+                : registrationContext.Lifetime ?? this.containerConfiguration.DefaultLifetime;
 
         private IObjectBuilder SelectObjectBuilder(RegistrationContext registrationContext, Type implementationType)
         {

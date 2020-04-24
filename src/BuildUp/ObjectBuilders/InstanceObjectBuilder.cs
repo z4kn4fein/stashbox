@@ -7,6 +7,8 @@ namespace Stashbox.BuildUp.ObjectBuilders
 {
     internal class InstanceObjectBuilder : ObjectBuilderBase
     {
+        public override bool ResultShouldBeLifetimeManaged => false;
+
         protected override Expression GetExpressionInternal(IContainerContext containerContext, IServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType) =>
             serviceRegistration.RegistrationContext.ExistingInstance.AsConstant();
     }

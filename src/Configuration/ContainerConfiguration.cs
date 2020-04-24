@@ -16,7 +16,8 @@ namespace Stashbox.Configuration
         {
             return new ContainerConfiguration
             {
-                ConstructorSelectionRule = Rules.ConstructorSelection.PreferMostParameters
+                ConstructorSelectionRule = Rules.ConstructorSelection.PreferMostParameters,
+                DefaultLifetime = Lifetimes.Transient
             };
         }
 
@@ -103,19 +104,9 @@ namespace Stashbox.Configuration
         /// <summary>
         /// The default lifetime, used when a service isn't configured with a lifetime.
         /// </summary>
-        public ILifetime DefaultLifetime { get; internal set; }
+        public LifetimeDescriptor DefaultLifetime { get; internal set; }
 
         internal ContainerConfiguration()
-        {
-            this.TrackTransientsForDisposalEnabled = false;
-            this.CircularDependencyTrackingEnabled = false;
-            this.OptionalAndDefaultValueInjectionEnabled = false;
-            this.UnknownTypeResolutionEnabled = false;
-            this.MemberInjectionWithoutAnnotationEnabled = false;
-            this.CircularDependenciesWithLazyEnabled = false;
-            this.TreatingParameterAndMemberNameAsDependencyNameEnabled = false;
-            this.NamedDependencyResolutionForUnNamedRequestsEnabled = false;
-            this.ForceUseMicrosoftExpressionCompiler = false;
-        }
+        { }
     }
 }

@@ -72,8 +72,8 @@ namespace Stashbox.Resolution
             if (exprOverride != null)
                 return exprOverride;
 
-            var registration = containerContext.RegistrationRepository.GetRegistrationOrDefault(typeInformation, resolutionContext);
-            return registration != null ? registration.GetExpression(resolutionContext.ChildContext ?? containerContext, resolutionContext, typeInformation.Type) :
+            var registration = containerContext .RegistrationRepository.GetRegistrationOrDefault(typeInformation, resolutionContext);
+            return registration != null ? registration.GetExpression(resolutionContext.RequestInitiatorContainerContext ?? containerContext, resolutionContext, typeInformation.Type) :
                 this.BuildResolutionExpressionUsingResolvers(containerContext, typeInformation, resolutionContext, forceSkipUnknownTypeCheck);
         }
 
@@ -86,7 +86,7 @@ namespace Stashbox.Resolution
             var lenght = registrations.Length;
             var expressions = new Expression[lenght];
             for (var i = 0; i < lenght; i++)
-                expressions[i] = registrations[i].GetExpression(resolutionContext.ChildContext ?? containerContext, resolutionContext, typeInformation.Type);
+                expressions[i] = registrations[i].GetExpression(resolutionContext.RequestInitiatorContainerContext ?? containerContext, resolutionContext, typeInformation.Type);
 
             return expressions;
         }

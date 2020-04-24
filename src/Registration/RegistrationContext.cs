@@ -1,6 +1,6 @@
 ﻿using Stashbox.Configuration;
 using Stashbox.Entity;
-using Stashbox.Lifetime;
+using Stashbox.Registration.Fluent;
 using Stashbox.Utils;
 using System;
 using System.Collections.Generic;
@@ -72,7 +72,7 @@ namespace Stashbox.Registration
         /// <summary>
         /// Lifetime of the registration.
         /// </summary>
-        public ILifetime Lifetime { get; internal set; }
+        public Lifetime.LifetimeDescriptor Lifetime { get; internal set; }
 
         /// <summary>
         /// Target type condition of the registration.
@@ -140,6 +140,11 @@ namespace Stashbox.Registration
         public object DefinedScopeName { get; internal set; }
 
         /// <summary>
+        /// The scope name set by <see cref="FluentServiceConfigurator{TConfigurator}.InNamedScope(object)"/> and <see cref="FluentServiceConfigurator{TConfigurator}.InScopeDefinedBy(Type)"/> to tell where this registration must used.
+        /// </summary>
+        public object NamedScopeRestrictionIdentifier { get; internal set; }
+
+        /// <summary>
         /// If true, the existing instance will be wired into the container, it will perform member and method injection on it.
         /// </summary>
         public bool IsWireUp { get; internal set; }
@@ -179,12 +184,10 @@ namespace Stashbox.Registration
         public RegistrationContext Clone()
         {
 #if IL_EMIT
-            var data = Cloner<RegistrationContext>.Clone(this);
+            return Cloner<RegistrationContext>.Clone(this);
 #else
-            var data = (RegistrationContext)this.MemberwiseClone();
+            return (RegistrationContext)this.MemberwiseClone();
 #endif
-            data.Lifetime = data.Lifetime?.Create();
-            return data;
         }
     }
 }
