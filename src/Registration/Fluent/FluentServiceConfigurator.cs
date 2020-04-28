@@ -48,11 +48,12 @@ namespace Stashbox.Registration.Fluent
         }
 
         /// <inheritdoc />
-        public TConfigurator AsServiceAlso<TAdditionalService>()
-        {
+        public TConfigurator AsServiceAlso<TAdditionalService>() =>
             base.AsServiceAlso(typeof(TAdditionalService));
-            return (TConfigurator)this;
-        }
+
+        /// <inheritdoc />
+        public TConfigurator SetImplementationType<TImplementation>() =>
+            base.SetImplementationType(typeof(TImplementation));
     }
 
     /// <summary>
@@ -190,10 +191,21 @@ namespace Stashbox.Registration.Fluent
         public TConfigurator AsServiceAlso(Type serviceType)
         {
             if (!this.ImplementationType.Implements(serviceType))
-                throw new ArgumentException("The given service type is not assignable from the current implementation type.");
+                throw new ArgumentException($"The implementation type {base.ImplementationType} does not implement the given service type {serviceType}.");
 
             ((List<Type>)this.Context.AdditionalServiceTypes).Add(serviceType);
             return (TConfigurator)this;
+        }
+
+        /// <inheritdoc />
+        public TConfigurator SetImplementationType(Type implementationType)
+        {
+            if (!implementationType.Implements(base.ServiceType))
+                throw new ArgumentException($"The type {implementationType} does not implement the actual service type {base.ServiceType}.");
+
+            base.ImplementationType = implementationType;
+            return (TConfigurator)this;
+
         }
     }
 }

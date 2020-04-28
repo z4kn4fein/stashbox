@@ -161,7 +161,7 @@ namespace Stashbox.Tests
             var assembly1 = typeof(ITest1).GetTypeInfo().Assembly;
             var assembly2 = typeof(IStashboxContainer).GetTypeInfo().Assembly;
 
-            container.RegisterAssemblies(new[] { assembly1, assembly2 });
+            container.RegisterAssemblies(new[] { assembly1, assembly2 }, t => t.FullName.Contains("RegistersTests") || t == typeof(StashboxContainer));
 
             var regs = container.ContainerContext.RegistrationRepository.GetRegistrationMappings();
 

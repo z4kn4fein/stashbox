@@ -8,7 +8,7 @@ namespace Stashbox.Resolution.Resolvers
     {
         public bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext) =>
             containerContext.ContainerConfiguration.UnknownTypeResolutionEnabled &&
-                       typeInfo.Type.IsResolvableType();
+                       typeInfo.Type.IsResolvableType() || containerContext.ContainerConfiguration.UnknownTypeConfigurator != null;
 
         public Expression GetExpression(IContainerContext containerContext,
             IResolutionStrategy resolutionStrategy,

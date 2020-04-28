@@ -1,8 +1,8 @@
-﻿using Stashbox.Resolution;
-using System.Reflection;
-using System.Collections.Generic;
-using Stashbox;
+﻿using Stashbox;
 using Stashbox.Configuration;
+using Stashbox.Resolution;
+using System.Collections.Generic;
+using System.Reflection;
 #if IL_EMIT
 using Stashbox.BuildUp.Expressions.Compile;
 #endif
@@ -49,6 +49,23 @@ namespace System.Linq.Expressions
         }
 
         /// <summary>
+        /// Compiles a <see cref="LambdaExpression"/> to a <see cref="Delegate"/>. For testing purposes.
+        /// </summary>
+        /// <param name="expression">The expression.</param>
+        /// <returns>The delegate.</returns>
+        public static Delegate CompileDelegate(this LambdaExpression expression)
+        {
+#if IL_EMIT
+            if (!expression.TryEmit(out var result))
+                throw new InvalidOperationException("Could not compile the given expression!");
+
+            return result;
+#else
+            throw new InvalidOperationException("Could not compile the given expression!");
+#endif
+        }
+
+        /// <summary>
         /// Compiles an <see cref="Expression"/> to a <see cref="Func{T,R}"/> of <see cref="IResolutionScope"/>, <see cref="Delegate"/>.
         /// </summary>
         /// <param name="expression">The expression.</param>
@@ -73,23 +90,6 @@ namespace System.Linq.Expressions
             return (Func<IResolutionScope, Delegate>)factory;
 #else
             return Expression.Lambda<Func<IResolutionScope, Delegate>>(expression, resolutionContext.CurrentScopeParameter).Compile();
-#endif
-        }
-
-        /// <summary>
-        /// Compiles a <see cref="LambdaExpression"/> to a <see cref="Delegate"/>. For testing purposes.
-        /// </summary>
-        /// <param name="expression">The expression.</param>
-        /// <returns>The delegate.</returns>
-        public static Delegate CompileDelegate(this LambdaExpression expression)
-        {
-#if IL_EMIT
-            if (!expression.TryEmit(out var result))
-                throw new InvalidOperationException("Could not compile the given expression!");
-
-            return result;
-#else
-            throw new InvalidOperationException("Could not compile the given expression!");
 #endif
         }
 

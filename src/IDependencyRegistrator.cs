@@ -43,7 +43,7 @@ namespace Stashbox
         /// </summary>
         /// <typeparam name="TTo">Type that will be returned.</typeparam>
         /// <param name="configurator">The configurator for the registered types.</param>
-        /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns>
+        /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns> 
         IStashboxContainer Register<TTo>(Action<RegistrationConfigurator<TTo>> configurator = null)
              where TTo : class;
 

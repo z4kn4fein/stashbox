@@ -15,7 +15,7 @@ namespace Stashbox.Registration.Fluent
         /// <summary>
         /// The implementation type.
         /// </summary>
-        public Type ImplementationType { get; }
+        public Type ImplementationType { get; protected set; }
 
         internal RegistrationContext Context { get; }
 

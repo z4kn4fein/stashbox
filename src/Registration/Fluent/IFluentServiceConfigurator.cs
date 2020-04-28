@@ -45,6 +45,12 @@ namespace Stashbox.Registration.Fluent
         /// </summary>
         /// <returns>The configurator itself.</returns>
         TConfigurator AsServiceAlso<TAdditionalService>();
+
+        /// <summary>
+        /// Sets the current registration's implementation type.
+        /// </summary>
+        /// <returns>The configurator itself.</returns>
+        TConfigurator SetImplementationType<TImplementation>();
     }
 
     /// <summary>
@@ -150,6 +156,13 @@ namespace Stashbox.Registration.Fluent
         /// <param name="serviceType">The additional service type.</param>
         /// <returns>The configurator itself.</returns>
         TConfigurator AsServiceAlso(Type serviceType);
+
+        /// <summary>
+        /// Sets the current registration's implementation type.
+        /// </summary>
+        /// <param name="implementationType">The implementation type.</param>
+        /// <returns>The configurator itself.</returns>
+        TConfigurator SetImplementationType(Type implementationType);
 
         /// <summary>
         /// Sets a scope name condition for the registration, it will be used only when a scope with the given name requests it.

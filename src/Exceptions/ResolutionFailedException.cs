@@ -8,7 +8,7 @@ namespace Stashbox.Exceptions
     public class ResolutionFailedException : ExceptionBaseException
     {
         /// <summary>
-        /// Constructs a <see cref="ResolutionFailedException"/>
+        /// Constructs a <see cref="ResolutionFailedException"/>.
         /// </summary>
         /// <param name="type">The type of the service.</param>
         /// <param name="message">The exception message.</param>

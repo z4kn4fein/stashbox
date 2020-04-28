@@ -23,8 +23,6 @@ namespace Stashbox.Utils
 
         public static readonly MethodInfo AddWithFinalizerMethod = ResolutionScopeType.GetSingleMethod("AddWithFinalizer");
 
-        public static readonly MethodInfo GetScopedInstanceMethod = ResolutionScopeType.GetSingleMethod("GetScopedInstanceOrDefault");
-
         public static readonly MethodInfo CheckRuntimeCircularDependencyBarrierMethod = ResolutionScopeType.GetSingleMethod("CheckRuntimeCircularDependencyBarrier");
 
         public static readonly MethodInfo ResetRuntimetCircularDependencyBarrierMethod = ResolutionScopeType.GetSingleMethod("ResetRuntimeCircularDependencyBarrier");

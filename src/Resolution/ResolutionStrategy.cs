@@ -25,19 +25,6 @@ namespace Stashbox.Resolution
             if (typeInformation.Type == Constants.ServiceProviderType)
                 return resolutionContext.CurrentScopeParameter.ConvertTo(Constants.ServiceProviderType);
 #endif
-
-            if (resolutionContext.ResolutionScope.HasScopedInstances)
-            {
-                var scopedInstance = resolutionContext.ResolutionScope
-                    .GetScopedInstanceOrDefault(typeInformation.Type, typeInformation.DependencyName);
-                if (scopedInstance != null)
-                    return resolutionContext.CurrentScopeParameter
-                        .CallMethod(Constants.GetScopedInstanceMethod,
-                            typeInformation.Type.AsConstant(),
-                            typeInformation.DependencyName.AsConstant())
-                        .ConvertTo(typeInformation.Type);
-            }
-
             if (resolutionContext.ParameterExpressions.Count > 0)
             {
                 var length = resolutionContext.ParameterExpressions.Count;
@@ -68,11 +55,11 @@ namespace Stashbox.Resolution
             }
 
 
-            var exprOverride = resolutionContext.GetExpressionOverrideOrDefault(typeInformation.Type);
+            var exprOverride = resolutionContext.GetExpressionOverrideOrDefault(typeInformation.Type, typeInformation.DependencyName);
             if (exprOverride != null)
                 return exprOverride;
 
-            var registration = containerContext .RegistrationRepository.GetRegistrationOrDefault(typeInformation, resolutionContext);
+            var registration = containerContext.RegistrationRepository.GetRegistrationOrDefault(typeInformation, resolutionContext);
             return registration != null ? registration.GetExpression(resolutionContext.RequestInitiatorContainerContext ?? containerContext, resolutionContext, typeInformation.Type) :
                 this.BuildResolutionExpressionUsingResolvers(containerContext, typeInformation, resolutionContext, forceSkipUnknownTypeCheck);
         }

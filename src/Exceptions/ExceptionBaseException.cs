@@ -13,7 +13,7 @@ namespace Stashbox.Exceptions
         public Type Type { get; set; }
 
         /// <summary>
-        /// Constructs a <see cref="ExceptionBaseException"/>
+        /// Constructs a <see cref="ExceptionBaseException"/>.
         /// </summary>
         /// <param name="type">The name of the type.</param>
         /// <param name="message">The exception message.</param>

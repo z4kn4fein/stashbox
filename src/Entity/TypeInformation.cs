@@ -47,21 +47,5 @@ namespace Stashbox.Entity
         /// Property or field.
         /// </summary>
         public MemberType MemberType { get; internal set; }
-
-        //        internal TypeInformation Clone(Type type)
-        //        {
-        //            var clone = this.Clone();
-        //            clone.Type = type;
-        //            return clone;
-        //        }
-
-        //        internal TypeInformation Clone()
-        //        {
-        //#if IL_EMIT
-        //            return Cloner<TypeInformation>.Clone(this);
-        //#else
-        //            return (TypeInformation)this.MemberwiseClone();
-        //#endif
-        //        }
     }
 }

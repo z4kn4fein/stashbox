@@ -28,14 +28,14 @@ namespace Stashbox.Utils
 
         public bool IsEmpty => this.root == null;
 
-        public void AddOrUpdate(TValue value)
+        public void Add(TValue value)
         {
-            this.root = AddOrUpdate(this.root, value.GetHashCode(), value);
+            this.root = Add(this.root, value.GetHashCode(), value);
         }
 
-        public void AddOrUpdate(int key, TValue value)
+        public void Add(int key, TValue value)
         {
-            this.root = AddOrUpdate(this.root, key, value);
+            this.root = Add(this.root, key, value);
         }
 
         [MethodImpl(Constants.Inline)]
@@ -98,7 +98,7 @@ namespace Stashbox.Utils
             return root;
         }
 
-        private static Node<TValue> AddOrUpdate(Node<TValue> node, int key, TValue value)
+        private static Node<TValue> Add(Node<TValue> node, int key, TValue value)
         {
             if (node == null)
                 return new Node<TValue>(key, value);
@@ -110,9 +110,9 @@ namespace Stashbox.Utils
             }
 
             if (node.storedKey > key)
-                node.left = AddOrUpdate(node.left, key, value);
+                node.left = Add(node.left, key, value);
             else
-                node.right = AddOrUpdate(node.right, key, value);
+                node.right = Add(node.right, key, value);
 
             node.height = CalculateHeight(node);
             var balance = GetBalance(node);
@@ -221,9 +221,16 @@ namespace Stashbox.Utils
 
         public bool IsEmpty => this.root == null;
 
-        public void AddOrUpdate(TKey key, TValue value)
+        private HashTree() { }
+
+        public HashTree(TKey key, TValue value)
         {
-            this.root = AddOrUpdate(this.root, key, key.GetHashCode(), value);
+            Add(key, value);
+        }
+
+        public void Add(TKey key, TValue value)
+        {
+            this.root = Add(this.root, key, key.GetHashCode(), value);
         }
 
         [MethodImpl(Constants.Inline)]
@@ -287,7 +294,7 @@ namespace Stashbox.Utils
             return root;
         }
 
-        private static Node<TKey, TValue> AddOrUpdate(Node<TKey, TValue> node, TKey key, int hash, TValue value)
+        private static Node<TKey, TValue> Add(Node<TKey, TValue> node, TKey key, int hash, TValue value)
         {
             if (node == null)
                 return new Node<TKey, TValue>(key, value);
@@ -299,9 +306,9 @@ namespace Stashbox.Utils
             }
 
             if (node.storedHash > hash)
-                node.left = AddOrUpdate(node.left, key, hash, value);
+                node.left = Add(node.left, key, hash, value);
             else
-                node.right = AddOrUpdate(node.right, key, hash, value);
+                node.right = Add(node.right, key, hash, value);
 
             node.height = CalculateHeight(node);
             var balance = GetBalance(node);

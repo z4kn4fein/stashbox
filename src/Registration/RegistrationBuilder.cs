@@ -1,5 +1,6 @@
 ﻿using Stashbox.BuildUp;
 using Stashbox.Configuration;
+using Stashbox.Exceptions;
 using Stashbox.Lifetime;
 using Stashbox.Registration.Fluent;
 using Stashbox.Utils;
@@ -22,6 +23,19 @@ namespace Stashbox.Registration
 
         public IServiceRegistration BuildServiceRegistration(RegistrationConfiguration registrationConfiguration, bool isDecorator)
         {
+            if (registrationConfiguration.Context.ExistingInstance == null &&
+                registrationConfiguration.Context.ContainerFactory == null &&
+                registrationConfiguration.Context.SingleFactory == null)
+            {
+                if (!registrationConfiguration.ImplementationType.IsResolvableType())
+                    throw new InvalidRegistrationException(registrationConfiguration.ImplementationType,
+                        $"The type {registrationConfiguration.ImplementationType} could not be resolved. It's probably an interface, abstract class or primitive type.");
+
+                if (!registrationConfiguration.ImplementationType.Implements(registrationConfiguration.ServiceType))
+                    throw new InvalidRegistrationException(registrationConfiguration.ImplementationType,
+                        $"The type {registrationConfiguration.ImplementationType} does not implement the service type {registrationConfiguration.ServiceType}.");
+            }
+
             this.PreProcessExistingInstanceIfNeeded(registrationConfiguration.Context, registrationConfiguration.ImplementationType);
             registrationConfiguration.Context.Lifetime = this.ChooseLifeTime(registrationConfiguration.Context);
 

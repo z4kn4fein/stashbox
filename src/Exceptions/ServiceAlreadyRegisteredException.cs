@@ -10,7 +10,7 @@ namespace Stashbox.Exceptions
     public class ServiceAlreadyRegisteredException : ExceptionBaseException
     {
         /// <summary>
-        /// Constructs a <see cref="ServiceAlreadyRegisteredException"/>
+        /// Constructs a <see cref="ServiceAlreadyRegisteredException"/>.
         /// </summary>
         /// <param name="type">The type of the service.</param>
         /// <param name="innerException">The inner exception.</param>

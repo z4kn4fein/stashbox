@@ -86,6 +86,7 @@ namespace Stashbox.Resolution.Resolvers
 
 
             var callExpression = DelegateCacheMethod.CallStaticMethod(
+                resolutionContext.CurrentScopeParameter,
                 containerContext.AsConstant(),
                 serviceRegistration.AsConstant(),
                 resolutionContext.AsConstant(),
@@ -101,11 +102,12 @@ namespace Stashbox.Resolution.Resolvers
 
         private static readonly MethodInfo DelegateCacheMethod = typeof(LazyResolver).GetSingleMethod(nameof(CreateLazyDelegate), true);
 
-        private static object CreateLazyDelegate(IContainerContext containerContext, IServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type type, object[] arguments)
+        private static object CreateLazyDelegate(IResolutionScope resolutionScope, IContainerContext containerContext,
+            IServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type type, object[] arguments)
         {
             var expr = serviceRegistration.GetExpression(containerContext, resolutionContext, type);
             return expr.AsLambda(resolutionContext.ParameterExpressions.SelectMany(x => x.Select(i => i.Value)))
-                .CompileDynamicDelegate(resolutionContext, containerContext.ContainerConfiguration)(resolutionContext.ResolutionScope).DynamicInvoke(arguments);
+                .CompileDynamicDelegate(resolutionContext, containerContext.ContainerConfiguration)(resolutionScope).DynamicInvoke(arguments);
         }
     }
 }

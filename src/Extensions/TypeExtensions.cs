@@ -46,7 +46,7 @@ namespace System
             if (typeInfo.IsArray)
                 return type.GetElementType();
 
-            if (IsAssignableToGenericType(type, typeof(IEnumerable<>)) && type != typeof(string) && typeInfo.GenericTypeArguments.Length == 1)
+            if (typeInfo.ImplementsGenericType(typeof(IEnumerable<>)) && type != typeof(string) && typeInfo.GenericTypeArguments.Length == 1)
                 return typeInfo.GenericTypeArguments[0];
 
             return null;
@@ -55,11 +55,11 @@ namespace System
         public static bool IsClosedGenericType(this Type type) =>
             type.GetTypeInfo().IsClosedGenericType();
 
-        public static bool IsOpenGenericType(this Type type) =>
-            type.GetTypeInfo().IsOpenGenericType();
-
         public static bool IsClosedGenericType(this TypeInfo typeInfo) =>
             typeInfo.IsGenericType && !typeInfo.IsGenericTypeDefinition;
+
+        public static bool IsOpenGenericType(this Type type) =>
+            type.GetTypeInfo().IsOpenGenericType();
 
         public static bool IsOpenGenericType(this TypeInfo typeInfo) =>
             typeInfo.IsGenericType && typeInfo.ContainsGenericParameters;
@@ -153,10 +153,36 @@ namespace System
         public static bool IsObjectType(this Type type) => type == Constants.ObjectType;
 
         public static bool Implements(this Type type, Type interfaceType) =>
-            type.GetTypeInfo().Implements(interfaceType);
+            type == interfaceType || type.GetTypeInfo().Implements(interfaceType);
 
-        public static bool Implements(this TypeInfo typeInfo, Type interfaceType) =>
+        private static bool Implements(this TypeInfo typeInfo, Type interfaceType)
+        {
+            if (interfaceType.IsOpenGenericType())
+                return typeInfo.ImplementsGenericType(interfaceType.GetGenericTypeDefinition());
+
+            return interfaceType.GetTypeInfo().IsAssignableFrom(typeInfo);
+        }
+
+        public static bool ImplementsWithoutGenericCheck(this Type type, Type interfaceType) =>
+            type.GetTypeInfo().ImplementsWithoutGenericCheck(interfaceType);
+
+        private static bool ImplementsWithoutGenericCheck(this TypeInfo typeInfo, Type interfaceType) =>
             interfaceType.GetTypeInfo().IsAssignableFrom(typeInfo);
+
+        private static bool ImplementsGenericType(this TypeInfo type, Type genericType) =>
+            MapsToGenericTypeDefinition(type, genericType) ||
+            HasInterfaceThatMapsToGenericTypeDefinition(type, genericType) ||
+            type.BaseType != null && type.BaseType.GetTypeInfo().ImplementsGenericType(genericType);
+
+        private static bool HasInterfaceThatMapsToGenericTypeDefinition(TypeInfo type, Type genericType) =>
+            type.ImplementedInterfaces
+              .Where(it => it.GetTypeInfo().IsGenericType)
+              .Any(it => it.GetGenericTypeDefinition() == genericType);
+
+        private static bool MapsToGenericTypeDefinition(TypeInfo type, Type genericType) =>
+            genericType.GetTypeInfo().IsGenericTypeDefinition
+              && type.IsGenericType
+              && type.GetGenericTypeDefinition() == genericType;
 
         public static bool IsFuncType(this Type type) =>
             type.IsClosedGenericType() && FuncResolver.SupportedTypes.Contains(type.GetGenericTypeDefinition());
@@ -372,29 +398,5 @@ namespace System
 
         public static bool IsCompiledLambda(this Delegate @delegate) =>
             @delegate.Target != null && @delegate.Target.GetType().FullName == "System.Runtime.CompilerServices.Closure";
-
-        private static bool IsAssignableToGenericType(Type type, Type genericType)
-        {
-            if (type == null || genericType == null) return false;
-
-            return type == genericType
-              || MapsToGenericTypeDefinition(type, genericType)
-              || HasInterfaceThatMapsToGenericTypeDefinition(type, genericType)
-              || IsAssignableToGenericType(type.GetTypeInfo().BaseType, genericType);
-        }
-
-        private static bool HasInterfaceThatMapsToGenericTypeDefinition(Type type, Type genericType)
-        {
-            return type.GetTypeInfo().ImplementedInterfaces
-              .Where(it => it.GetTypeInfo().IsGenericType)
-              .Any(it => it.GetGenericTypeDefinition() == genericType);
-        }
-
-        private static bool MapsToGenericTypeDefinition(Type type, Type genericType)
-        {
-            return genericType.GetTypeInfo().IsGenericTypeDefinition
-              && type.GetTypeInfo().IsGenericType
-              && type.GetGenericTypeDefinition() == genericType;
-        }
     }
 }

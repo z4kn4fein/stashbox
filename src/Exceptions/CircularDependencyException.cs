@@ -8,7 +8,7 @@ namespace Stashbox.Exceptions
     public class CircularDependencyException : ExceptionBaseException
     {
         /// <summary>
-        /// Constructs a <see cref="CircularDependencyException"/>
+        /// Constructs a <see cref="CircularDependencyException"/>.
         /// </summary>
         /// <param name="type">The type of the service type.</param>
         /// <param name="innerException">The inner exception.</param>

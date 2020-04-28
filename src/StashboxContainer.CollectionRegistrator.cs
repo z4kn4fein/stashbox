@@ -20,7 +20,7 @@ namespace Stashbox
 
             foreach (var type in types.Where(t => t.IsResolvableType()))
             {
-                if (type.Implements(typeFrom))
+                if (type.ImplementsWithoutGenericCheck(typeFrom))
                 {
                     this.RegisterTypeAs(typeFrom, type, configurator);
                     continue;

@@ -2,9 +2,9 @@
 {
     internal static class RegistrationSelectionRules
     {
-        public static IRegistrationSelectionRule ConditionFilter = new ConditionRule();
-        public static IRegistrationSelectionRule GenericFilter = new GenericRule();
-        public static IRegistrationSelectionRule ScopeNameFilter = new ScopeNameRule();
-        public static IRegistrationSelectionRule NameFilter = new NameRule();
+        public static readonly IRegistrationSelectionRule ConditionFilter = new ConditionRule();
+        public static readonly IRegistrationSelectionRule GenericFilter = new GenericRule();
+        public static readonly IRegistrationSelectionRule ScopeNameFilter = new ScopeNameRule();
+        public static readonly IRegistrationSelectionRule NameFilter = new NameRule();
     }
 }

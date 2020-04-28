@@ -8,26 +8,26 @@
         /// <summary>
         /// Transient lifetime.
         /// </summary>
-        public static LifetimeDescriptor Transient = new TransientLifetime();
+        public static readonly LifetimeDescriptor Transient = new TransientLifetime();
 
         /// <summary>
         /// Singleton lifetime.
         /// </summary>
-        public static LifetimeDescriptor Singleton = new SingletonLifetime();
+        public static readonly LifetimeDescriptor Singleton = new SingletonLifetime();
 
         /// <summary>
         /// Scoped lifetime.
         /// </summary>
-        public static LifetimeDescriptor Scoped = new ScopedLifetime();
+        public static readonly LifetimeDescriptor Scoped = new ScopedLifetime();
 
         /// <summary>
         /// NamedScope lifetime.
         /// </summary>
-        public static LifetimeDescriptor NamedScope = new NamedScopeLifetime();
+        public static readonly LifetimeDescriptor NamedScope = new NamedScopeLifetime();
 
         /// <summary>
         /// PerRequest lifetime.
         /// </summary>
-        public static LifetimeDescriptor PerRequest = new ResolutionRequestLifetime();
+        public static readonly LifetimeDescriptor PerRequest = new ResolutionRequestLifetime();
     }
 }

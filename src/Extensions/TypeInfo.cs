@@ -31,6 +31,8 @@ namespace System.Reflection
         public Type[] GenericTypeParameters => this.Type.GetGenericArguments();
         public Type[] GenericTypeArguments => this.Type.GetGenericArguments();
         public Type[] GetGenericParameterConstraints() => this.Type.GetGenericParameterConstraints();
+        public Type GetGenericTypeDefinition() => this.Type.GetGenericTypeDefinition();
+        public Type AsType() => this.Type;
         public bool IsClass => this.Type.IsClass;
         public bool IsInterface => this.Type.IsInterface;
         public bool IsValueType => this.Type.IsValueType;
