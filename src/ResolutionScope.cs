@@ -50,8 +50,6 @@ namespace Stashbox
 
         private readonly DelegateCache delegateCache;
 
-        public bool HasScopedInstances => !this.scopedInstances.IsEmpty;
-
         public object Name { get; }
 
         public IResolutionScope ParentScope { get; }
@@ -177,18 +175,6 @@ namespace Stashbox
             return disposable;
         }
 
-        public void AddScopedInstance(Type key, object value, object name = null)
-        {
-            var subKey = name ?? key;
-            var newRepo = ImmutableTree<object, object>.Empty.AddOrUpdate(subKey, value);
-            Swap.SwapValue(ref this.scopedInstances, (t1, t2, t3, t4, instances) =>
-                instances.AddOrUpdate(t1, t3,
-                    (old, @new) => old.AddOrUpdate(t4, t2, true)), key, value, newRepo, subKey);
-        }
-
-        public object GetScopedInstanceOrDefault(Type key, object name = null) =>
-            this.scopedInstances.GetOrDefault(key)?.GetOrDefault(name ?? key);
-
         public TService AddWithFinalizer<TService>(TService finalizable, Action<TService> finalizer)
         {
             Swap.SwapValue(ref this.rootFinalizableItem, (t1, t2, t3, t4, root) =>
@@ -197,7 +183,7 @@ namespace Stashbox
             return finalizable;
         }
 
-        public object GetOrAddScopedItem(int key, object sync, Func<IResolutionScope, object> factory)
+        public object GetOrAddScopedObject(int key, object sync, Func<IResolutionScope, object> factory)
         {
             var item = this.scopedItems.GetOrDefault(key);
             if (item != null) return item;

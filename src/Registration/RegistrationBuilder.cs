@@ -23,18 +23,8 @@ namespace Stashbox.Registration
 
         public IServiceRegistration BuildServiceRegistration(RegistrationConfiguration registrationConfiguration, bool isDecorator)
         {
-            if (registrationConfiguration.Context.ExistingInstance == null &&
-                registrationConfiguration.Context.ContainerFactory == null &&
-                registrationConfiguration.Context.SingleFactory == null)
-            {
-                if (!registrationConfiguration.ImplementationType.IsResolvableType())
-                    throw new InvalidRegistrationException(registrationConfiguration.ImplementationType,
-                        $"The type {registrationConfiguration.ImplementationType} could not be resolved. It's probably an interface, abstract class or primitive type.");
-
-                if (!registrationConfiguration.ImplementationType.Implements(registrationConfiguration.ServiceType))
-                    throw new InvalidRegistrationException(registrationConfiguration.ImplementationType,
-                        $"The type {registrationConfiguration.ImplementationType} does not implement the service type {registrationConfiguration.ServiceType}.");
-            }
+            if (!registrationConfiguration.TypeMapIsValid(out var error))
+                throw new InvalidRegistrationException(registrationConfiguration.ImplementationType, error);
 
             this.PreProcessExistingInstanceIfNeeded(registrationConfiguration.Context, registrationConfiguration.ImplementationType);
             registrationConfiguration.Context.Lifetime = this.ChooseLifeTime(registrationConfiguration.Context);
@@ -67,7 +57,7 @@ namespace Stashbox.Registration
             if (registrationContext.ExistingInstance != null)
                 return false;
 
-            return this.containerConfiguration.TrackTransientsForDisposalEnabled || registrationContext.Lifetime != Lifetimes.Transient;
+            return this.containerConfiguration.TrackTransientsForDisposalEnabled || !(registrationContext.Lifetime is TransientLifetime);
         }
 
         private LifetimeDescriptor ChooseLifeTime(RegistrationContext registrationContext) => registrationContext.IsWireUp

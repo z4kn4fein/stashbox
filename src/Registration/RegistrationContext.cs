@@ -1,7 +1,7 @@
 ﻿using Stashbox.Configuration;
 using Stashbox.Entity;
+using Stashbox.Lifetime;
 using Stashbox.Registration.Fluent;
-using Stashbox.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
@@ -72,7 +72,7 @@ namespace Stashbox.Registration
         /// <summary>
         /// Lifetime of the registration.
         /// </summary>
-        public Lifetime.LifetimeDescriptor Lifetime { get; internal set; }
+        public LifetimeDescriptor Lifetime { get; internal set; }
 
         /// <summary>
         /// Target type condition of the registration.
@@ -174,20 +174,6 @@ namespace Stashbox.Registration
             this.InjectionParameters = new List<InjectionParameter>();
             this.InjectionMemberNames = new Dictionary<string, object>();
             this.DependencyBindings = new Dictionary<object, object>();
-            this.AutoMemberInjectionEnabled = false;
-        }
-
-        /// <summary>
-        /// Creates a copy of this object.
-        /// </summary>
-        /// <returns>The copy of this instance.</returns>
-        public RegistrationContext Clone()
-        {
-#if IL_EMIT
-            return Cloner<RegistrationContext>.Clone(this);
-#else
-            return (RegistrationContext)this.MemberwiseClone();
-#endif
         }
     }
 }

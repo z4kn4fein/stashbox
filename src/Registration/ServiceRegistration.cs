@@ -103,7 +103,7 @@ namespace Stashbox.Registration
         /// <inheritdoc />
         public IServiceRegistration Clone(Type implementationType, IObjectBuilder objectBuilder) =>
             new ServiceRegistration(implementationType, this.containerConfiguration, objectBuilder,
-                this.RegistrationContext.Clone(), this.IsDecorator, this.ShouldHandleDisposal);
+                this.RegistrationContext, this.IsDecorator, this.ShouldHandleDisposal);
 
         /// <inheritdoc />
         public void Replaces(IServiceRegistration serviceRegistration)

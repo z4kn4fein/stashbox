@@ -19,7 +19,7 @@ namespace Stashbox.Utils
 
         public static readonly MethodInfo AddDisposalMethod = ResolutionScopeType.GetSingleMethod("AddDisposableTracking");
 
-        public static readonly MethodInfo GetOrAddScopedItemMethod = ResolutionScopeType.GetSingleMethod("GetOrAddScopedItem");
+        public static readonly MethodInfo GetOrAddScopedObjectMethod = ResolutionScopeType.GetSingleMethod("GetOrAddScopedObject");
 
         public static readonly MethodInfo AddWithFinalizerMethod = ResolutionScopeType.GetSingleMethod("AddWithFinalizer");
 

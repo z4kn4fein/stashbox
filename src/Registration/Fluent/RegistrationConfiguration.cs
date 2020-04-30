@@ -25,5 +25,29 @@ namespace Stashbox.Registration.Fluent
             this.ImplementationType = implementationType;
             this.Context = RegistrationContext.New();
         }
+
+        internal bool TypeMapIsValid(out string error)
+        {
+            error = null;
+            if (this.Context.ExistingInstance != null ||
+                this.Context.ContainerFactory != null ||
+                this.Context.SingleFactory != null)
+                return true;
+
+
+            if (!this.ImplementationType.IsResolvableType())
+            {
+                error = $"The type {this.ImplementationType} could not be resolved. It's probably an interface, abstract class or primitive type.";
+                return false;
+            }
+
+            if (!this.ImplementationType.Implements(this.ServiceType))
+            {
+                error = $"The type {this.ImplementationType} does not implement the service type {this.ServiceType}.";
+                return false;
+            }
+
+            return true;
+        }
     }
 }

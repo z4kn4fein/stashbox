@@ -11,7 +11,7 @@ namespace Stashbox.Lifetime
     public class SingletonLifetime : LifetimeDescriptor
     {
         /// <inheritdoc />
-        protected override Expression GetLifetimeAppliedExpression(IContainerContext containerContext, IServiceRegistration serviceRegistration, 
+        protected override Expression GetLifetimeAppliedExpression(IContainerContext containerContext, IServiceRegistration serviceRegistration,
             ResolutionContext resolutionContext, Type resolveType)
         {
             var factory = base.GetFactoryDelegate(containerContext, serviceRegistration, resolutionContext, resolveType);
@@ -19,7 +19,7 @@ namespace Stashbox.Lifetime
                 return null;
 
             return resolutionContext.CurrentContainerContext.Container.RootScope
-                .GetOrAddScopedItem(serviceRegistration.RegistrationId, serviceRegistration.RegistrationName, factory).AsConstant();
+                .GetOrAddScopedObject(serviceRegistration.RegistrationId, serviceRegistration.RegistrationName, factory).AsConstant();
         }
     }
 }

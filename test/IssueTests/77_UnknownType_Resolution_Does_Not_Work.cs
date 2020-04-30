@@ -53,6 +53,24 @@ namespace Stashbox.Tests.IssueTests
             Assert.Throws<InvalidRegistrationException>(() => container.Register<ITest>());
             Assert.Throws<InvalidRegistrationException>(() => container.Register<ITest>(typeof(Test1)));
         }
+
+        [Fact]
+        public void Ensures_Unknown_Registration_Does_Not_Activate_When_Unresolvable_And_Null_Enabled()
+        {
+            using var container = new StashboxContainer(c => c.WithUnknownTypeResolution(config => { }));
+            Assert.Null(container.Resolve<ITest>(true));
+        }
+
+        [Fact]
+        public void Ensures_Unknown_Registration_Activate_When_Resolvable_And_Null_Enabled()
+        {
+            using var container = new StashboxContainer(c => c.WithUnknownTypeResolution(config =>
+            {
+                if (config.ServiceType == typeof(ITest))
+                    config.SetImplementationType(typeof(Test));
+            }));
+            Assert.NotNull(container.Resolve<ITest>(true));
+        }
     }
 
     interface ITest

@@ -15,11 +15,6 @@ namespace Stashbox
         IResolutionScope ParentScope { get; }
 
         /// <summary>
-        /// True if the scope contains scoped instances, otherwise false.
-        /// </summary>
-        bool HasScopedInstances { get; }
-
-        /// <summary>
         /// The name of the scope, if it's null then it's a regular nameless scope.
         /// </summary>
         object Name { get; }
@@ -43,13 +38,13 @@ namespace Stashbox
         TService AddWithFinalizer<TService>(TService finalizable, Action<TService> finalizer);
 
         /// <summary>
-        /// Gets or adds an item to the scope.
+        /// Returns an existing scoped object or adds it into the scope if it doesn't exist.
         /// </summary>
         /// <param name="key">The key.</param>
         /// <param name="sync">The object use for synchronization.</param>
-        /// <param name="factory">The value factory used if the item doesn't exist yet.</param>
-        /// <returns>The scoped item.</returns>
-        object GetOrAddScopedItem(int key, object sync, Func<IResolutionScope, object> factory);
+        /// <param name="factory">The value factory used to create the object if it doesn't exist yet.</param>
+        /// <returns>The scoped object.</returns>
+        object GetOrAddScopedObject(int key, object sync, Func<IResolutionScope, object> factory);
 
         /// <summary>
         /// Invalidates the delegate cache.
