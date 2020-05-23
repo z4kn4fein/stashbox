@@ -24,7 +24,7 @@ namespace Stashbox.Registration.Fluent
         public TConfigurator WithInjectionParameters(params InjectionParameter[] injectionParameters)
         {
             var length = injectionParameters.Length;
-            for (int i = 0; i < length; i++)
+            for (var i = 0; i < length; i++)
                 this.AddInjectionParameter(injectionParameters[i]);
             return (TConfigurator)this;
         }
@@ -128,7 +128,7 @@ namespace Stashbox.Registration.Fluent
 
         private void AddInjectionParameter(InjectionParameter injectionParameter)
         {
-            var store = (List<InjectionParameter>)this.Context.InjectionParameters;
+            var store = (ExpandableArray<InjectionParameter>)this.Context.InjectionParameters;
             store.Add(injectionParameter);
         }
 

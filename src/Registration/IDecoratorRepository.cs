@@ -1,5 +1,5 @@
-﻿using Stashbox.Entity;
-using System;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Stashbox.Registration
 {
@@ -22,6 +22,6 @@ namespace Stashbox.Registration
         /// </summary>
         /// <param name="type">The decorated type.</param>
         /// <returns>The decorator registrations if any exists, otherwise null.</returns>
-        KeyValue<Type, IServiceRegistration>[] GetDecoratorsOrDefault(Type type);
+        IEnumerable<IServiceRegistration> GetDecoratorsOrDefault(Type type);
     }
 }

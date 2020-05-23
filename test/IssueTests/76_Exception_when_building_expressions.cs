@@ -342,6 +342,39 @@ namespace Stashbox.Tests.IssueTests
             Assert.Equal(3, C.Counter);
         }
 
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void Ensure_expression_built_correctly_singleton_dispose_simple(bool useMicrosoftCompiler)
+        {
+            C.Counter = 0;
+            F inst = null;
+            {
+                using var container = new StashboxContainer(c =>
+                {
+                    c.WithDisposableTransientTracking();
+
+                    if (useMicrosoftCompiler)
+                        c.WithMicrosoftExpressionCompiler();
+                })
+                    .Register<F>(c => c.WithScopedLifetime())
+                    .Register<C>(c => c.WithSingletonLifetime());
+
+
+                {
+                    using var scope = container.BeginScope();
+                    inst = scope.Resolve<F>();
+                }
+
+                Assert.True(inst.Disposed);
+                Assert.False(inst.C.Disposed);
+            }
+
+            Assert.True(inst.C.Disposed);
+
+            Assert.Equal(1, C.Counter);
+        }
+
         class A : IDisposable
         {
             public static int Counter = 0;

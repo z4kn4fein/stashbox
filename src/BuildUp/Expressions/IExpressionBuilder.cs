@@ -16,7 +16,6 @@ namespace Stashbox.BuildUp.Expressions
 
         Expression ConstructBuildUpExpression(
             IContainerContext containerContext,
-            RegistrationContext registrationContext,
             ResolutionContext resolutionContext,
             Expression instance,
             Type serviceType);
@@ -29,7 +28,6 @@ namespace Stashbox.BuildUp.Expressions
 
         Expression ConstructExpression(
             IContainerContext containerContext,
-            RegistrationContext registrationContext,
             ResolutionContext resolutionContext,
             Type serviceType);
     }

@@ -44,9 +44,6 @@ namespace Stashbox.Utils
         public ImmutableTree<TValue> AddOrUpdate(int key, TValue value, Func<TValue, TValue, TValue> updateDelegate = null) =>
             this.Add(key, value, updateDelegate, false);
 
-        public ImmutableTree<TValue> AddOrUpdate(int key, TValue value, bool forceUpdate) =>
-            this.Add(key, value, null, true);
-
         [MethodImpl(Constants.Inline)]
         public TValue GetOrDefault(int key)
         {
@@ -194,10 +191,10 @@ namespace Stashbox.Utils
         }
 
         public ImmutableTree<TKey, TValue> AddOrUpdate(TKey key, TValue value, Func<TValue, TValue, TValue> updateDelegate = null) =>
-            this.Add(key.GetHashCode(), key, value, updateDelegate, false);
+            this.Add(RuntimeHelpers.GetHashCode(key), key, value, updateDelegate, false);
 
         public ImmutableTree<TKey, TValue> AddOrUpdate(TKey key, TValue value, bool forceUpdate) =>
-            this.Add(key.GetHashCode(), key, value, null, forceUpdate);
+            this.Add(RuntimeHelpers.GetHashCode(key), key, value, null, forceUpdate);
 
         [MethodImpl(Constants.Inline)]
         public TValue GetOrDefault(TKey key)
@@ -205,15 +202,15 @@ namespace Stashbox.Utils
             if (this.IsEmpty)
                 return default;
 
-            var hash = key.GetHashCode();
+            var hash = RuntimeHelpers.GetHashCode(key);
             var node = this;
             while (!node.IsEmpty && node.storedHash != hash)
                 node = hash < node.storedHash ? node.leftNode : node.rightNode;
-            return !node.IsEmpty && (ReferenceEquals(key, node.storedKey) || key.Equals(node.storedKey))
+            return !node.IsEmpty && ReferenceEquals(key, node.storedKey)
                 ? node.storedValue
                 : node.collisions == null
                     ? default
-                    : node.collisions.GetOrDefault(key);
+                    : node.collisions.GetOrDefault(key, true);
         }
 
         private ImmutableTree<TKey, TValue> Add(int hash, TKey key, TValue value, Func<TValue, TValue, TValue> updateDelegate, bool forceUpdate)
@@ -237,7 +234,7 @@ namespace Stashbox.Utils
 
         private ImmutableTree<TKey, TValue> CheckCollision(int hash, TKey key, TValue value, Func<TValue, TValue, TValue> updateDelegate, bool forceUpdate)
         {
-            if (ReferenceEquals(key, this.storedKey) || key.Equals(this.storedKey))
+            if (ReferenceEquals(key, this.storedKey))
                 return updateDelegate != null
                     ? new ImmutableTree<TKey, TValue>(hash, key, updateDelegate(this.storedValue, value), this.leftNode, this.rightNode, this.collisions)
                     : forceUpdate
@@ -249,7 +246,7 @@ namespace Stashbox.Utils
                     ImmutableArray<TKey, TValue>.Empty.Add(key, value));
 
             return new ImmutableTree<TKey, TValue>(hash, key, value, this.leftNode, this.rightNode,
-                this.collisions.AddOrUpdate(key, updateDelegate == null || forceUpdate ? value : updateDelegate(this.storedValue, value)));
+                this.collisions.AddOrUpdate(key, updateDelegate == null || forceUpdate ? value : updateDelegate(this.storedValue, value), true));
         }
 
         private static ImmutableTree<TKey, TValue> Balance(int hash, TKey key, TValue value, ImmutableTree<TKey, TValue> left, ImmutableTree<TKey, TValue> right, ImmutableArray<TKey, TValue> collisions)

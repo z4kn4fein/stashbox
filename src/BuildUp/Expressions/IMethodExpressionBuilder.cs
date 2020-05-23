@@ -23,7 +23,7 @@ namespace Stashbox.BuildUp.Expressions
 
         IEnumerable<Expression> CreateMethodExpressions(
             IContainerContext containerContext,
-            MethodInfo[] injectionMethods,
+            IEnumerable<MethodInfo> methods,
             RegistrationContext registrationContext,
             ResolutionContext resolutionContext,
             Expression instance);

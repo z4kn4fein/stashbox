@@ -45,7 +45,7 @@ namespace Stashbox.BuildUp.ObjectBuilders
                     serviceRegistration.RegistrationContext.DefinedScopeName.AsConstant(),
                     true.AsConstant());
 
-            var newContext = resolutionContext.Clone(scopeParameter: new KeyValue<object, ParameterExpression>(serviceRegistration.RegistrationContext.DefinedScopeName, variable));
+            var newContext = resolutionContext.BeginNewScopeContext(new KeyValue<object, ParameterExpression>(serviceRegistration.RegistrationContext.DefinedScopeName, variable));
 
             resolutionContext.AddDefinedVariable(variable);
             resolutionContext.AddInstruction(variable.AssignTo(newScope.ConvertTo(Constants.ResolutionScopeType)));

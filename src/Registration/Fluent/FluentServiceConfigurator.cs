@@ -1,7 +1,7 @@
 ﻿using Stashbox.Entity;
 using Stashbox.Lifetime;
+using Stashbox.Utils;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 
@@ -83,7 +83,7 @@ namespace Stashbox.Registration.Fluent
         /// <inheritdoc />
         public TConfigurator WhenHas<TAttribute>() where TAttribute : Attribute
         {
-            var store = (List<Type>)this.Context.AttributeConditions;
+            var store = (ExpandableArray<Type>)this.Context.AttributeConditions;
             store.Add(typeof(TAttribute));
             return (TConfigurator)this;
         }
@@ -91,7 +91,7 @@ namespace Stashbox.Registration.Fluent
         /// <inheritdoc />
         public TConfigurator WhenHas(Type attributeType)
         {
-            var store = (List<Type>)this.Context.AttributeConditions;
+            var store = (ExpandableArray<Type>)this.Context.AttributeConditions;
             store.Add(attributeType);
             return (TConfigurator)this;
         }
@@ -150,7 +150,7 @@ namespace Stashbox.Registration.Fluent
         /// <inheritdoc />
         public TConfigurator AsImplementedTypes()
         {
-            this.Context.AdditionalServiceTypes = new List<Type>(this.ImplementationType.GetRegisterableInterfaceTypes()
+            this.Context.AdditionalServiceTypes = ExpandableArray<Type>.FromEnumerable(this.ImplementationType.GetRegisterableInterfaceTypes()
                     .Concat(this.ImplementationType.GetRegisterableBaseTypes()));
             return (TConfigurator)this;
         }
@@ -193,7 +193,7 @@ namespace Stashbox.Registration.Fluent
             if (!this.ImplementationType.Implements(serviceType))
                 throw new ArgumentException($"The implementation type {base.ImplementationType} does not implement the given service type {serviceType}.");
 
-            ((List<Type>)this.Context.AdditionalServiceTypes).Add(serviceType);
+            ((ExpandableArray<Type>)this.Context.AdditionalServiceTypes).Add(serviceType);
             return (TConfigurator)this;
         }
 

@@ -11,14 +11,14 @@ namespace Stashbox.BuildUp.Expressions
     {
         IEnumerable<Expression> GetMemberExpressions(
             IContainerContext containerContext,
-            MemberInfo[] injectionMembers,
+            IEnumerable<MemberInfo> members,
             RegistrationContext registrationContext,
             ResolutionContext resolutionContext,
             Expression instance);
 
         IEnumerable<MemberBinding> GetMemberBindings(
             IContainerContext containerContext,
-            MemberInfo[] injectionMembers,
+            IEnumerable<MemberInfo> members,
             RegistrationContext registrationContext,
             ResolutionContext resolutionContext,
             Type implementationType);

@@ -10,18 +10,17 @@ namespace Stashbox.Tests
         [Fact]
         public void ResolverTests_DefaultValue()
         {
-            using var container = new StashboxContainer(config => config.WithOptionalAndDefaultValueInjection());
+            using var container = new StashboxContainer(config => config.WithDefaultValueInjection());
             container.Register<Test>();
             var inst = container.Resolve<Test>();
 
-            Assert.Equal(default(int), inst.I);
+            Assert.Equal(default, inst.I);
         }
 
         [Fact]
         public void ResolverTests_DefaultValue_WithOptional()
         {
-            using var container = new StashboxContainer(config => config.WithOptionalAndDefaultValueInjection()
-            .WithMemberInjectionWithoutAnnotation());
+            using var container = new StashboxContainer();
             container.Register<Test1>();
             var inst = container.Resolve<Test1>();
 
@@ -34,7 +33,7 @@ namespace Stashbox.Tests
             using var container = new StashboxContainer();
             container.Register<Test1>();
             container.Configure(config => config
-                .WithOptionalAndDefaultValueInjection());
+                .WithDefaultValueInjection());
             var inst = container.Resolve<Test1>();
 
             Assert.Equal(5, inst.I);
@@ -43,7 +42,7 @@ namespace Stashbox.Tests
         [Fact]
         public void ResolverTests_DefaultValue_RefType_WithOptional()
         {
-            using var container = new StashboxContainer(config => config.WithOptionalAndDefaultValueInjection());
+            using var container = new StashboxContainer(config => config.WithDefaultValueInjection());
             container.Register<Test2>();
             var inst = container.Resolve<Test2>();
 
@@ -53,7 +52,7 @@ namespace Stashbox.Tests
         [Fact]
         public void ResolverTests_DefaultValue_RefType_WithOutOptional()
         {
-            using var container = new StashboxContainer(config => config.WithOptionalAndDefaultValueInjection());
+            using var container = new StashboxContainer(config => config.WithDefaultValueInjection());
             container.Register<Test3>();
             Assert.Throws<ResolutionFailedException>(() => container.Resolve<Test3>());
         }
@@ -61,7 +60,7 @@ namespace Stashbox.Tests
         [Fact]
         public void ResolverTests_DefaultValue_RefType_WithOutOptional_AllowNull()
         {
-            using var container = new StashboxContainer(config => config.WithOptionalAndDefaultValueInjection());
+            using var container = new StashboxContainer(config => config.WithDefaultValueInjection());
             container.Register<Test3>();
             var result = container.Resolve<Test3>(nullResultAllowed: true);
 
@@ -71,7 +70,7 @@ namespace Stashbox.Tests
         [Fact]
         public void ResolverTests_DefaultValue_String()
         {
-            using var container = new StashboxContainer(config => config.WithOptionalAndDefaultValueInjection());
+            using var container = new StashboxContainer(config => config.WithDefaultValueInjection());
             container.Register<Test4>();
             var inst = container.Resolve<Test4>();
 
@@ -91,7 +90,7 @@ namespace Stashbox.Tests
         [Fact]
         public void ResolverTests_DefaultValue_Nullable()
         {
-            using var container = new StashboxContainer(config => config.WithOptionalAndDefaultValueInjection());
+            using var container = new StashboxContainer(config => config.WithDefaultValueInjection());
             container.Register<Test9>();
             var inst = container.Resolve<Test9>();
 
@@ -120,7 +119,7 @@ namespace Stashbox.Tests
         [Fact]
         public void ResolverTests_PreferDefaultValueOverUnknownType()
         {
-            using var container = new StashboxContainer(config => config.WithUnknownTypeResolution().WithOptionalAndDefaultValueInjection());
+            using var container = new StashboxContainer(config => config.WithUnknownTypeResolution().WithDefaultValueInjection());
             container.Register<Test2>();
             var inst = container.Resolve<Test2>();
 

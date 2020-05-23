@@ -1,6 +1,7 @@
 ﻿#if IL_EMIT
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -52,11 +53,15 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
             }
             else if (context.HasClosure)
             {
-                var constantIndex = context.StoredExpressions.GetIndex(expression);
+                var constantIndex = context.Target.Constants.GetReferenceIndex(expression.Value);
                 if (constantIndex == -1) return false;
 
                 generator.Emit(OpCodes.Ldarg_0);
-                generator.Emit(OpCodes.Ldfld, context.Target.Fields[constantIndex]);
+                generator.Emit(OpCodes.Ldfld, Closure.ConstantsField);
+                generator.EmitInteger(constantIndex);
+                generator.Emit(OpCodes.Ldelem_Ref);
+                if (type.GetTypeInfo().IsValueType)
+                    generator.Emit(OpCodes.Unbox_Any, type);
                 return true;
             }
             else

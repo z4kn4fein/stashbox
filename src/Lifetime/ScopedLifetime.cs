@@ -12,7 +12,7 @@ namespace Stashbox.Lifetime
     public class ScopedLifetime : LifetimeDescriptor
     {
         /// <inheritdoc />
-        protected override bool ShouldStoreResultInLocalVariable => true;
+        protected override bool StoreResultInLocalVariable => true;
 
         /// <inheritdoc />
         protected override Expression GetLifetimeAppliedExpression(IContainerContext containerContext, IServiceRegistration serviceRegistration,
@@ -23,8 +23,10 @@ namespace Stashbox.Lifetime
                 return null;
 
             return resolutionContext.CurrentScopeParameter
-                .CallMethod(Constants.GetOrAddScopedObjectMethod, serviceRegistration.RegistrationId.AsConstant(),
-                    serviceRegistration.RegistrationName.AsConstant(Constants.ObjectType), factory.AsConstant())
+                .CallMethod(Constants.GetOrAddScopedObjectMethod,
+                    serviceRegistration.RegistrationId.AsConstant(),
+                    serviceRegistration.RegistrationName.AsConstant(Constants.ObjectType),
+                    factory.AsConstant())
                 .ConvertTo(resolveType);
         }
     }

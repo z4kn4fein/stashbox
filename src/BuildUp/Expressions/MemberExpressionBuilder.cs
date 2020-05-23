@@ -1,9 +1,9 @@
-﻿using Stashbox.Entity;
-using Stashbox.Exceptions;
+﻿using Stashbox.Exceptions;
 using Stashbox.Registration;
 using Stashbox.Resolution;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -20,43 +20,26 @@ namespace Stashbox.BuildUp.Expressions
 
         public IEnumerable<Expression> GetMemberExpressions(
             IContainerContext containerContext,
-            MemberInfo[] injectionMembers,
+            IEnumerable<MemberInfo> members,
             RegistrationContext registrationContext,
             ResolutionContext resolutionContext,
-            Expression instance)
-        {
-            var length = injectionMembers.Length;
-            for (var i = 0; i < length; i++)
-            {
-                var member = injectionMembers[i];
-                var expression = this.GetMemberExpression(member, instance.Type, registrationContext,
-                    containerContext, resolutionContext);
-
-                if (expression == null) continue;
-
-                yield return instance.Member(member).AssignTo(expression);
-            }
-        }
+            Expression instance) =>
+            from member in members
+            let expression = this.GetMemberExpression(member, instance.Type, registrationContext, containerContext, resolutionContext)
+            where expression != null
+            select instance.Member(member).AssignTo(expression);
 
         public IEnumerable<MemberBinding> GetMemberBindings(
             IContainerContext containerContext,
-            MemberInfo[] injectionMembers,
+            IEnumerable<MemberInfo> members,
             RegistrationContext registrationContext,
             ResolutionContext resolutionContext,
-            Type implementationType)
-        {
-            var length = injectionMembers.Length;
-            for (var i = 0; i < length; i++)
-            {
-                var info = injectionMembers[i];
-                var expression = this.GetMemberExpression(info, implementationType, registrationContext,
-                    containerContext, resolutionContext);
+            Type implementationType) =>
+            from member in members
+            let expression = this.GetMemberExpression(member, implementationType, registrationContext, containerContext, resolutionContext)
+            where expression != null
+            select member.AssignTo(expression);
 
-                if (expression == null) continue;
-
-                yield return info.AssignTo(expression);
-            }
-        }
 
         private Expression GetMemberExpression(
             MemberInfo member,
@@ -70,17 +53,17 @@ namespace Stashbox.BuildUp.Expressions
                 .BuildResolutionExpression(containerContext, resolutionContext,
                     memberTypeInfo, registrationContext.InjectionParameters);
 
-            if (memberExpression == null && !resolutionContext.NullResultAllowed)
+            switch (memberExpression)
             {
-                var memberType = memberTypeInfo.MemberType == MemberType.Property ? "property" : "field";
-                throw new ResolutionFailedException(memberTypeInfo.ParentType,
-                    $"Unresolvable {memberType}: ({memberTypeInfo.Type.FullName}){memberTypeInfo.ParameterOrMemberName}.");
+                case null when !resolutionContext.NullResultAllowed:
+                    var memberType = member is PropertyInfo ? "property" : "field";
+                    throw new ResolutionFailedException(memberTypeInfo.ParentType,
+                        $"Unresolvable {memberType}: ({memberTypeInfo.Type.FullName}){memberTypeInfo.ParameterOrMemberName}.");
+                case ConstantExpression constant when constant.Value == null:
+                    return null;
+                default:
+                    return memberExpression;
             }
-
-            if (memberExpression is ConstantExpression constant && constant.Value == null)
-                return null;
-
-            return memberExpression;
         }
     }
 }

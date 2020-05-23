@@ -15,8 +15,7 @@ namespace Stashbox.Resolution.Resolvers
             TypeInformation typeInfo,
             ResolutionContext resolutionContext)
         {
-            var lazyArgumentInfo = typeInfo;
-            lazyArgumentInfo.Type = typeInfo.Type.GetGenericArguments()[0];
+            var lazyArgumentInfo = typeInfo.Clone(typeInfo.Type.GetGenericArguments()[0]);
 
             var ctorParamType = Constants.FuncType.MakeGenericType(lazyArgumentInfo.Type);
             var lazyConstructor = typeInfo.Type.GetConstructor(ctorParamType);
@@ -37,8 +36,7 @@ namespace Stashbox.Resolution.Resolvers
             TypeInformation typeInfo,
             ResolutionContext resolutionContext)
         {
-            var lazyArgumentInfo = typeInfo;
-            lazyArgumentInfo.Type = typeInfo.Type.GetGenericArguments()[0];
+            var lazyArgumentInfo = typeInfo.Clone(typeInfo.Type.GetGenericArguments()[0]);
 
             var ctorParamType = Constants.FuncType.MakeGenericType(lazyArgumentInfo.Type);
             var lazyConstructor = typeInfo.Type.GetConstructor(ctorParamType);
@@ -78,7 +76,7 @@ namespace Stashbox.Resolution.Resolvers
             if (resolutionContext.ParameterExpressions != null)
             {
                 var index = 0;
-                for (var i = 0; i < resolutionContext.ParameterExpressions.Count; i++)
+                for (var i = 0; i < resolutionContext.ParameterExpressions.Length; i++)
                     for (var j = 0; j < resolutionContext.ParameterExpressions[i].Length; j++)
                         arguments[index++] = resolutionContext.ParameterExpressions[i][j].Value.ConvertTo(typeof(object));
             }
@@ -100,7 +98,7 @@ namespace Stashbox.Resolution.Resolvers
             typeInfo.Type.IsClosedGenericType() &&
             typeInfo.Type.GetGenericTypeDefinition() == typeof(Lazy<>);
 
-        private static readonly MethodInfo DelegateCacheMethod = typeof(LazyResolver).GetSingleMethod(nameof(CreateLazyDelegate), true);
+        private static readonly MethodInfo DelegateCacheMethod = typeof(LazyResolver).GetSingleMethod(nameof(CreateLazyDelegate));
 
         private static object CreateLazyDelegate(IResolutionScope resolutionScope, IContainerContext containerContext,
             IServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type type, object[] arguments)

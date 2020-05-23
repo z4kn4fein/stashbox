@@ -21,7 +21,7 @@ namespace Stashbox.Tests.CompilerTests
         [InlineData(typeof(string), default(string))]
         [InlineData(typeof(float), default(float))]
         [InlineData(typeof(double), default(double))]
-        [InlineData(typeof(object), default(object))]
+        [InlineData(typeof(object), default)]
         public void Compile_Default_Values(Type type, object expectedResult)
         {
             var func = type.AsDefault().ConvertTo(typeof(object)).AsLambda<Func<object>>().CompileFunc();

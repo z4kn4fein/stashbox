@@ -32,72 +32,68 @@ namespace Stashbox.BuildUp.Expressions
                 instance = instance.ConvertTo(serviceRegistration.ImplementationType);
 
             var methods = serviceRegistration.ImplementationTypeInfo.GetUsableMethods();
-            var members = serviceRegistration.ImplementationTypeInfo.GetUsableMembers(serviceRegistration.RegistrationContext, containerContext.ContainerConfiguration);
+            var members = serviceRegistration.ImplementationTypeInfo.GetUsableMembers(serviceRegistration.RegistrationContext,
+                containerContext.ContainerConfiguration);
 
-            if (members.Length > 0 || methods.Length > 0 || serviceRegistration.RegistrationContext.Initializer != null)
-            {
-                var lines = new List<Expression>();
-                var variable = instance.Type.AsVariable();
-                var assign = variable.AssignTo(instance);
+            if (members.Length == 0 && methods.Length == 0 &&
+                serviceRegistration.RegistrationContext.Initializer == null) return instance;
 
-                lines.Add(assign);
+            var variable = instance.Type.AsVariable();
+            var assign = variable.AssignTo(instance);
 
-                lines.AddRange(this.memberExpressionBuilder.GetMemberExpressions(containerContext, members,
-                    serviceRegistration.RegistrationContext, resolutionContext, variable));
+            var lines = new ExpandableArray<Expression> { assign };
 
-                lines.AddRange(this.methodExpressionBuilder.CreateMethodExpressions(containerContext, methods,
-                     serviceRegistration.RegistrationContext, resolutionContext, variable));
+            lines.AddRange(this.memberExpressionBuilder.GetMemberExpressions(containerContext, members,
+                serviceRegistration.RegistrationContext, resolutionContext, variable));
 
-                if (serviceRegistration.RegistrationContext.Initializer != null)
-                    lines.Add(serviceRegistration.RegistrationContext.Initializer.AsConstant()
-                        .CallMethod(serviceRegistration.RegistrationContext.Initializer.GetType().GetSingleMethod("Invoke"),
-                            variable, resolutionContext.CurrentScopeParameter.ConvertTo(Constants.ResolverType)));
+            lines.AddRange(this.methodExpressionBuilder.CreateMethodExpressions(containerContext, methods,
+                serviceRegistration.RegistrationContext, resolutionContext, variable));
 
-                lines.Add(variable.Type != serviceType ? variable.ConvertTo(serviceType) : variable); //block returns with the variable
+            if (serviceRegistration.RegistrationContext.Initializer != null)
+                lines.Add(serviceRegistration.RegistrationContext.Initializer.AsConstant()
+                    .CallMethod(serviceRegistration.RegistrationContext.Initializer.GetType().GetSingleMethod("Invoke"),
+                        variable, resolutionContext.CurrentScopeParameter.ConvertTo(Constants.ResolverType)));
 
-                return lines.AsBlock(variable);
-            }
+            lines.Add(variable.Type != serviceType ? variable.ConvertTo(serviceType) : variable); //block returns with the variable
 
-            return instance;
+            return lines.AsBlock(variable);
         }
 
         public Expression ConstructBuildUpExpression(
             IContainerContext containerContext,
-            RegistrationContext registrationContext,
             ResolutionContext resolutionContext,
             Expression instance,
             Type serviceType)
         {
-
+            var registrationContext = RegistrationContext.Empty;
             var typeInfo = serviceType.GetTypeInfo();
+
             var methods = typeInfo.GetUsableMethods();
-            var members = typeInfo.GetUsableMembers(registrationContext, containerContext.ContainerConfiguration);
+            var members = typeInfo.GetUsableMembers(registrationContext,
+                containerContext.ContainerConfiguration);
 
-            if (methods.Length > 0 || members.Length > 0)
-            {
-                var lines = new List<Expression>();
+            if (members.Length == 0 && methods.Length > 0) return instance;
 
-                if (instance.Type != serviceType)
-                    instance = instance.ConvertTo(serviceType);
+            if (instance.Type != serviceType)
+                instance = instance.ConvertTo(serviceType);
 
-                var variable = serviceType.AsVariable();
-                var assign = variable.AssignTo(instance);
+            var variable = serviceType.AsVariable();
+            var assign = variable.AssignTo(instance);
 
-                lines.Add(assign);
-                lines.AddRange(this.memberExpressionBuilder.GetMemberExpressions(containerContext, members,
-                    registrationContext, resolutionContext, variable));
-                lines.AddRange(this.methodExpressionBuilder.CreateMethodExpressions(containerContext, methods,
-                    registrationContext, resolutionContext, instance));
+            var lines = new ExpandableArray<Expression> { assign };
 
-                lines.Add(variable); //block returns with the variable
+            lines.AddRange(this.memberExpressionBuilder.GetMemberExpressions(containerContext, members,
+                registrationContext, resolutionContext, variable));
 
-                return lines.AsBlock(variable);
-            }
+            lines.AddRange(this.methodExpressionBuilder.CreateMethodExpressions(containerContext, methods,
+                registrationContext, resolutionContext, instance));
 
-            return instance;
+            lines.Add(variable); //block returns with the variable
+
+            return lines.AsBlock(variable);
         }
 
-        public Expression ConstructExpression (
+        public Expression ConstructExpression(
             IContainerContext containerContext,
             IServiceRegistration serviceRegistration,
             ResolutionContext resolutionContext,
@@ -105,9 +101,13 @@ namespace Stashbox.BuildUp.Expressions
         {
             var constructors = serviceRegistration.ImplementationTypeInfo.GetUsableConstructors();
             var methods = serviceRegistration.ImplementationTypeInfo.GetUsableMethods();
-            var members = serviceRegistration.ImplementationTypeInfo.GetUsableMembers(serviceRegistration.RegistrationContext, containerContext.ContainerConfiguration);
+            var members = serviceRegistration.ImplementationTypeInfo.GetUsableMembers(serviceRegistration.RegistrationContext,
+                containerContext.ContainerConfiguration);
 
-            var initExpression = this.CreateInitExpression(containerContext, serviceRegistration.RegistrationContext, resolutionContext, constructors);
+            var initExpression = this.CreateInitExpression(containerContext,
+                serviceRegistration.RegistrationContext,
+                resolutionContext,
+                constructors);
             if (initExpression == null)
                 return null;
 
@@ -115,38 +115,37 @@ namespace Stashbox.BuildUp.Expressions
                 initExpression = initExpression.InitMembers(this.memberExpressionBuilder.GetMemberBindings(containerContext, members,
                     serviceRegistration.RegistrationContext, resolutionContext, serviceRegistration.ImplementationType));
 
-            if (methods.Length > 0 || serviceRegistration.RegistrationContext.Initializer != null)
-            {
-                var variable = initExpression.Type.AsVariable();
-                var assign = variable.AssignTo(initExpression);
+            if (methods.Length == 0 && serviceRegistration.RegistrationContext.Initializer == null)
+                return initExpression;
 
-                var lines = new List<Expression> { assign };
+            var variable = initExpression.Type.AsVariable();
+            var assign = variable.AssignTo(initExpression);
 
-                lines.AddRange(this.methodExpressionBuilder.CreateMethodExpressions(containerContext, methods,
-                     serviceRegistration.RegistrationContext, resolutionContext, variable));
+            var lines = new ExpandableArray<Expression> { assign };
 
-                if (serviceRegistration.RegistrationContext.Initializer != null)
-                    lines.Add(serviceRegistration.RegistrationContext.Initializer.AsConstant()
-                        .CallMethod(serviceRegistration.RegistrationContext.Initializer.GetType().GetSingleMethod("Invoke"),
-                            variable, resolutionContext.CurrentScopeParameter.ConvertTo(Constants.ResolverType)));
+            lines.AddRange(this.methodExpressionBuilder.CreateMethodExpressions(containerContext, methods,
+                serviceRegistration.RegistrationContext, resolutionContext, variable));
 
-                lines.Add(variable);
+            if (serviceRegistration.RegistrationContext.Initializer != null)
+                lines.Add(serviceRegistration.RegistrationContext.Initializer.AsConstant()
+                    .CallMethod(serviceRegistration.RegistrationContext.Initializer.GetType().GetSingleMethod("Invoke"),
+                        variable, resolutionContext.CurrentScopeParameter.ConvertTo(Constants.ResolverType)));
 
-                return lines.AsBlock(variable);
-            }
+            lines.Add(variable);
 
-            return initExpression;
+            return lines.AsBlock(variable);
         }
 
         public Expression ConstructExpression(
             IContainerContext containerContext,
-            RegistrationContext registrationContext,
             ResolutionContext resolutionContext,
             Type serviceType)
         {
+            var registrationContext = RegistrationContext.Empty;
             var typeInfo = serviceType.GetTypeInfo();
             var methods = typeInfo.GetUsableMethods();
-            var members = typeInfo.GetUsableMembers(registrationContext, containerContext.ContainerConfiguration);
+            var members = typeInfo.GetUsableMembers(registrationContext,
+                containerContext.ContainerConfiguration);
 
             var initExpression = (Expression)this.methodExpressionBuilder.SelectConstructor(
                 containerContext,
@@ -162,27 +161,24 @@ namespace Stashbox.BuildUp.Expressions
                 initExpression = initExpression.InitMembers(this.memberExpressionBuilder.GetMemberBindings(containerContext, members,
                     registrationContext, resolutionContext, serviceType));
 
-            if (methods.Length > 0)
-            {
-                var variable = initExpression.Type.AsVariable();
-                var assign = variable.AssignTo(initExpression);
+            if (methods.Length == 0) return initExpression;
 
-                var lines = new List<Expression> { assign };
-                lines.AddRange(this.methodExpressionBuilder.CreateMethodExpressions(containerContext, methods,
-                    registrationContext, resolutionContext, variable));
-                lines.Add(variable);
+            var variable = initExpression.Type.AsVariable();
+            var assign = variable.AssignTo(initExpression);
 
-                return lines.AsBlock(variable);
-            }
+            var lines = new ExpandableArray<Expression> { assign };
+            lines.AddRange(this.methodExpressionBuilder.CreateMethodExpressions(containerContext,
+                methods, registrationContext, resolutionContext, variable));
+            lines.Add(variable);
 
-            return initExpression;
+            return lines.AsBlock(variable);
         }
 
         private Expression CreateInitExpression(
             IContainerContext containerContext,
             RegistrationContext registrationContext,
             ResolutionContext resolutionContext,
-            ConstructorInfo[] constructors)
+            IEnumerable<ConstructorInfo> constructors)
         {
             if (registrationContext.SelectedConstructor != null)
             {
@@ -199,10 +195,10 @@ namespace Stashbox.BuildUp.Expressions
 
             var rule = registrationContext.ConstructorSelectionRule ??
                 containerContext.ContainerConfiguration.ConstructorSelectionRule;
-            constructors = rule(constructors).ToArray();
+            constructors = rule(constructors);
 
             return this.methodExpressionBuilder.SelectConstructor(
-                containerContext, registrationContext, resolutionContext, constructors, out var parameters)?.MakeNew(parameters);
+                containerContext, registrationContext, resolutionContext, constructors.CastToArray(), out var parameters)?.MakeNew(parameters);
         }
     }
 }

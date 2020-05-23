@@ -15,7 +15,7 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
         {
             if (member is PropertyInfo property)
             {
-                var setMethod = property.GetSetterMethodOrDefault(true);
+                var setMethod = property.GetSetterMethodOrDefault();
                 if (setMethod == null)
                     return false;
                 generator.EmitMethod(setMethod);
@@ -30,7 +30,7 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
         {
             if (member is PropertyInfo property)
             {
-                var getMethod = property.GetGetterMethodOrDefault(true);
+                var getMethod = property.GetGetterMethodOrDefault();
                 if (getMethod == null)
                     return false;
                 generator.EmitMethod(getMethod);

@@ -46,22 +46,19 @@ namespace Stashbox.BuildUp.Expressions
             var checkedConstructors = new Dictionary<MethodBase, TypeInformation>();
 
             var length = constructors.Length;
-            for (int i = 0; i < length; i++)
+            for (var i = 0; i < length; i++)
             {
                 var constructor = constructors[i];
-                if (!this.TryBuildMethod(constructor, registrationContext, resolutionContext, containerContext, out var failedParameter, out parameterExpressions, true))
-                {
-                    checkedConstructors.Add(constructor, failedParameter);
-                    continue;
-                }
+                if (this.TryBuildMethod(constructor, registrationContext, resolutionContext, containerContext,
+                    out var failedParameter, out parameterExpressions, true)) return constructor;
 
-                return constructor;
+                checkedConstructors.Add(constructor, failedParameter);
             }
 
             if (containerContext.ContainerConfiguration.UnknownTypeResolutionEnabled)
-                for (int i = 0; i < length; i++)
+                for (var i = 0; i < length; i++)
                 {
-                    ConstructorInfo constructor = constructors[i];
+                    var constructor = constructors[i];
                     if (this.TryBuildMethod(constructor, registrationContext, resolutionContext, containerContext, out _, out parameterExpressions))
                         return constructor;
                 }
@@ -81,21 +78,19 @@ namespace Stashbox.BuildUp.Expressions
 
         public IEnumerable<Expression> CreateMethodExpressions(
             IContainerContext containerContext,
-            MethodInfo[] injectionMethods,
+            IEnumerable<MethodInfo> methods,
             RegistrationContext registrationContext,
             ResolutionContext resolutionContext,
             Expression instance)
         {
-            var length = injectionMethods.Length;
-            for (int i = 0; i < length; i++)
+            foreach (var method in methods)
             {
-                var method = injectionMethods[i];
                 var parameters = method.GetParameters();
-                var paramLength = parameters.Length;
-                if (paramLength == 0)
+                if (parameters.Length == 0)
                     yield return instance.CallMethod(method);
                 else
-                    yield return instance.CallMethod(method, this.CreateParameterExpressionsForMethod(containerContext,
+                    yield return instance.CallMethod(method,
+                        this.CreateParameterExpressionsForMethod(containerContext,
                         registrationContext, resolutionContext, method));
             }
         }
@@ -107,7 +102,7 @@ namespace Stashbox.BuildUp.Expressions
             IContainerContext containerContext,
             out TypeInformation failedParameter,
             out Expression[] parameterExpressions,
-            bool skipUknownResolution = false)
+            bool skipUnknownResolution = false)
         {
             var parameters = method.GetParameters();
             var paramLength = parameters.Length;
@@ -118,13 +113,12 @@ namespace Stashbox.BuildUp.Expressions
                 var parameter = parameters[i].AsTypeInformation(method.DeclaringType, registrationContext, containerContext.ContainerConfiguration);
 
                 parameterExpressions[i] = this.resolutionStrategy.BuildResolutionExpression(containerContext,
-                    resolutionContext, parameter, registrationContext.InjectionParameters, skipUknownResolution);
+                    resolutionContext, parameter, registrationContext.InjectionParameters, skipUnknownResolution);
 
-                if (parameterExpressions[i] == null)
-                {
-                    failedParameter = parameter;
-                    return false;
-                }
+                if (parameterExpressions[i] != null) continue;
+
+                failedParameter = parameter;
+                return false;
             }
 
             return true;

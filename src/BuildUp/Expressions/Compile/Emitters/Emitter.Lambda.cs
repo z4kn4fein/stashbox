@@ -10,16 +10,28 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
     {
         private static bool TryEmit(this LambdaExpression expression, ILGenerator generator, CompilerContext context, params ParameterExpression[] parameters)
         {
-            var lambdaClosureIndex = context.StoredExpressions.GetIndex(expression);
+            var lambdaIndex = -1;
+            var lambdaLength = context.NestedLambdas.Length;
+            for (var i = 0; i < lambdaLength; i++)
+            {
+                if (!ReferenceEquals(context.NestedLambdas[i].LambdaExpression, expression)) continue;
+
+                lambdaIndex = i;
+                break;
+            }
+
+            if (lambdaIndex == -1) return false;
+            var lambda = context.NestedLambdas[lambdaIndex];
+
+            var lambdaClosureIndex = lambdaIndex + (context.Target.Constants.Length - context.NestedLambdas.Length);
             if (lambdaClosureIndex == -1) return false;
 
-            var lambdaIndex = context.NestedLambdas.GetIndex(expression);
-            if (lambdaIndex == -1) return false;
-
             generator.Emit(OpCodes.Ldarg_0);
-            generator.Emit(OpCodes.Ldfld, context.Target.Fields[lambdaClosureIndex]);
+            generator.Emit(OpCodes.Ldfld, Closure.ConstantsField);
+            generator.EmitInteger(lambdaClosureIndex);
+            generator.Emit(OpCodes.Ldelem_Ref);
 
-            if (context.HasCapturedVariablesArgument)
+            if (lambda.UsesCapturedArgument)
             {
                 if (!context.IsNestedLambda)
                     generator.Emit(OpCodes.Ldloc, context.CapturedArgumentsHolderVariable);
@@ -27,25 +39,24 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
                     generator.Emit(OpCodes.Ldarg_1);
             }
 
-            var lambdaExpression = context.NestedLambdas[lambdaIndex];
-            var variables = context.NestedLambdaVariables[lambdaIndex];
-
+            var lambdaExpression = lambda.LambdaExpression;
+            var variables = lambda.ParameterExpressions;
             var nestedParameters = lambdaExpression.Parameters.CastToArray();
 
-            var nestedContext = context.CreateNew(variables, true);
+            var nestedContext = context.CreateNew(variables, true, lambda.UsesCapturedArgument);
 
             var method = new DynamicMethod(string.Empty,
                     lambdaExpression.ReturnType,
                     nestedContext.HasCapturedVariablesArgument
-                        ? new[] { nestedContext.Target.TargetType, nestedContext.CapturedArgumentsHolder.TargetType }.Append(nestedParameters.GetTypes())
-                        : nestedContext.Target.TargetType.Append(nestedParameters.GetTypes()),
-                    nestedContext.Target.TargetType,
+                        ? new[] { Utils.ClosureType, Utils.ObjectArrayType }.Append(nestedParameters.GetTypes())
+                        : Utils.ClosureType.Append(nestedParameters.GetTypes()),
+                    Utils.ClosureType,
                     true);
 
             var nestedGenerator = method.GetILGenerator();
 
             if (variables.Length > 0)
-                nestedContext.LocalBuilders = BuildLocals(variables, nestedGenerator);
+                nestedContext.LocalBuilders = variables.BuildLocals(nestedGenerator);
 
             if (nestedContext.HasCapturedVariablesArgument)
                 nestedGenerator.CopyParametersToCapturedArgumentsIfAny(nestedContext, nestedParameters);
@@ -57,22 +68,22 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
 
             if (nestedContext.HasCapturedVariablesArgument)
             {
-                var delegateArgs = nestedContext.CapturedArgumentsHolder.TargetType
+                var delegateArgs = Utils.ObjectArrayType
                     .Append(nestedParameters.GetTypes())
                     .Append(lambdaExpression.ReturnType);
 
                 var resultDelegate = method.CreateDelegate(Utils.MapDelegateType(delegateArgs),
-                    nestedContext.Target.Target);
+                    nestedContext.Target);
 
-                nestedContext.Target.Fields[lambdaClosureIndex].SetValue(nestedContext.Target.Target, resultDelegate);
+                nestedContext.Target.Constants[lambdaClosureIndex] = resultDelegate;
 
                 if (nestedContext.HasCapturedVariablesArgument)
                     generator.EmitMethod(Utils.GetMapperMethodInfo(delegateArgs));
             }
             else
             {
-                var resultDelegate = method.CreateDelegate(lambdaExpression.Type, nestedContext.Target.Target);
-                nestedContext.Target.Fields[lambdaClosureIndex].SetValue(nestedContext.Target.Target, resultDelegate);
+                var resultDelegate = method.CreateDelegate(lambdaExpression.Type, nestedContext.Target);
+                nestedContext.Target.Constants[lambdaClosureIndex] = resultDelegate;
             }
 
             return true;

@@ -25,9 +25,9 @@ namespace Stashbox.Resolution
             if (typeInformation.Type == Constants.ServiceProviderType)
                 return resolutionContext.CurrentScopeParameter.ConvertTo(Constants.ServiceProviderType);
 #endif
-            if (resolutionContext.ParameterExpressions.Count > 0)
+            if (resolutionContext.ParameterExpressions.Length > 0)
             {
-                var length = resolutionContext.ParameterExpressions.Count;
+                var length = resolutionContext.ParameterExpressions.Length;
                 for (var i = length; i-- > 0;)
                 {
                     var parameters = resolutionContext.ParameterExpressions[i]
@@ -80,9 +80,10 @@ namespace Stashbox.Resolution
 
         public Expression BuildResolutionExpressionUsingResolvers(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext, bool forceSkipUnknownTypeCheck = false)
         {
-            for (var i = 0; i < this.resolverRepository.Length; i++)
+            var length = this.resolverRepository.Length;
+            for (var i = 0; i < length; i++)
             {
-                var item = this.resolverRepository.Get(i);
+                var item = this.resolverRepository[i];
                 if (item.CanUseForResolution(containerContext, typeInfo, resolutionContext))
                     return item.GetExpression(containerContext, this, typeInfo, resolutionContext);
             }
@@ -97,8 +98,9 @@ namespace Stashbox.Resolution
 
         public bool CanResolveType(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext)
         {
-            for (var i = 0; i < this.resolverRepository.Length; i++)
-                if (this.resolverRepository.Get(i).CanUseForResolution(containerContext, typeInfo, resolutionContext))
+            var length = this.resolverRepository.Length;
+            for (var i = 0; i < length; i++)
+                if (this.resolverRepository[i].CanUseForResolution(containerContext, typeInfo, resolutionContext))
                     return true;
 
             return this.parentContainerResolver.CanUseForResolution(containerContext, typeInfo, resolutionContext) ||
@@ -116,9 +118,10 @@ namespace Stashbox.Resolution
 
         private Expression[] BuildAllResolverExpressionsUsingResolvers(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext)
         {
-            for (var i = 0; i < this.multiServiceResolverRepository.Length; i++)
+            var length = this.multiServiceResolverRepository.Length;
+            for (var i = 0; i < length; i++)
             {
-                var item = this.multiServiceResolverRepository.Get(i);
+                var item = this.multiServiceResolverRepository[i];
                 if (item.CanUseForResolution(containerContext, typeInfo, resolutionContext))
                     return item.GetAllExpressions(containerContext, this, typeInfo, resolutionContext);
             }

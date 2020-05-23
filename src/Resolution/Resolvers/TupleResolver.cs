@@ -34,7 +34,7 @@ namespace Stashbox.Resolution.Resolvers
             var expressions = new Expression[length];
             for (var i = 0; i < length; i++)
             {
-                var argumentInfo = new TypeInformation { Type = args[i] };
+                var argumentInfo = typeInfo.Clone(args[i]);
                 var expr = resolutionStrategy.BuildResolutionExpression(containerContext, resolutionContext, argumentInfo);
 
                 if (expr != null)

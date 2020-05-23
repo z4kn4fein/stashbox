@@ -8,7 +8,7 @@
     <Authors>Peter Csajtai</Authors>
     <Company>Peter Csajtai</Company>
     <Product>Stashbox</Product>
-    <Copyright>Copyright © Peter Csajtai 2017</Copyright>
+    <Copyright>Copyright © Peter Csajtai 2020</Copyright>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageProjectUrl>https://github.com/z4kn4fein/stashbox</PackageProjectUrl>
     <PackageIconUrl>https://goo.gl/I3hRfL</PackageIconUrl>
@@ -28,13 +28,19 @@
     <LangVersion>latest</LangVersion>
     <PackageReleaseNotes>
       <![CDATA[
-- Fix: Nested named resolution could cause stack overflow
-- Fix: Improve support for Assemblies loaded into Collectible AssemblyLoadContexts
+- Fix: Nested named resolution could cause stack overflow #74
+- Fix: Improve support for Assemblies loaded into Collectible AssemblyLoadContexts #73
+- Fix: Unknown type resolution does not work recursively #77
+- Fix: Exception when building expressions #76
+- Fix: Bad performance #79
+- Fix: Expected override behaviour not working with scopes #80
 
 Breaking changes:
-- WithUniqueRegistrationIdentifiers() option is removed, WithRegistrationBehavior() is added instead
-- Removed the legacy container extension functionality
-- Removed the support of PCL v259
+- WithUniqueRegistrationIdentifiers() option is removed, WithRegistrationBehavior() is added instead.
+- Removed the GetScopedInstace method from the ResolutionScope, they are treated as expression overrides now.
+- Lifetimes became stateless, their API changed.
+- Removed the legacy container extension functionality.
+- Removed the support of PCL v259.
     ]]>
     </PackageReleaseNotes>
     <Configurations>Debug;Release;Benchmark</Configurations>

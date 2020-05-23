@@ -1,6 +1,8 @@
 ﻿#if IL_EMIT
+using Stashbox.Utils;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection.Emit;
 
@@ -59,28 +61,21 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
         {
             return !context.HasClosure
                 ? new DynamicMethod(string.Empty, returnType, parameters.GetTypes(), typeof(ExpressionEmitter), true)
-                : new DynamicMethod(string.Empty, returnType, context.Target.TargetType.Append(parameters.GetTypes()), context.Target.TargetType, true);
+                : new DynamicMethod(string.Empty, returnType, Utils.ClosureType.Append(parameters.GetTypes()), Utils.ClosureType, true);
         }
 
         private static bool TryEmit(this IList<Expression> expressions, ILGenerator generator, CompilerContext context, params ParameterExpression[] parameters)
         {
-            for (var i = 0; i < expressions.Count; i++)
+            var length = expressions.Count;
+            for (var i = 0; i < length; i++)
                 if (!expressions[i].TryEmit(generator, context, parameters))
                     return false;
 
             return true;
         }
 
-        internal static LocalBuilder[] BuildLocals(Expression[] variables, ILGenerator ilGenerator)
-        {
-            var length = variables.Length;
-            var locals = new LocalBuilder[length];
-
-            for (var i = 0; i < length; i++)
-                locals[i] = ilGenerator.DeclareLocal(variables[i].Type);
-
-            return locals;
-        }
+        internal static ExpandableArray<LocalBuilder> BuildLocals(this IEnumerable<Expression> variables, ILGenerator ilGenerator) =>
+            ExpandableArray<LocalBuilder>.FromEnumerable(variables.Select(v => ilGenerator.DeclareLocal(v.Type)));
     }
 }
 #endif

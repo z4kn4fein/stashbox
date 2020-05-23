@@ -1,6 +1,7 @@
 ﻿#if IL_EMIT
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Reflection.Emit;
 
 namespace Stashbox.BuildUp.Expressions.Compile.Emitters
@@ -13,22 +14,25 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
             {
                 case ExpressionType.Parameter:
 
-                    var localIndex = context.DefinedVariables.GetIndex(expression.Left);
+                    var localIndex = context.DefinedVariables.IndexOfReference(expression.Left);
                     if (localIndex == -1) return false;
 
                     if (!expression.Right.TryEmit(generator, context, parameters))
                         return false;
-                        
+
                     generator.Emit(OpCodes.Stloc, context.LocalBuilders[localIndex]);
 
                     if (!context.HasCapturedVariablesArgument) return true;
 
-                    var paramIndex = context.CapturedArguments.GetIndex(expression.Left);
+                    var paramIndex = context.CapturedArguments.IndexOfReference(expression.Left);
                     if (paramIndex == -1) return true;
 
                     generator.LoadCapturedArgumentHolder(context);
+                    generator.EmitInteger(paramIndex);
                     generator.Emit(OpCodes.Ldloc, context.LocalBuilders[localIndex]);
-                    generator.Emit(OpCodes.Stfld, context.CapturedArgumentsHolder.Fields[paramIndex]);
+                    if (expression.Type.GetTypeInfo().IsValueType)
+                        generator.Emit(OpCodes.Box, expression.Type);
+                    generator.Emit(OpCodes.Stelem_Ref);
 
                     return true;
 
@@ -38,10 +42,7 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
                     if (memberExpression.Expression != null && !memberExpression.Expression.TryEmit(generator, context, parameters))
                         return false;
 
-                    if (!expression.Right.TryEmit(generator, context, parameters))
-                        return false;
-
-                    return memberExpression.Member.EmitMemberAssign(generator);
+                    return expression.Right.TryEmit(generator, context, parameters) && memberExpression.Member.EmitMemberAssign(generator);
 
                 default:
                     return false;

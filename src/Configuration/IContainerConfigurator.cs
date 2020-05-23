@@ -44,10 +44,10 @@ namespace Stashbox
         IContainerConfigurator WithCircularDependencyWithLazy();
 
         /// <summary>
-        /// Enables the optional and default value injection.
+        /// Enables the default value injection.
         /// </summary>
         /// <returns>The container configurator.</returns>
-        IContainerConfigurator WithOptionalAndDefaultValueInjection();
+        IContainerConfigurator WithDefaultValueInjection();
 
         /// <summary>
         /// Enables the unknown type resolution.

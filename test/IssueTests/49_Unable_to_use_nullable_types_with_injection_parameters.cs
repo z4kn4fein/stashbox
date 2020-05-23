@@ -10,7 +10,7 @@ namespace Stashbox.Tests.IssueTests
         public void Unable_to_use_nullable_types_with_injection_parameters()
         {
             var container = new StashboxContainer(config => config
-                .WithOptionalAndDefaultValueInjection()
+                .WithDefaultValueInjection()
                 .WithCircularDependencyTracking());
 
             var someInt = 123;
@@ -32,7 +32,7 @@ namespace Stashbox.Tests.IssueTests
         public void Unable_to_use_nullable_types_with_injection_parameters_member()
         {
             var container = new StashboxContainer(config => config
-                .WithOptionalAndDefaultValueInjection()
+                .WithDefaultValueInjection()
                 .WithMemberInjectionWithoutAnnotation()
                 .WithCircularDependencyTracking());
 

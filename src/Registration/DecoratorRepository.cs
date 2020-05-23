@@ -1,18 +1,13 @@
-﻿using Stashbox.Entity;
-using Stashbox.Utils;
+﻿using Stashbox.Utils;
 using System;
+using System.Collections.Generic;
 
 namespace Stashbox.Registration
 {
     internal class DecoratorRepository : IDecoratorRepository
     {
-        private ImmutableTree<Type, ImmutableArray<Type, IServiceRegistration>> repository;
-        
-        public DecoratorRepository()
-        {
-            this.repository = ImmutableTree<Type, ImmutableArray<Type, IServiceRegistration>>.Empty;
-        }
-        
+        private ImmutableTree<Type, ImmutableArray<Type, IServiceRegistration>> repository = ImmutableTree<Type, ImmutableArray<Type, IServiceRegistration>>.Empty;
+
         public void AddDecorator(Type type, IServiceRegistration serviceRegistration, bool remap, bool replace)
         {
             var newRepository = new ImmutableArray<Type, IServiceRegistration>(serviceRegistration.ImplementationType, serviceRegistration);
@@ -25,8 +20,8 @@ namespace Stashbox.Registration
                     repo.AddOrUpdate(t1, t2, (oldValue, newValue) => oldValue
                         .AddOrUpdate(t3.ImplementationType, t3, t4)), type, newRepository, serviceRegistration, replace);
         }
-        
-        public KeyValue<Type, IServiceRegistration>[] GetDecoratorsOrDefault(Type type) =>
-             this.repository.GetOrDefault(type)?.Repository;
+
+        public IEnumerable<IServiceRegistration> GetDecoratorsOrDefault(Type type) =>
+             this.repository.GetOrDefault(type);
     }
 }

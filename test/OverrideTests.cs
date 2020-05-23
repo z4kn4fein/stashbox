@@ -267,6 +267,32 @@ namespace Stashbox.Tests
             Assert.Equal("test", inst.Name);
         }
 
+        [Fact]
+        public void OverrideTests_Resolve_Func()
+        {
+            using var container = new StashboxContainer();
+            container.RegisterFunc<string, ITest1>((name, dr) => new Test1 { Name = name });
+            container.Register<Test7>();
+
+            var inst = container.Resolve<Test7>();
+
+            Assert.NotNull(inst);
+            Assert.Equal("testfromfunc", inst.Name);
+        }
+
+        [Fact]
+        public void OverrideTests_Resolve_Func_From_Parameter()
+        {
+            using var container = new StashboxContainer();
+            container.Register<Test8>().Register<Test9>();
+
+            container.Resolve<Test8>();
+            var inst = container.Resolve<Test9>();
+
+            Assert.NotNull(inst);
+            Assert.Equal(nameof(Test9), inst.Name);
+        }
+
         interface ITest1 { string Name { get; set; } }
 
         interface ITest2 { string Name { get; set; } }
@@ -336,6 +362,36 @@ namespace Stashbox.Tests
                 Shield.EnsureNotNull(test, nameof(test));
                 this.MethodInvoked = true;
                 Name += test.Name;
+            }
+        }
+
+        class Test7
+        {
+            public string Name { get; set; }
+
+            public Test7(Func<string, ITest1> func)
+            {
+                this.Name = func("testfromfunc").Name;
+            }
+        }
+
+        class Test8
+        {
+            public string Name { get; set; }
+
+            public Test8(string name = "")
+            {
+                this.Name = name;
+            }
+        }
+
+        class Test9
+        {
+            public string Name { get; set; }
+
+            public Test9(Func<string, Test8> func)
+            {
+                this.Name = func(nameof(Test9)).Name;
             }
         }
     }

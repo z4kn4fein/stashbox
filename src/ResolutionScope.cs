@@ -1,7 +1,6 @@
 ﻿using Stashbox.BuildUp.Expressions;
 using Stashbox.Entity;
 using Stashbox.Exceptions;
-using Stashbox.Registration;
 using Stashbox.Resolution;
 using Stashbox.Utils;
 using System;
@@ -48,7 +47,7 @@ namespace Stashbox
         private ImmutableTree<Type, ImmutableTree<object, object>> scopedInstances = ImmutableTree<Type, ImmutableTree<object, object>>.Empty;
         private ImmutableTree<ThreadLocal<bool>> circularDependencyBarrier = ImmutableTree<ThreadLocal<bool>>.Empty;
 
-        private readonly DelegateCache delegateCache;
+        private DelegateCache delegateCache;
 
         public object Name { get; }
 
@@ -80,19 +79,27 @@ namespace Stashbox
 
         public object Resolve(Type typeFrom, bool nullResultAllowed = false, object[] dependencyOverrides = null)
         {
+            if (dependencyOverrides != null)
+                return this.Activate(new ResolutionContext(this.GetActiveScopeNames(), this.containerContext,
+                    nullResultAllowed, this.ProcessDependencyOverrides(dependencyOverrides)), typeFrom);
+
             var cachedFactory = this.delegateCache.ServiceDelegates.GetOrDefault(typeFrom);
             return cachedFactory != null
                 ? cachedFactory(this)
-                : this.Activate(ResolutionContext.New(this.GetActiveScopeNames(), this.containerContext,
+                : this.Activate(new ResolutionContext(this.GetActiveScopeNames(), this.containerContext,
                     nullResultAllowed, this.ProcessDependencyOverrides(dependencyOverrides)), typeFrom);
         }
 
         public object Resolve(Type typeFrom, object name, bool nullResultAllowed = false, object[] dependencyOverrides = null)
         {
+            if (dependencyOverrides != null)
+                return this.Activate(new ResolutionContext(this.GetActiveScopeNames(), this.containerContext,
+                    nullResultAllowed, this.ProcessDependencyOverrides(dependencyOverrides)), typeFrom);
+
             var cachedFactory = this.delegateCache.ServiceDelegates.GetOrDefault(name);
             return cachedFactory != null
                 ? cachedFactory(this)
-                : this.Activate(ResolutionContext.New(this.GetActiveScopeNames(), this.containerContext,
+                : this.Activate(new ResolutionContext(this.GetActiveScopeNames(), this.containerContext,
                     nullResultAllowed, this.ProcessDependencyOverrides(dependencyOverrides)), typeFrom, name);
         }
 
@@ -136,15 +143,16 @@ namespace Stashbox
             if (!withoutDisposalTracking && instance is IDisposable disposable)
                 this.AddDisposableTracking(disposable);
 
+            this.delegateCache = new DelegateCache();
+
             return this;
         }
 
         public TTo BuildUp<TTo>(TTo instance)
         {
             var typeTo = instance.GetType();
-            var resolutionContext = ResolutionContext.New(this.GetActiveScopeNames(), this.containerContext);
+            var resolutionContext = new ResolutionContext(this.GetActiveScopeNames(), this.containerContext);
             var expression = this.expressionBuilder.ConstructBuildUpExpression(this.containerContext,
-                RegistrationContext.Empty,
                 resolutionContext,
                 instance.AsConstant(),
                 typeTo);
@@ -156,11 +164,10 @@ namespace Stashbox
             if (!type.IsResolvableType())
                 throw new ArgumentException($"The given type ({type.FullName}) could not be activated on the fly by the container.");
 
-            var resolutionContext = ResolutionContext.New(this.GetActiveScopeNames(),
+            var resolutionContext = new ResolutionContext(this.GetActiveScopeNames(),
                 this.containerContext, dependencyOverrides: this.ProcessDependencyOverrides(arguments));
             var expression = this.expressionBuilder.ConstructExpression(
                 this.containerContext,
-                RegistrationContext.Empty,
                 resolutionContext,
                 type);
             return expression.CompileDelegate(resolutionContext, this.containerContext.ContainerConfiguration)(this);
@@ -207,20 +214,16 @@ namespace Stashbox
             this.delegateCache.FactoryDelegates = ImmutableTree<object, Func<IResolutionScope, Delegate>>.Empty;
         }
 
-        public List<object> GetActiveScopeNames()
+        public IEnumerable<object> GetActiveScopeNames()
         {
-            var names = new List<object>();
             IResolutionScope current = this;
-
             while (current != null)
             {
                 if (current.Name != null)
-                    names.Add(current.Name);
+                    yield return current.Name;
 
                 current = current.ParentScope;
             }
-
-            return names;
         }
 
         public void CheckRuntimeCircularDependencyBarrier(int key, Type type)
@@ -288,7 +291,7 @@ namespace Stashbox
                 if (registrationFactory == null)
                     return null;
 
-                if (resolutionContext.ShouldCacheFactoryDelegate)
+                if (resolutionContext.FactoryDelegateCacheEnabled)
                     Swap.SwapValue(ref this.delegateCache.ServiceDelegates, (t1, t2, t3, t4, c) =>
                     c.AddOrUpdate(t1, t2), name ?? type, registrationFactory, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
 
@@ -305,7 +308,7 @@ namespace Stashbox
 
             var factory = expr.CompileDelegate(resolutionContext, this.containerContext.ContainerConfiguration);
 
-            if (resolutionContext.ShouldCacheFactoryDelegate)
+            if (resolutionContext.FactoryDelegateCacheEnabled)
                 Swap.SwapValue(ref this.delegateCache.ServiceDelegates, (t1, t2, t3, t4, c) =>
                 c.AddOrUpdate(t1, t2), name ?? type, factory, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
 
@@ -317,8 +320,9 @@ namespace Stashbox
             object name,
             bool nullResultAllowed)
         {
-            var resolutionContext = ResolutionContext.New(this.GetActiveScopeNames(), this.containerContext, nullResultAllowed);
-            resolutionContext.AddParameterExpressions(parameterTypes.Select(p => p.AsParameter()).ToArray());
+            var resolutionContext = new ResolutionContext(this.GetActiveScopeNames(), this.containerContext,
+                nullResultAllowed);
+            resolutionContext.AddParameterExpressions(parameterTypes.Select(p => p.AsParameter()));
 
             var typeInfo = new TypeInformation { Type = type, DependencyName = name };
             var registration = this.containerContext.RegistrationRepository.GetRegistrationOrDefault(typeInfo, resolutionContext);
@@ -346,15 +350,15 @@ namespace Stashbox
             if (dependencyOverrides == null && this.scopedInstances.IsEmpty)
                 return null;
 
-            var result = HashTree<Type, HashTree<object, Expression>>.Empty;
+            var result = new HashTree<Type, HashTree<object, Expression>>();
 
             if (!this.scopedInstances.IsEmpty)
             {
                 foreach (var scopedInstance in this.scopedInstances.Walk())
                 {
-                    var scopedInstanceSubTree = HashTree<object, Expression>.Empty;
-                    foreach (var namedScopedInstace in scopedInstance.Value.Walk())
-                        scopedInstanceSubTree.Add(namedScopedInstace.Key, namedScopedInstace.Value.AsConstant());
+                    var scopedInstanceSubTree = new HashTree<object, Expression>();
+                    foreach (var namedScopedInstance in scopedInstance.Value.Walk())
+                        scopedInstanceSubTree.Add(namedScopedInstance.Key, namedScopedInstance.Value.AsConstant(), false);
 
                     result.Add(scopedInstance.Key, scopedInstanceSubTree);
                 }
@@ -371,7 +375,7 @@ namespace Stashbox
                 if (subtree == null)
                     result.Add(type, new HashTree<object, Expression>(type, expression));
                 else
-                    subtree.Add(type, expression);
+                    subtree.Add(type, expression, false);
 
                 foreach (var baseType in type.GetRegisterableInterfaceTypes().Concat(type.GetRegisterableBaseTypes()))
                 {
@@ -379,7 +383,7 @@ namespace Stashbox
                     if (subtree == null)
                         result.Add(baseType, new HashTree<object, Expression>(baseType, expression));
                     else
-                        subtree.Add(baseType, expression);
+                        subtree.Add(baseType, expression, false);
                 }
             }
 

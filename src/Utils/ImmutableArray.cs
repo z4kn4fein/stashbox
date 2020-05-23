@@ -30,16 +30,13 @@ namespace Stashbox.Utils
 
         public ImmutableArray()
         {
-            this.repository = new TValue[0];
+            this.repository = Constants.EmptyArray<TValue>();
         }
-        
+
         public ImmutableArray<TValue> Add(TValue value) =>
             new ImmutableArray<TValue>(value, this.repository);
 
         public TValue this[int i] => this.repository[i];
-
-        public TValue Get(int index) =>
-            this.repository[index];
 
         IEnumerator IEnumerable.GetEnumerator() => this.repository.GetEnumerator();
 
@@ -54,11 +51,9 @@ namespace Stashbox.Utils
     {
         public static readonly ImmutableArray<TKey, TValue> Empty = new ImmutableArray<TKey, TValue>();
 
-        public KeyValue<TKey, TValue>[] Repository { get; }
+        public KeyValue<TKey, TValue>[] Repository;
 
-        public TValue Last => this.Repository[this.Length - 1].Value;
-
-        public int Length { get; }
+        public int Length;
 
         private ImmutableArray(KeyValue<TKey, TValue> item, KeyValue<TKey, TValue>[] old)
         {
@@ -88,26 +83,24 @@ namespace Stashbox.Utils
 
         public ImmutableArray()
         {
-            this.Repository = new KeyValue<TKey, TValue>[0];
+            this.Repository = Constants.EmptyArray<KeyValue<TKey, TValue>>();
         }
-
-        public TValue this[int i] => this.Repository[i].Value;
 
         public ImmutableArray<TKey, TValue> Add(TKey key, TValue value) =>
            new ImmutableArray<TKey, TValue>(new KeyValue<TKey, TValue>(key, value), this.Repository);
 
-        public ImmutableArray<TKey, TValue> AddOrUpdate(TKey key, TValue value, bool allowUpdate = true, Action<TValue, TValue> updateAction = null)
+        public ImmutableArray<TKey, TValue> AddOrUpdate(TKey key, TValue value, bool byRef, bool allowUpdate = true, Action<TValue, TValue> updateAction = null)
         {
-            var length = this.Repository.Length;
+            var length = this.Length;
             var count = length - 1;
-            while (count >= 0 && !Equals(this.Repository[count].Key, key)) count--;
+            while (count >= 0 && (byRef && !ReferenceEquals(this.Repository[count].Key, key) || !byRef && !Equals(this.Repository[count].Key, key))) count--;
 
             if (count == -1)
                 return this.Add(key, value);
 
             if (!allowUpdate)
                 return this;
-            
+
             var newRepository = new KeyValue<TKey, TValue>[length];
             Array.Copy(this.Repository, newRepository, length);
 
@@ -118,13 +111,13 @@ namespace Stashbox.Utils
         }
 
         [MethodImpl(Constants.Inline)]
-        public TValue GetOrDefault(TKey key)
+        public TValue GetOrDefault(TKey key, bool byRef)
         {
-            var length = this.Repository.Length;
+            var length = this.Length;
             for (var i = 0; i < length; i++)
             {
                 var item = this.Repository[i];
-                if (item.Key.Equals(key))
+                if (byRef && ReferenceEquals(item.Key, key) || !byRef && Equals(item.Key, key))
                     return item.Value;
             }
 

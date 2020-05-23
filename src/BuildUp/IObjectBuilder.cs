@@ -23,6 +23,6 @@ namespace Stashbox.BuildUp
         /// <summary>
         /// When it's true, the constructed expression should be processed by the lifetime managers, otherwise they should bypass on it.
         /// </summary>
-        bool ResultShouldBeLifetimeManaged { get; }
+        bool ProducesLifetimeManageableOutput { get; }
     }
 }

@@ -6,7 +6,7 @@ namespace Stashbox.Entity
     /// <summary>
     /// Represents type information about a dependency.
     /// </summary>
-    public struct TypeInformation
+    public class TypeInformation
     {
         /// <summary>
         /// The reflected type of the dependency.
@@ -43,9 +43,11 @@ namespace Stashbox.Entity
         /// </summary>
         public object DefaultValue { get; internal set; }
 
-        /// <summary>
-        /// Property or field.
-        /// </summary>
-        public MemberType MemberType { get; internal set; }
+        internal TypeInformation Clone(Type type)
+        {
+            var clone = (TypeInformation)this.MemberwiseClone();
+            clone.Type = type;
+            return clone;
+        }
     }
 }

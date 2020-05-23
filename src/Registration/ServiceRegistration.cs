@@ -51,9 +51,6 @@ namespace Stashbox.Registration
         public bool HasCondition { get; }
 
         /// <inheritdoc />
-        public bool ShouldCacheExpressionInResolutionRequest { get; }
-
-        /// <inheritdoc />
         public IObjectBuilder ObjectBuilder { get; }
 
         internal ServiceRegistration(Type implementationType, ContainerConfiguration containerConfiguration,
@@ -89,15 +86,18 @@ namespace Stashbox.Registration
             this.HasResolutionConditionAndMatch(typeInfo);
 
         /// <inheritdoc />
-        public bool CanInjectIntoNamedScope(IEnumerable<object> scopeNames) => scopeNames.Last() == this.RegistrationContext.NamedScopeRestrictionIdentifier;
+        public bool CanInjectIntoNamedScope(IEnumerable<object> scopeNames) =>
+            scopeNames.Last() == this.RegistrationContext.NamedScopeRestrictionIdentifier;
 
         /// <inheritdoc />
         public Expression GetExpression(IContainerContext containerContext, ResolutionContext resolutionContext, Type resolveType)
         {
             if (this.RegistrationContext.FactoryCacheDisabled)
-                resolutionContext.ShouldCacheFactoryDelegate = false;
+                resolutionContext.FactoryDelegateCacheEnabled = false;
 
-            return this.RegistrationContext.Lifetime.GetExpression(containerContext, this, resolutionContext, resolveType);
+            return !this.ObjectBuilder.ProducesLifetimeManageableOutput
+                ? this.ObjectBuilder.GetExpression(containerContext, this, resolutionContext, resolveType)
+                : this.RegistrationContext.Lifetime.GetExpression(containerContext, this, resolutionContext, resolveType);
         }
 
         /// <inheritdoc />

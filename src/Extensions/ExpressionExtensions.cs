@@ -32,10 +32,9 @@ namespace System.Linq.Expressions
 
             if (!resolutionContext.DefinedVariables.IsEmpty)
             {
-                var instructions = new List<Expression>(resolutionContext.SingleInstructions) { expression };
-                expression = Expression.Block(resolutionContext.DefinedVariables.WalkOnValues(), instructions);
+                resolutionContext.SingleInstructions.Add(expression);
+                expression = Expression.Block(resolutionContext.DefinedVariables.WalkOnValues(), resolutionContext.SingleInstructions);
             }
-
 #if IL_EMIT
             if (containerConfiguration.ForceUseMicrosoftExpressionCompiler ||
                 !expression.TryEmit(out Delegate factory, typeof(Func<IResolutionScope, object>), typeof(object),
@@ -77,8 +76,8 @@ namespace System.Linq.Expressions
         {
             if (!resolutionContext.DefinedVariables.IsEmpty)
             {
-                var instructions = new List<Expression>(resolutionContext.SingleInstructions) { expression };
-                expression = Expression.Block(resolutionContext.DefinedVariables.WalkOnValues(), instructions);
+                resolutionContext.SingleInstructions.Add(expression);
+                expression = Expression.Block(resolutionContext.DefinedVariables.WalkOnValues(), resolutionContext.SingleInstructions);
             }
 
 #if IL_EMIT
@@ -157,7 +156,7 @@ namespace System.Linq.Expressions
         /// <param name="expressions">The expressions.</param>
         /// <param name="variables">The variables.</param>
         /// <returns>The block expression.</returns>
-        public static BlockExpression AsBlock(this IList<Expression> expressions, params ParameterExpression[] variables) =>
+        public static BlockExpression AsBlock(this IEnumerable<Expression> expressions, params ParameterExpression[] variables) =>
             Expression.Block(variables, expressions);
 
         /// <summary>

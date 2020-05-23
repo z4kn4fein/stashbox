@@ -55,7 +55,7 @@ namespace Stashbox
         /// Gets the names of the already opened scopes.
         /// </summary>
         /// <returns>The scope names.</returns>
-        List<object> GetActiveScopeNames();
+        IEnumerable<object> GetActiveScopeNames();
 
         /// <summary>
         /// Called by every node of the internal graph when the <see cref="ContainerConfiguration.RuntimeCircularDependencyTrackingEnabled"/> is true.

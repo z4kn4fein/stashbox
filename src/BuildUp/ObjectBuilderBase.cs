@@ -2,14 +2,13 @@
 using Stashbox.Resolution;
 using Stashbox.Utils;
 using System;
-using System.Collections.Generic;
 using System.Linq.Expressions;
 
 namespace Stashbox.BuildUp
 {
     internal abstract class ObjectBuilderBase : IObjectBuilder
     {
-        public virtual bool ResultShouldBeLifetimeManaged => true;
+        public virtual bool ProducesLifetimeManageableOutput => true;
 
         public Expression GetExpression(IContainerContext containerContext, IServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType)
         {
@@ -33,13 +32,10 @@ namespace Stashbox.BuildUp
             if (expression == null)
                 return null;
 
-            var length = decorators.Length;
-
-            for (int i = 0; i < length; i++)
+            foreach (var decorator in decorators)
             {
-                var decorator = decorators[i];
                 resolutionContext.SetExpressionOverride(resolveType, expression);
-                expression = decorator.Value.GetExpression(containerContext, resolutionContext, resolveType);
+                expression = decorator.GetExpression(containerContext, resolutionContext, resolveType);
                 if (expression == null)
                     return null;
             }
@@ -73,14 +69,18 @@ namespace Stashbox.BuildUp
             if (!containerContext.ContainerConfiguration.RuntimeCircularDependencyTrackingEnabled)
                 return expression;
 
-            var exprs = new List<Expression>();
             var variable = resolveType.AsVariable();
-
-            exprs.Add(resolutionContext.CurrentScopeParameter.CallMethod(Constants.CheckRuntimeCircularDependencyBarrierMethod,
-                serviceRegistration.RegistrationId.AsConstant(), resolveType.AsConstant()));
-            exprs.Add(variable.AssignTo(expression));
-            exprs.Add(resolutionContext.CurrentScopeParameter.CallMethod(Constants.ResetRuntimetCircularDependencyBarrierMethod, serviceRegistration.RegistrationId.AsConstant()));
-            exprs.Add(variable);
+            var exprs = new ExpandableArray<Expression>
+            {
+                resolutionContext.CurrentScopeParameter.CallMethod(
+                    Constants.CheckRuntimeCircularDependencyBarrierMethod,
+                    serviceRegistration.RegistrationId.AsConstant(), resolveType.AsConstant()),
+                variable.AssignTo(expression),
+                resolutionContext.CurrentScopeParameter.CallMethod(
+                    Constants.ResetRuntimeCircularDependencyBarrierMethod,
+                    serviceRegistration.RegistrationId.AsConstant()),
+                variable
+            };
 
             return exprs.AsBlock(variable);
         }

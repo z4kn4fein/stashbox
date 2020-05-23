@@ -15,17 +15,11 @@ namespace Stashbox.Resolution.Resolvers
             ResolutionContext resolutionContext)
         {
             var resolution = resolutionContext.RequestInitiatorContainerContext == null
-                ? resolutionContext.Clone(containerContext, containerContext.Container.ParentContainer.ContainerContext)
-                : resolutionContext.Clone(resolutionContext.RequestInitiatorContainerContext, containerContext.Container.ParentContainer.ContainerContext);
+                ? resolutionContext.BeginCrossContainerContext(containerContext, containerContext.Container.ParentContainer.ContainerContext)
+                : resolutionContext.BeginCrossContainerContext(resolutionContext.RequestInitiatorContainerContext, containerContext.Container.ParentContainer.ContainerContext);
 
             var result = resolutionStrategy
                 .BuildResolutionExpression(containerContext.Container.ParentContainer.ContainerContext, resolution, typeInfo);
-
-            foreach (var definedVariable in resolution.DefinedVariables.Walk())
-                resolutionContext.AddDefinedVariable(definedVariable.Value);
-
-            foreach (var instruction in resolution.SingleInstructions)
-                resolutionContext.AddInstruction(instruction);
 
             return result;
         }
@@ -36,17 +30,11 @@ namespace Stashbox.Resolution.Resolvers
             ResolutionContext resolutionContext)
         {
             var resolution = resolutionContext.RequestInitiatorContainerContext == null
-                ? resolutionContext.Clone(containerContext, containerContext.Container.ParentContainer.ContainerContext)
-                : resolutionContext.Clone(resolutionContext.RequestInitiatorContainerContext, containerContext.Container.ParentContainer.ContainerContext);
+                ? resolutionContext.BeginCrossContainerContext(containerContext, containerContext.Container.ParentContainer.ContainerContext)
+                : resolutionContext.BeginCrossContainerContext(resolutionContext.RequestInitiatorContainerContext, containerContext.Container.ParentContainer.ContainerContext);
 
             var result = resolutionStrategy
                 .BuildAllResolutionExpressions(containerContext.Container.ParentContainer.ContainerContext, resolution, typeInfo);
-
-            foreach (var definedVariable in resolution.DefinedVariables.Walk())
-                resolutionContext.AddDefinedVariable(definedVariable.Key, definedVariable.Value);
-
-            foreach (var instruction in resolution.SingleInstructions)
-                resolutionContext.AddInstruction(instruction);
 
             return result;
         }

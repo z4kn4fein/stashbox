@@ -1,60 +1,51 @@
 ﻿#if IL_EMIT
-using Stashbox.Entity;
+using Stashbox.Utils;
 using System.Linq.Expressions;
 using System.Reflection.Emit;
-using System.Threading;
 
 namespace Stashbox.BuildUp.Expressions.Compile
 {
     internal class CompilerContext
     {
-        public Expression[] DefinedVariables { get; }
+        public ExpandableArray<Expression> DefinedVariables;
 
-        public Expression[] CapturedArguments { get; }
+        public bool HasCapturedVariablesArgument;
 
-        public Expression[] StoredExpressions { get; }
+        public bool IsNestedLambda;
 
-        public DelegateTarget Target { get; }
+        public readonly ExpandableArray<Expression> CapturedArguments;
 
-        public CapturedArgumentsHolder CapturedArgumentsHolder { get; }
+        public readonly Closure Target;
 
-        public bool IsNestedLambda { get; }
+        public ExpandableArray<LocalBuilder> LocalBuilders;
 
-        public LocalBuilder[] LocalBuilders { get; set; }
+        public LocalBuilder CapturedArgumentsHolderVariable;
 
-        public LocalBuilder CapturedArgumentsHolderVariable { get; set; }
+        public readonly ExpandableArray<NestedLambda> NestedLambdas;
 
-        public LambdaExpression[] NestedLambdas { get; }
+        public readonly bool HasClosure;
 
-        public Expression[][] NestedLambdaVariables { get; }
-
-        public bool HasClosure => this.Target != null;
-
-        public bool HasCapturedVariablesArgument => this.CapturedArguments.Length > 0;
-
-        public CompilerContext(DelegateTarget target, Expression[] definedVariables, Expression[] storedExpressions, Expression[] capturedArguments,
-            LambdaExpression[] nestedLambdas, Expression[][] nestedLambdaVariables, CapturedArgumentsHolder capturedArgumentsHolder)
-            : this(target, definedVariables, storedExpressions, capturedArguments, nestedLambdas, nestedLambdaVariables, capturedArgumentsHolder, false)
-        { }
-
-        private CompilerContext(DelegateTarget target, Expression[] definedVariables, Expression[] storedExpressions, Expression[] capturedArguments,
-            LambdaExpression[] nestedLambdas, Expression[][] nestedLambdaVariables, CapturedArgumentsHolder capturedArgumentsHolder, bool isNestedLambda)
+        public CompilerContext(Closure target,
+            ExpandableArray<Expression> definedVariables,
+            ExpandableArray<Expression> capturedArguments,
+            ExpandableArray<NestedLambda> nestedLambdas)
         {
             this.Target = target;
             this.DefinedVariables = definedVariables;
-            this.StoredExpressions = storedExpressions;
-            this.CapturedArgumentsHolder = capturedArgumentsHolder;
-            this.IsNestedLambda = isNestedLambda;
             this.CapturedArguments = capturedArguments;
             this.NestedLambdas = nestedLambdas;
-            this.NestedLambdaVariables = nestedLambdaVariables;
+            this.HasClosure = target != null;
+            this.HasCapturedVariablesArgument = capturedArguments.Length > 0;
         }
 
-        public CompilerContext CreateNew(Expression[] definedVariables, bool isNestedLambda) =>
-            new CompilerContext(this.Target, definedVariables,
-                this.StoredExpressions, this.CapturedArguments,
-                this.NestedLambdas, this.NestedLambdaVariables,
-                this.CapturedArgumentsHolder, isNestedLambda);
+        public CompilerContext CreateNew(ExpandableArray<Expression> definedVariables, bool isNestedLambda, bool hasCapturedArgument)
+        {
+            var clone = (CompilerContext)this.MemberwiseClone();
+            clone.DefinedVariables = definedVariables;
+            clone.IsNestedLambda = isNestedLambda;
+            clone.HasCapturedVariablesArgument = hasCapturedArgument;
+            return clone;
+        }
     }
 }
 #endif

@@ -2,6 +2,7 @@
 using Stashbox.Entity;
 using Stashbox.Lifetime;
 using Stashbox.Registration.Fluent;
+using Stashbox.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
@@ -169,9 +170,9 @@ namespace Stashbox.Registration
         /// </summary>
         public RegistrationContext()
         {
-            this.AttributeConditions = new List<Type>();
-            this.AdditionalServiceTypes = new List<Type>();
-            this.InjectionParameters = new List<InjectionParameter>();
+            this.AttributeConditions = new ExpandableArray<Type>();
+            this.AdditionalServiceTypes = new ExpandableArray<Type>();
+            this.InjectionParameters = new ExpandableArray<InjectionParameter>();
             this.InjectionMemberNames = new Dictionary<string, object>();
             this.DependencyBindings = new Dictionary<object, object>();
         }

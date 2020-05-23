@@ -44,7 +44,7 @@ namespace Stashbox.Configuration
         /// <summary>
         /// If it's set to true, the container will inject optional and default values for missing dependencies and primitive types.
         /// </summary>
-        public bool OptionalAndDefaultValueInjectionEnabled { get; internal set; }
+        public bool DefaultValueInjectionEnabled { get; internal set; }
 
         /// <summary>
         /// If it's set to true the container will try to register the unknown type during the activation.

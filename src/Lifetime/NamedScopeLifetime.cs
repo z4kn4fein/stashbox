@@ -12,7 +12,7 @@ namespace Stashbox.Lifetime
     /// </summary>
     public class NamedScopeLifetime : LifetimeDescriptor
     {
-        private static readonly MethodInfo GetScopeValueMethod = typeof(NamedScopeLifetime).GetSingleMethod(nameof(GetScopedValue), true);
+        private static readonly MethodInfo GetScopeValueMethod = typeof(NamedScopeLifetime).GetSingleMethod(nameof(GetScopedValue));
 
         /// <inheritdoc />
         protected override Expression GetLifetimeAppliedExpression(IContainerContext containerContext, IServiceRegistration serviceRegistration,

@@ -3,12 +3,9 @@ using Stashbox.Registration;
 
 namespace Stashbox
 {
-    /// <summary>
-    /// Represents the container context.
-    /// </summary>
-    public class ContainerContext : IContainerContext
+    internal class ContainerContext : IContainerContext
     {
-        internal ContainerContext(IStashboxContainer container, ContainerConfiguration containerConfiguration)
+        public ContainerContext(IStashboxContainer container, ContainerConfiguration containerConfiguration)
         {
             this.Container = container;
             this.ContainerConfiguration = containerConfiguration;
@@ -16,16 +13,12 @@ namespace Stashbox
             this.DecoratorRepository = new DecoratorRepository();
         }
 
-        /// <inheritdoc />
         public IRegistrationRepository RegistrationRepository { get; }
 
-        /// <inheritdoc />
         public IDecoratorRepository DecoratorRepository { get; }
 
-        /// <inheritdoc />
         public IStashboxContainer Container { get; }
 
-        /// <inheritdoc />
         public ContainerConfiguration ContainerConfiguration { get; internal set; }
     }
 }

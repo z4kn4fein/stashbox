@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -25,7 +26,7 @@ namespace Stashbox.Utils
 
         public static readonly MethodInfo CheckRuntimeCircularDependencyBarrierMethod = ResolutionScopeType.GetSingleMethod("CheckRuntimeCircularDependencyBarrier");
 
-        public static readonly MethodInfo ResetRuntimetCircularDependencyBarrierMethod = ResolutionScopeType.GetSingleMethod("ResetRuntimeCircularDependencyBarrier");
+        public static readonly MethodInfo ResetRuntimeCircularDependencyBarrierMethod = ResolutionScopeType.GetSingleMethod("ResetRuntimeCircularDependencyBarrier");
 
         public static readonly MethodInfo BeginScopeMethod = ResolverType.GetSingleMethod("BeginScope");
 
@@ -33,11 +34,9 @@ namespace Stashbox.Utils
 
         public static readonly Type FuncType = typeof(Func<>);
 
-        public static readonly Type[] EmptyTypes = new Type[0];
+        public static readonly Type[] EmptyTypes = EmptyArray<Type>();
 
         public static readonly Type ObjectType = typeof(object);
-
-        public static readonly ConstructorInfo ObjectConstructor = ObjectType.GetConstructor(EmptyTypes);
 
         public static readonly Type CompositionRootType = typeof(ICompositionRoot);
 
@@ -48,5 +47,7 @@ namespace Stashbox.Utils
         public const MethodImplOptions Inline = (MethodImplOptions)256;
 
         public const byte DelegatePlaceholder = 0;
+
+        public static T[] EmptyArray<T>() => InternalArrayHelper<T>.Empty;
     }
 }

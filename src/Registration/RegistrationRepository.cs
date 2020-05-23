@@ -52,7 +52,8 @@ namespace Stashbox.Registration
             else
                 Swap.SwapValue(ref serviceRepository, (t1, t2, t3, t4, repo) =>
                     repo.AddOrUpdate(t2, t3,
-                        (oldValue, newValue) => oldValue.AddOrUpdate(t1.RegistrationName, t1, t4, (old, @new) => @new.Replaces(old))),
+                        (oldValue, newValue) =>
+                            oldValue.AddOrUpdate(t1.RegistrationName, t1, false, t4, (old, @new) => @new.Replaces(old))),
                         registration, serviceType, newRepository,
                         replace ||
                         this.containerConfiguration.RegistrationBehavior == Rules.RegistrationBehavior.ReplaceExisting ||

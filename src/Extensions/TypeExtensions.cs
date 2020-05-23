@@ -100,26 +100,29 @@ namespace System
         public static bool HasPublicParameterlessConstructor(this TypeInfo info) =>
             info.DeclaredConstructors.FirstOrDefault(c => c.IsPublic && c.GetParameters().Length == 0) != null;
 
-        public static MethodInfo GetSingleMethod(this Type type, string name, bool includeNonPublic = false)
+        public static MethodInfo GetSingleMethod(this Type type, string name)
         {
-            var found = type.GetSingleMethodOrDefault(name, includeNonPublic);
+            var found = type.GetSingleMethodOrDefault(name);
             if (found == null)
                 throw new InvalidOperationException($"'{name}' method not found on {type.FullName}.");
 
             return found;
         }
 
-        public static MethodInfo GetSingleMethodOrDefault(this Type type, string name, bool includeNonPublic = false) =>
-            type.GetTypeInfo().DeclaredMethods.FirstOrDefault(method => (includeNonPublic || method.IsPublic) && method.Name == name);
+        public static MethodInfo GetSingleMethodOrDefault(this Type type, string name) =>
+            type.GetTypeInfo().GetDeclaredMethod(name);
 
-        public static bool HasSetMethod(this MemberInfo property, bool includeNonPublic = false) =>
-            property.GetSetterMethodOrDefault(includeNonPublic) != null;
+        public static bool HasPublicSetMethod(this MemberInfo property)
+        {
+            var setter = property.GetSetterMethodOrDefault();
+            return setter != null && setter.IsPublic;
+        }
 
-        public static MethodInfo GetSetterMethodOrDefault(this MemberInfo property, bool includeNonPublic = false) =>
-            property.DeclaringType.GetSingleMethodOrDefault("set_" + property.Name, includeNonPublic);
+        public static MethodInfo GetSetterMethodOrDefault(this MemberInfo property) =>
+            property.DeclaringType.GetSingleMethodOrDefault("set_" + property.Name);
 
-        public static MethodInfo GetGetterMethodOrDefault(this MemberInfo property, bool includeNonPublic = false) =>
-            property.DeclaringType.GetSingleMethodOrDefault("get_" + property.Name, includeNonPublic);
+        public static MethodInfo GetGetterMethodOrDefault(this MemberInfo property) =>
+            property.DeclaringType.GetSingleMethodOrDefault("get_" + property.Name);
 
         public static bool IsDisposable(this Type type) =>
             type.Implements(Constants.DisposableType);
@@ -256,15 +259,13 @@ namespace System
         {
             var customAttributes = member.GetCustomAttributes();
             var dependencyAttribute = member.GetDependencyAttribute();
-            var isProperty = member is PropertyInfo;
             var typeInfo = new TypeInformation
             {
-                Type = isProperty ? ((PropertyInfo)member).PropertyType : ((FieldInfo)member).FieldType,
+                Type = member is PropertyInfo prop ? prop.PropertyType : ((FieldInfo)member).FieldType,
                 DependencyName = dependencyAttribute?.Name,
                 ParentType = declaringType,
                 CustomAttributes = customAttributes,
-                ParameterOrMemberName = member.Name,
-                MemberType = isProperty ? MemberType.Property : MemberType.Field
+                ParameterOrMemberName = member.Name
             };
 
             if (registrationContext.InjectionMemberNames.Count == 0 && !containerConfiguration.TreatingParameterAndMemberNameAsDependencyNameEnabled)
@@ -278,13 +279,15 @@ namespace System
             return typeInfo;
         }
 
-        public static ConstructorInfo[] GetUsableConstructors(this TypeInfo typeInfo) =>
-            typeInfo.DeclaredConstructors.Where(constructor => !constructor.IsStatic && constructor.IsPublic).CastToArray();
+        public static IEnumerable<ConstructorInfo> GetUsableConstructors(this TypeInfo typeInfo) =>
+            typeInfo.DeclaredConstructors.Where(constructor => !constructor.IsStatic && constructor.IsPublic);
 
         public static MethodInfo[] GetUsableMethods(this TypeInfo typeInfo) =>
             typeInfo.DeclaredMethods.Where(method => method.GetInjectionAttribute() != null).CastToArray();
 
-        public static MemberInfo[] GetUsableMembers(this TypeInfo typeInfo, RegistrationContext contextData, ContainerConfiguration containerConfiguration)
+        public static MemberInfo[] GetUsableMembers(this TypeInfo typeInfo,
+            RegistrationContext contextData,
+            ContainerConfiguration containerConfiguration)
         {
             var autoMemberInjectionEnabled = containerConfiguration.MemberInjectionWithoutAnnotationEnabled || contextData.AutoMemberInjectionEnabled;
             var autoMemberInjectionRule = contextData.AutoMemberInjectionEnabled ? contextData.AutoMemberInjectionRule :
@@ -292,19 +295,21 @@ namespace System
 
             var publicPropsEnabled = autoMemberInjectionEnabled && (autoMemberInjectionRule & Rules.AutoMemberInjectionRules.PropertiesWithPublicSetter) == Rules.AutoMemberInjectionRules.PropertiesWithPublicSetter;
             var limitedPropsEnabled = autoMemberInjectionEnabled && (autoMemberInjectionRule & Rules.AutoMemberInjectionRules.PropertiesWithLimitedAccess) == Rules.AutoMemberInjectionRules.PropertiesWithLimitedAccess;
-            var fieldsEnbaled = autoMemberInjectionEnabled && (autoMemberInjectionRule & Rules.AutoMemberInjectionRules.PrivateFields) == Rules.AutoMemberInjectionRules.PrivateFields;
+            var fieldsEnabled = autoMemberInjectionEnabled && (autoMemberInjectionRule & Rules.AutoMemberInjectionRules.PrivateFields) == Rules.AutoMemberInjectionRules.PrivateFields;
 
-            var members = typeInfo.DeclaredMembers.Where(member => member.Filter(contextData, containerConfiguration, publicPropsEnabled, limitedPropsEnabled, fieldsEnbaled));
+            IEnumerable<MemberInfo> properties = typeInfo.DeclaredProperties.Where(member => member.FilterProperty(contextData, containerConfiguration, publicPropsEnabled, limitedPropsEnabled));
+            IEnumerable<MemberInfo> fields = typeInfo.DeclaredFields.Where(member => member.FilterField(contextData, containerConfiguration, fieldsEnabled));
 
             var baseType = typeInfo.BaseType;
             while (baseType != null && !baseType.IsObjectType())
             {
                 var baseTypeInfo = baseType.GetTypeInfo();
-                members = members.Concat(baseTypeInfo.DeclaredMembers.Where(member => member.Filter(contextData, containerConfiguration, publicPropsEnabled, limitedPropsEnabled, fieldsEnbaled)));
+                properties = properties.Concat(baseTypeInfo.DeclaredProperties.Where(member => member.FilterProperty(contextData, containerConfiguration, publicPropsEnabled, limitedPropsEnabled)));
+                fields = fields.Concat(baseTypeInfo.DeclaredFields.Where(member => member.FilterField(contextData, containerConfiguration, fieldsEnabled)));
                 baseType = baseTypeInfo.BaseType;
             }
 
-            return members.CastToArray();
+            return properties.Concat(fields).CastToArray();
         }
 
         public static bool SatisfiesGenericConstraintsOf(this Type typeForCheck, TypeInfo against)
@@ -341,7 +346,7 @@ namespace System
                 if (constraints.Length > 0)
                 {
                     var found = false;
-                    for (int j = 0; j < constraintsLength; j++)
+                    for (var j = 0; j < constraintsLength; j++)
                     {
                         var con = constraints[j];
                         var constraintForCheck = con.IsClosedGenericType() ? con.GetGenericTypeDefinition().MakeGenericType(argumentType) : con;
@@ -356,30 +361,33 @@ namespace System
             return true;
         }
 
-        public static bool Filter(this MemberInfo member, RegistrationContext contextData, ContainerConfiguration containerConfiguration, bool publicPropsEnabled, bool limitedPropsEnabled, bool fieldsEnbaled)
+        private static bool FilterProperty(this PropertyInfo prop, RegistrationContext contextData,
+            ContainerConfiguration containerConfiguration, bool publicPropsEnabled, bool limitedPropsEnabled)
         {
-            bool valid;
-            if (member is PropertyInfo prop)
-                valid = prop.CanWrite && !prop.IsIndexer() &&
-                    (member.GetDependencyAttribute() != null ||
-                    publicPropsEnabled && prop.HasSetMethod() || limitedPropsEnabled ||
-                    contextData.InjectionMemberNames.ContainsKey(member.Name));
+            var valid = prop.CanWrite && !prop.IsIndexer() &&
+                    (prop.GetDependencyAttribute() != null ||
+                     publicPropsEnabled && prop.HasPublicSetMethod() || limitedPropsEnabled ||
+                     contextData.InjectionMemberNames.ContainsKey(prop.Name));
 
-            else if (member is FieldInfo field)
-                valid = !field.IsInitOnly && !field.IsBackingField() &&
-                    (member.GetDependencyAttribute() != null ||
-                    fieldsEnbaled ||
-                    contextData.InjectionMemberNames.ContainsKey(member.Name));
-
-            else
-                return false;
-
-            valid = valid && (containerConfiguration.MemberInjectionFilter == null || containerConfiguration.MemberInjectionFilter(member));
-            valid = valid && (contextData.MemberInjectionFilter == null || contextData.MemberInjectionFilter(member));
+            valid = valid && (containerConfiguration.MemberInjectionFilter == null || containerConfiguration.MemberInjectionFilter(prop));
+            valid = valid && (contextData.MemberInjectionFilter == null || contextData.MemberInjectionFilter(prop));
 
             return valid;
         }
 
+        private static bool FilterField(this FieldInfo field, RegistrationContext contextData,
+            ContainerConfiguration containerConfiguration, bool fieldsEnabled)
+        {
+            var valid = !field.IsInitOnly && !field.IsBackingField() &&
+                        (field.GetDependencyAttribute() != null ||
+                         fieldsEnabled ||
+                         contextData.InjectionMemberNames.ContainsKey(field.Name));
+
+            valid = valid && (containerConfiguration.MemberInjectionFilter == null || containerConfiguration.MemberInjectionFilter(field));
+            valid = valid && (contextData.MemberInjectionFilter == null || contextData.MemberInjectionFilter(field));
+
+            return valid;
+        }
         public static bool IsNullableType(this Type type) =>
             type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
 

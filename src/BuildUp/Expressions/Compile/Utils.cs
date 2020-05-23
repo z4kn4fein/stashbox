@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if IL_EMIT
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -7,6 +8,10 @@ namespace Stashbox.BuildUp.Expressions.Compile
 {
     internal static class Utils
     {
+        public static readonly Type ClosureType = typeof(Closure);
+
+        public static readonly Type ObjectArrayType = typeof(object[]);
+
         public static Type MapDelegateType(Type[] paramTypes)
         {
             switch (paramTypes.Length)
@@ -44,3 +49,4 @@ namespace Stashbox.BuildUp.Expressions.Compile
         public static Func<T1, T2, T3, T4, T5, T6, R> Map<V, T1, T2, T3, T4, T5, T6, R>(Func<V, T1, T2, T3, T4, T5, T6, R> f, V v) { return (t1, t2, t3, t4, t5, t6) => f(v, t1, t2, t3, t4, t5, t6); }
     }
 }
+#endif

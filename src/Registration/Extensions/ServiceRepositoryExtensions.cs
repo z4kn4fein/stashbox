@@ -14,7 +14,7 @@ namespace Stashbox.Registration.Extensions
         {
             var registrations = repository.GetOrDefault(type);
             if (name != null && registrations != null)
-                return registrations.GetOrDefault(name) != null;
+                return registrations.GetOrDefault(name, false) != null;
 
             if (registrations != null || !type.IsClosedGenericType()) return registrations != null;
 
@@ -29,7 +29,7 @@ namespace Stashbox.Registration.Extensions
         {
             var maxIndex = 0;
             var maxWeight = 0;
-            var result = new List<IServiceRegistration>();
+            var result = new ExpandableArray<IServiceRegistration>();
 
             foreach (var serviceRegistration in registrations)
             {
@@ -40,10 +40,10 @@ namespace Stashbox.Registration.Extensions
 
                 if (weight < maxWeight) continue;
                 maxWeight = weight;
-                maxIndex = result.Count - 1;
+                maxIndex = result.Length - 1;
             }
 
-            return result.Count == 0 ? null : result[maxIndex];
+            return result.Length == 0 ? null : result[maxIndex];
         }
 
         public static IEnumerable<IServiceRegistration> FilterOrDefault(this IEnumerable<IServiceRegistration> registrations,
@@ -51,8 +51,8 @@ namespace Stashbox.Registration.Extensions
             ResolutionContext resolutionContext,
             IRegistrationSelectionRule[] registrationSelectionRules)
         {
-            var common = new List<IServiceRegistration>();
-            var priority = new List<IServiceRegistration>();
+            var common = new ExpandableArray<IServiceRegistration>();
+            var priority = new ExpandableArray<IServiceRegistration>();
 
             foreach (var serviceRegistration in registrations)
             {
@@ -65,9 +65,9 @@ namespace Stashbox.Registration.Extensions
                 common.Add(serviceRegistration);
             }
 
-            return common.Count == 0
+            return common.Length == 0
                 ? null
-                : priority.Count > 0
+                : priority.Length > 0
                     ? priority
                     : common;
         }

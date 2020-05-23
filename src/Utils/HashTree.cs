@@ -6,8 +6,6 @@ namespace Stashbox.Utils
 {
     internal sealed class HashTree<TValue>
     {
-        public static HashTree<TValue> Empty => new HashTree<TValue>();
-
         private class Node<T>
         {
             public readonly int storedKey;
@@ -30,7 +28,7 @@ namespace Stashbox.Utils
 
         public void Add(TValue value)
         {
-            this.root = Add(this.root, value.GetHashCode(), value);
+            this.root = Add(this.root, RuntimeHelpers.GetHashCode(value), value);
         }
 
         public void Add(int key, TValue value)
@@ -197,8 +195,6 @@ namespace Stashbox.Utils
 
     internal sealed class HashTree<TKey, TValue>
     {
-        public static HashTree<TKey, TValue> Empty => new HashTree<TKey, TValue>();
-
         private class Node<TK, T>
         {
             public readonly int storedHash;
@@ -207,43 +203,46 @@ namespace Stashbox.Utils
             public Node<TK, T> left;
             public Node<TK, T> right;
             public int height;
+            public ExpandableArray<TK, T> collisions;
 
-            public Node(TK key, T value)
+            public Node(TK key, T value, int hash)
             {
                 this.storedValue = value;
                 this.storedKey = key;
-                this.storedHash = key.GetHashCode();
+                this.storedHash = hash;
                 this.height = 1;
             }
         }
 
         private Node<TKey, TValue> root;
 
-        public bool IsEmpty => this.root == null;
-
-        private HashTree() { }
+        public HashTree() { }
 
         public HashTree(TKey key, TValue value)
         {
-            Add(key, value);
+            Add(key, value, false);
         }
 
-        public void Add(TKey key, TValue value)
+        public void Add(TKey key, TValue value, bool byRef = true)
         {
-            this.root = Add(this.root, key, key.GetHashCode(), value);
+            this.root = Add(this.root, key, byRef ? RuntimeHelpers.GetHashCode(key) : key.GetHashCode(), value, byRef);
         }
 
         [MethodImpl(Constants.Inline)]
-        public TValue GetOrDefault(TKey key)
+        public TValue GetOrDefault(TKey key, bool byRef = true)
         {
             if (this.root == null)
                 return default;
 
             var node = root;
-            var hash = key.GetHashCode();
+            var hash = byRef ? RuntimeHelpers.GetHashCode(key) : key.GetHashCode();
             while (node != null && node.storedHash != hash)
                 node = hash < node.storedHash ? node.left : node.right;
-            return node != null && (ReferenceEquals(key, node.storedKey) || key.Equals(node.storedKey)) ? node.storedValue : default;
+            return node != null && (byRef && ReferenceEquals(key, node.storedKey) || !byRef && Equals(key, node.storedKey))
+                ? node.storedValue
+                : node?.collisions == null
+                    ? default
+                    : node.collisions.GetOrDefault(key, byRef);
         }
 
         private static int CalculateHeight(Node<TKey, TValue> node)
@@ -294,21 +293,21 @@ namespace Stashbox.Utils
             return root;
         }
 
-        private static Node<TKey, TValue> Add(Node<TKey, TValue> node, TKey key, int hash, TValue value)
+        private static Node<TKey, TValue> Add(Node<TKey, TValue> node, TKey key, int hash, TValue value, bool byRef)
         {
             if (node == null)
-                return new Node<TKey, TValue>(key, value);
+                return new Node<TKey, TValue>(key, value, hash);
 
-            if (node.storedHash == hash && (ReferenceEquals(key, node.storedKey) || key.Equals(node.storedKey)))
+            if (node.storedHash == hash)
             {
-                node.storedValue = value;
+                CheckCollisions(node, key, value, byRef);
                 return node;
             }
 
             if (node.storedHash > hash)
-                node.left = Add(node.left, key, hash, value);
+                node.left = Add(node.left, key, hash, value, byRef);
             else
-                node.right = Add(node.right, key, hash, value);
+                node.right = Add(node.right, key, hash, value, byRef);
 
             node.height = CalculateHeight(node);
             var balance = GetBalance(node);
@@ -338,56 +337,13 @@ namespace Stashbox.Utils
             return node;
         }
 
-        public IEnumerable<KeyValue<TKey, TValue>> Walk()
+        private static void CheckCollisions(Node<TKey, TValue> node, TKey key, TValue value, bool byRef)
         {
-            if (this.root == null)
-                yield break;
+            if (byRef && ReferenceEquals(key, node.storedKey) || !byRef && Equals(key, node.storedKey))
+                node.storedValue = value;
 
-            var nodes = new Node<TKey, TValue>[this.root.height];
-            var currentNode = this.root;
-            var index = -1;
-
-            while (currentNode != null || index != -1)
-            {
-                if (currentNode != null)
-                {
-                    nodes[++index] = currentNode;
-                    currentNode = currentNode.left;
-                }
-                else
-                {
-                    currentNode = nodes[index--];
-                    yield return new KeyValue<TKey, TValue>(currentNode.storedKey, currentNode.storedValue);
-
-                    currentNode = currentNode.right;
-                }
-            }
-        }
-
-        public IEnumerable<TValue> WalkOnValues()
-        {
-            if (this.root == null)
-                yield break;
-
-            var nodes = new Node<TKey, TValue>[this.root.height];
-            var currentNode = this.root;
-            var index = -1;
-
-            while (currentNode != null || index != -1)
-            {
-                if (currentNode != null)
-                {
-                    nodes[++index] = currentNode;
-                    currentNode = currentNode.left;
-                }
-                else
-                {
-                    currentNode = nodes[index--];
-                    yield return currentNode.storedValue;
-
-                    currentNode = currentNode.right;
-                }
-            }
+            if (node.collisions == null) node.collisions = new ExpandableArray<TKey, TValue>();
+            node.collisions.Add(new KeyValue<TKey, TValue>(key, value));
         }
     }
 }

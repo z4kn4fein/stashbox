@@ -16,7 +16,7 @@ namespace Stashbox.BuildUp.ObjectBuilders
             this.defaultObjectBuilder = defaultObjectBuilder;
         }
 
-        public override bool ResultShouldBeLifetimeManaged => false;
+        public override bool ProducesLifetimeManageableOutput => false;
 
         protected override Expression GetExpressionInternal(IContainerContext containerContext, IServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType)
         {

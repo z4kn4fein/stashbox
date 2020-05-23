@@ -1,6 +1,7 @@
 ﻿#if IL_EMIT
-using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Reflection.Emit;
 
 namespace Stashbox.BuildUp.Expressions.Compile.Emitters
@@ -9,7 +10,7 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
     {
         private static bool TryEmit(this ParameterExpression expression, ILGenerator generator, CompilerContext context, params ParameterExpression[] parameters)
         {
-            var index = parameters.GetIndex(expression);
+            var index = parameters.GetReferenceIndex(expression);
             if (index != -1)
             {
                 if (context.HasClosure && context.HasCapturedVariablesArgument)
@@ -24,29 +25,21 @@ namespace Stashbox.BuildUp.Expressions.Compile.Emitters
                 return true;
             }
 
-            var constantIndex = context.StoredExpressions.GetIndex(expression);
-            if (constantIndex != -1)
-            {
-                generator.Emit(OpCodes.Ldarg_0);
-                generator.Emit(OpCodes.Ldfld, context.Target.Fields[constantIndex]);
-                return true;
-            }
-
-            var definedVariableIndex = context.DefinedVariables.GetIndex(expression);
+            var definedVariableIndex = context.DefinedVariables.IndexOfReference(expression);
             if (definedVariableIndex != -1)
             {
                 generator.Emit(OpCodes.Ldloc, context.LocalBuilders[definedVariableIndex]);
                 return true;
             }
 
-            var capturedVariableIndex = context.CapturedArguments.GetIndex(expression);
-            if (capturedVariableIndex != -1)
-            {
-                generator.Emit(OpCodes.Ldarg_1);
-                generator.Emit(OpCodes.Ldfld, context.CapturedArgumentsHolder.Fields[capturedVariableIndex]);
-                return true;
-            }
+            var capturedVariableIndex = context.CapturedArguments.IndexOfReference(expression);
+            if (capturedVariableIndex == -1) return true;
 
+            generator.Emit(OpCodes.Ldarg_1);
+            generator.EmitInteger(capturedVariableIndex);
+            generator.Emit(OpCodes.Ldelem_Ref);
+            if (expression.Type.GetTypeInfo().IsValueType)
+                generator.Emit(OpCodes.Unbox_Any, expression.Type);
             return true;
         }
     }

@@ -51,9 +51,9 @@ namespace Stashbox.Configuration
         }
 
         /// <inheritdoc />
-        public IContainerConfigurator WithOptionalAndDefaultValueInjection()
+        public IContainerConfigurator WithDefaultValueInjection()
         {
-            this.ContainerConfiguration.OptionalAndDefaultValueInjectionEnabled = true;
+            this.ContainerConfiguration.DefaultValueInjectionEnabled = true;
             return this;
         }
 
