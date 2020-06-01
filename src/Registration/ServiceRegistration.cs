@@ -12,40 +12,48 @@ namespace Stashbox.Registration
     /// <summary>
     /// Represents a service registration.
     /// </summary>
-    public class ServiceRegistration : IServiceRegistration
+    public class ServiceRegistration
     {
         private static int globalRegistrationOrder;
         private readonly ContainerConfiguration containerConfiguration;
 
-        /// <inheritdoc />
+        /// <summary>
+        /// The implementation type.
+        /// </summary>
         public Type ImplementationType { get; }
 
-        /// <inheritdoc />
-        public TypeInfo ImplementationTypeInfo { get; }
-
-        /// <inheritdoc />
+        /// <summary>
+        /// The registration context.
+        /// </summary>
         public RegistrationContext RegistrationContext { get; }
 
-        /// <inheritdoc />
-        public bool IsDecorator { get; }
-
-        /// <inheritdoc />
+        /// <summary>
+        /// The registration number.
+        /// </summary>
         public int RegistrationId { get; private set; }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// The registration id.
+        /// </summary>
         public object RegistrationName { get; }
 
-        /// <inheritdoc />
-        public bool IsResolvableByUnnamedRequest { get; }
+        /// <summary>
+        /// True if the registration is a decorator.
+        /// </summary>
+        public bool IsDecorator { get; }
 
-        /// <inheritdoc />
-        public bool HasScopeName { get; }
-
-        /// <inheritdoc />
-        public bool HasCondition { get; }
-
-        /// <inheritdoc />
+        /// <summary>
+        /// Represents the nature of the registration.
+        /// </summary>
         public RegistrationType RegistrationType { get; }
+
+        internal TypeInfo ImplementationTypeInfo { get; }
+
+        internal bool IsResolvableByUnnamedRequest { get; }
+
+        internal bool HasScopeName { get; }
+
+        internal bool HasCondition { get; }
 
         internal ServiceRegistration(Type implementationType, RegistrationType registrationType, ContainerConfiguration containerConfiguration,
             RegistrationContext registrationContext, bool isDecorator)
@@ -71,23 +79,19 @@ namespace Stashbox.Registration
                 : implementationType);
         }
 
-        /// <inheritdoc />
-        public bool IsUsableForCurrentContext(TypeInformation typeInfo) =>
+        internal bool IsUsableForCurrentContext(TypeInformation typeInfo) =>
             this.HasParentTypeConditionAndMatch(typeInfo) ||
             this.HasAttributeConditionAndMatch(typeInfo) ||
             this.HasResolutionConditionAndMatch(typeInfo);
 
-        /// <inheritdoc />
-        public bool CanInjectIntoNamedScope(IEnumerable<object> scopeNames) =>
+        internal bool CanInjectIntoNamedScope(IEnumerable<object> scopeNames) =>
             scopeNames.Last() == this.RegistrationContext.NamedScopeRestrictionIdentifier;
 
-        /// <inheritdoc />
-        public IServiceRegistration Clone(Type implementationType, RegistrationType registrationType) =>
+        internal ServiceRegistration Clone(Type implementationType, RegistrationType registrationType) =>
             new ServiceRegistration(implementationType, registrationType, this.containerConfiguration,
                 this.RegistrationContext, this.IsDecorator);
 
-        /// <inheritdoc />
-        public void Replaces(IServiceRegistration serviceRegistration)
+        internal void Replaces(ServiceRegistration serviceRegistration)
         {
             if (this.containerConfiguration.RegistrationBehavior == Rules.RegistrationBehavior.ThrowException)
                 throw new ServiceAlreadyRegisteredException(this.ImplementationType);

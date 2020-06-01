@@ -7,7 +7,7 @@ namespace Stashbox.Registration
 {
     internal class RegistrationBuilder
     {
-        public IServiceRegistration BuildServiceRegistration(IContainerContext containerContext, RegistrationConfiguration registrationConfiguration, bool isDecorator)
+        public ServiceRegistration BuildServiceRegistration(IContainerContext containerContext, RegistrationConfiguration registrationConfiguration, bool isDecorator)
         {
             this.PreProcessExistingInstanceIfNeeded(containerContext, registrationConfiguration.Context, registrationConfiguration.ImplementationType);
             registrationConfiguration.Context.Lifetime = this.ChooseLifeTime(containerContext, registrationConfiguration.Context);

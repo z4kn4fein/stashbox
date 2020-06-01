@@ -1,11 +1,11 @@
-﻿using System;
+﻿using Stashbox.Registration;
+using Stashbox.Resolution;
+using Stashbox.Utils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Stashbox.Registration;
-using Stashbox.Resolution;
-using Stashbox.Utils;
 
 namespace Stashbox.Expressions
 {
@@ -22,7 +22,7 @@ namespace Stashbox.Expressions
         }
 
         public Expression ConstructBuildUpExpression(
-            IServiceRegistration serviceRegistration,
+            ServiceRegistration serviceRegistration,
             ResolutionContext resolutionContext,
             Expression instance,
             Type serviceType)
@@ -92,7 +92,7 @@ namespace Stashbox.Expressions
         }
 
         public Expression ConstructExpression(
-            IServiceRegistration serviceRegistration,
+            ServiceRegistration serviceRegistration,
             ResolutionContext resolutionContext,
             Type serviceType)
         {

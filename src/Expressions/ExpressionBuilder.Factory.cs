@@ -8,7 +8,7 @@ namespace Stashbox.Expressions
 {
     internal partial class ExpressionBuilder
     {
-        private Expression GetExpressionForFactory(IServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType)
+        private Expression GetExpressionForFactory(ServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType)
         {
             var expression = serviceRegistration.RegistrationContext.ContainerFactory != null
                 ? ConstructFactoryExpression(serviceRegistration.RegistrationContext.ContainerFactory,
@@ -18,7 +18,7 @@ namespace Stashbox.Expressions
             return this.expressionFactory.ConstructBuildUpExpression(serviceRegistration, resolutionContext, expression, resolveType);
         }
 
-        private static Expression ConstructFactoryExpression(Delegate @delegate, IServiceRegistration serviceRegistration, params Expression[] parameters)
+        private static Expression ConstructFactoryExpression(Delegate @delegate, ServiceRegistration serviceRegistration, params Expression[] parameters)
         {
             if (serviceRegistration.RegistrationContext.IsFactoryDelegateACompiledLambda || @delegate.IsCompiledLambda())
                 return @delegate.InvokeDelegate(parameters);

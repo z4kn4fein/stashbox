@@ -9,7 +9,7 @@ namespace Stashbox.Expressions
 {
     internal partial class ExpressionBuilder
     {
-        private Expression GetExpressionForDefault(IServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType)
+        private Expression GetExpressionForDefault(ServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType)
         {
             if (resolutionContext.CheckCircularDependencyOn(serviceRegistration.RegistrationId))
                 throw new CircularDependencyException(resolveType);
@@ -20,7 +20,7 @@ namespace Stashbox.Expressions
             return result;
         }
 
-        private Expression PrepareDefaultExpression(IServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType)
+        private Expression PrepareDefaultExpression(ServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType)
         {
             if (serviceRegistration.RegistrationContext.DefinedScopeName == null)
                 return this.expressionFactory.ConstructExpression(serviceRegistration, resolutionContext, resolveType);

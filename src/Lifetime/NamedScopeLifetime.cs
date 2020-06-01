@@ -22,7 +22,7 @@ namespace Stashbox.Lifetime
 
         /// <inheritdoc />
         protected override Expression ApplyLifetime(Func<IResolutionScope, object> factory,
-            IServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType) =>
+            ServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType) =>
             GetScopeValueMethod.MakeGenericMethod(resolveType).CallStaticMethod(resolutionContext.CurrentScopeParameter,
                     factory.AsConstant(),
                     serviceRegistration.RegistrationId.AsConstant(),

@@ -18,7 +18,7 @@ namespace Stashbox.Lifetime
 
         /// <inheritdoc />
         protected override Expression ApplyLifetime(Expression expression,
-            IServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType) =>
+            ServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType) =>
             expression;
     }
 }

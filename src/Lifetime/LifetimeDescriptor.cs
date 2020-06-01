@@ -26,7 +26,7 @@ namespace Stashbox.Lifetime
         protected abstract string Name { get; }
 
         internal Expression ApplyLifetime(ExpressionBuilder expressionBuilder,
-            IServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType)
+            ServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType)
         {
             if (resolutionContext.CurrentContainerContext.ContainerConfiguration.LifetimeValidationEnabled &&
                 this.LifeSpan > 0)
@@ -61,10 +61,10 @@ namespace Stashbox.Lifetime
         }
 
         private protected abstract Expression BuildLifetimeAppliedExpression(ExpressionBuilder expressionBuilder,
-            IServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType);
+            ServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType);
 
         private protected static Expression GetExpressionForRegistration(ExpressionBuilder expressionBuilder,
-            IServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType)
+            ServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType)
         {
             if (!IsRegistrationOutputCacheable(serviceRegistration, resolutionContext))
                 return expressionBuilder.BuildExpressionForRegistration(serviceRegistration, resolutionContext, resolveType);
@@ -78,7 +78,7 @@ namespace Stashbox.Lifetime
             return expression;
         }
 
-        private protected static bool IsRegistrationOutputCacheable(IServiceRegistration serviceRegistration, ResolutionContext resolutionContext) =>
+        private protected static bool IsRegistrationOutputCacheable(ServiceRegistration serviceRegistration, ResolutionContext resolutionContext) =>
             !serviceRegistration.IsDecorator &&
             resolutionContext.FactoryDelegateCacheEnabled &&
             resolutionContext.ExpressionCacheEnabled &&

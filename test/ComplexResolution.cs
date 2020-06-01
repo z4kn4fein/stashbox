@@ -18,8 +18,8 @@ namespace Stashbox.Tests
                 .RegisterSingleton<Single1>()
                 .RegisterSingleton<Single2>()
                 .RegisterSingleton<Single3>()
-                .Register<Func1>(c => c.WithScopedLifetime().WithFactory(r => new Func1(r.Resolve<Scoped3>(), r.Resolve<Single3>())))
-                .Register<Func2>(c => c.WithScopedLifetime().WithFactory(r => new Func2(r.Resolve<Single1>(), r.Resolve<Single2>())));
+                .Register<Func1>(c => c.WithFactory(r => new Func1(r.Resolve<T4>(), r.Resolve<Scoped3>(), r.Resolve<Single3>())))
+                .Register<Func2>(c => c.WithFactory(r => new Func2(r.Resolve<T4>(), r.Resolve<Single1>(), r.Resolve<Single2>())));
 
             {
                 using var scope = container.BeginScope();
@@ -38,9 +38,11 @@ namespace Stashbox.Tests
                 Assert.NotNull(t1.T2.Scoped3);
                 Assert.NotNull(t1.Single1.Single2);
                 Assert.NotNull(t1.Single1.Single3);
+                Assert.NotNull(t1.Scoped1.T4);
                 Assert.NotNull(t1.Scoped1.Single1);
                 Assert.NotNull(t1.Scoped1.Scoped2);
                 Assert.NotNull(t1.Scoped1.Func1);
+                Assert.NotNull(t1.Scoped2.T4);
                 Assert.NotNull(t1.Scoped2.Single2);
                 Assert.NotNull(t1.Scoped2.Single3);
                 Assert.NotNull(t1.Scoped2.Scoped3);
@@ -49,6 +51,7 @@ namespace Stashbox.Tests
                 Assert.NotNull(t1.T2.T3.Scoped1);
                 Assert.NotNull(t1.T2.T3.Scoped3);
                 Assert.NotNull(t1.T2.T3.Single3);
+                Assert.NotNull(t1.Scoped1.Func1.T4);
                 Assert.NotNull(t1.Scoped1.Func1.Scoped3);
                 Assert.NotNull(t1.Scoped1.Func1.Single3);
             }
@@ -66,6 +69,7 @@ namespace Stashbox.Tests
                 Assert.NotNull(t2.Scoped3);
                 Assert.NotNull(t2.Single1.Single2);
                 Assert.NotNull(t2.Single1.Single3);
+                Assert.NotNull(t2.Scoped1.T4);
                 Assert.NotNull(t2.Scoped1.Single1);
                 Assert.NotNull(t2.Scoped1.Scoped2);
                 Assert.NotNull(t2.Scoped1.Func1);
@@ -73,6 +77,7 @@ namespace Stashbox.Tests
                 Assert.NotNull(t2.T3.Scoped1);
                 Assert.NotNull(t2.T3.Scoped3);
                 Assert.NotNull(t2.T3.Single3);
+                Assert.NotNull(t2.Scoped1.Func1.T4);
                 Assert.NotNull(t2.Scoped1.Func1.Scoped3);
                 Assert.NotNull(t2.Scoped1.Func1.Single3);
             }
@@ -134,13 +139,15 @@ namespace Stashbox.Tests
 
         class Scoped1
         {
-            public Scoped1(Scoped2 scoped2, Func1 func1, Single1 single1)
+            public Scoped1(T4 t4, Scoped2 scoped2, Func1 func1, Single1 single1)
             {
+                T4 = t4;
                 Scoped2 = scoped2;
                 Func1 = func1;
                 Single1 = single1;
             }
 
+            public T4 T4 { get; }
             public Scoped2 Scoped2 { get; }
             public Func1 Func1 { get; }
             public Single1 Single1 { get; }
@@ -148,14 +155,16 @@ namespace Stashbox.Tests
 
         class Scoped2
         {
-            public Scoped2(Scoped3 scoped3, Func2 func2, Single2 single2, Single3 single3)
+            public Scoped2(T4 t4, Scoped3 scoped3, Func2 func2, Single2 single2, Single3 single3)
             {
+                T4 = t4;
                 Scoped3 = scoped3;
                 Func2 = func2;
                 Single2 = single2;
                 Single3 = single3;
             }
 
+            public T4 T4 { get; }
             public Scoped3 Scoped3 { get; }
             public Func2 Func2 { get; }
             public Single2 Single2 { get; }
@@ -190,23 +199,27 @@ namespace Stashbox.Tests
 
         class Func1
         {
-            public Func1(Scoped3 scoped3, Single3 single3)
+            public Func1(T4 t4, Scoped3 scoped3, Single3 single3)
             {
+                T4 = t4;
                 Scoped3 = scoped3;
                 Single3 = single3;
             }
 
+            public T4 T4 { get; }
             public Scoped3 Scoped3 { get; }
             public Single3 Single3 { get; }
         }
 
         class Func2
         {
-            public Func2(Single1 single1, Single2 single2)
+            public Func2(T4 t4, Single1 single1, Single2 single2)
             {
+                T4 = t4;
                 Single1 = single1;
                 Single2 = single2;
             }
+            public T4 T4 { get; }
             public Single1 Single1 { get; }
             public Single2 Single2 { get; }
         }

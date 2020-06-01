@@ -18,12 +18,12 @@ namespace Stashbox.Expressions
             this.serviceRegistrator = serviceRegistrator;
         }
 
-        internal Expression BuildExpressionAndApplyLifetime(IServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType) =>
+        internal Expression BuildExpressionAndApplyLifetime(ServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType) =>
             IsOutputLifetimeManageable(serviceRegistration)
                 ? serviceRegistration.RegistrationContext.Lifetime.ApplyLifetime(this, serviceRegistration, resolutionContext, resolveType)
                 : this.BuildExpressionForRegistration(serviceRegistration, resolutionContext, resolveType);
 
-        internal Expression BuildExpressionForRegistration(IServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType)
+        internal Expression BuildExpressionForRegistration(ServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType)
         {
             if (serviceRegistration.IsDecorator || resolutionContext.DecoratingType == resolveType)
                 return this.BuildDisposalTrackingAndFinalizerExpression(serviceRegistration, resolutionContext, resolveType);
@@ -56,7 +56,7 @@ namespace Stashbox.Expressions
             return expression;
         }
 
-        private Expression BuildDisposalTrackingAndFinalizerExpression(IServiceRegistration serviceRegistration,
+        private Expression BuildDisposalTrackingAndFinalizerExpression(ServiceRegistration serviceRegistration,
             ResolutionContext resolutionContext, Type resolveType)
         {
             var expression = this.BuildExpressionByRegistrationType(serviceRegistration, resolutionContext, resolveType);
@@ -74,7 +74,7 @@ namespace Stashbox.Expressions
                 serviceRegistration, resolutionContext, resolveType);
         }
 
-        private Expression BuildExpressionByRegistrationType(IServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType)
+        private Expression BuildExpressionByRegistrationType(ServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType)
         {
             resolutionContext = resolutionContext.ShouldFallBackToRequestInitiatorContext
                 ? resolutionContext.BeginCrossContainerContext(resolutionContext.RequestInitiatorContainerContext)
@@ -109,7 +109,7 @@ namespace Stashbox.Expressions
         }
 
         private Expression CheckRuntimeCircularDependencyExpression(Expression expression,
-            IServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType)
+            ServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType)
         {
             if (!resolutionContext.CurrentContainerContext.ContainerConfiguration.RuntimeCircularDependencyTrackingEnabled)
                 return expression;
@@ -130,19 +130,19 @@ namespace Stashbox.Expressions
             return expressions.AsBlock(variable);
         }
 
-        private static Expression BuildFinalizerExpression(Expression instanceExpression, IServiceRegistration serviceRegistration, Expression scopeExpression)
+        private static Expression BuildFinalizerExpression(Expression instanceExpression, ServiceRegistration serviceRegistration, Expression scopeExpression)
         {
             var addFinalizerMethod = Constants.AddWithFinalizerMethod.MakeGenericMethod(instanceExpression.Type);
             return scopeExpression.CallMethod(addFinalizerMethod, instanceExpression,
                 serviceRegistration.RegistrationContext.Finalizer.AsConstant());
         }
 
-        private static bool IsOutputLifetimeManageable(IServiceRegistration serviceRegistration) =>
+        private static bool IsOutputLifetimeManageable(ServiceRegistration serviceRegistration) =>
             serviceRegistration.RegistrationType != RegistrationType.OpenGeneric &&
             serviceRegistration.RegistrationType != RegistrationType.Instance &&
             serviceRegistration.RegistrationContext.Lifetime != null;
 
-        private static bool RegistrationHoldsDisposable(IContainerContext containerContext, IServiceRegistration serviceRegistration)
+        private static bool RegistrationHoldsDisposable(IContainerContext containerContext, ServiceRegistration serviceRegistration)
         {
             if (serviceRegistration.RegistrationContext.IsLifetimeExternallyOwned ||
                 serviceRegistration.RegistrationContext.ExistingInstance != null)

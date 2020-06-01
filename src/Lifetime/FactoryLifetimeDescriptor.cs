@@ -11,7 +11,7 @@ namespace Stashbox.Lifetime
     /// </summary>
     public abstract class FactoryLifetimeDescriptor : LifetimeDescriptor
     {
-        private protected override Expression BuildLifetimeAppliedExpression(ExpressionBuilder expressionBuilder, IServiceRegistration serviceRegistration,
+        private protected override Expression BuildLifetimeAppliedExpression(ExpressionBuilder expressionBuilder, ServiceRegistration serviceRegistration,
             ResolutionContext resolutionContext, Type resolveType)
         {
             var factory = GetFactoryDelegateForRegistration(expressionBuilder, serviceRegistration, resolutionContext, resolveType);
@@ -19,7 +19,7 @@ namespace Stashbox.Lifetime
         }
 
         private static Func<IResolutionScope, object> GetFactoryDelegateForRegistration(ExpressionBuilder expressionBuilder,
-            IServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType)
+            ServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType)
         {
             if (!IsRegistrationOutputCacheable(serviceRegistration, resolutionContext))
                 return GetNewFactoryDelegate(expressionBuilder, serviceRegistration, resolutionContext.BeginSubGraph(), resolveType);
@@ -33,7 +33,7 @@ namespace Stashbox.Lifetime
             return factory;
         }
 
-        private static Func<IResolutionScope, object> GetNewFactoryDelegate(ExpressionBuilder expressionBuilder, IServiceRegistration serviceRegistration,
+        private static Func<IResolutionScope, object> GetNewFactoryDelegate(ExpressionBuilder expressionBuilder, ServiceRegistration serviceRegistration,
             ResolutionContext resolutionContext, Type resolveType) =>
             GetExpressionForRegistration(expressionBuilder, serviceRegistration, resolutionContext, resolveType)
                 ?.CompileDelegate(resolutionContext, resolutionContext.CurrentContainerContext.ContainerConfiguration);
@@ -46,7 +46,7 @@ namespace Stashbox.Lifetime
         /// <param name="resolutionContext">The info about the actual resolution.</param>
         /// <param name="resolveType">The type of the resolved service.</param>
         /// <returns>The lifetime managed expression.</returns>
-        protected abstract Expression ApplyLifetime(Func<IResolutionScope, object> factory, IServiceRegistration serviceRegistration,
+        protected abstract Expression ApplyLifetime(Func<IResolutionScope, object> factory, ServiceRegistration serviceRegistration,
             ResolutionContext resolutionContext, Type resolveType);
     }
 }

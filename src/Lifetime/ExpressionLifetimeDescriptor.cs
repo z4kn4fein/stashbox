@@ -11,7 +11,7 @@ namespace Stashbox.Lifetime
     /// </summary>
     public abstract class ExpressionLifetimeDescriptor : LifetimeDescriptor
     {
-        private protected override Expression BuildLifetimeAppliedExpression(ExpressionBuilder expressionBuilder, IServiceRegistration serviceRegistration,
+        private protected override Expression BuildLifetimeAppliedExpression(ExpressionBuilder expressionBuilder, ServiceRegistration serviceRegistration,
             ResolutionContext resolutionContext, Type resolveType)
         {
             var expression = GetExpressionForRegistration(expressionBuilder, serviceRegistration, resolutionContext, resolveType);
@@ -26,7 +26,7 @@ namespace Stashbox.Lifetime
         /// <param name="resolutionContext">The info about the actual resolution.</param>
         /// <param name="resolveType">The type of the resolved service.</param>
         /// <returns>The lifetime managed expression.</returns>
-        protected abstract Expression ApplyLifetime(Expression expression, IServiceRegistration serviceRegistration,
+        protected abstract Expression ApplyLifetime(Expression expression, ServiceRegistration serviceRegistration,
             ResolutionContext resolutionContext, Type resolveType);
     }
 }

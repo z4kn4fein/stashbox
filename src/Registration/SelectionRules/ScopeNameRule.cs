@@ -4,7 +4,7 @@ namespace Stashbox.Registration.SelectionRules
 {
     internal class ScopeNameRule : IRegistrationSelectionRule
     {
-        public bool IsValidForCurrentRequest(TypeInformation typeInformation, IServiceRegistration registration,
+        public bool IsValidForCurrentRequest(TypeInformation typeInformation, ServiceRegistration registration,
             ResolutionContext resolutionContext)
         {
             if (resolutionContext.ScopeNames.IsEmpty && registration.HasScopeName)
@@ -13,7 +13,7 @@ namespace Stashbox.Registration.SelectionRules
             return resolutionContext.ScopeNames.IsEmpty || !registration.HasScopeName || registration.CanInjectIntoNamedScope(resolutionContext.ScopeNames);
         }
 
-        public bool ShouldIncrementWeight(TypeInformation typeInformation, IServiceRegistration registration,
+        public bool ShouldIncrementWeight(TypeInformation typeInformation, ServiceRegistration registration,
             ResolutionContext resolutionContext) => !resolutionContext.ScopeNames.IsEmpty &&
                                                     registration.HasScopeName &&
                                                     registration.CanInjectIntoNamedScope(resolutionContext.ScopeNames);

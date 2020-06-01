@@ -121,7 +121,7 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public IEnumerable<KeyValuePair<Type, IServiceRegistration>> GetRegistrationMappings() =>
+        public IEnumerable<KeyValuePair<Type, ServiceRegistration>> GetRegistrationMappings() =>
              this.ContainerContext.RegistrationRepository.GetRegistrationMappings();
 
 

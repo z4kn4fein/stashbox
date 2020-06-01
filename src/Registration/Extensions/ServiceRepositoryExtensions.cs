@@ -9,7 +9,7 @@ namespace Stashbox.Registration.Extensions
 {
     internal static class ServiceRepositoryExtensions
     {
-        public static bool ContainsRegistration(this ImmutableTree<Type, ImmutableArray<object, IServiceRegistration>> repository, Type type, object name)
+        public static bool ContainsRegistration(this ImmutableTree<Type, ImmutableArray<object, ServiceRegistration>> repository, Type type, object name)
         {
             var registrations = repository.GetOrDefault(type);
             if (name != null && registrations != null)
@@ -21,13 +21,13 @@ namespace Stashbox.Registration.Extensions
             return registrations?.Any(reg => type.SatisfiesGenericConstraintsOf(reg.ImplementationTypeInfo)) ?? false;
         }
 
-        public static IServiceRegistration SelectOrDefault(this IEnumerable<IServiceRegistration> registrations,
+        public static ServiceRegistration SelectOrDefault(this IEnumerable<ServiceRegistration> registrations,
             TypeInformation typeInformation,
             ResolutionContext resolutionContext,
             IRegistrationSelectionRule[] registrationSelectionRules)
         {
             var maxWeight = 0;
-            IServiceRegistration result = null;
+            ServiceRegistration result = null;
             foreach (var serviceRegistration in registrations)
             {
                 if (!registrationSelectionRules.IsSelectionPassed(typeInformation, serviceRegistration, resolutionContext, out var weight))
@@ -41,13 +41,13 @@ namespace Stashbox.Registration.Extensions
             return result;
         }
 
-        public static IEnumerable<IServiceRegistration> FilterOrDefault(this IEnumerable<IServiceRegistration> registrations,
+        public static IEnumerable<ServiceRegistration> FilterOrDefault(this IEnumerable<ServiceRegistration> registrations,
             TypeInformation typeInformation,
             ResolutionContext resolutionContext,
             IRegistrationSelectionRule[] registrationSelectionRules)
         {
-            var common = new ExpandableArray<IServiceRegistration>();
-            var priority = new ExpandableArray<IServiceRegistration>();
+            var common = new ExpandableArray<ServiceRegistration>();
+            var priority = new ExpandableArray<ServiceRegistration>();
 
             foreach (var serviceRegistration in registrations)
             {
@@ -68,7 +68,7 @@ namespace Stashbox.Registration.Extensions
         }
 
         private static bool IsSelectionPassed(this IRegistrationSelectionRule[] registrationSelectionRules,
-            TypeInformation typeInformation, IServiceRegistration serviceRegistration,
+            TypeInformation typeInformation, ServiceRegistration serviceRegistration,
             ResolutionContext resolutionContext, out int weight)
         {
             weight = 0;

@@ -11,7 +11,7 @@ namespace Stashbox.Registration
 {
     internal class RegistrationRepository : IRegistrationRepository
     {
-        private ImmutableTree<Type, ImmutableArray<object, IServiceRegistration>> serviceRepository = ImmutableTree<Type, ImmutableArray<object, IServiceRegistration>>.Empty;
+        private ImmutableTree<Type, ImmutableArray<object, ServiceRegistration>> serviceRepository = ImmutableTree<Type, ImmutableArray<object, ServiceRegistration>>.Empty;
         private readonly ContainerConfiguration containerConfiguration;
 
         private readonly IRegistrationSelectionRule[] filters =
@@ -41,9 +41,9 @@ namespace Stashbox.Registration
             this.containerConfiguration = containerConfiguration;
         }
 
-        public void AddOrUpdateRegistration(IServiceRegistration registration, Type serviceType, bool remap, bool replace)
+        public void AddOrUpdateRegistration(ServiceRegistration registration, Type serviceType, bool remap, bool replace)
         {
-            var newRepository = new ImmutableArray<object, IServiceRegistration>(registration.RegistrationName, registration);
+            var newRepository = new ImmutableArray<object, ServiceRegistration>(registration.RegistrationName, registration);
 
             if (remap)
                 Swap.SwapValue(ref serviceRepository, (t1, t2, t3, t4, repo) =>
@@ -62,19 +62,19 @@ namespace Stashbox.Registration
         public bool ContainsRegistration(Type type, object name) =>
             serviceRepository.ContainsRegistration(type, name);
 
-        public IEnumerable<KeyValuePair<Type, IServiceRegistration>> GetRegistrationMappings() =>
-             serviceRepository.Walk().SelectMany(reg => reg.Value.Select(r => new KeyValuePair<Type, IServiceRegistration>(reg.Key, r)));
+        public IEnumerable<KeyValuePair<Type, ServiceRegistration>> GetRegistrationMappings() =>
+             serviceRepository.Walk().SelectMany(reg => reg.Value.Select(r => new KeyValuePair<Type, ServiceRegistration>(reg.Key, r)));
 
-        public IServiceRegistration GetRegistrationOrDefault(Type type, ResolutionContext resolutionContext, object name = null) =>
+        public ServiceRegistration GetRegistrationOrDefault(Type type, ResolutionContext resolutionContext, object name = null) =>
             this.GetRegistrationsForType(type)?.SelectOrDefault(new TypeInformation { Type = type, DependencyName = name }, resolutionContext, this.topLevelFilters);
 
-        public IServiceRegistration GetRegistrationOrDefault(TypeInformation typeInfo, ResolutionContext resolutionContext) =>
+        public ServiceRegistration GetRegistrationOrDefault(TypeInformation typeInfo, ResolutionContext resolutionContext) =>
             this.GetRegistrationsForType(typeInfo.Type)?.SelectOrDefault(typeInfo, resolutionContext, this.filters);
 
-        public IEnumerable<IServiceRegistration> GetRegistrationsOrDefault(TypeInformation typeInfo, ResolutionContext resolutionContext) =>
+        public IEnumerable<ServiceRegistration> GetRegistrationsOrDefault(TypeInformation typeInfo, ResolutionContext resolutionContext) =>
             this.GetRegistrationsForType(typeInfo.Type)?.FilterOrDefault(typeInfo, resolutionContext, this.enumerableFilters)?.OrderBy(reg => reg.RegistrationId);
 
-        private IEnumerable<IServiceRegistration> GetRegistrationsForType(Type type)
+        private IEnumerable<ServiceRegistration> GetRegistrationsForType(Type type)
         {
             var registrations = serviceRepository.GetOrDefault(type);
             if (!type.IsClosedGenericType()) return registrations;

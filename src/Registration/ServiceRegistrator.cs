@@ -5,7 +5,7 @@ namespace Stashbox.Registration
 {
     internal class ServiceRegistrator
     {
-        public void Register(IContainerContext containerContext, IServiceRegistration serviceRegistration, Type serviceType)
+        public void Register(IContainerContext containerContext, ServiceRegistration serviceRegistration, Type serviceType)
         {
             if (serviceRegistration.IsDecorator)
                 this.Register(containerContext, serviceRegistration, serviceType, serviceRegistration.RegistrationContext.ReplaceExistingRegistration);
@@ -16,7 +16,7 @@ namespace Stashbox.Registration
             this.Register(containerContext, serviceRegistration, serviceType, serviceRegistration.RegistrationContext.ReplaceExistingRegistration);
         }
 
-        public void Register(IContainerContext containerContext, IServiceRegistration serviceRegistration, Type serviceType, bool replace)
+        public void Register(IContainerContext containerContext, ServiceRegistration serviceRegistration, Type serviceType, bool replace)
         {
             if (serviceRegistration.IsDecorator)
             {
@@ -30,7 +30,7 @@ namespace Stashbox.Registration
                 containerContext.RootScope.InvalidateDelegateCache();
         }
 
-        public void ReMap(IContainerContext containerContext, IServiceRegistration serviceRegistration, Type serviceType)
+        public void ReMap(IContainerContext containerContext, ServiceRegistration serviceRegistration, Type serviceType)
         {
             if (serviceRegistration.IsDecorator)
                 containerContext.DecoratorRepository.AddDecorator(serviceType, serviceRegistration, true, false);

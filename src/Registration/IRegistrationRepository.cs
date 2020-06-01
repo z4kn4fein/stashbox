@@ -16,7 +16,7 @@ namespace Stashbox.Registration
         /// <param name="serviceType">The service type of the registration. Used as the key for the registration mapping.</param>
         /// <param name="remap">If true, all the registrations mapped to a service type will be replaced.</param>
         /// <param name="replace">If true, only one existing registration will be replaced when multiple exists.</param>
-        void AddOrUpdateRegistration(IServiceRegistration registration, Type serviceType, bool remap, bool replace);
+        void AddOrUpdateRegistration(ServiceRegistration registration, Type serviceType, bool remap, bool replace);
 
         /// <summary>
         /// Returns a registration.
@@ -25,7 +25,7 @@ namespace Stashbox.Registration
         /// <param name="resolutionContext">The resolution context.</param>
         /// <param name="name">The requested name.</param>
         /// <returns>The registration or null, if it doesn't exist.</returns>
-        IServiceRegistration GetRegistrationOrDefault(Type type, ResolutionContext resolutionContext, object name = null);
+        ServiceRegistration GetRegistrationOrDefault(Type type, ResolutionContext resolutionContext, object name = null);
 
         /// <summary>
         /// Returns a registration.
@@ -33,7 +33,7 @@ namespace Stashbox.Registration
         /// <param name="typeInfo">The type info.</param>
         /// <param name="resolutionContext">The resolution context.</param>
         /// <returns>The registration or null, if it doesn't exist.</returns>
-        IServiceRegistration GetRegistrationOrDefault(TypeInformation typeInfo, ResolutionContext resolutionContext);
+        ServiceRegistration GetRegistrationOrDefault(TypeInformation typeInfo, ResolutionContext resolutionContext);
 
         /// <summary>
         /// Returns all registrations for a type.
@@ -41,13 +41,13 @@ namespace Stashbox.Registration
         /// <param name="typeInfo">The requested type.</param>
         /// <param name="resolutionContext">The resolution context.</param>
         /// <returns>The registrations or null, if it doesn't exist.</returns>
-        IEnumerable<IServiceRegistration> GetRegistrationsOrDefault(TypeInformation typeInfo, ResolutionContext resolutionContext);
+        IEnumerable<ServiceRegistration> GetRegistrationsOrDefault(TypeInformation typeInfo, ResolutionContext resolutionContext);
 
         /// <summary>
         /// Returns all registration mappings.
         /// </summary>
         /// <returns>The registration mappings.</returns>
-        IEnumerable<KeyValuePair<Type, IServiceRegistration>> GetRegistrationMappings();
+        IEnumerable<KeyValuePair<Type, ServiceRegistration>> GetRegistrationMappings();
 
         /// <summary>
         /// Check a type exists with conditions.
