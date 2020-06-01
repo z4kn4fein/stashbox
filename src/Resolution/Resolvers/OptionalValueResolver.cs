@@ -1,17 +1,16 @@
-﻿using Stashbox.Entity;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 
 namespace Stashbox.Resolution.Resolvers
 {
-    class OptionalValueResolver : IResolver
+    internal class OptionalValueResolver : IResolver
     {
-        public Expression GetExpression(IContainerContext containerContext,
+        public Expression GetExpression(
             IResolutionStrategy resolutionStrategy,
             TypeInformation typeInfo,
             ResolutionContext resolutionContext) =>
             typeInfo.DefaultValue.AsConstant(typeInfo.Type);
 
-        public bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext) =>
+        public bool CanUseForResolution(TypeInformation typeInfo, ResolutionContext resolutionContext) =>
             typeInfo.HasDefaultValue;
     }
 }

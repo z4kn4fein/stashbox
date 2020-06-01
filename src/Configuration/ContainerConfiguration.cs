@@ -17,7 +17,8 @@ namespace Stashbox.Configuration
             return new ContainerConfiguration
             {
                 ConstructorSelectionRule = Rules.ConstructorSelection.PreferMostParameters,
-                DefaultLifetime = Lifetimes.Transient
+                DefaultLifetime = Lifetimes.Transient,
+                LifetimeValidationEnabled = true
             };
         }
 
@@ -30,11 +31,6 @@ namespace Stashbox.Configuration
         /// The actual behavior used when a new service is going to be registered into the container. See the <see cref="Rules.RegistrationBehavior"/> enum for available options.
         /// </summary>
         public Rules.RegistrationBehavior RegistrationBehavior { get; internal set; }
-
-        /// <summary>
-        /// If it's set to true the container will track circular dependencies in the dependency graph and will throw an exception if any of it found.
-        /// </summary>
-        public bool CircularDependencyTrackingEnabled { get; internal set; }
 
         /// <summary>
         /// If it's set to true the container will track circular dependencies in the compiled delegates and will throw an exception if any of it found.
@@ -89,7 +85,7 @@ namespace Stashbox.Configuration
         /// <summary>
         /// Represents the configuration which will be invoked when an unknown type being registered.
         /// </summary>
-        public Action<RegistrationConfigurator> UnknownTypeConfigurator { get; internal set; }
+        public Action<UnknownRegistrationConfigurator> UnknownTypeConfigurator { get; internal set; }
 
         /// <summary>
         /// The action which will be invoked when the container configuration changes.
@@ -106,7 +102,14 @@ namespace Stashbox.Configuration
         /// </summary>
         public LifetimeDescriptor DefaultLifetime { get; internal set; }
 
-        internal ContainerConfiguration()
+        /// <summary>
+        /// When it's true, the container validates the lifetime configuration of the resolution
+        /// graph via the <see cref="LifetimeDescriptor.LifeSpan"/> value,
+        /// and checks that scoped services are not resolved from the root scope.
+        /// </summary>
+        public bool LifetimeValidationEnabled { get; internal set; }
+
+        private ContainerConfiguration()
         { }
     }
 }

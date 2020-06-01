@@ -1,5 +1,4 @@
 ﻿using Stashbox.Configuration;
-using Stashbox.Entity;
 using Stashbox.Registration.Extensions;
 using Stashbox.Registration.SelectionRules;
 using Stashbox.Resolution;

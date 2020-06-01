@@ -28,6 +28,6 @@
         /// <summary>
         /// PerRequest lifetime.
         /// </summary>
-        public static readonly LifetimeDescriptor PerRequest = new ResolutionRequestLifetime();
+        public static readonly LifetimeDescriptor PerScopedRequest = new PerScopedRequestLifetime();
     }
 }

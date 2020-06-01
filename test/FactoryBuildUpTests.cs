@@ -1,5 +1,4 @@
 ﻿using Stashbox.Attributes;
-using Stashbox.Entity;
 using Xunit;
 
 namespace Stashbox.Tests
@@ -50,7 +49,8 @@ namespace Stashbox.Tests
         public void FactoryBuildUpTests_Resolve_NotSame()
         {
             using var container = new StashboxContainer();
-            container.Register<ITest, Test>(context => context.WithInjectionParameters(new InjectionParameter { Value = "test", Name = "name" }));
+            container.Register<ITest, Test>(context =>
+                context.WithInjectionParameter("name", "test"));
             container.Register<ITest1>(context => context.WithFactory(cont =>
             {
                 var test1 = cont.Resolve<ITest>();

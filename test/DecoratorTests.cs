@@ -1,6 +1,5 @@
 ﻿using Stashbox.Attributes;
 using Stashbox.Configuration;
-using Stashbox.Entity;
 using Stashbox.Exceptions;
 using System;
 using System.Collections.Generic;
@@ -205,7 +204,7 @@ namespace Stashbox.Tests
             container.Register<ITest1, Test1>();
             container.RegisterDecorator<ITest1, TestDecorator4>(context => context
                 .WithAutoMemberInjection(Rules.AutoMemberInjectionRules.PropertiesWithLimitedAccess)
-                .WithInjectionParameters(new InjectionParameter { Name = "Name", Value = "test" }));
+                .WithInjectionParameter("Name", "test"));
             var test = container.Resolve<ITest1>();
 
             Assert.NotNull(test);
@@ -490,10 +489,10 @@ namespace Stashbox.Tests
         {
             using var container = new StashboxContainer();
             container.RegisterDecorator<ITest1, TestDecorator1>(context =>
-{
-Assert.Equal(typeof(ITest1), context.ServiceType);
-Assert.Equal(typeof(TestDecorator1), context.ImplementationType);
-});
+            {
+                Assert.Equal(typeof(ITest1), context.ServiceType);
+                Assert.Equal(typeof(TestDecorator1), context.ImplementationType);
+            });
         }
 
         interface ITest1 { ITest1 Test { get; } }

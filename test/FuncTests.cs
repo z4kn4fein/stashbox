@@ -283,7 +283,7 @@ namespace Stashbox.Tests
         {
             var container = new StashboxContainer();
             var test1 = new Test();
-            container.RegisterInstanceAs<ITest>(test1);
+            container.RegisterInstance<ITest>(test1);
             container.RegisterFunc<string, RegisteredFuncTest2>((name, resolver) => new RegisteredFuncTest2(name, resolver.Resolve<ITest>()));
 
             var test = container.Resolve<Func<string, RegisteredFuncTest2>>()("test");
@@ -450,6 +450,21 @@ namespace Stashbox.Tests
             Assert.NotNull(inst);
         }
 
+        [Fact]
+        public void FuncTests_Register_Does_Not_Resolve_Same_As_Param()
+        {
+            var preInst = new Test();
+            var inst = new StashboxContainer()
+                .RegisterInstance<ITest>(preInst)
+                .Register<FunctTest2>()
+                .Register<SameAsParamFuncTest>()
+                .Resolve<SameAsParamFuncTest>();
+
+            Assert.NotSame(inst.Factory(new Test()).Test, preInst);
+            Assert.Same(inst.Factory(preInst).Test, preInst);
+            Assert.Same(inst.Test, preInst);
+        }
+
         static ITest Create(IDependencyResolver resolver) =>
             new Test();
 
@@ -517,13 +532,15 @@ namespace Stashbox.Tests
             }
         }
 
-        class ScopedFuncTest
+        class SameAsParamFuncTest
         {
-            public Func<ITest> Factory { get; set; }
+            public Func<ITest, FunctTest2> Factory { get; }
+            public ITest Test { get; }
 
-            public ScopedFuncTest(Func<ITest> factory)
+            public SameAsParamFuncTest(Func<ITest, FunctTest2> factory, ITest test)
             {
                 this.Factory = factory;
+                this.Test = test;
             }
         }
 

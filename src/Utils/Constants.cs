@@ -18,17 +18,17 @@ namespace Stashbox.Utils
 
         public static readonly ParameterExpression ResolutionScopeParameter = ResolutionScopeType.AsParameter("scope");
 
-        public static readonly MethodInfo AddDisposalMethod = ResolutionScopeType.GetSingleMethod("AddDisposableTracking");
+        public static readonly MethodInfo AddDisposalMethod = ResolutionScopeType.GetSingleMethod(nameof(IResolutionScope.AddDisposableTracking));
 
-        public static readonly MethodInfo GetOrAddScopedObjectMethod = ResolutionScopeType.GetSingleMethod("GetOrAddScopedObject");
+        public static readonly MethodInfo GetOrAddScopedObjectMethod = ResolutionScopeType.GetSingleMethod(nameof(IResolutionScope.GetOrAddScopedObject));
 
-        public static readonly MethodInfo AddWithFinalizerMethod = ResolutionScopeType.GetSingleMethod("AddWithFinalizer");
+        public static readonly MethodInfo AddWithFinalizerMethod = ResolutionScopeType.GetSingleMethod(nameof(IResolutionScope.AddWithFinalizer));
 
-        public static readonly MethodInfo CheckRuntimeCircularDependencyBarrierMethod = ResolutionScopeType.GetSingleMethod("CheckRuntimeCircularDependencyBarrier");
+        public static readonly MethodInfo CheckRuntimeCircularDependencyBarrierMethod = ResolutionScopeType.GetSingleMethod(nameof(IResolutionScope.CheckRuntimeCircularDependencyBarrier));
 
-        public static readonly MethodInfo ResetRuntimeCircularDependencyBarrierMethod = ResolutionScopeType.GetSingleMethod("ResetRuntimeCircularDependencyBarrier");
+        public static readonly MethodInfo ResetRuntimeCircularDependencyBarrierMethod = ResolutionScopeType.GetSingleMethod(nameof(IResolutionScope.ResetRuntimeCircularDependencyBarrier));
 
-        public static readonly MethodInfo BeginScopeMethod = ResolverType.GetSingleMethod("BeginScope");
+        public static readonly MethodInfo BeginScopeMethod = ResolverType.GetSingleMethod(nameof(IDependencyResolver.BeginScope));
 
         public static readonly Type DisposableType = typeof(IDisposable);
 

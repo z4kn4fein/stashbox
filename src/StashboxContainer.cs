@@ -1,7 +1,5 @@
-﻿using Stashbox.BuildUp;
-using Stashbox.BuildUp.Expressions;
-using Stashbox.Configuration;
-using Stashbox.Entity;
+﻿using Stashbox.Configuration;
+using Stashbox.Expressions;
 using Stashbox.Registration;
 using Stashbox.Resolution;
 using Stashbox.Resolution.Resolvers;
@@ -13,61 +11,60 @@ using System.Threading;
 namespace Stashbox
 {
     /// <summary>
-    /// Represents the stashbox dependency injection container.
+    /// Represents the Stashbox dependency injection container.
     /// </summary>
     public sealed partial class StashboxContainer : IStashboxContainer
     {
-        private readonly IResolverSupportedResolutionStrategy resolutionStrategy;
-        private readonly IObjectBuilderSelector objectBuilderSelector;
         private readonly IDependencyResolver rootResolver;
-        private readonly IServiceRegistrator serviceRegistrator;
-        private readonly IRegistrationBuilder registrationBuilder;
-        private readonly IContainerConfigurator containerConfigurator;
-        private readonly IExpressionBuilder expressionBuilder;
+        private readonly ContainerConfigurator containerConfigurator;
+        private readonly ServiceRegistrator serviceRegistrator;
+        private readonly RegistrationBuilder registrationBuilder;
+        private readonly ExpressionFactory expressionFactory;
+        private readonly ExpressionBuilder expressionBuilder;
+        private readonly ResolutionStrategy resolutionStrategy;
         private int disposed;
 
         /// <summary>
         /// Constructs a <see cref="StashboxContainer"/>.
         /// </summary>
-        public StashboxContainer(Action<IContainerConfigurator> config = null)
-            : this(new ResolutionStrategy(), new ServiceRegistrator(), new ContainerConfigurator(), config)
+        public StashboxContainer(Action<ContainerConfigurator> config = null)
+            : this(new ExpressionFactory(new MethodExpressionFactory(), new MemberExpressionFactory()),
+                new ServiceRegistrator(), new RegistrationBuilder(), new ContainerConfigurator(), config)
         {
-            this.expressionBuilder = new ExpressionBuilder(new MethodExpressionBuilder(this.resolutionStrategy),
-                new MemberExpressionBuilder(this.resolutionStrategy));
-            this.objectBuilderSelector = new ObjectBuilderSelector(this.expressionBuilder, this.serviceRegistrator);
+            this.expressionBuilder = new ExpressionBuilder(this.expressionFactory, this.serviceRegistrator);
+            this.resolutionStrategy = new ResolutionStrategy(this.expressionBuilder);
 
-            this.RootScope = new ResolutionScope(this.resolutionStrategy, this.expressionBuilder, this.ContainerContext);
-            this.registrationBuilder = new RegistrationBuilder(this.containerConfigurator.ContainerConfiguration,
-                this.RootScope, this.objectBuilderSelector);
-            this.rootResolver = (IDependencyResolver)this.RootScope;
+            this.ContainerContext = new ContainerContext(null, resolutionStrategy,
+                expressionFactory, this.containerConfigurator.ContainerConfiguration);
+
+            this.rootResolver = (IDependencyResolver)this.ContainerContext.RootScope;
 
             this.RegisterResolvers();
         }
 
-        internal StashboxContainer(IStashboxContainer parentContainer, IServiceRegistrator serviceRegistrator,
-            IResolverSupportedResolutionStrategy resolutionStrategy, IExpressionBuilder expressionBuilder,
-            IObjectBuilderSelector objectBuilderSelector, IContainerConfigurator containerConfigurator)
-            : this(resolutionStrategy, serviceRegistrator, containerConfigurator)
-        {
-            this.ParentContainer = parentContainer;
-            this.expressionBuilder = expressionBuilder;
-            this.objectBuilderSelector = objectBuilderSelector;
-
-            this.RootScope = new ResolutionScope(this.resolutionStrategy, this.expressionBuilder, this.ContainerContext);
-            this.registrationBuilder = new RegistrationBuilder(this.containerConfigurator.ContainerConfiguration,
-                this.RootScope, this.objectBuilderSelector);
-            this.rootResolver = (IDependencyResolver)this.RootScope;
-        }
-
-        internal StashboxContainer(IResolverSupportedResolutionStrategy resolutionStrategy, IServiceRegistrator serviceRegistrator,
-            IContainerConfigurator containerConfigurator, Action<IContainerConfigurator> config = null)
+        internal StashboxContainer(IStashboxContainer parentContainer, ServiceRegistrator serviceRegistrator,
+            RegistrationBuilder registrationBuilder, ResolutionStrategy resolutionStrategy, ExpressionFactory expressionFactory,
+            ExpressionBuilder expressionBuilder, ContainerConfigurator containerConfigurator)
+            : this(expressionFactory, serviceRegistrator, registrationBuilder, containerConfigurator)
         {
             this.resolutionStrategy = resolutionStrategy;
+            this.expressionBuilder = expressionBuilder;
+
+            this.ContainerContext = new ContainerContext(parentContainer.ContainerContext, resolutionStrategy,
+                expressionFactory, this.containerConfigurator.ContainerConfiguration);
+
+            this.rootResolver = (IDependencyResolver)this.ContainerContext.RootScope;
+        }
+
+        internal StashboxContainer(ExpressionFactory expressionFactory, ServiceRegistrator serviceRegistrator,
+            RegistrationBuilder registrationBuilder, ContainerConfigurator containerConfigurator, Action<ContainerConfigurator> config = null)
+        {
+            this.expressionFactory = expressionFactory;
             this.containerConfigurator = containerConfigurator;
             this.serviceRegistrator = serviceRegistrator;
+            this.registrationBuilder = registrationBuilder;
 
             config?.Invoke(this.containerConfigurator);
-            this.ContainerContext = new ContainerContext(this, this.containerConfigurator.ContainerConfiguration);
         }
 
         /// <inheritdoc />
@@ -81,9 +78,8 @@ namespace Stashbox
         /// <inheritdoc />
         public bool CanResolve(Type typeFrom, object name = null) =>
             this.ContainerContext.RegistrationRepository.ContainsRegistration(typeFrom, name) ||
-                this.resolutionStrategy.CanResolveType(this.ContainerContext,
-                    new TypeInformation { Type = typeFrom, DependencyName = name },
-                    new ResolutionContext(RootScope.GetActiveScopeNames(), this.ContainerContext));
+                this.resolutionStrategy.CanResolveType(new TypeInformation { Type = typeFrom, DependencyName = name },
+                    new ResolutionContext(this.ContainerContext.RootScope.GetActiveScopeNames(), this.ContainerContext, this.resolutionStrategy, false));
 
         /// <inheritdoc />
         public bool IsRegistered<TFrom>(object name = null) =>
@@ -97,30 +93,25 @@ namespace Stashbox
         public void Validate()
         {
             foreach (var serviceRegistration in this.ContainerContext.RegistrationRepository.GetRegistrationMappings())
-                serviceRegistration.Value.GetExpression(this.ContainerContext, new ResolutionContext(this.RootScope.GetActiveScopeNames(),
-                    this.ContainerContext), serviceRegistration.Key);
+                this.expressionBuilder.BuildExpressionAndApplyLifetime(serviceRegistration.Value,
+                    new ResolutionContext(this.ContainerContext.RootScope.GetActiveScopeNames(),
+                    this.ContainerContext, this.resolutionStrategy, false), serviceRegistration.Key);
         }
-
-        /// <inheritdoc />
-        public IStashboxContainer ParentContainer { get; }
 
         /// <inheritdoc />
         public IContainerContext ContainerContext { get; }
 
         /// <inheritdoc />
-        public IResolutionScope RootScope { get; }
-
-        /// <inheritdoc />
         public IStashboxContainer CreateChildContainer() =>
-             new StashboxContainer(this, this.serviceRegistrator, this.resolutionStrategy, this.expressionBuilder,
-                 this.objectBuilderSelector, this.containerConfigurator);
+             new StashboxContainer(this, this.serviceRegistrator, this.registrationBuilder, this.resolutionStrategy,
+                 this.expressionFactory, this.expressionBuilder, this.containerConfigurator);
 
         /// <inheritdoc />
         public IDependencyResolver BeginScope(object name = null, bool attachToParent = false) =>
             this.rootResolver.BeginScope(name, attachToParent);
 
         /// <inheritdoc />
-        public void Configure(Action<IContainerConfigurator> config)
+        public void Configure(Action<ContainerConfigurator> config)
         {
             Shield.EnsureNotNull(config, "The config parameter cannot be null!");
 
@@ -142,6 +133,9 @@ namespace Stashbox
             this.resolutionStrategy.RegisterResolver(new TupleResolver());
             this.resolutionStrategy.RegisterResolver(new OptionalValueResolver());
             this.resolutionStrategy.RegisterResolver(new DefaultValueResolver());
+
+            this.resolutionStrategy.RegisterLastChanceResolver(new ParentContainerResolver());
+            this.resolutionStrategy.RegisterLastChanceResolver(new UnknownTypeResolver(this.serviceRegistrator, this.registrationBuilder, this.expressionBuilder));
         }
 
         /// <inheritdoc />
@@ -150,7 +144,7 @@ namespace Stashbox
             if (Interlocked.CompareExchange(ref this.disposed, 1, 0) != 0)
                 return;
 
-            this.RootScope.Dispose();
+            this.ContainerContext.RootScope.Dispose();
         }
     }
 }

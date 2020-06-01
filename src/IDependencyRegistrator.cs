@@ -15,7 +15,7 @@ namespace Stashbox
         /// <typeparam name="TTo">Type that will be returned.</typeparam>
         /// <param name="configurator">The configurator for the registered types.</param>
         /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns>
-        IStashboxContainer Register<TFrom, TTo>(Action<RegistrationConfigurator<TTo>> configurator = null)
+        IStashboxContainer Register<TFrom, TTo>(Action<RegistrationConfigurator<TFrom, TTo>> configurator = null)
             where TFrom : class
             where TTo : class, TFrom;
 
@@ -26,7 +26,7 @@ namespace Stashbox
         /// <param name="typeTo">Type that will be returned.</param>
         /// <param name="configurator">The configurator for the registered types.</param>
         /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns>
-        IStashboxContainer Register<TFrom>(Type typeTo, Action<RegistrationConfigurator<TFrom>> configurator = null)
+        IStashboxContainer Register<TFrom>(Type typeTo, Action<RegistrationConfigurator<TFrom, TFrom>> configurator = null)
             where TFrom : class;
 
         /// <summary>
@@ -44,7 +44,7 @@ namespace Stashbox
         /// <typeparam name="TTo">Type that will be returned.</typeparam>
         /// <param name="configurator">The configurator for the registered types.</param>
         /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns> 
-        IStashboxContainer Register<TTo>(Action<RegistrationConfigurator<TTo>> configurator = null)
+        IStashboxContainer Register<TTo>(Action<RegistrationConfigurator<TTo, TTo>> configurator = null)
              where TTo : class;
 
         /// <summary>
@@ -58,45 +58,45 @@ namespace Stashbox
         /// <summary>
         /// Registers an already constructed instance into the container.
         /// </summary>
-        /// <typeparam name="TFrom">Type that will be requested.</typeparam>
+        /// <typeparam name="TInstance">Type that will be requested.</typeparam>
         /// <param name="instance">The constructed object.</param>
         /// <param name="name">The name of the registration.</param>
         /// <param name="withoutDisposalTracking">If it's set to true the container will exclude the instance from the disposal tracking.</param>
         /// <param name="finalizerDelegate">The cleanup delegate to call before dispose.</param>
         /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns>
-        IStashboxContainer RegisterInstanceAs<TFrom>(TFrom instance, object name = null, bool withoutDisposalTracking = false, Action<TFrom> finalizerDelegate = null)
-            where TFrom : class;
+        IStashboxContainer RegisterInstance<TInstance>(TInstance instance, object name = null, bool withoutDisposalTracking = false, Action<TInstance> finalizerDelegate = null)
+            where TInstance : class;
 
         /// <summary>
         /// Registers an already constructed instance into the container.
         /// </summary>
-        /// <param name="serviceType">The service type.</param>
         /// <param name="instance">The constructed object.</param>
+        /// <param name="serviceType">The service type.</param>
         /// <param name="name">The name of the registration.</param>
         /// <param name="withoutDisposalTracking">If it's set to true the container will exclude the instance from the disposal tracking.</param>
         /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns>
-        IStashboxContainer RegisterInstance(Type serviceType, object instance, object name = null, bool withoutDisposalTracking = false);
+        IStashboxContainer RegisterInstance(object instance, Type serviceType, object name = null, bool withoutDisposalTracking = false);
 
         /// <summary>
         /// Registers an already constructed instance, but the container will perform injections and extensions on it.
         /// </summary>
-        /// <typeparam name="TFrom">Type that will be requested.</typeparam>
+        /// <typeparam name="TInstance">Type that will be requested.</typeparam>
         /// <param name="instance">The constructed object.</param>
         /// <param name="name">The name of the registration.</param>
         /// <param name="withoutDisposalTracking">If it's set to true the container will exclude the instance from the disposal tracking.</param>
         /// <param name="finalizerDelegate">The cleanup delegate to call before dispose.</param>
         /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns>
-        IStashboxContainer WireUpAs<TFrom>(TFrom instance, object name = null, bool withoutDisposalTracking = false, Action<TFrom> finalizerDelegate = null)
-            where TFrom : class;
+        IStashboxContainer WireUp<TInstance>(TInstance instance, object name = null, bool withoutDisposalTracking = false, Action<TInstance> finalizerDelegate = null)
+            where TInstance : class;
 
         /// <summary>
         /// Registers an already constructed instance, but the container will perform injections and extensions on it.
         /// </summary>
-        /// <param name="serviceType">The service type.</param>
         /// <param name="instance">The constructed object.</param>
+        /// <param name="serviceType">The service type.</param>
         /// <param name="name">The name of the registration.</param>
         /// <param name="withoutDisposalTracking">If it's set to true the container will exclude the instance from the disposal tracking.</param>
         /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns>
-        IStashboxContainer WireUp(Type serviceType, object instance, object name = null, bool withoutDisposalTracking = false);
+        IStashboxContainer WireUp(object instance, Type serviceType, object name = null, bool withoutDisposalTracking = false);
     }
 }

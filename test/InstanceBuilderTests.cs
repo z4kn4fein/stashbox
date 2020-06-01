@@ -10,7 +10,7 @@ namespace Stashbox.Tests
         {
             using var container = new StashboxContainer();
             var dep = new Test();
-            container.RegisterInstanceAs<ITest>(dep);
+            container.RegisterInstance<ITest>(dep);
             var inst = container.Resolve<ITest>();
 
             Assert.Same(inst, dep);
@@ -21,7 +21,7 @@ namespace Stashbox.Tests
         {
             using var container = new StashboxContainer();
             var dep = new Test();
-            container.RegisterInstanceAs<ITest>(dep);
+            container.RegisterInstance<ITest>(dep);
             container.Register<ITest1, Test1>();
 
             var inst = container.Resolve<ITest1>();

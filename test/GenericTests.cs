@@ -1,6 +1,5 @@
 ﻿using Stashbox.Configuration;
 using Stashbox.Exceptions;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -30,7 +29,7 @@ namespace Stashbox.Tests
             var en = container.Resolve<IEnumerable<ITest1<int, string>>>();
             var inst = container.Resolve<ITest1<int, string>>();
 
-            Assert.Equal(inst, en.ToArray()[0]);
+            Assert.Same(inst, en.ToArray()[0]);
         }
 
         [Fact]
@@ -43,7 +42,7 @@ namespace Stashbox.Tests
             var en = container.Resolve<IEnumerable<ITest1<int, string>>>();
             var inst = container.Resolve<ITest1<int, string>>();
 
-            Assert.Equal(inst, en.ToArray()[1]);
+            Assert.Same(inst, en.ToArray()[1]);
         }
 
         [Fact]
@@ -58,7 +57,7 @@ namespace Stashbox.Tests
             var en = container.Resolve<IEnumerable<ITest1<int, string>>>().ToArray();
 
             Assert.Equal(3, en.Length);
-            Assert.Equal(inst, en[2]);
+            Assert.Same(inst, en[2]);
         }
 
         [Fact]

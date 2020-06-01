@@ -1,9 +1,9 @@
-﻿using Xunit;
-using Moq;
+﻿using Moq;
+using Xunit;
 
 namespace Stashbox.Tests.IssueTests
 {
-    
+
     public class ComposeByWithInstanceOrInjection
     {
         [Fact]
@@ -25,7 +25,7 @@ namespace Stashbox.Tests.IssueTests
         [Fact]
         public void ComposeByWithMemberInjection()
         {
-            new StashboxContainer(c => c.WithMemberInjectionWithoutAnnotation())
+            new StashboxContainer(c => c.WithAutoMemberInjection())
                 .Register<TestDep>()
                 .ComposeBy<TestRoot>();
         }

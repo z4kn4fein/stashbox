@@ -19,9 +19,14 @@ namespace Stashbox
         IDecoratorRepository DecoratorRepository { get; }
 
         /// <summary>
-        /// The container itself.
+        /// The parent container context.
         /// </summary>
-        IStashboxContainer Container { get; }
+        IContainerContext ParentContext { get; }
+
+        /// <summary>
+        /// The parent container context.
+        /// </summary>
+        IResolutionScope RootScope { get; }
 
         /// <summary>
         /// The container configuration.

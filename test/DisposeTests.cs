@@ -1,5 +1,4 @@
 ﻿using Stashbox.Attributes;
-using Stashbox.Lifetime;
 using System;
 using Xunit;
 
@@ -60,7 +59,7 @@ namespace Stashbox.Tests
             {
                 container.Register<ITest2, Test2>();
                 container.Register<Test3>();
-                container.RegisterInstanceAs(test);
+                container.RegisterInstance(test);
                 test2 = container.Resolve<ITest2>();
                 test3 = container.Resolve<Test3>();
             }
@@ -80,7 +79,7 @@ namespace Stashbox.Tests
             {
                 container.Register<ITest2, Test2>();
                 container.Register<Test3>();
-                container.RegisterInstanceAs(test, withoutDisposalTracking: true);
+                container.RegisterInstance(test, withoutDisposalTracking: true);
                 test2 = container.Resolve<ITest2>();
                 test3 = container.Resolve<Test3>();
             }
@@ -100,7 +99,7 @@ namespace Stashbox.Tests
             {
                 container.Register<ITest2, Test2>();
                 container.Register<Test3>();
-                container.RegisterInstance(typeof(ITest1), test, withoutDisposalTracking: true);
+                container.RegisterInstance(test, typeof(ITest1), withoutDisposalTracking: true);
                 test2 = container.Resolve<ITest2>();
                 test3 = container.Resolve<Test3>();
             }
@@ -140,7 +139,7 @@ namespace Stashbox.Tests
             {
                 container.Register<ITest2, Test2>();
                 container.Register<Test3>();
-                container.WireUpAs(test);
+                container.WireUp(test);
                 test2 = container.Resolve<ITest2>();
                 test3 = container.Resolve<Test3>();
             }
@@ -190,10 +189,11 @@ namespace Stashbox.Tests
                 container.RegisterScoped<ITest1, Test1>("test");
                 container.RegisterScoped<ITest11, Test4>("test2");
 
-                test = container.Resolve<ITest1>();
-                var a = container.Resolve<ITest11>();
-                test2 = container.Resolve<ITest2>();
-                test3 = container.Resolve<Test3>();
+                using var scope = container.BeginScope();
+                test = scope.Resolve<ITest1>();
+                var a = scope.Resolve<ITest11>();
+                test2 = scope.Resolve<ITest2>();
+                test3 = scope.Resolve<Test3>();
 
                 using (var child = container.BeginScope())
                 {
@@ -374,11 +374,13 @@ namespace Stashbox.Tests
                 container.RegisterScoped<Test3>();
                 container.RegisterScoped<ITest1, Test1>();
 
-                test = container.ResolveFactory<ITest1>()();
-                test2 = container.ResolveFactory<ITest2>()();
-                test3 = container.ResolveFactory<Test3>()();
+                using var scope = container.BeginScope();
 
-                using (var child = container.BeginScope())
+                test = scope.ResolveFactory<ITest1>()();
+                test2 = scope.ResolveFactory<ITest2>()();
+                test3 = scope.ResolveFactory<Test3>()();
+
+                using (var child = scope.BeginScope())
                 {
                     test4 = child.ResolveFactory<ITest1>()();
                     test5 = child.ResolveFactory<ITest2>()();
@@ -411,9 +413,11 @@ namespace Stashbox.Tests
                 container.Register<Test3>(context => context.WithScopedLifetime().WithoutDisposalTracking());
                 container.Register<ITest1, Test1>(context => context.WithScopedLifetime().WithoutDisposalTracking());
 
-                test = container.Resolve<ITest1>();
-                test2 = container.Resolve<ITest2>();
-                test3 = container.Resolve<Test3>();
+                using var scope = container.BeginScope();
+
+                test = scope.Resolve<ITest1>();
+                test2 = scope.Resolve<ITest2>();
+                test3 = scope.Resolve<Test3>();
 
                 using (var child = container.BeginScope())
                 {
@@ -669,7 +673,7 @@ namespace Stashbox.Tests
             var test = new Test1();
             using (var container = new StashboxContainer(config => config.WithDisposableTransientTracking()))
             {
-                container.RegisterInstanceAs<ITest1>(test);
+                container.RegisterInstance<ITest1>(test);
 
                 Assert.Same(test, container.Resolve<ITest1>());
             }
@@ -683,7 +687,7 @@ namespace Stashbox.Tests
             ITest1 test = new Test1();
             using (var container = new StashboxContainer(config => config.WithDisposableTransientTracking()))
             {
-                container.WireUpAs(test);
+                container.WireUp(test);
 
                 Assert.Same(test, container.Resolve<ITest1>());
             }
@@ -697,7 +701,7 @@ namespace Stashbox.Tests
             ITest1 test = new Test1();
             using (var container = new StashboxContainer(config => config.WithDisposableTransientTracking()))
             {
-                container.WireUpAs(test, withoutDisposalTracking: true);
+                container.WireUp(test, withoutDisposalTracking: true);
 
                 Assert.Same(test, container.Resolve<ITest1>());
             }
@@ -735,10 +739,12 @@ namespace Stashbox.Tests
         public void DisposeTests_Factory_Scoped()
         {
             ITest1 test;
-            using (var container = new StashboxContainer())
+            using var container = new StashboxContainer()
+                .Register<ITest1, Test1>(context => context.WithScopedLifetime().WithFactory(() => new Test1()));
+
             {
-                container.Register<ITest1, Test1>(context => context.WithScopedLifetime().WithFactory(() => new Test1()));
-                test = container.Resolve<ITest1>();
+                using var scope = container.BeginScope();
+                test = scope.Resolve<ITest1>();
             }
 
             Assert.True(test.Disposed);
@@ -748,10 +754,15 @@ namespace Stashbox.Tests
         public void DisposeTests_Factory_Scoped_WithoutTracking()
         {
             ITest1 test;
-            using (var container = new StashboxContainer())
+            using var container = new StashboxContainer()
+                .Register<ITest1, Test1>(context =>
+                    context.WithScopedLifetime()
+                        .WithFactory(() => new Test1())
+                        .WithoutDisposalTracking());
+
             {
-                container.Register<ITest1, Test1>(context => context.WithScopedLifetime().WithFactory(() => new Test1()).WithoutDisposalTracking());
-                test = container.Resolve<ITest1>();
+                using var scope = container.BeginScope();
+                test = scope.Resolve<ITest1>();
             }
 
             Assert.False(test.Disposed);

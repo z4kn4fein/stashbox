@@ -8,7 +8,7 @@ namespace Stashbox.Tests.IssueTests
         [Fact]
         public void Ensure_MemberInjection_Works_WithFactory()
         {
-            var inst = new StashboxContainer(c => c.WithUnknownTypeResolution().WithMemberInjectionWithoutAnnotation())
+            var inst = new StashboxContainer(c => c.WithUnknownTypeResolution().WithAutoMemberInjection())
                 .Register<ITest, Test>(ctx => ctx.WithFactory(r => new Test()))
                 .Resolve<ITest>();
 

@@ -1,5 +1,4 @@
 ﻿using Stashbox.Attributes;
-using Stashbox.Entity;
 using Stashbox.Utils;
 using System;
 using System.Linq;
@@ -16,7 +15,8 @@ namespace Stashbox.Tests
         {
             IStashboxContainer container = new StashboxContainer();
             container.Register<ITest1, Test1>();
-            container.Register<ITest2, Test2>(context => context.WithInjectionParameters(new InjectionParameter { Value = new Test1 { Name = "fakeName" }, Name = "test1" }));
+            container.Register<ITest2, Test2>(context =>
+                context.WithInjectionParameter("test1", new Test1 { Name = "fakeName" }));
             var inst2 = container.Resolve<ITest2>();
 
             Assert.IsType<Test2>(inst2);
@@ -41,7 +41,8 @@ namespace Stashbox.Tests
         {
             IStashboxContainer container = new StashboxContainer();
             container.Register<ITest1, Test1>();
-            container.Register<ITest2, Test2>(context => context.WithInjectionParameters(new InjectionParameter { Value = new Test1 { Name = "fakeName" }, Name = "test1" }));
+            container.Register<ITest2, Test2>(context =>
+                context.WithInjectionParameter("test1", new Test1 { Name = "fakeName" }));
             var inst2 = container.Resolve<ITest2>();
 
             Assert.IsType<Test2>(inst2);
@@ -158,7 +159,8 @@ namespace Stashbox.Tests
         {
             IStashboxContainer container = new StashboxContainer();
             container.Register<ITest1, Test1>();
-            container.Register<ITest2, Test2>(context => context.WithInjectionParameters(new InjectionParameter { Value = new Test1 { Name = "fakeName" }, Name = "test1" }));
+            container.Register<ITest2, Test2>(context =>
+                context.WithInjectionParameter("test1", new Test1 { Name = "fakeName" }));
             var inst2 = container.Resolve<Lazy<ITest2>>();
 
             Assert.IsType<Test2>(inst2.Value);

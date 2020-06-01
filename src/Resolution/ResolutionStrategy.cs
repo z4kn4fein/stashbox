@@ -1,5 +1,5 @@
-﻿using Stashbox.Entity;
-using Stashbox.Resolution.Resolvers;
+﻿using Stashbox.Expressions;
+using Stashbox.Resolution.Extensions;
 using Stashbox.Utils;
 using System;
 using System.Collections.Generic;
@@ -8,15 +8,18 @@ using System.Linq.Expressions;
 
 namespace Stashbox.Resolution
 {
-    internal class ResolutionStrategy : IResolverSupportedResolutionStrategy
+    internal class ResolutionStrategy : IResolutionStrategy
     {
-        private ImmutableArray<IMultiServiceResolver> multiServiceResolverRepository = ImmutableArray<IMultiServiceResolver>.Empty;
+        private readonly ExpressionBuilder expressionBuilder;
         private ImmutableArray<IResolver> resolverRepository = ImmutableArray<IResolver>.Empty;
-        private readonly UnknownTypeResolver unknownTypeResolver = new UnknownTypeResolver();
-        private readonly ParentContainerResolver parentContainerResolver = new ParentContainerResolver();
+        private ImmutableArray<IResolver> lastChanceResolverRepository = ImmutableArray<IResolver>.Empty;
 
-        public Expression BuildResolutionExpression(IContainerContext containerContext, ResolutionContext resolutionContext, TypeInformation typeInformation,
-            IEnumerable<InjectionParameter> injectionParameters = null, bool forceSkipUnknownTypeCheck = false)
+        public ResolutionStrategy(ExpressionBuilder expressionBuilder)
+        {
+            this.expressionBuilder = expressionBuilder;
+        }
+
+        public Expression BuildExpressionForType(ResolutionContext resolutionContext, TypeInformation typeInformation)
         {
             if (typeInformation.Type == Constants.ResolverType)
                 return resolutionContext.CurrentScopeParameter.ConvertTo(Constants.ResolverType);
@@ -41,94 +44,85 @@ namespace Stashbox.Resolution
                 }
             }
 
-            var matchingParam = injectionParameters?.FirstOrDefault(param => param.Name == typeInformation.ParameterOrMemberName);
-            if (matchingParam != null)
-            {
-                if (matchingParam.Value == null)
-                    return typeInformation.Type == Constants.ObjectType
-                        ? matchingParam.Value.AsConstant()
-                        : matchingParam.Value.AsConstant().ConvertTo(typeInformation.Type);
-
-                return matchingParam.Value.GetType() == typeInformation.Type
-                    ? matchingParam.Value.AsConstant()
-                    : matchingParam.Value.AsConstant().ConvertTo(typeInformation.Type);
-            }
-
-
             var exprOverride = resolutionContext.GetExpressionOverrideOrDefault(typeInformation.Type, typeInformation.DependencyName);
             if (exprOverride != null)
                 return exprOverride;
 
-            var registration = containerContext.RegistrationRepository.GetRegistrationOrDefault(typeInformation, resolutionContext);
-            return registration != null ? registration.GetExpression(resolutionContext.RequestInitiatorContainerContext ?? containerContext, resolutionContext, typeInformation.Type) :
-                this.BuildResolutionExpressionUsingResolvers(containerContext, typeInformation, resolutionContext, forceSkipUnknownTypeCheck);
+            var registration = resolutionContext
+                .CurrentContainerContext
+                .RegistrationRepository
+                .GetRegistrationOrDefault(typeInformation, resolutionContext);
+
+            return registration != null
+                ? this.expressionBuilder.BuildExpressionAndApplyLifetime(registration, resolutionContext, typeInformation.Type)
+                : this.BuildResolutionExpressionUsingResolvers(typeInformation, resolutionContext);
         }
 
-        public Expression[] BuildAllResolutionExpressions(IContainerContext containerContext, ResolutionContext resolutionContext, TypeInformation typeInformation)
+        public IEnumerable<Expression> BuildExpressionsForEnumerableRequest(ResolutionContext resolutionContext, TypeInformation typeInformation)
         {
-            var registrations = containerContext.RegistrationRepository.GetRegistrationsOrDefault(typeInformation, resolutionContext)?.CastToArray();
-            if (registrations == null)
-                return this.BuildAllResolverExpressionsUsingResolvers(containerContext, typeInformation, resolutionContext);
+            var registrations = resolutionContext
+                .CurrentContainerContext
+                .RegistrationRepository
+                .GetRegistrationsOrDefault(typeInformation, resolutionContext)?.CastToArray();
 
-            var lenght = registrations.Length;
-            var expressions = new Expression[lenght];
-            for (var i = 0; i < lenght; i++)
-                expressions[i] = registrations[i].GetExpression(resolutionContext.RequestInitiatorContainerContext ?? containerContext, resolutionContext, typeInformation.Type);
+            if (registrations == null)
+                return this.BuildAllResolverExpressionsUsingResolvers(typeInformation, resolutionContext);
+
+            var length = registrations.Length;
+            var expressions = new Expression[length];
+            for (var i = 0; i < length; i++)
+                expressions[i] = this.expressionBuilder.BuildExpressionAndApplyLifetime(registrations[i], resolutionContext, typeInformation.Type);
 
             return expressions;
         }
 
-        public Expression BuildResolutionExpressionUsingResolvers(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext, bool forceSkipUnknownTypeCheck = false)
+        public Expression BuildExpressionForTopLevelRequest(Type type, object name, ResolutionContext resolutionContext)
         {
-            var length = this.resolverRepository.Length;
-            for (var i = 0; i < length; i++)
-            {
-                var item = this.resolverRepository[i];
-                if (item.CanUseForResolution(containerContext, typeInfo, resolutionContext))
-                    return item.GetExpression(containerContext, this, typeInfo, resolutionContext);
-            }
+            if (type == Constants.ResolverType)
+                return resolutionContext.CurrentScopeParameter.ConvertTo(Constants.ResolverType);
 
-            if (this.parentContainerResolver.CanUseForResolution(containerContext, typeInfo, resolutionContext))
-                return this.parentContainerResolver.GetExpression(containerContext, this, typeInfo, resolutionContext);
+#if HAS_SERVICEPROVIDER
+            if (type == Constants.ServiceProviderType)
+                return resolutionContext.CurrentScopeParameter.ConvertTo(Constants.ServiceProviderType);
+#endif
 
-            return !forceSkipUnknownTypeCheck && this.unknownTypeResolver.CanUseForResolution(containerContext, typeInfo, resolutionContext)
-                ? this.unknownTypeResolver.GetExpression(containerContext, this, typeInfo, resolutionContext)
-                : null;
+            var exprOverride = resolutionContext.GetExpressionOverrideOrDefault(type, name);
+            if (exprOverride != null)
+                return exprOverride;
+
+            var registration = resolutionContext
+                .CurrentContainerContext
+                .RegistrationRepository
+                .GetRegistrationOrDefault(type, resolutionContext, name);
+
+            return registration != null ? this.expressionBuilder.BuildExpressionAndApplyLifetime(registration, resolutionContext, type) :
+                this.BuildResolutionExpressionUsingResolvers(new TypeInformation { Type = type, DependencyName = name }, resolutionContext);
         }
 
-        public bool CanResolveType(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext)
+        public Expression BuildResolutionExpressionUsingResolvers(TypeInformation typeInfo, ResolutionContext resolutionContext)
         {
-            var length = this.resolverRepository.Length;
-            for (var i = 0; i < length; i++)
-                if (this.resolverRepository[i].CanUseForResolution(containerContext, typeInfo, resolutionContext))
-                    return true;
+            var expression = this.resolverRepository.BuildResolutionExpression(typeInfo, resolutionContext, this);
+            if (expression != null) return expression;
 
-            return this.parentContainerResolver.CanUseForResolution(containerContext, typeInfo, resolutionContext) ||
-                this.unknownTypeResolver.CanUseForResolution(containerContext, typeInfo, resolutionContext);
+            return this.lastChanceResolverRepository.BuildResolutionExpression(typeInfo,
+                resolutionContext, this);
         }
 
-        public void RegisterResolver(IResolver resolver)
-        {
+        public bool CanResolveType(TypeInformation typeInfo, ResolutionContext resolutionContext) =>
+            this.resolverRepository.CanResolve(typeInfo, resolutionContext) ||
+            this.lastChanceResolverRepository.CanResolve(typeInfo, resolutionContext);
+
+        public void RegisterResolver(IResolver resolver) =>
             Swap.SwapValue(ref this.resolverRepository, (t1, t2, t3, t4, repo) =>
                repo.Add(t1), resolver, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
-            if (resolver is IMultiServiceResolver multiServiceResolver)
-                Swap.SwapValue(ref this.multiServiceResolverRepository, (t1, t2, t3, t4, repo) =>
-                    repo.Add(t1), multiServiceResolver, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
-        }
 
-        private Expression[] BuildAllResolverExpressionsUsingResolvers(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext)
-        {
-            var length = this.multiServiceResolverRepository.Length;
-            for (var i = 0; i < length; i++)
-            {
-                var item = this.multiServiceResolverRepository[i];
-                if (item.CanUseForResolution(containerContext, typeInfo, resolutionContext))
-                    return item.GetAllExpressions(containerContext, this, typeInfo, resolutionContext);
-            }
+        public void RegisterLastChanceResolver(IResolver resolver) =>
+            Swap.SwapValue(ref this.lastChanceResolverRepository, (t1, t2, t3, t4, repo) =>
+                repo.Add(t1), resolver, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
 
-            return this.parentContainerResolver.CanUseForResolution(containerContext, typeInfo, resolutionContext)
-                ? this.parentContainerResolver.GetAllExpressions(containerContext, this, typeInfo, resolutionContext)
-                : null;
-        }
+        private IEnumerable<Expression> BuildAllResolverExpressionsUsingResolvers(TypeInformation typeInfo, ResolutionContext resolutionContext) =>
+            this.resolverRepository.BuildAllResolutionExpressions(typeInfo, resolutionContext, this) ??
+                   this.lastChanceResolverRepository.BuildAllResolutionExpressions(typeInfo, resolutionContext, this);
+
     }
 }

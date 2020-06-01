@@ -8,8 +8,7 @@ namespace Stashbox.Tests
         public void NamedScope_Hierarchy_Respected()
         {
             var container = new StashboxContainer(c => c
-                    .WithMemberInjectionWithoutAnnotation()
-                    .WithCircularDependencyTracking())
+                    .WithAutoMemberInjection())
                .Register<ITest, Test>(c => c.DefinesScope("root").WithName("root"))
                .Register<ITest, Test1>(c => c.InNamedScope("root").DefinesScope("A"))
                .Register<ITest, Test2>(c => c.InNamedScope("root").DefinesScope("B"))
@@ -32,8 +31,7 @@ namespace Stashbox.Tests
         public void NamedScope_Hierarchy_Respected_WithoutNames()
         {
             var container = new StashboxContainer(c => c
-                    .WithMemberInjectionWithoutAnnotation()
-                    .WithCircularDependencyTracking())
+                    .WithAutoMemberInjection())
                .Register<ITest, Test>(c => c.DefinesScope().WithName("root"))
                .Register<ITest, Test1>(c => c.InScopeDefinedBy<Test>().DefinesScope())
                .Register<ITest, Test2>(c => c.InScopeDefinedBy<Test>().DefinesScope())
@@ -56,8 +54,7 @@ namespace Stashbox.Tests
         public void Conditional_Hierarchy_Respected()
         {
             var container = new StashboxContainer(c => c
-                    .WithMemberInjectionWithoutAnnotation()
-                    .WithCircularDependencyTracking())
+                    .WithAutoMemberInjection())
                .Register<R>(c => c.WithName("root"))
                .Register<ITest, Test1>(c => c.WhenDependantIs<R>())
                .Register<ITest, Test2>(c => c.WhenDependantIs<R>())

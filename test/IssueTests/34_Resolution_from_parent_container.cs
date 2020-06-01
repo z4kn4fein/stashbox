@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Xunit;
 
 namespace Stashbox.Tests.IssueTests
@@ -22,7 +21,7 @@ namespace Stashbox.Tests.IssueTests
 
             Assert.NotNull(test3);
             Assert.IsType<Test3>(test3);
-            Assert.Equal(container, child.ParentContainer);
+            Assert.Same(container.ContainerContext, child.ContainerContext.ParentContext);
         }
 
         [Fact]

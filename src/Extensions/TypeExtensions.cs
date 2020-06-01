@@ -1,7 +1,7 @@
 ﻿using Stashbox.Attributes;
 using Stashbox.Configuration;
-using Stashbox.Entity;
 using Stashbox.Registration;
+using Stashbox.Resolution;
 using Stashbox.Resolution.Resolvers;
 using Stashbox.Utils;
 using System.Collections.Generic;
@@ -193,12 +193,14 @@ namespace System
         public static ConstructorInfo GetFirstConstructor(this Type type) =>
             type.GetTypeInfo().DeclaredConstructors.FirstOrDefault();
 
-        public static ConstructorInfo GetConstructorByTypes(this Type type, params Type[] types)
-        {
-            if (types.Length == 0)
-                return type.GetConstructor(Constants.EmptyTypes);
+        public static MethodInfo GetMethodByArguments(this Type type, string name, params Type[] types) =>
+            (MethodInfo)type.GetTypeInfo().DeclaredMethods.Where(m => m.Name == name).GetMethodByArguments(types);
 
-            return type.GetTypeInfo().DeclaredConstructors.FirstOrDefault(constructor =>
+        public static ConstructorInfo GetConstructorByArguments(this Type type, params  Type[] types) =>
+            (ConstructorInfo)type.GetTypeInfo().DeclaredConstructors.GetMethodByArguments(types);
+
+        public static MethodBase GetMethodByArguments(this IEnumerable<MethodBase> methods, params Type[] types) =>
+            methods.FirstOrDefault(constructor =>
             {
                 var parameters = constructor.GetParameters();
                 if (parameters.Length != types.Length)
@@ -219,7 +221,6 @@ namespace System
 
                 return true;
             });
-        }
 
         public static TypeInformation AsTypeInformation(this ParameterInfo parameter,
             Type declaringType,

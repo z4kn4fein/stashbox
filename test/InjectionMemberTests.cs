@@ -1,7 +1,7 @@
 ﻿using Stashbox.Attributes;
-using Stashbox.Entity;
 using Stashbox.Exceptions;
 using System;
+using System.Collections.Generic;
 using Xunit;
 
 namespace Stashbox.Tests
@@ -32,7 +32,7 @@ namespace Stashbox.Tests
         {
             var container = new StashboxContainer();
             var test1 = new Test1();
-            container.WireUpAs<ITest1>(test1);
+            container.WireUp<ITest1>(test1);
 
             Assert.Throws<ResolutionFailedException>(() => container.Resolve<ITest1>());
         }
@@ -44,7 +44,7 @@ namespace Stashbox.Tests
             container.Register<ITest, Test>();
 
             var test1 = new Test1();
-            container.WireUpAs<ITest1>(test1);
+            container.WireUp<ITest1>(test1);
 
             var inst = container.Resolve<ITest1>();
 
@@ -61,7 +61,8 @@ namespace Stashbox.Tests
         public void InjectionMemberTests_Resolve_InjectionParameter()
         {
             var container = new StashboxContainer();
-            container.Register<ITest2, Test2>(context => context.WithInjectionParameters(new InjectionParameter { Name = "Name", Value = "test" }));
+            container.Register<ITest2, Test2>(context =>
+                context.WithInjectionParameters(new KeyValuePair<string, object>("Name", "test")));
 
             var inst = container.Resolve<ITest2>();
 
@@ -124,7 +125,7 @@ namespace Stashbox.Tests
         {
             var inst = new StashboxContainer(config =>
                     config.WithUnknownTypeResolution()
-                        .WithMemberInjectionWithoutAnnotation(filter: info => info.Name != "Test4"))
+                        .WithAutoMemberInjection(filter: info => info.Name != "Test4"))
                 .Activate<Test6>();
 
             Assert.Null(inst.Test4);

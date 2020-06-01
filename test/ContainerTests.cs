@@ -1,5 +1,4 @@
 ﻿using Stashbox.Configuration;
-using Stashbox.Entity;
 using Stashbox.Exceptions;
 using Stashbox.Lifetime;
 using Stashbox.Resolution;
@@ -28,7 +27,7 @@ namespace Stashbox.Tests
 
             Assert.NotNull(test3);
             Assert.IsType<Test3>(test3);
-            Assert.Equal(container, child.ParentContainer);
+            Assert.Equal(container.ContainerContext, child.ContainerContext.ParentContext);
         }
 
         [Fact]
@@ -56,7 +55,7 @@ namespace Stashbox.Tests
         [Fact]
         public void ContainerTests_Validate_CircularDependency()
         {
-            using var container = new StashboxContainer(config => config.WithCircularDependencyTracking());
+            using var container = new StashboxContainer();
             container.Register<ITest1, Test4>();
             container.Register<ITest3, Test3>();
             Assert.Throws<CircularDependencyException>(() => container.Validate());
@@ -193,7 +192,7 @@ namespace Stashbox.Tests
             var child = container.CreateChildContainer();
             child.Register<ITest2, Test2>();
 
-            var test = child.Resolve<ITest2>();
+            var test = child.BeginScope().Resolve<ITest2>();
 
             Assert.NotNull(test);
             Assert.IsType<Test2>(test);
@@ -315,14 +314,12 @@ namespace Stashbox.Tests
 
         class TestResolver : IResolver
         {
-            public bool CanUseForResolution(IContainerContext containerContext,
-                TypeInformation typeInfo, ResolutionContext resolutionInfo)
+            public bool CanUseForResolution(TypeInformation typeInfo, ResolutionContext resolutionInfo)
             {
                 return typeInfo.Type == typeof(ITest1);
             }
 
-            public Expression GetExpression(IContainerContext containerContext,
-                IResolutionStrategy resolutionStrategy,
+            public Expression GetExpression(IResolutionStrategy resolutionStrategy,
                 TypeInformation typeInfo,
                 ResolutionContext resolutionInfo)
             {
@@ -330,23 +327,21 @@ namespace Stashbox.Tests
             }
         }
 
-        class TestResolver2 : IMultiServiceResolver
+        class TestResolver2 : IEnumerableSupportedResolver
         {
-            public bool CanUseForResolution(IContainerContext containerContext,
-                TypeInformation typeInfo, ResolutionContext resolutionInfo)
+            public bool CanUseForResolution(TypeInformation typeInfo, ResolutionContext resolutionInfo)
             {
                 return typeInfo.Type == typeof(ITest1);
             }
 
-            public Expression GetExpression(IContainerContext containerContext,
-                IResolutionStrategy resolutionStrategy,
+            public Expression GetExpression(IResolutionStrategy resolutionStrategy,
                 TypeInformation typeInfo,
                 ResolutionContext resolutionInfo)
             {
                 return Expression.Constant(new Test1());
             }
 
-            public Expression[] GetAllExpressions(IContainerContext containerContext,
+            public IEnumerable<Expression> GetExpressionsForEnumerableRequest(
                 IResolutionStrategy resolutionStrategy,
                 TypeInformation typeInfo,
                 ResolutionContext resolutionInfo)

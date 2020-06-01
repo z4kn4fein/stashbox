@@ -1,4 +1,5 @@
-﻿using Stashbox.Registration.Fluent;
+﻿using Stashbox.Exceptions;
+using Stashbox.Registration.Fluent;
 using Stashbox.Utils;
 using System;
 
@@ -7,21 +8,27 @@ namespace Stashbox
     public partial class StashboxContainer
     {
         /// <inheritdoc />
-        public IStashboxContainer Register<TFrom, TTo>(Action<RegistrationConfigurator<TTo>> configurator = null)
+        public IStashboxContainer Register<TFrom, TTo>(Action<RegistrationConfigurator<TFrom, TTo>> configurator = null)
             where TFrom : class
             where TTo : class, TFrom
         {
-            var registrationConfigurator = new RegistrationConfigurator<TTo>(typeof(TFrom), typeof(TTo));
+            var registrationConfigurator = new RegistrationConfigurator<TFrom, TTo>(typeof(TFrom), typeof(TTo));
             configurator?.Invoke(registrationConfigurator);
             return this.RegisterInternal(registrationConfigurator);
         }
 
         /// <inheritdoc />
-        public IStashboxContainer Register<TFrom>(Type typeTo, Action<RegistrationConfigurator<TFrom>> configurator = null)
+        public IStashboxContainer Register<TFrom>(Type typeTo, Action<RegistrationConfigurator<TFrom, TFrom>> configurator = null)
             where TFrom : class
         {
-            var registrationConfigurator = new RegistrationConfigurator<TFrom>(typeof(TFrom), typeTo);
+            Shield.EnsureNotNull(typeTo, nameof(typeTo));
+
+            var registrationConfigurator = new RegistrationConfigurator<TFrom, TFrom>(typeof(TFrom), typeTo);
             configurator?.Invoke(registrationConfigurator);
+
+            if (!registrationConfigurator.TypeMapIsValid(out var error))
+                throw new InvalidRegistrationException(registrationConfigurator.ImplementationType, error);
+
             return this.RegisterInternal(registrationConfigurator);
         }
 
@@ -33,16 +40,24 @@ namespace Stashbox
 
             var registrationConfigurator = new RegistrationConfigurator(typeFrom, typeTo);
             configurator?.Invoke(registrationConfigurator);
+
+            if (!registrationConfigurator.TypeMapIsValid(out var error))
+                throw new InvalidRegistrationException(registrationConfigurator.ImplementationType, error);
+
             return this.RegisterInternal(registrationConfigurator);
         }
 
         /// <inheritdoc />
-        public IStashboxContainer Register<TTo>(Action<RegistrationConfigurator<TTo>> configurator = null)
+        public IStashboxContainer Register<TTo>(Action<RegistrationConfigurator<TTo, TTo>> configurator = null)
             where TTo : class
         {
             var type = typeof(TTo);
-            var registrationConfigurator = new RegistrationConfigurator<TTo>(type, type);
+            var registrationConfigurator = new RegistrationConfigurator<TTo, TTo>(type, type);
             configurator?.Invoke(registrationConfigurator);
+
+            if (!registrationConfigurator.ImplementationIsResolvable(out var error))
+                throw new InvalidRegistrationException(registrationConfigurator.ImplementationType, error);
+
             return this.RegisterInternal(registrationConfigurator);
         }
 
@@ -51,12 +66,12 @@ namespace Stashbox
             this.Register(typeTo, typeTo, configurator);
 
         /// <inheritdoc />
-        public IStashboxContainer RegisterInstanceAs<TFrom>(TFrom instance, object name = null, bool withoutDisposalTracking = false,
-            Action<TFrom> finalizerDelegate = null) where TFrom : class
+        public IStashboxContainer RegisterInstance<TInstance>(TInstance instance, object name = null, bool withoutDisposalTracking = false,
+            Action<TInstance> finalizerDelegate = null) where TInstance : class
         {
             Shield.EnsureNotNull(instance, nameof(instance));
 
-            return this.Register<TFrom>(instance.GetType(), context =>
+            return this.Register<TInstance>(context =>
             {
                 context.WithFinalizer(finalizerDelegate).WithInstance(instance).WithName(name);
                 if (withoutDisposalTracking)
@@ -65,11 +80,12 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public IStashboxContainer RegisterInstance(Type serviceType, object instance, object name = null, bool withoutDisposalTracking = false)
+        public IStashboxContainer RegisterInstance(object instance, Type serviceType, object name = null, bool withoutDisposalTracking = false)
         {
             Shield.EnsureNotNull(instance, nameof(instance));
+            Shield.EnsureNotNull(serviceType, nameof(serviceType));
 
-            return this.Register(serviceType, instance.GetType(), context =>
+            return this.Register(serviceType, context =>
             {
                 context.WithInstance(instance).WithName(name);
                 if (withoutDisposalTracking)
@@ -78,26 +94,26 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public IStashboxContainer WireUpAs<TFrom>(TFrom instance, object name = null, bool withoutDisposalTracking = false,
-            Action<TFrom> finalizerDelegate = null) where TFrom : class
+        public IStashboxContainer WireUp<TInstance>(TInstance instance, object name = null, bool withoutDisposalTracking = false,
+            Action<TInstance> finalizerDelegate = null) where TInstance : class
         {
             Shield.EnsureNotNull(instance, nameof(instance));
 
-            return this.Register<TFrom>(instance.GetType(), context =>
-            {
-                context.WithFinalizer(finalizerDelegate).WithInstance(instance, true).WithName(name);
-                if (withoutDisposalTracking)
-                    context.WithoutDisposalTracking();
-            });
+            return this.Register<TInstance>(context =>
+           {
+               context.WithFinalizer(finalizerDelegate).WithInstance(instance, true).WithName(name);
+               if (withoutDisposalTracking)
+                   context.WithoutDisposalTracking();
+           });
         }
 
         /// <inheritdoc />
-        public IStashboxContainer WireUp(Type serviceType, object instance, object name = null, bool withoutDisposalTracking = false)
+        public IStashboxContainer WireUp(object instance, Type serviceType, object name = null, bool withoutDisposalTracking = false)
         {
             Shield.EnsureNotNull(instance, nameof(instance));
             Shield.EnsureNotNull(serviceType, nameof(serviceType));
 
-            return this.Register(serviceType, instance.GetType(), context =>
+            return this.Register(serviceType, context =>
             {
                 context.WithInstance(instance, true).WithName(name);
                 if (withoutDisposalTracking)
@@ -113,11 +129,15 @@ namespace Stashbox
 
             var decoratorConfigurator = new DecoratorConfigurator(typeFrom, typeTo);
             configurator?.Invoke(decoratorConfigurator);
+
+            if (!decoratorConfigurator.TypeMapIsValid(out var error))
+                throw new InvalidRegistrationException(decoratorConfigurator.ImplementationType, error);
+
             this.serviceRegistrator.Register(
                 this.ContainerContext,
-                this.registrationBuilder.BuildServiceRegistration(decoratorConfigurator, true),
-                typeFrom,
-                decoratorConfigurator.Context);
+                this.registrationBuilder.BuildServiceRegistration(this.ContainerContext,
+                    decoratorConfigurator, true),
+                decoratorConfigurator.ServiceType);
 
             return this;
         }
@@ -126,9 +146,9 @@ namespace Stashbox
         {
             this.serviceRegistrator.Register(
                 this.ContainerContext,
-                this.registrationBuilder.BuildServiceRegistration(registrationConfiguration, false),
-                registrationConfiguration.ServiceType,
-                registrationConfiguration.Context);
+                this.registrationBuilder.BuildServiceRegistration(this.ContainerContext,
+                    registrationConfiguration, false),
+                registrationConfiguration.ServiceType);
 
             return this;
         }

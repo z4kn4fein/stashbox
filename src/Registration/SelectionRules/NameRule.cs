@@ -1,6 +1,4 @@
-﻿using System;
-using Stashbox.Entity;
-using Stashbox.Resolution;
+﻿using Stashbox.Resolution;
 
 namespace Stashbox.Registration.SelectionRules
 {

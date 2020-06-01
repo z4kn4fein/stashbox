@@ -1,84 +1,52 @@
-﻿using Stashbox.BuildUp;
-using Stashbox.Configuration;
-using Stashbox.Exceptions;
-using Stashbox.Lifetime;
+﻿using Stashbox.Lifetime;
 using Stashbox.Registration.Fluent;
 using Stashbox.Utils;
 using System;
 
 namespace Stashbox.Registration
 {
-    internal class RegistrationBuilder : IRegistrationBuilder
+    internal class RegistrationBuilder
     {
-        private readonly ContainerConfiguration containerConfiguration;
-        private readonly IResolutionScope rootScope;
-        private readonly IObjectBuilderSelector objectBuilderSelector;
-
-        public RegistrationBuilder(ContainerConfiguration containerConfiguration, IResolutionScope rootScope, IObjectBuilderSelector objectBuilderSelector)
+        public IServiceRegistration BuildServiceRegistration(IContainerContext containerContext, RegistrationConfiguration registrationConfiguration, bool isDecorator)
         {
-            this.containerConfiguration = containerConfiguration;
-            this.rootScope = rootScope;
-            this.objectBuilderSelector = objectBuilderSelector;
+            this.PreProcessExistingInstanceIfNeeded(containerContext, registrationConfiguration.Context, registrationConfiguration.ImplementationType);
+            registrationConfiguration.Context.Lifetime = this.ChooseLifeTime(containerContext, registrationConfiguration.Context);
+
+            return new ServiceRegistration(registrationConfiguration.ImplementationType, this.DetermineRegistrationType(registrationConfiguration),
+                containerContext.ContainerConfiguration, registrationConfiguration.Context, isDecorator);
         }
 
-        public IServiceRegistration BuildServiceRegistration(RegistrationConfiguration registrationConfiguration, bool isDecorator)
-        {
-            if (!registrationConfiguration.TypeMapIsValid(out var error))
-                throw new InvalidRegistrationException(registrationConfiguration.ImplementationType, error);
-
-            this.PreProcessExistingInstanceIfNeeded(registrationConfiguration.Context, registrationConfiguration.ImplementationType);
-            registrationConfiguration.Context.Lifetime = this.ChooseLifeTime(registrationConfiguration.Context);
-
-            var shouldHandleDisposal = this.ShouldHandleDisposal(registrationConfiguration.Context);
-
-            return new ServiceRegistration(registrationConfiguration.ImplementationType, this.containerConfiguration,
-                this.SelectObjectBuilder(registrationConfiguration.Context, registrationConfiguration.ImplementationType),
-                registrationConfiguration.Context, isDecorator, shouldHandleDisposal);
-        }
-
-        private void PreProcessExistingInstanceIfNeeded(RegistrationContext registrationContext, Type implementationType)
+        private void PreProcessExistingInstanceIfNeeded(IContainerContext containerContext, RegistrationContext registrationContext, Type implementationType)
         {
             if (registrationContext.ExistingInstance == null) return;
 
             if (!registrationContext.IsLifetimeExternallyOwned && registrationContext.ExistingInstance is IDisposable disposable)
-                this.rootScope.AddDisposableTracking(disposable);
+                containerContext.RootScope.AddDisposableTracking(disposable);
 
             if (registrationContext.Finalizer == null) return;
 
             var method = Constants.AddWithFinalizerMethod.MakeGenericMethod(implementationType);
-            method.Invoke(this.rootScope, new[] { registrationContext.ExistingInstance, registrationContext.Finalizer });
+            method.Invoke(containerContext.RootScope, new[] { registrationContext.ExistingInstance, registrationContext.Finalizer });
         }
 
-        private bool ShouldHandleDisposal(RegistrationContext registrationContext)
-        {
-            if (registrationContext.IsLifetimeExternallyOwned)
-                return false;
-
-            if (registrationContext.ExistingInstance != null)
-                return false;
-
-            return this.containerConfiguration.TrackTransientsForDisposalEnabled || !(registrationContext.Lifetime is TransientLifetime);
-        }
-
-        private LifetimeDescriptor ChooseLifeTime(RegistrationContext registrationContext) => registrationContext.IsWireUp
+        private LifetimeDescriptor ChooseLifeTime(IContainerContext containerContext, RegistrationContext registrationContext) => registrationContext.IsWireUp
                 ? Lifetimes.Singleton
-                : registrationContext.Lifetime ?? this.containerConfiguration.DefaultLifetime;
+                : registrationContext.Lifetime ?? containerContext.ContainerConfiguration.DefaultLifetime;
 
-        private IObjectBuilder SelectObjectBuilder(RegistrationContext registrationContext, Type implementationType)
+        private RegistrationType DetermineRegistrationType(RegistrationConfiguration registrationConfiguration)
         {
-            if (implementationType.IsOpenGenericType())
-                return this.objectBuilderSelector.Get(ObjectBuilder.Generic);
+            if (registrationConfiguration.ImplementationType.IsOpenGenericType())
+                return RegistrationType.OpenGeneric;
 
-            if (registrationContext.ExistingInstance != null)
-                return registrationContext.IsWireUp
-                    ? this.objectBuilderSelector.Get(ObjectBuilder.WireUp)
-                    : this.objectBuilderSelector.Get(ObjectBuilder.Instance);
+            if (registrationConfiguration.Context.ExistingInstance != null)
+                return registrationConfiguration.Context.IsWireUp
+                    ? RegistrationType.WireUp
+                    : RegistrationType.Instance;
 
-            return registrationContext.ContainerFactory != null
-                ? this.objectBuilderSelector.Get(ObjectBuilder.Factory)
-                : this.objectBuilderSelector.Get(registrationContext.SingleFactory != null
-                    ? ObjectBuilder.Factory
-                    : ObjectBuilder.Default);
+            return registrationConfiguration.Context.ContainerFactory != null ||
+                   registrationConfiguration.Context.SingleFactory != null
+                ? RegistrationType.Factory
+                : RegistrationType.Default;
         }
     }
 }

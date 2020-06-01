@@ -1,5 +1,4 @@
-﻿using Stashbox.Entity;
-using Xunit;
+﻿using Xunit;
 
 namespace Stashbox.Tests.IssueTests
 {
@@ -10,18 +9,12 @@ namespace Stashbox.Tests.IssueTests
         public void Unable_to_use_nullable_types_with_injection_parameters()
         {
             var container = new StashboxContainer(config => config
-                .WithDefaultValueInjection()
-                .WithCircularDependencyTracking());
+                .WithDefaultValueInjection());
 
             var someInt = 123;
 
             var inst = container.Register<IExample, ExampleClass>(
-                config => config.WithInjectionParameters(
-                    new InjectionParameter
-                    {
-                        Name = "exampleValue",
-                        Value = someInt
-                    })).Resolve<IExample>();
+                config => config.WithInjectionParameter("exampleValue", someInt)).Resolve<IExample>();
 
             Assert.NotNull(inst);
             Assert.IsType<ExampleClass>(inst);
@@ -33,18 +26,12 @@ namespace Stashbox.Tests.IssueTests
         {
             var container = new StashboxContainer(config => config
                 .WithDefaultValueInjection()
-                .WithMemberInjectionWithoutAnnotation()
-                .WithCircularDependencyTracking());
+                .WithAutoMemberInjection());
 
             var someInt = 123;
 
             var inst = container.Register<IExample, ExampleClass2>(
-                config => config.WithInjectionParameters(
-                    new InjectionParameter
-                    {
-                        Name = "ExampleProperty",
-                        Value = someInt
-                    })).Resolve<IExample>();
+                config => config.WithInjectionParameter("ExampleProperty", someInt)).Resolve<IExample>();
 
             Assert.NotNull(inst);
             Assert.IsType<ExampleClass2>(inst);

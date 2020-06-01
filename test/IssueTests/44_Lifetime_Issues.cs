@@ -66,16 +66,17 @@ namespace Stashbox.Tests.IssueTests
             StashboxContainer sb2 = CreateContainer(c => c.WithScopedLifetime());
 
             // This works
-            sb1.PutInstanceInScope(typeof(PrivateArgs<ITier2>), PrivateArgs<ITier2>.Get("Bob"));
-            sb1.PutInstanceInScope(typeof(PrivateArgs<TierBase>), PrivateArgs<TierBase>.Get(5));
-            ITier1 renderer = (ITier1)sb1.Resolve(typeof(ITier1));
+            using var scope1 = sb1.BeginScope();
+            scope1.PutInstanceInScope(typeof(PrivateArgs<ITier2>), PrivateArgs<ITier2>.Get("Bob"));
+            scope1.PutInstanceInScope(typeof(PrivateArgs<TierBase>), PrivateArgs<TierBase>.Get(5));
+            ITier1 renderer = (ITier1)scope1.Resolve(typeof(ITier1));
 
             // This fails
             using var sbc = sb2.CreateChildContainer();
-            using var scope = sbc.BeginScope();
-            scope.PutInstanceInScope(typeof(PrivateArgs<ITier2>), PrivateArgs<ITier2>.Get("Bob"));
-            scope.PutInstanceInScope(typeof(PrivateArgs<TierBase>), PrivateArgs<TierBase>.Get(5));
-            ITier1 renderer2 = (ITier1)scope.Resolve(typeof(ITier1));
+            using var scope2 = sbc.BeginScope();
+            scope2.PutInstanceInScope(typeof(PrivateArgs<ITier2>), PrivateArgs<ITier2>.Get("Bob"));
+            scope2.PutInstanceInScope(typeof(PrivateArgs<TierBase>), PrivateArgs<TierBase>.Get(5));
+            ITier1 renderer2 = (ITier1)scope2.Resolve(typeof(ITier1));
         }
 
         private static StashboxContainer CreateContainer(Action<RegistrationConfigurator> scopeConfig = null)
@@ -83,7 +84,7 @@ namespace Stashbox.Tests.IssueTests
             var sb = new StashboxContainer(
                             config => config
                                 .WithUnknownTypeResolution(ctx => ctx.WhenHas<DoResolveAttribute>())
-                                .WithMemberInjectionWithoutAnnotation(
+                                .WithAutoMemberInjection(
                                     Stashbox.Configuration.Rules.AutoMemberInjectionRules.PropertiesWithPublicSetter,
                                     ti => ti.CustomAttributes.OfType<DoResolveAttribute>().Any()
                                     )

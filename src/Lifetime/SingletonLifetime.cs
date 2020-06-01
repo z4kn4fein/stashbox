@@ -8,18 +8,19 @@ namespace Stashbox.Lifetime
     /// <summary>
     /// Represents a singleton lifetime manager.
     /// </summary>
-    public class SingletonLifetime : LifetimeDescriptor
+    public class SingletonLifetime : FactoryLifetimeDescriptor
     {
         /// <inheritdoc />
-        protected override Expression GetLifetimeAppliedExpression(IContainerContext containerContext, IServiceRegistration serviceRegistration,
-            ResolutionContext resolutionContext, Type resolveType)
-        {
-            var factory = base.GetFactoryDelegate(containerContext, serviceRegistration, resolutionContext, resolveType);
-            if (factory == null)
-                return null;
+        protected override int LifeSpan => 20;
 
-            return resolutionContext.CurrentContainerContext.Container.RootScope
-                .GetOrAddScopedObject(serviceRegistration.RegistrationId, serviceRegistration.RegistrationName, factory).AsConstant();
-        }
+        /// <inheritdoc />
+        protected override string Name => nameof(SingletonLifetime);
+
+        /// <inheritdoc />
+        protected override Expression ApplyLifetime(Func<IResolutionScope, object> factory,
+            IServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType) =>
+            resolutionContext.CurrentContainerContext.RootScope
+                    .GetOrAddScopedObject(serviceRegistration.RegistrationId, serviceRegistration.RegistrationName, factory)
+                    .AsConstant();
     }
 }

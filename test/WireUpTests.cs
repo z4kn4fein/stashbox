@@ -12,10 +12,10 @@ namespace Stashbox.Tests
         {
             using var container = new StashboxContainer();
             var test1 = new Test1();
-            container.WireUpAs<ITest1>(test1);
+            container.WireUp<ITest1>(test1);
 
             var test2 = new Test();
-            container.WireUpAs<ITest>(test2);
+            container.WireUp<ITest>(test2);
 
             var inst = container.Resolve<ITest1>();
             var inst2 = container.Resolve<ITest>();
@@ -29,10 +29,10 @@ namespace Stashbox.Tests
         {
             using var container = new StashboxContainer();
             var test1 = new Test();
-            container.WireUpAs<ITest>(test1, "test1");
+            container.WireUp<ITest>(test1, "test1");
 
             var test2 = new Test();
-            container.WireUpAs<ITest>(test2, "test2");
+            container.WireUp<ITest>(test2, "test2");
 
             var inst = container.Resolve<ITest>("test1");
             var inst2 = container.Resolve<ITest>("test2");
@@ -45,10 +45,10 @@ namespace Stashbox.Tests
         public void WireUpTests_InjectionMember()
         {
             using var container = new StashboxContainer();
-            container.Register<ITest, Test>();
+            container.RegisterSingleton<ITest, Test>();
 
             var test1 = new Test1();
-            container.WireUpAs<ITest1>(test1);
+            container.WireUp<ITest1>(test1);
 
             container.Register<Test2>();
 
@@ -65,12 +65,12 @@ namespace Stashbox.Tests
         public void WireUpTests_InjectionMember_ServiceUpdated()
         {
             using var container = new StashboxContainer();
-            container.Register<ITest, Test>();
+            container.RegisterSingleton<ITest, Test>();
 
             var test1 = new Test1();
-            container.WireUpAs<ITest1>(test1);
+            container.WireUp<ITest1>(test1);
 
-            container.ReMap<ITest, Test>();
+            container.ReMap<ITest, Test>(c => c.WithSingletonLifetime());
 
             container.Register<Test2>();
 
@@ -87,7 +87,7 @@ namespace Stashbox.Tests
         public void WireUpTests_InjectionMember_WithoutService()
         {
             using var container = new StashboxContainer();
-            container.Register<ITest, Test>();
+            container.RegisterSingleton<ITest, Test>();
             var test1 = new Test1();
             container.WireUp(test1);
             var inst = container.Resolve<Test1>();
@@ -102,9 +102,9 @@ namespace Stashbox.Tests
         public void WireUpTests_WithoutService_NonGeneric()
         {
             using var container = new StashboxContainer();
-            container.Register<ITest, Test>();
+            container.RegisterSingleton<ITest, Test>();
             object test1 = new Test1();
-            container.WireUp(typeof(Test1), test1);
+            container.WireUp(test1, typeof(Test1));
             var inst = container.Resolve<Test1>();
 
             Assert.NotNull(inst);

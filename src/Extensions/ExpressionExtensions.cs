@@ -3,8 +3,9 @@ using Stashbox.Configuration;
 using Stashbox.Resolution;
 using System.Collections.Generic;
 using System.Reflection;
+using Stashbox.Expressions.Compile;
 #if IL_EMIT
-using Stashbox.BuildUp.Expressions.Compile;
+
 #endif
 
 namespace System.Linq.Expressions
@@ -171,8 +172,18 @@ namespace System.Linq.Expressions
         /// <summary>
         /// Constructs a lambda expression from an expression and parameters, => Expression.Lambda(expression, parameters)
         /// </summary>
-        /// <param name="delegateType">The type of the delegate.</param>
         /// <param name="expression">The expression.</param>
+        /// <param name="delegateType">The type of the delegate.</param>
+        /// <param name="parameters">The parameters.</param>
+        /// <returns>The lambda expression.</returns>
+        public static LambdaExpression AsLambda(this Expression expression, Type delegateType, IEnumerable<ParameterExpression> parameters) =>
+            Expression.Lambda(delegateType, expression, parameters);
+
+        /// <summary>
+        /// Constructs a lambda expression from an expression and parameters, => Expression.Lambda(expression, parameters)
+        /// </summary>
+        /// <param name="expression">The expression.</param>
+        /// <param name="delegateType">The type of the delegate.</param>
         /// <param name="parameters">The parameters.</param>
         /// <returns>The lambda expression.</returns>
         public static LambdaExpression AsLambda(this Expression expression, Type delegateType, params ParameterExpression[] parameters) =>
@@ -332,12 +343,21 @@ namespace System.Linq.Expressions
            Expression.MemberInit((NewExpression)expression, bindings);
 
         /// <summary>
-        /// Constructs a new array expression, => Expression.NewArrayInit(type, initializers)
+        /// Constructs a new array expression, => Expression.NewArrayInit(type, initializerExpressions)
         /// </summary>
         /// <param name="type">The type.</param>
-        /// <param name="initializers">The element initializer expressions.</param>
+        /// <param name="initializerExpressions">The element initializer expressions.</param>
         /// <returns>The new array expression.</returns>
-        public static NewArrayExpression InitNewArray(this Type type, params Expression[] initializers) =>
-          Expression.NewArrayInit(type, initializers);
+        public static NewArrayExpression InitNewArray(this Type type, params Expression[] initializerExpressions) =>
+          Expression.NewArrayInit(type, initializerExpressions);
+
+        /// <summary>
+        /// Constructs a new array expression, => Expression.NewArrayInit(type, initializerExpressions)
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <param name="initializerExpressions">The element initializer expressions.</param>
+        /// <returns>The new array expression.</returns>
+        public static NewArrayExpression InitNewArray(this Type type, IEnumerable<Expression> initializerExpressions) =>
+            Expression.NewArrayInit(type, initializerExpressions);
     }
 }

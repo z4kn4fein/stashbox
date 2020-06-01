@@ -1,7 +1,7 @@
 ﻿using Stashbox.Configuration;
-using Stashbox.Entity;
 using Stashbox.Lifetime;
 using Stashbox.Registration.Fluent;
+using Stashbox.Resolution;
 using Stashbox.Utils;
 using System;
 using System.Collections.Generic;
@@ -15,25 +15,12 @@ namespace Stashbox.Registration
     /// </summary>
     public class RegistrationContext
     {
-        /// <summary>
-        /// Empty registration data.
-        /// </summary>
-        public static readonly RegistrationContext Empty = New();
-
-        /// <summary>
-        /// Empty registration data.
-        /// </summary>
-        public static RegistrationContext New() => new RegistrationContext();
+        internal static RegistrationContext Empty = new RegistrationContext();
 
         /// <summary>
         /// Indicates that the current registration should replace an existing one.
         /// </summary>
         public bool ReplaceExistingRegistration { get; internal set; }
-
-        /// <summary>
-        /// Indicates that the factory delegate for the current registration shouldn't be cached.
-        /// </summary>
-        public bool FactoryCacheDisabled { get; internal set; }
 
         /// <summary>
         /// Contains the additional service types the current registration mapped to.
@@ -48,17 +35,17 @@ namespace Stashbox.Registration
         /// <summary>
         /// Container factory of the registration.
         /// </summary>
-        public Func<IDependencyResolver, object> ContainerFactory { get; internal set; }
+        public Delegate ContainerFactory { get; internal set; }
 
         /// <summary>
         /// Parameterless factory of the registration.
         /// </summary>
-        public Func<object> SingleFactory { get; internal set; }
+        public Delegate SingleFactory { get; internal set; }
 
         /// <summary>
         /// Injection parameters of the registration.
         /// </summary>
-        public IEnumerable<InjectionParameter> InjectionParameters { get; internal set; }
+        public IEnumerable<KeyValuePair<string, object>> InjectionParameters { get; internal set; }
 
         /// <summary>
         /// The selected constructor if any was set.
@@ -108,12 +95,12 @@ namespace Stashbox.Registration
         /// <summary>
         /// The cleanup delegate.
         /// </summary>
-        public object Finalizer { get; internal set; }
+        public Delegate Finalizer { get; internal set; }
 
         /// <summary>
         /// The initializer delegate.
         /// </summary>
-        public object Initializer { get; internal set; }
+        public Delegate Initializer { get; internal set; }
 
         /// <summary>
         /// The auto member injection rule for the registration.
@@ -165,14 +152,11 @@ namespace Stashbox.Registration
         /// </summary>
         public Func<MemberInfo, bool> MemberInjectionFilter { get; internal set; }
 
-        /// <summary>
-        /// Constructs a <see cref="RegistrationContext"/>
-        /// </summary>
-        public RegistrationContext()
+        internal RegistrationContext()
         {
             this.AttributeConditions = new ExpandableArray<Type>();
             this.AdditionalServiceTypes = new ExpandableArray<Type>();
-            this.InjectionParameters = new ExpandableArray<InjectionParameter>();
+            this.InjectionParameters = new ExpandableArray<KeyValuePair<string, object>>();
             this.InjectionMemberNames = new Dictionary<string, object>();
             this.DependencyBindings = new Dictionary<object, object>();
         }

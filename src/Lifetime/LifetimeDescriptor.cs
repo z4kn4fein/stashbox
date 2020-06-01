@@ -1,4 +1,6 @@
-﻿using Stashbox.Registration;
+﻿using Stashbox.Exceptions;
+using Stashbox.Expressions;
+using Stashbox.Registration;
 using Stashbox.Resolution;
 using System;
 using System.Linq.Expressions;
@@ -6,21 +8,49 @@ using System.Linq.Expressions;
 namespace Stashbox.Lifetime
 {
     /// <summary>
-    /// Represents a lifetime manager.
+    /// Represents a lifetime descriptor.
     /// </summary>
     public abstract class LifetimeDescriptor
     {
-        internal Expression GetExpression(IContainerContext containerContext, IServiceRegistration serviceRegistration,
-            ResolutionContext resolutionContext, Type resolveType)
+        private protected virtual bool StoreResultInLocalVariable { get; } = false;
+
+        /// <summary>
+        /// An indicator used to validate the lifetime configuration of the resolution tree.
+        /// Services with longer life-span shouldn't contain dependencies with shorter ones.
+        /// </summary>
+        protected abstract int LifeSpan { get; }
+
+        /// <summary>
+        /// The name of the lifetime, only used for diagnostic reasons.
+        /// </summary>
+        protected abstract string Name { get; }
+
+        internal Expression ApplyLifetime(ExpressionBuilder expressionBuilder,
+            IServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType)
         {
-            if (serviceRegistration.IsDecorator || !this.StoreResultInLocalVariable)
-                return this.GetLifetimeAppliedExpression(containerContext, serviceRegistration, resolutionContext, resolveType);
+            if (resolutionContext.CurrentContainerContext.ContainerConfiguration.LifetimeValidationEnabled &&
+                this.LifeSpan > 0)
+            {
+                if (resolutionContext.CurrentLifeSpan > this.LifeSpan)
+                    throw new LifetimeValidationFailedException(serviceRegistration.ImplementationType,
+                        $"The life-span of {serviceRegistration.ImplementationType} ({this.Name}|{this.LifeSpan}) " +
+                        $"is shorter than its direct or indirect parent's {resolutionContext.NameOfCurrentlyResolvingTypeWithLifetime}." + Environment.NewLine +
+                        "This could lead to incidental lifetime promotions with longer life-span, it's recommended to double check your lifetime configurations.");
+
+                resolutionContext = resolutionContext.BeginLifetimeValidationContext(this.LifeSpan,
+                    $"{serviceRegistration.ImplementationType} ({this.Name}|{this.LifeSpan})");
+            }
+
+            if (!this.StoreResultInLocalVariable)
+                return this.BuildLifetimeAppliedExpression(expressionBuilder,
+                    serviceRegistration, resolutionContext, resolveType);
 
             var variable = resolutionContext.GetKnownVariableOrDefault(serviceRegistration.RegistrationId);
             if (variable != null)
                 return variable;
 
-            var resultExpression = this.GetLifetimeAppliedExpression(containerContext, serviceRegistration, resolutionContext, resolveType);
+            var resultExpression = this.BuildLifetimeAppliedExpression(expressionBuilder,
+                serviceRegistration, resolutionContext, resolveType);
             if (resultExpression == null)
                 return null;
 
@@ -30,69 +60,28 @@ namespace Stashbox.Lifetime
             return variable;
         }
 
-        /// <summary>
-        /// Through this property derived types can indicate that their expressions should be reused as a local variable in the final expression tree or not.
-        /// </summary>
-        protected virtual bool StoreResultInLocalVariable { get; } = false;
+        private protected abstract Expression BuildLifetimeAppliedExpression(ExpressionBuilder expressionBuilder,
+            IServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType);
 
-        /// <summary>
-        /// Derived types are using this method to apply their lifetime to the instance creation.
-        /// </summary>
-        /// <param name="containerContext">The container's actual context or the request initiator's context, when the request was initiated from a child container.</param>
-        /// <param name="serviceRegistration">The service registration.</param>
-        /// <param name="resolutionContext">The info about the actual resolution.</param>
-        /// <param name="resolveType">The requested type.</param>
-        /// <returns>The lifetime managed expression, or null when it's could not be created.</returns>
-        protected abstract Expression GetLifetimeAppliedExpression(IContainerContext containerContext, IServiceRegistration serviceRegistration,
-            ResolutionContext resolutionContext, Type resolveType);
-
-        /// <summary>
-        /// Produces the expression which creates the instance managed by this <see cref="LifetimeDescriptor"/>.
-        /// </summary>
-        /// <param name="containerContext">The container's actual context or the request initiator's context, when the request was initiated from a child container.</param>
-        /// <param name="serviceRegistration">The service registration.</param>
-        /// <param name="resolutionContext">The info about the actual resolution.</param>
-        /// <param name="resolveType">The requested type.</param>
-        /// <returns>The instantiation expression, or null when it's could not be created.</returns>
-        protected Expression BuildExpression(IContainerContext containerContext, IServiceRegistration serviceRegistration,
-            ResolutionContext resolutionContext, Type resolveType)
+        private protected static Expression GetExpressionForRegistration(ExpressionBuilder expressionBuilder,
+            IServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType)
         {
-            if (serviceRegistration.IsDecorator || !resolutionContext.FactoryDelegateCacheEnabled || resolutionContext.ExpressionCacheEnabled)
-                return serviceRegistration.ObjectBuilder.GetExpression(containerContext, serviceRegistration, resolutionContext, resolveType);
+            if (!IsRegistrationOutputCacheable(serviceRegistration, resolutionContext))
+                return expressionBuilder.BuildExpressionForRegistration(serviceRegistration, resolutionContext, resolveType);
 
             var expression = resolutionContext.GetCachedExpression(serviceRegistration.RegistrationId);
             if (expression != null)
                 return expression;
 
-            expression = serviceRegistration.ObjectBuilder.GetExpression(containerContext, serviceRegistration, resolutionContext, resolveType);
+            expression = expressionBuilder.BuildExpressionForRegistration(serviceRegistration, resolutionContext, resolveType);
             resolutionContext.CacheExpression(serviceRegistration.RegistrationId, expression);
             return expression;
         }
 
-        /// <summary>
-        /// Gets the factory delegate for getting the instance managed by this <see cref="LifetimeDescriptor"/>.
-        /// </summary>
-        /// <param name="containerContext">The container's actual context or the request initiator's context, when the request was initiated from a child container.</param>
-        /// <param name="serviceRegistration">The service registration.</param>
-        /// <param name="resolutionContext">The info about the actual resolution.</param>
-        /// <param name="resolveType">The requested type.</param>
-        /// <returns>The factory delegate, or null when it's could not be created.</returns>
-        protected Func<IResolutionScope, object> GetFactoryDelegate(IContainerContext containerContext, IServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType)
-        {
-            if (serviceRegistration.IsDecorator || !resolutionContext.FactoryDelegateCacheEnabled || resolutionContext.ExpressionCacheEnabled)
-                return this.GetNewFactoryDelegate(containerContext, serviceRegistration, resolutionContext.BeginSubGraph(), resolveType);
-
-            var factory = resolutionContext.GetCachedFactory(serviceRegistration.RegistrationId);
-            if (factory != null)
-                return factory;
-
-            factory = this.GetNewFactoryDelegate(containerContext, serviceRegistration, resolutionContext.BeginSubGraph(), resolveType);
-            resolutionContext.CacheFactory(serviceRegistration.RegistrationId, factory);
-            return factory;
-        }
-
-        private Func<IResolutionScope, object> GetNewFactoryDelegate(IContainerContext containerContext, IServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType) =>
-            serviceRegistration.ObjectBuilder.GetExpression(containerContext, serviceRegistration, resolutionContext, resolveType)
-                ?.CompileDelegate(resolutionContext, containerContext.ContainerConfiguration);
+        private protected static bool IsRegistrationOutputCacheable(IServiceRegistration serviceRegistration, ResolutionContext resolutionContext) =>
+            !serviceRegistration.IsDecorator &&
+            resolutionContext.FactoryDelegateCacheEnabled &&
+            resolutionContext.ExpressionCacheEnabled &&
+            serviceRegistration.RegistrationType != RegistrationType.OpenGeneric;
     }
 }

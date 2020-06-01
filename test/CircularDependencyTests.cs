@@ -13,7 +13,7 @@ namespace Stashbox.Tests
         [Fact]
         public void CircularDependencyTests_StandardResolve()
         {
-            using var container = new StashboxContainer(config => config.WithCircularDependencyTracking());
+            using var container = new StashboxContainer();
             container.Register<ITest1, Test1>();
             Assert.Throws<CircularDependencyException>(() => container.Resolve<ITest1>());
         }
@@ -21,7 +21,7 @@ namespace Stashbox.Tests
         [Fact]
         public void CircularDependencyTests_StandardResolve_Parallel_ShouldntThrow()
         {
-            using var container = new StashboxContainer(config => config.WithCircularDependencyTracking());
+            using var container = new StashboxContainer();
             container.Register<ITest1, Test4>();
             Parallel.For(0, 5000, i =>
             {
@@ -32,7 +32,7 @@ namespace Stashbox.Tests
         [Fact]
         public void CircularDependencyTests_StandardResolve_Parallel_Runtime_ShouldntThrow()
         {
-            using var container = new StashboxContainer(config => config.WithCircularDependencyTracking(true));
+            using var container = new StashboxContainer(config => config.WithRuntimeCircularDependencyTracking());
             container.Register<ITest1, Test4>();
             Parallel.For(0, 5000, i =>
             {
@@ -43,7 +43,7 @@ namespace Stashbox.Tests
         [Fact]
         public void CircularDependencyTests_DependencyProperty()
         {
-            using var container = new StashboxContainer(config => config.WithCircularDependencyTracking());
+            using var container = new StashboxContainer();
             container.Register<ITest1, Test2>();
             Assert.Throws<CircularDependencyException>(() => container.Resolve<ITest1>());
         }
@@ -51,7 +51,7 @@ namespace Stashbox.Tests
         [Fact]
         public void CircularDependencyTests_InjectionMethod()
         {
-            using var container = new StashboxContainer(config => config.WithCircularDependencyTracking());
+            using var container = new StashboxContainer();
             container.Register<ITest1, Test3>();
             Assert.Throws<CircularDependencyException>(() => container.Resolve<ITest1>());
         }
@@ -59,7 +59,7 @@ namespace Stashbox.Tests
         [Fact]
         public void CircularDependencyTests_Generic_StandardResolve()
         {
-            using var container = new StashboxContainer(config => config.WithCircularDependencyTracking());
+            using var container = new StashboxContainer();
             container.Register(typeof(ITest1<,>), typeof(Test1<,>));
             Assert.Throws<CircularDependencyException>(() => container.Resolve<ITest1<int, int>>());
         }
@@ -67,7 +67,7 @@ namespace Stashbox.Tests
         [Fact]
         public void CircularDependencyTests_Generic_DependencyProperty()
         {
-            using var container = new StashboxContainer(config => config.WithCircularDependencyTracking());
+            using var container = new StashboxContainer();
             container.Register(typeof(ITest1<,>), typeof(Test2<,>));
             Assert.Throws<CircularDependencyException>(() => container.Resolve<ITest1<int, int>>());
         }
@@ -75,7 +75,7 @@ namespace Stashbox.Tests
         [Fact]
         public void CircularDependencyTests_Generic_InjectionMethod()
         {
-            using var container = new StashboxContainer(config => config.WithCircularDependencyTracking());
+            using var container = new StashboxContainer();
             container.Register(typeof(ITest1<,>), typeof(Test3<,>));
             Assert.Throws<CircularDependencyException>(() => container.Resolve<ITest1<int, int>>());
         }
@@ -83,7 +83,7 @@ namespace Stashbox.Tests
         [Fact]
         public void CircularDependencyTests_Func()
         {
-            using var container = new StashboxContainer(config => config.WithCircularDependencyTracking());
+            using var container = new StashboxContainer();
             container.Register<ITest1, Test5>();
             Assert.Throws<CircularDependencyException>(() => container.Resolve<ITest1>());
         }
@@ -91,7 +91,7 @@ namespace Stashbox.Tests
         [Fact]
         public void CircularDependencyTests_Lazy()
         {
-            using var container = new StashboxContainer(config => config.WithCircularDependencyTracking());
+            using var container = new StashboxContainer();
             container.Register<ITest1, Test6>();
             Assert.Throws<CircularDependencyException>(() => container.Resolve<ITest1>());
         }
@@ -99,7 +99,7 @@ namespace Stashbox.Tests
         [Fact]
         public void CircularDependencyTests_Tuple()
         {
-            using var container = new StashboxContainer(config => config.WithCircularDependencyTracking());
+            using var container = new StashboxContainer();
             container.Register<ITest1, Test7>();
             Assert.Throws<CircularDependencyException>(() => container.Resolve<ITest1>());
         }
@@ -107,7 +107,7 @@ namespace Stashbox.Tests
         [Fact]
         public void CircularDependencyTests_Enumerable()
         {
-            using var container = new StashboxContainer(config => config.WithCircularDependencyTracking());
+            using var container = new StashboxContainer();
             container.Register<ITest1, Test8>();
             Assert.Throws<CircularDependencyException>(() => container.Resolve<ITest1>());
         }
@@ -115,15 +115,15 @@ namespace Stashbox.Tests
         [Fact]
         public void CircularDependencyTests_Runtime()
         {
-            using var container = new StashboxContainer(config => config.WithCircularDependencyTracking(true));
-            container.Register<ITest1, Test1>(config => config.WithFactory(() => container.Resolve<ITest1>()));
+            using var container = new StashboxContainer(config => config.WithRuntimeCircularDependencyTracking());
+            container.Register<ITest1, Test1>(config => config.WithFactory(r => r.Resolve<ITest1>()));
             Assert.Throws<CircularDependencyException>(() => container.Resolve<ITest1>());
         }
 
         [Fact]
         public void CircularDependencyTests_Runtime_Resolver()
         {
-            using var container = new StashboxContainer(config => config.WithCircularDependencyTracking(true));
+            using var container = new StashboxContainer(config => config.WithRuntimeCircularDependencyTracking());
             container.Register<ITest1, Test1>(config => config.WithFactory(r => r.Resolve<ITest1>()));
             Assert.Throws<CircularDependencyException>(() => container.Resolve<ITest1>());
         }

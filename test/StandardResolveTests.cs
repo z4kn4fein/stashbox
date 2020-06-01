@@ -37,18 +37,32 @@ namespace Stashbox.Tests
         {
             using IStashboxContainer container = new StashboxContainer();
             container.RegisterScoped<ResolverTest>();
-            var resolver = container.Resolve<IDependencyResolver>();
 
-            var test = container.Resolve<ResolverTest>();
+            using var scope = container.BeginScope();
+            var resolver = scope.Resolve<IDependencyResolver>();
+
+            var test = scope.Resolve<ResolverTest>();
 
             Assert.Same(resolver, test.DependencyResolver);
 
-            using var scope = container.BeginScope();
-            var scopedResolver = scope.Resolve<IDependencyResolver>();
-            var test1 = scope.Resolve<ResolverTest>();
+            using var scope1 = container.BeginScope();
+            var scopedResolver = scope1.Resolve<IDependencyResolver>();
+            var test1 = scope1.Resolve<ResolverTest>();
 
-            Assert.Same(scope, scopedResolver);
-            Assert.Same(scope, test1.DependencyResolver);
+            Assert.Same(scope1, scopedResolver);
+            Assert.Same(scope1, test1.DependencyResolver);
+        }
+
+        [Fact]
+        public void StandardResolveTests_Ensure_DependencyResolver_CanBeResolved_FromRoot()
+        {
+            using IStashboxContainer container = new StashboxContainer();
+            container.Register<ResolverTest>();
+            var resolver = container.Resolve<IDependencyResolver>();
+            var test = container.Resolve<ResolverTest>();
+
+            Assert.Same(resolver, test.DependencyResolver);
+            Assert.Same(test.DependencyResolver, container.ContainerContext.RootScope);
         }
 
         [Fact]
@@ -193,8 +207,10 @@ namespace Stashbox.Tests
             using IStashboxContainer container = new StashboxContainer();
             container.RegisterScoped<ITest1, Test1>();
 
-            var inst = container.Resolve<ITest1>();
-            var inst2 = container.Resolve<ITest1>();
+            using var scope = container.BeginScope();
+
+            var inst = scope.Resolve<ITest1>();
+            var inst2 = scope.Resolve<ITest1>();
 
             Assert.Same(inst, inst2);
 
@@ -212,7 +228,8 @@ namespace Stashbox.Tests
             using IStashboxContainer container = new StashboxContainer();
             container.RegisterScoped<ITest1, Test1>();
 
-            var factory = container.ResolveFactory<ITest1>();
+            using var scope = container.BeginScope();
+            var factory = scope.ResolveFactory<ITest1>();
 
             var inst = factory();
             var inst2 = factory();
@@ -235,8 +252,10 @@ namespace Stashbox.Tests
             container.RegisterScoped(typeof(ITest1), typeof(Test1));
             container.RegisterScoped<ITest4, Test4>();
 
-            var inst = container.Resolve<ITest4>();
-            var inst2 = container.Resolve<ITest4>();
+            using var scope = container.BeginScope();
+
+            var inst = scope.Resolve<ITest4>();
+            var inst2 = scope.Resolve<ITest4>();
 
             Assert.Same(inst.Test, inst2.Test);
             Assert.Same(inst.Test2, inst2.Test2);
@@ -262,7 +281,8 @@ namespace Stashbox.Tests
             container.RegisterScoped(typeof(ITest1), typeof(Test1));
             container.RegisterScoped<ITest4, Test4>();
 
-            var factory = container.ResolveFactory<ITest4>();
+            using var scope = container.BeginScope();
+            var factory = scope.ResolveFactory<ITest4>();
 
             var inst = factory();
             var inst2 = factory();

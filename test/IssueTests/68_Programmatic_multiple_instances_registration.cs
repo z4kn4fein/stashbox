@@ -9,7 +9,7 @@ namespace Stashbox.Tests.IssueTests
         public void Ensure_Multiple_Instance_Registration_Working()
         {
             var regs = new StashboxContainer()
-                .RegisterInstancesAs<ITest>(new Test(), new Test1()).GetRegistrationMappings();
+                .RegisterInstances<ITest>(new Test(), new Test1()).GetRegistrationMappings();
 
             Assert.Equal(2, regs.Count());
         }
@@ -18,7 +18,7 @@ namespace Stashbox.Tests.IssueTests
         public void Ensure_Multiple_Instance_Registration_Working_Enumerable()
         {
             var regs = new StashboxContainer()
-                .RegisterInstancesAs(new ITest[] { new Test(), new Test1() }).GetRegistrationMappings();
+                .RegisterInstances(new ITest[] { new Test(), new Test1() }).GetRegistrationMappings();
 
             Assert.Equal(2, regs.Count());
         }

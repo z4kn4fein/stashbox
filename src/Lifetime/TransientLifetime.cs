@@ -8,11 +8,17 @@ namespace Stashbox.Lifetime
     /// <summary>
     /// Represents a transient lifetime.
     /// </summary>
-    public class TransientLifetime : LifetimeDescriptor
+    public class TransientLifetime : ExpressionLifetimeDescriptor
     {
         /// <inheritdoc />
-        protected override Expression GetLifetimeAppliedExpression(IContainerContext containerContext, IServiceRegistration serviceRegistration,
-            ResolutionContext resolutionContext, Type resolveType) =>
-            base.BuildExpression(containerContext, serviceRegistration, resolutionContext, resolveType);
+        protected override int LifeSpan => 0;
+
+        /// <inheritdoc />
+        protected override string Name => nameof(TransientLifetime);
+
+        /// <inheritdoc />
+        protected override Expression ApplyLifetime(Expression expression,
+            IServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType) =>
+            expression;
     }
 }

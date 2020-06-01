@@ -22,7 +22,8 @@ namespace Stashbox.Tests.IssueTests
             {
                 using var container = new StashboxContainer(c =>
                 {
-                    c.WithCircularDependencyTracking(true).WithDisposableTransientTracking();
+                    c.WithRuntimeCircularDependencyTracking()
+                        .WithDisposableTransientTracking();
 
                     if (useMicrosoftCompiler)
                         c.WithMicrosoftExpressionCompiler();
@@ -89,7 +90,9 @@ namespace Stashbox.Tests.IssueTests
             {
                 using var container = new StashboxContainer(c =>
                 {
-                    c.WithCircularDependencyTracking(true).WithDisposableTransientTracking();
+                    c.WithRuntimeCircularDependencyTracking()
+                        .WithDisposableTransientTracking()
+                        .WithoutLifetimeValidation();
 
                     if (useMicrosoftCompiler)
                         c.WithMicrosoftExpressionCompiler();
@@ -156,7 +159,8 @@ namespace Stashbox.Tests.IssueTests
             {
                 using var container = new StashboxContainer(c =>
                 {
-                    c.WithDisposableTransientTracking();
+                    c.WithDisposableTransientTracking()
+                        .WithoutLifetimeValidation();
 
                     if (useMicrosoftCompiler)
                         c.WithMicrosoftExpressionCompiler();
@@ -318,7 +322,8 @@ namespace Stashbox.Tests.IssueTests
             {
                 using var container = new StashboxContainer(c =>
                 {
-                    c.WithDisposableTransientTracking();
+                    c.WithDisposableTransientTracking()
+                        .WithoutLifetimeValidation();
 
                     if (useMicrosoftCompiler)
                         c.WithMicrosoftExpressionCompiler();

@@ -1,4 +1,4 @@
-﻿using Stashbox.Lifetime;
+﻿using Stashbox.Exceptions;
 using Stashbox.Utils;
 using System;
 using System.Threading.Tasks;
@@ -72,10 +72,10 @@ namespace Stashbox.Tests
         [Fact]
         public void LifetimeTests_Per_Resolution_Request_Dependency()
         {
-            using IStashboxContainer container = new StashboxContainer();
-            container.Register<Test5>(context => context.WithPerResolutionRequestLifetime())
-.Register<Test6>()
-.Register<Test7>();
+            using var container = new StashboxContainer()
+                    .Register<Test5>(context => context.WithPerScopedRequestLifetime())
+                    .Register<Test6>()
+                    .Register<Test7>();
 
             var inst1 = container.Resolve<Test7>();
             var inst2 = container.Resolve<Test7>();
@@ -87,10 +87,29 @@ namespace Stashbox.Tests
         }
 
         [Fact]
+        public void LifetimeTests_Per_Resolution_Request_Dependency_Scoped()
+        {
+            using var container = new StashboxContainer()
+                .Register<Test5>(context => context.WithPerScopedRequestLifetime())
+                .RegisterScoped<Test6>()
+                .Register<Test7>();
+
+            using var scope = container.BeginScope();
+
+            var inst1 = scope.Resolve<Test7>();
+            var inst2 = scope.Resolve<Test7>();
+
+            Assert.NotSame(inst1.Test5, inst1.Test6.Test5);
+            Assert.NotSame(inst2.Test5, inst2.Test6.Test5);
+            Assert.NotSame(inst1.Test5, inst2.Test6.Test5);
+            Assert.NotSame(inst2.Test5, inst1.Test6.Test5);
+        }
+
+        [Fact]
         public void LifetimeTests_Per_Resolution_Request_Dependency_WithNull()
         {
             using IStashboxContainer container = new StashboxContainer();
-            container.Register<Test6>(context => context.WithPerResolutionRequestLifetime());
+            container.Register<Test6>(context => context.WithPerScopedRequestLifetime());
 
             Assert.Null(container.Resolve<Test6>(nullResultAllowed: true));
         }
@@ -99,7 +118,7 @@ namespace Stashbox.Tests
         public void LifetimeTests_Per_Resolution_Request()
         {
             using IStashboxContainer container = new StashboxContainer();
-            container.Register<Test5>(context => context.WithPerResolutionRequestLifetime());
+            container.Register<Test5>(context => context.WithPerScopedRequestLifetime());
 
             var inst1 = container.Resolve<Test5>();
             var inst2 = container.Resolve<Test5>();
@@ -117,18 +136,122 @@ namespace Stashbox.Tests
         }
 
         [Fact]
-        public void LifetimeTests_Singleton_DefinesScope()
+        public void LifetimeTests_DefinesScope()
         {
-            using IStashboxContainer container = new StashboxContainer(c => c.WithDefaultLifetime(Lifetimes.Singleton));
-            container.Register<Test6>(c => c.DefinesScope());
+            using IStashboxContainer container = new StashboxContainer();
+            container.Register<Test6>();
             container.Register<Test7>(c => c.DefinesScope());
             container.RegisterScoped<Test5>();
 
-            var inst1 = container.Resolve<Test6>();
-            var inst2 = container.Resolve<Test7>();
+            using var scope = container.BeginScope();
+
+            var inst1 = scope.Resolve<Test6>();
+            var inst2 = scope.Resolve<Test7>();
 
             Assert.NotSame(inst1.Test5, inst2.Test5);
-            Assert.Same(inst1, inst2.Test6);
+            Assert.Same(inst2.Test5, inst2.Test6.Test5);
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void LifetimeTests_Shorter_Lifetime_Not_Resolvable_From_Longer_Direct(bool enabledValidation)
+        {
+            using IStashboxContainer container = new StashboxContainer(c =>
+            {
+                if (!enabledValidation)
+                    c.WithoutLifetimeValidation();
+            });
+            container.RegisterSingleton<Test6>();
+            container.RegisterScoped<Test5>();
+
+            using var scope = container.BeginScope();
+
+            if (enabledValidation)
+            {
+                var exception = Assert.Throws<LifetimeValidationFailedException>(() => scope.Resolve<Test6>());
+                Assert.Contains("The life-span of", exception.Message);
+            }
+            else
+            {
+                Assert.NotNull(scope.Resolve<Test6>());
+            }
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void LifetimeTests_Shorter_Lifetime_Not_Resolvable_From_Longer_InDirect(bool enabledValidation)
+        {
+            using IStashboxContainer container = new StashboxContainer(c =>
+            {
+                if (!enabledValidation)
+                    c.WithoutLifetimeValidation();
+            });
+            container.RegisterSingleton<Test8>();
+            container.Register<Test6>();
+            container.RegisterScoped<Test5>();
+
+            using var scope = container.BeginScope();
+
+            if (enabledValidation)
+            {
+                var exception = Assert.Throws<LifetimeValidationFailedException>(() => scope.Resolve<Test8>());
+                Assert.Contains("The life-span of", exception.Message);
+            }
+            else
+            {
+                Assert.NotNull(scope.Resolve<Test8>());
+            }
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void LifetimeTests_Scoped_Is_Not_Resolvable_From_Root_Direct(bool enabledValidation)
+        {
+            using IStashboxContainer container = new StashboxContainer(c =>
+            {
+                if (!enabledValidation)
+                    c.WithoutLifetimeValidation();
+            });
+
+            container.RegisterScoped<Test5>();
+
+            if (enabledValidation)
+            {
+                var exception = Assert.Throws<LifetimeValidationFailedException>(() => container.Resolve<Test5>());
+                Assert.Contains("from the root scope", exception.Message);
+            }
+            else
+            {
+                Assert.NotNull(container.Resolve<Test5>());
+            }
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void LifetimeTests_Scoped_Is_Not_Resolvable_From_Root_InDirect(bool enabledValidation)
+        {
+            using IStashboxContainer container = new StashboxContainer(c =>
+            {
+                if (!enabledValidation)
+                    c.WithoutLifetimeValidation();
+            });
+
+            container.Register<Test6>();
+            container.RegisterScoped<Test5>();
+
+            if (enabledValidation)
+            {
+                var exception = Assert.Throws<LifetimeValidationFailedException>(() => container.Resolve<Test6>());
+                Assert.Contains("from the root scope", exception.Message);
+            }
+            else
+            {
+                Assert.NotNull(container.Resolve<Test6>());
+            }
         }
 
         interface ITest1 { string Name { get; set; } }
@@ -210,6 +333,16 @@ namespace Stashbox.Tests
             public Test7(Test5 test5, Test6 test6)
             {
                 Test5 = test5;
+                Test6 = test6;
+            }
+        }
+
+        class Test8
+        {
+            public Test6 Test6 { get; }
+
+            public Test8(Test6 test6)
+            {
                 Test6 = test6;
             }
         }

@@ -1,5 +1,4 @@
-﻿using Stashbox.Entity;
-using Stashbox.Utils;
+﻿using Stashbox.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,8 +14,21 @@ namespace Stashbox.Resolution
         private readonly HashTree<Expression> expressionCache;
         private readonly HashTree<Func<IResolutionScope, object>> factoryCache;
         private readonly HashTree<Type, HashTree<object, Expression>> expressionOverrides;
-        private readonly HashTree<Type, Type> currentlyDecoratingTypes;
         private readonly HashTree<bool> circularDependencyBarrier;
+
+        internal IContainerContext RequestInitiatorContainerContext { get; }
+        internal IResolutionStrategy ResolutionStrategy { get; }
+        internal ExpandableArray<Expression> SingleInstructions { get; private set; }
+        internal HashTree<ParameterExpression> DefinedVariables { get; private set; }
+        internal ExpandableArray<IEnumerable<KeyValue<bool, ParameterExpression>>> ParameterExpressions { get; private set; }
+        internal Type DecoratingType { get; private set; }
+        internal int CurrentLifeSpan { get; private set; }
+        internal string NameOfCurrentlyResolvingTypeWithLifetime { get; private set; }
+        internal bool ExpressionCacheEnabled { get; private set; }
+        internal bool UnknownTypeCheckDisabled { get; private set; }
+        internal bool ShouldFallBackToRequestInitiatorContext { get; private set; }
+        internal bool FactoryDelegateCacheEnabled { get; }
+        internal ExpandableArray<object> ScopeNames { get; }
 
         /// <summary>
         /// True if null result is allowed, otherwise false.
@@ -24,28 +36,24 @@ namespace Stashbox.Resolution
         public bool NullResultAllowed { get; }
 
         /// <summary>
+        /// When it's true, it indicates that the current resolution request was made from the root scope.
+        /// </summary>
+        public bool IsRequestedFromRoot { get; }
+
+        /// <summary>
         /// The currently resolving scope.
         /// </summary>
         public ParameterExpression CurrentScopeParameter { get; private set; }
 
-        internal IContainerContext RequestInitiatorContainerContext { get; private set; }
-
-        internal IContainerContext CurrentContainerContext { get; private set; }
-
-        internal ExpandableArray<Expression> SingleInstructions { get; private set; }
-
-        internal HashTree<ParameterExpression> DefinedVariables { get; private set; }
-
-        internal bool ExpressionCacheEnabled { get; private set; }
-
-        internal bool FactoryDelegateCacheEnabled { get; set; }
-
-        internal ExpandableArray<object> ScopeNames { get; }
-
-        internal ExpandableArray<KeyValue<bool, ParameterExpression>[]> ParameterExpressions { get; }
+        /// <summary>
+        /// The context of the current container instance.
+        /// </summary>
+        public IContainerContext CurrentContainerContext { get; private set; }
 
         internal ResolutionContext(IEnumerable<object> initialScopeNames,
             IContainerContext currentContainerContext,
+            IResolutionStrategy resolutionStrategy,
+            bool isRequestedFromRoot,
             bool nullResultAllowed = false,
             HashTree<Type, HashTree<object, Expression>> dependencyOverrides = null)
         {
@@ -53,16 +61,17 @@ namespace Stashbox.Resolution
             this.DefinedVariables = new HashTree<ParameterExpression>();
             this.SingleInstructions = new ExpandableArray<Expression>();
             this.expressionOverrides = dependencyOverrides ?? new HashTree<Type, HashTree<object, Expression>>();
-            this.currentlyDecoratingTypes = new HashTree<Type, Type>();
             this.NullResultAllowed = nullResultAllowed;
             this.CurrentScopeParameter = Constants.ResolutionScopeParameter;
-            this.ParameterExpressions = new ExpandableArray<KeyValue<bool, ParameterExpression>[]>();
+            this.ParameterExpressions = new ExpandableArray<IEnumerable<KeyValue<bool, ParameterExpression>>>();
             this.ScopeNames = ExpandableArray<object>.FromEnumerable(initialScopeNames);
             this.circularDependencyBarrier = new HashTree<bool>();
             this.expressionCache = new HashTree<Expression>();
             this.factoryCache = new HashTree<Func<IResolutionScope, object>>();
             this.FactoryDelegateCacheEnabled = dependencyOverrides == null;
-            this.CurrentContainerContext = currentContainerContext;
+            this.ResolutionStrategy = resolutionStrategy;
+            this.CurrentContainerContext = this.RequestInitiatorContainerContext = currentContainerContext;
+            this.IsRequestedFromRoot = isRequestedFromRoot;
         }
 
         /// <summary>
@@ -107,15 +116,6 @@ namespace Stashbox.Resolution
         internal Func<IResolutionScope, object> GetCachedFactory(int key) =>
             this.factoryCache.GetOrDefault(key);
 
-        internal bool IsCurrentlyDecorating(Type type) =>
-            this.currentlyDecoratingTypes.GetOrDefault(type) != null;
-
-        internal void AddCurrentlyDecoratingType(Type type) =>
-            this.currentlyDecoratingTypes.Add(type, type);
-
-        internal void ClearCurrentlyDecoratingType(Type type) =>
-            this.currentlyDecoratingTypes.Add(type, null);
-
         internal Expression GetExpressionOverrideOrDefault(Type type, object name = null) =>
             this.expressionOverrides.GetOrDefault(type)?.GetOrDefault(name ?? type, false);
 
@@ -131,24 +131,18 @@ namespace Stashbox.Resolution
             this.expressionOverrides.Add(type, new HashTree<object, Expression>(type, expression));
         }
 
-        internal void AddParameterExpressions(IEnumerable<ParameterExpression> parameterExpressions)
-        {
-            this.ParameterExpressions.Add(parameterExpressions.Select(p => new KeyValue<bool, ParameterExpression>(false, p)).CastToArray());
-            this.ExpressionCacheEnabled = false;
-        }
-
-        internal void SetCircularDependencyBarrier(int key, bool value) =>
+        internal void SetCircularDependencyIndicatorFor(int key, bool value) =>
             this.circularDependencyBarrier.Add(key, value);
 
-        internal bool GetCircularDependencyBarrier(int key) =>
+        internal bool CheckCircularDependencyOn(int key) =>
             this.circularDependencyBarrier.GetOrDefault(key);
 
-        internal ResolutionContext BeginCrossContainerContext(IContainerContext requestInitiatorContext,
-            IContainerContext currentContainerContext)
+        internal ResolutionContext BeginCrossContainerContext(IContainerContext currentContainerContext)
         {
             var clone = this.Clone();
-            clone.RequestInitiatorContainerContext = requestInitiatorContext;
             clone.CurrentContainerContext = currentContainerContext;
+            clone.ShouldFallBackToRequestInitiatorContext =
+                clone.RequestInitiatorContainerContext != currentContainerContext;
 
             return clone;
         }
@@ -167,6 +161,39 @@ namespace Stashbox.Resolution
             clone.DefinedVariables = new HashTree<ParameterExpression>();
             clone.SingleInstructions = new ExpandableArray<Expression>();
 
+            return clone;
+        }
+
+        internal ResolutionContext BeginUnknownTypeCheckDisabledContext()
+        {
+            var clone = this.Clone();
+            clone.UnknownTypeCheckDisabled = true;
+
+            return clone;
+        }
+
+        internal ResolutionContext BeginContextWithFunctionParameters(
+            IEnumerable<ParameterExpression> parameterExpressions)
+        {
+            var clone = this.Clone();
+            clone.ParameterExpressions = ExpandableArray<IEnumerable<KeyValue<bool, ParameterExpression>>>.FromEnumerable(this.ParameterExpressions);
+            clone.ParameterExpressions.Add(parameterExpressions.Select(p => new KeyValue<bool, ParameterExpression>(false, p)).CastToArray());
+            clone.ExpressionCacheEnabled = false;
+            return clone;
+        }
+
+        internal ResolutionContext BeginDecoratingContext(Type decoratingType)
+        {
+            var clone = this.Clone();
+            clone.DecoratingType = decoratingType;
+            return clone;
+        }
+
+        internal ResolutionContext BeginLifetimeValidationContext(int lifeSpan, string currentlyResolving)
+        {
+            var clone = this.Clone();
+            clone.CurrentLifeSpan = lifeSpan;
+            clone.NameOfCurrentlyResolvingTypeWithLifetime = currentlyResolving;
             return clone;
         }
 

@@ -1,5 +1,4 @@
-﻿using Stashbox.Entity;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 namespace Stashbox.Utils

@@ -1,5 +1,4 @@
-﻿using Stashbox.Entity;
-using Stashbox.Registration.SelectionRules;
+﻿using Stashbox.Registration.SelectionRules;
 using Stashbox.Resolution;
 using Stashbox.Utils;
 using System;
@@ -27,23 +26,19 @@ namespace Stashbox.Registration.Extensions
             ResolutionContext resolutionContext,
             IRegistrationSelectionRule[] registrationSelectionRules)
         {
-            var maxIndex = 0;
             var maxWeight = 0;
-            var result = new ExpandableArray<IServiceRegistration>();
-
+            IServiceRegistration result = null;
             foreach (var serviceRegistration in registrations)
             {
                 if (!registrationSelectionRules.IsSelectionPassed(typeInformation, serviceRegistration, resolutionContext, out var weight))
                     continue;
 
-                result.Add(serviceRegistration);
-
                 if (weight < maxWeight) continue;
                 maxWeight = weight;
-                maxIndex = result.Length - 1;
+                result = serviceRegistration;
             }
 
-            return result.Length == 0 ? null : result[maxIndex];
+            return result;
         }
 
         public static IEnumerable<IServiceRegistration> FilterOrDefault(this IEnumerable<IServiceRegistration> registrations,

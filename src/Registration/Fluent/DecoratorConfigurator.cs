@@ -3,7 +3,7 @@
 namespace Stashbox.Registration.Fluent
 {
     /// <summary>
-    /// Represents the fluent service decorator registraton api.
+    /// Represents the fluent service decorator registration api.
     /// </summary>
     public class DecoratorConfigurator : BaseFluentConfigurator<DecoratorConfigurator>
     {

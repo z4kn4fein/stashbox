@@ -97,7 +97,7 @@ namespace Stashbox.Tests.IssueTests
             container.Register<PocoClass, PocoClass>();
             container.RegisterSingleton(typeof(IFakeOpenGenericService<PocoClass>), typeof(FakeService));
             container.RegisterSingleton(typeof(IFakeOpenGenericService<>), typeof(FakeOpenGenericService<>));
-            container.RegisterInstanceAs<IFakeOpenGenericService<PocoClass>>(instance);
+            container.RegisterInstance<IFakeOpenGenericService<PocoClass>>(instance);
 
             var enumerable = container.Resolve<IEnumerable<IFakeOpenGenericService<PocoClass>>>().ToArray();
 

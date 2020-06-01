@@ -1,12 +1,9 @@
-﻿using Stashbox.BuildUp;
-using Stashbox.Configuration;
-using Stashbox.Entity;
+﻿using Stashbox.Configuration;
 using Stashbox.Exceptions;
 using Stashbox.Resolution;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
 
@@ -33,9 +30,6 @@ namespace Stashbox.Registration
         public bool IsDecorator { get; }
 
         /// <inheritdoc />
-        public bool ShouldHandleDisposal { get; }
-
-        /// <inheritdoc />
         public int RegistrationId { get; private set; }
 
         /// <inheritdoc />
@@ -51,19 +45,17 @@ namespace Stashbox.Registration
         public bool HasCondition { get; }
 
         /// <inheritdoc />
-        public IObjectBuilder ObjectBuilder { get; }
+        public RegistrationType RegistrationType { get; }
 
-        internal ServiceRegistration(Type implementationType, ContainerConfiguration containerConfiguration,
-             IObjectBuilder objectBuilder, RegistrationContext registrationContext,
-             bool isDecorator, bool shouldHandleDisposal)
+        internal ServiceRegistration(Type implementationType, RegistrationType registrationType, ContainerConfiguration containerConfiguration,
+            RegistrationContext registrationContext, bool isDecorator)
         {
             this.containerConfiguration = containerConfiguration;
             this.ImplementationType = implementationType;
             this.ImplementationTypeInfo = implementationType.GetTypeInfo();
             this.RegistrationContext = registrationContext;
             this.IsDecorator = isDecorator;
-            this.ShouldHandleDisposal = shouldHandleDisposal;
-            this.ObjectBuilder = objectBuilder;
+            this.RegistrationType = registrationType;
 
             this.IsResolvableByUnnamedRequest = this.RegistrationContext.Name == null || containerConfiguration.NamedDependencyResolutionForUnNamedRequestsEnabled;
 
@@ -90,20 +82,9 @@ namespace Stashbox.Registration
             scopeNames.Last() == this.RegistrationContext.NamedScopeRestrictionIdentifier;
 
         /// <inheritdoc />
-        public Expression GetExpression(IContainerContext containerContext, ResolutionContext resolutionContext, Type resolveType)
-        {
-            if (this.RegistrationContext.FactoryCacheDisabled)
-                resolutionContext.FactoryDelegateCacheEnabled = false;
-
-            return !this.ObjectBuilder.ProducesLifetimeManageableOutput
-                ? this.ObjectBuilder.GetExpression(containerContext, this, resolutionContext, resolveType)
-                : this.RegistrationContext.Lifetime.GetExpression(containerContext, this, resolutionContext, resolveType);
-        }
-
-        /// <inheritdoc />
-        public IServiceRegistration Clone(Type implementationType, IObjectBuilder objectBuilder) =>
-            new ServiceRegistration(implementationType, this.containerConfiguration, objectBuilder,
-                this.RegistrationContext, this.IsDecorator, this.ShouldHandleDisposal);
+        public IServiceRegistration Clone(Type implementationType, RegistrationType registrationType) =>
+            new ServiceRegistration(implementationType, registrationType, this.containerConfiguration,
+                this.RegistrationContext, this.IsDecorator);
 
         /// <inheritdoc />
         public void Replaces(IServiceRegistration serviceRegistration)

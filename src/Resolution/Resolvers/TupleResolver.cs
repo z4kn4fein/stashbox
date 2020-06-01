@@ -1,5 +1,4 @@
-﻿using Stashbox.Entity;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 
@@ -19,11 +18,11 @@ namespace Stashbox.Resolution.Resolvers
             typeof(Tuple<,,,,,,,>)
         };
 
-        public bool CanUseForResolution(IContainerContext containerContext, TypeInformation typeInfo, ResolutionContext resolutionContext) =>
+        public bool CanUseForResolution(TypeInformation typeInfo, ResolutionContext resolutionContext) =>
             typeInfo.Type.IsClosedGenericType() &&
             this.supportedTypes.Contains(typeInfo.Type.GetGenericTypeDefinition());
 
-        public Expression GetExpression(IContainerContext containerContext,
+        public Expression GetExpression(
             IResolutionStrategy resolutionStrategy,
             TypeInformation typeInfo,
             ResolutionContext resolutionContext)
@@ -34,8 +33,8 @@ namespace Stashbox.Resolution.Resolvers
             var expressions = new Expression[length];
             for (var i = 0; i < length; i++)
             {
-                var argumentInfo = typeInfo.Clone(args[i]);
-                var expr = resolutionStrategy.BuildResolutionExpression(containerContext, resolutionContext, argumentInfo);
+                var argumentInfo = typeInfo.CloneForType(args[i]);
+                var expr = resolutionStrategy.BuildExpressionForType(resolutionContext, argumentInfo);
 
                 if (expr != null)
                     expressions[i] = expr;

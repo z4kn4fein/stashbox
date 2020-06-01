@@ -1,6 +1,5 @@
-﻿using Stashbox.BuildUp.Expressions;
-using Stashbox.Entity;
-using Stashbox.Exceptions;
+﻿using Stashbox.Exceptions;
+using Stashbox.Expressions;
 using Stashbox.Resolution;
 using Stashbox.Utils;
 using System;
@@ -36,8 +35,8 @@ namespace Stashbox
             public static readonly FinalizableItem Empty = new FinalizableItem();
         }
 
-        private readonly IResolverSupportedResolutionStrategy resolutionStrategy;
-        private readonly IExpressionBuilder expressionBuilder;
+        private readonly ResolutionStrategy resolutionStrategy;
+        private readonly ExpressionFactory expressionFactory;
         private readonly IContainerContext containerContext;
 
         private int disposed;
@@ -53,24 +52,24 @@ namespace Stashbox
 
         public IResolutionScope ParentScope { get; }
 
-        private ResolutionScope(IResolverSupportedResolutionStrategy resolutionStrategy,
-            IExpressionBuilder expressionBuilder, IContainerContext containerContext,
+        private ResolutionScope(ResolutionStrategy resolutionStrategy,
+            ExpressionFactory expressionBuilder, IContainerContext containerContext,
             DelegateCache delegateCache, object name)
         {
             this.resolutionStrategy = resolutionStrategy;
-            this.expressionBuilder = expressionBuilder;
+            this.expressionFactory = expressionBuilder;
             this.containerContext = containerContext;
             this.Name = name;
             this.delegateCache = delegateCache;
         }
 
-        internal ResolutionScope(IResolverSupportedResolutionStrategy resolutionStrategy,
-            IExpressionBuilder expressionBuilder, IContainerContext containerContext)
+        internal ResolutionScope(ResolutionStrategy resolutionStrategy,
+            ExpressionFactory expressionBuilder, IContainerContext containerContext)
             : this(resolutionStrategy, expressionBuilder, containerContext,
                   new DelegateCache(), null)
         { }
 
-        private ResolutionScope(IResolverSupportedResolutionStrategy resolutionStrategy, IExpressionBuilder expressionBuilder,
+        private ResolutionScope(ResolutionStrategy resolutionStrategy, ExpressionFactory expressionBuilder,
             IContainerContext containerContext, IResolutionScope parent, DelegateCache delegateCache, object name = null)
             : this(resolutionStrategy, expressionBuilder, containerContext, delegateCache, name)
         {
@@ -81,26 +80,30 @@ namespace Stashbox
         {
             if (dependencyOverrides != null)
                 return this.Activate(new ResolutionContext(this.GetActiveScopeNames(), this.containerContext,
-                    nullResultAllowed, this.ProcessDependencyOverrides(dependencyOverrides)), typeFrom);
+                    this.resolutionStrategy, this == this.containerContext.RootScope, nullResultAllowed,
+                    this.ProcessDependencyOverrides(dependencyOverrides)), typeFrom);
 
             var cachedFactory = this.delegateCache.ServiceDelegates.GetOrDefault(typeFrom);
             return cachedFactory != null
                 ? cachedFactory(this)
-                : this.Activate(new ResolutionContext(this.GetActiveScopeNames(), this.containerContext,
-                    nullResultAllowed, this.ProcessDependencyOverrides(dependencyOverrides)), typeFrom);
+                : this.Activate(new ResolutionContext(this.GetActiveScopeNames(), this.containerContext, this.resolutionStrategy,
+                    this == this.containerContext.RootScope, nullResultAllowed,
+                    this.ProcessDependencyOverrides(dependencyOverrides)), typeFrom);
         }
 
         public object Resolve(Type typeFrom, object name, bool nullResultAllowed = false, object[] dependencyOverrides = null)
         {
             if (dependencyOverrides != null)
-                return this.Activate(new ResolutionContext(this.GetActiveScopeNames(), this.containerContext,
-                    nullResultAllowed, this.ProcessDependencyOverrides(dependencyOverrides)), typeFrom);
+                return this.Activate(new ResolutionContext(this.GetActiveScopeNames(), this.containerContext, this.resolutionStrategy,
+                    this == this.containerContext.RootScope, nullResultAllowed,
+                    this.ProcessDependencyOverrides(dependencyOverrides)), typeFrom);
 
             var cachedFactory = this.delegateCache.ServiceDelegates.GetOrDefault(name);
             return cachedFactory != null
                 ? cachedFactory(this)
-                : this.Activate(new ResolutionContext(this.GetActiveScopeNames(), this.containerContext,
-                    nullResultAllowed, this.ProcessDependencyOverrides(dependencyOverrides)), typeFrom, name);
+                : this.Activate(new ResolutionContext(this.GetActiveScopeNames(), this.containerContext, this.resolutionStrategy,
+                    this == this.containerContext.RootScope, nullResultAllowed,
+                    this.ProcessDependencyOverrides(dependencyOverrides)), typeFrom, name);
         }
 
 #if HAS_SERVICEPROVIDER
@@ -123,7 +126,7 @@ namespace Stashbox
 
         public IDependencyResolver BeginScope(object name = null, bool attachToParent = false)
         {
-            var scope = new ResolutionScope(this.resolutionStrategy, this.expressionBuilder,
+            var scope = new ResolutionScope(this.resolutionStrategy, this.expressionFactory,
                 this.containerContext, this, this.delegateCache, name);
 
             return attachToParent ? this.AddDisposableTracking(scope) : scope;
@@ -151,11 +154,9 @@ namespace Stashbox
         public TTo BuildUp<TTo>(TTo instance)
         {
             var typeTo = instance.GetType();
-            var resolutionContext = new ResolutionContext(this.GetActiveScopeNames(), this.containerContext);
-            var expression = this.expressionBuilder.ConstructBuildUpExpression(this.containerContext,
-                resolutionContext,
-                instance.AsConstant(),
-                typeTo);
+            var resolutionContext = new ResolutionContext(this.GetActiveScopeNames(), this.containerContext,
+                this.resolutionStrategy, this == this.containerContext.RootScope);
+            var expression = this.expressionFactory.ConstructBuildUpExpression(resolutionContext, instance.AsConstant(), typeTo);
             return (TTo)expression.CompileDelegate(resolutionContext, this.containerContext.ContainerConfiguration)(this);
         }
 
@@ -164,12 +165,10 @@ namespace Stashbox
             if (!type.IsResolvableType())
                 throw new ArgumentException($"The given type ({type.FullName}) could not be activated on the fly by the container.");
 
-            var resolutionContext = new ResolutionContext(this.GetActiveScopeNames(),
-                this.containerContext, dependencyOverrides: this.ProcessDependencyOverrides(arguments));
-            var expression = this.expressionBuilder.ConstructExpression(
-                this.containerContext,
-                resolutionContext,
-                type);
+            var resolutionContext = new ResolutionContext(this.GetActiveScopeNames(), this.containerContext,
+                this.resolutionStrategy, this == this.containerContext.RootScope,
+                dependencyOverrides: this.ProcessDependencyOverrides(arguments));
+            var expression = this.expressionFactory.ConstructExpression(resolutionContext, type);
             return expression.CompileDelegate(resolutionContext, this.containerContext.ContainerConfiguration)(this);
         }
 
@@ -271,66 +270,31 @@ namespace Stashbox
 
         private object Activate(ResolutionContext resolutionContext, Type type, object name = null)
         {
-            if (type == Constants.ResolverType)
-                return this;
-
-#if HAS_SERVICEPROVIDER
-            if (type == Constants.ServiceProviderType)
-                return this;
-#endif
-
-            var exprOverride = resolutionContext.GetExpressionOverrideOrDefault(type, name);
-            if (exprOverride != null && exprOverride is ConstantExpression constantExpression)
-                return constantExpression.Value;
-
-            var registration = this.containerContext.RegistrationRepository.GetRegistrationOrDefault(type, resolutionContext, name);
-            if (registration != null)
-            {
-                var registrationFactory = registration.GetExpression(this.containerContext, resolutionContext, type)?
-                    .CompileDelegate(resolutionContext, this.containerContext.ContainerConfiguration);
-                if (registrationFactory == null)
-                    return null;
-
-                if (resolutionContext.FactoryDelegateCacheEnabled)
-                    Swap.SwapValue(ref this.delegateCache.ServiceDelegates, (t1, t2, t3, t4, c) =>
-                    c.AddOrUpdate(t1, t2), name ?? type, registrationFactory, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
-
-                return registrationFactory(this);
-            }
-
-            var expr = this.resolutionStrategy.BuildResolutionExpressionUsingResolvers(this.containerContext,
-                new TypeInformation { Type = type, DependencyName = name }, resolutionContext);
-            if (expr == null)
+            var expression = this.resolutionStrategy.BuildExpressionForTopLevelRequest(type, name, resolutionContext);
+            if (expression == null)
                 if (resolutionContext.NullResultAllowed)
                     return null;
                 else
                     throw new ResolutionFailedException(type);
 
-            var factory = expr.CompileDelegate(resolutionContext, this.containerContext.ContainerConfiguration);
+            var factory = expression.CompileDelegate(resolutionContext, this.containerContext.ContainerConfiguration);
 
             if (resolutionContext.FactoryDelegateCacheEnabled)
                 Swap.SwapValue(ref this.delegateCache.ServiceDelegates, (t1, t2, t3, t4, c) =>
-                c.AddOrUpdate(t1, t2), name ?? type, factory, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
+                    c.AddOrUpdate(t1, t2), name ?? type, factory, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
 
             return factory(this);
         }
 
-        private Delegate ActivateFactoryDelegate(Type type,
-            Type[] parameterTypes,
-            object name,
-            bool nullResultAllowed)
+        private Delegate ActivateFactoryDelegate(Type type, Type[] parameterTypes, object name, bool nullResultAllowed)
         {
             var resolutionContext = new ResolutionContext(this.GetActiveScopeNames(), this.containerContext,
-                nullResultAllowed);
-            resolutionContext.AddParameterExpressions(parameterTypes.Select(p => p.AsParameter()));
+                    this.resolutionStrategy, this == this.containerContext.RootScope, nullResultAllowed)
+                .BeginContextWithFunctionParameters(parameterTypes.Select(p => p.AsParameter()));
 
             var typeInfo = new TypeInformation { Type = type, DependencyName = name };
-            var registration = this.containerContext.RegistrationRepository.GetRegistrationOrDefault(typeInfo, resolutionContext);
 
-            var initExpression = registration == null ?
-                this.resolutionStrategy.BuildResolutionExpressionUsingResolvers(this.containerContext, typeInfo, resolutionContext) :
-                registration.GetExpression(this.containerContext, resolutionContext, type);
-
+            var initExpression = this.resolutionStrategy.BuildExpressionForTopLevelRequest(type, name, resolutionContext);
             if (initExpression == null)
                 if (resolutionContext.NullResultAllowed)
                     return null;

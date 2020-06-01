@@ -118,9 +118,11 @@ namespace Stashbox.Tests
                     context.WithScopedLifetime();
             });
 
-            var test = container.ResolveAll<ITest>();
-            var test1 = container.ResolveAll<ITest1>();
-            var test2 = container.ResolveAll<ITest2>();
+            using var scope = container.BeginScope();
+
+            var test = scope.ResolveAll<ITest>();
+            var test1 = scope.ResolveAll<ITest1>();
+            var test2 = scope.ResolveAll<ITest2>();
 
             var scopeds = container.ContainerContext.RegistrationRepository.GetRegistrationMappings().Where(r => r.Value.RegistrationContext.Lifetime is ScopedLifetime).ToArray();
 

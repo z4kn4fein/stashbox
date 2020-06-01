@@ -1,9 +1,6 @@
-﻿using Stashbox.BuildUp;
-using Stashbox.Entity;
-using Stashbox.Resolution;
+﻿using Stashbox.Resolution;
 using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
 using System.Reflection;
 
 namespace Stashbox.Registration
@@ -54,28 +51,14 @@ namespace Stashbox.Registration
         bool HasScopeName { get; }
 
         /// <summary>
-        /// True if the registration contains a disposable service which should be tracked.
-        /// </summary>
-        bool ShouldHandleDisposal { get; }
-
-        /// <summary>
         /// True if the registration can used by an unnamed resolution request.
         /// </summary>
         bool IsResolvableByUnnamedRequest { get; }
 
         /// <summary>
-        /// The object builder used to create the instantiation expression for this registration.
+        /// Represents the nature of the registration.
         /// </summary>
-        IObjectBuilder ObjectBuilder { get; }
-
-        /// <summary>
-        /// Creates an expression for creating the resolved instance.
-        /// </summary>
-        /// <param name="containerContext">The container context.</param>
-        /// <param name="resolutionContext">The info about the current resolution.</param>
-        /// <param name="resolveType">The requested type.</param>
-        /// <returns>The expression.</returns>
-        Expression GetExpression(IContainerContext containerContext, ResolutionContext resolutionContext, Type resolveType);
+        RegistrationType RegistrationType { get; }
 
         /// <summary>
         /// Checks whether the registration can be used for a current resolution.
@@ -95,9 +78,9 @@ namespace Stashbox.Registration
         /// Clones the registration with new underlying type.
         /// </summary>
         /// <param name="implementationType">The implementation type.</param>
-        /// <param name="objectBuilder">The object builder.</param>
+        /// <param name="registrationType">The nature of the registration.</param>
         /// <returns>The new registration.</returns>
-        IServiceRegistration Clone(Type implementationType, IObjectBuilder objectBuilder);
+        IServiceRegistration Clone(Type implementationType, RegistrationType registrationType);
 
         /// <summary>
         /// Indicates that the current registration replaces another one, it copies the necessary information from the original.

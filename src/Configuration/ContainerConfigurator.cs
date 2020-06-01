@@ -9,7 +9,7 @@ namespace Stashbox.Configuration
     /// <summary>
     /// Represents a container configurator.
     /// </summary>
-    public class ContainerConfigurator : IContainerConfigurator
+    public class ContainerConfigurator
     {
         /// <summary>
         /// The container configuration.
@@ -21,52 +21,74 @@ namespace Stashbox.Configuration
             this.ContainerConfiguration = ContainerConfiguration.DefaultContainerConfiguration();
         }
 
-        /// <inheritdoc />
-        public IContainerConfigurator WithDisposableTransientTracking()
+        /// <summary>
+        /// Enables the tracking of disposable transient objects.
+        /// </summary>
+        /// <returns>The container configurator.</returns>
+        public ContainerConfigurator WithDisposableTransientTracking()
         {
             this.ContainerConfiguration.TrackTransientsForDisposalEnabled = true;
             return this;
         }
 
-        /// <inheritdoc />
-        public IContainerConfigurator WithRegistrationBehavior(Rules.RegistrationBehavior registrationBehavior)
+        /// <summary>
+        /// Sets the actual behavior used when a new service is going to be registered into the container. See the <see cref="Rules.RegistrationBehavior"/> enum for available options.
+        /// </summary>
+        /// <param name="registrationBehavior">The actual registration behavior.</param>
+        /// <returns>The container configurator.</returns>
+        public ContainerConfigurator WithRegistrationBehavior(Rules.RegistrationBehavior registrationBehavior)
         {
             this.ContainerConfiguration.RegistrationBehavior = registrationBehavior;
             return this;
         }
 
-        /// <inheritdoc />
-        public IContainerConfigurator WithCircularDependencyTracking(bool runtimeTrackingEnabled = false)
+        /// <summary>
+        /// Enables the runtime circular dependency tracking which means that the container generates checking calls into the expression tree
+        /// to detect recursive references even in factory delegates passed by the user during the registration.
+        /// </summary>
+        /// <returns>The container configurator.</returns>
+        public ContainerConfigurator WithRuntimeCircularDependencyTracking()
         {
-            this.ContainerConfiguration.CircularDependencyTrackingEnabled = true;
-            this.ContainerConfiguration.RuntimeCircularDependencyTrackingEnabled = runtimeTrackingEnabled;
+            this.ContainerConfiguration.RuntimeCircularDependencyTrackingEnabled = true;
             return this;
         }
 
-        /// <inheritdoc />
-        public IContainerConfigurator WithCircularDependencyWithLazy()
+        /// <summary>
+        /// Allows circular dependencies through Lazy objects.
+        /// </summary>
+        /// <returns>The container configurator.</returns>
+        public ContainerConfigurator WithCircularDependencyWithLazy()
         {
             this.ContainerConfiguration.CircularDependenciesWithLazyEnabled = true;
             return this;
         }
 
-        /// <inheritdoc />
-        public IContainerConfigurator WithDefaultValueInjection()
+        /// <summary>
+        /// Enables the default value injection.
+        /// </summary>
+        /// <returns>The container configurator.</returns>
+        public ContainerConfigurator WithDefaultValueInjection()
         {
             this.ContainerConfiguration.DefaultValueInjectionEnabled = true;
             return this;
         }
 
-        /// <inheritdoc />
-        public IContainerConfigurator WithUnknownTypeResolution(Action<RegistrationConfigurator> configurator = null)
+        /// <summary>
+        /// Enables the unknown type resolution.
+        /// </summary>
+        /// <returns>The container configurator.</returns>
+        public ContainerConfigurator WithUnknownTypeResolution(Action<UnknownRegistrationConfigurator> configurator = null)
         {
             this.ContainerConfiguration.UnknownTypeResolutionEnabled = true;
             this.ContainerConfiguration.UnknownTypeConfigurator = configurator;
             return this;
         }
 
-        /// <inheritdoc />
-        public IContainerConfigurator WithMemberInjectionWithoutAnnotation(Rules.AutoMemberInjectionRules rule = Rules.AutoMemberInjectionRules.PropertiesWithPublicSetter, Func<MemberInfo, bool> filter = null)
+        /// <summary>
+        /// Enables the member injection without annotation.
+        /// </summary>
+        /// <returns>The container configurator.</returns>
+        public ContainerConfigurator WithAutoMemberInjection(Rules.AutoMemberInjectionRules rule = Rules.AutoMemberInjectionRules.PropertiesWithPublicSetter, Func<MemberInfo, bool> filter = null)
         {
             this.ContainerConfiguration.MemberInjectionWithoutAnnotationEnabled = true;
             this.ContainerConfiguration.MemberInjectionWithoutAnnotationRule = rule;
@@ -74,45 +96,74 @@ namespace Stashbox.Configuration
             return this;
         }
 
-        /// <inheritdoc />
-        public IContainerConfigurator WithConstructorSelectionRule(Func<IEnumerable<ConstructorInfo>, IEnumerable<ConstructorInfo>> selectionRule)
+        /// <summary>
+        /// Sets the constructor selection rule.
+        /// </summary>
+        /// <returns>The container configurator.</returns>
+        public ContainerConfigurator WithConstructorSelectionRule(Func<IEnumerable<ConstructorInfo>, IEnumerable<ConstructorInfo>> selectionRule)
         {
             this.ContainerConfiguration.ConstructorSelectionRule = selectionRule;
             return this;
         }
 
-        /// <inheritdoc />
-        public IContainerConfigurator OnContainerConfigurationChanged(Action<ContainerConfiguration> configurationChanged)
+        /// <summary>
+        /// Sets a callback delegate to call when the container configuration changes.
+        /// </summary>
+        /// <returns>The container configurator.</returns>
+        public ContainerConfigurator OnContainerConfigurationChanged(Action<ContainerConfiguration> configurationChanged)
         {
             this.ContainerConfiguration.ConfigurationChangedEvent = configurationChanged;
             return this;
         }
 
-        /// <inheritdoc />
-        public IContainerConfigurator TreatParameterAndMemberNameAsDependencyName()
+        /// <summary>
+        /// Enables conventional resolution, which means the container treats the constructor/method parameter or member names as dependency names used by named resolution.
+        /// </summary>
+        /// <returns>The container configurator.</returns>
+        public ContainerConfigurator TreatParameterAndMemberNameAsDependencyName()
         {
             this.ContainerConfiguration.TreatingParameterAndMemberNameAsDependencyNameEnabled = true;
             return this;
         }
 
-        /// <inheritdoc />
-        public IContainerConfigurator WithNamedDependencyResolutionForUnNamedRequests()
+        /// <summary>
+        /// Enables the resolution of a named registration when a request ha been made without dependency name but with the same type.
+        /// </summary>
+        /// <returns>The container configurator.</returns>
+        public ContainerConfigurator WithNamedDependencyResolutionForUnNamedRequests()
         {
             this.ContainerConfiguration.NamedDependencyResolutionForUnNamedRequestsEnabled = true;
             return this;
         }
 
-        /// <inheritdoc />
-        public IContainerConfigurator WithMicrosoftExpressionCompiler()
+        /// <summary>
+        /// Forces the usage of Microsoft expression compiler to compile expression trees.
+        /// </summary>
+        /// <returns>The container configurator.</returns>
+        public ContainerConfigurator WithMicrosoftExpressionCompiler()
         {
             this.ContainerConfiguration.ForceUseMicrosoftExpressionCompiler = true;
             return this;
         }
 
-        /// <inheritdoc />
-        public IContainerConfigurator WithDefaultLifetime(LifetimeDescriptor lifetime)
+        /// <summary>
+        /// Sets the default lifetime, used when a service doesn't have a configured one.
+        /// </summary>
+        /// <param name="lifetime">The default lifetime.</param>
+        /// <returns>The container configurator.</returns>
+        public ContainerConfigurator WithDefaultLifetime(LifetimeDescriptor lifetime)
         {
             this.ContainerConfiguration.DefaultLifetime = lifetime;
+            return this;
+        }
+
+        /// <summary>
+        /// Disables the life-span and root resolution validation of the dependency graphs.
+        /// </summary>
+        /// <returns>The container configurator.</returns>
+        public ContainerConfigurator WithoutLifetimeValidation()
+        {
+            this.ContainerConfiguration.LifetimeValidationEnabled = false;
             return this;
         }
     }

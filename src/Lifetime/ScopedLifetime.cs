@@ -1,4 +1,5 @@
-﻿using Stashbox.Registration;
+﻿using Stashbox.Exceptions;
+using Stashbox.Registration;
 using Stashbox.Resolution;
 using Stashbox.Utils;
 using System;
@@ -9,21 +10,28 @@ namespace Stashbox.Lifetime
     /// <summary>
     /// Represents a scoped lifetime.
     /// </summary>
-    public class ScopedLifetime : LifetimeDescriptor
+    public class ScopedLifetime : FactoryLifetimeDescriptor
     {
         /// <inheritdoc />
-        protected override bool StoreResultInLocalVariable => true;
+        protected override int LifeSpan => 10;
 
         /// <inheritdoc />
-        protected override Expression GetLifetimeAppliedExpression(IContainerContext containerContext, IServiceRegistration serviceRegistration,
-            ResolutionContext resolutionContext, Type resolveType)
-        {
-            var factory = base.GetFactoryDelegate(containerContext, serviceRegistration, resolutionContext, resolveType);
-            if (factory == null)
-                return null;
+        protected override string Name => nameof(ScopedLifetime);
 
-            return resolutionContext.CurrentScopeParameter
-                .CallMethod(Constants.GetOrAddScopedObjectMethod,
+        /// <inheritdoc />
+        private protected override bool StoreResultInLocalVariable => true;
+
+        /// <inheritdoc />
+        protected override Expression ApplyLifetime(Func<IResolutionScope, object> factory,
+            IServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType)
+        {
+            if (resolutionContext.CurrentContainerContext.ContainerConfiguration.LifetimeValidationEnabled &&
+                resolutionContext.IsRequestedFromRoot)
+                throw new LifetimeValidationFailedException(serviceRegistration.ImplementationType,
+                    $"Resolution of {serviceRegistration.ImplementationType} ({this.Name}) from the root scope is not allowed, " +
+                    $"that would promote the service's lifetime to singleton.");
+
+            return resolutionContext.CurrentScopeParameter.CallMethod(Constants.GetOrAddScopedObjectMethod,
                     serviceRegistration.RegistrationId.AsConstant(),
                     serviceRegistration.RegistrationName.AsConstant(Constants.ObjectType),
                     factory.AsConstant())

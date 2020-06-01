@@ -8,12 +8,12 @@ namespace Stashbox.Exceptions
     public class ExceptionBaseException : Exception
     {
         /// <summary>
-        /// The actually resolved type.
+        /// The type the container is currently resolving.
         /// </summary>
         public Type Type { get; set; }
 
         /// <summary>
-        /// Constructs a <see cref="ExceptionBaseException"/>.
+        /// Constructs an <see cref="ExceptionBaseException"/>.
         /// </summary>
         /// <param name="type">The name of the type.</param>
         /// <param name="message">The exception message.</param>

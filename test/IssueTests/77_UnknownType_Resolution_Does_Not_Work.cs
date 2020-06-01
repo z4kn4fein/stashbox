@@ -39,15 +39,7 @@ namespace Stashbox.Tests.IssueTests
         }
 
         [Fact]
-        public void Ensures_Set_Implementation_Throws()
-        {
-            using var container = new StashboxContainer();
-            Assert.Throws<ArgumentException>(() => container.Register<ITest>(c => c.SetImplementationType<Test1>()));
-
-        }
-
-        [Fact]
-        public void Ensures_Registration_Validation_Works()
+         public void Ensures_Registration_Validation_Works()
         {
             using var container = new StashboxContainer();
             Assert.Throws<InvalidRegistrationException>(() => container.Register<ITest>());

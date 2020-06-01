@@ -120,7 +120,7 @@ namespace Stashbox.Tests
             var test = new Test();
             using (var container = new StashboxContainer())
             {
-                container.RegisterInstanceAs<ITest>(test, finalizerDelegate: t => t.Method());
+                container.RegisterInstance<ITest>(test, finalizerDelegate: t => t.Method());
                 test = (Test)container.Resolve<ITest>();
             }
 
@@ -133,7 +133,7 @@ namespace Stashbox.Tests
             var test = new Test();
             using (var container = new StashboxContainer())
             {
-                container.RegisterInstanceAs(test, finalizerDelegate: t => t.Method());
+                container.RegisterInstance(test, finalizerDelegate: t => t.Method());
                 test = container.Resolve<Test>();
             }
 
@@ -146,7 +146,7 @@ namespace Stashbox.Tests
             var test = new Test();
             using (var container = new StashboxContainer())
             {
-                container.WireUpAs<ITest>(test, finalizerDelegate: t => t.Method());
+                container.WireUp<ITest>(test, finalizerDelegate: t => t.Method());
                 test = (Test)container.Resolve<ITest>();
             }
 
@@ -159,7 +159,7 @@ namespace Stashbox.Tests
             var test = new Test();
             using (var container = new StashboxContainer())
             {
-                container.WireUpAs(test, finalizerDelegate: t => t.Method());
+                container.WireUp(test, finalizerDelegate: t => t.Method());
                 test = container.Resolve<Test>();
             }
 
@@ -214,7 +214,7 @@ namespace Stashbox.Tests
             var test = new Test();
             using (var container = new StashboxContainer())
             {
-                container.RegisterInstanceAs(test, finalizerDelegate: t => t.Method());
+                container.RegisterInstance(test, finalizerDelegate: t => t.Method());
                 for (var i = 0; i < 10; i++)
                 {
                     var test1 = container.Resolve<Test>();

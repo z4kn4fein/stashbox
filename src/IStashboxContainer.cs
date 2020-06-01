@@ -1,4 +1,5 @@
-﻿using Stashbox.Registration;
+﻿using Stashbox.Configuration;
+using Stashbox.Registration;
 using Stashbox.Resolution;
 using System;
 using System.Collections.Generic;
@@ -22,19 +23,9 @@ namespace Stashbox
         IStashboxContainer CreateChildContainer();
 
         /// <summary>
-        /// Stores the parent container object if has any, otherwise null.
-        /// </summary>
-        IStashboxContainer ParentContainer { get; }
-
-        /// <summary>
         /// Stores the container context.
         /// </summary>
         IContainerContext ContainerContext { get; }
-
-        /// <summary>
-        /// The root scope.
-        /// </summary>
-        IResolutionScope RootScope { get; }
 
         /// <summary>
         /// Checks a type can be resolved by the container.
@@ -72,7 +63,7 @@ namespace Stashbox
         /// Configures the container.
         /// </summary>
         /// <param name="config">The action delegate which will configure the container.</param>
-        void Configure(Action<IContainerConfigurator> config);
+        void Configure(Action<ContainerConfigurator> config);
 
         /// <summary>
         /// Validates the current state of the container.

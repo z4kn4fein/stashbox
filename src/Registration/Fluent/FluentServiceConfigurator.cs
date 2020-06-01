@@ -1,5 +1,5 @@
-﻿using Stashbox.Entity;
-using Stashbox.Lifetime;
+﻿using Stashbox.Lifetime;
+using Stashbox.Resolution;
 using Stashbox.Utils;
 using System;
 using System.Linq;
@@ -10,15 +10,20 @@ namespace Stashbox.Registration.Fluent
     /// <summary>
     /// Represents the generic fluent service registration api.
     /// </summary>
-    public class FluentServiceConfigurator<TService, TConfigurator> : FluentServiceConfigurator<TConfigurator>, IFluentServiceConfigurator<TService, TConfigurator>
-        where TConfigurator : FluentServiceConfigurator<TService, TConfigurator>
+    public class FluentServiceConfigurator<TService, TImplementation, TConfigurator> : FluentServiceConfigurator<TConfigurator>
+        where TConfigurator : FluentServiceConfigurator<TService, TImplementation, TConfigurator>
     {
         internal FluentServiceConfigurator(Type serviceType, Type implementationType)
             : base(serviceType, implementationType)
         { }
 
-        /// <inheritdoc />
-        public TConfigurator InjectMember<TResult>(Expression<Func<TService, TResult>> expression, object dependencyName = null)
+        /// <summary>
+        /// Set a member (property / field) as a dependency should be filled by the container.
+        /// </summary>
+        /// <param name="expression">The member expression.</param>
+        /// <param name="dependencyName">The name of the dependency.</param>
+        /// <returns>The configurator itself.</returns>
+        public TConfigurator InjectMember<TResult>(Expression<Func<TImplementation, TResult>> expression, object dependencyName = null)
         {
             if (expression.Body is MemberExpression memberExpression)
             {
@@ -29,58 +34,114 @@ namespace Stashbox.Registration.Fluent
             throw new ArgumentException("The expression must be a member expression (Property or Field)", nameof(expression));
         }
 
-        /// <inheritdoc />
-        public TConfigurator WithDependencyBinding<TDependency>(object dependencyName) =>
-            this.WithDependencyBinding(typeof(TDependency), dependencyName);
-
-        /// <inheritdoc />
-        public TConfigurator WithFinalizer(Action<TService> finalizer)
+        /// <summary>
+        /// Sets a delegate which will be called when the container is being disposed.
+        /// </summary>
+        /// <param name="finalizer">The cleanup delegate.</param>
+        /// <returns>The configurator itself.</returns>
+        public TConfigurator WithFinalizer(Action<TImplementation> finalizer)
         {
             base.Context.Finalizer = finalizer;
             return (TConfigurator)this;
         }
 
-        /// <inheritdoc />
-        public TConfigurator WithInitializer(Action<TService, IDependencyResolver> initializer)
+        /// <summary>
+        /// Sets a delegate which will be called when the service is being constructed.
+        /// </summary>
+        /// <param name="initializer">The initializer delegate.</param>
+        /// <returns>The configurator itself.</returns>
+        public TConfigurator WithInitializer(Action<TImplementation, IDependencyResolver> initializer)
         {
             base.Context.Initializer = initializer;
             return (TConfigurator)this;
         }
 
-        /// <inheritdoc />
-        public TConfigurator AsServiceAlso<TAdditionalService>() =>
-            base.AsServiceAlso(typeof(TAdditionalService));
+        /// <summary>
+        /// Sets a parameterless factory delegate for the registration.
+        /// </summary>
+        /// <param name="singleFactory">The factory delegate.</param>
+        /// <param name="isCompiledLambda">Flag that indicates the passed factory delegate is a compiled lambda from <see cref="Expression"/>.</param>
+        /// <returns>The configurator itself.</returns>
+        public TConfigurator WithFactory(Func<TService> singleFactory, bool isCompiledLambda = false)
+        {
+            this.Context.SingleFactory = singleFactory;
+            this.Context.IsFactoryDelegateACompiledLambda = isCompiledLambda;
+            return (TConfigurator)this;
+        }
 
-        /// <inheritdoc />
-        public TConfigurator SetImplementationType<TImplementation>() =>
-            base.SetImplementationType(typeof(TImplementation));
+        /// <summary>
+        /// Sets a container factory delegate for the registration.
+        /// </summary>
+        /// <param name="containerFactory">The container factory delegate.</param>
+        /// <param name="isCompiledLambda">Flag that indicates the passed factory delegate is a compiled lambda from <see cref="Expression"/>.</param>
+        /// <returns>The configurator itself.</returns>
+        public TConfigurator WithFactory(Func<IDependencyResolver, TService> containerFactory, bool isCompiledLambda = false)
+        {
+            this.Context.ContainerFactory = containerFactory;
+            this.Context.IsFactoryDelegateACompiledLambda = isCompiledLambda;
+            return (TConfigurator)this;
+        }
+
+        /// <summary>
+        /// Sets an instance as the resolution target of the registration.
+        /// </summary>
+        /// <param name="instance">The instance.</param>
+        /// <param name="wireUp">If true, the instance will be wired into the container, it will perform member and method injection on it.</param>
+        /// <returns>The configurator itself.</returns>
+        public TConfigurator WithInstance(TService instance, bool wireUp = false)
+        {
+            this.Context.ExistingInstance = instance;
+            this.Context.IsWireUp = wireUp;
+            this.ImplementationType = instance.GetType();
+            return (TConfigurator)this;
+        }
     }
 
     /// <summary>
     /// Represents the fluent service registraton api.
     /// </summary>
-    public class FluentServiceConfigurator<TConfigurator> : BaseFluentConfigurator<TConfigurator>, IFluentServiceConfigurator<TConfigurator>
+    public class FluentServiceConfigurator<TConfigurator> : BaseFluentConfigurator<TConfigurator>
         where TConfigurator : FluentServiceConfigurator<TConfigurator>
     {
         internal FluentServiceConfigurator(Type serviceType, Type implementationType)
             : base(serviceType, implementationType)
         { }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Binds a constructor or method parameter to a named registration, so the container will perform a named resolution on the bound dependency.  
+        /// </summary>
+        /// <param name="dependencyName">The name of the bound named registration.</param>
+        /// <returns>The configurator itself.</returns>
+        public TConfigurator WithDependencyBinding<TDependency>(object dependencyName) =>
+            this.WithDependencyBinding(typeof(TDependency), dependencyName);
+
+        /// <summary>
+        /// Sets a parent target condition for the registration.
+        /// </summary>
+        /// <typeparam name="TTarget">The type of the parent.</typeparam>
+        /// <returns>The configurator itself.</returns>
         public TConfigurator WhenDependantIs<TTarget>() where TTarget : class
         {
             this.Context.TargetTypeCondition = typeof(TTarget);
             return (TConfigurator)this;
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Sets a parent target condition for the registration.
+        /// </summary>
+        /// <param name="targetType">The type of the parent.</param>
+        /// <returns>The configurator itself.</returns>
         public TConfigurator WhenDependantIs(Type targetType)
         {
             this.Context.TargetTypeCondition = targetType;
             return (TConfigurator)this;
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Sets an attribute condition for the registration.
+        /// </summary>
+        /// <typeparam name="TAttribute">The type of the attribute.</typeparam>
+        /// <returns>The configurator itself.</returns>
         public TConfigurator WhenHas<TAttribute>() where TAttribute : Attribute
         {
             var store = (ExpandableArray<Type>)this.Context.AttributeConditions;
@@ -88,7 +149,11 @@ namespace Stashbox.Registration.Fluent
             return (TConfigurator)this;
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Sets an attribute condition for the registration.
+        /// </summary>
+        /// <param name="attributeType">The type of the attribute.</param>
+        /// <returns>The configurator itself.</returns>
         public TConfigurator WhenHas(Type attributeType)
         {
             var store = (ExpandableArray<Type>)this.Context.AttributeConditions;
@@ -96,58 +161,55 @@ namespace Stashbox.Registration.Fluent
             return (TConfigurator)this;
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Sets a generic condition for the registration.
+        /// </summary>
+        /// <param name="resolutionCondition">The predicate.</param>
+        /// <returns>The configurator itself.</returns>
         public TConfigurator When(Func<TypeInformation, bool> resolutionCondition)
         {
             this.Context.ResolutionCondition = resolutionCondition;
             return (TConfigurator)this;
         }
 
-        /// <inheritdoc />
-        public TConfigurator WithFactory(Func<IDependencyResolver, object> containerFactory, bool isCompiledLambda = false)
-        {
-            this.Context.ContainerFactory = containerFactory;
-            this.Context.IsFactoryDelegateACompiledLambda = isCompiledLambda;
-            return (TConfigurator)this;
-        }
-
-        /// <inheritdoc />
-        public TConfigurator WithFactory(Func<object> singleFactory, bool isCompiledLambda = false)
-        {
-            this.Context.SingleFactory = singleFactory;
-            this.Context.IsFactoryDelegateACompiledLambda = isCompiledLambda;
-            return (TConfigurator)this;
-        }
-
-        /// <inheritdoc />
+        /// <summary>
+        /// Sets the lifetime of the registration.
+        /// </summary>
+        /// <param name="lifetime">An <see cref="LifetimeDescriptor"/> implementation.</param>
+        /// <returns>The configurator itself.</returns>
         public TConfigurator WithLifetime(LifetimeDescriptor lifetime)
         {
             this.Context.Lifetime = lifetime;
             return (TConfigurator)this;
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Sets a scoped lifetime for the registration.
+        /// </summary>
+        /// <returns>The configurator itself.</returns>
         public TConfigurator WithScopedLifetime() => this.WithLifetime(Lifetimes.Scoped);
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Sets a singleton lifetime for the registration.
+        /// </summary>
+        /// <returns>The configurator itself.</returns>
         public TConfigurator WithSingletonLifetime() => this.WithLifetime(Lifetimes.Singleton);
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Sets the name of the registration.
+        /// </summary>
+        /// <param name="name">The name of the registration.</param>
+        /// <returns>The configurator itself.</returns>
         public TConfigurator WithName(object name)
         {
             this.Context.Name = name;
             return (TConfigurator)this;
         }
 
-        /// <inheritdoc />
-        public TConfigurator WithInstance(object instance, bool wireUp = false)
-        {
-            this.Context.ExistingInstance = instance;
-            this.Context.IsWireUp = wireUp;
-            return (TConfigurator)this;
-        }
-
-        /// <inheritdoc />
+        /// <summary>
+        /// Registers the given service by all of it's implemented types.
+        /// </summary>
+        /// <returns>The configurator itself.</returns>
         public TConfigurator AsImplementedTypes()
         {
             this.Context.AdditionalServiceTypes = ExpandableArray<Type>.FromEnumerable(this.ImplementationType.GetRegisterableInterfaceTypes()
@@ -155,39 +217,69 @@ namespace Stashbox.Registration.Fluent
             return (TConfigurator)this;
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Sets a scope name condition for the registration, it will be used only when a scope with the given name requests it.
+        /// </summary>
+        /// <param name="scopeName">The name of the scope.</param>
+        /// <returns>The configurator itself.</returns>
         public TConfigurator InNamedScope(object scopeName)
         {
             this.Context.NamedScopeRestrictionIdentifier = scopeName;
             return this.WithLifetime(Lifetimes.NamedScope);
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Sets a condition for the registration that it will be used only within the scope defined by the given type.
+        /// </summary>
+        /// <param name="type">The type which defines the scope.</param>
+        /// <returns>The configurator itself.</returns>
         public TConfigurator InScopeDefinedBy(Type type)
         {
             this.Context.NamedScopeRestrictionIdentifier = type;
             return this.WithLifetime(Lifetimes.NamedScope);
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Sets a condition for the registration that it will be used only within the scope defined by the given type.
+        /// </summary>
+        /// <returns>The configurator itself.</returns>
         public TConfigurator InScopeDefinedBy<TScopeDefiner>()
         {
             this.Context.NamedScopeRestrictionIdentifier = typeof(TScopeDefiner);
             return this.WithLifetime(Lifetimes.NamedScope);
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// It means this registration would be used as a logical scope for it's dependencies, the dependencies registered with the <see cref="InNamedScope"/> and with the same name as it's param will be preffered during reolution.
+        /// </summary>
+        /// <param name="scopeName">The name of the scope. When the name is null, the type which defines the scope is used as name.</param>
+        /// <returns>The configurator itself.</returns>
         public TConfigurator DefinesScope(object scopeName = null)
         {
             this.Context.DefinedScopeName = scopeName ?? this.ImplementationType;
             return (TConfigurator)this;
         }
 
-        /// <inheritdoc />
-        public TConfigurator WithPerResolutionRequestLifetime() =>
-            this.WithLifetime(Lifetimes.PerRequest);
+        /// <summary>
+        /// Sets the lifetime to <see cref="PerScopedRequestLifetime"/>. This lifetime will create a new instance between scoped services. This means
+        /// that every scoped service will get a different instance but within their dependency tree it will behave as a singleton. 
+        /// </summary>
+        /// <returns>The configurator itself.</returns>
+        public TConfigurator WithPerScopedRequestLifetime() =>
+            this.WithLifetime(Lifetimes.PerScopedRequest);
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Binds the currently configured registration to an additional service type.
+        /// </summary>
+        /// <returns>The configurator itself.</returns>
+        public TConfigurator AsServiceAlso<TAdditionalService>() =>
+            this.AsServiceAlso(typeof(TAdditionalService));
+
+        /// <summary>
+        /// Binds the currently configured registration to an additional service type.
+        /// </summary>
+        /// <param name="serviceType">The additional service type.</param>
+        /// <returns>The configurator itself.</returns>
         public TConfigurator AsServiceAlso(Type serviceType)
         {
             if (!this.ImplementationType.Implements(serviceType))
@@ -195,17 +287,6 @@ namespace Stashbox.Registration.Fluent
 
             ((ExpandableArray<Type>)this.Context.AdditionalServiceTypes).Add(serviceType);
             return (TConfigurator)this;
-        }
-
-        /// <inheritdoc />
-        public TConfigurator SetImplementationType(Type implementationType)
-        {
-            if (!implementationType.Implements(base.ServiceType))
-                throw new ArgumentException($"The type {implementationType} does not implement the actual service type {base.ServiceType}.");
-
-            base.ImplementationType = implementationType;
-            return (TConfigurator)this;
-
         }
     }
 }

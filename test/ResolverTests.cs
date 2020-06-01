@@ -107,6 +107,17 @@ namespace Stashbox.Tests
         }
 
         [Fact]
+        public void ResolverTests_UnknownType_ChildContainer()
+        {
+            using var container = new StashboxContainer(config => config.WithUnknownTypeResolution());
+            using var child = container.CreateChildContainer();
+            var inst = child.Resolve<RefDep>();
+
+            Assert.Single(child.ContainerContext.RegistrationRepository.GetRegistrationMappings());
+            Assert.Empty(container.ContainerContext.RegistrationRepository.GetRegistrationMappings());
+        }
+
+        [Fact]
         public void ResolverTests_UnknownType_Dependency()
         {
             using var container = new StashboxContainer(config => config.WithUnknownTypeResolution());
@@ -130,7 +141,7 @@ namespace Stashbox.Tests
         public void ResolverTests_MemberInject_WithoutAnnotation()
         {
             using var container = new StashboxContainer(config => config
-            .WithMemberInjectionWithoutAnnotation()
+            .WithAutoMemberInjection()
             .WithUnknownTypeResolution());
             container.Register<Test5>();
             var inst = container.Resolve<Test5>();
@@ -143,7 +154,7 @@ namespace Stashbox.Tests
         {
             using var container = new StashboxContainer();
             container.Register<Test5>();
-            container.Configure(config => config.WithUnknownTypeResolution().WithMemberInjectionWithoutAnnotation());
+            container.Configure(config => config.WithUnknownTypeResolution().WithAutoMemberInjection());
             var inst = container.Resolve<Test5>();
 
             Assert.NotNull(inst.I);
@@ -218,7 +229,7 @@ namespace Stashbox.Tests
         {
             using var container = new StashboxContainer(config => config
                 .WithUnknownTypeResolution()
-                .WithMemberInjectionWithoutAnnotation(Rules.AutoMemberInjectionRules.PropertiesWithLimitedAccess | Rules.AutoMemberInjectionRules.PrivateFields));
+                .WithAutoMemberInjection(Rules.AutoMemberInjectionRules.PropertiesWithLimitedAccess | Rules.AutoMemberInjectionRules.PrivateFields));
             container.Register<Test8>(context => context.WithAutoMemberInjection(Rules.AutoMemberInjectionRules.PropertiesWithLimitedAccess | Rules.AutoMemberInjectionRules.PrivateFields));
             var inst2 = container.Resolve<Test8>();
 
@@ -231,7 +242,7 @@ namespace Stashbox.Tests
         {
             using var container = new StashboxContainer(config => config
                 .WithUnknownTypeResolution()
-                .WithMemberInjectionWithoutAnnotation(Rules.AutoMemberInjectionRules.PropertiesWithLimitedAccess | Rules.AutoMemberInjectionRules.PrivateFields));
+                .WithAutoMemberInjection(Rules.AutoMemberInjectionRules.PropertiesWithLimitedAccess | Rules.AutoMemberInjectionRules.PrivateFields));
             container.Register<Test8>(context => context.WithAutoMemberInjection(Rules.AutoMemberInjectionRules.PrivateFields));
             var inst2 = container.Resolve<Test8>();
 
