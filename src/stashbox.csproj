@@ -50,6 +50,7 @@ Breaking changes:
 - `RegisterInstanceAs()` has been removed, every functionality is available on the `RegisterInstance()` methods.
 - Service/Implementation type map validation has been added to the non-generic registration methods.
 - `InjectionParameter` has been replaced with `KeyValuePair<string, object>`.
+- `IserviceRegistration` interface has been removed, only it's implementation remained.
 - Removed the legacy container extension functionality.
 - Removed the support of PCL v259.
     ]]>
@@ -67,11 +68,11 @@ Breaking changes:
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">
     <AssemblyTitle>Stashbox .NET Standard 1.3</AssemblyTitle>
-    <DefineConstants>NETSTANDARD;IL_EMIT</DefineConstants>
+    <DefineConstants>IL_EMIT</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <AssemblyTitle>Stashbox .NET Standard 2.0</AssemblyTitle>
-    <DefineConstants>NETSTANDARD;IL_EMIT;HAS_SERVICEPROVIDER</DefineConstants>
+    <DefineConstants>IL_EMIT;HAS_SERVICEPROVIDER</DefineConstants>
   </PropertyGroup>  
   <PropertyGroup Condition="'$(TargetFramework)' == 'net40' Or '$(TargetFramework)' == 'net45'">
     <DefineConstants>IL_EMIT;HAS_SERVICEPROVIDER</DefineConstants>

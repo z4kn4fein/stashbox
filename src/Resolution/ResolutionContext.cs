@@ -24,7 +24,7 @@ namespace Stashbox.Resolution
         internal Type DecoratingType { get; private set; }
         internal int CurrentLifeSpan { get; private set; }
         internal string NameOfCurrentlyResolvingTypeWithLifetime { get; private set; }
-        internal bool ExpressionCacheEnabled { get; private set; }
+        internal bool PerResolutionRequestCacheEnabled { get; private set; }
         internal bool UnknownTypeCheckDisabled { get; private set; }
         internal bool ShouldFallBackToRequestInitiatorContext { get; private set; }
         internal bool FactoryDelegateCacheEnabled { get; }
@@ -68,10 +68,10 @@ namespace Stashbox.Resolution
             this.circularDependencyBarrier = new HashTree<bool>();
             this.expressionCache = new HashTree<Expression>();
             this.factoryCache = new HashTree<Func<IResolutionScope, object>>();
-            this.FactoryDelegateCacheEnabled = dependencyOverrides == null;
             this.ResolutionStrategy = resolutionStrategy;
-            this.CurrentContainerContext = this.RequestInitiatorContainerContext = currentContainerContext;
             this.IsRequestedFromRoot = isRequestedFromRoot;
+            this.CurrentContainerContext = this.RequestInitiatorContainerContext = currentContainerContext;
+            this.FactoryDelegateCacheEnabled = this.PerResolutionRequestCacheEnabled = dependencyOverrides == null;
         }
 
         /// <summary>
@@ -178,7 +178,7 @@ namespace Stashbox.Resolution
             var clone = this.Clone();
             clone.ParameterExpressions = ExpandableArray<IEnumerable<KeyValue<bool, ParameterExpression>>>.FromEnumerable(this.ParameterExpressions);
             clone.ParameterExpressions.Add(parameterExpressions.Select(p => new KeyValue<bool, ParameterExpression>(false, p)).CastToArray());
-            clone.ExpressionCacheEnabled = false;
+            clone.PerResolutionRequestCacheEnabled = false;
             return clone;
         }
 

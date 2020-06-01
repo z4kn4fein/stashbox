@@ -81,7 +81,7 @@ namespace Stashbox.Lifetime
         private protected static bool IsRegistrationOutputCacheable(ServiceRegistration serviceRegistration, ResolutionContext resolutionContext) =>
             !serviceRegistration.IsDecorator &&
             resolutionContext.FactoryDelegateCacheEnabled &&
-            resolutionContext.ExpressionCacheEnabled &&
+            resolutionContext.PerResolutionRequestCacheEnabled &&
             serviceRegistration.RegistrationType != RegistrationType.OpenGeneric;
     }
 }
