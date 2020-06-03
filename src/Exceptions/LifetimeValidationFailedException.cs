@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Stashbox.Configuration;
+using System;
 
 namespace Stashbox.Exceptions
 {
@@ -16,7 +17,7 @@ namespace Stashbox.Exceptions
         public LifetimeValidationFailedException(Type type, string message, Exception innerException = null)
             : base(type,
                 $"{message}{Environment.NewLine}If you want to disable this error then use " +
-                "the following container configuration: 'new StashboxContainer(c => c.DisableLifetimeValidation())'.",
+                $"the following container configuration: 'new StashboxContainer(c => c.{nameof(ContainerConfigurator.WithoutLifetimeValidation)}())'.",
                 innerException)
         { }
     }

@@ -12,6 +12,7 @@ namespace Stashbox.Lifetime
     /// </summary>
     public abstract class LifetimeDescriptor
     {
+
         private protected virtual bool StoreResultInLocalVariable { get; } = false;
 
         /// <summary>
@@ -21,9 +22,17 @@ namespace Stashbox.Lifetime
         protected abstract int LifeSpan { get; }
 
         /// <summary>
-        /// The name of the lifetime, only used for diagnostic reasons.
+        /// The name of the lifetime, used only for diagnostic reasons.
         /// </summary>
-        protected abstract string Name { get; }
+        protected string Name { get; }
+
+        /// <summary>
+        /// Constructs the lifetime descriptor.
+        /// </summary>
+        protected LifetimeDescriptor()
+        {
+            this.Name = this.GetType().Name;
+        }
 
         internal Expression ApplyLifetime(ExpressionBuilder expressionBuilder,
             ServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType)
@@ -34,7 +43,7 @@ namespace Stashbox.Lifetime
                 if (resolutionContext.CurrentLifeSpan > this.LifeSpan)
                     throw new LifetimeValidationFailedException(serviceRegistration.ImplementationType,
                         $"The life-span of {serviceRegistration.ImplementationType} ({this.Name}|{this.LifeSpan}) " +
-                        $"is shorter than its direct or indirect parent's {resolutionContext.NameOfCurrentlyResolvingTypeWithLifetime}." + Environment.NewLine +
+                        $"is shorter than its direct or indirect parent's {resolutionContext.NameOfServiceLifeSpanValidatingAgainst}." + Environment.NewLine +
                         "This could lead to incidental lifetime promotions with longer life-span, it's recommended to double check your lifetime configurations.");
 
                 resolutionContext = resolutionContext.BeginLifetimeValidationContext(this.LifeSpan,

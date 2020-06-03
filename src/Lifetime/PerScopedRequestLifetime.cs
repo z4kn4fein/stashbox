@@ -6,9 +6,6 @@
     public class PerScopedRequestLifetime : TransientLifetime
     {
         /// <inheritdoc />
-        protected override string Name => nameof(PerScopedRequestLifetime);
-
-        /// <inheritdoc />
         private protected override bool StoreResultInLocalVariable => true;
     }
 }

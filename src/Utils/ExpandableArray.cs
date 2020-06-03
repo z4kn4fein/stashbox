@@ -76,6 +76,18 @@ namespace Stashbox.Utils
             return false;
         }
 
+        public bool Contains(TItem element)
+        {
+            var length = this.Length;
+            if (length == 1) return Equals(this.Repository[0], element);
+
+            for (var i = 0; i < length; i++)
+                if (Equals(this.Repository[i], element))
+                    return true;
+
+            return false;
+        }
+
         private int EnsureSize(int increaseAmount = 1)
         {
             if (this.Length == 0)

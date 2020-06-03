@@ -15,10 +15,7 @@ namespace Stashbox.Lifetime
         private static readonly MethodInfo GetScopeValueMethod = typeof(NamedScopeLifetime).GetSingleMethod(nameof(GetScopedValue));
 
         /// <inheritdoc />
-        protected override int LifeSpan => 10;
-
-        /// <inheritdoc />
-        protected override string Name => nameof(NamedScopeLifetime);
+        protected override int LifeSpan { get; } = 10;
 
         /// <inheritdoc />
         protected override Expression ApplyLifetime(Func<IResolutionScope, object> factory,

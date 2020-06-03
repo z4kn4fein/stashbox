@@ -14,7 +14,7 @@ namespace Stashbox.Resolution
         private readonly HashTree<Expression> expressionCache;
         private readonly HashTree<Func<IResolutionScope, object>> factoryCache;
         private readonly HashTree<Type, HashTree<object, Expression>> expressionOverrides;
-        private readonly HashTree<bool> circularDependencyBarrier;
+        private readonly Utils.Stack<int> circularDependencyBarrier;
 
         internal IContainerContext RequestInitiatorContainerContext { get; }
         internal IResolutionStrategy ResolutionStrategy { get; }
@@ -23,7 +23,7 @@ namespace Stashbox.Resolution
         internal ExpandableArray<IEnumerable<KeyValue<bool, ParameterExpression>>> ParameterExpressions { get; private set; }
         internal Type DecoratingType { get; private set; }
         internal int CurrentLifeSpan { get; private set; }
-        internal string NameOfCurrentlyResolvingTypeWithLifetime { get; private set; }
+        internal string NameOfServiceLifeSpanValidatingAgainst { get; private set; }
         internal bool PerResolutionRequestCacheEnabled { get; private set; }
         internal bool UnknownTypeCheckDisabled { get; private set; }
         internal bool ShouldFallBackToRequestInitiatorContext { get; private set; }
@@ -65,7 +65,7 @@ namespace Stashbox.Resolution
             this.CurrentScopeParameter = Constants.ResolutionScopeParameter;
             this.ParameterExpressions = new ExpandableArray<IEnumerable<KeyValue<bool, ParameterExpression>>>();
             this.ScopeNames = ExpandableArray<object>.FromEnumerable(initialScopeNames);
-            this.circularDependencyBarrier = new HashTree<bool>();
+            this.circularDependencyBarrier = new Utils.Stack<int>();
             this.expressionCache = new HashTree<Expression>();
             this.factoryCache = new HashTree<Func<IResolutionScope, object>>();
             this.ResolutionStrategy = resolutionStrategy;
@@ -131,19 +131,20 @@ namespace Stashbox.Resolution
             this.expressionOverrides.Add(type, new HashTree<object, Expression>(type, expression));
         }
 
-        internal void SetCircularDependencyIndicatorFor(int key, bool value) =>
-            this.circularDependencyBarrier.Add(key, value);
+        internal bool WeAreInCircle(int key) =>
+            this.circularDependencyBarrier.Contains(key);
 
-        internal bool CheckCircularDependencyOn(int key) =>
-            this.circularDependencyBarrier.GetOrDefault(key);
+        internal void PullOutCircularDependencyBarrier(int key) =>
+            this.circularDependencyBarrier.Add(key);
+
+        internal void LetDownCircularDependencyBarrier() =>
+            this.circularDependencyBarrier.Pop();
 
         internal ResolutionContext BeginCrossContainerContext(IContainerContext currentContainerContext)
         {
             var clone = this.Clone();
             clone.CurrentContainerContext = currentContainerContext;
-            clone.ShouldFallBackToRequestInitiatorContext =
-                clone.RequestInitiatorContainerContext != currentContainerContext;
-
+            clone.ShouldFallBackToRequestInitiatorContext = clone.RequestInitiatorContainerContext != currentContainerContext;
             return clone;
         }
 
@@ -160,7 +161,6 @@ namespace Stashbox.Resolution
             var clone = this.Clone();
             clone.DefinedVariables = new HashTree<ParameterExpression>();
             clone.SingleInstructions = new ExpandableArray<Expression>();
-
             return clone;
         }
 
@@ -168,7 +168,6 @@ namespace Stashbox.Resolution
         {
             var clone = this.Clone();
             clone.UnknownTypeCheckDisabled = true;
-
             return clone;
         }
 
@@ -189,11 +188,11 @@ namespace Stashbox.Resolution
             return clone;
         }
 
-        internal ResolutionContext BeginLifetimeValidationContext(int lifeSpan, string currentlyResolving)
+        internal ResolutionContext BeginLifetimeValidationContext(int lifeSpan, string currentlyLifeSpanValidatingService)
         {
             var clone = this.Clone();
             clone.CurrentLifeSpan = lifeSpan;
-            clone.NameOfCurrentlyResolvingTypeWithLifetime = currentlyResolving;
+            clone.NameOfServiceLifeSpanValidatingAgainst = currentlyLifeSpanValidatingService;
             return clone;
         }
 

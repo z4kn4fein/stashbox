@@ -13,10 +13,7 @@ namespace Stashbox.Lifetime
     public class ScopedLifetime : FactoryLifetimeDescriptor
     {
         /// <inheritdoc />
-        protected override int LifeSpan => 10;
-
-        /// <inheritdoc />
-        protected override string Name => nameof(ScopedLifetime);
+        protected override int LifeSpan { get; } = 10;
 
         /// <inheritdoc />
         private protected override bool StoreResultInLocalVariable => true;

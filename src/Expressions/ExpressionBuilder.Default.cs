@@ -11,12 +11,12 @@ namespace Stashbox.Expressions
     {
         private Expression GetExpressionForDefault(ServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType)
         {
-            if (resolutionContext.CheckCircularDependencyOn(serviceRegistration.RegistrationId))
+            if (resolutionContext.WeAreInCircle(serviceRegistration.RegistrationId))
                 throw new CircularDependencyException(resolveType);
 
-            resolutionContext.SetCircularDependencyIndicatorFor(serviceRegistration.RegistrationId, true);
+            resolutionContext.PullOutCircularDependencyBarrier(serviceRegistration.RegistrationId);
             var result = this.PrepareDefaultExpression(serviceRegistration, resolutionContext, resolveType);
-            resolutionContext.SetCircularDependencyIndicatorFor(serviceRegistration.RegistrationId, false);
+            resolutionContext.LetDownCircularDependencyBarrier();
             return result;
         }
 

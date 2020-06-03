@@ -46,6 +46,9 @@ namespace Stashbox.Utils
         [MethodImpl(Constants.Inline)]
         public TValue GetOrDefault(int key)
         {
+            if (this.IsEmpty)
+                return default;
+
             var node = this;
             while (!node.IsEmpty && node.storedHash != key)
                 node = key < node.storedHash ? node.leftNode : node.rightNode;
