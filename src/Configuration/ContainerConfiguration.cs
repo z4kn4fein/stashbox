@@ -17,8 +17,7 @@ namespace Stashbox.Configuration
             return new ContainerConfiguration
             {
                 ConstructorSelectionRule = Rules.ConstructorSelection.PreferMostParameters,
-                DefaultLifetime = Lifetimes.Transient,
-                LifetimeValidationEnabled = true
+                DefaultLifetime = Lifetimes.Transient
             };
         }
 

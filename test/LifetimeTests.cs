@@ -159,8 +159,8 @@ namespace Stashbox.Tests
         {
             using IStashboxContainer container = new StashboxContainer(c =>
             {
-                if (!enabledValidation)
-                    c.WithoutLifetimeValidation();
+                if (enabledValidation)
+                    c.WithLifetimeValidation();
             });
             container.RegisterSingleton<Test6>();
             container.RegisterScoped<Test5>();
@@ -185,8 +185,8 @@ namespace Stashbox.Tests
         {
             using IStashboxContainer container = new StashboxContainer(c =>
             {
-                if (!enabledValidation)
-                    c.WithoutLifetimeValidation();
+                if (enabledValidation)
+                    c.WithLifetimeValidation();
             });
             container.RegisterSingleton<Test8>();
             container.Register<Test6>();
@@ -212,8 +212,8 @@ namespace Stashbox.Tests
         {
             using IStashboxContainer container = new StashboxContainer(c =>
             {
-                if (!enabledValidation)
-                    c.WithoutLifetimeValidation();
+                if (enabledValidation)
+                    c.WithLifetimeValidation();
             });
 
             container.RegisterScoped<Test5>();
@@ -236,8 +236,8 @@ namespace Stashbox.Tests
         {
             using IStashboxContainer container = new StashboxContainer(c =>
             {
-                if (!enabledValidation)
-                    c.WithoutLifetimeValidation();
+                if (enabledValidation)
+                    c.WithLifetimeValidation();
             });
 
             container.Register<Test6>();

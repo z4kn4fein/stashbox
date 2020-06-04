@@ -158,12 +158,12 @@ namespace Stashbox.Configuration
         }
 
         /// <summary>
-        /// Disables the life-span and root resolution validation of the dependency graphs.
+        /// Enables the life-span and root resolution validation on the dependency tree.
         /// </summary>
         /// <returns>The container configurator.</returns>
-        public ContainerConfigurator WithoutLifetimeValidation()
+        public ContainerConfigurator WithLifetimeValidation()
         {
-            this.ContainerConfiguration.LifetimeValidationEnabled = false;
+            this.ContainerConfiguration.LifetimeValidationEnabled = true;
             return this;
         }
     }
