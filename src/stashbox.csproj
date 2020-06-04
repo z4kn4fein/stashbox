@@ -11,7 +11,7 @@
     <Copyright>Copyright © Peter Csajtai 2020</Copyright>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageProjectUrl>https://github.com/z4kn4fein/stashbox</PackageProjectUrl>
-    <PackageIconUrl>https://goo.gl/I3hRfL</PackageIconUrl>
+    <PackageIcon>icon.png</PackageIcon>
     <RepositoryUrl>https://github.com/z4kn4fein/stashbox</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>Stashbox di dependencyinjection ioc dotnet netstandard</PackageTags>
@@ -96,5 +96,6 @@ Breaking changes:
 
   <ItemGroup>
     <None Include="..\LICENSE" Pack="true" PackagePath="" />
+    <None Include="..\img\icon.png" Pack="true" PackagePath="" />
   </ItemGroup>
 </Project>
