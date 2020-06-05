@@ -196,7 +196,7 @@ namespace System
         public static MethodInfo GetMethodByArguments(this Type type, string name, params Type[] types) =>
             (MethodInfo)type.GetTypeInfo().DeclaredMethods.Where(m => m.Name == name).GetMethodByArguments(types);
 
-        public static ConstructorInfo GetConstructorByArguments(this Type type, params  Type[] types) =>
+        public static ConstructorInfo GetConstructorByArguments(this Type type, params Type[] types) =>
             (ConstructorInfo)type.GetTypeInfo().DeclaredConstructors.GetMethodByArguments(types);
 
         public static MethodBase GetMethodByArguments(this IEnumerable<MethodBase> methods, params Type[] types) =>
@@ -290,9 +290,9 @@ namespace System
             RegistrationContext contextData,
             ContainerConfiguration containerConfiguration)
         {
-            var autoMemberInjectionEnabled = containerConfiguration.MemberInjectionWithoutAnnotationEnabled || contextData.AutoMemberInjectionEnabled;
+            var autoMemberInjectionEnabled = containerConfiguration.AutoMemberInjectionEnabled || contextData.AutoMemberInjectionEnabled;
             var autoMemberInjectionRule = contextData.AutoMemberInjectionEnabled ? contextData.AutoMemberInjectionRule :
-                containerConfiguration.MemberInjectionWithoutAnnotationRule;
+                containerConfiguration.AutoMemberInjectionRule;
 
             var publicPropsEnabled = autoMemberInjectionEnabled && (autoMemberInjectionRule & Rules.AutoMemberInjectionRules.PropertiesWithPublicSetter) == Rules.AutoMemberInjectionRules.PropertiesWithPublicSetter;
             var limitedPropsEnabled = autoMemberInjectionEnabled && (autoMemberInjectionRule & Rules.AutoMemberInjectionRules.PropertiesWithLimitedAccess) == Rules.AutoMemberInjectionRules.PropertiesWithLimitedAccess;
@@ -370,8 +370,8 @@ namespace System
                      publicPropsEnabled && prop.HasPublicSetMethod() || limitedPropsEnabled ||
                      contextData.InjectionMemberNames.ContainsKey(prop.Name));
 
-            valid = valid && (containerConfiguration.MemberInjectionFilter == null || containerConfiguration.MemberInjectionFilter(prop));
-            valid = valid && (contextData.MemberInjectionFilter == null || contextData.MemberInjectionFilter(prop));
+            valid = valid && (containerConfiguration.AutoMemberInjectionFilter == null || containerConfiguration.AutoMemberInjectionFilter(prop));
+            valid = valid && (contextData.AutoMemberInjectionFilter == null || contextData.AutoMemberInjectionFilter(prop));
 
             return valid;
         }
@@ -384,8 +384,8 @@ namespace System
                          fieldsEnabled ||
                          contextData.InjectionMemberNames.ContainsKey(field.Name));
 
-            valid = valid && (containerConfiguration.MemberInjectionFilter == null || containerConfiguration.MemberInjectionFilter(field));
-            valid = valid && (contextData.MemberInjectionFilter == null || contextData.MemberInjectionFilter(field));
+            valid = valid && (containerConfiguration.AutoMemberInjectionFilter == null || containerConfiguration.AutoMemberInjectionFilter(field));
+            valid = valid && (contextData.AutoMemberInjectionFilter == null || contextData.AutoMemberInjectionFilter(field));
 
             return valid;
         }

@@ -49,7 +49,7 @@ namespace Stashbox.Configuration
         /// <summary>
         /// If it's set to true, the container will inject members even without <see cref="DependencyAttribute"/>.
         /// </summary>
-        public bool MemberInjectionWithoutAnnotationEnabled { get; internal set; }
+        public bool AutoMemberInjectionEnabled { get; internal set; }
 
         /// <summary>
         /// If it's set to true, the container will not track circular dependencies performed with <see cref="Lazy{T}"/>.
@@ -74,7 +74,7 @@ namespace Stashbox.Configuration
         /// <summary>
         /// The member injection rule.
         /// </summary>
-        public Rules.AutoMemberInjectionRules MemberInjectionWithoutAnnotationRule { get; internal set; }
+        public Rules.AutoMemberInjectionRules AutoMemberInjectionRule { get; internal set; }
 
         /// <summary>
         /// The constructor selection rule.
@@ -94,7 +94,7 @@ namespace Stashbox.Configuration
         /// <summary>
         /// A filter delegate used to determine which members should be auto injected and which are not.
         /// </summary>
-        public Func<MemberInfo, bool> MemberInjectionFilter { get; internal set; }
+        public Func<MemberInfo, bool> AutoMemberInjectionFilter { get; internal set; }
 
         /// <summary>
         /// The default lifetime, used when a service isn't configured with a lifetime.
@@ -110,5 +110,7 @@ namespace Stashbox.Configuration
 
         private ContainerConfiguration()
         { }
+
+        internal ContainerConfiguration Clone() => (ContainerConfiguration)this.MemberwiseClone();
     }
 }

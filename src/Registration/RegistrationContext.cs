@@ -150,7 +150,7 @@ namespace Stashbox.Registration
         /// <summary>
         /// A filter delegate used to determine which members should be auto injected and which are not.
         /// </summary>
-        public Func<MemberInfo, bool> MemberInjectionFilter { get; internal set; }
+        public Func<MemberInfo, bool> AutoMemberInjectionFilter { get; internal set; }
 
         internal RegistrationContext()
         {

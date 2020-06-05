@@ -54,7 +54,7 @@ namespace Stashbox.Registration.Fluent
         {
             this.Context.AutoMemberInjectionEnabled = true;
             this.Context.AutoMemberInjectionRule = rule;
-            this.Context.MemberInjectionFilter = filter;
+            this.Context.AutoMemberInjectionFilter = filter;
             return (TConfigurator)this;
         }
 

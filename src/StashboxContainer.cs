@@ -104,7 +104,7 @@ namespace Stashbox
         /// <inheritdoc />
         public IStashboxContainer CreateChildContainer() =>
              new StashboxContainer(this, this.serviceRegistrator, this.registrationBuilder, this.resolutionStrategy,
-                 this.expressionFactory, this.expressionBuilder, this.containerConfigurator);
+                 this.expressionFactory, this.expressionBuilder, new ContainerConfigurator(this.ContainerContext.ContainerConfiguration.Clone()));
 
         /// <inheritdoc />
         public IDependencyResolver BeginScope(object name = null, bool attachToParent = false) =>
@@ -118,6 +118,8 @@ namespace Stashbox
             config.Invoke(this.containerConfigurator);
             this.containerConfigurator.ContainerConfiguration.ConfigurationChangedEvent?
                 .Invoke(this.containerConfigurator.ContainerConfiguration);
+
+            this.ContainerContext.RootScope.InvalidateDelegateCache();
         }
 
         /// <inheritdoc />
