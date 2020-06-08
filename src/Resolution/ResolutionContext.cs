@@ -20,7 +20,7 @@ namespace Stashbox.Resolution
         internal IResolutionStrategy ResolutionStrategy { get; }
         internal ExpandableArray<Expression> SingleInstructions { get; private set; }
         internal HashTree<ParameterExpression> DefinedVariables { get; private set; }
-        internal ExpandableArray<IEnumerable<KeyValue<bool, ParameterExpression>>> ParameterExpressions { get; private set; }
+        internal ExpandableArray<IEnumerable<Pair<bool, ParameterExpression>>> ParameterExpressions { get; private set; }
         internal Type DecoratingType { get; private set; }
         internal int CurrentLifeSpan { get; private set; }
         internal string NameOfServiceLifeSpanValidatingAgainst { get; private set; }
@@ -63,7 +63,7 @@ namespace Stashbox.Resolution
             this.expressionOverrides = dependencyOverrides ?? new HashTree<Type, HashTree<object, Expression>>();
             this.NullResultAllowed = nullResultAllowed;
             this.CurrentScopeParameter = Constants.ResolutionScopeParameter;
-            this.ParameterExpressions = new ExpandableArray<IEnumerable<KeyValue<bool, ParameterExpression>>>();
+            this.ParameterExpressions = new ExpandableArray<IEnumerable<Pair<bool, ParameterExpression>>>();
             this.ScopeNames = ExpandableArray<object>.FromEnumerable(initialScopeNames);
             this.circularDependencyBarrier = new Utils.Stack<int>();
             this.expressionCache = new HashTree<Expression>();
@@ -148,7 +148,7 @@ namespace Stashbox.Resolution
             return clone;
         }
 
-        internal ResolutionContext BeginNewScopeContext(KeyValue<object, ParameterExpression> scopeParameter)
+        internal ResolutionContext BeginNewScopeContext(KeyValuePair<object, ParameterExpression> scopeParameter)
         {
             this.ScopeNames.Add(scopeParameter.Key);
             var clone = this.BeginSubGraph();
@@ -175,8 +175,8 @@ namespace Stashbox.Resolution
             IEnumerable<ParameterExpression> parameterExpressions)
         {
             var clone = this.Clone();
-            clone.ParameterExpressions = ExpandableArray<IEnumerable<KeyValue<bool, ParameterExpression>>>.FromEnumerable(this.ParameterExpressions);
-            clone.ParameterExpressions.Add(parameterExpressions.Select(p => new KeyValue<bool, ParameterExpression>(false, p)).CastToArray());
+            clone.ParameterExpressions = ExpandableArray<IEnumerable<Pair<bool, ParameterExpression>>>.FromEnumerable(this.ParameterExpressions);
+            clone.ParameterExpressions.Add(parameterExpressions.Select(p => new Pair<bool, ParameterExpression>(false, p)).CastToArray());
             clone.PerResolutionRequestCacheEnabled = false;
             return clone;
         }

@@ -17,7 +17,7 @@ namespace Stashbox.Utils
         }
 
         /// <summary>
-        /// Checks the value of the given object and throws an ArgumentNullException if it is null.
+        /// Checks the value of the given object and throws an ArgumentNullException if it == null.
         /// </summary>
         /// <typeparam name="T">Type of the object.</typeparam>
         /// <param name="memberExpression">The expression which returns with the object to be checked.</param>
@@ -31,7 +31,7 @@ namespace Stashbox.Utils
         }
 
         /// <summary>
-        /// Checks the value of the given object and throws an ArgumentNullException if it is null.
+        /// Checks the value of the given object and throws an ArgumentNullException if it == null.
         /// </summary>
         /// <typeparam name="T">Type of the object.</typeparam>
         /// <param name="obj">The object to be checked.</param>
@@ -43,7 +43,7 @@ namespace Stashbox.Utils
         }
 
         /// <summary>
-        /// Checks the value of the given object and throws an ArgumentNullException with the given message if it is null.
+        /// Checks the value of the given object and throws an ArgumentNullException with the given message if it == null.
         /// </summary>
         /// <typeparam name="T">Type of the object.</typeparam>
         /// <param name="memberExpression">The expression which returns with the object to be checked.</param>
@@ -58,7 +58,7 @@ namespace Stashbox.Utils
         }
 
         /// <summary>
-        /// Checks the value of the given object and throws an ArgumentNullException with the given message if it is null.
+        /// Checks the value of the given object and throws an ArgumentNullException with the given message if it == null.
         /// </summary>
         /// <typeparam name="T">Type of the object.</typeparam>
         /// <param name="obj">The object to be checked.</param>
@@ -72,7 +72,7 @@ namespace Stashbox.Utils
 
 
         /// <summary>
-        /// Checks the value of the given string and throws an ArgumentException if it is null or empty.
+        /// Checks the value of the given string and throws an ArgumentException if it == null or empty.
         /// </summary>
         /// <param name="memberExpression">The expression which returns with the string to be checked.</param>
         public static void EnsureNotNullOrEmpty(Expression<Func<string>> memberExpression)
@@ -85,7 +85,7 @@ namespace Stashbox.Utils
         }
 
         /// <summary>
-        /// Checks the value of the given string and throws an ArgumentException if it is null or empty.
+        /// Checks the value of the given string and throws an ArgumentException if it == null or empty.
         /// </summary>
         /// <param name="obj">The string to be checked.</param>
         /// <param name="parameterName">The name of the parameter to be checked.</param>

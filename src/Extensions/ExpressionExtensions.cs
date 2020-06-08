@@ -4,9 +4,6 @@ using Stashbox.Expressions.Compile;
 using Stashbox.Resolution;
 using System.Collections.Generic;
 using System.Reflection;
-#if IL_EMIT
-
-#endif
 
 namespace System.Linq.Expressions
 {

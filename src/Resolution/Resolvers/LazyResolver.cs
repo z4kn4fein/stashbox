@@ -52,7 +52,7 @@ namespace Stashbox.Resolution.Resolvers
                     .CallMethod(ResolveMethodInfo, argumentType.Type.AsConstant(),
                         argumentType.DependencyName.AsConstant(), false.AsConstant(),
                         Constants.ObjectType.InitNewArray(resolutionContext.ParameterExpressions
-                            .SelectMany(x => x.Select(i => i.Value.ConvertTo(Constants.ObjectType)))))
+                            .SelectMany(x => x.Select(i => i.I2.ConvertTo(Constants.ObjectType)))))
                     .ConvertTo(argumentType.Type)
                 : resolutionStrategy.BuildExpressionForType(resolutionContext, argumentType);
     }

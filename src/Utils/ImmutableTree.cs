@@ -124,7 +124,7 @@ namespace Stashbox.Utils
         public override string ToString() => this.IsEmpty ? "empty" : $"{this.storedHash} : {this.storedValue}";
 
 
-        public IEnumerable<KeyValue<int, TValue>> Walk()
+        public IEnumerable<KeyValuePair<int, TValue>> Walk()
         {
             if (this.IsEmpty)
                 yield break;
@@ -143,7 +143,7 @@ namespace Stashbox.Utils
                 else
                 {
                     currentNode = nodes[index--];
-                    yield return new KeyValue<int, TValue>(currentNode.storedHash, currentNode.storedValue);
+                    yield return new KeyValuePair<int, TValue>(currentNode.storedHash, currentNode.storedValue);
 
                     currentNode = currentNode.rightNode;
                 }
@@ -296,7 +296,7 @@ namespace Stashbox.Utils
 
         public override string ToString() => this.IsEmpty ? "empty" : $"{this.storedKey} : {this.storedValue}";
 
-        public IEnumerable<KeyValue<TKey, TValue>> Walk()
+        public IEnumerable<KeyValuePair<TKey, TValue>> Walk()
         {
             if (this.IsEmpty)
                 yield break;
@@ -315,7 +315,7 @@ namespace Stashbox.Utils
                 else
                 {
                     currentNode = nodes[index--];
-                    yield return new KeyValue<TKey, TValue>(currentNode.storedKey, currentNode.storedValue);
+                    yield return new KeyValuePair<TKey, TValue>(currentNode.storedKey, currentNode.storedValue);
 
                     if (currentNode.collisions != null && currentNode.collisions.Length > 0)
                         for (var i = 0; i < currentNode.collisions.Length; i++)

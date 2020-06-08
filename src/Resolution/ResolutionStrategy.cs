@@ -34,13 +34,13 @@ namespace Stashbox.Resolution
                 for (var i = length; i-- > 0;)
                 {
                     var parameters = resolutionContext.ParameterExpressions[i]
-                        .WhereOrDefault(p => p.Value.Type == typeInformation.Type ||
-                                             p.Value.Type.Implements(typeInformation.Type));
+                        .WhereOrDefault(p => p.I2.Type == typeInformation.Type ||
+                                             p.I2.Type.Implements(typeInformation.Type));
 
                     if (parameters == null) continue;
-                    var selected = parameters.FirstOrDefault(parameter => !parameter.Key) ?? parameters.Last();
-                    selected.Key = true;
-                    return selected.Value;
+                    var selected = parameters.FirstOrDefault(parameter => !parameter.I1) ?? parameters.Last();
+                    selected.I1 = true;
+                    return selected.I2;
                 }
             }
 

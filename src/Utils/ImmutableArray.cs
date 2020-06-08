@@ -50,17 +50,17 @@ namespace Stashbox.Utils
     {
         public static readonly ImmutableArray<TKey, TValue> Empty = new ImmutableArray<TKey, TValue>();
 
-        public KeyValue<TKey, TValue>[] Repository;
+        public KeyValuePair<TKey, TValue>[] Repository;
 
         public int Length;
 
-        private ImmutableArray(KeyValue<TKey, TValue> item, KeyValue<TKey, TValue>[] old)
+        private ImmutableArray(KeyValuePair<TKey, TValue> item, KeyValuePair<TKey, TValue>[] old)
         {
             if (old.Length == 0)
                 this.Repository = new[] { item };
             else
             {
-                this.Repository = new KeyValue<TKey, TValue>[old.Length + 1];
+                this.Repository = new KeyValuePair<TKey, TValue>[old.Length + 1];
                 Array.Copy(old, this.Repository, old.Length);
                 this.Repository[old.Length] = item;
             }
@@ -68,7 +68,7 @@ namespace Stashbox.Utils
             this.Length = old.Length + 1;
         }
 
-        public ImmutableArray(KeyValue<TKey, TValue>[] initial)
+        public ImmutableArray(KeyValuePair<TKey, TValue>[] initial)
         {
             this.Repository = initial;
             this.Length = initial.Length;
@@ -76,17 +76,17 @@ namespace Stashbox.Utils
 
         public ImmutableArray(TKey key, TValue value)
         {
-            this.Repository = new[] { new KeyValue<TKey, TValue>(key, value) };
+            this.Repository = new[] { new KeyValuePair<TKey, TValue>(key, value) };
             this.Length = 1;
         }
 
         public ImmutableArray()
         {
-            this.Repository = Constants.EmptyArray<KeyValue<TKey, TValue>>();
+            this.Repository = Constants.EmptyArray<KeyValuePair<TKey, TValue>>();
         }
 
         public ImmutableArray<TKey, TValue> Add(TKey key, TValue value) =>
-           new ImmutableArray<TKey, TValue>(new KeyValue<TKey, TValue>(key, value), this.Repository);
+           new ImmutableArray<TKey, TValue>(new KeyValuePair<TKey, TValue>(key, value), this.Repository);
 
         public ImmutableArray<TKey, TValue> AddOrUpdate(TKey key, TValue value, bool byRef, bool allowUpdate = true, Action<TValue, TValue> updateAction = null)
         {
@@ -100,12 +100,12 @@ namespace Stashbox.Utils
             if (!allowUpdate)
                 return this;
 
-            var newRepository = new KeyValue<TKey, TValue>[length];
+            var newRepository = new KeyValuePair<TKey, TValue>[length];
             Array.Copy(this.Repository, newRepository, length);
 
             updateAction?.Invoke(newRepository[count].Value, value);
 
-            newRepository[count] = new KeyValue<TKey, TValue>(key, value);
+            newRepository[count] = new KeyValuePair<TKey, TValue>(key, value);
             return new ImmutableArray<TKey, TValue>(newRepository);
         }
 

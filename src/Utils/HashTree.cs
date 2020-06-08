@@ -139,7 +139,7 @@ namespace Stashbox.Utils
             return node;
         }
 
-        public IEnumerable<KeyValue<int, TValue>> Walk()
+        public IEnumerable<KeyValuePair<int, TValue>> Walk()
         {
             if (this.root == null)
                 yield break;
@@ -158,7 +158,7 @@ namespace Stashbox.Utils
                 else
                 {
                     currentNode = nodes[index--];
-                    yield return new KeyValue<int, TValue>(currentNode.storedKey, currentNode.storedValue);
+                    yield return new KeyValuePair<int, TValue>(currentNode.storedKey, currentNode.storedValue);
 
                     currentNode = currentNode.right;
                 }
@@ -341,8 +341,8 @@ namespace Stashbox.Utils
             if (byRef && ReferenceEquals(key, node.storedKey) || !byRef && Equals(key, node.storedKey))
                 node.storedValue = value;
 
-            if (node.collisions == null) node.collisions = new ExpandableArray<TKey, TValue>();
-            node.collisions.Add(new KeyValue<TKey, TValue>(key, value));
+            node.collisions ??= new ExpandableArray<TKey, TValue>();
+            node.collisions.Add(new KeyValuePair<TKey, TValue>(key, value));
         }
     }
 }

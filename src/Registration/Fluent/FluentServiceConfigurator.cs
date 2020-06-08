@@ -252,7 +252,7 @@ namespace Stashbox.Registration.Fluent
         /// <summary>
         /// It means this registration would be used as a logical scope for it's dependencies, the dependencies registered with the <see cref="InNamedScope"/> and with the same name as it's param will be preffered during reolution.
         /// </summary>
-        /// <param name="scopeName">The name of the scope. When the name is null, the type which defines the scope is used as name.</param>
+        /// <param name="scopeName">The name of the scope. When the name == null, the type which defines the scope is used as name.</param>
         /// <returns>The configurator itself.</returns>
         public TConfigurator DefinesScope(object scopeName = null)
         {

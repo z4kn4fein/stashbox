@@ -115,7 +115,7 @@ namespace Stashbox.Utils
         IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
     }
 
-    internal class ExpandableArray<TKey, TItem> : ExpandableArray<KeyValue<TKey, TItem>>
+    internal class ExpandableArray<TKey, TItem> : ExpandableArray<KeyValuePair<TKey, TItem>>
     {
         [MethodImpl(Constants.Inline)]
         public TItem GetOrDefault(TKey key, bool byRef)

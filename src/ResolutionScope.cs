@@ -301,7 +301,7 @@ namespace Stashbox
                 else
                     throw new ResolutionFailedException(type);
 
-            var expression = initExpression.AsLambda(resolutionContext.ParameterExpressions.SelectMany(x => x.Select(i => i.Value)));
+            var expression = initExpression.AsLambda(resolutionContext.ParameterExpressions.SelectMany(x => x.Select(i => i.I2)));
 
             var factory = expression.CompileDynamicDelegate(resolutionContext, this.containerContext.ContainerConfiguration);
             Swap.SwapValue(ref this.delegateCache.FactoryDelegates, (t1, t2, t3, t4, c) =>
