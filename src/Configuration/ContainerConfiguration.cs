@@ -3,6 +3,7 @@ using Stashbox.Lifetime;
 using Stashbox.Registration.Fluent;
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Reflection;
 
 namespace Stashbox.Configuration
@@ -67,11 +68,6 @@ namespace Stashbox.Configuration
         public bool NamedDependencyResolutionForUnNamedRequestsEnabled { get; internal set; }
 
         /// <summary>
-        /// If it's set to true, the container will use the default Microsoft expression compiler.
-        /// </summary>
-        public bool ForceUseMicrosoftExpressionCompiler { get; internal set; }
-
-        /// <summary>
         /// The member injection rule.
         /// </summary>
         public Rules.AutoMemberInjectionRules AutoMemberInjectionRule { get; internal set; }
@@ -107,6 +103,11 @@ namespace Stashbox.Configuration
         /// and checks that scoped services are not resolved from the root scope.
         /// </summary>
         public bool LifetimeValidationEnabled { get; internal set; }
+
+        /// <summary>
+        /// A delegate to use external expression compilers.
+        /// </summary>
+        public Func<LambdaExpression, Delegate> ExternalExpressionCompiler { get; internal set; }
 
         private ContainerConfiguration()
         { }

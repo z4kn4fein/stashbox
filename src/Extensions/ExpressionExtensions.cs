@@ -1,9 +1,9 @@
 ﻿using Stashbox;
 using Stashbox.Configuration;
+using Stashbox.Expressions.Compile;
 using Stashbox.Resolution;
 using System.Collections.Generic;
 using System.Reflection;
-using Stashbox.Expressions.Compile;
 #if IL_EMIT
 
 #endif
@@ -36,15 +36,19 @@ namespace System.Linq.Expressions
                 resolutionContext.SingleInstructions.Add(expression);
                 expression = Expression.Block(resolutionContext.DefinedVariables.WalkOnValues(), resolutionContext.SingleInstructions);
             }
+
+            if (containerConfiguration.ExternalExpressionCompiler != null)
+                return (Func<IResolutionScope, object>)containerConfiguration.ExternalExpressionCompiler(
+                    expression.AsLambda(resolutionContext.CurrentScopeParameter));
+
 #if IL_EMIT
-            if (containerConfiguration.ForceUseMicrosoftExpressionCompiler ||
-                !expression.TryEmit(out Delegate factory, typeof(Func<IResolutionScope, object>), typeof(object),
+            if (!expression.TryEmit(out var factory, typeof(Func<IResolutionScope, object>), typeof(object),
                 resolutionContext.CurrentScopeParameter))
-                factory = Expression.Lambda(expression, resolutionContext.CurrentScopeParameter).Compile();
+                factory = expression.AsLambda(resolutionContext.CurrentScopeParameter).Compile();
 
             return (Func<IResolutionScope, object>)factory;
 #else
-            return Expression.Lambda<Func<IResolutionScope, object>>(expression, resolutionContext.CurrentScopeParameter).Compile();
+            return expression.AsLambda<Func<IResolutionScope, object>>(resolutionContext.CurrentScopeParameter).Compile();
 #endif
         }
 
@@ -81,15 +85,18 @@ namespace System.Linq.Expressions
                 expression = Expression.Block(resolutionContext.DefinedVariables.WalkOnValues(), resolutionContext.SingleInstructions);
             }
 
+            if (containerConfiguration.ExternalExpressionCompiler != null)
+                return (Func<IResolutionScope, Delegate>)containerConfiguration.ExternalExpressionCompiler(
+                    expression.AsLambda(resolutionContext.CurrentScopeParameter));
+
 #if IL_EMIT
-            if (containerConfiguration.ForceUseMicrosoftExpressionCompiler ||
-                !expression.TryEmit(out Delegate factory, typeof(Func<IResolutionScope, Delegate>), typeof(Delegate),
+            if (expression.TryEmit(out var factory, typeof(Func<IResolutionScope, Delegate>), typeof(Delegate),
                 resolutionContext.CurrentScopeParameter))
-                factory = Expression.Lambda<Func<IResolutionScope, Delegate>>(expression, resolutionContext.CurrentScopeParameter).Compile();
+                factory = expression.AsLambda<Func<IResolutionScope, Delegate>>(resolutionContext.CurrentScopeParameter).Compile();
 
             return (Func<IResolutionScope, Delegate>)factory;
 #else
-            return Expression.Lambda<Func<IResolutionScope, Delegate>>(expression, resolutionContext.CurrentScopeParameter).Compile();
+            return expression.AsLambda<Func<IResolutionScope, Delegate>>(resolutionContext.CurrentScopeParameter).Compile();
 #endif
         }
 

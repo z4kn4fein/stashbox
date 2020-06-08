@@ -73,11 +73,11 @@ namespace Stashbox.Tests
             Assert.False(container.ContainerContext.ContainerConfiguration.LifetimeValidationEnabled);
 
 
-            container.Configure(c => c.WithMicrosoftExpressionCompiler());
-            Assert.True(container.ContainerContext.ContainerConfiguration.ForceUseMicrosoftExpressionCompiler);
+            container.Configure(c => c.WithExpressionCompiler(Rules.ExpressionCompilers.MicrosoftExpressionCompiler));
+            Assert.NotNull(container.ContainerContext.ContainerConfiguration.ExternalExpressionCompiler);
 
-            container.Configure(c => c.WithMicrosoftExpressionCompiler(false));
-            Assert.False(container.ContainerContext.ContainerConfiguration.ForceUseMicrosoftExpressionCompiler);
+            container.Configure(c => c.WithExpressionCompiler(null));
+            Assert.Null(container.ContainerContext.ContainerConfiguration.ExternalExpressionCompiler);
 
 
             container.Configure(c => c.WithNamedDependencyResolutionForUnNamedRequests());

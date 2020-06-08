@@ -2,6 +2,7 @@
 using Stashbox.Registration.Fluent;
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Reflection;
 
 namespace Stashbox.Configuration
@@ -152,9 +153,10 @@ namespace Stashbox.Configuration
         /// </summary>
         /// <param name="enabled">True when the feature should be enabled, otherwise false.</param>
         /// <returns>The container configurator.</returns>
+        [Obsolete("Please use .WithExpressionCompiler(Rules.ExpressionCompilers.MicrosoftExpressionCompiler) instead.")]
         public ContainerConfigurator WithMicrosoftExpressionCompiler(bool enabled = true)
         {
-            this.ContainerConfiguration.ForceUseMicrosoftExpressionCompiler = enabled;
+            this.ContainerConfiguration.ExternalExpressionCompiler = enabled ? Rules.ExpressionCompilers.MicrosoftExpressionCompiler : null;
             return this;
         }
 
@@ -177,6 +179,17 @@ namespace Stashbox.Configuration
         public ContainerConfigurator WithLifetimeValidation(bool enabled = true)
         {
             this.ContainerConfiguration.LifetimeValidationEnabled = enabled;
+            return this;
+        }
+
+        /// <summary>
+        /// Enables the life-span and root resolution validation on the dependency tree.
+        /// </summary>
+        /// <param name="compilerDelegate">True when the feature should be enabled, otherwise false.</param>
+        /// <returns>The container configurator.</returns>
+        public ContainerConfigurator WithExpressionCompiler(Func<LambdaExpression, Delegate> compilerDelegate)
+        {
+            this.ContainerConfiguration.ExternalExpressionCompiler = compilerDelegate;
             return this;
         }
     }

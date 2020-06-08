@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Stashbox.Configuration;
+using System;
 using System.Threading;
 using Xunit;
 
@@ -26,7 +27,7 @@ namespace Stashbox.Tests.IssueTests
                         .WithDisposableTransientTracking();
 
                     if (useMicrosoftCompiler)
-                        c.WithMicrosoftExpressionCompiler();
+                        c.WithExpressionCompiler(Rules.ExpressionCompilers.MicrosoftExpressionCompiler);
                 })
                 .Register<A>(c => c.WithScopedLifetime())
                 .Register<B>(c => c.WithScopedLifetime())
@@ -94,7 +95,7 @@ namespace Stashbox.Tests.IssueTests
                         .WithDisposableTransientTracking();
 
                     if (useMicrosoftCompiler)
-                        c.WithMicrosoftExpressionCompiler();
+                        c.WithExpressionCompiler(Rules.ExpressionCompilers.MicrosoftExpressionCompiler);
                 })
                 .Register<A>(c => c.WithScopedLifetime())
                 .Register<B>(c => c.WithSingletonLifetime())
@@ -161,7 +162,7 @@ namespace Stashbox.Tests.IssueTests
                     c.WithDisposableTransientTracking();
 
                     if (useMicrosoftCompiler)
-                        c.WithMicrosoftExpressionCompiler();
+                        c.WithExpressionCompiler(Rules.ExpressionCompilers.MicrosoftExpressionCompiler);
                 })
                     .Register<A>(c => c.DefinesScope("A"))
                     .Register<B>(c => c.WithSingletonLifetime().DefinesScope("B"))
@@ -241,7 +242,7 @@ namespace Stashbox.Tests.IssueTests
                     c.WithDisposableTransientTracking();
 
                     if (useMicrosoftCompiler)
-                        c.WithMicrosoftExpressionCompiler();
+                        c.WithExpressionCompiler(Rules.ExpressionCompilers.MicrosoftExpressionCompiler);
                 })
                     .Register<A>()
                     .Register<B>()
@@ -323,7 +324,7 @@ namespace Stashbox.Tests.IssueTests
                     c.WithDisposableTransientTracking();
 
                     if (useMicrosoftCompiler)
-                        c.WithMicrosoftExpressionCompiler();
+                        c.WithExpressionCompiler(Rules.ExpressionCompilers.MicrosoftExpressionCompiler);
                 })
                     .Register<D>(c => c.WithScopedLifetime().DefinesScope())
                     .Register<E>(c => c.WithSingletonLifetime().DefinesScope())
@@ -357,7 +358,7 @@ namespace Stashbox.Tests.IssueTests
                     c.WithDisposableTransientTracking();
 
                     if (useMicrosoftCompiler)
-                        c.WithMicrosoftExpressionCompiler();
+                        c.WithExpressionCompiler(Rules.ExpressionCompilers.MicrosoftExpressionCompiler);
                 })
                     .Register<F>(c => c.WithScopedLifetime())
                     .Register<C>(c => c.WithSingletonLifetime());

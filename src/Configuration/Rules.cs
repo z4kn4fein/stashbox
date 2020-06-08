@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 
 namespace Stashbox.Configuration
@@ -80,6 +81,18 @@ namespace Stashbox.Configuration
             /// </summary>
             public static readonly Func<IEnumerable<ConstructorInfo>, IEnumerable<ConstructorInfo>> PreferLeastParameters =
                 constructors => constructors.OrderBy(constructor => constructor.GetParameters().Length);
+        }
+
+        /// <summary>
+        /// Pre-defined expression compiler delegates.
+        /// </summary>
+        public static class ExpressionCompilers
+        {
+            /// <summary>
+            /// The standard Microsoft expression compiler.
+            /// </summary>
+            public static readonly Func<LambdaExpression, Delegate>
+                MicrosoftExpressionCompiler = lambda => lambda.Compile();
         }
     }
 }
