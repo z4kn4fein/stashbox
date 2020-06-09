@@ -1,11 +1,17 @@
 ﻿using System;
 using System.Linq;
+#if HAS_SERIALIZABLE
+using System.Runtime.Serialization;
+#endif
 
 namespace Stashbox.Exceptions
 {
     /// <summary>
     /// Represents a constructor not found exception.
     /// </summary>
+#if HAS_SERIALIZABLE
+    [Serializable]
+#endif
     public class ConstructorNotFoundException : Exception
     {
         /// <summary>
@@ -36,5 +42,12 @@ namespace Stashbox.Exceptions
         public ConstructorNotFoundException(Type type, Type argument, Exception innerException = null) :
             base($"Constructor not found for {type.FullName} with the argument type: {argument.FullName}.", innerException)
         { }
+
+#if HAS_SERIALIZABLE
+        /// <inheritdoc />
+        protected ConstructorNotFoundException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        { }
+#endif
     }
 }

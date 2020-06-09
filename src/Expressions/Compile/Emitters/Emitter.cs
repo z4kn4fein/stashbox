@@ -1,11 +1,11 @@
 ﻿#if IL_EMIT
+using Stashbox.Expressions.Compile.Extensions;
+using Stashbox.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection.Emit;
-using Stashbox.Expressions.Compile.Extensions;
-using Stashbox.Utils;
 
 namespace Stashbox.Expressions.Compile.Emitters
 {
@@ -28,7 +28,7 @@ namespace Stashbox.Expressions.Compile.Emitters
                     return ((ParameterExpression)expression).TryEmit(generator, context, parameters);
 
                 case ExpressionType.Lambda:
-                    return ((LambdaExpression)expression).TryEmit(generator, context, parameters);
+                    return ((LambdaExpression)expression).TryEmit(generator, context);
 
                 case ExpressionType.Convert:
                     return ((UnaryExpression)expression).TryEmit(generator, context, parameters);

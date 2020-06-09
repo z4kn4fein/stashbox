@@ -1,14 +1,14 @@
 ﻿#if IL_EMIT
+using Stashbox.Expressions.Compile.Extensions;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection.Emit;
-using Stashbox.Expressions.Compile.Extensions;
 
 namespace Stashbox.Expressions.Compile.Emitters
 {
     internal static partial class Emitter
     {
-        private static bool TryEmit(this LambdaExpression expression, ILGenerator generator, CompilerContext context, params ParameterExpression[] parameters)
+        private static bool TryEmit(this LambdaExpression expression, ILGenerator generator, CompilerContext context)
         {
             var lambdaIndex = -1;
             var lambdaLength = context.NestedLambdas.Length;

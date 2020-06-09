@@ -158,13 +158,10 @@ namespace System
         public static bool Implements(this Type type, Type interfaceType) =>
             type == interfaceType || type.GetTypeInfo().Implements(interfaceType);
 
-        private static bool Implements(this TypeInfo typeInfo, Type interfaceType)
-        {
-            if (interfaceType.IsOpenGenericType())
-                return typeInfo.ImplementsGenericType(interfaceType.GetGenericTypeDefinition());
-
-            return interfaceType.GetTypeInfo().IsAssignableFrom(typeInfo);
-        }
+        private static bool Implements(this TypeInfo typeInfo, Type interfaceType) =>
+            interfaceType.IsOpenGenericType()
+                ? typeInfo.ImplementsGenericType(interfaceType.GetGenericTypeDefinition())
+                : interfaceType.GetTypeInfo().IsAssignableFrom(typeInfo);
 
         public static bool ImplementsWithoutGenericCheck(this Type type, Type interfaceType) =>
             type.GetTypeInfo().ImplementsWithoutGenericCheck(interfaceType);
@@ -193,11 +190,11 @@ namespace System
         public static ConstructorInfo GetFirstConstructor(this Type type) =>
             type.GetTypeInfo().DeclaredConstructors.FirstOrDefault();
 
-        public static MethodInfo GetMethodByArguments(this Type type, string name, params Type[] types) =>
-            (MethodInfo)type.GetTypeInfo().DeclaredMethods.Where(m => m.Name == name).GetMethodByArguments(types);
-
         public static ConstructorInfo GetConstructorByArguments(this Type type, params Type[] types) =>
             (ConstructorInfo)type.GetTypeInfo().DeclaredConstructors.GetMethodByArguments(types);
+
+        public static MethodInfo GetMethodByArguments(this Type type, string name, params Type[] types) =>
+            (MethodInfo)type.GetTypeInfo().DeclaredMethods.Where(m => m.Name == name).GetMethodByArguments(types);
 
         public static MethodBase GetMethodByArguments(this IEnumerable<MethodBase> methods, params Type[] types) =>
             methods.FirstOrDefault(constructor =>
@@ -344,19 +341,18 @@ namespace System
                 var constraints = paramType.GetGenericParameterConstraints();
                 var constraintsLength = constraints.Length;
 
-                if (constraints.Length > 0)
-                {
-                    var found = false;
-                    for (var j = 0; j < constraintsLength; j++)
-                    {
-                        var con = constraints[j];
-                        var constraintForCheck = con.IsClosedGenericType() ? con.GetGenericTypeDefinition().MakeGenericType(argumentType) : con;
-                        if (argumentForValidation.Implements(constraintForCheck))
-                            found = true;
-                    }
+                if (constraints.Length <= 0) continue;
 
-                    return found;
+                var found = false;
+                for (var j = 0; j < constraintsLength; j++)
+                {
+                    var con = constraints[j];
+                    var constraintForCheck = con.IsClosedGenericType() ? con.GetGenericTypeDefinition().MakeGenericType(argumentType) : con;
+                    if (argumentForValidation.Implements(constraintForCheck))
+                        found = true;
                 }
+
+                return found;
             }
 
             return true;

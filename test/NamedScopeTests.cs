@@ -40,7 +40,7 @@ namespace Stashbox.Tests
         [Fact]
         public void NamedScope_Simple_Resolve_Wrapper_Prefer_Named()
         {
-            var scope = new StashboxContainer()
+            using var scope = new StashboxContainer()
                 .Register<ITest, Test11>()
                 .Register<ITest, Test>(config => config.InNamedScope("A"))
                 .Register<ITest, Test1>()
@@ -92,7 +92,7 @@ namespace Stashbox.Tests
         [Fact]
         public void NamedScope_Simple_Resolve_Gets_Same_Within_Scope()
         {
-            var scope = new StashboxContainer()
+            using var scope = new StashboxContainer()
                 .Register<ITest, Test>()
                 .Register<ITest, Test1>(config => config.InNamedScope("A"))
                 .BeginScope("A");
@@ -106,7 +106,7 @@ namespace Stashbox.Tests
         [Fact]
         public void NamedScope_Simple_Resolve_Gets_Named_Within_Scope()
         {
-            var scope = new StashboxContainer()
+            using var scope = new StashboxContainer()
                 .Register<ITest, Test11>(config => config.InNamedScope("A"))
                 .Register<ITest, Test>(config => config.InNamedScope("A").WithName("T"))
                 .Register<ITest, Test1>(config => config.InNamedScope("A"))
@@ -124,7 +124,7 @@ namespace Stashbox.Tests
         [Fact]
         public void NamedScope_Simple_Resolve_Gets_Named_When_Scoped_Doesnt_Exist()
         {
-            var scope = new StashboxContainer()
+            using var scope = new StashboxContainer()
                 .Register<ITest, Test11>()
                 .Register<ITest, Test>(config => config.WithName("T"))
                 .Register<ITest, Test1>()

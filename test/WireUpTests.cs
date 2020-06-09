@@ -124,7 +124,9 @@ namespace Stashbox.Tests
         class Test1 : ITest1
         {
             [Dependency]
+#pragma warning disable 649
             public ITest test;
+#pragma warning restore 649
 
             [Dependency]
             public ITest Test { get; set; }

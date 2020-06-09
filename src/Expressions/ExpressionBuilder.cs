@@ -101,7 +101,7 @@ namespace Stashbox.Expressions
                         serviceRegistration.RegistrationContext.ExistingInstance.AsConstant(), serviceRegistration.ImplementationType);
 
                 case RegistrationType.Func:
-                    return this.GetExpressionForFunc(serviceRegistration, resolutionContext, resolveType);
+                    return this.GetExpressionForFunc(serviceRegistration, resolutionContext);
 
                 default:
                     return this.GetExpressionForDefault(serviceRegistration, resolutionContext, resolveType);

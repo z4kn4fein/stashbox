@@ -292,8 +292,6 @@ namespace Stashbox
                     this.resolutionStrategy, this == this.containerContext.RootScope, nullResultAllowed)
                 .BeginContextWithFunctionParameters(parameterTypes.Select(p => p.AsParameter()));
 
-            var typeInfo = new TypeInformation { Type = type, DependencyName = name };
-
             var initExpression = this.resolutionStrategy.BuildExpressionForTopLevelRequest(type, name, resolutionContext);
             if (initExpression == null)
                 if (resolutionContext.NullResultAllowed)

@@ -8,7 +8,8 @@ namespace Stashbox.Registration.SelectionRules
             ResolutionContext resolutionContext)
         {
             if (typeInformation.DependencyName != null &&
-                !registration.RegistrationName.Equals(typeInformation.DependencyName) &&
+                registration.RegistrationContext.Name != null &&
+                !registration.RegistrationContext.Name.Equals(typeInformation.DependencyName) &&
                 !registration.IsResolvableByUnnamedRequest)
                 return false;
 
@@ -17,6 +18,7 @@ namespace Stashbox.Registration.SelectionRules
 
         public bool ShouldIncrementWeight(TypeInformation typeInformation, ServiceRegistration registration,
             ResolutionContext resolutionContext) => typeInformation.DependencyName != null &&
-                                                    registration.RegistrationName.Equals(typeInformation.DependencyName);
+                                                    registration.RegistrationContext.Name != null &&
+                                                    registration.RegistrationContext.Name.Equals(typeInformation.DependencyName);
     }
 }

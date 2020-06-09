@@ -215,7 +215,7 @@ namespace Stashbox.Tests
         }
 
         [Fact]
-        public void ContainerTests_Configuration_DuplicatedBheavior_Throws()
+        public void ContainerTests_Configuration_DuplicatedBehavior_Throws()
         {
             Assert.Throws<ServiceAlreadyRegisteredException>(() => new StashboxContainer(c =>
                 c.WithRegistrationBehavior(Rules.RegistrationBehavior.ThrowException))
@@ -223,7 +223,16 @@ namespace Stashbox.Tests
         }
 
         [Fact]
-        public void ContainerTests_Configuration_DuplicatedBheavior_Skip()
+        public void ContainerTests_Configuration_DuplicatedBehavior_Does_Not_Throw_On_Replace()
+        {
+            using var container = new StashboxContainer(c =>
+                    c.WithRegistrationBehavior(Rules.RegistrationBehavior.ThrowException));
+
+            container.Register<S>().Register<S>(c => c.ReplaceExisting());
+        }
+
+        [Fact]
+        public void ContainerTests_Configuration_DuplicatedBehavior_Skip()
         {
             using var container = new StashboxContainer(c =>
                  c.WithRegistrationBehavior(Rules.RegistrationBehavior.SkipDuplications))
@@ -235,7 +244,7 @@ namespace Stashbox.Tests
         }
 
         [Fact]
-        public void ContainerTests_Configuration_DuplicatedBheavior_Preserve()
+        public void ContainerTests_Configuration_DuplicatedBehavior_Preserve()
         {
             var regs = new StashboxContainer(c =>
                 c.WithRegistrationBehavior(Rules.RegistrationBehavior.PreserveDuplications))
@@ -245,7 +254,7 @@ namespace Stashbox.Tests
         }
 
         [Fact]
-        public void ContainerTests_Configuration_DuplicatedBheavior_Replace()
+        public void ContainerTests_Configuration_DuplicatedBehavior_Replace()
         {
             using var container = new StashboxContainer(c =>
                 c.WithRegistrationBehavior(Rules.RegistrationBehavior.ReplaceExisting))

@@ -1,9 +1,11 @@
 ﻿using Stashbox;
 using Stashbox.Configuration;
-using Stashbox.Expressions.Compile;
 using Stashbox.Resolution;
 using System.Collections.Generic;
 using System.Reflection;
+#if IL_EMIT
+using Stashbox.Expressions.Compile;
+#endif
 
 namespace System.Linq.Expressions
 {

@@ -7,6 +7,15 @@ namespace Stashbox.Expressions.Compile
 {
     internal static class Utils
     {
+        public static bool IsInPlaceEmittableConstant(Type type, object value)
+        {
+            var typeInfo = type.GetTypeInfo();
+            return typeInfo.IsPrimitive ||
+                   typeInfo.IsEnum ||
+                   value is string ||
+                   value is Type;
+        }
+
         public static readonly Type ClosureType = typeof(Closure);
 
         public static readonly Type ObjectArrayType = typeof(object[]);

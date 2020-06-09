@@ -11,7 +11,7 @@ namespace Stashbox.Expressions
 {
     internal partial class ExpressionBuilder
     {
-        private Expression GetExpressionForFunc(ServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType)
+        private Expression GetExpressionForFunc(ServiceRegistration serviceRegistration, ResolutionContext resolutionContext)
         {
             var internalMethodInfo = serviceRegistration.RegistrationContext.FuncDelegate.GetMethod();
 

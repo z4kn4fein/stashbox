@@ -60,9 +60,10 @@ namespace Stashbox.Registration.Extensions
                 common.Add(serviceRegistration);
             }
 
-            return common.Length == 0
-                ? null
-                : priority.Length > 0
+            if (common.Length == 0)
+                return null;
+
+            return priority.Length > 0
                     ? priority
                     : common;
         }

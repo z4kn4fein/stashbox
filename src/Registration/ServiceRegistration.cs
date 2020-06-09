@@ -1,5 +1,4 @@
 ﻿using Stashbox.Configuration;
-using Stashbox.Exceptions;
 using Stashbox.Resolution;
 using System;
 using System.Collections.Generic;
@@ -28,14 +27,14 @@ namespace Stashbox.Registration
         public RegistrationContext RegistrationContext { get; }
 
         /// <summary>
-        /// The registration number.
+        /// The registration id.
         /// </summary>
         public int RegistrationId { get; private set; }
 
         /// <summary>
-        /// The registration id.
+        /// The object used to synchronized operations.
         /// </summary>
-        public object RegistrationName { get; }
+        public object SynchronizationObject { get; }
 
         /// <summary>
         /// True if the registration is a decorator.
@@ -55,6 +54,8 @@ namespace Stashbox.Registration
 
         internal bool HasCondition { get; }
 
+        internal object RegistrationDiscriminator { get; }
+
         internal ServiceRegistration(Type implementationType, RegistrationType registrationType, ContainerConfiguration containerConfiguration,
             RegistrationContext registrationContext, bool isDecorator)
         {
@@ -64,6 +65,7 @@ namespace Stashbox.Registration
             this.RegistrationContext = registrationContext;
             this.IsDecorator = isDecorator;
             this.RegistrationType = registrationType;
+            this.SynchronizationObject = new object();
 
             this.IsResolvableByUnnamedRequest = this.RegistrationContext.Name == null || containerConfiguration.NamedDependencyResolutionForUnNamedRequestsEnabled;
 
@@ -73,10 +75,9 @@ namespace Stashbox.Registration
                 this.RegistrationContext.AttributeConditions != null && this.RegistrationContext.AttributeConditions.Any();
 
             this.RegistrationId = ReserveRegistrationOrder();
-            this.RegistrationName = this.RegistrationContext.Name ??
-                (containerConfiguration.RegistrationBehavior == Rules.RegistrationBehavior.PreserveDuplications
-                ? (object)this.RegistrationId
-                : implementationType);
+            this.RegistrationDiscriminator = containerConfiguration.RegistrationBehavior == Rules.RegistrationBehavior.PreserveDuplications
+                    ? this.RegistrationId
+                    : this.RegistrationContext.Name ?? implementationType;
         }
 
         internal bool IsUsableForCurrentContext(TypeInformation typeInfo) =>
@@ -91,13 +92,8 @@ namespace Stashbox.Registration
             new ServiceRegistration(implementationType, registrationType, this.containerConfiguration,
                 this.RegistrationContext, this.IsDecorator);
 
-        internal void Replaces(ServiceRegistration serviceRegistration)
-        {
-            if (this.containerConfiguration.RegistrationBehavior == Rules.RegistrationBehavior.ThrowException)
-                throw new ServiceAlreadyRegisteredException(this.ImplementationType);
-
+        internal void Replaces(ServiceRegistration serviceRegistration) =>
             this.RegistrationId = serviceRegistration.RegistrationId;
-        }
 
         private bool HasParentTypeConditionAndMatch(TypeInformation typeInfo) =>
             this.RegistrationContext.TargetTypeCondition != null && typeInfo.ParentType != null && this.RegistrationContext.TargetTypeCondition == typeInfo.ParentType;

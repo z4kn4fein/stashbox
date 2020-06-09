@@ -97,6 +97,44 @@ namespace Stashbox.Expressions.Compile.Extensions
             generator.Emit(OpCodes.Initobj, type);
             generator.Emit(OpCodes.Ldloc, lb);
         }
+
+        public static bool TryEmitNumberConstant(this ILGenerator generator, Type type, object value)
+        {
+            if (type == typeof(int))
+                generator.EmitInteger((int)value);
+            else if (type == typeof(uint))
+                unchecked
+                {
+                    generator.EmitInteger((int)(uint)value);
+                }
+            else if (type == typeof(char))
+                generator.EmitInteger((char)value);
+            else if (type == typeof(short))
+                generator.EmitInteger((short)value);
+            else if (type == typeof(byte))
+                generator.EmitInteger((byte)value);
+            else if (type == typeof(ushort))
+                generator.EmitInteger((ushort)value);
+            else if (type == typeof(sbyte))
+                generator.EmitInteger((sbyte)value);
+            else if (type == typeof(long))
+                generator.Emit(OpCodes.Ldc_I8, (long)value);
+            else if (type == typeof(ulong))
+                unchecked
+                {
+                    generator.Emit(OpCodes.Ldc_I8, (long)(ulong)value);
+                }
+            else if (type == typeof(float))
+                generator.Emit(OpCodes.Ldc_R4, (float)value);
+            else if (type == typeof(bool))
+                generator.Emit((bool)value ? OpCodes.Ldc_I4_1 : OpCodes.Ldc_I4_0);
+            else if (type == typeof(double))
+                generator.Emit(OpCodes.Ldc_R8, (double)value);
+            else
+                return false;
+
+            return true;
+        }
     }
 }
 #endif

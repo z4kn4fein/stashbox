@@ -1,6 +1,5 @@
 ﻿using Stashbox.Registration;
 using Stashbox.Resolution;
-using Stashbox.Utils;
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -20,10 +19,11 @@ namespace Stashbox.Lifetime
         /// <inheritdoc />
         protected override Expression ApplyLifetime(Func<IResolutionScope, object> factory,
             ServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType) =>
-            GetScopeValueMethod.MakeGenericMethod(resolveType).CallStaticMethod(resolutionContext.CurrentScopeParameter,
+            GetScopeValueMethod.MakeGenericMethod(resolveType).CallStaticMethod(
+                resolutionContext.CurrentScopeParameter,
                     factory.AsConstant(),
                     serviceRegistration.RegistrationId.AsConstant(),
-                    serviceRegistration.RegistrationName.AsConstant(Constants.ObjectType),
+                    serviceRegistration.SynchronizationObject.AsConstant(),
                     serviceRegistration.RegistrationContext.NamedScopeRestrictionIdentifier.AsConstant());
 
         private static TValue GetScopedValue<TValue>(IResolutionScope currentScope, Func<IResolutionScope, object> factory,

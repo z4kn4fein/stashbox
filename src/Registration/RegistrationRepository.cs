@@ -1,4 +1,5 @@
 ﻿using Stashbox.Configuration;
+using Stashbox.Exceptions;
 using Stashbox.Registration.Extensions;
 using Stashbox.Registration.SelectionRules;
 using Stashbox.Resolution;
@@ -43,7 +44,7 @@ namespace Stashbox.Registration
 
         public void AddOrUpdateRegistration(ServiceRegistration registration, Type serviceType, bool remap, bool replace)
         {
-            var newRepository = new ImmutableArray<object, ServiceRegistration>(registration.RegistrationName, registration);
+            var newRepository = new ImmutableArray<object, ServiceRegistration>(registration.RegistrationDiscriminator, registration);
 
             if (remap)
                 Swap.SwapValue(ref serviceRepository, (t1, t2, t3, t4, repo) =>
@@ -52,11 +53,16 @@ namespace Stashbox.Registration
                 Swap.SwapValue(ref serviceRepository, (t1, t2, t3, t4, repo) =>
                     repo.AddOrUpdate(t2, t3,
                         (oldValue, newValue) =>
-                            oldValue.AddOrUpdate(t1.RegistrationName, t1, false, t4, (old, @new) => @new.Replaces(old))),
+                        {
+                            if (!t4 && this.containerConfiguration.RegistrationBehavior == Rules.RegistrationBehavior.ThrowException)
+                                throw new ServiceAlreadyRegisteredException(t1.ImplementationType);
+
+                            return oldValue.AddOrUpdate(t1.RegistrationDiscriminator, t1, false, t4,
+                                (old, @new) => @new.Replaces(old));
+                        }),
                         registration, serviceType, newRepository,
                         replace ||
-                        this.containerConfiguration.RegistrationBehavior == Rules.RegistrationBehavior.ReplaceExisting ||
-                        this.containerConfiguration.RegistrationBehavior == Rules.RegistrationBehavior.ThrowException);
+                        this.containerConfiguration.RegistrationBehavior == Rules.RegistrationBehavior.ReplaceExisting);
         }
 
         public bool ContainsRegistration(Type type, object name) =>

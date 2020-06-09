@@ -17,7 +17,7 @@ namespace Stashbox.Lifetime
         protected override Expression ApplyLifetime(Func<IResolutionScope, object> factory,
             ServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType) =>
             resolutionContext.CurrentContainerContext.RootScope
-                    .GetOrAddScopedObject(serviceRegistration.RegistrationId, serviceRegistration.RegistrationName, factory)
+                    .GetOrAddScopedObject(serviceRegistration.RegistrationId, serviceRegistration.SynchronizationObject, factory)
                     .AsConstant();
     }
 }

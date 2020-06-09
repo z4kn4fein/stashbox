@@ -1,10 +1,10 @@
 ﻿#if IL_EMIT
+using Stashbox.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Stashbox.Utils;
 
 namespace Stashbox.Expressions.Compile
 {
@@ -58,7 +58,7 @@ namespace Stashbox.Expressions.Compile
 
                 case ExpressionType.Constant:
                     var constant = (ConstantExpression)expression;
-                    if (constant.Value == null || IsInPlaceEmittableConstant(constant.Type, constant.Value)) return true;
+                    if (constant.Value == null || Utils.IsInPlaceEmittableConstant(constant.Type, constant.Value)) return true;
                     this.AddStoredItem(constant.Value);
                     return true;
 
@@ -164,14 +164,6 @@ namespace Stashbox.Expressions.Compile
         {
             if (this.NestedLambdas.ContainsReference(lambda)) return;
             this.NestedLambdas.Add(lambda);
-        }
-
-        private static bool IsInPlaceEmittableConstant(Type type, object value)
-        {
-            var typeInfo = type.GetTypeInfo();
-            return typeInfo.IsPrimitive || typeInfo.IsEnum
-                   || value is string
-                   || value is Type;
         }
     }
 }
