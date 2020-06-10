@@ -38,7 +38,7 @@ namespace Stashbox.Tests
 
         interface ITest { }
 
-        class Test { }
+        class Test : ITest { }
 
         class Test1
         {

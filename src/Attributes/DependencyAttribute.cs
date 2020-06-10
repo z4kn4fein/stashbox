@@ -11,13 +11,13 @@ namespace Stashbox.Attributes
         /// <summary>
         /// The name of the dependency.
         /// </summary>
-        public string Name { get; set; }
+        public object Name { get; set; }
 
         /// <summary>
         /// Constructs a <see cref="DependencyAttribute"/>
         /// </summary>
         /// <param name="name">The name of the dependency.</param>
-        public DependencyAttribute(string name = null)
+        public DependencyAttribute(object name = null)
         {
             this.Name = name;
         }

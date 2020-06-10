@@ -9,6 +9,14 @@ namespace Stashbox.Tests
     public class BuildUpTests
     {
         [Fact]
+        public void BuildUpTests_BuildUp_Simple()
+        {
+            using var container = new StashboxContainer();
+            ITest inst = new Test();
+            container.BuildUp(inst);
+        }
+
+        [Fact]
         public void BuildUpTests_BuildUp()
         {
             using var container = new StashboxContainer();
@@ -29,7 +37,7 @@ namespace Stashbox.Tests
         }
 
         [Fact]
-        public void BuildUpTests_BuildUp_Scoped()
+        public void BuildUpTests_BuildUp_As_InterfaceType()
         {
             using var container = new StashboxContainer();
             container.Register<ITest3, Test3>().Register<ITest, Test>();
@@ -40,7 +48,7 @@ namespace Stashbox.Tests
         }
 
         [Fact]
-        public void BuildUpTests_BuildUp_As_InterfaceType()
+        public void BuildUpTests_BuildUp_Scoped()
         {
             using var container = new StashboxContainer();
             container.RegisterScoped<ITest, Test>();

@@ -1,11 +1,12 @@
-﻿using Xunit;
+﻿using Stashbox.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Xunit;
 
 namespace Stashbox.Tests
 {
-    
+
     public class ReMapTests
     {
         [Fact]
@@ -224,6 +225,16 @@ namespace Stashbox.Tests
 
             Assert.NotNull(test22.Test1);
             Assert.IsType<Test11>(test22.Test1);
+        }
+
+        [Fact]
+        public void ReMapTests_Throws_When_TypeMap_Invalid()
+        {
+            using var container = new StashboxContainer();
+            Assert.Throws<InvalidRegistrationException>(() => container.ReMap<ITest1>(typeof(Test2)));
+            Assert.Throws<InvalidRegistrationException>(() => container.ReMap(typeof(ITest1), typeof(Test2)));
+            Assert.Throws<InvalidRegistrationException>(() => container.ReMap<ITest1>());
+            Assert.Throws<InvalidRegistrationException>(() => container.ReMapDecorator(typeof(ITest1), typeof(Test2)));
         }
 
         interface ITest1 { }

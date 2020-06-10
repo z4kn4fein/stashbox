@@ -1,5 +1,7 @@
-﻿using Stashbox.Configuration;
+﻿using Stashbox.Attributes;
+using Stashbox.Configuration;
 using Stashbox.Exceptions;
+using System.Linq;
 using Xunit;
 
 namespace Stashbox.Tests
@@ -125,6 +127,32 @@ namespace Stashbox.Tests
             var inst = container.Resolve<Test3>();
 
             Assert.NotNull(inst.I);
+        }
+
+        [Fact]
+        public void ResolverTests_UnknownType_Respects_Name()
+        {
+            using var container = new StashboxContainer(config => config.WithUnknownTypeResolution()).Register<Test10>();
+            container.Resolve<Test10>();
+
+            var reg = container.GetRegistrationMappings().First(r => r.Value.ImplementationType == typeof(RefDep));
+
+            Assert.Equal("Ref", reg.Value.RegistrationContext.Name);
+        }
+
+        [Fact]
+        public void ResolverTests_UnknownType_Respects_Name_Config_Override()
+        {
+            using var container = new StashboxContainer(config => config.WithUnknownTypeResolution(c =>
+            {
+                if (c.ImplementationType == typeof(RefDep))
+                    c.WithName("fromUnknownConfig");
+            })).Register<Test10>();
+            container.Resolve<Test10>();
+
+            var reg = container.GetRegistrationMappings().First(r => r.Value.ImplementationType == typeof(RefDep));
+
+            Assert.Equal("fromUnknownConfig", reg.Value.RegistrationContext.Name);
         }
 
         [Fact]
@@ -334,6 +362,12 @@ namespace Stashbox.Tests
             }
 
             public int? I { get; private set; }
+        }
+
+        class Test10
+        {
+            public Test10([Dependency("Ref")]RefDep refDep)
+            { }
         }
 
         class RefDep

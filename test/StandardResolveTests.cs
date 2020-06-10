@@ -396,6 +396,13 @@ namespace Stashbox.Tests
             Assert.True(finalized);
         }
 
+        [Fact]
+        public void StandardResolveTests_ResolveAll_Returns_Empty_When_No_Registered()
+        {
+            using var container = new StashboxContainer().Register<Test1>(c => c.InNamedScope("A"));
+            Assert.Empty(container.ResolveAll<Test1>());
+        }
+
 #if HAS_SERVICEPROVIDER
         [Fact]
         public void StandardResolveTests_ServiceProvider()

@@ -153,10 +153,9 @@ namespace Stashbox
 
         public TTo BuildUp<TTo>(TTo instance)
         {
-            var typeTo = instance.GetType();
             var resolutionContext = new ResolutionContext(this.GetActiveScopeNames(), this.containerContext,
                 this.resolutionStrategy, this == this.containerContext.RootScope);
-            var expression = this.expressionFactory.ConstructBuildUpExpression(resolutionContext, instance.AsConstant(), typeTo);
+            var expression = this.expressionFactory.ConstructBuildUpExpression(resolutionContext, instance.AsConstant(), typeof(TTo));
             return (TTo)expression.CompileDelegate(resolutionContext, this.containerContext.ContainerConfiguration)(this);
         }
 

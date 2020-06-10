@@ -15,10 +15,9 @@ namespace Stashbox
             Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
             Shield.EnsureNotNull(types, nameof(types));
 
-            if (selector != null)
-                types = types.Where(selector);
+            types = selector != null ? types.Where(selector).Where(t => t.IsResolvableType()) : types.Where(t => t.IsResolvableType());
 
-            foreach (var type in types.Where(t => t.IsResolvableType()))
+            foreach (var type in types)
             {
                 if (type.ImplementsWithoutGenericCheck(typeFrom))
                 {
@@ -46,10 +45,9 @@ namespace Stashbox
         {
             Shield.EnsureNotNull(types, nameof(types));
 
-            if (selector != null)
-                types = types.Where(selector);
+            types = selector != null ? types.Where(selector).Where(t => t.IsResolvableType()) : types.Where(t => t.IsResolvableType());
 
-            foreach (var type in types.Where(t => t.IsResolvableType()))
+            foreach (var type in types)
             {
                 foreach (var interfaceType in type.GetRegisterableInterfaceTypes())
                     this.Register(interfaceType, type, configurator);

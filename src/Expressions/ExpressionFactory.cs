@@ -64,18 +64,15 @@ namespace Stashbox.Expressions
             Type serviceType)
         {
             var registrationContext = RegistrationContext.Empty;
-            var typeInfo = serviceType.GetTypeInfo();
+            var typeInfo = instance.Type.GetTypeInfo();
 
             var methods = typeInfo.GetUsableMethods();
             var members = typeInfo.GetUsableMembers(registrationContext,
                 resolutionContext.CurrentContainerContext.ContainerConfiguration);
 
-            if (members.Length == 0 && methods.Length > 0) return instance;
+            if (members.Length == 0 && methods.Length == 0) return instance;
 
-            if (instance.Type != serviceType)
-                instance = instance.ConvertTo(serviceType);
-
-            var variable = serviceType.AsVariable();
+            var variable = instance.Type.AsVariable();
             var assign = variable.AssignTo(instance);
 
             var lines = new ExpandableArray<Expression> { assign };
@@ -86,7 +83,7 @@ namespace Stashbox.Expressions
             lines.AddRange(this.methodExpressionBuilder.CreateMethodExpressions(methods,
                 registrationContext, resolutionContext, instance));
 
-            lines.Add(variable); //block returns with the variable
+            lines.Add(variable.Type != serviceType ? variable.ConvertTo(serviceType) : variable); //block returns with the variable
 
             return lines.AsBlock(variable);
         }
@@ -147,10 +144,7 @@ namespace Stashbox.Expressions
                 registrationContext,
                 resolutionContext,
                 typeInfo.DeclaredConstructors.CastToArray(),
-                out var parameters)?.MakeNew(parameters);
-
-            if (initExpression == null)
-                return null;
+                out var parameters).MakeNew(parameters);
 
             if (members.Length > 0)
                 initExpression = initExpression.InitMembers(this.memberExpressionBuilder.GetMemberBindings(members,

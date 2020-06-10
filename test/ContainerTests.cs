@@ -265,6 +265,15 @@ namespace Stashbox.Tests
             Assert.Equal(1, container.Resolve<S>().Id);
         }
 
+        [Fact]
+        public void ContainerTests_Throws_When_TypeMap_Invalid()
+        {
+            using var container = new StashboxContainer();
+            Assert.Throws<InvalidRegistrationException>(() => container.Register(typeof(ITest1), typeof(Test2)));
+            Assert.Throws<InvalidRegistrationException>(() => container.RegisterDecorator(typeof(ITest1), typeof(Test2)));
+        }
+
+
         interface ITest1 { }
 
         interface ITest2 { }

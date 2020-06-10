@@ -47,17 +47,12 @@ namespace Stashbox.Expressions
 
             var memberExpression = resolutionContext.ResolutionStrategy.BuildExpressionForType(resolutionContext, memberTypeInfo);
 
-            switch (memberExpression)
-            {
-                case null when !resolutionContext.NullResultAllowed:
-                    var memberType = member is PropertyInfo ? "property" : "field";
-                    throw new ResolutionFailedException(memberTypeInfo.ParentType,
-                        $"Unresolvable {memberType}: ({memberTypeInfo.Type.FullName}){memberTypeInfo.ParameterOrMemberName}.");
-                case ConstantExpression constant when constant.Value == null:
-                    return null;
-                default:
-                    return memberExpression;
-            }
+            if (memberExpression != null || resolutionContext.NullResultAllowed) return memberExpression;
+
+            var memberType = member is PropertyInfo ? "property" : "field";
+            throw new ResolutionFailedException(memberTypeInfo.ParentType,
+                $"Unresolvable {memberType}: ({memberTypeInfo.Type.FullName}){memberTypeInfo.ParameterOrMemberName}.");
+
         }
     }
 }

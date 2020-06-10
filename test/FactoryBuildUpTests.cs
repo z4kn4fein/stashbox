@@ -81,10 +81,21 @@ namespace Stashbox.Tests
             using var container = new StashboxContainer();
             container.Register<Test3>();
             container.Register<ITest1, Test12>();
-            container.Register(typeof(ITest), context => context.WithFactory(c => c.Resolve<Test3>()));
+            container.Register(typeof(ITest), context => context.WithFactory(() => new Test3()));
 
             var test1 = container.Resolve<ITest1>();
             Assert.IsType<Test3>(test1.Test);
+        }
+
+        [Fact]
+        public void FactoryBuildUpTests_Resolve_ContainerFactory_Initializer()
+        {
+            using var container = new StashboxContainer();
+            container.Register<ITest4>(context =>
+                context.WithFactory(() => new Test4()).WithInitializer((t, r) => t.Init("Test")));
+
+            var test1 = container.Resolve<ITest4>();
+            Assert.Equal("Test", test1.Name);
         }
 
         interface ITest { string Name { get; } }
@@ -127,12 +138,24 @@ namespace Stashbox.Tests
 
         class Test12 : ITest1
         {
-            public ITest Test { get; set; }
+            public ITest Test { get; private set; }
 
             public Test12(ITest test)
             {
                 this.Test = test;
             }
+        }
+
+        interface ITest4 : ITest
+        {
+            void Init(string name);
+        }
+
+        class Test4 : ITest4
+        {
+            public string Name { get; private set; }
+
+            public void Init(string name) => Name = name;
         }
     }
 }

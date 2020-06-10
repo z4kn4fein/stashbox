@@ -12,7 +12,7 @@ namespace Stashbox.Tests
         [Fact]
         public void InjectionMemberTests_Resolve()
         {
-            var container = new StashboxContainer();
+            using var container = new StashboxContainer();
             container.Register<ITest, Test>();
             container.Register<ITest1, Test1>();
 
@@ -30,7 +30,7 @@ namespace Stashbox.Tests
         [Fact]
         public void InjectionMemberTests_Resolve_WithoutRegistered()
         {
-            var container = new StashboxContainer();
+            using var container = new StashboxContainer();
             var test1 = new Test1();
             container.WireUp<ITest1>(test1);
 
@@ -69,6 +69,19 @@ namespace Stashbox.Tests
             Assert.NotNull(inst);
             Assert.IsType<Test2>(inst);
             Assert.Equal("test", inst.Name);
+        }
+
+        [Fact]
+        public void InjectionMemberTests_Resolve_InjectionParameter_WithNull()
+        {
+            var container = new StashboxContainer(c => c.WithDefaultValueInjection());
+            container.Register<ITest2, Test2>();
+
+            var inst = container.Resolve<ITest2>();
+
+            Assert.NotNull(inst);
+            Assert.IsType<Test2>(inst);
+            Assert.Null(inst.Name);
         }
 
         [Fact]
@@ -116,7 +129,7 @@ namespace Stashbox.Tests
         [Fact]
         public void InjectionMemberTests_Inject_With_Config_Generic_Throws()
         {
-            var container = new StashboxContainer();
+            using var container = new StashboxContainer();
             Assert.Throws<ArgumentException>(() => container.Register<Test3>(context => context.InjectMember(x => 50)));
         }
 
@@ -142,6 +155,15 @@ namespace Stashbox.Tests
 
             Assert.Null(inst.Test4);
             Assert.NotNull(inst.Test5);
+        }
+
+        [Fact]
+        public void InjectionMemberTests_Throws_Field()
+        {
+            using var container = new StashboxContainer()
+                .Register<Test7>();
+
+            Assert.Throws<ResolutionFailedException>(() => container.Resolve<Test7>());
         }
 
         interface ITest { }
@@ -193,6 +215,14 @@ namespace Stashbox.Tests
             public Test4 Test4 { get; set; }
 
             public Test5 Test5 { get; set; }
+        }
+
+        class Test7
+        {
+            [Dependency]
+#pragma warning disable 169
+            private Test4 test4;
+#pragma warning restore 169
         }
     }
 }
