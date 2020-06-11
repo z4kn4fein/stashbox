@@ -183,9 +183,9 @@ namespace Stashbox.Configuration
         }
 
         /// <summary>
-        /// Enables the life-span and root resolution validation on the dependency tree.
+        ///  Forces the usage of an external expression tree compiler.
         /// </summary>
-        /// <param name="compilerDelegate">True when the feature should be enabled, otherwise false.</param>
+        /// <param name="compilerDelegate">The compiler delegate used to compile expression trees.</param>
         /// <returns>The container configurator.</returns>
         public ContainerConfigurator WithExpressionCompiler(Func<LambdaExpression, Delegate> compilerDelegate)
         {
