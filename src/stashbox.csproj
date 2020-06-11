@@ -28,8 +28,36 @@
     <LangVersion>latest</LangVersion>
     <PackageReleaseNotes>
       <![CDATA[
+v3.1.1:
 - Fix: String constant is not handled well by the built-in compiler #86
 - Fix: Registration behaviour doesn't respect replacing #87
+
+v3.1.0:
+- Fix: Nested named resolution could cause stack overflow #74
+- Fix: Improve support for Assemblies loaded into Collectible AssemblyLoadContexts #73
+- Fix: Unknown type resolution does not work recursively #77
+- Fix: Exception when building expressions #76
+- Fix: Bad performance #79
+- Fix: Expected override behaviour not working with scopes #80
+
+Breaking changes:
+- `WithUniqueRegistrationIdentifiers()` option has been removed, `WithRegistrationBehavior()` has been added instead.
+- Circular dependency tracking is enabled now by default, for runtime tracking the renamed `WithRuntimeCircularDependencyTracking()` option can be used.
+- `WithMemberInjectionWithoutAnnotation()` container configuration option has been renamed to `WithAutoMemberInjection()`.
+- `SetImplementationType()` option has been added to the registration configuration used when unknown type detected.
+- Removed the `GetScopedInstace()` method from the `IResolutionScope`, they are treated as expression overrides now and consumed automatically by the container.
+- Lifetimes became stateless and their API has been changed, see the docs for more info (https://github.com/z4kn4fein/stashbox/wiki/Lifetimes).
+- Lifetime validation has been added:
+  - Tracking dependencies that has shorter life-span than their direct or indirect parent's.
+  - Tracking scoped services resolved from root.
+  - The container throws a LifetimeValidationFailedException when the validation fails.
+- `PerRequestLifetime` has been renamed to `PerScopedRequestLifetime`.
+- `RegisterInstanceAs()` has been removed, every functionality is available on the `RegisterInstance()` methods.
+- Service/Implementation type map validation has been added to the non-generic registration methods.
+- `InjectionParameter` has been replaced with `KeyValuePair<string, object>`.
+- `IserviceRegistration` interface has been removed, only it's implementation remained.
+- Removed the legacy container extension functionality.
+- Removed the support of PCL v259.
     ]]>
     </PackageReleaseNotes>
     <Configurations>Debug;Release;Benchmark</Configurations>
