@@ -183,7 +183,7 @@ namespace Stashbox.Configuration
         }
 
         /// <summary>
-        ///  Forces the usage of an external expression tree compiler.
+        /// Forces the usage of an external expression tree compiler.
         /// </summary>
         /// <param name="compilerDelegate">The compiler delegate used to compile expression trees.</param>
         /// <returns>The container configurator.</returns>
