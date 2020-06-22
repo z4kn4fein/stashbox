@@ -140,7 +140,6 @@ namespace Stashbox
             Shield.EnsureNotNull(instance, nameof(instance));
 
             var key = name ?? typeFrom;
-            var newRepo = ImmutableTree<object, object>.Empty.AddOrUpdate(key, instance);
             Swap.SwapValue(ref this.scopedInstances, (t1, t2, t3, t4, instances) =>
                 instances.AddOrUpdate(t1, t2), key, instance, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
 
