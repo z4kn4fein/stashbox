@@ -27,10 +27,10 @@ namespace Stashbox.Tests.IssueTests
             Assert.Equal(toInclude.Id, inner1.Id);
             Assert.Equal(30, inner2.Id);
         }
-    }
 
-    class A
-    {
-        public int Id { get; set; }
+        class A
+        {
+            public int Id { get; set; }
+        }
     }
 }

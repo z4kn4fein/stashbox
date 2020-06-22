@@ -1,4 +1,4 @@
-﻿namespace Stashbox.Utils
+﻿namespace Stashbox.Utils.Data
 {
     internal class Stack<TValue> : ExpandableArray<TValue>
     {

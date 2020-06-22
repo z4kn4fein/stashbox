@@ -4,6 +4,7 @@ using Stashbox.Registration.Extensions;
 using Stashbox.Registration.SelectionRules;
 using Stashbox.Resolution;
 using Stashbox.Utils;
+using Stashbox.Utils.Data.Immutable;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +13,7 @@ namespace Stashbox.Registration
 {
     internal class RegistrationRepository : IRegistrationRepository
     {
-        private ImmutableTree<Type, ImmutableArray<object, ServiceRegistration>> serviceRepository = ImmutableTree<Type, ImmutableArray<object, ServiceRegistration>>.Empty;
+        private ImmutableTree<Type, IImmutableArray<object, ServiceRegistration>> serviceRepository = ImmutableTree<Type, IImmutableArray<object, ServiceRegistration>>.Empty;
         private readonly ContainerConfiguration containerConfiguration;
 
         private readonly IRegistrationSelectionRule[] filters =
@@ -44,21 +45,31 @@ namespace Stashbox.Registration
 
         public void AddOrUpdateRegistration(ServiceRegistration registration, Type serviceType, bool remap, bool replace)
         {
-            var newRepository = new ImmutableArray<object, ServiceRegistration>(registration.RegistrationDiscriminator, registration);
+            var newRepository = ImmutableArray<object, ServiceRegistration>.Empty.Add(registration.RegistrationDiscriminator, registration);
 
             if (remap)
-                Swap.SwapValue(ref serviceRepository, (t1, t2, t3, t4, repo) =>
-                    repo.AddOrUpdate(t1, t2, true), serviceType, newRepository, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
+                Swap.SwapValue(ref serviceRepository, (type, newRepo, t3, t4, repo) =>
+                    repo.AddOrUpdate(type, newRepo, true), serviceType, newRepository, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
             else
-                Swap.SwapValue(ref serviceRepository, (t1, t2, t3, t4, repo) =>
-                    repo.AddOrUpdate(t2, t3,
+                Swap.SwapValue(ref serviceRepository, (reg, type, newRepo, allowUpdate, repo) =>
+                    repo.AddOrUpdate(type, newRepo,
                         (oldValue, newValue) =>
                         {
-                            if (!t4 && this.containerConfiguration.RegistrationBehavior == Rules.RegistrationBehavior.ThrowException)
-                                throw new ServiceAlreadyRegisteredException(t1.ImplementationType);
+                            if (!allowUpdate && this.containerConfiguration.RegistrationBehavior == Rules.RegistrationBehavior.PreserveDuplications)
+                                return oldValue.Add(reg.RegistrationDiscriminator, reg);
 
-                            return oldValue.AddOrUpdate(t1.RegistrationDiscriminator, t1, false, t4,
-                                (old, @new) => @new.Replaces(old));
+                            return oldValue.AddOrUpdate(reg.RegistrationDiscriminator, reg, false,
+                                (old, @new) =>
+                                {
+                                    if (!allowUpdate && this.containerConfiguration.RegistrationBehavior == Rules.RegistrationBehavior.ThrowException)
+                                        throw new ServiceAlreadyRegisteredException(old.ImplementationType);
+
+                                    if (!allowUpdate)
+                                        return old;
+
+                                    @new.Replaces(old);
+                                    return @new;
+                                });
                         }),
                         registration, serviceType, newRepository,
                         replace ||
@@ -72,7 +83,7 @@ namespace Stashbox.Registration
              serviceRepository.Walk().SelectMany(reg => reg.Value.Select(r => new KeyValuePair<Type, ServiceRegistration>(reg.Key, r)));
 
         public ServiceRegistration GetRegistrationOrDefault(Type type, ResolutionContext resolutionContext, object name = null) =>
-            this.GetRegistrationsForType(type)?.SelectOrDefault(new TypeInformation { Type = type, DependencyName = name }, resolutionContext, this.topLevelFilters);
+            this.GetRegistrationsForType(type)?.SelectOrDefault(new TypeInformation(type, name), resolutionContext, this.topLevelFilters);
 
         public ServiceRegistration GetRegistrationOrDefault(TypeInformation typeInfo, ResolutionContext resolutionContext) =>
             this.GetRegistrationsForType(typeInfo.Type)?.SelectOrDefault(typeInfo, resolutionContext, this.filters);

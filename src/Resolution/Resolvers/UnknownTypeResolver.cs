@@ -30,10 +30,11 @@ namespace Stashbox.Resolution.Resolvers
             TypeInformation typeInfo,
             ResolutionContext resolutionContext)
         {
-            var configurator = typeInfo.DependencyName != null
+            var name = typeInfo.DependencyName;
+            var configurator = name != null
                 ? context =>
                 {
-                    context.WithName(typeInfo.DependencyName);
+                    context.WithName(name);
                     resolutionContext.RequestInitiatorContainerContext.ContainerConfiguration.UnknownTypeConfigurator?.Invoke(context);
                 }
             : resolutionContext.RequestInitiatorContainerContext.ContainerConfiguration.UnknownTypeConfigurator;

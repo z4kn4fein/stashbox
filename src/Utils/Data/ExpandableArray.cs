@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 
-namespace Stashbox.Utils
+namespace Stashbox.Utils.Data
 {
     internal class ExpandableArray<TItem> : IEnumerable<TItem>
     {
@@ -23,12 +23,21 @@ namespace Stashbox.Utils
 
         public ExpandableArray(IEnumerable<TItem> initial)
         {
-            this.Repository = initial.CastToArray();
+            this.Repository = initial.ToArray();
             this.Length = this.Repository.Length;
         }
 
         public void Add(TItem item)
         {
+            var index = this.EnsureSize();
+            this.Repository[index] = item;
+        }
+
+        public void AddOrKeep(TItem item)
+        {
+            if (this.ContainsReference(item))
+                return;
+
             var index = this.EnsureSize();
             this.Repository[index] = item;
         }
@@ -40,7 +49,7 @@ namespace Stashbox.Utils
             Array.Copy(asArray, 0, this.Repository, index, asArray.Length);
         }
 
-        public TItem this[int i] => this.Repository[i];
+        public ref TItem this[int i] => ref this.Repository[i];
 
         public TItem[] AsArray()
         {
@@ -52,7 +61,7 @@ namespace Stashbox.Utils
             return newArray;
         }
 
-        public int IndexOfReference(TItem element)
+        public int IndexOf(TItem element)
         {
             var length = this.Length;
             if (length == 1) return ReferenceEquals(this.Repository[0], element) ? 0 : -1;
@@ -88,7 +97,7 @@ namespace Stashbox.Utils
             return false;
         }
 
-        private int EnsureSize(int increaseAmount = 1)
+        protected int EnsureSize(int increaseAmount = 1)
         {
             if (this.Length == 0)
                 this.Repository = new TItem[increaseAmount > InitialSize ? increaseAmount : InitialSize];
@@ -115,7 +124,7 @@ namespace Stashbox.Utils
         IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
     }
 
-    internal class ExpandableArray<TKey, TItem> : ExpandableArray<KeyValuePair<TKey, TItem>>
+    internal class ExpandableArray<TKey, TItem> : ExpandableArray<KeyValue<TKey, TItem>>
     {
         [MethodImpl(Constants.Inline)]
         public TItem GetOrDefault(TKey key, bool byRef)
@@ -123,12 +132,54 @@ namespace Stashbox.Utils
             var length = this.Length;
             for (var i = 0; i < length; i++)
             {
-                var item = this.Repository[i];
+                ref var item = ref this.Repository[i];
                 if (byRef && ReferenceEquals(item.Key, key) || !byRef && Equals(item.Key, key))
                     return item.Value;
             }
 
             return default;
+        }
+
+        public void AddOrKeep(TKey item, TItem value)
+        {
+            if (this.ContainsReference(item))
+                return;
+
+            var index = this.EnsureSize();
+            this.Repository[index] = new KeyValue<TKey, TItem>(item, value);
+        }
+
+        public int IndexAndValueOf(TKey key, out TItem value)
+        {
+            value = default;
+            var length = this.Length;
+            for (var i = 0; i < length; i++)
+            {
+                ref var item = ref Repository[i];
+                if (ReferenceEquals(item.Key, key))
+                {
+                    value = item.Value;
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+
+        public bool ContainsReference(TKey key)
+        {
+            var length = this.Length;
+            if (length == 1) return ReferenceEquals(this.Repository[0].Key, key);
+
+            for (var i = 0; i < length; i++)
+            {
+                ref var item = ref Repository[i];
+                if (ReferenceEquals(item.Key, key))
+                    return true;
+
+            }
+
+            return false;
         }
     }
 }

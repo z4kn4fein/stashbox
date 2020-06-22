@@ -1,6 +1,7 @@
 ﻿using Stashbox.Registration;
 using Stashbox.Resolution;
 using Stashbox.Utils;
+using Stashbox.Utils.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -90,8 +91,7 @@ namespace Stashbox.Expressions
 
         public Expression ConstructExpression(
             ServiceRegistration serviceRegistration,
-            ResolutionContext resolutionContext,
-            Type serviceType)
+            ResolutionContext resolutionContext)
         {
             var constructors = serviceRegistration.ImplementationTypeInfo.GetUsableConstructors();
             var methods = serviceRegistration.ImplementationTypeInfo.GetUsableMethods();
@@ -107,7 +107,7 @@ namespace Stashbox.Expressions
 
             if (members.Length > 0)
                 initExpression = initExpression.InitMembers(this.memberExpressionBuilder.GetMemberBindings(members,
-                    serviceRegistration.RegistrationContext, resolutionContext, serviceRegistration.ImplementationType));
+                    serviceRegistration.RegistrationContext, resolutionContext));
 
             if (methods.Length == 0 && serviceRegistration.RegistrationContext.Initializer == null)
                 return initExpression;
@@ -148,7 +148,7 @@ namespace Stashbox.Expressions
 
             if (members.Length > 0)
                 initExpression = initExpression.InitMembers(this.memberExpressionBuilder.GetMemberBindings(members,
-                    registrationContext, resolutionContext, serviceType));
+                    registrationContext, resolutionContext));
 
             if (methods.Length == 0) return initExpression;
 

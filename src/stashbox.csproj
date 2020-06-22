@@ -28,6 +28,10 @@
     <LangVersion>latest</LangVersion>
     <PackageReleaseNotes>
       <![CDATA[
+v3.1.2:
+- Fix: IdentityServer not compatible #88
+- Fix: Call interception #89
+      
 v3.1.1:
 - Fix: String constant is not handled well by the built-in compiler #86
 - Fix: Registration behaviour doesn't respect replacing #87
@@ -68,6 +72,7 @@ Breaking changes:
     <RootNamespace>Stashbox.Benchmark</RootNamespace>
     <Optimize>true</Optimize>
   </PropertyGroup>
+
   <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard1.0'">
     <AssemblyTitle>Stashbox .NET Standard 1.0</AssemblyTitle>
   </PropertyGroup>
@@ -79,7 +84,10 @@ Breaking changes:
     <AssemblyTitle>Stashbox .NET Standard 2.0</AssemblyTitle>
     <DefineConstants>IL_EMIT;HAS_SERVICEPROVIDER;HAS_SERIALIZABLE</DefineConstants>
   </PropertyGroup>  
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net40' Or '$(TargetFramework)' == 'net45'">
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net40'">
+    <DefineConstants>IL_EMIT;HAS_SERVICEPROVIDER;HAS_SERIALIZABLE</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net45'">
     <DefineConstants>IL_EMIT;HAS_SERVICEPROVIDER;HAS_SERIALIZABLE</DefineConstants>
   </PropertyGroup>
   

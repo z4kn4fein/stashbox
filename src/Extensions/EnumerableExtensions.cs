@@ -32,17 +32,15 @@ namespace System.Linq
 
         public static IEnumerable<TResult> SelectButLast<TSource, TResult>(this IEnumerable<TSource> source, Func<TSource, TResult> selector)
         {
-            using (var iterator = source.GetEnumerator())
-            {
-                var isFirst = true;
-                var item = default(TSource);
+            using var iterator = source.GetEnumerator();
+            var isFirst = true;
+            var item = default(TSource);
 
-                while (iterator.MoveNext())
-                {
-                    if (!isFirst) yield return selector(item);
-                    item = iterator.Current;
-                    isFirst = false;
-                }
+            while (iterator.MoveNext())
+            {
+                if (!isFirst) yield return selector(item);
+                item = iterator.Current;
+                isFirst = false;
             }
         }
     }

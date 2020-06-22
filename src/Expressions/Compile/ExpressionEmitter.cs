@@ -1,10 +1,10 @@
 ﻿#if IL_EMIT
+using Stashbox.Expressions.Compile.Emitters;
+using Stashbox.Expressions.Compile.Extensions;
 using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection.Emit;
-using Stashbox.Expressions.Compile.Emitters;
-using Stashbox.Expressions.Compile.Extensions;
 
 namespace Stashbox.Expressions.Compile
 {
@@ -23,14 +23,17 @@ namespace Stashbox.Expressions.Compile
             if (!analyzer.Analyze(expression, parameters))
                 return false;
 
-            if (!analyzer.NestedLambdas.IsEmpty)
-                analyzer.StoredObjects.AddRange(new object[analyzer.NestedLambdas.Length]);
+            var storedObjects = analyzer.Constants.AsArray();
 
-            var closure = analyzer.StoredObjects.IsEmpty
+            if (analyzer.NestedLambdas.Length > 0)
+                storedObjects = storedObjects.Append(new object[analyzer.NestedLambdas.Length]);
+
+            var closure = storedObjects.Length == 0
                 ? null
-                : new Closure(analyzer.StoredObjects.AsArray());
+                : new Closure(storedObjects);
 
             var context = new CompilerContext(closure,
+                analyzer.Constants,
                 analyzer.DefinedVariables,
                 analyzer.CapturedParameters,
                 analyzer.NestedLambdas);

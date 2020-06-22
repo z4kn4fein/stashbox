@@ -26,7 +26,7 @@ namespace Stashbox.Expressions.Compile.Emitters
 
             if (context.HasClosure && !Utils.IsInPlaceEmittableConstant(type, value))
             {
-                var constantIndex = context.Target.Constants.GetReferenceIndex(value);
+                var constantIndex = context.Constants.IndexOf(value);
                 if (constantIndex == -1) return false;
 
                 generator.Emit(OpCodes.Ldarg_0);

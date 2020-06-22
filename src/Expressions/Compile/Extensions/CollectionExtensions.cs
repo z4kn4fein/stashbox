@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Stashbox.Utils;
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using Stashbox.Utils;
 
 namespace Stashbox.Expressions.Compile.Extensions
 {
@@ -45,7 +45,7 @@ namespace Stashbox.Expressions.Compile.Extensions
             return arr;
         }
 
-        public static Type[] Append(this Type[] types, Type[] others)
+        public static TItem[] Append<TItem>(this TItem[] types, TItem[] others)
         {
             if (others.Length == 0)
                 return types;
@@ -54,7 +54,7 @@ namespace Stashbox.Expressions.Compile.Extensions
                 return others;
 
             var length = others.Length + types.Length;
-            var arr = new Type[length];
+            var arr = new TItem[length];
             Array.Copy(types, 0, arr, 0, types.Length);
             Array.Copy(others, 0, arr, types.Length, others.Length);
             return arr;

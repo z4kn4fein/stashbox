@@ -1,4 +1,4 @@
-﻿using Stashbox.Utils;
+﻿using Stashbox.Utils.Data.Immutable;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 
@@ -6,7 +6,7 @@ namespace Stashbox.Resolution.Extensions
 {
     internal static class ResolverExtensions
     {
-        public static bool CanResolve(this ImmutableArray<IResolver> resolvers, TypeInformation typeInfo, ResolutionContext resolutionContext)
+        public static bool CanResolve(this ImmutableBucket<IResolver> resolvers, TypeInformation typeInfo, ResolutionContext resolutionContext)
         {
             var length = resolvers.Length;
             for (var i = 0; i < length; i++)
@@ -16,7 +16,7 @@ namespace Stashbox.Resolution.Extensions
             return false;
         }
 
-        public static Expression BuildResolutionExpression(this ImmutableArray<IResolver> resolvers,
+        public static Expression BuildResolutionExpression(this ImmutableBucket<IResolver> resolvers,
             TypeInformation typeInfo, ResolutionContext resolutionContext, IResolutionStrategy resolutionStrategy)
         {
             var length = resolvers.Length;
@@ -30,7 +30,7 @@ namespace Stashbox.Resolution.Extensions
             return null;
         }
 
-        public static IEnumerable<Expression> BuildAllResolutionExpressions(this ImmutableArray<IResolver> resolvers,
+        public static IEnumerable<Expression> BuildAllResolutionExpressions(this ImmutableBucket<IResolver> resolvers,
             TypeInformation typeInfo, ResolutionContext resolutionContext, IResolutionStrategy resolutionStrategy)
         {
             var length = resolvers.Length;

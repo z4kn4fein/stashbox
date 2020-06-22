@@ -10,11 +10,11 @@ namespace Stashbox.Resolution.Resolvers
             TypeInformation typeInfo,
             ResolutionContext resolutionContext)
         {
-            var enumerableType = typeInfo.CloneForType(typeInfo.Type.GetEnumerableType());
-            var expressions = resolutionStrategy.BuildExpressionsForEnumerableRequest(resolutionContext, enumerableType);
+            var newTypeInfo = typeInfo.CloneForType(typeInfo.Type.GetEnumerableType());
+            var expressions = resolutionStrategy.BuildExpressionsForEnumerableRequest(resolutionContext, newTypeInfo);
 
-            return expressions == null ? enumerableType.Type.InitNewArray() :
-                    enumerableType.Type.InitNewArray(expressions);
+            return expressions == null ? newTypeInfo.Type.InitNewArray() :
+                newTypeInfo.Type.InitNewArray(expressions);
         }
 
         public bool CanUseForResolution(TypeInformation typeInfo, ResolutionContext resolutionContext) =>

@@ -232,6 +232,15 @@ namespace Stashbox.Tests
         }
 
         [Fact]
+        public void ContainerTests_Configuration_DuplicatedBehavior_Does_Not_Throw_On_Different_Implementation()
+        {
+            using var container = new StashboxContainer(c =>
+                c.WithRegistrationBehavior(Rules.RegistrationBehavior.ThrowException));
+
+            container.Register<ITest1, Test1>().Register<ITest1, Test11>();
+        }
+
+        [Fact]
         public void ContainerTests_Configuration_DuplicatedBehavior_Skip()
         {
             using var container = new StashboxContainer(c =>
@@ -289,6 +298,10 @@ namespace Stashbox.Tests
         }
 
         class Test1 : ITest1
+        {
+        }
+
+        class Test11 : ITest1
         {
         }
 

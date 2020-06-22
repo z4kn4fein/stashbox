@@ -1,8 +1,8 @@
 ﻿#if IL_EMIT
+using Stashbox.Expressions.Compile.Extensions;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
-using Stashbox.Expressions.Compile.Extensions;
 
 namespace Stashbox.Expressions.Compile.Emitters
 {
@@ -14,7 +14,7 @@ namespace Stashbox.Expressions.Compile.Emitters
             {
                 case ExpressionType.Parameter:
 
-                    var localIndex = context.DefinedVariables.IndexOfReference(expression.Left);
+                    var localIndex = context.DefinedVariables.IndexOf(expression.Left);
                     if (localIndex == -1) return false;
 
                     if (!expression.Right.TryEmit(generator, context, parameters))
@@ -24,7 +24,7 @@ namespace Stashbox.Expressions.Compile.Emitters
 
                     if (!context.HasCapturedVariablesArgument) return true;
 
-                    var paramIndex = context.CapturedArguments.IndexOfReference(expression.Left);
+                    var paramIndex = context.CapturedArguments.IndexOf(expression.Left);
                     if (paramIndex == -1) return true;
 
                     generator.LoadCapturedArgumentHolder(context);

@@ -1,7 +1,8 @@
 ﻿#if IL_EMIT
+using Stashbox.Utils;
+using Stashbox.Utils.Data;
 using System.Linq.Expressions;
 using System.Reflection.Emit;
-using Stashbox.Utils;
 
 namespace Stashbox.Expressions.Compile
 {
@@ -13,24 +14,28 @@ namespace Stashbox.Expressions.Compile
 
         public bool IsNestedLambda;
 
+        public readonly ExpandableArray<object> Constants;
+
         public readonly ExpandableArray<Expression> CapturedArguments;
 
         public readonly Closure Target;
 
-        public ExpandableArray<LocalBuilder> LocalBuilders;
+        public LocalBuilder[] LocalBuilders;
 
         public LocalBuilder CapturedArgumentsHolderVariable;
 
-        public readonly ExpandableArray<NestedLambda> NestedLambdas;
+        public readonly ExpandableArray<LambdaExpression, NestedLambda> NestedLambdas;
 
         public readonly bool HasClosure;
 
         public CompilerContext(Closure target,
+            ExpandableArray<object> constants,
             ExpandableArray<Expression> definedVariables,
             ExpandableArray<Expression> capturedArguments,
-            ExpandableArray<NestedLambda> nestedLambdas)
+            ExpandableArray<LambdaExpression, NestedLambda> nestedLambdas)
         {
             this.Target = target;
+            this.Constants = constants;
             this.DefinedVariables = definedVariables;
             this.CapturedArguments = capturedArguments;
             this.NestedLambdas = nestedLambdas;

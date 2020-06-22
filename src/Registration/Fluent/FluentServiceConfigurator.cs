@@ -1,6 +1,6 @@
 ﻿using Stashbox.Lifetime;
 using Stashbox.Resolution;
-using Stashbox.Utils;
+using Stashbox.Utils.Data;
 using System;
 using System.Linq;
 using System.Linq.Expressions;

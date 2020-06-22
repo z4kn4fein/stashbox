@@ -225,56 +225,48 @@ namespace System
             ContainerConfiguration containerConfiguration)
         {
             var customAttributes = parameter.GetCustomAttributes();
-            var dependencyAttribute = parameter.GetDependencyAttribute();
-            var typeInfo = new TypeInformation
+            var dependencyName = parameter.GetDependencyAttribute()?.Name;
+
+            if (registrationContext.DependencyBindings.Count != 0 || containerConfiguration.TreatingParameterAndMemberNameAsDependencyNameEnabled)
             {
-                Type = parameter.ParameterType,
-                DependencyName = dependencyAttribute?.Name,
-                ParentType = declaringType,
-                CustomAttributes = customAttributes,
-                ParameterOrMemberName = parameter.Name,
-                HasDefaultValue = parameter.HasDefaultValue(),
-                DefaultValue = parameter.DefaultValue
-            };
+                if (registrationContext.DependencyBindings.TryGetValue(parameter.Name,
+                    out var foundNamedDependencyName))
+                    dependencyName = foundNamedDependencyName;
+                else if (registrationContext.DependencyBindings.TryGetValue(parameter.ParameterType,
+                    out var foundTypedDependencyName))
+                    dependencyName = foundTypedDependencyName;
+                else if (dependencyName == null &&
+                         containerConfiguration.TreatingParameterAndMemberNameAsDependencyNameEnabled)
+                    dependencyName = parameter.Name;
+            }
 
-            if (registrationContext.DependencyBindings.Count == 0 && !containerConfiguration.TreatingParameterAndMemberNameAsDependencyNameEnabled)
-                return typeInfo;
-
-            if (registrationContext.DependencyBindings.TryGetValue(typeInfo.ParameterOrMemberName, out var foundNamedDependencyName))
-                typeInfo.DependencyName = foundNamedDependencyName;
-            else if (registrationContext.DependencyBindings.TryGetValue(typeInfo.Type, out var foundTypedDependencyName))
-                typeInfo.DependencyName = foundTypedDependencyName;
-            else if (typeInfo.DependencyName == null && containerConfiguration.TreatingParameterAndMemberNameAsDependencyNameEnabled)
-                typeInfo.DependencyName = typeInfo.ParameterOrMemberName;
-
-            return typeInfo;
+            return new TypeInformation(
+                parameter.ParameterType,
+                declaringType,
+                dependencyName,
+                customAttributes,
+                parameter.Name,
+                parameter.HasDefaultValue(),
+                parameter.DefaultValue);
         }
 
         public static TypeInformation AsTypeInformation(this MemberInfo member,
-            Type declaringType,
             RegistrationContext registrationContext,
             ContainerConfiguration containerConfiguration)
         {
             var customAttributes = member.GetCustomAttributes();
-            var dependencyAttribute = member.GetDependencyAttribute();
-            var typeInfo = new TypeInformation
+            var dependencyName = member.GetDependencyAttribute()?.Name;
+
+            if (registrationContext.InjectionMemberNames.Count != 0 || containerConfiguration.TreatingParameterAndMemberNameAsDependencyNameEnabled)
             {
-                Type = member is PropertyInfo prop ? prop.PropertyType : ((FieldInfo)member).FieldType,
-                DependencyName = dependencyAttribute?.Name,
-                ParentType = declaringType,
-                CustomAttributes = customAttributes,
-                ParameterOrMemberName = member.Name
-            };
+                if (registrationContext.InjectionMemberNames.TryGetValue(member.Name, out var foundNamedDependencyName))
+                    dependencyName = foundNamedDependencyName;
+                else if (dependencyName == null && containerConfiguration.TreatingParameterAndMemberNameAsDependencyNameEnabled)
+                    dependencyName = member.Name;
+            }
 
-            if (registrationContext.InjectionMemberNames.Count == 0 && !containerConfiguration.TreatingParameterAndMemberNameAsDependencyNameEnabled)
-                return typeInfo;
-
-            if (registrationContext.InjectionMemberNames.TryGetValue(typeInfo.ParameterOrMemberName, out var foundNamedDependencyName))
-                typeInfo.DependencyName = foundNamedDependencyName;
-            else if (typeInfo.DependencyName == null && containerConfiguration.TreatingParameterAndMemberNameAsDependencyNameEnabled)
-                typeInfo.DependencyName = typeInfo.ParameterOrMemberName;
-
-            return typeInfo;
+            var type = member is PropertyInfo prop ? prop.PropertyType : ((FieldInfo)member).FieldType;
+            return new TypeInformation(type, member.DeclaringType, dependencyName, customAttributes, member.Name, false, null);
         }
 
         public static IEnumerable<ConstructorInfo> GetUsableConstructors(this TypeInfo typeInfo) =>

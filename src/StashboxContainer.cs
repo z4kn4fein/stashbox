@@ -78,7 +78,7 @@ namespace Stashbox
         /// <inheritdoc />
         public bool CanResolve(Type typeFrom, object name = null) =>
             this.ContainerContext.RegistrationRepository.ContainsRegistration(typeFrom, name) ||
-                this.resolutionStrategy.CanResolveType(new TypeInformation { Type = typeFrom, DependencyName = name },
+                this.resolutionStrategy.CanResolveType(new TypeInformation(typeFrom, name),
                     new ResolutionContext(this.ContainerContext.RootScope.GetActiveScopeNames(), this.ContainerContext, this.resolutionStrategy, false));
 
         /// <inheritdoc />

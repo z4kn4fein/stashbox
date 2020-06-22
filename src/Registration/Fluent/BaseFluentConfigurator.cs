@@ -1,6 +1,7 @@
 ﻿using Stashbox.Configuration;
 using Stashbox.Exceptions;
 using Stashbox.Utils;
+using Stashbox.Utils.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;

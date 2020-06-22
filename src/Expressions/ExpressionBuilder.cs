@@ -25,7 +25,17 @@ namespace Stashbox.Expressions
 
         internal Expression BuildExpressionForRegistration(ServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType)
         {
-            if (serviceRegistration.IsDecorator || resolutionContext.DecoratingType == resolveType)
+            if (serviceRegistration.RegistrationType == RegistrationType.OpenGeneric)
+            {
+                var genericType = serviceRegistration.ImplementationType.MakeGenericType(resolveType.GetGenericArguments());
+                var newRegistration = serviceRegistration.Clone(genericType, RegistrationType.Default);
+                newRegistration.RegistrationContext.Name = null;
+
+                this.serviceRegistrator.Register(resolutionContext.CurrentContainerContext, newRegistration, resolveType, false);
+                return this.BuildExpressionAndApplyLifetime(newRegistration, resolutionContext, resolveType);
+            }
+
+            if (serviceRegistration.IsDecorator || resolutionContext.DecoratingService.Key == resolveType)
                 return this.BuildDisposalTrackingAndFinalizerExpression(serviceRegistration, resolutionContext, resolveType);
 
             var decorators = resolutionContext.CurrentContainerContext.DecoratorRepository.GetDecoratorsOrDefault(resolveType);
@@ -39,15 +49,13 @@ namespace Stashbox.Expressions
                     return this.BuildDisposalTrackingAndFinalizerExpression(serviceRegistration, resolutionContext, resolveType);
             }
 
-            var decoratingContext = resolutionContext.BeginDecoratingContext(resolveType);
-            var expression = this.BuildDisposalTrackingAndFinalizerExpression(serviceRegistration, decoratingContext, resolveType);
-
+            var expression = this.BuildDisposalTrackingAndFinalizerExpression(serviceRegistration, resolutionContext, resolveType);
             if (expression == null)
                 return null;
 
             foreach (var decorator in decorators)
             {
-                decoratingContext.SetExpressionOverride(resolveType, expression);
+                var decoratingContext = resolutionContext.BeginDecoratingContext(resolveType, expression);
                 expression = this.BuildExpressionForRegistration(decorator, decoratingContext, resolveType);
                 if (expression == null)
                     return null;
@@ -85,14 +93,6 @@ namespace Stashbox.Expressions
                 case RegistrationType.Factory:
                     return this.GetExpressionForFactory(serviceRegistration, resolutionContext, resolveType);
 
-                case RegistrationType.OpenGeneric:
-                    var genericType = serviceRegistration.ImplementationType.MakeGenericType(resolveType.GetGenericArguments());
-                    var newRegistration = serviceRegistration.Clone(genericType, RegistrationType.Default);
-                    newRegistration.RegistrationContext.Name = null;
-
-                    this.serviceRegistrator.Register(resolutionContext.CurrentContainerContext, newRegistration, resolveType, false);
-                    return this.BuildExpressionAndApplyLifetime(newRegistration, resolutionContext, resolveType);
-
                 case RegistrationType.Instance:
                     return serviceRegistration.RegistrationContext.ExistingInstance.AsConstant();
 
@@ -104,7 +104,7 @@ namespace Stashbox.Expressions
                     return this.GetExpressionForFunc(serviceRegistration, resolutionContext);
 
                 default:
-                    return this.GetExpressionForDefault(serviceRegistration, resolutionContext, resolveType);
+                    return this.GetExpressionForDefault(serviceRegistration, resolutionContext);
             }
         }
 

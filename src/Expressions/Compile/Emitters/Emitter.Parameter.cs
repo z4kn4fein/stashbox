@@ -1,9 +1,9 @@
 ﻿#if IL_EMIT
+using Stashbox.Expressions.Compile.Extensions;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
-using Stashbox.Expressions.Compile.Extensions;
 
 namespace Stashbox.Expressions.Compile.Emitters
 {
@@ -26,14 +26,14 @@ namespace Stashbox.Expressions.Compile.Emitters
                 return true;
             }
 
-            var definedVariableIndex = context.DefinedVariables.IndexOfReference(expression);
+            var definedVariableIndex = context.DefinedVariables.IndexOf(expression);
             if (definedVariableIndex != -1)
             {
                 generator.Emit(OpCodes.Ldloc, context.LocalBuilders[definedVariableIndex]);
                 return true;
             }
 
-            var capturedVariableIndex = context.CapturedArguments.IndexOfReference(expression);
+            var capturedVariableIndex = context.CapturedArguments.IndexOf(expression);
             if (capturedVariableIndex == -1) return true;
 
             generator.Emit(OpCodes.Ldarg_1);

@@ -1,6 +1,7 @@
 ﻿using Stashbox.Registration.SelectionRules;
 using Stashbox.Resolution;
-using Stashbox.Utils;
+using Stashbox.Utils.Data;
+using Stashbox.Utils.Data.Immutable;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ namespace Stashbox.Registration.Extensions
 {
     internal static class ServiceRepositoryExtensions
     {
-        public static bool ContainsRegistration(this ImmutableTree<Type, ImmutableArray<object, ServiceRegistration>> repository, Type type, object name)
+        public static bool ContainsRegistration(this ImmutableTree<Type, IImmutableArray<object, ServiceRegistration>> repository, Type type, object name)
         {
             var registrations = repository.GetOrDefault(type);
             if (name != null && registrations != null)

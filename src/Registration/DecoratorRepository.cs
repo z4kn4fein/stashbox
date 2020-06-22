@@ -1,4 +1,5 @@
 ﻿using Stashbox.Utils;
+using Stashbox.Utils.Data.Immutable;
 using System;
 using System.Collections.Generic;
 
@@ -6,11 +7,11 @@ namespace Stashbox.Registration
 {
     internal class DecoratorRepository : IDecoratorRepository
     {
-        private ImmutableTree<Type, ImmutableArray<Type, ServiceRegistration>> repository = ImmutableTree<Type, ImmutableArray<Type, ServiceRegistration>>.Empty;
+        private ImmutableTree<Type, IImmutableArray<Type, ServiceRegistration>> repository = ImmutableTree<Type, IImmutableArray<Type, ServiceRegistration>>.Empty;
 
         public void AddDecorator(Type type, ServiceRegistration serviceRegistration, bool remap, bool replace)
         {
-            var newRepository = new ImmutableArray<Type, ServiceRegistration>(serviceRegistration.ImplementationType, serviceRegistration);
+            var newRepository = ImmutableArray<Type, ServiceRegistration>.Empty.Add(serviceRegistration.ImplementationType, serviceRegistration);
 
             if (remap)
                 Swap.SwapValue(ref this.repository, (t1, t2, t3, t4, repo) =>

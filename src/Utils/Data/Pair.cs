@@ -1,10 +1,10 @@
-﻿namespace Stashbox.Utils
+﻿namespace Stashbox.Utils.Data
 {
     internal class Pair<T1, T2>
     {
-        public T1 I1 { get; set; }
+        public T1 I1;
 
-        public T2 I2 { get; set; }
+        public T2 I2;
 
         public Pair(T1 item1, T2 item2)
         {

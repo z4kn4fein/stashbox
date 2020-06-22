@@ -1,5 +1,6 @@
 ﻿#if IL_EMIT
 using Stashbox.Utils;
+using Stashbox.Utils.Data;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -14,16 +15,16 @@ namespace Stashbox.Expressions.Compile
 
         public ExpandableArray<Expression> DefinedVariables;
 
-        public ExpandableArray<NestedLambda> NestedLambdas;
+        public ExpandableArray<LambdaExpression, NestedLambda> NestedLambdas;
 
-        public ExpandableArray<object> StoredObjects;
+        public ExpandableArray<object> Constants;
 
         public TreeAnalyzer()
         {
             this.CapturedParameters = new ExpandableArray<Expression>();
             this.DefinedVariables = new ExpandableArray<Expression>();
-            this.NestedLambdas = new ExpandableArray<NestedLambda>();
-            this.StoredObjects = new ExpandableArray<object>();
+            this.NestedLambdas = new ExpandableArray<LambdaExpression, NestedLambda>();
+            this.Constants = new ExpandableArray<object>();
         }
 
         public bool Analyze(Expression expression, params ParameterExpression[] parameters)
@@ -32,10 +33,10 @@ namespace Stashbox.Expressions.Compile
             {
                 case ExpressionType.Parameter:
 
-                    if (parameters.ContainsReference(expression) || this.DefinedVariables.ContainsReference(expression)) return true;
+                    if (parameters.ContainsReference(expression) || this.DefinedVariables.IndexOf(expression) != -1) return true;
                     if (!this.isNestedLambda) return false;
 
-                    this.AddCapturedParameter((ParameterExpression)expression);
+                    this.CapturedParameters.AddOrKeep((ParameterExpression)expression);
                     return true;
 
                 case ExpressionType.Lambda:
@@ -45,10 +46,8 @@ namespace Stashbox.Expressions.Compile
                     if (!analyzer.Analyze(lambda.Body, lambda.Parameters.CastToArray()))
                         return false;
 
-                    this.AddNestedLambda(new NestedLambda(lambda,
-                        analyzer.DefinedVariables,
+                    this.NestedLambdas.AddOrKeep(lambda, new NestedLambda(analyzer.DefinedVariables,
                         analyzer.CapturedParameters.Length > 0));
-
                     return true;
 
                 case ExpressionType.MemberAccess:
@@ -57,7 +56,7 @@ namespace Stashbox.Expressions.Compile
                 case ExpressionType.Constant:
                     var constant = (ConstantExpression)expression;
                     if (constant.Value == null || Utils.IsInPlaceEmittableConstant(constant.Type, constant.Value)) return true;
-                    this.AddStoredItem(constant.Value);
+                    this.Constants.AddOrKeep(constant.Value);
                     return true;
 
                 case ExpressionType.New:
@@ -72,7 +71,7 @@ namespace Stashbox.Expressions.Compile
                     var block = (BlockExpression)expression;
                     var blockVarLength = block.Variables.Count;
                     for (var i = 0; i < blockVarLength; i++)
-                        this.AddDefinedVariable(block.Variables[i]);
+                        this.DefinedVariables.AddOrKeep(block.Variables[i]);
 
                     return this.Analyze(block.Expressions, parameters);
 
@@ -138,30 +137,6 @@ namespace Stashbox.Expressions.Compile
             }
 
             return true;
-        }
-
-        public void AddStoredItem(object value)
-        {
-            if (this.StoredObjects.ContainsReference(value)) return;
-            this.StoredObjects.Add(value);
-        }
-
-        private void AddCapturedParameter(Expression expression)
-        {
-            if (this.CapturedParameters.ContainsReference(expression)) return;
-            this.CapturedParameters.Add(expression);
-        }
-
-        private void AddDefinedVariable(Expression expression)
-        {
-            if (this.DefinedVariables.ContainsReference(expression)) return;
-            this.DefinedVariables.Add(expression);
-        }
-
-        private void AddNestedLambda(NestedLambda lambda)
-        {
-            if (this.NestedLambdas.ContainsReference(lambda)) return;
-            this.NestedLambdas.Add(lambda);
         }
     }
 }

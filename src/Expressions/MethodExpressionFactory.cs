@@ -49,7 +49,7 @@ namespace Stashbox.Expressions
             for (var i = 0; i < length; i++)
             {
                 var constructor = constructors[i];
-                if (this.TryBuildMethod(constructor, registrationContext, unknownTypeCheckDisabledContext,
+                if (TryBuildMethod(constructor, registrationContext, unknownTypeCheckDisabledContext,
                     out var failedParameter, out parameterExpressions)) return constructor;
 
                 checkedConstructors.Add(constructor, failedParameter);
@@ -59,7 +59,7 @@ namespace Stashbox.Expressions
                 for (var i = 0; i < length; i++)
                 {
                     var constructor = constructors[i];
-                    if (this.TryBuildMethod(constructor, registrationContext, resolutionContext, out _, out parameterExpressions))
+                    if (TryBuildMethod(constructor, registrationContext, resolutionContext, out _, out parameterExpressions))
                         return constructor;
                 }
 
@@ -94,7 +94,7 @@ namespace Stashbox.Expressions
             }
         }
 
-        private bool TryBuildMethod(
+        private static bool TryBuildMethod(
             MethodBase method,
             RegistrationContext registrationContext,
             ResolutionContext resolutionContext,

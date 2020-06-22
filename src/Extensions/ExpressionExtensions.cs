@@ -33,7 +33,7 @@ namespace System.Linq.Expressions
             if (!resolutionContext.DefinedVariables.IsEmpty)
             {
                 resolutionContext.SingleInstructions.Add(expression);
-                expression = Expression.Block(resolutionContext.DefinedVariables.WalkOnValues(), resolutionContext.SingleInstructions);
+                expression = Expression.Block(resolutionContext.DefinedVariables.Walk(), resolutionContext.SingleInstructions);
             }
 
             if (containerConfiguration.ExternalExpressionCompiler != null)
@@ -81,7 +81,7 @@ namespace System.Linq.Expressions
             if (!resolutionContext.DefinedVariables.IsEmpty)
             {
                 resolutionContext.SingleInstructions.Add(expression);
-                expression = Expression.Block(resolutionContext.DefinedVariables.WalkOnValues(), resolutionContext.SingleInstructions);
+                expression = Expression.Block(resolutionContext.DefinedVariables.Walk(), resolutionContext.SingleInstructions);
             }
 
             if (containerConfiguration.ExternalExpressionCompiler != null)

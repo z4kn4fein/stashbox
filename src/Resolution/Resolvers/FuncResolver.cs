@@ -19,8 +19,7 @@ namespace Stashbox.Resolution.Resolvers
             typeof(Func<,,,,,,,>)
         };
 
-        public Expression GetExpression(IResolutionStrategy resolutionStrategy,
-            TypeInformation typeInfo,
+        public Expression GetExpression(IResolutionStrategy resolutionStrategy, TypeInformation typeInfo,
             ResolutionContext resolutionContext)
         {
             var args = typeInfo.Type.GetGenericArguments();
@@ -34,18 +33,18 @@ namespace Stashbox.Resolution.Resolvers
             return expression?.AsLambda(typeInfo.Type, parameters);
         }
 
-        public IEnumerable<Expression> GetExpressionsForEnumerableRequest(IResolutionStrategy resolutionStrategy,
-            TypeInformation typeInfo,
+        public IEnumerable<Expression> GetExpressionsForEnumerableRequest(IResolutionStrategy resolutionStrategy, TypeInformation typeInfo,
             ResolutionContext resolutionContext)
         {
-            var args = typeInfo.Type.GetGenericArguments();
+            var type = typeInfo.Type;
+            var args = type.GetGenericArguments();
             var wrappedType = args.Last();
             var funcArgumentInfo = typeInfo.CloneForType(wrappedType);
 
             var parameters = args.SelectButLast(a => a.AsParameter()).CastToArray();
             return resolutionStrategy.BuildExpressionsForEnumerableRequest(resolutionContext
                     .BeginContextWithFunctionParameters(parameters), funcArgumentInfo)?
-                .Select(e => e.AsLambda(typeInfo.Type, parameters));
+                .Select(e => e.AsLambda(type, parameters));
         }
 
         public bool CanUseForResolution(TypeInformation typeInfo, ResolutionContext resolutionContext) =>

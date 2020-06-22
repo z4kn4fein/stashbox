@@ -27,8 +27,7 @@ namespace Stashbox.Resolution
         /// <param name="typeInfo">The information about the type to resolve.</param>
         /// <param name="resolutionContext">The contextual information about the current resolution call.</param>
         /// <returns>Returns true, if the resolver can be used to activate the requested service, otherwise false.</returns>
-        bool CanUseForResolution(
-            TypeInformation typeInfo,
+        bool CanUseForResolution(TypeInformation typeInfo,
             ResolutionContext resolutionContext);
     }
 

@@ -1,6 +1,7 @@
 ﻿using Stashbox.Expressions;
 using Stashbox.Resolution.Extensions;
 using Stashbox.Utils;
+using Stashbox.Utils.Data.Immutable;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,8 +12,8 @@ namespace Stashbox.Resolution
     internal class ResolutionStrategy : IResolutionStrategy
     {
         private readonly ExpressionBuilder expressionBuilder;
-        private ImmutableArray<IResolver> resolverRepository = ImmutableArray<IResolver>.Empty;
-        private ImmutableArray<IResolver> lastChanceResolverRepository = ImmutableArray<IResolver>.Empty;
+        private ImmutableBucket<IResolver> resolverRepository = ImmutableBucket<IResolver>.Empty;
+        private ImmutableBucket<IResolver> lastChanceResolverRepository = ImmutableBucket<IResolver>.Empty;
 
         public ResolutionStrategy(ExpressionBuilder expressionBuilder)
         {
@@ -30,12 +31,13 @@ namespace Stashbox.Resolution
 #endif
             if (resolutionContext.ParameterExpressions.Length > 0)
             {
+                var type = typeInformation.Type;
                 var length = resolutionContext.ParameterExpressions.Length;
                 for (var i = length; i-- > 0;)
                 {
                     var parameters = resolutionContext.ParameterExpressions[i]
-                        .WhereOrDefault(p => p.I2.Type == typeInformation.Type ||
-                                             p.I2.Type.Implements(typeInformation.Type));
+                        .WhereOrDefault(p => p.I2.Type == type ||
+                                             p.I2.Type.Implements(type));
 
                     if (parameters == null) continue;
                     var selected = parameters.FirstOrDefault(parameter => !parameter.I1) ?? parameters.Last();
@@ -43,6 +45,9 @@ namespace Stashbox.Resolution
                     return selected.I2;
                 }
             }
+
+            if (resolutionContext.DecoratingService.Key == typeInformation.Type)
+                return resolutionContext.DecoratingService.Value;
 
             var exprOverride = resolutionContext.GetExpressionOverrideOrDefault(typeInformation.Type, typeInformation.DependencyName);
             if (exprOverride != null)
@@ -96,7 +101,7 @@ namespace Stashbox.Resolution
                 .GetRegistrationOrDefault(type, resolutionContext, name);
 
             return registration != null ? this.expressionBuilder.BuildExpressionAndApplyLifetime(registration, resolutionContext, type) :
-                this.BuildResolutionExpressionUsingResolvers(new TypeInformation { Type = type, DependencyName = name }, resolutionContext);
+                this.BuildResolutionExpressionUsingResolvers(new TypeInformation(type, name), resolutionContext);
         }
 
         public Expression BuildResolutionExpressionUsingResolvers(TypeInformation typeInfo, ResolutionContext resolutionContext)

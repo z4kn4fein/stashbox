@@ -1,6 +1,7 @@
 ﻿#if IL_EMIT
 using Stashbox.Expressions.Compile.Extensions;
 using Stashbox.Utils;
+using Stashbox.Utils.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -75,8 +76,8 @@ namespace Stashbox.Expressions.Compile.Emitters
             return true;
         }
 
-        internal static ExpandableArray<LocalBuilder> BuildLocals(this IEnumerable<Expression> variables, ILGenerator ilGenerator) =>
-            ExpandableArray<LocalBuilder>.FromEnumerable(variables.Select(v => ilGenerator.DeclareLocal(v.Type)));
+        internal static LocalBuilder[] BuildLocals(this ExpandableArray<Expression> variables, ILGenerator ilGenerator) =>
+            variables.Select(v => ilGenerator.DeclareLocal(v.Type)).ToArray();
     }
 }
 #endif

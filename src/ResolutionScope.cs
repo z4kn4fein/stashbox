@@ -2,6 +2,8 @@
 using Stashbox.Expressions;
 using Stashbox.Resolution;
 using Stashbox.Utils;
+using Stashbox.Utils.Data;
+using Stashbox.Utils.Data.Immutable;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -43,7 +45,7 @@ namespace Stashbox
         private DisposableItem rootItem = DisposableItem.Empty;
         private FinalizableItem rootFinalizableItem = FinalizableItem.Empty;
         private ImmutableTree<object> scopedItems = ImmutableTree<object>.Empty;
-        private ImmutableTree<Type, ImmutableTree<object, object>> scopedInstances = ImmutableTree<Type, ImmutableTree<object, object>>.Empty;
+        private ImmutableTree<object, object> scopedInstances = ImmutableTree<object, object>.Empty;
         private ImmutableTree<ThreadLocal<bool>> circularDependencyBarrier = ImmutableTree<ThreadLocal<bool>>.Empty;
 
         private DelegateCache delegateCache;
@@ -137,11 +139,10 @@ namespace Stashbox
             Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
             Shield.EnsureNotNull(instance, nameof(instance));
 
-            var subKey = name ?? typeFrom;
-            var newRepo = ImmutableTree<object, object>.Empty.AddOrUpdate(subKey, instance);
+            var key = name ?? typeFrom;
+            var newRepo = ImmutableTree<object, object>.Empty.AddOrUpdate(key, instance);
             Swap.SwapValue(ref this.scopedInstances, (t1, t2, t3, t4, instances) =>
-                instances.AddOrUpdate(t1, t3,
-                    (old, @new) => old.AddOrUpdate(t4, t2, true)), typeFrom, instance, newRepo, subKey);
+                instances.AddOrUpdate(t1, t2), key, instance, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
 
             if (!withoutDisposalTracking && instance is IDisposable disposable)
                 this.AddDisposableTracking(disposable);
@@ -306,24 +307,16 @@ namespace Stashbox
             return factory(this);
         }
 
-        private HashTree<Type, HashTree<object, Expression>> ProcessDependencyOverrides(object[] dependencyOverrides)
+        private HashTree<object, Expression> ProcessDependencyOverrides(object[] dependencyOverrides)
         {
             if (dependencyOverrides == null && this.scopedInstances.IsEmpty)
                 return null;
 
-            var result = new HashTree<Type, HashTree<object, Expression>>();
+            var result = new HashTree<object, Expression>();
 
             if (!this.scopedInstances.IsEmpty)
-            {
                 foreach (var scopedInstance in this.scopedInstances.Walk())
-                {
-                    var scopedInstanceSubTree = new HashTree<object, Expression>();
-                    foreach (var namedScopedInstance in scopedInstance.Value.Walk())
-                        scopedInstanceSubTree.Add(namedScopedInstance.Key, namedScopedInstance.Value.AsConstant(), false);
-
-                    result.Add(scopedInstance.Key, scopedInstanceSubTree);
-                }
-            }
+                    result.Add(scopedInstance.Key, scopedInstance.Value.AsConstant(), false);
 
             if (dependencyOverrides == null) return result;
 
@@ -332,20 +325,10 @@ namespace Stashbox
                 var type = dependencyOverride.GetType();
                 var expression = dependencyOverride.AsConstant();
 
-                var subtree = result.GetOrDefault(type);
-                if (subtree == null)
-                    result.Add(type, new HashTree<object, Expression>(type, expression));
-                else
-                    subtree.Add(type, expression, false);
+                result.Add(type, expression, false);
 
                 foreach (var baseType in type.GetRegisterableInterfaceTypes().Concat(type.GetRegisterableBaseTypes()))
-                {
-                    subtree = result.GetOrDefault(baseType);
-                    if (subtree == null)
-                        result.Add(baseType, new HashTree<object, Expression>(baseType, expression));
-                    else
-                        subtree.Add(baseType, expression, false);
-                }
+                    result.Add(baseType, expression, false);
             }
 
             return result;

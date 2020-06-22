@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
-namespace Stashbox.Utils
+namespace Stashbox.Utils.Data.Immutable
 {
     internal sealed class ImmutableTree<TValue>
     {
@@ -15,7 +15,7 @@ namespace Stashbox.Utils
         private readonly ImmutableTree<TValue> rightNode;
 
         private readonly int height;
-        public bool IsEmpty = true;
+        public readonly bool IsEmpty = true;
 
         private ImmutableTree(int hash, TValue value, ImmutableTree<TValue> left, ImmutableTree<TValue> right)
         {
@@ -124,7 +124,7 @@ namespace Stashbox.Utils
         public override string ToString() => this.IsEmpty ? "empty" : $"{this.storedHash} : {this.storedValue}";
 
 
-        public IEnumerable<KeyValuePair<int, TValue>> Walk()
+        public IEnumerable<KeyValue<int, TValue>> Walk()
         {
             if (this.IsEmpty)
                 yield break;
@@ -143,7 +143,7 @@ namespace Stashbox.Utils
                 else
                 {
                     currentNode = nodes[index--];
-                    yield return new KeyValuePair<int, TValue>(currentNode.storedHash, currentNode.storedValue);
+                    yield return new KeyValue<int, TValue>(currentNode.storedHash, currentNode.storedValue);
 
                     currentNode = currentNode.rightNode;
                 }
@@ -161,12 +161,12 @@ namespace Stashbox.Utils
         private readonly TValue storedValue;
         private readonly ImmutableTree<TKey, TValue> leftNode;
         private readonly ImmutableTree<TKey, TValue> rightNode;
-        private readonly ImmutableArray<TKey, TValue> collisions;
+        private readonly IImmutableArray<TKey, TValue> collisions;
 
-        public bool IsEmpty = true;
+        public readonly bool IsEmpty = true;
 
         private ImmutableTree(int hash, TKey key, TValue value, ImmutableTree<TKey, TValue> left,
-            ImmutableTree<TKey, TValue> right, ImmutableArray<TKey, TValue> collisions)
+            ImmutableTree<TKey, TValue> right, IImmutableArray<TKey, TValue> collisions)
         {
             this.collisions = collisions;
             this.storedKey = key;
@@ -251,7 +251,7 @@ namespace Stashbox.Utils
                 this.collisions.AddOrUpdate(key, updateDelegate == null || forceUpdate ? value : updateDelegate(this.storedValue, value), true));
         }
 
-        private static ImmutableTree<TKey, TValue> Balance(int hash, TKey key, TValue value, ImmutableTree<TKey, TValue> left, ImmutableTree<TKey, TValue> right, ImmutableArray<TKey, TValue> collisions)
+        private static ImmutableTree<TKey, TValue> Balance(int hash, TKey key, TValue value, ImmutableTree<TKey, TValue> left, ImmutableTree<TKey, TValue> right, IImmutableArray<TKey, TValue> collisions)
         {
             var balance = left.height - right.height;
 
@@ -268,26 +268,26 @@ namespace Stashbox.Utils
             return new ImmutableTree<TKey, TValue>(hash, key, value, left, right, collisions);
         }
 
-        private static ImmutableTree<TKey, TValue> RotateRight(int hash, TKey key, TValue value, ImmutableTree<TKey, TValue> left, ImmutableTree<TKey, TValue> right, ImmutableArray<TKey, TValue> collisions)
+        private static ImmutableTree<TKey, TValue> RotateRight(int hash, TKey key, TValue value, ImmutableTree<TKey, TValue> left, ImmutableTree<TKey, TValue> right, IImmutableArray<TKey, TValue> collisions)
         {
             var r = new ImmutableTree<TKey, TValue>(hash, key, value, left.rightNode, right, collisions);
             return new ImmutableTree<TKey, TValue>(left.storedHash, left.storedKey, left.storedValue, left.leftNode, r, left.collisions);
         }
 
-        private static ImmutableTree<TKey, TValue> RotateLeft(int hash, TKey key, TValue value, ImmutableTree<TKey, TValue> left, ImmutableTree<TKey, TValue> right, ImmutableArray<TKey, TValue> collisions)
+        private static ImmutableTree<TKey, TValue> RotateLeft(int hash, TKey key, TValue value, ImmutableTree<TKey, TValue> left, ImmutableTree<TKey, TValue> right, IImmutableArray<TKey, TValue> collisions)
         {
             var l = new ImmutableTree<TKey, TValue>(hash, key, value, left, right.leftNode, collisions);
             return new ImmutableTree<TKey, TValue>(right.storedHash, right.storedKey, right.storedValue, l, right.rightNode, right.collisions);
         }
 
-        private static ImmutableTree<TKey, TValue> RotateRightLeft(int hash, TKey key, TValue value, ImmutableTree<TKey, TValue> left, ImmutableTree<TKey, TValue> right, ImmutableArray<TKey, TValue> collisions)
+        private static ImmutableTree<TKey, TValue> RotateRightLeft(int hash, TKey key, TValue value, ImmutableTree<TKey, TValue> left, ImmutableTree<TKey, TValue> right, IImmutableArray<TKey, TValue> collisions)
         {
             var l = new ImmutableTree<TKey, TValue>(hash, key, value, left, right.leftNode.leftNode, collisions);
             var r = new ImmutableTree<TKey, TValue>(right.storedHash, right.storedKey, right.storedValue, right.leftNode.rightNode, right.rightNode, right.collisions);
             return new ImmutableTree<TKey, TValue>(right.leftNode.storedHash, right.leftNode.storedKey, right.leftNode.storedValue, l, r, right.leftNode.collisions);
         }
 
-        private static ImmutableTree<TKey, TValue> RotateLeftRight(int hash, TKey key, TValue value, ImmutableTree<TKey, TValue> left, ImmutableTree<TKey, TValue> right, ImmutableArray<TKey, TValue> collisions)
+        private static ImmutableTree<TKey, TValue> RotateLeftRight(int hash, TKey key, TValue value, ImmutableTree<TKey, TValue> left, ImmutableTree<TKey, TValue> right, IImmutableArray<TKey, TValue> collisions)
         {
             var l = new ImmutableTree<TKey, TValue>(left.storedHash, left.storedKey, left.storedValue, left.leftNode, left.rightNode.leftNode, left.collisions);
             var r = new ImmutableTree<TKey, TValue>(hash, key, value, left.rightNode.rightNode, right, collisions);
@@ -296,7 +296,7 @@ namespace Stashbox.Utils
 
         public override string ToString() => this.IsEmpty ? "empty" : $"{this.storedKey} : {this.storedValue}";
 
-        public IEnumerable<KeyValuePair<TKey, TValue>> Walk()
+        public IEnumerable<KeyValue<TKey, TValue>> Walk()
         {
             if (this.IsEmpty)
                 yield break;
@@ -315,11 +315,11 @@ namespace Stashbox.Utils
                 else
                 {
                     currentNode = nodes[index--];
-                    yield return new KeyValuePair<TKey, TValue>(currentNode.storedKey, currentNode.storedValue);
+                    yield return new KeyValue<TKey, TValue>(currentNode.storedKey, currentNode.storedValue);
 
-                    if (currentNode.collisions != null && currentNode.collisions.Length > 0)
-                        for (var i = 0; i < currentNode.collisions.Length; i++)
-                            yield return currentNode.collisions.Repository[i];
+                    if (currentNode.collisions != null)
+                        foreach (var keyValue in collisions.Walk())
+                            yield return keyValue;
 
                     currentNode = currentNode.rightNode;
                 }

@@ -18,28 +18,26 @@ namespace Stashbox.Expressions
             ResolutionContext resolutionContext,
             Expression instance) =>
             from member in members
-            let expression = this.GetMemberExpression(member, instance.Type, registrationContext, resolutionContext)
+            let expression = GetMemberExpression(member, registrationContext, resolutionContext)
             where expression != null
             select instance.Member(member).AssignTo(expression);
 
         public IEnumerable<MemberBinding> GetMemberBindings(
             IEnumerable<MemberInfo> members,
             RegistrationContext registrationContext,
-            ResolutionContext resolutionContext,
-            Type implementationType) =>
+            ResolutionContext resolutionContext) =>
             from member in members
-            let expression = this.GetMemberExpression(member, implementationType, registrationContext, resolutionContext)
+            let expression = GetMemberExpression(member, registrationContext, resolutionContext)
             where expression != null
             select member.AssignTo(expression);
 
 
-        private Expression GetMemberExpression(
+        private static Expression GetMemberExpression(
             MemberInfo member,
-            Type implementationType,
             RegistrationContext registrationContext,
             ResolutionContext resolutionContext)
         {
-            var memberTypeInfo = member.AsTypeInformation(implementationType, registrationContext,
+            var memberTypeInfo = member.AsTypeInformation(registrationContext,
                 resolutionContext.CurrentContainerContext.ContainerConfiguration);
 
             var injectionParameter = registrationContext.InjectionParameters.SelectInjectionParameterOrDefault(memberTypeInfo);
