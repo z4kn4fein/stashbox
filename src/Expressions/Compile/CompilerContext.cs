@@ -1,5 +1,4 @@
 ﻿#if IL_EMIT
-using Stashbox.Utils;
 using Stashbox.Utils.Data;
 using System.Linq.Expressions;
 using System.Reflection.Emit;
