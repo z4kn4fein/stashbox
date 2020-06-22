@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -430,6 +431,7 @@ namespace Stashbox.Tests
         {
             var inst = new StashboxContainer()
                 .RegisterFunc(typeof(Test)
+                    .GetTypeInfo()
                     .GetConstructor(Type.EmptyTypes)
                     .MakeNew()
                     .AsLambda<Func<IDependencyResolver, ITest>>(typeof(IDependencyResolver).AsParameter())
