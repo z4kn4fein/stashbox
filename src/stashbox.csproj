@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net40;net45;netstandard1.0;netstandard1.3;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net40;net45;net461;netstandard1.0;netstandard1.3;netstandard2.0;netstandard2.1</TargetFrameworks>
     <AssemblyName>Stashbox</AssemblyName>
     <AssemblyTitle>Stashbox</AssemblyTitle>
     <RootNamespace>Stashbox</RootNamespace>
@@ -27,7 +27,7 @@
     <DebugType>portable</DebugType>
     <LangVersion>latest</LangVersion>
     <PackageReleaseNotes>
-      <![CDATA[
+      <![CDATA[ 
 v3.1.2:
 - Fix: IdentityServer not compatible #88
 - Fix: Call interception #89
@@ -82,17 +82,28 @@ Breaking changes:
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <AssemblyTitle>Stashbox .NET Standard 2.0</AssemblyTitle>
-    <DefineConstants>IL_EMIT;HAS_SERVICEPROVIDER;HAS_SERIALIZABLE</DefineConstants>
-  </PropertyGroup>  
+    <DefineConstants>IL_EMIT;HAS_SERVICEPROVIDER;HAS_SERIALIZABLE;HAS_ASYNC_DISPOSABLE</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
+    <AssemblyTitle>Stashbox .NET Standard 2.1</AssemblyTitle>
+    <DefineConstants>IL_EMIT;HAS_SERVICEPROVIDER;HAS_SERIALIZABLE;HAS_ASYNC_DISPOSABLE</DefineConstants>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'net40'">
     <DefineConstants>IL_EMIT;HAS_SERVICEPROVIDER;HAS_SERIALIZABLE</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'net45'">
     <DefineConstants>IL_EMIT;HAS_SERVICEPROVIDER;HAS_SERIALIZABLE</DefineConstants>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net461'">
+    <DefineConstants>IL_EMIT;HAS_SERVICEPROVIDER;HAS_SERIALIZABLE;HAS_ASYNC_DISPOSABLE</DefineConstants>
+  </PropertyGroup>
   
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.3' Or '$(TargetFramework)' == 'netstandard2.0'">
     <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.3.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net461' Or '$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="1.0.0" />
   </ItemGroup>
 
   <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
@@ -109,5 +120,9 @@ Breaking changes:
   <ItemGroup>
     <None Include="..\LICENSE" Pack="true" PackagePath="" />
     <None Include="..\img\icon.png" Pack="true" PackagePath="" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\.version" />
   </ItemGroup>
 </Project>
