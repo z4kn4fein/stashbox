@@ -30,6 +30,9 @@
       <![CDATA[ 
 v3.2.0:
 - Added IAsyncDisposable support #90
+  - It works on >=net461, >=netstandard2.0 frameworks. 
+  - On net461 and netstandard2.0 the usage of IAsyncDisposable interface requires the
+    Microsoft.Bcl.AsyncInterfaces package, on netstandard2.1 it's part of the framework.
 - Fix: resolving with custom parameter values #91
       
 v3.1.2:
