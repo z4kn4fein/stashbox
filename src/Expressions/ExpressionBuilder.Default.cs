@@ -28,7 +28,6 @@ namespace Stashbox.Expressions
             var variable = Constants.ResolutionScopeType.AsVariable();
 
             var newScope = resolutionContext.CurrentScopeParameter
-                .ConvertTo(Constants.ResolverType)
                 .CallMethod(Constants.BeginScopeMethod,
                     serviceRegistration.RegistrationContext.DefinedScopeName.AsConstant(),
                     true.AsConstant());

@@ -1,6 +1,5 @@
 ﻿using Stashbox.Registration;
 using Stashbox.Resolution;
-using Stashbox.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,7 +34,7 @@ namespace Stashbox.Expressions
             for (var i = 0; i < length; i++)
                 expressions[i] = parameterInfos[i].ParameterType.AsParameter();
 
-            expressions[expressions.Length - 1] = resolutionContext.CurrentScopeParameter.ConvertTo(Constants.ResolverType);
+            expressions[expressions.Length - 1] = resolutionContext.CurrentScopeParameter;
 
             return expressions;
         }

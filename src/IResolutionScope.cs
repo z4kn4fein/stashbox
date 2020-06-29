@@ -7,7 +7,7 @@ namespace Stashbox
     /// <summary>
     /// Represents a resolution scope.
     /// </summary>
-    public interface IResolutionScope : IDisposable
+    public interface IResolutionScope : IDependencyResolver
     {
         /// <summary>
         /// The parent scope.
@@ -25,8 +25,7 @@ namespace Stashbox
         /// <typeparam name="TDisposable">The type parameter.</typeparam>
         /// <param name="disposable">The <see cref="IDisposable"/> object.</param>
         /// <returns>The <see cref="IDisposable"/> object.</returns>
-        TDisposable AddDisposableTracking<TDisposable>(TDisposable disposable)
-            where TDisposable : IDisposable;
+        TDisposable AddDisposableTracking<TDisposable>(TDisposable disposable);
 
         /// <summary>
         /// Adds a service with a cleanup delegate.

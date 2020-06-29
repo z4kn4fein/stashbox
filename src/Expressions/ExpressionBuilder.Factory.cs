@@ -1,6 +1,5 @@
 ﻿using Stashbox.Registration;
 using Stashbox.Resolution;
-using Stashbox.Utils;
 using System;
 using System.Linq.Expressions;
 
@@ -12,7 +11,7 @@ namespace Stashbox.Expressions
         {
             var expression = serviceRegistration.RegistrationContext.ContainerFactory != null
                 ? ConstructFactoryExpression(serviceRegistration.RegistrationContext.ContainerFactory,
-                    serviceRegistration, resolutionContext.CurrentScopeParameter.ConvertTo(Constants.ResolverType))
+                    serviceRegistration, resolutionContext.CurrentScopeParameter)
                 : ConstructFactoryExpression(serviceRegistration.RegistrationContext.SingleFactory, serviceRegistration);
 
             return this.expressionFactory.ConstructBuildUpExpression(serviceRegistration, resolutionContext, expression, resolveType);

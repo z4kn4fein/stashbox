@@ -7,40 +7,40 @@ namespace Stashbox
     {
         /// <inheritdoc />
         public object Resolve(Type typeFrom, bool nullResultAllowed = false, object[] dependencyOverrides = null) =>
-           this.rootResolver.Resolve(typeFrom, nullResultAllowed, dependencyOverrides);
+            this.ContainerContext.RootScope.Resolve(typeFrom, nullResultAllowed, dependencyOverrides);
 
         /// <inheritdoc />
         public object Resolve(Type typeFrom, object name, bool nullResultAllowed = false, object[] dependencyOverrides = null) =>
-            this.rootResolver.Resolve(typeFrom, name, nullResultAllowed, dependencyOverrides);
+            this.ContainerContext.RootScope.Resolve(typeFrom, name, nullResultAllowed, dependencyOverrides);
 
         /// <inheritdoc />
         public IEnumerable<TKey> ResolveAll<TKey>(object[] dependencyOverrides = null) =>
-            this.rootResolver.ResolveAll<TKey>(dependencyOverrides);
+            this.ContainerContext.RootScope.ResolveAll<TKey>(dependencyOverrides);
 
         /// <inheritdoc />
         public IEnumerable<object> ResolveAll(Type typeFrom, object[] dependencyOverrides = null) =>
-            this.rootResolver.ResolveAll(typeFrom, dependencyOverrides);
+            this.ContainerContext.RootScope.ResolveAll(typeFrom, dependencyOverrides);
 
         /// <inheritdoc />
         public Delegate ResolveFactory(Type typeFrom, object name = null, bool nullResultAllowed = false, params Type[] parameterTypes) =>
-            this.rootResolver.ResolveFactory(typeFrom, name, nullResultAllowed, parameterTypes);
+            this.ContainerContext.RootScope.ResolveFactory(typeFrom, name, nullResultAllowed, parameterTypes);
 
         /// <inheritdoc />
         public IDependencyResolver PutInstanceInScope(Type typeFrom, object instance, bool withoutDisposalTracking = false, object name = null) =>
-            this.rootResolver.PutInstanceInScope(typeFrom, instance, withoutDisposalTracking, name);
+            this.ContainerContext.RootScope.PutInstanceInScope(typeFrom, instance, withoutDisposalTracking, name);
 
         /// <inheritdoc />
         public TTo BuildUp<TTo>(TTo instance) =>
-            this.rootResolver.BuildUp(instance);
+            this.ContainerContext.RootScope.BuildUp(instance);
 
         /// <inheritdoc />
         public object Activate(Type type, params object[] arguments) =>
-            this.rootResolver.Activate(type, arguments);
+            this.ContainerContext.RootScope.Activate(type, arguments);
 
 #if HAS_SERVICEPROVIDER
         /// <inheritdoc />
         public object GetService(Type serviceType) =>
-            this.rootResolver.GetService(serviceType);
+            this.ContainerContext.RootScope.GetService(serviceType);
 #endif
     }
 }

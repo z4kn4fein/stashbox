@@ -7,6 +7,7 @@ using Stashbox.Utils;
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Stashbox
 {
@@ -15,7 +16,6 @@ namespace Stashbox
     /// </summary>
     public sealed partial class StashboxContainer : IStashboxContainer
     {
-        private readonly IDependencyResolver rootResolver;
         private readonly ContainerConfigurator containerConfigurator;
         private readonly ServiceRegistrator serviceRegistrator;
         private readonly RegistrationBuilder registrationBuilder;
@@ -37,8 +37,6 @@ namespace Stashbox
             this.ContainerContext = new ContainerContext(null, resolutionStrategy,
                 expressionFactory, this.containerConfigurator.ContainerConfiguration);
 
-            this.rootResolver = (IDependencyResolver)this.ContainerContext.RootScope;
-
             this.RegisterResolvers();
         }
 
@@ -52,8 +50,6 @@ namespace Stashbox
 
             this.ContainerContext = new ContainerContext(parentContainer.ContainerContext, resolutionStrategy,
                 expressionFactory, this.containerConfigurator.ContainerConfiguration);
-
-            this.rootResolver = (IDependencyResolver)this.ContainerContext.RootScope;
         }
 
         internal StashboxContainer(ExpressionFactory expressionFactory, ServiceRegistrator serviceRegistrator,
@@ -108,7 +104,7 @@ namespace Stashbox
 
         /// <inheritdoc />
         public IDependencyResolver BeginScope(object name = null, bool attachToParent = false) =>
-            this.rootResolver.BeginScope(name, attachToParent);
+            this.ContainerContext.RootScope.BeginScope(name, attachToParent);
 
         /// <inheritdoc />
         public void Configure(Action<ContainerConfigurator> config)
@@ -148,5 +144,13 @@ namespace Stashbox
 
             this.ContainerContext.RootScope.Dispose();
         }
+
+#if HAS_ASYNC_DISPOSABLE
+        /// <inheritdoc />
+        public ValueTask DisposeAsync() =>
+            Interlocked.CompareExchange(ref this.disposed, 1, 0) != 0
+                ? new ValueTask(Task.CompletedTask)
+                : this.ContainerContext.RootScope.DisposeAsync();
+#endif
     }
 }

@@ -48,7 +48,7 @@ namespace Stashbox.Resolution.Resolvers
         private Expression GetLazyFuncExpression(TypeInformation argumentType,
             ResolutionContext resolutionContext, IResolutionStrategy resolutionStrategy) =>
             resolutionContext.CurrentContainerContext.ContainerConfiguration.CircularDependenciesWithLazyEnabled
-                ? resolutionContext.CurrentScopeParameter.ConvertTo(Constants.ResolverType)
+                ? resolutionContext.CurrentScopeParameter
                     .CallMethod(ResolveMethodInfo, argumentType.Type.AsConstant(),
                         argumentType.DependencyName.AsConstant(), false.AsConstant(),
                         Constants.ObjectType.InitNewArray(resolutionContext.ParameterExpressions

@@ -74,7 +74,7 @@ namespace Stashbox.Expressions
             if (serviceRegistration.RegistrationContext.ExistingInstance == null && serviceRegistration.RegistrationContext.Finalizer != null)
                 expression = BuildFinalizerExpression(expression, serviceRegistration, resolutionContext.CurrentScopeParameter);
 
-            if (!RegistrationHoldsDisposable(resolutionContext.CurrentContainerContext, serviceRegistration) || !expression.Type.IsDisposable())
+            if (!ShouldHandleDisposal(resolutionContext.CurrentContainerContext, serviceRegistration) || !expression.Type.IsDisposable())
                 return this.CheckRuntimeCircularDependencyExpression(expression, serviceRegistration, resolutionContext, resolveType);
 
             var method = Constants.AddDisposalMethod.MakeGenericMethod(expression.Type);
@@ -142,7 +142,7 @@ namespace Stashbox.Expressions
             serviceRegistration.RegistrationType != RegistrationType.Instance &&
             serviceRegistration.RegistrationContext.Lifetime != null;
 
-        private static bool RegistrationHoldsDisposable(IContainerContext containerContext, ServiceRegistration serviceRegistration)
+        private static bool ShouldHandleDisposal(IContainerContext containerContext, ServiceRegistration serviceRegistration)
         {
             if (serviceRegistration.RegistrationContext.IsLifetimeExternallyOwned ||
                 serviceRegistration.RegistrationContext.ExistingInstance != null)

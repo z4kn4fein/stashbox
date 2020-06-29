@@ -11,6 +11,9 @@ namespace Stashbox
 #if HAS_SERVICEPROVIDER
         IServiceProvider,
 #endif
+#if HAS_ASYNC_DISPOSABLE
+        IAsyncDisposable,
+#endif
         IDisposable
     {
         /// <summary>

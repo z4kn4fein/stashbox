@@ -125,8 +125,12 @@ namespace System
             property.DeclaringType.GetSingleMethodOrDefault("get_" + property.Name);
 
         public static bool IsDisposable(this Type type) =>
-            type.Implements(Constants.DisposableType);
-
+            type.Implements(Constants.DisposableType)
+#if HAS_ASYNC_DISPOSABLE
+         || type.Implements(Constants.AsyncDisposableType)
+#endif
+        ;
+        
         public static bool IsCompositionRoot(this Type type) =>
             type.Implements(Constants.CompositionRootType);
 

@@ -20,8 +20,8 @@ namespace Stashbox.Registration
         {
             if (registrationContext.ExistingInstance == null) return;
 
-            if (!registrationContext.IsLifetimeExternallyOwned && registrationContext.ExistingInstance is IDisposable disposable)
-                containerContext.RootScope.AddDisposableTracking(disposable);
+            if (!registrationContext.IsLifetimeExternallyOwned && implementationType.IsDisposable())
+                containerContext.RootScope.AddDisposableTracking(registrationContext.ExistingInstance);
 
             if (registrationContext.Finalizer == null) return;
 

@@ -32,6 +32,10 @@ namespace Stashbox.Utils
 
         public static readonly Type DisposableType = typeof(IDisposable);
 
+#if HAS_ASYNC_DISPOSABLE
+        public static readonly Type AsyncDisposableType = typeof(IAsyncDisposable);
+#endif
+
         public static readonly Type FuncType = typeof(Func<>);
 
         public static readonly Type[] EmptyTypes = EmptyArray<Type>();

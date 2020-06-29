@@ -28,6 +28,10 @@
     <LangVersion>latest</LangVersion>
     <PackageReleaseNotes>
       <![CDATA[ 
+v3.2.0:
+- Added IAsyncDisposable support #90
+- Fix: resolving with custom parameter values #91
+      
 v3.1.2:
 - Fix: IdentityServer not compatible #88
 - Fix: Call interception #89
@@ -127,5 +131,6 @@ Breaking changes:
     <None Include="..\appveyor.yml" />
     <None Include="..\appveyor-release.yml" />
     <None Include="..\.travis.yml" />
+    <None Include="..\coverage.ps1" />
   </ItemGroup>
 </Project>

@@ -23,11 +23,11 @@ namespace Stashbox.Resolution
         public Expression BuildExpressionForType(ResolutionContext resolutionContext, TypeInformation typeInformation)
         {
             if (typeInformation.Type == Constants.ResolverType)
-                return resolutionContext.CurrentScopeParameter.ConvertTo(Constants.ResolverType);
+                return resolutionContext.CurrentScopeParameter;
 
 #if HAS_SERVICEPROVIDER
             if (typeInformation.Type == Constants.ServiceProviderType)
-                return resolutionContext.CurrentScopeParameter.ConvertTo(Constants.ServiceProviderType);
+                return resolutionContext.CurrentScopeParameter;
 #endif
             if (resolutionContext.ParameterExpressions.Length > 0)
             {
@@ -84,11 +84,11 @@ namespace Stashbox.Resolution
         public Expression BuildExpressionForTopLevelRequest(Type type, object name, ResolutionContext resolutionContext)
         {
             if (type == Constants.ResolverType)
-                return resolutionContext.CurrentScopeParameter.ConvertTo(Constants.ResolverType);
+                return resolutionContext.CurrentScopeParameter;
 
 #if HAS_SERVICEPROVIDER
             if (type == Constants.ServiceProviderType)
-                return resolutionContext.CurrentScopeParameter.ConvertTo(Constants.ServiceProviderType);
+                return resolutionContext.CurrentScopeParameter;
 #endif
 
             var exprOverride = resolutionContext.GetExpressionOverrideOrDefault(type, name);

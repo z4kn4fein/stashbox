@@ -1,6 +1,5 @@
 ﻿using Stashbox.Registration;
 using Stashbox.Resolution;
-using Stashbox.Utils;
 using Stashbox.Utils.Data;
 using System;
 using System.Collections.Generic;
@@ -52,7 +51,7 @@ namespace Stashbox.Expressions
             if (serviceRegistration.RegistrationContext.Initializer != null)
                 lines.Add(serviceRegistration.RegistrationContext.Initializer.AsConstant()
                     .CallMethod(serviceRegistration.RegistrationContext.Initializer.GetType().GetSingleMethod("Invoke"),
-                        variable, resolutionContext.CurrentScopeParameter.ConvertTo(Constants.ResolverType)));
+                        variable, resolutionContext.CurrentScopeParameter));
 
             lines.Add(variable.Type != serviceType ? variable.ConvertTo(serviceType) : variable); //block returns with the variable
 
@@ -123,7 +122,7 @@ namespace Stashbox.Expressions
             if (serviceRegistration.RegistrationContext.Initializer != null)
                 lines.Add(serviceRegistration.RegistrationContext.Initializer.AsConstant()
                     .CallMethod(serviceRegistration.RegistrationContext.Initializer.GetType().GetSingleMethod("Invoke"),
-                        variable, resolutionContext.CurrentScopeParameter.ConvertTo(Constants.ResolverType)));
+                        variable, resolutionContext.CurrentScopeParameter));
 
             lines.Add(variable);
 
