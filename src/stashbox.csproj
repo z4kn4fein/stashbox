@@ -124,5 +124,8 @@ Breaking changes:
 
   <ItemGroup>
     <None Include="..\.version" />
+    <None Include="..\appveyor.yml" />
+    <None Include="..\appveyor-release.yml" />
+    <None Include="..\.travis.yml" />
   </ItemGroup>
 </Project>

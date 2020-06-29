@@ -98,7 +98,7 @@ namespace Stashbox
             if (dependencyOverrides != null)
                 return this.Activate(new ResolutionContext(this.GetActiveScopeNames(), this.containerContext, this.resolutionStrategy,
                     this == this.containerContext.RootScope, nullResultAllowed,
-                    this.ProcessDependencyOverrides(dependencyOverrides)), typeFrom);
+                    this.ProcessDependencyOverrides(dependencyOverrides)), typeFrom, name);
 
             var cachedFactory = this.delegateCache.ServiceDelegates.GetOrDefault(name);
             return cachedFactory != null

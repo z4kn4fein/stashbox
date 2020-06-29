@@ -9,6 +9,8 @@ deploy:
 - provider: NuGet
   api_key:
     secure: doqtwSE1NadH7pf4jqYifDu4tcXzsNiJtPWOccnbUrhSnIJX+5js7m8z+kV9LNJ2
+  on:
+    branch: master
 
 skip_tags: true
 
