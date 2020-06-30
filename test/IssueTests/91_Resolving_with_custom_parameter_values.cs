@@ -11,11 +11,16 @@ namespace Stashbox.Tests.IssueTests
             using var container = new StashboxContainer()
                 .Register<IVariantSubproduct, StainlessSteelPlate>(name);
 
-            Assert.NotNull(container.Resolve<IVariantSubproduct>(name, false, new[] { new Subproduct() }));
+            var subProduct = new Subproduct();
+            var variant = container.Resolve<IVariantSubproduct>(name, false, new[] { subProduct });
+            Assert.NotNull(variant);
+            Assert.Same(subProduct, variant.Subproduct);
         }
 
         interface IVariantSubproduct
-        { }
+        {
+            ISubproduct Subproduct { get; }
+        }
 
         interface ISubproduct
         { }
@@ -25,7 +30,12 @@ namespace Stashbox.Tests.IssueTests
 
         class VariantSubproduct : IVariantSubproduct
         {
-            protected VariantSubproduct(ISubproduct subproduct) { }
+            public ISubproduct Subproduct { get; }
+
+            protected VariantSubproduct(ISubproduct subproduct)
+            {
+                Subproduct = subproduct;
+            }
         }
 
         class StainlessSteelPlate : VariantSubproduct
