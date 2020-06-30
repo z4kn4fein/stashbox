@@ -10,7 +10,7 @@ Github (stable) | NuGet (stable) | Fuget (stable) | NuGet (latest)
 ## Core attributes
  - Thread-safe and lock-free operations.
  - Memory efficency - reduces its memory footprint as much as possible.
- - [Circular dependency detection](https://github.com/z4kn4fein/stashbox/wiki/Container-configuration#options-available) - checks the dependency tree for cycles and throws a specific [CircularDependencyException](https://github.com/z4kn4fein/stashbox/wiki/Exceptions#circulardependencyexception) if it finds any. 
+ - [Circular dependency detection](https://github.com/z4kn4fein/stashbox/wiki/Container-configuration#options-available) - checks the dependency tree for cycles and throws a specific [exception](https://github.com/z4kn4fein/stashbox/wiki/Exceptions#circulardependencyexception) if it finds any. 
  - [Diagnostics](https://github.com/z4kn4fein/stashbox/wiki/Container-diagnostics) - detects and warns about common configuration issues.
  - [Fast feedback](https://github.com/z4kn4fein/stashbox/wiki/Exceptions) - throws exceptions early with as much detail about the issue as possible.
 
