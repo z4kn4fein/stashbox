@@ -32,7 +32,7 @@ build_script:
 
 test:
   assemblies:
-    - **\netcoreapp3.1\*Tests.dll
+    - '**\netcoreapp3.1\*Tests.dll'
 
 after_build:
 - inheritdoc -o
