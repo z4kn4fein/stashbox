@@ -137,5 +137,6 @@ Breaking changes:
     <None Include="..\appveyor-release.yml" />
     <None Include="..\.travis.yml" />
     <None Include="..\coverage.ps1" />
+    <None Include="..\README.md" />
   </ItemGroup>
 </Project>

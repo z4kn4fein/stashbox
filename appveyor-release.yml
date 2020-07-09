@@ -30,10 +30,6 @@ build_script:
 - msbuild /t:Restore /p:Configuration=%configuration% stashbox.sln
 - msbuild /t:Build /p:Configuration=%configuration% stashbox.sln
 
-test:
-  assemblies:
-    - '**\netcoreapp3.1\*Tests.dll'
-
 after_build:
 - inheritdoc -o
 - msbuild /t:Pack /p:IncludeSymbols=true /p:Configuration=%configuration% /p:PackageOutputPath=..\artifacts src\stashbox.csproj

@@ -5,7 +5,7 @@ Stashbox is a lightweight, fast and portable dependency injection framework for 
 
 Github (stable) | NuGet (stable) | Fuget (stable) | NuGet (latest)
 --- | --- | --- | ---
-[![Github release](https://img.shields.io/github/release/z4kn4fein/stashbox.svg)](https://github.com/z4kn4fein/stashbox/releases) | [![NuGet Version](https://buildstats.info/nuget/Stashbox)](https://www.nuget.org/packages/Stashbox/) | [![Stashbox on fuget.org](https://www.fuget.org/packages/Stashbox/badge.svg?v=3.2.0)](https://www.fuget.org/packages/Stashbox/3.2.0) | [![Nuget pre-release](https://img.shields.io/nuget/vpre/Stashbox)](https://www.nuget.org/packages/Stashbox/)
+[![Github release](https://img.shields.io/github/release/z4kn4fein/stashbox.svg)](https://github.com/z4kn4fein/stashbox/releases) | [![NuGet Version](https://buildstats.info/nuget/Stashbox)](https://www.nuget.org/packages/Stashbox/) | [![Stashbox on fuget.org](https://www.fuget.org/packages/Stashbox/badge.svg?v=3.2.1)](https://www.fuget.org/packages/Stashbox/3.2.1) | [![Nuget pre-release](https://img.shields.io/nuget/vpre/Stashbox)](https://www.nuget.org/packages/Stashbox/)
 
 ## Core attributes
  - Thread-safe and lock-free operations.
