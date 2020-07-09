@@ -22,7 +22,7 @@ namespace Stashbox.Resolution
         internal IResolutionStrategy ResolutionStrategy { get; }
         internal ExpandableArray<Expression> SingleInstructions { get; private set; }
         internal Tree<ParameterExpression> DefinedVariables { get; private set; }
-        internal ExpandableArray<IEnumerable<Pair<bool, ParameterExpression>>> ParameterExpressions { get; private set; }
+        internal ExpandableArray<Pair<bool, ParameterExpression>[]> ParameterExpressions { get; private set; }
         internal int CurrentLifeSpan { get; private set; }
         internal string NameOfServiceLifeSpanValidatingAgainst { get; private set; }
         internal bool PerResolutionRequestCacheEnabled { get; private set; }
@@ -57,7 +57,8 @@ namespace Stashbox.Resolution
             IResolutionStrategy resolutionStrategy,
             bool isRequestedFromRoot,
             bool nullResultAllowed = false,
-            HashTree<object, Expression> dependencyOverrides = null)
+            HashTree<object, Expression> dependencyOverrides = null,
+            ParameterExpression[] initialParameters = null)
         {
 
             this.DefinedVariables = new Tree<ParameterExpression>();
@@ -65,7 +66,10 @@ namespace Stashbox.Resolution
             this.expressionOverrides = dependencyOverrides;
             this.NullResultAllowed = nullResultAllowed;
             this.CurrentScopeParameter = Constants.ResolutionScopeParameter;
-            this.ParameterExpressions = new ExpandableArray<IEnumerable<Pair<bool, ParameterExpression>>>();
+            this.ParameterExpressions = initialParameters != null
+                ? new ExpandableArray<Pair<bool, ParameterExpression>[]>()
+                    {initialParameters.AsParameterPairs()}
+                : new ExpandableArray<Pair<bool, ParameterExpression>[]>();
             this.ScopeNames = ExpandableArray<object>.FromEnumerable(initialScopeNames);
             this.circularDependencyBarrier = new Utils.Data.Stack<int>();
             this.expressionCache = new Tree<Expression>();
@@ -162,12 +166,11 @@ namespace Stashbox.Resolution
             return clone;
         }
 
-        internal ResolutionContext BeginContextWithFunctionParameters(
-            IEnumerable<ParameterExpression> parameterExpressions)
+        internal ResolutionContext BeginContextWithFunctionParameters(ParameterExpression[] parameterExpressions)
         {
             var clone = this.Clone();
-            clone.ParameterExpressions = ExpandableArray<IEnumerable<Pair<bool, ParameterExpression>>>.FromEnumerable(this.ParameterExpressions);
-            clone.ParameterExpressions.Add(parameterExpressions.Select(p => new Pair<bool, ParameterExpression>(false, p)).CastToArray());
+            clone.ParameterExpressions = new ExpandableArray<Pair<bool, ParameterExpression>[]>(this.ParameterExpressions.AsArray())
+                {parameterExpressions.AsParameterPairs()};
             clone.PerResolutionRequestCacheEnabled = false;
             return clone;
         }

@@ -7,14 +7,14 @@ namespace Stashbox.Registration.SelectionRules
         public bool IsValidForCurrentRequest(TypeInformation typeInformation, ServiceRegistration registration,
             ResolutionContext resolutionContext)
         {
-            if (resolutionContext.ScopeNames.IsEmpty && registration.HasScopeName)
+            if (resolutionContext.ScopeNames.Length == 0 && registration.HasScopeName)
                 return false;
 
-            return resolutionContext.ScopeNames.IsEmpty || !registration.HasScopeName || registration.CanInjectIntoNamedScope(resolutionContext.ScopeNames);
+            return resolutionContext.ScopeNames.Length == 0 || !registration.HasScopeName || registration.CanInjectIntoNamedScope(resolutionContext.ScopeNames);
         }
 
         public bool ShouldIncrementWeight(TypeInformation typeInformation, ServiceRegistration registration,
-            ResolutionContext resolutionContext) => !resolutionContext.ScopeNames.IsEmpty &&
+            ResolutionContext resolutionContext) => resolutionContext.ScopeNames.Length != 0 &&
                                                     registration.HasScopeName &&
                                                     registration.CanInjectIntoNamedScope(resolutionContext.ScopeNames);
     }

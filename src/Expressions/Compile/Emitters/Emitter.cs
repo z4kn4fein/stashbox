@@ -75,8 +75,15 @@ namespace Stashbox.Expressions.Compile.Emitters
             return true;
         }
 
-        internal static LocalBuilder[] BuildLocals(this ExpandableArray<Expression> variables, ILGenerator ilGenerator) =>
-            variables.Select(v => ilGenerator.DeclareLocal(v.Type)).ToArray();
+        internal static LocalBuilder[] BuildLocals(this ExpandableArray<Expression> variables, ILGenerator ilGenerator)
+        {
+            var length = variables.Length;
+            var locals = new LocalBuilder[length];
+            for (var i = 0; i < length; i++)
+                locals[i] = ilGenerator.DeclareLocal(variables[i].Type);
+
+            return locals;
+        }
     }
 }
 #endif

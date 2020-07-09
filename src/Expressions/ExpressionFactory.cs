@@ -53,7 +53,7 @@ namespace Stashbox.Expressions
                     .CallMethod(serviceRegistration.RegistrationContext.Initializer.GetType().GetSingleMethod("Invoke"),
                         variable, resolutionContext.CurrentScopeParameter));
 
-            lines.Add(variable.Type != serviceType ? variable.ConvertTo(serviceType) : variable); //block returns with the variable
+            lines.Add(variable.Type != serviceType ? variable.ConvertTo(serviceType) : variable);
 
             return lines.AsBlock(variable);
         }
@@ -83,7 +83,7 @@ namespace Stashbox.Expressions
             lines.AddRange(this.methodExpressionBuilder.CreateMethodExpressions(methods,
                 registrationContext, resolutionContext, instance));
 
-            lines.Add(variable.Type != serviceType ? variable.ConvertTo(serviceType) : variable); //block returns with the variable
+            lines.Add(variable.Type != serviceType ? variable.ConvertTo(serviceType) : variable);
 
             return lines.AsBlock(variable);
         }

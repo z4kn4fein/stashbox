@@ -19,7 +19,7 @@ namespace Stashbox.Lifetime
         /// An indicator used to validate the lifetime configuration of the resolution tree.
         /// Services with longer life-span shouldn't contain dependencies with shorter ones.
         /// </summary>
-        protected abstract int LifeSpan { get; }
+        protected virtual int LifeSpan { get; } = 0;
 
         /// <summary>
         /// The name of the lifetime, used only for diagnostic reasons.

@@ -38,7 +38,7 @@ namespace Stashbox.Registration.Fluent
         }
 
         /// <summary>
-        /// Sets a parameterless factory delegate for the registration.
+        /// Sets a parameter-less factory delegate for the registration.
         /// </summary>
         /// <param name="singleFactory">The factory delegate.</param>
         /// <param name="isCompiledLambda">Flag that indicates the passed factory delegate is a compiled lambda from <see cref="Expression"/>.</param>

@@ -27,7 +27,9 @@
     <DebugType>portable</DebugType>
     <LangVersion>latest</LangVersion>
     <PackageReleaseNotes>
-      <![CDATA[ 
+      <![CDATA[
+v3.2.1:
+- Fix: Factory resolution didn't use the built-in expression compiler.
 v3.2.0:
 - Added IAsyncDisposable support #90
   - It works on >=net461, >=netstandard2.0 frameworks. 
@@ -93,7 +95,7 @@ Breaking changes:
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
     <AssemblyTitle>Stashbox .NET Standard 2.1</AssemblyTitle>
-    <DefineConstants>IL_EMIT;HAS_SERVICEPROVIDER;HAS_SERIALIZABLE;HAS_ASYNC_DISPOSABLE</DefineConstants>
+    <DefineConstants>IL_EMIT;HAS_SERVICEPROVIDER;HAS_SERIALIZABLE;HAS_ASYNC_DISPOSABLE;HAS_SPAN</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'net40'">
     <DefineConstants>IL_EMIT;HAS_SERVICEPROVIDER;HAS_SERIALIZABLE</DefineConstants>

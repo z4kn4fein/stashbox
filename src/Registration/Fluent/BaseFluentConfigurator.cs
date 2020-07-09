@@ -27,9 +27,8 @@ namespace Stashbox.Registration.Fluent
         /// <returns>The fluent configurator.</returns>
         public TConfigurator WithInjectionParameters(params KeyValuePair<string, object>[] injectionParameters)
         {
-            var length = injectionParameters.Length;
-            for (var i = 0; i < length; i++)
-                this.AddInjectionParameter(injectionParameters[i]);
+            var store = (ExpandableArray<KeyValuePair<string, object>>)this.Context.InjectionParameters;
+            store.AddRange(injectionParameters);
             return (TConfigurator)this;
         }
 
@@ -41,7 +40,8 @@ namespace Stashbox.Registration.Fluent
         /// <returns>The fluent configurator.</returns>
         public TConfigurator WithInjectionParameter(string name, object value)
         {
-            this.AddInjectionParameter(new KeyValuePair<string, object>(name, value));
+            var store = (ExpandableArray<KeyValuePair<string, object>>)this.Context.InjectionParameters;
+            store.Add(new KeyValuePair<string, object>(name, value));
             return (TConfigurator)this;
         }
 
@@ -166,12 +166,6 @@ namespace Stashbox.Registration.Fluent
         {
             this.Context.ReplaceExistingRegistration = true;
             return (TConfigurator)this;
-        }
-
-        private void AddInjectionParameter(KeyValuePair<string, object> injectionParameter)
-        {
-            var store = (ExpandableArray<KeyValuePair<string, object>>)this.Context.InjectionParameters;
-            store.Add(injectionParameter);
         }
 
         private void ThrowConstructorNotFoundException(Type type, params Type[] argTypes)

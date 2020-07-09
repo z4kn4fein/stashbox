@@ -23,10 +23,10 @@ namespace Stashbox.Resolution.Resolvers
             ResolutionContext resolutionContext)
         {
             var args = typeInfo.Type.GetGenericArguments();
-            var wrappedType = args.Last();
+            var wrappedType = args.LastElement();
             var funcArgumentInfo = typeInfo.CloneForType(wrappedType);
 
-            var parameters = args.SelectButLast(a => a.AsParameter()).CastToArray();
+            var parameters = args.SelectButLast(a => a.AsParameter());
             var expression = resolutionStrategy.BuildExpressionForType(resolutionContext
                 .BeginContextWithFunctionParameters(parameters), funcArgumentInfo);
 
@@ -38,10 +38,10 @@ namespace Stashbox.Resolution.Resolvers
         {
             var type = typeInfo.Type;
             var args = type.GetGenericArguments();
-            var wrappedType = args.Last();
+            var wrappedType = args.LastElement();
             var funcArgumentInfo = typeInfo.CloneForType(wrappedType);
 
-            var parameters = args.SelectButLast(a => a.AsParameter()).CastToArray();
+            var parameters = args.SelectButLast(a => a.AsParameter());
             return resolutionStrategy.BuildExpressionsForEnumerableRequest(resolutionContext
                     .BeginContextWithFunctionParameters(parameters), funcArgumentInfo)?
                 .Select(e => e.AsLambda(type, parameters));

@@ -27,11 +27,6 @@ namespace Stashbox.Utils.Data
 
         public HashTree() { }
 
-        public HashTree(TKey key, TValue value)
-        {
-            Add(key, value, false);
-        }
-
         public void Add(TKey key, TValue value, bool byRef = true)
         {
             this.root = Add(this.root, key, byRef ? RuntimeHelpers.GetHashCode(key) : key.GetHashCode(), value, byRef);

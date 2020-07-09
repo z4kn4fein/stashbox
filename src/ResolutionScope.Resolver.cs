@@ -100,8 +100,8 @@ namespace Stashbox
         private Delegate ActivateFactoryDelegate(Type type, Type[] parameterTypes, object name, bool nullResultAllowed)
         {
             var resolutionContext = new ResolutionContext(this.GetActiveScopeNames(), this.containerContext,
-                    this.resolutionStrategy, this == this.containerContext.RootScope, nullResultAllowed)
-                .BeginContextWithFunctionParameters(parameterTypes.Select(p => p.AsParameter()));
+                    this.resolutionStrategy, this == this.containerContext.RootScope, nullResultAllowed,
+                    initialParameters: parameterTypes.AsParameters());
 
             var initExpression = this.resolutionStrategy.BuildExpressionForTopLevelRequest(type, name, resolutionContext);
             if (initExpression == null)

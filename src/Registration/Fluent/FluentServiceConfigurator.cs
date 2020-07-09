@@ -57,7 +57,7 @@ namespace Stashbox.Registration.Fluent
         }
 
         /// <summary>
-        /// Sets a parameterless factory delegate for the registration.
+        /// Sets a parameter-less factory delegate for the registration.
         /// </summary>
         /// <param name="singleFactory">The factory delegate.</param>
         /// <param name="isCompiledLambda">Flag that indicates the passed factory delegate is a compiled lambda from <see cref="Expression"/>.</param>
@@ -98,7 +98,7 @@ namespace Stashbox.Registration.Fluent
     }
 
     /// <summary>
-    /// Represents the fluent service registraton api.
+    /// Represents the fluent service registration api.
     /// </summary>
     public class FluentServiceConfigurator<TConfigurator> : BaseFluentConfigurator<TConfigurator>
         where TConfigurator : FluentServiceConfigurator<TConfigurator>
@@ -250,7 +250,7 @@ namespace Stashbox.Registration.Fluent
         }
 
         /// <summary>
-        /// It means this registration would be used as a logical scope for it's dependencies, the dependencies registered with the <see cref="InNamedScope"/> and with the same name as it's param will be preffered during reolution.
+        /// It means this registration would be used as a logical scope for it's dependencies, the dependencies registered with the <see cref="InNamedScope"/> and with the same name as it's param will be preferred during resolution.
         /// </summary>
         /// <param name="scopeName">The name of the scope. When the name == null, the type which defines the scope is used as name.</param>
         /// <returns>The configurator itself.</returns>

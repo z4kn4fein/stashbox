@@ -10,7 +10,7 @@ namespace Stashbox.Registration.Extensions
 {
     internal static class ServiceRepositoryExtensions
     {
-        public static bool ContainsRegistration(this ImmutableTree<Type, IImmutableArray<object, ServiceRegistration>> repository, Type type, object name)
+        public static bool ContainsRegistration(this ImmutableTree<Type, ImmutableBucket<object, ServiceRegistration>> repository, Type type, object name)
         {
             var registrations = repository.GetOrDefault(type);
             if (name != null && registrations != null)
@@ -29,6 +29,7 @@ namespace Stashbox.Registration.Extensions
         {
             var maxWeight = 0;
             ServiceRegistration result = null;
+
             foreach (var serviceRegistration in registrations)
             {
                 if (!registrationSelectionRules.IsSelectionPassed(typeInformation, serviceRegistration, resolutionContext, out var weight))

@@ -11,9 +11,6 @@ namespace Stashbox.Lifetime
     public class TransientLifetime : ExpressionLifetimeDescriptor
     {
         /// <inheritdoc />
-        protected override int LifeSpan { get; } = 0;
-
-        /// <inheritdoc />
         protected override Expression ApplyLifetime(Expression expression,
             ServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType) =>
             expression;

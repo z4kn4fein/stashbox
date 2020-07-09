@@ -161,12 +161,12 @@ namespace Stashbox.Utils.Data.Immutable
         private readonly TValue storedValue;
         private readonly ImmutableTree<TKey, TValue> leftNode;
         private readonly ImmutableTree<TKey, TValue> rightNode;
-        private readonly IImmutableArray<TKey, TValue> collisions;
+        private readonly ImmutableBucket<TKey, TValue> collisions;
 
         public readonly bool IsEmpty = true;
 
         private ImmutableTree(int hash, TKey key, TValue value, ImmutableTree<TKey, TValue> left,
-            ImmutableTree<TKey, TValue> right, IImmutableArray<TKey, TValue> collisions)
+            ImmutableTree<TKey, TValue> right, ImmutableBucket<TKey, TValue> collisions)
         {
             this.collisions = collisions;
             this.storedKey = key;
@@ -245,13 +245,13 @@ namespace Stashbox.Utils.Data.Immutable
 
             if (this.collisions == null)
                 return new ImmutableTree<TKey, TValue>(hash, key, value, this.leftNode, this.rightNode,
-                    ImmutableArray<TKey, TValue>.Empty.Add(key, value));
+                    ImmutableBucket<TKey, TValue>.Empty.Add(key, value));
 
             return new ImmutableTree<TKey, TValue>(hash, key, value, this.leftNode, this.rightNode,
                 this.collisions.AddOrUpdate(key, updateDelegate == null || forceUpdate ? value : updateDelegate(this.storedValue, value), true));
         }
 
-        private static ImmutableTree<TKey, TValue> Balance(int hash, TKey key, TValue value, ImmutableTree<TKey, TValue> left, ImmutableTree<TKey, TValue> right, IImmutableArray<TKey, TValue> collisions)
+        private static ImmutableTree<TKey, TValue> Balance(int hash, TKey key, TValue value, ImmutableTree<TKey, TValue> left, ImmutableTree<TKey, TValue> right, ImmutableBucket<TKey, TValue> collisions)
         {
             var balance = left.height - right.height;
 
@@ -268,26 +268,26 @@ namespace Stashbox.Utils.Data.Immutable
             return new ImmutableTree<TKey, TValue>(hash, key, value, left, right, collisions);
         }
 
-        private static ImmutableTree<TKey, TValue> RotateRight(int hash, TKey key, TValue value, ImmutableTree<TKey, TValue> left, ImmutableTree<TKey, TValue> right, IImmutableArray<TKey, TValue> collisions)
+        private static ImmutableTree<TKey, TValue> RotateRight(int hash, TKey key, TValue value, ImmutableTree<TKey, TValue> left, ImmutableTree<TKey, TValue> right, ImmutableBucket<TKey, TValue> collisions)
         {
             var r = new ImmutableTree<TKey, TValue>(hash, key, value, left.rightNode, right, collisions);
             return new ImmutableTree<TKey, TValue>(left.storedHash, left.storedKey, left.storedValue, left.leftNode, r, left.collisions);
         }
 
-        private static ImmutableTree<TKey, TValue> RotateLeft(int hash, TKey key, TValue value, ImmutableTree<TKey, TValue> left, ImmutableTree<TKey, TValue> right, IImmutableArray<TKey, TValue> collisions)
+        private static ImmutableTree<TKey, TValue> RotateLeft(int hash, TKey key, TValue value, ImmutableTree<TKey, TValue> left, ImmutableTree<TKey, TValue> right, ImmutableBucket<TKey, TValue> collisions)
         {
             var l = new ImmutableTree<TKey, TValue>(hash, key, value, left, right.leftNode, collisions);
             return new ImmutableTree<TKey, TValue>(right.storedHash, right.storedKey, right.storedValue, l, right.rightNode, right.collisions);
         }
 
-        private static ImmutableTree<TKey, TValue> RotateRightLeft(int hash, TKey key, TValue value, ImmutableTree<TKey, TValue> left, ImmutableTree<TKey, TValue> right, IImmutableArray<TKey, TValue> collisions)
+        private static ImmutableTree<TKey, TValue> RotateRightLeft(int hash, TKey key, TValue value, ImmutableTree<TKey, TValue> left, ImmutableTree<TKey, TValue> right, ImmutableBucket<TKey, TValue> collisions)
         {
             var l = new ImmutableTree<TKey, TValue>(hash, key, value, left, right.leftNode.leftNode, collisions);
             var r = new ImmutableTree<TKey, TValue>(right.storedHash, right.storedKey, right.storedValue, right.leftNode.rightNode, right.rightNode, right.collisions);
             return new ImmutableTree<TKey, TValue>(right.leftNode.storedHash, right.leftNode.storedKey, right.leftNode.storedValue, l, r, right.leftNode.collisions);
         }
 
-        private static ImmutableTree<TKey, TValue> RotateLeftRight(int hash, TKey key, TValue value, ImmutableTree<TKey, TValue> left, ImmutableTree<TKey, TValue> right, IImmutableArray<TKey, TValue> collisions)
+        private static ImmutableTree<TKey, TValue> RotateLeftRight(int hash, TKey key, TValue value, ImmutableTree<TKey, TValue> left, ImmutableTree<TKey, TValue> right, ImmutableBucket<TKey, TValue> collisions)
         {
             var l = new ImmutableTree<TKey, TValue>(left.storedHash, left.storedKey, left.storedValue, left.leftNode, left.rightNode.leftNode, left.collisions);
             var r = new ImmutableTree<TKey, TValue>(hash, key, value, left.rightNode.rightNode, right, collisions);
@@ -318,7 +318,7 @@ namespace Stashbox.Utils.Data.Immutable
                     yield return new KeyValue<TKey, TValue>(currentNode.storedKey, currentNode.storedValue);
 
                     if (currentNode.collisions != null)
-                        foreach (var keyValue in collisions.Walk())
+                        foreach (var keyValue in collisions.Repository)
                             yield return keyValue;
 
                     currentNode = currentNode.rightNode;

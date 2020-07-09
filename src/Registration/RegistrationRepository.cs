@@ -13,7 +13,7 @@ namespace Stashbox.Registration
 {
     internal class RegistrationRepository : IRegistrationRepository
     {
-        private ImmutableTree<Type, IImmutableArray<object, ServiceRegistration>> serviceRepository = ImmutableTree<Type, IImmutableArray<object, ServiceRegistration>>.Empty;
+        private ImmutableTree<Type, ImmutableBucket<object, ServiceRegistration>> serviceRepository = ImmutableTree<Type, ImmutableBucket<object, ServiceRegistration>>.Empty;
         private readonly ContainerConfiguration containerConfiguration;
 
         private readonly IRegistrationSelectionRule[] filters =
@@ -45,7 +45,7 @@ namespace Stashbox.Registration
 
         public void AddOrUpdateRegistration(ServiceRegistration registration, Type serviceType, bool remap, bool replace)
         {
-            var newRepository = ImmutableArray<object, ServiceRegistration>.Empty.Add(registration.RegistrationDiscriminator, registration);
+            var newRepository = ImmutableBucket<object, ServiceRegistration>.Empty.Add(registration.RegistrationDiscriminator, registration);
 
             if (remap)
                 Swap.SwapValue(ref serviceRepository, (type, newRepo, t3, t4, repo) =>

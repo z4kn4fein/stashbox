@@ -40,7 +40,8 @@ namespace Stashbox.Resolution
                                              p.I2.Type.Implements(type));
 
                     if (parameters == null) continue;
-                    var selected = parameters.FirstOrDefault(parameter => !parameter.I1) ?? parameters.Last();
+                    var selected =
+                        parameters.FirstOrDefault(parameter => !parameter.I1) ?? parameters[parameters.Length - 1];
                     selected.I1 = true;
                     return selected.I2;
                 }
@@ -73,12 +74,8 @@ namespace Stashbox.Resolution
             if (registrations == null)
                 return this.BuildAllResolverExpressionsUsingResolvers(typeInformation, resolutionContext);
 
-            var length = registrations.Length;
-            var expressions = new Expression[length];
-            for (var i = 0; i < length; i++)
-                expressions[i] = this.expressionBuilder.BuildExpressionAndApplyLifetime(registrations[i], resolutionContext, typeInformation.Type);
-
-            return expressions;
+            return registrations.Select(reg =>
+                this.expressionBuilder.BuildExpressionAndApplyLifetime(reg, resolutionContext, typeInformation.Type));
         }
 
         public Expression BuildExpressionForTopLevelRequest(Type type, object name, ResolutionContext resolutionContext)

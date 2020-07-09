@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using Stashbox.Utils;
+using Stashbox.Utils.Data;
+using System.Collections.Generic;
+using System.Linq.Expressions;
 
 namespace System.Linq
 {
@@ -30,18 +33,42 @@ namespace System.Linq
         public static bool ContainsReference<TElement>(this TElement[] array, TElement element) where TElement : class =>
             array.GetReferenceIndex(element) != -1;
 
-        public static IEnumerable<TResult> SelectButLast<TSource, TResult>(this IEnumerable<TSource> source, Func<TSource, TResult> selector)
+        public static TResult[] SelectButLast<TSource, TResult>(this TSource[] source, Func<TSource, TResult> selector)
         {
-            using var iterator = source.GetEnumerator();
-            var isFirst = true;
-            var item = default(TSource);
+            var length = source.Length;
+            if (length == 1)
+                return Constants.EmptyArray<TResult>();
 
-            while (iterator.MoveNext())
-            {
-                if (!isFirst) yield return selector(item);
-                item = iterator.Current;
-                isFirst = false;
-            }
+            var resultLength = length - 1;
+            var result = new TResult[resultLength];
+            for (var i = 0; i < resultLength; i++)
+                result[i] = selector(source[i]);
+
+            return result;
+        }
+
+        public static TResult LastElement<TResult>(this TResult[] source) => source[source.Length - 1];
+
+        public static ParameterExpression[] AsParameters(this Type[] source)
+        {
+            var length = source.Length;
+            var result = new ParameterExpression[length];
+
+            for (var i = 0; i < length; i++)
+                result[i] = source[i].AsParameter();
+
+            return result;
+        }
+
+        public static Pair<bool, ParameterExpression>[] AsParameterPairs(this ParameterExpression[] source)
+        {
+            var length = source.Length;
+            var result = new Pair<bool, ParameterExpression>[length];
+
+            for (var i = 0; i < length; i++)
+                result[i] = new Pair<bool, ParameterExpression>(false, source[i]);
+
+            return result;
         }
     }
 

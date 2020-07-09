@@ -14,7 +14,6 @@ namespace Stashbox.Utils.Data
             new ExpandableArray<TItem>(initial);
 
         public int Length;
-        public bool IsEmpty => this.Length == 0;
 
         protected TItem[] Repository;
 
@@ -22,8 +21,12 @@ namespace Stashbox.Utils.Data
         { }
 
         public ExpandableArray(IEnumerable<TItem> initial)
+        : this(initial.CastToArray())
+        { }
+
+        public ExpandableArray(TItem[] initial)
         {
-            this.Repository = initial.ToArray();
+            this.Repository = initial;
             this.Length = this.Repository.Length;
         }
 
@@ -42,23 +45,23 @@ namespace Stashbox.Utils.Data
             this.Repository[index] = item;
         }
 
-        public void AddRange(IEnumerable<TItem> items)
+        public void AddRange(IEnumerable<TItem> items) => this.AddRange(items.CastToArray());
+
+        public void AddRange(TItem[] items)
         {
-            var asArray = items.CastToArray();
-            var index = this.EnsureSize(asArray.Length);
-            Array.Copy(asArray, 0, this.Repository, index, asArray.Length);
+            var index = this.EnsureSize(items.Length);
+            Array.Copy(items, 0, this.Repository, index, items.Length);
         }
 
-        public ref TItem this[int i] => ref this.Repository[i];
+        public TItem this[int i] => this.Repository[i];
 
         public TItem[] AsArray()
         {
-            if (this.IsEmpty)
+            if (this.Length == 0)
                 return Constants.EmptyArray<TItem>();
 
-            var newArray = new TItem[this.Length];
-            Array.Copy(this.Repository, 0, newArray, 0, this.Length);
-            return newArray;
+            Array.Resize(ref this.Repository, this.Length);
+            return this.Repository;
         }
 
         public int IndexOf(TItem element)
@@ -107,9 +110,7 @@ namespace Stashbox.Utils.Data
 
             var newSize = this.Repository.Length * 2;
             var desiredSize = this.Length > newSize ? this.Length : newSize;
-            var newArray = new TItem[desiredSize];
-            Array.Copy(this.Repository, 0, newArray, 0, this.Repository.Length);
-            this.Repository = newArray;
+            Array.Resize(ref this.Repository, desiredSize);
 
             return this.Length - increaseAmount;
         }

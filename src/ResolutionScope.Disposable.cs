@@ -1,4 +1,5 @@
 ﻿using Stashbox.Utils;
+using Stashbox.Utils.Data.Immutable;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -7,31 +8,26 @@ namespace Stashbox
 {
     internal partial class ResolutionScope
     {
-        private class DisposableItem
+        private readonly struct Finalizable
         {
-            public object Item;
-            public DisposableItem Next;
+            public readonly object Item;
+            public readonly Action<object> Finalizer;
 
-            public static readonly DisposableItem Empty = new DisposableItem();
-        }
-
-        private class FinalizableItem
-        {
-            public object Item;
-            public Action<object> Finalizer;
-            public FinalizableItem Next;
-
-            public static readonly FinalizableItem Empty = new FinalizableItem();
+            public Finalizable(object item, Action<object> finalizer)
+            {
+                this.Item = item;
+                this.Finalizer = finalizer;
+            }
         }
 
         private int disposed;
-        private DisposableItem rootItem = DisposableItem.Empty;
-        private FinalizableItem rootFinalizableItem = FinalizableItem.Empty;
+        private ImmutableLinkedList<object> disposables = ImmutableLinkedList<object>.Empty;
+        private ImmutableLinkedList<Finalizable> finalizables = ImmutableLinkedList<Finalizable>.Empty;
 
         public TDisposable AddDisposableTracking<TDisposable>(TDisposable disposable)
         {
-            Swap.SwapValue(ref this.rootItem, (t1, t2, t3, t4, root) =>
-                    new DisposableItem { Item = t1, Next = root }, disposable, Constants.DelegatePlaceholder,
+            Swap.SwapValue(ref this.disposables, (t1, t2, t3, t4, root) =>
+                    root.Add(t1), disposable, Constants.DelegatePlaceholder,
                 Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
 
             return disposable;
@@ -39,8 +35,8 @@ namespace Stashbox
 
         public TService AddWithFinalizer<TService>(TService finalizable, Action<TService> finalizer)
         {
-            Swap.SwapValue(ref this.rootFinalizableItem, (t1, t2, t3, t4, root) =>
-                    new FinalizableItem { Item = t1, Finalizer = f => t2((TService)f), Next = root }, finalizable, finalizer,
+            Swap.SwapValue(ref this.finalizables, (t1, t2, t3, t4, root) =>
+                    root.Add(new Finalizable(t1, f => t2((TService)f))), finalizable, finalizer,
                 Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
 
             return finalizable;
@@ -79,13 +75,13 @@ namespace Stashbox
 
             async ValueTask CallAsyncDisposes()
             {
-                var root = this.rootItem;
-                while (!ReferenceEquals(root, DisposableItem.Empty))
+                var root = this.disposables;
+                while (!ReferenceEquals(root, ImmutableLinkedList<object>.Empty))
                 {
-                    if (root.Item is IAsyncDisposable asyncDisposable)
+                    if (root.Value is IAsyncDisposable asyncDisposable)
                         await asyncDisposable.DisposeAsync().ConfigureAwait(false);
                     else
-                        ((IDisposable)root.Item).Dispose();
+                        ((IDisposable)root.Value).Dispose();
 
                     root = root.Next;
                 }
@@ -95,18 +91,18 @@ namespace Stashbox
 
         private void CallFinalizers()
         {
-            var rootFinalizable = this.rootFinalizableItem;
-            while (!ReferenceEquals(rootFinalizable, FinalizableItem.Empty))
+            var rootFinalizable = this.finalizables;
+            while (!ReferenceEquals(rootFinalizable, ImmutableLinkedList<Finalizable>.Empty))
             {
-                rootFinalizable.Finalizer(rootFinalizable.Item);
+                rootFinalizable.Value.Finalizer(rootFinalizable.Value.Item);
                 rootFinalizable = rootFinalizable.Next;
             }
         }
 
         private void CallDisposes()
         {
-            var root = this.rootItem;
-            while (!ReferenceEquals(root, DisposableItem.Empty) && root.Item is IDisposable disposable)
+            var root = this.disposables;
+            while (!ReferenceEquals(root, ImmutableLinkedList<object>.Empty) && root.Value is IDisposable disposable)
             {
                 disposable.Dispose();
                 root = root.Next;

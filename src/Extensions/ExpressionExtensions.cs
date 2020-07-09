@@ -3,6 +3,7 @@ using Stashbox.Configuration;
 using Stashbox.Resolution;
 using System.Collections.Generic;
 using System.Reflection;
+using Stashbox.Utils.Data;
 #if IL_EMIT
 using Stashbox.Expressions.Compile;
 #endif
@@ -33,7 +34,7 @@ namespace System.Linq.Expressions
             if (!resolutionContext.DefinedVariables.IsEmpty)
             {
                 resolutionContext.SingleInstructions.Add(expression);
-                expression = Expression.Block(resolutionContext.DefinedVariables.Walk(), resolutionContext.SingleInstructions);
+                expression = resolutionContext.SingleInstructions.AsBlock(resolutionContext.DefinedVariables.Walk());
             }
 
             if (containerConfiguration.ExternalExpressionCompiler != null)
@@ -81,7 +82,7 @@ namespace System.Linq.Expressions
             if (!resolutionContext.DefinedVariables.IsEmpty)
             {
                 resolutionContext.SingleInstructions.Add(expression);
-                expression = Expression.Block(resolutionContext.DefinedVariables.Walk(), resolutionContext.SingleInstructions);
+                expression = resolutionContext.SingleInstructions.AsBlock(resolutionContext.DefinedVariables.Walk());
             }
 
             if (containerConfiguration.ExternalExpressionCompiler != null)
@@ -89,7 +90,7 @@ namespace System.Linq.Expressions
                     expression.AsLambda(resolutionContext.CurrentScopeParameter));
 
 #if IL_EMIT
-            if (expression.TryEmit(out var factory, typeof(Func<IResolutionScope, Delegate>), typeof(Delegate),
+            if (!expression.TryEmit(out var factory, typeof(Func<IResolutionScope, Delegate>), typeof(Delegate),
                 resolutionContext.CurrentScopeParameter))
                 factory = expression.AsLambda<Func<IResolutionScope, Delegate>>(resolutionContext.CurrentScopeParameter).Compile();
 
@@ -164,6 +165,12 @@ namespace System.Linq.Expressions
         /// <param name="variables">The variables.</param>
         /// <returns>The block expression.</returns>
         public static BlockExpression AsBlock(this IEnumerable<Expression> expressions, params ParameterExpression[] variables) =>
+            Expression.Block(variables, expressions);
+
+        internal static BlockExpression AsBlock(this ExpandableArray<Expression> expressions, params ParameterExpression[] variables) =>
+            Expression.Block(variables, expressions);
+
+        internal static BlockExpression AsBlock(this ExpandableArray<Expression> expressions, IEnumerable<ParameterExpression> variables) =>
             Expression.Block(variables, expressions);
 
         /// <summary>
@@ -347,6 +354,15 @@ namespace System.Linq.Expressions
         /// <returns>The member init expression.</returns>
         public static MemberInitExpression InitMembers(this Expression expression, IEnumerable<MemberBinding> bindings) =>
            Expression.MemberInit((NewExpression)expression, bindings);
+
+        /// <summary>
+        /// Constructs a member init expression, => Expression.MemberInit(expression, bindings)
+        /// </summary>
+        /// <param name="expression">The expression.</param>
+        /// <param name="bindings">The member bindings.</param>
+        /// <returns>The member init expression.</returns>
+        public static MemberInitExpression InitMembers(this Expression expression, params MemberBinding[] bindings) =>
+            Expression.MemberInit((NewExpression)expression, bindings);
 
         /// <summary>
         /// Constructs a new array expression, => Expression.NewArrayInit(type, initializerExpressions)

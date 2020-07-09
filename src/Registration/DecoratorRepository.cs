@@ -7,11 +7,11 @@ namespace Stashbox.Registration
 {
     internal class DecoratorRepository : IDecoratorRepository
     {
-        private ImmutableTree<Type, IImmutableArray<Type, ServiceRegistration>> repository = ImmutableTree<Type, IImmutableArray<Type, ServiceRegistration>>.Empty;
+        private ImmutableTree<Type, ImmutableBucket<Type, ServiceRegistration>> repository = ImmutableTree<Type, ImmutableBucket<Type, ServiceRegistration>>.Empty;
 
         public void AddDecorator(Type type, ServiceRegistration serviceRegistration, bool remap, bool replace)
         {
-            var newRepository = ImmutableArray<Type, ServiceRegistration>.Empty.Add(serviceRegistration.ImplementationType, serviceRegistration);
+            var newRepository = ImmutableBucket<Type, ServiceRegistration>.Empty.Add(serviceRegistration.ImplementationType, serviceRegistration);
 
             if (remap)
                 Swap.SwapValue(ref this.repository, (t1, t2, t3, t4, repo) =>
