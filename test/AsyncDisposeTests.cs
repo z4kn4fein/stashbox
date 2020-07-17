@@ -112,7 +112,7 @@ namespace Stashbox.Tests
         {
             public void Dispose()
             {
-                throw new InvalidOperationException("should not called.");
+                throw new InvalidOperationException("should not be called.");
             }
         }
 

@@ -409,9 +409,10 @@ namespace Stashbox.Tests
         {
             var inst = new StashboxContainer()
                 .Register<ITest1, Test1>()
-                .Resolve<ITest1>();
+                .GetService(typeof(ITest1));
 
             Assert.NotNull(inst);
+            Assert.IsType<Test1>(inst);
         }
 
         [Fact]

@@ -1,4 +1,5 @@
-﻿using Stashbox.Configuration;
+﻿using Stashbox.Attributes;
+using Stashbox.Configuration;
 using Stashbox.Exceptions;
 using System.Collections.Generic;
 using System.Linq;
@@ -226,6 +227,19 @@ namespace Stashbox.Tests
         }
 
         [Fact]
+        public void GenericTests_Resolve_Constraint_Pick_RightImpl_Decorator()
+        {
+            using var container = new StashboxContainer();
+            container.Register(typeof(IConstraintTest<>), typeof(ConstraintTest2<>));
+            container.Register(typeof(IConstraintTest<>), typeof(ConstraintTest3<>));
+            container.RegisterDecorator(typeof(IConstraintTest<>), typeof(ConstraintDecorator<>));
+            container.RegisterDecorator(typeof(IConstraintTest<>), typeof(ConstraintDecorator2<>));
+
+            var inst = (ConstraintDecorator2<ConstraintArgument1>)container.Resolve<IConstraintTest<ConstraintArgument1>>();
+            Assert.IsType<ConstraintTest3<ConstraintArgument1>>(inst.ConstraintTest);
+        }
+
+        [Fact]
         public void GenericTests_Resolve_Prefer_Open_Generic_In_Named_Scope()
         {
             var container = new StashboxContainer(config => config
@@ -331,6 +345,18 @@ namespace Stashbox.Tests
         class ConstraintTest2<T> : IConstraintTest<T> where T : IConstraint { }
 
         class ConstraintTest3<T> : IConstraintTest<T> where T : IConstraint1 { }
+
+        class ConstraintDecorator<T> : IConstraintTest<T> where T : IConstraint
+        {
+            [Dependency]
+            public IConstraintTest<T> ConstraintTest { get; set; }
+        }
+
+        class ConstraintDecorator2<T> : IConstraintTest<T> where T : IConstraint1
+        {
+            [Dependency]
+            public IConstraintTest<T> ConstraintTest { get; set; }
+        }
 
         class ConstraintArgument { }
 

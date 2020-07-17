@@ -70,6 +70,12 @@ namespace System.Linq
 
             return result;
         }
+
+        public static ExpandableArray<TItem> AsExpandableArray<TItem>(this IEnumerable<TItem> enumerable) =>
+            ExpandableArray<TItem>.FromEnumerable(enumerable);
+
+        public static Stashbox.Utils.Data.Stack<TItem> AsStack<TItem>(this IEnumerable<TItem> enumerable) =>
+            Stashbox.Utils.Data.Stack<TItem>.FromEnumerable(enumerable);
     }
 
     internal static class InternalArrayHelper<T>

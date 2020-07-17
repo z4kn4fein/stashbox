@@ -20,6 +20,12 @@ namespace Stashbox.Utils.Data
         public ExpandableArray()
         { }
 
+        public ExpandableArray(ExpandableArray<TItem> initial)
+        {
+            this.Repository = initial.AsArray();
+            this.Length = this.Repository.Length;
+        }
+
         public ExpandableArray(IEnumerable<TItem> initial)
         : this(initial.CastToArray())
         { }
@@ -115,6 +121,8 @@ namespace Stashbox.Utils.Data
             return this.Length - increaseAmount;
         }
 
+        public TItem Last() => this.Repository[this.Length - 1];
+
         public IEnumerator<TItem> GetEnumerator()
         {
             var length = this.Length;
@@ -127,13 +135,20 @@ namespace Stashbox.Utils.Data
 
     internal class ExpandableArray<TKey, TItem> : ExpandableArray<KeyValue<TKey, TItem>>
     {
+        public ExpandableArray()
+        { }
+
+        public ExpandableArray(ExpandableArray<TKey, TItem> initial)
+            : base(initial)
+        { }
+
         [MethodImpl(Constants.Inline)]
         public TItem GetOrDefault(TKey key, bool byRef)
         {
             var length = this.Length;
             for (var i = 0; i < length; i++)
             {
-                ref var item = ref this.Repository[i];
+                ref readonly var item = ref this.Repository[i];
                 if (byRef && ReferenceEquals(item.Key, key) || !byRef && Equals(item.Key, key))
                     return item.Value;
             }
@@ -150,18 +165,46 @@ namespace Stashbox.Utils.Data
             this.Repository[index] = new KeyValue<TKey, TItem>(item, value);
         }
 
+        public void AddOrUpdate(TKey key, TItem value)
+        {
+            var index = this.IndexOf(key);
+            if (index > 0)
+            {
+                this.Repository[index] = new KeyValue<TKey, TItem>(key, value);
+                return;
+            }
+
+            index = this.EnsureSize();
+            this.Repository[index] = new KeyValue<TKey, TItem>(key, value);
+        }
+
         public int IndexAndValueOf(TKey key, out TItem value)
         {
             value = default;
             var length = this.Length;
             for (var i = 0; i < length; i++)
             {
-                ref var item = ref Repository[i];
+                ref readonly var item = ref Repository[i];
                 if (ReferenceEquals(item.Key, key))
                 {
                     value = item.Value;
                     return i;
                 }
+            }
+
+            return -1;
+        }
+
+        public int IndexOf(TKey key)
+        {
+            var length = this.Length;
+            if (length == 1) return ReferenceEquals(this.Repository[0].Key, key) ? 0 : -1;
+
+            for (var i = 0; i < length; i++)
+            {
+                ref readonly var item = ref Repository[i];
+                if (ReferenceEquals(item.Key, key))
+                    return i;
             }
 
             return -1;
@@ -174,7 +217,7 @@ namespace Stashbox.Utils.Data
 
             for (var i = 0; i < length; i++)
             {
-                ref var item = ref Repository[i];
+                ref readonly var item = ref Repository[i];
                 if (ReferenceEquals(item.Key, key))
                     return true;
 

@@ -1,13 +1,16 @@
-﻿using Xunit;
+﻿using Stashbox.Configuration;
+using Stashbox.Tests.Utils;
+using Xunit;
 
 namespace Stashbox.Tests
 {
     public class ComplexResolution
     {
-        [Fact]
-        public void Ensure_Complex_Resolution_Works()
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void Ensure_Complex_Resolution_Works(CompilerType compilerType)
         {
-            using var container = new StashboxContainer(c => c.WithDisposableTransientTracking())
+            using var container = new StashboxContainer(c => c.WithDisposableTransientTracking().WithCompiler(compilerType))
                 .Register<T1>()
                 .Register<T2>()
                 .Register<T3>()

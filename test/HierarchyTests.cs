@@ -72,44 +72,44 @@ namespace Stashbox.Tests
             Assert.IsType<Test5>(((Test2)r.Subs[1]).Subs[0]);
             Assert.IsType<Test6>(((Test2)r.Subs[1]).Subs[1]);
         }
-    }
 
-    interface ITest
-    { }
+        interface ITest
+        { }
 
-    class R
-    {
-        public ITest[] Subs { get; set; }
-    }
+        class R
+        {
+            public ITest[] Subs { get; set; }
+        }
 
-    class Test : ITest
-    {
-        public ITest[] Subs { get; set; }
-    }
+        class Test : ITest
+        {
+            public ITest[] Subs { get; set; }
+        }
 
-    class Test1 : ITest
-    {
-        public ITest[] Subs { get; set; }
-    }
+        class Test1 : ITest
+        {
+            public ITest[] Subs { get; set; }
+        }
 
-    class Test2 : ITest
-    {
-        public ITest[] Subs { get; set; }
-    }
+        class Test2 : ITest
+        {
+            public ITest[] Subs { get; set; }
+        }
 
-    class Test3 : ITest
-    {
-    }
+        class Test3 : ITest
+        {
+        }
 
-    class Test4 : ITest
-    {
-    }
+        class Test4 : ITest
+        {
+        }
 
-    class Test5 : ITest
-    {
-    }
+        class Test5 : ITest
+        {
+        }
 
-    class Test6 : ITest
-    {
+        class Test6 : ITest
+        {
+        }
     }
 }

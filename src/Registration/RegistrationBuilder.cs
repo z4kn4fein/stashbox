@@ -10,7 +10,8 @@ namespace Stashbox.Registration
         public ServiceRegistration BuildServiceRegistration(IContainerContext containerContext, RegistrationConfiguration registrationConfiguration, bool isDecorator)
         {
             this.PreProcessExistingInstanceIfNeeded(containerContext, registrationConfiguration.Context, registrationConfiguration.ImplementationType);
-            registrationConfiguration.Context.Lifetime = this.ChooseLifeTime(containerContext, registrationConfiguration.Context);
+            if (!isDecorator)
+                registrationConfiguration.Context.Lifetime = this.ChooseLifeTime(containerContext, registrationConfiguration.Context);
 
             return new ServiceRegistration(registrationConfiguration.ImplementationType, this.DetermineRegistrationType(registrationConfiguration),
                 containerContext.ContainerConfiguration, registrationConfiguration.Context, isDecorator);

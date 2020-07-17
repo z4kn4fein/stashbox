@@ -43,7 +43,7 @@ namespace Stashbox.Registration.Extensions
             return result;
         }
 
-        public static IEnumerable<ServiceRegistration> FilterOrDefault(this IEnumerable<ServiceRegistration> registrations,
+        public static IEnumerable<ServiceRegistration> FilterExclusiveOrDefault(this IEnumerable<ServiceRegistration> registrations,
             TypeInformation typeInformation,
             ResolutionContext resolutionContext,
             IRegistrationSelectionRule[] registrationSelectionRules)
@@ -58,17 +58,23 @@ namespace Stashbox.Registration.Extensions
 
                 if (weight > 0)
                     priority.Add(serviceRegistration);
-
-                common.Add(serviceRegistration);
+                else
+                    common.Add(serviceRegistration);
             }
 
-            if (common.Length == 0)
+            if (common.Length == 0 && priority.Length == 0)
                 return null;
 
             return priority.Length > 0
                     ? priority
                     : common;
         }
+
+        public static IEnumerable<ServiceRegistration> FilterInclusiveOrDefault(this IEnumerable<ServiceRegistration> registrations,
+            TypeInformation typeInformation,
+            ResolutionContext resolutionContext,
+            IRegistrationSelectionRule[] registrationSelectionRules) =>
+            registrations.Where(serviceRegistration => registrationSelectionRules.IsSelectionPassed(typeInformation, serviceRegistration, resolutionContext, out _));
 
         private static bool IsSelectionPassed(this IRegistrationSelectionRule[] registrationSelectionRules,
             TypeInformation typeInformation, ServiceRegistration serviceRegistration,

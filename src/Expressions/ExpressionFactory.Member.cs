@@ -10,9 +10,9 @@ using System.Reflection;
 
 namespace Stashbox.Expressions
 {
-    internal class MemberExpressionFactory
+    internal partial class ExpressionFactory
     {
-        public IEnumerable<Expression> GetMemberExpressions(
+        private IEnumerable<Expression> GetMemberExpressions(
             IEnumerable<MemberInfo> members,
             RegistrationContext registrationContext,
             ResolutionContext resolutionContext,
@@ -22,7 +22,7 @@ namespace Stashbox.Expressions
             where expression != null
             select instance.Member(member).AssignTo(expression);
 
-        public IEnumerable<MemberBinding> GetMemberBindings(
+        private IEnumerable<MemberBinding> GetMemberBindings(
             IEnumerable<MemberInfo> members,
             RegistrationContext registrationContext,
             ResolutionContext resolutionContext) =>

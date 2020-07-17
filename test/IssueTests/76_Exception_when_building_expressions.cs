@@ -1,4 +1,5 @@
 ﻿using Stashbox.Configuration;
+using Stashbox.Tests.Utils;
 using System;
 using System.Threading;
 using Xunit;
@@ -8,9 +9,8 @@ namespace Stashbox.Tests.IssueTests
     public class ExceptionWhenBuildingExpressions
     {
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void Ensure_expression_built_correctly_scoped(bool useMicrosoftCompiler)
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void Ensure_expression_built_correctly_scoped(CompilerType compilerType)
         {
             A.Counter = 0;
             B.Counter = 0;
@@ -21,14 +21,9 @@ namespace Stashbox.Tests.IssueTests
 
             A inst = null;
             {
-                using var container = new StashboxContainer(c =>
-                {
-                    c.WithRuntimeCircularDependencyTracking()
-                        .WithDisposableTransientTracking();
-
-                    if (useMicrosoftCompiler)
-                        c.WithExpressionCompiler(Rules.ExpressionCompilers.MicrosoftExpressionCompiler);
-                })
+                using var container = new StashboxContainer(c => c.WithRuntimeCircularDependencyTracking()
+                        .WithDisposableTransientTracking()
+                        .WithCompiler(compilerType))
                 .Register<A>(c => c.WithScopedLifetime())
                 .Register<B>(c => c.WithScopedLifetime())
                 .Register<D>(c => c.WithScopedLifetime())
@@ -76,9 +71,8 @@ namespace Stashbox.Tests.IssueTests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void Ensure_expression_built_correctly_scoped_one_singleton(bool useMicrosoftCompiler)
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void Ensure_expression_built_correctly_scoped_one_singleton(CompilerType compilerType)
         {
             A.Counter = 0;
             B.Counter = 0;
@@ -90,13 +84,11 @@ namespace Stashbox.Tests.IssueTests
             A inst = null;
             {
                 using var container = new StashboxContainer(c =>
-                {
-                    c.WithRuntimeCircularDependencyTracking()
-                        .WithDisposableTransientTracking();
-
-                    if (useMicrosoftCompiler)
-                        c.WithExpressionCompiler(Rules.ExpressionCompilers.MicrosoftExpressionCompiler);
-                })
+                    {
+                        c.WithRuntimeCircularDependencyTracking()
+                            .WithDisposableTransientTracking()
+                            .WithCompiler(compilerType);
+                    })
                 .Register<A>(c => c.WithScopedLifetime())
                 .Register<B>(c => c.WithSingletonLifetime())
                 .Register<D>(c => c.WithScopedLifetime())
@@ -144,9 +136,8 @@ namespace Stashbox.Tests.IssueTests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void Ensure_expression_built_correctly_singleton(bool useMicrosoftCompiler)
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void Ensure_expression_built_correctly_singleton(CompilerType compilerType)
         {
             A.Counter = 0;
             B.Counter = 0;
@@ -159,10 +150,8 @@ namespace Stashbox.Tests.IssueTests
             {
                 using var container = new StashboxContainer(c =>
                 {
-                    c.WithDisposableTransientTracking();
-
-                    if (useMicrosoftCompiler)
-                        c.WithExpressionCompiler(Rules.ExpressionCompilers.MicrosoftExpressionCompiler);
+                    c.WithDisposableTransientTracking()
+                        .WithCompiler(compilerType);
                 })
                     .Register<A>(c => c.DefinesScope("A"))
                     .Register<B>(c => c.WithSingletonLifetime().DefinesScope("B"))
@@ -224,9 +213,8 @@ namespace Stashbox.Tests.IssueTests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void Ensure_expression_built_correctly_mixed(bool useMicrosoftCompiler)
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void Ensure_expression_built_correctly_mixed(CompilerType compilerType)
         {
             A.Counter = 0;
             B.Counter = 0;
@@ -239,10 +227,7 @@ namespace Stashbox.Tests.IssueTests
             {
                 using var container = new StashboxContainer(c =>
                 {
-                    c.WithDisposableTransientTracking();
-
-                    if (useMicrosoftCompiler)
-                        c.WithExpressionCompiler(Rules.ExpressionCompilers.MicrosoftExpressionCompiler);
+                    c.WithDisposableTransientTracking().WithCompiler(compilerType);
                 })
                     .Register<A>()
                     .Register<B>()
@@ -312,19 +297,15 @@ namespace Stashbox.Tests.IssueTests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void Ensure_expression_built_correctly_singleton_dispose(bool useMicrosoftCompiler)
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void Ensure_expression_built_correctly_singleton_dispose(CompilerType compilerType)
         {
             C.Counter = 0;
             D inst = null;
             {
                 using var container = new StashboxContainer(c =>
                 {
-                    c.WithDisposableTransientTracking();
-
-                    if (useMicrosoftCompiler)
-                        c.WithExpressionCompiler(Rules.ExpressionCompilers.MicrosoftExpressionCompiler);
+                    c.WithDisposableTransientTracking().WithCompiler(compilerType);
                 })
                     .Register<D>(c => c.WithScopedLifetime().DefinesScope())
                     .Register<E>(c => c.WithSingletonLifetime().DefinesScope())
@@ -346,19 +327,15 @@ namespace Stashbox.Tests.IssueTests
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void Ensure_expression_built_correctly_singleton_dispose_simple(bool useMicrosoftCompiler)
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void Ensure_expression_built_correctly_singleton_dispose_simple(CompilerType compilerType)
         {
             C.Counter = 0;
             F inst = null;
             {
                 using var container = new StashboxContainer(c =>
                 {
-                    c.WithDisposableTransientTracking();
-
-                    if (useMicrosoftCompiler)
-                        c.WithExpressionCompiler(Rules.ExpressionCompilers.MicrosoftExpressionCompiler);
+                    c.WithDisposableTransientTracking().WithCompiler(compilerType);
                 })
                     .Register<F>(c => c.WithScopedLifetime())
                     .Register<C>(c => c.WithSingletonLifetime());

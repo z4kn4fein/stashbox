@@ -1,6 +1,5 @@
 ﻿using Stashbox.Configuration;
 using Stashbox.Lifetime;
-using Stashbox.Registration.Fluent;
 using Stashbox.Resolution;
 using Stashbox.Utils.Data;
 using System;
@@ -126,11 +125,6 @@ namespace Stashbox.Registration
         /// The name of the scope this registration defines.
         /// </summary>
         public object DefinedScopeName { get; internal set; }
-
-        /// <summary>
-        /// The scope name set by <see cref="FluentServiceConfigurator{TConfigurator}.InNamedScope(object)"/> and <see cref="FluentServiceConfigurator{TConfigurator}.InScopeDefinedBy(Type)"/> to tell where this registration must used.
-        /// </summary>
-        public object NamedScopeRestrictionIdentifier { get; internal set; }
 
         /// <summary>
         /// If true, the existing instance will be wired into the container, it will perform member and method injection on it.

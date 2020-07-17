@@ -2,7 +2,6 @@
 
 namespace Stashbox.Tests
 {
-    
     public class InstanceBuilderTests
     {
         [Fact]
@@ -93,13 +92,13 @@ namespace Stashbox.Tests
             Assert.Same(inst, dep2);
         }
 
-        public interface ITest { }
+        interface ITest { }
 
-        public interface ITest1 { ITest Test { get; } }
+        interface ITest1 { ITest Test { get; } }
 
-        public class Test : ITest { }
+        class Test : ITest { }
 
-        public class Test1 : ITest1
+        class Test1 : ITest1
         {
             public ITest Test { get; }
             public Test1(ITest test)

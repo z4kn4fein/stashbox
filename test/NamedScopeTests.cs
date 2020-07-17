@@ -1,5 +1,7 @@
-﻿using Stashbox.Exceptions;
+﻿using Stashbox.Configuration;
+using Stashbox.Exceptions;
 using Stashbox.Lifetime;
+using Stashbox.Tests.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,10 +12,11 @@ namespace Stashbox.Tests
 
     public class NamedScopeTests
     {
-        [Fact]
-        public void NamedScope_Simple_Resolve_Prefer_Named()
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void NamedScope_Simple_Resolve_Prefer_Named(CompilerType compilerType)
         {
-            var inst = new StashboxContainer()
+            var inst = new StashboxContainer(config => config.WithCompiler(compilerType))
                 .Register<ITest, Test11>()
                 .Register<ITest, Test>(config => config.InNamedScope("A"))
                 .Register<ITest, Test1>()
@@ -23,10 +26,11 @@ namespace Stashbox.Tests
             Assert.IsType<Test>(inst);
         }
 
-        [Fact]
-        public void NamedScope_Dependency_Resolve_Prefer_Named()
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void NamedScope_Dependency_Resolve_Prefer_Named(CompilerType compilerType)
         {
-            var inst = new StashboxContainer()
+            var inst = new StashboxContainer(config => config.WithCompiler(compilerType))
                 .Register<Test2>()
                 .Register<ITest, Test11>()
                 .Register<ITest, Test>(config => config.InNamedScope("A"))
@@ -37,10 +41,11 @@ namespace Stashbox.Tests
             Assert.IsType<Test>(inst.Test);
         }
 
-        [Fact]
-        public void NamedScope_Simple_Resolve_Wrapper_Prefer_Named()
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void NamedScope_Simple_Resolve_Wrapper_Prefer_Named(CompilerType compilerType)
         {
-            using var scope = new StashboxContainer()
+            using var scope = new StashboxContainer(config => config.WithCompiler(compilerType))
                 .Register<ITest, Test11>()
                 .Register<ITest, Test>(config => config.InNamedScope("A"))
                 .Register<ITest, Test1>()
@@ -59,10 +64,11 @@ namespace Stashbox.Tests
             Assert.IsType<Test>(all.First());
         }
 
-        [Fact]
-        public void NamedScope_Dependency_Resolve_Wrapper_Prefer_Named()
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void NamedScope_Dependency_Resolve_Wrapper_Prefer_Named(CompilerType compilerType)
         {
-            var inst = new StashboxContainer()
+            var inst = new StashboxContainer(config => config.WithCompiler(compilerType))
                 .Register<Test3>()
                 .Register<ITest, Test11>()
                 .Register<ITest, Test>(config => config.InNamedScope("A"))
@@ -76,10 +82,11 @@ namespace Stashbox.Tests
             Assert.IsType<Test>(inst.Tuple.Item1);
         }
 
-        [Fact]
-        public void NamedScope_Simple_Resolve_Prefer_Named_Last()
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void NamedScope_Simple_Resolve_Prefer_Named_Last(CompilerType compilerType)
         {
-            var inst = new StashboxContainer()
+            var inst = new StashboxContainer(config => config.WithCompiler(compilerType))
                 .Register<ITest, Test11>(config => config.InNamedScope("A"))
                 .Register<ITest, Test>()
                 .Register<ITest, Test1>(config => config.InNamedScope("A"))
@@ -89,10 +96,11 @@ namespace Stashbox.Tests
             Assert.IsType<Test1>(inst);
         }
 
-        [Fact]
-        public void NamedScope_Simple_Resolve_Gets_Same_Within_Scope()
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void NamedScope_Simple_Resolve_Gets_Same_Within_Scope(CompilerType compilerType)
         {
-            using var scope = new StashboxContainer()
+            using var scope = new StashboxContainer(config => config.WithCompiler(compilerType))
                 .Register<ITest, Test>()
                 .Register<ITest, Test1>(config => config.InNamedScope("A"))
                 .BeginScope("A");
@@ -103,10 +111,11 @@ namespace Stashbox.Tests
             Assert.Same(a, b);
         }
 
-        [Fact]
-        public void NamedScope_Simple_Resolve_Gets_Named_Within_Scope()
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void NamedScope_Simple_Resolve_Gets_Named_Within_Scope(CompilerType compilerType)
         {
-            using var scope = new StashboxContainer()
+            using var scope = new StashboxContainer(config => config.WithCompiler(compilerType))
                 .Register<ITest, Test11>(config => config.InNamedScope("A"))
                 .Register<ITest, Test>(config => config.InNamedScope("A").WithName("T"))
                 .Register<ITest, Test1>(config => config.InNamedScope("A"))
@@ -121,10 +130,11 @@ namespace Stashbox.Tests
             Assert.IsType<Test>(a);
         }
 
-        [Fact]
-        public void NamedScope_Simple_Resolve_Gets_Named_When_Scoped_Doesnt_Exist()
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void NamedScope_Simple_Resolve_Gets_Named_When_Scoped_Doesnt_Exist(CompilerType compilerType)
         {
-            using var scope = new StashboxContainer()
+            using var scope = new StashboxContainer(config => config.WithCompiler(compilerType))
                 .Register<ITest, Test11>()
                 .Register<ITest, Test>(config => config.WithName("T"))
                 .Register<ITest, Test1>()
@@ -139,10 +149,11 @@ namespace Stashbox.Tests
             Assert.IsType<Test>(a);
         }
 
-        [Fact]
-        public void NamedScope_Dependency_Resolve_Wrapper_Gets_Same_Within_Scope()
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void NamedScope_Dependency_Resolve_Wrapper_Gets_Same_Within_Scope(CompilerType compilerType)
         {
-            var inst = new StashboxContainer()
+            var inst = new StashboxContainer(c => c.WithCompiler(compilerType))
                 .Register<Test3>()
                 .Register<ITest, Test>(config => config.InNamedScope("A"))
                 .Register<ITest, Test1>()
@@ -154,10 +165,11 @@ namespace Stashbox.Tests
             Assert.Same(inst.Enumerable.Last(), inst.Tuple.Item1);
         }
 
-        [Fact]
-        public void NamedScope_Simple_Resolve_Get_Last_If_Scoped_Doesnt_Exist()
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void NamedScope_Simple_Resolve_Get_Last_If_Scoped_Doesnt_Exist(CompilerType compilerType)
         {
-            var inst = new StashboxContainer()
+            var inst = new StashboxContainer(c => c.WithCompiler(compilerType))
                 .Register<ITest, Test>()
                 .Register<ITest, Test1>()
                 .BeginScope("A")
@@ -166,10 +178,11 @@ namespace Stashbox.Tests
             Assert.IsType<Test1>(inst);
         }
 
-        [Fact]
-        public void NamedScope_Dependency_Get_Last_If_Scoped_Doesnt_Exist()
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void NamedScope_Dependency_Get_Last_If_Scoped_Doesnt_Exist(CompilerType compilerType)
         {
-            var inst = new StashboxContainer()
+            var inst = new StashboxContainer(c => c.WithCompiler(compilerType))
                 .Register<Test3>()
                 .Register<ITest, Test>()
                 .Register<ITest, Test1>()
@@ -182,10 +195,11 @@ namespace Stashbox.Tests
             Assert.IsType<Test1>(inst.Tuple.Item1);
         }
 
-        [Fact]
-        public void NamedScope_Defines_Scope_Prefer_Named()
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void NamedScope_Defines_Scope_Prefer_Named(CompilerType compilerType)
         {
-            var inst = new StashboxContainer()
+            var inst = new StashboxContainer(c => c.WithCompiler(compilerType))
                 .Register<Test3>(config => config.DefinesScope("A"))
                 .Register<ITest, Test11>()
                 .Register<ITest, Test>(config => config.InNamedScope("A"))
@@ -202,10 +216,11 @@ namespace Stashbox.Tests
             Assert.Same(inst.Enumerable.Last(), inst.Tuple.Item1);
         }
 
-        [Fact]
-        public void NamedScope_Preserve_Instance_Through_Nested_Scopes()
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void NamedScope_Preserve_Instance_Through_Nested_Scopes(CompilerType compilerType)
         {
-            var container = new StashboxContainer()
+            var container = new StashboxContainer(c => c.WithCompiler(compilerType))
                 .Register<ITest, Test>(config => config.InNamedScope("A"));
 
             using var s1 = container.BeginScope("A");
@@ -216,10 +231,11 @@ namespace Stashbox.Tests
             Assert.Same(i2, i1);
         }
 
-        [Fact]
-        public void NamedScope_Dispose_Instance_Through_Nested_Scopes()
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void NamedScope_Dispose_Instance_Through_Nested_Scopes(CompilerType compilerType)
         {
-            var container = new StashboxContainer()
+            var container = new StashboxContainer(c => c.WithCompiler(compilerType))
                 .Register<ITest, Test12>(config => config.InNamedScope("A"));
 
             ITest i1;
@@ -239,10 +255,11 @@ namespace Stashbox.Tests
             Assert.True(((Test12)i1).Disposed);
         }
 
-        [Fact]
-        public void NamedScope_Dispose_Instance_Defines_Named_Scope()
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void NamedScope_Dispose_Instance_Defines_Named_Scope(CompilerType compilerType)
         {
-            var container = new StashboxContainer()
+            var container = new StashboxContainer(c => c.WithCompiler(compilerType))
                 .Register<ITest, Test12>(config => config.InNamedScope("A"))
                 .Register<Test2>(config => config.DefinesScope("A"));
 
@@ -255,38 +272,42 @@ namespace Stashbox.Tests
             Assert.True(((Test12)i1.Test).Disposed);
         }
 
-        [Fact]
-        public void NamedScope_Lifetime_Check()
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void NamedScope_Lifetime_Check(CompilerType compilerType)
         {
-            var inst = new StashboxContainer()
+            var inst = new StashboxContainer(c => c.WithCompiler(compilerType))
                 .Register<ITest, Test>(config => config.InNamedScope("A"))
                 .ContainerContext.RegistrationRepository.GetRegistrationMappings().First(reg => reg.Key == typeof(ITest));
 
             Assert.IsType<NamedScopeLifetime>(inst.Value.RegistrationContext.Lifetime);
         }
 
-        [Fact]
-        public void NamedScope_Throws_ResolutionFailedException_Without_Scope()
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void NamedScope_Throws_ResolutionFailedException_Without_Scope(CompilerType compilerType)
         {
-            var container = new StashboxContainer()
+            var container = new StashboxContainer(c => c.WithCompiler(compilerType))
                 .Register<ITest, Test>(config => config.InNamedScope("A"));
 
             Assert.Throws<ResolutionFailedException>(() => container.Resolve<ITest>());
         }
 
-        [Fact]
-        public void NamedScope_WithNull()
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void NamedScope_WithNull(CompilerType compilerType)
         {
-            var container = new StashboxContainer()
+            var container = new StashboxContainer(c => c.WithCompiler(compilerType))
                 .Register<Test2>(config => config.InNamedScope("A"));
 
             Assert.Null(container.BeginScope("A").Resolve<Test2>(nullResultAllowed: true));
         }
 
-        [Fact]
-        public void NamedScope_ChildContainer_Chain()
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void NamedScope_ChildContainer_Chain(CompilerType compilerType)
         {
-            var container = new StashboxContainer()
+            var container = new StashboxContainer(c => c.WithCompiler(compilerType))
                 .Register<Test2>(config => config.DefinesScope("B").InNamedScope("A"));
 
             var child = container.CreateChildContainer()
@@ -299,10 +320,11 @@ namespace Stashbox.Tests
             Assert.NotNull(inst.Test.Test);
         }
 
-        [Fact]
-        public void NamedScope_ChildContainer()
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void NamedScope_ChildContainer(CompilerType compilerType)
         {
-            var container = new StashboxContainer()
+            var container = new StashboxContainer(c => c.WithCompiler(compilerType))
                 .Register<Test2>(config => config.DefinesScope("A"))
                 .Register<ITest, Test>(config => config.InNamedScope("A"));
 
@@ -314,10 +336,11 @@ namespace Stashbox.Tests
             Assert.IsType<Test1>(inst.Test);
         }
 
-        [Fact]
-        public void NamedScope_Chain()
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void NamedScope_Chain(CompilerType compilerType)
         {
-            var container = new StashboxContainer()
+            var container = new StashboxContainer(c => c.WithCompiler(compilerType))
                 .Register<Test2>(config => config.DefinesScope("B").InNamedScope("A"))
                 .Register<ITest, Test1>(config => config.InNamedScope("B"))
                 .Register<Test4>(config => config.DefinesScope("A"));
@@ -328,10 +351,11 @@ namespace Stashbox.Tests
             Assert.NotNull(inst.Test.Test);
         }
 
-        [Fact]
-        public void NamedScope_ChildContainer_Chain_Reverse()
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void NamedScope_ChildContainer_Chain_Reverse(CompilerType compilerType)
         {
-            var container = new StashboxContainer()
+            var container = new StashboxContainer(c => c.WithCompiler(compilerType))
                 .Register<Test4>(config => config.DefinesScope("A"))
                 .Register<ITest, Test1>(config => config.InNamedScope("B"));
 
@@ -342,6 +366,25 @@ namespace Stashbox.Tests
 
             Assert.NotNull(inst.Test);
             Assert.NotNull(inst.Test.Test);
+        }
+
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void NamedScope_Cache(CompilerType compilerType)
+        {
+            var container = new StashboxContainer(c => c.WithCompiler(compilerType))
+                .Register<ITest, Test>(config => config.InNamedScope("A"))
+                .Register<ITest, Test1>();
+
+            using var scope = container.BeginScope();
+            var inst = scope.Resolve<ITest>();
+
+            Assert.IsType<Test1>(inst);
+
+            using var scope1 = container.BeginScope("A");
+            inst = scope1.Resolve<ITest>();
+
+            Assert.IsType<Test>(inst);
         }
 
         interface ITest

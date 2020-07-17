@@ -17,16 +17,34 @@ namespace Stashbox
             public ImmutableTree<object, Func<IResolutionScope, Delegate>> FactoryDelegates = ImmutableTree<object, Func<IResolutionScope, Delegate>>.Empty;
         }
 
+        private class DelegateCacheProvider
+        {
+            public readonly DelegateCache DefaultCache = new DelegateCache();
+            public ImmutableTree<object, DelegateCache> NamedCache = ImmutableTree<object, DelegateCache>.Empty;
+
+            public DelegateCache GetNamedCache(object name)
+            {
+                var cache = this.NamedCache.GetOrDefault(name);
+                if (cache != null) return cache;
+
+                cache = new DelegateCache();
+                Swap.SwapValue(ref this.NamedCache, (t1, t2, t3, t4, items) =>
+                    items.AddOrUpdate(t1, t2), name, cache, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
+
+                return cache;
+            }
+        }
+
 
         private readonly ResolutionStrategy resolutionStrategy;
         private readonly ExpressionFactory expressionFactory;
         private readonly IContainerContext containerContext;
+        private readonly DelegateCacheProvider delegateCacheProvider;
+        private readonly DelegateCache delegateCache;
 
         private ImmutableTree<object> scopedItems = ImmutableTree<object>.Empty;
         private ImmutableTree<object, object> scopedInstances = ImmutableTree<object, object>.Empty;
         private ImmutableTree<ThreadLocal<bool>> circularDependencyBarrier = ImmutableTree<ThreadLocal<bool>>.Empty;
-
-        private DelegateCache delegateCache;
 
         public object Name { get; }
 
@@ -34,24 +52,28 @@ namespace Stashbox
 
         private ResolutionScope(ResolutionStrategy resolutionStrategy,
             ExpressionFactory expressionBuilder, IContainerContext containerContext,
-            DelegateCache delegateCache, object name)
+            DelegateCacheProvider delegateCacheProvider, object name)
         {
             this.resolutionStrategy = resolutionStrategy;
             this.expressionFactory = expressionBuilder;
             this.containerContext = containerContext;
             this.Name = name;
-            this.delegateCache = delegateCache;
+            this.delegateCacheProvider = delegateCacheProvider;
+
+            this.delegateCache = name == null
+                ? delegateCacheProvider.DefaultCache
+                : delegateCacheProvider.GetNamedCache(name);
         }
 
         internal ResolutionScope(ResolutionStrategy resolutionStrategy,
             ExpressionFactory expressionBuilder, IContainerContext containerContext)
             : this(resolutionStrategy, expressionBuilder, containerContext,
-                  new DelegateCache(), null)
+                  new DelegateCacheProvider(), null)
         { }
 
         private ResolutionScope(ResolutionStrategy resolutionStrategy, ExpressionFactory expressionBuilder,
-            IContainerContext containerContext, IResolutionScope parent, DelegateCache delegateCache, object name = null)
-            : this(resolutionStrategy, expressionBuilder, containerContext, delegateCache, name)
+            IContainerContext containerContext, IResolutionScope parent, DelegateCacheProvider delegateCacheProvider, object name = null)
+            : this(resolutionStrategy, expressionBuilder, containerContext, delegateCacheProvider, name)
         {
             this.ParentScope = parent;
         }
@@ -59,7 +81,7 @@ namespace Stashbox
         public IDependencyResolver BeginScope(object name = null, bool attachToParent = false)
         {
             var scope = new ResolutionScope(this.resolutionStrategy, this.expressionFactory,
-                this.containerContext, this, this.delegateCache, name);
+                this.containerContext, this, this.delegateCacheProvider, name);
 
             return attachToParent ? this.AddDisposableTracking(scope) : scope;
         }
@@ -76,7 +98,7 @@ namespace Stashbox
             if (!withoutDisposalTracking && instance is IDisposable disposable)
                 this.AddDisposableTracking(disposable);
 
-            this.delegateCache = new DelegateCache();
+            this.InvalidateDelegateCache();
 
             return this;
         }
@@ -101,8 +123,9 @@ namespace Stashbox
 
         public void InvalidateDelegateCache()
         {
-            this.delegateCache.ServiceDelegates = ImmutableTree<object, Func<IResolutionScope, object>>.Empty;
-            this.delegateCache.FactoryDelegates = ImmutableTree<object, Func<IResolutionScope, Delegate>>.Empty;
+            this.delegateCacheProvider.DefaultCache.ServiceDelegates = ImmutableTree<object, Func<IResolutionScope, object>>.Empty;
+            this.delegateCacheProvider.DefaultCache.FactoryDelegates = ImmutableTree<object, Func<IResolutionScope, Delegate>>.Empty;
+            this.delegateCacheProvider.NamedCache = ImmutableTree<object, DelegateCache>.Empty;
         }
 
         public IEnumerable<object> GetActiveScopeNames()

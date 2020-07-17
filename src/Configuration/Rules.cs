@@ -93,6 +93,12 @@ namespace Stashbox.Configuration
             /// </summary>
             public static readonly Func<LambdaExpression, Delegate>
                 MicrosoftExpressionCompiler = lambda => lambda.Compile();
+
+            /// <summary>
+            /// The built-in Stashbox expression compiler.
+            /// </summary>
+            public static readonly Func<LambdaExpression, Delegate>
+                StashboxExpressionCompiler = lambda => lambda.CompileDelegate();
         }
     }
 }

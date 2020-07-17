@@ -3,7 +3,7 @@ using Xunit;
 
 namespace Stashbox.Tests.IssueTests
 {
-    public class DefinesScopeSoesNotWorkCorrectly
+    public class DefinesScopeDoesNotWorkCorrectly
     {
         [Fact]
         public void DefinesScope_does_not_work_correctly()

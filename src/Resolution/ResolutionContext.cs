@@ -1,4 +1,5 @@
-﻿using Stashbox.Utils;
+﻿using Stashbox.Registration;
+using Stashbox.Utils;
 using Stashbox.Utils.Data;
 using System;
 using System.Collections.Generic;
@@ -23,12 +24,12 @@ namespace Stashbox.Resolution
         internal ExpandableArray<Expression> SingleInstructions { get; private set; }
         internal Tree<ParameterExpression> DefinedVariables { get; private set; }
         internal ExpandableArray<Pair<bool, ParameterExpression>[]> ParameterExpressions { get; private set; }
+        internal ExpandableArray<Type, Utils.Data.Stack<ServiceRegistration>> Decorators { get; private set; }
         internal int CurrentLifeSpan { get; private set; }
         internal string NameOfServiceLifeSpanValidatingAgainst { get; private set; }
         internal bool PerResolutionRequestCacheEnabled { get; private set; }
         internal bool UnknownTypeCheckDisabled { get; private set; }
         internal bool ShouldFallBackToRequestInitiatorContext { get; private set; }
-        internal KeyValue<Type, Expression> DecoratingService { get; private set; }
         internal bool FactoryDelegateCacheEnabled { get; }
         internal ExpandableArray<object> ScopeNames { get; }
 
@@ -63,6 +64,7 @@ namespace Stashbox.Resolution
 
             this.DefinedVariables = new Tree<ParameterExpression>();
             this.SingleInstructions = new ExpandableArray<Expression>();
+            this.Decorators = new ExpandableArray<Type, Utils.Data.Stack<ServiceRegistration>>();
             this.expressionOverrides = dependencyOverrides;
             this.NullResultAllowed = nullResultAllowed;
             this.CurrentScopeParameter = Constants.ResolutionScopeParameter;
@@ -70,7 +72,7 @@ namespace Stashbox.Resolution
                 ? new ExpandableArray<Pair<bool, ParameterExpression>[]>()
                     {initialParameters.AsParameterPairs()}
                 : new ExpandableArray<Pair<bool, ParameterExpression>[]>();
-            this.ScopeNames = ExpandableArray<object>.FromEnumerable(initialScopeNames);
+            this.ScopeNames = initialScopeNames.AsExpandableArray();
             this.circularDependencyBarrier = new Utils.Data.Stack<int>();
             this.expressionCache = new Tree<Expression>();
             this.factoryCache = new Tree<Func<IResolutionScope, object>>();
@@ -169,16 +171,17 @@ namespace Stashbox.Resolution
         internal ResolutionContext BeginContextWithFunctionParameters(ParameterExpression[] parameterExpressions)
         {
             var clone = this.Clone();
-            clone.ParameterExpressions = new ExpandableArray<Pair<bool, ParameterExpression>[]>(this.ParameterExpressions.AsArray())
+            clone.ParameterExpressions = new ExpandableArray<Pair<bool, ParameterExpression>[]>(this.ParameterExpressions)
                 {parameterExpressions.AsParameterPairs()};
             clone.PerResolutionRequestCacheEnabled = false;
             return clone;
         }
 
-        internal ResolutionContext BeginDecoratingContext(Type decoratingType, Expression serviceExpression)
+        internal ResolutionContext BeginDecoratingContext(Type decoratingType, Utils.Data.Stack<ServiceRegistration> serviceRegistrations)
         {
             var clone = this.Clone();
-            clone.DecoratingService = new KeyValue<Type, Expression>(decoratingType, serviceExpression);
+            clone.Decorators = new ExpandableArray<Type, Utils.Data.Stack<ServiceRegistration>>(this.Decorators);
+            clone.Decorators.AddOrUpdate(decoratingType, serviceRegistrations);
             return clone;
         }
 

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Stashbox.Resolution;
+using System;
 using System.Collections.Generic;
 
 namespace Stashbox.Registration
@@ -20,8 +21,10 @@ namespace Stashbox.Registration
         /// <summary>
         /// Gets a decorator registration.
         /// </summary>
-        /// <param name="type">The decorated type.</param>
+        /// <param name="implementationTypeToDecorate">The implementation type to decorate.</param>
+        /// <param name="typeInformation">The info about the decorated type.</param>
+        /// <param name="resolutionContext">The resolution context.</param>
         /// <returns>The decorator registrations if any exists, otherwise null.</returns>
-        IEnumerable<ServiceRegistration> GetDecoratorsOrDefault(Type type);
+        IEnumerable<ServiceRegistration> GetDecoratorsOrDefault(Type implementationTypeToDecorate, TypeInformation typeInformation, ResolutionContext resolutionContext);
     }
 }

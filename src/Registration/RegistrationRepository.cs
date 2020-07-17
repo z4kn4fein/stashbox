@@ -89,7 +89,7 @@ namespace Stashbox.Registration
             this.GetRegistrationsForType(typeInfo.Type)?.SelectOrDefault(typeInfo, resolutionContext, this.filters);
 
         public IEnumerable<ServiceRegistration> GetRegistrationsOrDefault(TypeInformation typeInfo, ResolutionContext resolutionContext) =>
-            this.GetRegistrationsForType(typeInfo.Type)?.FilterOrDefault(typeInfo, resolutionContext, this.enumerableFilters)?.OrderBy(reg => reg.RegistrationId);
+            this.GetRegistrationsForType(typeInfo.Type)?.FilterExclusiveOrDefault(typeInfo, resolutionContext, this.enumerableFilters)?.OrderBy(reg => reg.RegistrationId);
 
         private IEnumerable<ServiceRegistration> GetRegistrationsForType(Type type)
         {

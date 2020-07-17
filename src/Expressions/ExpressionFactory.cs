@@ -9,18 +9,8 @@ using System.Reflection;
 
 namespace Stashbox.Expressions
 {
-    internal class ExpressionFactory
+    internal partial class ExpressionFactory
     {
-        private readonly MethodExpressionFactory methodExpressionBuilder;
-        private readonly MemberExpressionFactory memberExpressionBuilder;
-
-        public ExpressionFactory(MethodExpressionFactory methodExpressionBuilder,
-            MemberExpressionFactory memberExpressionBuilder)
-        {
-            this.methodExpressionBuilder = methodExpressionBuilder;
-            this.memberExpressionBuilder = memberExpressionBuilder;
-        }
-
         public Expression ConstructBuildUpExpression(
             ServiceRegistration serviceRegistration,
             ResolutionContext resolutionContext,
@@ -42,10 +32,10 @@ namespace Stashbox.Expressions
 
             var lines = new ExpandableArray<Expression> { assign };
 
-            lines.AddRange(this.memberExpressionBuilder.GetMemberExpressions(members,
+            lines.AddRange(this.GetMemberExpressions(members,
                 serviceRegistration.RegistrationContext, resolutionContext, variable));
 
-            lines.AddRange(this.methodExpressionBuilder.CreateMethodExpressions(methods,
+            lines.AddRange(this.CreateMethodExpressions(methods,
                 serviceRegistration.RegistrationContext, resolutionContext, variable));
 
             if (serviceRegistration.RegistrationContext.Initializer != null)
@@ -77,10 +67,10 @@ namespace Stashbox.Expressions
 
             var lines = new ExpandableArray<Expression> { assign };
 
-            lines.AddRange(this.memberExpressionBuilder.GetMemberExpressions(members,
+            lines.AddRange(this.GetMemberExpressions(members,
                 registrationContext, resolutionContext, variable));
 
-            lines.AddRange(this.methodExpressionBuilder.CreateMethodExpressions(methods,
+            lines.AddRange(this.CreateMethodExpressions(methods,
                 registrationContext, resolutionContext, instance));
 
             lines.Add(variable.Type != serviceType ? variable.ConvertTo(serviceType) : variable);
@@ -105,7 +95,7 @@ namespace Stashbox.Expressions
                 return null;
 
             if (members.Length > 0)
-                initExpression = initExpression.InitMembers(this.memberExpressionBuilder.GetMemberBindings(members,
+                initExpression = initExpression.InitMembers(this.GetMemberBindings(members,
                     serviceRegistration.RegistrationContext, resolutionContext));
 
             if (methods.Length == 0 && serviceRegistration.RegistrationContext.Initializer == null)
@@ -116,7 +106,7 @@ namespace Stashbox.Expressions
 
             var lines = new ExpandableArray<Expression> { assign };
 
-            lines.AddRange(this.methodExpressionBuilder.CreateMethodExpressions(methods,
+            lines.AddRange(this.CreateMethodExpressions(methods,
                 serviceRegistration.RegistrationContext, resolutionContext, variable));
 
             if (serviceRegistration.RegistrationContext.Initializer != null)
@@ -139,14 +129,14 @@ namespace Stashbox.Expressions
             var members = typeInfo.GetUsableMembers(registrationContext,
                 resolutionContext.CurrentContainerContext.ContainerConfiguration);
 
-            var initExpression = (Expression)this.methodExpressionBuilder.SelectConstructor(
+            var initExpression = (Expression)this.SelectConstructor(
                 registrationContext,
                 resolutionContext,
                 typeInfo.DeclaredConstructors.CastToArray(),
                 out var parameters).MakeNew(parameters);
 
             if (members.Length > 0)
-                initExpression = initExpression.InitMembers(this.memberExpressionBuilder.GetMemberBindings(members,
+                initExpression = initExpression.InitMembers(this.GetMemberBindings(members,
                     registrationContext, resolutionContext));
 
             if (methods.Length == 0) return initExpression;
@@ -155,7 +145,7 @@ namespace Stashbox.Expressions
             var assign = variable.AssignTo(initExpression);
 
             var lines = new ExpandableArray<Expression> { assign };
-            lines.AddRange(this.methodExpressionBuilder.CreateMethodExpressions(methods, registrationContext, resolutionContext, variable));
+            lines.AddRange(this.CreateMethodExpressions(methods, registrationContext, resolutionContext, variable));
             lines.Add(variable);
 
             return lines.AsBlock(variable);
@@ -173,7 +163,7 @@ namespace Stashbox.Expressions
                         .MakeNew(registrationContext.ConstructorArguments.Select(Expression.Constant));
 
                 return registrationContext.SelectedConstructor.MakeNew(
-                    this.methodExpressionBuilder.CreateParameterExpressionsForMethod(
+                    this.CreateParameterExpressionsForMethod(
                         registrationContext,
                         resolutionContext, registrationContext.SelectedConstructor));
             }
@@ -182,7 +172,7 @@ namespace Stashbox.Expressions
                        resolutionContext.CurrentContainerContext.ContainerConfiguration.ConstructorSelectionRule;
             constructors = rule(constructors);
 
-            return this.methodExpressionBuilder.SelectConstructor(registrationContext, resolutionContext,
+            return this.SelectConstructor(registrationContext, resolutionContext,
                 constructors.CastToArray(), out var parameters)?.MakeNew(parameters);
         }
     }

@@ -1,5 +1,4 @@
-﻿using Stashbox.Expressions;
-using Stashbox.Registration;
+﻿using Stashbox.Registration;
 using Stashbox.Registration.Fluent;
 using System;
 using System.Linq.Expressions;
@@ -10,13 +9,11 @@ namespace Stashbox.Resolution.Resolvers
     {
         private readonly ServiceRegistrator serviceRegistrator;
         private readonly RegistrationBuilder registrationBuilder;
-        private readonly ExpressionBuilder expressionBuilder;
 
-        public UnknownTypeResolver(ServiceRegistrator serviceRegistrator, RegistrationBuilder registrationBuilder, ExpressionBuilder expressionBuilder)
+        public UnknownTypeResolver(ServiceRegistrator serviceRegistrator, RegistrationBuilder registrationBuilder)
         {
             this.serviceRegistrator = serviceRegistrator;
             this.registrationBuilder = registrationBuilder;
-            this.expressionBuilder = expressionBuilder;
         }
 
         public bool CanUseForResolution(TypeInformation typeInfo, ResolutionContext resolutionContext) =>
@@ -49,7 +46,10 @@ namespace Stashbox.Resolution.Resolvers
                 registrationConfigurator, false);
             this.serviceRegistrator.Register(resolutionContext.RequestInitiatorContainerContext, registration, typeInfo.Type);
 
-            return this.expressionBuilder.BuildExpressionAndApplyLifetime(registration, resolutionContext, typeInfo.Type);
+            return resolutionStrategy.BuildExpressionForRegistration(registration, resolutionContext.ShouldFallBackToRequestInitiatorContext
+                ? resolutionContext.BeginCrossContainerContext(resolutionContext.RequestInitiatorContainerContext)
+                : resolutionContext,
+                typeInfo);
         }
     }
 }

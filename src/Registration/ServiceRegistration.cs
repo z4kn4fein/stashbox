@@ -1,7 +1,8 @@
 ﻿using Stashbox.Configuration;
+using Stashbox.Lifetime;
 using Stashbox.Resolution;
+using Stashbox.Utils.Data;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -15,6 +16,7 @@ namespace Stashbox.Registration
     {
         private static int globalRegistrationOrder;
         private readonly ContainerConfiguration containerConfiguration;
+        private readonly object namedScopeRestrictionIdentifier;
 
         /// <summary>
         /// The implementation type.
@@ -69,7 +71,11 @@ namespace Stashbox.Registration
 
             this.IsResolvableByUnnamedRequest = this.RegistrationContext.Name == null || containerConfiguration.NamedDependencyResolutionForUnNamedRequestsEnabled;
 
-            this.HasScopeName = this.RegistrationContext.NamedScopeRestrictionIdentifier != null;
+            if (this.RegistrationContext.Lifetime is NamedScopeLifetime lifetime)
+            {
+                this.HasScopeName = true;
+                this.namedScopeRestrictionIdentifier = lifetime.ScopeName;
+            }
 
             this.HasCondition = this.RegistrationContext.TargetTypeCondition != null || this.RegistrationContext.ResolutionCondition != null ||
                 this.RegistrationContext.AttributeConditions != null && this.RegistrationContext.AttributeConditions.Any();
@@ -85,8 +91,8 @@ namespace Stashbox.Registration
             this.HasAttributeConditionAndMatch(typeInfo) ||
             this.HasResolutionConditionAndMatch(typeInfo);
 
-        internal bool CanInjectIntoNamedScope(IEnumerable<object> scopeNames) =>
-            scopeNames.Last() == this.RegistrationContext.NamedScopeRestrictionIdentifier;
+        internal bool CanInjectIntoNamedScope(ExpandableArray<object> scopeNames) =>
+            scopeNames.Last() == this.namedScopeRestrictionIdentifier;
 
         internal ServiceRegistration Clone(Type implementationType, RegistrationType registrationType) =>
             new ServiceRegistration(implementationType, registrationType, this.containerConfiguration,

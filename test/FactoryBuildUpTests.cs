@@ -1,4 +1,6 @@
 ﻿using Stashbox.Attributes;
+using Stashbox.Configuration;
+using Stashbox.Tests.Utils;
 using Xunit;
 
 namespace Stashbox.Tests
@@ -6,10 +8,11 @@ namespace Stashbox.Tests
 
     public class FactoryBuildUpTests
     {
-        [Fact]
-        public void FactoryBuildUpTests_DependencyResolve()
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void FactoryBuildUpTests_DependencyResolve(CompilerType compilerType)
         {
-            using var container = new StashboxContainer();
+            using var container = new StashboxContainer(c => c.WithCompiler(compilerType));
             container.Register<ITest, Test>(context => context.WithFactory(() => new Test("test")));
             container.Register<ITest1, Test12>();
 
@@ -19,10 +22,11 @@ namespace Stashbox.Tests
             Assert.Equal("test", inst.Test.Name);
         }
 
-        [Fact]
-        public void FactoryBuildUpTests_DependencyResolve_ServiceUpdated()
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void FactoryBuildUpTests_DependencyResolve_ServiceUpdated(CompilerType compilerType)
         {
-            using var container = new StashboxContainer();
+            using var container = new StashboxContainer(c => c.WithCompiler(compilerType));
             container.Register<ITest, Test>(context => context.WithFactory(() => new Test("test")));
             container.Register<ITest2, Test2>();
             container.ReMap<ITest, Test>(context => context.WithFactory(() => new Test("test1")));
@@ -32,10 +36,11 @@ namespace Stashbox.Tests
             Assert.Equal("test1", inst.Test.Name);
         }
 
-        [Fact]
-        public void FactoryBuildUpTests_Resolve()
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void FactoryBuildUpTests_Resolve(CompilerType compilerType)
         {
-            using var container = new StashboxContainer();
+            using var container = new StashboxContainer(c => c.WithCompiler(compilerType));
             container.Register<ITest, Test>(context => context.WithFactory(() => new Test("test")));
             container.Register<ITest1, Test1>();
 
@@ -45,10 +50,11 @@ namespace Stashbox.Tests
             Assert.Equal("test", inst.Test.Name);
         }
 
-        [Fact]
-        public void FactoryBuildUpTests_Resolve_NotSame()
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void FactoryBuildUpTests_Resolve_NotSame(CompilerType compilerType)
         {
-            using var container = new StashboxContainer();
+            using var container = new StashboxContainer(c => c.WithCompiler(compilerType));
             container.Register<ITest, Test>(context =>
                 context.WithInjectionParameter("name", "test"));
             container.Register<ITest1>(context => context.WithFactory(cont =>
@@ -63,10 +69,11 @@ namespace Stashbox.Tests
             Assert.NotSame(inst1.Test, inst2.Test);
         }
 
-        [Fact]
-        public void FactoryBuildUpTests_Resolve_ContainerFactory()
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void FactoryBuildUpTests_Resolve_ContainerFactory(CompilerType compilerType)
         {
-            using var container = new StashboxContainer();
+            using var container = new StashboxContainer(c => c.WithCompiler(compilerType));
             container.Register<Test3>();
             container.Register<ITest>(context => context.WithFactory(c => c.Resolve<Test3>()));
 
@@ -75,10 +82,11 @@ namespace Stashbox.Tests
             Assert.IsType<Test3>(inst);
         }
 
-        [Fact]
-        public void FactoryBuildUpTests_Resolve_ContainerFactory_Constructor()
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void FactoryBuildUpTests_Resolve_ContainerFactory_Constructor(CompilerType compilerType)
         {
-            using var container = new StashboxContainer();
+            using var container = new StashboxContainer(c => c.WithCompiler(compilerType));
             container.Register<Test3>();
             container.Register<ITest1, Test12>();
             container.Register(typeof(ITest), context => context.WithFactory(() => new Test3()));
@@ -87,10 +95,11 @@ namespace Stashbox.Tests
             Assert.IsType<Test3>(test1.Test);
         }
 
-        [Fact]
-        public void FactoryBuildUpTests_Resolve_ContainerFactory_Initializer()
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void FactoryBuildUpTests_Resolve_ContainerFactory_Initializer(CompilerType compilerType)
         {
-            using var container = new StashboxContainer();
+            using var container = new StashboxContainer(c => c.WithCompiler(compilerType));
             container.Register<ITest4>(context =>
                 context.WithFactory(() => new Test4()).WithInitializer((t, r) => t.Init("Test")));
 

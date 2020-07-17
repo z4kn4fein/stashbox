@@ -21,13 +21,13 @@
         public static readonly LifetimeDescriptor Scoped = new ScopedLifetime();
 
         /// <summary>
-        /// NamedScope lifetime.
-        /// </summary>
-        public static readonly LifetimeDescriptor NamedScope = new NamedScopeLifetime();
-
-        /// <summary>
         /// PerRequest lifetime.
         /// </summary>
         public static readonly LifetimeDescriptor PerScopedRequest = new PerScopedRequestLifetime();
+
+        /// <summary>
+        /// Produces a NamedScope lifetime.
+        /// </summary>
+        public static LifetimeDescriptor NamedScope(object name) => new NamedScopeLifetime(name);
     }
 }

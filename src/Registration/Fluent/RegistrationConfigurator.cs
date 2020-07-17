@@ -7,8 +7,7 @@ namespace Stashbox.Registration.Fluent
     /// Represents the generic fluent service registration api.
     /// </summary>
     public class RegistrationConfigurator<TService, TImplementation> :
-        FluentServiceConfigurator<TService, TImplementation,
-        RegistrationConfigurator<TService, TImplementation>>
+        FluentServiceConfigurator<TService, TImplementation, RegistrationConfigurator<TService, TImplementation>>
     {
         internal RegistrationConfigurator(Type serviceType, Type implementationType) : base(serviceType, implementationType)
         {

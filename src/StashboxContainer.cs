@@ -28,11 +28,11 @@ namespace Stashbox
         /// Constructs a <see cref="StashboxContainer"/>.
         /// </summary>
         public StashboxContainer(Action<ContainerConfigurator> config = null)
-            : this(new ExpressionFactory(new MethodExpressionFactory(), new MemberExpressionFactory()),
-                new ServiceRegistrator(), new RegistrationBuilder(), new ContainerConfigurator(), config)
+            : this(new ExpressionFactory(), new ServiceRegistrator(),
+                new RegistrationBuilder(), new ContainerConfigurator(), config)
         {
-            this.expressionBuilder = new ExpressionBuilder(this.expressionFactory, this.serviceRegistrator);
-            this.resolutionStrategy = new ResolutionStrategy(this.expressionBuilder);
+            this.expressionBuilder = new ExpressionBuilder(this.expressionFactory);
+            this.resolutionStrategy = new ResolutionStrategy(this.expressionBuilder, this.serviceRegistrator);
 
             this.ContainerContext = new ContainerContext(null, resolutionStrategy,
                 expressionFactory, this.containerConfigurator.ContainerConfiguration);
@@ -89,9 +89,10 @@ namespace Stashbox
         public void Validate()
         {
             foreach (var serviceRegistration in this.ContainerContext.RegistrationRepository.GetRegistrationMappings())
-                this.expressionBuilder.BuildExpressionAndApplyLifetime(serviceRegistration.Value,
+                this.resolutionStrategy.BuildExpressionForRegistration(serviceRegistration.Value,
                     new ResolutionContext(this.ContainerContext.RootScope.GetActiveScopeNames(),
-                    this.ContainerContext, this.resolutionStrategy, false), serviceRegistration.Key);
+                    this.ContainerContext, this.resolutionStrategy, false),
+                    new TypeInformation(serviceRegistration.Key, serviceRegistration.Value.RegistrationContext.Name));
         }
 
         /// <inheritdoc />
@@ -133,7 +134,7 @@ namespace Stashbox
             this.resolutionStrategy.RegisterResolver(new DefaultValueResolver());
 
             this.resolutionStrategy.RegisterLastChanceResolver(new ParentContainerResolver());
-            this.resolutionStrategy.RegisterLastChanceResolver(new UnknownTypeResolver(this.serviceRegistrator, this.registrationBuilder, this.expressionBuilder));
+            this.resolutionStrategy.RegisterLastChanceResolver(new UnknownTypeResolver(this.serviceRegistrator, this.registrationBuilder));
         }
 
         /// <inheritdoc />

@@ -28,6 +28,8 @@
     <LangVersion>latest</LangVersion>
     <PackageReleaseNotes>
       <![CDATA[
+v3.2.2:
+- Added support of conditional and lifetime managed decorators #93      
 v3.2.1:
 - Fix: Factory resolution didn't use the built-in expression compiler.
 v3.2.0:
@@ -98,12 +100,15 @@ Breaking changes:
     <DefineConstants>IL_EMIT;HAS_SERVICEPROVIDER;HAS_SERIALIZABLE;HAS_ASYNC_DISPOSABLE;HAS_SPAN</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'net40'">
+    <AssemblyTitle>Stashbox .NET 4</AssemblyTitle>
     <DefineConstants>IL_EMIT;HAS_SERVICEPROVIDER;HAS_SERIALIZABLE</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'net45'">
+    <AssemblyTitle>Stashbox .NET 4.5</AssemblyTitle>
     <DefineConstants>IL_EMIT;HAS_SERVICEPROVIDER;HAS_SERIALIZABLE</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'net461'">
+    <AssemblyTitle>Stashbox .NET 4.6.1</AssemblyTitle>
     <DefineConstants>IL_EMIT;HAS_SERVICEPROVIDER;HAS_SERIALIZABLE;HAS_ASYNC_DISPOSABLE</DefineConstants>
   </PropertyGroup>
   

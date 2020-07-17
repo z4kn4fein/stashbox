@@ -1,4 +1,5 @@
 ﻿using Stashbox.Expressions;
+using Stashbox.Registration;
 using Stashbox.Resolution.Extensions;
 using Stashbox.Utils;
 using Stashbox.Utils.Data.Immutable;
@@ -12,12 +13,14 @@ namespace Stashbox.Resolution
     internal class ResolutionStrategy : IResolutionStrategy
     {
         private readonly ExpressionBuilder expressionBuilder;
+        private readonly ServiceRegistrator serviceRegistrator;
         private ImmutableBucket<IResolver> resolverRepository = ImmutableBucket<IResolver>.Empty;
         private ImmutableBucket<IResolver> lastChanceResolverRepository = ImmutableBucket<IResolver>.Empty;
 
-        public ResolutionStrategy(ExpressionBuilder expressionBuilder)
+        public ResolutionStrategy(ExpressionBuilder expressionBuilder, ServiceRegistrator serviceRegistrator)
         {
             this.expressionBuilder = expressionBuilder;
+            this.serviceRegistrator = serviceRegistrator;
         }
 
         public Expression BuildExpressionForType(ResolutionContext resolutionContext, TypeInformation typeInformation)
@@ -47,8 +50,10 @@ namespace Stashbox.Resolution
                 }
             }
 
-            if (resolutionContext.DecoratingService.Key == typeInformation.Type)
-                return resolutionContext.DecoratingService.Value;
+            var decorators = resolutionContext.Decorators.GetOrDefault(typeInformation.Type, false);
+            if (decorators != null)
+                return this.BuildExpressionForDecorator(decorators.Pop(),
+                    resolutionContext.BeginDecoratingContext(typeInformation.Type, decorators), typeInformation.Type, decorators);
 
             var exprOverride = resolutionContext.GetExpressionOverrideOrDefault(typeInformation.Type, typeInformation.DependencyName);
             if (exprOverride != null)
@@ -60,7 +65,7 @@ namespace Stashbox.Resolution
                 .GetRegistrationOrDefault(typeInformation, resolutionContext);
 
             return registration != null
-                ? this.expressionBuilder.BuildExpressionAndApplyLifetime(registration, resolutionContext, typeInformation.Type)
+                ? this.BuildExpressionForRegistration(registration, resolutionContext, typeInformation)
                 : this.BuildResolutionExpressionUsingResolvers(typeInformation, resolutionContext);
         }
 
@@ -69,13 +74,22 @@ namespace Stashbox.Resolution
             var registrations = resolutionContext
                 .CurrentContainerContext
                 .RegistrationRepository
-                .GetRegistrationsOrDefault(typeInformation, resolutionContext)?.CastToArray();
+                .GetRegistrationsOrDefault(typeInformation, resolutionContext);
 
             if (registrations == null)
                 return this.BuildAllResolverExpressionsUsingResolvers(typeInformation, resolutionContext);
 
             return registrations.Select(reg =>
-                this.expressionBuilder.BuildExpressionAndApplyLifetime(reg, resolutionContext, typeInformation.Type));
+            {
+                var decorators = resolutionContext.Decorators.GetOrDefault(typeInformation.Type, false);
+                if (decorators == null)
+                    return this.BuildExpressionForRegistration(reg, resolutionContext, typeInformation);
+
+                decorators.ReplaceBack(reg);
+                return this.BuildExpressionForDecorator(decorators.Pop(),
+                    resolutionContext.BeginDecoratingContext(typeInformation.Type, decorators), typeInformation.Type,
+                    decorators);
+            });
         }
 
         public Expression BuildExpressionForTopLevelRequest(Type type, object name, ResolutionContext resolutionContext)
@@ -97,8 +111,30 @@ namespace Stashbox.Resolution
                 .RegistrationRepository
                 .GetRegistrationOrDefault(type, resolutionContext, name);
 
-            return registration != null ? this.expressionBuilder.BuildExpressionAndApplyLifetime(registration, resolutionContext, type) :
-                this.BuildResolutionExpressionUsingResolvers(new TypeInformation(type, name), resolutionContext);
+            return registration != null
+                ? this.BuildExpressionForRegistration(registration, resolutionContext, new TypeInformation(type, name))
+                : this.BuildResolutionExpressionUsingResolvers(new TypeInformation(type, name), resolutionContext);
+        }
+
+        public Expression BuildExpressionForRegistration(ServiceRegistration serviceRegistration,
+            ResolutionContext resolutionContext, TypeInformation typeInformation)
+        {
+            var requestedType = typeInformation.Type;
+            if (serviceRegistration.RegistrationType == RegistrationType.OpenGeneric)
+                serviceRegistration = this.PrepareOpenGenericRegistration(serviceRegistration, resolutionContext, requestedType);
+
+            var decorators = resolutionContext
+                .CurrentContainerContext
+                .DecoratorRepository
+                .GetDecoratorsOrDefault(serviceRegistration.ImplementationType, typeInformation, resolutionContext);
+
+            if (decorators == null)
+                return this.expressionBuilder.BuildExpressionAndApplyLifetime(serviceRegistration, resolutionContext, requestedType);
+
+            var stack = decorators.AsStack();
+            stack.PushBack(serviceRegistration);
+            return this.BuildExpressionForDecorator(stack.Pop(),
+                resolutionContext.BeginDecoratingContext(requestedType, stack), requestedType, stack);
         }
 
         public Expression BuildResolutionExpressionUsingResolvers(TypeInformation typeInfo, ResolutionContext resolutionContext)
@@ -122,9 +158,30 @@ namespace Stashbox.Resolution
             Swap.SwapValue(ref this.lastChanceResolverRepository, (t1, t2, t3, t4, repo) =>
                 repo.Add(t1), resolver, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
 
-        private IEnumerable<Expression> BuildAllResolverExpressionsUsingResolvers(TypeInformation typeInfo, ResolutionContext resolutionContext) =>
+        private IEnumerable<Expression> BuildAllResolverExpressionsUsingResolvers(TypeInformation typeInfo,
+            ResolutionContext resolutionContext) =>
             this.resolverRepository.BuildAllResolutionExpressions(typeInfo, resolutionContext, this) ??
-                   this.lastChanceResolverRepository.BuildAllResolutionExpressions(typeInfo, resolutionContext, this);
+            this.lastChanceResolverRepository.BuildAllResolutionExpressions(typeInfo, resolutionContext, this);
 
+        private Expression BuildExpressionForDecorator(ServiceRegistration serviceRegistration,
+            ResolutionContext resolutionContext, Type requestedType, Utils.Data.Stack<ServiceRegistration> decorators)
+        {
+            if (serviceRegistration.RegistrationType == RegistrationType.OpenGeneric)
+                serviceRegistration = this.PrepareOpenGenericRegistration(serviceRegistration, resolutionContext, requestedType);
+
+            return this.expressionBuilder.BuildExpressionAndApplyLifetime(serviceRegistration, resolutionContext,
+                requestedType, decorators.PeekBack()?.RegistrationContext.Lifetime);
+        }
+
+        private ServiceRegistration PrepareOpenGenericRegistration(ServiceRegistration serviceRegistration,
+            ResolutionContext resolutionContext, Type requestedType)
+        {
+            var genericType = serviceRegistration.ImplementationType.MakeGenericType(requestedType.GetGenericArguments());
+            var newRegistration = serviceRegistration.Clone(genericType, RegistrationType.Default);
+            newRegistration.RegistrationContext.Name = null;
+
+            this.serviceRegistrator.Register(resolutionContext.CurrentContainerContext, newRegistration, requestedType, false);
+            return newRegistration;
+        }
     }
 }

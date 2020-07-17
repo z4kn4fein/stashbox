@@ -10,9 +10,9 @@ using System.Text;
 
 namespace Stashbox.Expressions
 {
-    internal class MethodExpressionFactory
+    internal partial class ExpressionFactory
     {
-        public IEnumerable<Expression> CreateParameterExpressionsForMethod(
+        private IEnumerable<Expression> CreateParameterExpressionsForMethod(
             RegistrationContext registrationContext,
             ResolutionContext resolutionContext,
             MethodBase method)
@@ -33,7 +33,7 @@ namespace Stashbox.Expressions
             }
         }
 
-        public ConstructorInfo SelectConstructor(
+        private ConstructorInfo SelectConstructor(
             RegistrationContext registrationContext,
             ResolutionContext resolutionContext,
             ConstructorInfo[] constructors,
@@ -76,7 +76,7 @@ namespace Stashbox.Expressions
             throw new ResolutionFailedException(constructors[0].DeclaringType, stringBuilder.ToString());
         }
 
-        public IEnumerable<Expression> CreateMethodExpressions(
+        private IEnumerable<Expression> CreateMethodExpressions(
             IEnumerable<MethodInfo> methods,
             RegistrationContext registrationContext,
             ResolutionContext resolutionContext,

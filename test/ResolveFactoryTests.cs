@@ -1,24 +1,28 @@
-﻿using Xunit;
+﻿using Stashbox.Configuration;
+using Stashbox.Tests.Utils;
+using Xunit;
 
 namespace Stashbox.Tests
 {
 
     public class ResolveFactoryTests
     {
-        [Fact]
-        public void ResolveFactoryTests_ParameterLess()
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void ResolveFactoryTests_ParameterLess(CompilerType compilerType)
         {
-            using var container = new StashboxContainer();
+            using var container = new StashboxContainer(c => c.WithCompiler(compilerType));
             container.Register<Test>();
             var factory = container.ResolveFactory<Test>();
 
             Assert.NotNull(factory());
         }
 
-        [Fact]
-        public void ResolveFactoryTests_ParameterLess_Named()
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void ResolveFactoryTests_ParameterLess_Named(CompilerType compilerType)
         {
-            using var container = new StashboxContainer();
+            using var container = new StashboxContainer(c => c.WithCompiler(compilerType));
             container.Register<IService, Service>(c => c.WithName("service"));
             container.Register<IService, Service1>(c => c.WithName("service1"));
             var factory = container.ResolveFactory<IService>("service");
@@ -26,10 +30,11 @@ namespace Stashbox.Tests
             Assert.IsType<Service>(factory());
         }
 
-        [Fact]
-        public void ResolveFactoryTests_ParameterLess_Scoped()
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void ResolveFactoryTests_ParameterLess_Scoped(CompilerType compilerType)
         {
-            using var container = new StashboxContainer();
+            using var container = new StashboxContainer(c => c.WithCompiler(compilerType));
             container.Register<Test>();
 
             using var scope = container.BeginScope();
@@ -38,10 +43,11 @@ namespace Stashbox.Tests
             Assert.NotNull(factory());
         }
 
-        [Fact]
-        public void ResolveFactoryTests_OneParam()
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void ResolveFactoryTests_OneParam(CompilerType compilerType)
         {
-            using var container = new StashboxContainer();
+            using var container = new StashboxContainer(c => c.WithCompiler(compilerType));
             container.Register<Test1>();
             var factory = container.ResolveFactory<Test, Test1>();
 
@@ -51,10 +57,11 @@ namespace Stashbox.Tests
             Assert.Same(test, inst.Test);
         }
 
-        [Fact]
-        public void ResolveFactoryTests_OneParam_Scoped()
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void ResolveFactoryTests_OneParam_Scoped(CompilerType compilerType)
         {
-            using var container = new StashboxContainer();
+            using var container = new StashboxContainer(c => c.WithCompiler(compilerType));
             container.Register<Test1>();
 
             using var scope = container.BeginScope();
@@ -66,10 +73,11 @@ namespace Stashbox.Tests
             Assert.Same(test, inst.Test);
         }
 
-        [Fact]
-        public void ResolveFactoryTests_TwoParams()
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void ResolveFactoryTests_TwoParams(CompilerType compilerType)
         {
-            using var container = new StashboxContainer();
+            using var container = new StashboxContainer(c => c.WithCompiler(compilerType));
             container.Register<Test2>();
             var factory = container.ResolveFactory<Test, Test1, Test2>();
 
@@ -81,10 +89,11 @@ namespace Stashbox.Tests
             Assert.Same(test1, inst.Test1);
         }
 
-        [Fact]
-        public void ResolveFactoryTests_TwoParams_Scoped()
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void ResolveFactoryTests_TwoParams_Scoped(CompilerType compilerType)
         {
-            using var container = new StashboxContainer();
+            using var container = new StashboxContainer(c => c.WithCompiler(compilerType));
             container.Register<Test2>();
 
             using var scope = container.BeginScope();
@@ -98,10 +107,11 @@ namespace Stashbox.Tests
             Assert.Same(test1, inst.Test1);
         }
 
-        [Fact]
-        public void ResolveFactoryTests_ThreeParams()
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void ResolveFactoryTests_ThreeParams(CompilerType compilerType)
         {
-            using var container = new StashboxContainer();
+            using var container = new StashboxContainer(c => c.WithCompiler(compilerType));
             container.Register<Test3>();
             var factory = container.ResolveFactory<Test, Test1, Test2, Test3>();
 
@@ -115,10 +125,11 @@ namespace Stashbox.Tests
             Assert.Same(test2, inst.Test2);
         }
 
-        [Fact]
-        public void ResolveFactoryTests_ThreeParams_Scoped()
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void ResolveFactoryTests_ThreeParams_Scoped(CompilerType compilerType)
         {
-            using var container = new StashboxContainer();
+            using var container = new StashboxContainer(c => c.WithCompiler(compilerType));
             container.Register<Test3>();
 
             using var scope = container.BeginScope();
@@ -134,10 +145,11 @@ namespace Stashbox.Tests
             Assert.Same(test2, inst.Test2);
         }
 
-        [Fact]
-        public void ResolveFactoryTests_FourParams()
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void ResolveFactoryTests_FourParams(CompilerType compilerType)
         {
-            using var container = new StashboxContainer();
+            using var container = new StashboxContainer(c => c.WithCompiler(compilerType));
             container.Register<Test4>();
             var factory = container.ResolveFactory<Test, Test1, Test2, Test3, Test4>();
 
@@ -153,10 +165,11 @@ namespace Stashbox.Tests
             Assert.Same(test3, inst.Test3);
         }
 
-        [Fact]
-        public void ResolveFactoryTests_FourParams_Scoped()
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void ResolveFactoryTests_FourParams_Scoped(CompilerType compilerType)
         {
-            using var container = new StashboxContainer();
+            using var container = new StashboxContainer(c => c.WithCompiler(compilerType));
             container.Register<Test4>();
 
             using var scope = container.BeginScope();

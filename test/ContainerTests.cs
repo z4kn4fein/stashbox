@@ -10,7 +10,6 @@ using Xunit;
 
 namespace Stashbox.Tests
 {
-
     public class ContainerTests
     {
         [Fact]
@@ -257,7 +256,7 @@ namespace Stashbox.Tests
         {
             var regs = new StashboxContainer(c =>
                 c.WithRegistrationBehavior(Rules.RegistrationBehavior.PreserveDuplications))
-            .Register<Test>().Register<Test>().GetRegistrationMappings();
+            .Register<Test1>().Register<Test1>().GetRegistrationMappings();
 
             Assert.Equal(2, regs.Count());
         }
@@ -281,7 +280,6 @@ namespace Stashbox.Tests
             Assert.Throws<InvalidRegistrationException>(() => container.Register(typeof(ITest1), typeof(Test2)));
             Assert.Throws<InvalidRegistrationException>(() => container.RegisterDecorator(typeof(ITest1), typeof(Test2)));
         }
-
 
         interface ITest1 { }
 
