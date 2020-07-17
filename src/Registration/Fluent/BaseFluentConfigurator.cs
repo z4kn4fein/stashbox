@@ -165,6 +165,38 @@ namespace Stashbox.Registration.Fluent
             this.WithDependencyBinding(typeof(TDependency), dependencyName);
 
         /// <summary>
+        /// Binds a constructor or method parameter to a named registration, so the container will perform a named resolution on the bound dependency.  
+        /// </summary>
+        /// <param name="dependencyType">The type of the dependency to search for.</param>
+        /// <param name="dependencyName">The name of the bound named registration.</param>
+        /// <returns>The fluent configurator.</returns>
+        public TConfigurator WithDependencyBinding(Type dependencyType, object dependencyName)
+        {
+            Shield.EnsureNotNull(dependencyType, nameof(dependencyType));
+            Shield.EnsureNotNull(dependencyName, nameof(dependencyName));
+
+            this.Context.DependencyBindings.Add(dependencyType, dependencyName);
+
+            return (TConfigurator)this;
+        }
+
+        /// <summary>
+        /// Binds a constructor or method parameter to a named registration, so the container will perform a named resolution on the bound dependency.  
+        /// </summary>
+        /// <param name="parameterName">The parameter name of the dependency to search for.</param>
+        /// <param name="dependencyName">The name of the bound named registration.</param>
+        /// <returns>The fluent configurator.</returns>
+        public TConfigurator WithDependencyBinding(string parameterName, object dependencyName)
+        {
+            Shield.EnsureNotNull(parameterName, nameof(parameterName));
+            Shield.EnsureNotNull(dependencyName, nameof(dependencyName));
+
+            this.Context.DependencyBindings.Add(parameterName, dependencyName);
+
+            return (TConfigurator)this;
+        }
+
+        /// <summary>
         /// Sets a parent target condition for the registration.
         /// </summary>
         /// <typeparam name="TTarget">The type of the parent.</typeparam>
@@ -314,38 +346,6 @@ namespace Stashbox.Registration.Fluent
         public TConfigurator InjectMember(string memberName, object dependencyName = null)
         {
             this.Context.InjectionMemberNames.Add(memberName, dependencyName);
-            return (TConfigurator)this;
-        }
-
-        /// <summary>
-        /// Binds a constructor or method parameter to a named registration, so the container will perform a named resolution on the bound dependency.  
-        /// </summary>
-        /// <param name="dependencyType">The type of the dependency to search for.</param>
-        /// <param name="dependencyName">The name of the bound named registration.</param>
-        /// <returns>The fluent configurator.</returns>
-        public TConfigurator WithDependencyBinding(Type dependencyType, object dependencyName)
-        {
-            Shield.EnsureNotNull(dependencyType, nameof(dependencyType));
-            Shield.EnsureNotNull(dependencyName, nameof(dependencyName));
-
-            this.Context.DependencyBindings.Add(dependencyType, dependencyName);
-
-            return (TConfigurator)this;
-        }
-
-        /// <summary>
-        /// Binds a constructor or method parameter to a named registration, so the container will perform a named resolution on the bound dependency.  
-        /// </summary>
-        /// <param name="parameterName">The parameter name of the dependency to search for.</param>
-        /// <param name="dependencyName">The name of the bound named registration.</param>
-        /// <returns>The fluent configurator.</returns>
-        public TConfigurator WithDependencyBinding(string parameterName, object dependencyName)
-        {
-            Shield.EnsureNotNull(parameterName, nameof(parameterName));
-            Shield.EnsureNotNull(dependencyName, nameof(dependencyName));
-
-            this.Context.DependencyBindings.Add(parameterName, dependencyName);
-
             return (TConfigurator)this;
         }
 
