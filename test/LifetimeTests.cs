@@ -136,11 +136,28 @@ namespace Stashbox.Tests
         }
 
         [Fact]
-        public void LifetimeTests_DefinesScope()
+        public void LifetimeTests_DefinesScope_Generic()
         {
             using IStashboxContainer container = new StashboxContainer();
             container.Register<Test6>();
             container.Register<Test7>(c => c.DefinesScope());
+            container.RegisterScoped<Test5>();
+
+            using var scope = container.BeginScope();
+
+            var inst1 = scope.Resolve<Test6>();
+            var inst2 = scope.Resolve<Test7>();
+
+            Assert.NotSame(inst1.Test5, inst2.Test5);
+            Assert.Same(inst2.Test5, inst2.Test6.Test5);
+        }
+
+        [Fact]
+        public void LifetimeTests_DefinesScope()
+        {
+            using IStashboxContainer container = new StashboxContainer();
+            container.Register<Test6>();
+            container.Register(typeof(Test7), c => c.DefinesScope());
             container.RegisterScoped<Test5>();
 
             using var scope = container.BeginScope();

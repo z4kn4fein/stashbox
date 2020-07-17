@@ -425,10 +425,17 @@ namespace Stashbox.Tests
         }
 
         [Fact]
-        public void RegistersTests_AsServiceAlso_Fail()
+        public void RegistersTests_AsServiceAlso_Generic_Fail()
         {
             var container = new StashboxContainer();
             Assert.Throws<ArgumentException>(() => container.Register<Test1>(context => context.AsServiceAlso<Test2>()));
+        }
+
+        [Fact]
+        public void RegistersTests_AsServiceAlso_Fail()
+        {
+            var container = new StashboxContainer();
+            Assert.Throws<ArgumentException>(() => container.Register(typeof(Test1), context => context.AsServiceAlso<Test2>()));
         }
 
         [Fact]

@@ -459,7 +459,7 @@ namespace Stashbox.Tests
             Assert.IsType<TestDecorator1>(test.Test);
             Assert.IsType<Test1>(test.Test.Test);
 
-            container.ReMapDecorator(typeof(ITest1), typeof(TestDecorator3));
+            container.ReMapDecorator<ITest1, TestDecorator3>();
 
             test = container.Resolve<ITest1>();
 
@@ -743,6 +743,22 @@ namespace Stashbox.Tests
             Assert.IsType<Test11>(t.Test.Test);
         }
 
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void DecoratorTests_Factory(CompilerType compilerType)
+        {
+            using var container = new StashboxContainer(c => c.WithCompiler(compilerType));
+            container.Register<ITest1, Test1>();
+            container.RegisterDecorator(typeof(ITest1), typeof(TestDecorator3), c => c.WithFactory(() => new TestDecorator3()));
+            container.RegisterDecorator(typeof(ITest1), typeof(TestDecorator13), c => c.WithFactory(r => new TestDecorator13 { Name = "T4" }));
+
+            var t = container.Resolve<ITest1>();
+
+            Assert.IsType<TestDecorator13>(t);
+            Assert.IsType<TestDecorator3>(t.Test);
+            Assert.IsType<Test1>(t.Test.Test);
+        }
+
         interface ITest1 { ITest1 Test { get; } }
 
         interface ITest2 { ITest2 Test2 { get; } }
@@ -970,6 +986,14 @@ namespace Stashbox.Tests
             {
                 this.Test2 = ((T4)test1.Test).Test2;
             }
+        }
+
+        class TestDecorator13 : ITest1
+        {
+            public string Name { get; set; }
+
+            [Dependency]
+            public ITest1 Test { get; set; }
         }
 
         class TestHolder1
