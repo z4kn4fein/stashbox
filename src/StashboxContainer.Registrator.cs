@@ -133,21 +133,40 @@ namespace Stashbox
             if (!decoratorConfigurator.TypeMapIsValid(out var error))
                 throw new InvalidRegistrationException(decoratorConfigurator.ImplementationType, error);
 
-            this.serviceRegistrator.Register(
-                this.ContainerContext,
-                this.registrationBuilder.BuildServiceRegistration(this.ContainerContext,
-                    decoratorConfigurator, true),
-                decoratorConfigurator.ServiceType);
-
-            return this;
+            return this.RegisterInternal(decoratorConfigurator, true);
         }
 
-        private IStashboxContainer RegisterInternal(RegistrationConfiguration registrationConfiguration)
+        /// <inheritdoc />
+        public IStashboxContainer RegisterDecorator<TFrom, TTo>(Action<DecoratorConfigurator<TFrom, TTo>> configurator = null)
+            where TFrom : class
+            where TTo : class, TFrom
+        {
+            var decoratorConfigurator = new DecoratorConfigurator<TFrom, TTo>(typeof(TFrom), typeof(TTo));
+            configurator?.Invoke(decoratorConfigurator);
+            return this.RegisterInternal(decoratorConfigurator, true);
+        }
+
+        /// <inheritdoc />
+        public IStashboxContainer RegisterDecorator<TFrom>(Type typeTo, Action<DecoratorConfigurator<TFrom, TFrom>> configurator = null)
+            where TFrom : class
+        {
+            Shield.EnsureNotNull(typeTo, nameof(typeTo));
+
+            var registrationConfigurator = new DecoratorConfigurator<TFrom, TFrom>(typeof(TFrom), typeTo);
+            configurator?.Invoke(registrationConfigurator);
+
+            if (!registrationConfigurator.TypeMapIsValid(out var error))
+                throw new InvalidRegistrationException(registrationConfigurator.ImplementationType, error);
+
+            return this.RegisterInternal(registrationConfigurator, true);
+        }
+
+        private IStashboxContainer RegisterInternal(RegistrationConfiguration registrationConfiguration, bool isDecorator = false)
         {
             this.serviceRegistrator.Register(
                 this.ContainerContext,
                 this.registrationBuilder.BuildServiceRegistration(this.ContainerContext,
-                    registrationConfiguration, false),
+                    registrationConfiguration, isDecorator),
                 registrationConfiguration.ServiceType);
 
             return this;

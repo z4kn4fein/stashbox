@@ -459,7 +459,7 @@ namespace Stashbox.Tests
             Assert.IsType<TestDecorator1>(test.Test);
             Assert.IsType<Test1>(test.Test.Test);
 
-            container.ReMapDecorator<ITest1, TestDecorator3>();
+            container.ReMapDecorator(typeof(ITest1), typeof(TestDecorator3));
 
             test = container.Resolve<ITest1>();
 

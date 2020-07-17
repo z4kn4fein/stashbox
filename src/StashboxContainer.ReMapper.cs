@@ -76,6 +76,31 @@ namespace Stashbox
             return this.ReMapInternal(decoratorConfigurator, true);
         }
 
+        /// <inheritdoc />
+        public IStashboxContainer ReMapDecorator<TFrom, TTo>(Action<DecoratorConfigurator<TFrom, TTo>> configurator = null)
+            where TFrom : class
+            where TTo : class, TFrom
+        {
+            var decoratorConfigurator = new DecoratorConfigurator<TFrom, TTo>(typeof(TFrom), typeof(TTo));
+            configurator?.Invoke(decoratorConfigurator);
+            return this.ReMapInternal(decoratorConfigurator, true);
+        }
+
+        /// <inheritdoc />
+        public IStashboxContainer ReMapDecorator<TFrom>(Type typeTo, Action<DecoratorConfigurator<TFrom, TFrom>> configurator = null)
+            where TFrom : class
+        {
+            Shield.EnsureNotNull(typeTo, nameof(typeTo));
+
+            var registrationConfigurator = new DecoratorConfigurator<TFrom, TFrom>(typeof(TFrom), typeTo);
+            configurator?.Invoke(registrationConfigurator);
+
+            if (!registrationConfigurator.TypeMapIsValid(out var error))
+                throw new InvalidRegistrationException(registrationConfigurator.ImplementationType, error);
+
+            return this.ReMapInternal(registrationConfigurator, true);
+        }
+
         private IStashboxContainer ReMapInternal(RegistrationConfiguration registrationConfiguration,
             bool isDecorator = false)
         {

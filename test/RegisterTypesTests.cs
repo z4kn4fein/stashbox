@@ -344,7 +344,7 @@ namespace Stashbox.Tests
         public void RegistersTests_AsImplementedTypes_BaseType()
         {
             var container = new StashboxContainer();
-            container.Register<Test14>(context => context.AsImplementedTypes());
+            container.Register(typeof(Test14), context => context.AsImplementedTypes());
 
             var regs = container.ContainerContext.RegistrationRepository.GetRegistrationMappings().OrderBy(r => r.Key.Name).ToArray();
 
@@ -449,7 +449,7 @@ namespace Stashbox.Tests
         public void RegistersTests_AsServiceAlso_Singleton()
         {
             var container = new StashboxContainer();
-            container.Register<ITest, Test1>(context => context.AsServiceAlso<ITest1>().WithSingletonLifetime());
+            container.Register(typeof(ITest), typeof(Test1), context => context.AsServiceAlso<ITest1>().WithSingletonLifetime());
 
             var inst = container.Resolve<ITest>();
             var inst1 = container.Resolve<ITest1>();

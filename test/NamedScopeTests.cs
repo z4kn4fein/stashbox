@@ -356,7 +356,7 @@ namespace Stashbox.Tests
         public void NamedScope_ChildContainer_Chain_Reverse(CompilerType compilerType)
         {
             var container = new StashboxContainer(c => c.WithCompiler(compilerType))
-                .Register<Test4>(config => config.DefinesScope("A"))
+                .Register(typeof(Test4), config => config.DefinesScope("A"))
                 .Register<ITest, Test1>(config => config.InNamedScope("B"));
 
             var child = container.CreateChildContainer()
