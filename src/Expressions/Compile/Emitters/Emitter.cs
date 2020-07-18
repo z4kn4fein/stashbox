@@ -12,49 +12,23 @@ namespace Stashbox.Expressions.Compile.Emitters
     {
         public static bool TryEmit(this Expression expression, ILGenerator generator, CompilerContext context, params ParameterExpression[] parameters)
         {
-            switch (expression.NodeType)
+            return expression.NodeType switch
             {
-                case ExpressionType.Call:
-                    return ((MethodCallExpression)expression).TryEmit(generator, context, parameters);
-
-                case ExpressionType.MemberAccess:
-                    return ((MemberExpression)expression).TryEmit(generator, context, parameters);
-
-                case ExpressionType.Invoke:
-                    return ((InvocationExpression)expression).TryEmit(generator, context, parameters);
-
-                case ExpressionType.Parameter:
-                    return ((ParameterExpression)expression).TryEmit(generator, context, parameters);
-
-                case ExpressionType.Lambda:
-                    return ((LambdaExpression)expression).TryEmit(generator, context);
-
-                case ExpressionType.Convert:
-                    return ((UnaryExpression)expression).TryEmit(generator, context, parameters);
-
-                case ExpressionType.Constant:
-                    return ((ConstantExpression)expression).TryEmit(generator, context);
-
-                case ExpressionType.MemberInit:
-                    return ((MemberInitExpression)expression).TryEmit(generator, context, parameters);
-
-                case ExpressionType.New:
-                    return ((NewExpression)expression).TryEmit(generator, context, parameters);
-
-                case ExpressionType.Block:
-                    return ((BlockExpression)expression).Expressions.TryEmit(generator, context, parameters);
-
-                case ExpressionType.NewArrayInit:
-                    return ((NewArrayExpression)expression).TryEmit(generator, context, parameters);
-
-                case ExpressionType.Assign:
-                    return ((BinaryExpression)expression).TryEmit(generator, context, parameters);
-
-                case ExpressionType.Default:
-                    return ((DefaultExpression)expression).TryEmit(generator);
-            }
-
-            return false;
+                ExpressionType.Call => ((MethodCallExpression)expression).TryEmit(generator, context, parameters),
+                ExpressionType.MemberAccess => ((MemberExpression)expression).TryEmit(generator, context, parameters),
+                ExpressionType.Invoke => ((InvocationExpression)expression).TryEmit(generator, context, parameters),
+                ExpressionType.Parameter => ((ParameterExpression)expression).TryEmit(generator, context, parameters),
+                ExpressionType.Lambda => ((LambdaExpression)expression).TryEmit(generator, context),
+                ExpressionType.Convert => ((UnaryExpression)expression).TryEmit(generator, context, parameters),
+                ExpressionType.Constant => ((ConstantExpression)expression).TryEmit(generator, context),
+                ExpressionType.MemberInit => ((MemberInitExpression)expression).TryEmit(generator, context, parameters),
+                ExpressionType.New => ((NewExpression)expression).TryEmit(generator, context, parameters),
+                ExpressionType.Block => ((BlockExpression)expression).Expressions.TryEmit(generator, context, parameters),
+                ExpressionType.NewArrayInit => ((NewArrayExpression)expression).TryEmit(generator, context, parameters),
+                ExpressionType.Assign => ((BinaryExpression)expression).TryEmit(generator, context, parameters),
+                ExpressionType.Default => ((DefaultExpression)expression).TryEmit(generator),
+                _ => false
+            };
         }
 
         public static DynamicMethod CreateDynamicMethod(CompilerContext context, Type returnType, params ParameterExpression[] parameters)

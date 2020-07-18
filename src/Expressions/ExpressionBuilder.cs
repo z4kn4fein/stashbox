@@ -37,10 +37,10 @@ namespace Stashbox.Expressions
                 expression = BuildFinalizerExpression(expression, serviceRegistration, resolutionContext.CurrentScopeParameter);
 
             if (!ShouldHandleDisposal(resolutionContext.CurrentContainerContext, serviceRegistration) || !expression.Type.IsDisposable())
-                return this.CheckRuntimeCircularDependencyExpression(expression, serviceRegistration, resolutionContext, requestedType);
+                return CheckRuntimeCircularDependencyExpression(expression, serviceRegistration, resolutionContext, requestedType);
 
             var method = Constants.AddDisposalMethod.MakeGenericMethod(expression.Type);
-            return this.CheckRuntimeCircularDependencyExpression(resolutionContext.CurrentScopeParameter.CallMethod(method, expression),
+            return CheckRuntimeCircularDependencyExpression(resolutionContext.CurrentScopeParameter.CallMethod(method, expression),
                 serviceRegistration, resolutionContext, requestedType);
         }
 
@@ -50,27 +50,20 @@ namespace Stashbox.Expressions
                 ? resolutionContext.BeginCrossContainerContext(resolutionContext.RequestInitiatorContainerContext)
                 : resolutionContext;
 
-            switch (serviceRegistration.RegistrationType)
+            return serviceRegistration.RegistrationType switch
             {
-                case RegistrationType.Factory:
-                    return this.GetExpressionForFactory(serviceRegistration, resolutionContext, requestedType);
-
-                case RegistrationType.Instance:
-                    return serviceRegistration.RegistrationContext.ExistingInstance.AsConstant();
-
-                case RegistrationType.WireUp:
-                    return this.expressionFactory.ConstructBuildUpExpression(serviceRegistration, resolutionContext,
-                        serviceRegistration.RegistrationContext.ExistingInstance.AsConstant(), serviceRegistration.ImplementationType);
-
-                case RegistrationType.Func:
-                    return this.GetExpressionForFunc(serviceRegistration, resolutionContext);
-
-                default:
-                    return this.GetExpressionForDefault(serviceRegistration, resolutionContext);
-            }
+                RegistrationType.Factory => this.GetExpressionForFactory(serviceRegistration, resolutionContext,
+                    requestedType),
+                RegistrationType.Instance => serviceRegistration.RegistrationContext.ExistingInstance.AsConstant(),
+                RegistrationType.WireUp => this.expressionFactory.ConstructBuildUpExpression(serviceRegistration,
+                    resolutionContext, serviceRegistration.RegistrationContext.ExistingInstance.AsConstant(),
+                    serviceRegistration.ImplementationType),
+                RegistrationType.Func => this.GetExpressionForFunc(serviceRegistration, resolutionContext),
+                _ => this.GetExpressionForDefault(serviceRegistration, resolutionContext)
+            };
         }
 
-        private Expression CheckRuntimeCircularDependencyExpression(Expression expression,
+        private static Expression CheckRuntimeCircularDependencyExpression(Expression expression,
             ServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type requestedType)
         {
             if (!resolutionContext.CurrentContainerContext.ContainerConfiguration.RuntimeCircularDependencyTrackingEnabled)

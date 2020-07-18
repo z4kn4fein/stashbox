@@ -22,19 +22,18 @@ namespace Stashbox.Expressions.Compile
 
         public static Type MapDelegateType(Type[] paramTypes)
         {
-            switch (paramTypes.Length)
+            return paramTypes.Length switch
             {
-                case 1: return typeof(Func<>).MakeGenericType(paramTypes);
-                case 2: return typeof(Func<,>).MakeGenericType(paramTypes);
-                case 3: return typeof(Func<,,>).MakeGenericType(paramTypes);
-                case 4: return typeof(Func<,,,>).MakeGenericType(paramTypes);
-                case 5: return typeof(Func<,,,,>).MakeGenericType(paramTypes);
-                case 6: return typeof(Func<,,,,,>).MakeGenericType(paramTypes);
-                case 7: return typeof(Func<,,,,,,>).MakeGenericType(paramTypes);
-                case 8: return typeof(Func<,,,,,,,>).MakeGenericType(paramTypes);
-                default:
-                    throw new NotSupportedException($"Too many func parameters {paramTypes.Length}.");
-            }
+                1 => typeof(Func<>).MakeGenericType(paramTypes),
+                2 => typeof(Func<,>).MakeGenericType(paramTypes),
+                3 => typeof(Func<,,>).MakeGenericType(paramTypes),
+                4 => typeof(Func<,,,>).MakeGenericType(paramTypes),
+                5 => typeof(Func<,,,,>).MakeGenericType(paramTypes),
+                6 => typeof(Func<,,,,,>).MakeGenericType(paramTypes),
+                7 => typeof(Func<,,,,,,>).MakeGenericType(paramTypes),
+                8 => typeof(Func<,,,,,,,>).MakeGenericType(paramTypes),
+                _ => throw new NotSupportedException($"Too many func parameters {paramTypes.Length}.")
+            };
         }
 
         internal static MethodInfo GetPartialApplicationMethodInfo(Type[] types) =>
