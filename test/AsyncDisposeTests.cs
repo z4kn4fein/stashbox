@@ -23,6 +23,34 @@ namespace Stashbox.Tests
         }
 
         [Fact]
+        public async Task Async_Dispose_Multiple()
+        {
+            var container = new StashboxContainer(c => c.WithDisposableTransientTracking())
+                .Register<AsyncDisposable>();
+            var disposable = container.Resolve<AsyncDisposable>();
+
+            await container.DisposeAsync();
+            await container.DisposeAsync();
+
+            Assert.True(disposable.Disposed);
+        }
+
+        [Fact]
+        public async Task Async_Dispose_Multiple_Scoped()
+        {
+            await using var container = new StashboxContainer(c => c.WithDisposableTransientTracking())
+                .RegisterScoped<AsyncDisposable>();
+
+            var scope = container.BeginScope();
+            var disposable = scope.Resolve<AsyncDisposable>();
+
+            await scope.DisposeAsync();
+            await scope.DisposeAsync();
+
+            Assert.True(disposable.Disposed);
+        }
+
+        [Fact]
         public async Task Async_Dispose_Works_On_Scoped()
         {
             AsyncDisposable disposable;

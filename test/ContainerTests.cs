@@ -279,6 +279,8 @@ namespace Stashbox.Tests
             using var container = new StashboxContainer();
             Assert.Throws<InvalidRegistrationException>(() => container.Register(typeof(ITest1), typeof(Test2)));
             Assert.Throws<InvalidRegistrationException>(() => container.RegisterDecorator(typeof(ITest1), typeof(Test2)));
+            Assert.Throws<InvalidRegistrationException>(() => container.RegisterDecorator<ITest1>(typeof(Test2)));
+            Assert.Throws<InvalidRegistrationException>(() => container.ReMapDecorator<ITest1>(typeof(Test2)));
         }
 
         interface ITest1 { }

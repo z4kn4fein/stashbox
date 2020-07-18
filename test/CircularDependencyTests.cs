@@ -120,13 +120,15 @@ namespace Stashbox.Tests
             Assert.Throws<CircularDependencyException>(() => container.Resolve<ITest1>());
         }
 
+#if HAS_ASYNC_DISPOSABLE
         [Fact]
-        public void CircularDependencyTests_Runtime_Resolver()
+        public async Task CircularDependencyTests_Runtime_Async()
         {
-            using var container = new StashboxContainer(config => config.WithRuntimeCircularDependencyTracking());
+            await using var container = new StashboxContainer(config => config.WithRuntimeCircularDependencyTracking());
             container.Register<ITest1, Test1>(config => config.WithFactory(r => r.Resolve<ITest1>()));
             Assert.Throws<CircularDependencyException>(() => container.Resolve<ITest1>());
         }
+#endif
 
         interface ITest1 { }
 

@@ -15,7 +15,7 @@
     <RepositoryUrl>https://github.com/z4kn4fein/stashbox</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>Stashbox di dependencyinjection ioc dotnet netstandard</PackageTags>
-    <Description>Stashbox is a lightweight, portable dependency injection framework for .NET based solutions.</Description>
+    <Description>Stashbox is a lightweight, fast and portable dependency injection framework for .NET based solutions.</Description>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <SignAssembly>true</SignAssembly>
