@@ -3,6 +3,13 @@ deploy:
   api_key:
     secure: doqtwSE1NadH7pf4jqYifDu4tcXzsNiJtPWOccnbUrhSnIJX+5js7m8z+kV9LNJ2
 
+- provider: NuGet
+  server: https://nuget.pkg.github.com/z4kn4fein/index.json
+  artifact: /.nupkg/
+  username: z4kn4fein
+  api_key:
+    secure: TaIug8cHioxT2qDznFpGtDinZiDi+20pEMQZUVAATWCvGLG9Y5LrjaxDUQtGyt38
+
 - provider: GitHub
   tag: $(build_version)
   release: Stashbox v$(build_version)

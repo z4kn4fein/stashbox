@@ -28,10 +28,6 @@ namespace Stashbox.Resolution
             if (typeInformation.Type == Constants.ResolverType)
                 return resolutionContext.CurrentScopeParameter;
 
-#if HAS_SERVICEPROVIDER
-            if (typeInformation.Type == Constants.ServiceProviderType)
-                return resolutionContext.CurrentScopeParameter;
-#endif
             if (resolutionContext.ParameterExpressions.Length > 0)
             {
                 var type = typeInformation.Type;
@@ -96,11 +92,6 @@ namespace Stashbox.Resolution
         {
             if (type == Constants.ResolverType)
                 return resolutionContext.CurrentScopeParameter;
-
-#if HAS_SERVICEPROVIDER
-            if (type == Constants.ServiceProviderType)
-                return resolutionContext.CurrentScopeParameter;
-#endif
 
             var exprOverride = resolutionContext.GetExpressionOverrideOrDefault(type, name);
             if (exprOverride != null)

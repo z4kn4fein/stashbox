@@ -107,6 +107,20 @@ namespace Stashbox.Tests
             Assert.Equal("Test", test1.Name);
         }
 
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void FactoryBuildUpTests_Resolve_Gets_The_Proper_Scope(CompilerType compilerType)
+        {
+            using var container = new StashboxContainer(c => c.WithCompiler(compilerType));
+            container.Register<Test5>(context =>
+                context.WithFactory(resolver => new Test5(resolver)));
+
+            using var scope = container.BeginScope();
+            var t = scope.Resolve<Test5>();
+
+            Assert.Same(scope, t.DependencyResolver);
+        }
+
         interface ITest { string Name { get; } }
 
         interface ITest1 { ITest Test { get; } }
@@ -165,6 +179,16 @@ namespace Stashbox.Tests
             public string Name { get; private set; }
 
             public void Init(string name) => Name = name;
+        }
+
+        class Test5
+        {
+            public IDependencyResolver DependencyResolver { get; }
+
+            public Test5(IDependencyResolver dependencyResolver)
+            {
+                DependencyResolver = dependencyResolver;
+            }
         }
     }
 }

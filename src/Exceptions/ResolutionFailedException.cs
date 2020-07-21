@@ -27,7 +27,7 @@ namespace Stashbox.Exceptions
         public ResolutionFailedException(Type type,
             string message = "Service is not registered or unresolvable type requested.",
             Exception innerException = null)
-            : base($"Cannot resolve type {type.FullName}.{Environment.NewLine}{message}", innerException)
+            : base($"Unable to resolve type {type.FullName}.{Environment.NewLine}{message}", innerException)
         {
             this.Type = type;
         }

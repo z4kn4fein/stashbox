@@ -40,7 +40,7 @@ namespace Stashbox
             this.RegisterResolvers();
         }
 
-        internal StashboxContainer(IStashboxContainer parentContainer, ServiceRegistrator serviceRegistrator,
+        private StashboxContainer(IStashboxContainer parentContainer, ServiceRegistrator serviceRegistrator,
             RegistrationBuilder registrationBuilder, ResolutionStrategy resolutionStrategy, ExpressionFactory expressionFactory,
             ExpressionBuilder expressionBuilder, ContainerConfigurator containerConfigurator)
             : this(expressionFactory, serviceRegistrator, registrationBuilder, containerConfigurator)
@@ -52,7 +52,7 @@ namespace Stashbox
                 expressionFactory, this.containerConfigurator.ContainerConfiguration);
         }
 
-        internal StashboxContainer(ExpressionFactory expressionFactory, ServiceRegistrator serviceRegistrator,
+        private StashboxContainer(ExpressionFactory expressionFactory, ServiceRegistrator serviceRegistrator,
             RegistrationBuilder registrationBuilder, ContainerConfigurator containerConfigurator, Action<ContainerConfigurator> config = null)
         {
             this.expressionFactory = expressionFactory;
@@ -126,6 +126,9 @@ namespace Stashbox
 
         private void RegisterResolvers()
         {
+#if HAS_SERVICEPROVIDER
+            this.resolutionStrategy.RegisterResolver(new ServiceProviderResolver());
+#endif
             this.resolutionStrategy.RegisterResolver(new EnumerableResolver());
             this.resolutionStrategy.RegisterResolver(new LazyResolver());
             this.resolutionStrategy.RegisterResolver(new FuncResolver());
