@@ -6,6 +6,7 @@ deploy:
 - provider: NuGet
   server: https://nuget.pkg.github.com/z4kn4fein/index.json
   artifact: /.nupkg/
+  skip_symbols: true
   username: z4kn4fein
   api_key:
     secure: TaIug8cHioxT2qDznFpGtDinZiDi+20pEMQZUVAATWCvGLG9Y5LrjaxDUQtGyt38
