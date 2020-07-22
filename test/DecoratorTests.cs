@@ -798,6 +798,35 @@ namespace Stashbox.Tests
             Assert.IsType<Test1>(t.Test);
         }
 
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void DecoratorTests_InjectMember(CompilerType compilerType)
+        {
+            using var container = new StashboxContainer(c => c.WithCompiler(compilerType));
+            container.Register<ITest1, Test1>();
+            container.RegisterDecorator<ITest1, TestDecorator14>(c => c.InjectMember(d => d.Test));
+
+            var t = container.Resolve<ITest1>();
+
+            Assert.IsType<TestDecorator14>(t);
+            Assert.IsType<Test1>(t.Test);
+        }
+
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void DecoratorTests_WithFinalizer(CompilerType compilerType)
+        {
+            var finalized = false;
+            {
+                using var container = new StashboxContainer(c => c.WithCompiler(compilerType));
+                container.Register<ITest1, Test1>();
+                container.RegisterDecorator<ITest1, TestDecorator1>(c => c.WithFinalizer(d => { finalized = true; }));
+                container.Resolve<ITest1>();
+            }
+
+            Assert.True(finalized);
+        }
+
         [Fact]
         public void DecoratorTests_Compositor_Works()
         {
@@ -942,6 +971,12 @@ namespace Stashbox.Tests
         }
 
         class TestDecorator3 : ITest1
+        {
+            [Dependency]
+            public ITest1 Test { get; set; }
+        }
+
+        class TestDecorator14 : ITest1
         {
             [Dependency]
             public ITest1 Test { get; set; }
