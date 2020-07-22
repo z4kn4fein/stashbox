@@ -7,87 +7,10 @@ using Stashbox.Utils.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 
 namespace Stashbox.Registration.Fluent
 {
-    /// <summary>
-    /// Represents the base of the generic fluent registration api.
-    /// </summary>
-    public class BaseFluentServiceConfigurator<TService, TImplementation, TConfigurator> : BaseFluentConfigurator<TConfigurator>
-        where TConfigurator : BaseFluentServiceConfigurator<TService, TImplementation, TConfigurator>
-    {
-        internal BaseFluentServiceConfigurator(Type serviceType, Type implementationType)
-            : base(serviceType, implementationType)
-        { }
-
-        /// <summary>
-        /// Set a member (property / field) as a dependency should be filled by the container.
-        /// </summary>
-        /// <param name="expression">The member expression.</param>
-        /// <param name="dependencyName">The name of the dependency.</param>
-        /// <returns>The configurator itself.</returns>
-        public TConfigurator InjectMember<TResult>(Expression<Func<TImplementation, TResult>> expression, object dependencyName = null)
-        {
-            if (expression.Body is MemberExpression memberExpression)
-            {
-                this.Context.InjectionMemberNames.Add(memberExpression.Member.Name, dependencyName);
-                return (TConfigurator)this;
-            }
-
-            throw new ArgumentException("The expression must be a member expression (Property or Field)", nameof(expression));
-        }
-
-        /// <summary>
-        /// Sets a delegate which will be called when the container is being disposed.
-        /// </summary>
-        /// <param name="finalizer">The cleanup delegate.</param>
-        /// <returns>The configurator itself.</returns>
-        public TConfigurator WithFinalizer(Action<TImplementation> finalizer)
-        {
-            base.Context.Finalizer = finalizer;
-            return (TConfigurator)this;
-        }
-
-        /// <summary>
-        /// Sets a delegate which will be called when the service is being constructed.
-        /// </summary>
-        /// <param name="initializer">The initializer delegate.</param>
-        /// <returns>The configurator itself.</returns>
-        public TConfigurator WithInitializer(Action<TImplementation, IDependencyResolver> initializer)
-        {
-            base.Context.Initializer = initializer;
-            return (TConfigurator)this;
-        }
-
-        /// <summary>
-        /// Sets a parameter-less factory delegate for the registration.
-        /// </summary>
-        /// <param name="singleFactory">The factory delegate.</param>
-        /// <param name="isCompiledLambda">Flag that indicates the passed factory delegate is a compiled lambda from <see cref="Expression"/>.</param>
-        /// <returns>The configurator itself.</returns>
-        public TConfigurator WithFactory(Func<TService> singleFactory, bool isCompiledLambda = false)
-        {
-            this.Context.SingleFactory = singleFactory;
-            this.Context.IsFactoryDelegateACompiledLambda = isCompiledLambda;
-            return (TConfigurator)this;
-        }
-
-        /// <summary>
-        /// Sets a container factory delegate for the registration.
-        /// </summary>
-        /// <param name="containerFactory">The container factory delegate.</param>
-        /// <param name="isCompiledLambda">Flag that indicates the passed factory delegate is a compiled lambda from <see cref="Expression"/>.</param>
-        /// <returns>The configurator itself.</returns>
-        public TConfigurator WithFactory(Func<IDependencyResolver, TService> containerFactory, bool isCompiledLambda = false)
-        {
-            this.Context.ContainerFactory = containerFactory;
-            this.Context.IsFactoryDelegateACompiledLambda = isCompiledLambda;
-            return (TConfigurator)this;
-        }
-    }
-
     /// <summary>
     /// Represents the base of the fluent registration api.
     /// </summary>
@@ -97,6 +20,10 @@ namespace Stashbox.Registration.Fluent
     {
         internal BaseFluentConfigurator(Type serviceType, Type implementationType)
             : base(serviceType, implementationType)
+        { }
+
+        internal BaseFluentConfigurator(Type serviceType, Type implementationType, RegistrationContext registrationContext)
+            : base(serviceType, implementationType, registrationContext)
         { }
 
         /// <summary>
@@ -133,8 +60,7 @@ namespace Stashbox.Registration.Fluent
         /// that every scoped service will get a different instance but within their dependency tree it will behave as a singleton. 
         /// </summary>
         /// <returns>The configurator itself.</returns>
-        public TConfigurator WithPerScopedRequestLifetime() =>
-            this.WithLifetime(Lifetimes.PerScopedRequest);
+        public TConfigurator WithPerScopedRequestLifetime() => this.WithLifetime(Lifetimes.PerScopedRequest);
 
         /// <summary>
         /// Sets a scope name condition for the registration, it will be used only when a scope with the given name requests it.
@@ -201,11 +127,7 @@ namespace Stashbox.Registration.Fluent
         /// </summary>
         /// <typeparam name="TTarget">The type of the parent.</typeparam>
         /// <returns>The configurator itself.</returns>
-        public TConfigurator WhenDependantIs<TTarget>() where TTarget : class
-        {
-            this.Context.TargetTypeCondition = typeof(TTarget);
-            return (TConfigurator)this;
-        }
+        public TConfigurator WhenDependantIs<TTarget>() where TTarget : class => this.WhenDependantIs(typeof(TTarget));
 
         /// <summary>
         /// Sets a parent target condition for the registration.
@@ -223,12 +145,7 @@ namespace Stashbox.Registration.Fluent
         /// </summary>
         /// <typeparam name="TAttribute">The type of the attribute.</typeparam>
         /// <returns>The configurator itself.</returns>
-        public TConfigurator WhenHas<TAttribute>() where TAttribute : Attribute
-        {
-            var store = (ExpandableArray<Type>)this.Context.AttributeConditions;
-            store.Add(typeof(TAttribute));
-            return (TConfigurator)this;
-        }
+        public TConfigurator WhenHas<TAttribute>() where TAttribute : Attribute => this.WhenHas(typeof(TAttribute));
 
         /// <summary>
         /// Sets an attribute condition for the registration.
@@ -313,7 +230,7 @@ namespace Stashbox.Registration.Fluent
         {
             var constructor = this.ImplementationType.GetConstructorByArguments(argumentTypes);
             if (constructor == null)
-                this.ThrowConstructorNotFoundException(this.ImplementationType, argumentTypes);
+                ThrowConstructorNotFoundException(this.ImplementationType, argumentTypes);
 
             this.Context.SelectedConstructor = constructor;
             return (TConfigurator)this;
@@ -330,7 +247,7 @@ namespace Stashbox.Registration.Fluent
             var argTypes = arguments.Select(arg => arg.GetType()).ToArray();
             var constructor = this.ImplementationType.GetConstructorByArguments(argTypes);
             if (constructor == null)
-                this.ThrowConstructorNotFoundException(this.ImplementationType, argTypes);
+                ThrowConstructorNotFoundException(this.ImplementationType, argTypes);
 
             this.Context.SelectedConstructor = constructor;
             this.Context.ConstructorArguments = arguments;
@@ -369,15 +286,14 @@ namespace Stashbox.Registration.Fluent
             return (TConfigurator)this;
         }
 
-        private void ThrowConstructorNotFoundException(Type type, params Type[] argTypes)
+        private static void ThrowConstructorNotFoundException(Type type, params Type[] argTypes)
         {
-            if (argTypes.Length == 0)
-                throw new ConstructorNotFoundException(type);
-
-            if (argTypes.Length == 1)
-                throw new ConstructorNotFoundException(type, argTypes[0]);
-
-            throw new ConstructorNotFoundException(type, argTypes);
+            throw argTypes.Length switch
+            {
+                0 => new ConstructorNotFoundException(type),
+                1 => new ConstructorNotFoundException(type, argTypes[0]),
+                _ => new ConstructorNotFoundException(type, argTypes)
+            };
         }
     }
 }

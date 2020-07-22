@@ -6,16 +6,56 @@ namespace Stashbox.Registration.Fluent
     /// <summary>
     /// Represents the fluent service decorator registration api.
     /// </summary>
-    public class DecoratorConfigurator<TService, TImplementation> : BaseFluentServiceConfigurator<TService, TImplementation, DecoratorConfigurator<TService, TImplementation>>
+    public class DecoratorConfigurator<TService, TImplementation> : BaseDecoratorConfigurator<DecoratorConfigurator<TService, TImplementation>>,
+        IFluentCompositor<TImplementation, DecoratorConfigurator<TService, TImplementation>>
     {
+        private readonly FluentCompositor<TService, TImplementation> compositor;
+
         internal DecoratorConfigurator(Type serviceType, Type implementationType) : base(serviceType, implementationType)
-        { }
+        {
+            this.compositor = new FluentCompositor<TService, TImplementation>(serviceType, implementationType, this.Context);
+        }
+
+        /// <inheritdoc />
+        public DecoratorConfigurator<TService, TImplementation> InjectMember<TResult>(Expression<Func<TImplementation, TResult>> expression, object dependencyName = null)
+        {
+            this.compositor.InjectMember(expression, dependencyName);
+            return this;
+        }
+
+        /// <inheritdoc />
+        public DecoratorConfigurator<TService, TImplementation> WithFinalizer(Action<TImplementation> finalizer)
+        {
+            this.compositor.WithFinalizer(finalizer);
+            return this;
+        }
+
+        /// <inheritdoc />
+        public DecoratorConfigurator<TService, TImplementation> WithInitializer(Action<TImplementation, IDependencyResolver> initializer)
+        {
+            this.compositor.WithInitializer(initializer);
+            return this;
+        }
+
+        /// <inheritdoc />
+        public DecoratorConfigurator<TService, TImplementation> WithFactory(Func<TImplementation> singleFactory, bool isCompiledLambda = false)
+        {
+            this.compositor.WithFactory(singleFactory, isCompiledLambda);
+            return this;
+        }
+
+        /// <inheritdoc />
+        public DecoratorConfigurator<TService, TImplementation> WithFactory(Func<IDependencyResolver, TImplementation> containerFactory, bool isCompiledLambda = false)
+        {
+            this.compositor.WithFactory(containerFactory, isCompiledLambda);
+            return this;
+        }
     }
 
     /// <summary>
     /// Represents the fluent service decorator registration api.
     /// </summary>
-    public class DecoratorConfigurator : BaseFluentConfigurator<DecoratorConfigurator>
+    public class DecoratorConfigurator : BaseDecoratorConfigurator<DecoratorConfigurator>
     {
         internal DecoratorConfigurator(Type serviceType, Type implementationType) : base(serviceType, implementationType)
         { }

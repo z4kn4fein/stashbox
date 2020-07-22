@@ -20,10 +20,14 @@ namespace Stashbox.Registration.Fluent
         internal RegistrationContext Context { get; }
 
         internal RegistrationConfiguration(Type serviceType, Type implementationType)
+            : this(serviceType, implementationType, new RegistrationContext())
+        { }
+
+        internal RegistrationConfiguration(Type serviceType, Type implementationType, RegistrationContext context)
         {
             this.ServiceType = serviceType;
             this.ImplementationType = implementationType;
-            this.Context = new RegistrationContext();
+            this.Context = context;
         }
 
         internal bool TypeMapIsValid(out string error)

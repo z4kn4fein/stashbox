@@ -5,6 +5,7 @@ using Stashbox.Utils;
 using Stashbox.Utils.Data.Immutable;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Stashbox.Registration
 {
@@ -35,6 +36,9 @@ namespace Stashbox.Registration
 
         public IEnumerable<ServiceRegistration> GetDecoratorsOrDefault(Type implementationTypeToDecorate, TypeInformation typeInformation, ResolutionContext resolutionContext) =>
             this.GetRegistrationsForType(typeInformation.Type)?.FilterInclusiveOrDefault(typeInformation.CloneForType(implementationTypeToDecorate), resolutionContext, this.filters);
+
+        public IEnumerable<KeyValuePair<Type, ServiceRegistration>> GetRegistrationMappings() =>
+            repository.Walk().SelectMany(reg => reg.Value.Select(r => new KeyValuePair<Type, ServiceRegistration>(reg.Key, r)));
 
         private IEnumerable<ServiceRegistration> GetRegistrationsForType(Type type)
         {

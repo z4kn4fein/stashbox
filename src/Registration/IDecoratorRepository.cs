@@ -26,5 +26,11 @@ namespace Stashbox.Registration
         /// <param name="resolutionContext">The resolution context.</param>
         /// <returns>The decorator registrations if any exists, otherwise null.</returns>
         IEnumerable<ServiceRegistration> GetDecoratorsOrDefault(Type implementationTypeToDecorate, TypeInformation typeInformation, ResolutionContext resolutionContext);
+
+        /// <summary>
+        /// Returns all registration mappings.
+        /// </summary>
+        /// <returns>The registration mappings.</returns>
+        IEnumerable<KeyValuePair<Type, ServiceRegistration>> GetRegistrationMappings();
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Stashbox.Attributes;
 using Stashbox.Configuration;
 using Stashbox.Exceptions;
+using Stashbox.Lifetime;
 using Stashbox.Tests.Utils;
 using System;
 using System.Collections.Generic;
@@ -532,7 +533,7 @@ namespace Stashbox.Tests
             container.Register<ITest1, Test1>("t1");
             container.Register<ITest1, Test11>("t2");
             container.RegisterDecorator<ITest1, TestDecorator1>();
-            container.RegisterDecorator<ITest1, TestDecorator2>(c => c.When(t => t.Type == typeof(Test11)));
+            container.RegisterDecorator<ITest1, TestDecorator2>(c => c.WhenDecoratedServiceIs<Test11>());
 
             var t1 = container.Resolve<ITest1>("t1");
             var t2 = container.Resolve<ITest1>("t2");
@@ -758,6 +759,61 @@ namespace Stashbox.Tests
             Assert.IsType<TestDecorator3>(t.Test);
             Assert.IsType<Test1>(t.Test.Test);
         }
+
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void DecoratorTests_Factory_Generic(CompilerType compilerType)
+        {
+            using var container = new StashboxContainer(c => c.WithCompiler(compilerType));
+            container.Register<ITest1, Test1>();
+            container.RegisterDecorator<ITest1, TestDecorator3>(c => c.WithFactory(() => new TestDecorator3()));
+            container.RegisterDecorator<ITest1, TestDecorator13>(c => c.WithFactory(r => new TestDecorator13 { Name = "T4" }));
+
+            var t = container.Resolve<ITest1>();
+
+            Assert.IsType<TestDecorator13>(t);
+            Assert.IsType<TestDecorator3>(t.Test);
+            Assert.IsType<Test1>(t.Test.Test);
+        }
+
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void DecoratorTests_Target_Attribute(CompilerType compilerType)
+        {
+            using var container = new StashboxContainer(c => c.WithCompiler(compilerType));
+            container.Register<ITest1, TestService>("t1");
+            container.Register<ITest1, Test1>("t2");
+            container.RegisterDecorator<ITest1, TestDecorator1>(c => c.WhenDecoratedServiceHas<Decorator1Attribute>());
+            container.RegisterDecorator<ITest1, TestDecorator2>();
+
+            var t = container.Resolve<ITest1>("t1");
+
+            Assert.IsType<TestDecorator2>(t);
+            Assert.IsType<TestDecorator1>(t.Test);
+            Assert.IsType<TestService>(t.Test.Test);
+
+            t = container.Resolve<ITest1>("t2");
+
+            Assert.IsType<TestDecorator2>(t);
+            Assert.IsType<Test1>(t.Test);
+        }
+
+        [Fact]
+        public void DecoratorTests_Compositor_Works()
+        {
+            using var container = new StashboxContainer();
+            container.RegisterDecorator<ITest1, TestDecorator1>(c => c
+                .WithInitializer((d, r) => { })
+                .WithSingletonLifetime()
+                .WhenDecoratedServiceIs<Test1>());
+
+            var registration = container.ContainerContext.DecoratorRepository.GetRegistrationMappings().First().Value;
+
+            Assert.NotNull(registration.RegistrationContext.Initializer);
+            Assert.NotNull(registration.RegistrationContext.ResolutionCondition);
+            Assert.Equal(Lifetimes.Singleton, registration.RegistrationContext.Lifetime);
+        }
+
 
         interface ITest1 { ITest1 Test { get; } }
 
@@ -1022,5 +1078,11 @@ namespace Stashbox.Tests
         class Decorator2Attribute : Attribute { }
 
         class Decorator3Attribute : Attribute { }
+
+        [Decorator1]
+        class TestService : ITest1
+        {
+            public ITest1 Test { get; }
+        }
     }
 }
