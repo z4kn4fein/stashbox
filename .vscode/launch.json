@@ -10,7 +10,7 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/test/bin/Debug/netcoreapp2.0/Stashbox.Tests.dll",
+            "program": "${workspaceFolder}/test/bin/Debug/netcoreapp2.1/Stashbox.Tests.dll",
             "args": [],
             "cwd": "${workspaceFolder}/test",
             // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console

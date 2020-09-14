@@ -26,17 +26,16 @@ namespace Stashbox.Utils
             TValue currentValue;
             TValue newValue;
             var counter = 0;
+            var swapThreshold = Environment.ProcessorCount * 6;
 
             do
             {
-                counter++;
-
-                if (counter > 50)
-                    throw new InvalidOperationException("Swap quota exceeded.");
-
-                if (counter > 20)
+                if (counter > 0)
                     wait.SpinOnce();
 
+                if (++counter > swapThreshold)
+                    throw new InvalidOperationException("Swap quota exceeded.");
+                
                 currentValue = refValue;
                 newValue = valueFactory(t1, t2, t3, t4, currentValue);
             } while (!ReferenceEquals(Interlocked.CompareExchange(ref refValue, newValue, currentValue), currentValue));

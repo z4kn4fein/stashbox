@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Stashbox.Lifetime;
 
 namespace Stashbox.Resolution
 {
@@ -120,7 +121,7 @@ namespace Stashbox.Resolution
                 .GetDecoratorsOrDefault(serviceRegistration.ImplementationType, typeInformation, resolutionContext);
 
             if (decorators == null)
-                return this.expressionBuilder.BuildExpressionAndApplyLifetime(serviceRegistration, resolutionContext, requestedType);
+                return this.BuildExpressionAndApplyLifetime(serviceRegistration, resolutionContext, requestedType);
 
             var stack = decorators.AsStack();
             stack.PushBack(serviceRegistration);
@@ -160,7 +161,7 @@ namespace Stashbox.Resolution
             if (serviceRegistration.RegistrationType == RegistrationType.OpenGeneric)
                 serviceRegistration = this.PrepareOpenGenericRegistration(serviceRegistration, resolutionContext, requestedType);
 
-            return this.expressionBuilder.BuildExpressionAndApplyLifetime(serviceRegistration, resolutionContext,
+            return this.BuildExpressionAndApplyLifetime(serviceRegistration, resolutionContext,
                 requestedType, decorators.PeekBack()?.RegistrationContext.Lifetime);
         }
 
@@ -174,5 +175,19 @@ namespace Stashbox.Resolution
             this.serviceRegistrator.Register(resolutionContext.CurrentContainerContext, newRegistration, requestedType, false);
             return newRegistration;
         }
+
+        private Expression BuildExpressionAndApplyLifetime(ServiceRegistration serviceRegistration,
+            ResolutionContext resolutionContext, Type requestedType, LifetimeDescriptor secondaryLifetimeDescriptor = null)
+        {
+            var lifetimeDescriptor = serviceRegistration.RegistrationContext.Lifetime ?? secondaryLifetimeDescriptor;
+            if (!IsOutputLifetimeManageable(serviceRegistration) || lifetimeDescriptor == null)
+                return this.expressionBuilder.BuildExpressionForRegistration(serviceRegistration, resolutionContext, requestedType);
+
+            return lifetimeDescriptor.ApplyLifetime(this.expressionBuilder, serviceRegistration, resolutionContext, requestedType);
+        }
+
+        private static bool IsOutputLifetimeManageable(ServiceRegistration serviceRegistration) =>
+            serviceRegistration.RegistrationType != RegistrationType.OpenGeneric &&
+            serviceRegistration.RegistrationType != RegistrationType.Instance;
     }
 }

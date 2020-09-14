@@ -16,16 +16,6 @@ namespace Stashbox.Expressions
             this.expressionFactory = expressionFactory;
         }
 
-        internal Expression BuildExpressionAndApplyLifetime(ServiceRegistration serviceRegistration,
-            ResolutionContext resolutionContext, Type requestedType, LifetimeDescriptor secondaryLifetimeDescriptor = null)
-        {
-            var lifetimeDescriptor = serviceRegistration.RegistrationContext.Lifetime ?? secondaryLifetimeDescriptor;
-            if (!IsOutputLifetimeManageable(serviceRegistration) || lifetimeDescriptor == null)
-                return this.BuildExpressionForRegistration(serviceRegistration, resolutionContext, requestedType);
-
-            return lifetimeDescriptor.ApplyLifetime(this, serviceRegistration, resolutionContext, requestedType);
-        }
-
         internal Expression BuildExpressionForRegistration(ServiceRegistration serviceRegistration,
             ResolutionContext resolutionContext, Type requestedType)
         {
@@ -91,10 +81,6 @@ namespace Stashbox.Expressions
             return scopeExpression.CallMethod(addFinalizerMethod, instanceExpression,
                 serviceRegistration.RegistrationContext.Finalizer.AsConstant());
         }
-
-        private static bool IsOutputLifetimeManageable(ServiceRegistration serviceRegistration) =>
-            serviceRegistration.RegistrationType != RegistrationType.OpenGeneric &&
-            serviceRegistration.RegistrationType != RegistrationType.Instance;
 
         private static bool ShouldHandleDisposal(IContainerContext containerContext, ServiceRegistration serviceRegistration)
         {

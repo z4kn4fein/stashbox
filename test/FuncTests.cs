@@ -417,13 +417,13 @@ namespace Stashbox.Tests
             var container = new StashboxContainer();
 
             Parallel.For(0, 5000, i =>
-            {
-                container.RegisterFunc<ITest>(resolver => new Test(), i.ToString());
+             {
+                 container.RegisterFunc<ITest>(resolver => new Test(), i.ToString());
 
-                var test = container.Resolve<Func<ITest>>(i.ToString())();
+                 var test = container.Resolve<Func<ITest>>(i.ToString())();
 
-                Assert.NotNull(test);
-            });
+                 Assert.NotNull(test);
+             });
         }
 
         [Fact]
