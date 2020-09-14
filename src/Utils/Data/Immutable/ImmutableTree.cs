@@ -318,7 +318,7 @@ namespace Stashbox.Utils.Data.Immutable
                     yield return new KeyValue<TKey, TValue>(currentNode.storedKey, currentNode.storedValue);
 
                     if (currentNode.collisions != null)
-                        foreach (var keyValue in collisions.Repository)
+                        foreach (var keyValue in currentNode.collisions.Repository)
                             yield return keyValue;
 
                     currentNode = currentNode.rightNode;
