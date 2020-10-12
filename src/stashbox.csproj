@@ -28,6 +28,8 @@
     <LangVersion>latest</LangVersion>
     <PackageReleaseNotes>
       <![CDATA[
+v3.2.5:
+- Minor bugfixes.
 v3.2.4:
 - Added the `.WhenDecoratedServiceHas()` and `.WhenDecoratedServiceIs()` decorator configuration options.
 v3.2.2:
