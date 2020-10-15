@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Stashbox.Utils.Data;
 
 namespace Stashbox
 {
@@ -89,12 +90,24 @@ namespace Stashbox
         /// <inheritdoc />
         public void Validate()
         {
-            foreach (var serviceRegistration in this.ContainerContext.RegistrationRepository.GetRegistrationMappings()
-                .Where(reg => !reg.Key.IsOpenGenericType()))
-                this.resolutionStrategy.BuildExpressionForRegistration(serviceRegistration.Value,
-                    new ResolutionContext(this.ContainerContext.RootScope.GetActiveScopeNames(),
-                    this.ContainerContext, this.resolutionStrategy, false),
-                    new TypeInformation(serviceRegistration.Key, serviceRegistration.Value.RegistrationContext.Name));
+            var exceptions = new ExpandableArray<Exception>();
+
+            try
+            {
+                foreach (var serviceRegistration in this.ContainerContext.RegistrationRepository.GetRegistrationMappings()
+                        .Where(reg => !reg.Key.IsOpenGenericType()))
+                    this.resolutionStrategy.BuildExpressionForRegistration(serviceRegistration.Value,
+                        new ResolutionContext(this.ContainerContext.RootScope.GetActiveScopeNames(),
+                        this.ContainerContext, this.resolutionStrategy, false),
+                        new TypeInformation(serviceRegistration.Key, serviceRegistration.Value.RegistrationContext.Name));
+            }
+            catch (Exception ex)
+            {
+                exceptions.Add(ex);
+            }
+
+            if(exceptions.Length > 0)
+                throw new AggregateException(exceptions);
         }
 
         /// <inheritdoc />

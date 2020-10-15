@@ -48,7 +48,8 @@ namespace Stashbox.Tests
         {
             using var container = new StashboxContainer();
             container.Register<ITest2, Test2>();
-            Assert.Throws<ResolutionFailedException>(() => container.Validate());
+            var agr = Assert.Throws<AggregateException>(() => container.Validate());
+            Assert.IsType<ResolutionFailedException>(agr.InnerExceptions[0]);
         }
 
         [Fact]
@@ -57,7 +58,8 @@ namespace Stashbox.Tests
             using var container = new StashboxContainer();
             container.Register<ITest1, Test4>();
             container.Register<ITest3, Test3>();
-            Assert.Throws<CircularDependencyException>(() => container.Validate());
+            var agr = Assert.Throws<AggregateException>(() => container.Validate());
+            Assert.IsType<CircularDependencyException>(agr.InnerExceptions[0]);
         }
 
         [Fact]
@@ -75,6 +77,15 @@ namespace Stashbox.Tests
             using var container = new StashboxContainer();
             container.Register(typeof(TestOpenGeneric<>));
             container.Validate();
+        }
+
+        [Fact]
+        public void ContainerTests_Validate_Throws_When_No_Public_Constructor_Found()
+        {
+            using var container = new StashboxContainer();
+            container.Register<NoPublicConstructor>();
+            var agr = Assert.Throws<AggregateException>(() => container.Validate());
+            Assert.IsType<ResolutionFailedException>(agr.InnerExceptions[0]);
         }
 
         [Fact]
@@ -392,5 +403,10 @@ namespace Stashbox.Tests
         class S { public int Id { get; set; } }
 
         class TestOpenGeneric<T> { }
+
+        class NoPublicConstructor
+        {
+            protected NoPublicConstructor() { }
+        }
     }
 }

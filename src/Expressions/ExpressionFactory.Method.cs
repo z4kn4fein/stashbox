@@ -40,6 +40,9 @@ namespace Stashbox.Expressions
             ConstructorInfo[] constructors,
             out Expression[] parameterExpressions)
         {
+            if (constructors.Length == 0)
+                throw new ResolutionFailedException(typeToConstruct, "No public constructor found. Make sure there is at least one public constructor on the type.");
+
             var checkedConstructors = new Dictionary<MethodBase, TypeInformation>();
 
             var unknownTypeCheckDisabledContext = resolutionContext.CurrentContainerContext.ContainerConfiguration.UnknownTypeResolutionEnabled
