@@ -70,6 +70,14 @@ namespace Stashbox.Tests
         }
 
         [Fact]
+        public void ContainerTests_Validate_Skips_Open_Generic()
+        {
+            using var container = new StashboxContainer();
+            container.Register(typeof(TestOpenGeneric<>));
+            container.Validate();
+        }
+
+        [Fact]
         public void ContainerTests_CheckRegistration()
         {
             using var container = new StashboxContainer();
@@ -382,5 +390,7 @@ namespace Stashbox.Tests
         }
 
         class S { public int Id { get; set; } }
+
+        class TestOpenGeneric<T> { }
     }
 }

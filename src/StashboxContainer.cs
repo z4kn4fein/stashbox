@@ -6,6 +6,7 @@ using Stashbox.Resolution.Resolvers;
 using Stashbox.Utils;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -88,7 +89,8 @@ namespace Stashbox
         /// <inheritdoc />
         public void Validate()
         {
-            foreach (var serviceRegistration in this.ContainerContext.RegistrationRepository.GetRegistrationMappings())
+            foreach (var serviceRegistration in this.ContainerContext.RegistrationRepository.GetRegistrationMappings()
+                .Where(reg => !reg.Key.IsOpenGenericType()))
                 this.resolutionStrategy.BuildExpressionForRegistration(serviceRegistration.Value,
                     new ResolutionContext(this.ContainerContext.RootScope.GetActiveScopeNames(),
                     this.ContainerContext, this.resolutionStrategy, false),
