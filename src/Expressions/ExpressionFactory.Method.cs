@@ -34,6 +34,7 @@ namespace Stashbox.Expressions
         }
 
         private ConstructorInfo SelectConstructor(
+            Type typeToConstruct,
             RegistrationContext registrationContext,
             ResolutionContext resolutionContext,
             ConstructorInfo[] constructors,
@@ -73,7 +74,7 @@ namespace Stashbox.Expressions
             foreach (var checkedConstructor in checkedConstructors)
                 stringBuilder.AppendLine($"Constructor {checkedConstructor.Key} found with unresolvable parameter: ({checkedConstructor.Value.Type.FullName}){checkedConstructor.Value.ParameterOrMemberName}.");
 
-            throw new ResolutionFailedException(constructors[0].DeclaringType, stringBuilder.ToString());
+            throw new ResolutionFailedException(typeToConstruct, stringBuilder.ToString());
         }
 
         private IEnumerable<Expression> CreateMethodExpressions(

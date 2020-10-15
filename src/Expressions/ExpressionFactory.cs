@@ -88,6 +88,7 @@ namespace Stashbox.Expressions
                 resolutionContext.CurrentContainerContext.ContainerConfiguration);
 
             var initExpression = this.CreateInitExpression(
+                serviceRegistration.ImplementationType,
                 serviceRegistration.RegistrationContext,
                 resolutionContext,
                 constructors);
@@ -130,6 +131,7 @@ namespace Stashbox.Expressions
                 resolutionContext.CurrentContainerContext.ContainerConfiguration);
 
             var initExpression = (Expression)this.SelectConstructor(
+                serviceType,
                 registrationContext,
                 resolutionContext,
                 typeInfo.DeclaredConstructors.CastToArray(),
@@ -152,6 +154,7 @@ namespace Stashbox.Expressions
         }
 
         private Expression CreateInitExpression(
+            Type typeToConstruct,
             RegistrationContext registrationContext,
             ResolutionContext resolutionContext,
             IEnumerable<ConstructorInfo> constructors)
@@ -172,7 +175,7 @@ namespace Stashbox.Expressions
                        resolutionContext.CurrentContainerContext.ContainerConfiguration.ConstructorSelectionRule;
             constructors = rule(constructors);
 
-            return this.SelectConstructor(registrationContext, resolutionContext,
+            return this.SelectConstructor(typeToConstruct, registrationContext, resolutionContext,
                 constructors.CastToArray(), out var parameters)?.MakeNew(parameters);
         }
     }
