@@ -92,21 +92,24 @@ namespace Stashbox
         {
             var exceptions = new ExpandableArray<Exception>();
 
-            try
+            foreach (var serviceRegistration in this.ContainerContext.RegistrationRepository
+                .GetRegistrationMappings()
+                .Where(reg => !reg.Key.IsOpenGenericType()))
             {
-                foreach (var serviceRegistration in this.ContainerContext.RegistrationRepository.GetRegistrationMappings()
-                        .Where(reg => !reg.Key.IsOpenGenericType()))
+                try
+                {
                     this.resolutionStrategy.BuildExpressionForRegistration(serviceRegistration.Value,
                         new ResolutionContext(this.ContainerContext.RootScope.GetActiveScopeNames(),
-                        this.ContainerContext, this.resolutionStrategy, false),
+                            this.ContainerContext, this.resolutionStrategy, false),
                         new TypeInformation(serviceRegistration.Key, serviceRegistration.Value.RegistrationContext.Name));
-            }
-            catch (Exception ex)
-            {
-                exceptions.Add(ex);
+                }
+                catch (Exception ex)
+                {
+                    exceptions.Add(ex);
+                }
             }
 
-            if(exceptions.Length > 0)
+            if (exceptions.Length > 0)
                 throw new AggregateException(exceptions);
         }
 

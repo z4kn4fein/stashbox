@@ -89,6 +89,20 @@ namespace Stashbox.Tests
         }
 
         [Fact]
+        public void ContainerTests_Validate_Throws_Multiple()
+        {
+            using var container = new StashboxContainer();
+            container.Register<NoPublicConstructor>();
+            container.Register<ITest1, Test4>();
+            container.Register<ITest3, Test3>();
+            var agr = Assert.Throws<AggregateException>(() => container.Validate());
+
+            Assert.Equal(3, agr.InnerExceptions.Count);
+            Assert.Equal(2, agr.InnerExceptions.Count(e => e is CircularDependencyException));
+            Assert.Equal(1, agr.InnerExceptions.Count(e => e is ResolutionFailedException));
+        }
+
+        [Fact]
         public void ContainerTests_CheckRegistration()
         {
             using var container = new StashboxContainer();

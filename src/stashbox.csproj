@@ -28,6 +28,8 @@
     <LangVersion>latest</LangVersion>
     <PackageReleaseNotes>
       <![CDATA[
+v3.2.7:
+- Minor bugfixes.
 v3.2.6:
 - The Validate() method now throws an AggregateException containing all the underlying exceptions.
 - Minor bugfixes.
