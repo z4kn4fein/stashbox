@@ -9,7 +9,7 @@
     <Company>Peter Csajtai</Company>
     <Product>Stashbox</Product>
     <Copyright>Copyright © Peter Csajtai 2020</Copyright>
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/z4kn4fein/stashbox</PackageProjectUrl>
     <PackageIcon>icon.png</PackageIcon>
     <RepositoryUrl>https://github.com/z4kn4fein/stashbox</RepositoryUrl>
@@ -141,7 +141,7 @@ Breaking changes:
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\LICENSE" Pack="true" PackagePath="" />
+    <None Include="..\LICENSE" />
     <None Include="..\img\icon.png" Pack="true" PackagePath="" />
   </ItemGroup>
 
