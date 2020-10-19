@@ -3,7 +3,7 @@
 
 Stashbox is a lightweight, fast and portable dependency injection framework for .NET based solutions.
 
-Github (stable) | NuGet (stable) | Fuget (stable) | NuGet (latest)
+Github (stable) | NuGet (stable) | Fuget (stable) | NuGet (daily)
 --- | --- | --- | ---
 [![Github release](https://img.shields.io/github/release/z4kn4fein/stashbox.svg)](https://github.com/z4kn4fein/stashbox/releases) | [![NuGet Version](https://buildstats.info/nuget/Stashbox)](https://www.nuget.org/packages/Stashbox/) | [![Stashbox on fuget.org](https://www.fuget.org/packages/Stashbox/badge.svg?v=3.2.8)](https://www.fuget.org/packages/Stashbox/3.2.8) | [![Nuget pre-release](https://img.shields.io/nuget/vpre/Stashbox)](https://www.nuget.org/packages/Stashbox/)
 
@@ -74,21 +74,21 @@ var wulfgar = container.Resolve<IBarbarian>();
 ```
 ## Extensions
 - ASP.NET Core
-    - [Stashbox.Extensions.Dependencyinjection](https://github.com/z4kn4fein/stashbox-extensions-dependencyinjection)
+    - [Stashbox.Extensions.DependencyInjection](https://github.com/z4kn4fein/stashbox-extensions-dependencyinjection)
     - [Stashbox.Extensions.Hosting](https://github.com/z4kn4fein/stashbox-extensions-dependencyinjection)
     - [Stashbox.AspNetCore.Hosting](https://github.com/z4kn4fein/stashbox-extensions-dependencyinjection)
 - ASP.NET
-    - [Stashbox.Web.WebApi](https://github.com/z4kn4fein/stashbox-web-webapi)
-    - [Stashbox.Web.Mvc](https://github.com/z4kn4fein/stashbox-web-mvc)
-    - [Stashbox.AspNet.SingalR](https://github.com/z4kn4fein/stashbox-signalr)
+    - [Stashbox.Web.WebApi](https://github.com/z4kn4fein/stashbox-extensions/tree/main/src/stashbox-web-webapi)
+    - [Stashbox.Web.Mvc](https://github.com/z4kn4fein/stashbox-extensions/tree/main/src/stashbox-web-mvc)
+    - [Stashbox.AspNet.SignalR](https://github.com/z4kn4fein/stashbox-extensions/tree/main/src/stashbox-signalr)
 - OWIN
-    - [Stashbox.Owin](https://github.com/z4kn4fein/stashbox-owin)
-    - [Stashbox.AspNet.WebApi.Owin](https://github.com/z4kn4fein/stashbox-webapi-owin)
-    - [Stashbox.AspNet.SingalR.Owin](https://github.com/z4kn4fein/stashbox-signalr-owin)
+    - [Stashbox.Owin](https://github.com/z4kn4fein/stashbox-extensions/tree/main/src/stashbox-owin)
+    - [Stashbox.AspNet.WebApi.Owin](https://github.com/z4kn4fein/stashbox-extensions/tree/main/src/stashbox-webapi-owin)
+    - [Stashbox.AspNet.SignalR.Owin](https://github.com/z4kn4fein/stashbox-extensions/tree/main/src/stashbox-signalr-owin)
 - WCF
     - [Stashbox.Extension.Wcf](https://github.com/devworker55/stashbox-extension-wcf)
 - Hangfire
-    - [Stashbox.Hangfire](https://github.com/z4kn4fein/stashbox-hangfire)
+    - [Stashbox.Hangfire](https://github.com/z4kn4fein/stashbox-extensions/tree/main/src/stashbox-hangfire)
 - Mocking
     - [Stashbox.Mocking](https://github.com/z4kn4fein/stashbox-mocking) (Moq, FakeItEasy, NSubstitute, RhinoMocks)
 
