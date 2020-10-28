@@ -264,6 +264,15 @@ namespace Stashbox.Tests
         }
 
         [Fact]
+        public void ContainerTests_Configuration_DuplicatedBehavior_Does_Not_Throw_On_Replace_Only_If_Exists()
+        {
+            using var container = new StashboxContainer(c =>
+                    c.WithRegistrationBehavior(Rules.RegistrationBehavior.ThrowException));
+
+            container.Register<S>().Register<S>(c => c.ReplaceOnlyIfExists());
+        }
+
+        [Fact]
         public void ContainerTests_Configuration_DuplicatedBehavior_Does_Not_Throw_On_Different_Implementation()
         {
             using var container = new StashboxContainer(c =>
@@ -292,6 +301,22 @@ namespace Stashbox.Tests
             .Register<Test1>().Register<Test1>().GetRegistrationMappings();
 
             Assert.Equal(2, regs.Count());
+        }
+
+        [Fact]
+        public void ContainerTests_Configuration_DuplicatedBehavior_Preserve_Cache_Invalidates()
+        {
+            using var container = new StashboxContainer(c =>
+                c.WithRegistrationBehavior(Rules.RegistrationBehavior.PreserveDuplications))
+            .Register<ITest1, Test1>();
+
+            var a = container.Resolve<ITest1>();
+
+            container.Register<ITest1, Test11>();
+
+            a = container.Resolve<ITest1>();
+
+            Assert.IsType<Test11>(a);
         }
 
         [Fact]

@@ -28,7 +28,7 @@ namespace Stashbox.Expressions
                 if (injectionParameter != null) yield return injectionParameter;
 
                 yield return resolutionContext.ResolutionStrategy.BuildExpressionForType(
-                    resolutionContext, parameter) ?? throw new ResolutionFailedException(method.DeclaringType,
+                    resolutionContext, parameter) ?? throw new ResolutionFailedException(method.DeclaringType, registrationContext.Name,
                     $"Method {method} found with unresolvable parameter: ({parameter.Type}){parameter.ParameterOrMemberName}");
             }
         }
@@ -41,7 +41,9 @@ namespace Stashbox.Expressions
             out Expression[] parameterExpressions)
         {
             if (constructors.Length == 0)
-                throw new ResolutionFailedException(typeToConstruct, "No public constructor found. Make sure there is at least one public constructor on the type.");
+                throw new ResolutionFailedException(typeToConstruct, 
+                    registrationContext.Name, 
+                    "No public constructor found. Make sure there is at least one public constructor on the type.");
 
             var checkedConstructors = new Dictionary<MethodBase, TypeInformation>();
 
@@ -77,7 +79,7 @@ namespace Stashbox.Expressions
             foreach (var checkedConstructor in checkedConstructors)
                 stringBuilder.AppendLine($"Constructor {checkedConstructor.Key} found with unresolvable parameter: ({checkedConstructor.Value.Type.FullName}){checkedConstructor.Value.ParameterOrMemberName}.");
 
-            throw new ResolutionFailedException(typeToConstruct, stringBuilder.ToString());
+            throw new ResolutionFailedException(typeToConstruct, registrationContext.Name, stringBuilder.ToString());
         }
 
         private IEnumerable<Expression> CreateMethodExpressions(

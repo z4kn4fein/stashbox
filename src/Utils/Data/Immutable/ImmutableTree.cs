@@ -193,10 +193,13 @@ namespace Stashbox.Utils.Data.Immutable
         }
 
         public ImmutableTree<TKey, TValue> AddOrUpdate(TKey key, TValue value, Func<TValue, TValue, TValue> updateDelegate = null) =>
-            this.Add(RuntimeHelpers.GetHashCode(key), key, value, updateDelegate, false);
+            this.AddOrUpdate(RuntimeHelpers.GetHashCode(key), key, value, updateDelegate, false);
 
         public ImmutableTree<TKey, TValue> AddOrUpdate(TKey key, TValue value, bool forceUpdate) =>
-            this.Add(RuntimeHelpers.GetHashCode(key), key, value, null, forceUpdate);
+            this.AddOrUpdate(RuntimeHelpers.GetHashCode(key), key, value, null, forceUpdate);
+
+        public ImmutableTree<TKey, TValue> UpdateIfExists(TKey key, Func<TValue, TValue> updateDelegate) =>
+            this.UpdateIfExists(RuntimeHelpers.GetHashCode(key), key, updateDelegate);
 
         [MethodImpl(Constants.Inline)]
         public TValue GetOrDefault(TKey key)
@@ -215,7 +218,7 @@ namespace Stashbox.Utils.Data.Immutable
                     : node.collisions.GetOrDefault(key, true);
         }
 
-        private ImmutableTree<TKey, TValue> Add(int hash, TKey key, TValue value, Func<TValue, TValue, TValue> updateDelegate, bool forceUpdate)
+        private ImmutableTree<TKey, TValue> AddOrUpdate(int hash, TKey key, TValue value, Func<TValue, TValue, TValue> updateDelegate, bool forceUpdate)
         {
             if (this.IsEmpty)
                 return new ImmutableTree<TKey, TValue>(hash, key, value);
@@ -223,32 +226,107 @@ namespace Stashbox.Utils.Data.Immutable
             if (hash == this.storedHash)
                 return this.CheckCollision(hash, key, value, updateDelegate, forceUpdate);
 
-            return hash < this.storedHash
-                ? this.height == 1
-                    ? new ImmutableTree<TKey, TValue>(this.storedHash, this.storedKey, this.storedValue,
-                        new ImmutableTree<TKey, TValue>(hash, key, value), this.rightNode, this.collisions)
-                    : Balance(this.storedHash, this.storedKey, this.storedValue, this.leftNode.Add(hash, key, value, updateDelegate, forceUpdate), this.rightNode, this.collisions)
-                : this.height == 1
-                    ? new ImmutableTree<TKey, TValue>(this.storedHash, this.storedKey, this.storedValue, this.leftNode,
-                        new ImmutableTree<TKey, TValue>(hash, key, value), this.collisions)
-                    : Balance(this.storedHash, this.storedKey, this.storedValue, this.leftNode, this.rightNode.Add(hash, key, value, updateDelegate, forceUpdate), this.collisions);
+            if (hash < this.storedHash)
+            {
+                if (this.height == 1)
+                    return new ImmutableTree<TKey, TValue>(this.storedHash, this.storedKey, this.storedValue,
+                        new ImmutableTree<TKey, TValue>(hash, key, value), this.rightNode, this.collisions);
+
+                var left = this.leftNode.AddOrUpdate(hash, key, value, updateDelegate, forceUpdate);
+                if (ReferenceEquals(left, this.leftNode))
+                    return this;
+
+                return Balance(this.storedHash, this.storedKey, this.storedValue, left, this.rightNode, this.collisions);
+            }
+
+
+            if (this.height == 1)
+                return new ImmutableTree<TKey, TValue>(this.storedHash, this.storedKey, this.storedValue, this.leftNode,
+                        new ImmutableTree<TKey, TValue>(hash, key, value), this.collisions);
+
+            var right = this.rightNode.AddOrUpdate(hash, key, value, updateDelegate, forceUpdate);
+            if (ReferenceEquals(right, this.rightNode))
+                return this;
+
+            return Balance(this.storedHash, this.storedKey, this.storedValue, this.leftNode, right, this.collisions);
+        }
+
+        private ImmutableTree<TKey, TValue> UpdateIfExists(int hash, TKey key, Func<TValue, TValue> updateDelegate)
+        {
+            if (this.IsEmpty)
+                return this;
+
+            if (hash == this.storedHash)
+                return this.ReplaceInCollisionsIfExist(hash, key, updateDelegate);
+
+            if (hash < this.storedHash)
+            {
+                var left = this.leftNode.UpdateIfExists(hash, key, updateDelegate);
+                if (ReferenceEquals(left, this.leftNode))
+                    return this;
+            }
+            else
+            {
+                var right = this.rightNode.UpdateIfExists(hash, key, updateDelegate);
+                if (ReferenceEquals(right, this.rightNode))
+                    return this;
+            }
+
+            return new ImmutableTree<TKey, TValue>(this.storedHash, this.storedKey, 
+                this.storedValue, this.leftNode, this.rightNode, this.collisions);
         }
 
         private ImmutableTree<TKey, TValue> CheckCollision(int hash, TKey key, TValue value, Func<TValue, TValue, TValue> updateDelegate, bool forceUpdate)
         {
             if (ReferenceEquals(key, this.storedKey))
-                return updateDelegate != null
-                    ? new ImmutableTree<TKey, TValue>(hash, key, updateDelegate(this.storedValue, value), this.leftNode, this.rightNode, this.collisions)
-                    : forceUpdate
-                        ? new ImmutableTree<TKey, TValue>(hash, key, value, this.leftNode, this.rightNode, this.collisions)
-                        : this;
+            {
+                if (forceUpdate)
+                    return new ImmutableTree<TKey, TValue>(hash, key, value, this.leftNode, this.rightNode, this.collisions);
 
+                if (updateDelegate != null)
+                {
+                    var newValue = updateDelegate(this.storedValue, value);
+                    if (ReferenceEquals(newValue, this.storedValue))
+                        return this;
+
+                    return new ImmutableTree<TKey, TValue>(hash, key, newValue, this.leftNode, this.rightNode, this.collisions);
+                }
+
+                return this;
+            }
+            
             if (this.collisions == null)
                 return new ImmutableTree<TKey, TValue>(hash, key, value, this.leftNode, this.rightNode,
                     ImmutableBucket<TKey, TValue>.Empty.Add(key, value));
 
+            var @new = updateDelegate == null || forceUpdate
+                        ? value
+                        : updateDelegate(this.storedValue, value);
+
+            if (ReferenceEquals(@new, this.storedValue))
+                return this;
+
             return new ImmutableTree<TKey, TValue>(hash, key, value, this.leftNode, this.rightNode,
-                this.collisions.AddOrUpdate(key, updateDelegate == null || forceUpdate ? value : updateDelegate(this.storedValue, value), true));
+                this.collisions.AddOrUpdate(key, @new, true));
+        }
+
+        private ImmutableTree<TKey, TValue> ReplaceInCollisionsIfExist(int hash, TKey key, Func<TValue, TValue> updateDelegate)
+        {
+            if (ReferenceEquals(key, this.storedKey))
+                return new ImmutableTree<TKey, TValue>(hash, key, updateDelegate(this.storedValue), 
+                    this.leftNode, this.rightNode, this.collisions);
+
+            if (this.collisions != null)
+            {
+                var collisions = this.collisions.ReplaceIfExists(key, updateDelegate, true);
+                if(ReferenceEquals(collisions, this.collisions))
+                    return this;
+
+                return new ImmutableTree<TKey, TValue>(this.storedHash, this.storedKey, 
+                    this.storedValue, this.leftNode, this.rightNode, collisions);
+            }
+
+            return this;
         }
 
         private static ImmutableTree<TKey, TValue> Balance(int hash, TKey key, TValue value, ImmutableTree<TKey, TValue> left, ImmutableTree<TKey, TValue> right, ImmutableBucket<TKey, TValue> collisions)

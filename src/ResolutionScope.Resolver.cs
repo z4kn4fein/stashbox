@@ -86,7 +86,7 @@ namespace Stashbox
                 if (resolutionContext.NullResultAllowed)
                     return null;
                 else
-                    throw new ResolutionFailedException(type);
+                    throw new ResolutionFailedException(type, name);
 
             var factory = expression.CompileDelegate(resolutionContext, this.containerContext.ContainerConfiguration);
 
@@ -108,7 +108,7 @@ namespace Stashbox
                 if (resolutionContext.NullResultAllowed)
                     return null;
                 else
-                    throw new ResolutionFailedException(type);
+                    throw new ResolutionFailedException(type, name);
 
             var expression = initExpression.AsLambda(resolutionContext.ParameterExpressions.SelectMany(x => x.Select(i => i.I2)));
 

@@ -78,11 +78,72 @@ namespace Stashbox.Utils.Data.Immutable
             if (count == -1)
                 return this.Add(key, value);
 
+            var old = this.Repository[count].Value;
+            var @new = update == null ? value : update(old, value);
+            if (ReferenceEquals(@new, old))
+                return this;
+
+            var newRepository = new KeyValue<TKey, TValue>[this.Length];
+            Array.Copy(this.Repository, newRepository, this.Length);
+            newRepository[count] = new KeyValue<TKey, TValue>(key, @new);
+
+            return new ImmutableBucket<TKey, TValue>(newRepository);
+        }
+
+        internal ImmutableBucket<TKey, TValue> ReplaceIfExists(TKey key, Func<TValue, TValue> updateDelegate, bool byRef)
+        {
+            if (this.Length == 0)
+                return this;
+
+            var count = this.Length - 1;
+            while (count >= 0)
+            {
+                ref readonly var item = ref this.Repository[count];
+                if (byRef && ReferenceEquals(item.Key, key) || !byRef && Equals(item.Key, key))
+                    break;
+
+                count--;
+            }
+
+            if (count == -1)
+                return this;
+
+            var length = this.Length - 1;
+            var newRepository = new KeyValue<TKey, TValue>[length];
+            Array.Copy(this.Repository, newRepository, length);
+
+            newRepository[count] = new KeyValue<TKey, TValue>(key, updateDelegate(newRepository[count].Value));
+
+            return new ImmutableBucket<TKey, TValue>(newRepository);
+        }
+
+        internal ImmutableBucket<TKey, TValue> ReplaceIfExists(TKey key, TValue value, bool byRef, Func<TValue, TValue, TValue> update = null)
+        {
+            if (this.Length == 0)
+                return this;
+
+            var count = this.Length - 1;
+            while (count >= 0)
+            {
+                ref readonly var item = ref this.Repository[count];
+                if (byRef && ReferenceEquals(item.Key, key) || !byRef && Equals(item.Key, key))
+                    break;
+
+                count--;
+            }
+
+            if (count == -1)
+                return this;
+
+            var old = this.Repository[count].Value;
+            var @new = update == null ? value : update(old, value);
+            if (ReferenceEquals(@new, old))
+                return this;
+
             var newRepository = new KeyValue<TKey, TValue>[this.Length];
             Array.Copy(this.Repository, newRepository, this.Length);
 
-            value = update == null ? value : update.Invoke(newRepository[count].Value, value);
-            newRepository[count] = new KeyValue<TKey, TValue>(key, value);
+            newRepository[count] = new KeyValue<TKey, TValue>(key, @new);
 
             return new ImmutableBucket<TKey, TValue>(newRepository);
         }

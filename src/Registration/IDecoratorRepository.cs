@@ -15,8 +15,7 @@ namespace Stashbox.Registration
         /// <param name="type">The decorated type.</param>
         /// <param name="serviceRegistration">The decorator registration.</param>
         /// <param name="remap">If true, all the registrations mapped to a service type will be replaced.</param>
-        /// <param name="replace">True if an existing decorator registration should be replaced.</param>
-        void AddDecorator(Type type, ServiceRegistration serviceRegistration, bool remap, bool replace);
+        void AddDecorator(Type type, ServiceRegistration serviceRegistration, bool remap);
 
         /// <summary>
         /// Gets a decorator registration.

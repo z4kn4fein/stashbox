@@ -22,6 +22,11 @@ namespace Stashbox.Registration
         public bool ReplaceExistingRegistration { get; internal set; }
 
         /// <summary>
+        /// Indicates that the current registration should replace an existing one but only if there is an existing one to replace.
+        /// </summary>
+        public bool ReplaceExistingRegistrationOnlyIfExists { get; internal set; }
+
+        /// <summary>
         /// Contains the additional service types the current registration mapped to.
         /// </summary>
         public IEnumerable<Type> AdditionalServiceTypes { get; internal set; }

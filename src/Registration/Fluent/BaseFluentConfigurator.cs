@@ -277,12 +277,22 @@ namespace Stashbox.Registration.Fluent
         }
 
         /// <summary>
-        /// Tells the container that it should replace an existing registration with this one.
+        /// Tells the container that it should replace an existing registration with the current one, or add it if there is no existing found.
         /// </summary>
         /// <returns>The fluent configurator.</returns>
         public TConfigurator ReplaceExisting()
         {
             this.Context.ReplaceExistingRegistration = true;
+            return (TConfigurator)this;
+        }
+
+        /// <summary>
+        /// Tells the container that it should replace an existing registration with the current one, but only if there is an existing registration.
+        /// </summary>
+        /// <returns>The fluent configurator.</returns>
+        public TConfigurator ReplaceOnlyIfExists()
+        {
+            this.Context.ReplaceExistingRegistrationOnlyIfExists = true;
             return (TConfigurator)this;
         }
 

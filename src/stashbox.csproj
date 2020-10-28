@@ -28,6 +28,8 @@
     <LangVersion>latest</LangVersion>
     <PackageReleaseNotes>
       <![CDATA[
+v3.2.9:
+- Added the option to replace a registration only if an existing one is registered with the same type or name.
 v3.2.8:
 - Switch to license expression in nuget package.
 v3.2.7:

@@ -20,7 +20,7 @@ namespace Stashbox.Registration
             RegistrationSelectionRules.ScopeNameFilter
         };
 
-        public void AddDecorator(Type type, ServiceRegistration serviceRegistration, bool remap, bool replace)
+        public void AddDecorator(Type type, ServiceRegistration serviceRegistration, bool remap)
         {
             var newRepository = ImmutableBucket<Type, ServiceRegistration>.Empty.Add(serviceRegistration.ImplementationType, serviceRegistration);
 
@@ -31,7 +31,8 @@ namespace Stashbox.Registration
             else
                 Swap.SwapValue(ref this.repository, (t1, t2, t3, t4, repo) =>
                     repo.AddOrUpdate(t1, t2, (oldValue, newValue) => oldValue
-                        .AddOrUpdate(t3.ImplementationType, t3, t4)), type, newRepository, serviceRegistration, replace);
+                        .AddOrUpdate(t3.ImplementationType, t3, t3.RegistrationContext.ReplaceExistingRegistration)), 
+                            type, newRepository, serviceRegistration, Constants.DelegatePlaceholder);
         }
 
         public IEnumerable<ServiceRegistration> GetDecoratorsOrDefault(Type implementationTypeToDecorate, TypeInformation typeInformation, ResolutionContext resolutionContext) =>

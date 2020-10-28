@@ -22,12 +22,14 @@ namespace Stashbox.Exceptions
         /// Constructs a <see cref="ResolutionFailedException"/>.
         /// </summary>
         /// <param name="type">The type of the service.</param>
+        /// <param name="name">The name of the service.</param>
         /// <param name="message">The exception message.</param>
         /// <param name="innerException">The inner exception.</param>
         public ResolutionFailedException(Type type,
-            string message = "Service is not registered or unresolvable type requested.",
+            object name = null,
+            string message = "Service is not registered properly or unresolvable type requested.",
             Exception innerException = null)
-            : base($"Unable to resolve type {type.FullName}.{Environment.NewLine}{message}", innerException)
+            : base($"Unable to resolve type {type.FullName}{(name != null ? " with the name \'"+ name +"\'" : "")}.{Environment.NewLine}{message}", innerException)
         {
             this.Type = type;
         }

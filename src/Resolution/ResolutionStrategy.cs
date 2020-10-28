@@ -171,8 +171,9 @@ namespace Stashbox.Resolution
             var genericType = serviceRegistration.ImplementationType.MakeGenericType(requestedType.GetGenericArguments());
             var newRegistration = serviceRegistration.Clone(genericType, RegistrationType.Default);
             newRegistration.RegistrationContext.Name = null;
+            newRegistration.RegistrationContext.ReplaceExistingRegistration = false;
 
-            this.serviceRegistrator.Register(resolutionContext.CurrentContainerContext, newRegistration, requestedType, false);
+            this.serviceRegistrator.Register(resolutionContext.CurrentContainerContext, newRegistration, requestedType);
             return newRegistration;
         }
 

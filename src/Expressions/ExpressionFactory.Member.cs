@@ -48,7 +48,7 @@ namespace Stashbox.Expressions
             if (memberExpression != null || resolutionContext.NullResultAllowed) return memberExpression;
 
             var memberType = member is PropertyInfo ? "property" : "field";
-            throw new ResolutionFailedException(memberTypeInfo.ParentType,
+            throw new ResolutionFailedException(memberTypeInfo.ParentType, memberTypeInfo.DependencyName,
                 $"Unresolvable {memberType}: ({memberTypeInfo.Type.FullName}){memberTypeInfo.ParameterOrMemberName}.");
 
         }

@@ -14,9 +14,15 @@ namespace Stashbox.Registration
         /// </summary>
         /// <param name="registration">The registration.</param>
         /// <param name="serviceType">The service type of the registration. Used as the key for the registration mapping.</param>
-        /// <param name="remap">If true, all the registrations mapped to a service type will be replaced.</param>
-        /// <param name="replace">If true, only one existing registration will be replaced when multiple exists.</param>
-        void AddOrUpdateRegistration(ServiceRegistration registration, Type serviceType, bool remap, bool replace);
+        /// <returns>True when the repository changed, otherwise false.</returns>
+        bool AddOrUpdateRegistration(ServiceRegistration registration, Type serviceType);
+
+        /// <summary>
+        /// Remaps all the registrations mapped to a service type.
+        /// </summary>
+        /// <param name="registration">The registration.</param>
+        /// <param name="serviceType">The service type of the registration. Used as the key for the registration mapping.</param>
+        void AddOrReMapRegistration(ServiceRegistration registration, Type serviceType);
 
         /// <summary>
         /// Returns a registration.

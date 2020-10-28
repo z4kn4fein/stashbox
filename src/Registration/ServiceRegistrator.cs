@@ -9,22 +9,19 @@ namespace Stashbox.Registration
         {
             if (serviceRegistration.RegistrationContext.AdditionalServiceTypes.Any())
                 foreach (var additionalServiceType in serviceRegistration.RegistrationContext.AdditionalServiceTypes)
-                    this.Register(containerContext, serviceRegistration, additionalServiceType, serviceRegistration.RegistrationContext.ReplaceExistingRegistration);
+                    this.RegisterInternal(containerContext, serviceRegistration, additionalServiceType);
 
-            this.Register(containerContext, serviceRegistration, serviceType, serviceRegistration.RegistrationContext.ReplaceExistingRegistration);
+            this.RegisterInternal(containerContext, serviceRegistration, serviceType);
         }
 
-        public void Register(IContainerContext containerContext, ServiceRegistration serviceRegistration, Type serviceType, bool replace)
+        private void RegisterInternal(IContainerContext containerContext, ServiceRegistration serviceRegistration, Type serviceType)
         {
             if (serviceRegistration.IsDecorator)
             {
-                containerContext.DecoratorRepository.AddDecorator(serviceType, serviceRegistration, false, replace);
+                containerContext.DecoratorRepository.AddDecorator(serviceType, serviceRegistration, false);
                 containerContext.RootScope.InvalidateDelegateCache();
             }
-            else
-                containerContext.RegistrationRepository.AddOrUpdateRegistration(serviceRegistration, serviceType, false, replace);
-
-            if (replace)
+            else if (containerContext.RegistrationRepository.AddOrUpdateRegistration(serviceRegistration, serviceType))
                 containerContext.RootScope.InvalidateDelegateCache();
         }
 
@@ -32,17 +29,17 @@ namespace Stashbox.Registration
         {
             if (serviceRegistration.RegistrationContext.AdditionalServiceTypes.Any())
                 foreach (var additionalServiceType in serviceRegistration.RegistrationContext.AdditionalServiceTypes)
-                    this.ReMap(containerContext, serviceRegistration, additionalServiceType, serviceRegistration.RegistrationContext.ReplaceExistingRegistration);
+                    this.ReMapInternal(containerContext, serviceRegistration, additionalServiceType);
 
-            this.ReMap(containerContext, serviceRegistration, serviceType, serviceRegistration.RegistrationContext.ReplaceExistingRegistration);
+            this.ReMapInternal(containerContext, serviceRegistration, serviceType);
         }
 
-        public void ReMap(IContainerContext containerContext, ServiceRegistration serviceRegistration, Type serviceType, bool replace)
+        private void ReMapInternal(IContainerContext containerContext, ServiceRegistration serviceRegistration, Type serviceType)
         {
             if (serviceRegistration.IsDecorator)
-                containerContext.DecoratorRepository.AddDecorator(serviceType, serviceRegistration, true, replace);
+                containerContext.DecoratorRepository.AddDecorator(serviceType, serviceRegistration, true);
             else
-                containerContext.RegistrationRepository.AddOrUpdateRegistration(serviceRegistration, serviceType, true, replace);
+                containerContext.RegistrationRepository.AddOrReMapRegistration(serviceRegistration, serviceType);
 
             containerContext.RootScope.InvalidateDelegateCache();
         }
