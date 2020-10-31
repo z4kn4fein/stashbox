@@ -22,7 +22,8 @@ namespace Stashbox.Registration
         /// </summary>
         /// <param name="registration">The registration.</param>
         /// <param name="serviceType">The service type of the registration. Used as the key for the registration mapping.</param>
-        void AddOrReMapRegistration(ServiceRegistration registration, Type serviceType);
+        /// <returns>True when the repository changed, otherwise false.</returns>
+        bool AddOrReMapRegistration(ServiceRegistration registration, Type serviceType);
 
         /// <summary>
         /// Returns a registration.

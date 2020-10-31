@@ -52,6 +52,27 @@ namespace Stashbox.Tests
         }
 
         [Fact]
+        public void ReMapTests_ReMap_Replace_Only_If_Exists()
+        {
+            using var container = new StashboxContainer();
+            container.Register<ITest1, Test1>(context => context.WithName("teszt"));
+            container.Register<ITest1, Test12>(context => context.WithName("teszt2"));
+
+            var test1 = container.Resolve<ITest1>("teszt");
+            var test2 = container.Resolve<ITest1>("teszt2");
+
+            Assert.IsType<Test1>(test1);
+            Assert.IsType<Test12>(test2);
+
+            container.ReMap<ITest1, Test11>(context => context.WithName("teszt").ReplaceOnlyIfExists());
+
+            Assert.Throws<ResolutionFailedException>(() => container.Resolve<ITest1>("teszt2"));
+
+            var test11 = container.Resolve<ITest1>("teszt");
+            Assert.IsType<Test11>(test11);
+        }
+
+        [Fact]
         public void ReMapTests_Replace_Only_If_Exists()
         {
             using var container = new StashboxContainer();
@@ -91,6 +112,23 @@ namespace Stashbox.Tests
         }
 
         [Fact]
+        public void ReMapTests_ReMap_Replaces_Every_Registration()
+        {
+            using var container = new StashboxContainer();
+            container.Register<ITest1, Test1>(context => context.WithName("teszt"));
+
+            var test1 = container.Resolve<ITest1>("teszt");
+            Assert.IsType<Test1>(test1);
+
+            container.ReMap<ITest1, Test11>(context => context.WithName("teszt2").ReplaceOnlyIfExists());
+
+            Assert.Throws<ResolutionFailedException>(() => container.Resolve<ITest1>("teszt"));
+
+            var test11 = container.Resolve<ITest1>("teszt2");
+            Assert.IsType<Test11>(test11);
+        }
+
+        [Fact]
         public void ReMapTests_Replace_Only_If_Exists_Instance()
         {
             using var container = new StashboxContainer();
@@ -117,11 +155,47 @@ namespace Stashbox.Tests
         }
 
         [Fact]
+        public void ReMapTests_ReMap_Replace_Only_If_Exists_Instance()
+        {
+            using var container = new StashboxContainer();
+            var t1 = new Test1();
+            container.Register<Test1>(c => c.WithInstance(t1));
+
+            var i1 = container.Resolve<Test1>();
+            var i2 = container.Resolve<Test1>();
+
+            Assert.Same(t1, i1);
+            Assert.Same(i1, i2);
+
+            var t2 = new Test1();
+            container.ReMap<Test1>(c => c.WithInstance(t2).ReplaceOnlyIfExists());
+
+            i1 = container.Resolve<Test1>();
+            i2 = container.Resolve<Test1>();
+
+            Assert.Same(t2, i1);
+            Assert.Same(i1, i2);
+
+            Assert.NotSame(t1, i1);
+            Assert.NotSame(t1, i2);
+        }
+
+        [Fact]
         public void ReMapTests_Dont_Replace_If_Instance_Is_Not_Existing()
         {
             using var container = new StashboxContainer();
             var t1 = new Test1();
             container.Register<Test1>(c => c.WithInstance(t1).ReplaceOnlyIfExists());
+
+            Assert.Throws<ResolutionFailedException>(() => container.Resolve<Test1>());
+        }
+
+        [Fact]
+        public void ReMapTests_ReMap_Dont_Replace_If_Instance_Is_Not_Existing()
+        {
+            using var container = new StashboxContainer();
+            var t1 = new Test1();
+            container.ReMap<Test1>(c => c.WithInstance(t1).ReplaceOnlyIfExists());
 
             Assert.Throws<ResolutionFailedException>(() => container.Resolve<Test1>());
         }

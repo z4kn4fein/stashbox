@@ -201,6 +201,9 @@ namespace Stashbox.Utils.Data.Immutable
         public ImmutableTree<TKey, TValue> UpdateIfExists(TKey key, Func<TValue, TValue> updateDelegate) =>
             this.UpdateIfExists(RuntimeHelpers.GetHashCode(key), key, updateDelegate);
 
+        public ImmutableTree<TKey, TValue> UpdateIfExists(TKey key, TValue value) =>
+            this.UpdateIfExists(RuntimeHelpers.GetHashCode(key), key, value);
+
         [MethodImpl(Constants.Inline)]
         public TValue GetOrDefault(TKey key)
         {
@@ -276,6 +279,31 @@ namespace Stashbox.Utils.Data.Immutable
                 this.storedValue, this.leftNode, this.rightNode, this.collisions);
         }
 
+        private ImmutableTree<TKey, TValue> UpdateIfExists(int hash, TKey key, TValue value)
+        {
+            if (this.IsEmpty)
+                return this;
+
+            if (hash == this.storedHash)
+                return this.ReplaceInCollisionsIfExist(hash, key, value);
+
+            if (hash < this.storedHash)
+            {
+                var left = this.leftNode.UpdateIfExists(hash, key, value);
+                if (ReferenceEquals(left, this.leftNode))
+                    return this;
+            }
+            else
+            {
+                var right = this.rightNode.UpdateIfExists(hash, key, value);
+                if (ReferenceEquals(right, this.rightNode))
+                    return this;
+            }
+
+            return new ImmutableTree<TKey, TValue>(this.storedHash, this.storedKey,
+                this.storedValue, this.leftNode, this.rightNode, this.collisions);
+        }
+
         private ImmutableTree<TKey, TValue> CheckCollision(int hash, TKey key, TValue value, Func<TValue, TValue, TValue> updateDelegate, bool forceUpdate)
         {
             if (ReferenceEquals(key, this.storedKey))
@@ -323,6 +351,25 @@ namespace Stashbox.Utils.Data.Immutable
                     return this;
 
                 return new ImmutableTree<TKey, TValue>(this.storedHash, this.storedKey, 
+                    this.storedValue, this.leftNode, this.rightNode, collisions);
+            }
+
+            return this;
+        }
+
+        private ImmutableTree<TKey, TValue> ReplaceInCollisionsIfExist(int hash, TKey key, TValue value)
+        {
+            if (ReferenceEquals(key, this.storedKey))
+                return new ImmutableTree<TKey, TValue>(hash, key, value,
+                    this.leftNode, this.rightNode, this.collisions);
+
+            if (this.collisions != null)
+            {
+                var collisions = this.collisions.ReplaceIfExists(key, value, true);
+                if (ReferenceEquals(collisions, this.collisions))
+                    return this;
+
+                return new ImmutableTree<TKey, TValue>(this.storedHash, this.storedKey,
                     this.storedValue, this.leftNode, this.rightNode, collisions);
             }
 

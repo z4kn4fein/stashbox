@@ -87,13 +87,18 @@ namespace Stashbox.Registration
                     this.containerConfiguration.RegistrationBehavior);
         }
 
-
-        public void AddOrReMapRegistration(ServiceRegistration registration, Type serviceType) =>
-            Swap.SwapValue(ref this.serviceRepository, (type, newRepo, t3, t4, repo) =>
-                repo.AddOrUpdate(type, newRepo, true), serviceType,
-                ImmutableBucket<object, ServiceRegistration>.Empty.Add(registration.RegistrationDiscriminator, registration),
-                Constants.DelegatePlaceholder,
-                Constants.DelegatePlaceholder);
+        public bool AddOrReMapRegistration(ServiceRegistration registration, Type serviceType) =>
+            registration.RegistrationContext.ReplaceExistingRegistrationOnlyIfExists 
+                ? Swap.SwapValue(ref this.serviceRepository, (type, newRepo, t3, t4, repo) =>
+                    repo.UpdateIfExists(type, newRepo), serviceType,
+                    ImmutableBucket<object, ServiceRegistration>.Empty.Add(registration.RegistrationDiscriminator, registration),
+                    Constants.DelegatePlaceholder,
+                    Constants.DelegatePlaceholder)
+                : Swap.SwapValue(ref this.serviceRepository, (type, newRepo, t3, t4, repo) =>
+                    repo.AddOrUpdate(type, newRepo, true), serviceType,
+                    ImmutableBucket<object, ServiceRegistration>.Empty.Add(registration.RegistrationDiscriminator, registration),
+                    Constants.DelegatePlaceholder,
+                    Constants.DelegatePlaceholder);            
 
         public bool ContainsRegistration(Type type, object name) =>
             serviceRepository.ContainsRegistration(type, name);
