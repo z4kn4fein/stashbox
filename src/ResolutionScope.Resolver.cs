@@ -15,14 +15,14 @@ namespace Stashbox
         {
             if (dependencyOverrides != null)
                 return this.Activate(new ResolutionContext(this.GetActiveScopeNames(), this.containerContext,
-                    this.resolutionStrategy, this == this.containerContext.RootScope, nullResultAllowed,
+                    this.resolutionStrategy, this == this.containerContext.RootScope, nullResultAllowed, false,
                     this.ProcessDependencyOverrides(dependencyOverrides)), typeFrom);
 
             var cachedFactory = this.delegateCache.ServiceDelegates.GetOrDefault(typeFrom);
             return cachedFactory != null
                 ? cachedFactory(this)
                 : this.Activate(new ResolutionContext(this.GetActiveScopeNames(), this.containerContext, this.resolutionStrategy,
-                    this == this.containerContext.RootScope, nullResultAllowed,
+                    this == this.containerContext.RootScope, nullResultAllowed, false,
                     this.ProcessDependencyOverrides(dependencyOverrides)), typeFrom);
         }
 
@@ -30,14 +30,14 @@ namespace Stashbox
         {
             if (dependencyOverrides != null)
                 return this.Activate(new ResolutionContext(this.GetActiveScopeNames(), this.containerContext, this.resolutionStrategy,
-                    this == this.containerContext.RootScope, nullResultAllowed,
+                    this == this.containerContext.RootScope, nullResultAllowed, false,
                     this.ProcessDependencyOverrides(dependencyOverrides)), typeFrom, name);
 
             var cachedFactory = this.delegateCache.ServiceDelegates.GetOrDefault(name);
             return cachedFactory != null
                 ? cachedFactory(this)
                 : this.Activate(new ResolutionContext(this.GetActiveScopeNames(), this.containerContext, this.resolutionStrategy,
-                    this == this.containerContext.RootScope, nullResultAllowed,
+                    this == this.containerContext.RootScope, nullResultAllowed, false,
                     this.ProcessDependencyOverrides(dependencyOverrides)), typeFrom, name);
         }
 

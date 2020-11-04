@@ -267,16 +267,19 @@ namespace Stashbox.Utils.Data.Immutable
                 var left = this.leftNode.UpdateIfExists(hash, key, updateDelegate);
                 if (ReferenceEquals(left, this.leftNode))
                     return this;
+
+                return new ImmutableTree<TKey, TValue>(this.storedHash, this.storedKey,
+                    this.storedValue, left, this.rightNode, this.collisions);
             }
             else
             {
                 var right = this.rightNode.UpdateIfExists(hash, key, updateDelegate);
                 if (ReferenceEquals(right, this.rightNode))
                     return this;
-            }
 
-            return new ImmutableTree<TKey, TValue>(this.storedHash, this.storedKey, 
-                this.storedValue, this.leftNode, this.rightNode, this.collisions);
+                return new ImmutableTree<TKey, TValue>(this.storedHash, this.storedKey,
+                    this.storedValue, this.leftNode, right, this.collisions);
+            }
         }
 
         private ImmutableTree<TKey, TValue> UpdateIfExists(int hash, TKey key, TValue value)
@@ -292,16 +295,19 @@ namespace Stashbox.Utils.Data.Immutable
                 var left = this.leftNode.UpdateIfExists(hash, key, value);
                 if (ReferenceEquals(left, this.leftNode))
                     return this;
+
+                return new ImmutableTree<TKey, TValue>(this.storedHash, this.storedKey,
+                    this.storedValue, left, this.rightNode, this.collisions);
             }
             else
             {
                 var right = this.rightNode.UpdateIfExists(hash, key, value);
                 if (ReferenceEquals(right, this.rightNode))
                     return this;
-            }
 
-            return new ImmutableTree<TKey, TValue>(this.storedHash, this.storedKey,
-                this.storedValue, this.leftNode, this.rightNode, this.collisions);
+                return new ImmutableTree<TKey, TValue>(this.storedHash, this.storedKey,
+                    this.storedValue, this.leftNode, right, this.collisions);
+            }
         }
 
         private ImmutableTree<TKey, TValue> CheckCollision(int hash, TKey key, TValue value, Func<TValue, TValue, TValue> updateDelegate, bool forceUpdate)

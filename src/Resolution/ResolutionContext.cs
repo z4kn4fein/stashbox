@@ -32,6 +32,7 @@ namespace Stashbox.Resolution
         internal bool ShouldFallBackToRequestInitiatorContext { get; private set; }
         internal bool FactoryDelegateCacheEnabled { get; }
         internal ExpandableArray<object> ScopeNames { get; }
+        internal bool IsValidationRequest { get; }
 
         /// <summary>
         /// True if null result is allowed, otherwise false.
@@ -58,6 +59,7 @@ namespace Stashbox.Resolution
             IResolutionStrategy resolutionStrategy,
             bool isRequestedFromRoot,
             bool nullResultAllowed = false,
+            bool isValidationRequest = false,
             HashTree<object, Expression> dependencyOverrides = null,
             ParameterExpression[] initialParameters = null)
         {
@@ -67,6 +69,7 @@ namespace Stashbox.Resolution
             this.Decorators = new ExpandableArray<Type, Utils.Data.Stack<ServiceRegistration>>();
             this.expressionOverrides = dependencyOverrides;
             this.NullResultAllowed = nullResultAllowed;
+            IsValidationRequest = isValidationRequest;
             this.CurrentScopeParameter = Constants.ResolutionScopeParameter;
             this.ParameterExpressions = initialParameters != null
                 ? new ExpandableArray<Pair<bool, ParameterExpression>[]>()

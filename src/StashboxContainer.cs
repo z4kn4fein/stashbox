@@ -44,8 +44,8 @@ namespace Stashbox
 
         private StashboxContainer(IStashboxContainer parentContainer, ServiceRegistrator serviceRegistrator,
             RegistrationBuilder registrationBuilder, ResolutionStrategy resolutionStrategy, ExpressionFactory expressionFactory,
-            ExpressionBuilder expressionBuilder, ContainerConfigurator containerConfigurator)
-            : this(expressionFactory, serviceRegistrator, registrationBuilder, containerConfigurator)
+            ExpressionBuilder expressionBuilder, ContainerConfigurator containerConfigurator, Action<ContainerConfigurator> config = null)
+            : this(expressionFactory, serviceRegistrator, registrationBuilder, containerConfigurator, config)
         {
             this.resolutionStrategy = resolutionStrategy;
             this.expressionBuilder = expressionBuilder;
@@ -100,7 +100,7 @@ namespace Stashbox
                 {
                     this.resolutionStrategy.BuildExpressionForRegistration(serviceRegistration.Value,
                         new ResolutionContext(this.ContainerContext.RootScope.GetActiveScopeNames(),
-                            this.ContainerContext, this.resolutionStrategy, false),
+                            this.ContainerContext, this.resolutionStrategy, false, false, true),
                         new TypeInformation(serviceRegistration.Key, serviceRegistration.Value.RegistrationContext.Name));
                 }
                 catch (Exception ex)
@@ -117,9 +117,9 @@ namespace Stashbox
         public IContainerContext ContainerContext { get; }
 
         /// <inheritdoc />
-        public IStashboxContainer CreateChildContainer() =>
+        public IStashboxContainer CreateChildContainer(Action<ContainerConfigurator> config = null) =>
              new StashboxContainer(this, this.serviceRegistrator, this.registrationBuilder, this.resolutionStrategy,
-                 this.expressionFactory, this.expressionBuilder, new ContainerConfigurator(this.ContainerContext.ContainerConfiguration.Clone()));
+                 this.expressionFactory, this.expressionBuilder, new ContainerConfigurator(this.ContainerContext.ContainerConfiguration.Clone()), config);
 
         /// <inheritdoc />
         public IDependencyResolver BeginScope(object name = null, bool attachToParent = false) =>

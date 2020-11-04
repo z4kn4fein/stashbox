@@ -5,7 +5,6 @@ using Xunit;
 
 namespace Stashbox.Tests.IssueTests
 {
-
     public class LifetimeIssues
     {
         class DoResolveAttribute : Attribute { }

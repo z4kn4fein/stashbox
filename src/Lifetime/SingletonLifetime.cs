@@ -1,5 +1,6 @@
 ﻿using Stashbox.Registration;
 using Stashbox.Resolution;
+using Stashbox.Utils;
 using System;
 using System.Linq.Expressions;
 
@@ -15,9 +16,21 @@ namespace Stashbox.Lifetime
 
         /// <inheritdoc />
         protected override Expression ApplyLifetime(Func<IResolutionScope, object> factory,
-            ServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType) =>
-            resolutionContext.CurrentContainerContext.RootScope
-                    .GetOrAddScopedObject(serviceRegistration.RegistrationId, serviceRegistration.SynchronizationObject, factory)
+            ServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType)
+        {
+            var rootScope = resolutionContext.RequestInitiatorContainerContext.ContainerConfiguration.ReBuildSingletonsInChildContainerEnabled 
+                ? resolutionContext.RequestInitiatorContainerContext.RootScope
+                : resolutionContext.CurrentContainerContext.RootScope;
+
+            // do not build singletons during validation, we just have to ensure the expression tree is valid
+            if (resolutionContext.IsValidationRequest)
+                return rootScope.AsConstant().CallMethod(Constants.GetOrAddScopedObjectMethod,
+                    serviceRegistration.RegistrationId.AsConstant(),
+                    serviceRegistration.SynchronizationObject.AsConstant(),
+                    factory.AsConstant()).ConvertTo(resolveType);
+
+            return rootScope.GetOrAddScopedObject(serviceRegistration.RegistrationId, serviceRegistration.SynchronizationObject, factory)
                     .AsConstant();
+        }
     }
 }

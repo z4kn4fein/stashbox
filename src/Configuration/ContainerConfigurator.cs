@@ -183,6 +183,17 @@ namespace Stashbox.Configuration
         }
 
         /// <summary>
+        /// Enables the rebuilding of singletons in a child-parent container case with the dependencies overridden in the child, not affecting the already built instance in the parent.
+        /// </summary>
+        /// <param name="enabled">True when the feature should be enabled, otherwise false.</param>
+        /// <returns>The container configurator.</returns>
+        public ContainerConfigurator WithReBuildSingletonsInChildContainer(bool enabled = true)
+        {
+            this.ContainerConfiguration.ReBuildSingletonsInChildContainerEnabled = enabled;
+            return this;
+        }
+
+        /// <summary>
         /// Forces the usage of an external expression tree compiler.
         /// </summary>
         /// <param name="compilerDelegate">The compiler delegate used to compile expression trees.</param>

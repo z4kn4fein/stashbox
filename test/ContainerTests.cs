@@ -103,6 +103,21 @@ namespace Stashbox.Tests
         }
 
         [Fact]
+        public void ContainerTests_Ensure_Validate_Does_Not_Build_Singletons()
+        {
+            using var container = new StashboxContainer();
+            container.RegisterSingleton<Test1>();
+
+            container.Validate();
+
+            var reg = container.GetRegistrationMappings().First(r => r.Key == typeof(Test1));
+            var t = new Test1();
+            var res = container.ContainerContext.RootScope.GetOrAddScopedObject(reg.Value.RegistrationId, new object(), s => t);
+
+            Assert.Same(t, res);
+        }
+
+        [Fact]
         public void ContainerTests_CheckRegistration()
         {
             using var container = new StashboxContainer();
@@ -341,6 +356,72 @@ namespace Stashbox.Tests
             Assert.Throws<InvalidRegistrationException>(() => container.ReMapDecorator<ITest1>(typeof(Test2)));
         }
 
+        [Fact]
+        public void ContainerTests_ChildContainer_Rebuild_Singletons_In_Child()
+        {
+            using var container = new StashboxContainer();
+            
+            container.RegisterSingleton<ITest1, Test1>();
+
+            var a = container.Resolve<ITest1>();
+            var b = container.Resolve<ITest1>();
+
+            using var child = container.CreateChildContainer();
+
+            var c = child.Resolve<ITest1>();
+
+            Assert.Same(a, b);
+            Assert.Same(a, c);
+            Assert.Same(b, c);
+
+            child.Configure(c => c.WithReBuildSingletonsInChildContainer());
+            c = child.Resolve<ITest1>();
+
+            Assert.Same(a, b);
+            Assert.NotSame(a, c);
+            Assert.NotSame(b, c);
+        }
+
+        [Fact]
+        public void ContainerTests_ChildContainer_Rebuild_Singletons_In_Child_Deps()
+        {
+            using var container = new StashboxContainer(c => c.WithReBuildSingletonsInChildContainer());
+
+            container.Register<ITest1, Test1>();
+            container.RegisterSingleton<Test2>();
+
+            var a = container.Resolve<Test2>();
+
+            Assert.IsType<Test1>(a.Test1);
+
+            using var child = container.CreateChildContainer();
+            child.Register<ITest1, Test11>();
+
+            var b = child.Resolve<Test2>();
+
+            Assert.IsType<Test11>(b.Test1);
+        }
+
+        [Fact]
+        public void ContainerTests_ChildContainer_Rebuild_Singletons_In_Child_Deps_Config_On_Child()
+        {
+            using var container = new StashboxContainer();
+
+            container.Register<ITest1, Test1>();
+            container.RegisterSingleton<Test2>();
+
+            var a = container.Resolve<Test2>();
+
+            Assert.IsType<Test1>(a.Test1);
+
+            using var child = container.CreateChildContainer(c => c.WithReBuildSingletonsInChildContainer());
+            child.Register<ITest1, Test11>();
+
+            var b = child.Resolve<Test2>();
+
+            Assert.IsType<Test11>(b.Test1);
+        }
+
         interface ITest1 { }
 
         interface ITest2 { }
@@ -367,7 +448,10 @@ namespace Stashbox.Tests
         {
             public Test2(ITest1 test1)
             {
+                Test1 = test1;
             }
+
+            public ITest1 Test1 { get; }
         }
 
         class Test3 : ITest3

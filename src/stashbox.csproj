@@ -28,6 +28,9 @@
     <LangVersion>latest</LangVersion>
     <PackageReleaseNotes>
       <![CDATA[
+v3.3.0:
+- Added the option to rebuild singletons in child container with dependencies overridden in it.
+- Fix: Singleton instances were built when the Validate() was called, now just the expression is generated for them.
 v3.2.9:
 - Added the option to replace a registration only if an existing one is registered with the same type or name.
 v3.2.8:
@@ -68,7 +71,7 @@ v3.1.0:
 - Fix: Bad performance #79
 - Fix: Expected override behaviour not working with scopes #80
 
-Breaking changes:
+v3.1.0 Breaking changes:
 - `WithUniqueRegistrationIdentifiers()` option has been removed, `WithRegistrationBehavior()` has been added instead.
 - Circular dependency tracking is enabled now by default, for runtime tracking the renamed `WithRuntimeCircularDependencyTracking()` option can be used.
 - `WithMemberInjectionWithoutAnnotation()` container configuration option has been renamed to `WithAutoMemberInjection()`.

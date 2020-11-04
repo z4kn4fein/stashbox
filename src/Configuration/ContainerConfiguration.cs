@@ -68,6 +68,11 @@ namespace Stashbox.Configuration
         public bool NamedDependencyResolutionForUnNamedRequestsEnabled { get; internal set; }
 
         /// <summary>
+        /// If it's set to true, in a child-parent container case singletons will be rebuilt with the dependencies overridden in the child, not affecting the already built instance in the parent.
+        /// </summary>
+        public bool ReBuildSingletonsInChildContainerEnabled { get; internal set; }
+
+        /// <summary>
         /// The member injection rule.
         /// </summary>
         public Rules.AutoMemberInjectionRules AutoMemberInjectionRule { get; internal set; }

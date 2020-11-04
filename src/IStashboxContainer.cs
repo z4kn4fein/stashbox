@@ -20,7 +20,8 @@ namespace Stashbox
         /// <summary>
         /// Creates a child container.
         /// </summary>
-        IStashboxContainer CreateChildContainer();
+        /// <param name="config">The action delegate which will configure the child container.</param>
+        IStashboxContainer CreateChildContainer(Action<ContainerConfigurator> config = null);
 
         /// <summary>
         /// Stores the container context.
