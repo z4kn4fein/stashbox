@@ -64,6 +64,7 @@ namespace Stashbox
         /// <inheritdoc />
         public IStashboxContainer ComposeBy(Type compositionRootType, params object[] compositionRootArguments)
         {
+            this.ThrowIfDisposed();
             Shield.EnsureNotNull(compositionRootType, nameof(compositionRootType));
             Shield.EnsureTrue(compositionRootType.IsCompositionRoot(), $"The given type {compositionRootType} doesn't implement ICompositionRoot.");
 
@@ -76,6 +77,7 @@ namespace Stashbox
         /// <inheritdoc />
         public IStashboxContainer ComposeBy(ICompositionRoot compositionRoot)
         {
+            this.ThrowIfDisposed();
             compositionRoot.Compose(this);
             return this;
         }

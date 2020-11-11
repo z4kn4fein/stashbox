@@ -12,6 +12,8 @@ namespace Stashbox
             where TFrom : class
             where TTo : class, TFrom
         {
+            this.ThrowIfDisposed();
+
             var registrationConfigurator = new RegistrationConfigurator<TFrom, TTo>(typeof(TFrom), typeof(TTo));
             configurator?.Invoke(registrationConfigurator);
             return this.RegisterInternal(registrationConfigurator);
@@ -21,6 +23,7 @@ namespace Stashbox
         public IStashboxContainer Register<TFrom>(Type typeTo, Action<RegistrationConfigurator<TFrom, TFrom>> configurator = null)
             where TFrom : class
         {
+            this.ThrowIfDisposed();
             Shield.EnsureNotNull(typeTo, nameof(typeTo));
 
             var registrationConfigurator = new RegistrationConfigurator<TFrom, TFrom>(typeof(TFrom), typeTo);
@@ -35,6 +38,7 @@ namespace Stashbox
         /// <inheritdoc />
         public IStashboxContainer Register(Type typeFrom, Type typeTo, Action<RegistrationConfigurator> configurator = null)
         {
+            this.ThrowIfDisposed();
             Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
             Shield.EnsureNotNull(typeTo, nameof(typeTo));
 
@@ -51,6 +55,7 @@ namespace Stashbox
         public IStashboxContainer Register<TTo>(Action<RegistrationConfigurator<TTo, TTo>> configurator = null)
             where TTo : class
         {
+            this.ThrowIfDisposed();
             var type = typeof(TTo);
             var registrationConfigurator = new RegistrationConfigurator<TTo, TTo>(type, type);
             configurator?.Invoke(registrationConfigurator);
@@ -69,6 +74,7 @@ namespace Stashbox
         public IStashboxContainer RegisterInstance<TInstance>(TInstance instance, object name = null, bool withoutDisposalTracking = false,
             Action<TInstance> finalizerDelegate = null) where TInstance : class
         {
+            this.ThrowIfDisposed();
             Shield.EnsureNotNull(instance, nameof(instance));
 
             return this.Register<TInstance>(context =>
@@ -82,6 +88,7 @@ namespace Stashbox
         /// <inheritdoc />
         public IStashboxContainer RegisterInstance(object instance, Type serviceType, object name = null, bool withoutDisposalTracking = false)
         {
+            this.ThrowIfDisposed();
             Shield.EnsureNotNull(instance, nameof(instance));
             Shield.EnsureNotNull(serviceType, nameof(serviceType));
 
@@ -97,6 +104,7 @@ namespace Stashbox
         public IStashboxContainer WireUp<TInstance>(TInstance instance, object name = null, bool withoutDisposalTracking = false,
             Action<TInstance> finalizerDelegate = null) where TInstance : class
         {
+            this.ThrowIfDisposed();
             Shield.EnsureNotNull(instance, nameof(instance));
 
             return this.Register<TInstance>(context =>
@@ -110,6 +118,7 @@ namespace Stashbox
         /// <inheritdoc />
         public IStashboxContainer WireUp(object instance, Type serviceType, object name = null, bool withoutDisposalTracking = false)
         {
+            this.ThrowIfDisposed();
             Shield.EnsureNotNull(instance, nameof(instance));
             Shield.EnsureNotNull(serviceType, nameof(serviceType));
 
@@ -124,6 +133,7 @@ namespace Stashbox
         /// <inheritdoc />
         public IStashboxContainer RegisterDecorator(Type typeFrom, Type typeTo, Action<DecoratorConfigurator> configurator = null)
         {
+            this.ThrowIfDisposed();
             Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
             Shield.EnsureNotNull(typeTo, nameof(typeTo));
 
@@ -141,6 +151,7 @@ namespace Stashbox
             where TFrom : class
             where TTo : class, TFrom
         {
+            this.ThrowIfDisposed();
             var decoratorConfigurator = new DecoratorConfigurator<TFrom, TTo>(typeof(TFrom), typeof(TTo));
             configurator?.Invoke(decoratorConfigurator);
             return this.RegisterInternal(decoratorConfigurator, true);
@@ -150,6 +161,7 @@ namespace Stashbox
         public IStashboxContainer RegisterDecorator<TFrom>(Type typeTo, Action<DecoratorConfigurator<TFrom, TFrom>> configurator = null)
             where TFrom : class
         {
+            this.ThrowIfDisposed();
             Shield.EnsureNotNull(typeTo, nameof(typeTo));
 
             var registrationConfigurator = new DecoratorConfigurator<TFrom, TFrom>(typeof(TFrom), typeTo);

@@ -12,6 +12,7 @@ namespace Stashbox
             where TFrom : class
             where TTo : class, TFrom
         {
+            this.ThrowIfDisposed();
             var registrationConfigurator = new RegistrationConfigurator<TFrom, TTo>(typeof(TFrom), typeof(TTo));
             configurator?.Invoke(registrationConfigurator);
             return this.ReMapInternal(registrationConfigurator);
@@ -21,6 +22,7 @@ namespace Stashbox
         public IStashboxContainer ReMap<TFrom>(Type typeTo, Action<RegistrationConfigurator<TFrom, TFrom>> configurator = null)
             where TFrom : class
         {
+            this.ThrowIfDisposed();
             Shield.EnsureNotNull(typeTo, nameof(typeTo));
 
             var registrationConfigurator = new RegistrationConfigurator<TFrom, TFrom>(typeof(TFrom), typeTo);
@@ -35,6 +37,7 @@ namespace Stashbox
         /// <inheritdoc />
         public IStashboxContainer ReMap(Type typeFrom, Type typeTo, Action<RegistrationConfigurator> configurator = null)
         {
+            this.ThrowIfDisposed();
             Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
             Shield.EnsureNotNull(typeTo, nameof(typeTo));
 
@@ -51,6 +54,7 @@ namespace Stashbox
         public IStashboxContainer ReMap<TTo>(Action<RegistrationConfigurator<TTo, TTo>> configurator = null)
              where TTo : class
         {
+            this.ThrowIfDisposed();
             var type = typeof(TTo);
             var registrationConfigurator = new RegistrationConfigurator<TTo, TTo>(type, type);
             configurator?.Invoke(registrationConfigurator);
@@ -64,6 +68,7 @@ namespace Stashbox
         /// <inheritdoc />
         public IStashboxContainer ReMapDecorator(Type typeFrom, Type typeTo, Action<DecoratorConfigurator> configurator = null)
         {
+            this.ThrowIfDisposed();
             Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
             Shield.EnsureNotNull(typeTo, nameof(typeTo));
 
@@ -81,6 +86,7 @@ namespace Stashbox
             where TFrom : class
             where TTo : class, TFrom
         {
+            this.ThrowIfDisposed();
             var decoratorConfigurator = new DecoratorConfigurator<TFrom, TTo>(typeof(TFrom), typeof(TTo));
             configurator?.Invoke(decoratorConfigurator);
             return this.ReMapInternal(decoratorConfigurator, true);
@@ -90,6 +96,7 @@ namespace Stashbox
         public IStashboxContainer ReMapDecorator<TFrom>(Type typeTo, Action<DecoratorConfigurator<TFrom, TFrom>> configurator = null)
             where TFrom : class
         {
+            this.ThrowIfDisposed();
             Shield.EnsureNotNull(typeTo, nameof(typeTo));
 
             var registrationConfigurator = new DecoratorConfigurator<TFrom, TFrom>(typeof(TFrom), typeTo);

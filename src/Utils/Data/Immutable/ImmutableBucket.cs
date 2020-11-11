@@ -42,6 +42,10 @@ namespace Stashbox.Utils.Data.Immutable
 
         public readonly KeyValue<TKey, TValue>[] Repository;
 
+        public ImmutableBucket(TKey key, TValue value)
+            : this(new[] { new KeyValue<TKey, TValue>(key, value) })
+        { }
+
         public ImmutableBucket(KeyValue<TKey, TValue>[] repository)
         {
             this.Repository = repository;

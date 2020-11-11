@@ -127,5 +127,8 @@ namespace Stashbox.Utils
             if (!(obj is TType))
                 throw new ArgumentException(nameof(obj));
         }
+
+        internal static void ThrowDisposedException(string name, string caller) => 
+            throw new ObjectDisposedException(name, $"The member '{caller}' was called on {name} but it has been disposed already.");
     }
 }

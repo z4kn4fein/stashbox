@@ -26,6 +26,8 @@ namespace Stashbox
 
         public TDisposable AddDisposableTracking<TDisposable>(TDisposable disposable)
         {
+            this.ThrowIfDisposed();
+
             Swap.SwapValue(ref this.disposables, (t1, t2, t3, t4, root) =>
                     root.Add(t1), disposable, Constants.DelegatePlaceholder,
                 Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
@@ -35,6 +37,8 @@ namespace Stashbox
 
         public TService AddWithFinalizer<TService>(TService finalizable, Action<TService> finalizer)
         {
+            this.ThrowIfDisposed();
+
             Swap.SwapValue(ref this.finalizables, (t1, t2, t3, t4, root) =>
                     root.Add(new Finalizable(t1, f => t2((TService)f))), finalizable, finalizer,
                 Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);

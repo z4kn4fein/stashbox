@@ -28,6 +28,9 @@
     <LangVersion>latest</LangVersion>
     <PackageReleaseNotes>
       <![CDATA[
+v3.4.0:
+- Added the core components of multitenant functionality.
+- Throw `ObjectDisposedException` when the container or a scope is used after their disposal.
 v3.3.0:
 - Added the option to rebuild singletons in child container with dependencies overridden in it.
 - Fix: Singleton instances were built when the Validate() was called, now just the expression is generated for them.

@@ -47,7 +47,7 @@ namespace Stashbox.Registration
         {
             if (registration.RegistrationContext.ReplaceExistingRegistrationOnlyIfExists)
                 return Swap.SwapValue(ref this.serviceRepository, (reg, type, t3, t4, repo) =>
-                    repo.UpdateIfExists(type, regs => regs.ReplaceIfExists(reg.RegistrationDiscriminator, reg, false,
+                    repo.UpdateIfExists(type, true, regs => regs.ReplaceIfExists(reg.RegistrationDiscriminator, reg, false,
                         (old, @new) =>
                         {
                             @new.Replaces(old);
@@ -59,7 +59,7 @@ namespace Stashbox.Registration
                     Constants.DelegatePlaceholder);
 
             return Swap.SwapValue(ref this.serviceRepository, (reg, type, newRepo, regBehavior, repo) =>
-                repo.AddOrUpdate(type, newRepo,
+                repo.AddOrUpdate(type, newRepo, true,
                     (oldValue, newValue) =>
                     {
                         var allowUpdate = reg.RegistrationContext.ReplaceExistingRegistration ||
@@ -83,20 +83,20 @@ namespace Stashbox.Registration
                     }),
                     registration,
                     serviceType,
-                    ImmutableBucket<object, ServiceRegistration>.Empty.Add(registration.RegistrationDiscriminator, registration),
+                    new ImmutableBucket<object, ServiceRegistration>(registration.RegistrationDiscriminator, registration),
                     this.containerConfiguration.RegistrationBehavior);
         }
 
         public bool AddOrReMapRegistration(ServiceRegistration registration, Type serviceType) =>
             registration.RegistrationContext.ReplaceExistingRegistrationOnlyIfExists 
                 ? Swap.SwapValue(ref this.serviceRepository, (type, newRepo, t3, t4, repo) =>
-                    repo.UpdateIfExists(type, newRepo), serviceType,
-                    ImmutableBucket<object, ServiceRegistration>.Empty.Add(registration.RegistrationDiscriminator, registration),
+                    repo.UpdateIfExists(type, newRepo, true), serviceType,
+                    new ImmutableBucket<object, ServiceRegistration>(registration.RegistrationDiscriminator, registration),
                     Constants.DelegatePlaceholder,
                     Constants.DelegatePlaceholder)
                 : Swap.SwapValue(ref this.serviceRepository, (type, newRepo, t3, t4, repo) =>
-                    repo.AddOrUpdate(type, newRepo, true), serviceType,
-                    ImmutableBucket<object, ServiceRegistration>.Empty.Add(registration.RegistrationDiscriminator, registration),
+                    repo.AddOrUpdate(type, newRepo, true, true), serviceType,
+                    new ImmutableBucket<object, ServiceRegistration>(registration.RegistrationDiscriminator, registration),
                     Constants.DelegatePlaceholder,
                     Constants.DelegatePlaceholder);            
 

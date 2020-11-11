@@ -27,6 +27,8 @@ namespace Stashbox
 
         private IStashboxContainer RegisterFuncInternal(Delegate factory, Type factoryType, string name)
         {
+            this.ThrowIfDisposed();
+
             var data = new RegistrationContext { Name = name, FuncDelegate = factory };
             var registration = new ServiceRegistration(factoryType, RegistrationType.Func, this.ContainerContext.ContainerConfiguration, data, false);
             this.ContainerContext.RegistrationRepository.AddOrUpdateRegistration(registration, factoryType);

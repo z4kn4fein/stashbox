@@ -5,6 +5,7 @@ using Stashbox.Utils;
 using Stashbox.Utils.Data.Immutable;
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Threading;
 
 namespace Stashbox
@@ -24,12 +25,12 @@ namespace Stashbox
 
             public DelegateCache GetNamedCache(object name)
             {
-                var cache = this.NamedCache.GetOrDefault(name);
+                var cache = this.NamedCache.GetOrDefault(name, false);
                 if (cache != null) return cache;
 
                 cache = new DelegateCache();
                 Swap.SwapValue(ref this.NamedCache, (t1, t2, t3, t4, items) =>
-                    items.AddOrUpdate(t1, t2), name, cache, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
+                    items.AddOrUpdate(t1, t2, false), name, cache, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
 
                 return cache;
             }
@@ -80,6 +81,8 @@ namespace Stashbox
 
         public IDependencyResolver BeginScope(object name = null, bool attachToParent = false)
         {
+            this.ThrowIfDisposed();
+
             var scope = new ResolutionScope(this.resolutionStrategy, this.expressionFactory,
                 this.containerContext, this, this.delegateCacheProvider, name);
 
@@ -88,12 +91,13 @@ namespace Stashbox
 
         public IDependencyResolver PutInstanceInScope(Type typeFrom, object instance, bool withoutDisposalTracking = false, object name = null)
         {
+            this.ThrowIfDisposed();
             Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
             Shield.EnsureNotNull(instance, nameof(instance));
 
             var key = name ?? typeFrom;
             Swap.SwapValue(ref this.scopedInstances, (t1, t2, t3, t4, instances) =>
-                instances.AddOrUpdate(t1, t2), key, instance, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
+                instances.AddOrUpdate(t1, t2, false), key, instance, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
 
             if (!withoutDisposalTracking && instance is IDisposable disposable)
                 this.AddDisposableTracking(disposable);
@@ -105,6 +109,8 @@ namespace Stashbox
 
         public object GetOrAddScopedObject(int key, object sync, Func<IResolutionScope, object> factory)
         {
+            this.ThrowIfDisposed();
+
             var item = this.scopedItems.GetOrDefault(key);
             if (item != null) return item;
 
@@ -123,6 +129,8 @@ namespace Stashbox
 
         public void InvalidateDelegateCache()
         {
+            this.ThrowIfDisposed();
+
             this.delegateCacheProvider.DefaultCache.ServiceDelegates = ImmutableTree<object, Func<IResolutionScope, object>>.Empty;
             this.delegateCacheProvider.DefaultCache.FactoryDelegates = ImmutableTree<object, Func<IResolutionScope, Delegate>>.Empty;
             this.delegateCacheProvider.NamedCache = ImmutableTree<object, DelegateCache>.Empty;
@@ -130,6 +138,8 @@ namespace Stashbox
 
         public IEnumerable<object> GetActiveScopeNames()
         {
+            this.ThrowIfDisposed();
+
             IResolutionScope current = this;
             while (current != null)
             {
@@ -155,6 +165,16 @@ namespace Stashbox
             var check = this.circularDependencyBarrier.GetOrDefault(key);
             if (check != null)
                 check.Value = false;
+        }
+
+        private void ThrowIfDisposed(
+#if !NET40
+            [CallerMemberName] 
+#endif
+            string caller = "<unknown>")
+        {
+            if (this.disposed == 1)
+                Shield.ThrowDisposedException(this.GetType().FullName, caller);
         }
     }
 }

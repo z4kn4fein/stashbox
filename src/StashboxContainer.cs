@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Stashbox.Utils.Data;
+using System.Runtime.CompilerServices;
 
 namespace Stashbox
 {
@@ -66,30 +67,45 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public void RegisterResolver(IResolver resolver) =>
+        public void RegisterResolver(IResolver resolver)
+        {
+            this.ThrowIfDisposed();
+            Shield.EnsureNotNull(resolver, nameof(resolver));
+
             this.resolutionStrategy.RegisterResolver(resolver);
+        }
 
         /// <inheritdoc />
         public bool CanResolve<TFrom>(object name = null) =>
             this.CanResolve(typeof(TFrom), name);
 
         /// <inheritdoc />
-        public bool CanResolve(Type typeFrom, object name = null) =>
-            this.ContainerContext.RegistrationRepository.ContainsRegistration(typeFrom, name) ||
+        public bool CanResolve(Type typeFrom, object name = null)
+        {
+            this.ThrowIfDisposed();
+
+            return this.ContainerContext.RegistrationRepository.ContainsRegistration(typeFrom, name) ||
                 this.resolutionStrategy.CanResolveType(new TypeInformation(typeFrom, name),
                     new ResolutionContext(this.ContainerContext.RootScope.GetActiveScopeNames(), this.ContainerContext, this.resolutionStrategy, false));
+        }
 
         /// <inheritdoc />
         public bool IsRegistered<TFrom>(object name = null) =>
             this.IsRegistered(typeof(TFrom), name);
 
         /// <inheritdoc />
-        public bool IsRegistered(Type typeFrom, object name = null) =>
-            this.ContainerContext.RegistrationRepository.ContainsRegistration(typeFrom, name);
+        public bool IsRegistered(Type typeFrom, object name = null)
+        {
+            this.ThrowIfDisposed();
+
+            return this.ContainerContext.RegistrationRepository.ContainsRegistration(typeFrom, name);
+        }
 
         /// <inheritdoc />
         public void Validate()
         {
+            this.ThrowIfDisposed();
+
             var exceptions = new ExpandableArray<Exception>();
 
             foreach (var serviceRegistration in this.ContainerContext.RegistrationRepository
@@ -110,16 +126,20 @@ namespace Stashbox
             }
 
             if (exceptions.Length > 0)
-                throw new AggregateException(exceptions);
+                throw new AggregateException("Container validation failed. See the inner exceptions for details.", exceptions);
         }
 
         /// <inheritdoc />
         public IContainerContext ContainerContext { get; }
 
         /// <inheritdoc />
-        public IStashboxContainer CreateChildContainer(Action<ContainerConfigurator> config = null) =>
-             new StashboxContainer(this, this.serviceRegistrator, this.registrationBuilder, this.resolutionStrategy,
-                 this.expressionFactory, this.expressionBuilder, new ContainerConfigurator(this.ContainerContext.ContainerConfiguration.Clone()), config);
+        public IStashboxContainer CreateChildContainer(Action<ContainerConfigurator> config = null)
+        {
+            this.ThrowIfDisposed();
+
+            return new StashboxContainer(this, this.serviceRegistrator, this.registrationBuilder, this.resolutionStrategy,
+                    this.expressionFactory, this.expressionBuilder, new ContainerConfigurator(this.ContainerContext.ContainerConfiguration.Clone()), config);
+        }
 
         /// <inheritdoc />
         public IDependencyResolver BeginScope(object name = null, bool attachToParent = false) =>
@@ -128,6 +148,7 @@ namespace Stashbox
         /// <inheritdoc />
         public void Configure(Action<ContainerConfigurator> config)
         {
+            this.ThrowIfDisposed();
             Shield.EnsureNotNull(config, "The config parameter cannot be null!");
 
             config.Invoke(this.containerConfigurator);
@@ -138,8 +159,12 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public IEnumerable<KeyValuePair<Type, ServiceRegistration>> GetRegistrationMappings() =>
-             this.ContainerContext.RegistrationRepository.GetRegistrationMappings();
+        public IEnumerable<KeyValuePair<Type, ServiceRegistration>> GetRegistrationMappings()
+        {
+            this.ThrowIfDisposed();
+
+            return this.ContainerContext.RegistrationRepository.GetRegistrationMappings();
+        }
 
 
         private void RegisterResolvers()
@@ -156,6 +181,16 @@ namespace Stashbox
 
             this.resolutionStrategy.RegisterLastChanceResolver(new ParentContainerResolver());
             this.resolutionStrategy.RegisterLastChanceResolver(new UnknownTypeResolver(this.serviceRegistrator, this.registrationBuilder));
+        }
+
+        private void ThrowIfDisposed(
+#if !NET40
+            [CallerMemberName] 
+#endif
+            string caller = "<unknown>")
+        {
+            if (this.disposed == 1)
+                Shield.ThrowDisposedException(this.GetType().FullName, caller);
         }
 
         /// <inheritdoc />

@@ -6,7 +6,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Stashbox;
 using Xunit;
+using System.Reflection;
 
 namespace Stashbox.Tests
 {
@@ -360,7 +362,7 @@ namespace Stashbox.Tests
         public void ContainerTests_ChildContainer_Rebuild_Singletons_In_Child()
         {
             using var container = new StashboxContainer();
-            
+
             container.RegisterSingleton<ITest1, Test1>();
 
             var a = container.Resolve<ITest1>();
@@ -420,6 +422,49 @@ namespace Stashbox.Tests
             var b = child.Resolve<Test2>();
 
             Assert.IsType<Test11>(b.Test1);
+        }
+
+        [Fact]
+        public void ContainerTests_Throws_Disposed_Exceptions()
+        {
+            var container = new StashboxContainer();
+            container.Dispose();
+
+            Assert.Throws<ObjectDisposedException>(() => container.Activate(this.GetType()));
+            Assert.Throws<ObjectDisposedException>(() => container.BeginScope());
+            Assert.Throws<ObjectDisposedException>(() => container.BuildUp(new object()));
+            Assert.Throws<ObjectDisposedException>(() => container.CanResolve(this.GetType()));
+            Assert.Throws<ObjectDisposedException>(() => container.ComposeAssemblies(new[] { this.GetType().GetTypeInfo().Assembly }));
+            Assert.Throws<ObjectDisposedException>(() => container.ComposeAssembly(this.GetType().GetTypeInfo().Assembly));
+            Assert.Throws<ObjectDisposedException>(() => container.ComposeBy(this.GetType()));
+            Assert.Throws<ObjectDisposedException>(() => container.Configure(c => { }));
+            Assert.Throws<ObjectDisposedException>(() => container.CreateChildContainer());
+            Assert.Throws<ObjectDisposedException>(() => container.GetRegistrationMappings());
+#if HAS_SERVICEPROVIDER
+            Assert.Throws<ObjectDisposedException>(() => container.GetService(this.GetType()));
+#endif
+            Assert.Throws<ObjectDisposedException>(() => container.IsRegistered(this.GetType()));
+            Assert.Throws<ObjectDisposedException>(() => container.PutInstanceInScope(this.GetType()));
+            Assert.Throws<ObjectDisposedException>(() => container.Register(this.GetType()));
+            Assert.Throws<ObjectDisposedException>(() => container.RegisterAssemblies(new[] { this.GetType().GetTypeInfo().Assembly }));
+            Assert.Throws<ObjectDisposedException>(() => container.RegisterAssembly(this.GetType().GetTypeInfo().Assembly));
+            Assert.Throws<ObjectDisposedException>(() => container.RegisterAssemblyContaining<ITest1>());
+            Assert.Throws<ObjectDisposedException>(() => container.RegisterDecorator(this.GetType(), this.GetType()));
+            Assert.Throws<ObjectDisposedException>(() => container.RegisterFunc<ITest1>(r => new Test1()));
+            Assert.Throws<ObjectDisposedException>(() => container.RegisterInstance(new object()));
+            Assert.Throws<ObjectDisposedException>(() => container.RegisterInstances(new object()));
+            Assert.Throws<ObjectDisposedException>(() => container.RegisterResolver(null));
+            Assert.Throws<ObjectDisposedException>(() => container.RegisterScoped<ITest1, Test1>());
+            Assert.Throws<ObjectDisposedException>(() => container.RegisterSingleton<ITest1, Test1>());
+            Assert.Throws<ObjectDisposedException>(() => container.RegisterTypes(new [] { this.GetType() }));
+            Assert.Throws<ObjectDisposedException>(() => container.RegisterTypesAs<ITest1>(this.GetType().GetTypeInfo().Assembly));
+            Assert.Throws<ObjectDisposedException>(() => container.ReMap<ITest1, Test1>());
+            Assert.Throws<ObjectDisposedException>(() => container.ReMapDecorator(this.GetType(), this.GetType()));
+            Assert.Throws<ObjectDisposedException>(() => container.Resolve(this.GetType()));
+            Assert.Throws<ObjectDisposedException>(() => container.ResolveAll(this.GetType()));
+            Assert.Throws<ObjectDisposedException>(() => container.ResolveFactory(this.GetType()));
+            Assert.Throws<ObjectDisposedException>(() => container.Validate());
+            Assert.Throws<ObjectDisposedException>(() => container.WireUp(new object()));
         }
 
         interface ITest1 { }
