@@ -77,6 +77,7 @@ var wulfgar = container.Resolve<IBarbarian>();
     - [Stashbox.Extensions.DependencyInjection](https://github.com/z4kn4fein/stashbox-extensions-dependencyinjection)
     - [Stashbox.Extensions.Hosting](https://github.com/z4kn4fein/stashbox-extensions-dependencyinjection)
     - [Stashbox.AspNetCore.Hosting](https://github.com/z4kn4fein/stashbox-extensions-dependencyinjection)
+    - [Stashbox.AspNetCore.Multitenant](https://github.com/z4kn4fein/stashbox-extensions-dependencyinjection)
 - ASP.NET
     - [Stashbox.Web.WebApi](https://github.com/z4kn4fein/stashbox-extensions/tree/main/src/stashbox-web-webapi)
     - [Stashbox.Web.Mvc](https://github.com/z4kn4fein/stashbox-extensions/tree/main/src/stashbox-web-mvc)
