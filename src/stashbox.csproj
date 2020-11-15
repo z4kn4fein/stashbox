@@ -26,6 +26,10 @@
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <DebugType>portable</DebugType>
     <LangVersion>latest</LangVersion>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReleaseNotes>
       <![CDATA[
 v3.4.0:
@@ -139,14 +143,7 @@ v3.1.0 Breaking changes:
     <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="1.0.0" />
   </ItemGroup>
 
-  <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-  </PropertyGroup>
-
-  <ItemGroup Condition="'$(OS)' == 'Windows_NT'">
+  <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
   </ItemGroup>
 
