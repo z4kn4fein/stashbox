@@ -121,7 +121,7 @@ namespace Stashbox.Utils.Data
             return this.Length - increaseAmount;
         }
 
-        public TItem Last() => this.Repository[this.Length - 1];
+        public TItem First() => this.Repository[0];
 
         public IEnumerator<TItem> GetEnumerator()
         {

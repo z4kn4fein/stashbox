@@ -16,7 +16,6 @@ namespace Stashbox.Registration
     {
         private static int globalRegistrationOrder;
         private readonly ContainerConfiguration containerConfiguration;
-        private readonly object namedScopeRestrictionIdentifier;
 
         /// <summary>
         /// The implementation type.
@@ -48,15 +47,17 @@ namespace Stashbox.Registration
         /// </summary>
         public RegistrationType RegistrationType { get; }
 
-        internal TypeInfo ImplementationTypeInfo { get; }
+        internal readonly TypeInfo ImplementationTypeInfo;
 
-        internal bool IsResolvableByUnnamedRequest { get; }
+        internal readonly bool IsResolvableByUnnamedRequest;
 
-        internal bool HasScopeName { get; }
+        internal readonly bool HasScopeName;
 
-        internal bool HasCondition { get; }
+        internal readonly object NamedScopeRestrictionIdentifier;
 
-        internal object RegistrationDiscriminator { get; }
+        internal readonly bool HasCondition;
+
+        internal readonly object RegistrationDiscriminator;
 
         internal ServiceRegistration(Type implementationType, RegistrationType registrationType, ContainerConfiguration containerConfiguration,
             RegistrationContext registrationContext, bool isDecorator)
@@ -74,7 +75,7 @@ namespace Stashbox.Registration
             if (this.RegistrationContext.Lifetime is NamedScopeLifetime lifetime)
             {
                 this.HasScopeName = true;
-                this.namedScopeRestrictionIdentifier = lifetime.ScopeName;
+                this.NamedScopeRestrictionIdentifier = lifetime.ScopeName;
             }
 
             this.HasCondition = this.RegistrationContext.TargetTypeCondition != null || this.RegistrationContext.ResolutionCondition != null ||
@@ -90,9 +91,6 @@ namespace Stashbox.Registration
             this.HasParentTypeConditionAndMatch(typeInfo) ||
             this.HasAttributeConditionAndMatch(typeInfo) ||
             this.HasResolutionConditionAndMatch(typeInfo);
-
-        internal bool CanInjectIntoNamedScope(ExpandableArray<object> scopeNames) =>
-            scopeNames.Last() == this.namedScopeRestrictionIdentifier;
 
         internal ServiceRegistration Clone(Type implementationType, RegistrationType registrationType) =>
             new ServiceRegistration(implementationType, registrationType, this.containerConfiguration,

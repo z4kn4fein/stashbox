@@ -32,6 +32,7 @@ namespace Stashbox.Utils.Data
             {
                 this.Length = 1;
                 this.Repository = new[] { item };
+                return;
             }
 
             this.EnsureSize();

@@ -31,7 +31,7 @@ namespace Stashbox.Resolution
         internal bool UnknownTypeCheckDisabled { get; private set; }
         internal bool ShouldFallBackToRequestInitiatorContext { get; private set; }
         internal bool FactoryDelegateCacheEnabled { get; }
-        internal ExpandableArray<object> ScopeNames { get; }
+        internal Utils.Data.Stack<object> ScopeNames { get; }
         internal bool IsValidationRequest { get; }
 
         /// <summary>
@@ -75,7 +75,7 @@ namespace Stashbox.Resolution
                 ? new ExpandableArray<Pair<bool, ParameterExpression>[]>()
                     {initialParameters.AsParameterPairs()}
                 : new ExpandableArray<Pair<bool, ParameterExpression>[]>();
-            this.ScopeNames = initialScopeNames.AsExpandableArray();
+            this.ScopeNames = initialScopeNames.AsStack();
             this.circularDependencyBarrier = new Utils.Data.Stack<int>();
             this.expressionCache = new Tree<Expression>();
             this.factoryCache = new Tree<Func<IResolutionScope, object>>();
@@ -149,7 +149,7 @@ namespace Stashbox.Resolution
 
         internal ResolutionContext BeginNewScopeContext(KeyValue<object, ParameterExpression> scopeParameter)
         {
-            this.ScopeNames.Add(scopeParameter.Key);
+            this.ScopeNames.PushBack(scopeParameter.Key);
             var clone = this.BeginSubGraph();
             clone.CurrentScopeParameter = scopeParameter.Value;
             return clone;
