@@ -32,7 +32,7 @@ before_build:
 
 build_script:
 - msbuild /t:Restore /p:Configuration=%configuration% stashbox.sln
-- msbuild /t:Build /p:Configuration=%configuration% stashbox.sln
+- msbuild /t:Build /p:Configuration=%configuration% /p:ContinuousIntegrationBuild=true stashbox.sln
 
 after_build:
 - dotnet sonarscanner end /d:"sonar.login=%sonarqube_token%"

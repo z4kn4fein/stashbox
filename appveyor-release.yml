@@ -36,7 +36,7 @@ before_build:
 
 build_script:
 - msbuild /t:Restore /p:Configuration=%configuration% stashbox.sln
-- msbuild /t:Build /p:Configuration=%configuration% stashbox.sln
+- msbuild /t:Build /p:Configuration=%configuration% /p:ContinuousIntegrationBuild=true stashbox.sln
 
 test_script:
 - dotnet test test\stashbox.tests.csproj -f netcoreapp3.1 -c %configuration% --no-build
