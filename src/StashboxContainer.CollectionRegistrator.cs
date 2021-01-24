@@ -10,7 +10,10 @@ namespace Stashbox
     public partial class StashboxContainer
     {
         /// <inheritdoc />
-        public IStashboxContainer RegisterTypesAs(Type typeFrom, IEnumerable<Type> types, Func<Type, bool> selector = null, Action<RegistrationConfigurator> configurator = null)
+        public IStashboxContainer RegisterTypesAs(Type typeFrom,
+            IEnumerable<Type> types,
+            Func<Type, bool> selector = null,
+            Action<RegistrationConfigurator> configurator = null)
         {
             Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
             Shield.EnsureNotNull(types, nameof(types));
@@ -41,7 +44,11 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public IStashboxContainer RegisterTypes(IEnumerable<Type> types, Func<Type, bool> selector = null, Action<RegistrationConfigurator> configurator = null)
+        public IStashboxContainer RegisterTypes(IEnumerable<Type> types,
+            Func<Type, bool> selector = null,
+            Func<Type, Type, bool> serviceTypeSelector = null,
+            bool registerSelf = true,
+            Action<RegistrationConfigurator> configurator = null)
         {
             Shield.EnsureNotNull(types, nameof(types));
 
@@ -50,6 +57,9 @@ namespace Stashbox
             foreach (var type in types)
             {
                 var serviceTypes = type.GetRegisterableBaseTypes().Concat(type.GetRegisterableInterfaceTypes());
+
+                if(serviceTypeSelector != null)
+                    serviceTypes = serviceTypes.Where(t => serviceTypeSelector(type, t));
 
                 var typeInfo = type.GetTypeInfo();
                 if (typeInfo.IsGenericTypeDefinition)
@@ -64,7 +74,8 @@ namespace Stashbox
                 foreach (var service in serviceTypes)
                     this.Register(service, type, configurator);
 
-                this.Register(type, configurator);
+                if (registerSelf)
+                    this.Register(type, configurator);
             }
 
             return this;

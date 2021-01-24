@@ -1,4 +1,5 @@
-﻿using Stashbox.Lifetime;
+﻿using Stashbox.Configuration;
+using Stashbox.Lifetime;
 using System.Linq;
 using TestAssembly;
 using Xunit;
@@ -15,7 +16,44 @@ namespace Stashbox.Tests
 
             var regs = container.GetRegistrationDiagnostics().ToArray();
 
-            Assert.Equal(25, regs.Length);
+            Assert.Equal(30, regs.Length);
+        }
+
+        [Fact]
+        public void LoadTestAssembly_Just_Interfaces_And_Self()
+        {
+            using var container = new StashboxContainer()
+                .RegisterAssembly(typeof(ITA_T1).Assembly,
+                    serviceTypeSelector: Rules.ServiceRegistrationFilters.Interfaces);
+
+            var regs = container.GetRegistrationDiagnostics().ToArray();
+
+            Assert.Equal(28, regs.Length);
+        }
+
+        [Fact]
+        public void LoadTestAssembly_Just_Abstarct_And_Self()
+        {
+            using var container = new StashboxContainer()
+                .RegisterAssembly(typeof(ITA_T1).Assembly, 
+                    serviceTypeSelector: Rules.ServiceRegistrationFilters.AbstractClasses);
+
+            var regs = container.GetRegistrationDiagnostics().ToArray();
+
+            Assert.Equal(16, regs.Length);
+        }
+
+        [Fact]
+        public void LoadTestAssembly_Just_Abstarct_Without_Self()
+        {
+            using var container = new StashboxContainer()
+                .RegisterAssembly(typeof(ITA_T1).Assembly, 
+                    serviceTypeSelector: Rules.ServiceRegistrationFilters.AbstractClasses, 
+                    registerSelf: false);
+
+            var regs = container.GetRegistrationDiagnostics().ToArray();
+
+            Assert.Equal(2, regs.Length);
         }
 
         [Fact]
@@ -26,7 +64,7 @@ namespace Stashbox.Tests
 
             var regs = container.ContainerContext.RegistrationRepository.GetRegistrationMappings().ToArray();
 
-            Assert.Equal(25, regs.Length);
+            Assert.Equal(30, regs.Length);
         }
 
         [Fact]
@@ -37,7 +75,7 @@ namespace Stashbox.Tests
 
             var regs = container.ContainerContext.RegistrationRepository.GetRegistrationMappings().ToArray();
 
-            Assert.Equal(25, regs.Length);
+            Assert.Equal(30, regs.Length);
             Assert.Contains(regs, reg => reg.Key == typeof(TA_T1));
         }
 

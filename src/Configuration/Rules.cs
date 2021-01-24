@@ -13,6 +13,26 @@ namespace Stashbox.Configuration
     public static class Rules
     {
         /// <summary>
+        /// Represents the rules related to registration filters used in <see cref="IDependencyCollectionRegistrator.RegisterTypes(IEnumerable{Type}, Func{Type, bool}, Func{Type, Type, bool}, bool, Action{Registration.Fluent.RegistrationConfigurator})"/>.
+        /// </summary>
+        public static class ServiceRegistrationFilters
+        {
+            /// <summary>
+            /// Includes only interface types.
+            /// </summary>
+            public static Func<Type, Type, bool> Interfaces = (_, t) => t.GetTypeInfo().IsInterface;
+
+            /// <summary>
+            /// Includes only abstract types.
+            /// </summary>
+            public static Func<Type, Type, bool> AbstractClasses = (_, t) => 
+            {
+                var info = t.GetTypeInfo();
+                return info.IsAbstract && !info.IsInterface;
+            };
+        }
+
+        /// <summary>
         /// Represents the actual behavior used when a new service is going to be registered into the container. These options does not affect named registrations.
         /// </summary>
         public enum RegistrationBehavior

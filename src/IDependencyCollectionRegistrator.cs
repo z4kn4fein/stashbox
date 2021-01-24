@@ -17,16 +17,25 @@ namespace Stashbox
         /// <param name="selector">The type selector.</param>
         /// <param name="configurator">The configurator for the registered types.</param>
         /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns>
-        IStashboxContainer RegisterTypesAs(Type typeFrom, IEnumerable<Type> types, Func<Type, bool> selector = null, Action<RegistrationConfigurator> configurator = null);
+        IStashboxContainer RegisterTypesAs(Type typeFrom, 
+            IEnumerable<Type> types, 
+            Func<Type, bool> selector = null, 
+            Action<RegistrationConfigurator> configurator = null);
 
         /// <summary>
         /// Registers types into the container.
         /// </summary>
         /// <param name="types">Types to register.</param>
-        /// <param name="selector">The type selector.</param>
+        /// <param name="selector">The type selector. Used to filter the types included to register.</param>
+        /// <param name="serviceTypeSelector">The service type selector. Used to filter the service types the actual type bound to.</param>
+        /// <param name="registerSelf">If it's true the types will be registered to their own type too.</param>
         /// <param name="configurator">The configurator for the registered types.</param>
         /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns>
-        IStashboxContainer RegisterTypes(IEnumerable<Type> types, Func<Type, bool> selector = null, Action<RegistrationConfigurator> configurator = null);
+        IStashboxContainer RegisterTypes(IEnumerable<Type> types, 
+            Func<Type, bool> selector = null,
+            Func<Type, Type, bool> serviceTypeSelector = null,
+            bool registerSelf = true,
+            Action<RegistrationConfigurator> configurator = null);
 
         /// <summary>
         /// Composes services by calling the <see cref="ICompositionRoot.Compose"/> method of the given type.
@@ -34,7 +43,8 @@ namespace Stashbox
         /// <param name="compositionRootType">The type of an <see cref="ICompositionRoot"/> implementation.</param>
         /// <param name="compositionRootArguments">Optional composition root constructor arguments.</param>
         /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns>
-        IStashboxContainer ComposeBy(Type compositionRootType, params object[] compositionRootArguments);
+        IStashboxContainer ComposeBy(Type compositionRootType, 
+            params object[] compositionRootArguments);
 
         /// <summary>
         /// Composes services by calling the <see cref="ICompositionRoot.Compose"/> method of the given root.
