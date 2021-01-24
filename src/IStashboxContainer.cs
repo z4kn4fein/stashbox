@@ -76,5 +76,11 @@ namespace Stashbox
         /// </summary>
         /// <returns>The registration mappings.</returns>
         IEnumerable<KeyValuePair<Type, ServiceRegistration>> GetRegistrationMappings();
+
+        /// <summary>
+        /// Returns the details about the registrations.
+        /// </summary>
+        /// <returns>The detailed string representation of the registration.</returns>
+        IEnumerable<RegistrationDiagnosticsInfo> GetRegistrationDiagnostics();
     }
 }

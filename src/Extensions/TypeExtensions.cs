@@ -399,5 +399,28 @@ namespace System
 
         public static bool IsCompiledLambda(this Delegate @delegate) =>
             @delegate.Target != null && @delegate.Target.GetType().FullName == "System.Runtime.CompilerServices.Closure";
+
+        public static string GetDiagnosticsView(this Type type)
+        {
+            var info = type.GetTypeInfo();
+            if (info.IsGenericType)
+            {
+                var typeName = type.Name;
+                var i = typeName.IndexOf('`');
+                typeName = i != -1 ? typeName.Substring(0, i) : typeName;
+
+                typeName += "<";
+                if(info.IsGenericTypeDefinition)
+                    typeName += new string(Enumerable.Repeat(',', info.GenericTypeParameters.Length - 1).ToArray());
+                else
+                    typeName += string.Join(",", info.GenericTypeArguments.Select(a => a.GetDiagnosticsView()));
+
+                typeName += ">";
+
+                return typeName;
+            }
+
+            return type.Name;
+        }
     }
 }

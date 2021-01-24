@@ -125,12 +125,11 @@ namespace Stashbox.Tests
             using var container = new StashboxContainer();
             container.Register<ITest1, Test1>();
 
-            var reg = container.ContainerContext.RegistrationRepository
-                .GetRegistrationMappings().FirstOrDefault(r => r.Key == typeof(ITest1));
+            var reg = container.GetRegistrationMappings().FirstOrDefault(r => r.Key == typeof(ITest1));
 
             Assert.Equal(typeof(Test1), reg.Value.ImplementationType);
 
-            reg = container.ContainerContext.RegistrationRepository.GetRegistrationMappings().FirstOrDefault(r => r.Value.ImplementationType == typeof(Test1));
+            reg = container.GetRegistrationMappings().FirstOrDefault(r => r.Value.ImplementationType == typeof(Test1));
 
             Assert.Equal(typeof(Test1), reg.Value.ImplementationType);
         }
@@ -315,7 +314,7 @@ namespace Stashbox.Tests
         {
             var regs = new StashboxContainer(c =>
                 c.WithRegistrationBehavior(Rules.RegistrationBehavior.PreserveDuplications))
-            .Register<Test1>().Register<Test1>().GetRegistrationMappings();
+            .Register<Test1>().Register<Test1>().GetRegistrationDiagnostics();
 
             Assert.Equal(2, regs.Count());
         }

@@ -30,11 +30,11 @@ namespace Stashbox
 
                 var typeInfo = type.GetTypeInfo();
 
-                foreach (var baseType in type.GetRegisterableBaseTypes().Where(baseType => baseType.GetTypeInfo().IsGenericType && baseType.GetGenericTypeDefinition() == typeFrom))
-                    this.RegisterTypeAs(typeInfo.IsGenericTypeDefinition ? typeFrom : baseType, type, configurator);
+                var serviceTypes = type.GetRegisterableBaseTypes().Concat(type.GetRegisterableInterfaceTypes())
+                    .Where(t => t.GetTypeInfo().IsGenericType && t.GetGenericTypeDefinition() == typeFrom);
 
-                foreach (var interfaceType in type.GetRegisterableInterfaceTypes().Where(interfaceType => interfaceType.GetTypeInfo().IsGenericType && interfaceType.GetGenericTypeDefinition() == typeFrom))
-                    this.RegisterTypeAs(typeInfo.IsGenericTypeDefinition ? typeFrom : interfaceType, type, configurator);
+                foreach (var service in serviceTypes)
+                    this.RegisterTypeAs(typeInfo.IsGenericTypeDefinition ? typeFrom : service, type, configurator);
             }
 
             return this;
@@ -49,11 +49,20 @@ namespace Stashbox
 
             foreach (var type in types)
             {
-                foreach (var interfaceType in type.GetRegisterableInterfaceTypes())
-                    this.Register(interfaceType, type, configurator);
+                var serviceTypes = type.GetRegisterableBaseTypes().Concat(type.GetRegisterableInterfaceTypes());
 
-                foreach (var baseType in type.GetRegisterableBaseTypes())
-                    this.Register(baseType, type, configurator);
+                var typeInfo = type.GetTypeInfo();
+                if (typeInfo.IsGenericTypeDefinition)
+                    serviceTypes = serviceTypes.Where(t =>
+                    {
+                        var ti = t.GetTypeInfo();
+                        if (!ti.IsGenericType) return false;
+                        var args = ti.IsGenericTypeDefinition ? ti.GenericTypeParameters : ti.GenericTypeArguments;
+                        return typeInfo.GenericTypeParameters.Length == args.Length;
+                    }).Select(t => t.GetGenericTypeDefinition());
+
+                foreach (var service in serviceTypes)
+                    this.Register(service, type, configurator);
 
                 this.Register(type, configurator);
             }

@@ -166,6 +166,13 @@ namespace Stashbox
             return this.ContainerContext.RegistrationRepository.GetRegistrationMappings();
         }
 
+        /// <inheritdoc />
+        public IEnumerable<RegistrationDiagnosticsInfo> GetRegistrationDiagnostics()
+        {
+            this.ThrowIfDisposed();
+            foreach(var reg in this.ContainerContext.RegistrationRepository.GetRegistrationMappings())
+                yield return new RegistrationDiagnosticsInfo(reg.Key, reg.Value.ImplementationType, reg.Value.RegistrationContext.Name);
+        }
 
         private void RegisterResolvers()
         {
