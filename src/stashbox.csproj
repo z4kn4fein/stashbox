@@ -32,29 +32,45 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReleaseNotes>
       <![CDATA[
+v3.5.0:
+- Assembly scanning: 
+    - Added option to filter service types and disable self registration.
+    - Recognize generic definitions.
+- Bugfix: Services with named scope lifetime were not choosed right from the registration repo.
+      
 v3.4.0:
 - Added the core components of multitenant functionality.
 - Throw `ObjectDisposedException` when the container or a scope is used after their disposal.
+
 v3.3.0:
 - Added the option to rebuild singletons in child container with dependencies overridden in it.
 - Fix: Singleton instances were built when the Validate() was called, now just the expression is generated for them.
+
 v3.2.9:
 - Added the option to replace a registration only if an existing one is registered with the same type or name.
+
 v3.2.8:
 - Switch to license expression in nuget package.
+
 v3.2.7:
 - Minor bugfixes.
+
 v3.2.6:
 - The Validate() method now throws an AggregateException containing all the underlying exceptions.
 - Minor bugfixes.
+
 v3.2.5:
 - Minor bugfixes.
+
 v3.2.4:
 - Added the `.WhenDecoratedServiceHas()` and `.WhenDecoratedServiceIs()` decorator configuration options.
+
 v3.2.2:
 - Added support of conditional and lifetime managed decorators #93      
+
 v3.2.1:
 - Fix: Factory resolution didn't use the built-in expression compiler.
+
 v3.2.0:
 - Added IAsyncDisposable support #90
   - It works on >=net461, >=netstandard2.0 frameworks. 
