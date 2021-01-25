@@ -20,7 +20,7 @@ Github (stable) | NuGet (stable) | Fuget (stable) | NuGet (daily)
  - [Named registration](https://github.com/z4kn4fein/stashbox/wiki/Service-registration#named) - multiple implementations are identifiable with names.
  - [Assembly registration](https://github.com/z4kn4fein/stashbox/wiki/Assembly-registration) - service lookup in assemblies and auto determining the interface types.
  - [Factory delegate registration](https://github.com/z4kn4fein/stashbox/wiki/Factory-registration) - factory delegate registration with parameters (used for dependency overriding). 
- - [Open generic registration](https://github.com/z4kn4fein/stashbox/wiki/Generics) - closed generic types are constructed from open generic definitions with constraint and nested generic definition checking.
+ - [Generics](https://github.com/z4kn4fein/stashbox/wiki/Generics) - open generic definitions with constraint and nested definition checking, covariant/contravariant resolution support.
  - [Wiring into the container](https://github.com/z4kn4fein/stashbox/wiki/Service-registration#wireup) - further operations like member and method injection is executed on existing instances.
  - [Initializer / finalizer](https://github.com/z4kn4fein/stashbox/wiki/Scopes#cleanup-delegate) - custom initializer *(called when a service is instantiated by the container)* and finalizer *(called when the container or scope which created the service is being disposed)* actions can be set.
  - [Multiple service resolution](https://github.com/z4kn4fein/stashbox/wiki/Multi-resolution) - all registered implementation of a service can be obtained.

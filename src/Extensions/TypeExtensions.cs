@@ -52,6 +52,9 @@ namespace System
             return null;
         }
 
+        public static bool IsGenericType(this Type type) =>
+           type.GetTypeInfo().IsGenericType;
+
         public static bool IsClosedGenericType(this Type type) =>
             type.GetTypeInfo().IsClosedGenericType();
 

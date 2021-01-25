@@ -334,17 +334,117 @@ namespace Stashbox.Tests
             Assert.NotNull(inst);
         }
 
+        [Fact]
+        public void GenericTests_Constraint_Contravariant()
+        {
+            using var container = new StashboxContainer()
+                .Register<IContravariant<IConstraint1>, ConstraintTest4>();
+
+            var service = container.Resolve<IContravariant<ConstraintArgument1>>();
+
+            Assert.IsType<ConstraintTest4>(service);
+        }
+
+        [Fact]
+        public void GenericTests_Constraint_Contravariant_Disabled()
+        {
+            using var container = new StashboxContainer(c => c.WithVariantGenericResolution(false))
+                .Register<IContravariant<IConstraint1>, ConstraintTest4>();
+
+            Assert.Throws<ResolutionFailedException>(() => container.Resolve<IContravariant<ConstraintArgument1>>());
+        }
+
+        [Fact]
+        public void GenericTests_Constraint_Contravariant_Collection()
+        {
+            using var container = new StashboxContainer()
+                .Register<IContravariant<IConstraint1>, ConstraintTest4>()
+                .Register<IContravariant<ConstraintArgument1>, ConstraintTest5>();
+
+            var services = container.ResolveAll<IContravariant<ConstraintArgument1>>().ToList();
+
+            Assert.Equal(2, services.Count);
+        }
+
+        [Fact]
+        public void GenericTests_Constraint_Contravariant_Collection_Disabled()
+        {
+            using var container = new StashboxContainer(c => c.WithVariantGenericResolution(false))
+                .Register<IContravariant<IConstraint1>, ConstraintTest4>()
+                .Register<IContravariant<ConstraintArgument1>, ConstraintTest5>();
+
+            var services = container.ResolveAll<IContravariant<ConstraintArgument1>>().ToList();
+
+            Assert.Single(services);
+        }
+
+        [Fact]
+        public void GenericTests_Constraint_Covariant()
+        {
+            using var container = new StashboxContainer()
+                .Register<ICovariant<ConstraintArgument1>, ConstraintTest7>();
+
+            var service = container.Resolve<ICovariant<IConstraint1>>();
+
+            Assert.IsType<ConstraintTest7>(service);
+        }
+
+        [Fact]
+        public void GenericTests_Constraint_Covariant_Disabled()
+        {
+            using var container = new StashboxContainer(c => c.WithVariantGenericResolution(false))
+                .Register<ICovariant<ConstraintArgument1>, ConstraintTest7>();
+
+            Assert.Throws<ResolutionFailedException>(() => container.Resolve<ICovariant<IConstraint1>>());
+        }
+
+        [Fact]
+        public void GenericTests_Constraint_Covariant_Collection()
+        {
+            using var container = new StashboxContainer()
+                .Register<ICovariant<IConstraint1>, ConstraintTest6>()
+                .Register<ICovariant<ConstraintArgument1>, ConstraintTest7>();
+
+            var services = container.ResolveAll<ICovariant<IConstraint1>>().ToList();
+
+            Assert.Equal(2, services.Count);
+        }
+
+        [Fact]
+        public void GenericTests_Constraint_Covariant_Collection_Disabled()
+        {
+            using var container = new StashboxContainer(c => c.WithVariantGenericResolution(false))
+                .Register<ICovariant<IConstraint1>, ConstraintTest6>()
+                .Register<ICovariant<ConstraintArgument1>, ConstraintTest7>();
+
+            var services = container.ResolveAll<ICovariant<IConstraint1>>().ToList();
+
+            Assert.Single(services);
+        }
+
         interface IConstraint { }
 
         interface IConstraint1 { }
 
         interface IConstraintTest<T> { }
 
+        interface IContravariant<in T> { }
+
+        interface ICovariant<out T> { }
+
         class ConstraintTest<T> : IConstraintTest<T> { }
 
         class ConstraintTest2<T> : IConstraintTest<T> where T : IConstraint { }
 
         class ConstraintTest3<T> : IConstraintTest<T> where T : IConstraint1 { }
+
+        class ConstraintTest4 : IContravariant<IConstraint1> { }
+
+        class ConstraintTest5 : IContravariant<ConstraintArgument1> { }
+
+        class ConstraintTest6 : ICovariant<IConstraint1> { }
+
+        class ConstraintTest7 : ICovariant<ConstraintArgument1> { }
 
         class ConstraintDecorator<T> : IConstraintTest<T> where T : IConstraint
         {

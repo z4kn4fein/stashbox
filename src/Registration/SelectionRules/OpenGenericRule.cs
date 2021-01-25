@@ -3,7 +3,7 @@ using System;
 
 namespace Stashbox.Registration.SelectionRules
 {
-    internal class GenericRule : IRegistrationSelectionRule
+    internal class OpenGenericRule : IRegistrationSelectionRule
     {
         public bool IsValidForCurrentRequest(TypeInformation typeInformation,
             ServiceRegistration registration,

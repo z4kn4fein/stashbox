@@ -36,6 +36,7 @@ v3.5.0:
 - Assembly scanning: 
     - Added option to filter service types and disable self registration.
     - Recognize generic definitions.
+- Added support to covariant/contravariant generic type resolution.
 - Bugfix: Services with named scope lifetime were not choosed right from the registration repo.
       
 v3.4.0:

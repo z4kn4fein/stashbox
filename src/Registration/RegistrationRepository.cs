@@ -8,6 +8,7 @@ using Stashbox.Utils.Data.Immutable;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace Stashbox.Registration
 {
@@ -88,7 +89,7 @@ namespace Stashbox.Registration
         }
 
         public bool AddOrReMapRegistration(ServiceRegistration registration, Type serviceType) =>
-            registration.RegistrationContext.ReplaceExistingRegistrationOnlyIfExists 
+            registration.RegistrationContext.ReplaceExistingRegistrationOnlyIfExists
                 ? Swap.SwapValue(ref this.serviceRepository, (type, newRepo, t3, t4, repo) =>
                     repo.UpdateIfExists(type, newRepo, true), serviceType,
                     new ImmutableBucket<object, ServiceRegistration>(registration.RegistrationDiscriminator, registration),
@@ -98,7 +99,7 @@ namespace Stashbox.Registration
                     repo.AddOrUpdate(type, newRepo, true, true), serviceType,
                     new ImmutableBucket<object, ServiceRegistration>(registration.RegistrationDiscriminator, registration),
                     Constants.DelegatePlaceholder,
-                    Constants.DelegatePlaceholder);            
+                    Constants.DelegatePlaceholder);
 
         public bool ContainsRegistration(Type type, object name) =>
             serviceRepository.ContainsRegistration(type, name);
@@ -117,13 +118,28 @@ namespace Stashbox.Registration
 
         private IEnumerable<ServiceRegistration> GetRegistrationsForType(Type type)
         {
-            var registrations = serviceRepository.GetOrDefault(type);
+            IEnumerable<ServiceRegistration> registrations = serviceRepository.GetOrDefault(type);
             if (!type.IsClosedGenericType()) return registrations;
 
             var openGenerics = serviceRepository.GetOrDefault(type.GetGenericTypeDefinition());
 
-            if (openGenerics == null) return registrations;
-            return registrations == null ? openGenerics : openGenerics.Concat(registrations);
+            if (openGenerics != null)
+                registrations = registrations == null ? openGenerics : openGenerics.Concat(registrations);
+
+            if (this.containerConfiguration.VariantGenericResolutionEnabled)
+            {
+                var variantGenerics = serviceRepository.Walk()
+                    .Where(r => r.Key.IsGenericType() &&
+                        r.Key.GetGenericTypeDefinition() == type.GetGenericTypeDefinition() &&
+                        r.Key != type &&
+                        r.Key.ImplementsWithoutGenericCheck(type))
+                    .SelectMany(r => r.Value).ToArray();
+
+                if (variantGenerics.Length > 0)
+                    registrations = registrations == null ? variantGenerics : variantGenerics.Concat(registrations);
+            }
+
+            return registrations;
         }
     }
 }

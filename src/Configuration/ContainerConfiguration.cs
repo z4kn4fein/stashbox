@@ -18,7 +18,8 @@ namespace Stashbox.Configuration
             return new ContainerConfiguration
             {
                 ConstructorSelectionRule = Rules.ConstructorSelection.PreferMostParameters,
-                DefaultLifetime = Lifetimes.Transient
+                DefaultLifetime = Lifetimes.Transient,
+                VariantGenericResolutionEnabled = true,
             };
         }
 
@@ -108,6 +109,12 @@ namespace Stashbox.Configuration
         /// and checks that scoped services are not resolved from the root scope.
         /// </summary>
         public bool LifetimeValidationEnabled { get; internal set; }
+
+        /// <summary>
+        /// When it's true, the container checks variance in generic type resolution and uses compatible registrations.
+        /// e.g. IService{in A} is selected when IService{B} is requested and B implements/extends A.
+        /// </summary>
+        public bool VariantGenericResolutionEnabled { get; internal set; }
 
         /// <summary>
         /// A delegate to use external expression compilers.

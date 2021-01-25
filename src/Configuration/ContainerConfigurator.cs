@@ -194,6 +194,19 @@ namespace Stashbox.Configuration
         }
 
         /// <summary>
+        /// Enables the variance check for generic type resolutions. 
+        /// The container will take variance into account during generic type resolution and will use compatible registrations.
+        /// e.g. IService{in A} is selected when IService{B} is requested and B implements/extends A.
+        /// </summary>
+        /// <param name="enabled">True when the feature should be enabled, otherwise false.</param>
+        /// <returns>The container configurator.</returns>
+        public ContainerConfigurator WithVariantGenericResolution(bool enabled = true)
+        {
+            this.ContainerConfiguration.VariantGenericResolutionEnabled = enabled;
+            return this;
+        }
+
+        /// <summary>
         /// Forces the usage of an external expression tree compiler.
         /// </summary>
         /// <param name="compilerDelegate">The compiler delegate used to compile expression trees.</param>
