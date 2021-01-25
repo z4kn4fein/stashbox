@@ -183,7 +183,7 @@ namespace System
 
         private static bool HasInterfaceThatMapsToGenericTypeDefinition(TypeInfo type, Type genericType) =>
             type.ImplementedInterfaces
-              .Where(it => it.GetTypeInfo().IsGenericType)
+              .Where(it => it.IsGenericType())
               .Any(it => it.GetGenericTypeDefinition() == genericType);
 
         private static bool MapsToGenericTypeDefinition(TypeInfo type, Type genericType) =>
@@ -385,7 +385,7 @@ namespace System
             return valid;
         }
         public static bool IsNullableType(this Type type) =>
-            type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
+            type.IsGenericType() && type.GetGenericTypeDefinition() == typeof(Nullable<>);
 
         public static bool HasDefaultConstructorConstraint(this GenericParameterAttributes attributes) =>
             (attributes & GenericParameterAttributes.DefaultConstructorConstraint) == GenericParameterAttributes.DefaultConstructorConstraint;

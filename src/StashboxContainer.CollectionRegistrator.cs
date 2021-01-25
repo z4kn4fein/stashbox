@@ -34,7 +34,7 @@ namespace Stashbox
                 var typeInfo = type.GetTypeInfo();
 
                 var serviceTypes = type.GetRegisterableBaseTypes().Concat(type.GetRegisterableInterfaceTypes())
-                    .Where(t => t.GetTypeInfo().IsGenericType && t.GetGenericTypeDefinition() == typeFrom);
+                    .Where(t => t.IsGenericType() && t.GetGenericTypeDefinition() == typeFrom);
 
                 foreach (var service in serviceTypes)
                     this.RegisterTypeAs(typeInfo.IsGenericTypeDefinition ? typeFrom : service, type, configurator);
