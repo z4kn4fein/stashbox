@@ -14,7 +14,6 @@ namespace Stashbox.Registration
     public class ServiceRegistration
     {
         private static int globalRegistrationOrder;
-        private readonly ContainerConfiguration containerConfiguration;
 
         /// <summary>
         /// The implementation type.
@@ -58,10 +57,12 @@ namespace Stashbox.Registration
 
         internal readonly object RegistrationDiscriminator;
 
+        private protected readonly ContainerConfiguration Configuration;
+
         internal ServiceRegistration(Type implementationType, RegistrationType registrationType, ContainerConfiguration containerConfiguration,
             RegistrationContext registrationContext, bool isDecorator)
         {
-            this.containerConfiguration = containerConfiguration;
+            this.Configuration = containerConfiguration;
             this.ImplementationType = implementationType;
             this.ImplementationTypeInfo = implementationType.GetTypeInfo();
             this.RegistrationContext = registrationContext;
@@ -90,10 +91,6 @@ namespace Stashbox.Registration
             this.HasParentTypeConditionAndMatch(typeInfo) ||
             this.HasAttributeConditionAndMatch(typeInfo) ||
             this.HasResolutionConditionAndMatch(typeInfo);
-
-        internal ServiceRegistration Clone(Type implementationType, RegistrationType registrationType) =>
-            new ServiceRegistration(implementationType, registrationType, this.containerConfiguration,
-                this.RegistrationContext, this.IsDecorator);
 
         internal void Replaces(ServiceRegistration serviceRegistration) =>
             this.RegistrationId = serviceRegistration.RegistrationId;

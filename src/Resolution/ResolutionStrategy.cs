@@ -14,14 +14,12 @@ namespace Stashbox.Resolution
     internal class ResolutionStrategy : IResolutionStrategy
     {
         private readonly ExpressionBuilder expressionBuilder;
-        private readonly ServiceRegistrator serviceRegistrator;
         private ImmutableBucket<IResolver> resolverRepository = ImmutableBucket<IResolver>.Empty;
         private ImmutableBucket<IResolver> lastChanceResolverRepository = ImmutableBucket<IResolver>.Empty;
 
-        public ResolutionStrategy(ExpressionBuilder expressionBuilder, ServiceRegistrator serviceRegistrator)
+        public ResolutionStrategy(ExpressionBuilder expressionBuilder)
         {
             this.expressionBuilder = expressionBuilder;
-            this.serviceRegistrator = serviceRegistrator;
         }
 
         public Expression BuildExpressionForType(ResolutionContext resolutionContext, TypeInformation typeInformation)
@@ -112,8 +110,8 @@ namespace Stashbox.Resolution
             ResolutionContext resolutionContext, TypeInformation typeInformation)
         {
             var requestedType = typeInformation.Type;
-            if (serviceRegistration.RegistrationType == RegistrationType.OpenGeneric)
-                serviceRegistration = this.PrepareOpenGenericRegistration(serviceRegistration, resolutionContext, requestedType);
+            if (serviceRegistration is OpenGenericRegistration openGenericRegistration)
+                serviceRegistration = openGenericRegistration.ProduceClosedRegistration(requestedType);
 
             var decorators = resolutionContext
                 .CurrentContainerContext
@@ -158,23 +156,11 @@ namespace Stashbox.Resolution
         private Expression BuildExpressionForDecorator(ServiceRegistration serviceRegistration,
             ResolutionContext resolutionContext, Type requestedType, Utils.Data.Stack<ServiceRegistration> decorators)
         {
-            if (serviceRegistration.RegistrationType == RegistrationType.OpenGeneric)
-                serviceRegistration = this.PrepareOpenGenericRegistration(serviceRegistration, resolutionContext, requestedType);
+            if (serviceRegistration is OpenGenericRegistration openGenericRegistration)
+                serviceRegistration = openGenericRegistration.ProduceClosedRegistration(requestedType);
 
             return this.BuildExpressionAndApplyLifetime(serviceRegistration, resolutionContext,
                 requestedType, decorators.PeekBack()?.RegistrationContext.Lifetime);
-        }
-
-        private ServiceRegistration PrepareOpenGenericRegistration(ServiceRegistration serviceRegistration,
-            ResolutionContext resolutionContext, Type requestedType)
-        {
-            var genericType = serviceRegistration.ImplementationType.MakeGenericType(requestedType.GetGenericArguments());
-            var newRegistration = serviceRegistration.Clone(genericType, RegistrationType.Default);
-            newRegistration.RegistrationContext.Name = null;
-            newRegistration.RegistrationContext.ReplaceExistingRegistration = false;
-
-            this.serviceRegistrator.Register(resolutionContext.CurrentContainerContext, newRegistration, requestedType);
-            return newRegistration;
         }
 
         private Expression BuildExpressionAndApplyLifetime(ServiceRegistration serviceRegistration,

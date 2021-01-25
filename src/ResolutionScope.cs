@@ -29,10 +29,11 @@ namespace Stashbox
                 if (cache != null) return cache;
 
                 cache = new DelegateCache();
-                Swap.SwapValue(ref this.NamedCache, (t1, t2, t3, t4, items) =>
-                    items.AddOrUpdate(t1, t2, false), name, cache, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
-
+                if(Swap.SwapValue(ref this.NamedCache, (t1, t2, t3, t4, items) =>
+                    items.AddOrUpdate(t1, t2, false), name, cache, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder))
                 return cache;
+
+                return this.NamedCache.GetOrDefault(name, false);
             }
         }
 

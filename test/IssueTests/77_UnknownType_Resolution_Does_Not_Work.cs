@@ -63,21 +63,21 @@ namespace Stashbox.Tests.IssueTests
             }));
             Assert.NotNull(container.Resolve<ITest>(true));
         }
-    }
+        
+        interface ITest
+        { }
 
-    interface ITest
-    { }
+        class Test : ITest
+        { }
 
-    class Test : ITest
-    { }
-
-    class Test1
-    {
-        public Test1(ITest test)
+        class Test1
         {
-            Test = test;
-        }
+            public Test1(ITest test)
+            {
+                Test = test;
+            }
 
-        public ITest Test { get; }
+            public ITest Test { get; }
+        }
     }
 }

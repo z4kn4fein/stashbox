@@ -13,7 +13,10 @@ namespace Stashbox.Registration
             if (!isDecorator)
                 registrationConfiguration.Context.Lifetime = this.ChooseLifeTime(containerContext, registrationConfiguration.Context);
 
-            return new ServiceRegistration(registrationConfiguration.ImplementationType, this.DetermineRegistrationType(registrationConfiguration),
+            return registrationConfiguration.ImplementationType.IsOpenGenericType() 
+                ? new OpenGenericRegistration(registrationConfiguration.ImplementationType,
+                containerContext.ContainerConfiguration, registrationConfiguration.Context, isDecorator)
+                : new ServiceRegistration(registrationConfiguration.ImplementationType, this.DetermineRegistrationType(registrationConfiguration),
                 containerContext.ContainerConfiguration, registrationConfiguration.Context, isDecorator);
         }
 
@@ -36,9 +39,6 @@ namespace Stashbox.Registration
 
         private RegistrationType DetermineRegistrationType(RegistrationConfiguration registrationConfiguration)
         {
-            if (registrationConfiguration.ImplementationType.IsOpenGenericType())
-                return RegistrationType.OpenGeneric;
-
             if (registrationConfiguration.Context.ExistingInstance != null)
                 return registrationConfiguration.Context.IsWireUp
                     ? RegistrationType.WireUp

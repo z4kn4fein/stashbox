@@ -249,7 +249,7 @@ namespace Stashbox.Tests
 
             container.BeginScope("A").Resolve<ITest1<int, string>>();
 
-            Assert.Equal(3, container.ContainerContext.RegistrationRepository.GetRegistrationMappings().Count());
+            Assert.Equal(2, container.ContainerContext.RegistrationRepository.GetRegistrationMappings().Count());
         }
 
         [Fact]

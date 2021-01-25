@@ -35,7 +35,7 @@ namespace Stashbox
                 new RegistrationBuilder(), new ContainerConfigurator(), config)
         {
             this.expressionBuilder = new ExpressionBuilder(this.expressionFactory);
-            this.resolutionStrategy = new ResolutionStrategy(this.expressionBuilder, this.serviceRegistrator);
+            this.resolutionStrategy = new ResolutionStrategy(this.expressionBuilder);
 
             this.ContainerContext = new ContainerContext(null, resolutionStrategy,
                 expressionFactory, this.containerConfigurator.ContainerConfiguration);
