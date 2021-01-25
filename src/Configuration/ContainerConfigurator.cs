@@ -68,7 +68,7 @@ namespace Stashbox.Configuration
         }
 
         /// <summary>
-        /// Enables the default value injection.
+        /// Enables or disables the default value injection.
         /// </summary>
         /// <param name="enabled">True when the feature should be enabled, otherwise false.</param>
         /// <returns>The container configurator.</returns>
@@ -79,7 +79,7 @@ namespace Stashbox.Configuration
         }
 
         /// <summary>
-        /// Enables the unknown type resolution.
+        /// Enables or disables the unknown type resolution.
         /// </summary>
         /// <param name="configurator">An optional configuration action used during the registration of the unknown type.</param>
         /// <param name="enabled">True when the feature should be enabled, otherwise false.</param>
@@ -92,7 +92,7 @@ namespace Stashbox.Configuration
         }
 
         /// <summary>
-        /// Enables the member injection without annotation.
+        /// Enables or disables the member injection without annotation.
         /// </summary>
         /// <param name="rule">The rule used to determine what kind of members (properties / fields) should be auto injected.</param>
         /// <param name="filter">An optional filter predicate used to select which properties or fields of a type should be auto injected.</param>
@@ -127,7 +127,7 @@ namespace Stashbox.Configuration
         }
 
         /// <summary>
-        /// Enables conventional resolution, which means the container treats the constructor/method parameter or member names as dependency names used by named resolution.
+        /// Enables or disables conventional resolution, which means the container treats the constructor/method parameter or member names as dependency names used by named resolution.
         /// </summary>
         /// <param name="enabled">True when the feature should be enabled, otherwise false.</param>
         /// <returns>The container configurator.</returns>
@@ -138,7 +138,7 @@ namespace Stashbox.Configuration
         }
 
         /// <summary>
-        /// Enables the resolution of a named registration when a request ha been made without dependency name but with the same type.
+        /// Enables or disables the resolution of a named registration when a request ha been made without dependency name but with the same type.
         /// </summary>
         /// <param name="enabled">True when the feature should be enabled, otherwise false.</param>
         /// <returns>The container configurator.</returns>
@@ -172,7 +172,7 @@ namespace Stashbox.Configuration
         }
 
         /// <summary>
-        /// Enables the life-span and root resolution validation on the dependency tree.
+        /// Enables or disables the life-span and root resolution validation on the dependency tree.
         /// </summary>
         /// <param name="enabled">True when the feature should be enabled, otherwise false.</param>
         /// <returns>The container configurator.</returns>
@@ -183,7 +183,7 @@ namespace Stashbox.Configuration
         }
 
         /// <summary>
-        /// Enables the rebuilding of singletons in a child-parent container case with the dependencies overridden in the child, not affecting the already built instance in the parent.
+        /// Enables or disables the rebuilding of singletons in a child-parent container case with the dependencies overridden in the child, not affecting the already built instance in the parent.
         /// </summary>
         /// <param name="enabled">True when the feature should be enabled, otherwise false.</param>
         /// <returns>The container configurator.</returns>
@@ -194,7 +194,7 @@ namespace Stashbox.Configuration
         }
 
         /// <summary>
-        /// Enables the variance check for generic type resolutions. 
+        /// Enables or disables the variance check for generic type resolutions. 
         /// The container will take variance into account during generic type resolution and will use compatible registrations.
         /// e.g. IService{in A} is selected when IService{B} is requested and B implements/extends A.
         /// </summary>
