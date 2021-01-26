@@ -6,6 +6,10 @@ namespace Stashbox
     public partial class StashboxContainer
     {
         /// <inheritdoc />
+        public object Resolve(Type typeFrom) =>
+            this.ContainerContext.RootScope.Resolve(typeFrom, false, null);
+
+        /// <inheritdoc />
         public object Resolve(Type typeFrom, bool nullResultAllowed = false, object[] dependencyOverrides = null) =>
             this.ContainerContext.RootScope.Resolve(typeFrom, nullResultAllowed, dependencyOverrides);
 

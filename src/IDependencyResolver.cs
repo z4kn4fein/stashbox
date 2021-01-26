@@ -20,6 +20,13 @@ namespace Stashbox
         /// Resolves an instance from the container.
         /// </summary>
         /// <param name="typeFrom">The type of the requested instance.</param>
+        /// <returns>The resolved object.</returns>
+        object Resolve(Type typeFrom);
+
+        /// <summary>
+        /// Resolves an instance from the container.
+        /// </summary>
+        /// <param name="typeFrom">The type of the requested instance.</param>
         /// <param name="nullResultAllowed">If true, the container will return with null instead of throwing <see cref="ResolutionFailedException"/>.</param>
         /// <param name="dependencyOverrides">A collection of objects which are used to override certain dependencies of the requested service.</param>
         /// <returns>The resolved object.</returns>
