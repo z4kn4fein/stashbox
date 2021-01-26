@@ -30,7 +30,6 @@ namespace Stashbox.Lifetime
 
             return resolutionContext.CurrentScopeParameter.CallMethod(Constants.GetOrAddScopedObjectMethod,
                     serviceRegistration.RegistrationId.AsConstant(),
-                    serviceRegistration.SynchronizationObject.AsConstant(),
                     factory.AsConstant())
                 .ConvertTo(resolveType);
         }

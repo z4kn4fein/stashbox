@@ -37,11 +37,10 @@ namespace Stashbox.Lifetime
                 resolutionContext.CurrentScopeParameter,
                     factory.AsConstant(),
                     serviceRegistration.RegistrationId.AsConstant(),
-                    serviceRegistration.SynchronizationObject.AsConstant(),
                     this.ScopeName.AsConstant());
 
         private static TValue GetScopedValue<TValue>(IResolutionScope currentScope, Func<IResolutionScope, object> factory,
-            int scopeId, object sync, object scopeName)
+            int scopeId, object scopeName)
         {
             var scope = currentScope;
             while (scope != null && scope.Name != scopeName)
@@ -50,8 +49,7 @@ namespace Stashbox.Lifetime
             if (scope == null)
                 throw new InvalidOperationException($"The scope '{scopeName}' not found.");
 
-            return (TValue)scope.GetOrAddScopedObject(scopeId, sync, factory);
-
+            return (TValue)scope.GetOrAddScopedObject(scopeId, factory);
         }
     }
 }

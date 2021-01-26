@@ -40,10 +40,9 @@ namespace Stashbox
         /// Returns an existing scoped object or adds it into the scope if it doesn't exist.
         /// </summary>
         /// <param name="key">The key.</param>
-        /// <param name="sync">The object use for synchronization.</param>
         /// <param name="factory">The value factory used to create the object if it doesn't exist yet.</param>
         /// <returns>The scoped object.</returns>
-        object GetOrAddScopedObject(int key, object sync, Func<IResolutionScope, object> factory);
+        object GetOrAddScopedObject(int key, Func<IResolutionScope, object> factory);
 
         /// <summary>
         /// Invalidates the delegate cache.

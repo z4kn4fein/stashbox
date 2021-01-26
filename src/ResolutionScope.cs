@@ -29,14 +29,39 @@ namespace Stashbox
                 if (cache != null) return cache;
 
                 cache = new DelegateCache();
-                if(Swap.SwapValue(ref this.NamedCache, (t1, t2, t3, t4, items) =>
-                    items.AddOrUpdate(t1, t2, false), name, cache, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder))
-                return cache;
+                if (Swap.SwapValue(ref this.NamedCache, (t1, t2, t3, t4, items) =>
+                     items.AddOrUpdate(t1, t2, false), name, cache, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder))
+                    return cache;
 
                 return this.NamedCache.GetOrDefault(name, false);
             }
         }
 
+        private class ScopedEvaluator
+        {
+            private static readonly object Default = new object();
+
+            private int evaluated;
+            private object evaluatedObject = Default;
+
+            public object Evaluate(IResolutionScope scope, Func<IResolutionScope, object> factory)
+            {
+                if (Interlocked.CompareExchange(ref this.evaluated, 1, 0) != 0)
+                    return this.WaitForEvaluation();
+
+                this.evaluatedObject = factory(scope);
+                return this.evaluatedObject;
+            }
+
+            private object WaitForEvaluation()
+            {
+                SpinWait spin = default;
+                while (ReferenceEquals(this.evaluatedObject, Default))
+                    spin.SpinOnce();
+
+                return this.evaluatedObject;
+            }
+        }
 
         private readonly ResolutionStrategy resolutionStrategy;
         private readonly ExpressionFactory expressionFactory;
@@ -44,7 +69,7 @@ namespace Stashbox
         private readonly DelegateCacheProvider delegateCacheProvider;
         private readonly DelegateCache delegateCache;
 
-        private ImmutableTree<object> scopedItems = ImmutableTree<object>.Empty;
+        private ImmutableTree<ScopedEvaluator> scopedItems = ImmutableTree<ScopedEvaluator>.Empty;
         private ImmutableTree<object, object> scopedInstances = ImmutableTree<object, object>.Empty;
         private ImmutableTree<ThreadLocal<bool>> circularDependencyBarrier = ImmutableTree<ThreadLocal<bool>>.Empty;
 
@@ -108,24 +133,19 @@ namespace Stashbox
             return this;
         }
 
-        public object GetOrAddScopedObject(int key, object sync, Func<IResolutionScope, object> factory)
+        public object GetOrAddScopedObject(int key, Func<IResolutionScope, object> factory)
         {
             this.ThrowIfDisposed();
 
             var item = this.scopedItems.GetOrDefault(key);
-            if (item != null) return item;
+            if (item != null) return item.Evaluate(this, factory);
 
-            lock (sync)
-            {
-                item = this.scopedItems.GetOrDefault(key);
-                if (item != null) return item;
+            var evaluator = new ScopedEvaluator();
+            if (Swap.SwapValue(ref this.scopedItems, (t1, t2, t3, t4, items) =>
+                 items.AddOrUpdate(t1, t2), key, evaluator, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder))
+                return evaluator.Evaluate(this, factory);
 
-                item = factory(this);
-                Swap.SwapValue(ref this.scopedItems, (t1, t2, t3, t4, items) =>
-                    items.AddOrUpdate(t1, t2), key, item, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
-
-                return item;
-            }
+            return this.scopedItems.GetOrDefault(key).Evaluate(this, factory);
         }
 
         public void InvalidateDelegateCache()

@@ -26,10 +26,9 @@ namespace Stashbox.Lifetime
             if (resolutionContext.IsValidationRequest)
                 return rootScope.AsConstant().CallMethod(Constants.GetOrAddScopedObjectMethod,
                     serviceRegistration.RegistrationId.AsConstant(),
-                    serviceRegistration.SynchronizationObject.AsConstant(),
                     factory.AsConstant()).ConvertTo(resolveType);
 
-            return rootScope.GetOrAddScopedObject(serviceRegistration.RegistrationId, serviceRegistration.SynchronizationObject, factory)
+            return rootScope.GetOrAddScopedObject(serviceRegistration.RegistrationId, factory)
                     .AsConstant();
         }
     }

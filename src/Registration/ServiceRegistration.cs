@@ -31,11 +31,6 @@ namespace Stashbox.Registration
         public int RegistrationId { get; private set; }
 
         /// <summary>
-        /// The object used to synchronized operations.
-        /// </summary>
-        public object SynchronizationObject { get; }
-
-        /// <summary>
         /// True if the registration is a decorator.
         /// </summary>
         public bool IsDecorator { get; }
@@ -68,7 +63,6 @@ namespace Stashbox.Registration
             this.RegistrationContext = registrationContext;
             this.IsDecorator = isDecorator;
             this.RegistrationType = registrationType;
-            this.SynchronizationObject = new object();
 
             this.IsResolvableByUnnamedRequest = this.RegistrationContext.Name == null || containerConfiguration.NamedDependencyResolutionForUnNamedRequestsEnabled;
 
