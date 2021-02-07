@@ -13,19 +13,19 @@ namespace Stashbox.Tests
         public void ReMapTests_Replace_SingleResolve()
         {
             using var container = new StashboxContainer();
-            container.Register<ITest1, Test1>(context => context.WithName("teszt"));
-            container.Register<ITest1, Test12>(context => context.WithName("teszt2"));
+            container.Register<ITest1, Test1>(context => context.WithName("test"));
+            container.Register<ITest1, Test12>(context => context.WithName("test2"));
 
-            var test1 = container.Resolve<ITest1>("teszt");
-            var test2 = container.Resolve<ITest1>("teszt2");
+            var test1 = container.Resolve<ITest1>("test");
+            var test2 = container.Resolve<ITest1>("test2");
 
             Assert.IsType<Test1>(test1);
             Assert.IsType<Test12>(test2);
 
-            container.Register<ITest1, Test11>(context => context.WithName("teszt").ReplaceExisting());
+            container.Register<ITest1, Test11>(context => context.WithName("test").ReplaceExisting());
 
-            var test11 = container.Resolve<ITest1>("teszt");
-            var test12 = container.Resolve<ITest1>("teszt2");
+            var test11 = container.Resolve<ITest1>("test");
+            var test12 = container.Resolve<ITest1>("test2");
 
             Assert.IsType<Test11>(test11);
             Assert.IsType<Test12>(test12);
@@ -35,15 +35,15 @@ namespace Stashbox.Tests
         public void ReMapTests_Replace_Enumerable_Named()
         {
             using var container = new StashboxContainer();
-            container.Register<ITest1, Test1>(context => context.WithName("teszt"));
-            container.Register<ITest1, Test12>(context => context.WithName("teszt2"));
+            container.Register<ITest1, Test1>(context => context.WithName("test"));
+            container.Register<ITest1, Test12>(context => context.WithName("test2"));
 
             var coll = container.Resolve<IEnumerable<ITest1>>().ToArray();
 
             Assert.IsType<Test1>(coll[0]);
             Assert.IsType<Test12>(coll[1]);
 
-            container.Register<ITest1, Test11>(context => context.WithName("teszt").ReplaceExisting());
+            container.Register<ITest1, Test11>(context => context.WithName("test").ReplaceExisting());
 
             var coll2 = container.Resolve<IEnumerable<ITest1>>().ToArray();
 
@@ -55,20 +55,20 @@ namespace Stashbox.Tests
         public void ReMapTests_ReMap_Replace_Only_If_Exists()
         {
             using var container = new StashboxContainer();
-            container.Register<ITest1, Test1>(context => context.WithName("teszt"));
-            container.Register<ITest1, Test12>(context => context.WithName("teszt2"));
+            container.Register<ITest1, Test1>(context => context.WithName("test"));
+            container.Register<ITest1, Test12>(context => context.WithName("test2"));
 
-            var test1 = container.Resolve<ITest1>("teszt");
-            var test2 = container.Resolve<ITest1>("teszt2");
+            var test1 = container.Resolve<ITest1>("test");
+            var test2 = container.Resolve<ITest1>("test2");
 
             Assert.IsType<Test1>(test1);
             Assert.IsType<Test12>(test2);
 
-            container.ReMap<ITest1, Test11>(context => context.WithName("teszt").ReplaceOnlyIfExists());
+            container.ReMap<ITest1, Test11>(context => context.WithName("test").ReplaceOnlyIfExists());
 
-            Assert.Throws<ResolutionFailedException>(() => container.Resolve<ITest1>("teszt2"));
+            Assert.Throws<ResolutionFailedException>(() => container.Resolve<ITest1>("test2"));
 
-            var test11 = container.Resolve<ITest1>("teszt");
+            var test11 = container.Resolve<ITest1>("test");
             Assert.IsType<Test11>(test11);
         }
 
@@ -76,19 +76,19 @@ namespace Stashbox.Tests
         public void ReMapTests_Replace_Only_If_Exists()
         {
             using var container = new StashboxContainer();
-            container.Register<ITest1, Test1>(context => context.WithName("teszt"));
-            container.Register<ITest1, Test12>(context => context.WithName("teszt2"));
+            container.Register<ITest1, Test1>(context => context.WithName("test"));
+            container.Register<ITest1, Test12>(context => context.WithName("test2"));
 
-            var test1 = container.Resolve<ITest1>("teszt");
-            var test2 = container.Resolve<ITest1>("teszt2");
+            var test1 = container.Resolve<ITest1>("test");
+            var test2 = container.Resolve<ITest1>("test2");
 
             Assert.IsType<Test1>(test1);
             Assert.IsType<Test12>(test2);
 
-            container.Register<ITest1, Test11>(context => context.WithName("teszt").ReplaceOnlyIfExists());
+            container.Register<ITest1, Test11>(context => context.WithName("test").ReplaceOnlyIfExists());
 
-            var test11 = container.Resolve<ITest1>("teszt");
-            var test12 = container.Resolve<ITest1>("teszt2");
+            var test11 = container.Resolve<ITest1>("test");
+            var test12 = container.Resolve<ITest1>("test2");
 
             Assert.IsType<Test11>(test11);
             Assert.IsType<Test12>(test12);
@@ -98,33 +98,33 @@ namespace Stashbox.Tests
         public void ReMapTests_Dont_Replace_If_Not_Exists()
         {
             using var container = new StashboxContainer();
-            container.Register<ITest1, Test1>(context => context.WithName("teszt"));
+            container.Register<ITest1, Test1>(context => context.WithName("test"));
 
-            var test1 = container.Resolve<ITest1>("teszt");
+            var test1 = container.Resolve<ITest1>("test");
             Assert.IsType<Test1>(test1);
 
-            container.Register<ITest1, Test11>(context => context.WithName("teszt2").ReplaceOnlyIfExists());
+            container.Register<ITest1, Test11>(context => context.WithName("test2").ReplaceOnlyIfExists());
 
-            var test11 = container.Resolve<ITest1>("teszt");
+            var test11 = container.Resolve<ITest1>("test");
             Assert.IsType<Test1>(test11);
 
-            Assert.Throws<ResolutionFailedException>(() => container.Resolve<ITest1>("teszt2"));
+            Assert.Throws<ResolutionFailedException>(() => container.Resolve<ITest1>("test2"));
         }
 
         [Fact]
         public void ReMapTests_ReMap_Replaces_Every_Registration()
         {
             using var container = new StashboxContainer();
-            container.Register<ITest1, Test1>(context => context.WithName("teszt"));
+            container.Register<ITest1, Test1>(context => context.WithName("test"));
 
-            var test1 = container.Resolve<ITest1>("teszt");
+            var test1 = container.Resolve<ITest1>("test");
             Assert.IsType<Test1>(test1);
 
-            container.ReMap<ITest1, Test11>(context => context.WithName("teszt2").ReplaceOnlyIfExists());
+            container.ReMap<ITest1, Test11>(context => context.WithName("test2").ReplaceOnlyIfExists());
 
-            Assert.Throws<ResolutionFailedException>(() => container.Resolve<ITest1>("teszt"));
+            Assert.Throws<ResolutionFailedException>(() => container.Resolve<ITest1>("test"));
 
-            var test11 = container.Resolve<ITest1>("teszt2");
+            var test11 = container.Resolve<ITest1>("test2");
             Assert.IsType<Test11>(test11);
         }
 
@@ -219,8 +219,8 @@ namespace Stashbox.Tests
         public void ReMapTests_Enumerable_Named()
         {
             using var container = new StashboxContainer();
-            container.Register<ITest1, Test1>(context => context.WithName("teszt"));
-            container.Register<ITest1, Test12>(context => context.WithName("teszt2"));
+            container.Register<ITest1, Test1>(context => context.WithName("test"));
+            container.Register<ITest1, Test12>(context => context.WithName("test2"));
 
             var coll = container.Resolve<IEnumerable<ITest1>>().ToArray();
 
@@ -240,18 +240,18 @@ namespace Stashbox.Tests
         public void ReMapTests_Func_Named()
         {
             using var container = new StashboxContainer();
-            container.Register<ITest1, Test12>(context => context.WithName("teszt2"));
-            container.Register<ITest1, Test1>(context => context.WithName("teszt"));
+            container.Register<ITest1, Test12>(context => context.WithName("test2"));
+            container.Register<ITest1, Test1>(context => context.WithName("test"));
 
-            container.Resolve<Func<ITest1>>("teszt2");
+            container.Resolve<Func<ITest1>>("test2");
 
-            var func = container.Resolve<Func<ITest1>>("teszt");
+            var func = container.Resolve<Func<ITest1>>("test");
 
             Assert.IsType<Test1>(func());
 
-            container.ReMap<ITest1, Test11>(context => context.WithName("teszt"));
+            container.ReMap<ITest1, Test11>(context => context.WithName("test"));
 
-            var func2 = container.Resolve<Func<ITest1>>("teszt");
+            var func2 = container.Resolve<Func<ITest1>>("test");
 
             Assert.IsType<Test11>(func2());
         }
@@ -260,18 +260,18 @@ namespace Stashbox.Tests
         public void ReMapTests_Lazy_Named()
         {
             using var container = new StashboxContainer();
-            container.Register<ITest1, Test12>(context => context.WithName("teszt2"));
-            container.Register<ITest1, Test1>(context => context.WithName("teszt"));
+            container.Register<ITest1, Test12>(context => context.WithName("test2"));
+            container.Register<ITest1, Test1>(context => context.WithName("test"));
 
-            container.Resolve<Lazy<ITest1>>("teszt");
+            container.Resolve<Lazy<ITest1>>("test");
 
-            var lazy = container.Resolve<Lazy<ITest1>>("teszt");
+            var lazy = container.Resolve<Lazy<ITest1>>("test");
 
             Assert.IsType<Test1>(lazy.Value);
 
-            container.ReMap<ITest1, Test11>(config => config.WithName("teszt"));
+            container.ReMap<ITest1, Test11>(config => config.WithName("test"));
 
-            var lazy2 = container.Resolve<Lazy<ITest1>>("teszt");
+            var lazy2 = container.Resolve<Lazy<ITest1>>("test");
 
             Assert.IsType<Test11>(lazy2.Value);
         }

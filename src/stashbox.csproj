@@ -32,6 +32,9 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReleaseNotes>
       <![CDATA[
+v3.5.1:
+- Bugfix: When a singleton registration had been replaced with `.ReplaceExisting()`, the container still used the old instance. #98
+      
 v3.5.0:
 - Assembly scanning: 
     - Added option to filter service types and disable self registration.

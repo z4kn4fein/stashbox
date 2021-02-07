@@ -13,6 +13,8 @@ namespace Stashbox.Registration
     /// </summary>
     public class ServiceRegistration
     {
+        private static int globalRegistrationId;
+
         private static int globalRegistrationOrder;
 
         /// <summary>
@@ -28,7 +30,12 @@ namespace Stashbox.Registration
         /// <summary>
         /// The registration id.
         /// </summary>
-        public int RegistrationId { get; private set; }
+        public int RegistrationId { get; }
+
+        /// <summary>
+        /// The registration order indicator.
+        /// </summary>
+        public int RegistrationOrder { get; private set; }
 
         /// <summary>
         /// True if the registration is a decorator.
@@ -75,7 +82,8 @@ namespace Stashbox.Registration
             this.HasCondition = this.RegistrationContext.TargetTypeCondition != null || this.RegistrationContext.ResolutionCondition != null ||
                 this.RegistrationContext.AttributeConditions != null && this.RegistrationContext.AttributeConditions.Any();
 
-            this.RegistrationId = ReserveRegistrationOrder();
+            this.RegistrationId = ReserveRegistrationId();
+            this.RegistrationOrder = ReserveRegistrationOrder();
             this.RegistrationDiscriminator = containerConfiguration.RegistrationBehavior == Rules.RegistrationBehavior.PreserveDuplications
                     ? this.RegistrationId
                     : this.RegistrationContext.Name ?? implementationType;
@@ -87,7 +95,7 @@ namespace Stashbox.Registration
             this.HasResolutionConditionAndMatch(typeInfo);
 
         internal void Replaces(ServiceRegistration serviceRegistration) =>
-            this.RegistrationId = serviceRegistration.RegistrationId;
+            this.RegistrationOrder = serviceRegistration.RegistrationOrder;
 
         private bool HasParentTypeConditionAndMatch(TypeInformation typeInfo) =>
             this.RegistrationContext.TargetTypeCondition != null && typeInfo.ParentType != null && this.RegistrationContext.TargetTypeCondition == typeInfo.ParentType;
@@ -98,6 +106,9 @@ namespace Stashbox.Registration
 
         private bool HasResolutionConditionAndMatch(TypeInformation typeInfo) =>
             this.RegistrationContext.ResolutionCondition != null && this.RegistrationContext.ResolutionCondition(typeInfo);
+
+        private static int ReserveRegistrationId() =>
+            Interlocked.Increment(ref globalRegistrationId);
 
         private static int ReserveRegistrationOrder() =>
             Interlocked.Increment(ref globalRegistrationOrder);

@@ -377,9 +377,9 @@ namespace Stashbox.Tests
         {
             var container = new StashboxContainer();
 
-            container.RegisterFunc<ITest>(resolver => new Test(), "teszt");
+            container.RegisterFunc<ITest>(resolver => new Test(), "test");
 
-            var test = container.Resolve<Func<ITest>>("teszt")();
+            var test = container.Resolve<Func<ITest>>("test")();
 
             Assert.NotNull(test);
         }
