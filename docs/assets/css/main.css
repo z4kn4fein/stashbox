@@ -126,15 +126,11 @@ section.cover .mask {
     color: white !important;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 450px) {
     :root {
         --code-font-size: calc(var(--font-size-m) * 0.82);
         --base-font-size: 13px;
         --code-block-padding: 1.4em 1.5em 0.8em 1.0em;
-    }
-
-    .docsify-tabs__tab {
-        font-size: 11px;
     }
 
     .markdown-section {
@@ -143,6 +139,30 @@ section.cover .mask {
 
     .app-nav {
         right: 60px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .docsify-tabs__tab {
+        font-size: 11px !important;
+    }
+}
+
+@media (max-width: 520px) {
+    .docsify-tabs__tab {
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 840px) {
+    :root {
+        --sidebar-width: 16rem;
+        --sidebar-padding: 0 25px 0 15px;
+    }
+
+    .markdown-section {
+        padding: 6em 0.5em 0 0.8em;
+        padding-top: 6em !important;
     }
 }
   

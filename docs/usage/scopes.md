@@ -1,9 +1,8 @@
 # Scopes
 
-A scope is a unit where your scoped service instances are being re-used and shared by their consumers. It can be interpreted as the unit-of-work pattern where the scope encapsulates a given unit from where the instances that are required for the work will be resolved. When the work is finished the service instances will be disposed with the scope's disposal.
+It's an implementation of the unit-of-work pattern; a scope encapsulates a given unit used to resolve and store instances required for the work. When a scoped service is resolved or injected, the scope ensures that it gets instantiated only once within the scope's lifetime. When the work is finished, the scope cleans up the resources by disposing every tracked disposable instance.
 
-A web application is a good usage example for scopes as it has a well-defined execution unit that can be bound to a scope - the HTTP request. Every request could have its own unique scope bound to the request's lifetime. When a request ends, the scope gets closed, and all the scoped instances will be disposed.
-
+A web application is a fair usage example for scopes as it has a well-defined execution unit that can be bound to a scope - the HTTP request. Every request could have its unique scope attached to the request's lifetime. When a request ends, the scope gets closed, and all the scoped instances will be disposed.
 
 <!-- panels:start -->
 ## Creating a scope

@@ -8,13 +8,13 @@ Stashbox provides several methods that enable registering services, and we'll go
 ## Default registration
 
 <!-- div:left-panel -->
-Stashbox allow registrations via the `Register()` methods. 
-
-The example registers `DbBackup` to be returned when `IJob` is requested.
+Stashbox allows registration operations via `Register()` methods. 
 
 During registration, the container checks whether the service type is assignable from the implementation type and if not, the container throws an [exception](diagnostics/exceptions?id=invalidregistrationexception). 
 
-Also, when the implementation is not resolvable (it's an interface or abstract class), the container throws the same [exception](diagnostics/exceptions?id=invalidregistrationexception).
+Also, when the implementation is not resolvable (when it's an interface or abstract class), the container throws the same [exception](diagnostics/exceptions?id=invalidregistrationexception).
+
+The example registers `DbBackup` to be returned when `IJob` is requested.
 
 <!-- div:right-panel -->
 
@@ -23,18 +23,18 @@ Also, when the implementation is not resolvable (it's an interface or abstract c
 ```cs
 container.Register<IJob, DbBackup>();
 IJob job = container.Resolve<IJob>();
-// throws exception, because ConsoleLogger doesn't implement IJob.
+// throws an exception because ConsoleLogger doesn't implement IJob.
 container.Register<IJob, ConsoleLogger>();
-// throws exception, because IJob is not a valid implementation.
+// throws an exception because IJob is not a valid implementation.
 container.Register<IJob, IJob>();
 ```
 #### **Runtime type API**
 ```cs
 container.Register(typeof(IJob), typeof(DbBackup));
 object job = container.Resolve(typeof(IJob));
-// throws exception, because ConsoleLogger doesn't implement IJob.
+// throws an exception because ConsoleLogger doesn't implement IJob.
 container.Register(typeof(IJob), typeof(ConsoleLogger));
-// throws exception, because IJob is not a valid implementation.
+// throws an exception because IJob is not a valid implementation.
 container.Register(typeof(IJob), typeof(IJob));
 ```
 <!-- tabs:end -->
@@ -87,7 +87,7 @@ var job = container.Register<IJob, DbBackup>()
 <!-- div:left-panel -->
 The example shows how you can bind more implementations to a service type using names for identification. 
 
-The same name must used to resolve the named service.
+The same name must be used to resolve the named service.
 
 ?> The name is an `object` type.
 
@@ -150,7 +150,7 @@ container.RegisterInstance<IJob>(job, "DbBackup");
 IJob resolvedJob = container.Resolve<IJob>("DbBackup");
 ```
 
-#### **Without disposal**
+#### **No dispose**
 ```cs
 var job = new DbBackup();
 container.RegisterInstance<IJob>(job, withoutDisposalTracking: true);
