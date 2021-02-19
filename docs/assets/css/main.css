@@ -12,7 +12,7 @@
     --cover-button-box-shadow--hover: 0 5px 16px rgba(3, 26, 39, 0.4);
 
     --sidebar-toggle-icon-stroke-width: 2px;
-    --sidebar-toggle-offset-top: calc(100vh - (var(--sidebar-toggle-height) / 2) - 60px);
+    /* --sidebar-toggle-offset-top: calc(100vh - (var(--sidebar-toggle-height) / 2) - 60px); */
 
     --heading-h3-font-weight: 400;
 
@@ -130,6 +130,18 @@ section.cover .mask {
     margin-right: 5px;
     padding-bottom: 3px;
     vertical-align: middle;
+}
+
+button.sidebar-toggle {
+    bottom: 1rem;
+    top: auto;
+    left: auto;
+}
+
+.sidebar-toggle .sidebar-toggle-button {
+    bottom: 1rem;
+    top: auto;
+    left: auto;
 }
 
 ::selection {
