@@ -21,7 +21,7 @@
       subMaxLevel: 2,
 
       name: 'Stashbox',
-      nameLink: '/',
+      nameLink: '/stashbox',
       logo: 'assets/images/icon.png',
 
       repo: 'z4kn4fein/stashbox',
@@ -61,7 +61,9 @@
       plugins: [
         function (hook, vm) {
           hook.beforeEach(function (html) {
-            if (/githubusercontent\.com/.test(vm.route.file)) {
+            if (/CHANGELOG\.md/.test(vm.route.file)) {
+              return html;
+            } else if (/githubusercontent\.com/.test(vm.route.file)) {
               url = vm.route.file
                 .replace('raw.githubusercontent.com', 'github.com')
                 .replace(/\/master/, '/blob/master')
@@ -69,7 +71,6 @@
               url = 'https://github.com/z4kn4fein/stashbox/edit/master/docs/' + vm.route.file
             }
             var editHtml = '[:fab fa-github: Edit this page on GitHub](' + url + ') - <span class="last-modified">*(modified: {docsify-updated})*</span>\n\n'
-
             return editHtml + html;
           })
         },

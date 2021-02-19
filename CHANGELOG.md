@@ -70,7 +70,7 @@
 - `WithMemberInjectionWithoutAnnotation()` container configuration option has been renamed to `WithAutoMemberInjection()`.
 - `SetImplementationType()` option has been added to the registration configuration used when unknown type detected.
 - Removed the `GetScopedInstace()` method from the `IResolutionScope`, they are treated as expression overrides now and consumed automatically by the container.
-- Lifetimes became stateless and their API has been changed, see the docs for more info (https://github.com/z4kn4fein/stashbox/wiki/Lifetimes).
+- Lifetimes became stateless and their API has been changed, read [this](https://z4kn4fein.github.io/stashbox/#/usage/lifetimes) for more info.
 - Lifetime validation has been added:
  - Tracking dependencies that has shorter life-span than their direct or indirect parent's.
  - Tracking scoped services resolved from root.
