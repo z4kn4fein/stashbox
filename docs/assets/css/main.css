@@ -1,0 +1,127 @@
+:root {
+    --search-margin: 1em 0;
+    --search-result-keyword-padding: 0 0;
+
+    --theme-color: #2582ad;
+    --theme-2-color: #fd8d68;
+
+    --cover-blockquote-color: var(--theme-2-color);
+    --cover-background-image: linear-gradient(45deg, #1e262b 0%, var(--base-background-color) 90%);
+    --cover-button-background: #293d47;
+    --cover-button-background--hover: #1d6688;
+    --cover-button-box-shadow--hover: 0 5px 16px rgba(3, 26, 39, 0.4);
+
+    --heading-h3-font-weight: 400;
+
+    --base-font-size: 14px;
+
+    --table-cell-padding: 0.5em 1em;
+    --table-cell-border-width: 1px;
+    --table-head-border-width: 1px;
+
+    --sidebar-nav-margin: 0 0;
+    --sidebar-nav-link-font-weight--active: 600;
+    --sidebar-width: 20rem;
+    --sidebar-nav-link-color--active: #40a4d3;
+    --sidebar-nav-strong-color: var(--theme-2-color);
+
+    --navbar-menu-padding: 0 1.2em;
+
+    --notice-tip-border-color: #2582ad;
+    --notice-important-border-color: hsl(0, 57%, 45%);
+
+    --navbar-menu-link-color: #50a9d3;
+    --navbar-menu-link-color--active: #50a9d3;
+    --navbar-menu-link-color--hover: #2582ad;
+
+    --docsify-example-panels-left-panel-width : 40%;
+    --docsify-example-panels-right-panel-width : 60%;
+
+    --heading-h2-border-color: var(--table-cell-border-color);
+    --heading-h2-margin: 25px 0 0 0;
+    --heading-h2-padding: 0;
+
+    --hr-border: 1px solid var(--table-cell-border-color);
+
+    --pagination-border-top: 1px solid var(--table-cell-border-color);
+
+    --docsifytabs-content-padding: 0.8rem 1rem 0.5rem 1rem;
+    --docsifytabs-border-color: var(--table-cell-border-color);
+    --code-block-padding: 1.4em 1.5em 1.1em 1.5em;
+
+    --docsifytabs-tab-highlight-px: 3px;
+    
+    --code-inline-color: var(--theme-2-color);
+    --code-font-size: calc(var(--font-size-m) * 0.9);
+    --code-inline-padding: 0.1em 0.3em 0.2em 0.3em;
+    --code-inline-margin: 0.1em;
+
+    --copycode-background: var(--theme-color);
+
+    --code-theme-comment    : #516e7a;
+    --code-theme-function   : #cf7ea9;
+    --code-theme-keyword    : var(--theme-2-color);
+    --code-theme-operator   : #56b6c2;
+    --code-theme-punctuation: #a3a3a3;
+    --code-theme-selector   : #ffcb6b;
+    --code-theme-tag        : #f07178;
+    --code-theme-text       : #d6d6d6;
+    --code-theme-variable   : #99c;
+
+    --selection-color      : #026cec;
+}
+
+td {
+    text-align: center;
+    padding-top: 15px !important;
+}
+
+th {
+    text-align: center !important;
+}
+
+.docsify-copy-code-button {
+    font-size: 1em !important;
+}
+
+.markdown-section {
+    max-width: 1100px !important;
+}
+
+.markdown-section .tip, .markdown-section .warn {
+    margin: 1.5em 0 1.5em 0;
+}
+
+.markdown-section h2 {
+    margin-top: 25px !important;
+}
+
+button:focus {
+    outline:0;
+}
+
+.lang-cs .class-name, .lang-cs .namespace {
+    color: #73b3d1;
+}
+
+.lang-cs .string {
+    color: #98c379;
+}
+
+section.cover .mask {
+    display: none;
+}
+
+.last-modified {
+    color: #8698a0;
+    font-size: 13px;
+}
+
+.docsify-copy-code-button.error .error,
+.docsify-copy-code-button.success .success {
+    transform: translate(-50%, -50%) !important;
+}
+
+::selection {
+    color: white !important;
+}

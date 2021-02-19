@@ -548,6 +548,47 @@ namespace Stashbox.Tests
 
         [Theory]
         [ClassData(typeof(CompilerTypeTestData))]
+        public void DecoratorTests_Enumerable(CompilerType compilerType)
+        {
+            using var container = new StashboxContainer(c => c.WithCompiler(compilerType));
+            container.Register<ITest1, Test1>();
+            container.Register<ITest1, Test11>();
+            container.RegisterDecorator<ITest1, TestDecorator1>();
+            container.RegisterDecorator<ITest1, TestDecorator2>(c => c.WhenDecoratedServiceIs<Test11>());
+
+            var t = container.Resolve<ITest1[]>();
+
+            Assert.IsType<TestDecorator1>(t[0]);
+            Assert.IsType<Test1>(t[0].Test);
+
+            Assert.IsType<TestDecorator2>(t[1]);
+            Assert.IsType<TestDecorator1>(t[1].Test);
+            Assert.IsType<Test11>(t[1].Test.Test);
+        }
+
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void DecoratorTests_Conditional_Named(CompilerType compilerType)
+        {
+            using var container = new StashboxContainer(c => c.WithCompiler(compilerType));
+            container.Register<ITest1, Test1>("t1");
+            container.Register<ITest1, Test11>("t2");
+            container.RegisterDecorator<ITest1, TestDecorator1>();
+            container.RegisterDecorator<ITest1, TestDecorator2>(c => c.When(t => t.DependencyName.Equals("t2")));
+
+            var t1 = container.Resolve<ITest1>("t1");
+            var t2 = container.Resolve<ITest1>("t2");
+
+            Assert.IsType<TestDecorator1>(t1);
+            Assert.IsType<Test1>(t1.Test);
+
+            Assert.IsType<TestDecorator2>(t2);
+            Assert.IsType<TestDecorator1>(t2.Test);
+            Assert.IsType<Test11>(t2.Test.Test);
+        }
+
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
         public void DecoratorTests_Conditional_Parent(CompilerType compilerType)
         {
             using var container = new StashboxContainer(c => c.WithAutoMemberInjection().WithUnknownTypeResolution().WithCompiler(compilerType));

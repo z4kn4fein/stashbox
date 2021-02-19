@@ -128,18 +128,15 @@ namespace Stashbox.Registration
             if (openGenerics != null)
                 registrations = registrations == null ? openGenerics : openGenerics.Concat(registrations);
 
-            if (this.containerConfiguration.VariantGenericResolutionEnabled)
-            {
-                var variantGenerics = serviceRepository.Walk()
-                    .Where(r => r.Key.IsGenericType() &&
-                        r.Key.GetGenericTypeDefinition() == type.GetGenericTypeDefinition() &&
-                        r.Key != type &&
-                        r.Key.ImplementsWithoutGenericCheck(type))
-                    .SelectMany(r => r.Value).ToArray();
+            var variantGenerics = serviceRepository.Walk()
+                .Where(r => r.Key.IsGenericType() &&
+                    r.Key.GetGenericTypeDefinition() == type.GetGenericTypeDefinition() &&
+                    r.Key != type &&
+                    r.Key.ImplementsWithoutGenericCheck(type))
+                .SelectMany(r => r.Value).ToArray();
 
-                if (variantGenerics.Length > 0)
-                    registrations = registrations == null ? variantGenerics : variantGenerics.Concat(registrations);
-            }
+            if (variantGenerics.Length > 0)
+                registrations = registrations == null ? variantGenerics : variantGenerics.Concat(registrations);
 
             return registrations;
         }

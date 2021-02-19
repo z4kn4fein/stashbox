@@ -34,7 +34,7 @@ namespace Stashbox.Configuration
         }
 
         /// <summary>
-        /// Sets the actual behavior used when a new service is going to be registered into the container. See the <see cref="Rules.RegistrationBehavior"/> enum for available options.
+        /// Sets the actual behavior used when a new service is registered into the container. These options do not affect named registrations. See the <see cref="Rules.RegistrationBehavior"/> enum for available options.
         /// </summary>
         /// <param name="registrationBehavior">The actual registration behavior.</param>
         /// <returns>The container configurator.</returns>
@@ -45,8 +45,7 @@ namespace Stashbox.Configuration
         }
 
         /// <summary>
-        /// Enables or disables the runtime circular dependency tracking which means that the container generates checking calls into the expression tree
-        /// to detect recursive references even in factory delegates passed by the user during the registration.
+        /// Enables or disables the runtime circular dependency tracking. By default, the container checks for circular dependencies when it builds the expression graph, but this could not prevent stack overflows when factory delegates passed by the user are containing circular dependencies. If you turn this feature on, the container will generate nodes into the expression tree that tracks the entering and exiting resolution calls across user-defined factory delegates.
         /// </summary>
         /// <param name="enabled">True when the feature should be enabled, otherwise false.</param>
         /// <returns>The container configurator.</returns>
@@ -57,7 +56,7 @@ namespace Stashbox.Configuration
         }
 
         /// <summary>
-        /// Allows circular dependencies through Lazy objects.
+        /// Enbales or disables circular dependencies through Lazy objects.
         /// </summary>
         /// <param name="enabled">True when the feature should be enabled, otherwise false.</param>
         /// <returns>The container configurator.</returns>
@@ -92,7 +91,7 @@ namespace Stashbox.Configuration
         }
 
         /// <summary>
-        /// Enables or disables the member injection without annotation.
+        /// Enables or disables the auto member-injection without annotation.
         /// </summary>
         /// <param name="rule">The rule used to determine what kind of members (properties / fields) should be auto injected.</param>
         /// <param name="filter">An optional filter predicate used to select which properties or fields of a type should be auto injected.</param>
@@ -107,7 +106,7 @@ namespace Stashbox.Configuration
         }
 
         /// <summary>
-        /// Sets the constructor selection rule.
+        /// Sets the constructor selection rule used to determine which constructor should the container use for instantiation
         /// </summary>
         /// <returns>The container configurator.</returns>
         public ContainerConfigurator WithConstructorSelectionRule(Func<IEnumerable<ConstructorInfo>, IEnumerable<ConstructorInfo>> selectionRule)
@@ -138,7 +137,7 @@ namespace Stashbox.Configuration
         }
 
         /// <summary>
-        /// Enables or disables the resolution of a named registration when a request ha been made without dependency name but with the same type.
+        /// Enables or disables the selection of named registrations when the resolution request is un-named but with the same type.
         /// </summary>
         /// <param name="enabled">True when the feature should be enabled, otherwise false.</param>
         /// <returns>The container configurator.</returns>
@@ -149,19 +148,7 @@ namespace Stashbox.Configuration
         }
 
         /// <summary>
-        /// Forces the usage of Microsoft expression compiler to compile expression trees.
-        /// </summary>
-        /// <param name="enabled">True when the feature should be enabled, otherwise false.</param>
-        /// <returns>The container configurator.</returns>
-        [Obsolete("Please use .WithExpressionCompiler(Rules.ExpressionCompilers.MicrosoftExpressionCompiler) instead.")]
-        public ContainerConfigurator WithMicrosoftExpressionCompiler(bool enabled = true)
-        {
-            this.ContainerConfiguration.ExternalExpressionCompiler = enabled ? Rules.ExpressionCompilers.MicrosoftExpressionCompiler : null;
-            return this;
-        }
-
-        /// <summary>
-        /// Sets the default lifetime, used when a service doesn't have a configured one.
+        /// Sets the default lifetime used when a service doesn't have a configured one.
         /// </summary>
         /// <param name="lifetime">The default lifetime.</param>
         /// <returns>The container configurator.</returns>
@@ -183,7 +170,7 @@ namespace Stashbox.Configuration
         }
 
         /// <summary>
-        /// Enables or disables the rebuilding of singletons in a child-parent container case with the dependencies overridden in the child, not affecting the already built instance in the parent.
+        /// Enables or disables the re-building of singletons in child containers. It allows the child containers to effectively override singleton dependencies in the parent. This feature is not affecting the already built singleton instances in the parent.
         /// </summary>
         /// <param name="enabled">True when the feature should be enabled, otherwise false.</param>
         /// <returns>The container configurator.</returns>
@@ -194,20 +181,7 @@ namespace Stashbox.Configuration
         }
 
         /// <summary>
-        /// Enables or disables the variance check for generic type resolutions. 
-        /// The container will take variance into account during generic type resolution and will use compatible registrations.
-        /// e.g. IService{in A} is selected when IService{B} is requested and B implements/extends A.
-        /// </summary>
-        /// <param name="enabled">True when the feature should be enabled, otherwise false.</param>
-        /// <returns>The container configurator.</returns>
-        public ContainerConfigurator WithVariantGenericResolution(bool enabled = true)
-        {
-            this.ContainerConfiguration.VariantGenericResolutionEnabled = enabled;
-            return this;
-        }
-
-        /// <summary>
-        /// Forces the usage of an external expression tree compiler.
+        /// Sets an external expression tree compiler used by the container to compile the generated expressions.
         /// </summary>
         /// <param name="compilerDelegate">The compiler delegate used to compile expression trees.</param>
         /// <returns>The container configurator.</returns>

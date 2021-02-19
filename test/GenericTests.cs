@@ -346,12 +346,12 @@ namespace Stashbox.Tests
         }
 
         [Fact]
-        public void GenericTests_Constraint_Contravariant_Disabled()
+        public void GenericTests_Constraint_Contravariant_Returns_Original()
         {
-            using var container = new StashboxContainer(c => c.WithVariantGenericResolution(false))
+            using var container = new StashboxContainer()
                 .Register<IContravariant<IConstraint1>, ConstraintTest4>();
 
-            Assert.Throws<ResolutionFailedException>(() => container.Resolve<IContravariant<ConstraintArgument1>>());
+            Assert.IsType<ConstraintTest4>(container.Resolve<IContravariant<IConstraint1>>());
         }
 
         [Fact]
@@ -367,13 +367,13 @@ namespace Stashbox.Tests
         }
 
         [Fact]
-        public void GenericTests_Constraint_Contravariant_Collection_Disabled()
+        public void GenericTests_Constraint_Contravariant_Collection_Covariant()
         {
-            using var container = new StashboxContainer(c => c.WithVariantGenericResolution(false))
+            using var container = new StashboxContainer()
                 .Register<IContravariant<IConstraint1>, ConstraintTest4>()
                 .Register<IContravariant<ConstraintArgument1>, ConstraintTest5>();
 
-            var services = container.ResolveAll<IContravariant<ConstraintArgument1>>().ToList();
+            var services = container.ResolveAll<IContravariant<IConstraint1>>().ToList();
 
             Assert.Single(services);
         }
@@ -390,12 +390,12 @@ namespace Stashbox.Tests
         }
 
         [Fact]
-        public void GenericTests_Constraint_Covariant_Disabled()
+        public void GenericTests_Constraint_Covariant_Returns_Original()
         {
-            using var container = new StashboxContainer(c => c.WithVariantGenericResolution(false))
+            using var container = new StashboxContainer()
                 .Register<ICovariant<ConstraintArgument1>, ConstraintTest7>();
 
-            Assert.Throws<ResolutionFailedException>(() => container.Resolve<ICovariant<IConstraint1>>());
+            Assert.IsType<ConstraintTest7>(container.Resolve<ICovariant<ConstraintArgument1>>());
         }
 
         [Fact]
@@ -411,13 +411,13 @@ namespace Stashbox.Tests
         }
 
         [Fact]
-        public void GenericTests_Constraint_Covariant_Collection_Disabled()
+        public void GenericTests_Constraint_Covariant_Collection_Contravariant()
         {
-            using var container = new StashboxContainer(c => c.WithVariantGenericResolution(false))
+            using var container = new StashboxContainer()
                 .Register<ICovariant<IConstraint1>, ConstraintTest6>()
                 .Register<ICovariant<ConstraintArgument1>, ConstraintTest7>();
 
-            var services = container.ResolveAll<ICovariant<IConstraint1>>().ToList();
+            var services = container.ResolveAll<ICovariant<ConstraintArgument1>>().ToList();
 
             Assert.Single(services);
         }
