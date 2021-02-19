@@ -137,7 +137,7 @@ You can also let a service [define](usage/scopes?id=service-as-scope) its own na
 
 <!-- tabs:start -->
 
-#### **Named scope**
+#### **Named**
 ```cs
 container.Register<IJob, DbBackup>(options => options
     .InNamedScope("DbScope"));
@@ -146,7 +146,7 @@ using var scope = container.BeginScope("DbScope");
 IJob job = scope.Resolve<IJob>();
 ```
 
-#### **Defined scope**
+#### **Defined**
 ```cs
 container.Register<DbJobExecutor>(options => options
     .DefinesScope());
@@ -161,7 +161,7 @@ using var scope = container.BeginScope();
 DbJobExecutor executor = scope.Resolve<DbJobExecutor>();
 ```
 
-#### **Defined scope with name**
+#### **Defined with name**
 ```cs
 container.Register<DbJobExecutor>(options => options
     .DefinesScope("DbScope"));

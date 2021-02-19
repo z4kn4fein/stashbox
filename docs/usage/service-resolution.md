@@ -316,7 +316,7 @@ container.Register<IJob, DbBackup>();
 IJob job = container.Resolve<IJob>();
 ```
 
-#### **Parent type**
+#### **Parent**
 ```cs
 class DbBackup : IJob
 {

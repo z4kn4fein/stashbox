@@ -366,7 +366,7 @@ ILogger logger = container.Resolve<ILogger>(); // ConsoleLogger
 DbBackup backup = container.Resolve<DbBackup>(); // error, not found
 ```
 
-#### **Via containing type**
+#### **Containing type**
 ```cs
 container.RegisterAssemblyContaining<DbBackup>(
     // service filter, register to interfaces only
