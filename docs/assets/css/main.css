@@ -11,6 +11,9 @@
     --cover-button-background--hover: #1d6688;
     --cover-button-box-shadow--hover: 0 5px 16px rgba(3, 26, 39, 0.4);
 
+    --sidebar-toggle-icon-stroke-width: 2px;
+    --sidebar-toggle-offset-top: calc(100vh - (var(--sidebar-toggle-height) / 2) - 35px);
+
     --heading-h3-font-weight: 400;
 
     --base-font-size: 14px;
@@ -82,6 +85,7 @@ th {
 
 .docsify-copy-code-button {
     font-size: 1em !important;
+    padding: .35em .4em .23em .35em !important;
 }
 
 .markdown-section {
@@ -122,6 +126,12 @@ section.cover .mask {
     transform: translate(-50%, -50%) !important;
 }
 
+.gh-prefix {
+    margin-right: 5px;
+    padding-bottom: 3px;
+    vertical-align: middle;
+}
+
 ::selection {
     color: white !important;
 }
@@ -131,14 +141,24 @@ section.cover .mask {
         --code-font-size: calc(var(--font-size-m) * 0.82);
         --base-font-size: 13px;
         --code-block-padding: 1.4em 1.5em 0.8em 1.0em;
+        --sidebar-width: 20rem !important;
+        --sidebar-padding: 0 25px 0 20px !important;
+    }
+
+    body .sidebar {
+        padding-bottom: 3rem;
     }
 
     .markdown-section {
-        padding: 6em 0 0 0 !important;
+        padding: 5em 0 0 0 !important;
     }
 
     .app-nav {
         right: 60px !important;
+    }
+
+    .sidebar-toggle .sidebar-toggle-button {
+        opacity: .8;
     }
 }
 
@@ -161,8 +181,8 @@ section.cover .mask {
     }
 
     .markdown-section {
-        padding: 6em 0.5em 0 0.8em;
-        padding-top: 6em !important;
+        padding: 5em 0.5em 0 0.8em;
+        padding-top: 5em !important;
     }
 }
   

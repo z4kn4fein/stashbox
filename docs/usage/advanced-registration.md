@@ -329,7 +329,7 @@ The batch registration API's signature *(filters, registration configuration act
 
 In this example, we assume that the same three services used at the batch registration are in the same assembly.
 
-?> The container also detects and registers open-generic definitions (when applicable) from the supplied type collection. You can read about [open-generics here](usage/generics?id=open-generic).
+?> The container also detects and registers open-generic definitions (when applicable) from the supplied type collection. You can read about [open-generics here](advanced/generics?id=open-generic).
 
 <!-- div:right-panel -->
 

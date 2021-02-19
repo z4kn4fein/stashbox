@@ -8,11 +8,11 @@
 - [Service resolution](usage/service-resolution)
 - [Scopes](usage/scopes)
 - [Lifetimes](usage/lifetimes)
-- [Generics](usage/generics)
 - **Configuration**
 - [Registration configuration](configuration/registration-configuration)
 - [Container configuration](configuration/container-configuration)
 - **Advanced topics**
+- [Generics](advanced/generics)
 - [Decorators](advanced/decorators)
 - [Resolvers](advanced/resolvers)
 - [Child container](advanced/child-container)

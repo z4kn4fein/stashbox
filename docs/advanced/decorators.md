@@ -195,7 +195,7 @@ var executor = container.ResolveAll<ProcessorExecutor>();
 
 ## Generic decorators
 Stashbox supports the registration of open-generic decorators, which allows the extension of open-generic services. 
-Inspection of [generic parameter constraints](usage/generics?id=generic-constraints) and [variance handling](usage/generics?id=variance) is supported on generic decorators also.
+Inspection of [generic parameter constraints](advanced/generics?id=generic-constraints) and [variance handling](advanced/generics?id=variance) is supported on generic decorators also.
 
 ```cs
 interface IEventProcessor<TEvent>
@@ -265,7 +265,7 @@ var processor = container.Resolve<IEventProcessor>();
 
 <!-- div:left-panel -->
 
-Decorators are also applied to wrapped services. It means, in addition to the decoration, you can wrap your services in supported [wrappers](usage/generics?id=wrappers).
+Decorators are also applied to wrapped services. It means, in addition to the decoration, you can wrap your services in supported [wrappers](advanced/generics?id=wrappers).
 
 <!-- div:right-panel -->
 

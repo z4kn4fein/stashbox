@@ -8,7 +8,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
   <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
   <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify-themeable@0/dist/css/theme-simple-dark.css">
-  <link rel="stylesheet" href="//unpkg.com/@fortawesome/fontawesome-free/css/all.min.css" />
   <link rel="stylesheet" href="assets/css/main.css">
 </head>
 <body>
@@ -36,7 +35,7 @@
       },
 
       copyCode: {
-        buttonText : '<i class="fas fa-copy"></i>',
+        buttonText : '<img src="assets/images/copy.svg" width=18>',
       },
 
       search: {
@@ -70,7 +69,7 @@
             } else {
               url = 'https://github.com/z4kn4fein/stashbox/edit/master/docs/' + vm.route.file
             }
-            var editHtml = '[:fab fa-github: Edit this page on GitHub](' + url + ') - <span class="last-modified">*(modified: {docsify-updated})*</span>\n\n'
+            var editHtml = '[<img src="assets/images/github.svg" class="gh-prefix" alt="GitHub" width=18>Edit this page on GitHub](' + url + ') - <span class="last-modified">*(modified: {docsify-updated})*</span>\n\n'
             return editHtml + html;
           })
         },
@@ -113,7 +112,7 @@
               addLinks(content,next,window.$docsify.terms);
             }
           })
-        },
+        },       
       ]
     }
   </script>
@@ -125,6 +124,5 @@
   <script src="//cdn.jsdelivr.net/npm/docsify-pagination@2/dist/docsify-pagination.min.js"></script>
   <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-csharp.min.js"></script>
   <script src="//cdn.jsdelivr.net/npm/docsify-example-panels@1/dist/docsify-example-panels.min.js"></script>
-  <script src="//unpkg.com/docsify-fontawesome/dist/docsify-fontawesome.min.js"></script>
 </body>
 </html>

@@ -1,6 +1,6 @@
 # Resolvers
 
-Stashbox is using so-called *Resolver* implementations to handle special resolution requests. [Wrappers](usage/generics?id=wrappers), unknown type resolution, child-container requests, optional/default value injection; these are all handled by *Resolvers*.
+Stashbox is using so-called *Resolver* implementations to handle special resolution requests. [Wrappers](advanced/generics?id=wrappers), unknown type resolution, child-container requests, optional/default value injection; these are all handled by *Resolvers*.
 
 ## Pre-defined Resolvers
 * `EnumerableResolver`: Used to resolve every registered implementation of a service.
