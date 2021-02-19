@@ -79,16 +79,6 @@ namespace Stashbox.Tests
             container.Configure(c => c.WithExpressionCompiler(null));
             Assert.Null(container.ContainerContext.ContainerConfiguration.ExternalExpressionCompiler);
 
-
-#pragma warning disable 618
-            container.Configure(c => c.WithMicrosoftExpressionCompiler());
-            Assert.NotNull(container.ContainerContext.ContainerConfiguration.ExternalExpressionCompiler);
-
-            container.Configure(c => c.WithMicrosoftExpressionCompiler(false));
-            Assert.Null(container.ContainerContext.ContainerConfiguration.ExternalExpressionCompiler);
-#pragma warning restore 618
-
-
             container.Configure(c => c.WithNamedDependencyResolutionForUnNamedRequests());
             Assert.True(container.ContainerContext.ContainerConfiguration.NamedDependencyResolutionForUnNamedRequestsEnabled);
 
