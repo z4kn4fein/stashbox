@@ -54,7 +54,7 @@ container.Register<IJob, DbBackup>(options => options
 
 <!-- panels:end -->
 
-!> Transient services are not tracked for disposal by default but this feature can be turned on with `.WithDisposableTransientTracking()` [option](configuration/configuration/container-configuration?id=tracking-disposable-transients).
+!> Transient services are not tracked for disposal by default but this feature can be turned on with `.WithDisposableTransientTracking()` [option](configuration/container-configuration?id=tracking-disposable-transients).
 
 ?> When the tracking of disposable transients is enabled, they will be tracked and disposed by the actual [scope](usage/scopes) on which the resolution request was initiated or by the root scope when the resolution request was made on the container.
 
