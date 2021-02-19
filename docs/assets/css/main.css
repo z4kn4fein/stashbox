@@ -12,7 +12,7 @@
     --cover-button-box-shadow--hover: 0 5px 16px rgba(3, 26, 39, 0.4);
 
     --sidebar-toggle-icon-stroke-width: 2px;
-    --sidebar-toggle-offset-top: calc(100vh - (var(--sidebar-toggle-height) / 2) - 35px);
+    --sidebar-toggle-offset-top: calc(100vh - (var(--sidebar-toggle-height) / 2) - 60px);
 
     --heading-h3-font-weight: 400;
 
