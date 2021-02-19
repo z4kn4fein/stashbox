@@ -30,7 +30,7 @@
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <PackageReleaseNotes>https://raw.githubusercontent.com/z4kn4fein/stashbox/master/CHANGELOG.md</PackageReleaseNotes>
+    <PackageReleaseNotes>https://z4kn4fein.github.io/stashbox/#/changelog</PackageReleaseNotes>
     <Configurations>Debug;Release;Benchmark</Configurations>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Benchmark'">
