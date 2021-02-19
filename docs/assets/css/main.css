@@ -127,6 +127,15 @@ section.cover .mask {
 }
 
 @media (max-width: 768px) {
+    :root {
+        --code-font-size: calc(var(--font-size-m) * 0.8);
+        --base-font-size: 13px;
+    }
+
+    .docsify-tabs__tab {
+        font-size: 10px;
+    }
+
     .markdown-section {
         padding: 6em 0 0 0 !important;
     }

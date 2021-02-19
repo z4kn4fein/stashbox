@@ -234,7 +234,7 @@ ILogger logger = container.Resolve<ILogger>(); // error, not found
 DbBackup backup = container.Resolve<DbBackup>(); // DbBackup
 ```
 
-#### **Without self registration**
+#### **Without self**
 This example will ignore the mapping of implementation types to themselves completely:
 ```cs
 container.RegisterTypes(new[] 
