@@ -1,5 +1,6 @@
 ﻿using Stashbox.Configuration;
 using Stashbox.Registration;
+using Stashbox.Resolution;
 
 namespace Stashbox
 {
@@ -22,6 +23,11 @@ namespace Stashbox
         /// The parent container context.
         /// </summary>
         IContainerContext ParentContext { get; }
+
+        /// <summary>
+        /// The resolution strategy.
+        /// </summary>
+        IResolutionStrategy ResolutionStrategy { get; }
 
         /// <summary>
         /// The parent container context.

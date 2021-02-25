@@ -8,9 +8,9 @@ These are the latest stable and pre-release versions available:
 
 Github (stable) | NuGet (stable) | Fuget (stable) | NuGet (daily)
 --- | --- | --- | ---
-[![Github release](https://img.shields.io/github/release/z4kn4fein/stashbox.svg)](https://github.com/z4kn4fein/stashbox/releases) | [![NuGet Version](https://buildstats.info/nuget/Stashbox)](https://www.nuget.org/packages/Stashbox/) | [![Stashbox on fuget.org](https://www.fuget.org/packages/Stashbox/badge.svg)](https://www.fuget.org/packages/Stashbox) | [![Nuget pre-release](https://img.shields.io/nuget/vpre/Stashbox)](https://www.nuget.org/packages/Stashbox/)
+[![Github release](https://img.shields.io/github/release/z4kn4fein/stashbox.svg)](https://github.com/z4kn4fein/stashbox/releases) | [![NuGet Version](https://buildstats.info/nuget/Stashbox)](https://www.nuget.org/packages/Stashbox/) | [![Stashbox on fuget.org](https://www.fuget.org/packages/Stashbox/badge.svg?v=3.6.0)](https://www.fuget.org/packages/Stashbox) | [![Nuget pre-release](https://img.shields.io/nuget/vpre/Stashbox)](https://www.nuget.org/packages/Stashbox/)
 
-## Core attributes
+## Core Attributes
  - 🚀 Fast, thread-safe, and lock-free operations.
  - ⚡️ Easy-to-use Fluent configuration API.
  - ♻️ Small memory footprint.
@@ -18,7 +18,7 @@ Github (stable) | NuGet (stable) | Fuget (stable) | NuGet (daily)
  - 🚨 Detects and warns about misconfigurations.
  - 🔥 Gives fast feedback on registration/resolution issues.
 
-## Supported platforms
+## Supported Platforms
  - .NET 4.0 and above
  - .NET Core
  - Mono

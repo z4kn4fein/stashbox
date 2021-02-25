@@ -8,7 +8,6 @@ using Stashbox.Utils.Data.Immutable;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 
 namespace Stashbox.Registration
 {
@@ -107,11 +106,9 @@ namespace Stashbox.Registration
         public IEnumerable<KeyValuePair<Type, ServiceRegistration>> GetRegistrationMappings() =>
              serviceRepository.Walk().SelectMany(reg => reg.Value.Select(r => new KeyValuePair<Type, ServiceRegistration>(reg.Key, r)));
 
-        public ServiceRegistration GetRegistrationOrDefault(Type type, ResolutionContext resolutionContext, object name = null) =>
-            this.GetRegistrationsForType(type)?.SelectOrDefault(new TypeInformation(type, name), resolutionContext, this.topLevelFilters);
-
         public ServiceRegistration GetRegistrationOrDefault(TypeInformation typeInfo, ResolutionContext resolutionContext) =>
-            this.GetRegistrationsForType(typeInfo.Type)?.SelectOrDefault(typeInfo, resolutionContext, this.filters);
+            this.GetRegistrationsForType(typeInfo.Type)?.SelectOrDefault(typeInfo, resolutionContext, 
+                resolutionContext.IsTopRequest ? this.topLevelFilters : this.filters);
 
         public IEnumerable<ServiceRegistration> GetRegistrationsOrDefault(TypeInformation typeInfo, ResolutionContext resolutionContext) =>
             this.GetRegistrationsForType(typeInfo.Type)

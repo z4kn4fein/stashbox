@@ -33,8 +33,7 @@ namespace Stashbox.Registration.Fluent
         internal bool TypeMapIsValid(out string error)
         {
             error = null;
-            if (this.Context.ContainerFactory != null ||
-                this.Context.SingleFactory != null)
+            if (this.Context.Factory != null)
                 return true;
 
 
@@ -54,8 +53,7 @@ namespace Stashbox.Registration.Fluent
         internal bool ImplementationIsResolvable(out string error)
         {
             error = null;
-            if (this.Context.ContainerFactory != null ||
-                this.Context.SingleFactory != null)
+            if (this.Context.Factory != null)
                 return true;
 
             if (this.ImplementationType.IsResolvableType()) return true;

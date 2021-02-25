@@ -246,6 +246,15 @@ namespace System.Linq.Expressions
             Expression.Call(methodInfo, parameters);
 
         /// <summary>
+        /// Constructs a static method call expression from a <see cref="MethodInfo"/> and its parameters, => Expression.Call(methodInfo, parameters)
+        /// </summary>
+        /// <param name="methodInfo">The static method info.</param>
+        /// <param name="parameters">The parameters.</param>
+        /// <returns>The call expression.</returns>
+        public static MethodCallExpression CallStaticMethod(this MethodInfo methodInfo, IEnumerable<Expression> parameters) =>
+            Expression.Call(methodInfo, parameters);
+
+        /// <summary>
         /// Constructs a method call expression from a target expression, method info and parameters, => Expression.Call(target, methodInfo, parameters)
         /// </summary>
         /// <param name="target">The target expression.</param>
@@ -276,6 +285,16 @@ namespace System.Linq.Expressions
             target.CallMethod(methodInfo, parameters);
 
         /// <summary>
+        /// Constructs a method call expression from a target expression, method info and parameters, => Expression.Call(target, methodInfo, parameters)
+        /// </summary>
+        /// <param name="target">The target expression.</param>
+        /// <param name="methodInfo">The method info.</param>
+        /// <param name="parameters">The parameters.</param>
+        /// <returns>The call expression.</returns>
+        public static MethodCallExpression CallMethod(this MethodInfo methodInfo, Expression target, IEnumerable<Expression> parameters) =>
+            target.CallMethod(methodInfo, parameters);
+
+        /// <summary>
         /// Constructs a convert expression, => Expression.Convert(expression, type)
         /// </summary>
         /// <param name="expression">The expression.</param>
@@ -299,6 +318,15 @@ namespace System.Linq.Expressions
         /// <param name="parameters">The delegate parameters.</param>
         /// <returns>The invocation expression.</returns>
         public static InvocationExpression InvokeDelegate(this Delegate @delegate, params Expression[] parameters) =>
+            Expression.Invoke(@delegate.AsConstant(), parameters);
+
+        /// <summary>
+        /// Constructs an invocation expression, => Expression.Invoke(delegate.AsConstant(), parameters)
+        /// </summary>
+        /// <param name="delegate">The delegate to invoke.</param>
+        /// <param name="parameters">The delegate parameters.</param>
+        /// <returns>The invocation expression.</returns>
+        public static InvocationExpression InvokeDelegate(this Delegate @delegate, IEnumerable<Expression> parameters) =>
             Expression.Invoke(@delegate.AsConstant(), parameters);
 
         /// <summary>

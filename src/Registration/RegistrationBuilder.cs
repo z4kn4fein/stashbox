@@ -44,8 +44,7 @@ namespace Stashbox.Registration
                     ? RegistrationType.WireUp
                     : RegistrationType.Instance;
 
-            return registrationConfiguration.Context.ContainerFactory != null ||
-                   registrationConfiguration.Context.SingleFactory != null
+            return registrationConfiguration.Context.Factory != null
                 ? RegistrationType.Factory
                 : RegistrationType.Default;
         }

@@ -1,7 +1,7 @@
 # Glossary
 The following definitions are used in the documentation.
 
-## Service type | Implementation type
+## Service Type | Implementation Type
 The *Service type* is usually an interface or an abstract class type used for service resolution or dependency injection. The *Implementation type* is the actual type registered to the *Service type*. A registration maps the *Service type* to an *Implementation type*. The *Implementation type* must implement or extend the *Service type*. 
 
 <!-- panels:start -->
@@ -19,7 +19,7 @@ container.Resolve<IService>(); // returns Implementation
 ```
 <!-- panels:end -->
 
-## Service registration | Registered service
+## Service Registration | Registered Service
 It's an entity created by the container when a service is registered. The service registration stores required information about how to instantiate the service, e.g., reflected type information, name, lifetime, conditions, and more.
 
 <!-- panels:start -->
@@ -34,7 +34,7 @@ var service = container.Resolve<IService>("Example");
 ```
 <!-- panels:end -->
 
-## Injectable dependency
+## Injectable Dependency
 
 <!-- panels:start -->
 <!-- div:left-panel -->
@@ -51,7 +51,7 @@ class Implementation : IService
 ```
 <!-- panels:end -->
 
-## Resolution tree
+## Resolution Tree
 It's the structural representation of how the container resolves a service's dependencies for instantiation. 
 
 Let's see through an example:
@@ -79,17 +79,17 @@ When we request the service `A`, the container builds up the following resolutio
 ```
 The container instantiates those services first that don't have any dependencies. `C` and `D` will be injected into `B`. Then, a new `C` is instantiated (if it's [transient](usage/lifetimes?id=transient-lifetime)) and injected into `A` along with the previously created `B`. 
 
-## Dependency resolver
-It's the container itself or the [current scope](usage/scopes), depending on which was requested to resolve a particular service. They are both implementing Stashbox's `IDependencyResolver` and the .NET framework's `IServiceProvider` interface and can be used for resolution purposes.
+## Dependency Resolver
+It's the container itself or the [current scope](usage/scopes), depending on which was requested to resolve a particular service. They are both implementing Stashbox's `IDependencyResolver` and the .NET framework's `IServiceProvider` interface and can be used for service resolution purposes.
 
-?> Stashbox implicitly injects the [current scope](usage/scopes) everywhere `IDependencyResolver` or `IServiceProvider` is requested.
+?> Stashbox implicitly injects the [current scope](usage/scopes) wherever `IDependencyResolver` or `IServiceProvider` is requested.
 
-## Root scope
-It's the [main scope](usage/scopes) created inside every container instance. It stores and handles the lifetime of all singletons. It's the base of all subsequent scopes created by a container with the `.BeginScope()` method.
+## Root Scope
+It's the [main scope](usage/scopes) created inside every container instance. It stores and handles the lifetime of all singletons. It's the base of all subsequent scopes created by the container with the `.BeginScope()` method.
 
 !> [Scoped services](usage/lifetimes?id=scoped-lifetime) requested from the container (and not from a [scope](usage/scopes)) will be managed by the root scope. This can lead to issues because their lifetime will switch to singleton. Always be sure that you are not resolving scoped services directly from the container, only from a [scope](usage/scopes).
 
-## Named resolution
+## Named Resolution
 
 <!-- panels:start -->
 <!-- div:left-panel -->
@@ -97,7 +97,6 @@ It's a resolution request for a named service. The same applies, when the contai
 <!-- div:right-panel -->
 ```cs
 container.Register<IService, Implementation>("Example");
-
 // the named resolution initiated by request.
 var service = container.Resolve<IService>("Example");
 ```

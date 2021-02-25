@@ -20,13 +20,13 @@ namespace Stashbox
 
             if (dependencyOverrides != null)
                 return this.Activate(new ResolutionContext(this.GetActiveScopeNames(), this.containerContext,
-                    this.resolutionStrategy, this == this.containerContext.RootScope, nullResultAllowed, false,
+                    this == this.containerContext.RootScope, nullResultAllowed, false,
                     this.ProcessDependencyOverrides(dependencyOverrides)), typeFrom);
 
             var cachedFactory = this.delegateCache.ServiceDelegates.GetOrDefault(typeFrom);
             return cachedFactory != null
                 ? cachedFactory(this)
-                : this.Activate(new ResolutionContext(this.GetActiveScopeNames(), this.containerContext, this.resolutionStrategy,
+                : this.Activate(new ResolutionContext(this.GetActiveScopeNames(), this.containerContext,
                     this == this.containerContext.RootScope, nullResultAllowed, false,
                     this.ProcessDependencyOverrides(dependencyOverrides)), typeFrom);
         }
@@ -36,14 +36,14 @@ namespace Stashbox
             this.ThrowIfDisposed();
 
             if (dependencyOverrides != null)
-                return this.Activate(new ResolutionContext(this.GetActiveScopeNames(), this.containerContext, this.resolutionStrategy,
+                return this.Activate(new ResolutionContext(this.GetActiveScopeNames(), this.containerContext,
                     this == this.containerContext.RootScope, nullResultAllowed, false,
                     this.ProcessDependencyOverrides(dependencyOverrides)), typeFrom, name);
 
             var cachedFactory = this.delegateCache.ServiceDelegates.GetOrDefault(name, false);
             return cachedFactory != null
                 ? cachedFactory(this)
-                : this.Activate(new ResolutionContext(this.GetActiveScopeNames(), this.containerContext, this.resolutionStrategy,
+                : this.Activate(new ResolutionContext(this.GetActiveScopeNames(), this.containerContext,
                     this == this.containerContext.RootScope, nullResultAllowed, false,
                     this.ProcessDependencyOverrides(dependencyOverrides)), typeFrom, name);
         }
@@ -72,8 +72,7 @@ namespace Stashbox
         {
             this.ThrowIfDisposed();
 
-            var resolutionContext = new ResolutionContext(this.GetActiveScopeNames(), this.containerContext,
-                this.resolutionStrategy, this == this.containerContext.RootScope);
+            var resolutionContext = new ResolutionContext(this.GetActiveScopeNames(), this.containerContext, this == this.containerContext.RootScope);
             var expression = this.expressionFactory.ConstructBuildUpExpression(resolutionContext, instance.AsConstant(), typeof(TTo));
             return (TTo)expression.CompileDelegate(resolutionContext, this.containerContext.ContainerConfiguration)(this);
         }
@@ -85,8 +84,7 @@ namespace Stashbox
             if (!type.IsResolvableType())
                 throw new ArgumentException($"The given type ({type.FullName}) could not be activated on the fly by the container.");
 
-            var resolutionContext = new ResolutionContext(this.GetActiveScopeNames(), this.containerContext,
-                this.resolutionStrategy, this == this.containerContext.RootScope,
+            var resolutionContext = new ResolutionContext(this.GetActiveScopeNames(), this.containerContext, this == this.containerContext.RootScope,
                 dependencyOverrides: this.ProcessDependencyOverrides(arguments));
             var expression = this.expressionFactory.ConstructExpression(resolutionContext, type);
             return expression.CompileDelegate(resolutionContext, this.containerContext.ContainerConfiguration)(this);
@@ -94,7 +92,8 @@ namespace Stashbox
 
         private object Activate(ResolutionContext resolutionContext, Type type, object name = null)
         {
-            var expression = this.resolutionStrategy.BuildExpressionForTopLevelRequest(type, name, resolutionContext);
+            var expression = this.containerContext.ResolutionStrategy
+                .BuildExpressionForType(resolutionContext, new TypeInformation(type, name));
             if (expression == null)
                 if (resolutionContext.NullResultAllowed)
                     return null;
@@ -113,10 +112,11 @@ namespace Stashbox
         private Delegate ActivateFactoryDelegate(Type type, Type[] parameterTypes, object name, bool nullResultAllowed)
         {
             var resolutionContext = new ResolutionContext(this.GetActiveScopeNames(), this.containerContext,
-                    this.resolutionStrategy, this == this.containerContext.RootScope, nullResultAllowed,
+                this == this.containerContext.RootScope, nullResultAllowed,
                     initialParameters: parameterTypes.AsParameters());
 
-            var initExpression = this.resolutionStrategy.BuildExpressionForTopLevelRequest(type, name, resolutionContext);
+            var initExpression = this.containerContext.ResolutionStrategy
+                .BuildExpressionForType(resolutionContext, new TypeInformation(type, name));
             if (initExpression == null)
                 if (resolutionContext.NullResultAllowed)
                     return null;

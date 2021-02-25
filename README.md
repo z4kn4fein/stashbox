@@ -9,9 +9,9 @@ Stashbox is a lightweight, fast and portable dependency injection framework for 
 
 Github (stable) | NuGet (stable) | Fuget (stable) | NuGet (daily)
 --- | --- | --- | ---
-[![Github release](https://img.shields.io/github/release/z4kn4fein/stashbox.svg)](https://github.com/z4kn4fein/stashbox/releases) | [![NuGet Version](https://buildstats.info/nuget/Stashbox)](https://www.nuget.org/packages/Stashbox/) | [![Stashbox on fuget.org](https://www.fuget.org/packages/Stashbox/badge.svg)](https://www.fuget.org/packages/Stashbox) | [![Nuget pre-release](https://img.shields.io/nuget/vpre/Stashbox)](https://www.nuget.org/packages/Stashbox/)
+[![Github release](https://img.shields.io/github/release/z4kn4fein/stashbox.svg)](https://github.com/z4kn4fein/stashbox/releases) | [![NuGet Version](https://buildstats.info/nuget/Stashbox)](https://www.nuget.org/packages/Stashbox/) | [![Stashbox on fuget.org](https://www.fuget.org/packages/Stashbox/badge.svg?v=3.6.0)](https://www.fuget.org/packages/Stashbox) | [![Nuget pre-release](https://img.shields.io/nuget/vpre/Stashbox)](https://www.nuget.org/packages/Stashbox/)
 
-## Core attributes
+## Core Attributes
  - 🚀 Fast, thread-safe, and lock-free operations.
  - ⚡️ Easy-to-use Fluent configuration API.
  - ♻️ Small memory footprint.
@@ -19,7 +19,7 @@ Github (stable) | NuGet (stable) | Fuget (stable) | NuGet (daily)
  - 🚨 Detects and warns about misconfigurations.
  - 🔥 Gives fast feedback on registration/resolution issues.
 
-## Supported platforms
+## Supported Platforms
 
  - .NET 4.0 and above
  - .NET Core
@@ -29,7 +29,7 @@ Github (stable) | NuGet (stable) | Fuget (stable) | NuGet (daily)
  - Unity
 
 ## Contact & Support
-- [![Join the chat at https://gitter.im/z4kn4fein/stashbox](https://img.shields.io/gitter/room/z4kn4fein/stashbox.svg)](https://gitter.im/z4kn4fein/stashbox) [![Slack](https://img.shields.io/badge/chat-on%20slack-orange.svg?style=flat)](https://3vj.short.gy/stashbox-slack) [![OpenHub](https://www.openhub.net/p/stashbox/widgets/project_thin_badge?format=gif)](https://www.openhub.net/p/stashbox)
+- [![Join the chat at https://gitter.im/z4kn4fein/stashbox](https://img.shields.io/gitter/room/z4kn4fein/stashbox.svg)](https://gitter.im/z4kn4fein/stashbox) [![Slack](https://img.shields.io/badge/chat-on%20slack-orange.svg?style=flat)](https://3vj.short.gy/stashbox-slack)
 - Create an [issue](https://github.com/z4kn4fein/stashbox/issues) for bug reports, feature requests, or questions.
 - Add a ⭐️ to support the project!
 

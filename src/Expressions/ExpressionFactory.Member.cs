@@ -43,7 +43,8 @@ namespace Stashbox.Expressions
             var injectionParameter = registrationContext.InjectionParameters.SelectInjectionParameterOrDefault(memberTypeInfo);
             if (injectionParameter != null) return injectionParameter;
 
-            var memberExpression = resolutionContext.ResolutionStrategy.BuildExpressionForType(resolutionContext, memberTypeInfo);
+            var memberExpression = resolutionContext.CurrentContainerContext
+                .ResolutionStrategy.BuildExpressionForType(resolutionContext, memberTypeInfo);
 
             if (memberExpression != null || resolutionContext.NullResultAllowed) return memberExpression;
 

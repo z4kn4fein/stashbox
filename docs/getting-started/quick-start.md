@@ -46,7 +46,7 @@ To achieve the most efficient usage of Stashbox, you should follow these steps:
 
 !> Don't create new `StashboxContainer` instances continuously. Such action will bypass the container's internal delegate cache and could lead to poor performance. 
 
-## How it works?
+## How It Works?
 Stashbox builds and maintains a collection from the registered services. At first, during the service resolution, Stashbox looks for a service registration with a matching service type. Then it scans the registration's implementation type for all available constructors and selects the one with the most arguments it knows how to resolve by looking for matching service registrations again. 
 
 When every constructor argument (and field/property if applicable) has a matching registration, Stashbox jumps to the first argument and does the same scanning on its type. 
@@ -104,7 +104,7 @@ public class DbBackup : IJob
 }
 ```
 
-?> By only depending on interfaces, you decouple your services from concrete implementations. This gives you the advantage and flexibility of more comfortable implementation replacement and isolates your components from each other. For example, these are helping a lot at unit testing with the possibility of injecting mock implementations.
+?> By depending only on interfaces, you decouple your services from concrete implementations. This gives you the flexibility of a more comfortable implementation replacement and isolates your components from each other. For example, unit testing benefits a lot from the possibility of replacing a real implementation with mock objects.
 
 The example services above used with Stashbox in a Console Application:
 

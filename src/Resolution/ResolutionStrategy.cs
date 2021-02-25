@@ -27,28 +27,31 @@ namespace Stashbox.Resolution
             if (typeInformation.Type == Constants.ResolverType)
                 return resolutionContext.CurrentScopeParameter;
 
-            if (resolutionContext.ParameterExpressions.Length > 0)
+            if (!resolutionContext.IsTopRequest)
             {
-                var type = typeInformation.Type;
-                var length = resolutionContext.ParameterExpressions.Length;
-                for (var i = length; i-- > 0;)
+                if (resolutionContext.ParameterExpressions.Length > 0)
                 {
-                    var parameters = resolutionContext.ParameterExpressions[i]
-                        .WhereOrDefault(p => p.I2.Type == type ||
-                                             p.I2.Type.Implements(type));
+                    var type = typeInformation.Type;
+                    var length = resolutionContext.ParameterExpressions.Length;
+                    for (var i = length; i-- > 0;)
+                    {
+                        var parameters = resolutionContext.ParameterExpressions[i]
+                            .WhereOrDefault(p => p.I2.Type == type ||
+                                                 p.I2.Type.Implements(type));
 
-                    if (parameters == null) continue;
-                    var selected =
-                        parameters.FirstOrDefault(parameter => !parameter.I1) ?? parameters[parameters.Length - 1];
-                    selected.I1 = true;
-                    return selected.I2;
+                        if (parameters == null) continue;
+                        var selected =
+                            parameters.FirstOrDefault(parameter => !parameter.I1) ?? parameters[parameters.Length - 1];
+                        selected.I1 = true;
+                        return selected.I2;
+                    }
                 }
-            }
 
-            var decorators = resolutionContext.Decorators.GetOrDefault(typeInformation.Type, false);
-            if (decorators != null)
-                return this.BuildExpressionForDecorator(decorators.Pop(),
-                    resolutionContext.BeginDecoratingContext(typeInformation.Type, decorators), typeInformation.Type, decorators);
+                var decorators = resolutionContext.Decorators.GetOrDefault(typeInformation.Type, true);
+                if (decorators != null)
+                    return this.BuildExpressionForDecorator(decorators.Pop(),
+                        resolutionContext.BeginDecoratingContext(typeInformation.Type, decorators), typeInformation.Type, decorators);
+            }
 
             var exprOverride = resolutionContext.GetExpressionOverrideOrDefault(typeInformation.Type, typeInformation.DependencyName);
             if (exprOverride != null)
@@ -59,6 +62,7 @@ namespace Stashbox.Resolution
                 .RegistrationRepository
                 .GetRegistrationOrDefault(typeInformation, resolutionContext);
 
+            resolutionContext.IsTopRequest = false;
             return registration != null
                 ? this.BuildExpressionForRegistration(registration, resolutionContext, typeInformation)
                 : this.BuildResolutionExpressionUsingResolvers(typeInformation, resolutionContext);
@@ -76,7 +80,7 @@ namespace Stashbox.Resolution
 
             return registrations.Select(reg =>
             {
-                var decorators = resolutionContext.Decorators.GetOrDefault(typeInformation.Type, false);
+                var decorators = resolutionContext.Decorators.GetOrDefault(typeInformation.Type, true);
                 if (decorators == null)
                     return this.BuildExpressionForRegistration(reg, resolutionContext, typeInformation);
 
@@ -85,25 +89,6 @@ namespace Stashbox.Resolution
                     resolutionContext.BeginDecoratingContext(typeInformation.Type, decorators), typeInformation.Type,
                     decorators);
             });
-        }
-
-        public Expression BuildExpressionForTopLevelRequest(Type type, object name, ResolutionContext resolutionContext)
-        {
-            if (type == Constants.ResolverType)
-                return resolutionContext.CurrentScopeParameter;
-
-            var exprOverride = resolutionContext.GetExpressionOverrideOrDefault(type, name);
-            if (exprOverride != null)
-                return exprOverride;
-
-            var registration = resolutionContext
-                .CurrentContainerContext
-                .RegistrationRepository
-                .GetRegistrationOrDefault(type, resolutionContext, name);
-
-            return registration != null
-                ? this.BuildExpressionForRegistration(registration, resolutionContext, new TypeInformation(type, name))
-                : this.BuildResolutionExpressionUsingResolvers(new TypeInformation(type, name), resolutionContext);
         }
 
         public Expression BuildExpressionForRegistration(ServiceRegistration serviceRegistration,
@@ -127,7 +112,7 @@ namespace Stashbox.Resolution
                 resolutionContext.BeginDecoratingContext(requestedType, stack), requestedType, stack);
         }
 
-        public Expression BuildResolutionExpressionUsingResolvers(TypeInformation typeInfo, ResolutionContext resolutionContext)
+        private Expression BuildResolutionExpressionUsingResolvers(TypeInformation typeInfo, ResolutionContext resolutionContext)
         {
             var expression = this.resolverRepository.BuildResolutionExpression(typeInfo, resolutionContext, this);
             if (expression != null) return expression;

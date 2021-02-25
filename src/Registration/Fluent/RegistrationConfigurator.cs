@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Stashbox.Utils;
+using System;
 using System.Linq.Expressions;
 
 namespace Stashbox.Registration.Fluent
@@ -39,26 +40,24 @@ namespace Stashbox.Registration.Fluent
         /// <summary>
         /// Sets a container factory delegate for the registration.
         /// </summary>
-        /// <param name="containerFactory">The container factory delegate.</param>
+        /// <param name="factory">The container factory delegate.</param>
         /// <param name="isCompiledLambda">Flag that indicates the passed factory delegate is a compiled lambda from <see cref="Expression"/>.</param>
         /// <returns>The configurator itself.</returns>
-        public RegistrationConfigurator WithFactory(Func<IDependencyResolver, object> containerFactory, bool isCompiledLambda = false)
+        public RegistrationConfigurator WithFactory(Func<IDependencyResolver, object> factory, bool isCompiledLambda = false)
         {
-            this.Context.ContainerFactory = containerFactory;
-            this.Context.IsFactoryDelegateACompiledLambda = isCompiledLambda;
+            this.SetFactory(factory, isCompiledLambda, Constants.ResolverType, Constants.ObjectType);
             return this;
         }
 
         /// <summary>
         /// Sets a parameter-less factory delegate for the registration.
         /// </summary>
-        /// <param name="singleFactory">The factory delegate.</param>
+        /// <param name="factory">The factory delegate.</param>
         /// <param name="isCompiledLambda">Flag that indicates the passed factory delegate is a compiled lambda from <see cref="Expression"/>.</param>
         /// <returns>The configurator itself.</returns>
-        public RegistrationConfigurator WithFactory(Func<object> singleFactory, bool isCompiledLambda = false)
+        public RegistrationConfigurator WithFactory(Func<object> factory, bool isCompiledLambda = false)
         {
-            this.Context.SingleFactory = singleFactory;
-            this.Context.IsFactoryDelegateACompiledLambda = isCompiledLambda;
+            this.SetFactory(factory, isCompiledLambda, Constants.ObjectType);
             return this;
         }
 

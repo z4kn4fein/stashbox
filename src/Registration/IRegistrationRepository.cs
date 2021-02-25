@@ -28,15 +28,6 @@ namespace Stashbox.Registration
         /// <summary>
         /// Returns a registration.
         /// </summary>
-        /// <param name="type">The requested type.</param>
-        /// <param name="resolutionContext">The resolution context.</param>
-        /// <param name="name">The requested name.</param>
-        /// <returns>The registration or null, if it doesn't exist.</returns>
-        ServiceRegistration GetRegistrationOrDefault(Type type, ResolutionContext resolutionContext, object name = null);
-
-        /// <summary>
-        /// Returns a registration.
-        /// </summary>
         /// <param name="typeInfo">The type info.</param>
         /// <param name="resolutionContext">The resolution context.</param>
         /// <returns>The registration or null, if it doesn't exist.</returns>

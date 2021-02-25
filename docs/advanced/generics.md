@@ -4,7 +4,7 @@ This section is about how Stashbox supports various usage scenarios that involve
 <!-- panels:start -->
 
 <!-- div:title-panel -->
-## Closed-generics
+## Closed-Generics
 
 <!-- div:left-panel -->
 Registering and resolving a closed-generic type is not different from registering a simple non-generic service.
@@ -29,7 +29,7 @@ object validator = container.Resolve(typeof(IValidator<User>));
 <!-- panels:end -->
 
 
-## Open-generics
+## Open-Generics
 
 Registering an open-generic type is different from registering a closed-generic one as the language itself doesn't allow open-generic types in generic method parameters. We have to get a runtime type from the open-generic type first with `typeof()`.
 
@@ -77,7 +77,7 @@ IValidator<User> validator = container.Resolve<IValidator<User>>();
 <!-- panels:end -->
 
 
-## Generic constraints
+## Generic Constraints
 In the following examples, you can see how the container handles generic constraints during service resolution. Constraints can be used for [conditional resolution](usage/service-resolution?id=conditional-resolution) including collection filters. 
 
 <!-- tabs:start -->

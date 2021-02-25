@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Stashbox.Utils;
+using System;
 using System.Linq.Expressions;
 
 namespace Stashbox.Registration.Fluent
@@ -17,9 +18,13 @@ namespace Stashbox.Registration.Fluent
         }
 
         /// <inheritdoc />
-        public DecoratorConfigurator<TService, TImplementation> InjectMember<TResult>(Expression<Func<TImplementation, TResult>> expression, object dependencyName = null)
+        public DecoratorConfigurator<TService, TImplementation> InjectMember<TResult>(Expression<Func<TImplementation, TResult>> expression, object dependencyName = null) =>
+            this.WithDependencyBinding(expression, dependencyName);
+
+        /// <inheritdoc />
+        public DecoratorConfigurator<TService, TImplementation> WithDependencyBinding<TResult>(Expression<Func<TImplementation, TResult>> expression, object dependencyName = null)
         {
-            this.compositor.InjectMember(expression, dependencyName);
+            this.compositor.WithDependencyBinding(expression, dependencyName);
             return this;
         }
 
@@ -38,16 +43,51 @@ namespace Stashbox.Registration.Fluent
         }
 
         /// <inheritdoc />
-        public DecoratorConfigurator<TService, TImplementation> WithFactory(Func<TImplementation> singleFactory, bool isCompiledLambda = false)
+        public DecoratorConfigurator<TService, TImplementation> WithFactory(Func<TImplementation> factory, bool isCompiledLambda = false)
         {
-            this.compositor.WithFactory(singleFactory, isCompiledLambda);
+            this.compositor.WithFactory(factory, isCompiledLambda);
             return this;
         }
 
         /// <inheritdoc />
-        public DecoratorConfigurator<TService, TImplementation> WithFactory(Func<IDependencyResolver, TImplementation> containerFactory, bool isCompiledLambda = false)
+        public DecoratorConfigurator<TService, TImplementation> WithFactory(Func<IDependencyResolver, TImplementation> factory, bool isCompiledLambda = false)
         {
-            this.compositor.WithFactory(containerFactory, isCompiledLambda);
+            this.compositor.WithFactory(factory, isCompiledLambda);
+            return this;
+        }
+
+        /// <inheritdoc />
+        public DecoratorConfigurator<TService, TImplementation> WithFactory<T1>(Func<T1, TImplementation> factory, bool isCompiledLambda = false)
+        {
+            this.compositor.WithFactory(factory, isCompiledLambda);
+            return this;
+        }
+
+        /// <inheritdoc />
+        public DecoratorConfigurator<TService, TImplementation> WithFactory<T1, T2>(Func<T1, T2, TImplementation> factory, bool isCompiledLambda = false)
+        {
+            this.compositor.WithFactory(factory, isCompiledLambda);
+            return this;
+        }
+
+        /// <inheritdoc />
+        public DecoratorConfigurator<TService, TImplementation> WithFactory<T1, T2, T3>(Func<T1, T2, T3, TImplementation> factory, bool isCompiledLambda = false)
+        {
+            this.compositor.WithFactory(factory, isCompiledLambda);
+            return this;
+        }
+
+        /// <inheritdoc />
+        public DecoratorConfigurator<TService, TImplementation> WithFactory<T1, T2, T3, T4>(Func<T1, T2, T3, T4, TImplementation> factory, bool isCompiledLambda = false)
+        {
+            this.compositor.WithFactory(factory, isCompiledLambda);
+            return this;
+        }
+
+        /// <inheritdoc />
+        public DecoratorConfigurator<TService, TImplementation> WithFactory<T1, T2, T3, T4, T5>(Func<T1, T2, T3, T4, T5, TImplementation> factory, bool isCompiledLambda = false)
+        {
+            this.compositor.WithFactory(factory, isCompiledLambda);
             return this;
         }
     }
@@ -63,26 +103,23 @@ namespace Stashbox.Registration.Fluent
         /// <summary>
         /// Sets a container factory delegate for the registration.
         /// </summary>
-        /// <param name="containerFactory">The container factory delegate.</param>
+        /// <param name="factory">The container factory delegate.</param>
         /// <param name="isCompiledLambda">Flag that indicates the passed factory delegate is a compiled lambda from <see cref="Expression"/>.</param>
         /// <returns>The configurator itself.</returns>
-        public DecoratorConfigurator WithFactory(Func<IDependencyResolver, object> containerFactory, bool isCompiledLambda = false)
+        public DecoratorConfigurator WithFactory(Func<IDependencyResolver, object> factory, bool isCompiledLambda = false)
         {
-            this.Context.ContainerFactory = containerFactory;
-            this.Context.IsFactoryDelegateACompiledLambda = isCompiledLambda;
+            this.SetFactory(factory, isCompiledLambda, Constants.ResolverType, Constants.ObjectType);
             return this;
         }
-
         /// <summary>
         /// Sets a parameter-less factory delegate for the registration.
         /// </summary>
-        /// <param name="singleFactory">The factory delegate.</param>
+        /// <param name="factory">The factory delegate.</param>
         /// <param name="isCompiledLambda">Flag that indicates the passed factory delegate is a compiled lambda from <see cref="Expression"/>.</param>
         /// <returns>The configurator itself.</returns>
-        public DecoratorConfigurator WithFactory(Func<object> singleFactory, bool isCompiledLambda = false)
+        public DecoratorConfigurator WithFactory(Func<object> factory, bool isCompiledLambda = false)
         {
-            this.Context.SingleFactory = singleFactory;
-            this.Context.IsFactoryDelegateACompiledLambda = isCompiledLambda;
+            this.SetFactory(factory, isCompiledLambda, Constants.ObjectType);
             return this;
         }
     }

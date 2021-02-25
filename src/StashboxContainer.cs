@@ -86,7 +86,7 @@ namespace Stashbox
 
             return this.ContainerContext.RegistrationRepository.ContainsRegistration(typeFrom, name) ||
                 this.resolutionStrategy.CanResolveType(new TypeInformation(typeFrom, name),
-                    new ResolutionContext(this.ContainerContext.RootScope.GetActiveScopeNames(), this.ContainerContext, this.resolutionStrategy, false));
+                    new ResolutionContext(this.ContainerContext.RootScope.GetActiveScopeNames(), this.ContainerContext, false));
         }
 
         /// <inheritdoc />
@@ -116,7 +116,7 @@ namespace Stashbox
                 {
                     this.resolutionStrategy.BuildExpressionForRegistration(serviceRegistration.Value,
                         new ResolutionContext(this.ContainerContext.RootScope.GetActiveScopeNames(),
-                            this.ContainerContext, this.resolutionStrategy, false, false, true),
+                            this.ContainerContext, false, false, true),
                         new TypeInformation(serviceRegistration.Key, serviceRegistration.Value.RegistrationContext.Name));
                 }
                 catch (Exception ex)

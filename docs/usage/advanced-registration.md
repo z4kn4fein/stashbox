@@ -1,4 +1,4 @@
-# Advanced registration
+# Advanced Registration
 This section is about Stashbox's further configuration options, including the registration configuration API, the registration of factory delegates, multiple implementations, batch registration, the concept of the [Composition Root](https://blog.ploeh.dk/2011/07/28/CompositionRoot/) and many more.
 
 ?> This section won't cover all the available options of the registrations API, but you can find them [here](configuration/registration-configuration).
@@ -6,33 +6,51 @@ This section is about Stashbox's further configuration options, including the re
 <!-- panels:start -->
 
 <!-- div:title-panel -->
-## Factory registration
+## Factory Registration
 
 <!-- div:left-panel -->
-You have the option to bind a factory delegate to a registration that will be invoked by the container directly to instantiate your service. 
+You have the option to bind a factory delegate to a registration that the container will invoke directly to instantiate your service. 
 
-You can choose between a delegate that gets the current dependency resolver as an argument (used to resolve further services inside the factory) and a parameterless delegate.
+You can use parameter-less and custom parameterized delegates as a factory.
+
+You can also get the current dependency resolver as a delegate parameter used to resolve any additional dependencies required for the service construction.
 
 <!-- div:right-panel -->
 
 <!-- tabs:start -->
 
-#### **With resolver parameter**
-```cs
-container.Register<IJob, DbBackup>(options => options
-    .WithFactory(resolver => new DbBackup(resolver.Resolve<ILogger>()));
-// The container uses the factory for instantiation.
-IJob job = container.Resolve<IJob>();
-```
-
 #### **Parameter-less**
 ```cs
 container.Register<ILogger, ConsoleLogger>(options => options
     .WithFactory(() => new ConsoleLogger());
-// The container uses the factory for instantiation.
+
+// the container uses the factory for instantiation.
 IJob job = container.Resolve<ILogger>();
 ```
+
+#### **Parameterized**
+```cs
+container.Register<IJob, DbBackup>(options => options
+    .WithFactory<ILogger>(logger => new DbBackup(logger));
+
+// the container uses the factory for instantiation.
+IJob job = container.Resolve<IJob>();
+```
+
+#### **Resolver parameter**
+```cs
+container.Register<IJob, DbBackup>(options => options
+    .WithFactory(resolver => new DbBackup(resolver.Resolve<ILogger>()));
+    
+// the container uses the factory for instantiation.
+IJob job = container.Resolve<IJob>();
+```
+
 <!-- tabs:end -->
+
+<!-- panels:end -->
+
+<!-- panels:start -->
 
 <!-- div:left-panel -->
 Delegate factories are useful when your service's instantiation is not straight-forward for the container, like when it depends on something that is not available at resolution time. E.g., a connection string.
@@ -40,15 +58,19 @@ Delegate factories are useful when your service's instantiation is not straight-
 <!-- div:right-panel -->
 ```cs
 container.Register<IJob, DbBackup>(options => options
-    .WithFactory(resolver => 
-        new DbBackup(Configuration["ConnectionString"], 
-            resolver.Resolve<ILogger>()));
+    .WithFactory<ILogger>(logger => 
+        new DbBackup(Configuration["DbConnectionString"], logger));
 ```
 
+<!-- panels:end -->
+
+<!-- panels:start -->
+
 <!-- div:left-panel -->
-### Factory with custom parameters
+### Factory with Parameter Override
 Suppose you'd want to use custom parameters for your service's instantiation rather than captured variables in lambda closures. In that case, you can register a `Func<>` delegate that you can use with parameters at resolution time.
 
+?> This example is about pre-registered factories; however, the container can also implicitly [wrap](advanced/generics?id=func) your service in a `Func<>` without pre-registering.
 <!-- div:right-panel -->
 
 <!-- tabs:start -->
@@ -70,7 +92,77 @@ Delegate backupFactory = container.ResolveFactory(typeof(IJob),
     parameterTypes: new[] { typeof(string) });
 IJob dbBackup = backupFactory.DynamicInvoke(Configuration["ConnectionString"]);
 ```
+<!-- tabs:end -->
 
+<!-- panels:end -->
+
+<!-- panels:start -->
+
+<!-- div:left-panel -->
+### Consider These Before Using the Resolver Parameter Inside a Factory
+Delegate factories are a black-box for the container. It doesn't have much control over what's happening inside them, which means when you resolve additional dependencies with the dependency resolver parameter, they could easily bypass the [lifetime](diagnostics/validation?id=lifetime-validation) and [circular dependency](diagnostics/validation?id=circular-dependency) validations. Fortunately, there are options to keep them validated anyway:
+
+- **Parameterized factories instead of resolver**: rather than using the dependency resolver parameter inside the factory, let the container inject the dependencies into the delegate as parameters. With this, the resolution tree's integrity remains stable because no service resolution happens inside the black-box, and each parameter is validated.
+
+- There is a [container configuration option](configuration/container-configuration?id=circular-dependencies-in-delegates) that enables **circular dependency tracking even across delegates that uses the resolver parameter** to resolve dependencies. When this option is enabled, the container generates extra expression nodes into the resolution tree to detect circles, but at the price of a much more complex tree structure and longer dependency walkthrough.
+
+<!-- div:right-panel -->
+
+<!-- tabs:start -->
+#### **Parameterized factory**
+```cs
+interface IEventProcessor { }
+
+class EventProcessor : IEventProcessor
+{
+    public EventProcessor(ILogger logger, IEventValidator validator)
+    { }
+}
+
+container.Register<ILogger, ConsoleLogger>();
+container.Register<IEventValidator, EventValidator>();
+
+container.Register<IEventProcessor, EventProcessor>(options => options
+    // Ilogger and IEventValidator instances are injected
+    // by the container at resolution time, so they will be
+    // validated against circular and captive dependencies.
+    .WithFactory<ILogger, IEventValidator>((logger, validator) => 
+        new EventProcessor(logger, validator));
+
+// the container resolves ILogger and IEventValidator first, then
+// it passes them to the factory as delegate parameters.
+IEventProcessor processor = container.Resolve<IEventProcessor>();
+```
+
+#### **Resolver with circle tracking**
+```cs
+interface IEventProcessor { }
+
+class EventProcessor : IEventProcessor
+{
+    public EventProcessor(ILogger logger, IEventValidator validator)
+    { }
+}
+
+// enabling the circular dependency tracking across factory delegates.
+using var container = new StashboxContainer(options => 
+    options.WithRuntimeCircularDependencyTracking());
+
+container.Register<ILogger, ConsoleLogger>();
+container.Register<IEventValidator, EventValidator>();
+
+container.Register<IEventProcessor, EventProcessor>(options => options
+    // Ilogger and IEventValidator instances are resolved by the 
+    // passed resolver, so they will bypass the circular and captive 
+    // dependency validation. However the extra tracker nodes will catch
+    // the circular dependencies anyway.
+    .WithFactory(resolver => new EventProcessor(
+        resolver.Resolve<ILogger>(), resolver.Resolve<IEventValidator>()));
+
+// the container uses the factory to instantiate the processor, and 
+// generates the extra circle tracker expression nodes into the tree.
+IEventProcessor processor = container.Resolve<IEventProcessor>();
+```
 <!-- tabs:end -->
 
 <!-- panels:end -->
@@ -78,7 +170,7 @@ IJob dbBackup = backupFactory.DynamicInvoke(Configuration["ConnectionString"]);
 <!-- panels:start -->
 
 <!-- div:title-panel -->
-## Multiple implementations
+## Multiple Implementations
 
 <!-- div:left-panel -->
 As we previously saw in the [Named registration](usage/basics?id=named-registration) topic, Stashbox allows you to have multiple implementations bound to a particular service type. You can use names to distinguish them, but you can also access them by requesting a typed collection using the service type.
@@ -151,12 +243,20 @@ IJob job = container.Resolve<IJob>();
 <!-- panels:start -->
 
 <!-- div:title-panel -->
-## Map to multiple services
+## Map to Multiple Services
 
 <!-- div:left-panel -->
-When you have an implementation that implements multiple interfaces, you have the option to bind its registration to all or some of those interfaces/base types.
+When you have a service that implements multiple interfaces, you have the option to bind its registration to all or some of those additional interfaces or base types.
 
-In these examples, we assume that `DbBackup` implements `IScheduledJob` alongside `IJob`.
+Suppose we have the following class declaration:
+```cs
+class DbBackup : IJob, IScheduledJob
+{ 
+    public DbBackup() { }
+}
+```
+
+
 <!-- div:right-panel -->
 
 <!-- tabs:start -->
@@ -187,7 +287,7 @@ DbBackup job = container.Resolve<DbBackup>(); // DbBackup
 <!-- panels:start -->
 
 <!-- div:title-panel -->
-## Batch registration
+## Batch Registration
 
 <!-- div:left-panel -->
 You have the option to register multiple services in a single registration operation. 
@@ -321,7 +421,7 @@ DbBackup backup = container.Resolve<DbBackup>(); // error, not found
 <!-- panels:start -->
 
 <!-- div:title-panel -->
-## Assembly registration
+## Assembly Registration
 
 <!-- div:left-panel -->
 
@@ -329,7 +429,7 @@ The batch registration API's signature *(filters, registration configuration act
 
 In this example, we assume that the same three services used at the batch registration are in the same assembly.
 
-?> The container also detects and registers open-generic definitions (when applicable) from the supplied type collection. You can read about [open-generics here](advanced/generics?id=open-generic).
+?> The container also detects and registers open-generic definitions (when applicable) from the supplied type collection. You can read about [open-generics here](advanced/generics?id=open-generics).
 
 <!-- div:right-panel -->
 
@@ -387,16 +487,16 @@ DbBackup backup = container.Resolve<DbBackup>(); // error, not found
 <!-- panels:start -->
 
 <!-- div:title-panel -->
-## Composition root
+## Composition Root
 
 <!-- div:left-panel -->
-The entry point of components, where all the services are wired together, is often referred to as [Composition Root](https://blog.ploeh.dk/2011/07/28/CompositionRoot/).
+The [Composition Root](https://blog.ploeh.dk/2011/07/28/CompositionRoot/) is an entry point, where all services required to make a component functional are wired together.
 
-Stashbox provides an `ICompositionRoot` interface used to detect user-defined entry points in given components or assemblies. 
+Stashbox provides an `ICompositionRoot` interface that can be used to define an entry point for a given component or even for an entire assembly. 
 
-You can wire up your *composition root* implementation with `ComposeBy<TRoot>()`, or you can let the container find and execute all available implementations within an assembly.
+You can wire up your *composition root* implementation with `ComposeBy<TRoot>()`, or you can let the container find and execute all available *composition roots* within an assembly.
 
-?> Your `ICompositionRoot` implementations also can have their dependencies that would be resolved by the container.
+?> Your `ICompositionRoot` implementation also can have dependencies that the container will inject.
 
 <!-- div:right-panel -->
 
@@ -429,7 +529,7 @@ container.ComposeAssembly(typeof(IServiceA).Assembly);
 
 #### **Override**
 ```cs
-// compose a single root with overridden dependency.
+// compose a single root with dependency override.
 container.ComposeBy<ExampleRoot>(new CustomRootDependency());
 ```
 
@@ -440,7 +540,7 @@ container.ComposeBy<ExampleRoot>(new CustomRootDependency());
 <!-- panels:start -->
 
 <!-- div:title-panel -->
-## Injection parameters
+## Injection Parameters
 
 <!-- div:left-panel -->
 If you have some pre-evaluated dependencies you'd like to inject at resolution time, you can set them as an injection parameter during registration. 

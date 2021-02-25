@@ -88,7 +88,7 @@ namespace Stashbox.Tests
         public void InjectionMemberTests_Inject_With_Config()
         {
             var container = new StashboxContainer();
-            container.Register<Test3>(context => context.InjectMember("Test1", "test1").InjectMember("test2", "test2"))
+            container.Register<Test3>(context => context.WithDependencyBinding("Test1", "test1").WithDependencyBinding("test2", "test2"))
                 .Register<ITest, TestM1>(context => context.WithName("test1"))
                 .Register<ITest, TestM2>(context => context.WithName("test2"));
 
@@ -104,7 +104,7 @@ namespace Stashbox.Tests
         public void InjectionMemberTests_Inject_With_Invalid_Config()
         {
             var container = new StashboxContainer();
-            container.Register<Test3>(context => context.InjectMember("Test3"));
+            container.Register<Test3>(context => context.WithDependencyBinding("Test3"));
 
             var inst = container.Resolve<Test3>();
 
@@ -116,7 +116,7 @@ namespace Stashbox.Tests
         public void InjectionMemberTests_Inject_With_Config_Generic()
         {
             var container = new StashboxContainer();
-            container.Register<Test3>(context => context.InjectMember(x => x.Test1, "test2"))
+            container.Register<Test3>(context => context.WithDependencyBinding(x => x.Test1, "test2"))
                 .Register<ITest, TestM2>(context => context.WithName("test2"));
 
             var inst = container.Resolve<Test3>();
@@ -130,7 +130,7 @@ namespace Stashbox.Tests
         public void InjectionMemberTests_Inject_With_Config_Generic_Throws()
         {
             using var container = new StashboxContainer();
-            Assert.Throws<ArgumentException>(() => container.Register<Test3>(context => context.InjectMember(x => 50)));
+            Assert.Throws<ArgumentException>(() => container.Register<Test3>(context => context.WithDependencyBinding(x => 50)));
         }
 
         [Fact]

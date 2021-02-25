@@ -2,6 +2,9 @@
     --search-margin: 1em 0;
     --search-result-keyword-padding: 0 0;
 
+    --base-color: #c9d1d9;
+    --heading-color: #e4e8ec;
+
     --theme-color: #2582ad;
     --theme-2-color: #fd8d68;
 
@@ -12,9 +15,6 @@
     --cover-button-box-shadow--hover: 0 5px 16px rgba(3, 26, 39, 0.4);
 
     --sidebar-toggle-icon-stroke-width: 2px;
-    /* --sidebar-toggle-offset-top: calc(100vh - (var(--sidebar-toggle-height) / 2) - 60px); */
-
-    --heading-h3-font-weight: 400;
 
     --base-font-size: 14px;
 
@@ -144,6 +144,16 @@ button.sidebar-toggle {
     left: auto;
 }
 
+.docsify-copy-code-button {
+    -webkit-touch-callout: none; /* iOS Safari */
+      -webkit-user-select: none; /* Safari */
+       -khtml-user-select: none; /* Konqueror HTML */
+         -moz-user-select: none; /* Old versions of Firefox */
+          -ms-user-select: none; /* Internet Explorer/Edge */
+              user-select: none; /* Non-prefixed version, currently
+                                    supported by Chrome, Edge, Opera and Firefox */
+}
+
 ::selection {
     color: white !important;
 }
@@ -162,7 +172,7 @@ button.sidebar-toggle {
     }
 
     .markdown-section {
-        padding: 5em 0 0 0 !important;
+        padding: 6em 0 0 0 !important;
     }
 
     .app-nav {
@@ -193,8 +203,8 @@ button.sidebar-toggle {
     }
 
     .markdown-section {
-        padding: 5em 0.5em 0 0.8em;
-        padding-top: 5em !important;
+        padding: 6em 0.5em 0 0.8em;
+        padding-top: 6em !important;
     }
 }
   

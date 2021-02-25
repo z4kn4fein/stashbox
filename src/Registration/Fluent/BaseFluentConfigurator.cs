@@ -83,23 +83,22 @@ namespace Stashbox.Registration.Fluent
         public TConfigurator InScopeDefinedBy<TScopeDefiner>() => this.WithLifetime(Lifetimes.NamedScope(typeof(TScopeDefiner)));
 
         /// <summary>
-        /// Binds a constructor or method parameter to a named registration, so the container will perform a named resolution on the bound dependency.  
+        /// Binds a constructor/method parameter or a property/field to a named registration, so the container will perform a named resolution on the bound dependency.  
         /// </summary>
         /// <param name="dependencyName">The name of the bound named registration.</param>
         /// <returns>The configurator itself.</returns>
-        public TConfigurator WithDependencyBinding<TDependency>(object dependencyName) =>
+        public TConfigurator WithDependencyBinding<TDependency>(object dependencyName = null) =>
             this.WithDependencyBinding(typeof(TDependency), dependencyName);
 
         /// <summary>
-        /// Binds a constructor or method parameter to a named registration, so the container will perform a named resolution on the bound dependency.  
+        /// Binds a constructor/method parameter or a property/field to a named registration, so the container will perform a named resolution on the bound dependency.  
         /// </summary>
         /// <param name="dependencyType">The type of the dependency to search for.</param>
         /// <param name="dependencyName">The name of the bound named registration.</param>
         /// <returns>The fluent configurator.</returns>
-        public TConfigurator WithDependencyBinding(Type dependencyType, object dependencyName)
+        public TConfigurator WithDependencyBinding(Type dependencyType, object dependencyName = null)
         {
             Shield.EnsureNotNull(dependencyType, nameof(dependencyType));
-            Shield.EnsureNotNull(dependencyName, nameof(dependencyName));
 
             this.Context.DependencyBindings.Add(dependencyType, dependencyName);
 
@@ -107,15 +106,14 @@ namespace Stashbox.Registration.Fluent
         }
 
         /// <summary>
-        /// Binds a constructor or method parameter to a named registration, so the container will perform a named resolution on the bound dependency.  
+        /// Binds a constructor/method parameter or a property/field to a named registration, so the container will perform a named resolution on the bound dependency.  
         /// </summary>
         /// <param name="parameterName">The parameter name of the dependency to search for.</param>
         /// <param name="dependencyName">The name of the bound named registration.</param>
         /// <returns>The fluent configurator.</returns>
-        public TConfigurator WithDependencyBinding(string parameterName, object dependencyName)
+        public TConfigurator WithDependencyBinding(string parameterName, object dependencyName = null)
         {
             Shield.EnsureNotNull(parameterName, nameof(parameterName));
-            Shield.EnsureNotNull(dependencyName, nameof(dependencyName));
 
             this.Context.DependencyBindings.Add(parameterName, dependencyName);
 
@@ -136,7 +134,9 @@ namespace Stashbox.Registration.Fluent
         /// <returns>The configurator itself.</returns>
         public TConfigurator WhenDependantIs(Type targetType)
         {
-            this.Context.TargetTypeCondition = targetType;
+            Shield.EnsureNotNull(targetType, nameof(targetType));
+
+            this.Context.TargetTypeConditions.Add(targetType);
             return (TConfigurator)this;
         }
 
@@ -154,8 +154,7 @@ namespace Stashbox.Registration.Fluent
         /// <returns>The configurator itself.</returns>
         public TConfigurator WhenHas(Type attributeType)
         {
-            var store = (ExpandableArray<Type>)this.Context.AttributeConditions;
-            store.Add(attributeType);
+            this.Context.AttributeConditions.Add(attributeType);
             return (TConfigurator)this;
         }
 
@@ -166,7 +165,7 @@ namespace Stashbox.Registration.Fluent
         /// <returns>The configurator itself.</returns>
         public TConfigurator When(Func<TypeInformation, bool> resolutionCondition)
         {
-            this.Context.ResolutionCondition = resolutionCondition;
+            this.Context.ResolutionConditions.Add(resolutionCondition);
             return (TConfigurator)this;
         }
 
@@ -177,8 +176,7 @@ namespace Stashbox.Registration.Fluent
         /// <returns>The fluent configurator.</returns>
         public TConfigurator WithInjectionParameters(params KeyValuePair<string, object>[] injectionParameters)
         {
-            var store = (ExpandableArray<KeyValuePair<string, object>>)this.Context.InjectionParameters;
-            store.AddRange(injectionParameters);
+            this.Context.InjectionParameters.AddRange(injectionParameters);
             return (TConfigurator)this;
         }
 
@@ -190,8 +188,7 @@ namespace Stashbox.Registration.Fluent
         /// <returns>The fluent configurator.</returns>
         public TConfigurator WithInjectionParameter(string name, object value)
         {
-            var store = (ExpandableArray<KeyValuePair<string, object>>)this.Context.InjectionParameters;
-            store.Add(new KeyValuePair<string, object>(name, value));
+            this.Context.InjectionParameters.Add(new KeyValuePair<string, object>(name, value));
             return (TConfigurator)this;
         }
 
@@ -260,11 +257,9 @@ namespace Stashbox.Registration.Fluent
         /// <param name="memberName">The name of the member.</param>
         /// <param name="dependencyName">The name of the dependency.</param>
         /// <returns>The fluent configurator.</returns>
-        public TConfigurator InjectMember(string memberName, object dependencyName = null)
-        {
-            this.Context.InjectionMemberNames.Add(memberName, dependencyName);
-            return (TConfigurator)this;
-        }
+        [Obsolete("Use WithDependencyBinding() instead.")]
+        public TConfigurator InjectMember(string memberName, object dependencyName = null) =>
+            this.WithDependencyBinding(memberName, dependencyName);
 
         /// <summary>
         /// Tells the container that it shouldn't track the resolved transient object for disposal.
@@ -294,6 +289,13 @@ namespace Stashbox.Registration.Fluent
         {
             this.Context.ReplaceExistingRegistrationOnlyIfExists = true;
             return (TConfigurator)this;
+        }
+
+        private protected void SetFactory(Delegate factory, bool isCompiledLambda, params Type[] parameterTypes)
+        {
+            this.Context.Factory = factory;
+            this.Context.FactoryParameters = parameterTypes;
+            this.Context.IsFactoryDelegateACompiledLambda = isCompiledLambda;
         }
 
         private static void ThrowConstructorNotFoundException(Type type, params Type[] argTypes)

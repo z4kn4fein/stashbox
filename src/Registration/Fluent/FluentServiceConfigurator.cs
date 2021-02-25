@@ -1,4 +1,5 @@
-﻿using Stashbox.Utils.Data;
+﻿using Stashbox.Utils;
+using Stashbox.Utils.Data;
 using System;
 using System.Linq;
 using System.Linq.Expressions;
@@ -20,11 +21,16 @@ namespace Stashbox.Registration.Fluent
         { }
 
         /// <inheritdoc />
-        public TConfigurator InjectMember<TResult>(Expression<Func<TImplementation, TResult>> expression, object dependencyName = null)
+        [Obsolete("Use WithDependencyBinding() instead.")]
+        public TConfigurator InjectMember<TResult>(Expression<Func<TImplementation, TResult>> expression, object dependencyName = null) =>
+            this.WithDependencyBinding(expression, dependencyName);
+
+        /// <inheritdoc />
+        public TConfigurator WithDependencyBinding<TResult>(Expression<Func<TImplementation, TResult>> expression, object dependencyName = null)
         {
             if (expression.Body is MemberExpression memberExpression)
             {
-                this.Context.InjectionMemberNames.Add(memberExpression.Member.Name, dependencyName);
+                this.Context.DependencyBindings.Add(memberExpression.Member.Name, dependencyName);
                 return (TConfigurator)this;
             }
 
@@ -46,18 +52,51 @@ namespace Stashbox.Registration.Fluent
         }
 
         /// <inheritdoc />
-        public TConfigurator WithFactory(Func<TImplementation> singleFactory, bool isCompiledLambda = false)
+        public TConfigurator WithFactory(Func<TImplementation> factory, bool isCompiledLambda = false)
         {
-            this.Context.SingleFactory = singleFactory;
-            this.Context.IsFactoryDelegateACompiledLambda = isCompiledLambda;
+            this.SetFactory(factory, isCompiledLambda, typeof(TImplementation));
             return (TConfigurator)this;
         }
 
         /// <inheritdoc />
-        public TConfigurator WithFactory(Func<IDependencyResolver, TImplementation> containerFactory, bool isCompiledLambda = false)
+        public TConfigurator WithFactory(Func<IDependencyResolver, TImplementation> factory, bool isCompiledLambda = false)
         {
-            this.Context.ContainerFactory = containerFactory;
-            this.Context.IsFactoryDelegateACompiledLambda = isCompiledLambda;
+            this.SetFactory(factory, isCompiledLambda, Constants.ResolverType, typeof(TImplementation));
+            return (TConfigurator)this;
+        }
+
+        /// <inheritdoc />
+        public TConfigurator WithFactory<T1>(Func<T1, TImplementation> factory, bool isCompiledLambda = false)
+        {
+            this.SetFactory(factory, isCompiledLambda, typeof(T1), typeof(TImplementation));
+            return (TConfigurator)this;
+        }
+
+        /// <inheritdoc />
+        public TConfigurator WithFactory<T1, T2>(Func<T1, T2, TImplementation> factory, bool isCompiledLambda = false)
+        {
+            this.SetFactory(factory, isCompiledLambda, typeof(T1), typeof(T2), typeof(TImplementation));
+            return (TConfigurator)this;
+        }
+
+        /// <inheritdoc />
+        public TConfigurator WithFactory<T1, T2, T3>(Func<T1, T2, T3, TImplementation> factory, bool isCompiledLambda = false)
+        {
+            this.SetFactory(factory, isCompiledLambda, typeof(T1), typeof(T2), typeof(T3), typeof(TImplementation));
+            return (TConfigurator)this;
+        }
+
+        /// <inheritdoc />
+        public TConfigurator WithFactory<T1, T2, T3, T4>(Func<T1, T2, T3, T4, TImplementation> factory, bool isCompiledLambda = false)
+        {
+            this.SetFactory(factory, isCompiledLambda, typeof(T1), typeof(T2), typeof(T3), typeof(T4), typeof(TImplementation));
+            return (TConfigurator)this;
+        }
+
+        /// <inheritdoc />
+        public TConfigurator WithFactory<T1, T2, T3, T4, T5>(Func<T1, T2, T3, T4, T5, TImplementation> factory, bool isCompiledLambda = false)
+        {
+            this.SetFactory(factory, isCompiledLambda, typeof(T1), typeof(T2), typeof(T3), typeof(T4), typeof(T5), typeof(TImplementation));
             return (TConfigurator)this;
         }
     }
@@ -104,8 +143,8 @@ namespace Stashbox.Registration.Fluent
         /// <returns>The configurator itself.</returns>
         public TConfigurator AsImplementedTypes()
         {
-            this.Context.AdditionalServiceTypes = this.ImplementationType.GetRegisterableInterfaceTypes()
-                .Concat(this.ImplementationType.GetRegisterableBaseTypes()).AsExpandableArray();
+            this.Context.AdditionalServiceTypes.AddRange(this.ImplementationType.GetRegisterableInterfaceTypes()
+                .Concat(this.ImplementationType.GetRegisterableBaseTypes()));
             return (TConfigurator)this;
         }
 
@@ -126,7 +165,7 @@ namespace Stashbox.Registration.Fluent
             if (!this.ImplementationType.Implements(serviceType))
                 throw new ArgumentException($"The implementation type {base.ImplementationType} does not implement the given service type {serviceType}.");
 
-            ((ExpandableArray<Type>)this.Context.AdditionalServiceTypes).Add(serviceType);
+            this.Context.AdditionalServiceTypes.Add(serviceType);
             return (TConfigurator)this;
         }
     }

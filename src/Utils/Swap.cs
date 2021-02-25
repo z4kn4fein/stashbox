@@ -29,7 +29,7 @@ namespace Stashbox.Utils
             var desiredThreshold = Environment.ProcessorCount * 6;
             var swapThreshold = desiredThreshold <= MinimumSwapThreshold ? MinimumSwapThreshold : desiredThreshold;
 
-            while(true)
+            while (true)
             {
                 var currentValue = refValue;
                 var newValue = valueFactory(t1, t2, t3, t4, currentValue);
@@ -42,8 +42,7 @@ namespace Stashbox.Utils
                 if (++counter > swapThreshold)
                     throw new InvalidOperationException("Swap quota exceeded.");
 
-                if (counter > 20)
-                    wait.SpinOnce();
+                wait.SpinOnce();
             }
         }
     }

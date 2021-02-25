@@ -1,7 +1,7 @@
 # Decorators
 Stashbox supports decorator service registration to take advantage of the [Decorator pattern](https://en.wikipedia.org/wiki/Decorator_pattern). This pattern is used to extend the functionality of a class without changing its implementation. This is also what the [Open–closed principle](https://en.wikipedia.org/wiki/Open%E2%80%93closed_principle) stands for; services should be open for extension but closed for modification.
 
-## Simple use-case
+## Simple Use-Case
 We define an `IEventProcessor` service used to process `Event` entities. Then we'll decorate this service with additional validation capabilities:
 ```cs
 class Event { }
@@ -65,7 +65,7 @@ eventProcessor.ProcessEvent(new UpdateEvent());
 ```
 The `GeneralEventProcessor` is an implementation of `IEventProcessor` and does the actual event processing logic. It does not have any other responsibilities. Rather than putting the event validation's burden onto its shoulder, we create a different service for validation purposes. Instead of injecting the validator into the `GeneralEventProcessor` directly, we let another `IEventProcessor` decorate it like an *event processing pipeline* that validates the event as a first step.
 
-## Multiple decorators
+## Multiple Decorators
 
 <!-- panels:start -->
 
@@ -86,7 +86,7 @@ var processor = container.Resolve<IEventProcessor>();
 
 <!-- panels:end -->
 
-## Conditional decoration
+## Conditional Decoration
 
 With [conditional resolution](usage/service-resolution?id=conditional-resolution) you can control which decorator should be selected to decorate a given service.
 
@@ -100,7 +100,8 @@ container.Register<IEventProcessor, CustomProcessor>();
 
 container.RegisterDecorator<IEventProcessor, LoggerProcessor>(options => options
     // select when CustomProcessor or GeneralProcessor is resolved.
-    .When(typeInfo => typeInfo.Type == typeof(CustomProcessor) || typeInfo.Type == typeof(GeneralProcessor)));
+    .WhenDecoratedServiceIs<CustomProcessor>()
+    .WhenDecoratedServiceIs<GeneralProcessor>());
 
 container.RegisterDecorator<IEventProcessor, ValidatorProcessor>(options => options
     // select only when GeneralProcessor is resolved.
@@ -121,11 +122,12 @@ container.Register<IEventProcessor, CustomProcessor>("Custom");
 
 container.RegisterDecorator<IEventProcessor, LoggerProcessor>(options => options
     // select when CustomProcessor or GeneralProcessor is resolved.
-    .When(typeInfo => typeInfo.DependencyName.Equals("General") || typeInfo.Type == typeInfo.DependencyName.Equals("Custom")));
+    .WhenDecoratedServiceIs("General")
+    .WhenDecoratedServiceIs("Custom"));
 
 container.RegisterDecorator<IEventProcessor, ValidatorProcessor>(options => options
     // select only when GeneralProcessor is resolved.
-    .When(typeInfo => typeInfo.DependencyName.Equals("General")));
+    .WhenDecoratedServiceIs("General"));
 
 // new ValidatorProcessor(new LoggerProcessor(new GeneralProcessor()))
 var general = container.Resolve<IEventProcessor>("General");
@@ -193,7 +195,7 @@ var executor = container.ResolveAll<ProcessorExecutor>();
 
 <!-- tabs:end -->
 
-## Generic decorators
+## Generic Decorators
 Stashbox supports the registration of open-generic decorators, which allows the extension of open-generic services. 
 Inspection of [generic parameter constraints](advanced/generics?id=generic-constraints) and [variance handling](advanced/generics?id=variance) is supported on generic decorators also.
 
@@ -278,7 +280,7 @@ var processor = container.Resolve<Func<IEventProcessor>>();
 <!-- panels:end -->
 
 ## Interception
-From the combination of the decorator support and the proxy generator of [Castle DynamicProxy](http://www.castleproject.org/projects/dynamicproxy/) we can take advantage of the benefits of [Aspect-Oriented Programming](https://en.wikipedia.org/wiki/Aspect-oriented_programming). The following example defines a `LoggingInterceptor` that will log additional messages related to the called service methods.
+From the combination of Stashbox's decorator support and [Castle DynamicProxy's](http://www.castleproject.org/projects/dynamicproxy/) proxy generator, we can take advantage of the [Aspect-Oriented Programming's](https://en.wikipedia.org/wiki/Aspect-oriented_programming) benefits. The following example defines a `LoggingInterceptor` that will log additional messages related to the called service methods.
 
 ```cs
 public class LoggingInterceptor : IInterceptor 

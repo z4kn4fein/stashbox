@@ -24,9 +24,16 @@ namespace Stashbox.Registration.Fluent
         /// <summary>
         /// Sets a decorated target condition for the registration.
         /// </summary>
-        /// <param name="targetType">The type of the parent.</param>
+        /// <param name="targetType">The type of the decorated service.</param>
         /// <returns>The configurator itself.</returns>
         public TConfigurator WhenDecoratedServiceIs(Type targetType) => this.When(t => t.Type == targetType);
+
+        /// <summary>
+        /// Sets a decorated target condition for the registration.
+        /// </summary>
+        /// <param name="name">The name of the decorated service.</param>
+        /// <returns>The configurator itself.</returns>
+        public TConfigurator WhenDecoratedServiceIs(object name) => this.When(typeInfo => name.Equals(typeInfo.DependencyName));
 
         /// <summary>
         /// Sets an attribute condition the decorated target has to satisfy.

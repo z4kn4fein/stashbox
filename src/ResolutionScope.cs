@@ -63,7 +63,6 @@ namespace Stashbox
             }
         }
 
-        private readonly ResolutionStrategy resolutionStrategy;
         private readonly ExpressionFactory expressionFactory;
         private readonly IContainerContext containerContext;
         private readonly DelegateCacheProvider delegateCacheProvider;
@@ -77,11 +76,9 @@ namespace Stashbox
 
         public IResolutionScope ParentScope { get; }
 
-        private ResolutionScope(ResolutionStrategy resolutionStrategy,
-            ExpressionFactory expressionBuilder, IContainerContext containerContext,
+        private ResolutionScope(ExpressionFactory expressionBuilder, IContainerContext containerContext,
             DelegateCacheProvider delegateCacheProvider, object name)
         {
-            this.resolutionStrategy = resolutionStrategy;
             this.expressionFactory = expressionBuilder;
             this.containerContext = containerContext;
             this.Name = name;
@@ -92,15 +89,13 @@ namespace Stashbox
                 : delegateCacheProvider.GetNamedCache(name);
         }
 
-        internal ResolutionScope(ResolutionStrategy resolutionStrategy,
-            ExpressionFactory expressionBuilder, IContainerContext containerContext)
-            : this(resolutionStrategy, expressionBuilder, containerContext,
-                  new DelegateCacheProvider(), null)
+        internal ResolutionScope(ExpressionFactory expressionBuilder, IContainerContext containerContext)
+            : this(expressionBuilder, containerContext, new DelegateCacheProvider(), null)
         { }
 
-        private ResolutionScope(ResolutionStrategy resolutionStrategy, ExpressionFactory expressionBuilder,
-            IContainerContext containerContext, IResolutionScope parent, DelegateCacheProvider delegateCacheProvider, object name = null)
-            : this(resolutionStrategy, expressionBuilder, containerContext, delegateCacheProvider, name)
+        private ResolutionScope(ExpressionFactory expressionBuilder, IContainerContext containerContext, 
+            IResolutionScope parent, DelegateCacheProvider delegateCacheProvider, object name = null)
+            : this(expressionBuilder, containerContext, delegateCacheProvider, name)
         {
             this.ParentScope = parent;
         }
@@ -109,7 +104,7 @@ namespace Stashbox
         {
             this.ThrowIfDisposed();
 
-            var scope = new ResolutionScope(this.resolutionStrategy, this.expressionFactory,
+            var scope = new ResolutionScope(this.expressionFactory,
                 this.containerContext, this, this.delegateCacheProvider, name);
 
             return attachToParent ? this.AddDisposableTracking(scope) : scope;

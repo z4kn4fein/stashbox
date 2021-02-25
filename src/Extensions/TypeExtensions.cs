@@ -264,9 +264,9 @@ namespace System
             var customAttributes = member.GetCustomAttributes();
             var dependencyName = member.GetDependencyAttribute()?.Name;
 
-            if (registrationContext.InjectionMemberNames.Count != 0 || containerConfiguration.TreatingParameterAndMemberNameAsDependencyNameEnabled)
+            if (registrationContext.DependencyBindings.Count != 0 || containerConfiguration.TreatingParameterAndMemberNameAsDependencyNameEnabled)
             {
-                if (registrationContext.InjectionMemberNames.TryGetValue(member.Name, out var foundNamedDependencyName))
+                if (registrationContext.DependencyBindings.TryGetValue(member.Name, out var foundNamedDependencyName))
                     dependencyName = foundNamedDependencyName;
                 else if (dependencyName == null && containerConfiguration.TreatingParameterAndMemberNameAsDependencyNameEnabled)
                     dependencyName = member.Name;
@@ -363,7 +363,7 @@ namespace System
             var valid = prop.CanWrite && !prop.IsIndexer() &&
                     (prop.GetDependencyAttribute() != null ||
                      publicPropsEnabled && prop.HasPublicSetMethod() || limitedPropsEnabled ||
-                     contextData.InjectionMemberNames.ContainsKey(prop.Name));
+                     contextData.DependencyBindings.ContainsKey(prop.Name));
 
             valid = valid && (containerConfiguration.AutoMemberInjectionFilter == null || containerConfiguration.AutoMemberInjectionFilter(prop));
             valid = valid && (contextData.AutoMemberInjectionFilter == null || contextData.AutoMemberInjectionFilter(prop));
@@ -377,7 +377,7 @@ namespace System
             var valid = !field.IsInitOnly && !field.IsBackingField() &&
                         (field.GetDependencyAttribute() != null ||
                          fieldsEnabled ||
-                         contextData.InjectionMemberNames.ContainsKey(field.Name));
+                         contextData.DependencyBindings.ContainsKey(field.Name));
 
             valid = valid && (containerConfiguration.AutoMemberInjectionFilter == null || containerConfiguration.AutoMemberInjectionFilter(field));
             valid = valid && (contextData.AutoMemberInjectionFilter == null || contextData.AutoMemberInjectionFilter(field));

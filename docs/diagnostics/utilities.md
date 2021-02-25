@@ -1,6 +1,7 @@
 # Utilities
+These are additional utility functions of Stashbox that can be helpful in some cases. 
 
-## Is registered?
+## Is Registered?
 <!-- panels:start -->
 <!-- div:left-panel -->
 There might be cases where you want to find out whether a service is registered into the container or not.
@@ -23,7 +24,7 @@ bool isIJobRegistered = container.IsRegistered<IJob>("DbBackup");
 <!-- tabs:end -->
 <!-- panels:end -->
 
-## Can resolve?
+## Can Resolve?
 <!-- panels:start -->
 <!-- div:left-panel -->
 There might be cases where rather than finding out that a service is registered, you are more interested in that it's resolvable from the container's actual state or not.
@@ -46,7 +47,7 @@ bool isIJobResolvable = container.CanResolve<IJob>("DbBackup");
 <!-- tabs:end -->
 <!-- panels:end -->
 
-## Get all mappings
+## Get All Mappings
 <!-- panels:start -->
 <!-- div:left-panel -->
 You can get all registrations in a key-value pair collection (where the key is the service type and the value is the actual registration) by calling the `.GetRegistrationMappings()` method.
@@ -57,12 +58,12 @@ IEnumerable<KeyValuePair<Type, ServiceRegistration>> mappings =
 ```
 <!-- panels:end -->
 
-## Registration diagnostics
+## Registration Diagnostics
 <!-- panels:start -->
 <!-- div:left-panel -->
 You can get a much more readable version of the registration mappings by calling the `.GetRegistrationDiagnostics()` method.
 
-`RegistrationDiagnosticsInfo` has an overridden `.ToString()` method which returns the info formatted in a human-readable form.
+`RegistrationDiagnosticsInfo` has an overridden `.ToString()` method that returns the mapping details formatted in a human-readable form.
 <!-- div:right-panel -->
 ```cs
 container.Register<IJob, DbBackup>("DbBackupJob");

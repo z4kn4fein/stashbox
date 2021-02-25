@@ -20,7 +20,6 @@ namespace Stashbox.Resolution
         private readonly Utils.Data.Stack<int> circularDependencyBarrier;
 
         internal IContainerContext RequestInitiatorContainerContext { get; }
-        internal IResolutionStrategy ResolutionStrategy { get; }
         internal ExpandableArray<Expression> SingleInstructions { get; private set; }
         internal Tree<ParameterExpression> DefinedVariables { get; private set; }
         internal ExpandableArray<Pair<bool, ParameterExpression>[]> ParameterExpressions { get; private set; }
@@ -33,6 +32,7 @@ namespace Stashbox.Resolution
         internal bool FactoryDelegateCacheEnabled { get; }
         internal Utils.Data.Stack<object> ScopeNames { get; }
         internal bool IsValidationRequest { get; }
+        internal bool IsTopRequest { get; set; }
 
         /// <summary>
         /// True if null result is allowed, otherwise false.
@@ -56,7 +56,6 @@ namespace Stashbox.Resolution
 
         internal ResolutionContext(IEnumerable<object> initialScopeNames,
             IContainerContext currentContainerContext,
-            IResolutionStrategy resolutionStrategy,
             bool isRequestedFromRoot,
             bool nullResultAllowed = false,
             bool isValidationRequest = false,
@@ -79,10 +78,10 @@ namespace Stashbox.Resolution
             this.circularDependencyBarrier = new Utils.Data.Stack<int>();
             this.expressionCache = new Tree<Expression>();
             this.factoryCache = new Tree<Func<IResolutionScope, object>>();
-            this.ResolutionStrategy = resolutionStrategy;
             this.IsRequestedFromRoot = isRequestedFromRoot;
             this.CurrentContainerContext = this.RequestInitiatorContainerContext = currentContainerContext;
             this.FactoryDelegateCacheEnabled = this.PerResolutionRequestCacheEnabled = dependencyOverrides == null;
+            this.IsTopRequest = true;
         }
 
         /// <summary>

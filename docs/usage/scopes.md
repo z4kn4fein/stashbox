@@ -5,7 +5,7 @@ It's an implementation of the unit-of-work pattern; a scope encapsulates a given
 A web application is a fair usage example for scopes as it has a well-defined execution unit that can be bound to a scope - the HTTP request. Every request could have its unique scope attached to the request's lifetime. When a request ends, the scope gets closed, and all the scoped instances will be disposed.
 
 <!-- panels:start -->
-## Creating a scope
+## Creating a Scope
 <!-- div:left-panel -->
 You can create a scope from the container by calling its `.BeginScope()` method.
 
@@ -67,7 +67,7 @@ scope.Dispose();
 
 <!-- panels:end -->
 
-## Named scopes
+## Named Scopes
 
 <!-- panels:start -->
 
@@ -133,7 +133,7 @@ using (var unNamed = container.BeginScope())
 ```
 <!-- panels:end -->
 
-## Service as scope
+## Service As Scope
 
 <!-- panels:start -->
 
@@ -192,7 +192,7 @@ scope.Dispose();
 
 <!-- panels:end -->
 
-## Add instance to a scope
+## Add Instance to a Scope
 
 <!-- panels:start -->
 

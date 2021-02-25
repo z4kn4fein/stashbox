@@ -1,4 +1,4 @@
-# Registration configuration API
+# Registration Configuration API
 
 <!-- panels:start -->
 
@@ -48,7 +48,7 @@ container.Register<IJob, DbBackup>(options => options
 
 <!-- panels:end -->
 
-## General options
+## General Options
 - **WithName(object name)** - Sets the name of the registration. 
   ```cs
   container.Register<ILogger, ConsoleLogger>(config => config.WithName("Console"));
@@ -101,16 +101,24 @@ container.Register<IJob, DbBackup>(options => options
 
   ?> The registered type must implement or extend the additional service type.
 
-## Dependency configuration
-- **WithDependencyBinding(Type dependencyType, object dependencyName)** - Binds a constructor/method parameter to a named registration by the parameter's type. The container will perform a named resolution on the bound dependency.
+## Dependency Configuration
+- **WithDependencyBinding(Type dependencyType, object dependencyName)** - Binds a constructor/method parameter or a property/field to a named registration by the parameter's type. The container will perform a named resolution on the bound dependency.
   ```cs
   container.Register<IUserRepository, UserRepository>(options => options.WithDependencyBinding(typeof(ILogger), "FileLogger"));
   ```
 
-- **WithDependencyBinding(string parameterName, object dependencyName)** - Binds a constructor/method parameter to a named registration by the parameter's name. The container will perform a named resolution on the bound dependency.
+- **WithDependencyBinding(string parameterName, object dependencyName)** - Binds a constructor/method parameter or a property/field to a named registration by the parameter's name. The container will perform a named resolution on the bound dependency.
   ```cs
   container.Register<IUserRepository, UserRepository>(options => options.WithDependencyBinding("logger", "FileLogger"));
   ```
+
+- **WithDependencyBinding(Expression propertyAccessor, object dependencyName = null)** - Marks a member (property/field) as a dependency that should be filled by the container.
+  ```cs
+  container.Register<IUserRepository, UserRepository>(options => options.WithDependencyBinding(logger => logger.Logger, "ConsoleLogger"));
+  ```
+
+  ?> The second parameter used to set the name of the dependency. 
+
 
 ## Lifetime
 - **WithLifetime(ILifetime lifetime)** - Sets a custom lifetime for the registration.
@@ -153,7 +161,7 @@ container.Register<IJob, DbBackup>(options => options
       .When(typeInfo => typeInfo.ParentType == typeof(UserRepository)));
   ```
 
-## Constructor selection
+## Constructor Selection
 - **WithConstructorSelectionRule(Func<IEnumerable<ConstructorInformation>, IEnumerable<ConstructorInformation>> rule)** - Sets the constructor selection rule for the registration.
   ```cs
   container.Register<ILogger, ConsoleLogger>(options => options.WithConstructorSelectionRule());
@@ -182,7 +190,7 @@ container.Register<IJob, DbBackup>(options => options
       .WithConstructorByArguments(new ConsoleLogger()));
   ```
 
-## Property/field injection
+## Property/Field Injection
 - **WithAutoMemberInjection(AutoMemberInjectionRules rule)** - Enables the auto member injection and sets the rule for it.
   ```cs
   container.Register<IUserRepository, UserRepository>(options => options.WithAutoMemberInjection(...));
@@ -214,18 +222,7 @@ container.Register<IJob, DbBackup>(options => options
 
   ?> With the filter above, the container will exclude all the class members with the type `ILogger` from auto injection.
 
-- **InjectMember(string memberName, object dependencyName = null)** - Marks a member (property/field) as a dependency, which should be filled by the container.
-  ```cs
-  container.Register<IUserRepository, UserRepository>(options => options.InjectMember("Logger", "ConsoleLogger"));
-  ```
-- **InjectMember(Expression propertyAccessor, object dependencyName = null)** - Marks a member (property/field) as a dependency that should be filled by the container.
-  ```cs
-  container.Register<IUserRepository, UserRepository>(options => options.InjectMember(logger => logger.Logger, "ConsoleLogger"));
-  ```
-
-  ?> The second parameter used to set the name of the dependency. 
-
-## Injection parameters
+## Injection Parameters
 - **WithInjectionParameters(params KeyValuePair<string, object>[] injectionParameters)** - Sets injection parameters for the registration.
   ```cs
   container.Register<IUserRepository, UserRepository>(options => 
@@ -243,9 +240,9 @@ container.Register<IJob, DbBackup>(options => options
       .WithFactory(resolver => new UserRepository(resolver.Resolve<ILogger>("FileLogger")));
   ```
 
-  ?> You can use a parameterless delegate as well: `.WithFactory(() => new ConsoleLogger());`
+  ?> You can use a parameter-less delegate as well: `.WithFactory(() => new ConsoleLogger());`
 
-## Scope definition
+## Scope Definition
 - **InNamedScope(object scopeName)** - Sets a scope name condition for the registration, it will be used only when a scope with the same name requests it.
   ```cs
   container.Register<IUserRepository, UserRepository>(options => options.InNamedScope("UserRepo"));

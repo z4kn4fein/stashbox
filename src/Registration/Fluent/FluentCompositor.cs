@@ -13,12 +13,21 @@ namespace Stashbox.Registration.Fluent
     internal interface IFluentCompositor<TImplementation, TConfigurator>
     {
         /// <summary>
-        /// Set a member (property / field) as a dependency should be filled by the container.
+        /// Sets a member (property / field) as a dependency that should be filled by the container.
         /// </summary>
         /// <param name="expression">The member expression.</param>
         /// <param name="dependencyName">The name of the dependency.</param>
         /// <returns>The configurator itself.</returns>
+        [Obsolete("Use WithDependencyBinding() instead.")]
         TConfigurator InjectMember<TResult>(Expression<Func<TImplementation, TResult>> expression, object dependencyName = null);
+
+        /// <summary>
+        /// Sets a member (property / field) as a dependency that should be filled by the container.
+        /// </summary>
+        /// <param name="expression">The member expression.</param>
+        /// <param name="dependencyName">The name of the dependency.</param>
+        /// <returns>The configurator itself.</returns>
+        TConfigurator WithDependencyBinding<TResult>(Expression<Func<TImplementation, TResult>> expression, object dependencyName = null);
 
         /// <summary>
         /// Sets a delegate which will be called when the container is being disposed.
@@ -37,17 +46,57 @@ namespace Stashbox.Registration.Fluent
         /// <summary>
         /// Sets a parameter-less factory delegate for the registration.
         /// </summary>
-        /// <param name="singleFactory">The factory delegate.</param>
+        /// <param name="factory">The factory delegate.</param>
         /// <param name="isCompiledLambda">Flag that indicates the passed factory delegate is a compiled lambda from <see cref="Expression"/>.</param>
         /// <returns>The configurator itself.</returns>
-        TConfigurator WithFactory(Func<TImplementation> singleFactory, bool isCompiledLambda = false);
+        TConfigurator WithFactory(Func<TImplementation> factory, bool isCompiledLambda = false);
 
         /// <summary>
         /// Sets a container factory delegate for the registration.
         /// </summary>
-        /// <param name="containerFactory">The container factory delegate.</param>
+        /// <param name="factory">The container factory delegate.</param>
         /// <param name="isCompiledLambda">Flag that indicates the passed factory delegate is a compiled lambda from <see cref="Expression"/>.</param>
         /// <returns>The configurator itself.</returns>
-        TConfigurator WithFactory(Func<IDependencyResolver, TImplementation> containerFactory, bool isCompiledLambda = false);
+        TConfigurator WithFactory(Func<IDependencyResolver, TImplementation> factory, bool isCompiledLambda = false);
+
+        /// <summary>
+        /// Sets a container factory delegate for the registration.
+        /// </summary>
+        /// <param name="factory">The container factory delegate.</param>
+        /// <param name="isCompiledLambda">Flag that indicates the passed factory delegate is a compiled lambda from <see cref="Expression"/>.</param>
+        /// <returns>The configurator itself.</returns>
+        TConfigurator WithFactory<T1>(Func<T1, TImplementation> factory, bool isCompiledLambda = false);
+
+        /// <summary>
+        /// Sets a container factory delegate for the registration.
+        /// </summary>
+        /// <param name="factory">The container factory delegate.</param>
+        /// <param name="isCompiledLambda">Flag that indicates the passed factory delegate is a compiled lambda from <see cref="Expression"/>.</param>
+        /// <returns>The configurator itself.</returns>
+        TConfigurator WithFactory<T1, T2>(Func<T1, T2, TImplementation> factory, bool isCompiledLambda = false);
+
+        /// <summary>
+        /// Sets a container factory delegate for the registration.
+        /// </summary>
+        /// <param name="factory">The container factory delegate.</param>
+        /// <param name="isCompiledLambda">Flag that indicates the passed factory delegate is a compiled lambda from <see cref="Expression"/>.</param>
+        /// <returns>The configurator itself.</returns>
+        TConfigurator WithFactory<T1, T2, T3>(Func<T1, T2, T3, TImplementation> factory, bool isCompiledLambda = false);
+
+        /// <summary>
+        /// Sets a container factory delegate for the registration.
+        /// </summary>
+        /// <param name="factory">The container factory delegate.</param>
+        /// <param name="isCompiledLambda">Flag that indicates the passed factory delegate is a compiled lambda from <see cref="Expression"/>.</param>
+        /// <returns>The configurator itself.</returns>
+        TConfigurator WithFactory<T1, T2, T3, T4>(Func<T1, T2, T3, T4, TImplementation> factory, bool isCompiledLambda = false);
+
+        /// <summary>
+        /// Sets a container factory delegate for the registration.
+        /// </summary>
+        /// <param name="factory">The container factory delegate.</param>
+        /// <param name="isCompiledLambda">Flag that indicates the passed factory delegate is a compiled lambda from <see cref="Expression"/>.</param>
+        /// <returns>The configurator itself.</returns>
+        TConfigurator WithFactory<T1, T2, T3, T4, T5>(Func<T1, T2, T3, T4, T5, TImplementation> factory, bool isCompiledLambda = false);
     }
 }

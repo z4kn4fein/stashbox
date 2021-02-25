@@ -32,6 +32,22 @@ namespace Stashbox.Tests
         }
 
         [Fact]
+        public void ReMapTests_Replace_PreserveOrder()
+        {
+            using var container = new StashboxContainer();
+            container.Register<ITest1, Test1>(context => context.WithName("test"));
+            container.Register<ITest1, Test12>(context => context.WithName("test2"));
+
+            var toReplace = container.GetRegistrationMappings().Single(r => "test".Equals(r.Value.RegistrationContext.Name));
+
+            container.Register<ITest1, Test11>(context => context.WithName("test").ReplaceExisting());
+
+            var newReg = container.GetRegistrationMappings().Single(r => "test".Equals(r.Value.RegistrationContext.Name));
+
+            Assert.Equal(toReplace.Value.RegistrationOrder, newReg.Value.RegistrationOrder);
+        }
+
+        [Fact]
         public void ReMapTests_Replace_Enumerable_Named()
         {
             using var container = new StashboxContainer();

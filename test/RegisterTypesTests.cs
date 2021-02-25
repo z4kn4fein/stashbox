@@ -225,6 +225,21 @@ namespace Stashbox.Tests
         }
 
         [Fact]
+        public void RegistersTests_AsImplementedTypes_Interfaces_NoDuplicate()
+        {
+            var container = new StashboxContainer();
+            container.Register<Test12>(context => context.AsImplementedTypes().AsImplementedTypes().AsServiceAlso<ITest1>().AsImplementedTypes());
+
+            var regs = container.ContainerContext.RegistrationRepository.GetRegistrationMappings().OrderBy(r => r.Key.Name).ToArray();
+
+            Assert.Equal(4, regs.Length);
+            Assert.Same(regs[0].Key, typeof(ITest));
+            Assert.Same(regs[1].Key, typeof(ITest1));
+            Assert.Same(regs[2].Key, typeof(ITest2));
+            Assert.Same(regs[3].Key, typeof(Test12));
+        }
+
+        [Fact]
         public void RegistersTests_AsImplementedTypes_Interfaces_ReMap()
         {
             var container = new StashboxContainer();

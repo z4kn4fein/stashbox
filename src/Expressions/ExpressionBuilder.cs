@@ -1,4 +1,5 @@
-﻿using Stashbox.Lifetime;
+﻿using Stashbox.Exceptions;
+using Stashbox.Lifetime;
 using Stashbox.Registration;
 using Stashbox.Resolution;
 using Stashbox.Utils;
@@ -42,8 +43,7 @@ namespace Stashbox.Expressions
 
             return serviceRegistration.RegistrationType switch
             {
-                RegistrationType.Factory => this.GetExpressionForFactory(serviceRegistration, resolutionContext,
-                    requestedType),
+                RegistrationType.Factory => this.GetExpressionForFactory(serviceRegistration, resolutionContext, requestedType),
                 RegistrationType.Instance => serviceRegistration.RegistrationContext.ExistingInstance.AsConstant(),
                 RegistrationType.WireUp => this.expressionFactory.ConstructBuildUpExpression(serviceRegistration,
                     resolutionContext, serviceRegistration.RegistrationContext.ExistingInstance.AsConstant(),

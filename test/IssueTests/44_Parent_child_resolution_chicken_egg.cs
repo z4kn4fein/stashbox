@@ -11,8 +11,8 @@ namespace Stashbox.Tests.IssueTests
         {
             var container = new StashboxContainer(options => options.WithCircularDependencyWithLazy());
             var instance = container
-                .Register<IPsnServer, PsnServer>(options => options.InjectMember(server => server.LatencyCheck).WithSingletonLifetime())
-                .Register<ILatencyCheck, LatencyCheck>(options => options.InjectMember(check => check.Server).WithSingletonLifetime())
+                .Register<IPsnServer, PsnServer>(options => options.WithDependencyBinding(server => server.LatencyCheck).WithSingletonLifetime())
+                .Register<ILatencyCheck, LatencyCheck>(options => options.WithDependencyBinding(check => check.Server).WithSingletonLifetime())
                 .Resolve<IPsnServer>();
 
             Assert.Same(instance, instance.LatencyCheck.Value.Server);

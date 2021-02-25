@@ -14,7 +14,8 @@ namespace Stashbox
             this.ParentContext = parentContext;
             this.RegistrationRepository = new RegistrationRepository(containerConfiguration);
             this.DecoratorRepository = new DecoratorRepository();
-            this.RootScope = new ResolutionScope(resolutionStrategy, expressionFactory, this);
+            this.RootScope = new ResolutionScope(expressionFactory, this);
+            this.ResolutionStrategy = resolutionStrategy;
         }
 
         public IRegistrationRepository RegistrationRepository { get; }
@@ -25,6 +26,9 @@ namespace Stashbox
 
         public IResolutionScope RootScope { get; }
 
+        public IResolutionStrategy ResolutionStrategy { get; }
+
         public ContainerConfiguration ContainerConfiguration { get; internal set; }
+
     }
 }

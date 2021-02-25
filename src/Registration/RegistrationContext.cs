@@ -17,21 +17,6 @@ namespace Stashbox.Registration
         internal static readonly RegistrationContext Empty = new RegistrationContext();
 
         /// <summary>
-        /// Indicates that the current registration should replace an existing one.
-        /// </summary>
-        public bool ReplaceExistingRegistration { get; internal set; }
-
-        /// <summary>
-        /// Indicates that the current registration should replace an existing one but only if there is an existing one to replace.
-        /// </summary>
-        public bool ReplaceExistingRegistrationOnlyIfExists { get; internal set; }
-
-        /// <summary>
-        /// Contains the additional service types the current registration mapped to.
-        /// </summary>
-        public IEnumerable<Type> AdditionalServiceTypes { get; internal set; }
-
-        /// <summary>
         /// Name of the registration.
         /// </summary>
         public object Name { get; internal set; }
@@ -39,17 +24,12 @@ namespace Stashbox.Registration
         /// <summary>
         /// Container factory of the registration.
         /// </summary>
-        public Delegate ContainerFactory { get; internal set; }
+        public Delegate Factory { get; internal set; }
 
         /// <summary>
-        /// Parameterless factory of the registration.
+        /// Parameters to inject for the factory registration.
         /// </summary>
-        public Delegate SingleFactory { get; internal set; }
-
-        /// <summary>
-        /// Injection parameters of the registration.
-        /// </summary>
-        public IEnumerable<KeyValuePair<string, object>> InjectionParameters { get; internal set; }
+        public Type[] FactoryParameters { get; internal set; }
 
         /// <summary>
         /// The selected constructor if any was set.
@@ -65,26 +45,6 @@ namespace Stashbox.Registration
         /// Lifetime of the registration.
         /// </summary>
         public LifetimeDescriptor Lifetime { get; internal set; }
-
-        /// <summary>
-        /// Target type condition of the registration.
-        /// </summary>
-        public Type TargetTypeCondition { get; internal set; }
-
-        /// <summary>
-        /// Resolution condition of the registration.
-        /// </summary>
-        public Func<TypeInformation, bool> ResolutionCondition { get; internal set; }
-
-        /// <summary>
-        /// Attribute condition collection of the registration.
-        /// </summary>
-        public IEnumerable<Type> AttributeConditions { get; internal set; }
-
-        /// <summary>
-        /// Member names which are explicitly set to be filled by the container.
-        /// </summary>
-        public Dictionary<string, object> InjectionMemberNames { get; internal set; }
 
         /// <summary>
         /// Dependency names or types that are bound to named registrations.
@@ -122,7 +82,7 @@ namespace Stashbox.Registration
         public bool IsLifetimeExternallyOwned { get; internal set; }
 
         /// <summary>
-        /// Holds the func delegate, if the registration is a factory.
+        /// The delegate to resolve when the registration is a 'Func{}'.
         /// </summary>
         public Delegate FuncDelegate { get; internal set; }
 
@@ -151,12 +111,21 @@ namespace Stashbox.Registration
         /// </summary>
         public Func<MemberInfo, bool> AutoMemberInjectionFilter { get; internal set; }
 
+        internal ExpandableArray<Type> TargetTypeConditions { get; set; }
+        internal ExpandableArray<Func<TypeInformation, bool>> ResolutionConditions { get; set; }
+        internal ExpandableArray<Type> AttributeConditions { get; set; }
+        internal bool ReplaceExistingRegistration { get; set; }
+        internal bool ReplaceExistingRegistrationOnlyIfExists { get; set; }
+        internal ExpandableArray<Type> AdditionalServiceTypes { get; set; }
+        internal ExpandableArray<KeyValuePair<string, object>> InjectionParameters { get; set; }
+
         internal RegistrationContext()
         {
             this.AttributeConditions = new ExpandableArray<Type>();
+            this.TargetTypeConditions = new ExpandableArray<Type>();
+            this.ResolutionConditions = new ExpandableArray<Func<TypeInformation, bool>>();
             this.AdditionalServiceTypes = new ExpandableArray<Type>();
             this.InjectionParameters = new ExpandableArray<KeyValuePair<string, object>>();
-            this.InjectionMemberNames = new Dictionary<string, object>();
             this.DependencyBindings = new Dictionary<object, object>();
         }
     }

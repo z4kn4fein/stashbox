@@ -6,11 +6,11 @@ using Xunit;
 namespace Stashbox.Tests
 {
 
-    public class FactoryBuildUpTests
+    public class FactoryTests
     {
         [Theory]
         [ClassData(typeof(CompilerTypeTestData))]
-        public void FactoryBuildUpTests_DependencyResolve(CompilerType compilerType)
+        public void FactoryTests_DependencyResolve(CompilerType compilerType)
         {
             using var container = new StashboxContainer(c => c.WithCompiler(compilerType));
             container.Register<ITest, Test>(context => context.WithFactory(() => new Test("test")));
@@ -24,7 +24,7 @@ namespace Stashbox.Tests
 
         [Theory]
         [ClassData(typeof(CompilerTypeTestData))]
-        public void FactoryBuildUpTests_DependencyResolve_ServiceUpdated(CompilerType compilerType)
+        public void FactoryTests_DependencyResolve_ServiceUpdated(CompilerType compilerType)
         {
             using var container = new StashboxContainer(c => c.WithCompiler(compilerType));
             container.Register<ITest, Test>(context => context.WithFactory(() => new Test("test")));
@@ -38,7 +38,7 @@ namespace Stashbox.Tests
 
         [Theory]
         [ClassData(typeof(CompilerTypeTestData))]
-        public void FactoryBuildUpTests_Resolve(CompilerType compilerType)
+        public void FactoryTests_Resolve(CompilerType compilerType)
         {
             using var container = new StashboxContainer(c => c.WithCompiler(compilerType));
             container.Register<ITest, Test>(context => context.WithFactory(() => new Test("test")));
@@ -52,7 +52,7 @@ namespace Stashbox.Tests
 
         [Theory]
         [ClassData(typeof(CompilerTypeTestData))]
-        public void FactoryBuildUpTests_Resolve_NotSame(CompilerType compilerType)
+        public void FactoryTests_Resolve_NotSame(CompilerType compilerType)
         {
             using var container = new StashboxContainer(c => c.WithCompiler(compilerType));
             container.Register<ITest, Test>(context =>
@@ -71,7 +71,7 @@ namespace Stashbox.Tests
 
         [Theory]
         [ClassData(typeof(CompilerTypeTestData))]
-        public void FactoryBuildUpTests_Resolve_ContainerFactory(CompilerType compilerType)
+        public void FactoryTests_Resolve_ContainerFactory(CompilerType compilerType)
         {
             using var container = new StashboxContainer(c => c.WithCompiler(compilerType));
             container.Register<Test3>();
@@ -84,7 +84,7 @@ namespace Stashbox.Tests
 
         [Theory]
         [ClassData(typeof(CompilerTypeTestData))]
-        public void FactoryBuildUpTests_Resolve_ContainerFactory_Constructor(CompilerType compilerType)
+        public void FactoryTests_Resolve_ContainerFactory_Constructor(CompilerType compilerType)
         {
             using var container = new StashboxContainer(c => c.WithCompiler(compilerType));
             container.Register<Test3>();
@@ -97,7 +97,7 @@ namespace Stashbox.Tests
 
         [Theory]
         [ClassData(typeof(CompilerTypeTestData))]
-        public void FactoryBuildUpTests_Resolve_ContainerFactory_Initializer(CompilerType compilerType)
+        public void FactoryTests_Resolve_ContainerFactory_Initializer(CompilerType compilerType)
         {
             using var container = new StashboxContainer(c => c.WithCompiler(compilerType));
             container.Register<ITest4>(context =>
@@ -109,7 +109,7 @@ namespace Stashbox.Tests
 
         [Theory]
         [ClassData(typeof(CompilerTypeTestData))]
-        public void FactoryBuildUpTests_Resolve_Gets_The_Proper_Scope(CompilerType compilerType)
+        public void FactoryTests_Resolve_Gets_The_Proper_Scope(CompilerType compilerType)
         {
             using var container = new StashboxContainer(c => c.WithCompiler(compilerType));
             container.Register<Test5>(context =>
@@ -119,6 +119,113 @@ namespace Stashbox.Tests
             var t = scope.Resolve<Test5>();
 
             Assert.Same(scope, t.DependencyResolver);
+        }
+
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void FactoryTests_Resolve_With_Param1(CompilerType compilerType)
+        {
+            using var container = new StashboxContainer(c => c.WithCompiler(compilerType));
+            container.Register<TComp>(c => c.AsImplementedTypes());
+            container.Register<Dummy>(context =>
+                context.WithFactory<IT1>(t1 => 
+                { 
+                    Assert.IsType<TComp>(t1);
+                    return new Dummy();    
+                }));
+
+            container.Resolve<Dummy>();
+        }
+
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void FactoryTests_Resolve_With_Param2(CompilerType compilerType)
+        {
+            using var container = new StashboxContainer(c => c.WithCompiler(compilerType));
+            container.Register<TComp>(c => c.AsImplementedTypes());
+            container.Register<Dummy>(context =>
+                context.WithFactory<IT1, IT2>((t1, t2) =>
+                {
+                    Assert.IsType<TComp>(t1);
+                    Assert.IsType<TComp>(t2);
+                    return new Dummy();
+                }));
+
+            container.Resolve<Dummy>();
+        }
+
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void FactoryTests_Resolve_With_Param3(CompilerType compilerType)
+        {
+            using var container = new StashboxContainer(c => c.WithCompiler(compilerType));
+            container.Register<TComp>(c => c.AsImplementedTypes());
+            container.Register<Dummy>(context =>
+                context.WithFactory<IT1, IT2, IT3>((t1, t2, t3) =>
+                {
+                    Assert.IsType<TComp>(t1);
+                    Assert.IsType<TComp>(t2);
+                    Assert.IsType<TComp>(t3);
+                    return new Dummy();
+                }));
+
+            container.Resolve<Dummy>();
+        }
+
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void FactoryTests_Resolve_With_Param4(CompilerType compilerType)
+        {
+            using var container = new StashboxContainer(c => c.WithCompiler(compilerType));
+            container.Register<TComp>(c => c.AsImplementedTypes());
+            container.Register<Dummy>(context =>
+                context.WithFactory<IT1, IT2, IT3, IT4>((t1, t2, t3, t4) =>
+                {
+                    Assert.IsType<TComp>(t1);
+                    Assert.IsType<TComp>(t2);
+                    Assert.IsType<TComp>(t3);
+                    Assert.IsType<TComp>(t4);
+                    return new Dummy();
+                }));
+
+            container.Resolve<Dummy>();
+        }
+
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void FactoryTests_Resolve_With_Param5(CompilerType compilerType)
+        {
+            using var container = new StashboxContainer(c => c.WithCompiler(compilerType));
+            container.Register<TComp>(c => c.AsImplementedTypes());
+            container.Register<Dummy>(context =>
+                context.WithFactory<IT1, IT2, IT3, IT4, IT5>((t1, t2, t3, t4, t5) =>
+                {
+                    Assert.IsType<TComp>(t1);
+                    Assert.IsType<TComp>(t2);
+                    Assert.IsType<TComp>(t3);
+                    Assert.IsType<TComp>(t4);
+                    Assert.IsType<TComp>(t5);
+                    return new Dummy();
+                }));
+
+            container.Resolve<Dummy>();
+        }
+
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void FactoryTests_Resolve_With_Param_With_Resolver(CompilerType compilerType)
+        {
+            using var container = new StashboxContainer(c => c.WithCompiler(compilerType));
+            container.Register<Test5>(context =>
+                context.WithFactory<IDependencyResolver>(resolver =>
+                {
+                    return new Test5(resolver);
+                }));
+
+            using var scope = container.BeginScope();
+            var inst = scope.Resolve<Test5>();
+
+            Assert.Same(scope, inst.DependencyResolver);
         }
 
         interface ITest { string Name { get; } }
@@ -190,5 +297,19 @@ namespace Stashbox.Tests
                 DependencyResolver = dependencyResolver;
             }
         }
+
+        interface IT1 { }
+
+        interface IT2 { }
+
+        interface IT3 { }
+
+        interface IT4 { }
+
+        interface IT5 { }
+
+        class TComp : IT1, IT2, IT3, IT4, IT5 { }
+
+        class Dummy { }
     }
 }

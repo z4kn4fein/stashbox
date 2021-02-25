@@ -202,6 +202,40 @@ namespace Stashbox.Tests
             Assert.IsType<Test1>(test3.test12);
         }
 
+        [Fact]
+        public void ConditionalTests_Combined()
+        {
+            var container = new StashboxContainer();
+            container.Register<ITest1, Test1>(context => context.WhenDependantIs<Test4>().WhenDependantIs<Test5>());
+            container.Register<ITest1, Test11>();
+            container.Register<ITest1, Test12>();
+            container.Register<Test4>();
+            container.Register<Test5>();
+
+            var t1 = container.Resolve<Test4>();
+            var t2 = container.Resolve<Test5>();
+
+            Assert.IsType<Test1>(t1.Test);
+            Assert.IsType<Test1>(t2.Test);
+        }
+
+        [Fact]
+        public void ConditionalTests_Combined_Common()
+        {
+            var container = new StashboxContainer();
+            container.Register<ITest1, Test1>(context => context.When(t => t.ParentType == typeof(Test4)).When(t => t.ParentType == typeof(Test5)));
+            container.Register<ITest1, Test11>();
+            container.Register<ITest1, Test12>();
+            container.Register<Test4>();
+            container.Register<Test5>();
+
+            var t1 = container.Resolve<Test4>();
+            var t2 = container.Resolve<Test5>();
+
+            Assert.IsType<Test1>(t1.Test);
+            Assert.IsType<Test1>(t2.Test);
+        }
+
         interface ITest1 { }
 
         interface ITest2 { ITest1 test1 { get; set; } ITest1 test12 { get; set; } }
@@ -238,6 +272,26 @@ namespace Stashbox.Tests
             {
                 this.test12 = test12;
             }
+        }
+
+        class Test4
+        {
+            public Test4(ITest1 test)
+            {
+                Test = test;
+            }
+
+            public ITest1 Test { get; }
+        }
+
+        class Test5
+        {
+            public Test5(ITest1 test)
+            {
+                Test = test;
+            }
+
+            public ITest1 Test { get; }
         }
 
         [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property | AttributeTargets.Parameter)]
