@@ -44,6 +44,9 @@
     --heading-h2-margin: 25px 0 0 0;
     --heading-h2-padding: 0;
 
+    --heading-h3-margin-top: 12px;
+    --heading-h3-margin: var(--heading-h3-margin-top) 0 0;
+
     --hr-border: 1px solid var(--table-cell-border-color);
 
     --pagination-border-top: 1px solid var(--table-cell-border-color);
@@ -90,6 +93,10 @@ th {
 
 .markdown-section {
     max-width: 1100px !important;
+}
+
+.markdown-section h3:first-child {
+    margin-top: var(--heading-h3-margin-top);
 }
 
 .markdown-section .tip, .markdown-section .warn {

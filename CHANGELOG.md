@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [API changes](https://www.fuget.org/packages/Stashbox/3.6.0/lib/netstandard2.1/diff/3.5.1/)
 
 ### Added
-- Parameterized factory delegates. [Read more](https://z4kn4fein.github.io/stashbox/#/usage/advanced-registration?id=factory-registration).
+- Parameterized factory delegates. [Read more](https://z4kn4fein.github.io/stashbox/#/usage/advanced-registration?id=factory-registration). Also, [here](configuration/registration-configuration?id=factory) is the list of the new factory configuration methods.
 - Multiple conditions from the same type are now combined with **OR** logical operator. [Read more](https://z4kn4fein.github.io/stashbox/#/usage/service-resolution?id=conditional-resolution).
 - Named version of the `.WhenDecoratedServiceIs()` decorator condition. [Read more](https://z4kn4fein.github.io/stashbox/#/advanced/decorators?id=conditional-decoration).
 

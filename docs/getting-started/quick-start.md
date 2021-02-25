@@ -39,19 +39,19 @@ To achieve the most efficient usage of Stashbox, you should follow these steps:
 - Register your services into the container.
 - [Validate](diagnostics/validation) the state of the container and the registrations with the `.Validate()` method. *(Optional)*
 - During the lifetime of the application, use the container to resolve your services.
-- Create [scopes](usage/scopes) and rather use them to resolve your services. *(Optional)*
+- Create [scopes](usage/scopes) and use them to resolve your services. *(Optional)*
 - On application exit, call the container's `.Dispose()` method to clean up the resources. *(Optional)*
 
-?> You should create only a single instance from `StashboxContainer` (plus child containers if you use them) per application domain. It's thread-safe.
+?> You should create only a single instance from `StashboxContainer` (plus child containers if you use them) per application domain. `StashboxContainer` instances are thread-safe.
 
 !> Don't create new `StashboxContainer` instances continuously. Such action will bypass the container's internal delegate cache and could lead to poor performance. 
 
 ## How It Works?
-Stashbox builds and maintains a collection from the registered services. At first, during the service resolution, Stashbox looks for a service registration with a matching service type. Then it scans the registration's implementation type for all available constructors and selects the one with the most arguments it knows how to resolve by looking for matching service registrations again. 
+Stashbox builds and maintains a collection of registered services. At first, when a service is requested, Stashbox looks for a service registration that has a matching service type. Then, it scans the found registration's implementation type for all available constructors and selects one with the most arguments it knows how to resolve by matching their types to other registrations.
 
-When every constructor argument (and field/property if applicable) has a matching registration, Stashbox jumps to the first argument and does the same scanning on its type. 
+When every constructor argument has its matching registration, Stashbox jumps to the first argument and does the same scanning on its type. 
 
-This process is repeated until every injectable dependency in the resolution tree has a matching registration. As a final step, Stashbox instantiates them by calling their constructors and building up the hierarchical object structure. 
+This process is repeated until every injectable dependency in the resolution tree has a matching registration. As a final step, Stashbox instantiates them by calling their constructors and builds up the hierarchical object structure. 
 
 ## Example
 Let's see a quick example. We have three services `DbBackup`, `MessageBus` and `ConsoleLogger`. `DbBackup` has a dependency on `IEventBroadcaster` (implemented by `MessageBus`) and `ILogger` (implemented by `ConsoleLogger`), `MessageBus` also depending on an `ILogger`:

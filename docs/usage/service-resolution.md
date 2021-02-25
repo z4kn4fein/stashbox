@@ -1,5 +1,5 @@
 # Service Resolution
-When you have all your components registered and configured adequately, you can resolve them from the container or a [scope](usage/scopes) by requesting their service type. 
+When you have all your components registered and configured adequately, you can resolve them from the container or from a [scope](usage/scopes) by requesting their service type.
 Resolving from the container means that the requested service (if it's scoped or singleton) will be resolved from the container's root scope.
 
 During a service's resolution, the container automatically walks through the entire dependency hierarchy and resolves all of those required for construction. 

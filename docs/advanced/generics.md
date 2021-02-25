@@ -1,5 +1,5 @@
 # Generics
-This section is about how Stashbox supports various usage scenarios that involve .NET Generic types, including the handling of open-generic, and closed-generic types, [generic decorators](advanced/decorators?id=generic-decorators), conditional resolutions based on generic constraints, and variance.
+This section is about how Stashbox handles various usage scenarios that involve .NET Generic types. Including the registration of open-generic and closed-generic types, [generic decorators](advanced/decorators?id=generic-decorators), conditions based on generic constraints, and variance.
 
 <!-- panels:start -->
 
@@ -7,7 +7,7 @@ This section is about how Stashbox supports various usage scenarios that involve
 ## Closed-Generics
 
 <!-- div:left-panel -->
-Registering and resolving a closed-generic type is not different from registering a simple non-generic service.
+The registration of a closed-generic type does not differ from registering a simple non-generic service.
 
 You have all options available that you saw at the [basic](usage/basics) and [advanced registration](usage/advanced-registration) flows.
 
@@ -31,12 +31,12 @@ object validator = container.Resolve(typeof(IValidator<User>));
 
 ## Open-Generics
 
-Registering an open-generic type is different from registering a closed-generic one as the language itself doesn't allow open-generic types in generic method parameters. We have to get a runtime type from the open-generic type first with `typeof()`.
+The registration of an open-generic type differs from registering a closed-generic one as C# doesn't allow the usage of open-generic types in generic method parameters. We have to get a runtime type from the open-generic type first with `typeof()`.
 
 <!-- panels:start -->
 
 <!-- div:left-panel -->
-Open-generic types could help in such scenarios where you have a generic interface-implementation pair with numerous generic parameters. The registration of the different generic versions would look like this: 
+Open-generic types could help in such scenarios where you have a generic interface-implementation pair with numerous generic parameters. The registration of the different versions would look like this: 
 
 <!-- div:right-panel -->
 ```cs
@@ -50,7 +50,7 @@ container.Register<IValidator<Company>, Validator<Company>>();
 <!-- panels:start -->
 
 <!-- div:left-panel -->
-Rather than doing that, you can register your generic type's open-generic version and let Stashbox create the closed ones for you. When a matching closed service type is requested, the container constructs an equivalent closed-generic implementation.
+Rather than doing that, you can register your type's open-generic version and let Stashbox create the closed ones for you. When a matching closed service type is requested, the container constructs an equivalent closed-generic implementation.
 
 <!-- div:right-panel -->
 

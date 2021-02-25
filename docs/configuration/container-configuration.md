@@ -49,7 +49,8 @@ With this flag, the container will perform auto-injection on properties with pub
 <!-- div:right-panel -->
 ```cs
 new StashboxContainer(options => options
-  .WithAutoMemberInjection(Rules.AutoMemberInjectionRules.PropertiesWithPublicSetter));
+    .WithAutoMemberInjection(
+        Rules.AutoMemberInjectionRules.PropertiesWithPublicSetter));
 ```
 <!-- panels:end -->
 <!-- panels:start -->
@@ -59,7 +60,8 @@ With this flag, the container will perform auto-injection on properties even whe
 <!-- div:right-panel -->
 ```cs
 new StashboxContainer(options => options
-  .WithAutoMemberInjection(Rules.AutoMemberInjectionRules.PropertiesWithLimitedAccess));
+    .WithAutoMemberInjection(
+        Rules.AutoMemberInjectionRules.PropertiesWithLimitedAccess));
 ```
 <!-- panels:end -->
 <!-- panels:start -->
@@ -69,7 +71,8 @@ With this flag, the container will perform auto-injection on private fields too.
 <!-- div:right-panel -->
 ```cs
 new StashboxContainer(options => options
-  .WithAutoMemberInjection(Rules.AutoMemberInjectionRules.PrivateFields));
+    .WithAutoMemberInjection(
+        Rules.AutoMemberInjectionRules.PrivateFields));
 ```
 <!-- panels:end -->
 <!-- panels:start -->
@@ -79,8 +82,8 @@ You can also combine these flags with bitwise logical operators to get a merged 
 <!-- div:right-panel -->
 ```cs
 new StashboxContainer(options => options
-  .WithAutoMemberInjection(Rules.AutoMemberInjectionRules.PrivateFields | 
-    Rules.AutoMemberInjectionRules.PropertiesWithPublicSetter));
+    .WithAutoMemberInjection(Rules.AutoMemberInjectionRules.PrivateFields | 
+        Rules.AutoMemberInjectionRules.PropertiesWithPublicSetter));
 ```
 <!-- panels:end -->
 
@@ -95,7 +98,8 @@ It prefers the constructor which has the most extended parameter list.
 <!-- div:right-panel -->
 ```cs
 new StashboxContainer(options => options
-  .WithConstructorSelectionRule(Rules.ConstructorSelection.PreferMostParameters));
+    .WithConstructorSelectionRule(
+        Rules.ConstructorSelection.PreferMostParameters));
 ```
 <!-- panels:end -->
 <!-- panels:start -->
@@ -105,7 +109,8 @@ It prefers the constructor which has the shortest parameter list.
 <!-- div:right-panel -->
 ```cs
 new StashboxContainer(options => options
-  .WithConstructorSelectionRule(Rules.ConstructorSelection.PreferLeastParameters));
+    .WithConstructorSelectionRule(
+        Rules.ConstructorSelection.PreferLeastParameters));
 ```
 <!-- panels:end -->
 ## Registration Behavior
@@ -117,7 +122,8 @@ The container will skip new registrations when the given implementation type is 
 <!-- div:right-panel -->
 ```cs
 new StashboxContainer(options => options
-  .WithRegistrationBehavior(Rules.RegistrationBehavior.SkipDuplications));
+    .WithRegistrationBehavior(
+        Rules.RegistrationBehavior.SkipDuplications));
 ```
 <!-- panels:end -->
 <!-- panels:start -->
@@ -127,7 +133,8 @@ The container throws an [exception](diagnostics/validation?id=servicealreadyregi
 <!-- div:right-panel -->
 ```cs
 new StashboxContainer(options => options
-  .WithRegistrationBehavior(Rules.RegistrationBehavior.ThrowException));
+    .WithRegistrationBehavior(
+        Rules.RegistrationBehavior.ThrowException));
 ```
 <!-- panels:end -->
 <!-- panels:start -->
@@ -137,7 +144,8 @@ The container will replace the already registered service with the given one whe
 <!-- div:right-panel -->
 ```cs
 new StashboxContainer(options => options
-  .WithRegistrationBehavior(Rules.RegistrationBehavior.ReplaceExisting));
+    .WithRegistrationBehavior(
+        Rules.RegistrationBehavior.ReplaceExisting));
 ```
 <!-- panels:end -->
 <!-- panels:start -->
@@ -147,7 +155,8 @@ The container will keep registering the new services with the same implementatio
 <!-- div:right-panel -->
 ```cs
 new StashboxContainer(options => options
-  .WithRegistrationBehavior(Rules.RegistrationBehavior.PreserveDuplications));
+    .WithRegistrationBehavior(
+        Rules.RegistrationBehavior.PreserveDuplications));
 ```
 <!-- panels:end -->
 
@@ -178,7 +187,7 @@ With this option, you can enable or disable conventional resolution, which means
 <!-- div:right-panel -->
 ```cs
 new StashboxContainer(options => options
-  .TreatParameterAndMemberNameAsDependencyName());
+    .TreatParameterAndMemberNameAsDependencyName());
 ```
 <!-- panels:end -->
 ## Using Named Service for Un-named Requests
@@ -188,7 +197,7 @@ With this option, you can enable or disable the selection of named registrations
 <!-- div:right-panel -->
 ```cs
 new StashboxContainer(options => options
-  .WithNamedDependencyResolutionForUnNamedRequests());
+    .WithNamedDependencyResolutionForUnNamedRequests());
 ```
 <!-- panels:end -->
 
@@ -231,7 +240,7 @@ With this option, you can enable or disable the resolution of unregistered types
 <!-- div:right-panel -->
 ```cs
 new StashboxContainer(options => options
-  .WithUnknownTypeResolution(config => config.AsImplementedTypes()));
+    .WithUnknownTypeResolution(config => config.AsImplementedTypes()));
 ```
 <!-- panels:end -->
 
@@ -242,7 +251,8 @@ With this option, you can set an external expression tree compiler. It can be us
 <!-- div:right-panel -->
 ```cs
 new StashboxContainer(options => options
-  .WithExpressionCompiler(Rules.ExpressionCompilers.MicrosoftExpressionCompiler));
+    .WithExpressionCompiler(
+        Rules.ExpressionCompilers.MicrosoftExpressionCompiler));
 ```
 <!-- panels:end -->
 

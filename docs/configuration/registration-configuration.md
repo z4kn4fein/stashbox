@@ -184,7 +184,7 @@ container.Register<IJob, DbBackup>(options => options
   container.Register<IUserRepository, UserRepository>(options => options
       .WithConstructorByArgumentTypes(typeof(ILogger)));
   ```
-- **WithConstructorByArguments(params object[] arguments)** - Selects a constructor by its arguments to use during resolution, these arguments will be used to invoke the selected constructor.
+- **WithConstructorByArguments(params object[] arguments)** - Selects a constructor by its arguments to use during resolution. These arguments will be used to invoke the selected constructor.
   ```cs
   container.Register<IUserRepository, UserRepository>(options => options
       .WithConstructorByArguments(new ConsoleLogger()));
@@ -220,7 +220,7 @@ container.Register<IJob, DbBackup>(options => options
         .WithAutoMemberInjection(filter: member => member.Type != typeof(ILogger)));
   ```
 
-  ?> With the filter above, the container will exclude all the class members with the type `ILogger` from auto injection.
+  ?> With the filter above, the container will exclude all the class members with the type `ILogger` from auto-injection.
 
 ## Injection Parameters
 - **WithInjectionParameters(params KeyValuePair<string, object>[] injectionParameters)** - Sets injection parameters for the registration.
@@ -233,21 +233,80 @@ container.Register<IJob, DbBackup>(options => options
   container.Register<IUserRepository, UserRepository>(options => options.WithInjectionParameter("logger", new ConsoleLogger());
   ```
 
-## Factory    
-- **WithFactory(Func<IDependencyResolver, object> factory, bool isCompiledLambda = false)** - Sets a delegate factory for the registration.
+## Factory
+- **WithFactory(Func&lt;object&gt; factory)** - Sets a delegate factory that returns an object used to instantiate the service.
   ```cs
-  container.Register<IUserRepository>(options => options
-      .WithFactory(resolver => new UserRepository(resolver.Resolve<ILogger>("FileLogger")));
+  container.Register<IUserRepository, UserRepository>(options => options
+      .WithFactory(resolver => new UserRepository(resolver.Resolve<ILogger>()));
   ```
 
-  ?> You can use a parameter-less delegate as well: `.WithFactory(() => new ConsoleLogger());`
+- **WithFactory(Func&lt;TImplementation&gt; factory)** - Sets a delegate factory that returns an object with the registered implementation type used to instantiate the service.
+  ```cs
+  container.Register<IUserRepository, UserRepository>(options => options
+      .WithFactory(resolver => new UserRepository(resolver.Resolve<ILogger>()));
+  ```
+
+- **WithFactory(Func&lt;IDependencyResolver, object&gt; factory)** - Sets a delegate factory that gets a dependency resolver parameter and returns an object used to instantiate the service.
+  ```cs
+  container.Register<IUserRepository, UserRepository>(options => options
+      .WithFactory(resolver => new UserRepository(resolver.Resolve<ILogger>()));
+  ```
+
+- **WithFactory(Func&lt;IDependencyResolver, TImplementation&gt; factory)** - Sets a delegate factory that gets a dependency resolver parameter and returns an object with the registered implementation type used to instantiate the service.
+  ```cs
+  container.Register<IUserRepository, UserRepository>(options => options
+      .WithFactory(resolver => new UserRepository(resolver.Resolve<ILogger>()));
+  ```
+
+- **WithFactory&lt;TParam1&gt;(Func&lt;TParam1, TImplementation&gt; factory)** - Sets a delegate factory that gets a pre-resolved parameter and returns an object with the registered implementation type used to instantiate the service.
+  ```cs
+  container.Register<IUserRepository, UserRepository>(options => options
+      .WithFactory<ILogger>(logger => new UserRepository(logger));
+  ```
+
+- **WithFactory&lt;TParam1, TParam2&gt;(Func&lt;TParam1, TParam2, TImplementation&gt; factory)** - Sets a delegate factory that gets two pre-resolved parameters and returns an object with the registered implementation type used to instantiate the service.
+  ```cs
+  container.Register<IUserRepository, UserRepository>(options => options
+      .WithFactory<ILogger, IDbContext>((logger, context) => new UserRepository(logger, context));
+  ```
+
+- **WithFactory&lt;TParam1, TParam2, TParam3&gt;(Func&lt;TParam1, TParam2, TParam3, TImplementation&gt; factory)** - Sets a delegate factory that gets three pre-resolved parameters and returns an object with the registered implementation type used to instantiate the service.
+  ```cs
+  container.Register<IUserRepository, UserRepository>(options => options
+      .WithFactory<ILogger, IDbContext, IOptions>((logger, context, options) => 
+          new UserRepository(logger, context, options));
+  ```
+
+- **WithFactory&lt;TParam1, TParam2, TParam3, TParam4&gt;(Func&lt;TParam1, TParam2, TParam3, TParam4, TImplementation&gt; factory)** - Sets a delegate factory that gets four pre-resolved parameters and returns an object with the registered implementation type used to instantiate the service.
+  ```cs
+  container.Register<IUserRepository, UserRepository>(options => options
+      .WithFactory<ILogger, IDbConnection, IOptions, IUserValidator>((logger, connection, options, validator) => 
+          new UserRepository(logger, connection, options, validator));
+  ```
+
+- **WithFactory&lt;TParam1, TParam2, TParam3, TParam4, TParam5&gt;(Func&lt;TParam1, TParam2, TParam3, TParam4, TParam5, TImplementation&gt; factory)** - Sets a delegate factory that gets five pre-resolved parameters and returns an object with the registered implementation type used to instantiate the service.
+  ```cs
+  container.Register<IUserRepository, UserRepository>(options => options
+      .WithFactory<ILogger, IDbConnection, IOptions, IUserValidator, IPermissionManage>(
+          (logger, connection, options, validator, permissionManager) => 
+              new UserRepository(logger, connection, options, validator, permissionManager));
+  ```
+
+You can also get the current dependency resolver as a pre-resolved parameter:
+```cs
+container.Register<IUserRepository, UserRepository>(options => options
+    .WithFactory<ILogger, IDependencyResolver>((logger, resolver) => 
+          new UserRepository(logger, resolver.Resolve<IDbConnection>())));
+```
+
+?> All factory configuration method has an `isCompiledLambda` parameter which should be set to `true` if the passed delegate is compiled from an `Expression` tree.
 
 ## Scope Definition
-- **InNamedScope(object scopeName)** - Sets a scope name condition for the registration, it will be used only when a scope with the same name requests it.
+- **InNamedScope(object scopeName)** - Sets a scope name condition for the registration; it will be used only when a scope with the same name requests it.
   ```cs
   container.Register<IUserRepository, UserRepository>(options => options.InNamedScope("UserRepo"));
   ```
-- **DefinesScope(object scopeName)** - This registration would be used as a logical scope for its dependencies, the dependencies registered with the `InNamedScope()` setting with the same name are preferred during the resolution.
+- **DefinesScope(object scopeName)** - This registration would be used as a logical scope for its dependencies. The dependencies registered with the `InNamedScope()` setting with the same name are preferred during the resolution.
   ```cs
   container.Register<IUserRepository, UserRepository>(options => options.DefinesScope("UserRepo"));
   ```

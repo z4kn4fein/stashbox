@@ -11,9 +11,9 @@ This section is about Stashbox's further configuration options, including the re
 <!-- div:left-panel -->
 You have the option to bind a factory delegate to a registration that the container will invoke directly to instantiate your service. 
 
-You can use parameter-less and custom parameterized delegates as a factory.
+You can use parameter-less and custom parameterized delegates as a factory. [Here](configuration/registration-configuration?id=factory) is the list of all available options.
 
-You can also get the current dependency resolver as a delegate parameter used to resolve any additional dependencies required for the service construction.
+You can also get the current dependency resolver as a delegate parameter used to resolve any additional dependencies required for service construction.
 
 <!-- div:right-panel -->
 
