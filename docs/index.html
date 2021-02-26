@@ -12,6 +12,7 @@
 </head>
 <body>
   <div id="app"></div>
+  <script src="assets/js/main.js"></script>
   <script>
     window.$docsify = {
       loadSidebar: true,
@@ -50,69 +51,11 @@
         '.*?/changelog': 'https://raw.githubusercontent.com/z4kn4fein/stashbox/master/CHANGELOG.md',
       },
 
-      formatUpdated: function (time) {
-        let date = new Date(time);
-        return date.toLocaleDateString();
-      },
-
       onlyCover: true,
 
       plugins: [
-        function (hook, vm) {
-          hook.beforeEach(function (html) {
-            if (/CHANGELOG\.md/.test(vm.route.file)) {
-              return html;
-            } else if (/githubusercontent\.com/.test(vm.route.file)) {
-              url = vm.route.file
-                .replace('raw.githubusercontent.com', 'github.com')
-                .replace(/\/master/, '/blob/master')
-            } else {
-              url = 'https://github.com/z4kn4fein/stashbox/edit/master/docs/' + vm.route.file
-            }
-            var editHtml = '[<img src="assets/images/github.svg" class="gh-prefix" alt="GitHub" width=18>Edit this page on GitHub](' + url + ') - <span class="last-modified">*(modified: {docsify-updated})*</span>\n\n'
-            return editHtml + html;
-          })
-        },
-
-        function (hook, vm) {
-          hook.beforeEach(function(content,next) {
-            if(window.location.hash.match(/_glossary/g)){
-              next(content);
-              return;
-            }
-
-            let addLinks = function(content,next,terms){
-              for (let term in terms){
-                let link = ` [$1](/_glossary?id=${terms[term]})`;
-                let re = new RegExp(`\\ (${term})`,'ig');
-                content = content.replace(re,link);
-              }
-              next(content);
-            }
-
-            if(!window.$docsify.terms){
-              fetch('_glossary.md').then(function(data){
-                data.text().then(function(text){
-                  window.$docsify.terms = {};
-                  let lines = text.split('\n');
-                  lines.forEach(function(line){
-                    if(line.match(/##/g)){
-                      let title = line.replace('##','').trim();
-                      let id = title.toLowerCase().replaceAll(' | ','-').replaceAll(' ','-');
-                      title.split('|').forEach(function(term) {
-                        window.$docsify.terms[term.trim()] = id;
-                      });                 
-                    }
-                  });
-
-                  addLinks(content,next,window.$docsify.terms);
-                })
-              })
-            } else{
-              addLinks(content,next,window.$docsify.terms);
-            }
-          })
-        },       
+        editOnGithubPlugin,
+        glossaryPlugin,       
       ]
     }
   </script>
