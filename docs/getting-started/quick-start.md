@@ -47,11 +47,11 @@ To achieve the most efficient usage of Stashbox, you should follow these steps:
 !> Don't create new `StashboxContainer` instances continuously. Such action will bypass the container's internal delegate cache and could lead to poor performance. 
 
 ## How It Works?
-Stashbox builds and maintains a collection of registered services. At first, when a service is requested, Stashbox looks for a service registration that has a matching service type. Then, it scans the found registration's implementation type for all available constructors and selects one with the most arguments it knows how to resolve by matching their types to other registrations.
+Stashbox builds and maintains a collection of registered services. When a service is requested, Stashbox starts looking for a matching registration with the same service type. If it finds one, the container initiates a scan on the implementation type's available constructors and selects the one with the most arguments it knows how to resolve by matching argument types to other registrations.
 
-When every constructor argument has its matching registration, Stashbox jumps to the first argument and does the same scanning on its type. 
+When every constructor argument has a companion registration, Stashbox jumps to the first one and continues the same scanning operation. 
 
-This process is repeated until every injectable dependency in the resolution tree has a matching registration. As a final step, Stashbox instantiates them by calling their constructors and builds up the hierarchical object structure. 
+This process is repeated until every injectable dependency will have a match in the resolution tree. At the end of the process, Stashbox has each dependency node built-up in a hierarchical object structure to instantiate the initially requested service object.
 
 ## Example
 Let's see a quick example. We have three services `DbBackup`, `MessageBus` and `ConsoleLogger`. `DbBackup` has a dependency on `IEventBroadcaster` (implemented by `MessageBus`) and `ILogger` (implemented by `ConsoleLogger`), `MessageBus` also depending on an `ILogger`:
