@@ -1,4 +1,4 @@
-# Container Configuration API
+# Container Configuration
 
 <!-- panels:start -->
 <!-- div:left-panel -->

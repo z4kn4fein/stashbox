@@ -1,9 +1,8 @@
 # Service Resolution
-When you have all your components registered and configured adequately, you can resolve them from the container or from a [scope](usage/scopes) by requesting their service type.
-Resolving from the container means that the requested service (if it's scoped or singleton) will be resolved from the container's root scope.
+When you have all your components registered and configured adequately, you can resolve them from the container or a [scope](usage/scopes) by requesting their service type.
 
-During a service's resolution, the container automatically walks through the entire dependency hierarchy and resolves all of those required for construction. 
-When it encounters any violations of [these validation rules](diagnostics/validation?id=resolution-validation) *(circular dependencies, missing required services, lifetime misconfigurations)* during the walkthrough, it lets you know that something is wrong by throwing the appropriate [exception](diagnostics/exceptions).
+During a service's resolution, the container walks through the entire dependency hierarchy and instantiates all of those required for the service construction.
+When it encounters any violations of [these validation rules](diagnostics/validation?id=resolution-validation) *(circular dependencies, missing required services, lifetime misconfigurations)* during the walkthrough, it lets you know that something is wrong by throwing the related exception.
 
 <!-- panels:start -->
 
@@ -77,12 +76,12 @@ IJob job = container.Resolve<IJob>();
 ## Attributes
 
 <!-- div:left-panel -->
-Attributes give you control over how Stashbox selects dependencies during a service's resolution.
+Attributes give you control over how Stashbox selects dependencies for a service's resolution.
 
 **Dependency attribute**: 
 - **On a constructor/method parameter**: used with the *name* property, it works as a marker for named resolution.
 
-- **On a property/field**: first, it enables the *auto-injection* of the marked member (without configuring it explicitly during registration), and just as with the method parameter, it allows named resolution.
+- **On a property/field**: first, it enables the *auto-injection* of the marked property/field (even if it wasn't configured at registration), and just as with the method parameter, it allows named resolution.
 
 **InjectionMethod attribute**: marks a method to be called when the requested service is being instantiated.
 
@@ -165,7 +164,7 @@ The same dependency configuration as attributes have is available using the regi
 
 **Bind to parameter**: it has the same functionality as the [Dependency attribute](usage/service-resolution?id=attributes) on a constructor or method parameter, enables the named resolution.
 
-**Bind to property/field**: it has the same functionality as the [Dependency attribute](usage/service-resolution?id=attributes) on a property or field, enables the injection of the given member.
+**Bind to property/field**: it has the same functionality as the [Dependency attribute](usage/service-resolution?id=attributes); it enables the injection of the given property/field.
 
 ?> There are more overloads [available](configuration/registration-configuration?id=dependency-configuration).
 

@@ -11,7 +11,7 @@ function editOnGithubPlugin(hook, vm) {
           url = 'https://github.com/z4kn4fein/stashbox/edit/master/docs/' + vm.route.file
         }
 
-        fetch('https://api.github.com/repos/z4kn4fein/stashbox/commits?path=docs/' + vm.route.file)
+        fetch('https://api.github.com/repos/z4kn4fein/stashbox/commits?per_page=1&path=docs/' + vm.route.file)
             .then((response) => {
                 if (!response.ok) {
                     throw new Error();

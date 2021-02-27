@@ -1,4 +1,4 @@
-# Registration Configuration API
+# Registration Configuration
 
 <!-- panels:start -->
 
