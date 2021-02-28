@@ -2,17 +2,15 @@
 This section is about the basics of Stashbox's API. It will give you a good starting point for more advanced topics described in the following sections. 
 Stashbox provides several methods that enable registering services, and we'll go through the most common scenarios with code examples.
 
+## Default Registration
 <!-- panels:start -->
 
-<!-- div:title-panel -->
-## Default Registration
-
 <!-- div:left-panel -->
-Stashbox allows registration operations via `Register()` methods. 
+Stashbox allows registration operations via the `Register()` methods. 
 
 During registration, the container checks whether the service type is assignable from the implementation type and if not, the container throws an [exception](diagnostics/validation?id=registration-validation). 
 
-Also, when the implementation is not resolvable (when it's an interface or abstract class), the container throws the same [exception](diagnostics/validation?id=registration-validation).
+Also, when the implementation is not resolvable, the container throws the same [exception](diagnostics/validation?id=registration-validation).
 
 The example registers `DbBackup` to be returned when `IJob` is requested.
 
@@ -44,7 +42,7 @@ container.Register(typeof(IJob), typeof(IJob));
 <!-- panels:start -->
 
 <!-- div:left-panel -->
-You can also register a service to itself without specifying a service type, only the implementation type. 
+You can register a service to itself without specifying a service type, only the implementation. 
 
 In this case, the given implementation is considered as the service type and must be used for requesting the service (`DbBackup` in the example).
 
@@ -79,10 +77,8 @@ var job = container.Register<IJob, DbBackup>()
 
 <!-- panels:end -->
 
-<!-- panels:start -->
-
-<!-- div:title-panel -->
 ## Named Registration
+<!-- panels:start -->
 
 <!-- div:left-panel -->
 The example shows how you can bind more implementations to a service type using names for identification. 
@@ -110,10 +106,8 @@ object cleanup = container.Resolve(typeof(IJob), "StorageCleanup");
 
 <!-- panels:end -->
 
-<!-- panels:start -->
-
-<!-- div:title-panel -->
 ## Instance Registration
+<!-- panels:start -->
 
 <!-- div:left-panel -->
 With instance registration, you can provide an already created external instance to use when the given service type is requested.
@@ -177,13 +171,11 @@ IEnumerable<IJob> jobs = container.ResolveAll<IJob>();
 
 <!-- panels:end -->
 
+## Re-mapping
 <!-- panels:start -->
 
-<!-- div:title-panel -->
-## Re-mapping
-
 <!-- div:left-panel -->
-With re-map, you can replace all implementations registered to a service type. 
+With re-map, you can bind new implementations to a service type and delete its old registrations in one action. 
 
 !> When there are multiple registrations mapped to a service type, `.ReMap()` will replace all of them with the given implementation type. If you want to replace only one specified service, use the `.ReplaceExisting()` [configuration option](configuration/registration-configuration?id=replace).
 
@@ -217,10 +209,8 @@ jobs = container.ResolveAll(typeof(IJob));
 
 <!-- panels:end -->
 
-<!-- panels:start -->
-
-<!-- div:title-panel -->
 ## Wiring Up
+<!-- panels:start -->
 
 <!-- div:left-panel -->
 Wiring up is similar to the [Instance registration](#instance-registration) except that the container will perform property/field injection (if configured so and applicable) on the registered instance during resolution.
@@ -242,10 +232,8 @@ object job = container.Resolve(typeof(IJob));
 
 <!-- panels:end -->
 
-<!-- panels:start -->
-
-<!-- div:title-panel -->
 ## Lifetime Shortcuts
+<!-- panels:start -->
 
 <!-- div:left-panel -->
 The service's lifetime indicates how long the service's instance will live and the re-using policy applied when it gets injected.

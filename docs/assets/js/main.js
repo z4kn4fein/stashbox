@@ -19,13 +19,14 @@ function editOnGithubPlugin(hook, vm) {
                 return response.json();
             })
             .then((commits) => {
-                var modified = commits[0]['commit']['committer']['date'].slice(0,10);
+                let modified = commits[0]['commit']['committer']['date'].slice(0,10);
+                let modifiedBy = commits[0]['commit']['committer']['name'];
                 let modifiedDate = new Date(modified);
-                let editSection = '[<img src="assets/images/github.svg" class="gh-prefix" alt="GitHub" width=18>Edit this page on GitHub](' + url + ') - <span class="last-modified">*(modified: '+ modifiedDate.toLocaleDateString() +')*</span>\n\n';
+                let editSection = '[<img src="assets/images/github.svg" class="gh-prefix" alt="GitHub" width=18>Edit this page](' + url + ') - <span class="last-modified">*(last updated: <strong>'+ modifiedDate.toLocaleDateString() +'</strong> by <strong>'+ modifiedBy +'</strong>)*</span>\n\n';
                 next(editSection + content);
             })
             .catch(_ => {
-                let editSection = '[<img src="assets/images/github.svg" class="gh-prefix" alt="GitHub" width=18>Edit this page on GitHub](' + url + ')\n\n';
+                let editSection = '[<img src="assets/images/github.svg" class="gh-prefix" alt="GitHub" width=18>Edit this page](' + url + ')\n\n';
                 next(editSection + content);
             });
     })

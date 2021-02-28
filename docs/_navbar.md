@@ -1,5 +1,4 @@
 - Extensions
-
     - **.NET Core**
     - [ASP.NET Core](https://github.com/z4kn4fein/stashbox-extensions-dependencyinjection)
 

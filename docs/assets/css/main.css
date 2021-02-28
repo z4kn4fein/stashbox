@@ -30,15 +30,18 @@
 
     --navbar-menu-padding: 0 1.2em;
 
-    --notice-tip-border-color: #2582ad;
+    --notice-tip-border-color: #2582ad;    
+    --notice-tip-background: #0d2a38;
     --notice-important-border-color: hsl(0, 57%, 45%);
+    --notice-important-background: hsl(0, 23%, 17%);
 
-    --navbar-menu-link-color: #50a9d3;
-    --navbar-menu-link-color--active: #50a9d3;
+    --navbar-menu-link-color: #61b9e2;
+    --navbar-menu-link-color--active: #61b9e2;
     --navbar-menu-link-color--hover: #2582ad;
 
     --docsify-example-panels-left-panel-width : 40%;
     --docsify-example-panels-right-panel-width : 60%;
+    --docsify-example-panels-padding-inner: 0px 16px;
 
     --heading-h2-border-color: var(--table-cell-border-color);
     --heading-h2-margin: 25px 0 0 0;
@@ -128,6 +131,10 @@ section.cover .mask {
     font-size: 13px;
 }
 
+.last-modified strong {
+    color: #8698a0;
+}
+
 .docsify-copy-code-button.error .error,
 .docsify-copy-code-button.success .success {
     transform: translate(-50%, -50%) !important;
@@ -140,15 +147,24 @@ section.cover .mask {
 }
 
 button.sidebar-toggle {
-    bottom: 1rem;
+    position: fixed;
+    bottom: 5rem;
     top: auto;
     left: auto;
 }
 
 .sidebar-toggle .sidebar-toggle-button {
-    bottom: 1rem;
+    bottom: 2rem;
     top: auto;
     left: auto;
+}
+
+.app-nav li {
+    cursor: pointer;
+}
+
+.app-nav strong {
+    color: #b7ced8;
 }
 
 .docsify-copy-code-button {
@@ -185,10 +201,6 @@ button.sidebar-toggle {
     .app-nav {
         right: 60px !important;
     }
-
-    .sidebar-toggle .sidebar-toggle-button {
-        opacity: .8;
-    }
 }
 
 @media (max-width: 480px) {
@@ -203,7 +215,7 @@ button.sidebar-toggle {
     }
 }
 
-@media (max-width: 840px) {
+@media (max-width: 1000px) {
     :root {
         --sidebar-width: 16rem;
         --sidebar-padding: 0 25px 0 15px;
@@ -212,6 +224,12 @@ button.sidebar-toggle {
     .markdown-section {
         padding: 6em 0.5em 0 0.8em;
         padding-top: 6em !important;
+    }
+
+    .sidebar-toggle .sidebar-toggle-button {
+        background: #34434b8c;
+        width: 50px;
+        height: 40px;
     }
 }
   

@@ -1,8 +1,8 @@
 # Service Resolution
 When you have all your components registered and configured adequately, you can resolve them from the container or a [scope](usage/scopes) by requesting their service type.
 
-During a service's resolution, the container walks through the entire dependency hierarchy and instantiates all of those required for the service construction.
-When it encounters any violations of [these validation rules](diagnostics/validation?id=resolution-validation) *(circular dependencies, missing required services, lifetime misconfigurations)* during the walkthrough, it lets you know that something is wrong by throwing the related exception.
+During a service's resolution, the container walks through the entire resolution tree and instantiates all dependencies required for the service construction.
+When the container encounters any violations of [these rules](diagnostics/validation?id=resolution-validation) *(circular dependencies, missing required services, lifetime misconfigurations)* during the walkthrough, it lets you know that something is wrong by throwing the appropriate exception.
 
 <!-- panels:start -->
 
