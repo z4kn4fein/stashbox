@@ -5,7 +5,7 @@
 > A lightweight, fast, and portable .NET DI framework.
 
 - 🚀 Thread-safe and lock-free.
-- ⚡️️ ️Easy-to-use Fluent API.
+- ⚡️️ Easy-to-use Fluent API.
 - ♻️ Small memory footprint.
 
 [Get Started](getting-started/overview)
