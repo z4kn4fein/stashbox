@@ -16,6 +16,7 @@
     --cover-button-box-shadow--hover: 0 5px 16px rgba(3, 26, 39, 0.4);
 
     --sidebar-toggle-icon-stroke-width: 2px;
+    --sidebar-toggle-background: var(--theme-color);
 
     --base-font-size: 14px;
 
@@ -232,7 +233,7 @@ button.sidebar-toggle {
     }
 
     .sidebar-toggle .sidebar-toggle-button {
-        background: #34434b8c;
+        background: #2582adab;
         width: 50px;
         height: 40px;
     }
