@@ -95,7 +95,7 @@ This validation enforces the following rules, and when they are being violated, 
   ```
 
 ## Circular Dependency
-When the container notices an infinite dependency loop in the resolution tree, it throws a `CircularDependencyException` with every diagnostic detail included.
+When the container encounters a circular dependency loop in the resolution tree, it throws a `CircularDependencyException` with every diagnostic detail included.
 
 ```cs
 class Service1

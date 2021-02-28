@@ -2,6 +2,7 @@
     --search-margin: 1em 0;
     --search-result-keyword-padding: 0 0;
 
+    --base-line-height: 1.6;
     --base-color: #c9d1d9;
     --heading-color: #e4e8ec;
 
@@ -128,7 +129,7 @@ section.cover .mask {
 
 .last-modified {
     color: #8698a0;
-    font-size: 13px;
+    font-size: calc(var(--font-size-m) * 0.88);
 }
 
 .last-modified strong {
@@ -175,6 +176,10 @@ button.sidebar-toggle {
           -ms-user-select: none; /* Internet Explorer/Edge */
               user-select: none; /* Non-prefixed version, currently
                                     supported by Chrome, Edge, Opera and Firefox */
+}
+
+.sidebar-nav {
+    line-height: 1.7;
 }
 
 ::selection {
