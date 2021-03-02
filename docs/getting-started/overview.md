@@ -28,7 +28,8 @@ Github (stable) | NuGet (stable) | Fuget (stable) | NuGet (daily)
 
 ## Contact & Support
 - [![Join the chat at https://gitter.im/z4kn4fein/stashbox](https://img.shields.io/gitter/room/z4kn4fein/stashbox.svg)](https://gitter.im/z4kn4fein/stashbox) [![Slack](https://img.shields.io/badge/chat-on%20slack-orange.svg?style=flat)](https://3vj.short.gy/stashbox-slack)
-- Create a [GitHub issue](https://github.com/z4kn4fein/stashbox/issues) for bug reports, feature requests, or questions.
+- Create a [GitHub issue](https://github.com/z4kn4fein/stashbox/issues) for bug reports and feature requests.
+- Start a [GitHub discussion](https://github.com/z4kn4fein/stashbox/discussions) for your questions and ideas.
 - Add a ⭐️ [on GitHub](https://github.com/z4kn4fein/stashbox) to support the project!
 
 ## License
