@@ -36,7 +36,7 @@ The registration of an open-generic type differs from registering a closed-gener
 <!-- panels:start -->
 
 <!-- div:left-panel -->
-Open-generic types could help in such scenarios where you have a generic interface-implementation pair with numerous generic parameters. The registration of the different versions would look like this: 
+Open-generic types could help in such scenarios where you have generic interface-implementation pairs with numerous generic parameter variations. The registration of those different versions would look like this: 
 
 <!-- div:right-panel -->
 ```cs
@@ -50,14 +50,16 @@ container.Register<IValidator<Company>, Validator<Company>>();
 <!-- panels:start -->
 
 <!-- div:left-panel -->
-Rather than doing that, you can register your type's open-generic version and let Stashbox create the closed ones for you. When a matching closed service type is requested, the container constructs an equivalent closed-generic implementation.
+Rather than doing that, you can register your type's generic definition and let Stashbox bind the type parameters for you. When a matching closed service type is requested, the container will construct an equivalent closed-generic implementation.
 
 <!-- div:right-panel -->
 
 ```cs
 container.Register(typeof(IValidator<>), typeof(Validator<>));
 // Validator<User> will be returned.
-IValidator<User> validator = container.Resolve<IValidator<User>>();
+IValidator<User> userValidator = container.Resolve<IValidator<User>>();
+// Validator<Role> will be returned.
+IValidator<Role> roleValidator = container.Resolve<IValidator<Role>>();
 ```
 
 <!-- panels:end -->

@@ -229,6 +229,7 @@ Suppose you'd like to use a custom lifetime. In that case, you can create your i
       }
   }
   ```
+
 Then you can use your lifetime like this:
 ```cs
 container.Register<IJob, DbBackup>(options => options.WithLifetime(new CustomLifetime()));
