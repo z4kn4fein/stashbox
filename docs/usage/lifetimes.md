@@ -66,7 +66,7 @@ container.Register<IJob, DbBackup>(options => options
 <!-- div:left-panel -->
 A single instance will be created and reused for every resolution request and injected into every consumer.
 
-?> Singleton services will be disposed when the container (root scope) is disposed.
+?> Singleton services are disposed when the container (root scope) is being disposed.
 
 <!-- div:right-panel -->
 
@@ -95,7 +95,7 @@ container.RegisterSingleton<IJob, DbBackup>();
 <!-- div:left-panel -->
 A new instance is created for each [scope](usage/scopes), and that instance will be returned (and reused) for every resolution request initiated on the given scope. It's like the singleton lifetime within a scope. 
 
-?> Scoped services will be disposed when their scope is disposed.
+?> Scoped services are disposed when their scope is being disposed.
 
 <!-- div:right-panel -->
 
@@ -130,9 +130,9 @@ IJob job = scope.Resolve<IJob>();
 <!-- div:left-panel -->
 It is the same as the scoped lifetime, except that the given service will be selected only when the resolution request is initiated on a scope with the same name.
 
-You can also let a service [define](usage/scopes?id=service-as-scope) its own named scope within itself. Later this scope can be referred to in named scope
+You can also let a service [define](usage/scopes?id=service-as-scope) its own named scope within itself. Later this scope can be referred to in named scope lifetimes.
 
-?> Services with named scope lifetime will be disposed when the related named scope is disposed.
+?> Services with named scope lifetime are disposed when the related named scope is being disposed.
 <!-- div:right-panel -->
 
 <!-- tabs:start -->
