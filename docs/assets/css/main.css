@@ -62,6 +62,7 @@
     --hr-border: 1px solid var(--table-cell-border-color);
 
     --pagination-border-top: 1px solid var(--table-cell-border-color);
+    --pagination-title-color: var(--heading-color);
 
     --docsifytabs-tab-highlight-px: 2px;
     --docsifytabs-tab-color: #73818b;
@@ -211,12 +212,12 @@ button.sidebar-toggle {
 
 .docsify-tabs__tab--active {
     color: var(--theme-color) !important;
-    background-color: var(--sidebar-background) !important;
+    background-color: var(--code-theme-background) !important;
 }
 
 .docsify-tabs__tab {
     cursor: pointer;
-    /* border-bottom: 1px solid var(--table-cell-border-color) !important; */
+    border-bottom: 1px solid var(--table-cell-border-color) !important;
 }
 
 ::selection {
@@ -253,7 +254,7 @@ button.sidebar-toggle {
 
 @media (max-width: 520px) {
     :root {
-        --docsifytabs-tab-padding: 0.8em 1em;
+        --docsifytabs-tab-padding: 1em 1em;
     }
 
     .docsify-tabs__tab {
