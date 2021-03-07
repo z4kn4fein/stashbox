@@ -42,7 +42,7 @@ function glossaryPlugin(hook, vm) {
         let addLinks = function(content,next,terms){
           for (let term in terms){
             let link = ` [$1](/_glossary?id=${terms[term]})`;
-            let re = new RegExp(`\\ (${term})`,'ig');
+            let re = new RegExp(`\\ (${term}s?('s)?)`,'ig');
             content = content.replace(re,link);
           }
           next(content);

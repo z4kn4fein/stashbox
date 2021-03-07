@@ -27,7 +27,7 @@ bool isIJobRegistered = container.IsRegistered<IJob>("DbBackup");
 ## Can Resolve?
 <!-- panels:start -->
 <!-- div:left-panel -->
-There might be cases where rather than finding out that a service is registered, you are more interested in that it's resolvable from the container's actual state or not.
+There might be cases where rather than finding out that a service is registered, you are more interested whether it's resolvable from the container's actual state or not.
 
 For example, when the [unknown type resolution](configuration/container-configuration?id=unknown-type-resolution) is enabled, `.CanResolve()` will return `true` when the requested type is resolvable but not registered into the container.
 <!-- div:right-panel -->
