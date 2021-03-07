@@ -44,9 +44,9 @@
 
     --cover-blockquote-color: var(--theme-2-color);
     --cover-background-image: linear-gradient(45deg, var(--sidebar-background) 0%, var(--base-background-color) 90%);
-    --cover-button-background: #242f33;
+    --cover-button-background: #232931;
     --cover-button-background--hover: #1d6688;
-    --cover-button-box-shadow--hover: 0 5px 16px rgba(2, 17, 26, 0.8);
+    --cover-button-box-shadow--hover: 0 6px 18px rgba(2, 17, 26, 0.9);
 
     --docsify-example-panels-left-panel-width : 40%;
     --docsify-example-panels-right-panel-width : 60%;
