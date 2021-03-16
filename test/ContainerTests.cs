@@ -114,7 +114,7 @@ namespace Stashbox.Tests
 
             var reg = container.GetRegistrationMappings().First(r => r.Key == typeof(Test1));
             var t = new Test1();
-            var res = container.ContainerContext.RootScope.GetOrAddScopedObject(reg.Value.RegistrationId, s => t);
+            var res = container.ContainerContext.RootScope.GetOrAddScopedObject(reg.Value.RegistrationId, s => t, typeof(Test1));
 
             Assert.Same(t, res);
         }

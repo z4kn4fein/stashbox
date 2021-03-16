@@ -39,8 +39,8 @@ namespace Stashbox.Benchmarks
             using var scope2 = this.oldContainer.BeginScope();
             scope2.Resolve(typeof(DisposableObj2));
 
-            using var scope5 = this.oldContainer.BeginScope();
-            return scope5.Resolve(typeof(DisposableObj2));
+            using var scope3 = this.oldContainer.BeginScope();
+            return scope3.Resolve(typeof(DisposableObj2));
         }
 
         [Benchmark]
@@ -52,8 +52,8 @@ namespace Stashbox.Benchmarks
             using var scope2 = this.newContainer.BeginScope();
             scope2.Resolve(typeof(DisposableObj2));
 
-            using var scope5 = this.newContainer.BeginScope();
-            return scope5.Resolve(typeof(DisposableObj2));
+            using var scope3 = this.newContainer.BeginScope();
+            return scope3.Resolve(typeof(DisposableObj2));
         }
 
         private class DisposableObj1 : IDisposable

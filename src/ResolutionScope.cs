@@ -128,12 +128,19 @@ namespace Stashbox
             return this;
         }
 
-        public object GetOrAddScopedObject(int key, Func<IResolutionScope, object> factory)
+        public object GetOrAddScopedObject(int key, Func<IResolutionScope, object> factory, Type requestedType, bool validateLifetimeFromRootScope = false)
         {
             this.ThrowIfDisposed();
 
             var item = this.scopedItems.GetOrDefault(key);
             if (item != null) return item.Evaluate(this, factory);
+
+            if (validateLifetimeFromRootScope &&
+                this.containerContext.ContainerConfiguration.LifetimeValidationEnabled &&
+                ReferenceEquals(this, this.containerContext.RootScope))
+                throw new LifetimeValidationFailedException(requestedType,
+                    $"Resolution of scoped {requestedType} from the root scope is not allowed, " +
+                    $"that would promote the service's lifetime to singleton.");
 
             var evaluator = new ScopedEvaluator();
             if (Swap.SwapValue(ref this.scopedItems, (t1, t2, t3, t4, items) =>

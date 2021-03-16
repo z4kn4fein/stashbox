@@ -16,7 +16,7 @@ namespace Stashbox.Expressions
 
             resolutionContext.PullOutCircularDependencyBarrier(serviceRegistration.RegistrationId);
 
-            var parameters = GetFactoryParameters(serviceRegistration, resolutionContext, resolveType);
+            var parameters = GetFactoryParameters(serviceRegistration, resolutionContext);
             var expression = ConstructFactoryExpression(serviceRegistration, parameters);
             var result = this.expressionFactory.ConstructBuildUpExpression(serviceRegistration, resolutionContext, expression, resolveType);
 
@@ -35,7 +35,7 @@ namespace Stashbox.Expressions
                 : method.CallMethod(serviceRegistration.RegistrationContext.Factory.Target.AsConstant(), parameters);
         }
 
-        private IEnumerable<Expression> GetFactoryParameters(ServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType)
+        private IEnumerable<Expression> GetFactoryParameters(ServiceRegistration serviceRegistration, ResolutionContext resolutionContext)
         {
             var length = serviceRegistration.RegistrationContext.FactoryParameters.Length;
             for (int i = 0; i < length - 1; i++)

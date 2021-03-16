@@ -151,8 +151,8 @@ namespace Stashbox.Tests
                 if (i % 100 == 0)
                 {
                     container.Register<ITest1, Test1>(context => context.WithName(i.ToString()));
-                    container.Register<ITest3, Test3>(context => context.WithName($"ITest3{i.ToString()}"));
-                    var test33 = container.Resolve<ITest3>($"ITest3{i.ToString()}");
+                    container.Register<ITest3, Test3>(context => context.WithName($"ITest3{i}"));
+                    var test33 = container.Resolve<ITest3>($"ITest3{i}");
                     var test11 = container.Resolve(typeof(ITest1), i.ToString());
                     Assert.NotNull(test33);
                     Assert.NotNull(test11);

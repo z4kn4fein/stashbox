@@ -10,7 +10,7 @@ namespace Stashbox.Utils
     {
         private static string GetMemberName<T>(Expression<Func<T>> memberExpression)
         {
-            if (!(memberExpression.Body is MemberExpression expressionBody))
+            if (memberExpression.Body is not MemberExpression expressionBody)
                 throw new ArgumentException("The given expression is not a MemberExpression.");
 
             return expressionBody.Member.Name;

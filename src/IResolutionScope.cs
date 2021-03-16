@@ -41,8 +41,10 @@ namespace Stashbox
         /// </summary>
         /// <param name="key">The key.</param>
         /// <param name="factory">The value factory used to create the object if it doesn't exist yet.</param>
+        /// <param name="requestedType">The type of the requested service.</param>
+        /// <param name="validateLifetimeFromRootScope">If true, and if the lifetime validation is enabled the scope will validate whether the requested scoped service is resolved from root or not.</param>
         /// <returns>The scoped object.</returns>
-        object GetOrAddScopedObject(int key, Func<IResolutionScope, object> factory);
+        object GetOrAddScopedObject(int key, Func<IResolutionScope, object> factory, Type requestedType, bool validateLifetimeFromRootScope = false);
 
         /// <summary>
         /// Invalidates the delegate cache.

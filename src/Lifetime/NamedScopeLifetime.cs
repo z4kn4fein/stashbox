@@ -49,7 +49,7 @@ namespace Stashbox.Lifetime
             if (scope == null)
                 throw new InvalidOperationException($"The scope '{scopeName}' not found.");
 
-            return (TValue)scope.GetOrAddScopedObject(scopeId, factory);
+            return (TValue)scope.GetOrAddScopedObject(scopeId, factory, typeof(TValue));
         }
     }
 }

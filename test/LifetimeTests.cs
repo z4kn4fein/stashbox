@@ -271,6 +271,35 @@ namespace Stashbox.Tests
             }
         }
 
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void LifetimeTests_Scoped_Is_Not_Resolvable_From_Root_AfterResolved(bool enabledValidation)
+        {
+            using IStashboxContainer container = new StashboxContainer(c =>
+            {
+                if (enabledValidation)
+                    c.WithLifetimeValidation();
+            });
+
+            container.Register<Test6>();
+            container.RegisterScoped<Test5>();
+
+            if (enabledValidation)
+            {
+                using var scope = container.BeginScope();
+                scope.Resolve<Test6>();
+                var exception = Assert.Throws<LifetimeValidationFailedException>(() => container.Resolve<Test6>());
+                Assert.Contains("from the root scope", exception.Message);
+            }
+            else
+            {
+                using var scope = container.BeginScope();
+                scope.Resolve<Test6>();
+                Assert.NotNull(container.Resolve<Test6>());
+            }
+        }
+
         interface ITest1 { string Name { get; set; } }
 
         interface ITest2 { string Name { get; set; } }
