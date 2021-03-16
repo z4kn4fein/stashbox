@@ -2,10 +2,11 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>net462;netcoreapp2.0</TargetFrameworks>
+    <TargetFrameworks>net472;netcoreapp3.1</TargetFrameworks>
     <RootNamespace>Stashbox.Benchmarks</RootNamespace>
     <AssemblyName>Stashbox.Benchmarks</AssemblyName>
     <Configurations>Debug;Release;Benchmark</Configurations>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Benchmark|AnyCPU'">
@@ -13,21 +14,21 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BenchmarkDotNet" Version="0.11.1" />
-    <PackageReference Include="Stashbox" Version="2.6.1" />
+    <PackageReference Include="BenchmarkDotNet" Version="0.12.1" />
+    <PackageReference Include="Stashbox" Version="3.6.0" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.0'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
     <Reference Include="Stashbox.Benchmark">
-      <HintPath>..\..\src\bin\Benchmark\netstandard2.0\Stashbox.Benchmark.dll</HintPath>
+      <HintPath>..\..\src\bin\Benchmark\netstandard2.1\Stashbox.Benchmark.dll</HintPath>
       <Aliases>from_project</Aliases>
       <Private>true</Private>
     </Reference>
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net462'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
     <Reference Include="Stashbox.Benchmark">
-      <HintPath>..\..\src\bin\Benchmark\net45\Stashbox.Benchmark.dll</HintPath>
+      <HintPath>..\..\src\bin\Benchmark\net461\Stashbox.Benchmark.dll</HintPath>
       <Aliases>from_project</Aliases>
       <Private>true</Private>
     </Reference>

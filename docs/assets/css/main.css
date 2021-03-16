@@ -184,7 +184,7 @@ button.sidebar-toggle {
 }
 
 .app-nav strong {
-    color: #b7ced8;
+    color: var(--heading-color);
 }
 
 .docsify-copy-code-button {
