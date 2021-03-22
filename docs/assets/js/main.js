@@ -22,7 +22,7 @@ function editOnGithubPlugin(hook, vm) {
                 let modified = commits[0]['commit']['committer']['date'].slice(0,10);
                 let modifiedBy = commits[0]['commit']['committer']['name'];
                 let modifiedDate = new Date(modified);
-                let editSection = '[<img src="assets/images/github.svg" class="gh-prefix" alt="GitHub" width=18>Edit this page](' + url + ') - <span class="last-modified">*(last updated: <strong>'+ modifiedDate.toLocaleDateString() +'</strong> by <strong>'+ modifiedBy +'</strong>)*</span>\n\n';
+                let editSection = '[<img src="assets/images/github.svg" class="gh-prefix" alt="GitHub" width=18>Edit this page](' + url + ') - <span class="last-modified">*(last updated on <strong>'+ modifiedDate.toLocaleDateString() +'</strong> by <strong>'+ modifiedBy +'</strong>)*</span>\n\n';
                 next(editSection + content);
             })
             .catch(_ => {

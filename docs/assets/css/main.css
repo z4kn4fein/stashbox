@@ -64,7 +64,7 @@
     --pagination-border-top: 1px solid var(--table-cell-border-color);
     --pagination-title-color: var(--heading-color);
 
-    --docsifytabs-tab-highlight-px: 2px;
+    --docsifytabs-tab-highlight-px: 3px;
     --docsifytabs-tab-color: #73818b;
 
     --copycode-background: var(--theme-color);
@@ -107,7 +107,7 @@ th {
 
 .docsify-copy-code-button {
     font-size: 1em !important;
-    padding: .35em .4em .23em .35em !important;
+    padding: .35em .4em .23em .45em !important;
 }
 
 .markdown-section {
@@ -211,7 +211,7 @@ button.sidebar-toggle {
 }
 
 .docsify-tabs__tab--active {
-    color: var(--theme-color) !important;
+    color: var(--heading-color) !important;
     background-color: var(--code-theme-background) !important;
 }
 
