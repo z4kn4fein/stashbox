@@ -1,5 +1,3 @@
-# Special Resolution Cases
-
 ## Unknown Type Resolution
 When this [feature](configuration/container-configuration?id=unknown-type-resolution) is enabled, the container will try to resolve unregistered types by registering them using a pre-defined configuration delegate.
 

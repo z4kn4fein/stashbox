@@ -1,6 +1,3 @@
-# Utilities
-These are additional utility functions of Stashbox that can be helpful in some cases. 
-
 ## Is Registered?
 <!-- panels:start -->
 <!-- div:left-panel -->

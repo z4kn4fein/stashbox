@@ -7,11 +7,11 @@
     --search-input-background-color: var(--base-background-color);
 
     --base-line-height: 1.6;
-    --base-color: #b5bcc4;
-    --heading-color: #c9ced3;
+    --base-color: #b2b8be;
+    --heading-color: #c3c8ce;
 
     --theme-color: #3190bd;
-    --theme-2-color: #ff8b64;
+    --theme-2-color: #fd9572;
 
     --sidebar-toggle-icon-stroke-width: 2px;
     --sidebar-toggle-background: var(--theme-color);
@@ -30,17 +30,17 @@
     --table-cell-border-width: 1px;
     --table-head-border-width: 1px;
     --table-cell-border-color: #262c31;
-    --table-row-odd-background: var(--sidebar-background);
+    --table-row-odd-background: #101316;
 
     --notice-tip-border-color: var(--theme-color);    
-    --notice-tip-background: #032536;
+    --notice-tip-background: #052636;
     --notice-important-border-color: hsl(0, 57%, 45%);
-    --notice-important-background: hsl(0, 46%, 14%);
+    --notice-important-background: hsl(0, 47%, 15%);
 
     --navbar-menu-link-color: var(--theme-color);
     --navbar-menu-link-text-decoration--hover: underline;
     --navbar-menu-padding: 0 1.2em;
-    --navbar-menu-background: #242b30;
+    --navbar-menu-background: var(--sidebar-background);
 
     --cover-blockquote-color: var(--theme-2-color);
     --cover-background-image: linear-gradient(45deg, var(--sidebar-background) 0%, var(--base-background-color) 90%);
@@ -53,18 +53,20 @@
     --docsify-example-panels-padding-inner: 0px 16px;
 
     --heading-h2-border-color: var(--table-cell-border-color);
-    --heading-h2-margin: 25px 0 0 0;
+    --heading-h2-margin: 20px 0 0 0;
     --heading-h2-padding: 0;
 
     --heading-h3-margin-top: 12px;
     --heading-h3-margin: var(--heading-h3-margin-top) 0 0;
+
+    --heading-h1-margin: 20px 0 0 0;
 
     --hr-border: 1px solid var(--table-cell-border-color);
 
     --pagination-border-top: 1px solid var(--table-cell-border-color);
     --pagination-title-color: var(--heading-color);
 
-    --docsifytabs-tab-highlight-px: 3px;
+    --docsifytabs-tab-highlight-px: 2px;
     --docsifytabs-tab-color: #73818b;
 
     --copycode-background: var(--theme-color);
@@ -79,14 +81,14 @@
 
     --code-theme-background: #192027;
 
-    --code-theme-comment    : #73818b;
+    --code-theme-comment    : #616c74;
     --code-theme-function   : #cf7ea9;
     --code-theme-keyword    : var(--theme-2-color);
     --code-theme-operator   : #56b6c2;
     --code-theme-punctuation: #a3a3a3;
     --code-theme-selector   : #ffcb6b;
     --code-theme-tag        : #f07178;
-    --code-theme-text       : #d6d6d6;
+    --code-theme-text       : #c5c5c5;
     --code-theme-variable   : #99c;
 
     --selection-color      : #004292;
@@ -105,6 +107,10 @@ th {
     text-align: center !important;
 }
 
+.docsify-pagination-container {
+    margin: 1.5em 0 1em !important;
+}
+
 .docsify-copy-code-button {
     font-size: 1em !important;
     padding: .35em .4em .23em .45em !important;
@@ -112,18 +118,24 @@ th {
 
 .markdown-section {
     max-width: 1100px !important;
+    background-color: #14181f;
+    margin-top: 6rem;
+    margin-bottom: 4rem;
+    padding: 0.5rem 1.3rem 0 1.3rem !important;
+    border: 1px solid var(--table-cell-border-color);
+    border-radius: 5px;
 }
 
 .markdown-section h3:first-child {
     margin-top: var(--heading-h3-margin-top);
 }
 
-.markdown-section .tip, .markdown-section .warn {
-    margin: 1.5em 0 1.5em 0;
+.markdown-section h2:first-child {
+    margin-top: 20px;
 }
 
-.markdown-section h2 {
-    margin-top: 25px !important;
+.markdown-section .tip, .markdown-section .warn {
+    margin: 1.5em 0 1.5em 0;
 }
 
 button:focus {
@@ -212,7 +224,7 @@ button.sidebar-toggle {
 
 .docsify-tabs__tab--active {
     color: var(--heading-color) !important;
-    background-color: var(--code-theme-background) !important;
+    background-color: #192027 !important;
 }
 
 .docsify-tabs__tab {
@@ -222,6 +234,12 @@ button.sidebar-toggle {
 
 ::selection {
     color: white !important;
+}
+
+@media (max-width: 360px) {
+    .markdown-section {
+        padding-top: 6rem !important;
+    }
 }
 
 @media (max-width: 450px) {
@@ -237,10 +255,6 @@ button.sidebar-toggle {
         padding-bottom: 3rem;
     }
 
-    .markdown-section {
-        padding: 6em 0 0 0 !important;
-    }
-
     .app-nav {
         right: 60px !important;
     }
@@ -249,6 +263,12 @@ button.sidebar-toggle {
 @media (max-width: 480px) {
     .docsify-tabs__tab {
         font-size: 11px !important;
+    }
+
+    .markdown-section {
+        background-color: transparent;
+        border: 0px;
+        padding: 0.5rem 0 0 0 !important;
     }
 }
 
@@ -266,11 +286,6 @@ button.sidebar-toggle {
     :root {
         --sidebar-width: 16rem;
         --sidebar-padding: 0 25px 0 15px;
-    }
-
-    .markdown-section {
-        padding: 6em 0.5em 0 0.8em;
-        padding-top: 6em !important;
     }
 
     .sidebar-toggle .sidebar-toggle-button {
