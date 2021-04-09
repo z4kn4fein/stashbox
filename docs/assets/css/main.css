@@ -33,9 +33,11 @@
     --table-row-odd-background: #101316;
 
     --notice-tip-border-color: var(--theme-color);    
-    --notice-tip-background: #052636;
+    --notice-tip-background: #002538;
+
+    /* --notice-tip-background: #052636; */
     --notice-important-border-color: hsl(0, 57%, 45%);
-    --notice-important-background: hsl(0, 47%, 15%);
+    --notice-important-background: hsl(0, 100%, 12%);
 
     --navbar-menu-link-color: var(--theme-color);
     --navbar-menu-link-text-decoration--hover: underline;
@@ -79,7 +81,7 @@
     --code-inline-margin: 0.1em;
     --code-inline-background: #293136;
 
-    --code-theme-background: #192027;
+    --code-theme-background: #1c242c;
 
     --code-theme-comment    : #616c74;
     --code-theme-function   : #cf7ea9;
@@ -224,7 +226,7 @@ button.sidebar-toggle {
 
 .docsify-tabs__tab--active {
     color: var(--heading-color) !important;
-    background-color: #192027 !important;
+    background-color: #1c242c !important;
 }
 
 .docsify-tabs__tab {
