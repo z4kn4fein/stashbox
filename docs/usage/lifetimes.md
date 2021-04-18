@@ -2,7 +2,7 @@
 
 Lifetime management is the concept of controlling how long a service's instances will live (from instantiation to [disposal](usage/scopes?id=disposal)) and how they will be reused between resolution requests.
 
-!> Choosing the right lifetime helps you avoid [captive dependencies](diagnostics/validation?id=lifetime-validation).
+?> Choosing the right lifetime helps you avoid [captive dependencies](diagnostics/validation?id=lifetime-validation).
 
 
 <!-- panels:start -->
@@ -54,7 +54,7 @@ container.Register<IJob, DbBackup>(options => options
 
 <!-- panels:end -->
 
-!> Transient services are not tracked for disposal by default but this feature can be turned on with `.WithDisposableTransientTracking()` [option](configuration/container-configuration?id=tracking-disposable-transients).
+!> Transient services are not tracked for disposal by default but this feature can be turned on with the `.WithDisposableTransientTracking()` [option](configuration/container-configuration?id=tracking-disposable-transients).
 
 ?> When the tracking of disposable transients is enabled, they will be tracked and disposed by the actual [scope](usage/scopes) on which the resolution request was initiated or by the root scope when the resolution request was made on the container.
 

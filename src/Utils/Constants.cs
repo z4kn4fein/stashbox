@@ -16,6 +16,8 @@ namespace Stashbox.Utils
 
         public static readonly Type ResolverType = typeof(IDependencyResolver);
 
+        public static readonly Type ObjectType = typeof(object);
+
         public static readonly ParameterExpression ResolutionScopeParameter = ResolutionScopeType.AsParameter("scope");
 
         public static readonly MethodInfo AddDisposalMethod = ResolutionScopeType.GetSingleMethod(nameof(IResolutionScope.AddDisposableTracking));
@@ -24,11 +26,17 @@ namespace Stashbox.Utils
 
         public static readonly MethodInfo AddWithFinalizerMethod = ResolutionScopeType.GetSingleMethod(nameof(IResolutionScope.AddWithFinalizer));
 
-        public static readonly MethodInfo CheckRuntimeCircularDependencyBarrierMethod = ResolutionScopeType.GetSingleMethod(nameof(IResolutionScope.CheckRuntimeCircularDependencyBarrier));
+        public static readonly MethodInfo CheckRuntimeCircularDependencyBarrierMethod = 
+            ResolutionScopeType.GetSingleMethod(nameof(IResolutionScope.CheckRuntimeCircularDependencyBarrier));
 
-        public static readonly MethodInfo ResetRuntimeCircularDependencyBarrierMethod = ResolutionScopeType.GetSingleMethod(nameof(IResolutionScope.ResetRuntimeCircularDependencyBarrier));
+        public static readonly MethodInfo ResetRuntimeCircularDependencyBarrierMethod = 
+            ResolutionScopeType.GetSingleMethod(nameof(IResolutionScope.ResetRuntimeCircularDependencyBarrier));
 
         public static readonly MethodInfo BeginScopeMethod = ResolverType.GetSingleMethod(nameof(IDependencyResolver.BeginScope));
+
+        public static readonly MethodInfo ResolveMethod =
+            ResolverType.GetMethodByArguments(nameof(IDependencyResolver.Resolve), typeof(Type),
+                ObjectType, typeof(bool), typeof(object[]));
 
         public static readonly Type DisposableType = typeof(IDisposable);
 
@@ -39,8 +47,6 @@ namespace Stashbox.Utils
         public static readonly Type FuncType = typeof(Func<>);
 
         public static readonly Type[] EmptyTypes = EmptyArray<Type>();
-
-        public static readonly Type ObjectType = typeof(object);
 
         public static readonly Type CompositionRootType = typeof(ICompositionRoot);
 

@@ -243,7 +243,7 @@ IJob job = container.Resolve<IJob>();
 <!-- panels:start -->
 
 <!-- div:title-panel -->
-## Map to Multiple Services
+## Binding to Multiple Services
 
 <!-- div:left-panel -->
 When you have a service that implements multiple interfaces, you have the option to bind its registration to all or some of those additional interfaces or base types.

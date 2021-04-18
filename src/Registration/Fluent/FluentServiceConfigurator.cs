@@ -1,7 +1,5 @@
 ﻿using Stashbox.Utils;
-using Stashbox.Utils.Data;
 using System;
-using System.Linq;
 using System.Linq.Expressions;
 
 namespace Stashbox.Registration.Fluent
@@ -127,45 +125,13 @@ namespace Stashbox.Registration.Fluent
         }
 
         /// <summary>
-        /// It means this registration would be used as a logical scope for it's dependencies, the dependencies registered with the <see cref="BaseFluentConfigurator{TConfigurator}.InNamedScope"/> and with the same name as it's param will be preferred during resolution.
+        /// This registration is used as a logical scope for it's dependencies. Dependencies registered with the <see cref="BaseFluentConfigurator{TConfigurator}.InNamedScope"/> with the same name will be preferred during resolution.
         /// </summary>
-        /// <param name="scopeName">The name of the scope. When the name == null, the type which defines the scope is used as name.</param>
+        /// <param name="scopeName">The name of the scope. When the name is null, the type which defines the scope is used as name.</param>
         /// <returns>The configurator itself.</returns>
         public TConfigurator DefinesScope(object scopeName = null)
         {
             this.Context.DefinedScopeName = scopeName ?? this.ImplementationType;
-            return (TConfigurator)this;
-        }
-
-        /// <summary>
-        /// Registers the given service by all of it's implemented types.
-        /// </summary>
-        /// <returns>The configurator itself.</returns>
-        public TConfigurator AsImplementedTypes()
-        {
-            this.Context.AdditionalServiceTypes.AddRange(this.ImplementationType.GetRegisterableInterfaceTypes()
-                .Concat(this.ImplementationType.GetRegisterableBaseTypes()));
-            return (TConfigurator)this;
-        }
-
-        /// <summary>
-        /// Binds the currently configured registration to an additional service type.
-        /// </summary>
-        /// <returns>The configurator itself.</returns>
-        public TConfigurator AsServiceAlso<TAdditionalService>() =>
-            this.AsServiceAlso(typeof(TAdditionalService));
-
-        /// <summary>
-        /// Binds the currently configured registration to an additional service type.
-        /// </summary>
-        /// <param name="serviceType">The additional service type.</param>
-        /// <returns>The configurator itself.</returns>
-        public TConfigurator AsServiceAlso(Type serviceType)
-        {
-            if (!this.ImplementationType.Implements(serviceType))
-                throw new ArgumentException($"The implementation type {base.ImplementationType} does not implement the given service type {serviceType}.");
-
-            this.Context.AdditionalServiceTypes.Add(serviceType);
             return (TConfigurator)this;
         }
     }

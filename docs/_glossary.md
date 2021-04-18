@@ -38,7 +38,7 @@ var service = container.Resolve<IService>("Example");
 
 <!-- panels:start -->
 <!-- div:left-panel -->
-It's a constructor/method argument or a property/field of a registered *Implementation type* that gets evaluated (*injected*) by the container during the service's construction.
+It's a constructor/method argument or a property / field of a registered *Implementation type* that gets evaluated (*injected*) by the container during the service's construction.
 
 In this example, `Implementation` has an `IDependency` *injectable dependency* in its constructor.
 <!-- div:right-panel -->

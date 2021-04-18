@@ -45,7 +45,7 @@ During the construction of the resolution tree, the container continuously check
     Constructor Void .ctor(Dependency) found with unresolvable parameter: (Namespace.Dependency)dep.
     Constructor Void .ctor(Dependency2) found with unresolvable parameter: (Namespace.Dependency2)dep2.
     ```
-    #### **Property/field**
+    #### **Property / field**
     ```cs
     class Service
     {

@@ -26,6 +26,14 @@ namespace Stashbox.Utils.Data
             return result;
         }
 
+        public TValue Front()
+        {
+            if (this.Length == 0)
+                return default;
+
+            return base.Repository[this.Length - 1];
+        }
+
         public void PushBack(TValue item)
         {
             if (this.Length == 0)

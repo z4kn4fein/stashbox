@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v3.6.2] - 2021-04-19
+### Fixed
+- Rare NullReferenceException on Resolve. [#101](https://github.com/z4kn4fein/stashbox/issues/101)
+- Decorators having `IEnumerable<TDecoratee>` dependency were not handled correctly.
+
+
 ## [v3.6.1] - 2021-03-16
 ### Fixed
 - **Lifetime validation for scoped services requested from root scope.**
@@ -135,6 +141,7 @@ The validation was executed only at the expression tree building phase, so an al
 - Removed the legacy container extension functionality.
 - Removed the support of PCL v259.
 
+[v3.6.2]: https://github.com/z4kn4fein/stashbox/compare/3.6.1...3.6.2
 [v3.6.1]: https://github.com/z4kn4fein/stashbox/compare/3.6.0...3.6.1
 [v3.6.0]: https://github.com/z4kn4fein/stashbox/compare/3.5.1...3.6.0
 [v3.5.1]: https://github.com/z4kn4fein/stashbox/compare/3.5.0...3.5.1

@@ -1,6 +1,5 @@
 ﻿using Stashbox.Exceptions;
 using Stashbox.Expressions;
-using Stashbox.Resolution;
 using Stashbox.Utils;
 using Stashbox.Utils.Data.Immutable;
 using System;
@@ -39,13 +38,22 @@ namespace Stashbox
 
         private class ScopedEvaluator
         {
+            private static int MaxWaitTimeInMs = 3000;
             private static readonly object Default = new object();
-
+            private readonly Type serviceType;
             private int evaluated;
             private object evaluatedObject = Default;
 
+            public ScopedEvaluator(Type serviceType)
+            {
+                this.serviceType = serviceType;
+            }
+
             public object Evaluate(IResolutionScope scope, Func<IResolutionScope, object> factory)
             {
+                if (!ReferenceEquals(this.evaluatedObject, Default))
+                    return this.evaluatedObject;
+
                 if (Interlocked.CompareExchange(ref this.evaluated, 1, 0) != 0)
                     return this.WaitForEvaluation();
 
@@ -56,8 +64,21 @@ namespace Stashbox
             private object WaitForEvaluation()
             {
                 SpinWait spin = default;
+                var startTime = (uint)Environment.TickCount;
                 while (ReferenceEquals(this.evaluatedObject, Default))
+                {
+                    if(spin.NextSpinWillYield)
+                    {
+                        var currentTime = (uint)Environment.TickCount;
+                        if(MaxWaitTimeInMs <= currentTime - startTime)
+                            throw new ResolutionFailedException(this.serviceType,
+                                $"The scoped service {this.serviceType} was unavailable after {MaxWaitTimeInMs} ms. " +
+                                "It's possible that the thread used to construct it crashed by a handled exception." +
+                                "This exception is supposed to prevent other caller threads from infinite waiting for service construction.");
+                    }
+
                     spin.SpinOnce();
+                }
 
                 return this.evaluatedObject;
             }
@@ -93,7 +114,7 @@ namespace Stashbox
             : this(expressionBuilder, containerContext, new DelegateCacheProvider(), null)
         { }
 
-        private ResolutionScope(ExpressionFactory expressionBuilder, IContainerContext containerContext, 
+        private ResolutionScope(ExpressionFactory expressionBuilder, IContainerContext containerContext,
             IResolutionScope parent, DelegateCacheProvider delegateCacheProvider, object name = null)
             : this(expressionBuilder, containerContext, delegateCacheProvider, name)
         {
@@ -142,7 +163,7 @@ namespace Stashbox
                     $"Resolution of scoped {requestedType} from the root scope is not allowed, " +
                     $"that would promote the service's lifetime to singleton.");
 
-            var evaluator = new ScopedEvaluator();
+            var evaluator = new ScopedEvaluator(requestedType);
             if (Swap.SwapValue(ref this.scopedItems, (t1, t2, t3, t4, items) =>
                  items.AddOrUpdate(t1, t2), key, evaluator, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder))
                 return evaluator.Evaluate(this, factory);

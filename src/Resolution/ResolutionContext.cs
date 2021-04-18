@@ -23,7 +23,8 @@ namespace Stashbox.Resolution
         internal ExpandableArray<Expression> SingleInstructions { get; private set; }
         internal Tree<ParameterExpression> DefinedVariables { get; private set; }
         internal ExpandableArray<Pair<bool, ParameterExpression>[]> ParameterExpressions { get; private set; }
-        internal ExpandableArray<Type, Utils.Data.Stack<ServiceRegistration>> Decorators { get; private set; }
+        internal ExpandableArray<Type, Utils.Data.Stack<ServiceRegistration>> RemainingDecorators { get; private set; }
+        internal ExpandableArray<ServiceRegistration> CurrentDecorators { get; private set; }
         internal int CurrentLifeSpan { get; private set; }
         internal string NameOfServiceLifeSpanValidatingAgainst { get; private set; }
         internal bool PerResolutionRequestCacheEnabled { get; private set; }
@@ -65,7 +66,8 @@ namespace Stashbox.Resolution
 
             this.DefinedVariables = new Tree<ParameterExpression>();
             this.SingleInstructions = new ExpandableArray<Expression>();
-            this.Decorators = new ExpandableArray<Type, Utils.Data.Stack<ServiceRegistration>>();
+            this.RemainingDecorators = new ExpandableArray<Type, Utils.Data.Stack<ServiceRegistration>>();
+            this.CurrentDecorators = new ExpandableArray<ServiceRegistration>();
             this.expressionOverrides = dependencyOverrides;
             this.NullResultAllowed = nullResultAllowed;
             IsValidationRequest = isValidationRequest;
@@ -182,8 +184,13 @@ namespace Stashbox.Resolution
         internal ResolutionContext BeginDecoratingContext(Type decoratingType, Utils.Data.Stack<ServiceRegistration> serviceRegistrations)
         {
             var clone = this.Clone();
-            clone.Decorators = new ExpandableArray<Type, Utils.Data.Stack<ServiceRegistration>>(this.Decorators);
-            clone.Decorators.AddOrUpdate(decoratingType, serviceRegistrations);
+            var newStack = new Utils.Data.Stack<ServiceRegistration>(serviceRegistrations);
+            var current = newStack.Pop();
+
+            clone.CurrentDecorators = new ExpandableArray<ServiceRegistration>(this.CurrentDecorators);
+            clone.CurrentDecorators.Add(current);
+            clone.RemainingDecorators = new ExpandableArray<Type, Utils.Data.Stack<ServiceRegistration>>(this.RemainingDecorators);
+            clone.RemainingDecorators.AddOrUpdate(decoratingType, newStack);
             return clone;
         }
 

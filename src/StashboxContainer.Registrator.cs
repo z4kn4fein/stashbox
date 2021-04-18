@@ -158,19 +158,47 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
+        public IStashboxContainer RegisterDecorator(Type typeTo, Action<DecoratorConfigurator> configurator = null)
+        {
+            this.ThrowIfDisposed();
+            Shield.EnsureNotNull(typeTo, nameof(typeTo));
+
+            var decoratorConfigurator = new DecoratorConfigurator(typeTo, typeTo);
+            configurator?.Invoke(decoratorConfigurator);
+            decoratorConfigurator.AsImplementedTypes();
+
+            if (!decoratorConfigurator.TypeMapIsValid(out var error))
+                throw new InvalidRegistrationException(decoratorConfigurator.ImplementationType, error);
+
+            return this.RegisterInternal(decoratorConfigurator, true);
+        }
+
+        /// <inheritdoc />
+        public IStashboxContainer RegisterDecorator<TTo>(Action<DecoratorConfigurator<TTo, TTo>> configurator = null)
+            where TTo : class
+        {
+            this.ThrowIfDisposed();
+            var type = typeof(TTo);
+            var decoratorConfigurator = new DecoratorConfigurator<TTo, TTo>(type, type);
+            configurator?.Invoke(decoratorConfigurator);
+            decoratorConfigurator.AsImplementedTypes();
+            return this.RegisterInternal(decoratorConfigurator, true);
+        }
+
+        /// <inheritdoc />
         public IStashboxContainer RegisterDecorator<TFrom>(Type typeTo, Action<DecoratorConfigurator<TFrom, TFrom>> configurator = null)
             where TFrom : class
         {
             this.ThrowIfDisposed();
             Shield.EnsureNotNull(typeTo, nameof(typeTo));
 
-            var registrationConfigurator = new DecoratorConfigurator<TFrom, TFrom>(typeof(TFrom), typeTo);
-            configurator?.Invoke(registrationConfigurator);
+            var decoratorConfigurator = new DecoratorConfigurator<TFrom, TFrom>(typeof(TFrom), typeTo);
+            configurator?.Invoke(decoratorConfigurator);
 
-            if (!registrationConfigurator.TypeMapIsValid(out var error))
-                throw new InvalidRegistrationException(registrationConfigurator.ImplementationType, error);
+            if (!decoratorConfigurator.TypeMapIsValid(out var error))
+                throw new InvalidRegistrationException(decoratorConfigurator.ImplementationType, error);
 
-            return this.RegisterInternal(registrationConfigurator, true);
+            return this.RegisterInternal(decoratorConfigurator, true);
         }
 
         private IStashboxContainer RegisterInternal(RegistrationConfiguration registrationConfiguration, bool isDecorator = false)

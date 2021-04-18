@@ -3,7 +3,6 @@ using Stashbox.Exceptions;
 using Stashbox.Lifetime;
 using Stashbox.Resolution;
 using Stashbox.Utils;
-using Stashbox.Utils.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -288,6 +287,38 @@ namespace Stashbox.Registration.Fluent
         public TConfigurator ReplaceOnlyIfExists()
         {
             this.Context.ReplaceExistingRegistrationOnlyIfExists = true;
+            return (TConfigurator)this;
+        }
+
+        /// <summary>
+        /// Registers the given service by all of it's implemented types.
+        /// </summary>
+        /// <returns>The configurator itself.</returns>
+        public TConfigurator AsImplementedTypes()
+        {
+            this.Context.AdditionalServiceTypes.AddRange(this.ImplementationType.GetRegisterableInterfaceTypes()
+                .Concat(this.ImplementationType.GetRegisterableBaseTypes()));
+            return (TConfigurator)this;
+        }
+
+        /// <summary>
+        /// Binds the currently configured registration to an additional service type.
+        /// </summary>
+        /// <returns>The configurator itself.</returns>
+        public TConfigurator AsServiceAlso<TAdditionalService>() =>
+            this.AsServiceAlso(typeof(TAdditionalService));
+
+        /// <summary>
+        /// Binds the currently configured registration to an additional service type.
+        /// </summary>
+        /// <param name="serviceType">The additional service type.</param>
+        /// <returns>The configurator itself.</returns>
+        public TConfigurator AsServiceAlso(Type serviceType)
+        {
+            if (!this.ImplementationType.Implements(serviceType))
+                throw new ArgumentException($"The implementation type {base.ImplementationType} does not implement the given service type {serviceType}.");
+
+            this.Context.AdditionalServiceTypes.Add(serviceType);
             return (TConfigurator)this;
         }
 

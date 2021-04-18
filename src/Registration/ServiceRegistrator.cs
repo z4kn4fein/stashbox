@@ -9,7 +9,15 @@ namespace Stashbox.Registration
         {
             if (serviceRegistration.RegistrationContext.AdditionalServiceTypes.Length > 0)
                 foreach (var additionalServiceType in serviceRegistration.RegistrationContext.AdditionalServiceTypes.Distinct())
+                {
+                    if (additionalServiceType.IsOpenGenericType())
+                    {
+                        this.RegisterInternal(containerContext, serviceRegistration, additionalServiceType.GetGenericTypeDefinition());
+                        continue;
+                    }
+
                     this.RegisterInternal(containerContext, serviceRegistration, additionalServiceType);
+                }
 
             this.RegisterInternal(containerContext, serviceRegistration, serviceType);
         }

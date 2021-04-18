@@ -15,17 +15,16 @@ namespace Stashbox.Utils
 
             var original = Interlocked.CompareExchange(ref refValue, newValue, currentValue);
 
-            if (!ReferenceEquals(original, currentValue))
-                return RepeatSwap(ref refValue, valueFactory, t1, t2, t3, t4);
+            if (ReferenceEquals(original, currentValue))
+                return !ReferenceEquals(newValue, currentValue);
 
-            return !ReferenceEquals(newValue, currentValue);
+            return RepeatSwap(ref refValue, valueFactory, t1, t2, t3, t4);
         }
 
         private static bool RepeatSwap<T1, T2, T3, T4, TValue>(ref TValue refValue, Func<T1, T2, T3, T4, TValue, TValue> valueFactory, T1 t1, T2 t2, T3 t3, T4 t4)
             where TValue : class
         {
             var wait = new SpinWait();
-            var counter = 0;
             var desiredThreshold = Environment.ProcessorCount * 6;
             var swapThreshold = desiredThreshold <= MinimumSwapThreshold ? MinimumSwapThreshold : desiredThreshold;
 
@@ -39,7 +38,7 @@ namespace Stashbox.Utils
                 if (ReferenceEquals(original, currentValue))
                     return !ReferenceEquals(newValue, currentValue);
 
-                if (++counter > swapThreshold)
+                if (wait.Count > swapThreshold)
                     throw new InvalidOperationException("Swap quota exceeded.");
 
                 wait.SpinOnce();

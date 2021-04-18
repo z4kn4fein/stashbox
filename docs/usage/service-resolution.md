@@ -14,11 +14,11 @@ When the container encounters any violations of [these rules](diagnostics/valida
 
 Stashbox, by default, uses the constructor that has the most parameters it knows how to resolve. This behavior is configurable through *[constructor selection](configuration/registration-configuration?id=constructor-selection)*.
 
-*[Property/field injection](configuration/registration-configuration?id=propertyfield-injection)* is also supported in cases where constructor injection is not applicable.
+*[Property / field injection](configuration/registration-configuration?id=property-field-injection)* is also supported in cases where constructor injection is not applicable.
 
-!> It's a common mistake to use the *property/field injection* only to disencumber the constructor from having too many parameters. That's a code smell and also a violation of the [Single-responsibility principle](https://en.wikipedia.org/wiki/Single-responsibility_principle). If you recognize these conditions, you might consider not adding that extra property-injected dependency into your class but instead split it into multiple smaller units. 
+!> It's a common mistake to use the *property / field injection* only to disencumber the constructor from having too many parameters. That's a code smell and also a violation of the [Single-responsibility principle](https://en.wikipedia.org/wiki/Single-responsibility_principle). If you recognize these conditions, you might consider not adding that extra property-injected dependency into your class but instead split it into multiple smaller units. 
 
-?> [Constructor selection](configuration/container-configuration?id=constructor-selection) and [property/field injection](configuration/container-configuration?id=auto-member-injection) is also configurable container-wide.
+?> [Constructor selection](configuration/container-configuration?id=constructor-selection) and [property / field injection](configuration/container-configuration?id=auto-member-injection) is also configurable container-wide.
 
 <!-- div:right-panel -->
 
@@ -45,7 +45,7 @@ container.Register<IJob, DbBackup>();
 // resolution using the available constructor.
 IJob job = container.Resolve<IJob>();
 ```
-#### **Property/field injection**
+#### **Property / field injection**
 ```cs
 class DbBackup : IJob
 {
@@ -79,9 +79,9 @@ IJob job = container.Resolve<IJob>();
 Attributes give you control over how Stashbox selects dependencies for a service's resolution.
 
 **Dependency attribute**: 
-- **On a constructor/method parameter**: used with the *name* property, it works as a marker for named resolution.
+- **On a constructor / method parameter**: used with the *name* property, it works as a marker for named resolution.
 
-- **On a property/field**: first, it enables the *auto-injection* of the marked property/field (even if it wasn't configured at registration), and just as with the method parameter, it allows named resolution.
+- **On a property / field**: first, it enables the *auto-injection* of the marked property / field (even if it wasn't configured at registration), and just as with the method parameter, it allows named resolution.
 
 **InjectionMethod attribute**: marks a method to be called when the requested service is being instantiated.
 
@@ -111,7 +111,7 @@ container.Register<IJob, DbBackup>();
 IJob job = container.Resolve<IJob>();
 ```
 
-#### **Property/field**
+#### **Property / field**
 ```cs
 class DbBackup : IJob
 {
@@ -164,7 +164,7 @@ The same dependency configuration as attributes have is available using the regi
 
 **Bind to parameter**: it has the same functionality as the [Dependency attribute](usage/service-resolution?id=attributes) on a constructor or method parameter, enables the named resolution.
 
-**Bind to property/field**: it has the same functionality as the [Dependency attribute](usage/service-resolution?id=attributes); it enables the injection of the given property/field.
+**Bind to property / field**: it has the same functionality as the [Dependency attribute](usage/service-resolution?id=attributes); it enables the injection of the given property / field.
 
 ?> There are more overloads [available](configuration/registration-configuration?id=dependency-configuration).
 
@@ -190,7 +190,7 @@ container.Register<IJob, DbBackup>(options => options
 IJob job = container.Resolve<IJob>();
 ```
 
-#### **Bind to property/field**
+#### **Bind to property / field**
 ```cs
 class DbBackup : IJob
 {
@@ -227,7 +227,7 @@ new StashboxContainer(options => options
     .TreatParameterAndMemberNameAsDependencyName());
 ```
 
-?> The container will attempt named resolution on every dependency based on parameter or property/field name.
+?> The container will attempt named resolution on every dependency based on parameter or property / field name.
 
 <!-- div:right-panel -->
 

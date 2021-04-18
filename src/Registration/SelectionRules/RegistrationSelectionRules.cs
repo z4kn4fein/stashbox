@@ -6,5 +6,6 @@
         public static readonly IRegistrationSelectionRule GenericFilter = new OpenGenericRule();
         public static readonly IRegistrationSelectionRule ScopeNameFilter = new ScopeNameRule();
         public static readonly IRegistrationSelectionRule NameFilter = new NameRule();
+        public static readonly IRegistrationSelectionRule DecoratorFilter = new DecoratorRule();
     }
 }

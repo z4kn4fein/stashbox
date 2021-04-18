@@ -213,7 +213,7 @@ jobs = container.ResolveAll(typeof(IJob));
 <!-- panels:start -->
 
 <!-- div:left-panel -->
-Wiring up is similar to the [Instance registration](#instance-registration) except that the container will perform property/field injection (if configured so and applicable) on the registered instance during resolution.
+Wiring up is similar to the [Instance registration](#instance-registration) except that the container will perform property / field injection (if configured so and applicable) on the registered instance during resolution.
 
 <!-- div:right-panel -->
 

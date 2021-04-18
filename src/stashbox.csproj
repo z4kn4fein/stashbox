@@ -92,5 +92,6 @@
     <None Include="..\.travis.yml" />
     <None Include="..\coverage.ps1" />
     <None Include="..\README.md" />
+    <None Include="..\CHANGELOG.md" />
   </ItemGroup>
 </Project>

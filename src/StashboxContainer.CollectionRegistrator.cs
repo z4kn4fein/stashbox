@@ -52,7 +52,9 @@ namespace Stashbox
         {
             Shield.EnsureNotNull(types, nameof(types));
 
-            types = selector != null ? types.Where(selector).Where(t => t.IsResolvableType()) : types.Where(t => t.IsResolvableType());
+            types = selector != null 
+                ? types.Where(t => t.IsResolvableType()).Where(selector) 
+                : types.Where(t => t.IsResolvableType());
 
             foreach (var type in types)
             {

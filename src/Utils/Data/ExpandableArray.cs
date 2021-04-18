@@ -168,7 +168,7 @@ namespace Stashbox.Utils.Data
         public void AddOrUpdate(TKey key, TItem value)
         {
             var index = this.IndexOf(key);
-            if (index > 0)
+            if (index >= 0)
             {
                 this.Repository[index] = new KeyValue<TKey, TItem>(key, value);
                 return;

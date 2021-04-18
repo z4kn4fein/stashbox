@@ -1,5 +1,4 @@
-﻿using Stashbox.Exceptions;
-using Stashbox.Lifetime;
+﻿using Stashbox.Lifetime;
 using Stashbox.Registration;
 using Stashbox.Resolution;
 using Stashbox.Utils;

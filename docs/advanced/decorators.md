@@ -53,8 +53,9 @@ class ValidatorProcessor : IEventProcessor
 }
 
 using var container = new StashboxContainer();
+
 container.Register<IEventValidator, EventValidator>();
-container.Register<IEventProcessor, GeneralProcessor>();
+container.Register<IEventProcessor, GeneralEventProcessor>();
 container.RegisterDecorator<IEventProcessor, ValidatorProcessor>();
 
 // new ValidatorProcessor(new GeneralEventProcessor(), new EventValidator())
@@ -166,7 +167,7 @@ container.RegisterDecorator<IEventProcessor, ValidatorProcessor>(options => opti
 var processors = container.ResolveAll<IEventProcessor>();
 ```
 
-You can also mark your dependencies for decoration with **property/field/parameter attributes**. 
+You can also mark your dependencies for decoration with **property / field / parameter attributes**. 
 
 ```cs
 class LogAttribute : Attribute { }
@@ -239,6 +240,82 @@ var eventProcessor = container.Resolve<IEventProcessor<UpdateEvent>>();
 // process the event.
 eventProcessor.ProcessEvent(new UpdateEvent());
 ```
+
+## Composite Pattern
+
+The [Composite pattern](https://en.wikipedia.org/wiki/Composite_pattern) allows a group of objects to be treated the same way as a single instance of the same type. It's useful when you want to use the functionality of multiple instances behind the same interface. You can achieve this by registering a decorator that takes a collection of the same service as a dependency. 
+
+```cs
+public class CompositeValidator<TEvent> : IEventValidator<TEvent>
+{
+    private readonly IEnumerable<IEventValidator<TEvent>> validators;
+
+    public CompositeValidator(IEnumerable<IEventValidator<TEvent>> validators)
+    {
+        this.validators = validators;
+    }
+
+    public bool IsValid(TEvent event)
+    {
+        return this.validators.All(validator => validator.IsValid(event));
+    }
+}
+
+container.Register(typeof(IEventValidator<>), typeof(EventValidator<>));
+container.Register(typeof(IEventValidator<>), typeof(AnotherEventValidator<>));
+container.RegisterDecorator(typeof(IEventValidator<>), typeof(CompositeValidator<>));
+```
+
+## Decorating Multiple Services
+You have the option to organize similar decorating functionalities for different interfaces into the same decorator class. 
+In this example, we would like to validate a given `Event` right before publishing and also before processing. 
+
+```cs
+public class EventValidator<TEvent> : IEventProcessor<T>, IEventPublisher<TEvent>
+{
+    private readonly IEventProcessor<TEvent> processor;
+    private readonly IEventPublisher<TEvent> publisher;
+    private readonly IEventValidator<TEvent> publisher;
+
+    public CompositeValidator(IEventProcessor<TEvent> processor, 
+        IEventPublisher<TEvent> publisher, 
+        IEventValidator<TEvent> validator)
+    {
+        this.processor = processor;
+        this.processor = publisher;
+        this.processor = validator;
+    }
+
+    public void ProcessEvent(TEvent event)
+    {
+        // validate the event first.
+        if (!this.eventValidator.IsValid(event))
+            throw new InvalidEventException();
+
+        // if everything is ok, call the processor.
+        this.processor.ProcessEvent(event);
+    }
+
+    public void PublishEvent(TEvent event)
+    {
+        // validate the event first.
+        if (!this.eventValidator.IsValid(event))
+            throw new InvalidEventException();
+
+        // if everything is ok, call the publisher.
+        this.publisher.PublishEvent(event);
+    }
+}
+
+container.Register(typeof(IEventProcessor<>), typeof(EventProcessor<>));
+container.Register(typeof(IEventPublisher<>), typeof(EventPublisher<>));
+container.Register(typeof(IEventValidator<>), typeof(EventValidator<>));
+
+// without specifying the interface type, the container binds this registration to all of its implemented types
+container.RegisterDecorator(typeof(EventValidator<>));
+```
+
+?> You can also use the [Binding to Multiple Services](usage/advanced-registration?id=binding-to-multiple-services) options.
 
 ## Lifetime
 

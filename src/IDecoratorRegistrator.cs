@@ -29,6 +29,25 @@ namespace Stashbox
             where TTo : class, TFrom;
 
         /// <summary>
+        /// Registers a decorator type into the container with custom configuration. 
+        /// This function configures the registration with the <see cref="BaseFluentConfigurator{T}.AsImplementedTypes()"/> option.
+        /// </summary>
+        /// <param name="typeTo">Type that will be returned.</param>
+        /// <param name="configurator">The configurator for the registered types.</param>
+        /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns>
+        IStashboxContainer RegisterDecorator(Type typeTo, Action<DecoratorConfigurator> configurator = null);
+
+        /// <summary>
+        /// Registers a decorator type into the container with custom configuration. 
+        /// This function configures the registration with the <see cref="BaseFluentConfigurator{T}.AsImplementedTypes()"/> option.
+        /// </summary>
+        /// <typeparam name="TTo">Type that will be returned.</typeparam>
+        /// <param name="configurator">The configurator for the registered types.</param>
+        /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns>
+        IStashboxContainer RegisterDecorator<TTo>(Action<DecoratorConfigurator<TTo, TTo>> configurator = null)
+            where TTo : class;
+
+        /// <summary>
         /// Registers a decorator type into the container with custom configuration.
         /// </summary>
         /// <typeparam name="TFrom">Type that will be requested.</typeparam>

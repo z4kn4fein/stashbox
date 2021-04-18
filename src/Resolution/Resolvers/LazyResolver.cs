@@ -3,16 +3,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 
 namespace Stashbox.Resolution.Resolvers
 {
     internal class LazyResolver : IEnumerableSupportedResolver
     {
-        private static readonly MethodInfo ResolveMethodInfo =
-            Constants.ResolverType.GetMethodByArguments(nameof(IDependencyResolver.Resolve), typeof(Type),
-                Constants.ObjectType, typeof(bool), typeof(object[]));
-
         public Expression GetExpression(
             IResolutionStrategy resolutionStrategy,
             TypeInformation typeInfo,
@@ -49,7 +44,7 @@ namespace Stashbox.Resolution.Resolvers
             ResolutionContext resolutionContext, IResolutionStrategy resolutionStrategy) =>
             resolutionContext.CurrentContainerContext.ContainerConfiguration.CircularDependenciesWithLazyEnabled
                 ? resolutionContext.CurrentScopeParameter
-                    .CallMethod(ResolveMethodInfo, argumentType.Type.AsConstant(),
+                    .CallMethod(Constants.ResolveMethod, argumentType.Type.AsConstant(),
                         argumentType.DependencyName.AsConstant(), false.AsConstant(),
                         Constants.ObjectType.InitNewArray(resolutionContext.ParameterExpressions
                             .SelectMany(x => x.Select(i => i.I2.ConvertTo(Constants.ObjectType)))))
