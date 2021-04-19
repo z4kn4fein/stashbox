@@ -153,13 +153,27 @@ namespace Stashbox.Utils.Data.Immutable
         }
 
         [MethodImpl(Constants.Inline)]
-        public TValue GetOrDefault(TKey key, bool byRef)
+        public TValue GetOrDefaultByValue(TKey key)
         {
             var length = this.Repository.Length;
             for (var i = 0; i < length; i++)
             {
                 ref readonly var item = ref this.Repository[i];
-                if (byRef && ReferenceEquals(item.Key, key) || !byRef && Equals(item.Key, key))
+                if (Equals(item.Key, key))
+                    return item.Value;
+            }
+
+            return default;
+        }
+
+        [MethodImpl(Constants.Inline)]
+        public TValue GetOrDefaultByRef(TKey key)
+        {
+            var length = this.Repository.Length;
+            for (var i = 0; i < length; i++)
+            {
+                ref readonly var item = ref this.Repository[i];
+                if (ReferenceEquals(item.Key, key))
                     return item.Value;
             }
 

@@ -205,20 +205,37 @@ namespace Stashbox.Utils.Data.Immutable
             this.UpdateIfExists(byRef ? RuntimeHelpers.GetHashCode(key) : key.GetHashCode(), key, byRef, value);
 
         [MethodImpl(Constants.Inline)]
-        public TValue GetOrDefault(TKey key, bool byRef = true)
+        public TValue GetOrDefaultByValue(TKey key)
         {
             if (this.IsEmpty)
                 return default;
 
-            var hash = byRef ? RuntimeHelpers.GetHashCode(key) : key.GetHashCode();
+            var hash = key.GetHashCode();
             var node = this;
             while (!node.IsEmpty && node.storedHash != hash)
                 node = hash < node.storedHash ? node.leftNode : node.rightNode;
-            return !node.IsEmpty && (byRef && ReferenceEquals(key, node.storedKey) || !byRef && Equals(key, node.storedKey))
+            return !node.IsEmpty && Equals(key, node.storedKey)
                 ? node.storedValue
                 : node.collisions == null
                     ? default
-                    : node.collisions.GetOrDefault(key, byRef);
+                    : node.collisions.GetOrDefaultByValue(key);
+        }
+
+        [MethodImpl(Constants.Inline)]
+        public TValue GetOrDefaultByRef(TKey key)
+        {
+            if (this.IsEmpty)
+                return default;
+
+            var hash = RuntimeHelpers.GetHashCode(key);
+            var node = this;
+            while (!node.IsEmpty && node.storedHash != hash)
+                node = hash < node.storedHash ? node.leftNode : node.rightNode;
+            return !node.IsEmpty && ReferenceEquals(key, node.storedKey)
+                ? node.storedValue
+                : node.collisions == null
+                    ? default
+                    : node.collisions.GetOrDefaultByRef(key);
         }
 
         private ImmutableTree<TKey, TValue> AddOrUpdate(int hash, TKey key, TValue value, bool byRef, Func<TValue, TValue, TValue> updateDelegate, bool forceUpdate)

@@ -33,20 +33,20 @@ namespace Stashbox.Utils.Data
         }
 
         [MethodImpl(Constants.Inline)]
-        public TValue GetOrDefault(TKey key, bool byRef = true)
+        public TValue GetOrDefaultByValue(TKey key)
         {
             if (this.root == null)
                 return default;
 
             var node = root;
-            var hash = byRef ? RuntimeHelpers.GetHashCode(key) : key.GetHashCode();
+            var hash = key.GetHashCode();
             while (node != null && node.storedHash != hash)
                 node = hash < node.storedHash ? node.left : node.right;
-            return node != null && (byRef && ReferenceEquals(key, node.storedKey) || !byRef && Equals(key, node.storedKey))
+            return node != null && Equals(key, node.storedKey)
                 ? node.storedValue
                 : node?.collisions == null
                     ? default
-                    : node.collisions.GetOrDefault(key, byRef);
+                    : node.collisions.GetOrDefaultByValue(key);
         }
 
         private static int CalculateHeight(Node node)

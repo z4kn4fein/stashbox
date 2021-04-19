@@ -129,7 +129,7 @@ namespace Stashbox.Resolution
             this.factoryCache.GetOrDefault(key);
 
         internal Expression GetExpressionOverrideOrDefault(Type type, object name = null) =>
-            this.expressionOverrides?.GetOrDefault(name ?? type, false);
+            this.expressionOverrides?.GetOrDefaultByValue(name ?? type);
 
         internal bool WeAreInCircle(int key) =>
             this.circularDependencyBarrier.Contains(key);

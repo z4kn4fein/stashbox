@@ -22,7 +22,7 @@ namespace Stashbox.Registration
 
         public ServiceRegistration ProduceClosedRegistration(Type requestedType)
         {
-            var found = this.closedGenericRegistrations.GetOrDefault(requestedType);
+            var found = this.closedGenericRegistrations.GetOrDefaultByRef(requestedType);
             if(found != null) return found;
 
             var genericType = this.ImplementationType.MakeGenericType(requestedType.GetGenericArguments());
@@ -34,7 +34,7 @@ namespace Stashbox.Registration
                     items.AddOrUpdate(t1, t2, true), requestedType, newRegistration, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder))
                 return newRegistration;
 
-            return this.closedGenericRegistrations.GetOrDefault(requestedType);
+            return this.closedGenericRegistrations.GetOrDefaultByRef(requestedType);
         }
     }
 }

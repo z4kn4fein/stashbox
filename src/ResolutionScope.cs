@@ -24,7 +24,7 @@ namespace Stashbox
 
             public DelegateCache GetNamedCache(object name)
             {
-                var cache = this.NamedCache.GetOrDefault(name, false);
+                var cache = this.NamedCache.GetOrDefaultByValue(name);
                 if (cache != null) return cache;
 
                 var newCache = new DelegateCache();
@@ -32,7 +32,7 @@ namespace Stashbox
                      items.AddOrUpdate(t1, t2, false), name, newCache, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder))
                     return newCache;
 
-                return this.NamedCache.GetOrDefault(name, false) ?? newCache;
+                return this.NamedCache.GetOrDefaultByValue(name) ?? newCache;
             }
         }
 

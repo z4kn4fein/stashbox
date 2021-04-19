@@ -143,13 +143,27 @@ namespace Stashbox.Utils.Data
         { }
 
         [MethodImpl(Constants.Inline)]
-        public TItem GetOrDefault(TKey key, bool byRef)
+        public TItem GetOrDefaultByValue(TKey key)
         {
             var length = this.Length;
             for (var i = 0; i < length; i++)
             {
                 ref readonly var item = ref this.Repository[i];
-                if (byRef && ReferenceEquals(item.Key, key) || !byRef && Equals(item.Key, key))
+                if (Equals(item.Key, key))
+                    return item.Value;
+            }
+
+            return default;
+        }
+
+        [MethodImpl(Constants.Inline)]
+        public TItem GetOrDefaultByRef(TKey key)
+        {
+            var length = this.Length;
+            for (var i = 0; i < length; i++)
+            {
+                ref readonly var item = ref this.Repository[i];
+                if (ReferenceEquals(item.Key, key))
                     return item.Value;
             }
 

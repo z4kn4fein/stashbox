@@ -47,7 +47,7 @@ namespace Stashbox.Resolution
                     }
                 }
 
-                var decorators = resolutionContext.RemainingDecorators.GetOrDefault(typeInformation.Type, true);
+                var decorators = resolutionContext.RemainingDecorators.GetOrDefaultByRef(typeInformation.Type);
                 if (decorators != null && decorators.Length > 0)
                     return this.BuildExpressionForDecorator(decorators.Front(),
                         resolutionContext.BeginDecoratingContext(typeInformation.Type, decorators), typeInformation.Type, decorators);
@@ -80,7 +80,7 @@ namespace Stashbox.Resolution
 
             return registrations.Select(reg =>
             {
-                var decorators = resolutionContext.RemainingDecorators.GetOrDefault(typeInformation.Type, true);
+                var decorators = resolutionContext.RemainingDecorators.GetOrDefaultByRef(typeInformation.Type);
                 if (decorators == null || decorators.Length == 0)
                     return this.BuildExpressionForRegistration(reg, resolutionContext, typeInformation);
 

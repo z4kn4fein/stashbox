@@ -47,10 +47,10 @@ namespace Stashbox.Registration
 
         private IEnumerable<ServiceRegistration> GetRegistrationsForType(Type type)
         {
-            var registrations = repository.GetOrDefault(type);
+            var registrations = repository.GetOrDefaultByRef(type);
             return !type.IsClosedGenericType()
                 ? registrations
-                : repository.GetOrDefault(type.GetGenericTypeDefinition());
+                : repository.GetOrDefaultByRef(type.GetGenericTypeDefinition());
         }
 
     }

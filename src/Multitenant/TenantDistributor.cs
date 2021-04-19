@@ -51,7 +51,7 @@ namespace Stashbox.Multitenant
         public IDependencyResolver GetTenant(object tenantId)
         {
             Shield.EnsureNotNull(tenantId, nameof(tenantId));
-            return this.tenantRepository.GetOrDefault(tenantId, false);
+            return this.tenantRepository.GetOrDefaultByValue(tenantId);
         }
 
         /// <inheritdoc />

@@ -117,10 +117,10 @@ namespace Stashbox.Registration
 
         private IEnumerable<ServiceRegistration> GetRegistrationsForType(Type type)
         {
-            IEnumerable<ServiceRegistration> registrations = serviceRepository.GetOrDefault(type);
+            IEnumerable<ServiceRegistration> registrations = serviceRepository.GetOrDefaultByRef(type);
             if (!type.IsClosedGenericType()) return registrations;
 
-            var openGenerics = serviceRepository.GetOrDefault(type.GetGenericTypeDefinition());
+            var openGenerics = serviceRepository.GetOrDefaultByRef(type.GetGenericTypeDefinition());
 
             if (openGenerics != null)
                 registrations = registrations == null ? openGenerics : openGenerics.Concat(registrations);

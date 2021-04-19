@@ -23,7 +23,7 @@ namespace Stashbox
                     this == this.containerContext.RootScope, nullResultAllowed, false,
                     this.ProcessDependencyOverrides(dependencyOverrides)), typeFrom);
 
-            var cachedFactory = this.delegateCache.ServiceDelegates.GetOrDefault(typeFrom);
+            var cachedFactory = this.delegateCache.ServiceDelegates.GetOrDefaultByRef(typeFrom);
             return cachedFactory != null
                 ? cachedFactory(this)
                 : this.Activate(new ResolutionContext(this.GetActiveScopeNames(), this.containerContext,
@@ -40,7 +40,7 @@ namespace Stashbox
                     this == this.containerContext.RootScope, nullResultAllowed, false,
                     this.ProcessDependencyOverrides(dependencyOverrides)), typeFrom, name);
 
-            var cachedFactory = this.delegateCache.ServiceDelegates.GetOrDefault(name, false);
+            var cachedFactory = this.delegateCache.ServiceDelegates.GetOrDefaultByValue(name);
             return cachedFactory != null
                 ? cachedFactory(this)
                 : this.Activate(new ResolutionContext(this.GetActiveScopeNames(), this.containerContext,
@@ -64,7 +64,7 @@ namespace Stashbox
             this.ThrowIfDisposed();
 
             var key = name ?? typeFrom;
-            var cachedFactory = this.delegateCache.FactoryDelegates.GetOrDefault(key, false);
+            var cachedFactory = this.delegateCache.FactoryDelegates.GetOrDefaultByValue(key);
             return cachedFactory != null ? cachedFactory(this) : this.ActivateFactoryDelegate(typeFrom, parameterTypes, name, nullResultAllowed);
         }
 
