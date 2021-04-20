@@ -6,7 +6,7 @@
 
     --search-input-background-color: var(--base-background-color);
 
-    --base-line-height: 1.5;
+    --base-line-height: 1.55;
     --base-color: #b2b8be;
     --heading-color: #c3c8ce;
 
@@ -54,17 +54,15 @@
     --docsify-example-panels-padding-inner: 0px 16px;
 
     --heading-h2-border-color: var(--table-cell-border-color);
-    --heading-h2-margin: 20px 0 10px 0;
+    --heading-h2-margin: 20px 0 15px 0;
     --heading-h2-padding: 0;
 
     --heading-h3-margin-top: 12px;
     --heading-h3-margin: var(--heading-h3-margin-top) 0 0;
-    /* --heading-h3-font-weight: 450; */
 
     --heading-h4-font-size: calc(var(--font-size-m) * 1.1);
-    /* --heading-h4-font-weight: 450; */
 
-    --heading-h1-margin: 20px 0 10px 0;
+    --heading-h1-margin: 25px 0 15px 0;
 
     --hr-border: 1px solid var(--table-cell-border-color);
 
