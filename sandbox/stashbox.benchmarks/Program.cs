@@ -7,7 +7,12 @@ namespace Stashbox.Benchmarks
     {
         static void Main(string[] args)
         {
-            BenchmarkRunner.Run<DisposeBenchmarks>();
+            //BenchmarkRunner.Run<DisposeBenchmarks>();
+            //BenchmarkRunner.Run<EnumerableBenchmarks>();
+            //BenchmarkRunner.Run<PropertyBenchmarks>();
+            //BenchmarkRunner.Run<RegisterBenchmarks>();
+            //BenchmarkRunner.Run<ResolveBenchmarks>();
+            BenchmarkRunner.Run<ScopedBenchmarks>();
             Console.ReadKey();
         }
     }

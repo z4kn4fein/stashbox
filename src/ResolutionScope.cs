@@ -40,28 +40,22 @@ namespace Stashbox
         {
             private static int MaxWaitTimeInMs = 3000;
             private static readonly object Default = new object();
-            private readonly Type serviceType;
             private int evaluated;
             private object evaluatedObject = Default;
 
-            public ScopedEvaluator(Type serviceType)
-            {
-                this.serviceType = serviceType;
-            }
-
-            public object Evaluate(IResolutionScope scope, Func<IResolutionScope, object> factory)
+            public object Evaluate(IResolutionScope scope, Func<IResolutionScope, object> factory, Type serviceType)
             {
                 if (!ReferenceEquals(this.evaluatedObject, Default))
                     return this.evaluatedObject;
 
                 if (Interlocked.CompareExchange(ref this.evaluated, 1, 0) != 0)
-                    return this.WaitForEvaluation();
+                    return this.WaitForEvaluation(serviceType);
 
                 this.evaluatedObject = factory(scope);
                 return this.evaluatedObject;
             }
 
-            private object WaitForEvaluation()
+            private object WaitForEvaluation(Type serviceType)
             {
                 SpinWait spin = default;
                 var startTime = (uint)Environment.TickCount;
@@ -71,8 +65,8 @@ namespace Stashbox
                     {
                         var currentTime = (uint)Environment.TickCount;
                         if(MaxWaitTimeInMs <= currentTime - startTime)
-                            throw new ResolutionFailedException(this.serviceType,
-                                $"The scoped service {this.serviceType} was unavailable after {MaxWaitTimeInMs} ms. " +
+                            throw new ResolutionFailedException(serviceType,
+                                $"The scoped service {serviceType} was unavailable after {MaxWaitTimeInMs} ms. " +
                                 "It's possible that the thread used to construct it crashed by a handled exception." +
                                 "This exception is supposed to prevent other caller threads from infinite waiting for service construction.");
                     }
@@ -154,7 +148,7 @@ namespace Stashbox
             this.ThrowIfDisposed();
 
             var item = this.scopedItems.GetOrDefault(key);
-            if (item != null) return item.Evaluate(this, factory);
+            if (item != null) return item.Evaluate(this, factory, requestedType);
 
             if (validateLifetimeFromRootScope &&
                 this.containerContext.ContainerConfiguration.LifetimeValidationEnabled &&
@@ -163,12 +157,12 @@ namespace Stashbox
                     $"Resolution of scoped {requestedType} from the root scope is not allowed, " +
                     $"that would promote the service's lifetime to singleton.");
 
-            var evaluator = new ScopedEvaluator(requestedType);
+            var evaluator = new ScopedEvaluator();
             if (Swap.SwapValue(ref this.scopedItems, (t1, t2, t3, t4, items) =>
                  items.AddOrUpdate(t1, t2), key, evaluator, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder))
-                return evaluator.Evaluate(this, factory);
+                return evaluator.Evaluate(this, factory, requestedType);
 
-            return this.scopedItems.GetOrDefault(key).Evaluate(this, factory);
+            return this.scopedItems.GetOrDefault(key).Evaluate(this, factory, requestedType);
         }
 
         public void InvalidateDelegateCache()
