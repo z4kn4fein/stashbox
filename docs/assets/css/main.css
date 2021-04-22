@@ -36,7 +36,7 @@
     --notice-tip-background: #002538;
 
     --notice-important-border-color: hsl(0, 57%, 45%);
-    --notice-important-background: hsl(0, 51%, 18%);
+    --notice-important-background: hsl(0, 51%, 15%);
 
     --navbar-menu-link-color: var(--theme-color);
     --navbar-menu-link-text-decoration--hover: underline;
