@@ -9,25 +9,25 @@ class UpdateEvent : Event { }
 
 interface IEventProcessor
 {
-    void ProcessEvent(Event event);
+    void ProcessEvent(Event @event);
 }
 
 interface IEventValidator
 {
-    bool IsValid(Event event);
+    bool IsValid(Event @event);
 }
 
 class EventValidator : IEventValidator
 {
-    public bool IsValid(Event event) { /* do the actual validation. */ }
+    public bool IsValid(Event @event) { /* do the actual validation. */ }
 }
 
 class GeneralEventProcessor : IEventProcessor
 {
-    public void ProcessEvent(Event event)
+    public void ProcessEvent(Event @event)
     {
         // suppose this method is processing the given event.
-        this.DoTheActualProcessing(event);
+        this.DoTheActualProcessing(@event);
     }
 }
 
@@ -41,14 +41,14 @@ class ValidatorProcessor : IEventProcessor
         this.eventValidator = eventValidator;
     }
 
-    public void ProcessEvent(Event event)
+    public void ProcessEvent(Event @event)
     {
         // validate the event first.
-        if (!this.eventValidator.IsValid(event))
+        if (!this.eventValidator.IsValid(@event))
             throw new InvalidEventException();
 
         // if everything is ok, call the next processor.
-        this.nextProcessor.ProcessEvent(event);
+        this.nextProcessor.ProcessEvent(@event);
     }
 }
 
@@ -203,12 +203,12 @@ Inspection of [generic parameter constraints](advanced/generics?id=generic-const
 ```cs
 interface IEventProcessor<TEvent>
 {
-    void ProcessEvent(TEvent event);
+    void ProcessEvent(TEvent @event);
 }
 
 class GeneralEventProcessor<TEvent> : IEventProcessor<TEvent>
 {
-    public void ProcessEvent(TEvent event) { /* suppose this method is processing the given event.*/ }
+    public void ProcessEvent(TEvent @event) { /* suppose this method is processing the given event.*/ }
 }
 
 class ValidatorProcessor<TEvent> : IEventProcessor<TEvent>
@@ -219,14 +219,14 @@ class ValidatorProcessor<TEvent> : IEventProcessor<TEvent>
         this.nextProcessor = eventProcessor;
     }
 
-    public void ProcessEvent(TEvent event)
+    public void ProcessEvent(TEvent @event)
     {
         // validate the event first.
-        if (!this.IsValid(event))
+        if (!this.IsValid(@event))
             throw new InvalidEventException();
 
         // if everything is ok, call the next processor.
-        this.nextProcessor.ProcessEvent(event);
+        this.nextProcessor.ProcessEvent(@event);
     }
 }
 
@@ -255,9 +255,9 @@ public class CompositeValidator<TEvent> : IEventValidator<TEvent>
         this.validators = validators;
     }
 
-    public bool IsValid(TEvent event)
+    public bool IsValid(TEvent @event)
     {
-        return this.validators.All(validator => validator.IsValid(event));
+        return this.validators.All(validator => validator.IsValid(@event));
     }
 }
 
@@ -286,24 +286,24 @@ public class EventValidator<TEvent> : IEventProcessor<T>, IEventPublisher<TEvent
         this.processor = validator;
     }
 
-    public void ProcessEvent(TEvent event)
+    public void ProcessEvent(TEvent @event)
     {
         // validate the event first.
-        if (!this.eventValidator.IsValid(event))
+        if (!this.eventValidator.IsValid(@event))
             throw new InvalidEventException();
 
         // if everything is ok, call the processor.
-        this.processor.ProcessEvent(event);
+        this.processor.ProcessEvent(@event);
     }
 
-    public void PublishEvent(TEvent event)
+    public void PublishEvent(TEvent @event)
     {
         // validate the event first.
-        if (!this.eventValidator.IsValid(event))
+        if (!this.eventValidator.IsValid(@event))
             throw new InvalidEventException();
 
         // if everything is ok, call the publisher.
-        this.publisher.PublishEvent(event);
+        this.publisher.PublishEvent(@event);
     }
 }
 
