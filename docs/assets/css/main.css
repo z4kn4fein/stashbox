@@ -77,8 +77,8 @@
     --code-block-padding: 1.4em 1.5em 1.1em 1.5em;
    
     --code-inline-color: var(--theme-2-color);
-    --code-font-size: calc(var(--font-size-m) * 0.9);
-    --code-inline-padding: 0.1em 0.3em 0.2em 0.3em;
+    --code-font-size: calc(var(--font-size-m) * 0.85);
+    --code-inline-padding: 0.2em 0.3em 0.2em 0.3em;
     --code-inline-margin: 0.1em;
     --code-inline-background: #293136;
 
@@ -259,7 +259,7 @@ button.sidebar-toggle {
 
 @media (max-width: 450px) {
     :root {
-        --code-font-size: calc(var(--font-size-m) * 0.82);
+        /* --code-font-size: calc(var(--font-size-m) * 0.8); */
         --base-font-size: 13px;
         --code-block-padding: 1.4em 1.5em 1.1em 1.0em;
         --sidebar-width: 20rem !important;
@@ -300,7 +300,8 @@ button.sidebar-toggle {
 @media (max-width: 1000px) {
     :root {
         --sidebar-width: 16rem;
-        --sidebar-padding: 0 25px 0 15px;
+        --sidebar-padding: 0 25px 0 15px;        
+        --code-font-size: calc(var(--font-size-m) * 0.8);
     }
 
     .sidebar-toggle .sidebar-toggle-button {
