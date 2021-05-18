@@ -6,7 +6,7 @@
 Most of the registration methods have an `Action<TOptions>` parameter, enabling several customization options on the given registration.
 
 Here are three examples that show how the API's usage looks like.
-They cover the same functionalities you read about in the [basics](registration/basics) section, 
+They cover the same functionalities you read about in the [basics](usage/basics) section, 
 but achieved with the options API.
 
 <!-- div:right-panel -->
@@ -19,7 +19,7 @@ container.Register<IJob, DbBackup>(options => options
     .WithName("DbBackup"));
 ```
 #### **Lifetime**
-In the [Lifetime shortcuts](registration/basics?id=lifetime-shortcuts) section, it was mentioned that those methods are only sugars; under the curtain, they are also using this API:
+In the [Lifetime shortcuts](usage/basics?id=lifetime-shortcuts) section, it was mentioned that those methods are only sugars; under the curtain, they are also using this API:
 ```cs
 container.Register<IJob, DbBackup>(options => options
     .WithLifetime(Lifetimes.Singleton));
