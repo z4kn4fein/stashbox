@@ -134,7 +134,7 @@ namespace Stashbox.Expressions
                 serviceType,
                 registrationContext,
                 resolutionContext,
-                typeInfo.DeclaredConstructors.CastToArray(),
+                typeInfo.DeclaredConstructors,
                 out var parameters).MakeNew(parameters);
 
             if (members.Length > 0)
@@ -176,7 +176,7 @@ namespace Stashbox.Expressions
             constructors = rule(constructors);
 
             return this.SelectConstructor(typeToConstruct, registrationContext, resolutionContext,
-                constructors.CastToArray(), out var parameters)?.MakeNew(parameters);
+                constructors, out var parameters)?.MakeNew(parameters);
         }
     }
 }

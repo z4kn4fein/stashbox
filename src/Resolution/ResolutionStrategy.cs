@@ -40,8 +40,7 @@ namespace Stashbox.Resolution
                                                  p.I2.Type.Implements(type));
 
                         if (parameters == null) continue;
-                        var selected =
-                            parameters.FirstOrDefault(parameter => !parameter.I1) ?? parameters[parameters.Length - 1];
+                        var selected = parameters.FirstOrDefault(parameter => !parameter.I1) ?? parameters[parameters.Length - 1];
                         selected.I1 = true;
                         return selected.I2;
                     }

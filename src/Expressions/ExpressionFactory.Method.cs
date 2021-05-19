@@ -4,6 +4,7 @@ using Stashbox.Resolution;
 using Stashbox.Resolution.Extensions;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
@@ -37,12 +38,28 @@ namespace Stashbox.Expressions
             Type typeToConstruct,
             RegistrationContext registrationContext,
             ResolutionContext resolutionContext,
-            ConstructorInfo[] constructors,
+            IEnumerable<ConstructorInfo> constructorsEnumerable,
             out Expression[] parameterExpressions)
         {
+
+            ConstructorInfo[] constructors = null;
+            if (resolutionContext.ParameterExpressions.Length > 0)
+            {
+                var containingFactoryParameter = constructorsEnumerable
+                    .Where(c => c.GetParameters()
+                        .Any(p => resolutionContext.ParameterExpressions
+                            .WhereOrDefault(pe => pe.Any(pexp => pexp.I2.Type == p.ParameterType ||
+                                                 pexp.I2.Type.Implements(p.ParameterType)))?.Any() ?? false));
+
+                var everythingElse = constructorsEnumerable.Except(containingFactoryParameter);
+                constructors = containingFactoryParameter.Concat(everythingElse).CastToArray();
+            }
+            else
+                constructors = constructorsEnumerable.CastToArray();
+
             if (constructors.Length == 0)
-                throw new ResolutionFailedException(typeToConstruct, 
-                    registrationContext.Name, 
+                throw new ResolutionFailedException(typeToConstruct,
+                    registrationContext.Name,
                     "No public constructor found. Make sure there is at least one public constructor on the type.");
 
             var checkedConstructors = new Dictionary<MethodBase, TypeInformation>();
