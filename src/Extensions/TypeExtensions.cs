@@ -279,8 +279,19 @@ namespace System
         public static IEnumerable<ConstructorInfo> GetUsableConstructors(this TypeInfo typeInfo) =>
             typeInfo.DeclaredConstructors.Where(constructor => !constructor.IsStatic && constructor.IsPublic);
 
-        public static MethodInfo[] GetUsableMethods(this TypeInfo typeInfo) =>
-            typeInfo.DeclaredMethods.Where(method => method.GetInjectionAttribute() != null).CastToArray();
+        public static MethodInfo[] GetUsableMethods(this TypeInfo typeInfo)
+        {
+            var methods =  typeInfo.DeclaredMethods.Where(method => method.GetInjectionAttribute() != null);
+            var baseType = typeInfo.BaseType;
+            while (baseType != null && !baseType.IsObjectType())
+            {
+                var baseTypeInfo = baseType.GetTypeInfo();
+                methods =  methods.Concat(baseTypeInfo.DeclaredMethods.Where(method => method.GetInjectionAttribute() != null));
+                baseType = baseTypeInfo.BaseType;
+            }
+
+            return methods.CastToArray();
+        }
 
         public static MemberInfo[] GetUsableMembers(this TypeInfo typeInfo,
             RegistrationContext contextData,
