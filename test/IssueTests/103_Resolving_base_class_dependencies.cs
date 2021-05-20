@@ -1,14 +1,9 @@
 ﻿using Stashbox.Attributes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace Stashbox.Tests.IssueTests
 {
-   public class A
+    public class A
     { }
     public class B
     { }
@@ -18,7 +13,7 @@ namespace Stashbox.Tests.IssueTests
         [Dependency]
         public A A { get; set; }
         public bool DoneA { get; set; }
-        
+
         [InjectionMethod]
         public void InjectA()
         {
@@ -55,5 +50,5 @@ namespace Stashbox.Tests.IssueTests
             Assert.True(main.DoneA);
             Assert.True(main.DoneB);
         }
-    }   
+    }
 }
