@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [v3.6.3] - 2021-05-26
 ### Fixed
-- Resolving Func use wrong constructor. [#102](https://github.com/z4kn4fein/stashbox/issues/102)
+- Resolving Func uses the wrong constructor. [#102](https://github.com/z4kn4fein/stashbox/issues/102)
 - Base class InjectionMethod not populated. [#103](https://github.com/z4kn4fein/stashbox/issues/103)
 
 ## [v3.6.2] - 2021-04-23
