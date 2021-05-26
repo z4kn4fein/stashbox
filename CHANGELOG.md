@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v3.6.3] - 2021-05-26
+### Fixed
+- Resolving Func use wrong constructor. [#102](https://github.com/z4kn4fein/stashbox/issues/102)
+- Base class InjectionMethod not populated. [#103](https://github.com/z4kn4fein/stashbox/issues/103)
+
 ## [v3.6.2] - 2021-04-23
 ### Fixed
 - Rare NullReferenceException on Resolve. [#101](https://github.com/z4kn4fein/stashbox/issues/101)
@@ -141,6 +146,7 @@ The validation was executed only at the expression tree building phase, so an al
 - Removed the legacy container extension functionality.
 - Removed the support of PCL v259.
 
+[v3.6.3]: https://github.com/z4kn4fein/stashbox/compare/3.6.2...3.6.3
 [v3.6.2]: https://github.com/z4kn4fein/stashbox/compare/3.6.1...3.6.2
 [v3.6.1]: https://github.com/z4kn4fein/stashbox/compare/3.6.0...3.6.1
 [v3.6.0]: https://github.com/z4kn4fein/stashbox/compare/3.5.1...3.6.0

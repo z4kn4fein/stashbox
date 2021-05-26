@@ -99,6 +99,32 @@ IJob dbBackup = backupFactory.DynamicInvoke(Configuration["ConnectionString"]);
 <!-- panels:start -->
 
 <!-- div:left-panel -->
+If a service has multiple constructors, the container visits those first, that has matching parameters passed to the factory, with respecting the additional [constructor selection rules](configuration/registration-configuration?id=constructor-selection).
+
+```cs
+class Service
+{
+    public Service(int number) { }
+    public Service(string text) { }
+}
+```
+
+<!-- div:right-panel -->
+```cs
+container.Register<Service>();
+
+// create the factory with an int input parameter.
+var func = constainer.Resolve<Func<int, Service>>();
+
+// the constructor with the int param 
+// is used for instantiation.
+var service = func(2);
+```
+<!-- panels:end -->
+
+<!-- panels:start -->
+
+<!-- div:left-panel -->
 ### Consider These Before Using the Resolver Parameter Inside a Factory
 Delegate factories are a black-box for the container. It doesn't have much control over what's happening inside them, which means when you resolve additional dependencies with the dependency resolver parameter, they could easily bypass the [lifetime](diagnostics/validation?id=lifetime-validation) and [circular dependency](diagnostics/validation?id=circular-dependency) validations. Fortunately, there are options to keep them validated anyway:
 
