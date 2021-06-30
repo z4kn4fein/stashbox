@@ -6,8 +6,8 @@
 - [Basic Usage](usage/basics)
 - [Advanced Registration](usage/advanced-registration)
 - [Service Resolution](usage/service-resolution)
-- [Scopes](usage/scopes)
 - [Lifetimes](usage/lifetimes)
+- [Scopes](usage/scopes)
 - **Configuration**
 - [Registration Configuration](configuration/registration-configuration)
 - [Container Configuration](configuration/container-configuration)
