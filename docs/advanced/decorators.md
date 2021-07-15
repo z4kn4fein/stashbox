@@ -214,6 +214,7 @@ class GeneralEventProcessor<TEvent> : IEventProcessor<TEvent>
 class ValidatorProcessor<TEvent> : IEventProcessor<TEvent>
 {
     private readonly IEventProcessor<TEvent> nextProcessor;
+
     public ValidatorProcessor(IEventProcessor<TEvent> eventProcessor)
     {
         this.nextProcessor = eventProcessor;
@@ -275,21 +276,21 @@ public class EventValidator<TEvent> : IEventProcessor<T>, IEventPublisher<TEvent
 {
     private readonly IEventProcessor<TEvent> processor;
     private readonly IEventPublisher<TEvent> publisher;
-    private readonly IEventValidator<TEvent> publisher;
+    private readonly IEventValidator<TEvent> validator;
 
     public CompositeValidator(IEventProcessor<TEvent> processor, 
         IEventPublisher<TEvent> publisher, 
         IEventValidator<TEvent> validator)
     {
         this.processor = processor;
-        this.processor = publisher;
-        this.processor = validator;
+        this.publisher = publisher;
+        this.validator = validator;
     }
 
     public void ProcessEvent(TEvent @event)
     {
         // validate the event first.
-        if (!this.eventValidator.IsValid(@event))
+        if (!this.validator.IsValid(@event))
             throw new InvalidEventException();
 
         // if everything is ok, call the processor.
@@ -299,7 +300,7 @@ public class EventValidator<TEvent> : IEventProcessor<T>, IEventPublisher<TEvent
     public void PublishEvent(TEvent @event)
     {
         // validate the event first.
-        if (!this.eventValidator.IsValid(@event))
+        if (!this.validator.IsValid(@event))
             throw new InvalidEventException();
 
         // if everything is ok, call the publisher.
