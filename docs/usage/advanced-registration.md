@@ -329,7 +329,7 @@ First, the container will use the *implementation filter* action to select only 
 
 <!-- tabs:start -->
 #### **Default**
-This example will register three types to all their implemented interfaces, extended base classes, and to themselves without any filter:
+This example will register three types to all their implemented interfaces, extended base classes, and to themselves (self registration) without any filter:
 ```cs
 container.RegisterTypes(new[] 
     { 
@@ -361,7 +361,7 @@ DbBackup backup = container.Resolve<DbBackup>(); // DbBackup
 ```
 
 #### **Without self**
-This example will ignore the mapping of implementation types to themselves completely:
+This example ignores the self registrations completely:
 ```cs
 container.RegisterTypes(new[] 
     { 
@@ -476,7 +476,7 @@ DbBackup backup = container.Resolve<DbBackup>(); // error, not found
 
 #### **Multiple assemblies**
 ```cs
-container.RegisterAssembly(new[] 
+container.RegisterAssemblies(new[] 
     { 
         typeof(DbBackup).Assembly, 
         typeof(JobFromAnotherAssembly).Assembly 

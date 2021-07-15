@@ -38,7 +38,7 @@ var service = container.Resolve<IService>("Example");
 
 <!-- panels:start -->
 <!-- div:left-panel -->
-It's a constructor/method argument or a property / field of a registered *Implementation type* that gets evaluated (*injected*) by the container during the service's construction.
+It's a constructor / method argument or a property / field of a registered *Implementation type* that gets evaluated (*injected*) by the container during the service's construction.
 
 In this example, `Implementation` has an `IDependency` *injectable dependency* in its constructor.
 <!-- div:right-panel -->
@@ -99,6 +99,20 @@ It's a resolution request for a named service. The same applies, when the contai
 container.Register<IService, Implementation>("Example");
 // the named resolution initiated by request.
 var service = container.Resolve<IService>("Example");
+```
+<!-- tabs:end -->
+<!-- panels:end -->
+
+## Self registration
+
+<!-- panels:start -->
+<!-- div:left-panel -->
+It's a registration that's mapped to itself, which means its service and implementation type are the same.
+<!-- div:right-panel -->
+```cs
+// equivalent to container.Register<Implementation, Implementation>();
+container.Register<Implementation>(); 
+var service = container.Resolve<Implementation>();
 ```
 <!-- tabs:end -->
 <!-- panels:end -->

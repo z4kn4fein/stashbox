@@ -42,7 +42,7 @@ container.Register(typeof(IJob), typeof(IJob));
 <!-- panels:start -->
 
 <!-- div:left-panel -->
-You can register a service to itself without specifying a service type, only the implementation. 
+You can register a service to itself without specifying a service type, only the implementation (self registration). 
 
 In this case, the given implementation is considered as the service type and must be used for requesting the service (`DbBackup` in the example).
 
