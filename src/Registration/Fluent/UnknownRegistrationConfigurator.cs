@@ -7,6 +7,8 @@ namespace Stashbox.Registration.Fluent
     /// </summary>
     public class UnknownRegistrationConfigurator : RegistrationConfigurator
     {
+        internal bool RegistrationShouldBeSkipped { get; set; }
+
         internal UnknownRegistrationConfigurator(Type serviceType, Type implementationType) : base(serviceType, implementationType)
         {
         }
@@ -24,6 +26,16 @@ namespace Stashbox.Registration.Fluent
             base.ImplementationType = implementationType;
             return this;
 
+        }
+
+        /// <summary>
+        /// Marks the current unknown type registration as skipped.
+        /// </summary>
+        /// <returns>The configurator itself.</returns>
+        public UnknownRegistrationConfigurator Skip()
+        {
+            this.RegistrationShouldBeSkipped = true;
+            return this;
         }
     }
 }
