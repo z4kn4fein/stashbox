@@ -25,5 +25,19 @@ namespace Stashbox.Registration.Fluent
             return this;
 
         }
+
+        /// <summary>
+        /// Resets the current registration's implementation type and factory settings.
+        /// </summary>
+        /// <returns>The configurator itself.</returns>
+        public UnknownRegistrationConfigurator Reset()
+        {
+            base.ImplementationType = null;
+            this.Context.Factory = null;
+            this.Context.FactoryParameters = null;
+            this.Context.IsFactoryDelegateACompiledLambda = false;
+
+            return this;
+        }
     }
 }

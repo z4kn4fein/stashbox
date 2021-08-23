@@ -33,9 +33,14 @@ namespace Stashbox.Registration.Fluent
         internal bool TypeMapIsValid(out string error)
         {
             error = null;
+            if (this.ImplementationType == null)
+            {
+                error = $"Implementation type not set.";
+                return false;
+            }
+
             if (this.Context.Factory != null)
                 return true;
-
 
             if (!this.ImplementationType.IsResolvableType())
             {
