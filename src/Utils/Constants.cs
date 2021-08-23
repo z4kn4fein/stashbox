@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Stashbox.Resolution;
+using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -15,6 +16,8 @@ namespace Stashbox.Utils
 #endif
 
         public static readonly Type ResolverType = typeof(IDependencyResolver);
+
+        public static readonly Type ResolutionContextType = typeof(IResolutionContext);
 
         public static readonly Type ObjectType = typeof(object);
 

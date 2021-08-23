@@ -12,11 +12,11 @@ namespace Stashbox.Resolution
     /// <summary>
     /// Represents information about the actual resolution flow.
     /// </summary>
-    public class ResolutionContext
+    public class ResolutionContext : IResolutionContext
     {
         private Tree<Expression> expressionCache;
         private readonly Tree<Func<IResolutionScope, object>> factoryCache;
-        private readonly HashTree<object, Expression> expressionOverrides;
+        private readonly HashTree<object, ConstantExpression> expressionOverrides;
         private readonly Utils.Data.Stack<int> circularDependencyBarrier;
 
         internal IContainerContext RequestInitiatorContainerContext { get; }
@@ -60,7 +60,7 @@ namespace Stashbox.Resolution
             bool isRequestedFromRoot,
             bool nullResultAllowed = false,
             bool isValidationRequest = false,
-            HashTree<object, Expression> dependencyOverrides = null,
+            HashTree<object, ConstantExpression> dependencyOverrides = null,
             ParameterExpression[] initialParameters = null)
         {
 
@@ -116,6 +116,18 @@ namespace Stashbox.Resolution
         public ParameterExpression GetKnownVariableOrDefault(int key) =>
              this.DefinedVariables.GetOrDefault(key);
 
+        /// <inheritdoc />
+        public object GetDependencyOverrideOrDefault(Type dependencyType)
+        {
+            var @override = this.GetExpressionOverrideOrDefault(dependencyType);
+            if(@override == null) return null;
+
+            return @override.Value;
+        }
+
+        /// <inheritdoc />
+        public TResult GetDependencyOverrideOrDefault<TResult>() => (TResult)this.GetDependencyOverrideOrDefault(typeof(TResult));
+
         internal void CacheExpression(int key, Expression expression) =>
             this.expressionCache.Add(key, expression);
 
@@ -128,7 +140,7 @@ namespace Stashbox.Resolution
         internal Func<IResolutionScope, object> GetCachedFactory(int key) =>
             this.factoryCache.GetOrDefault(key);
 
-        internal Expression GetExpressionOverrideOrDefault(Type type, object name = null) =>
+        internal ConstantExpression GetExpressionOverrideOrDefault(Type type, object name = null) =>
             this.expressionOverrides?.GetOrDefaultByValue(name ?? type);
 
         internal bool WeAreInCircle(int key) =>

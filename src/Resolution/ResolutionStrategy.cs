@@ -27,6 +27,9 @@ namespace Stashbox.Resolution
             if (typeInformation.Type == Constants.ResolverType)
                 return resolutionContext.CurrentScopeParameter;
 
+            if (typeInformation.Type == Constants.ResolutionContextType)
+                return resolutionContext.AsConstant();
+
             if (!resolutionContext.IsTopRequest)
             {
                 if (resolutionContext.ParameterExpressions.Length > 0)

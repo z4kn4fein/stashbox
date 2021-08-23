@@ -131,12 +131,12 @@ namespace Stashbox
             return factory(this);
         }
 
-        private HashTree<object, Expression> ProcessDependencyOverrides(object[] dependencyOverrides)
+        private HashTree<object, ConstantExpression> ProcessDependencyOverrides(object[] dependencyOverrides)
         {
             if (dependencyOverrides == null && this.scopedInstances.IsEmpty)
                 return null;
 
-            var result = new HashTree<object, Expression>();
+            var result = new HashTree<object, ConstantExpression>();
 
             if (!this.scopedInstances.IsEmpty)
                 foreach (var scopedInstance in this.scopedInstances.Walk())
