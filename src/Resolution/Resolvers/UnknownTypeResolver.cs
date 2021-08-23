@@ -39,7 +39,7 @@ namespace Stashbox.Resolution.Resolvers
             var registrationConfigurator = new UnknownRegistrationConfigurator(typeInfo.Type, typeInfo.Type);
             configurator?.Invoke(registrationConfigurator);
 
-            if (!registrationConfigurator.TypeMapIsValid(out _))
+            if (!registrationConfigurator.TypeMapIsValid(out _) && resolutionContext.GetDependencyOverrideOrDefault(typeInfo.Type) == null)
                 return null;
 
             var registration = this.registrationBuilder.BuildServiceRegistration(resolutionContext.RequestInitiatorContainerContext,
