@@ -27,10 +27,10 @@ namespace Stashbox.Registration.Fluent
         }
 
         /// <summary>
-        /// Resets the current registration's implementation type and factory settings.
+        /// Resets the current registration's implementation type and factory settings and skips the registration.
         /// </summary>
         /// <returns>The configurator itself.</returns>
-        public UnknownRegistrationConfigurator Reset()
+        public UnknownRegistrationConfigurator Skip()
         {
             base.ImplementationType = null;
             this.Context.Factory = null;
