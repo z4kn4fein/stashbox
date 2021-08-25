@@ -56,7 +56,7 @@ namespace Stashbox.Registration.Fluent
 
         /// <summary>
         /// Sets the lifetime to <see cref="PerScopedRequestLifetime"/>. This lifetime will create a new instance between scoped services. This means
-        /// that every scoped service will get a different instance but within their dependency tree it will behave as a singleton. 
+        /// that every scoped service will get a different instance but within their dependency tree it will behave as a singleton.
         /// </summary>
         /// <returns>The configurator itself.</returns>
         public TConfigurator WithPerScopedRequestLifetime() => this.WithLifetime(Lifetimes.PerScopedRequest);
@@ -82,7 +82,7 @@ namespace Stashbox.Registration.Fluent
         public TConfigurator InScopeDefinedBy<TScopeDefiner>() => this.WithLifetime(Lifetimes.NamedScope(typeof(TScopeDefiner)));
 
         /// <summary>
-        /// Binds a constructor/method parameter or a property/field to a named registration, so the container will perform a named resolution on the bound dependency.  
+        /// Binds a constructor/method parameter or a property/field to a named registration, so the container will perform a named resolution on the bound dependency.
         /// </summary>
         /// <param name="dependencyName">The name of the bound named registration.</param>
         /// <returns>The configurator itself.</returns>
@@ -90,7 +90,7 @@ namespace Stashbox.Registration.Fluent
             this.WithDependencyBinding(typeof(TDependency), dependencyName);
 
         /// <summary>
-        /// Binds a constructor/method parameter or a property/field to a named registration, so the container will perform a named resolution on the bound dependency.  
+        /// Binds a constructor/method parameter or a property/field to a named registration, so the container will perform a named resolution on the bound dependency.
         /// </summary>
         /// <param name="dependencyType">The type of the dependency to search for.</param>
         /// <param name="dependencyName">The name of the bound named registration.</param>
@@ -105,7 +105,7 @@ namespace Stashbox.Registration.Fluent
         }
 
         /// <summary>
-        /// Binds a constructor/method parameter or a property/field to a named registration, so the container will perform a named resolution on the bound dependency.  
+        /// Binds a constructor/method parameter or a property/field to a named registration, so the container will perform a named resolution on the bound dependency.
         /// </summary>
         /// <param name="parameterName">The parameter name of the dependency to search for.</param>
         /// <param name="dependencyName">The name of the bound named registration.</param>
