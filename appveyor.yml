@@ -36,7 +36,7 @@ build_script:
 - msbuild /t:Build /p:Configuration=%configuration% /p:ContinuousIntegrationBuild=true stashbox.sln
 
 after_build:
-- if (-Not $env:appveyor_pull_request_number) { dotnet sonarscanner end /d:"sonar.login=%sonarqube_token%" }
+- ps: if (-Not $env:appveyor_pull_request_number) { dotnet sonarscanner end /d:"sonar.login=%sonarqube_token%" }
 - inheritdoc -o
 - msbuild /t:Pack /p:IncludeSymbols=true /p:Configuration=%configuration% /p:PackageOutputPath=..\artifacts src\stashbox.csproj
 
