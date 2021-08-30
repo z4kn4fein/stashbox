@@ -102,7 +102,7 @@ namespace Stashbox.Registration.Fluent
     /// <summary>
     /// Represents the fluent service registration api.
     /// </summary>
-    public class FluentServiceConfigurator<TConfigurator> : BaseFluentConfigurator<TConfigurator>
+    public class FluentServiceConfigurator<TConfigurator> : BaseFluentConfigurator<TConfigurator>, IFluentCompositor<TConfigurator>
         where TConfigurator : FluentServiceConfigurator<TConfigurator>
     {
         internal FluentServiceConfigurator(Type serviceType, Type implementationType)
@@ -132,6 +132,55 @@ namespace Stashbox.Registration.Fluent
         public TConfigurator DefinesScope(object scopeName = null)
         {
             this.Context.DefinedScopeName = scopeName ?? this.ImplementationType;
+            return (TConfigurator)this;
+        }
+
+        /// <inheritdoc />
+        public TConfigurator WithFactory(Func<IDependencyResolver, object> factory, bool isCompiledLambda = false)
+        {
+            this.SetFactory(factory, isCompiledLambda, Constants.ResolverType, Constants.ObjectType);
+            return (TConfigurator)this;
+        }
+
+        /// <inheritdoc />
+        public TConfigurator WithFactory(Func<object> factory, bool isCompiledLambda = false)
+        {
+            this.SetFactory(factory, isCompiledLambda, Constants.ObjectType);
+            return (TConfigurator)this;
+        }
+
+        /// <inheritdoc />
+        public TConfigurator WithFactory<T1>(Func<T1, object> factory, bool isCompiledLambda = false)
+        {
+            this.SetFactory(factory, isCompiledLambda, typeof(T1), Constants.ObjectType);
+            return (TConfigurator)this;
+        }
+
+        /// <inheritdoc />
+        public TConfigurator WithFactory<T1, T2>(Func<T1, T2, object> factory, bool isCompiledLambda = false)
+        {
+            this.SetFactory(factory, isCompiledLambda, typeof(T1), typeof(T2), Constants.ObjectType);
+            return (TConfigurator)this;
+        }
+
+        /// <inheritdoc />
+        public TConfigurator WithFactory<T1, T2, T3>(Func<T1, T2, T3, object> factory, bool isCompiledLambda = false)
+        {
+            this.SetFactory(factory, isCompiledLambda, typeof(T1), typeof(T2), typeof(T3), Constants.ObjectType);
+            return (TConfigurator)this;
+        }
+
+        /// <inheritdoc />
+        public TConfigurator WithFactory<T1, T2, T3, T4>(Func<T1, T2, T3, T4, object> factory, bool isCompiledLambda = false)
+        {
+            this.SetFactory(factory, isCompiledLambda, typeof(T1), typeof(T2), typeof(T3), typeof(T4), Constants.ObjectType);
+            return (TConfigurator)this;
+        }
+
+        /// <inheritdoc />
+        public TConfigurator WithFactory<T1, T2, T3, T4, T5>(Func<T1, T2, T3, T4, T5, object> factory, bool isCompiledLambda = false)
+        {
+            this.SetFactory(factory, isCompiledLambda, typeof(T1), typeof(T2), typeof(T3), typeof(T4), typeof(T5), Constants.ObjectType);
             return (TConfigurator)this;
         }
     }

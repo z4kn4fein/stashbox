@@ -969,6 +969,124 @@ namespace Stashbox.Tests
             container.Resolve<ITest1>();
         }
 
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void DecoratorTests_Factory_Param5(CompilerType compilerType)
+        {
+            using var container = new StashboxContainer(c => c.WithCompiler(compilerType));
+            container.Register<ITest1, Test1>();
+            container.Register<TComp>(c => c.AsImplementedTypes());
+            container.RegisterDecorator<ITest1, TestDecorator1>(c => c.WithFactory<ITest1, IT1, IT2, IT4, IT5>((t1, t2, t3, t4, t5) =>
+            {
+                Assert.IsType<Test1>(t1);
+                Assert.IsType<TComp>(t2);
+                Assert.IsType<TComp>(t3);
+                Assert.IsType<TComp>(t4);
+                Assert.IsType<TComp>(t5);
+                return new TestDecorator1(t1);
+            }));
+            container.Resolve<ITest1>();
+        }
+
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void DecoratorTests_NonGeneric_Factory_Param1(CompilerType compilerType)
+        {
+            using var container = new StashboxContainer(c => c.WithCompiler(compilerType));
+            container.Register<ITest1, Test1>();
+            container.RegisterDecorator(typeof(ITest1), typeof(TestDecorator1), c => c.WithFactory<ITest1>(t1 =>
+            {
+                Assert.IsType<Test1>(t1);
+                return new TestDecorator1(t1);
+            }));
+            container.Resolve<ITest1>();
+        }
+
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void DecoratorTests_NonGeneric_Factory_Param_NextDecorator(CompilerType compilerType)
+        {
+            using var container = new StashboxContainer(c => c.WithCompiler(compilerType));
+            container.Register<ITest1, Test1>();
+            container.RegisterDecorator<ITest1, TestDecorator2>();
+            container.RegisterDecorator(typeof(ITest1), typeof(TestDecorator1), c => c.WithFactory<ITest1>(t1 =>
+            {
+                Assert.IsType<TestDecorator2>(t1);
+                return new TestDecorator1(t1);
+            }));
+            container.Resolve<ITest1>();
+        }
+
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void DecoratorTests_NonGeneric_Factory_Param2(CompilerType compilerType)
+        {
+            using var container = new StashboxContainer(c => c.WithCompiler(compilerType));
+            container.Register<ITest1, Test1>();
+            container.Register<TComp>(c => c.AsImplementedTypes());
+            container.RegisterDecorator(typeof(ITest1), typeof(TestDecorator1), c => c.WithFactory<ITest1, IT1>((t1, t2) =>
+            {
+                Assert.IsType<Test1>(t1);
+                Assert.IsType<TComp>(t2);
+                return new TestDecorator1(t1);
+            }));
+            container.Resolve<ITest1>();
+        }
+
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void DecoratorTests_NonGeneric_Factory_Param3(CompilerType compilerType)
+        {
+            using var container = new StashboxContainer(c => c.WithCompiler(compilerType));
+            container.Register<ITest1, Test1>();
+            container.Register<TComp>(c => c.AsImplementedTypes());
+            container.RegisterDecorator(typeof(ITest1), typeof(TestDecorator1), c => c.WithFactory<ITest1, IT1, IT2>((t1, t2, t3) =>
+            {
+                Assert.IsType<Test1>(t1);
+                Assert.IsType<TComp>(t2);
+                Assert.IsType<TComp>(t3);
+                return new TestDecorator1(t1);
+            }));
+            container.Resolve<ITest1>();
+        }
+
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void DecoratorTests_NonGeneric_Factory_Param4(CompilerType compilerType)
+        {
+            using var container = new StashboxContainer(c => c.WithCompiler(compilerType));
+            container.Register<ITest1, Test1>();
+            container.Register<TComp>(c => c.AsImplementedTypes());
+            container.RegisterDecorator(typeof(ITest1), typeof(TestDecorator1), c => c.WithFactory<ITest1, IT1, IT2, IT4>((t1, t2, t3, t4) =>
+            {
+                Assert.IsType<Test1>(t1);
+                Assert.IsType<TComp>(t2);
+                Assert.IsType<TComp>(t3);
+                Assert.IsType<TComp>(t4);
+                return new TestDecorator1(t1);
+            }));
+            container.Resolve<ITest1>();
+        }
+
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void DecoratorTests_NonGeneric_Factory_Param5(CompilerType compilerType)
+        {
+            using var container = new StashboxContainer(c => c.WithCompiler(compilerType));
+            container.Register<ITest1, Test1>();
+            container.Register<TComp>(c => c.AsImplementedTypes());
+            container.RegisterDecorator(typeof(ITest1), typeof(TestDecorator1), c => c.WithFactory<ITest1, IT1, IT2, IT4, IT5>((t1, t2, t3, t4, t5) =>
+            {
+                Assert.IsType<Test1>(t1);
+                Assert.IsType<TComp>(t2);
+                Assert.IsType<TComp>(t3);
+                Assert.IsType<TComp>(t4);
+                Assert.IsType<TComp>(t5);
+                return new TestDecorator1(t1);
+            }));
+            container.Resolve<ITest1>();
+        }
+
         [Fact]
         public void DecoratorTests_Compositor_Works()
         {
@@ -992,7 +1110,9 @@ namespace Stashbox.Tests
 
         interface IT4 { }
 
-        class TComp : IT1, IT2, IT3, IT4 { }
+        interface IT5 { }
+
+        class TComp : IT1, IT2, IT3, IT4, IT5 { }
 
 
         interface ITest1 { ITest1 Test { get; } }
