@@ -26,7 +26,7 @@ namespace Stashbox.Tests
         public void RegistersTests_RegistersAs_Assembly()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.RegisterTypesAs<ITest1>(typeof(ITest1).GetTypeInfo().Assembly,
+            container.RegisterTypesAs<ITest1>(typeof(ITest1).Assembly,
                 t => t == typeof(Test1) || t == typeof(Test11) || t == typeof(Test12));
 
             var all = container.Resolve<IEnumerable<ITest1>>();
@@ -169,7 +169,7 @@ namespace Stashbox.Tests
         public void RegistersTests_ComposeAssembly()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.ComposeAssembly(this.GetType().GetTypeInfo().Assembly, type => !type.FullName.Contains("IssueTests"));
+            container.ComposeAssembly(this.GetType().Assembly, type => !type.FullName.Contains("IssueTests"));
 
             var regs = container
                 .GetRegistrationMappings()
@@ -187,7 +187,7 @@ namespace Stashbox.Tests
         public void RegistersTests_ComposeAssemblies()
         {
             IStashboxContainer container = new StashboxContainer();
-            container.ComposeAssemblies(new[] { this.GetType().GetTypeInfo().Assembly }, type => !type.FullName.Contains("IssueTests"));
+            container.ComposeAssemblies(new[] { this.GetType().Assembly }, type => !type.FullName.Contains("IssueTests"));
 
             var regs = container.ContainerContext.RegistrationRepository
                 .GetRegistrationMappings()
@@ -206,7 +206,7 @@ namespace Stashbox.Tests
         {
             IStashboxContainer container = new StashboxContainer();
             Assert.Throws<CompositionRootNotFoundException>(() =>
-            container.ComposeAssemblies(new[] { typeof(IStashboxContainer).GetTypeInfo().Assembly }));
+            container.ComposeAssemblies(new[] { typeof(IStashboxContainer).Assembly }));
         }
 
         [Fact]
@@ -300,7 +300,7 @@ namespace Stashbox.Tests
         public void RegistersTests_Generic_ByInterface()
         {
             var container = new StashboxContainer();
-            container.RegisterTypesAs(typeof(IGenTest<>), typeof(IGenTest<>).GetTypeInfo().Assembly);
+            container.RegisterTypesAs(typeof(IGenTest<>), typeof(IGenTest<>).Assembly);
 
             var regs = container.ContainerContext.RegistrationRepository.GetRegistrationMappings().OrderBy(r => r.Value.RegistrationId).ToArray();
 
@@ -326,7 +326,7 @@ namespace Stashbox.Tests
         public void RegistersTests_Generic_ByBase()
         {
             var container = new StashboxContainer();
-            container.RegisterTypesAs(typeof(GenTest<>), typeof(IGenTest<>).GetTypeInfo().Assembly);
+            container.RegisterTypesAs(typeof(GenTest<>), typeof(IGenTest<>).Assembly);
 
             var regs = container.ContainerContext.RegistrationRepository.GetRegistrationMappings().OrderBy(r => r.Value.RegistrationId).ToArray();
 

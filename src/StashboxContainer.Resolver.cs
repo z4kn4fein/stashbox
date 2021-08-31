@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Stashbox
 {
@@ -41,10 +43,12 @@ namespace Stashbox
         public object Activate(Type type, params object[] arguments) =>
             this.ContainerContext.RootScope.Activate(type, arguments);
 
-#if HAS_SERVICEPROVIDER
+        /// <inheritdoc />
+        public ValueTask InvokeAsyncInitializers(CancellationToken token) => 
+            this.ContainerContext.RootScope.InvokeAsyncInitializers(token);
+
         /// <inheritdoc />
         public object GetService(Type serviceType) =>
             this.ContainerContext.RootScope.GetService(serviceType);
-#endif
     }
 }

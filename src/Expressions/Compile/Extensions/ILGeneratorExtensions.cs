@@ -1,5 +1,4 @@
-﻿#if IL_EMIT
-using System;
+﻿using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -31,7 +30,7 @@ namespace Stashbox.Expressions.Compile.Extensions
                 generator.LoadCapturedArgumentHolder(context);
                 generator.EmitInteger(i);
                 generator.LoadParameter(paramIndex + (context.IsNestedLambda ? 2 : 1));
-                if (arg.Type.GetTypeInfo().IsValueType)
+                if (arg.Type.IsValueType)
                     generator.Emit(OpCodes.Box, arg.Type);
                 generator.Emit(OpCodes.Stelem_Ref);
             }
@@ -137,4 +136,3 @@ namespace Stashbox.Expressions.Compile.Extensions
         }
     }
 }
-#endif

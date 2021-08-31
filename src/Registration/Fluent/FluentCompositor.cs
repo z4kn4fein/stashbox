@@ -24,15 +24,6 @@ namespace Stashbox.Registration.Fluent
         /// <param name="expression">The member expression.</param>
         /// <param name="dependencyName">The name of the dependency.</param>
         /// <returns>The configurator itself.</returns>
-        [Obsolete("Use WithDependencyBinding() instead.")]
-        TConfigurator InjectMember<TResult>(Expression<Func<TImplementation, TResult>> expression, object dependencyName = null);
-
-        /// <summary>
-        /// Sets a member (property / field) as a dependency that should be filled by the container.
-        /// </summary>
-        /// <param name="expression">The member expression.</param>
-        /// <param name="dependencyName">The name of the dependency.</param>
-        /// <returns>The configurator itself.</returns>
         TConfigurator WithDependencyBinding<TResult>(Expression<Func<TImplementation, TResult>> expression, object dependencyName = null);
 
         /// <summary>

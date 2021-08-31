@@ -1,16 +1,12 @@
 ﻿using System;
-#if HAS_SERIALIZABLE
 using System.Runtime.Serialization;
-#endif
 
 namespace Stashbox.Exceptions
 {
     /// <summary>
     /// Represents an exception the container throws when it detects an invalid registration.
     /// </summary>
-#if HAS_SERIALIZABLE
     [Serializable]
-#endif
     public class InvalidRegistrationException : Exception
     {
         /// <summary>
@@ -30,11 +26,9 @@ namespace Stashbox.Exceptions
             this.Type = type;
         }
 
-#if HAS_SERIALIZABLE
         /// <inheritdoc />
         protected InvalidRegistrationException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         { }
-#endif
     }
 }

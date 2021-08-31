@@ -1,5 +1,4 @@
-﻿#if IL_EMIT
-using Stashbox.Expressions.Compile.Extensions;
+﻿using Stashbox.Expressions.Compile.Extensions;
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -16,7 +15,7 @@ namespace Stashbox.Expressions.Compile.Emitters
 
             if (value == null)
             {
-                if (expression.Type.GetTypeInfo().IsValueType)
+                if (expression.Type.IsValueType)
                     generator.InitValueType(expression.Type);
                 else
                     generator.Emit(OpCodes.Ldnull);
@@ -32,7 +31,7 @@ namespace Stashbox.Expressions.Compile.Emitters
                 generator.Emit(OpCodes.Ldfld, Closure.ConstantsField);
                 generator.EmitInteger(constantIndex);
                 generator.Emit(OpCodes.Ldelem_Ref);
-                if (type.GetTypeInfo().IsValueType)
+                if (type.IsValueType)
                     generator.Emit(OpCodes.Unbox_Any, type);
                 return true;
             }
@@ -40,7 +39,7 @@ namespace Stashbox.Expressions.Compile.Emitters
             if (generator.TryEmitNumberConstant(type, value))
                 return true;
 
-            if (type.GetTypeInfo().IsEnum)
+            if (type.IsEnum)
                 return generator.TryEmitNumberConstant(Enum.GetUnderlyingType(type), value);
 
             switch (value)
@@ -50,7 +49,7 @@ namespace Stashbox.Expressions.Compile.Emitters
                     break;
                 case Type typeValue:
                     generator.Emit(OpCodes.Ldtoken, typeValue);
-                    generator.Emit(OpCodes.Call, typeof(Type).GetSingleMethod("GetTypeFromHandle"));
+                    generator.Emit(OpCodes.Call, typeof(Type).GetMethod("GetTypeFromHandle"));
                     break;
                 default:
                     return false;
@@ -60,4 +59,3 @@ namespace Stashbox.Expressions.Compile.Emitters
         }
     }
 }
-#endif

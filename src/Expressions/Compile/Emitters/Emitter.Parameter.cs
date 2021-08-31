@@ -1,5 +1,4 @@
-﻿#if IL_EMIT
-using Stashbox.Expressions.Compile.Extensions;
+﻿using Stashbox.Expressions.Compile.Extensions;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -39,10 +38,9 @@ namespace Stashbox.Expressions.Compile.Emitters
             generator.Emit(OpCodes.Ldarg_1);
             generator.EmitInteger(capturedVariableIndex);
             generator.Emit(OpCodes.Ldelem_Ref);
-            if (expression.Type.GetTypeInfo().IsValueType)
+            if (expression.Type.IsValueType)
                 generator.Emit(OpCodes.Unbox_Any, expression.Type);
             return true;
         }
     }
 }
-#endif

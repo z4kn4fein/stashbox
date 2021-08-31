@@ -8,13 +8,13 @@ using System.Reflection;
 
 namespace Stashbox.Expressions
 {
-    internal partial class ExpressionBuilder
+    internal static partial class ExpressionBuilder
     {
-        private Expression GetExpressionForFunc(ServiceRegistration serviceRegistration, ResolutionContext resolutionContext)
+        private static Expression GetExpressionForFunc(ServiceRegistration serviceRegistration, ResolutionContext resolutionContext)
         {
             var internalMethodInfo = serviceRegistration.RegistrationContext.FuncDelegate.GetMethod();
 
-            var parameters = GetFuncParametersWithScope(serviceRegistration.ImplementationType.GetSingleMethod("Invoke").GetParameters(), resolutionContext);
+            var parameters = GetFuncParametersWithScope(serviceRegistration.ImplementationType.GetMethod("Invoke").GetParameters(), resolutionContext);
             if (serviceRegistration.RegistrationContext.FuncDelegate.IsCompiledLambda())
                 return serviceRegistration.RegistrationContext.FuncDelegate.InvokeDelegate(parameters)
                     .AsLambda(parameters.Take(parameters.Length - 1).Cast<ParameterExpression>());

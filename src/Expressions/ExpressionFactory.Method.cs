@@ -11,9 +11,9 @@ using System.Text;
 
 namespace Stashbox.Expressions
 {
-    internal partial class ExpressionFactory
+    internal static partial class ExpressionFactory
     {
-        private IEnumerable<Expression> CreateParameterExpressionsForMethod(
+        private static IEnumerable<Expression> CreateParameterExpressionsForMethod(
             RegistrationContext registrationContext,
             ResolutionContext resolutionContext,
             MethodBase method)
@@ -34,7 +34,7 @@ namespace Stashbox.Expressions
             }
         }
 
-        private ConstructorInfo SelectConstructor(
+        private static ConstructorInfo SelectConstructor(
             Type typeToConstruct,
             RegistrationContext registrationContext,
             ResolutionContext resolutionContext,
@@ -99,7 +99,7 @@ namespace Stashbox.Expressions
             throw new ResolutionFailedException(typeToConstruct, registrationContext.Name, stringBuilder.ToString());
         }
 
-        private IEnumerable<Expression> CreateMethodExpressions(
+        private static IEnumerable<Expression> CreateMethodExpressions(
             IEnumerable<MethodInfo> methods,
             RegistrationContext registrationContext,
             ResolutionContext resolutionContext,
@@ -112,7 +112,7 @@ namespace Stashbox.Expressions
                     yield return instance.CallMethod(method);
                 else
                     yield return instance.CallMethod(method,
-                        this.CreateParameterExpressionsForMethod(
+                        CreateParameterExpressionsForMethod(
                         registrationContext, resolutionContext, method));
             }
         }

@@ -126,7 +126,7 @@ namespace Stashbox.Registration
                 registrations = registrations == null ? openGenerics : openGenerics.Concat(registrations);
 
             var variantGenerics = serviceRepository.Walk()
-                .Where(r => r.Key.IsGenericType() &&
+                .Where(r => r.Key.IsGenericType &&
                     r.Key.GetGenericTypeDefinition() == type.GetGenericTypeDefinition() &&
                     r.Key != type &&
                     r.Key.ImplementsWithoutGenericCheck(type))

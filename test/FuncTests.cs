@@ -431,7 +431,6 @@ namespace Stashbox.Tests
         {
             var inst = new StashboxContainer()
                 .RegisterFunc(typeof(Test)
-                    .GetTypeInfo()
                     .GetConstructor(Type.EmptyTypes)
                     .MakeNew()
                     .AsLambda<Func<IDependencyResolver, ITest>>(typeof(IDependencyResolver).AsParameter())

@@ -4,9 +4,7 @@ using Stashbox.Resolution;
 using System.Collections.Generic;
 using System.Reflection;
 using Stashbox.Utils.Data;
-#if IL_EMIT
 using Stashbox.Expressions.Compile;
-#endif
 
 namespace System.Linq.Expressions
 {
@@ -41,15 +39,11 @@ namespace System.Linq.Expressions
                 return (Func<IResolutionScope, object>)containerConfiguration.ExternalExpressionCompiler(
                     expression.AsLambda(resolutionContext.CurrentScopeParameter));
 
-#if IL_EMIT
             if (!expression.TryEmit(out var factory, typeof(Func<IResolutionScope, object>), typeof(object),
                 resolutionContext.CurrentScopeParameter))
                 factory = expression.AsLambda(resolutionContext.CurrentScopeParameter).Compile();
 
             return (Func<IResolutionScope, object>)factory;
-#else
-            return expression.AsLambda<Func<IResolutionScope, object>>(resolutionContext.CurrentScopeParameter).Compile();
-#endif
         }
 
         /// <summary>
@@ -59,14 +53,10 @@ namespace System.Linq.Expressions
         /// <returns>The delegate.</returns>
         public static Delegate CompileDelegate(this LambdaExpression expression)
         {
-#if IL_EMIT
             if (!expression.TryEmit(out var result))
                 throw new InvalidOperationException("Could not compile the given expression!");
 
             return result;
-#else
-            throw new InvalidOperationException("Could not compile the given expression!");
-#endif
         }
 
         /// <summary>
@@ -89,15 +79,11 @@ namespace System.Linq.Expressions
                 return (Func<IResolutionScope, Delegate>)containerConfiguration.ExternalExpressionCompiler(
                     expression.AsLambda(resolutionContext.CurrentScopeParameter));
 
-#if IL_EMIT
             if (!expression.TryEmit(out var factory, typeof(Func<IResolutionScope, Delegate>), typeof(Delegate),
                 resolutionContext.CurrentScopeParameter))
                 factory = expression.AsLambda<Func<IResolutionScope, Delegate>>(resolutionContext.CurrentScopeParameter).Compile();
 
             return (Func<IResolutionScope, Delegate>)factory;
-#else
-            return expression.AsLambda<Func<IResolutionScope, Delegate>>(resolutionContext.CurrentScopeParameter).Compile();
-#endif
         }
 
         /// <summary>

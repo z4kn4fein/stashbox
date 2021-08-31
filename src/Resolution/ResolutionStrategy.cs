@@ -13,18 +13,12 @@ namespace Stashbox.Resolution
 {
     internal class ResolutionStrategy : IResolutionStrategy
     {
-        private readonly ExpressionBuilder expressionBuilder;
         private ImmutableBucket<IResolver> resolverRepository = ImmutableBucket<IResolver>.Empty;
         private ImmutableBucket<IResolver> lastChanceResolverRepository = ImmutableBucket<IResolver>.Empty;
 
-        public ResolutionStrategy(ExpressionBuilder expressionBuilder)
-        {
-            this.expressionBuilder = expressionBuilder;
-        }
-
         public Expression BuildExpressionForType(ResolutionContext resolutionContext, TypeInformation typeInformation)
         {
-            if (typeInformation.Type == Constants.ResolverType)
+            if (typeInformation.Type == Constants.ResolverType || typeInformation.Type == Constants.ServiceProviderType)
                 return resolutionContext.CurrentScopeParameter;
 
             if (typeInformation.Type == Constants.ResolutionContextType)
@@ -155,9 +149,9 @@ namespace Stashbox.Resolution
         {
             var lifetimeDescriptor = serviceRegistration.RegistrationContext.Lifetime ?? secondaryLifetimeDescriptor;
             if (!IsOutputLifetimeManageable(serviceRegistration) || lifetimeDescriptor == null)
-                return this.expressionBuilder.BuildExpressionForRegistration(serviceRegistration, resolutionContext, requestedType);
+                return ExpressionBuilder.BuildExpressionForRegistration(serviceRegistration, resolutionContext, requestedType);
 
-            return lifetimeDescriptor.ApplyLifetime(this.expressionBuilder, serviceRegistration, resolutionContext, requestedType);
+            return lifetimeDescriptor.ApplyLifetime(serviceRegistration, resolutionContext, requestedType);
         }
 
         private static bool IsOutputLifetimeManageable(ServiceRegistration serviceRegistration) =>

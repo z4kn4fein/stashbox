@@ -1,6 +1,8 @@
 ﻿using Stashbox.Utils;
 using System;
 using System.Linq.Expressions;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Stashbox.Registration.Fluent
 {
@@ -19,11 +21,6 @@ namespace Stashbox.Registration.Fluent
         { }
 
         /// <inheritdoc />
-        [Obsolete("Use WithDependencyBinding() instead.")]
-        public TConfigurator InjectMember<TResult>(Expression<Func<TImplementation, TResult>> expression, object dependencyName = null) =>
-            this.WithDependencyBinding(expression, dependencyName);
-
-        /// <inheritdoc />
         public TConfigurator WithDependencyBinding<TResult>(Expression<Func<TImplementation, TResult>> expression, object dependencyName = null)
         {
             if (expression.Body is MemberExpression memberExpression)
@@ -38,7 +35,10 @@ namespace Stashbox.Registration.Fluent
         /// <inheritdoc />
         public TConfigurator WithFinalizer(Action<TImplementation> finalizer)
         {
-            base.Context.Finalizer = finalizer;
+            if(finalizer == null)
+                return (TConfigurator)this;
+
+            base.Context.Finalizer = o => finalizer((TImplementation)o);
             return (TConfigurator)this;
         }
 
@@ -46,6 +46,16 @@ namespace Stashbox.Registration.Fluent
         public TConfigurator WithInitializer(Action<TImplementation, IDependencyResolver> initializer)
         {
             base.Context.Initializer = initializer;
+            return (TConfigurator)this;
+        }
+
+        /// <inheritdoc />
+        public TConfigurator WithAsyncInitializer(Func<TImplementation, IDependencyResolver, CancellationToken, Task> initializer)
+        {
+            if (initializer == null)
+                return (TConfigurator)this;
+
+            base.Context.AsyncInitializer = (o, r, t) => initializer((TImplementation)o, r, t);
             return (TConfigurator)this;
         }
 

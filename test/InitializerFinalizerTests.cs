@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Stashbox.Tests
@@ -226,6 +228,151 @@ namespace Stashbox.Tests
             Assert.True(test.MethodCalled);
         }
 
+        [Fact]
+        public async Task AsyncInitializer_Ensure_Order_Singleton()
+        {
+            using var container = new StashboxContainer()
+                .Register<T1>(c => c.WithAsyncInitializer((t, _, _) => t.InitAsync()).WithSingletonLifetime())
+                .Register<T2>(c => c.WithAsyncInitializer((t, _, _) => t.InitAsync()))
+                .Register<T3>(c => c.WithAsyncInitializer((t, _, _) => t.InitAsync()));
+
+            var initializables = new List<IT>();
+
+            container.Resolve<T3>(dependencyOverrides: new[] { initializables });
+            await container.InvokeAsyncInitializers();
+
+            Assert.Equal(3, initializables.Count);
+
+            Assert.IsType<T3>(initializables[0]);
+            Assert.IsType<T2>(initializables[1]);
+            Assert.IsType<T1>(initializables[2]);
+        }
+
+        [Fact]
+        public async Task AsyncInitializer_Ensure_Order()
+        {
+            using var container = new StashboxContainer()
+                .Register<T1>(c => c.WithAsyncInitializer((t, _, _) => t.InitAsync()))
+                .Register<T2>(c => c.WithAsyncInitializer((t, _, _) => t.InitAsync()))
+                .Register<T3>(c => c.WithAsyncInitializer((t, _, _) => t.InitAsync()));
+
+            var initializables = new List<IT>();
+
+            container.Resolve<T3>(dependencyOverrides: new[] { initializables });
+            await container.InvokeAsyncInitializers();
+
+            Assert.Equal(4, initializables.Count);
+
+            Assert.IsType<T3>(initializables[0]);
+            Assert.IsType<T2>(initializables[1]);
+            Assert.IsType<T1>(initializables[2]);
+            Assert.IsType<T1>(initializables[3]);
+        }
+
+        [Fact]
+        public async Task AsyncInitializer_Scoped_Multiple()
+        {
+            using var container = new StashboxContainer()
+                .Register<T1>(c => c.WithAsyncInitializer((t, _, _) => t.InitAsync()).WithScopedLifetime())
+                .Register<T2>(c => c.WithAsyncInitializer((t, _, _) => t.InitAsync()).WithScopedLifetime())
+                .Register<T3>(c => c.WithAsyncInitializer((t, _, _) => t.InitAsync()).WithScopedLifetime());
+
+            var initializables = new List<IT>();
+
+            using var scope = container.BeginScope();
+
+            scope.Resolve<T3>(dependencyOverrides: new[] { initializables });
+            await scope.InvokeAsyncInitializers();
+
+            Assert.Equal(3, initializables.Count);
+
+            Assert.IsType<T3>(initializables[0]);
+            Assert.IsType<T2>(initializables[1]);
+            Assert.IsType<T1>(initializables[2]);
+
+            scope.Resolve<T3>(dependencyOverrides: new[] { initializables });
+            await scope.InvokeAsyncInitializers();
+            Assert.Equal(3, initializables.Count);
+        }
+
+        [Fact]
+        public async Task AsyncInitializer_Scoped_Singleton_Multiple()
+        {
+            using var container = new StashboxContainer()
+                .Register<T1>(c => c.WithAsyncInitializer((t, _, _) => t.InitAsync()).WithSingletonLifetime())
+                .Register<T2>(c => c.WithAsyncInitializer((t, _, _) => t.InitAsync()).WithScopedLifetime())
+                .Register<T3>(c => c.WithAsyncInitializer((t, _, _) => t.InitAsync()).WithScopedLifetime());
+
+            var initializables = new List<IT>();
+
+            using var scope1 = container.BeginScope();
+
+            scope1.Resolve<T3>(dependencyOverrides: new[] { initializables });
+            await scope1.InvokeAsyncInitializers();
+
+            Assert.Equal(3, initializables.Count);
+
+            Assert.IsType<T1>(initializables[0]);
+            Assert.IsType<T3>(initializables[1]);
+            Assert.IsType<T2>(initializables[2]);
+
+            using var scope2 = container.BeginScope();
+
+            scope2.Resolve<T3>(dependencyOverrides: new[] { initializables });
+            await scope2.InvokeAsyncInitializers();
+
+            Assert.Equal(5, initializables.Count);
+
+            Assert.IsType<T1>(initializables[0]);
+            Assert.IsType<T3>(initializables[1]);
+            Assert.IsType<T2>(initializables[2]);
+            Assert.IsType<T3>(initializables[3]);
+            Assert.IsType<T2>(initializables[4]);
+        }
+
+        [Fact]
+        public void Finalizers_Ensure_Order_Singleton()
+        {
+            var finalizables = new List<IT>();
+            {
+                using var container = new StashboxContainer()
+                    .Register<F1>(c => c.WithFinalizer(t => t.Fin()).WithSingletonLifetime())
+                    .Register<F2>(c => c.WithFinalizer(t => t.Fin()))
+                    .Register<F3>(c => c.WithFinalizer(t => t.Fin()));
+
+
+                container.Resolve<F3>(dependencyOverrides: new[] { finalizables });
+            }
+
+            Assert.Equal(3, finalizables.Count);
+
+            Assert.IsType<F3>(finalizables[0]);
+            Assert.IsType<F2>(finalizables[1]);
+            Assert.IsType<F1>(finalizables[2]);
+        }
+
+        [Fact]
+        public void Finalizers_Ensure_Order()
+        {
+            var finalizables = new List<IT>();
+            {
+                using var container = new StashboxContainer()
+                    .Register<F1>(c => c.WithFinalizer(t => t.Fin()))
+                    .Register<F2>(c => c.WithFinalizer(t => t.Fin()))
+                    .Register<F3>(c => c.WithFinalizer(t => t.Fin()));
+
+
+                container.Resolve<F3>(dependencyOverrides: new[] { finalizables });
+            }
+
+            Assert.Equal(4, finalizables.Count);
+
+            Assert.IsType<F3>(finalizables[0]);
+            Assert.IsType<F1>(finalizables[1]);
+            Assert.IsType<F2>(finalizables[2]);
+            Assert.IsType<F1>(finalizables[3]);
+        }
+
         interface ITest
         {
             bool MethodCalled { get; }
@@ -258,6 +405,113 @@ namespace Stashbox.Tests
             }
 
             public bool MethodCalled { get; private set; }
+        }
+
+        interface IT { }
+
+        class T1 : IT
+        {
+            private readonly List<IT> initializables;
+
+            public T1(List<IT> initializables)
+            {
+                this.initializables = initializables;
+            }
+
+            public Task InitAsync()
+            {
+                this.initializables.Add(this);
+                return Task.FromResult(false);
+            }
+        }
+
+        class T2 : IT
+        {
+            private readonly List<IT> initializables;
+            private readonly T1 t1;
+
+            public T2(List<IT> initializables, T1 t1)
+            {
+                this.initializables = initializables;
+                this.t1 = t1;
+            }
+
+            public Task InitAsync()
+            {
+                this.initializables.Add(this);
+                return Task.FromResult(false);
+            }
+        }
+
+        class T3 : IT
+        {
+            private readonly List<IT> initializables;
+            private readonly T1 t1;
+            private readonly T2 t2;
+
+            public T3(List<IT> initializables, T1 t1, T2 t2)
+            {
+                this.initializables = initializables;
+                this.t1 = t1;
+                this.t2 = t2;
+            }
+
+            public Task InitAsync()
+            {
+                this.initializables.Add(this);
+                return Task.FromResult(false);
+            }
+        }
+
+        class F1 : IT
+        {
+            private readonly List<IT> finalizables;
+
+            public F1(List<IT> finalizables)
+            {
+                this.finalizables = finalizables;
+            }
+
+            public void Fin()
+            {
+                this.finalizables.Add(this);
+            }
+        }
+
+        class F2 : IT
+        {
+            private readonly List<IT> finalizables;
+            private readonly F1 f1;
+
+            public F2(List<IT> finalizables, F1 f1)
+            {
+                this.finalizables = finalizables;
+                this.f1 = f1;
+            }
+
+            public void Fin()
+            {
+                this.finalizables.Add(this);
+            }
+        }
+
+        class F3 : IT
+        {
+            private readonly List<IT> finalizables;
+            private readonly F1 f1;
+            private readonly F2 f2;
+
+            public F3(List<IT> finalizables, F2 f2, F1 f1)
+            {
+                this.finalizables = finalizables;
+                this.f1 = f1;
+                this.f2 = f2;
+            }
+
+            public void Fin()
+            {
+                this.finalizables.Add(this);
+            }
         }
     }
 }

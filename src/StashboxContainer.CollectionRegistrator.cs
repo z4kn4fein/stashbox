@@ -28,16 +28,13 @@ namespace Stashbox
                     continue;
                 }
 
-                var typeFromInfo = typeFrom.GetTypeInfo();
-                if (!typeFromInfo.IsGenericTypeDefinition) continue;
-
-                var typeInfo = type.GetTypeInfo();
+                if (!typeFrom.IsGenericTypeDefinition) continue;
 
                 var serviceTypes = type.GetRegisterableBaseTypes().Concat(type.GetRegisterableInterfaceTypes())
-                    .Where(t => t.IsGenericType() && t.GetGenericTypeDefinition() == typeFrom);
+                    .Where(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeFrom);
 
                 foreach (var service in serviceTypes)
-                    this.RegisterTypeAs(typeInfo.IsGenericTypeDefinition ? typeFrom : service, type, configurator);
+                    this.RegisterTypeAs(type.IsGenericTypeDefinition ? typeFrom : service, type, configurator);
             }
 
             return this;
@@ -63,14 +60,11 @@ namespace Stashbox
                 if(serviceTypeSelector != null)
                     serviceTypes = serviceTypes.Where(t => serviceTypeSelector(type, t));
 
-                var typeInfo = type.GetTypeInfo();
-                if (typeInfo.IsGenericTypeDefinition)
+                if (type.IsGenericTypeDefinition)
                     serviceTypes = serviceTypes.Where(t =>
                     {
-                        var ti = t.GetTypeInfo();
-                        if (!ti.IsGenericType) return false;
-                        var args = ti.IsGenericTypeDefinition ? ti.GenericTypeParameters : ti.GenericTypeArguments;
-                        return typeInfo.GenericTypeParameters.Length == args.Length;
+                        if (!t.IsGenericType) return false;
+                        return type.GetGenericArguments().Length == t.GetGenericArguments().Length;
                     }).Select(t => t.GetGenericTypeDefinition());
 
                 foreach (var service in serviceTypes)

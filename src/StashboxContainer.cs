@@ -1,5 +1,4 @@
 ﻿using Stashbox.Configuration;
-using Stashbox.Expressions;
 using Stashbox.Registration;
 using Stashbox.Resolution;
 using Stashbox.Resolution.Resolvers;
@@ -22,8 +21,6 @@ namespace Stashbox
         private readonly ContainerConfigurator containerConfigurator;
         private readonly ServiceRegistrator serviceRegistrator;
         private readonly RegistrationBuilder registrationBuilder;
-        private readonly ExpressionFactory expressionFactory;
-        private readonly ExpressionBuilder expressionBuilder;
         private readonly ResolutionStrategy resolutionStrategy;
         private int disposed;
 
@@ -31,34 +28,30 @@ namespace Stashbox
         /// Constructs a <see cref="StashboxContainer"/>.
         /// </summary>
         public StashboxContainer(Action<ContainerConfigurator> config = null)
-            : this(new ExpressionFactory(), new ServiceRegistrator(),
-                new RegistrationBuilder(), new ContainerConfigurator(), config)
+            : this(new ServiceRegistrator(), new RegistrationBuilder(), new ContainerConfigurator(), config)
         {
-            this.expressionBuilder = new ExpressionBuilder(this.expressionFactory);
-            this.resolutionStrategy = new ResolutionStrategy(this.expressionBuilder);
+            this.resolutionStrategy = new ResolutionStrategy();
 
             this.ContainerContext = new ContainerContext(null, resolutionStrategy,
-                expressionFactory, this.containerConfigurator.ContainerConfiguration);
+                this.containerConfigurator.ContainerConfiguration);
 
             this.RegisterResolvers();
         }
 
         private StashboxContainer(IStashboxContainer parentContainer, ServiceRegistrator serviceRegistrator,
-            RegistrationBuilder registrationBuilder, ResolutionStrategy resolutionStrategy, ExpressionFactory expressionFactory,
-            ExpressionBuilder expressionBuilder, ContainerConfigurator containerConfigurator, Action<ContainerConfigurator> config = null)
-            : this(expressionFactory, serviceRegistrator, registrationBuilder, containerConfigurator, config)
+            RegistrationBuilder registrationBuilder, ResolutionStrategy resolutionStrategy,
+            ContainerConfigurator containerConfigurator, Action<ContainerConfigurator> config = null)
+            : this(serviceRegistrator, registrationBuilder, containerConfigurator, config)
         {
             this.resolutionStrategy = resolutionStrategy;
-            this.expressionBuilder = expressionBuilder;
 
             this.ContainerContext = new ContainerContext(parentContainer.ContainerContext, resolutionStrategy,
-                expressionFactory, this.containerConfigurator.ContainerConfiguration);
+                this.containerConfigurator.ContainerConfiguration);
         }
 
-        private StashboxContainer(ExpressionFactory expressionFactory, ServiceRegistrator serviceRegistrator,
+        private StashboxContainer(ServiceRegistrator serviceRegistrator,
             RegistrationBuilder registrationBuilder, ContainerConfigurator containerConfigurator, Action<ContainerConfigurator> config = null)
         {
-            this.expressionFactory = expressionFactory;
             this.containerConfigurator = containerConfigurator;
             this.serviceRegistrator = serviceRegistrator;
             this.registrationBuilder = registrationBuilder;
@@ -138,7 +131,7 @@ namespace Stashbox
             this.ThrowIfDisposed();
 
             return new StashboxContainer(this, this.serviceRegistrator, this.registrationBuilder, this.resolutionStrategy,
-                    this.expressionFactory, this.expressionBuilder, new ContainerConfigurator(this.ContainerContext.ContainerConfiguration.Clone()), config);
+                    new ContainerConfigurator(this.ContainerContext.ContainerConfiguration.Clone()), config);
         }
 
         /// <inheritdoc />
@@ -170,15 +163,12 @@ namespace Stashbox
         public IEnumerable<RegistrationDiagnosticsInfo> GetRegistrationDiagnostics()
         {
             this.ThrowIfDisposed();
-            foreach(var reg in this.ContainerContext.RegistrationRepository.GetRegistrationMappings())
+            foreach (var reg in this.ContainerContext.RegistrationRepository.GetRegistrationMappings())
                 yield return new RegistrationDiagnosticsInfo(reg.Key, reg.Value.ImplementationType, reg.Value.RegistrationContext.Name);
         }
 
         private void RegisterResolvers()
         {
-#if HAS_SERVICEPROVIDER
-            this.resolutionStrategy.RegisterResolver(new ServiceProviderResolver());
-#endif
             this.resolutionStrategy.RegisterResolver(new EnumerableResolver());
             this.resolutionStrategy.RegisterResolver(new LazyResolver());
             this.resolutionStrategy.RegisterResolver(new FuncResolver());
@@ -190,11 +180,7 @@ namespace Stashbox
             this.resolutionStrategy.RegisterLastChanceResolver(new UnknownTypeResolver(this.serviceRegistrator, this.registrationBuilder));
         }
 
-        private void ThrowIfDisposed(
-#if !NET40
-            [CallerMemberName] 
-#endif
-            string caller = "<unknown>")
+        private void ThrowIfDisposed([CallerMemberName] string caller = "<unknown>")
         {
             if (this.disposed == 1)
                 Shield.ThrowDisposedException(this.GetType().FullName, caller);

@@ -13,7 +13,7 @@ namespace Stashbox.Resolution.Resolvers
 
         public bool CanUseForResolution(TypeInformation typeInfo, ResolutionContext resolutionContext) =>
             resolutionContext.CurrentContainerContext.ContainerConfiguration.DefaultValueInjectionEnabled &&
-                 (typeInfo.Type.GetTypeInfo().IsValueType
+                 (typeInfo.Type.IsValueType
                     || typeInfo.Type == typeof(string));
     }
 }

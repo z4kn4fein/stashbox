@@ -24,7 +24,7 @@ namespace Stashbox
         private ImmutableLinkedList<object> disposables = ImmutableLinkedList<object>.Empty;
         private ImmutableLinkedList<Finalizable> finalizables = ImmutableLinkedList<Finalizable>.Empty;
 
-        public TDisposable AddDisposableTracking<TDisposable>(TDisposable disposable)
+        public object AddDisposableTracking(object disposable)
         {
             this.ThrowIfDisposed();
 
@@ -35,12 +35,12 @@ namespace Stashbox
             return disposable;
         }
 
-        public TService AddWithFinalizer<TService>(TService finalizable, Action<TService> finalizer)
+        public object AddWithFinalizer(object finalizable, Action<object> finalizer)
         {
             this.ThrowIfDisposed();
 
             Swap.SwapValue(ref this.finalizables, (t1, t2, t3, t4, root) =>
-                    root.Add(new Finalizable(t1, f => t2((TService)f))), finalizable, finalizer,
+                    root.Add(new Finalizable(t1, t2)), finalizable, finalizer,
                 Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
 
             return finalizable;

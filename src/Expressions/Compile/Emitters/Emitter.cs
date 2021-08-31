@@ -1,5 +1,4 @@
-﻿#if IL_EMIT
-using Stashbox.Expressions.Compile.Extensions;
+﻿using Stashbox.Expressions.Compile.Extensions;
 using Stashbox.Utils.Data;
 using System;
 using System.Collections.Generic;
@@ -59,4 +58,3 @@ namespace Stashbox.Expressions.Compile.Emitters
         }
     }
 }
-#endif

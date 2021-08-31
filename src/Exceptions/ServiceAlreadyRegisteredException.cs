@@ -1,8 +1,6 @@
 ﻿using Stashbox.Configuration;
 using System;
-#if HAS_SERIALIZABLE
 using System.Runtime.Serialization;
-#endif
 
 namespace Stashbox.Exceptions
 {
@@ -10,9 +8,7 @@ namespace Stashbox.Exceptions
     /// Represents the exception the container throws when a registration process fails due to service duplication.
     /// Occurs when the container is configured with <see cref="Rules.RegistrationBehavior.ThrowException"/>.
     /// </summary>
-#if HAS_SERIALIZABLE
     [Serializable]
-#endif
     public class ServiceAlreadyRegisteredException : Exception
     {
         /// <summary>
@@ -31,11 +27,9 @@ namespace Stashbox.Exceptions
             this.Type = type;
         }
 
-#if HAS_SERIALIZABLE
         /// <inheritdoc />
         protected ServiceAlreadyRegisteredException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         { }
-#endif
     }
 }

@@ -1,16 +1,12 @@
 ﻿using System;
-#if HAS_SERIALIZABLE
 using System.Runtime.Serialization;
-#endif
 
 namespace Stashbox.Exceptions
 {
     /// <summary>
     /// Represents the exception the container throws when a service resolution is failed.
     /// </summary>
-#if HAS_SERIALIZABLE
     [Serializable]
-#endif
     public class ResolutionFailedException : Exception
     {
         /// <summary>
@@ -34,11 +30,9 @@ namespace Stashbox.Exceptions
             this.Type = type;
         }
 
-#if HAS_SERIALIZABLE
         /// <inheritdoc />
         protected ResolutionFailedException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         { }
-#endif
     }
 }

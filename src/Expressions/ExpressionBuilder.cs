@@ -7,34 +7,32 @@ using System.Linq.Expressions;
 
 namespace Stashbox.Expressions
 {
-    internal partial class ExpressionBuilder
+    internal static partial class ExpressionBuilder
     {
-        private readonly ExpressionFactory expressionFactory;
-
-        internal ExpressionBuilder(ExpressionFactory expressionFactory)
-        {
-            this.expressionFactory = expressionFactory;
-        }
-
-        internal Expression BuildExpressionForRegistration(ServiceRegistration serviceRegistration,
+        internal static Expression BuildExpressionForRegistration(ServiceRegistration serviceRegistration,
             ResolutionContext resolutionContext, Type requestedType)
         {
-            var expression = this.BuildExpressionByRegistrationType(serviceRegistration, resolutionContext, requestedType);
+            var expression = BuildExpressionByRegistrationType(serviceRegistration, resolutionContext, requestedType);
             if (expression == null)
                 return null;
 
+            if (serviceRegistration.RegistrationContext.ExistingInstance == null && serviceRegistration.RegistrationContext.AsyncInitializer != null)
+                expression = resolutionContext.CurrentScopeParameter.CallMethod(Constants.AddWithAsyncInitializerMethod, expression,
+                    serviceRegistration.RegistrationContext.AsyncInitializer.AsConstant()).ConvertTo(requestedType);
+
             if (serviceRegistration.RegistrationContext.ExistingInstance == null && serviceRegistration.RegistrationContext.Finalizer != null)
-                expression = BuildFinalizerExpression(expression, serviceRegistration, resolutionContext.CurrentScopeParameter);
+                expression = resolutionContext.CurrentScopeParameter.CallMethod(Constants.AddWithFinalizerMethod, expression,
+                    serviceRegistration.RegistrationContext.Finalizer.AsConstant()).ConvertTo(requestedType);
 
             if (!ShouldHandleDisposal(resolutionContext.CurrentContainerContext, serviceRegistration) || !expression.Type.IsDisposable())
                 return CheckRuntimeCircularDependencyExpression(expression, serviceRegistration, resolutionContext, requestedType);
 
-            var method = Constants.AddDisposalMethod.MakeGenericMethod(expression.Type);
-            return CheckRuntimeCircularDependencyExpression(resolutionContext.CurrentScopeParameter.CallMethod(method, expression),
+            return CheckRuntimeCircularDependencyExpression(resolutionContext.CurrentScopeParameter
+                .CallMethod(Constants.AddDisposalMethod, expression).ConvertTo(requestedType),
                 serviceRegistration, resolutionContext, requestedType);
         }
 
-        private Expression BuildExpressionByRegistrationType(ServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type requestedType)
+        private static Expression BuildExpressionByRegistrationType(ServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type requestedType)
         {
             resolutionContext = resolutionContext.ShouldFallBackToRequestInitiatorContext
                 ? resolutionContext.BeginCrossContainerContext(resolutionContext.RequestInitiatorContainerContext)
@@ -42,13 +40,13 @@ namespace Stashbox.Expressions
 
             return serviceRegistration.RegistrationType switch
             {
-                RegistrationType.Factory => this.GetExpressionForFactory(serviceRegistration, resolutionContext, requestedType),
+                RegistrationType.Factory => GetExpressionForFactory(serviceRegistration, resolutionContext, requestedType),
                 RegistrationType.Instance => serviceRegistration.RegistrationContext.ExistingInstance.AsConstant(),
-                RegistrationType.WireUp => this.expressionFactory.ConstructBuildUpExpression(serviceRegistration,
+                RegistrationType.WireUp => ExpressionFactory.ConstructBuildUpExpression(serviceRegistration,
                     resolutionContext, serviceRegistration.RegistrationContext.ExistingInstance.AsConstant(),
                     serviceRegistration.ImplementationType),
-                RegistrationType.Func => this.GetExpressionForFunc(serviceRegistration, resolutionContext),
-                _ => this.GetExpressionForDefault(serviceRegistration, resolutionContext)
+                RegistrationType.Func => GetExpressionForFunc(serviceRegistration, resolutionContext),
+                _ => GetExpressionForDefault(serviceRegistration, resolutionContext)
             };
         }
 
@@ -72,13 +70,6 @@ namespace Stashbox.Expressions
             };
 
             return expressions.AsBlock(variable);
-        }
-
-        private static Expression BuildFinalizerExpression(Expression instanceExpression, ServiceRegistration serviceRegistration, Expression scopeExpression)
-        {
-            var addFinalizerMethod = Constants.AddWithFinalizerMethod.MakeGenericMethod(instanceExpression.Type);
-            return scopeExpression.CallMethod(addFinalizerMethod, instanceExpression,
-                serviceRegistration.RegistrationContext.Finalizer.AsConstant());
         }
 
         private static bool ShouldHandleDisposal(IContainerContext containerContext, ServiceRegistration serviceRegistration)

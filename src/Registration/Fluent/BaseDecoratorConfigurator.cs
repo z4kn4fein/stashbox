@@ -48,6 +48,6 @@ namespace Stashbox.Registration.Fluent
         /// <param name="attributeType">The type of the attribute.</param>
         /// <returns>The configurator itself.</returns>
         public TConfigurator WhenDecoratedServiceHas(Type attributeType) =>
-            this.When(t => t.Type.GetTypeInfo().GetCustomAttributes(attributeType, false).FirstOrDefault() != null);
+            this.When(t => t.Type.GetCustomAttributes(attributeType, false).FirstOrDefault() != null);
     }
 }

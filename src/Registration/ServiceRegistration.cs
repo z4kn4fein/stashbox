@@ -47,8 +47,6 @@ namespace Stashbox.Registration
         /// </summary>
         public RegistrationType RegistrationType { get; }
 
-        internal readonly TypeInfo ImplementationTypeInfo;
-
         internal readonly bool IsResolvableByUnnamedRequest;
 
         internal readonly bool HasScopeName;
@@ -66,7 +64,6 @@ namespace Stashbox.Registration
         {
             this.Configuration = containerConfiguration;
             this.ImplementationType = implementationType;
-            this.ImplementationTypeInfo = implementationType.GetTypeInfo();
             this.RegistrationContext = registrationContext;
             this.IsDecorator = isDecorator;
             this.RegistrationType = registrationType;

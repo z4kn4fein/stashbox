@@ -1,6 +1,5 @@
 ﻿using Stashbox.Lifetime;
 using Stashbox.Registration.Fluent;
-using Stashbox.Utils;
 using System;
 
 namespace Stashbox.Registration
@@ -28,9 +27,7 @@ namespace Stashbox.Registration
                 containerContext.RootScope.AddDisposableTracking(registrationContext.ExistingInstance);
 
             if (registrationContext.Finalizer == null) return;
-
-            var method = Constants.AddWithFinalizerMethod.MakeGenericMethod(implementationType);
-            method.Invoke(containerContext.RootScope, new[] { registrationContext.ExistingInstance, registrationContext.Finalizer });
+            containerContext.RootScope.AddWithFinalizer(registrationContext.ExistingInstance, registrationContext.Finalizer);
         }
 
         private LifetimeDescriptor ChooseLifeTime(IContainerContext containerContext, RegistrationContext registrationContext) => registrationContext.IsWireUp

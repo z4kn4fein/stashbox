@@ -11,7 +11,7 @@ namespace Stashbox.Lifetime
     /// </summary>
     public class NamedScopeLifetime : FactoryLifetimeDescriptor
     {
-        private static readonly MethodInfo GetScopeValueMethod = typeof(NamedScopeLifetime).GetSingleMethod(nameof(GetScopedValue));
+        private static readonly MethodInfo GetScopeValueMethod = typeof(NamedScopeLifetime).GetMethod(nameof(GetScopedValue), BindingFlags.Static | BindingFlags.NonPublic);
 
         /// <summary>
         /// The name of the scope where this lifetime activates.
@@ -33,13 +33,14 @@ namespace Stashbox.Lifetime
         /// <inheritdoc />
         protected override Expression ApplyLifetime(Func<IResolutionScope, object> factory,
             ServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType) =>
-            GetScopeValueMethod.MakeGenericMethod(resolveType).CallStaticMethod(
+            GetScopeValueMethod.CallStaticMethod(
                 resolutionContext.CurrentScopeParameter,
                     factory.AsConstant(),
+                    resolveType.AsConstant(),
                     serviceRegistration.RegistrationId.AsConstant(),
-                    this.ScopeName.AsConstant());
+                    this.ScopeName.AsConstant()).ConvertTo(resolveType);
 
-        private static TValue GetScopedValue<TValue>(IResolutionScope currentScope, Func<IResolutionScope, object> factory,
+        private static object GetScopedValue(IResolutionScope currentScope, Func<IResolutionScope, object> factory, Type requestedType,
             int scopeId, object scopeName)
         {
             var scope = currentScope;
@@ -49,7 +50,7 @@ namespace Stashbox.Lifetime
             if (scope == null)
                 throw new InvalidOperationException($"The scope '{scopeName}' not found.");
 
-            return (TValue)scope.GetOrAddScopedObject(scopeId, factory, typeof(TValue));
+            return scope.GetOrAddScopedObject(scopeId, factory, requestedType);
         }
     }
 }

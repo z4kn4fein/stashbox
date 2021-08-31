@@ -159,7 +159,7 @@ namespace Stashbox
             Func<Type, Type, bool> serviceTypeSelector = null,
             bool registerSelf = true,
             Action<RegistrationConfigurator> configurator = null) =>
-            registrator.RegisterAssembly(typeFrom.GetTypeInfo().Assembly, 
+            registrator.RegisterAssembly(typeFrom.Assembly, 
                 selector, 
                 serviceTypeSelector, 
                 registerSelf, 

@@ -1,5 +1,4 @@
-﻿#if IL_EMIT
-using System;
+﻿using System;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -28,9 +27,9 @@ namespace Stashbox.Expressions.Compile.Emitters
                 return true;
             }
 
-            if (!typeFrom.GetTypeInfo().IsValueType && typeTo.GetTypeInfo().IsValueType)
+            if (!typeFrom.IsValueType && typeTo.IsValueType)
                 generator.Emit(OpCodes.Unbox_Any, typeTo);
-            else if (typeFrom.GetTypeInfo().IsValueType && typeTo == typeof(object))
+            else if (typeFrom.IsValueType && typeTo == typeof(object))
                 generator.Emit(OpCodes.Box, typeFrom);
             else
                 generator.Emit(OpCodes.Castclass, typeTo);
@@ -39,4 +38,3 @@ namespace Stashbox.Expressions.Compile.Emitters
         }
     }
 }
-#endif

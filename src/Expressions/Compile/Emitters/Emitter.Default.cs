@@ -1,5 +1,4 @@
-﻿#if IL_EMIT
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
 using Stashbox.Expressions.Compile.Extensions;
@@ -36,7 +35,7 @@ namespace Stashbox.Expressions.Compile.Emitters
                 generator.Emit(OpCodes.Ldc_R4, default(float));
             else if (type == typeof(double))
                 generator.Emit(OpCodes.Ldc_R8, default(double));
-            else if (type.GetTypeInfo().IsValueType)
+            else if (type.IsValueType)
                 generator.InitValueType(type);
             else
                 generator.Emit(OpCodes.Ldnull);
@@ -45,4 +44,3 @@ namespace Stashbox.Expressions.Compile.Emitters
         }
     }
 }
-#endif

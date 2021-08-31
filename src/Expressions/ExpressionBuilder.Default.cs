@@ -7,23 +7,23 @@ using System.Linq.Expressions;
 
 namespace Stashbox.Expressions
 {
-    internal partial class ExpressionBuilder
+    internal static partial class ExpressionBuilder
     {
-        private Expression GetExpressionForDefault(ServiceRegistration serviceRegistration, ResolutionContext resolutionContext)
+        private static Expression GetExpressionForDefault(ServiceRegistration serviceRegistration, ResolutionContext resolutionContext)
         {
             if (resolutionContext.WeAreInCircle(serviceRegistration.RegistrationId))
                 throw new CircularDependencyException(serviceRegistration.ImplementationType);
 
             resolutionContext.PullOutCircularDependencyBarrier(serviceRegistration.RegistrationId);
-            var result = this.PrepareDefaultExpression(serviceRegistration, resolutionContext);
+            var result = PrepareDefaultExpression(serviceRegistration, resolutionContext);
             resolutionContext.LetDownCircularDependencyBarrier();
             return result;
         }
 
-        private Expression PrepareDefaultExpression(ServiceRegistration serviceRegistration, ResolutionContext resolutionContext)
+        private static Expression PrepareDefaultExpression(ServiceRegistration serviceRegistration, ResolutionContext resolutionContext)
         {
             if (serviceRegistration.RegistrationContext.DefinedScopeName == null)
-                return this.expressionFactory.ConstructExpression(serviceRegistration, resolutionContext);
+                return ExpressionFactory.ConstructExpression(serviceRegistration, resolutionContext);
 
             var variable = Constants.ResolutionScopeType.AsVariable();
 
@@ -37,7 +37,7 @@ namespace Stashbox.Expressions
             resolutionContext.AddDefinedVariable(variable);
             resolutionContext.AddInstruction(variable.AssignTo(newScope.ConvertTo(Constants.ResolutionScopeType)));
 
-            var expression = this.expressionFactory.ConstructExpression(serviceRegistration, newScopeContext);
+            var expression = ExpressionFactory.ConstructExpression(serviceRegistration, newScopeContext);
 
             foreach (var definedVariable in newScopeContext.DefinedVariables.Walk())
                 resolutionContext.AddDefinedVariable(definedVariable);

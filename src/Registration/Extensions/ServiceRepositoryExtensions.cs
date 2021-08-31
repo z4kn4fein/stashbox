@@ -19,7 +19,7 @@ namespace Stashbox.Registration.Extensions
             if (registrations != null || !type.IsClosedGenericType()) return registrations != null;
 
             registrations = repository.GetOrDefaultByRef(type.GetGenericTypeDefinition());
-            return registrations?.Any(reg => type.SatisfiesGenericConstraintsOf(reg.ImplementationTypeInfo)) ?? false;
+            return registrations?.Any(reg => type.SatisfiesGenericConstraintsOf(reg.ImplementationType)) ?? false;
         }
 
         public static ServiceRegistration SelectOrDefault(this IEnumerable<ServiceRegistration> registrations,

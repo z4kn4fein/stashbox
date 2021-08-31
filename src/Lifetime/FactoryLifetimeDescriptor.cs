@@ -11,31 +11,31 @@ namespace Stashbox.Lifetime
     /// </summary>
     public abstract class FactoryLifetimeDescriptor : LifetimeDescriptor
     {
-        private protected override Expression BuildLifetimeAppliedExpression(ExpressionBuilder expressionBuilder,
-            ServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type requestedType)
+        private protected override Expression BuildLifetimeAppliedExpression(ServiceRegistration serviceRegistration, 
+            ResolutionContext resolutionContext, Type requestedType)
         {
-            var factory = GetFactoryDelegateForRegistration(expressionBuilder, serviceRegistration, resolutionContext, requestedType);
+            var factory = GetFactoryDelegateForRegistration(serviceRegistration, resolutionContext, requestedType);
             return factory == null ? null : this.ApplyLifetime(factory, serviceRegistration, resolutionContext, requestedType);
         }
 
-        private static Func<IResolutionScope, object> GetFactoryDelegateForRegistration(ExpressionBuilder expressionBuilder,
-            ServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type requestedType)
+        private static Func<IResolutionScope, object> GetFactoryDelegateForRegistration(ServiceRegistration serviceRegistration, 
+            ResolutionContext resolutionContext, Type requestedType)
         {
             if (!IsRegistrationOutputCacheable(serviceRegistration, resolutionContext))
-                return GetNewFactoryDelegate(expressionBuilder, serviceRegistration, resolutionContext.BeginSubGraph(), requestedType);
+                return GetNewFactoryDelegate(serviceRegistration, resolutionContext.BeginSubGraph(), requestedType);
 
             var factory = resolutionContext.GetCachedFactory(serviceRegistration.RegistrationId);
             if (factory != null)
                 return factory;
 
-            factory = GetNewFactoryDelegate(expressionBuilder, serviceRegistration, resolutionContext.BeginSubGraph(), requestedType);
+            factory = GetNewFactoryDelegate(serviceRegistration, resolutionContext.BeginSubGraph(), requestedType);
             resolutionContext.CacheFactory(serviceRegistration.RegistrationId, factory);
             return factory;
         }
 
-        private static Func<IResolutionScope, object> GetNewFactoryDelegate(ExpressionBuilder expressionBuilder, ServiceRegistration serviceRegistration,
+        private static Func<IResolutionScope, object> GetNewFactoryDelegate(ServiceRegistration serviceRegistration,
             ResolutionContext resolutionContext, Type requestedType) =>
-            GetExpressionForRegistration(expressionBuilder, serviceRegistration, resolutionContext, requestedType)
+            GetExpressionForRegistration(serviceRegistration, resolutionContext, requestedType)
                 ?.CompileDelegate(resolutionContext, resolutionContext.CurrentContainerContext.ContainerConfiguration);
 
         /// <summary>

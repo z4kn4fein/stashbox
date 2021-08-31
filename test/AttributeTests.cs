@@ -137,6 +137,16 @@ namespace Stashbox.Tests
             Assert.True(inst.MethodInvoked);
         }
 
+        [Fact]
+        public void AttributeTests_InjectionMethod_Private()
+        {
+            var inst = new StashboxContainer()
+                .Register<Test6>()
+                .Resolve<Test6>();
+
+            Assert.True(inst.MethodInvoked);
+        }
+
         interface ITest1 { }
 
         interface ITest2 { ITest1 test1 { get; set; } }
@@ -233,6 +243,17 @@ namespace Stashbox.Tests
         {
             [InjectionMethod]
             public void MethodTest()
+            {
+                this.MethodInvoked = true;
+            }
+
+            public bool MethodInvoked { get; set; }
+        }
+
+        class Test6
+        {
+            [InjectionMethod]
+            private void MethodTest()
             {
                 this.MethodInvoked = true;
             }

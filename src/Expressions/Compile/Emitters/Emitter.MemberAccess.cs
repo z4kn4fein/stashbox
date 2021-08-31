@@ -1,6 +1,4 @@
-﻿#if IL_EMIT
-using System;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
 using Stashbox.Expressions.Compile.Extensions;
@@ -16,7 +14,7 @@ namespace Stashbox.Expressions.Compile.Emitters
         {
             if (member is PropertyInfo property)
             {
-                var setMethod = property.GetSetterMethodOrDefault();
+                var setMethod = property.GetSetMethod(true);
                 if (setMethod == null)
                     return false;
                 generator.EmitMethod(setMethod);
@@ -31,7 +29,7 @@ namespace Stashbox.Expressions.Compile.Emitters
         {
             if (member is PropertyInfo property)
             {
-                var getMethod = property.GetGetterMethodOrDefault();
+                var getMethod = property.GetGetMethod(true);
                 if (getMethod == null)
                     return false;
                 generator.EmitMethod(getMethod);
@@ -43,4 +41,3 @@ namespace Stashbox.Expressions.Compile.Emitters
         }
     }
 }
-#endif

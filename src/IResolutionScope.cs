@@ -1,6 +1,8 @@
 ﻿using Stashbox.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Stashbox
 {
@@ -22,19 +24,25 @@ namespace Stashbox
         /// <summary>
         /// Adds a service for further disposable tracking.
         /// </summary>
-        /// <typeparam name="TDisposable">The type parameter.</typeparam>
         /// <param name="disposable">The <see cref="IDisposable"/> object.</param>
         /// <returns>The <see cref="IDisposable"/> object.</returns>
-        TDisposable AddDisposableTracking<TDisposable>(TDisposable disposable);
+        object AddDisposableTracking(object disposable);
 
         /// <summary>
         /// Adds a service with a cleanup delegate.
         /// </summary>
-        /// <typeparam name="TService">The service type.</typeparam>
         /// <param name="finalizable">The object to cleanup.</param>
         /// <param name="finalizer">The cleanup delegate.</param>
         /// <returns>The object to cleanup.</returns>
-        TService AddWithFinalizer<TService>(TService finalizable, Action<TService> finalizer);
+        object AddWithFinalizer(object finalizable, Action<object> finalizer);
+
+        /// <summary>
+        /// Adds a service with an async initializer delegate.
+        /// </summary>
+        /// <param name="initializable">The object to initialize.</param>
+        /// <param name="initializer">The async initializer delegate.</param>
+        /// <returns>The object to initialize.</returns>
+        object AddWithAsyncInitializer(object initializable, Func<object, IDependencyResolver, CancellationToken, Task> initializer);
 
         /// <summary>
         /// Returns an existing scoped object or adds it into the scope if it doesn't exist.

@@ -1,16 +1,15 @@
 ﻿using Stashbox.Exceptions;
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Stashbox
 {
     /// <summary>
     /// Represents a dependency resolver.
     /// </summary>
-    public interface IDependencyResolver :
-#if HAS_SERVICEPROVIDER
-        IServiceProvider,
-#endif
+    public interface IDependencyResolver : IServiceProvider,
 #if HAS_ASYNC_DISPOSABLE
         IAsyncDisposable,
 #endif
@@ -102,5 +101,12 @@ namespace Stashbox
         /// <param name="arguments">Optional dependency overrides.</param>
         /// <returns>The built object.</returns>
         object Activate(Type type, params object[] arguments);
+
+        /// <summary>
+        /// Calls the registered asynchronous initializers of all resolved objects.
+        /// </summary>
+        /// <param name="token">The cancellation token.</param>
+        /// <returns>The initializer task.</returns>
+        ValueTask InvokeAsyncInitializers(CancellationToken token = default(CancellationToken));
     }
 }

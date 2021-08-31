@@ -7,9 +7,9 @@ using System.Linq.Expressions;
 
 namespace Stashbox.Expressions
 {
-    internal partial class ExpressionBuilder
+    internal static partial class ExpressionBuilder
     {
-        private Expression GetExpressionForFactory(ServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType)
+        private static Expression GetExpressionForFactory(ServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType)
         {
             if (resolutionContext.WeAreInCircle(serviceRegistration.RegistrationId))
                 throw new CircularDependencyException(serviceRegistration.ImplementationType);
@@ -18,13 +18,13 @@ namespace Stashbox.Expressions
 
             var parameters = GetFactoryParameters(serviceRegistration, resolutionContext);
             var expression = ConstructFactoryExpression(serviceRegistration, parameters);
-            var result = this.expressionFactory.ConstructBuildUpExpression(serviceRegistration, resolutionContext, expression, resolveType);
+            var result = ExpressionFactory.ConstructBuildUpExpression(serviceRegistration, resolutionContext, expression, resolveType);
 
             resolutionContext.LetDownCircularDependencyBarrier();
             return result;
         }
 
-        private Expression ConstructFactoryExpression(ServiceRegistration serviceRegistration, IEnumerable<Expression> parameters)
+        private static Expression ConstructFactoryExpression(ServiceRegistration serviceRegistration, IEnumerable<Expression> parameters)
         {
             if (serviceRegistration.RegistrationContext.IsFactoryDelegateACompiledLambda || serviceRegistration.RegistrationContext.Factory.IsCompiledLambda())
                 return serviceRegistration.RegistrationContext.Factory.InvokeDelegate(parameters);
@@ -35,7 +35,7 @@ namespace Stashbox.Expressions
                 : method.CallMethod(serviceRegistration.RegistrationContext.Factory.Target.AsConstant(), parameters);
         }
 
-        private IEnumerable<Expression> GetFactoryParameters(ServiceRegistration serviceRegistration, ResolutionContext resolutionContext)
+        private static IEnumerable<Expression> GetFactoryParameters(ServiceRegistration serviceRegistration, ResolutionContext resolutionContext)
         {
             var length = serviceRegistration.RegistrationContext.FactoryParameters.Length;
             for (int i = 0; i < length - 1; i++)

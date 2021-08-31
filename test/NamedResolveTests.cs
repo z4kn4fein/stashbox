@@ -49,11 +49,11 @@ namespace Stashbox.Tests
             container.Resolve<IA>("A");
 
             var scopeType = container.ContainerContext.RootScope.GetType();
-            var cacheProvider = scopeType.GetTypeInfo().GetDeclaredField("delegateCacheProvider").GetValue(container.ContainerContext.RootScope);
-            var defaultCache = cacheProvider.GetType().GetTypeInfo().GetDeclaredField("DefaultCache").GetValue(cacheProvider);
-            var serviceFactories = defaultCache.GetType().GetTypeInfo().GetDeclaredField("ServiceDelegates").GetValue(defaultCache);
+            var cacheProvider = scopeType.GetField("delegateCacheProvider", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(container.ContainerContext.RootScope);
+            var defaultCache = cacheProvider.GetType().GetField("DefaultCache").GetValue(cacheProvider);
+            var serviceFactories = defaultCache.GetType().GetField("ServiceDelegates").GetValue(defaultCache);
 
-            var enumerator = (IEnumerable)serviceFactories.GetType().GetTypeInfo().GetDeclaredMethod("Walk").Invoke(serviceFactories, Type.EmptyTypes);
+            var enumerator = (IEnumerable)serviceFactories.GetType().GetMethod("Walk").Invoke(serviceFactories, Type.EmptyTypes);
 
             var length = 0;
             foreach(var item in enumerator)
@@ -73,11 +73,11 @@ namespace Stashbox.Tests
             container.Resolve<IA>(key.ToString());
 
             var scopeType = container.ContainerContext.RootScope.GetType();
-            var cacheProvider = scopeType.GetTypeInfo().GetDeclaredField("delegateCacheProvider").GetValue(container.ContainerContext.RootScope);
-            var defaultCache = cacheProvider.GetType().GetTypeInfo().GetDeclaredField("DefaultCache").GetValue(cacheProvider);
-            var serviceFactories = defaultCache.GetType().GetTypeInfo().GetDeclaredField("ServiceDelegates").GetValue(defaultCache);
+            var cacheProvider = scopeType.GetField("delegateCacheProvider", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(container.ContainerContext.RootScope);
+            var defaultCache = cacheProvider.GetType().GetField("DefaultCache").GetValue(cacheProvider);
+            var serviceFactories = defaultCache.GetType().GetField("ServiceDelegates").GetValue(defaultCache);
 
-            var enumerator = (IEnumerable)serviceFactories.GetType().GetTypeInfo().GetDeclaredMethod("Walk").Invoke(serviceFactories, Type.EmptyTypes);
+            var enumerator = (IEnumerable)serviceFactories.GetType().GetMethod("Walk").Invoke(serviceFactories, Type.EmptyTypes);
 
             var length = 0;
             foreach (var item in enumerator)
@@ -95,9 +95,9 @@ namespace Stashbox.Tests
             container.BeginScope("A");
 
             var scopeType = container.ContainerContext.RootScope.GetType();
-            var cacheProvider = scopeType.GetTypeInfo().GetDeclaredField("delegateCacheProvider").GetValue(container.ContainerContext.RootScope);
-            var namedCache = cacheProvider.GetType().GetTypeInfo().GetDeclaredField("NamedCache").GetValue(cacheProvider);
-            var enumerator = (IEnumerable)namedCache.GetType().GetTypeInfo().GetDeclaredMethod("Walk").Invoke(namedCache, Type.EmptyTypes);
+            var cacheProvider = scopeType.GetField("delegateCacheProvider", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(container.ContainerContext.RootScope);
+            var namedCache = cacheProvider.GetType().GetField("NamedCache").GetValue(cacheProvider);
+            var enumerator = (IEnumerable)namedCache.GetType().GetMethod("Walk").Invoke(namedCache, Type.EmptyTypes);
 
             var length = 0;
             foreach (var item in enumerator)
@@ -116,9 +116,9 @@ namespace Stashbox.Tests
             container.BeginScope(key.ToString());
 
             var scopeType = container.ContainerContext.RootScope.GetType();
-            var cacheProvider = scopeType.GetTypeInfo().GetDeclaredField("delegateCacheProvider").GetValue(container.ContainerContext.RootScope);
-            var namedCache = cacheProvider.GetType().GetTypeInfo().GetDeclaredField("NamedCache").GetValue(cacheProvider);
-            var enumerator = (IEnumerable)namedCache.GetType().GetTypeInfo().GetDeclaredMethod("Walk").Invoke(namedCache, Type.EmptyTypes);
+            var cacheProvider = scopeType.GetField("delegateCacheProvider", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(container.ContainerContext.RootScope);
+            var namedCache = cacheProvider.GetType().GetField("NamedCache").GetValue(cacheProvider);
+            var enumerator = (IEnumerable)namedCache.GetType().GetMethod("Walk").Invoke(namedCache, Type.EmptyTypes);
 
             var length = 0;
             foreach (var item in enumerator)

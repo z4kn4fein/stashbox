@@ -1,7 +1,5 @@
-﻿#if IL_EMIT
-using System;
+﻿using System;
 using System.Linq.Expressions;
-using System.Reflection;
 using System.Reflection.Emit;
 using Stashbox.Expressions.Compile.Extensions;
 
@@ -12,7 +10,6 @@ namespace Stashbox.Expressions.Compile.Emitters
         private static bool TryEmit(this NewArrayExpression expression, ILGenerator generator, CompilerContext context, params ParameterExpression[] parameters)
         {
             var type = expression.Type;
-            var typeInfo = type.GetTypeInfo();
             var itemType = type.GetEnumerableType();
 
             var length = expression.Expressions.Count;
@@ -28,7 +25,7 @@ namespace Stashbox.Expressions.Compile.Emitters
                 if (!expression.Expressions[i].TryEmit(generator, context, parameters))
                     return false;
 
-                if (typeInfo.IsValueType)
+                if (type.IsValueType)
                     generator.Emit(OpCodes.Stelem, itemType);
                 else
                     generator.Emit(OpCodes.Stelem_Ref);
@@ -38,4 +35,3 @@ namespace Stashbox.Expressions.Compile.Emitters
         }
     }
 }
-#endif

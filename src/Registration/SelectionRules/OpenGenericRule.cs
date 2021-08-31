@@ -8,7 +8,7 @@ namespace Stashbox.Registration.SelectionRules
         public bool IsValidForCurrentRequest(TypeInformation typeInformation,
             ServiceRegistration registration,
             ResolutionContext resolutionContext) =>
-            !typeInformation.Type.IsClosedGenericType() || typeInformation.Type.SatisfiesGenericConstraintsOf(registration.ImplementationTypeInfo);
+            !typeInformation.Type.IsClosedGenericType() || typeInformation.Type.SatisfiesGenericConstraintsOf(registration.ImplementationType);
 
         public bool ShouldIncrementWeight(TypeInformation typeInformation, ServiceRegistration registration,
             ResolutionContext resolutionContext) => false;

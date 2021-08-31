@@ -1,5 +1,4 @@
-﻿#if IL_EMIT
-using Stashbox.Utils.Data;
+﻿using Stashbox.Utils.Data;
 using System.Linq.Expressions;
 using System.Reflection.Emit;
 
@@ -52,4 +51,3 @@ namespace Stashbox.Expressions.Compile
         }
     }
 }
-#endif

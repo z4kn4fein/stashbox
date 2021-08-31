@@ -224,7 +224,7 @@ namespace Stashbox.Registration.Fluent
         /// <exception cref="ConstructorNotFoundException" />
         public TConfigurator WithConstructorByArgumentTypes(params Type[] argumentTypes)
         {
-            var constructor = this.ImplementationType.GetConstructorByArguments(argumentTypes);
+            var constructor = this.ImplementationType.GetConstructor(argumentTypes);
             if (constructor == null)
                 ThrowConstructorNotFoundException(this.ImplementationType, argumentTypes);
 
@@ -241,7 +241,7 @@ namespace Stashbox.Registration.Fluent
         public TConfigurator WithConstructorByArguments(params object[] arguments)
         {
             var argTypes = arguments.Select(arg => arg.GetType()).ToArray();
-            var constructor = this.ImplementationType.GetConstructorByArguments(argTypes);
+            var constructor = this.ImplementationType.GetConstructor(argTypes);
             if (constructor == null)
                 ThrowConstructorNotFoundException(this.ImplementationType, argTypes);
 
@@ -249,16 +249,6 @@ namespace Stashbox.Registration.Fluent
             this.Context.ConstructorArguments = arguments;
             return (TConfigurator)this;
         }
-
-        /// <summary>
-        /// Set a member (property / field) with the given name as a dependency that should be filled by the container.
-        /// </summary>
-        /// <param name="memberName">The name of the member.</param>
-        /// <param name="dependencyName">The name of the dependency.</param>
-        /// <returns>The fluent configurator.</returns>
-        [Obsolete("Use WithDependencyBinding() instead.")]
-        public TConfigurator InjectMember(string memberName, object dependencyName = null) =>
-            this.WithDependencyBinding(memberName, dependencyName);
 
         /// <summary>
         /// Tells the container that it shouldn't track the resolved transient object for disposal.

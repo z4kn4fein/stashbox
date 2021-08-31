@@ -20,16 +20,12 @@ namespace Stashbox.Configuration
             /// <summary>
             /// Includes only interface types.
             /// </summary>
-            public static Func<Type, Type, bool> Interfaces = (_, t) => t.GetTypeInfo().IsInterface;
+            public static Func<Type, Type, bool> Interfaces = (_, t) => t.IsInterface;
 
             /// <summary>
             /// Includes only abstract types.
             /// </summary>
-            public static Func<Type, Type, bool> AbstractClasses = (_, t) => 
-            {
-                var info = t.GetTypeInfo();
-                return info.IsAbstract && !info.IsInterface;
-            };
+            public static Func<Type, Type, bool> AbstractClasses = (_, t) => t.IsAbstract && !t.IsInterface;
         }
 
         /// <summary>

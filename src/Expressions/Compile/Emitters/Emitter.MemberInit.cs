@@ -1,5 +1,4 @@
-﻿#if IL_EMIT
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using System.Reflection.Emit;
 
 namespace Stashbox.Expressions.Compile.Emitters
@@ -31,4 +30,3 @@ namespace Stashbox.Expressions.Compile.Emitters
         }
     }
 }
-#endif

@@ -1,5 +1,4 @@
-﻿#if IL_EMIT
-using System;
+﻿using System;
 using System.Linq;
 using System.Reflection;
 
@@ -7,14 +6,12 @@ namespace Stashbox.Expressions.Compile
 {
     internal static class Utils
     {
-        public static bool IsInPlaceEmittableConstant(Type type, object value)
-        {
-            var typeInfo = type.GetTypeInfo();
-            return typeInfo.IsPrimitive ||
-                   typeInfo.IsEnum ||
+        public static bool IsInPlaceEmittableConstant(Type type, object value) =>
+            type.IsPrimitive ||
+                   type.IsEnum ||
                    value is string ||
                    value is Type;
-        }
+
 
         public static readonly Type ClosureType = typeof(Closure);
 
@@ -43,7 +40,7 @@ namespace Stashbox.Expressions.Compile
     internal static class PartialApplication
     {
         public static readonly MethodInfo[] Methods = typeof(PartialApplication)
-            .GetTypeInfo().DeclaredMethods.CastToArray();
+            .GetMethods().CastToArray();
 
         public static Func<TR> ApplyPartial<TV, TR>(Func<TV, TR> f, TV v) => () => f(v);
         public static Func<T1, TR> ApplyPartial<TV, T1, TR>(Func<TV, T1, TR> f, TV v) => t1 => f(v, t1);
@@ -54,4 +51,3 @@ namespace Stashbox.Expressions.Compile
         public static Func<T1, T2, T3, T4, T5, T6, TR> ApplyPartial<TV, T1, T2, T3, T4, T5, T6, TR>(Func<TV, T1, T2, T3, T4, T5, T6, TR> f, TV v) => (t1, t2, t3, t4, t5, t6) => f(v, t1, t2, t3, t4, t5, t6);
     }
 }
-#endif

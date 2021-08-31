@@ -403,7 +403,6 @@ namespace Stashbox.Tests
             Assert.Empty(container.ResolveAll<Test1>());
         }
 
-#if HAS_SERVICEPROVIDER
         [Fact]
         public void StandardResolveTests_ServiceProvider()
         {
@@ -435,7 +434,6 @@ namespace Stashbox.Tests
 
             public IServiceProvider ServiceProvider { get; }
         }
-#endif
 
         interface ITest1 { string Name { get; set; } }
 

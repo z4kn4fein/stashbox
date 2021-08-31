@@ -61,10 +61,10 @@ namespace Stashbox
                 var startTime = (uint)Environment.TickCount;
                 while (ReferenceEquals(this.evaluatedObject, Default))
                 {
-                    if(spin.NextSpinWillYield)
+                    if (spin.NextSpinWillYield)
                     {
                         var currentTime = (uint)Environment.TickCount;
-                        if(MaxWaitTimeInMs <= currentTime - startTime)
+                        if (MaxWaitTimeInMs <= currentTime - startTime)
                             throw new ResolutionFailedException(serviceType,
                                 $"The scoped service {serviceType} was unavailable after {MaxWaitTimeInMs} ms. " +
                                 "It's possible that the thread used to construct it crashed by a handled exception." +
@@ -78,7 +78,6 @@ namespace Stashbox
             }
         }
 
-        private readonly ExpressionFactory expressionFactory;
         private readonly IContainerContext containerContext;
         private readonly DelegateCacheProvider delegateCacheProvider;
         private readonly DelegateCache delegateCache;
@@ -91,10 +90,9 @@ namespace Stashbox
 
         public IResolutionScope ParentScope { get; }
 
-        private ResolutionScope(ExpressionFactory expressionBuilder, IContainerContext containerContext,
+        private ResolutionScope(IContainerContext containerContext,
             DelegateCacheProvider delegateCacheProvider, object name)
         {
-            this.expressionFactory = expressionBuilder;
             this.containerContext = containerContext;
             this.Name = name;
             this.delegateCacheProvider = delegateCacheProvider;
@@ -104,13 +102,13 @@ namespace Stashbox
                 : delegateCacheProvider.GetNamedCache(name);
         }
 
-        internal ResolutionScope(ExpressionFactory expressionBuilder, IContainerContext containerContext)
-            : this(expressionBuilder, containerContext, new DelegateCacheProvider(), null)
+        internal ResolutionScope(IContainerContext containerContext)
+            : this(containerContext, new DelegateCacheProvider(), null)
         { }
 
-        private ResolutionScope(ExpressionFactory expressionBuilder, IContainerContext containerContext,
+        private ResolutionScope(IContainerContext containerContext,
             IResolutionScope parent, DelegateCacheProvider delegateCacheProvider, object name = null)
-            : this(expressionBuilder, containerContext, delegateCacheProvider, name)
+            : this(containerContext, delegateCacheProvider, name)
         {
             this.ParentScope = parent;
         }
@@ -119,10 +117,12 @@ namespace Stashbox
         {
             this.ThrowIfDisposed();
 
-            var scope = new ResolutionScope(this.expressionFactory,
-                this.containerContext, this, this.delegateCacheProvider, name);
+            var scope = new ResolutionScope(this.containerContext, this, this.delegateCacheProvider, name);
 
-            return attachToParent ? this.AddDisposableTracking(scope) : scope;
+            if (attachToParent)
+                this.AddDisposableTracking(scope);
+
+            return scope;
         }
 
         public IDependencyResolver PutInstanceInScope(Type typeFrom, object instance, bool withoutDisposalTracking = false, object name = null)
@@ -205,11 +205,7 @@ namespace Stashbox
                 check.Value = false;
         }
 
-        private void ThrowIfDisposed(
-#if !NET40
-            [CallerMemberName] 
-#endif
-            string caller = "<unknown>")
+        private void ThrowIfDisposed([CallerMemberName] string caller = "<unknown>")
         {
             if (this.disposed == 1)
                 Shield.ThrowDisposedException(this.GetType().FullName, caller);

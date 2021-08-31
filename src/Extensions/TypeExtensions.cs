@@ -10,86 +10,47 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using DependencyAttribute = Stashbox.Attributes.DependencyAttribute;
 
-#if NET40
-namespace System.Reflection
-{
-    internal static class TypeExtensions
-    {
-        public static TypeInfo GetTypeInfo(this Type type)
-        {
-            return new TypeInfo(type);
-        }
-
-        public static TAttribute GetCustomAttribute<TAttribute>(this TypeInfo typeInfo) where TAttribute : Attribute
-        {
-            var attrType = typeof(TAttribute);
-            var attributes = typeInfo.GetCustomAttributes(attrType, false);
-            return (TAttribute)attributes.FirstOrDefault();
-        }
-
-        public static IEnumerable<Attribute> GetCustomAttributes(this ParameterInfo parameter) =>
-            parameter.GetCustomAttributes(false).Cast<Attribute>();
-
-        public static IEnumerable<Attribute> GetCustomAttributes(this MemberInfo property) =>
-            property.GetCustomAttributes(false).Cast<Attribute>();
-    }
-}
-#endif
-
 namespace System
 {
     internal static class TypeExtensions
     {
         public static Type GetEnumerableType(this Type type)
         {
-            var typeInfo = type.GetTypeInfo();
-            if (typeInfo.IsArray)
+            if (type.IsArray)
                 return type.GetElementType();
 
-            if (typeInfo.ImplementsGenericType(typeof(IEnumerable<>)) && type != typeof(string) && typeInfo.GenericTypeArguments.Length == 1)
-                return typeInfo.GenericTypeArguments[0];
+            if (type.ImplementsGenericType(typeof(IEnumerable<>)) && type != typeof(string) && type.GenericTypeArguments.Length == 1)
+                return type.GenericTypeArguments[0];
 
             return null;
         }
 
-        public static bool IsGenericType(this Type type) =>
-           type.GetTypeInfo().IsGenericType;
-
         public static bool IsClosedGenericType(this Type type) =>
-            type.GetTypeInfo().IsClosedGenericType();
-
-        public static bool IsClosedGenericType(this TypeInfo typeInfo) =>
-            typeInfo.IsGenericType && !typeInfo.IsGenericTypeDefinition;
+            type.IsGenericType && !type.IsGenericTypeDefinition;
 
         public static bool IsOpenGenericType(this Type type) =>
-            type.GetTypeInfo().IsOpenGenericType();
-
-        public static bool IsOpenGenericType(this TypeInfo typeInfo) =>
-            typeInfo.IsGenericType && typeInfo.ContainsGenericParameters;
+            type.IsGenericType && type.ContainsGenericParameters;
 
         public static DependencyAttribute GetDependencyAttribute(this MemberInfo property)
         {
-            var attr = property.GetCustomAttributes(Constants.DependencyAttributeType, false)?.FirstOrDefault();
+            var attr = property.GetCustomAttributes(Constants.DependencyAttributeType, false).FirstOrDefault();
             return (DependencyAttribute)attr;
         }
 
         public static DependencyAttribute GetDependencyAttribute(this ParameterInfo parameter)
         {
-            var attr = parameter.GetCustomAttributes(Constants.DependencyAttributeType, false)?.FirstOrDefault();
+            var attr = parameter.GetCustomAttributes(Constants.DependencyAttributeType, false).FirstOrDefault();
             return (DependencyAttribute)attr;
         }
 
         public static InjectionMethodAttribute GetInjectionAttribute(this MemberInfo method)
         {
-            var attr = method.GetCustomAttributes(Constants.InjectionAttributeType, false)?.FirstOrDefault();
+            var attr = method.GetCustomAttributes(Constants.InjectionAttributeType, false).FirstOrDefault();
             return (InjectionMethodAttribute)attr;
         }
 
-        public static Type[] GetGenericArguments(this Type type) =>
-            type.GetTypeInfo().GenericTypeArguments;
-
         public static ConstructorInfo GetConstructor(this Type type, params Type[] args) =>
-            type.GetTypeInfo().DeclaredConstructors.FirstOrDefault(c => c.GetParameters().Select(p => p.ParameterType).SequenceEqual(args));
+            type.GetConstructors().FirstOrDefault(c => c.GetParameters().Select(p => p.ParameterType).SequenceEqual(args));
 
         public static bool IsBackingField(this MemberInfo field) =>
             field.Name[0] == '<';
@@ -100,32 +61,8 @@ namespace System
         public static bool HasDefaultValue(this ParameterInfo parameter) =>
             parameter.IsOptional;
 
-        public static bool HasPublicParameterlessConstructor(this TypeInfo info) =>
-            info.DeclaredConstructors.FirstOrDefault(c => c.IsPublic && c.GetParameters().Length == 0) != null;
-
-        public static MethodInfo GetSingleMethod(this Type type, string name)
-        {
-            var found = type.GetSingleMethodOrDefault(name);
-            if (found == null)
-                throw new InvalidOperationException($"'{name}' method not found on {type.FullName}.");
-
-            return found;
-        }
-
-        public static MethodInfo GetSingleMethodOrDefault(this Type type, string name) =>
-            type.GetTypeInfo().GetDeclaredMethod(name);
-
-        public static bool HasPublicSetMethod(this MemberInfo property)
-        {
-            var setter = property.GetSetterMethodOrDefault();
-            return setter != null && setter.IsPublic;
-        }
-
-        public static MethodInfo GetSetterMethodOrDefault(this MemberInfo property) =>
-            property.DeclaringType.GetSingleMethodOrDefault("set_" + property.Name);
-
-        public static MethodInfo GetGetterMethodOrDefault(this MemberInfo property) =>
-            property.DeclaringType.GetSingleMethodOrDefault("get_" + property.Name);
+        public static bool HasPublicParameterlessConstructor(this Type type) =>
+            type.GetConstructors().FirstOrDefault(c => c.GetParameters().Length == 0) != null;
 
         public static bool IsDisposable(this Type type) =>
             type.Implements(Constants.DisposableType)
@@ -137,57 +74,53 @@ namespace System
         public static bool IsCompositionRoot(this Type type) =>
             type.Implements(Constants.CompositionRootType);
 
-        public static bool IsResolvableType(this Type type)
-        {
-            var typeInfo = type.GetTypeInfo();
-            return !typeInfo.IsAbstract &&
-                !typeInfo.IsInterface &&
-                typeInfo.IsClass &&
+        public static bool IsResolvableType(this Type type) => 
+            !type.IsAbstract &&
+                !type.IsInterface &&
+                type.IsClass &&
                 type != typeof(string) &&
-                typeInfo.GetCustomAttribute<CompilerGeneratedAttribute>() == null;
-        }
-
+                type.GetCustomAttribute<CompilerGeneratedAttribute>() == null;
+        
         public static IEnumerable<Type> GetRegisterableInterfaceTypes(this Type type) =>
-            type.GetTypeInfo().ImplementedInterfaces.Where(t => t != Constants.DisposableType);
+            type.GetInterfaces().Where(t => 
+            t != Constants.DisposableType
+#if HAS_ASYNC_DISPOSABLE
+         && t != Constants.AsyncDisposableType
+#endif
+            );
 
         public static IEnumerable<Type> GetRegisterableBaseTypes(this Type type)
         {
-            var baseType = type.GetTypeInfo().BaseType;
+            var baseType = type.BaseType;
             while (baseType != null && !baseType.IsObjectType())
             {
                 yield return baseType;
-                baseType = baseType.GetTypeInfo().BaseType;
+                baseType = baseType.BaseType;
             }
         }
 
         public static bool IsObjectType(this Type type) => type == Constants.ObjectType;
 
         public static bool Implements(this Type type, Type interfaceType) =>
-            type == interfaceType || type.GetTypeInfo().Implements(interfaceType);
-
-        private static bool Implements(this TypeInfo typeInfo, Type interfaceType) =>
-            interfaceType.IsOpenGenericType()
-                ? typeInfo.ImplementsGenericType(interfaceType.GetGenericTypeDefinition())
-                : interfaceType.GetTypeInfo().IsAssignableFrom(typeInfo);
+            type == interfaceType || (interfaceType.IsOpenGenericType()
+                ? type.ImplementsGenericType(interfaceType.GetGenericTypeDefinition())
+                : interfaceType.IsAssignableFrom(type));
 
         public static bool ImplementsWithoutGenericCheck(this Type type, Type interfaceType) =>
-            type.GetTypeInfo().ImplementsWithoutGenericCheck(interfaceType);
+            interfaceType.IsAssignableFrom(type);
 
-        private static bool ImplementsWithoutGenericCheck(this TypeInfo typeInfo, Type interfaceType) =>
-            interfaceType.GetTypeInfo().IsAssignableFrom(typeInfo);
-
-        private static bool ImplementsGenericType(this TypeInfo type, Type genericType) =>
+        private static bool ImplementsGenericType(this Type type, Type genericType) =>
             MapsToGenericTypeDefinition(type, genericType) ||
             HasInterfaceThatMapsToGenericTypeDefinition(type, genericType) ||
-            type.BaseType != null && type.BaseType.GetTypeInfo().ImplementsGenericType(genericType);
+            type.BaseType != null && type.BaseType.ImplementsGenericType(genericType);
 
-        private static bool HasInterfaceThatMapsToGenericTypeDefinition(TypeInfo type, Type genericType) =>
-            type.ImplementedInterfaces
-              .Where(it => it.IsGenericType())
+        private static bool HasInterfaceThatMapsToGenericTypeDefinition(Type type, Type genericType) =>
+            type.GetInterfaces()
+              .Where(it => it.IsGenericType)
               .Any(it => it.GetGenericTypeDefinition() == genericType);
 
-        private static bool MapsToGenericTypeDefinition(TypeInfo type, Type genericType) =>
-            genericType.GetTypeInfo().IsGenericTypeDefinition
+        private static bool MapsToGenericTypeDefinition(Type type, Type genericType) =>
+            genericType.IsGenericTypeDefinition
               && type.IsGenericType
               && type.GetGenericTypeDefinition() == genericType;
 
@@ -195,36 +128,7 @@ namespace System
             type.IsClosedGenericType() && FuncResolver.SupportedTypes.Contains(type.GetGenericTypeDefinition());
 
         public static ConstructorInfo GetFirstConstructor(this Type type) =>
-            type.GetTypeInfo().DeclaredConstructors.FirstOrDefault();
-
-        public static ConstructorInfo GetConstructorByArguments(this Type type, params Type[] types) =>
-            (ConstructorInfo)type.GetTypeInfo().DeclaredConstructors.GetMethodByArguments(types);
-
-        public static MethodInfo GetMethodByArguments(this Type type, string name, params Type[] types) =>
-            (MethodInfo)type.GetTypeInfo().DeclaredMethods.Where(m => m.Name == name).GetMethodByArguments(types);
-
-        public static MethodBase GetMethodByArguments(this IEnumerable<MethodBase> methods, params Type[] types) =>
-            methods.FirstOrDefault(constructor =>
-            {
-                var parameters = constructor.GetParameters();
-                if (parameters.Length != types.Length)
-                    return false;
-
-                var length = parameters.Length;
-                for (var i = 0; i < length; i++)
-                {
-                    var paramType = parameters[i].ParameterType;
-                    var argType = types[i];
-
-                    var eq = paramType == argType;
-                    var im = argType.Implements(paramType);
-
-                    if (!eq && !im)
-                        return false;
-                }
-
-                return true;
-            });
+            type.GetConstructors().FirstOrDefault();
 
         public static TypeInformation AsTypeInformation(this ParameterInfo parameter,
             Type declaringType,
@@ -276,24 +180,20 @@ namespace System
             return new TypeInformation(type, member.DeclaringType, dependencyName, customAttributes, member.Name, false, null);
         }
 
-        public static IEnumerable<ConstructorInfo> GetUsableConstructors(this TypeInfo typeInfo) =>
-            typeInfo.DeclaredConstructors.Where(constructor => !constructor.IsStatic && constructor.IsPublic);
-
-        public static MethodInfo[] GetUsableMethods(this TypeInfo typeInfo)
+        public static MethodInfo[] GetUsableMethods(this Type type)
         {
-            var methods =  typeInfo.DeclaredMethods.Where(method => method.GetInjectionAttribute() != null);
-            var baseType = typeInfo.BaseType;
+            var methods =  type.GetMethods(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance).Where(method => method.GetInjectionAttribute() != null);
+            var baseType = type.BaseType;
             while (baseType != null && !baseType.IsObjectType())
             {
-                var baseTypeInfo = baseType.GetTypeInfo();
-                methods =  methods.Concat(baseTypeInfo.DeclaredMethods.Where(method => method.GetInjectionAttribute() != null));
-                baseType = baseTypeInfo.BaseType;
+                methods =  methods.Concat(baseType.GetMethods(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance).Where(method => method.GetInjectionAttribute() != null));
+                baseType = baseType.BaseType;
             }
 
             return methods.CastToArray();
         }
 
-        public static MemberInfo[] GetUsableMembers(this TypeInfo typeInfo,
+        public static MemberInfo[] GetUsableMembers(this Type type,
             RegistrationContext contextData,
             ContainerConfiguration containerConfiguration)
         {
@@ -305,38 +205,41 @@ namespace System
             var limitedPropsEnabled = autoMemberInjectionEnabled && (autoMemberInjectionRule & Rules.AutoMemberInjectionRules.PropertiesWithLimitedAccess) == Rules.AutoMemberInjectionRules.PropertiesWithLimitedAccess;
             var fieldsEnabled = autoMemberInjectionEnabled && (autoMemberInjectionRule & Rules.AutoMemberInjectionRules.PrivateFields) == Rules.AutoMemberInjectionRules.PrivateFields;
 
-            IEnumerable<MemberInfo> properties = typeInfo.DeclaredProperties.Where(member => member.FilterProperty(contextData, containerConfiguration, publicPropsEnabled, limitedPropsEnabled));
-            IEnumerable<MemberInfo> fields = typeInfo.DeclaredFields.Where(member => member.FilterField(contextData, containerConfiguration, fieldsEnabled));
+            IEnumerable<MemberInfo> properties = type.GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance)
+                .Where(member => member.FilterProperty(contextData, containerConfiguration, publicPropsEnabled, limitedPropsEnabled));
+            IEnumerable<MemberInfo> fields = type.GetFields(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance)
+                .Where(member => member.FilterField(contextData, containerConfiguration, fieldsEnabled));
 
-            var baseType = typeInfo.BaseType;
+            var baseType = type.BaseType;
             while (baseType != null && !baseType.IsObjectType())
             {
-                var baseTypeInfo = baseType.GetTypeInfo();
-                properties = properties.Concat(baseTypeInfo.DeclaredProperties.Where(member => member.FilterProperty(contextData, containerConfiguration, publicPropsEnabled, limitedPropsEnabled)));
-                fields = fields.Concat(baseTypeInfo.DeclaredFields.Where(member => member.FilterField(contextData, containerConfiguration, fieldsEnabled)));
-                baseType = baseTypeInfo.BaseType;
+                properties = properties.Concat(baseType.GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance)
+                    .Where(member => member.FilterProperty(contextData, containerConfiguration, publicPropsEnabled, limitedPropsEnabled)));
+                fields = fields.Concat(baseType.GetFields(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance)
+                    .Where(member => member.FilterField(contextData, containerConfiguration, fieldsEnabled)));
+                baseType = baseType.BaseType;
             }
 
             return properties.Concat(fields).CastToArray();
         }
 
-        public static bool SatisfiesGenericConstraintsOf(this Type typeForCheck, TypeInfo against)
+        public static bool SatisfiesGenericConstraintsOf(this Type typeForCheck, Type against)
         {
             if (!against.IsGenericTypeDefinition) return true;
 
-            var parametersLength = against.GenericTypeParameters.Length;
-            var typeForCheckInfo = typeForCheck.GetTypeInfo();
-            var argumentsLength = typeForCheckInfo.GenericTypeArguments.Length;
+            var parameters = against.GetGenericArguments();
+            var parametersLength = parameters.Length;
+            var arguments = typeForCheck.GetGenericArguments();
+            var argumentsLength = arguments.Length;
 
             for (var i = 0; i < parametersLength; i++)
             {
-                var paramType = against.GenericTypeParameters[i].GetTypeInfo();
+                var paramType = parameters[i];
                 var parameterPosition = paramType.GenericParameterPosition;
                 if (parameterPosition >= argumentsLength)
                     return false;
 
-                var argumentType = typeForCheckInfo.GenericTypeArguments[parameterPosition];
-                var argumentForValidation = argumentType.GetTypeInfo();
+                var argumentForValidation = arguments[parameterPosition];
                 var parameterAttributes = paramType.GenericParameterAttributes;
 
                 if (parameterAttributes.HasDefaultConstructorConstraint() &&
@@ -357,7 +260,7 @@ namespace System
                 for (var j = 0; j < constraintsLength; j++)
                 {
                     var con = constraints[j];
-                    var constraintForCheck = con.IsClosedGenericType() ? con.GetGenericTypeDefinition().MakeGenericType(argumentType) : con;
+                    var constraintForCheck = con.IsClosedGenericType() ? con.GetGenericTypeDefinition().MakeGenericType(argumentForValidation) : con;
                     if (argumentForValidation.Implements(constraintForCheck))
                         found = true;
                 }
@@ -373,7 +276,7 @@ namespace System
         {
             var valid = prop.CanWrite && !prop.IsIndexer() &&
                     (prop.GetDependencyAttribute() != null ||
-                     publicPropsEnabled && prop.HasPublicSetMethod() || limitedPropsEnabled ||
+                     publicPropsEnabled && prop.GetSetMethod() != null || limitedPropsEnabled ||
                      contextData.DependencyBindings.ContainsKey(prop.Name));
 
             valid = valid && (containerConfiguration.AutoMemberInjectionFilter == null || containerConfiguration.AutoMemberInjectionFilter(prop));
@@ -396,7 +299,7 @@ namespace System
             return valid;
         }
         public static bool IsNullableType(this Type type) =>
-            type.IsGenericType() && type.GetGenericTypeDefinition() == typeof(Nullable<>);
+            type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
 
         public static bool HasDefaultConstructorConstraint(this GenericParameterAttributes attributes) =>
             (attributes & GenericParameterAttributes.DefaultConstructorConstraint) == GenericParameterAttributes.DefaultConstructorConstraint;
@@ -405,29 +308,24 @@ namespace System
             (attributes & GenericParameterAttributes.ReferenceTypeConstraint) == GenericParameterAttributes.ReferenceTypeConstraint;
 
         public static MethodInfo GetMethod(this Delegate @delegate) =>
-#if NET40
-            @delegate.Method;
-#else
             @delegate.GetMethodInfo();
-#endif
 
         public static bool IsCompiledLambda(this Delegate @delegate) =>
             @delegate.Target != null && @delegate.Target.GetType().FullName == "System.Runtime.CompilerServices.Closure";
 
         public static string GetDiagnosticsView(this Type type)
         {
-            var info = type.GetTypeInfo();
-            if (info.IsGenericType)
+            if (type.IsGenericType)
             {
                 var typeName = type.Name;
                 var i = typeName.IndexOf('`');
                 typeName = i != -1 ? typeName.Substring(0, i) : typeName;
 
                 typeName += "<";
-                if(info.IsGenericTypeDefinition)
-                    typeName += new string(Enumerable.Repeat(',', info.GenericTypeParameters.Length - 1).ToArray());
+                if(type.IsGenericTypeDefinition)
+                    typeName += new string(Enumerable.Repeat(',', type.GetGenericArguments().Length - 1).ToArray());
                 else
-                    typeName += string.Join(",", info.GenericTypeArguments.Select(a => a.GetDiagnosticsView()));
+                    typeName += string.Join(",", type.GetGenericArguments().Select(a => a.GetDiagnosticsView()));
 
                 typeName += ">";
 

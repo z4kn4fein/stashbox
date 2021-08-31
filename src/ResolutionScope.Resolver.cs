@@ -1,4 +1,5 @@
 ﻿using Stashbox.Exceptions;
+using Stashbox.Expressions;
 using Stashbox.Resolution;
 using Stashbox.Utils;
 using Stashbox.Utils.Data;
@@ -48,10 +49,8 @@ namespace Stashbox
                     this.ProcessDependencyOverrides(dependencyOverrides)), typeFrom, name);
         }
 
-#if HAS_SERVICEPROVIDER
         public object GetService(Type serviceType) =>
             this.Resolve(serviceType, true);
-#endif
 
         public IEnumerable<TKey> ResolveAll<TKey>(object[] dependencyOverrides = null) =>
             (IEnumerable<TKey>)this.Resolve(typeof(IEnumerable<TKey>), dependencyOverrides: dependencyOverrides);
@@ -73,7 +72,7 @@ namespace Stashbox
             this.ThrowIfDisposed();
 
             var resolutionContext = new ResolutionContext(this.GetActiveScopeNames(), this.containerContext, this == this.containerContext.RootScope);
-            var expression = this.expressionFactory.ConstructBuildUpExpression(resolutionContext, instance.AsConstant(), typeof(TTo));
+            var expression = ExpressionFactory.ConstructBuildUpExpression(resolutionContext, instance.AsConstant(), typeof(TTo));
             return (TTo)expression.CompileDelegate(resolutionContext, this.containerContext.ContainerConfiguration)(this);
         }
 
@@ -86,7 +85,7 @@ namespace Stashbox
 
             var resolutionContext = new ResolutionContext(this.GetActiveScopeNames(), this.containerContext, this == this.containerContext.RootScope,
                 dependencyOverrides: this.ProcessDependencyOverrides(arguments));
-            var expression = this.expressionFactory.ConstructExpression(resolutionContext, type);
+            var expression = ExpressionFactory.ConstructExpression(resolutionContext, type);
             return expression.CompileDelegate(resolutionContext, this.containerContext.ContainerConfiguration)(this);
         }
 

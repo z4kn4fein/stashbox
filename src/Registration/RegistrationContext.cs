@@ -6,6 +6,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Stashbox.Registration
 {
@@ -59,12 +61,17 @@ namespace Stashbox.Registration
         /// <summary>
         /// The cleanup delegate.
         /// </summary>
-        public Delegate Finalizer { get; internal set; }
+        public Action<object> Finalizer { get; internal set; }
 
         /// <summary>
         /// The initializer delegate.
         /// </summary>
         public Delegate Initializer { get; internal set; }
+
+        /// <summary>
+        /// The async initializer delegate.
+        /// </summary>
+        public Func<object, IDependencyResolver, CancellationToken, Task> AsyncInitializer { get; internal set; }
 
         /// <summary>
         /// The auto member injection rule for the registration.
