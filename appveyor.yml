@@ -38,7 +38,7 @@ build_script:
 
 after_build:
 - inheritdoc -o
-- msbuild /t:Pack /p:IncludeSymbols=true /p:Configuration=%configuration% /p:PackageOutputPath=..\artifacts src\stashbox.csproj --no-build
+- msbuild /t:Pack /p:IncludeSymbols=true /p:Configuration=%configuration% /p:PackageOutputPath=..\artifacts src\stashbox.csproj
 
 test_script:
 - dotnet test test\stashbox.tests.csproj -f net452 -c %configuration% --no-build
