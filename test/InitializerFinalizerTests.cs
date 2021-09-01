@@ -232,9 +232,9 @@ namespace Stashbox.Tests
         public async Task AsyncInitializer_Ensure_Order_Singleton()
         {
             using var container = new StashboxContainer()
-                .Register<T1>(c => c.WithAsyncInitializer((t, _, _) => t.InitAsync()).WithSingletonLifetime())
-                .Register<T2>(c => c.WithAsyncInitializer((t, _, _) => t.InitAsync()))
-                .Register<T3>(c => c.WithAsyncInitializer((t, _, _) => t.InitAsync()));
+                .Register<T1>(c => c.WithAsyncInitializer((t, r, c) => t.InitAsync()).WithSingletonLifetime())
+                .Register<T2>(c => c.WithAsyncInitializer((t, r, c) => t.InitAsync()))
+                .Register<T3>(c => c.WithAsyncInitializer((t, r, c) => t.InitAsync()));
 
             var initializables = new List<IT>();
 
@@ -252,9 +252,9 @@ namespace Stashbox.Tests
         public async Task AsyncInitializer_Ensure_Order()
         {
             using var container = new StashboxContainer()
-                .Register<T1>(c => c.WithAsyncInitializer((t, _, _) => t.InitAsync()))
-                .Register<T2>(c => c.WithAsyncInitializer((t, _, _) => t.InitAsync()))
-                .Register<T3>(c => c.WithAsyncInitializer((t, _, _) => t.InitAsync()));
+                .Register<T1>(c => c.WithAsyncInitializer((t, r, c) => t.InitAsync()))
+                .Register<T2>(c => c.WithAsyncInitializer((t, r, c) => t.InitAsync()))
+                .Register<T3>(c => c.WithAsyncInitializer((t, r, c) => t.InitAsync()));
 
             var initializables = new List<IT>();
 
@@ -273,9 +273,9 @@ namespace Stashbox.Tests
         public async Task AsyncInitializer_Scoped_Multiple()
         {
             using var container = new StashboxContainer()
-                .Register<T1>(c => c.WithAsyncInitializer((t, _, _) => t.InitAsync()).WithScopedLifetime())
-                .Register<T2>(c => c.WithAsyncInitializer((t, _, _) => t.InitAsync()).WithScopedLifetime())
-                .Register<T3>(c => c.WithAsyncInitializer((t, _, _) => t.InitAsync()).WithScopedLifetime());
+                .Register<T1>(c => c.WithAsyncInitializer((t, r, c) => t.InitAsync()).WithScopedLifetime())
+                .Register<T2>(c => c.WithAsyncInitializer((t, r, c) => t.InitAsync()).WithScopedLifetime())
+                .Register<T3>(c => c.WithAsyncInitializer((t, r, c) => t.InitAsync()).WithScopedLifetime());
 
             var initializables = new List<IT>();
 
@@ -299,9 +299,9 @@ namespace Stashbox.Tests
         public async Task AsyncInitializer_Scoped_Singleton_Multiple()
         {
             using var container = new StashboxContainer()
-                .Register<T1>(c => c.WithAsyncInitializer((t, _, _) => t.InitAsync()).WithSingletonLifetime())
-                .Register<T2>(c => c.WithAsyncInitializer((t, _, _) => t.InitAsync()).WithScopedLifetime())
-                .Register<T3>(c => c.WithAsyncInitializer((t, _, _) => t.InitAsync()).WithScopedLifetime());
+                .Register<T1>(c => c.WithAsyncInitializer((t, r, c) => t.InitAsync()).WithSingletonLifetime())
+                .Register<T2>(c => c.WithAsyncInitializer((t, r, c) => t.InitAsync()).WithScopedLifetime())
+                .Register<T3>(c => c.WithAsyncInitializer((t, r, c) => t.InitAsync()).WithScopedLifetime());
 
             var initializables = new List<IT>();
 
