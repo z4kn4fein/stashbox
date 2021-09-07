@@ -369,12 +369,12 @@ namespace Stashbox.Utils.Data.Immutable
 
             if (this.collisions != null)
             {
-                var collisions = this.collisions.ReplaceIfExists(key, updateDelegate, byRef);
-                if(ReferenceEquals(collisions, this.collisions))
+                var currentCollisions = this.collisions.ReplaceIfExists(key, updateDelegate, byRef);
+                if(ReferenceEquals(currentCollisions, this.collisions))
                     return this;
 
                 return new ImmutableTree<TKey, TValue>(this.storedHash, this.storedKey, 
-                    this.storedValue, this.leftNode, this.rightNode, collisions);
+                    this.storedValue, this.leftNode, this.rightNode, currentCollisions);
             }
 
             return this;
@@ -388,12 +388,12 @@ namespace Stashbox.Utils.Data.Immutable
 
             if (this.collisions != null)
             {
-                var collisions = this.collisions.ReplaceIfExists(key, value, byRef);
-                if (ReferenceEquals(collisions, this.collisions))
+                var currentCollisions = this.collisions.ReplaceIfExists(key, value, byRef);
+                if (ReferenceEquals(currentCollisions, this.collisions))
                     return this;
 
                 return new ImmutableTree<TKey, TValue>(this.storedHash, this.storedKey,
-                    this.storedValue, this.leftNode, this.rightNode, collisions);
+                    this.storedValue, this.leftNode, this.rightNode, currentCollisions);
             }
 
             return this;

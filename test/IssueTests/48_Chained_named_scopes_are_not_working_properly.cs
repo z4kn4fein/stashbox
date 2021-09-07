@@ -13,7 +13,7 @@ namespace Stashbox.Tests.IssueTests
                 .Register<NamedScopeTest1>(config => config.InNamedScope("B"))
                 .Register<NamedScopeTest3>(config => config.DefinesScope("A"));
 
-            var inst = container.Resolve<NamedScopeTest3>();
+            Assert.NotNull(container.Resolve<NamedScopeTest3>());
         }
 
         class NamedScopeTest1 { }

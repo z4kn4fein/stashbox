@@ -50,12 +50,14 @@ namespace Stashbox.Tests.IssueTests
             sb1.PutInstanceInScope(typeof(PrivateArgs<TierBase>), PrivateArgs<TierBase>.Get(5));
             ITier1 renderer = (ITier1)sb1.Resolve(typeof(ITier1));
 
+            Assert.NotNull(renderer);
 
             using var scope = sb2.BeginScope();
             scope.PutInstanceInScope(typeof(PrivateArgs<ITier2>), PrivateArgs<ITier2>.Get("Bob"));
             scope.PutInstanceInScope(typeof(PrivateArgs<TierBase>), PrivateArgs<TierBase>.Get(5));
             ITier1 renderer2 = (ITier1)scope.Resolve(typeof(ITier1));
 
+            Assert.NotNull(renderer2);
         }
 
         [Fact]
@@ -70,12 +72,16 @@ namespace Stashbox.Tests.IssueTests
             scope1.PutInstanceInScope(typeof(PrivateArgs<TierBase>), PrivateArgs<TierBase>.Get(5));
             ITier1 renderer = (ITier1)scope1.Resolve(typeof(ITier1));
 
+            Assert.NotNull(renderer);
+
             // This fails
             using var sbc = sb2.CreateChildContainer();
             using var scope2 = sbc.BeginScope();
             scope2.PutInstanceInScope(typeof(PrivateArgs<ITier2>), PrivateArgs<ITier2>.Get("Bob"));
             scope2.PutInstanceInScope(typeof(PrivateArgs<TierBase>), PrivateArgs<TierBase>.Get(5));
             ITier1 renderer2 = (ITier1)scope2.Resolve(typeof(ITier1));
+
+            Assert.NotNull(renderer2);
         }
 
         private static StashboxContainer CreateContainer(Action<RegistrationConfigurator> scopeConfig = null)

@@ -16,9 +16,9 @@ namespace Stashbox.Tests.IssueTests
             var prop = typeof(FastExpressionCompilerIssue).GetProperty("T", BindingFlags.NonPublic | BindingFlags.Static);
             var memberLambda = Expression.MakeMemberAccess(null, prop).AsLambda<Func<object>>().CompileFast();
 
-            var inst = new StashboxContainer()
+            Assert.NotNull(new StashboxContainer()
                 .Register<Test>(c => c.WithFactory(memberLambda, true))
-                .Resolve<Test>();
+                .Resolve<Test>());
         }
 
         class Test { };

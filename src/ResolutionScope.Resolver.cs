@@ -12,9 +12,6 @@ namespace Stashbox
 {
     internal partial class ResolutionScope
     {
-        public object Resolve(Type typeFrom) => 
-            this.Resolve(typeFrom, false, null);
-
         public object Resolve(Type typeFrom, bool nullResultAllowed = false, object[] dependencyOverrides = null)
         {
             this.ThrowIfDisposed();

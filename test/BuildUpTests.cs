@@ -13,7 +13,9 @@ namespace Stashbox.Tests
         {
             using var container = new StashboxContainer();
             ITest inst = new Test();
-            container.BuildUp(inst);
+            var built = container.BuildUp(inst);
+
+            Assert.Same(inst, built);
         }
 
         [Fact]

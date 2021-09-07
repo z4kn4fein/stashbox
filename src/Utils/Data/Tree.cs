@@ -66,30 +66,30 @@ namespace Stashbox.Utils.Data
 
         private static Node RotateLeft(Node node)
         {
-            var root = node.right;
-            var left = root.left;
+            var current = node.right;
+            var left = current.left;
 
-            root.left = node;
+            current.left = node;
             node.right = left;
 
             node.height = CalculateHeight(node);
-            root.height = CalculateHeight(root);
+            current.height = CalculateHeight(current);
 
-            return root;
+            return current;
         }
 
         private static Node RotateRight(Node node)
         {
-            var root = node.left;
-            var right = root.right;
+            var current = node.left;
+            var right = current.right;
 
-            root.right = node;
+            current.right = node;
             node.left = right;
 
             node.height = CalculateHeight(node);
-            root.height = CalculateHeight(root);
+            current.height = CalculateHeight(current);
 
-            return root;
+            return current;
         }
 
         private Node Add(Node node, int key, TValue value)

@@ -276,6 +276,8 @@ namespace Stashbox.Tests
                     c.WithRegistrationBehavior(Rules.RegistrationBehavior.ThrowException));
 
             container.Register<S>().Register<S>(c => c.ReplaceExisting());
+
+            Assert.Single(container.GetRegistrationDiagnostics().Where(r => r.ServiceType == typeof(S)));
         }
 
         [Fact]

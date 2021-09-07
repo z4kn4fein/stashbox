@@ -10,7 +10,7 @@ namespace Stashbox.Multitenant
     /// <summary>
     /// Represents a tenant distributor that manages tenants in a multitenant environment.
     /// </summary>
-    public class TenantDistributor : ITenantDistributor
+    public sealed class TenantDistributor : ITenantDistributor
     {
         private int disposed;
         private ImmutableTree<object, IStashboxContainer> tenantRepository = ImmutableTree<object, IStashboxContainer>.Empty;

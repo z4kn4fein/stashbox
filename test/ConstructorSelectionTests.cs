@@ -11,7 +11,7 @@ namespace Stashbox.Tests
         {
             using var container = new StashboxContainer(config => config.WithUnknownTypeResolution());
             container.Register<Test>(context => context.WithConstructorByArgumentTypes(typeof(Dep), typeof(Dep2)));
-            container.Resolve<Test>();
+            Assert.NotNull(container.Resolve<Test>());
         }
 
         [Fact]

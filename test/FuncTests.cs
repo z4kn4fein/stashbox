@@ -392,8 +392,8 @@ namespace Stashbox.Tests
             container.RegisterFunc<ITest>(resolver => new Test());
             container.RegisterFunc(resolver => new Dep1());
 
-            container.Resolve<Func<ITest>>();
-            container.Resolve<Func<Dep1>>();
+            Assert.IsAssignableFrom<ITest>(container.Resolve<Func<ITest>>()());
+            Assert.IsAssignableFrom<Dep1>(container.Resolve<Func<Dep1>>()());
         }
 
         [Fact]

@@ -12,7 +12,7 @@ namespace Stashbox.Tests.IssueTests
         {
             var container = new StashboxContainer(c => c.WithUnknownTypeResolution(c2 =>
                 c2.WithConstructorSelectionRule(Rules.ConstructorSelection.PreferLeastParameters)));
-            var dict = container.Resolve<Dictionary<string, object>>();
+            Assert.NotNull(container.Resolve<Dictionary<string, object>>());
         }
     }
 }

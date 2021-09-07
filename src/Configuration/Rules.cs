@@ -20,12 +20,12 @@ namespace Stashbox.Configuration
             /// <summary>
             /// Includes only interface types.
             /// </summary>
-            public static Func<Type, Type, bool> Interfaces = (_, t) => t.IsInterface;
+            public static readonly Func<Type, Type, bool> Interfaces = (_, t) => t.IsInterface;
 
             /// <summary>
             /// Includes only abstract types.
             /// </summary>
-            public static Func<Type, Type, bool> AbstractClasses = (_, t) => t.IsAbstract && !t.IsInterface;
+            public static readonly Func<Type, Type, bool> AbstractClasses = (_, t) => t.IsAbstract && !t.IsInterface;
         }
 
         /// <summary>
