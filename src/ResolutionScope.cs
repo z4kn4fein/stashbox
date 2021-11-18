@@ -19,7 +19,7 @@ namespace Stashbox
 
         private class DelegateCacheProvider
         {
-            public readonly DelegateCache DefaultCache = new DelegateCache();
+            public readonly DelegateCache DefaultCache = new();
             public ImmutableTree<object, DelegateCache> NamedCache = ImmutableTree<object, DelegateCache>.Empty;
 
             public DelegateCache GetNamedCache(object name)
@@ -38,8 +38,8 @@ namespace Stashbox
 
         private class ScopedEvaluator
         {
-            private static int MaxWaitTimeInMs = 3000;
-            private static readonly object Default = new object();
+            private static readonly int MaxWaitTimeInMs = 3000;
+            private static readonly object Default = new();
             private int evaluated;
             private object evaluatedObject = Default;
 

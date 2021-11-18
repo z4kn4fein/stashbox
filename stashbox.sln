@@ -1,13 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30907.101
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "stashbox", "src\stashbox.csproj", "{21317234-0499-4178-BCA5-558FBA2CB9AC}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "stashbox.tests", "test\stashbox.tests.csproj", "{C7625187-F112-4928-8B73-2EA175E32204}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "testassembly", "test\testassembly\testassembly.csproj", "{FE845F24-9A71-4FB4-88F7-EE36598C3D90}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "testassembly", "test\testassembly\testassembly.csproj", "{FE845F24-9A71-4FB4-88F7-EE36598C3D90}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

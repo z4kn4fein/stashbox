@@ -42,7 +42,6 @@ after_build:
 
 test_script:
 - dotnet test test\stashbox.tests.csproj -f net452 -c %configuration% --no-build
-- dotnet test test\stashbox.tests.csproj -f netcoreapp2.1 -c %configuration% --no-build
 - dotnet test test\stashbox.tests.csproj -f netcoreapp3.1 -c %configuration% --no-build
 - dotnet test test\stashbox.tests.csproj -f net6.0 -c %configuration% --no-build
 

@@ -79,7 +79,7 @@ namespace Stashbox.Expressions
                 return false;
 
             return containerContext.ContainerConfiguration.TrackTransientsForDisposalEnabled ||
-                   !(serviceRegistration.RegistrationContext.Lifetime is TransientLifetime);
+                   serviceRegistration.RegistrationContext.Lifetime is not TransientLifetime;
         }
     }
 }
