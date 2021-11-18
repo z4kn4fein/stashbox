@@ -1,6 +1,6 @@
 language: csharp
 mono: none
-dotnet: 6.0
+dotnet: 6.0.100
 
 os:
   - linux
@@ -8,7 +8,7 @@ os:
 
 script:
   - dotnet restore
-  - dotnet test test/stashbox.tests.csproj -c Release -f netcoreapp3.1
+  - dotnet test test/stashbox.tests.csproj -c Release -f net6.0
 
 notifications:
   slack:
