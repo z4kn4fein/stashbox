@@ -21,7 +21,7 @@ deploy:
 environment:
   build_version: ''
 
-image: Visual Studio 2019
+image: Visual Studio 2022
 
 configuration: Release
 
@@ -39,7 +39,7 @@ build_script:
 - msbuild /t:Build /p:Configuration=%configuration% /p:ContinuousIntegrationBuild=true stashbox.sln
 
 test_script:
-- dotnet test test\stashbox.tests.csproj -f netcoreapp3.1 -c %configuration% --no-build
+- dotnet test test\stashbox.tests.csproj -f net6.0 -c %configuration% --no-build
 
 after_build:
 - inheritdoc -o
