@@ -11,7 +11,7 @@ namespace Stashbox.Utils.Data
         private const int InitialSize = 8;
 
         public static ExpandableArray<TItem> FromEnumerable(IEnumerable<TItem> initial) =>
-            new ExpandableArray<TItem>(initial);
+            new(initial);
 
         public int Length;
 

@@ -86,6 +86,19 @@ namespace Stashbox
             return expression.CompileDelegate(resolutionContext, this.containerContext.ContainerConfiguration)(this);
         }
 
+        public bool CanResolve<TFrom>(object name = null) =>
+            this.CanResolve(typeof(TFrom), name);
+
+        public bool CanResolve(Type typeFrom, object name = null)
+        {
+            this.ThrowIfDisposed();
+            Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
+
+            return this.containerContext.ResolutionStrategy
+                .IsTypeResolvable(new ResolutionContext(GetActiveScopeNames(), this.containerContext, false),
+                    new TypeInformation(typeFrom, name));
+        }
+
         private object Activate(ResolutionContext resolutionContext, Type type, object name = null)
         {
             var expression = this.containerContext.ResolutionStrategy

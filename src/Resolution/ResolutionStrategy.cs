@@ -82,7 +82,7 @@ namespace Stashbox.Resolution
 
                 decorators.ReplaceBack(reg);
                 return this.BuildExpressionForDecorator(decorators.Front(),
-                    resolutionContext.BeginDecoratingContext(typeInformation.Type, decorators), 
+                    resolutionContext.BeginDecoratingContext(typeInformation.Type, decorators),
                     typeInformation.Type, decorators);
             });
         }
@@ -108,18 +108,34 @@ namespace Stashbox.Resolution
                 resolutionContext.BeginDecoratingContext(requestedType, stack), requestedType, stack);
         }
 
-        private Expression BuildResolutionExpressionUsingResolvers(TypeInformation typeInfo, ResolutionContext resolutionContext)
+        private Expression BuildResolutionExpressionUsingResolvers(TypeInformation typeInformation, ResolutionContext resolutionContext)
         {
-            var expression = this.resolverRepository.BuildResolutionExpression(typeInfo, resolutionContext, this);
+            var expression = this.resolverRepository.BuildResolutionExpression(this, typeInformation, resolutionContext);
             if (expression != null) return expression;
 
-            return this.lastChanceResolverRepository.BuildResolutionExpression(typeInfo,
-                resolutionContext, this);
+            return this.lastChanceResolverRepository.BuildResolutionExpression(this, typeInformation, resolutionContext);
         }
 
-        public bool CanResolveType(TypeInformation typeInfo, ResolutionContext resolutionContext) =>
-            this.resolverRepository.CanResolve(typeInfo, resolutionContext) ||
-            this.lastChanceResolverRepository.CanResolve(typeInfo, resolutionContext);
+        public bool IsTypeResolvable(ResolutionContext resolutionContext, TypeInformation typeInformation)
+        {
+            if(typeInformation.Type.IsGenericTypeDefinition)
+                return false;
+
+            if(typeInformation.Type == Constants.ResolverType || 
+                typeInformation.Type == Constants.ServiceProviderType || 
+                typeInformation.Type == Constants.ResolutionContextType)
+                return true;
+
+            if (resolutionContext.CurrentContainerContext.RegistrationRepository.ContainsRegistration(typeInformation.Type, typeInformation.DependencyName) ||
+                this.resolverRepository.IsWrappedTypeRegistered(typeInformation, resolutionContext))
+                return true;
+
+            var exprOverride = resolutionContext.GetExpressionOverrideOrDefault(typeInformation.Type, typeInformation.DependencyName);
+            if (exprOverride != null)
+                return true;
+
+            return this.lastChanceResolverRepository.CanLookupService(typeInformation, resolutionContext);
+        }
 
         public void RegisterResolver(IResolver resolver) =>
             Swap.SwapValue(ref this.resolverRepository, (t1, t2, t3, t4, repo) =>
@@ -131,8 +147,8 @@ namespace Stashbox.Resolution
 
         private IEnumerable<Expression> BuildAllResolverExpressionsUsingResolvers(TypeInformation typeInfo,
             ResolutionContext resolutionContext) =>
-            this.resolverRepository.BuildAllResolutionExpressions(typeInfo, resolutionContext, this) ??
-            this.lastChanceResolverRepository.BuildAllResolutionExpressions(typeInfo, resolutionContext, this);
+            this.resolverRepository.BuildAllResolutionExpressions(this, typeInfo, resolutionContext) ??
+            this.lastChanceResolverRepository.BuildAllResolutionExpressions(this, typeInfo, resolutionContext);
 
         private Expression BuildExpressionForDecorator(ServiceRegistration serviceRegistration,
             ResolutionContext resolutionContext, Type requestedType, Utils.Data.Stack<ServiceRegistration> decorators)

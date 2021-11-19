@@ -6,7 +6,7 @@ using System.Linq.Expressions;
 
 namespace Stashbox.Resolution.Resolvers
 {
-    internal class LazyResolver : IEnumerableSupportedResolver
+    internal class LazyResolver : IEnumerableSupportedResolver, IWrapper
     {
         public Expression GetExpression(
             IResolutionStrategy resolutionStrategy,
@@ -37,8 +37,19 @@ namespace Stashbox.Resolution.Resolvers
         }
 
         public bool CanUseForResolution(TypeInformation typeInfo, ResolutionContext resolutionContext) =>
-            typeInfo.Type.IsClosedGenericType() &&
-            typeInfo.Type.GetGenericTypeDefinition() == typeof(Lazy<>);
+            IsLazy(typeInfo.Type);
+
+        public bool TryUnWrap(TypeInformation typeInfo, out IEnumerable<Type> unWrappedTypes)
+        {
+            if (!IsLazy(typeInfo.Type))
+            {
+                unWrappedTypes = null;
+                return false;
+            }
+
+            unWrappedTypes = new[] { typeInfo.Type.GetGenericArguments()[0] };
+            return true;
+        }
 
         private Expression GetLazyFuncExpression(TypeInformation argumentType,
             ResolutionContext resolutionContext, IResolutionStrategy resolutionStrategy) =>
@@ -50,5 +61,7 @@ namespace Stashbox.Resolution.Resolvers
                             .SelectMany(x => x.Select(i => i.I2.ConvertTo(Constants.ObjectType)))))
                     .ConvertTo(argumentType.Type)
                 : resolutionStrategy.BuildExpressionForType(resolutionContext, argumentType);
+
+        private static bool IsLazy(Type type) => type.IsClosedGenericType() && type.GetGenericTypeDefinition() == typeof(Lazy<>);
     }
 }

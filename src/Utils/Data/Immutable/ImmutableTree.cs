@@ -6,7 +6,7 @@ namespace Stashbox.Utils.Data.Immutable
 {
     internal sealed class ImmutableTree<TValue>
     {
-        public static readonly ImmutableTree<TValue> Empty = new ImmutableTree<TValue>();
+        public static readonly ImmutableTree<TValue> Empty = new();
 
         private readonly int storedHash;
         private readonly TValue storedValue;
@@ -153,7 +153,7 @@ namespace Stashbox.Utils.Data.Immutable
 
     internal sealed class ImmutableTree<TKey, TValue>
     {
-        public static readonly ImmutableTree<TKey, TValue> Empty = new ImmutableTree<TKey, TValue>();
+        public static readonly ImmutableTree<TKey, TValue> Empty = new();
 
         private readonly int height;
         private readonly int storedHash;

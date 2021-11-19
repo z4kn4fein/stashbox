@@ -6,18 +6,36 @@ namespace Stashbox.Resolution.Extensions
 {
     internal static class ResolverExtensions
     {
-        public static bool CanResolve(this ImmutableBucket<IResolver> resolvers, TypeInformation typeInfo, ResolutionContext resolutionContext)
+        public static bool IsWrappedTypeRegistered(this ImmutableBucket<IResolver> resolvers, TypeInformation typeInfo, ResolutionContext resolutionContext)
         {
             var length = resolvers.Length;
             for (var i = 0; i < length; i++)
-                if (resolvers[i].CanUseForResolution(typeInfo, resolutionContext))
+            {
+                var item = resolvers[i];
+                if (item is IWrapper wrapper && wrapper.TryUnWrap(typeInfo, out var unWrappedTypes))
+                    foreach (var type in unWrappedTypes)
+                        if(resolutionContext.CurrentContainerContext.RegistrationRepository.ContainsRegistration(type, typeInfo.DependencyName))
+                            return true;
+            }
+
+            return false;
+        }
+
+        public static bool CanLookupService(this ImmutableBucket<IResolver> resolvers, TypeInformation typeInfo, ResolutionContext resolutionContext)
+        {
+            var length = resolvers.Length;
+            for (var i = 0; i < length; i++)
+            {
+                var item = resolvers[i];
+                if (item is ILookup lookup && lookup.CanLookupService(typeInfo, resolutionContext))
                     return true;
+            }
 
             return false;
         }
 
         public static Expression BuildResolutionExpression(this ImmutableBucket<IResolver> resolvers,
-            TypeInformation typeInfo, ResolutionContext resolutionContext, IResolutionStrategy resolutionStrategy)
+            IResolutionStrategy resolutionStrategy, TypeInformation typeInfo, ResolutionContext resolutionContext)
         {
             var length = resolvers.Length;
             for (var i = 0; i < length; i++)
@@ -31,7 +49,7 @@ namespace Stashbox.Resolution.Extensions
         }
 
         public static IEnumerable<Expression> BuildAllResolutionExpressions(this ImmutableBucket<IResolver> resolvers,
-            TypeInformation typeInfo, ResolutionContext resolutionContext, IResolutionStrategy resolutionStrategy)
+            IResolutionStrategy resolutionStrategy, TypeInformation typeInfo, ResolutionContext resolutionContext)
         {
             var length = resolvers.Length;
             for (var i = 0; i < length; i++)

@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 
 namespace Stashbox.Resolution.Resolvers
 {
-    internal class UnknownTypeResolver : IResolver
+    internal class UnknownTypeResolver : IResolver, ILookup
     {
         private readonly ServiceRegistrator serviceRegistrator;
         private readonly RegistrationBuilder registrationBuilder;
@@ -15,6 +15,9 @@ namespace Stashbox.Resolution.Resolvers
             this.serviceRegistrator = serviceRegistrator;
             this.registrationBuilder = registrationBuilder;
         }
+
+        public bool CanLookupService(TypeInformation typeInfo, ResolutionContext resolutionContext) =>
+            this.CanUseForResolution(typeInfo, resolutionContext);
 
         public bool CanUseForResolution(TypeInformation typeInfo, ResolutionContext resolutionContext) =>
             resolutionContext.RequestInitiatorContainerContext.ContainerConfiguration.UnknownTypeResolutionEnabled &&

@@ -29,22 +29,6 @@ namespace Stashbox
         IContainerContext ContainerContext { get; }
 
         /// <summary>
-        /// Checks a type can be resolved by the container.
-        /// </summary>
-        /// <typeparam name="TFrom">The service type.</typeparam>
-        /// <param name="name">The registration name.</param>
-        /// <returns>True if the service can be resolved, otherwise false.</returns>
-        bool CanResolve<TFrom>(object name = null);
-
-        /// <summary>
-        /// Checks a type can be resolved by the container.
-        /// </summary>
-        /// <param name="typeFrom">The service type.</param>
-        /// <param name="name">The registration name.</param>
-        /// <returns>True if the service can be resolved, otherwise false.</returns>
-        bool CanResolve(Type typeFrom, object name = null);
-
-        /// <summary>
         /// Checks a type is registered in the container.
         /// </summary>
         /// <typeparam name="TFrom">The service type.</typeparam>

@@ -101,5 +101,21 @@ namespace Stashbox
         /// <param name="token">The cancellation token.</param>
         /// <returns>The initializer task.</returns>
         ValueTask InvokeAsyncInitializers(CancellationToken token = default(CancellationToken));
+
+        /// <summary>
+        /// Checks whether a type can be resolved by the container, or not.
+        /// </summary>
+        /// <typeparam name="TFrom">The service type.</typeparam>
+        /// <param name="name">The registration name.</param>
+        /// <returns>True if the service can be resolved, otherwise false.</returns>
+        bool CanResolve<TFrom>(object name = null);
+
+        /// <summary>
+        /// Checks whether a type can be resolved by the container, or not.
+        /// </summary>
+        /// <param name="typeFrom">The service type.</param>
+        /// <param name="name">The registration name.</param>
+        /// <returns>True if the service can be resolved, otherwise false.</returns>
+        bool CanResolve(Type typeFrom, object name = null);
     }
 }

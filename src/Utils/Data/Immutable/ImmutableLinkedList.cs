@@ -2,7 +2,7 @@
 {
     internal class ImmutableLinkedList<TValue>
     {
-        public static readonly ImmutableLinkedList<TValue> Empty = new ImmutableLinkedList<TValue>();
+        public static readonly ImmutableLinkedList<TValue> Empty = new();
 
         public readonly TValue Value;
 
@@ -18,6 +18,6 @@
         { }
 
         public ImmutableLinkedList<TValue> Add(TValue value) =>
-            new ImmutableLinkedList<TValue>(this, value);
+            new(this, value);
     }
 }

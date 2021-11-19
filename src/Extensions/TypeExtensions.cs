@@ -124,9 +124,6 @@ namespace System
               && type.IsGenericType
               && type.GetGenericTypeDefinition() == genericType;
 
-        public static bool IsFuncType(this Type type) =>
-            type.IsClosedGenericType() && FuncResolver.SupportedTypes.Contains(type.GetGenericTypeDefinition());
-
         public static ConstructorInfo GetFirstConstructor(this Type type) =>
             type.GetConstructors().FirstOrDefault();
 

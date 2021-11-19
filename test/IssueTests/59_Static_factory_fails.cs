@@ -55,15 +55,15 @@ namespace Stashbox.Tests.IssueTests
             Assert.NotNull(inst);
         }
 
-        private static T Factory() => new T();
+        private static T Factory() => new();
 
-        private static T ResolverFactory(IDependencyResolver resolver) => new T();
+        private static T ResolverFactory(IDependencyResolver resolver) => new();
 
         private class T { }
 
         private static class St
         {
-            public static T Tp => new T();
+            public static T Tp => new();
         }
     }
 }

@@ -48,11 +48,12 @@ namespace Stashbox.Registration
         IEnumerable<KeyValuePair<Type, ServiceRegistration>> GetRegistrationMappings();
 
         /// <summary>
-        /// Check a type exists with conditions.
+        /// Checks whether a type is registered in the repository.
         /// </summary>
         /// <param name="type">The requested type.</param>
         /// <param name="name">The requested name.</param>
+        /// <param name="includeOpenGenerics">Determines whether open generic registrations should be taken into account when the given type is closed generic.</param>
         /// <returns>True if the registration found, otherwise false.</returns>
-        bool ContainsRegistration(Type type, object name);
+        bool ContainsRegistration(Type type, object name, bool includeOpenGenerics = true);
     }
 }

@@ -5,9 +5,9 @@ using System.Linq.Expressions;
 
 namespace Stashbox.Resolution.Resolvers
 {
-    internal class FuncResolver : IEnumerableSupportedResolver
+    internal class FuncResolver : IEnumerableSupportedResolver, IWrapper
     {
-        internal static readonly HashSet<Type> SupportedTypes = new HashSet<Type>
+        private static readonly HashSet<Type> supportedTypes = new()
         {
             typeof(Func<>),
             typeof(Func<,>),
@@ -48,6 +48,21 @@ namespace Stashbox.Resolution.Resolvers
         }
 
         public bool CanUseForResolution(TypeInformation typeInfo, ResolutionContext resolutionContext) =>
-            typeInfo.Type.IsFuncType();
+            IsFunc(typeInfo.Type);
+
+        public bool TryUnWrap(TypeInformation typeInfo, out IEnumerable<Type> unWrappedTypes)
+        {
+            if (!IsFunc(typeInfo.Type))
+            {
+                unWrappedTypes = null;
+                return false;
+            }
+
+            var args = typeInfo.Type.GetGenericArguments();
+            unWrappedTypes = new[] { args.LastElement() };
+            return true;
+        }
+
+        private static bool IsFunc(Type type) => type.IsClosedGenericType() && supportedTypes.Contains(type.GetGenericTypeDefinition());
     }
 }

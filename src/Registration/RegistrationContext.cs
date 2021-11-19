@@ -16,7 +16,7 @@ namespace Stashbox.Registration
     /// </summary>
     public class RegistrationContext
     {
-        internal static readonly RegistrationContext Empty = new RegistrationContext();
+        internal static readonly RegistrationContext Empty = new();
 
         /// <summary>
         /// Name of the registration.

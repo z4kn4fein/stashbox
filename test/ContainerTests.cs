@@ -174,10 +174,23 @@ namespace Stashbox.Tests
             Assert.True(container.IsRegistered<ITest2>("test"));
             Assert.True(container.IsRegistered(typeof(ITest1)));
             Assert.False(container.IsRegistered<IEnumerable<ITest1>>());
+            Assert.False(container.IsRegistered<Func<ITest1>>());
+            Assert.False(container.IsRegistered<Lazy<ITest1>>());
 
             Assert.False(child.IsRegistered<ITest1>());
             Assert.False(child.IsRegistered(typeof(ITest1)));
             Assert.False(child.IsRegistered<IEnumerable<ITest1>>());
+        }
+
+        [Fact]
+        public void ContainerTests_IsRegistered_OpenGeneric()
+        {
+            var container = new StashboxContainer()
+                .Register<ITest1, Test1>()
+                .Register(typeof(TestOpenGeneric<>));
+
+            Assert.True(container.IsRegistered(typeof(TestOpenGeneric<>)));
+            Assert.False(container.IsRegistered<TestOpenGeneric<ITest1>>());
         }
 
         [Fact]
@@ -539,7 +552,8 @@ namespace Stashbox.Tests
                 return typeInfo.Type == typeof(ITest1);
             }
 
-            public Expression GetExpression(IResolutionStrategy resolutionStrategy,
+            public Expression GetExpression(
+                IResolutionStrategy resolutionStrategy,
                 TypeInformation typeInfo,
                 ResolutionContext resolutionInfo)
             {
@@ -554,7 +568,8 @@ namespace Stashbox.Tests
                 return typeInfo.Type == typeof(ITest1);
             }
 
-            public Expression GetExpression(IResolutionStrategy resolutionStrategy,
+            public Expression GetExpression(
+                IResolutionStrategy resolutionStrategy,
                 TypeInformation typeInfo,
                 ResolutionContext resolutionInfo)
             {

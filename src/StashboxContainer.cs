@@ -73,14 +73,7 @@ namespace Stashbox
             this.CanResolve(typeof(TFrom), name);
 
         /// <inheritdoc />
-        public bool CanResolve(Type typeFrom, object name = null)
-        {
-            this.ThrowIfDisposed();
-
-            return this.ContainerContext.RegistrationRepository.ContainsRegistration(typeFrom, name) ||
-                this.resolutionStrategy.CanResolveType(new TypeInformation(typeFrom, name),
-                    new ResolutionContext(this.ContainerContext.RootScope.GetActiveScopeNames(), this.ContainerContext, false));
-        }
+        public bool CanResolve(Type typeFrom, object name = null) => this.ContainerContext.RootScope.CanResolve(typeFrom, name);
 
         /// <inheritdoc />
         public bool IsRegistered<TFrom>(object name = null) =>
@@ -90,8 +83,9 @@ namespace Stashbox
         public bool IsRegistered(Type typeFrom, object name = null)
         {
             this.ThrowIfDisposed();
+            Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
 
-            return this.ContainerContext.RegistrationRepository.ContainsRegistration(typeFrom, name);
+            return this.ContainerContext.RegistrationRepository.ContainsRegistration(typeFrom, name, false);
         }
 
         /// <inheritdoc />

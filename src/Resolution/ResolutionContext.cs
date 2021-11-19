@@ -199,8 +199,7 @@ namespace Stashbox.Resolution
             var newStack = new Utils.Data.Stack<ServiceRegistration>(serviceRegistrations);
             var current = newStack.Pop();
 
-            clone.CurrentDecorators = new ExpandableArray<ServiceRegistration>(this.CurrentDecorators);
-            clone.CurrentDecorators.Add(current);
+            clone.CurrentDecorators = new ExpandableArray<ServiceRegistration>(this.CurrentDecorators) { current };
             clone.RemainingDecorators = new ExpandableArray<Type, Utils.Data.Stack<ServiceRegistration>>(this.RemainingDecorators);
             clone.RemainingDecorators.AddOrUpdate(decoratingType, newStack);
             return clone;

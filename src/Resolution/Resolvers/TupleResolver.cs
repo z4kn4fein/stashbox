@@ -4,9 +4,9 @@ using System.Linq.Expressions;
 
 namespace Stashbox.Resolution.Resolvers
 {
-    internal class TupleResolver : IResolver
+    internal class TupleResolver : IResolver, IWrapper
     {
-        private readonly HashSet<Type> supportedTypes = new HashSet<Type>
+        private static readonly HashSet<Type> supportedTypes = new()
         {
             typeof(Tuple<>),
             typeof(Tuple<,>),
@@ -19,8 +19,7 @@ namespace Stashbox.Resolution.Resolvers
         };
 
         public bool CanUseForResolution(TypeInformation typeInfo, ResolutionContext resolutionContext) =>
-            typeInfo.Type.IsClosedGenericType() &&
-            this.supportedTypes.Contains(typeInfo.Type.GetGenericTypeDefinition());
+            IsTuple(typeInfo.Type);
 
         public Expression GetExpression(
             IResolutionStrategy resolutionStrategy,
@@ -44,5 +43,19 @@ namespace Stashbox.Resolution.Resolvers
 
             return tupleConstructor.MakeNew(expressions);
         }
+
+        public bool TryUnWrap(TypeInformation typeInfo, out IEnumerable<Type> unWrappedTypes)
+        {
+            if (!IsTuple(typeInfo.Type))
+            {
+                unWrappedTypes = null;
+                return false;
+            }
+
+            unWrappedTypes = typeInfo.Type.GetGenericArguments();
+            return true;
+        }
+
+        private static bool IsTuple(Type type) => type.IsClosedGenericType() && supportedTypes.Contains(type.GetGenericTypeDefinition());
     }
 }

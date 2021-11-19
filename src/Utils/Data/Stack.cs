@@ -7,7 +7,7 @@ namespace Stashbox.Utils.Data
     internal class Stack<TValue> : ExpandableArray<TValue>
     {
         public new static Stack<TValue> FromEnumerable(IEnumerable<TValue> enumerable) =>
-            new Stack<TValue>(enumerable);
+            new(enumerable);
 
         public Stack()
         { }

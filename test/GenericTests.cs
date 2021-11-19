@@ -96,7 +96,7 @@ namespace Stashbox.Tests
         {
             using var container = new StashboxContainer();
             container.Register(typeof(ITest1<,>), typeof(Test1<,>));
-            Assert.True(container.CanResolve(typeof(ITest1<,>)));
+            Assert.False(container.CanResolve(typeof(ITest1<,>)));
             Assert.True(container.CanResolve(typeof(ITest1<int, int>)));
         }
 

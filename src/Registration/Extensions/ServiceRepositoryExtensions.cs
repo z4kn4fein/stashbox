@@ -10,13 +10,13 @@ namespace Stashbox.Registration.Extensions
 {
     internal static class ServiceRepositoryExtensions
     {
-        public static bool ContainsRegistration(this ImmutableTree<Type, ImmutableBucket<object, ServiceRegistration>> repository, Type type, object name)
+        public static bool ContainsRegistration(this ImmutableTree<Type, ImmutableBucket<object, ServiceRegistration>> repository, Type type, object name, bool includeOpenGenerics)
         {
             var registrations = repository.GetOrDefaultByRef(type);
             if (name != null && registrations != null)
                 return registrations.GetOrDefaultByValue(name) != null;
 
-            if (registrations != null || !type.IsClosedGenericType()) return registrations != null;
+            if (registrations != null || !includeOpenGenerics || !type.IsClosedGenericType()) return registrations != null;
 
             registrations = repository.GetOrDefaultByRef(type.GetGenericTypeDefinition());
             return registrations?.Any(reg => type.SatisfiesGenericConstraintsOf(reg.ImplementationType)) ?? false;

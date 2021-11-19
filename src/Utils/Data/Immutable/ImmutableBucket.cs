@@ -7,7 +7,7 @@ namespace Stashbox.Utils.Data.Immutable
 {
     internal class ImmutableBucket<TValue>
     {
-        public static readonly ImmutableBucket<TValue> Empty = new ImmutableBucket<TValue>(Constants.EmptyArray<TValue>());
+        public static readonly ImmutableBucket<TValue> Empty = new(Constants.EmptyArray<TValue>());
 
         public readonly int Length;
 
@@ -36,7 +36,7 @@ namespace Stashbox.Utils.Data.Immutable
 
     internal class ImmutableBucket<TKey, TValue> : IEnumerable<TValue>
     {
-        public static readonly ImmutableBucket<TKey, TValue> Empty = new ImmutableBucket<TKey, TValue>(Constants.EmptyArray<KeyValue<TKey, TValue>>());
+        public static readonly ImmutableBucket<TKey, TValue> Empty = new(Constants.EmptyArray<KeyValue<TKey, TValue>>());
 
         public readonly int Length;
 
@@ -179,6 +179,8 @@ namespace Stashbox.Utils.Data.Immutable
 
             return default;
         }
+
+        public KeyValue<TKey, TValue> First() => this.Repository[0];
 
         public IEnumerator<TValue> GetEnumerator()
         {
