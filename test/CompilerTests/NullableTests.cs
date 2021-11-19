@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 
 namespace Stashbox.Tests.CompilerTests
 {
-    
+
     public class NullableTests
     {
         [Fact]

@@ -1,4 +1,5 @@
-﻿using Stashbox.Utils.Data.Immutable;
+﻿using Stashbox.Resolution.Resolvers;
+using Stashbox.Utils.Data.Immutable;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 
@@ -13,9 +14,14 @@ namespace Stashbox.Resolution.Extensions
             {
                 var item = resolvers[i];
                 if (item is IWrapper wrapper && wrapper.TryUnWrap(typeInfo, out var unWrappedTypes))
+                {
+                    if (wrapper is EnumerableResolver)
+                        return true;
+
                     foreach (var type in unWrappedTypes)
-                        if(resolutionContext.CurrentContainerContext.RegistrationRepository.ContainsRegistration(type, typeInfo.DependencyName))
+                        if (resolutionContext.CurrentContainerContext.RegistrationRepository.ContainsRegistration(type, typeInfo.DependencyName))
                             return true;
+                }
             }
 
             return false;

@@ -93,7 +93,7 @@ namespace Stashbox.Tests
                 .RegisterDecorator<IA, AD>()
                 .RegisterDecorator<IB, BD>()
                 .RegisterDecorator<IC, CD>()
-                .RegisterDecorator<D1>(c => c.WithFactory<IA, IA, IB, IC>((a, a1, b, c) => 
+                .RegisterDecorator<D1>(c => c.WithFactory<IA, IA, IB, IC>((a, a1, b, c) =>
                 {
                     Assert.IsType<AD>(a);
                     Assert.IsType<A>(((AD)a).A);
@@ -104,7 +104,7 @@ namespace Stashbox.Tests
                     Assert.IsType<CD>(c);
                     Assert.IsType<C>(((CD)c).C);
 
-                    return new D1(a, b ,c);
+                    return new D1(a, b, c);
                 }));
 
             container.Resolve<IA>();

@@ -471,7 +471,7 @@ namespace Stashbox.Tests
             Assert.Throws<ObjectDisposedException>(() => container.RegisterResolver(null));
             Assert.Throws<ObjectDisposedException>(() => container.RegisterScoped<ITest1, Test1>());
             Assert.Throws<ObjectDisposedException>(() => container.RegisterSingleton<ITest1, Test1>());
-            Assert.Throws<ObjectDisposedException>(() => container.RegisterTypes(new [] { this.GetType() }));
+            Assert.Throws<ObjectDisposedException>(() => container.RegisterTypes(new[] { this.GetType() }));
             Assert.Throws<ObjectDisposedException>(() => container.RegisterTypesAs<ITest1>(this.GetType().Assembly));
             Assert.Throws<ObjectDisposedException>(() => container.ReMap<ITest1, Test1>());
             Assert.Throws<ObjectDisposedException>(() => container.ReMapDecorator(this.GetType(), this.GetType()));

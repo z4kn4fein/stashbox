@@ -67,10 +67,10 @@ namespace Stashbox.Lifetime
             return variable;
         }
 
-        private protected abstract Expression BuildLifetimeAppliedExpression(ServiceRegistration serviceRegistration, 
+        private protected abstract Expression BuildLifetimeAppliedExpression(ServiceRegistration serviceRegistration,
             ResolutionContext resolutionContext, Type requestedType);
 
-        private protected static Expression GetExpressionForRegistration(ServiceRegistration serviceRegistration, 
+        private protected static Expression GetExpressionForRegistration(ServiceRegistration serviceRegistration,
             ResolutionContext resolutionContext, Type requestedType)
         {
             if (!IsRegistrationOutputCacheable(serviceRegistration, resolutionContext))

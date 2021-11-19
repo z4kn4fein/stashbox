@@ -35,7 +35,7 @@ namespace Stashbox.Registration.Fluent
         /// <inheritdoc />
         public TConfigurator WithFinalizer(Action<TImplementation> finalizer)
         {
-            if(finalizer == null)
+            if (finalizer == null)
                 return (TConfigurator)this;
 
             base.Context.Finalizer = o => finalizer((TImplementation)o);

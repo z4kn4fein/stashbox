@@ -3,7 +3,7 @@ using Stashbox.Attributes;
 
 namespace Stashbox.Tests
 {
-    
+
     public class DependencyBindingTests
     {
         [Fact]

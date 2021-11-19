@@ -18,7 +18,7 @@ namespace Stashbox.Lifetime
         protected override Expression ApplyLifetime(Func<IResolutionScope, object> factory,
             ServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType)
         {
-            var rootScope = resolutionContext.RequestInitiatorContainerContext.ContainerConfiguration.ReBuildSingletonsInChildContainerEnabled 
+            var rootScope = resolutionContext.RequestInitiatorContainerContext.ContainerConfiguration.ReBuildSingletonsInChildContainerEnabled
                 ? resolutionContext.RequestInitiatorContainerContext.RootScope
                 : resolutionContext.CurrentContainerContext.RootScope;
 

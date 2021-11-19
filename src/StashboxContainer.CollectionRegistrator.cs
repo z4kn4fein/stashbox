@@ -49,15 +49,15 @@ namespace Stashbox
         {
             Shield.EnsureNotNull(types, nameof(types));
 
-            types = selector != null 
-                ? types.Where(t => t.IsResolvableType()).Where(selector) 
+            types = selector != null
+                ? types.Where(t => t.IsResolvableType()).Where(selector)
                 : types.Where(t => t.IsResolvableType());
 
             foreach (var type in types)
             {
                 var serviceTypes = type.GetRegisterableBaseTypes().Concat(type.GetRegisterableInterfaceTypes());
 
-                if(serviceTypeSelector != null)
+                if (serviceTypeSelector != null)
                     serviceTypes = serviceTypes.Where(t => serviceTypeSelector(type, t));
 
                 if (type.IsGenericTypeDefinition)

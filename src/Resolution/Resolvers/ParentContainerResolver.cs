@@ -24,7 +24,7 @@ namespace Stashbox.Resolution.Resolvers
 
         public bool CanLookupService(TypeInformation typeInfo, ResolutionContext resolutionContext)
         {
-            if(resolutionContext.CurrentContainerContext.ParentContext == null)
+            if (resolutionContext.CurrentContainerContext.ParentContext == null)
                 return false;
 
             return resolutionContext.CurrentContainerContext.ResolutionStrategy.IsTypeResolvable(resolutionContext.BeginCrossContainerContext(resolutionContext

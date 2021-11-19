@@ -76,7 +76,7 @@ namespace Stashbox.Registration
                 this.NamedScopeRestrictionIdentifier = lifetime.ScopeName;
             }
 
-            this.HasCondition = this.RegistrationContext.TargetTypeConditions.Length > 0 || 
+            this.HasCondition = this.RegistrationContext.TargetTypeConditions.Length > 0 ||
                 this.RegistrationContext.ResolutionConditions.Length > 0 ||
                 this.RegistrationContext.AttributeConditions.Length > 0;
 
@@ -110,7 +110,7 @@ namespace Stashbox.Registration
             var length = this.RegistrationContext.ResolutionConditions.Length;
             for (int i = 0; i < length; i++)
             {
-                if(this.RegistrationContext.ResolutionConditions[i](typeInfo))
+                if (this.RegistrationContext.ResolutionConditions[i](typeInfo))
                     return true;
             }
 

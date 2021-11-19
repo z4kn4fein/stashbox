@@ -30,7 +30,7 @@ namespace Stashbox.Resolution.Resolvers
                 return false;
             }
 
-            unWrappedTypes = new []{ enumerableType };
+            unWrappedTypes = new[] { enumerableType };
             return true;
         }
     }

@@ -10,7 +10,7 @@ namespace Stashbox.Registration.SelectionRules
             if (resolutionContext.ScopeNames.Length == 0 && registration.HasScopeName)
                 return false;
 
-            return resolutionContext.ScopeNames.Length == 0 || 
+            return resolutionContext.ScopeNames.Length == 0 ||
                 !registration.HasScopeName ||
                 resolutionContext.ScopeNames.Contains(registration.NamedScopeRestrictionIdentifier);
         }

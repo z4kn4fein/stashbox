@@ -366,7 +366,7 @@ namespace Stashbox.Tests
 
         class Test10
         {
-            public Test10([Dependency("Ref")]RefDep refDep)
+            public Test10([Dependency("Ref")] RefDep refDep)
             { }
         }
 

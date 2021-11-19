@@ -15,7 +15,7 @@ namespace Stashbox.Tests.IssueTests
             for (var i = 0; i < 1000; i++)
             {
                 using var scope = container.BeginScope();
-                Parallel.For(0, 50, _ => 
+                Parallel.For(0, 50, _ =>
                 {
                     var inst = scope.Resolve<Test>();
                     Assert.Same(inst, scope.Resolve<Test>());

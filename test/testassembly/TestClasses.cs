@@ -29,7 +29,7 @@
     public class TA_TGC2 : ITA_TG<string> { }
 
     public class TA_TGC3 : ITA_TG<double> { }
-    
+
     public class TA_TGM<T1, T2> : ITA_TGM<T1, T2> { }
 
     public class TA_TGMI<T1> : ITA_TGM<T1, int> { }

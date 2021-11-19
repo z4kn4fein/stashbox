@@ -56,7 +56,7 @@ namespace Stashbox.Tests
             var enumerator = (IEnumerable)serviceFactories.GetType().GetMethod("Walk").Invoke(serviceFactories, Type.EmptyTypes);
 
             var length = 0;
-            foreach(var item in enumerator)
+            foreach (var item in enumerator)
                 length++;
 
             Assert.Equal(1, length);

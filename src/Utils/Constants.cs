@@ -30,10 +30,10 @@ namespace Stashbox.Utils
 
         public static readonly MethodInfo AddWithAsyncInitializerMethod = ResolutionScopeType.GetMethod(nameof(IResolutionScope.AddWithAsyncInitializer));
 
-        public static readonly MethodInfo CheckRuntimeCircularDependencyBarrierMethod = 
+        public static readonly MethodInfo CheckRuntimeCircularDependencyBarrierMethod =
             ResolutionScopeType.GetMethod(nameof(IResolutionScope.CheckRuntimeCircularDependencyBarrier));
 
-        public static readonly MethodInfo ResetRuntimeCircularDependencyBarrierMethod = 
+        public static readonly MethodInfo ResetRuntimeCircularDependencyBarrierMethod =
             ResolutionScopeType.GetMethod(nameof(IResolutionScope.ResetRuntimeCircularDependencyBarrier));
 
         public static readonly MethodInfo BeginScopeMethod = ResolverType.GetMethod(nameof(IDependencyResolver.BeginScope));

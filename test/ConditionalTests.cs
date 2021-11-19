@@ -268,7 +268,7 @@ namespace Stashbox.Tests
 
             public ITest1 test12 { get; set; }
 
-            public Test3([TestCondition2]ITest1 test12)
+            public Test3([TestCondition2] ITest1 test12)
             {
                 this.test12 = test12;
             }

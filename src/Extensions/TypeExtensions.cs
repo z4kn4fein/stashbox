@@ -70,19 +70,19 @@ namespace System
          || type.Implements(Constants.AsyncDisposableType)
 #endif
         ;
-        
+
         public static bool IsCompositionRoot(this Type type) =>
             type.Implements(Constants.CompositionRootType);
 
-        public static bool IsResolvableType(this Type type) => 
+        public static bool IsResolvableType(this Type type) =>
             !type.IsAbstract &&
                 !type.IsInterface &&
                 type.IsClass &&
                 type != typeof(string) &&
                 type.GetCustomAttribute<CompilerGeneratedAttribute>() == null;
-        
+
         public static IEnumerable<Type> GetRegisterableInterfaceTypes(this Type type) =>
-            type.GetInterfaces().Where(t => 
+            type.GetInterfaces().Where(t =>
             t != Constants.DisposableType
 #if HAS_ASYNC_DISPOSABLE
          && t != Constants.AsyncDisposableType
@@ -179,11 +179,11 @@ namespace System
 
         public static MethodInfo[] GetUsableMethods(this Type type)
         {
-            var methods =  type.GetMethods(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance).Where(method => method.GetInjectionAttribute() != null);
+            var methods = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance).Where(method => method.GetInjectionAttribute() != null);
             var baseType = type.BaseType;
             while (baseType != null && !baseType.IsObjectType())
             {
-                methods =  methods.Concat(baseType.GetMethods(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance).Where(method => method.GetInjectionAttribute() != null));
+                methods = methods.Concat(baseType.GetMethods(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance).Where(method => method.GetInjectionAttribute() != null));
                 baseType = baseType.BaseType;
             }
 
@@ -319,7 +319,7 @@ namespace System
                 typeName = i != -1 ? typeName.Substring(0, i) : typeName;
 
                 typeName += "<";
-                if(type.IsGenericTypeDefinition)
+                if (type.IsGenericTypeDefinition)
                     typeName += new string(Enumerable.Repeat(',', type.GetGenericArguments().Length - 1).ToArray());
                 else
                     typeName += string.Join(",", type.GetGenericArguments().Select(a => a.GetDiagnosticsView()));

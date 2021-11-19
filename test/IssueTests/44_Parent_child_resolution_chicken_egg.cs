@@ -3,7 +3,7 @@ using Xunit;
 
 namespace Stashbox.Tests.IssueTests
 {
-    
+
     public class ParentChildResolutionChickenEgg
     {
         [Fact]

@@ -35,13 +35,13 @@ namespace Stashbox.Multitenant
 
             var tenantContainer = this.RootContainer.CreateChildContainer();
 
-            if(Swap.SwapValue(ref this.tenantRepository,
+            if (Swap.SwapValue(ref this.tenantRepository,
                 (id, container, t3, t4, repo) => repo.AddOrUpdate(id, container, false, false),
                 tenantId,
                 tenantContainer,
                 Constants.DelegatePlaceholder,
                 Constants.DelegatePlaceholder))
-            { 
+            {
                 var disposable = tenantConfig(tenantContainer);
                 this.RootContainer.ContainerContext.RootScope.AddDisposableTracking(disposable);
             }
@@ -100,7 +100,7 @@ namespace Stashbox.Multitenant
             if (Interlocked.CompareExchange(ref this.disposed, 1, 0) != 0)
                 return new ValueTask(Task.CompletedTask);
 
-            return this.RootContainer.DisposeAsync(); 
+            return this.RootContainer.DisposeAsync();
         }
 #endif
     }

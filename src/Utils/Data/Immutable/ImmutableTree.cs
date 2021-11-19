@@ -345,7 +345,7 @@ namespace Stashbox.Utils.Data.Immutable
 
                 return this;
             }
-            
+
             if (this.collisions == null)
                 return new ImmutableTree<TKey, TValue>(hash, key, value, this.leftNode, this.rightNode,
                     ImmutableBucket<TKey, TValue>.Empty.Add(key, value));
@@ -364,16 +364,16 @@ namespace Stashbox.Utils.Data.Immutable
         private ImmutableTree<TKey, TValue> ReplaceInCollisionsIfExist(int hash, TKey key, bool byRef, Func<TValue, TValue> updateDelegate)
         {
             if (ReferenceEquals(key, this.storedKey))
-                return new ImmutableTree<TKey, TValue>(hash, key, updateDelegate(this.storedValue), 
+                return new ImmutableTree<TKey, TValue>(hash, key, updateDelegate(this.storedValue),
                     this.leftNode, this.rightNode, this.collisions);
 
             if (this.collisions != null)
             {
                 var currentCollisions = this.collisions.ReplaceIfExists(key, updateDelegate, byRef);
-                if(ReferenceEquals(currentCollisions, this.collisions))
+                if (ReferenceEquals(currentCollisions, this.collisions))
                     return this;
 
-                return new ImmutableTree<TKey, TValue>(this.storedHash, this.storedKey, 
+                return new ImmutableTree<TKey, TValue>(this.storedHash, this.storedKey,
                     this.storedValue, this.leftNode, this.rightNode, currentCollisions);
             }
 

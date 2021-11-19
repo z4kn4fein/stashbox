@@ -17,9 +17,9 @@ namespace Stashbox
         /// <param name="selector">The type selector.</param>
         /// <param name="configurator">The configurator for the registered types.</param>
         /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns>
-        IStashboxContainer RegisterTypesAs(Type typeFrom, 
-            IEnumerable<Type> types, 
-            Func<Type, bool> selector = null, 
+        IStashboxContainer RegisterTypesAs(Type typeFrom,
+            IEnumerable<Type> types,
+            Func<Type, bool> selector = null,
             Action<RegistrationConfigurator> configurator = null);
 
         /// <summary>
@@ -31,7 +31,7 @@ namespace Stashbox
         /// <param name="registerSelf">If it's true the types will be registered to their own type too.</param>
         /// <param name="configurator">The configurator for the registered types.</param>
         /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns>
-        IStashboxContainer RegisterTypes(IEnumerable<Type> types, 
+        IStashboxContainer RegisterTypes(IEnumerable<Type> types,
             Func<Type, bool> selector = null,
             Func<Type, Type, bool> serviceTypeSelector = null,
             bool registerSelf = true,
@@ -43,7 +43,7 @@ namespace Stashbox
         /// <param name="compositionRootType">The type of an <see cref="ICompositionRoot"/> implementation.</param>
         /// <param name="compositionRootArguments">Optional composition root constructor arguments.</param>
         /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns>
-        IStashboxContainer ComposeBy(Type compositionRootType, 
+        IStashboxContainer ComposeBy(Type compositionRootType,
             params object[] compositionRootArguments);
 
         /// <summary>

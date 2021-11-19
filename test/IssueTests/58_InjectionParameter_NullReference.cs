@@ -2,7 +2,7 @@
 
 namespace Stashbox.Tests.IssueTests
 {
-    
+
     public class InjectionParameterNullReference
     {
         [Fact]

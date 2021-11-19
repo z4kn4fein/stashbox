@@ -44,10 +44,19 @@ namespace Stashbox.Tests
             using var container = new StashboxContainer()
                 .Register<IA, A>();
 
-            Assert.True(container.CanResolve<IEnumerable<IA>>());
             Assert.True(container.CanResolve<Func<IA>>());
             Assert.True(container.CanResolve<Lazy<IA>>());
             Assert.True(container.CanResolve<Tuple<IA>>());
+        }
+
+        [Fact]
+        public void CanResolveTests_Enumerable()
+        {
+            using var container = new StashboxContainer()
+                .Register<IA, A>();
+
+            Assert.True(container.CanResolve<IEnumerable<IA>>());
+            Assert.True(container.CanResolve<IEnumerable<IB<IA>>>());
         }
 
         interface IA { }

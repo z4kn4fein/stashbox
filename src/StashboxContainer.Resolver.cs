@@ -40,7 +40,7 @@ namespace Stashbox
             this.ContainerContext.RootScope.Activate(type, arguments);
 
         /// <inheritdoc />
-        public ValueTask InvokeAsyncInitializers(CancellationToken token = default) => 
+        public ValueTask InvokeAsyncInitializers(CancellationToken token = default) =>
             this.ContainerContext.RootScope.InvokeAsyncInitializers(token);
 
         /// <inheritdoc />

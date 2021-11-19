@@ -11,14 +11,14 @@ namespace Stashbox.Lifetime
     /// </summary>
     public abstract class FactoryLifetimeDescriptor : LifetimeDescriptor
     {
-        private protected override Expression BuildLifetimeAppliedExpression(ServiceRegistration serviceRegistration, 
+        private protected override Expression BuildLifetimeAppliedExpression(ServiceRegistration serviceRegistration,
             ResolutionContext resolutionContext, Type requestedType)
         {
             var factory = GetFactoryDelegateForRegistration(serviceRegistration, resolutionContext, requestedType);
             return factory == null ? null : this.ApplyLifetime(factory, serviceRegistration, resolutionContext, requestedType);
         }
 
-        private static Func<IResolutionScope, object> GetFactoryDelegateForRegistration(ServiceRegistration serviceRegistration, 
+        private static Func<IResolutionScope, object> GetFactoryDelegateForRegistration(ServiceRegistration serviceRegistration,
             ResolutionContext resolutionContext, Type requestedType)
         {
             if (!IsRegistrationOutputCacheable(serviceRegistration, resolutionContext))

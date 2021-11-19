@@ -3,7 +3,7 @@ using System;
 
 namespace Stashbox.Tests.IssueTests
 {
-    
+
     public class ResolverFactoryIssue
     {
         [Fact]

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Stashbox.Tests
 {
-    
+
     public class DisposeOrderTests
     {
         [Fact]

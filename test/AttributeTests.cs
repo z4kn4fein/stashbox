@@ -170,7 +170,7 @@ namespace Stashbox.Tests
         {
             public ITest1 test1 { get; set; }
 
-            public Test2([Dependency("test11")]ITest1 test1)
+            public Test2([Dependency("test11")] ITest1 test1)
             {
                 Shield.EnsureNotNull(test1, nameof(test1));
                 Shield.EnsureTypeOf<Test11>(test1);
@@ -186,20 +186,20 @@ namespace Stashbox.Tests
             public ITest2 test2 { get; set; }
 
             [InjectionMethod]
-            public void MethodTest([Dependency("test22")]ITest2 test2)
+            public void MethodTest([Dependency("test22")] ITest2 test2)
             {
                 Shield.EnsureNotNull(test2, nameof(test2));
                 this.MethodInvoked = true;
             }
 
             [InjectionMethod]
-            public void MethodTest2([Dependency("test22")]ITest2 test2)
+            public void MethodTest2([Dependency("test22")] ITest2 test2)
             {
                 Shield.EnsureNotNull(test2, nameof(test2));
                 this.MethodInvoked2 = true;
             }
 
-            public Test3([Dependency("test12")]ITest1 test12, [Dependency("test2")]ITest2 test2)
+            public Test3([Dependency("test12")] ITest1 test12, [Dependency("test2")] ITest2 test2)
             {
                 Shield.EnsureNotNull(test12, nameof(test12));
                 Shield.EnsureNotNull(test2, nameof(test2));
@@ -221,13 +221,13 @@ namespace Stashbox.Tests
             public Lazy<ITest2> test2 { get; set; }
 
             [InjectionMethod]
-            public void MethodTest([Dependency("test22")]Lazy<ITest2> test2)
+            public void MethodTest([Dependency("test22")] Lazy<ITest2> test2)
             {
                 Shield.EnsureNotNull(test2.Value, nameof(test2.Value));
                 this.MethodInvoked = true;
             }
 
-            public Test4([Dependency("test12")]Lazy<ITest1> test1, [Dependency("test2")]Lazy<ITest2> test2)
+            public Test4([Dependency("test12")] Lazy<ITest1> test1, [Dependency("test2")] Lazy<ITest2> test2)
             {
                 Shield.EnsureNotNull(test1.Value, nameof(test1.Value));
                 Shield.EnsureNotNull(test2.Value, nameof(test2.Value));

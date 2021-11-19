@@ -39,7 +39,7 @@ namespace Stashbox.Tests.IssueTests
         }
 
         [Fact]
-         public void Ensures_Registration_Validation_Works()
+        public void Ensures_Registration_Validation_Works()
         {
             using var container = new StashboxContainer();
             Assert.Throws<InvalidRegistrationException>(() => container.Register<ITest>());
@@ -63,7 +63,7 @@ namespace Stashbox.Tests.IssueTests
             }));
             Assert.NotNull(container.Resolve<ITest>(true));
         }
-        
+
         interface ITest
         { }
 

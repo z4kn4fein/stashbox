@@ -120,7 +120,7 @@ namespace Stashbox.Resolution
         public object GetDependencyOverrideOrDefault(Type dependencyType)
         {
             var @override = this.GetExpressionOverrideOrDefault(dependencyType);
-            if(@override == null) return null;
+            if (@override == null) return null;
 
             return @override.Value;
         }

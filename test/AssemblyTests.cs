@@ -35,7 +35,7 @@ namespace Stashbox.Tests
         public void LoadTestAssembly_Just_Abstarct_And_Self()
         {
             using var container = new StashboxContainer()
-                .RegisterAssembly(typeof(ITA_T1).Assembly, 
+                .RegisterAssembly(typeof(ITA_T1).Assembly,
                     serviceTypeSelector: Rules.ServiceRegistrationFilters.AbstractClasses);
 
             var regs = container.GetRegistrationDiagnostics().ToArray();
@@ -47,8 +47,8 @@ namespace Stashbox.Tests
         public void LoadTestAssembly_Just_Abstarct_Without_Self()
         {
             using var container = new StashboxContainer()
-                .RegisterAssembly(typeof(ITA_T1).Assembly, 
-                    serviceTypeSelector: Rules.ServiceRegistrationFilters.AbstractClasses, 
+                .RegisterAssembly(typeof(ITA_T1).Assembly,
+                    serviceTypeSelector: Rules.ServiceRegistrationFilters.AbstractClasses,
                     registerSelf: false);
 
             var regs = container.GetRegistrationDiagnostics().ToArray();

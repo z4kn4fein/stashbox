@@ -118,11 +118,11 @@ namespace Stashbox.Resolution
 
         public bool IsTypeResolvable(ResolutionContext resolutionContext, TypeInformation typeInformation)
         {
-            if(typeInformation.Type.IsGenericTypeDefinition)
+            if (typeInformation.Type.IsGenericTypeDefinition)
                 return false;
 
-            if(typeInformation.Type == Constants.ResolverType || 
-                typeInformation.Type == Constants.ServiceProviderType || 
+            if (typeInformation.Type == Constants.ResolverType ||
+                typeInformation.Type == Constants.ServiceProviderType ||
                 typeInformation.Type == Constants.ResolutionContextType)
                 return true;
 

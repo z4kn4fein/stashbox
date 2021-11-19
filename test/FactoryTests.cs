@@ -128,10 +128,10 @@ namespace Stashbox.Tests
             using var container = new StashboxContainer(c => c.WithCompiler(compilerType));
             container.Register<TComp>(c => c.AsImplementedTypes());
             container.Register<Dummy>(context =>
-                context.WithFactory<IT1>(t1 => 
-                { 
+                context.WithFactory<IT1>(t1 =>
+                {
                     Assert.IsType<TComp>(t1);
-                    return new Dummy();    
+                    return new Dummy();
                 }));
 
             container.Resolve<Dummy>();

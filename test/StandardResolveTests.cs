@@ -494,7 +494,7 @@ namespace Stashbox.Tests
                 Assert.True(false, "Wrong constructor selected.");
             }
 
-            public Test222([Dependency("test1")]ITest1 test1, [Dependency("test12")]ITest1 test2)
+            public Test222([Dependency("test1")] ITest1 test1, [Dependency("test12")] ITest1 test2)
             {
                 Shield.EnsureNotNull(test1, nameof(test1));
                 Shield.EnsureNotNull(test2, nameof(test2));
@@ -513,7 +513,7 @@ namespace Stashbox.Tests
                 Shield.EnsureTypeOf<Test1>(test1);
             }
 
-            public Test2222(ITest1 test1, [Dependency("test12")]ITest1 test2)
+            public Test2222(ITest1 test1, [Dependency("test12")] ITest1 test2)
             {
                 Assert.True(false, "Wrong constructor selected.");
             }
