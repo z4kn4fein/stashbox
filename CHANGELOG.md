@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [v4.1.0] - 2021-11-21
 ### Fixed
 - `IsRegistered()` returns `true` only when the container has a registration with the given type (and name).
-- `CanResolve()` returns `true` only when any of the following is true:
+- `CanResolve()` returns `true` only when at least one of the following is true:
    - The given type is registered in the current or one of the parent containers.
    - The given type is a closed generic type and its open generic definition is registered.
    - The given type is wrapped by `IEnumerable<>`, `Lazy<>`, `Func<>`, or `Tuple<>`.
