@@ -1,9 +1,9 @@
 ## Is Registered?
 <!-- panels:start -->
 <!-- div:left-panel -->
-There might be cases where you want to find out whether a service is registered into the container or not.
+With the `IsRegistered()` function, you can find out whether a service is registered into the container or not.
 
-You can also verify that an implementation is registered with a given name.
+It returns `true` only when the container has a registration with the given type (and name). It only checks the actual container's registrations. For every other cases, you should use the `CanResolve()` method.
 <!-- div:right-panel -->
 <!-- tabs:start -->
 #### **Generic API**
@@ -24,9 +24,14 @@ bool isIJobRegistered = container.IsRegistered<IJob>("DbBackup");
 ## Can Resolve?
 <!-- panels:start -->
 <!-- div:left-panel -->
-There might be cases where rather than finding out that a service is registered, you are more interested whether it's resolvable from the container's actual state or not.
+There might be cases when rather than finding out that a service is registered, you are more interested whether it's resolvable from the container's actual state or not.
 
-For example, when the [unknown type resolution](configuration/container-configuration?id=unknown-type-resolution) is enabled, `.CanResolve()` will return `true` when the requested type is resolvable but not registered into the container.
+`CanResolve()` returns `true` when any of the following is true:
+- The given type is registered in the current or one of the parent containers.
+- The given type is a closed generic type and its open generic definition is registered.
+- The given type is wrapped by `IEnumerable<>`, `Lazy<>`, `Func<>` or `Tuple<>`.
+- The given type is not registered but it's resolvable and the [unknown type resolution](configuration/container-configuration?id=unknown-type-resolution) is enabled.
+
 <!-- div:right-panel -->
 <!-- tabs:start -->
 #### **Generic API**

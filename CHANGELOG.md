@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v4.1.0] - 2021-11-21
+### Fixed
+- `IsRegistered()` returns `true` only when the container has a registration with the given type (and name).
+- `CanResolve()` returns `true` only when any of the following is true:
+   - The given type is registered in the current or one of the parent containers.
+   - The given type is a closed generic type and its open generic definition is registered.
+   - The given type is wrapped by IEnumerable<>, Lazy<>, Func<> or Tuple<>.
+   - The given type is not registered but it’s resolvable and the unknown type resolution is enabled.
+
 ## [v4.0.0] - 2021-11-18
 ### Removed
 - .NET 4.0 support.
@@ -155,6 +164,7 @@ The validation was executed only at the expression tree building phase, so an al
 - Removed the legacy container extension functionality.
 - Removed the support of PCL v259.
 
+[v4.1.0]: https://github.com/z4kn4fein/stashbox/compare/4.0.0...4.1.0
 [v4.0.0]: https://github.com/z4kn4fein/stashbox/compare/3.6.4...4.0.0
 [v3.6.4]: https://github.com/z4kn4fein/stashbox/compare/3.6.3...3.6.4
 [v3.6.3]: https://github.com/z4kn4fein/stashbox/compare/3.6.2...3.6.3
