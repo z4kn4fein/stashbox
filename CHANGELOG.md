@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `CanResolve()` returns `true` only when at least one of the following is true:
    - The given type is registered in the current or one of the parent containers.
    - The given type is a closed generic type and its open generic definition is registered.
-   - The given type is wrapped by `IEnumerable<>`, `Lazy<>`, `Func<>`, or `Tuple<>`.
+   - The given type is a wrapper (`IEnumerable<>`, `Lazy<>`, `Func<>`, or `Tuple<>`) and the underlying type is registered.
    - The given type is not registered but it's resolvable and the [unknown type resolution](https://z4kn4fein.github.io/stashbox/#/advanced/special-resolution-cases?id=unknown-type-resolution) is enabled.
 
 ## [v4.0.0] - 2021-11-18
