@@ -866,7 +866,7 @@ namespace Stashbox.Tests
         {
             using var container = new StashboxContainer(c => c.WithCompiler(compilerType));
             container.Register<ITest1, Test1>();
-            container.RegisterDecorator<ITest1, TestDecorator14>(c => c.InjectMember(d => d.Test));
+            container.RegisterDecorator<ITest1, TestDecorator14>(c => c.WithDependencyBinding(d => d.Test));
 
             var t = container.Resolve<ITest1>();
 

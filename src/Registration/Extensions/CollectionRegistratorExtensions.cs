@@ -14,14 +14,14 @@ namespace Stashbox
     public static class CollectionRegistratorExtensions
     {
         /// <summary>
-        /// Registers types into the container mapped to an interface type.
+        /// Registers a collection of types mapped to a service type.
         /// </summary>
-        /// <typeparam name="TFrom">The interface type.</typeparam>
+        /// <typeparam name="TFrom">The service type.</typeparam>
         /// <param name="registrator">The registrator.</param>
         /// <param name="types">Types to register.</param>
-        /// <param name="selector">The type selector.</param>
+        /// <param name="selector">The type selector. Used to filter which types should be excluded/included in the registration process.</param>
         /// <param name="configurator">The configurator for the registered types.</param>
-        /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns>
+        /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
         public static IStashboxContainer RegisterTypesAs<TFrom>(this IDependencyCollectionRegistrator registrator,
             IEnumerable<Type> types,
             Func<Type, bool> selector = null,
@@ -33,14 +33,14 @@ namespace Stashbox
                 configurator);
 
         /// <summary>
-        /// Registers types into the container mapped to an interface type.
+        /// Registers a collection of types mapped to a service type.
         /// </summary>
-        /// <typeparam name="TFrom">The interface type.</typeparam>
+        /// <typeparam name="TFrom">The service type.</typeparam>
         /// <param name="registrator">The registrator.</param>
         /// <param name="assembly">Assembly to register.</param>
-        /// <param name="selector">The type selector.</param>
+        /// <param name="selector">The type selector. Used to filter which types should be excluded/included in the registration process.</param>
         /// <param name="configurator">The configurator for the registered types.</param>
-        /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns>
+        /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
         public static IStashboxContainer RegisterTypesAs<TFrom>(this IDependencyCollectionRegistrator registrator,
             Assembly assembly,
             Func<Type, bool> selector = null,
@@ -52,14 +52,14 @@ namespace Stashbox
                 configurator);
 
         /// <summary>
-        /// Registers types into the container mapped to an interface type.
+        /// Registers a collection of types mapped to a service type.
         /// </summary>
-        /// <param name="typeFrom">The interface type.</param>
+        /// <param name="typeFrom">The service type.</param>
         /// <param name="registrator">The registrator.</param>
         /// <param name="assembly">Assembly to register.</param>
-        /// <param name="selector">The type selector.</param>
+        /// <param name="selector">The type selector. Used to filter which types should be excluded/included in the registration process.</param>
         /// <param name="configurator">The configurator for the registered types.</param>
-        /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns>
+        /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
         public static IStashboxContainer RegisterTypesAs(this IDependencyCollectionRegistrator registrator,
             Type typeFrom,
             Assembly assembly,
@@ -71,15 +71,15 @@ namespace Stashbox
                 configurator);
 
         /// <summary>
-        /// Registers the publicly visible types from an assembly into the container.
+        /// Registers types from an assembly.
         /// </summary>
         /// <param name="registrator">The registrator.</param>
-        /// <param name="assembly">The assembly holding the types to register.</param>
-        /// <param name="selector">The type selector.</param>
-        /// <param name="serviceTypeSelector">The service type selector. Used to filter the service types the actual type bound to.</param>
+        /// <param name="assembly">The assembly containing the types to register.</param>
+        /// <param name="selector">The type selector. Used to filter which types should be excluded/included in the registration process.</param>
+        /// <param name="serviceTypeSelector">The service type selector. Used to filter which interface or base types the implementation should be mapped to.</param>
         /// <param name="registerSelf">If it's true the types will be registered to their own type too.</param>
         /// <param name="configurator">The configurator for the registered types.</param>
-        /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns>
+        /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
         public static IStashboxContainer RegisterAssembly(this IDependencyCollectionRegistrator registrator,
             Assembly assembly,
             Func<Type, bool> selector = null,
@@ -93,15 +93,15 @@ namespace Stashbox
                 configurator);
 
         /// <summary>
-        /// Registers the publicly visible types from an assembly collection into the container.
+        /// Registers types from an assembly collection.
         /// </summary>
         /// <param name="registrator">The registrator.</param>
         /// <param name="assemblies">The assemblies holding the types to register.</param>
-        /// <param name="selector">The type selector.</param>
-        /// <param name="serviceTypeSelector">The service type selector. Used to filter the service types the actual type bound to.</param>
+        /// <param name="selector">The type selector. Used to filter which types should be excluded/included in the registration process.</param>
+        /// <param name="serviceTypeSelector">The service type selector. Used to filter which interface or base types the implementation should be mapped to.</param>
         /// <param name="registerSelf">If it's true the types will be registered to their own type too.</param>
         /// <param name="configurator">The configurator for the registered types.</param>
-        /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns>
+        /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
         public static IStashboxContainer RegisterAssemblies(this IDependencyCollectionRegistrator registrator,
             IEnumerable<Assembly> assemblies,
             Func<Type, bool> selector = null,
@@ -122,15 +122,15 @@ namespace Stashbox
         }
 
         /// <summary>
-        /// Registers the publicly visible types from an assembly which contains a given type into the container.
+        /// Registers types from an assembly that contains the given service type.
         /// </summary>
-        /// <typeparam name="TFrom">The type the assembly contains.</typeparam>
+        /// <typeparam name="TFrom">The service type the assembly contains.</typeparam>
         /// <param name="registrator">The registrator.</param>
-        /// <param name="selector">The type selector.</param>
-        /// <param name="serviceTypeSelector">The service type selector. Used to filter the service types the actual type bound to.</param>
+        /// <param name="selector">The type selector. Used to filter which types should be excluded/included in the registration process.</param>
+        /// <param name="serviceTypeSelector">The service type selector. Used to filter which interface or base types the implementation should be mapped to.</param>
         /// <param name="registerSelf">If it's true the types will be registered to their own type too.</param>
         /// <param name="configurator">The configurator for the registered types.</param>
-        /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns>
+        /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
         public static IStashboxContainer RegisterAssemblyContaining<TFrom>(this IDependencyCollectionRegistrator registrator,
             Func<Type, bool> selector = null,
             Func<Type, Type, bool> serviceTypeSelector = null,
@@ -144,15 +144,15 @@ namespace Stashbox
                 configurator);
 
         /// <summary>
-        /// Registers the publicly visible types from an assembly which contains a given type into the container.
+        /// Registers types from an assembly that contains the given service type.
         /// </summary>
         /// <param name="registrator">The registrator.</param>
         /// <param name="typeFrom">The type the assembly contains.</param>
-        /// <param name="selector">The type selector.</param>
-        /// <param name="serviceTypeSelector">The service type selector. Used to filter the service types the actual type bound to.</param>
+        /// <param name="selector">The type selector. Used to filter which types should be excluded/included in the registration process.</param>
+        /// <param name="serviceTypeSelector">The service type selector. Used to filter which interface or base types the implementation should be mapped to.</param>
         /// <param name="registerSelf">If it's true the types will be registered to their own type too.</param>
         /// <param name="configurator">The configurator for the registered types.</param>
-        /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns>
+        /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
         public static IStashboxContainer RegisterAssemblyContaining(this IDependencyCollectionRegistrator registrator,
             Type typeFrom,
             Func<Type, bool> selector = null,
@@ -166,12 +166,12 @@ namespace Stashbox
                 configurator);
 
         /// <summary>
-        /// Searches the given assemblies for <see cref="ICompositionRoot"/> implementations and invokes their <see cref="ICompositionRoot.Compose"/> method.
+        /// Scans the given assemblies for <see cref="ICompositionRoot"/> implementations and invokes their <see cref="ICompositionRoot.Compose"/> method.
         /// </summary>
         /// <param name="registrator">The registrator.</param>
         /// <param name="assemblies">The assemblies to scan.</param>
-        /// <param name="selector">The type selector.</param>
-        /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns>
+        /// <param name="selector">The type selector. Used to filter which types should be excluded/included in the registration process.</param>
+        /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
         public static IStashboxContainer ComposeAssemblies(this IDependencyCollectionRegistrator registrator,
             IEnumerable<Assembly> assemblies,
             Func<Type, bool> selector = null)
@@ -185,24 +185,24 @@ namespace Stashbox
         }
 
         /// <summary>
-        /// Composes services by calling the <see cref="ICompositionRoot.Compose"/> method of the given type parameter.
+        /// Composes services by calling the <see cref="ICompositionRoot.Compose"/> method of the given root.
         /// </summary>
         /// <typeparam name="TCompositionRoot">The type of an <see cref="ICompositionRoot"/> implementation.</typeparam>
         /// <param name="registrator">The registrator.</param>
         /// <param name="compositionRootArguments">Optional composition root constructor arguments.</param>
-        /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns>
+        /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
         public static IStashboxContainer ComposeBy<TCompositionRoot>(this IDependencyCollectionRegistrator registrator,
             params object[] compositionRootArguments)
             where TCompositionRoot : class, ICompositionRoot =>
             registrator.ComposeBy(typeof(TCompositionRoot), compositionRootArguments);
 
         /// <summary>
-        /// Searches the given assembly for <see cref="ICompositionRoot"/> implementations and invokes their <see cref="ICompositionRoot.Compose"/> method.
+        /// Scans the given assembly for <see cref="ICompositionRoot"/> implementations and invokes their <see cref="ICompositionRoot.Compose"/> method.
         /// </summary>
         /// <param name="registrator">The registrator.</param>
         /// <param name="assembly">The assembly to scan.</param>
-        /// <param name="selector">The type selector.</param>
-        /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns>
+        /// <param name="selector">The type selector. Used to filter which types should be excluded/included in the registration process.</param>
+        /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
         public static IStashboxContainer ComposeAssembly(this IDependencyCollectionRegistrator registrator,
             Assembly assembly,
             Func<Type, bool> selector = null)

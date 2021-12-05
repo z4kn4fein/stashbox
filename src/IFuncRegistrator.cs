@@ -13,7 +13,7 @@ namespace Stashbox
         /// <typeparam name="TService">The service type.</typeparam>
         /// <param name="factory">The factory delegate.</param>
         /// <param name="name">The name of the factory registration.</param>
-        /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns>
+        /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
         IStashboxContainer RegisterFunc<TService>(Func<IDependencyResolver, TService> factory, string name = null);
 
         /// <summary>
@@ -23,7 +23,7 @@ namespace Stashbox
         /// <typeparam name="TService">The service type.</typeparam>
         /// <param name="factory">The factory delegate.</param>
         /// <param name="name">The name of the factory registration.</param>
-        /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns>
+        /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
         IStashboxContainer RegisterFunc<T1, TService>(Func<T1, IDependencyResolver, TService> factory, string name = null);
 
         /// <summary>
@@ -34,7 +34,7 @@ namespace Stashbox
         /// <typeparam name="TService">The service type.</typeparam>
         /// <param name="factory">The factory delegate.</param>
         /// <param name="name">The name of the factory registration.</param>
-        /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns>
+        /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
         IStashboxContainer RegisterFunc<T1, T2, TService>(Func<T1, T2, IDependencyResolver, TService> factory, string name = null);
 
         /// <summary>
@@ -46,7 +46,7 @@ namespace Stashbox
         /// <typeparam name="TService">The service type.</typeparam>
         /// <param name="factory">The factory delegate.</param>
         /// <param name="name">The name of the factory registration.</param>
-        /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns>
+        /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
         IStashboxContainer RegisterFunc<T1, T2, T3, TService>(Func<T1, T2, T3, IDependencyResolver, TService> factory, string name = null);
 
         /// <summary>
@@ -59,7 +59,7 @@ namespace Stashbox
         /// <typeparam name="TService">The service type.</typeparam>
         /// <param name="factory">The factory delegate.</param>
         /// <param name="name">The name of the factory registration.</param>
-        /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns>
+        /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
         IStashboxContainer RegisterFunc<T1, T2, T3, T4, TService>(Func<T1, T2, T3, T4, IDependencyResolver, TService> factory, string name = null);
     }
 }

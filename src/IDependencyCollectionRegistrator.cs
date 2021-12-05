@@ -10,27 +10,27 @@ namespace Stashbox
     public interface IDependencyCollectionRegistrator
     {
         /// <summary>
-        /// Registers types into the container mapped to an interface type.
+        /// Registers a collection of types mapped to a service type.
         /// </summary>
-        /// <param name="typeFrom">The interface type.</param>
+        /// <param name="typeFrom">The service type.</param>
         /// <param name="types">Types to register.</param>
-        /// <param name="selector">The type selector.</param>
+        /// <param name="selector">The type selector. Used to filter which types should be excluded/included in the registration process.</param>
         /// <param name="configurator">The configurator for the registered types.</param>
-        /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns>
+        /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
         IStashboxContainer RegisterTypesAs(Type typeFrom,
             IEnumerable<Type> types,
             Func<Type, bool> selector = null,
             Action<RegistrationConfigurator> configurator = null);
 
         /// <summary>
-        /// Registers types into the container.
+        /// Registers a collection of types into the container.
         /// </summary>
         /// <param name="types">Types to register.</param>
-        /// <param name="selector">The type selector. Used to filter the types included to register.</param>
-        /// <param name="serviceTypeSelector">The service type selector. Used to filter the service types the actual type bound to.</param>
-        /// <param name="registerSelf">If it's true the types will be registered to their own type too.</param>
+        /// <param name="selector">The type selector. Used to filter which types should be excluded/included in the registration process.</param>
+        /// <param name="serviceTypeSelector">The service type selector. Used to filter which interface or base types the implementation should be mapped to.</param>
+        /// <param name="registerSelf">If it's true, the types will be registered to their own type too.</param>
         /// <param name="configurator">The configurator for the registered types.</param>
-        /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns>
+        /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
         IStashboxContainer RegisterTypes(IEnumerable<Type> types,
             Func<Type, bool> selector = null,
             Func<Type, Type, bool> serviceTypeSelector = null,
@@ -38,11 +38,11 @@ namespace Stashbox
             Action<RegistrationConfigurator> configurator = null);
 
         /// <summary>
-        /// Composes services by calling the <see cref="ICompositionRoot.Compose"/> method of the given type.
+        /// Composes services by calling the <see cref="ICompositionRoot.Compose"/> method of the given root.
         /// </summary>
         /// <param name="compositionRootType">The type of an <see cref="ICompositionRoot"/> implementation.</param>
         /// <param name="compositionRootArguments">Optional composition root constructor arguments.</param>
-        /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns>
+        /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
         IStashboxContainer ComposeBy(Type compositionRootType,
             params object[] compositionRootArguments);
 
@@ -50,7 +50,7 @@ namespace Stashbox
         /// Composes services by calling the <see cref="ICompositionRoot.Compose"/> method of the given root.
         /// </summary>
         /// <param name="compositionRoot">The composition root instance.</param>
-        /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns>
+        /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
         IStashboxContainer ComposeBy(ICompositionRoot compositionRoot);
     }
 }

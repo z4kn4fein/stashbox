@@ -9,12 +9,12 @@ namespace Stashbox
     public static class DependencyReMapperExtensions
     {
         /// <summary>
-        /// Replaces an existing registration mapping.
+        /// Re-maps an existing registration.
         /// </summary>
         /// <param name="reMapper">The re-mapper.</param>
-        /// <param name="typeTo">Type that will be returned.</param>
-        /// <param name="configurator">The configurator for the registered types.</param>
-        /// <returns>The <see cref="IStashboxContainer"/> which on this method was called.</returns>
+        /// <param name="typeTo">The service/implementation type.</param>
+        /// <param name="configurator">The configurator for the registered type.</param>
+        /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
         public static IStashboxContainer ReMap(this IDependencyReMapper reMapper, Type typeTo, Action<RegistrationConfigurator> configurator = null) =>
             reMapper.ReMap(typeTo, typeTo, configurator);
     }

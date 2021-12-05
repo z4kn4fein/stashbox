@@ -51,7 +51,7 @@ namespace Stashbox
         IEnumerable<object> ResolveAll(Type typeFrom, object[] dependencyOverrides = null);
 
         /// <summary>
-        /// Returns a factory method which can be used to activate a type.
+        /// Returns a factory method that can be used to activate the service.
         /// </summary>
         /// <param name="typeFrom">The type of the requested instances.</param>
         /// <param name="name">The name of the requested registration.</param>
@@ -61,25 +61,25 @@ namespace Stashbox
         Delegate ResolveFactory(Type typeFrom, object name = null, bool nullResultAllowed = false, params Type[] parameterTypes);
 
         /// <summary>
-        /// Begins a new scope.
+        /// Creates a new scope.
         /// </summary>
         /// <param name="name">The name of the scope.</param>
-        /// <param name="attachToParent">If true, the new scope will be attached to the lifecycle of the parent scope, when it's disposed, the new scope will be disposed with it.</param>
+        /// <param name="attachToParent">If true, the new scope will be attached to the lifecycle of its parent scope. When the parent is being disposed, the new scope will be disposed with it.</param>
         /// <returns>The created scope.</returns>
         IDependencyResolver BeginScope(object name = null, bool attachToParent = false);
 
         /// <summary>
-        /// Puts an instance into the scope which will be dropped when the scope is being disposed.
+        /// Puts an instance into the scope. The instance will be disposed along with the scope disposal.
         /// </summary>
         /// <param name="typeFrom">The service type.</param>
         /// <param name="instance">The instance.</param>
-        /// <param name="withoutDisposalTracking">If it's set to true the container will exclude the instance from the disposal tracking.</param>
-        /// <param name="name">The identifier.</param>
+        /// <param name="withoutDisposalTracking">If it's set to true the container will exclude the instance from disposal tracking.</param>
+        /// <param name="name">The dependency name of the instance.</param>
         /// <returns>The scope.</returns>
         IDependencyResolver PutInstanceInScope(Type typeFrom, object instance, bool withoutDisposalTracking = false, object name = null);
 
         /// <summary>
-        /// Builds up an instance, the container will perform injections and extensions on it.
+        /// Builds up an existing instance. This means the container performs member and method injections on it without registering it into the container.
         /// </summary>
         /// <typeparam name="TTo">The type of the requested instance.</typeparam>
         /// <param name="instance">The instance to build up.</param>
@@ -87,8 +87,8 @@ namespace Stashbox
         TTo BuildUp<TTo>(TTo instance);
 
         /// <summary>
-        /// On the fly activates an object without registering it into the container. If you want to resolve a
-        /// registered service use the <see cref="Resolve(Type, bool, object[])" /> instead.
+        /// Activates an object without registering it into the container. If you want to resolve a
+        /// registered service use the <see cref="Resolve(Type, bool, object[])" /> method instead.
         /// </summary>
         /// <param name="type">The type to activate.</param>
         /// <param name="arguments">Optional dependency overrides.</param>

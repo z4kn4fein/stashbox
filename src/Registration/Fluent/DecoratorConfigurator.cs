@@ -18,10 +18,6 @@ namespace Stashbox.Registration.Fluent
         }
 
         /// <inheritdoc />
-        public DecoratorConfigurator<TService, TImplementation> InjectMember<TResult>(Expression<Func<TImplementation, TResult>> expression, object dependencyName = null) =>
-            this.WithDependencyBinding(expression, dependencyName);
-
-        /// <inheritdoc />
         public DecoratorConfigurator<TService, TImplementation> WithDependencyBinding<TResult>(Expression<Func<TImplementation, TResult>> expression, object dependencyName = null)
         {
             this.compositor.WithDependencyBinding(expression, dependencyName);
