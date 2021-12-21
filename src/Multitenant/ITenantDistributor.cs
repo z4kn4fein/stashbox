@@ -3,7 +3,7 @@
 namespace Stashbox.Multitenant
 {
     /// <summary>
-    /// Represents a tenant distributor that manages tenants in a multitenant environment.
+    /// Represents a tenant distributor that manages tenants in a multi-tenant environment.
     /// </summary>
     public interface ITenantDistributor :
 #if HAS_ASYNC_DISPOSABLE

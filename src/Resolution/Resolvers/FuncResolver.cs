@@ -7,7 +7,7 @@ namespace Stashbox.Resolution.Resolvers
 {
     internal class FuncResolver : IEnumerableSupportedResolver, IWrapper
     {
-        private static readonly HashSet<Type> supportedTypes = new()
+        private static readonly HashSet<Type> SupportedTypes = new()
         {
             typeof(Func<>),
             typeof(Func<,>),
@@ -63,6 +63,6 @@ namespace Stashbox.Resolution.Resolvers
             return true;
         }
 
-        private static bool IsFunc(Type type) => type.IsClosedGenericType() && supportedTypes.Contains(type.GetGenericTypeDefinition());
+        private static bool IsFunc(Type type) => type.IsClosedGenericType() && SupportedTypes.Contains(type.GetGenericTypeDefinition());
     }
 }

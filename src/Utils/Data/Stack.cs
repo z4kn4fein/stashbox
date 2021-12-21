@@ -26,13 +26,7 @@ namespace Stashbox.Utils.Data
             return result;
         }
 
-        public TValue Front()
-        {
-            if (this.Length == 0)
-                return default;
-
-            return base.Repository[this.Length - 1];
-        }
+        public TValue Front() => this.Length == 0 ? default : base.Repository[this.Length - 1];
 
         public void PushBack(TValue item)
         {
@@ -50,11 +44,7 @@ namespace Stashbox.Utils.Data
             this.Repository = newArray;
         }
 
-        public TValue PeekBack()
-        {
-            if (this.Length == 0) return default;
-            return this.Repository[0];
-        }
+        public TValue PeekBack() => this.Length == 0 ? default : this.Repository[0];
 
         public void ReplaceBack(TValue value) => this.Repository[0] = value;
     }

@@ -19,7 +19,7 @@ namespace Stashbox.Lifetime
         public readonly object ScopeName;
 
         /// <inheritdoc />
-        protected override int LifeSpan { get; } = 10;
+        protected override int LifeSpan => 10;
 
         /// <summary>
         /// Constructs a <see cref="NamedScopeLifetime"/>.

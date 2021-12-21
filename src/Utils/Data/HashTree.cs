@@ -6,26 +6,24 @@ namespace Stashbox.Utils.Data
     {
         private class Node
         {
-            public readonly int storedHash;
-            public readonly TKey storedKey;
-            public TValue storedValue;
-            public Node left;
-            public Node right;
-            public int height;
-            public ExpandableArray<TKey, TValue> collisions;
+            public readonly int StoredHash;
+            public readonly TKey StoredKey;
+            public TValue StoredValue;
+            public Node Left;
+            public Node Right;
+            public int Height;
+            public ExpandableArray<TKey, TValue> Collisions;
 
             public Node(TKey key, TValue value, int hash)
             {
-                this.storedValue = value;
-                this.storedKey = key;
-                this.storedHash = hash;
-                this.height = 1;
+                this.StoredValue = value;
+                this.StoredKey = key;
+                this.StoredHash = hash;
+                this.Height = 1;
             }
         }
 
         private Node root;
-
-        public HashTree() { }
 
         public void Add(TKey key, TValue value, bool byRef = true)
         {
@@ -40,59 +38,59 @@ namespace Stashbox.Utils.Data
 
             var node = root;
             var hash = key.GetHashCode();
-            while (node != null && node.storedHash != hash)
-                node = hash < node.storedHash ? node.left : node.right;
-            return node != null && Equals(key, node.storedKey)
-                ? node.storedValue
-                : node?.collisions == null
+            while (node != null && node.StoredHash != hash)
+                node = hash < node.StoredHash ? node.Left : node.Right;
+            return node != null && Equals(key, node.StoredKey)
+                ? node.StoredValue
+                : node?.Collisions == null
                     ? default
-                    : node.collisions.GetOrDefaultByValue(key);
+                    : node.Collisions.GetOrDefaultByValue(key);
         }
 
         private static int CalculateHeight(Node node)
         {
-            if (node.left != null && node.right != null)
-                return 1 + (node.left.height > node.right.height ? node.left.height : node.right.height);
+            if (node.Left != null && node.Right != null)
+                return 1 + (node.Left.Height > node.Right.Height ? node.Left.Height : node.Right.Height);
 
-            if (node.left == null && node.right == null)
+            if (node.Left == null && node.Right == null)
                 return 1;
 
-            return 1 + (node.left?.height ?? node.right.height);
+            return 1 + (node.Left?.Height ?? node.Right.Height);
         }
 
         private static int GetBalance(Node node)
         {
-            if (node.left != null && node.right != null)
-                return node.left.height - node.right.height;
+            if (node.Left != null && node.Right != null)
+                return node.Left.Height - node.Right.Height;
 
-            if (node.left == null && node.right == null)
+            if (node.Left == null && node.Right == null)
                 return 0;
 
-            return node.left?.height ?? node.right.height * -1;
+            return node.Left?.Height ?? node.Right.Height * -1;
         }
 
         private static Node RotateLeft(Node node)
         {
-            var current = node.right;
-            var left = current.left;
+            var current = node.Right;
+            var left = current.Left;
 
-            current.left = node;
-            node.right = left;
+            current.Left = node;
+            node.Right = left;
 
-            current.height = CalculateHeight(current);
-            node.height = CalculateHeight(node);
+            current.Height = CalculateHeight(current);
+            node.Height = CalculateHeight(node);
 
             return current;
         }
 
         private static Node RotateRight(Node node)
         {
-            var current = node.left;
-            var right = current.right;
-            current.right = node;
-            node.left = right;
-            current.height = CalculateHeight(current);
-            node.height = CalculateHeight(node);
+            var current = node.Left;
+            var right = current.Right;
+            current.Right = node;
+            node.Left = right;
+            current.Height = CalculateHeight(current);
+            node.Height = CalculateHeight(node);
 
             return current;
         }
@@ -102,40 +100,36 @@ namespace Stashbox.Utils.Data
             if (node == null)
                 return new Node(key, value, hash);
 
-            if (node.storedHash == hash)
+            if (node.StoredHash == hash)
             {
                 CheckCollisions(node, key, value, byRef);
                 return node;
             }
 
-            if (node.storedHash > hash)
-                node.left = Add(node.left, key, hash, value, byRef);
+            if (node.StoredHash > hash)
+                node.Left = Add(node.Left, key, hash, value, byRef);
             else
-                node.right = Add(node.right, key, hash, value, byRef);
+                node.Right = Add(node.Right, key, hash, value, byRef);
 
-            node.height = CalculateHeight(node);
+            node.Height = CalculateHeight(node);
             var balance = GetBalance(node);
 
-            if (balance >= 2)
+            switch (balance)
             {
-                if (GetBalance(node.left) == -1)
-                {
-                    node.left = RotateLeft(node.left);
+                case >= 2 when GetBalance(node.Left) == -1:
+                    node.Left = RotateLeft(node.Left);
                     node = RotateRight(node);
-                }
-                else
+                    break;
+                case >= 2:
                     node = RotateRight(node);
-            }
-
-            if (balance <= -2)
-            {
-                if (GetBalance(node.right) == 1)
-                {
-                    node.right = RotateRight(node.right);
+                    break;
+                case <= -2 when GetBalance(node.Right) == 1:
+                    node.Right = RotateRight(node.Right);
                     node = RotateLeft(node);
-                }
-                else
+                    break;
+                case <= -2:
                     node = RotateLeft(node);
+                    break;
             }
 
             return node;
@@ -143,12 +137,12 @@ namespace Stashbox.Utils.Data
 
         private static void CheckCollisions(Node node, TKey key, TValue value, bool byRef)
         {
-            if (byRef && ReferenceEquals(key, node.storedKey) || !byRef && Equals(key, node.storedKey))
-                node.storedValue = value;
+            if (byRef && ReferenceEquals(key, node.StoredKey) || !byRef && Equals(key, node.StoredKey))
+                node.StoredValue = value;
             else
             {
-                node.collisions ??= new ExpandableArray<TKey, TValue>();
-                node.collisions.Add(new KeyValue<TKey, TValue>(key, value));
+                node.Collisions ??= new ExpandableArray<TKey, TValue>();
+                node.Collisions.Add(new KeyValue<TKey, TValue>(key, value));
             }
         }
     }

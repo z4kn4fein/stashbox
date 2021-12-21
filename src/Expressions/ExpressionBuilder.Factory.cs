@@ -38,7 +38,7 @@ namespace Stashbox.Expressions
         private static IEnumerable<Expression> GetFactoryParameters(ServiceRegistration serviceRegistration, ResolutionContext resolutionContext)
         {
             var length = serviceRegistration.RegistrationContext.FactoryParameters.Length;
-            for (int i = 0; i < length - 1; i++)
+            for (var i = 0; i < length - 1; i++)
             {
                 var typeInfo = new TypeInformation(serviceRegistration.RegistrationContext.FactoryParameters[i], null);
                 yield return resolutionContext.CurrentContainerContext.ResolutionStrategy.BuildExpressionForType(resolutionContext, typeInfo);

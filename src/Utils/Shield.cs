@@ -10,7 +10,7 @@ namespace Stashbox.Utils
     {
         private static string GetMemberName<T>(Expression<Func<T>> memberExpression)
         {
-            if (!(memberExpression.Body is MemberExpression expressionBody))
+            if (memberExpression.Body is not MemberExpression expressionBody)
                 throw new ArgumentException("The given expression is not a MemberExpression.");
 
             return expressionBody.Member.Name;
@@ -124,8 +124,8 @@ namespace Stashbox.Utils
         /// <param name="obj">The object to be checked.</param>
         public static void EnsureTypeOf<TType>(object obj)
         {
-            if (!(obj is TType))
-                throw new ArgumentException(nameof(obj));
+            if (obj is not TType)
+                throw new ArgumentException($"{nameof(obj)} is not {typeof(TType)}.", nameof(obj));
         }
 
         internal static void ThrowDisposedException(string name, string caller) =>

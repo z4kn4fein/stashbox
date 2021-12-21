@@ -1,6 +1,7 @@
-﻿using Stashbox.Utils;
-using System;
+﻿using System;
 using System.Linq.Expressions;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Stashbox.Registration.Fluent
 {
@@ -38,6 +39,13 @@ namespace Stashbox.Registration.Fluent
             return this;
         }
 
+        /// <inheritdoc />
+        public DecoratorConfigurator<TService, TImplementation> WithAsyncInitializer(Func<TImplementation, IDependencyResolver, CancellationToken, Task> initializer)
+        {
+            this.compositor.WithAsyncInitializer(initializer);
+            return this;
+        }
+        
         /// <inheritdoc />
         public DecoratorConfigurator<TService, TImplementation> WithFactory(Func<TImplementation> factory, bool isCompiledLambda = false)
         {

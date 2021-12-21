@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Stashbox.Registration.Fluent
 {
@@ -40,6 +42,14 @@ namespace Stashbox.Registration.Fluent
         /// <returns>The configurator itself.</returns>
         TConfigurator WithInitializer(Action<TImplementation, IDependencyResolver> initializer);
 
+        /// <summary>
+        /// Sets an async initializer delegate which will be called when <see cref="IDependencyResolver.InvokeAsyncInitializers"/> is called.
+        /// </summary>
+        /// <param name="initializer">The async initializer delegate.</param>
+        /// <returns>The configurator itself.</returns>
+        TConfigurator WithAsyncInitializer(
+            Func<TImplementation, IDependencyResolver, CancellationToken, Task> initializer);
+        
         /// <summary>
         /// Sets a parameter-less factory delegate for the registration.
         /// </summary>

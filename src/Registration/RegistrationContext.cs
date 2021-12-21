@@ -54,7 +54,7 @@ namespace Stashbox.Registration
         public Dictionary<object, object> DependencyBindings { get; internal set; }
 
         /// <summary>
-        /// The already stored instance which was provided by instance or wireup registration.
+        /// The already stored instance which was provided by instance or wired up registration.
         /// </summary>
         public object ExistingInstance { get; internal set; }
 

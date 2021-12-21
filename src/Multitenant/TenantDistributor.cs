@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace Stashbox.Multitenant
 {
     /// <summary>
-    /// Represents a tenant distributor that manages tenants in a multitenant environment.
+    /// Represents a tenant distributor that manages tenants in a multi-tenant environment.
     /// </summary>
     public sealed class TenantDistributor : ITenantDistributor
     {
@@ -35,16 +35,14 @@ namespace Stashbox.Multitenant
 
             var tenantContainer = this.RootContainer.CreateChildContainer();
 
-            if (Swap.SwapValue(ref this.tenantRepository,
-                (id, container, t3, t4, repo) => repo.AddOrUpdate(id, container, false, false),
+            if (!Swap.SwapValue(ref this.tenantRepository,
+                (id, container, _, _, repo) => repo.AddOrUpdate(id, container, false, false),
                 tenantId,
                 tenantContainer,
                 Constants.DelegatePlaceholder,
-                Constants.DelegatePlaceholder))
-            {
-                var disposable = tenantConfig(tenantContainer);
-                this.RootContainer.ContainerContext.RootScope.AddDisposableTracking(disposable);
-            }
+                Constants.DelegatePlaceholder)) return;
+            var disposable = tenantConfig(tenantContainer);
+            this.RootContainer.ContainerContext.RootScope.AddDisposableTracking(disposable);
         }
 
         /// <inheritdoc />

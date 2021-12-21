@@ -7,17 +7,17 @@ namespace Stashbox.Utils.Data
     {
         private class Node
         {
-            public readonly int storedKey;
-            public TValue storedValue;
-            public Node left;
-            public Node right;
-            public int height;
+            public readonly int StoredKey;
+            public TValue StoredValue;
+            public Node Left;
+            public Node Right;
+            public int Height;
 
             public Node(int key, TValue value)
             {
-                this.storedValue = value;
-                this.storedKey = key;
-                this.height = 1;
+                this.StoredValue = value;
+                this.StoredKey = key;
+                this.Height = 1;
             }
         }
 
@@ -37,100 +37,96 @@ namespace Stashbox.Utils.Data
                 return default;
 
             var node = root;
-            while (node != null && node.storedKey != key)
-                node = key < node.storedKey ? node.left : node.right;
-            return node == null ? default : node.storedValue;
+            while (node != null && node.StoredKey != key)
+                node = key < node.StoredKey ? node.Left : node.Right;
+            return node == null ? default : node.StoredValue;
         }
 
         private static int CalculateHeight(Node node)
         {
-            if (node.left != null && node.right != null)
-                return 1 + (node.left.height > node.right.height ? node.left.height : node.right.height);
+            if (node.Left != null && node.Right != null)
+                return 1 + (node.Left.Height > node.Right.Height ? node.Left.Height : node.Right.Height);
 
-            if (node.left == null && node.right == null)
+            if (node.Left == null && node.Right == null)
                 return 1;
 
-            return 1 + (node.left?.height ?? node.right.height);
+            return 1 + (node.Left?.Height ?? node.Right.Height);
         }
 
         private static int GetBalance(Node node)
         {
-            if (node.left != null && node.right != null)
-                return node.left.height - node.right.height;
+            if (node.Left != null && node.Right != null)
+                return node.Left.Height - node.Right.Height;
 
-            if (node.left == null && node.right == null)
+            if (node.Left == null && node.Right == null)
                 return 0;
 
-            return node.left?.height ?? node.right.height * -1;
+            return node.Left?.Height ?? node.Right.Height * -1;
         }
 
         private static Node RotateLeft(Node node)
         {
-            var current = node.right;
-            var left = current.left;
+            var current = node.Right;
+            var left = current.Left;
 
-            current.left = node;
-            node.right = left;
+            current.Left = node;
+            node.Right = left;
 
-            node.height = CalculateHeight(node);
-            current.height = CalculateHeight(current);
+            node.Height = CalculateHeight(node);
+            current.Height = CalculateHeight(current);
 
             return current;
         }
 
         private static Node RotateRight(Node node)
         {
-            var current = node.left;
-            var right = current.right;
+            var current = node.Left;
+            var right = current.Right;
 
-            current.right = node;
-            node.left = right;
+            current.Right = node;
+            node.Left = right;
 
-            node.height = CalculateHeight(node);
-            current.height = CalculateHeight(current);
+            node.Height = CalculateHeight(node);
+            current.Height = CalculateHeight(current);
 
             return current;
         }
 
-        private Node Add(Node node, int key, TValue value)
+        private static Node Add(Node node, int key, TValue value)
         {
             if (node == null)
                 return new Node(key, value);
 
-            if (node.storedKey == key)
+            if (node.StoredKey == key)
             {
-                node.storedValue = value;
+                node.StoredValue = value;
                 return node;
             }
 
-            if (node.storedKey > key)
-                node.left = Add(node.left, key, value);
+            if (node.StoredKey > key)
+                node.Left = Add(node.Left, key, value);
             else
-                node.right = Add(node.right, key, value);
+                node.Right = Add(node.Right, key, value);
 
-            node.height = CalculateHeight(node);
+            node.Height = CalculateHeight(node);
             var balance = GetBalance(node);
 
-            if (balance >= 2)
+            switch (balance)
             {
-                if (GetBalance(node.left) == -1)
-                {
-                    node.left = RotateLeft(node.left);
+                case >= 2 when GetBalance(node.Left) == -1:
+                    node.Left = RotateLeft(node.Left);
                     node = RotateRight(node);
-                }
-                else
+                    break;
+                case >= 2:
                     node = RotateRight(node);
-            }
-
-            if (balance <= -2)
-            {
-                if (GetBalance(node.right) == 1)
-                {
-                    node.right = RotateRight(node.right);
+                    break;
+                case <= -2 when GetBalance(node.Right) == 1:
+                    node.Right = RotateRight(node.Right);
                     node = RotateLeft(node);
-                }
-                else
+                    break;
+                case <= -2:
                     node = RotateLeft(node);
+                    break;
             }
 
             return node;
@@ -141,21 +137,21 @@ namespace Stashbox.Utils.Data
             if (this.root == null)
                 yield break;
 
-            switch (this.root.height)
+            switch (this.root.Height)
             {
                 case 1:
-                    yield return this.root.storedValue;
+                    yield return this.root.StoredValue;
                     break;
                 case 2:
-                    if (this.root.left != null)
-                        yield return this.root.left.storedValue;
-                    yield return this.root.storedValue;
-                    if (this.root.right != null)
-                        yield return this.root.right.storedValue;
+                    if (this.root.Left != null)
+                        yield return this.root.Left.StoredValue;
+                    yield return this.root.StoredValue;
+                    if (this.root.Right != null)
+                        yield return this.root.Right.StoredValue;
                     break;
                 default:
                     {
-                        var nodes = new Node[this.root.height - 2];
+                        var nodes = new Node[this.root.Height - 2];
                         var currentNode = this.root;
                         var index = -1;
 
@@ -163,36 +159,36 @@ namespace Stashbox.Utils.Data
                         {
                             if (currentNode != null)
                             {
-                                if (currentNode.height == 2)
+                                if (currentNode.Height == 2)
                                 {
-                                    if (currentNode.left != null)
-                                        yield return currentNode.left.storedValue;
-                                    yield return currentNode.storedValue;
-                                    if (currentNode.right != null)
-                                        yield return currentNode.right.storedValue;
+                                    if (currentNode.Left != null)
+                                        yield return currentNode.Left.StoredValue;
+                                    yield return currentNode.StoredValue;
+                                    if (currentNode.Right != null)
+                                        yield return currentNode.Right.StoredValue;
 
                                     if (index == -1)
                                         break;
                                     currentNode = nodes[index--];
-                                    yield return currentNode.storedValue;
+                                    yield return currentNode.StoredValue;
 
-                                    currentNode = currentNode.right;
+                                    currentNode = currentNode.Right;
                                 }
-                                else if (currentNode.height == 1)
+                                else if (currentNode.Height == 1)
                                 {
-                                    yield return currentNode.storedValue;
+                                    yield return currentNode.StoredValue;
 
                                     if (index == -1)
                                         break;
                                     currentNode = nodes[index--];
-                                    yield return currentNode.storedValue;
+                                    yield return currentNode.StoredValue;
 
-                                    currentNode = currentNode.right;
+                                    currentNode = currentNode.Right;
                                 }
                                 else
                                 {
                                     nodes[++index] = currentNode;
-                                    currentNode = currentNode.left;
+                                    currentNode = currentNode.Left;
                                 }
                             }
                             else
@@ -200,9 +196,9 @@ namespace Stashbox.Utils.Data
                                 if (index == -1)
                                     break;
                                 currentNode = nodes[index--];
-                                yield return currentNode.storedValue;
+                                yield return currentNode.StoredValue;
 
-                                currentNode = currentNode.right;
+                                currentNode = currentNode.Right;
                             }
 
                         }

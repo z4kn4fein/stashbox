@@ -10,10 +10,13 @@ namespace Stashbox.Expressions.Compile.Extensions
         public static Type[] GetTypes(this IList<ParameterExpression> parameters)
         {
             var count = parameters.Count;
-            if (count == 0)
-                return Constants.EmptyTypes;
-            if (count == 1)
-                return new[] { parameters[0].Type };
+            switch (count)
+            {
+                case 0:
+                    return Constants.EmptyTypes;
+                case 1:
+                    return new[] { parameters[0].Type };
+            }
 
             var types = new Type[count];
             for (var i = 0; i < count; i++)

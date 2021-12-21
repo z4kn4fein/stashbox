@@ -13,15 +13,13 @@ namespace Stashbox.Resolution.Extensions
             for (var i = 0; i < length; i++)
             {
                 var item = resolvers[i];
-                if (item is IWrapper wrapper && wrapper.TryUnWrap(typeInfo, out var unWrappedTypes))
-                {
-                    if (wrapper is EnumerableResolver)
-                        return true;
+                if (item is not IWrapper wrapper || !wrapper.TryUnWrap(typeInfo, out var unWrappedTypes)) continue;
+                if (wrapper is EnumerableResolver)
+                    return true;
 
-                    foreach (var type in unWrappedTypes)
-                        if (resolutionContext.CurrentContainerContext.RegistrationRepository.ContainsRegistration(type, typeInfo.DependencyName))
-                            return true;
-                }
+                foreach (var type in unWrappedTypes)
+                    if (resolutionContext.CurrentContainerContext.RegistrationRepository.ContainsRegistration(type, typeInfo.DependencyName))
+                        return true;
             }
 
             return false;

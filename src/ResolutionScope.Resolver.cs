@@ -112,7 +112,7 @@ namespace Stashbox
             var factory = expression.CompileDelegate(resolutionContext, this.containerContext.ContainerConfiguration);
 
             if (resolutionContext.FactoryDelegateCacheEnabled)
-                Swap.SwapValue(ref this.delegateCache.ServiceDelegates, (t1, t2, t3, t4, c) =>
+                Swap.SwapValue(ref this.delegateCache.ServiceDelegates, (t1, t2, _, _, c) =>
                     c.AddOrUpdate(t1, t2, false), name ?? type, factory, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
 
             return factory(this);
@@ -135,7 +135,7 @@ namespace Stashbox
             var expression = initExpression.AsLambda(resolutionContext.ParameterExpressions.SelectMany(x => x.Select(i => i.I2)));
 
             var factory = expression.CompileDynamicDelegate(resolutionContext, this.containerContext.ContainerConfiguration);
-            Swap.SwapValue(ref this.delegateCache.FactoryDelegates, (t1, t2, t3, t4, c) =>
+            Swap.SwapValue(ref this.delegateCache.FactoryDelegates, (t1, t2, _, _, c) =>
                 c.AddOrUpdate(t1, t2, false), name ?? type, factory, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
             return factory(this);
         }

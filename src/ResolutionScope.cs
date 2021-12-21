@@ -28,7 +28,7 @@ namespace Stashbox
                 if (cache != null) return cache;
 
                 var newCache = new DelegateCache();
-                if (Swap.SwapValue(ref this.NamedCache, (t1, t2, t3, t4, items) =>
+                if (Swap.SwapValue(ref this.NamedCache, (t1, t2, _, _, items) =>
                      items.AddOrUpdate(t1, t2, false), name, newCache, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder))
                     return newCache;
 
@@ -132,7 +132,7 @@ namespace Stashbox
             Shield.EnsureNotNull(instance, nameof(instance));
 
             var key = name ?? typeFrom;
-            Swap.SwapValue(ref this.scopedInstances, (t1, t2, t3, t4, instances) =>
+            Swap.SwapValue(ref this.scopedInstances, (t1, t2, _, _, instances) =>
                 instances.AddOrUpdate(t1, t2, false), key, instance, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
 
             if (!withoutDisposalTracking && instance is IDisposable disposable)
@@ -158,7 +158,7 @@ namespace Stashbox
                     $"that would promote the service's lifetime to singleton.");
 
             var evaluator = new ScopedEvaluator();
-            if (Swap.SwapValue(ref this.scopedItems, (t1, t2, t3, t4, items) =>
+            if (Swap.SwapValue(ref this.scopedItems, (t1, t2, _, _, items) =>
                  items.AddOrUpdate(t1, t2), key, evaluator, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder))
                 return evaluator.Evaluate(this, factory, requestedType);
 
@@ -194,7 +194,7 @@ namespace Stashbox
             if (check != null && check.Value)
                 throw new CircularDependencyException(type);
 
-            Swap.SwapValue(ref this.circularDependencyBarrier, (t1, t2, t3, t4, barrier) => barrier.AddOrUpdate(t1, new ThreadLocal<bool>(), (old, @new) =>
+            Swap.SwapValue(ref this.circularDependencyBarrier, (t1, _, _, _, barrier) => barrier.AddOrUpdate(t1, new ThreadLocal<bool>(), (old, @new) =>
                 { old.Value = true; return old; }), key, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
         }
 

@@ -28,7 +28,7 @@ namespace Stashbox
         {
             this.ThrowIfDisposed();
 
-            Swap.SwapValue(ref this.disposables, (t1, t2, t3, t4, root) =>
+            Swap.SwapValue(ref this.disposables, (t1, _, _, _, root) =>
                     root.Add(t1), disposable, Constants.DelegatePlaceholder,
                 Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
 
@@ -39,7 +39,7 @@ namespace Stashbox
         {
             this.ThrowIfDisposed();
 
-            Swap.SwapValue(ref this.finalizables, (t1, t2, t3, t4, root) =>
+            Swap.SwapValue(ref this.finalizables, (t1, t2, _, _, root) =>
                     root.Add(new Finalizable(t1, t2)), finalizable, finalizer,
                 Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
 
@@ -72,10 +72,17 @@ namespace Stashbox
                 var root = this.disposables;
                 while (!ReferenceEquals(root, ImmutableLinkedList<object>.Empty))
                 {
-                    if (root.Value is IAsyncDisposable asyncDisposable)
-                        await asyncDisposable.DisposeAsync().ConfigureAwait(false);
-                    else
-                        ((IDisposable)root.Value).Dispose();
+                    switch (root.Value)
+                    {
+                        case IAsyncDisposable asyncDisposable:
+                            await asyncDisposable.DisposeAsync().ConfigureAwait(false);
+                            break;
+                        case IDisposable disposable:
+                            disposable.Dispose();
+                            break;
+                        default:
+                            throw new InvalidOperationException($"Could not dispose {root.Value.GetType()} as it doesn't implement either IDisposable or IAsyncDisposable.");
+                    }
 
                     root = root.Next;
                 }

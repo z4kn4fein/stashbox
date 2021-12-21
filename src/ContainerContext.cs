@@ -1,5 +1,4 @@
 ﻿using Stashbox.Configuration;
-using Stashbox.Expressions;
 using Stashbox.Registration;
 using Stashbox.Resolution;
 
@@ -7,7 +6,7 @@ namespace Stashbox
 {
     internal class ContainerContext : IContainerContext
     {
-        public ContainerContext(IContainerContext parentContext, ResolutionStrategy resolutionStrategy,
+        public ContainerContext(IContainerContext parentContext, IResolutionStrategy resolutionStrategy,
             ContainerConfiguration containerConfiguration)
         {
             this.ContainerConfiguration = containerConfiguration;
@@ -28,7 +27,7 @@ namespace Stashbox
 
         public IResolutionStrategy ResolutionStrategy { get; }
 
-        public ContainerConfiguration ContainerConfiguration { get; internal set; }
+        public ContainerConfiguration ContainerConfiguration { get; }
 
     }
 }

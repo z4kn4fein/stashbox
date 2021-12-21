@@ -19,8 +19,6 @@ namespace Stashbox
     public sealed partial class StashboxContainer : IStashboxContainer
     {
         private readonly ContainerConfigurator containerConfigurator;
-        private readonly ServiceRegistrator serviceRegistrator;
-        private readonly RegistrationBuilder registrationBuilder;
         private readonly ResolutionStrategy resolutionStrategy;
         private int disposed;
 
@@ -28,7 +26,7 @@ namespace Stashbox
         /// Constructs a <see cref="StashboxContainer"/>.
         /// </summary>
         public StashboxContainer(Action<ContainerConfigurator> config = null)
-            : this(new ServiceRegistrator(), new RegistrationBuilder(), new ContainerConfigurator(), config)
+            : this(new ContainerConfigurator(), config)
         {
             this.resolutionStrategy = new ResolutionStrategy();
 
@@ -38,10 +36,10 @@ namespace Stashbox
             this.RegisterResolvers();
         }
 
-        private StashboxContainer(IStashboxContainer parentContainer, ServiceRegistrator serviceRegistrator,
-            RegistrationBuilder registrationBuilder, ResolutionStrategy resolutionStrategy,
-            ContainerConfigurator containerConfigurator, Action<ContainerConfigurator> config = null)
-            : this(serviceRegistrator, registrationBuilder, containerConfigurator, config)
+        private StashboxContainer(IStashboxContainer parentContainer,
+            ResolutionStrategy resolutionStrategy, ContainerConfigurator containerConfigurator, 
+            Action<ContainerConfigurator> config = null)
+            : this(containerConfigurator, config)
         {
             this.resolutionStrategy = resolutionStrategy;
 
@@ -49,12 +47,9 @@ namespace Stashbox
                 this.containerConfigurator.ContainerConfiguration);
         }
 
-        private StashboxContainer(ServiceRegistrator serviceRegistrator,
-            RegistrationBuilder registrationBuilder, ContainerConfigurator containerConfigurator, Action<ContainerConfigurator> config = null)
+        private StashboxContainer(ContainerConfigurator containerConfigurator, Action<ContainerConfigurator> config = null)
         {
             this.containerConfigurator = containerConfigurator;
-            this.serviceRegistrator = serviceRegistrator;
-            this.registrationBuilder = registrationBuilder;
 
             config?.Invoke(this.containerConfigurator);
         }
@@ -124,7 +119,7 @@ namespace Stashbox
         {
             this.ThrowIfDisposed();
 
-            return new StashboxContainer(this, this.serviceRegistrator, this.registrationBuilder, this.resolutionStrategy,
+            return new StashboxContainer(this, this.resolutionStrategy,
                     new ContainerConfigurator(this.ContainerContext.ContainerConfiguration.Clone()), config);
         }
 
@@ -171,7 +166,7 @@ namespace Stashbox
             this.resolutionStrategy.RegisterResolver(new DefaultValueResolver());
 
             this.resolutionStrategy.RegisterLastChanceResolver(new ParentContainerResolver());
-            this.resolutionStrategy.RegisterLastChanceResolver(new UnknownTypeResolver(this.serviceRegistrator, this.registrationBuilder));
+            this.resolutionStrategy.RegisterLastChanceResolver(new UnknownTypeResolver());
         }
 
         private void ThrowIfDisposed([CallerMemberName] string caller = "<unknown>")

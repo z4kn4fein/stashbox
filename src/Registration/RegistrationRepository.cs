@@ -46,7 +46,7 @@ namespace Stashbox.Registration
         public bool AddOrUpdateRegistration(ServiceRegistration registration, Type serviceType)
         {
             if (registration.RegistrationContext.ReplaceExistingRegistrationOnlyIfExists)
-                return Swap.SwapValue(ref this.serviceRepository, (reg, type, t3, t4, repo) =>
+                return Swap.SwapValue(ref this.serviceRepository, (reg, type, _, _, repo) =>
                     repo.UpdateIfExists(type, true, regs => regs.ReplaceIfExists(reg.RegistrationDiscriminator, reg, false,
                         (old, @new) =>
                         {
@@ -60,7 +60,7 @@ namespace Stashbox.Registration
 
             return Swap.SwapValue(ref this.serviceRepository, (reg, type, newRepo, regBehavior, repo) =>
                 repo.AddOrUpdate(type, newRepo, true,
-                    (oldValue, newValue) =>
+                    (oldValue, _) =>
                     {
                         var allowUpdate = reg.RegistrationContext.ReplaceExistingRegistration ||
                                           regBehavior == Rules.RegistrationBehavior.ReplaceExisting;
@@ -71,14 +71,16 @@ namespace Stashbox.Registration
                         return oldValue.AddOrUpdate(reg.RegistrationDiscriminator, reg, false,
                             (old, @new) =>
                             {
-                                if (!allowUpdate && regBehavior == Rules.RegistrationBehavior.ThrowException)
-                                    throw new ServiceAlreadyRegisteredException(old.ImplementationType);
-
-                                if (!allowUpdate)
-                                    return old;
-
-                                @new.Replaces(old);
-                                return @new;
+                                switch (allowUpdate)
+                                {
+                                    case false when regBehavior == Rules.RegistrationBehavior.ThrowException:
+                                        throw new ServiceAlreadyRegisteredException(old.ImplementationType);
+                                    case false:
+                                        return old;
+                                    default:
+                                        @new.Replaces(old);
+                                        return @new;
+                                }
                             });
                     }),
                     registration,
@@ -89,12 +91,12 @@ namespace Stashbox.Registration
 
         public bool AddOrReMapRegistration(ServiceRegistration registration, Type serviceType) =>
             registration.RegistrationContext.ReplaceExistingRegistrationOnlyIfExists
-                ? Swap.SwapValue(ref this.serviceRepository, (type, newRepo, t3, t4, repo) =>
+                ? Swap.SwapValue(ref this.serviceRepository, (type, newRepo, _, _, repo) =>
                     repo.UpdateIfExists(type, newRepo, true), serviceType,
                     new ImmutableBucket<object, ServiceRegistration>(registration.RegistrationDiscriminator, registration),
                     Constants.DelegatePlaceholder,
                     Constants.DelegatePlaceholder)
-                : Swap.SwapValue(ref this.serviceRepository, (type, newRepo, t3, t4, repo) =>
+                : Swap.SwapValue(ref this.serviceRepository, (type, newRepo, _, _, repo) =>
                     repo.AddOrUpdate(type, newRepo, true, true), serviceType,
                     new ImmutableBucket<object, ServiceRegistration>(registration.RegistrationDiscriminator, registration),
                     Constants.DelegatePlaceholder,

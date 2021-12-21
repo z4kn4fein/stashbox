@@ -82,17 +82,16 @@ namespace Stashbox.Utils.Data.Immutable
         {
             var balance = left.height - right.height;
 
-            if (balance >= 2)
-                return left.leftNode.height - left.rightNode.height == -1
+            return balance switch
+            {
+                >= 2 => left.leftNode.height - left.rightNode.height == -1
                     ? RotateLeftRight(hash, value, left, right)
-                    : RotateRight(hash, value, left, right);
-
-            if (balance <= -2)
-                return right.leftNode.height - right.rightNode.height == 1
+                    : RotateRight(hash, value, left, right),
+                <= -2 => right.leftNode.height - right.rightNode.height == 1
                     ? RotateRightLeft(hash, value, left, right)
-                    : RotateLeft(hash, value, left, right);
-
-            return new ImmutableTree<TValue>(hash, value, left, right);
+                    : RotateLeft(hash, value, left, right),
+                _ => new ImmutableTree<TValue>(hash, value, left, right)
+            };
         }
 
         private static ImmutableTree<TValue> RotateRight(int hash, TValue value, ImmutableTree<TValue> left, ImmutableTree<TValue> right)
@@ -253,10 +252,9 @@ namespace Stashbox.Utils.Data.Immutable
                         new ImmutableTree<TKey, TValue>(hash, key, value), this.rightNode, this.collisions);
 
                 var left = this.leftNode.AddOrUpdate(hash, key, value, byRef, updateDelegate, forceUpdate);
-                if (ReferenceEquals(left, this.leftNode))
-                    return this;
-
-                return Balance(this.storedHash, this.storedKey, this.storedValue, left, this.rightNode, this.collisions);
+                return ReferenceEquals(left, this.leftNode) 
+                    ? this 
+                    : Balance(this.storedHash, this.storedKey, this.storedValue, left, this.rightNode, this.collisions);
             }
 
 
@@ -265,10 +263,9 @@ namespace Stashbox.Utils.Data.Immutable
                         new ImmutableTree<TKey, TValue>(hash, key, value), this.collisions);
 
             var right = this.rightNode.AddOrUpdate(hash, key, value, byRef, updateDelegate, forceUpdate);
-            if (ReferenceEquals(right, this.rightNode))
-                return this;
-
-            return Balance(this.storedHash, this.storedKey, this.storedValue, this.leftNode, right, this.collisions);
+            return ReferenceEquals(right, this.rightNode) 
+                ? this 
+                : Balance(this.storedHash, this.storedKey, this.storedValue, this.leftNode, right, this.collisions);
         }
 
         private ImmutableTree<TKey, TValue> UpdateIfExists(int hash, TKey key, bool byRef, Func<TValue, TValue> updateDelegate)
@@ -288,15 +285,13 @@ namespace Stashbox.Utils.Data.Immutable
                 return new ImmutableTree<TKey, TValue>(this.storedHash, this.storedKey,
                     this.storedValue, left, this.rightNode, this.collisions);
             }
-            else
-            {
-                var right = this.rightNode.UpdateIfExists(hash, key, byRef, updateDelegate);
-                if (ReferenceEquals(right, this.rightNode))
-                    return this;
 
-                return new ImmutableTree<TKey, TValue>(this.storedHash, this.storedKey,
-                    this.storedValue, this.leftNode, right, this.collisions);
-            }
+            var right = this.rightNode.UpdateIfExists(hash, key, byRef, updateDelegate);
+            if (ReferenceEquals(right, this.rightNode))
+                return this;
+
+            return new ImmutableTree<TKey, TValue>(this.storedHash, this.storedKey,
+                this.storedValue, this.leftNode, right, this.collisions);
         }
 
         private ImmutableTree<TKey, TValue> UpdateIfExists(int hash, TKey key, bool byRef, TValue value)
@@ -316,15 +311,13 @@ namespace Stashbox.Utils.Data.Immutable
                 return new ImmutableTree<TKey, TValue>(this.storedHash, this.storedKey,
                     this.storedValue, left, this.rightNode, this.collisions);
             }
-            else
-            {
-                var right = this.rightNode.UpdateIfExists(hash, key, byRef, value);
-                if (ReferenceEquals(right, this.rightNode))
-                    return this;
 
-                return new ImmutableTree<TKey, TValue>(this.storedHash, this.storedKey,
-                    this.storedValue, this.leftNode, right, this.collisions);
-            }
+            var right = this.rightNode.UpdateIfExists(hash, key, byRef, value);
+            if (ReferenceEquals(right, this.rightNode))
+                return this;
+
+            return new ImmutableTree<TKey, TValue>(this.storedHash, this.storedKey,
+                this.storedValue, this.leftNode, right, this.collisions);
         }
 
         private ImmutableTree<TKey, TValue> CheckCollision(int hash, TKey key, TValue value, bool byRef, Func<TValue, TValue, TValue> updateDelegate, bool forceUpdate)
@@ -334,16 +327,13 @@ namespace Stashbox.Utils.Data.Immutable
                 if (forceUpdate)
                     return new ImmutableTree<TKey, TValue>(hash, key, value, this.leftNode, this.rightNode, this.collisions);
 
-                if (updateDelegate != null)
-                {
-                    var newValue = updateDelegate(this.storedValue, value);
-                    if (ReferenceEquals(newValue, this.storedValue))
-                        return this;
+                if (updateDelegate == null) return this;
+                
+                var newValue = updateDelegate(this.storedValue, value);
+                return ReferenceEquals(newValue, this.storedValue) 
+                    ? this 
+                    : new ImmutableTree<TKey, TValue>(hash, key, newValue, this.leftNode, this.rightNode, this.collisions);
 
-                    return new ImmutableTree<TKey, TValue>(hash, key, newValue, this.leftNode, this.rightNode, this.collisions);
-                }
-
-                return this;
             }
 
             if (this.collisions == null)
@@ -367,17 +357,15 @@ namespace Stashbox.Utils.Data.Immutable
                 return new ImmutableTree<TKey, TValue>(hash, key, updateDelegate(this.storedValue),
                     this.leftNode, this.rightNode, this.collisions);
 
-            if (this.collisions != null)
-            {
-                var currentCollisions = this.collisions.ReplaceIfExists(key, updateDelegate, byRef);
-                if (ReferenceEquals(currentCollisions, this.collisions))
-                    return this;
+            if (this.collisions == null) return this;
+            
+            var currentCollisions = this.collisions.ReplaceIfExists(key, updateDelegate, byRef);
+            if (ReferenceEquals(currentCollisions, this.collisions))
+                return this;
 
-                return new ImmutableTree<TKey, TValue>(this.storedHash, this.storedKey,
-                    this.storedValue, this.leftNode, this.rightNode, currentCollisions);
-            }
+            return new ImmutableTree<TKey, TValue>(this.storedHash, this.storedKey,
+                this.storedValue, this.leftNode, this.rightNode, currentCollisions);
 
-            return this;
         }
 
         private ImmutableTree<TKey, TValue> ReplaceInCollisionsIfExist(int hash, TKey key, TValue value, bool byRef)
@@ -386,34 +374,31 @@ namespace Stashbox.Utils.Data.Immutable
                 return new ImmutableTree<TKey, TValue>(hash, key, value,
                     this.leftNode, this.rightNode, this.collisions);
 
-            if (this.collisions != null)
-            {
-                var currentCollisions = this.collisions.ReplaceIfExists(key, value, byRef);
-                if (ReferenceEquals(currentCollisions, this.collisions))
-                    return this;
+            if (this.collisions == null) return this;
+            
+            var currentCollisions = this.collisions.ReplaceIfExists(key, value, byRef);
+            if (ReferenceEquals(currentCollisions, this.collisions))
+                return this;
 
-                return new ImmutableTree<TKey, TValue>(this.storedHash, this.storedKey,
-                    this.storedValue, this.leftNode, this.rightNode, currentCollisions);
-            }
+            return new ImmutableTree<TKey, TValue>(this.storedHash, this.storedKey,
+                this.storedValue, this.leftNode, this.rightNode, currentCollisions);
 
-            return this;
         }
 
         private static ImmutableTree<TKey, TValue> Balance(int hash, TKey key, TValue value, ImmutableTree<TKey, TValue> left, ImmutableTree<TKey, TValue> right, ImmutableBucket<TKey, TValue> collisions)
         {
             var balance = left.height - right.height;
 
-            if (balance >= 2)
-                return left.leftNode.height - left.rightNode.height == -1
+            return balance switch
+            {
+                >= 2 => left.leftNode.height - left.rightNode.height == -1
                     ? RotateLeftRight(hash, key, value, left, right, collisions)
-                    : RotateRight(hash, key, value, left, right, collisions);
-
-            if (balance <= -2)
-                return right.leftNode.height - right.rightNode.height == 1
+                    : RotateRight(hash, key, value, left, right, collisions),
+                <= -2 => right.leftNode.height - right.rightNode.height == 1
                     ? RotateRightLeft(hash, key, value, left, right, collisions)
-                    : RotateLeft(hash, key, value, left, right, collisions);
-
-            return new ImmutableTree<TKey, TValue>(hash, key, value, left, right, collisions);
+                    : RotateLeft(hash, key, value, left, right, collisions),
+                _ => new ImmutableTree<TKey, TValue>(hash, key, value, left, right, collisions)
+            };
         }
 
         private static ImmutableTree<TKey, TValue> RotateRight(int hash, TKey key, TValue value, ImmutableTree<TKey, TValue> left, ImmutableTree<TKey, TValue> right, ImmutableBucket<TKey, TValue> collisions)

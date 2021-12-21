@@ -7,7 +7,7 @@ namespace Stashbox.Registration.Fluent
     /// </summary>
     public class UnknownRegistrationConfigurator : RegistrationConfigurator
     {
-        internal bool RegistrationShouldBeSkipped { get; set; }
+        internal bool RegistrationShouldBeSkipped { get; private set; }
 
         internal UnknownRegistrationConfigurator(Type serviceType, Type implementationType) : base(serviceType, implementationType)
         {

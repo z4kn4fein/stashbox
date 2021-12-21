@@ -30,11 +30,10 @@ namespace Stashbox.Registration
                     base.Configuration, base.RegistrationContext, base.IsDecorator);
             newRegistration.RegistrationContext.Name = null;
 
-            if (Swap.SwapValue(ref this.closedGenericRegistrations, (t1, t2, t3, t4, items) =>
-                     items.AddOrUpdate(t1, t2, true), requestedType, newRegistration, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder))
-                return newRegistration;
-
-            return this.closedGenericRegistrations.GetOrDefaultByRef(requestedType);
+            return Swap.SwapValue(ref this.closedGenericRegistrations, (t1, t2, _, _, items) =>
+                items.AddOrUpdate(t1, t2, true), requestedType, newRegistration, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder) 
+                    ? newRegistration 
+                    : this.closedGenericRegistrations.GetOrDefaultByRef(requestedType);
         }
     }
 }

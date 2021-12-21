@@ -8,9 +8,8 @@ namespace Stashbox.Expressions.Compile
     {
         public static bool IsInPlaceEmittableConstant(Type type, object value) =>
             type.IsPrimitive ||
-                   type.IsEnum ||
-                   value is string ||
-                   value is Type;
+            type.IsEnum ||
+            value is string or Type;
 
 
         public static readonly Type ClosureType = typeof(Closure);

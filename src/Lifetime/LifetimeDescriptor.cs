@@ -13,13 +13,13 @@ namespace Stashbox.Lifetime
     public abstract class LifetimeDescriptor
     {
 
-        private protected virtual bool StoreResultInLocalVariable { get; } = false;
+        private protected virtual bool StoreResultInLocalVariable => false;
 
         /// <summary>
         /// An indicator used to validate the lifetime configuration of the resolution tree.
         /// Services with longer life-span shouldn't contain dependencies with shorter ones.
         /// </summary>
-        protected virtual int LifeSpan { get; } = 0;
+        protected virtual int LifeSpan => 0;
 
         /// <summary>
         /// The name of the lifetime, used only for diagnostic reasons.

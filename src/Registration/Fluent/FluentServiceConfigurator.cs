@@ -23,13 +23,12 @@ namespace Stashbox.Registration.Fluent
         /// <inheritdoc />
         public TConfigurator WithDependencyBinding<TResult>(Expression<Func<TImplementation, TResult>> expression, object dependencyName = null)
         {
-            if (expression.Body is MemberExpression memberExpression)
-            {
-                this.Context.DependencyBindings.Add(memberExpression.Member.Name, dependencyName);
-                return (TConfigurator)this;
-            }
+            if (expression.Body is not MemberExpression memberExpression)
+                throw new ArgumentException("The expression must be a member expression (Property or Field)",
+                    nameof(expression));
+            this.Context.DependencyBindings.Add(memberExpression.Member.Name, dependencyName);
+            return (TConfigurator)this;
 
-            throw new ArgumentException("The expression must be a member expression (Property or Field)", nameof(expression));
         }
 
         /// <inheritdoc />

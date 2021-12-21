@@ -3,7 +3,6 @@ using Stashbox.Lifetime;
 using Stashbox.Resolution;
 using System;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 
 namespace Stashbox.Registration
@@ -108,7 +107,7 @@ namespace Stashbox.Registration
                 return false;
 
             var length = this.RegistrationContext.ResolutionConditions.Length;
-            for (int i = 0; i < length; i++)
+            for (var i = 0; i < length; i++)
             {
                 if (this.RegistrationContext.ResolutionConditions[i](typeInfo))
                     return true;

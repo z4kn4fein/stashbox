@@ -21,13 +21,10 @@ namespace Stashbox
                 this.initialized = 0;
             }
 
-            public ValueTask InvokeAsync(IDependencyResolver resolver, CancellationToken token)
-            {
-                if (Interlocked.CompareExchange(ref initialized, 1, 0) != 0)
-                    return default;
-
-                return new ValueTask(Initializer(Item, resolver, token));
-            }
+            public ValueTask InvokeAsync(IDependencyResolver resolver, CancellationToken token) =>
+                Interlocked.CompareExchange(ref initialized, 1, 0) != 0 
+                    ? default 
+                    : new ValueTask(Initializer(Item, resolver, token));
         }
 
         private ImmutableLinkedList<AsyncInitializable> initializables = ImmutableLinkedList<AsyncInitializable>.Empty;
@@ -36,7 +33,7 @@ namespace Stashbox
         {
             this.ThrowIfDisposed();
 
-            Swap.SwapValue(ref this.initializables, (t1, t2, t3, t4, root) =>
+            Swap.SwapValue(ref this.initializables, (t1, t2, _, _, root) =>
                     root.Add(new AsyncInitializable(t1, t2)), initializable, initializer,
                 Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
 

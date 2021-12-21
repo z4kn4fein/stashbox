@@ -3,26 +3,26 @@ using System.Linq;
 
 namespace Stashbox.Registration
 {
-    internal class ServiceRegistrator
+    internal static class ServiceRegistrator
     {
-        public void Register(IContainerContext containerContext, ServiceRegistration serviceRegistration, Type serviceType)
+        public static void Register(IContainerContext containerContext, ServiceRegistration serviceRegistration, Type serviceType)
         {
             if (serviceRegistration.RegistrationContext.AdditionalServiceTypes.Length > 0)
                 foreach (var additionalServiceType in serviceRegistration.RegistrationContext.AdditionalServiceTypes.Distinct())
                 {
                     if (additionalServiceType.IsOpenGenericType())
                     {
-                        this.RegisterInternal(containerContext, serviceRegistration, additionalServiceType.GetGenericTypeDefinition());
+                        RegisterInternal(containerContext, serviceRegistration, additionalServiceType.GetGenericTypeDefinition());
                         continue;
                     }
 
-                    this.RegisterInternal(containerContext, serviceRegistration, additionalServiceType);
+                    RegisterInternal(containerContext, serviceRegistration, additionalServiceType);
                 }
 
-            this.RegisterInternal(containerContext, serviceRegistration, serviceType);
+            RegisterInternal(containerContext, serviceRegistration, serviceType);
         }
 
-        private void RegisterInternal(IContainerContext containerContext, ServiceRegistration serviceRegistration, Type serviceType)
+        private static void RegisterInternal(IContainerContext containerContext, ServiceRegistration serviceRegistration, Type serviceType)
         {
             if (serviceRegistration.IsDecorator)
             {
@@ -33,16 +33,16 @@ namespace Stashbox.Registration
                 containerContext.RootScope.InvalidateDelegateCache();
         }
 
-        public void ReMap(IContainerContext containerContext, ServiceRegistration serviceRegistration, Type serviceType)
+        public static void ReMap(IContainerContext containerContext, ServiceRegistration serviceRegistration, Type serviceType)
         {
             if (serviceRegistration.RegistrationContext.AdditionalServiceTypes.Length > 0)
                 foreach (var additionalServiceType in serviceRegistration.RegistrationContext.AdditionalServiceTypes.Distinct())
-                    this.ReMapInternal(containerContext, serviceRegistration, additionalServiceType);
+                    ReMapInternal(containerContext, serviceRegistration, additionalServiceType);
 
-            this.ReMapInternal(containerContext, serviceRegistration, serviceType);
+            ReMapInternal(containerContext, serviceRegistration, serviceType);
         }
 
-        private void ReMapInternal(IContainerContext containerContext, ServiceRegistration serviceRegistration, Type serviceType)
+        private static void ReMapInternal(IContainerContext containerContext, ServiceRegistration serviceRegistration, Type serviceType)
         {
             if (serviceRegistration.IsDecorator)
                 containerContext.DecoratorRepository.AddDecorator(serviceType, serviceRegistration, true);

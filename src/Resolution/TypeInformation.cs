@@ -11,7 +11,7 @@ namespace Stashbox.Resolution
         /// <summary>
         /// The reflected type of the dependency.
         /// </summary>
-        public Type Type { get; internal set; }
+        public Type Type { get; private set; }
 
         /// <summary>
         /// The reflected type of the parent of the dependency.

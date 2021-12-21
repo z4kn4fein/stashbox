@@ -2,6 +2,7 @@
 using Stashbox.Registration.Fluent;
 using Stashbox.Utils;
 using System;
+using Stashbox.Registration;
 
 namespace Stashbox
 {
@@ -203,9 +204,9 @@ namespace Stashbox
 
         private IStashboxContainer RegisterInternal(RegistrationConfiguration registrationConfiguration, bool isDecorator = false)
         {
-            this.serviceRegistrator.Register(
+            ServiceRegistrator.Register(
                 this.ContainerContext,
-                this.registrationBuilder.BuildServiceRegistration(this.ContainerContext,
+                RegistrationBuilder.BuildServiceRegistration(this.ContainerContext,
                     registrationConfiguration, isDecorator),
                 registrationConfiguration.ServiceType);
 

@@ -6,7 +6,7 @@ namespace Stashbox.Resolution.Resolvers
 {
     internal class TupleResolver : IResolver, IWrapper
     {
-        private static readonly HashSet<Type> supportedTypes = new()
+        private static readonly HashSet<Type> SupportedTypes = new()
         {
             typeof(Tuple<>),
             typeof(Tuple<,>),
@@ -56,6 +56,6 @@ namespace Stashbox.Resolution.Resolvers
             return true;
         }
 
-        private static bool IsTuple(Type type) => type.IsClosedGenericType() && supportedTypes.Contains(type.GetGenericTypeDefinition());
+        private static bool IsTuple(Type type) => type.IsClosedGenericType() && SupportedTypes.Contains(type.GetGenericTypeDefinition());
     }
 }

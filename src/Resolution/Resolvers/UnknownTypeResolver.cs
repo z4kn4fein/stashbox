@@ -7,15 +7,6 @@ namespace Stashbox.Resolution.Resolvers
 {
     internal class UnknownTypeResolver : IResolver, ILookup
     {
-        private readonly ServiceRegistrator serviceRegistrator;
-        private readonly RegistrationBuilder registrationBuilder;
-
-        public UnknownTypeResolver(ServiceRegistrator serviceRegistrator, RegistrationBuilder registrationBuilder)
-        {
-            this.serviceRegistrator = serviceRegistrator;
-            this.registrationBuilder = registrationBuilder;
-        }
-
         public bool CanLookupService(TypeInformation typeInfo, ResolutionContext resolutionContext) =>
             this.CanUseForResolution(typeInfo, resolutionContext);
 
@@ -45,9 +36,9 @@ namespace Stashbox.Resolution.Resolvers
             if (!registrationConfigurator.TypeMapIsValid(out _) || registrationConfigurator.RegistrationShouldBeSkipped)
                 return null;
 
-            var registration = this.registrationBuilder.BuildServiceRegistration(resolutionContext.RequestInitiatorContainerContext,
+            var registration = RegistrationBuilder.BuildServiceRegistration(resolutionContext.RequestInitiatorContainerContext,
                 registrationConfigurator, false);
-            this.serviceRegistrator.Register(resolutionContext.RequestInitiatorContainerContext, registration, typeInfo.Type);
+            ServiceRegistrator.Register(resolutionContext.RequestInitiatorContainerContext, registration, typeInfo.Type);
 
             return resolutionStrategy.BuildExpressionForRegistration(registration, resolutionContext.ShouldFallBackToRequestInitiatorContext
                 ? resolutionContext.BeginCrossContainerContext(resolutionContext.RequestInitiatorContainerContext)

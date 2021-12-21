@@ -12,7 +12,7 @@ namespace Stashbox.Lifetime
     public class SingletonLifetime : FactoryLifetimeDescriptor
     {
         /// <inheritdoc />
-        protected override int LifeSpan { get; } = 20;
+        protected override int LifeSpan => 20;
 
         /// <inheritdoc />
         protected override Expression ApplyLifetime(Func<IResolutionScope, object> factory,

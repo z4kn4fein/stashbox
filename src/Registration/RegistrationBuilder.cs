@@ -4,22 +4,22 @@ using System;
 
 namespace Stashbox.Registration
 {
-    internal class RegistrationBuilder
+    internal static class RegistrationBuilder
     {
-        public ServiceRegistration BuildServiceRegistration(IContainerContext containerContext, RegistrationConfiguration registrationConfiguration, bool isDecorator)
+        public static ServiceRegistration BuildServiceRegistration(IContainerContext containerContext, RegistrationConfiguration registrationConfiguration, bool isDecorator)
         {
-            this.PreProcessExistingInstanceIfNeeded(containerContext, registrationConfiguration.Context, registrationConfiguration.ImplementationType);
+            PreProcessExistingInstanceIfNeeded(containerContext, registrationConfiguration.Context, registrationConfiguration.ImplementationType);
             if (!isDecorator)
-                registrationConfiguration.Context.Lifetime = this.ChooseLifeTime(containerContext, registrationConfiguration.Context);
+                registrationConfiguration.Context.Lifetime = ChooseLifeTime(containerContext, registrationConfiguration.Context);
 
             return registrationConfiguration.ImplementationType.IsOpenGenericType()
                 ? new OpenGenericRegistration(registrationConfiguration.ImplementationType,
                 containerContext.ContainerConfiguration, registrationConfiguration.Context, isDecorator)
-                : new ServiceRegistration(registrationConfiguration.ImplementationType, this.DetermineRegistrationType(registrationConfiguration),
+                : new ServiceRegistration(registrationConfiguration.ImplementationType, DetermineRegistrationType(registrationConfiguration),
                 containerContext.ContainerConfiguration, registrationConfiguration.Context, isDecorator);
         }
 
-        private void PreProcessExistingInstanceIfNeeded(IContainerContext containerContext, RegistrationContext registrationContext, Type implementationType)
+        private static void PreProcessExistingInstanceIfNeeded(IContainerContext containerContext, RegistrationContext registrationContext, Type implementationType)
         {
             if (registrationContext.ExistingInstance == null) return;
 
@@ -30,11 +30,11 @@ namespace Stashbox.Registration
             containerContext.RootScope.AddWithFinalizer(registrationContext.ExistingInstance, registrationContext.Finalizer);
         }
 
-        private LifetimeDescriptor ChooseLifeTime(IContainerContext containerContext, RegistrationContext registrationContext) => registrationContext.IsWireUp
+        private static LifetimeDescriptor ChooseLifeTime(IContainerContext containerContext, RegistrationContext registrationContext) => registrationContext.IsWireUp
                 ? Lifetimes.Singleton
                 : registrationContext.Lifetime ?? containerContext.ContainerConfiguration.DefaultLifetime;
 
-        private RegistrationType DetermineRegistrationType(RegistrationConfiguration registrationConfiguration)
+        private static RegistrationType DetermineRegistrationType(RegistrationConfiguration registrationConfiguration)
         {
             if (registrationConfiguration.Context.ExistingInstance != null)
                 return registrationConfiguration.Context.IsWireUp

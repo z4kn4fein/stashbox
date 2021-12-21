@@ -9,13 +9,13 @@ namespace Stashbox.Expressions.Compile
     {
         private bool isNestedLambda;
 
-        public ExpandableArray<Expression> CapturedParameters;
+        public readonly ExpandableArray<Expression> CapturedParameters;
 
         public ExpandableArray<Expression> DefinedVariables;
 
-        public ExpandableArray<LambdaExpression, NestedLambda> NestedLambdas;
+        public readonly ExpandableArray<LambdaExpression, NestedLambda> NestedLambdas;
 
-        public ExpandableArray<object> Constants;
+        public readonly ExpandableArray<object> Constants;
 
         public TreeAnalyzer()
         {
@@ -92,12 +92,14 @@ namespace Stashbox.Expressions.Compile
                 case ExpressionType.NewArrayInit:
                     return this.Analyze(((NewArrayExpression)expression).Expressions, parameters);
                 default:
-                    if (expression is UnaryExpression unaryExpression)
-                        return this.Analyze(unaryExpression.Operand, parameters);
-
-                    if (expression is BinaryExpression binaryExpression)
-                        return this.Analyze(binaryExpression.Left, parameters) &&
-                            this.Analyze(binaryExpression.Right, parameters);
+                    switch (expression)
+                    {
+                        case UnaryExpression unaryExpression:
+                            return this.Analyze(unaryExpression.Operand, parameters);
+                        case BinaryExpression binaryExpression:
+                            return this.Analyze(binaryExpression.Left, parameters) &&
+                                   this.Analyze(binaryExpression.Right, parameters);
+                    }
 
                     break;
             }
@@ -105,7 +107,7 @@ namespace Stashbox.Expressions.Compile
             return false;
         }
 
-        public TreeAnalyzer Clone(bool isLambda = false)
+        private TreeAnalyzer Clone(bool isLambda = false)
         {
             var clone = (TreeAnalyzer)this.MemberwiseClone();
             clone.DefinedVariables = new ExpandableArray<Expression>();
