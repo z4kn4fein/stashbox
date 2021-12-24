@@ -70,7 +70,7 @@ namespace Stashbox.Resolution
             this.CurrentDecorators = new ExpandableArray<ServiceRegistration>();
             this.expressionOverrides = dependencyOverrides;
             this.NullResultAllowed = nullResultAllowed;
-            IsValidationRequest = isValidationRequest;
+            this.IsValidationRequest = isValidationRequest;
             this.CurrentScopeParameter = Constants.ResolutionScopeParameter;
             this.ParameterExpressions = initialParameters != null
                 ? new ExpandableArray<Pair<bool, ParameterExpression>[]>()
@@ -120,9 +120,7 @@ namespace Stashbox.Resolution
         public object GetDependencyOverrideOrDefault(Type dependencyType)
         {
             var @override = this.GetExpressionOverrideOrDefault(dependencyType);
-            if (@override == null) return null;
-
-            return @override.Value;
+            return @override?.Value;
         }
 
         /// <inheritdoc />

@@ -10,21 +10,21 @@ namespace Stashbox
     {
         private class AsyncInitializable
         {
-            public readonly object Item;
-            public readonly Func<object, IDependencyResolver, CancellationToken, Task> Initializer;
+            private readonly object item;
+            private readonly Func<object, IDependencyResolver, CancellationToken, Task> initializer;
             private int initialized;
 
             public AsyncInitializable(object item, Func<object, IDependencyResolver, CancellationToken, Task> initializer)
             {
-                this.Item = item;
-                this.Initializer = initializer;
+                this.item = item;
+                this.initializer = initializer;
                 this.initialized = 0;
             }
 
             public ValueTask InvokeAsync(IDependencyResolver resolver, CancellationToken token) =>
                 Interlocked.CompareExchange(ref initialized, 1, 0) != 0 
                     ? default 
-                    : new ValueTask(Initializer(Item, resolver, token));
+                    : new ValueTask(initializer(item, resolver, token));
         }
 
         private ImmutableLinkedList<AsyncInitializable> initializables = ImmutableLinkedList<AsyncInitializable>.Empty;

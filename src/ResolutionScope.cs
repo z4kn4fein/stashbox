@@ -38,7 +38,7 @@ namespace Stashbox
 
         private class ScopedEvaluator
         {
-            private static readonly int MaxWaitTimeInMs = 3000;
+            private const int MaxWaitTimeInMs = 3000;
             private static readonly object Default = new();
             private int evaluated;
             private object evaluatedObject = Default;
@@ -158,11 +158,10 @@ namespace Stashbox
                     $"that would promote the service's lifetime to singleton.");
 
             var evaluator = new ScopedEvaluator();
-            if (Swap.SwapValue(ref this.scopedItems, (t1, t2, _, _, items) =>
-                 items.AddOrUpdate(t1, t2), key, evaluator, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder))
-                return evaluator.Evaluate(this, factory, requestedType);
-
-            return this.scopedItems.GetOrDefault(key).Evaluate(this, factory, requestedType);
+            return Swap.SwapValue(ref this.scopedItems, (t1, t2, _, _, items) =>
+                items.AddOrUpdate(t1, t2), key, evaluator, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder) 
+                ? evaluator.Evaluate(this, factory, requestedType) 
+                : this.scopedItems.GetOrDefault(key).Evaluate(this, factory, requestedType);
         }
 
         public void InvalidateDelegateCache()
@@ -191,7 +190,7 @@ namespace Stashbox
         public void CheckRuntimeCircularDependencyBarrier(int key, Type type)
         {
             var check = this.circularDependencyBarrier.GetOrDefault(key);
-            if (check != null && check.Value)
+            if (check is { Value: true })
                 throw new CircularDependencyException(type);
 
             Swap.SwapValue(ref this.circularDependencyBarrier, (t1, _, _, _, barrier) => barrier.AddOrUpdate(t1, new ThreadLocal<bool>(), (old, @new) =>
