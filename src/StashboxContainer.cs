@@ -68,7 +68,8 @@ namespace Stashbox
             this.CanResolve(typeof(TFrom), name);
 
         /// <inheritdoc />
-        public bool CanResolve(Type typeFrom, object name = null) => this.ContainerContext.RootScope.CanResolve(typeFrom, name);
+        public bool CanResolve(Type typeFrom, object name = null) => 
+            this.ContainerContext.RootScope.CanResolve(typeFrom, name);
 
         /// <inheritdoc />
         public bool IsRegistered<TFrom>(object name = null) =>
