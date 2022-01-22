@@ -1,4 +1,4 @@
-# Container Configuration
+# Container configuration
 
 <!-- panels:start -->
 <!-- div:left-panel -->
@@ -23,7 +23,7 @@ container.Configure(options => options.WithDisposableTransientTracking());
 ```
 <!-- panels:end -->
 
-## Default Configuration
+## Default configuration
 These features are set or enabled by default:
 
 - [Constructor selection](configuration/container-configuration?id=constructor-selection): `Rules.ConstructorSelection.PreferMostParameters`
@@ -31,7 +31,7 @@ These features are set or enabled by default:
 - [Default lifetime](configuration/container-configuration?id=default-lifetime): `Lifetimes.Transient`
 
 
-## Tracking Disposable Transients
+## Tracking disposable transients
 <!-- panels:start -->
 <!-- div:left-panel -->
 With this option, you can enable or disable the tracking of disposable transient objects.
@@ -40,11 +40,11 @@ With this option, you can enable or disable the tracking of disposable transient
 new StashboxContainer(options => options.WithDisposableTransientTracking());
 ```
 <!-- panels:end -->
-## Auto Member-Injection
+## Auto member-injection
 With this option, you can enable or disable the auto member-injection without [attributes](usage/service-resolution?id=attributes).
 <!-- panels:start -->
 <!-- div:left-panel -->
-### PropertiesWithPublicSetter
+### `PropertiesWithPublicSetter`
 With this flag, the container will perform auto-injection on properties with public setters.
 <!-- div:right-panel -->
 ```cs
@@ -55,7 +55,7 @@ new StashboxContainer(options => options
 <!-- panels:end -->
 <!-- panels:start -->
 <!-- div:left-panel -->
-### PropertiesWithLimitedAccess
+### `PropertiesWithLimitedAccess`
 With this flag, the container will perform auto-injection on properties even when they don't have a public setter.
 <!-- div:right-panel -->
 ```cs
@@ -66,7 +66,7 @@ new StashboxContainer(options => options
 <!-- panels:end -->
 <!-- panels:start -->
 <!-- div:left-panel -->
-### PrivateFields
+### `PrivateFields`
 With this flag, the container will perform auto-injection on private fields too.
 <!-- div:right-panel -->
 ```cs
@@ -89,11 +89,11 @@ new StashboxContainer(options => options
 
 ?> Member selection filter: `config.WithAutoMemberInjection(filter: member => member.Type != typeof(IJob))`
 
-## Constructor Selection
+## Constructor selection
 With this option, you can set the constructor selection rule used to determine which constructor the container should use for instantiation.
 <!-- panels:start -->
 <!-- div:left-panel -->
-### PreferMostParameters
+### `PreferMostParameters`
 It prefers the constructor which has the most extended parameter list.
 <!-- div:right-panel -->
 ```cs
@@ -104,7 +104,7 @@ new StashboxContainer(options => options
 <!-- panels:end -->
 <!-- panels:start -->
 <!-- div:left-panel -->
-### PreferLeastParameters
+### `PreferLeastParameters`
 It prefers the constructor which has the shortest parameter list.
 <!-- div:right-panel -->
 ```cs
@@ -113,11 +113,11 @@ new StashboxContainer(options => options
         Rules.ConstructorSelection.PreferLeastParameters));
 ```
 <!-- panels:end -->
-## Registration Behavior
+## Registration behavior
 With this option, you can set the actual behavior used when a new service is registered into the container. These options do not affect named registrations.
 <!-- panels:start -->
 <!-- div:left-panel -->
-### SkipDuplications
+### `SkipDuplications`
 The container will skip new registrations when the given implementation type is already registered.
 <!-- div:right-panel -->
 ```cs
@@ -128,7 +128,7 @@ new StashboxContainer(options => options
 <!-- panels:end -->
 <!-- panels:start -->
 <!-- div:left-panel -->
-### ThrowException
+### `ThrowException`
 The container throws an [exception](diagnostics/validation?id=servicealreadyregisteredexception) when the given implementation type is already registered.
 <!-- div:right-panel -->
 ```cs
@@ -139,7 +139,7 @@ new StashboxContainer(options => options
 <!-- panels:end -->
 <!-- panels:start -->
 <!-- div:left-panel -->
-### ReplaceExisting
+### `ReplaceExisting`
 The container will replace the already registered service with the given one when they have the same implementation type.
 <!-- div:right-panel -->
 ```cs
@@ -150,7 +150,7 @@ new StashboxContainer(options => options
 <!-- panels:end -->
 <!-- panels:start -->
 <!-- div:left-panel -->
-### PreserveDuplications
+### `PreserveDuplications`
 The container will keep registering the new services with the same implementation type.
 <!-- div:right-panel -->
 ```cs
@@ -160,7 +160,7 @@ new StashboxContainer(options => options
 ```
 <!-- panels:end -->
 
-## Default Lifetime
+## Default lifetime
 <!-- panels:start -->
 <!-- div:left-panel -->
 With this option, you can set the default lifetime used when a service doesn't have a configured one.
@@ -170,7 +170,7 @@ new StashboxContainer(options => options.WithDefaultLifetime(Lifetimes.Scoped));
 ```
 <!-- panels:end -->
 
-## Lifetime Validation
+## Lifetime validation
 <!-- panels:start -->
 <!-- div:left-panel -->
 With this option, you can enable or disable the life-span and root scope resolution [validation](diagnostics/validation?id=lifetime-validation) on the dependency tree.
@@ -180,7 +180,7 @@ new StashboxContainer(options => options.WithLifetimeValidation());
 ```
 <!-- panels:end -->
 
-## Conventional Resolution
+## Conventional resolution
 <!-- panels:start -->
 <!-- div:left-panel -->
 With this option, you can enable or disable conventional resolution, which means the container treats the constructor/method parameter or member names as dependency names used by named resolution.
@@ -190,7 +190,7 @@ new StashboxContainer(options => options
     .TreatParameterAndMemberNameAsDependencyName());
 ```
 <!-- panels:end -->
-## Using Named Service for Un-named Requests
+## Using named service for un-named requests
 <!-- panels:start -->
 <!-- div:left-panel -->
 With this option, you can enable or disable the selection of named registrations when the resolution request is un-named but with the same type.
@@ -201,7 +201,7 @@ new StashboxContainer(options => options
 ```
 <!-- panels:end -->
 
-## Circular Dependencies in Delegates
+## Circular dependencies in delegates
 <!-- panels:start -->
 <!-- div:left-panel -->
 With this option, you can enable or disable the runtime circular dependency tracking.
@@ -213,7 +213,7 @@ new StashboxContainer(options => options.WithRuntimeCircularDependencyTracking()
 
 !> By default, the container checks for circular dependencies when it builds the expression graph, but this could not prevent stack overflows when factory delegates passed by the user are containing circular dependencies. If you turn this feature on, the container will generate nodes into the expression tree that tracks the entering and exiting resolution calls across user-defined factory delegates.
 
-## Circular Dependencies with Lazy
+## Circular dependencies with lazy
 <!-- panels:start -->
 <!-- div:left-panel -->
 With this option, you can enable or disable circular dependencies through `Lazy<>` objects.
@@ -223,7 +223,7 @@ new StashboxContainer(options => options.WithCircularDependencyWithLazy());
 ```
 <!-- panels:end -->
 
-## Default Value Injection
+## Default value injection
 <!-- panels:start -->
 <!-- div:left-panel -->
 With this option, you can enable or disable the default value injection.
@@ -233,7 +233,7 @@ new StashboxContainer(options => options.WithDefaultValueInjection());
 ```
 <!-- panels:end -->
 
-## Unknown Type Resolution
+## Unknown type resolution
 <!-- panels:start -->
 <!-- div:left-panel -->
 With this option, you can enable or disable the resolution of unregistered types. You can also use a configurator delegate to configure the registrations the container will create from the unknown types.
@@ -244,7 +244,7 @@ new StashboxContainer(options => options
 ```
 <!-- panels:end -->
 
-## Custom Compiler
+## Custom compiler
 <!-- panels:start -->
 <!-- div:left-panel -->
 With this option, you can set an external expression tree compiler. It can be useful on platforms where the IL generator modules are not available; therefore, the expression compiler in Stashbox couldn't work.
@@ -256,7 +256,7 @@ new StashboxContainer(options => options
 ```
 <!-- panels:end -->
 
-## Re-build Singletons in Child Containers
+## Re-build singletons in child containers
 <!-- panels:start -->
 <!-- div:left-panel -->
 With this option, you can enable or disable the re-building of singletons in child containers. It allows the child containers to override singleton dependencies in the parent.

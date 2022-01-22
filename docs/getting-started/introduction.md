@@ -8,26 +8,24 @@ Stashbox and its extensions are distributed via [NuGet](https://www.nuget.org/pa
 
 You can install the package by typing the following into the Package Manager Console:
 ```
-Install-Package Stashbox -Version 3.6.3
+Install-Package Stashbox -Version 4.1.0
 ```
 
 #### **dotnet CLI**
 
 You can install the package by using the dotnet cli:
 ```
-dotnet add package Stashbox --version 3.6.3
+dotnet add package Stashbox --version 4.1.0
 ```
 
 #### **PackageReference**
 
 You can add the package into the package references of your `.csproj`:
 ```
-<PackageReference Include="Stashbox" Version="3.6.3" />
+<PackageReference Include="Stashbox" Version="4.1.0" />
 ```
 
 <!-- tabs:end -->
-
-?> All Stashbox DLLs are signed with a strong name key stored in the [GitHub repository](https://github.com/z4kn4fein/stashbox/).
 
 ## Usage
 The general idea behind using Stashbox is that you structure your code from loosely coupled components with the [Dependency Inversion Principle](https://en.wikipedia.org/wiki/Dependency_inversion_principle), [Inversion Of Control](https://en.wikipedia.org/wiki/Inversion_of_control) and [Dependency Injection](https://martinfowler.com/articles/injection.html) in mind. 
@@ -46,7 +44,7 @@ To achieve the most efficient usage of Stashbox, you should follow these steps:
 
 !> Don't create new `StashboxContainer` instances continuously. Such action will bypass the container's internal delegate cache and could lead to poor performance. 
 
-## How It Works?
+## How it works?
 Stashbox builds and maintains a collection of registered services. When a service is requested, Stashbox starts looking for a matching registration with the same service type. If it finds one, the container initiates a scan on the implementation type's available constructors and selects the one with the most arguments it knows how to resolve by matching argument types to other registrations.
 
 When every constructor argument has a companion registration, Stashbox jumps to the first one and continues the same scanning operation. 

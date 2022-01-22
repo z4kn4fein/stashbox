@@ -36,12 +36,14 @@
     --notice-tip-background: #002538;
 
     --notice-important-border-color: hsl(0, 57%, 45%);
-    --notice-important-background: hsl(0, 51%, 15%);
+    --notice-important-background: hsla(0, 46%, 14%);
 
     --navbar-menu-link-color: var(--theme-color);
     --navbar-menu-link-text-decoration--hover: underline;
     --navbar-menu-padding: 0 1.2em;
     --navbar-menu-background: var(--sidebar-background);
+    --navbar-menu-border-color: var(--table-cell-border-color);
+    --navbar-menu-border-width: 1px;
 
     --cover-blockquote-color: var(--theme-2-color);
     --cover-background-image: linear-gradient(45deg, var(--sidebar-background) 0%, var(--base-background-color) 90%);
@@ -99,6 +101,149 @@
     --link-text-decoration: none;
     --link-text-decoration--hover: underline;
     --link-color: var(--theme-color);
+
+    --docsifytabs-margin: 1.1em 0 1.5em 0;
+}
+
+.sidebar::-webkit-scrollbar {
+    display: none;
+}
+
+.sidebar::-webkit-scrollbar-track {
+    -webkit-box-shadow: none !important;
+    background-color: transparent;
+}
+
+.sidebar::-webkit-scrollbar {
+    width: 3px !important;
+    background-color: transparent;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background-color: transparent;
+}
+
+.header {
+    display: flex;
+    max-width: 1100px;
+    margin-bottom: .5rem;
+    align-items: center;    
+}
+
+.app-nav {
+    position: relative;
+    max-width: 1100px !important;
+    left: auto;
+    top: auto;
+    text-align: left;
+}
+
+.app-nav.no-badge {
+    right: auto;
+    margin-right: auto;
+}
+
+nav.app-nav {
+    margin-left: 0;
+}
+
+.app-nav>ul>li {
+    margin: 0 .5em 0 0;
+    padding: .5em;
+    font-weight: 500;
+}
+
+.app-nav>ul>li ul {
+    z-index: 1000;
+}
+
+.nav-root {
+    display: flex;
+    justify-content: center;
+    align-items: center;    
+    font-size: 14px;
+}
+
+.nav-root>.material-icons {
+    font-size: 20px;
+    margin-right: .4rem;
+    opacity: .5;
+}
+
+.nav-root:hover>.material-icons {
+    opacity: .8;
+}
+
+.nav-root:hover>span:last-child {
+    text-decoration: underline;
+}
+
+.github-area {
+    margin-left: auto;
+}
+
+.github-area>a {
+    color: inherit;
+}
+
+.github-area>a:hover {
+    text-decoration: none;
+    color: inherit;
+}
+
+.github-section {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    opacity: .9;
+}
+
+.github-section>.repo-logo {
+    margin-right: .7rem; 
+    font-size: 30px;
+    opacity: .8;
+}
+
+.github-section:hover {
+    opacity: 1;
+}
+
+.github-section:hover>.repo-logo {
+    opacity: 1;
+}
+
+.github-section:hover>.repo-details>.repo-stats {
+    opacity: .8;
+}
+
+.github-section>.repo-details>.repo-name {
+    font-weight: 500;
+    font-size: 13px;
+}
+
+.github-section:hover>.repo-details>.repo-name {
+    text-decoration: underline;
+}
+
+.github-section>.repo-details>.repo-stats>.fa {
+    font-size: 12px;
+    margin-right: .2rem;
+}
+
+.repo-stats {
+    display: flex;
+    align-items: center;
+    opacity: .6;
+}
+
+.repo-stats>.repo-stat {
+    margin-right: .6rem;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+h3 code {
+    margin: 0 !important;
 }
 
 td {
@@ -119,14 +264,17 @@ th {
     padding: .35em .4em .23em .45em !important;
 }
 
-.markdown-section {
-    max-width: 1100px !important;
+.markdown-content {
     background-color: #14181f;
-    margin-top: 6rem;
-    margin-bottom: 4rem;
     padding: 0.5rem 1.3rem 0 1.3rem !important;
     border: 1px solid var(--table-cell-border-color);
     border-radius: 5px;
+    margin-bottom: 1rem;
+}
+
+.markdown-section {
+    max-width: 1100px !important;
+    margin-top: .2rem;
 }
 
 .markdown-section h3:first-child {
@@ -183,6 +331,7 @@ section.cover .mask {
     margin-right: 5px;
     padding-bottom: 3px;
     vertical-align: middle;
+    opacity: .8;
 }
 
 button.sidebar-toggle {
@@ -229,12 +378,17 @@ button.sidebar-toggle {
 }
 
 .docsify-tabs__content {
-    border: 0px !important;
+    border-top: 1px solid var(--table-cell-border-color) !important;
+    border-bottom: 0 !important;
     padding: 0 !important;
 }
 
 .docsify-tabs__content p:first-child {
-    margin-top: 1em !important;
+    padding-top: 1em !important;
+}
+
+.docsify-tabs__tab {
+    cursor: pointer;
 }
 
 .docsify-tabs__tab--active {
@@ -242,10 +396,6 @@ button.sidebar-toggle {
     background-color: #1c242c !important;
 }
 
-.docsify-tabs__tab {
-    cursor: pointer;
-    border-bottom: 1px solid var(--table-cell-border-color) !important;
-}
 
 ::selection {
     color: white !important;
@@ -269,10 +419,6 @@ button.sidebar-toggle {
     body .sidebar {
         padding-bottom: 3rem;
     }
-
-    .app-nav {
-        right: 60px !important;
-    }
 }
 
 @media (max-width: 480px) {
@@ -283,7 +429,6 @@ button.sidebar-toggle {
     .markdown-section {
         background-color: transparent;
         border: 0px;
-        padding: 0.5rem 0 0 0 !important;
     }
 }
 
@@ -308,6 +453,10 @@ button.sidebar-toggle {
         background: #2582adab;
         width: 50px;
         height: 40px;
+    }
+
+    .markdown-section {
+        padding: 0.5rem 0 0 0 !important;
     }
 }
   

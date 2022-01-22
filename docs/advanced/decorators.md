@@ -1,7 +1,7 @@
 # Decorators
 Stashbox supports decorator service registration to take advantage of the [Decorator pattern](https://en.wikipedia.org/wiki/Decorator_pattern). This pattern is used to extend the functionality of a class without changing its implementation. This is also what the [Open–closed principle](https://en.wikipedia.org/wiki/Open%E2%80%93closed_principle) stands for; services should be open for extension but closed for modification.
 
-## Simple Use-Case
+## Simple use-case
 We define an `IEventProcessor` service used to process `Event` entities. Then we'll decorate this service with additional validation capabilities:
 ```cs
 class Event { }
@@ -66,7 +66,7 @@ eventProcessor.ProcessEvent(new UpdateEvent());
 ```
 The `GeneralEventProcessor` is an implementation of `IEventProcessor` and does the actual event processing logic. It does not have any other responsibilities. Rather than putting the event validation's burden onto its shoulder, we create a different service for validation purposes. Instead of injecting the validator into the `GeneralEventProcessor` directly, we let another `IEventProcessor` decorate it like an *event processing pipeline* that validates the event as a first step.
 
-## Multiple Decorators
+## Multiple decorators
 
 <!-- panels:start -->
 
@@ -87,7 +87,7 @@ var processor = container.Resolve<IEventProcessor>();
 
 <!-- panels:end -->
 
-## Conditional Decoration
+## Conditional decoration
 
 With [conditional resolution](usage/service-resolution?id=conditional-resolution) you can control which decorator should be selected to decorate a given service.
 
@@ -196,7 +196,7 @@ var executor = container.ResolveAll<ProcessorExecutor>();
 
 <!-- tabs:end -->
 
-## Generic Decorators
+## Generic decorators
 Stashbox supports the registration of open-generic decorators, which allows the extension of open-generic services. 
 Inspection of [generic parameter constraints](advanced/generics?id=generic-constraints) and [variance handling](advanced/generics?id=variance) is supported on generic decorators also.
 
@@ -242,7 +242,7 @@ var eventProcessor = container.Resolve<IEventProcessor<UpdateEvent>>();
 eventProcessor.ProcessEvent(new UpdateEvent());
 ```
 
-## Composite Pattern
+## Composite pattern
 
 The [Composite pattern](https://en.wikipedia.org/wiki/Composite_pattern) allows a group of objects to be treated the same way as a single instance of the same type. It's useful when you want to use the functionality of multiple instances behind the same interface. You can achieve this by registering a decorator that takes a collection of the same service as a dependency. 
 
@@ -267,7 +267,7 @@ container.Register(typeof(IEventValidator<>), typeof(AnotherEventValidator<>));
 container.RegisterDecorator(typeof(IEventValidator<>), typeof(CompositeValidator<>));
 ```
 
-## Decorating Multiple Services
+## Decorating multiple services
 You have the option to organize similar decorating functionalities for different interfaces into the same decorator class. 
 In this example, we would like to validate a given `Event` right before publishing and also before processing. 
 

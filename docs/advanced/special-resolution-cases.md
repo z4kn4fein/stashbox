@@ -1,4 +1,4 @@
-## Unknown Type Resolution
+## Unknown type resolution
 When this [feature](configuration/container-configuration?id=unknown-type-resolution) is enabled, the container will try to resolve unregistered types by registering them using a pre-defined configuration delegate.
 
 <!-- tabs:start -->
@@ -51,7 +51,7 @@ var service = container.Resolve<Service>();
 ```
 <!-- tabs:end -->
 
-## Default Value Injection
+## Default value injection
 When this [feature](configuration/container-configuration?id=default-value-injection) is enabled, the container will resolve unknown primitive dependencies with their default value.
 ```cs
 class Person 
@@ -67,7 +67,7 @@ var person = container.Resolve<Person>();
 
 ?> Unknown reference types will be resolved to `null` only in properties and fields.
 
-## Optional Value Injection
+## Optional value injection
 Stashbox respects the optional value of constructor and method arguments.
 
 ```cs

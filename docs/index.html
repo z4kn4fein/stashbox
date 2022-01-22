@@ -8,6 +8,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
   <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
   <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify-themeable@0/dist/css/theme-simple-dark.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons"/>
   <link rel="stylesheet" href="assets/css/main.css">
 
   <!-- Global site tag (gtag.js) - Google Analytics -->
@@ -16,63 +18,15 @@
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-
     gtag('config', 'G-HLNT9WV1HH');
   </script>
 </head>
 <body>
   <div id="app"></div>
+  <script src="assets/js/plugins/edit-github.js"></script>
+  <script src="assets/js/plugins/glossary.js"></script>
+  <script src="assets/js/plugins/header.js"></script>
   <script src="assets/js/main.js"></script>
-  <script>
-    window.$docsify = {
-      loadSidebar: true,
-      loadNavbar: true,
-
-      maxLevel   : 2,
-      subMaxLevel: 2,
-      name: 'Stashbox',
-      nameLink: '/stashbox',
-      logo: 'assets/images/icon.png',
-
-      repo: 'z4kn4fein/stashbox',
-      auto2top: true,
-
-      coverpage: true,
-      homepage: 'getting-started/overview.md',
-
-      pagination: {
-        crossChapter: true,
-        crossChapterText: true,
-      },
-
-      copyCode: {
-        buttonText : '<img class="noselect" src="assets/images/copy.svg" width=18>',
-      },
-
-      search: {
-        depth: 3,
-        noData: 'No results!',
-        placeholder: 'Search...'
-      },
-
-      tabs: {
-        theme: 'material'
-      },
-
-      alias: {
-        '/.*/_sidebar.md': '/_sidebar.md',
-        '/.*/_navbar.md': '/_navbar.md',
-        '.*?/changelog': 'https://raw.githubusercontent.com/z4kn4fein/stashbox/master/CHANGELOG.md',
-      },
-
-      onlyCover: true,
-
-      plugins: [
-        editOnGithubPlugin,
-        glossaryPlugin,       
-      ]
-    }
-  </script>
   <script src="//cdn.jsdelivr.net/npm/docsify@4/lib/docsify.min.js"></script>
   <script src="//cdn.jsdelivr.net/npm/docsify-themeable@0/dist/js/docsify-themeable.min.js"></script>
   <script src="//cdn.jsdelivr.net/npm/docsify-tabs@1/dist/docsify-tabs.min.js"></script>

@@ -8,7 +8,7 @@ Lifetime management is the concept of controlling how long a service's instances
 <!-- panels:start -->
 
 <!-- div:title-panel -->
-## Default Lifetime
+## Default lifetime
 
 <!-- div:left-panel -->
 When you are not specifying a lifetime during registration, Stashbox will use the default lifetime. By default, it's set to **Transient**, but you can override it with the `.WithDefaultLifetime()` [container configuration option](configuration/container-configuration?id=default-lifetime). 
@@ -41,7 +41,7 @@ var container = new StashboxContainer(options => options
 <!-- panels:start -->
 
 <!-- div:title-panel -->
-## Transient Lifetime
+## Transient lifetime
 
 <!-- div:left-panel -->
 A new instance will be created for every resolution request. If a transient is referred by multiple consumers in the same resolution tree, each of them will get its instance.
@@ -61,7 +61,7 @@ container.Register<IJob, DbBackup>(options => options
 <!-- panels:start -->
 
 <!-- div:title-panel -->
-## Singleton Lifetime
+## Singleton lifetime
 
 <!-- div:left-panel -->
 A single instance will be created and reused for every resolution request and injected into every consumer.
@@ -90,7 +90,7 @@ container.RegisterSingleton<IJob, DbBackup>();
 <!-- panels:start -->
 
 <!-- div:title-panel -->
-## Scoped Lifetime
+## Scoped lifetime
 
 <!-- div:left-panel -->
 A new instance is created for each [scope](usage/scopes), and that instance will be returned (and reused) for every resolution request initiated on the given scope. It's like the singleton lifetime within a scope. 
@@ -125,7 +125,7 @@ IJob job = scope.Resolve<IJob>();
 <!-- panels:start -->
 
 <!-- div:title-panel -->
-## Named Scope Lifetime
+## Named scope lifetime
 
 <!-- div:left-panel -->
 It is the same as the scoped lifetime, except that the given service will be selected only when the resolution request is initiated on a scope with the same name.
@@ -183,7 +183,7 @@ DbJobExecutor executor = scope.Resolve<DbJobExecutor>();
 <!-- panels:start -->
 
 <!-- div:title-panel -->
-## Per Scoped Request Lifetime
+## Per-scoped request lifetime
 
 <!-- div:left-panel -->
 The requested service will behave like a singleton with this lifetime, but only within a scoped dependency request. That means every scoped service will get a new exclusive instance that will be used by its sub-dependencies as well.
@@ -197,7 +197,7 @@ container.Register<IJob, DbBackup>(options => options
 
 <!-- panels:end -->
 
-## Custom Lifetime
+## Custom lifetime
 Suppose you'd like to use a custom lifetime. In that case, you can create your implementation by inheriting either from `FactoryLifetimeDescriptor` or from `ExpressionLifetimeDescriptor`, depending on how do you want to manage the given service instances. Then you can pass it to the `WithLifetime()` configuration method.
 
 - **ExpressionLifetimeDescriptor**: With this, you can build your lifetime with the expression form of the service instantiation.

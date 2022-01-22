@@ -1,5 +1,5 @@
 # Glossary
-The following definitions are used in the documentation.
+The following terms and definitions are used in this documentation.
 
 ## Service Type | Implementation Type
 The *Service type* is usually an interface or an abstract class type used for service resolution or dependency injection. The *Implementation type* is the actual type registered to the *Service type*. A registration maps the *Service type* to an *Implementation type*. The *Implementation type* must implement or extend the *Service type*. 
@@ -97,7 +97,7 @@ It's a resolution request for a named service. The same applies, when the contai
 <!-- div:right-panel -->
 ```cs
 container.Register<IService, Implementation>("Example");
-// the named resolution initiated by request.
+// the named request.
 var service = container.Resolve<IService>("Example");
 ```
 <!-- tabs:end -->
@@ -107,12 +107,11 @@ var service = container.Resolve<IService>("Example");
 
 <!-- panels:start -->
 <!-- div:left-panel -->
-It's a registration that's mapped to itself, which means its service and implementation type are the same.
+It's a registration that's mapped to itself, which means its service and implementation type is the same.
 <!-- div:right-panel -->
 ```cs
 // equivalent to container.Register<Implementation, Implementation>();
-container.Register<Implementation>(); 
-var service = container.Resolve<Implementation>();
+container.Register<Implementation>();
 ```
 <!-- tabs:end -->
 <!-- panels:end -->

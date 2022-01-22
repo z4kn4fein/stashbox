@@ -1,4 +1,4 @@
-# Registration Configuration
+# Registration configuration
 
 <!-- panels:start -->
 
@@ -48,10 +48,10 @@ container.Register<IJob, DbBackup>(options => options
 
 <!-- panels:end -->
 
-## General Options
+## General options
 <!-- panels:start -->
 <!-- div:left-panel -->
-### WithName
+### `WithName`
 Sets the name of the registration.
 <!-- div:right-panel -->
 ```cs
@@ -61,7 +61,7 @@ container.Register<ILogger, ConsoleLogger>(config => config
 <!-- panels:end -->
 <!-- panels:start -->
 <!-- div:left-panel -->
-### WithInstance
+### `WithInstance`
 Sets an existing instance for the registration. 
 
 Passing true for the `wireUp` parameter means that the container performs member / method injection on the registered instance.
@@ -81,7 +81,7 @@ container.Register<ILogger>(options => options
 <!-- panels:end -->
 <!-- panels:start -->
 <!-- div:left-panel -->
-### WithoutDisposalTracking
+### `WithoutDisposalTracking`
 Force disables the disposal tracking on the registration.
 <!-- div:right-panel -->
 ```cs
@@ -90,10 +90,10 @@ container.Register<ILogger, ConsoleLogger>(options => options
 ```
 <!-- panels:end -->
 
-## Initializer / Finalizer
+## Initializer / finalizer
 <!-- panels:start -->
 <!-- div:left-panel -->
-### WithFinalizer
+### `WithFinalizer`
 Sets a custom cleanup delegate that will be invoked when the scope / container holding the instance is being disposed.
 <!-- div:right-panel -->
 ```cs
@@ -104,7 +104,7 @@ container.Register<ILogger, FileLogger>(options => options
 <!-- panels:end -->
 <!-- panels:start -->
 <!-- div:left-panel -->
-### WithInitializer
+### `WithInitializer`
 Sets a custom initializer delegate that will be invoked when the given service is being instantiated.
 <!-- div:right-panel -->
 ```cs
@@ -132,7 +132,7 @@ container.Register<ILogger, ConsoleLogger>(options => options.ReplaceOnlyIfExist
 You can read more about binding a registration to multiple services [here](usage/advanced-registration?id=binding-to-multiple-services).
 <!-- panels:start -->
 <!-- div:left-panel -->
-### AsImplementedTypes
+### `AsImplementedTypes`
 The service will be mapped to all of its implemented interfaces and base types.
 <!-- div:right-panel -->
 ```cs
@@ -142,7 +142,7 @@ container.Register<IUserRepository, UserRepository>(options => options
 <!-- panels:end -->
 <!-- panels:start -->
 <!-- div:left-panel -->
-### AsServiceAlso
+### `AsServiceAlso`
 Binds the currently configured registration to an additional service type. The registered type must implement or extend the additional service type.
 <!-- div:right-panel -->
 ```cs
@@ -153,7 +153,7 @@ container.Register<IUserRepository, UserRepository>(options => options
 ```
 <!-- panels:end -->
 
-## Dependency Configuration
+## Dependency configuration
 These options allows the same configuration functionality as the [dependency attribute](usage/service-resolution?id=attributes). 
 <!-- tabs:start -->
 #### **By parameter type**
@@ -177,7 +177,7 @@ container.Register<IUserRepository, UserRepository>(options => options.WithDepen
 You can read more about lifetimes [here](usage/lifetimes).
 <!-- panels:start -->
 <!-- div:left-panel -->
-### WithSingletonLifetime
+### `WithSingletonLifetime`
 Sets a singleton lifetime for the registration.
 <!-- div:right-panel -->
 ```cs
@@ -187,7 +187,7 @@ container.Register<ILogger, ConsoleLogger>(config => config
 <!-- panels:end -->
 <!-- panels:start -->
 <!-- div:left-panel -->
-### WithScopedLifetime
+### `WithScopedLifetime`
 Sets a scoped lifetime for the registration.
 <!-- div:right-panel -->
 ```cs
@@ -197,7 +197,7 @@ container.Register<ILogger, ConsoleLogger>(config => config
 <!-- panels:end -->
 <!-- panels:start -->
 <!-- div:left-panel -->
-### WithPerScopedRequestLifetime
+### `WithPerScopedRequestLifetime`
 Sets the lifetime to `PerScopedRequestLifetime`. That means this registration will behave like a singleton within every scoped resolution request.
 <!-- div:right-panel -->
 ```cs
@@ -207,7 +207,7 @@ container.Register<ILogger, ConsoleLogger>(options => options
 <!-- panels:end -->
 <!-- panels:start -->
 <!-- div:left-panel -->
-### WithLifetime
+### `WithLifetime`
 Sets a custom lifetime for the registration.
 <!-- div:right-panel -->
 ```cs
@@ -220,7 +220,7 @@ container.Register<ILogger, ConsoleLogger>(config => config
 You can read more about the concept of conditional resolution [here](usage/service-resolution?id=conditional-resolution).
 <!-- panels:start -->
 <!-- div:left-panel -->
-### WhenHas
+### `WhenHas`
 Sets an attribute condition for the registration.
 <!-- div:right-panel -->
 ```cs
@@ -230,7 +230,7 @@ container.Register<ILogger, ConsoleLogger>(config => config
 <!-- panels:end -->
 <!-- panels:start -->
 <!-- div:left-panel -->
-### WhenDependantIs
+### `WhenDependantIs`
 Sets a parent target condition for the registration.
 <!-- div:right-panel -->
 ```cs
@@ -240,7 +240,7 @@ container.Register<ILogger, FileLogger>(config => config
 <!-- panels:end -->
 <!-- panels:start -->
 <!-- div:left-panel -->
-### When
+### `When`
 Sets a custom user-defined condition for the registration.
 <!-- div:right-panel -->
 ```cs
@@ -249,10 +249,10 @@ container.Register<ILogger, FileLogger>(config => config
 ```
 <!-- panels:end -->
 
-## Constructor Selection
+## Constructor selection
 <!-- panels:start -->
 <!-- div:left-panel -->
-### WithConstructorSelectionRule
+### `WithConstructorSelectionRule`
 Sets the constructor selection rule for the registration.
 <!-- div:right-panel -->
 ```cs
@@ -295,7 +295,7 @@ options.WithConstructorSelectionRule(
 <!-- panels:end -->
 <!-- panels:start -->
 <!-- div:left-panel -->
-### WithConstructorByArgumentTypes
+### `WithConstructorByArgumentTypes`
 Selects a constructor by its argument types.
 <!-- div:right-panel -->
 ```cs
@@ -305,7 +305,7 @@ container.Register<IUserRepository, UserRepository>(options => options
 <!-- panels:end -->
 <!-- panels:start -->
 <!-- div:left-panel -->
-### WithConstructorByArguments
+### `WithConstructorByArguments`
 Selects a constructor by its arguments to use during resolution. These arguments are used to invoke the selected constructor.
 <!-- div:right-panel -->
 ```cs
@@ -315,10 +315,10 @@ container.Register<IUserRepository, UserRepository>(options => options
 <!-- panels:end -->
 
 
-## Property / Field Injection
+## Property / field Injection
 <!-- panels:start -->
 <!-- div:left-panel -->
-### WithAutoMemberInjection
+### `WithAutoMemberInjection`
 Enables the auto member injection and sets the rule for it.
 <!-- div:right-panel -->
 ```cs
@@ -378,10 +378,10 @@ container.Register<ILogger, ConsoleLogger>(options => options
 <!-- panels:end -->
 
 
-## Injection Parameters
+## Injection parameters
 <!-- panels:start -->
 <!-- div:left-panel -->
-### WithInjectionParameters
+### `WithInjectionParameters`
 Sets multiple injection parameters for the registration.
 <!-- div:right-panel -->
 ```cs
@@ -391,7 +391,7 @@ container.Register<IUserRepository, UserRepository>(options =>
 <!-- panels:end -->
 <!-- panels:start -->
 <!-- div:left-panel -->
-### WithInjectionParameter
+### `WithInjectionParameter`
 Sets a single injection parameter for the registration.
 <!-- div:right-panel -->
 ```cs
@@ -452,11 +452,11 @@ container.Register<IUserRepository, UserRepository>(options => options
 
 ?> All factory configuration method has an `isCompiledLambda` parameter which should be set to `true` if the passed delegate is compiled from an `Expression` tree.
 
-## Scope Definition
+## Scope definition
 You can read more about the concept of defined scopes [here](usage/scopes?id=service-as-scope).
 <!-- panels:start -->
 <!-- div:left-panel -->
-### InNamedScope
+### `InNamedScope`
 Sets a scope name condition for the registration; it will be used only when a scope with the same name requests it.
 <!-- div:right-panel -->
 ```cs
@@ -466,7 +466,7 @@ container.Register<IUserRepository, UserRepository>(options => options
 <!-- panels:end -->
 <!-- panels:start -->
 <!-- div:left-panel -->
-### InScopeDefinedBy
+### `InScopeDefinedBy`
 Sets a condition for the registration; it will be used only within the scope defined by the given type.
 <!-- div:right-panel -->
 ```cs
@@ -478,7 +478,7 @@ container.Register<IUserRepository, UserRepository>(options => options
 <!-- panels:end -->
 <!-- panels:start -->
 <!-- div:left-panel -->
-### DefinesScope
+### `DefinesScope`
 This registration is used as a logical scope for it's dependencies. Dependencies registered with `InNamedScope()` with the same name are preferred during resolution. 
 When the `name` is not set, the service type is used as the name. Dependencies registered with `InScopeDefinedBy()` are selected.
 <!-- div:right-panel -->

@@ -2,7 +2,7 @@
 
 Stashbox is using so-called *Resolver* implementations to handle special resolution requests. [Wrappers](advanced/generics?id=wrappers), [unknown type resolution](advanced/special-resolution-cases?id=unknown-type-resolution), [cross-container requests](advanced/child-containers), [optional](advanced/special-resolution-cases?id=optional-value-injection)/[default](advanced/special-resolution-cases?id=default-value-injection) value injection; these are all handled by *Resolvers*.
 
-## Pre-defined Resolvers
+## Pre-defined resolvers
 * `EnumerableResolver`: Used to resolve every registered implementation of a service.
 * `LazyResolver`: Used to wrap services in `Lazy<>`.
 * `FuncResolver`: Used to wrap services in `Func<>` delegates.
@@ -12,7 +12,7 @@ Stashbox is using so-called *Resolver* implementations to handle special resolut
 * `UnknownTypeResolver`: Used to resolve services that are not registered into the container.
 * `ParentContainerResolver`: Used to resolve services that are only registered in one of the parent containers.
 
-## User-Defined Resolvers
+## User-defined resolvers
 You can implement your resolver to extend the functionality of the container.
 ```cs
 class CustomResolver : IResolver
@@ -40,7 +40,7 @@ Then you can register your custom resolver like:
 container.RegisterResolver(new CustomResolver());
 ```
 
-## Visiting Order
+## Visiting order
 Stashbox visits the resolvers in the following order to fulfill the current resolution request:
 
 1. `EnumerableResolver`

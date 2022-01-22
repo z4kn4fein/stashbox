@@ -2,7 +2,7 @@
 
 Stashbox has validation routines that help you detect and solve common misconfiguration issues. You can verify the container's actual state with its `.Validate()` method. This method walks through the whole resolution tree and collects all the issues into an `AggregateException`.
 
-## Registration Validation
+## Registration validation
 The container validates the given types during registration and throws the following exceptions when the validation fails.
 ### InvalidRegistrationException
 1. *When the implementation type is not resolvable:* (it's an interface or abstract class registered like: `Register<IService>()`):
@@ -20,7 +20,7 @@ The container validates the given types during registration and throws the follo
 The type Namespace.Service is already registered.
 ```
 
-## Resolution Validation
+## Resolution validation
 During the construction of the resolution tree, the container continuously checks its actual state to ensure stability. When any of the following issues occur, the container throws a `ResolutionFailedException`.
 
 1. *When a dependency is missing from the resolution tree*:
@@ -69,7 +69,7 @@ During the construction of the resolution tree, the container continuously check
     Service is not registered or unresolvable type requested.
     ```
 
-## Lifetime Validation
+## Lifetime validation
 This validation enforces the following rules, and when they are being violated, the container throws a `LifetimeValidationFailedException`.
 1. *When a scoped service is requested from the root scope*. As the root scope's lifetime is bound to the container's lifetime, this action would unintentionally promote the scoped service's lifetime to singleton:
   ```
@@ -93,7 +93,7 @@ This validation enforces the following rules, and when they are being violated, 
   it's recommended to double-check your lifetime configurations.
   ```
 
-## Circular Dependency
+## Circular dependency
 When the container encounters a circular dependency loop in the resolution tree, it throws a `CircularDependencyException` with every diagnostic detail included.
 
 ```cs
@@ -116,7 +116,7 @@ The exception message is:
 Circular dependency detected during the resolution of Namespace.Service1.
 ```
 
-## Other Exceptions
+## Other exceptions
 ### CompositionRootNotFoundException
 This exception pops up when we try to compose an assembly, but it doesn't contain an `ICompositionRoot` implementation.
 ```cs

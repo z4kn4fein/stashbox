@@ -1,6 +1,6 @@
 ![logo](assets/images/icon.png)
 
-# Stashbox <small>3.6.3</small>
+# Stashbox <small>4.1.0</small>
 
 > A lightweight, fast, and portable .NET DI framework.
 
@@ -8,6 +8,6 @@
 - ⚡️️ Easy-to-use Fluent API.
 - ♻️ Small memory footprint.
 
-[Get Started](getting-started/overview)
+[View Docs](getting-started/overview)
 [GitHub](https://github.com/z4kn4fein/stashbox)
 [NuGet](https://www.nuget.org/packages/Stashbox/)

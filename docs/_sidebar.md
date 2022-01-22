@@ -1,22 +1,22 @@
 - **Getting started**
 - [Overview](getting-started/overview)
-- [Quick Start](getting-started/quick-start)
+- [Introduction](getting-started/introduction)
 - [Glossary](_glossary)
 - **Using Stashbox**
-- [Basic Usage](usage/basics)
-- [Advanced Registration](usage/advanced-registration)
-- [Service Resolution](usage/service-resolution)
+- [Basic usage](usage/basics)
+- [Advanced registration](usage/advanced-registration)
+- [Service resolution](usage/service-resolution)
 - [Lifetimes](usage/lifetimes)
 - [Scopes](usage/scopes)
 - **Configuration**
-- [Registration Configuration](configuration/registration-configuration)
-- [Container Configuration](configuration/container-configuration)
-- **Advanced topics**
+- [Registration configuration](configuration/registration-configuration)
+- [Container configuration](configuration/container-configuration)
+- **Advanced**
 - [Generics](advanced/generics)
 - [Decorators](advanced/decorators)
 - [Resolvers](advanced/resolvers)
-- [Child Containers](advanced/child-containers)
-- [Special Resolution Cases](advanced/special-resolution-cases)
+- [Child containers](advanced/child-containers)
+- [Special resolution cases](advanced/special-resolution-cases)
 - **Diagnostics**
 - [Validation](diagnostics/validation)
 - [Utilities](diagnostics/utilities)

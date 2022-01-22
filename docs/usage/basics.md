@@ -1,8 +1,8 @@
-# Basic Usage
+# Basic usage
 This section is about the basics of Stashbox's API. It will give you a good starting point for more advanced topics described in the following sections. 
 Stashbox provides several methods that enable registering services, and we'll go through the most common scenarios with code examples.
 
-## Default Registration
+## Default registration
 <!-- panels:start -->
 
 <!-- div:left-panel -->
@@ -77,7 +77,7 @@ var job = container.Register<IJob, DbBackup>()
 
 <!-- panels:end -->
 
-## Named Registration
+## Named registration
 <!-- panels:start -->
 
 <!-- div:left-panel -->
@@ -106,7 +106,7 @@ object cleanup = container.Resolve(typeof(IJob), "StorageCleanup");
 
 <!-- panels:end -->
 
-## Instance Registration
+## Instance registration
 <!-- panels:start -->
 
 <!-- div:left-panel -->
@@ -232,7 +232,7 @@ object job = container.Resolve(typeof(IJob));
 
 <!-- panels:end -->
 
-## Lifetime Shortcuts
+## Lifetime shortcuts
 <!-- panels:start -->
 
 <!-- div:left-panel -->

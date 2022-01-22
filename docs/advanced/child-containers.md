@@ -1,4 +1,4 @@
-# Child Containers
+# Child containers
 With child containers, you can build up parent-child relationships between containers. It means you can have a different subset of services present in a child than the parent container. When a dependency is missing from the child container during a resolution request, the parent will be asked to resolve the missing service. If it's found there, the parent will return only the service's registration, and the resolution request will continue within the child. Also, child registrations with the same service type will override the parent's services.
 
 ## Example
@@ -52,7 +52,7 @@ When we make the same request on the parent, everything will go as usual because
 
 ?> You can [re-configure](configuration/container-configuration) child containers with the `.Configure()` method. It doesn't affect the parent container's configuration.
 
-## Re-building Singletons
+## Re-building singletons
 By default, singletons are instantiated and stored only in those containers that registered them. However, you can enable the re-instantiation of singletons in child containers with the `.WithReBuildSingletonsInChildContainer()` [container configuration option](configuration/container-configuration?id=re-build-singletons-in-child-containers). 
 
 If it's enabled, all singletons will be re-created within those containers that initiated the resolution request. It means that re-built singletons can use overridden dependencies from child containers. 
@@ -99,7 +99,7 @@ using (var container = new StashboxContainer(options => options.WithReBuildSingl
 // original singleton instance of 'A'
 ```
 
-## Nested Child Containers
+## Nested child containers
 
 <!-- panels:start -->
 

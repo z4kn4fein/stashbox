@@ -4,7 +4,7 @@ A scope is Stashbox's implementation of the unit-of-work pattern; it encapsulate
 A web application is a fair usage example for scopes as it has a well-defined execution unit that can be bound to a scope - the HTTP request. Every request could have its unique scope attached to the request's lifetime. When a request ends, the scope gets closed, and all the scoped instances will be disposed.
 
 <!-- panels:start -->
-## Creating a Scope
+## Creating a scope
 <!-- div:left-panel -->
 You can create a scope from the container by calling its `.BeginScope()` method.
 
@@ -66,7 +66,7 @@ scope.Dispose();
 
 <!-- panels:end -->
 
-## Named Scopes
+## Named scopes
 
 <!-- panels:start -->
 
@@ -132,7 +132,7 @@ using (var unNamed = container.BeginScope())
 ```
 <!-- panels:end -->
 
-## Service As Scope
+## Service as scope
 
 <!-- panels:start -->
 
@@ -191,7 +191,7 @@ scope.Dispose();
 
 <!-- panels:end -->
 
-## Add Instance to a Scope
+## Put instance to a scope
 
 <!-- panels:start -->
 

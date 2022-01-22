@@ -1,4 +1,4 @@
-## Is Registered?
+## Is registered?
 <!-- panels:start -->
 <!-- div:left-panel -->
 With the `IsRegistered()` function, you can find out whether a service is registered into the container or not.
@@ -21,7 +21,7 @@ bool isIJobRegistered = container.IsRegistered<IJob>("DbBackup");
 <!-- tabs:end -->
 <!-- panels:end -->
 
-## Can Resolve?
+## Can resolve?
 <!-- panels:start -->
 <!-- div:left-panel -->
 There might be cases when rather than finding out that a service is registered, you are more interested in whether it's resolvable from the container's actual state or not.
@@ -49,7 +49,7 @@ bool isIJobResolvable = container.CanResolve<IJob>("DbBackup");
 <!-- tabs:end -->
 <!-- panels:end -->
 
-## Get All Mappings
+## Get all mappings
 <!-- panels:start -->
 <!-- div:left-panel -->
 You can get all registrations in a key-value pair collection (where the key is the service type and the value is the actual registration) by calling the `.GetRegistrationMappings()` method.
@@ -60,7 +60,7 @@ IEnumerable<KeyValuePair<Type, ServiceRegistration>> mappings =
 ```
 <!-- panels:end -->
 
-## Registration Diagnostics
+## Registration diagnostics
 <!-- panels:start -->
 <!-- div:left-panel -->
 You can get a much more readable version of the registration mappings by calling the `.GetRegistrationDiagnostics()` method.

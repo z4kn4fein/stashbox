@@ -1,4 +1,4 @@
-# Advanced Registration
+# Advanced registration
 This section is about Stashbox's further configuration options, including the registration configuration API, the registration of factory delegates, multiple implementations, batch registration, the concept of the [Composition Root](https://blog.ploeh.dk/2011/07/28/CompositionRoot/) and many more.
 
 ?> This section won't cover all the available options of the registrations API, but you can find them [here](configuration/registration-configuration).
@@ -6,7 +6,7 @@ This section is about Stashbox's further configuration options, including the re
 <!-- panels:start -->
 
 <!-- div:title-panel -->
-## Factory Registration
+## Factory registration
 
 <!-- div:left-panel -->
 You have the option to bind a factory delegate to a registration that the container will invoke directly to instantiate your service. 
@@ -67,7 +67,7 @@ container.Register<IJob, DbBackup>(options => options
 <!-- panels:start -->
 
 <!-- div:left-panel -->
-### Factory with Parameter Override
+### Factory with parameter override
 Suppose you'd want to use custom parameters for your service's instantiation rather than captured variables in lambda closures. In that case, you can register a `Func<>` delegate that you can use with parameters at resolution time.
 
 ?> This example is about pre-registered factories; however, the container can also implicitly [wrap](advanced/generics?id=func) your service in a `Func<>` without pre-registering.
@@ -125,7 +125,7 @@ var service = func(2);
 <!-- panels:start -->
 
 <!-- div:left-panel -->
-### Consider These Before Using the Resolver Parameter Inside a Factory
+### Consider these before using the resolver parameter inside a factory
 Delegate factories are a black-box for the container. It doesn't have much control over what's happening inside them, which means when you resolve additional dependencies with the dependency resolver parameter, they could easily bypass the [lifetime](diagnostics/validation?id=lifetime-validation) and [circular dependency](diagnostics/validation?id=circular-dependency) validations. Fortunately, there are options to keep them validated anyway:
 
 - **Parameterized factories instead of resolver**: rather than using the dependency resolver parameter inside the factory, let the container inject the dependencies into the delegate as parameters. With this, the resolution tree's integrity remains stable because no service resolution happens inside the black-box, and each parameter is validated.
@@ -196,7 +196,7 @@ IEventProcessor processor = container.Resolve<IEventProcessor>();
 <!-- panels:start -->
 
 <!-- div:title-panel -->
-## Multiple Implementations
+## Multiple implementations
 
 <!-- div:left-panel -->
 As we previously saw in the [Named registration](usage/basics?id=named-registration) topic, Stashbox allows you to have multiple implementations bound to a particular service type. You can use names to distinguish them, but you can also access them by requesting a typed collection using the service type.
@@ -269,7 +269,7 @@ IJob job = container.Resolve<IJob>();
 <!-- panels:start -->
 
 <!-- div:title-panel -->
-## Binding to Multiple Services
+## Binding to multiple services
 
 <!-- div:left-panel -->
 When you have a service that implements multiple interfaces, you have the option to bind its registration to all or some of those additional interfaces or base types.
@@ -313,7 +313,7 @@ DbBackup job = container.Resolve<DbBackup>(); // DbBackup
 <!-- panels:start -->
 
 <!-- div:title-panel -->
-## Batch Registration
+## Batch registration
 
 <!-- div:left-panel -->
 You have the option to register multiple services in a single registration operation. 
@@ -447,7 +447,7 @@ DbBackup backup = container.Resolve<DbBackup>(); // error, not found
 <!-- panels:start -->
 
 <!-- div:title-panel -->
-## Assembly Registration
+## Assembly registration
 
 <!-- div:left-panel -->
 
@@ -513,7 +513,7 @@ DbBackup backup = container.Resolve<DbBackup>(); // error, not found
 <!-- panels:start -->
 
 <!-- div:title-panel -->
-## Composition Root
+## Composition root
 
 <!-- div:left-panel -->
 The [Composition Root](https://blog.ploeh.dk/2011/07/28/CompositionRoot/) is an entry point, where all services required to make a component functional are wired together.
@@ -566,7 +566,7 @@ container.ComposeBy<ExampleRoot>(new CustomRootDependency());
 <!-- panels:start -->
 
 <!-- div:title-panel -->
-## Injection Parameters
+## Injection parameters
 
 <!-- div:left-panel -->
 If you have some pre-evaluated dependencies you'd like to inject at resolution time, you can set them as an injection parameter during registration. 
@@ -587,7 +587,7 @@ IJob backup = container.Resolve<IJob>();
 <!-- panels:start -->
 
 <!-- div:title-panel -->
-## Initializer / Finalizer
+## Initializer / finalizer
 
 <!-- div:left-panel -->
 The container provides specific extension points that could be used as hooks to react to the instantiated service's lifetime events. 

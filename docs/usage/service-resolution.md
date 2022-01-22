@@ -7,7 +7,7 @@ When the container encounters any violations of [these rules](diagnostics/valida
 <!-- panels:start -->
 
 <!-- div:title-panel -->
-## Injection Patterns
+## Injection patterns
 
 <!-- div:left-panel -->
 **Constructor injection** is the *primary dependency injection pattern*. It encourages the organization of the dependencies to a single place - the constructor.
@@ -157,7 +157,7 @@ IJob job = container.Resolve<IJob>();
 <!-- panels:start -->
 
 <!-- div:title-panel -->
-## Dependency Binding
+## Dependency binding
 
 <!-- div:left-panel -->
 The same dependency configuration as attributes have is available using the registration configuration API.
@@ -214,7 +214,7 @@ IJob job = container.Resolve<IJob>();
 <!-- panels:start -->
 
 <!-- div:title-panel -->
-## Conventional Resolution
+## Conventional resolution
 
 <!-- div:left-panel -->
 When you enable the conventional resolution, the container treats the member and method parameter names as their dependency identifier. 
@@ -278,7 +278,7 @@ IJob job = container.Resolve<IJob>();
 <!-- panels:start -->
 
 <!-- div:title-panel -->
-## Conditional Resolution
+## Conditional resolution
 
 <!-- div:left-panel -->
 Stashbox can resolve a particular dependency based on its context. This context is typically the reflected type information of the dependency, its usage, and the type it gets injected into.
@@ -409,7 +409,7 @@ IEnumerable<IJob> jobs = container.ResolveAll<IJob>();
 <!-- panels:start -->
 
 <!-- div:title-panel -->
-## Optional Resolution
+## Optional resolution
 
 <!-- div:left-panel -->
 In cases where it's not guaranteed that a service is resolvable, either because it's not registered or any of its dependencies are missing, you can attempt an optional resolution by using the `nullResultAllowed` parameter of the `.Resolve()` method. 
@@ -441,7 +441,7 @@ object job = container.Resolve(typeof(IJob));
 <!-- panels:start -->
 
 <!-- div:title-panel -->
-## Dependency Override
+## Dependency overrides
 
 <!-- div:left-panel -->
 
@@ -514,7 +514,7 @@ object backup = container.Activate(typeof(DbBackup), new ConsoleLogger());
 <!-- panels:start -->
 
 <!-- div:left-panel -->
-### Building Up
+### Build-up
 
 You can also do the same *on the fly* activation post-processing (member/method injection) on already constructed instances with the `.BuildUp()` method. 
 
