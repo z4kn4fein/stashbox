@@ -58,12 +58,13 @@ class CustomResolver : IServiceResolver
     // called to generate the expression for the given service
     // when this resolver is selected (through CanUseForResolution()) 
     // to fulfill the request.
-    public Expression GetExpression(
+    public ServiceContext GetExpression(
         IResolutionStrategy resolutionStrategy,
         TypeInformation typeInfo,
         ResolutionContext resolutionContext)
     {
-        // resolution expression generation.
+        var expression = GenerateExpression(); // resolution expression generation.
+        return new ServiceContext(expression, null);
     }
 
     public bool CanUseForResolution(
