@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Additional [metadata registration](https://z4kn4fein.github.io/stashbox/#/advanced/generics?id=metadata-amp-tuple) option.
 - Support for requesting a [service along with its identifier](https://z4kn4fein.github.io/stashbox/#/advanced/generics?id=keyvaluepair-amp-readonlykeyvalue).
-- Support for [per-request lifetime](https://z4kn4fein.github.io/stashbox/#/advanced/lifetimes?id=per-request-lifetime).
+- Support for [per-request lifetime](https://z4kn4fein.github.io/stashbox/#/usage/lifetimes?id=per-request-lifetime).
 - New, clearer API for wrapper extensions.
 
 ### Fixed
