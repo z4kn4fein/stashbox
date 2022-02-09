@@ -1,5 +1,4 @@
-﻿using Stashbox.Utils;
-using System;
+﻿using System;
 using System.Runtime.Serialization;
 
 namespace Stashbox.Exceptions
@@ -34,17 +33,6 @@ namespace Stashbox.Exceptions
         /// <inheritdoc />
         protected ResolutionFailedException(SerializationInfo info, StreamingContext context)
             : base(info, context)
-        {
-            this.Type = (Type)info.GetValue("Type", typeof(Type));
-        }
-
-        /// <inheritdoc />
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            Shield.EnsureNotNull(info, "info");
-
-            info.AddValue("Type", this.Type, typeof(Type));
-            base.GetObjectData(info, context);
-        }
+        { }
     }
 }
