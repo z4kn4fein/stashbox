@@ -1,5 +1,4 @@
-﻿using Stashbox.Expressions;
-using Stashbox.Registration;
+﻿using Stashbox.Registration;
 using Stashbox.Resolution;
 using System;
 using System.Linq.Expressions;
@@ -18,7 +17,7 @@ namespace Stashbox.Lifetime
             return factory == null ? null : this.ApplyLifetime(factory, serviceRegistration, resolutionContext, requestedType);
         }
 
-        private static Func<IResolutionScope, object> GetFactoryDelegateForRegistration(ServiceRegistration serviceRegistration,
+        private static Func<IResolutionScope, IRequestContext, object> GetFactoryDelegateForRegistration(ServiceRegistration serviceRegistration,
             ResolutionContext resolutionContext, Type requestedType)
         {
             if (!IsRegistrationOutputCacheable(serviceRegistration, resolutionContext))
@@ -33,7 +32,7 @@ namespace Stashbox.Lifetime
             return factory;
         }
 
-        private static Func<IResolutionScope, object> GetNewFactoryDelegate(ServiceRegistration serviceRegistration,
+        private static Func<IResolutionScope, IRequestContext, object> GetNewFactoryDelegate(ServiceRegistration serviceRegistration,
             ResolutionContext resolutionContext, Type requestedType) =>
             GetExpressionForRegistration(serviceRegistration, resolutionContext, requestedType)
                 ?.CompileDelegate(resolutionContext, resolutionContext.CurrentContainerContext.ContainerConfiguration);
@@ -46,7 +45,7 @@ namespace Stashbox.Lifetime
         /// <param name="resolutionContext">The info about the actual resolution.</param>
         /// <param name="resolveType">The type of the resolved service.</param>
         /// <returns>The lifetime managed expression.</returns>
-        protected abstract Expression ApplyLifetime(Func<IResolutionScope, object> factory, ServiceRegistration serviceRegistration,
+        protected abstract Expression ApplyLifetime(Func<IResolutionScope, IRequestContext, object> factory, ServiceRegistration serviceRegistration,
             ResolutionContext resolutionContext, Type resolveType);
     }
 }

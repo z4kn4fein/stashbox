@@ -4,6 +4,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v5.0.0] - 2022-02-09
+### Added
+- Additional [metadata registration](https://z4kn4fein.github.io/stashbox/#/advanced/generics?id=metadata-amp-tuple) option.
+- Support for requesting a [service along with its identifier](https://z4kn4fein.github.io/stashbox/#/advanced/generics?id=keyvaluepair-amp-readonlykeyvalue).
+- Support for [per-request lifetime](https://z4kn4fein.github.io/stashbox/#/advanced/lifetimes?id=per-request-lifetime).
+- New, clearer API for wrapper extensions.
+
+### Fixed
+- There was a bug in the expression compiler that resulted in wrong IL generation in case of value types inside `IEnumerable<>`.
+
+### Changed
+- `Tuple<>` requests are not resolved with services in all its items anymore. It's became part of the newly introduced [resolution with metadata](https://z4kn4fein.github.io/stashbox/#/advanced/generics?id=metadata-amp-tuple) feature.
+- The `IResolver` interface became the base for the newly introduced `IServiceWrapper` and `IServiceResolver` interfaces. These became the main entrypoints for [container extensions](advanced/wrappers-resolvers).
+- To make the dependency overrides available in factories the `IResolutionContext` was bound to the generated expression tree and the compiled delegate. ([#105](https://github.com/z4kn4fein/stashbox/issues/105)) This temporary solution could lead issues as the resolution context is static between the compiled delegates, however the dependency overrides are not.
+
+  To resolve this, a new `IRequestContext` parameter is introduced for each compiled factory delegate that can be used to access overrides. (The same context object is used to produce and track per-request services)
+  ```cs
+  container.Register<Service>(options => options.
+      WithFactory<IRequestContext>(requestContext => 
+  {
+     // access the overrides through: requestContext.GetOverrides()
+     // or: requestContext.GetDependencyOverrideOrDefault<OverrideType>()
+  }))
+  ```
+
+### Removed
+- Support of circular dependencies with `Lazy<>` along with the `.WithCircularDependencyWithLazy()` container configuration option.
+
 ## [v4.1.0] - 2021-11-21
 ### Fixed
 - `IsRegistered()` returns `true` only when the container has a registration with the given type (and name).
@@ -164,6 +192,7 @@ The validation was executed only at the expression tree building phase, so an al
 - Removed the legacy container extension functionality.
 - Removed the support of PCL v259.
 
+[v5.0.0]: https://github.com/z4kn4fein/stashbox/compare/4.1.0...5.0.0
 [v4.1.0]: https://github.com/z4kn4fein/stashbox/compare/4.0.0...4.1.0
 [v4.0.0]: https://github.com/z4kn4fein/stashbox/compare/3.6.4...4.0.0
 [v3.6.4]: https://github.com/z4kn4fein/stashbox/compare/3.6.3...3.6.4

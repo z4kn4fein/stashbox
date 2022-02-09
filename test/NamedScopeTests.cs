@@ -46,14 +46,14 @@ namespace Stashbox.Tests
         public void NamedScope_Simple_Resolve_Wrapper_Prefer_Named(CompilerType compilerType)
         {
             using var scope = new StashboxContainer(config => config.WithCompiler(compilerType))
-                .Register<ITest, Test11>()
-                .Register<ITest, Test>(config => config.InNamedScope("A"))
-                .Register<ITest, Test1>()
+                .Register<ITest, Test11>(c => c.WithMetadata(new object()))
+                .Register<ITest, Test>(config => config.InNamedScope("A").WithMetadata(new object()))
+                .Register<ITest, Test1>(c => c.WithMetadata(new object()))
                 .BeginScope("A");
 
             var func = scope.Resolve<Func<ITest>>();
             var lazy = scope.Resolve<Lazy<ITest>>();
-            var tuple = scope.Resolve<Tuple<ITest>>();
+            var tuple = scope.Resolve<Tuple<ITest, object>>();
             var enumerable = scope.Resolve<IEnumerable<ITest>>();
             var all = scope.ResolveAll<ITest>();
 
@@ -70,9 +70,9 @@ namespace Stashbox.Tests
         {
             var inst = new StashboxContainer(config => config.WithCompiler(compilerType))
                 .Register<Test3>()
-                .Register<ITest, Test11>()
-                .Register<ITest, Test>(config => config.InNamedScope("A"))
-                .Register<ITest, Test1>()
+                .Register<ITest, Test11>(c => c.WithMetadata(new object()))
+                .Register<ITest, Test>(config => config.InNamedScope("A").WithMetadata(new object()))
+                .Register<ITest, Test1>(c => c.WithMetadata(new object()))
                 .BeginScope("A")
                 .Resolve<Test3>();
 
@@ -155,8 +155,8 @@ namespace Stashbox.Tests
         {
             var inst = new StashboxContainer(c => c.WithCompiler(compilerType))
                 .Register<Test3>()
-                .Register<ITest, Test>(config => config.InNamedScope("A"))
-                .Register<ITest, Test1>()
+                .Register<ITest, Test>(config => config.InNamedScope("A").WithMetadata(new object()))
+                .Register<ITest, Test1>(c => c.WithMetadata(new object()))
                 .BeginScope("A")
                 .Resolve<Test3>();
 
@@ -184,8 +184,8 @@ namespace Stashbox.Tests
         {
             var inst = new StashboxContainer(c => c.WithCompiler(compilerType))
                 .Register<Test3>()
-                .Register<ITest, Test>()
-                .Register<ITest, Test1>()
+                .Register<ITest, Test>(c => c.WithMetadata(new object()))
+                .Register<ITest, Test1>(c => c.WithMetadata(new object()))
                 .BeginScope("A")
                 .Resolve<Test3>();
 
@@ -201,9 +201,9 @@ namespace Stashbox.Tests
         {
             var inst = new StashboxContainer(c => c.WithCompiler(compilerType))
                 .Register<Test3>(config => config.DefinesScope("A"))
-                .Register<ITest, Test11>()
-                .Register<ITest, Test>(config => config.InNamedScope("A"))
-                .Register<ITest, Test1>()
+                .Register<ITest, Test11>(c => c.WithMetadata(new object()))
+                .Register<ITest, Test>(config => config.InNamedScope("A").WithMetadata(new object()))
+                .Register<ITest, Test1>(c => c.WithMetadata(new object()))
                 .Resolve<Test3>();
 
             Assert.IsType<Test>(inst.Func());
@@ -434,7 +434,7 @@ namespace Stashbox.Tests
 
         class Test3
         {
-            public Test3(Func<ITest> func, Lazy<ITest> lazy, IEnumerable<ITest> enumerable, Tuple<ITest> tuple)
+            public Test3(Func<ITest> func, Lazy<ITest> lazy, IEnumerable<ITest> enumerable, Tuple<ITest, object> tuple)
             {
                 Func = func;
                 Lazy = lazy;
@@ -445,7 +445,7 @@ namespace Stashbox.Tests
             public Func<ITest> Func { get; }
             public Lazy<ITest> Lazy { get; }
             public IEnumerable<ITest> Enumerable { get; }
-            public Tuple<ITest> Tuple { get; }
+            public Tuple<ITest, object> Tuple { get; }
         }
     }
 }

@@ -16,6 +16,21 @@ namespace System.Linq
             return result.Length > 0 ? result : null;
         }
 
+        public static T[] Append<T>(this T[] array, T item)
+        {
+            var count = array.Length;
+            if (count == 0)
+                return new[] { item };
+
+            var arr = new T[count + 1];
+            Array.Copy(array, arr, count);
+            arr[count] = item;
+            return arr;
+        }
+
+        public static bool ContainsReference<TElement>(this TElement[] array, TElement element) where TElement : class =>
+            array.GetReferenceIndex(element) != -1;
+
         public static int GetReferenceIndex<TElement>(this TElement[] array, TElement element) where TElement : class
         {
             if (array == null || array.Length == 0) return -1;
@@ -30,19 +45,16 @@ namespace System.Linq
             return -1;
         }
 
-        public static bool ContainsReference<TElement>(this TElement[] array, TElement element) where TElement : class =>
-            array.GetReferenceIndex(element) != -1;
-
-        public static TResult[] SelectButLast<TSource, TResult>(this TSource[] source, Func<TSource, TResult> selector)
+        public static TSource[] SelectButLast<TSource>(this TSource[] source)
         {
             var length = source.Length;
             if (length == 1)
-                return Constants.EmptyArray<TResult>();
+                return Constants.EmptyArray<TSource>();
 
             var resultLength = length - 1;
-            var result = new TResult[resultLength];
+            var result = new TSource[resultLength];
             for (var i = 0; i < resultLength; i++)
-                result[i] = selector(source[i]);
+                result[i] = source[i];
 
             return result;
         }
@@ -70,9 +82,6 @@ namespace System.Linq
 
             return result;
         }
-
-        public static ExpandableArray<TItem> AsExpandableArray<TItem>(this IEnumerable<TItem> enumerable) =>
-            ExpandableArray<TItem>.FromEnumerable(enumerable);
 
         public static Stashbox.Utils.Data.Stack<TItem> AsStack<TItem>(this IEnumerable<TItem> enumerable) =>
             Stashbox.Utils.Data.Stack<TItem>.FromEnumerable(enumerable);

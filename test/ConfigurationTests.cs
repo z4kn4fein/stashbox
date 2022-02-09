@@ -45,12 +45,7 @@ namespace Stashbox.Tests
         [Fact]
         public void Ensure_Feature_Configurations_Working()
         {
-            using var container = new StashboxContainer(c => c.WithCircularDependencyWithLazy());
-            Assert.True(container.ContainerContext.ContainerConfiguration.CircularDependenciesWithLazyEnabled);
-
-            container.Configure(c => c.WithCircularDependencyWithLazy(false));
-            Assert.False(container.ContainerContext.ContainerConfiguration.CircularDependenciesWithLazyEnabled);
-
+            using var container = new StashboxContainer();
 
             container.Configure(c => c.WithDefaultValueInjection());
             Assert.True(container.ContainerContext.ContainerConfiguration.DefaultValueInjectionEnabled);

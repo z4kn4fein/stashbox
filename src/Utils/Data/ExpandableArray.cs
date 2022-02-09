@@ -133,7 +133,7 @@ namespace Stashbox.Utils.Data
         IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
     }
 
-    internal class ExpandableArray<TKey, TItem> : ExpandableArray<KeyValue<TKey, TItem>>
+    internal class ExpandableArray<TKey, TItem> : ExpandableArray<ReadOnlyKeyValue<TKey, TItem>>
     {
         public ExpandableArray()
         { }
@@ -176,7 +176,7 @@ namespace Stashbox.Utils.Data
                 return;
 
             var index = this.EnsureSize();
-            this.Repository[index] = new KeyValue<TKey, TItem>(item, value);
+            this.Repository[index] = new ReadOnlyKeyValue<TKey, TItem>(item, value);
         }
 
         public void AddOrUpdate(TKey key, TItem value)
@@ -184,12 +184,12 @@ namespace Stashbox.Utils.Data
             var index = this.IndexOf(key);
             if (index >= 0)
             {
-                this.Repository[index] = new KeyValue<TKey, TItem>(key, value);
+                this.Repository[index] = new ReadOnlyKeyValue<TKey, TItem>(key, value);
                 return;
             }
 
             index = this.EnsureSize();
-            this.Repository[index] = new KeyValue<TKey, TItem>(key, value);
+            this.Repository[index] = new ReadOnlyKeyValue<TKey, TItem>(key, value);
         }
 
         public int IndexAndValueOf(TKey key, out TItem value)

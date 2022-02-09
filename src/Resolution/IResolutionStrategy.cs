@@ -1,6 +1,5 @@
 ﻿using Stashbox.Registration;
 using System.Collections.Generic;
-using System.Linq.Expressions;
 
 namespace Stashbox.Resolution
 {
@@ -10,12 +9,18 @@ namespace Stashbox.Resolution
     public interface IResolutionStrategy
     {
         /// <summary>
+        /// Registers an <see cref="IResolver"/>.
+        /// </summary>
+        /// <param name="resolver">The resolver implementation.</param>
+        void RegisterResolver(IResolver resolver);
+
+        /// <summary>
         /// Builds the resolution expression for the requested service.
         /// </summary>
         /// <param name="resolutionContext">The resolution context.</param>
         /// <param name="typeInformation">The type info of the requested service.</param>
         /// <returns>The built expression tree.</returns>
-        Expression BuildExpressionForType(ResolutionContext resolutionContext, TypeInformation typeInformation);
+        ServiceContext BuildExpressionForType(ResolutionContext resolutionContext, TypeInformation typeInformation);
 
         /// <summary>
         /// Builds all the resolution expressions for the enumerable service request.
@@ -23,7 +28,7 @@ namespace Stashbox.Resolution
         /// <param name="resolutionContext">The resolution context.</param>
         /// <param name="typeInformation">The type info of the requested service.</param>
         /// <returns>The built expression tree.</returns>
-        IEnumerable<Expression> BuildExpressionsForEnumerableRequest(ResolutionContext resolutionContext, TypeInformation typeInformation);
+        IEnumerable<ServiceContext> BuildExpressionsForEnumerableRequest(ResolutionContext resolutionContext, TypeInformation typeInformation);
 
         /// <summary>
         /// Builds the resolution expression for the requested service registration.
@@ -32,7 +37,7 @@ namespace Stashbox.Resolution
         /// <param name="resolutionContext">The resolution context.</param>
         /// <param name="typeInformation">The type info of the requested service.</param>
         /// <returns>The built expression tree.</returns>
-        Expression BuildExpressionForRegistration(ServiceRegistration serviceRegistration, ResolutionContext resolutionContext, TypeInformation typeInformation);
+        ServiceContext BuildExpressionForRegistration(ServiceRegistration serviceRegistration, ResolutionContext resolutionContext, TypeInformation typeInformation);
 
         /// <summary>
         /// Determines whether a type is resolvable with the current container state or not.

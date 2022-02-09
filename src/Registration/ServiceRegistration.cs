@@ -46,8 +46,6 @@ namespace Stashbox.Registration
         /// </summary>
         public RegistrationType RegistrationType { get; }
 
-        internal readonly bool IsResolvableByUnnamedRequest;
-
         internal readonly bool HasScopeName;
 
         internal readonly object NamedScopeRestrictionIdentifier;
@@ -56,18 +54,13 @@ namespace Stashbox.Registration
 
         internal readonly object RegistrationDiscriminator;
 
-        private protected readonly ContainerConfiguration Configuration;
-
-        internal ServiceRegistration(Type implementationType, RegistrationType registrationType, ContainerConfiguration containerConfiguration,
-            RegistrationContext registrationContext, bool isDecorator)
+        internal ServiceRegistration(Type implementationType, RegistrationType registrationType,
+            Rules.RegistrationBehavior currentRegistrationBehavior, RegistrationContext registrationContext, bool isDecorator)
         {
-            this.Configuration = containerConfiguration;
             this.ImplementationType = implementationType;
             this.RegistrationContext = registrationContext;
             this.IsDecorator = isDecorator;
             this.RegistrationType = registrationType;
-
-            this.IsResolvableByUnnamedRequest = this.RegistrationContext.Name == null || containerConfiguration.NamedDependencyResolutionForUnNamedRequestsEnabled;
 
             if (this.RegistrationContext.Lifetime is NamedScopeLifetime lifetime)
             {
@@ -75,13 +68,13 @@ namespace Stashbox.Registration
                 this.NamedScopeRestrictionIdentifier = lifetime.ScopeName;
             }
 
-            this.HasCondition = this.RegistrationContext.TargetTypeConditions.Length > 0 ||
-                this.RegistrationContext.ResolutionConditions.Length > 0 ||
-                this.RegistrationContext.AttributeConditions.Length > 0;
+            this.HasCondition = this.RegistrationContext.TargetTypeConditions != null ||
+                this.RegistrationContext.ResolutionConditions != null ||
+                this.RegistrationContext.AttributeConditions != null;
 
             this.RegistrationId = ReserveRegistrationId();
             this.RegistrationOrder = ReserveRegistrationOrder();
-            this.RegistrationDiscriminator = containerConfiguration.RegistrationBehavior == Rules.RegistrationBehavior.PreserveDuplications
+            this.RegistrationDiscriminator = currentRegistrationBehavior == Rules.RegistrationBehavior.PreserveDuplications
                     ? this.RegistrationId
                     : this.RegistrationContext.Name ?? implementationType;
         }
@@ -95,15 +88,18 @@ namespace Stashbox.Registration
             this.RegistrationOrder = serviceRegistration.RegistrationOrder;
 
         private bool HasParentTypeConditionAndMatch(TypeInformation typeInfo) =>
-            this.RegistrationContext.TargetTypeConditions.Length > 0 && typeInfo.ParentType != null && this.RegistrationContext.TargetTypeConditions.Contains(typeInfo.ParentType);
+            this.RegistrationContext.TargetTypeConditions != null && 
+            typeInfo.ParentType != null && 
+            this.RegistrationContext.TargetTypeConditions.Contains(typeInfo.ParentType);
 
         private bool HasAttributeConditionAndMatch(TypeInformation typeInfo) =>
-            this.RegistrationContext.AttributeConditions.Length > 0 && typeInfo.CustomAttributes != null &&
+            this.RegistrationContext.AttributeConditions != null && 
+            typeInfo.CustomAttributes != null &&
             this.RegistrationContext.AttributeConditions.Intersect(typeInfo.CustomAttributes.Select(attribute => attribute.GetType())).Any();
 
         private bool HasResolutionConditionAndMatch(TypeInformation typeInfo)
         {
-            if (this.RegistrationContext.ResolutionConditions.Length == 0)
+            if (this.RegistrationContext.ResolutionConditions == null)
                 return false;
 
             var length = this.RegistrationContext.ResolutionConditions.Length;

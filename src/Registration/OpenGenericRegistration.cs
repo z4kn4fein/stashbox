@@ -1,4 +1,5 @@
 ﻿using Stashbox.Configuration;
+using Stashbox.Resolution;
 using Stashbox.Utils;
 using Stashbox.Utils.Data.Immutable;
 using System;
@@ -10,24 +11,25 @@ namespace Stashbox.Registration
         private ImmutableTree<Type, ServiceRegistration> closedGenericRegistrations = ImmutableTree<Type, ServiceRegistration>.Empty;
 
         internal OpenGenericRegistration(Type implementationType,
-            ContainerConfiguration containerConfiguration,
+            Rules.RegistrationBehavior currentRegistrationBehavior,
             RegistrationContext registrationContext,
             bool isDecorator)
             : base(implementationType,
                   RegistrationType.OpenGeneric,
-                  containerConfiguration,
+                  currentRegistrationBehavior,
                   registrationContext,
                   isDecorator)
         { }
 
-        public ServiceRegistration ProduceClosedRegistration(Type requestedType)
+        public ServiceRegistration ProduceClosedRegistration(Type requestedType, ResolutionContext resolutionContext)
         {
             var found = this.closedGenericRegistrations.GetOrDefaultByRef(requestedType);
             if (found != null) return found;
 
             var genericType = this.ImplementationType.MakeGenericType(requestedType.GetGenericArguments());
             var newRegistration = new ServiceRegistration(genericType, RegistrationType.Default,
-                    base.Configuration, base.RegistrationContext, base.IsDecorator);
+                    resolutionContext.CurrentContainerContext.ContainerConfiguration.RegistrationBehavior,
+                    base.RegistrationContext, base.IsDecorator);
             newRegistration.RegistrationContext.Name = null;
 
             return Swap.SwapValue(ref this.closedGenericRegistrations, (t1, t2, _, _, items) =>

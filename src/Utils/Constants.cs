@@ -1,10 +1,10 @@
 ﻿using Stashbox.Resolution;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 
 namespace Stashbox.Utils
 {
@@ -16,11 +16,15 @@ namespace Stashbox.Utils
 
         public static readonly Type ResolverType = typeof(IDependencyResolver);
 
-        public static readonly Type ResolutionContextType = typeof(IResolutionContext);
+        public static readonly Type RequestContextType = typeof(IRequestContext);
+
+        public static readonly Type PerRequestInstanceHolderType = typeof(IPerRequestInstanceHolder);
 
         public static readonly Type ObjectType = typeof(object);
 
         public static readonly ParameterExpression ResolutionScopeParameter = ResolutionScopeType.AsParameter("scope");
+
+        public static readonly ParameterExpression RequestContextParameter = RequestContextType.AsParameter("request");
 
         public static readonly MethodInfo AddDisposalMethod = ResolutionScopeType.GetMethod(nameof(IResolutionScope.AddDisposableTracking));
 
@@ -30,6 +34,8 @@ namespace Stashbox.Utils
 
         public static readonly MethodInfo AddWithAsyncInitializerMethod = ResolutionScopeType.GetMethod(nameof(IResolutionScope.AddWithAsyncInitializer));
 
+        public static readonly MethodInfo GetOrAddInstanceMethod = PerRequestInstanceHolderType.GetMethod(nameof(IPerRequestInstanceHolder.GetOrAddInstance));
+
         public static readonly MethodInfo CheckRuntimeCircularDependencyBarrierMethod =
             ResolutionScopeType.GetMethod(nameof(IResolutionScope.CheckRuntimeCircularDependencyBarrier));
 
@@ -37,10 +43,6 @@ namespace Stashbox.Utils
             ResolutionScopeType.GetMethod(nameof(IResolutionScope.ResetRuntimeCircularDependencyBarrier));
 
         public static readonly MethodInfo BeginScopeMethod = ResolverType.GetMethod(nameof(IDependencyResolver.BeginScope));
-
-        public static readonly MethodInfo ResolveMethod =
-            ResolverType.GetMethod(nameof(IDependencyResolver.Resolve), new[] { typeof(Type),
-                ObjectType, typeof(bool), typeof(object[]) });
 
         public static readonly Type DisposableType = typeof(IDisposable);
 

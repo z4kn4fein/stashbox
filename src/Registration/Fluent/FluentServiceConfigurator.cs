@@ -1,5 +1,6 @@
 ﻿using Stashbox.Utils;
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -26,6 +27,10 @@ namespace Stashbox.Registration.Fluent
             if (expression.Body is not MemberExpression memberExpression)
                 throw new ArgumentException("The expression must be a member expression (Property or Field)",
                     nameof(expression));
+
+            if (this.Context.DependencyBindings == null)
+                this.Context.DependencyBindings = new Dictionary<object, object>();
+
             this.Context.DependencyBindings.Add(memberExpression.Member.Name, dependencyName);
             return (TConfigurator)this;
 
@@ -123,10 +128,21 @@ namespace Stashbox.Registration.Fluent
         { }
 
         /// <summary>
+        /// Sets the metadata.
+        /// </summary>
+        /// <param name="metadata">The metadata.</param>
+        /// <returns>The fluent configurator.</returns>
+        public TConfigurator WithMetadata(object metadata)
+        {
+            this.Context.Metadata = metadata;
+            return (TConfigurator)this;
+        }
+
+        /// <summary>
         /// Sets the name of the registration.
         /// </summary>
         /// <param name="name">The name of the registration.</param>
-        /// <returns>The configurator itself.</returns>
+        /// <returns>The fluent configurator.</returns>
         public TConfigurator WithName(object name)
         {
             this.Context.Name = name;
@@ -137,7 +153,7 @@ namespace Stashbox.Registration.Fluent
         /// This registration is used as a logical scope for it's dependencies. Dependencies registered with the <see cref="BaseFluentConfigurator{TConfigurator}.InNamedScope"/> with the same name will be preferred during resolution.
         /// </summary>
         /// <param name="scopeName">The name of the scope. When the name is null, the type which defines the scope is used as name.</param>
-        /// <returns>The configurator itself.</returns>
+        /// <returns>The fluent configurator.</returns>
         public TConfigurator DefinesScope(object scopeName = null)
         {
             this.Context.DefinedScopeName = scopeName ?? this.ImplementationType;

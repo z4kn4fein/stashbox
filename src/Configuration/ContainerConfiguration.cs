@@ -53,11 +53,6 @@ namespace Stashbox.Configuration
         public bool AutoMemberInjectionEnabled { get; internal set; }
 
         /// <summary>
-        /// If it's set to true, the container will not track circular dependencies performed with <see cref="Lazy{T}"/>.
-        /// </summary>
-        public bool CircularDependenciesWithLazyEnabled { get; internal set; }
-
-        /// <summary>
         /// If it's set to true, the container will treat the name of a constructor/method parameter or member name as a dependency name used by named resolution.
         /// </summary>
         public bool TreatingParameterAndMemberNameAsDependencyNameEnabled { get; internal set; }

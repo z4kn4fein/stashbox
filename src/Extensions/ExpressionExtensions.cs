@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Reflection;
 using Stashbox.Utils.Data;
 using Stashbox.Expressions.Compile;
+using Stashbox.Registration;
+using Stashbox.Utils;
 
 namespace System.Linq.Expressions
 {
@@ -13,20 +15,34 @@ namespace System.Linq.Expressions
     /// </summary>
     public static class ExpressionExtensions
     {
+        internal static ServiceContext AsContext(this Expression expression, ServiceRegistration serviceRegistration = null) => 
+            new(expression, serviceRegistration);
+
+        private static Expression PostProcess(this Expression expression)
+        {
+            if (expression.NodeType == ExpressionType.Convert &&
+                expression is UnaryExpression unaryExpression &&
+                unaryExpression.Operand.Type == Constants.ObjectType)
+                return unaryExpression;
+
+            return expression.Type.IsValueType ? expression.ConvertTo(Constants.ObjectType) : expression;
+        }
+
         /// <summary>
-        /// Compiles an <see cref="Expression"/> to a <see cref="Func{T,R}"/> of <see cref="IResolutionScope"/>, <see cref="object"/>.
+        /// Compiles an <see cref="Expression"/> to a <see cref="Func{T1, T2, TResult}"/> of <see cref="IResolutionScope"/>, <see cref="IRequestContext"/>, and <see cref="object"/>.
         /// </summary>
         /// <param name="expression">The expression.</param>
         /// <param name="resolutionContext">The resolution context.</param>
         /// <param name="containerConfiguration">The container configuration.</param>
         /// <returns>The compiled delegate.</returns>
-        public static Func<IResolutionScope, object> CompileDelegate(this Expression expression,
+        public static Func<IResolutionScope, IRequestContext, object> CompileDelegate(this Expression expression,
             ResolutionContext resolutionContext, ContainerConfiguration containerConfiguration)
         {
+            expression = expression.PostProcess();
             if (expression.NodeType == ExpressionType.Constant)
             {
                 var instance = ((ConstantExpression)expression).Value;
-                return scope => instance;
+                return (_, _) => instance;
             }
 
             if (!resolutionContext.DefinedVariables.IsEmpty)
@@ -36,14 +52,14 @@ namespace System.Linq.Expressions
             }
 
             if (containerConfiguration.ExternalExpressionCompiler != null)
-                return (Func<IResolutionScope, object>)containerConfiguration.ExternalExpressionCompiler(
-                    expression.AsLambda(resolutionContext.CurrentScopeParameter));
+                return (Func<IResolutionScope, IRequestContext, object>)containerConfiguration.ExternalExpressionCompiler(
+                    expression.AsLambda(resolutionContext.CurrentScopeParameter, resolutionContext.RequestContextParameter));
 
-            if (!expression.TryEmit(out var factory, typeof(Func<IResolutionScope, object>), typeof(object),
-                resolutionContext.CurrentScopeParameter))
-                factory = expression.AsLambda(resolutionContext.CurrentScopeParameter).Compile();
+            if (!expression.TryEmit(out var factory, typeof(Func<IResolutionScope, IRequestContext, object>), typeof(object),
+                resolutionContext.CurrentScopeParameter, resolutionContext.RequestContextParameter))
+                factory = expression.AsLambda(resolutionContext.CurrentScopeParameter, resolutionContext.RequestContextParameter).Compile();
 
-            return (Func<IResolutionScope, object>)factory;
+            return (Func<IResolutionScope, IRequestContext, object>)factory;
         }
 
         /// <summary>
@@ -60,15 +76,16 @@ namespace System.Linq.Expressions
         }
 
         /// <summary>
-        /// Compiles an <see cref="Expression"/> to a <see cref="Func{T,R}"/> of <see cref="IResolutionScope"/>, <see cref="Delegate"/>.
+        /// Compiles an <see cref="Expression"/> to a <see cref="Func{T,R}"/> of <see cref="IResolutionScope"/>, <see cref="IRequestContext"/>, and <see cref="Delegate"/>.
         /// </summary>
         /// <param name="expression">The expression.</param>
         /// <param name="resolutionContext">The resolution context.</param>
         /// <param name="containerConfiguration">The container configuration.</param>
         /// <returns>The compiled delegate.</returns>
-        public static Func<IResolutionScope, Delegate> CompileDynamicDelegate(this Expression expression,
+        public static Func<IResolutionScope, IRequestContext, Delegate> CompileDynamicDelegate(this Expression expression,
             ResolutionContext resolutionContext, ContainerConfiguration containerConfiguration)
         {
+            expression = expression.PostProcess();
             if (!resolutionContext.DefinedVariables.IsEmpty)
             {
                 resolutionContext.SingleInstructions.Add(expression);
@@ -76,14 +93,14 @@ namespace System.Linq.Expressions
             }
 
             if (containerConfiguration.ExternalExpressionCompiler != null)
-                return (Func<IResolutionScope, Delegate>)containerConfiguration.ExternalExpressionCompiler(
-                    expression.AsLambda(resolutionContext.CurrentScopeParameter));
+                return (Func<IResolutionScope, IRequestContext, Delegate>)containerConfiguration.ExternalExpressionCompiler(
+                    expression.AsLambda(resolutionContext.CurrentScopeParameter, resolutionContext.RequestContextParameter));
 
-            if (!expression.TryEmit(out var factory, typeof(Func<IResolutionScope, Delegate>), typeof(Delegate),
-                resolutionContext.CurrentScopeParameter))
-                factory = expression.AsLambda<Func<IResolutionScope, Delegate>>(resolutionContext.CurrentScopeParameter).Compile();
+            if (!expression.TryEmit(out var factory, typeof(Func<IResolutionScope, IRequestContext, Delegate>), typeof(Delegate),
+                resolutionContext.CurrentScopeParameter, resolutionContext.RequestContextParameter))
+                factory = expression.AsLambda<Func<IResolutionScope, IRequestContext, Delegate>>(resolutionContext.CurrentScopeParameter, resolutionContext.RequestContextParameter).Compile();
 
-            return (Func<IResolutionScope, Delegate>)factory;
+            return (Func<IResolutionScope, IRequestContext, Delegate>)factory;
         }
 
         /// <summary>
@@ -156,7 +173,7 @@ namespace System.Linq.Expressions
         internal static BlockExpression AsBlock(this ExpandableArray<Expression> expressions, params ParameterExpression[] variables) =>
             Expression.Block(variables, expressions);
 
-        internal static BlockExpression AsBlock(this ExpandableArray<Expression> expressions, IEnumerable<ParameterExpression> variables) =>
+        private static BlockExpression AsBlock(this ExpandableArray<Expression> expressions, IEnumerable<ParameterExpression> variables) =>
             Expression.Block(variables, expressions);
 
         /// <summary>
@@ -340,7 +357,7 @@ namespace System.Linq.Expressions
         /// <param name="memberInfo">The property or field info.</param>
         /// <returns>The member access expression.</returns>
         public static MemberExpression Member(this Expression expression, MemberInfo memberInfo) =>
-            memberInfo is PropertyInfo prop ? Expression.Property(expression, prop) : Expression.Field(expression, memberInfo as FieldInfo);
+            memberInfo is PropertyInfo prop ? Expression.Property(expression, prop) : Expression.Field(expression, (FieldInfo)memberInfo);
 
         /// <summary>
         /// Constructs a property access expression, => Expression.Property(expression, prop)

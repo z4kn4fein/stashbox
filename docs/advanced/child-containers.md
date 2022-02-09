@@ -112,7 +112,8 @@ You can build up a hierarchical tree structure from child containers because the
 using(var child1 = container.CreateChildContainer())
 {
     using(var child2 = child1.CreateChildContainer())
-    { }
+    { 
+    }
 }
 ```
 <!-- panels:end -->

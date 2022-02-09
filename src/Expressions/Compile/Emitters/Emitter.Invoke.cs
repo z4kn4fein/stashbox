@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using System.Reflection.Emit;
 using Stashbox.Expressions.Compile.Extensions;
 

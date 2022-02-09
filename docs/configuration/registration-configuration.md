@@ -34,7 +34,7 @@ container.Register<IJob, DbBackup>(options => options
 
 <br>
 <!-- div:left-panel -->
-The options API is fluent, which means all the related option methods can be chained after each other. 
+The registration configuration API is fluent, which means all the related option methods can be chained after each other. 
 This nature enables an easier way of configuring complicated registrations.
 
 <!-- div:right-panel -->
@@ -52,7 +52,7 @@ container.Register<IJob, DbBackup>(options => options
 <!-- panels:start -->
 <!-- div:left-panel -->
 ### `WithName`
-Sets the name of the registration.
+Sets the name identifier of the registration.
 <!-- div:right-panel -->
 ```cs
 container.Register<ILogger, ConsoleLogger>(config => config
@@ -87,6 +87,21 @@ Force disables the disposal tracking on the registration.
 ```cs
 container.Register<ILogger, ConsoleLogger>(options => options
     .WithoutDisposalTracking());
+```
+<!-- panels:end -->
+
+<!-- panels:start -->
+<!-- div:left-panel -->
+### `WithMetadata`
+Sets additional metadata for the registration. It's attached to the service upon its resolution through `Metadata<>` or `Tuple<>` wrappers.
+<!-- div:right-panel -->
+```cs
+container.Register<IJob, DbBackup>(options => options
+    .WithMetadata(connectionString));
+
+var jobWithConnectionString = container.Resolve<Tuple<IJob, string>>();
+Console.WriteLine(jobWithConnectionString.Item2); // prints the connection string.
+
 ```
 <!-- panels:end -->
 

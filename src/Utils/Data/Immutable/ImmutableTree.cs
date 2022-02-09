@@ -123,7 +123,7 @@ namespace Stashbox.Utils.Data.Immutable
         public override string ToString() => this.IsEmpty ? "empty" : $"{this.storedHash} : {this.storedValue}";
 
 
-        public IEnumerable<KeyValue<int, TValue>> Walk()
+        public IEnumerable<ReadOnlyKeyValue<int, TValue>> Walk()
         {
             if (this.IsEmpty)
                 yield break;
@@ -142,7 +142,7 @@ namespace Stashbox.Utils.Data.Immutable
                 else
                 {
                     currentNode = nodes[index--];
-                    yield return new KeyValue<int, TValue>(currentNode.storedHash, currentNode.storedValue);
+                    yield return new ReadOnlyKeyValue<int, TValue>(currentNode.storedHash, currentNode.storedValue);
 
                     currentNode = currentNode.rightNode;
                 }
@@ -429,7 +429,7 @@ namespace Stashbox.Utils.Data.Immutable
 
         public override string ToString() => this.IsEmpty ? "empty" : $"{this.storedKey} : {this.storedValue}";
 
-        public IEnumerable<KeyValue<TKey, TValue>> Walk()
+        public IEnumerable<ReadOnlyKeyValue<TKey, TValue>> Walk()
         {
             if (this.IsEmpty)
                 yield break;
@@ -448,7 +448,7 @@ namespace Stashbox.Utils.Data.Immutable
                 else
                 {
                     currentNode = nodes[index--];
-                    yield return new KeyValue<TKey, TValue>(currentNode.storedKey, currentNode.storedValue);
+                    yield return new ReadOnlyKeyValue<TKey, TValue>(currentNode.storedKey, currentNode.storedValue);
 
                     if (currentNode.collisions != null)
                         foreach (var keyValue in currentNode.collisions.Repository)

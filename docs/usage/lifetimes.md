@@ -128,9 +128,9 @@ IJob job = scope.Resolve<IJob>();
 ## Named scope lifetime
 
 <!-- div:left-panel -->
-It is the same as the scoped lifetime, except that the given service will be selected only when the resolution request is initiated on a scope with the same name.
+It is the same as the scoped lifetime, except that the given service will be selected only when the resolution request is initiated by a scope with the same name.
 
-You can also let a service [define](usage/scopes?id=service-as-scope) its own named scope within itself. Later this scope can be referred to in named scope lifetimes.
+You can also let a service [define](usage/scopes?id=service-as-scope) its own named scope within itself. During registration, this scope can be referred to by its name upon using a named scope lifetime.
 
 ?> Services with named scope lifetime are disposed when the related named scope is being disposed.
 <!-- div:right-panel -->
@@ -183,10 +183,27 @@ DbJobExecutor executor = scope.Resolve<DbJobExecutor>();
 <!-- panels:start -->
 
 <!-- div:title-panel -->
+## Per-request lifetime
+
+<!-- div:left-panel -->
+The requested service will be re-used within the whole resolution request. For each individual request a new instance will be created.
+
+<!-- div:right-panel -->
+
+```cs
+container.Register<IJob, DbBackup>(options => options
+    .WithPerRequestLifetime());
+```
+
+<!-- panels:end -->
+
+<!-- panels:start -->
+
+<!-- div:title-panel -->
 ## Per-scoped request lifetime
 
 <!-- div:left-panel -->
-The requested service will behave like a singleton with this lifetime, but only within a scoped dependency request. That means every scoped service will get a new exclusive instance that will be used by its sub-dependencies as well.
+The requested service will behave like a singleton, but only within a scoped dependency request. This means every scoped service will get a new exclusive instance that will be used by its sub-dependencies as well.
 
 <!-- div:right-panel -->
 

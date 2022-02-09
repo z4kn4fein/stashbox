@@ -2,7 +2,6 @@
 using Stashbox.Configuration;
 using Stashbox.Registration;
 using Stashbox.Resolution;
-using Stashbox.Resolution.Resolvers;
 using Stashbox.Utils;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,38 +30,8 @@ namespace System
         public static bool IsOpenGenericType(this Type type) =>
             type.IsGenericType && type.ContainsGenericParameters;
 
-        public static DependencyAttribute GetDependencyAttribute(this MemberInfo property)
-        {
-            var attr = property.GetCustomAttributes(Constants.DependencyAttributeType, false).FirstOrDefault();
-            return (DependencyAttribute)attr;
-        }
-
-        public static DependencyAttribute GetDependencyAttribute(this ParameterInfo parameter)
-        {
-            var attr = parameter.GetCustomAttributes(Constants.DependencyAttributeType, false).FirstOrDefault();
-            return (DependencyAttribute)attr;
-        }
-
-        public static InjectionMethodAttribute GetInjectionAttribute(this MemberInfo method)
-        {
-            var attr = method.GetCustomAttributes(Constants.InjectionAttributeType, false).FirstOrDefault();
-            return (InjectionMethodAttribute)attr;
-        }
-
         public static ConstructorInfo GetConstructor(this Type type, params Type[] args) =>
             type.GetConstructors().FirstOrDefault(c => c.GetParameters().Select(p => p.ParameterType).SequenceEqual(args));
-
-        public static bool IsBackingField(this MemberInfo field) =>
-            field.Name[0] == '<';
-
-        public static bool IsIndexer(this PropertyInfo property) =>
-            property.GetIndexParameters().Length != 0;
-
-        public static bool HasDefaultValue(this ParameterInfo parameter) =>
-            parameter.IsOptional;
-
-        public static bool HasPublicParameterlessConstructor(this Type type) =>
-            type.GetConstructors().FirstOrDefault(c => c.GetParameters().Length == 0) != null;
 
         public static bool IsDisposable(this Type type) =>
             type.Implements(Constants.DisposableType)
@@ -99,8 +68,6 @@ namespace System
             }
         }
 
-        public static bool IsObjectType(this Type type) => type == Constants.ObjectType;
-
         public static bool Implements(this Type type, Type interfaceType) =>
             type == interfaceType || (interfaceType.IsOpenGenericType()
                 ? type.ImplementsGenericType(interfaceType.GetGenericTypeDefinition())
@@ -135,12 +102,12 @@ namespace System
             var customAttributes = parameter.GetCustomAttributes();
             var dependencyName = parameter.GetDependencyAttribute()?.Name;
 
-            if (registrationContext.DependencyBindings.Count != 0 || containerConfiguration.TreatingParameterAndMemberNameAsDependencyNameEnabled)
+            if (registrationContext.DependencyBindings != null || containerConfiguration.TreatingParameterAndMemberNameAsDependencyNameEnabled)
             {
-                if (registrationContext.DependencyBindings.TryGetValue(parameter.Name,
+                if (registrationContext.DependencyBindings != null && registrationContext.DependencyBindings.TryGetValue(parameter.Name,
                     out var foundNamedDependencyName))
                     dependencyName = foundNamedDependencyName;
-                else if (registrationContext.DependencyBindings.TryGetValue(parameter.ParameterType,
+                else if (registrationContext.DependencyBindings != null && registrationContext.DependencyBindings.TryGetValue(parameter.ParameterType,
                     out var foundTypedDependencyName))
                     dependencyName = foundTypedDependencyName;
                 else if (dependencyName == null &&
@@ -165,16 +132,23 @@ namespace System
             var customAttributes = member.GetCustomAttributes();
             var dependencyName = member.GetDependencyAttribute()?.Name;
 
-            if (registrationContext.DependencyBindings.Count != 0 || containerConfiguration.TreatingParameterAndMemberNameAsDependencyNameEnabled)
+            if (registrationContext.DependencyBindings != null || containerConfiguration.TreatingParameterAndMemberNameAsDependencyNameEnabled)
             {
-                if (registrationContext.DependencyBindings.TryGetValue(member.Name, out var foundNamedDependencyName))
+                if (registrationContext.DependencyBindings != null && registrationContext.DependencyBindings.TryGetValue(member.Name, out var foundNamedDependencyName))
                     dependencyName = foundNamedDependencyName;
                 else if (dependencyName == null && containerConfiguration.TreatingParameterAndMemberNameAsDependencyNameEnabled)
                     dependencyName = member.Name;
             }
 
             var type = member is PropertyInfo prop ? prop.PropertyType : ((FieldInfo)member).FieldType;
-            return new TypeInformation(type, member.DeclaringType, dependencyName, customAttributes, member.Name, false, null);
+            return new TypeInformation(
+                type, 
+                member.DeclaringType, 
+                dependencyName, 
+                customAttributes, 
+                member.Name, 
+                false, 
+                null);
         }
 
         public static MethodInfo[] GetUsableMethods(this Type type)
@@ -268,13 +242,49 @@ namespace System
             return true;
         }
 
+        public static bool IsNullableType(this Type type) =>
+            type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
+
+        public static MethodInfo GetMethod(this Delegate @delegate) =>
+            @delegate.GetMethodInfo();
+
+        public static bool IsCompiledLambda(this Delegate @delegate) =>
+            @delegate.Target != null && @delegate.Target.GetType().FullName == "System.Runtime.CompilerServices.Closure";
+
+        public static string GetDiagnosticsView(this Type type)
+        {
+            if (!type.IsGenericType) return type.Name;
+            
+            var typeName = type.Name;
+            var i = typeName.IndexOf('`');
+            typeName = i != -1 ? typeName.Substring(0, i) : typeName;
+
+            typeName += "<";
+            if (type.IsGenericTypeDefinition)
+                typeName += new string(Enumerable.Repeat(',', type.GetGenericArguments().Length - 1).ToArray());
+            else
+                typeName += string.Join(",", type.GetGenericArguments().Select(a => a.GetDiagnosticsView()));
+
+            typeName += ">";
+
+            return typeName;
+        }
+        
+        private static bool IsObjectType(this Type type) => type == Constants.ObjectType;
+
+        private static bool HasDefaultConstructorConstraint(this GenericParameterAttributes attributes) =>
+            (attributes & GenericParameterAttributes.DefaultConstructorConstraint) == GenericParameterAttributes.DefaultConstructorConstraint;
+
+        private static bool HasReferenceTypeConstraint(this GenericParameterAttributes attributes) =>
+            (attributes & GenericParameterAttributes.ReferenceTypeConstraint) == GenericParameterAttributes.ReferenceTypeConstraint;
+        
         private static bool FilterProperty(this PropertyInfo prop, RegistrationContext contextData,
             ContainerConfiguration containerConfiguration, bool publicPropsEnabled, bool limitedPropsEnabled)
         {
             var valid = prop.CanWrite && !prop.IsIndexer() &&
                     (prop.GetDependencyAttribute() != null ||
                      publicPropsEnabled && prop.GetSetMethod() != null || limitedPropsEnabled ||
-                     contextData.DependencyBindings.ContainsKey(prop.Name));
+                     (contextData.DependencyBindings != null && contextData.DependencyBindings.ContainsKey(prop.Name)));
 
             valid = valid && (containerConfiguration.AutoMemberInjectionFilter == null || containerConfiguration.AutoMemberInjectionFilter(prop));
             valid = valid && (contextData.AutoMemberInjectionFilter == null || contextData.AutoMemberInjectionFilter(prop));
@@ -288,48 +298,42 @@ namespace System
             var valid = !field.IsInitOnly && !field.IsBackingField() &&
                         (field.GetDependencyAttribute() != null ||
                          fieldsEnabled ||
-                         contextData.DependencyBindings.ContainsKey(field.Name));
+                         (contextData.DependencyBindings != null && contextData.DependencyBindings.ContainsKey(field.Name)));
 
             valid = valid && (containerConfiguration.AutoMemberInjectionFilter == null || containerConfiguration.AutoMemberInjectionFilter(field));
             valid = valid && (contextData.AutoMemberInjectionFilter == null || contextData.AutoMemberInjectionFilter(field));
 
             return valid;
         }
-        public static bool IsNullableType(this Type type) =>
-            type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
+        
+        private static bool IsBackingField(this MemberInfo field) =>
+            field.Name[0] == '<';
 
-        public static bool HasDefaultConstructorConstraint(this GenericParameterAttributes attributes) =>
-            (attributes & GenericParameterAttributes.DefaultConstructorConstraint) == GenericParameterAttributes.DefaultConstructorConstraint;
+        private static bool IsIndexer(this PropertyInfo property) =>
+            property.GetIndexParameters().Length != 0;
 
-        public static bool HasReferenceTypeConstraint(this GenericParameterAttributes attributes) =>
-            (attributes & GenericParameterAttributes.ReferenceTypeConstraint) == GenericParameterAttributes.ReferenceTypeConstraint;
+        private static bool HasDefaultValue(this ParameterInfo parameter) =>
+            parameter.IsOptional;
 
-        public static MethodInfo GetMethod(this Delegate @delegate) =>
-            @delegate.GetMethodInfo();
-
-        public static bool IsCompiledLambda(this Delegate @delegate) =>
-            @delegate.Target != null && @delegate.Target.GetType().FullName == "System.Runtime.CompilerServices.Closure";
-
-        public static string GetDiagnosticsView(this Type type)
+        private static bool HasPublicParameterlessConstructor(this Type type) =>
+            type.GetConstructors().FirstOrDefault(c => c.GetParameters().Length == 0) != null;
+        
+        private static DependencyAttribute GetDependencyAttribute(this MemberInfo property)
         {
-            if (type.IsGenericType)
-            {
-                var typeName = type.Name;
-                var i = typeName.IndexOf('`');
-                typeName = i != -1 ? typeName.Substring(0, i) : typeName;
+            var attr = property.GetCustomAttributes(Constants.DependencyAttributeType, false).FirstOrDefault();
+            return (DependencyAttribute)attr;
+        }
 
-                typeName += "<";
-                if (type.IsGenericTypeDefinition)
-                    typeName += new string(Enumerable.Repeat(',', type.GetGenericArguments().Length - 1).ToArray());
-                else
-                    typeName += string.Join(",", type.GetGenericArguments().Select(a => a.GetDiagnosticsView()));
+        private static DependencyAttribute GetDependencyAttribute(this ParameterInfo parameter)
+        {
+            var attr = parameter.GetCustomAttributes(Constants.DependencyAttributeType, false).FirstOrDefault();
+            return (DependencyAttribute)attr;
+        }
 
-                typeName += ">";
-
-                return typeName;
-            }
-
-            return type.Name;
+        private static InjectionMethodAttribute GetInjectionAttribute(this MemberInfo method)
+        {
+            var attr = method.GetCustomAttributes(Constants.InjectionAttributeType, false).FirstOrDefault();
+            return (InjectionMethodAttribute)attr;
         }
     }
 }

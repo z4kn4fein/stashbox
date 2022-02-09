@@ -3,6 +3,7 @@ using Stashbox.Exceptions;
 using Stashbox.Lifetime;
 using Stashbox.Resolution;
 using Stashbox.Utils;
+using Stashbox.Utils.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -62,6 +63,13 @@ namespace Stashbox.Registration.Fluent
         public TConfigurator WithPerScopedRequestLifetime() => this.WithLifetime(Lifetimes.PerScopedRequest);
 
         /// <summary>
+        /// Sets the lifetime to <see cref="PerRequestLifetime"/>. This lifetime will create a new instance between resolution requests. 
+        /// Within the request the same instance will be re-used.
+        /// </summary>
+        /// <returns>The configurator itself.</returns>
+        public TConfigurator WithPerRequestLifetime() => this.WithLifetime(Lifetimes.PerRequest);
+
+        /// <summary>
         /// Sets a scope name condition for the registration, it will be used only when a scope with the given name requests it.
         /// </summary>
         /// <param name="scopeName">The name of the scope.</param>
@@ -98,6 +106,8 @@ namespace Stashbox.Registration.Fluent
         public TConfigurator WithDependencyBinding(Type dependencyType, object dependencyName = null)
         {
             Shield.EnsureNotNull(dependencyType, nameof(dependencyType));
+            if (this.Context.DependencyBindings == null)
+                this.Context.DependencyBindings = new Dictionary<object, object>();
 
             this.Context.DependencyBindings.Add(dependencyType, dependencyName);
 
@@ -113,6 +123,8 @@ namespace Stashbox.Registration.Fluent
         public TConfigurator WithDependencyBinding(string parameterName, object dependencyName = null)
         {
             Shield.EnsureNotNull(parameterName, nameof(parameterName));
+            if (this.Context.DependencyBindings == null)
+                this.Context.DependencyBindings = new Dictionary<object, object>();
 
             this.Context.DependencyBindings.Add(parameterName, dependencyName);
 
@@ -134,6 +146,8 @@ namespace Stashbox.Registration.Fluent
         public TConfigurator WhenDependantIs(Type targetType)
         {
             Shield.EnsureNotNull(targetType, nameof(targetType));
+            if (this.Context.TargetTypeConditions == null)
+                this.Context.TargetTypeConditions = new ExpandableArray<Type>();
 
             this.Context.TargetTypeConditions.Add(targetType);
             return (TConfigurator)this;
@@ -153,6 +167,9 @@ namespace Stashbox.Registration.Fluent
         /// <returns>The configurator itself.</returns>
         public TConfigurator WhenHas(Type attributeType)
         {
+            if (this.Context.AttributeConditions == null)
+                this.Context.AttributeConditions = new ExpandableArray<Type>();
+
             this.Context.AttributeConditions.Add(attributeType);
             return (TConfigurator)this;
         }
@@ -164,6 +181,9 @@ namespace Stashbox.Registration.Fluent
         /// <returns>The configurator itself.</returns>
         public TConfigurator When(Func<TypeInformation, bool> resolutionCondition)
         {
+            if (this.Context.ResolutionConditions == null)
+                this.Context.ResolutionConditions = new ExpandableArray<Func<TypeInformation, bool>>();
+
             this.Context.ResolutionConditions.Add(resolutionCondition);
             return (TConfigurator)this;
         }
@@ -175,6 +195,9 @@ namespace Stashbox.Registration.Fluent
         /// <returns>The fluent configurator.</returns>
         public TConfigurator WithInjectionParameters(params KeyValuePair<string, object>[] injectionParameters)
         {
+            if (this.Context.InjectionParameters == null)
+                this.Context.InjectionParameters = new ExpandableArray<KeyValuePair<string, object>>();
+
             this.Context.InjectionParameters.AddRange(injectionParameters);
             return (TConfigurator)this;
         }
@@ -187,6 +210,9 @@ namespace Stashbox.Registration.Fluent
         /// <returns>The fluent configurator.</returns>
         public TConfigurator WithInjectionParameter(string name, object value)
         {
+            if (this.Context.InjectionParameters == null)
+                this.Context.InjectionParameters = new ExpandableArray<KeyValuePair<string, object>>();
+
             this.Context.InjectionParameters.Add(new KeyValuePair<string, object>(name, value));
             return (TConfigurator)this;
         }
@@ -286,6 +312,9 @@ namespace Stashbox.Registration.Fluent
         /// <returns>The configurator itself.</returns>
         public TConfigurator AsImplementedTypes()
         {
+            if (this.Context.AdditionalServiceTypes == null)
+                this.Context.AdditionalServiceTypes = new ExpandableArray<Type>();
+
             this.Context.AdditionalServiceTypes.AddRange(this.ImplementationType.GetRegisterableInterfaceTypes()
                 .Concat(this.ImplementationType.GetRegisterableBaseTypes()));
             return (TConfigurator)this;
@@ -307,6 +336,9 @@ namespace Stashbox.Registration.Fluent
         {
             if (!this.ImplementationType.Implements(serviceType))
                 throw new ArgumentException($"The implementation type {base.ImplementationType} does not implement the given service type {serviceType}.");
+
+            if (this.Context.AdditionalServiceTypes == null)
+                this.Context.AdditionalServiceTypes = new ExpandableArray<Type>();
 
             this.Context.AdditionalServiceTypes.Add(serviceType);
             return (TConfigurator)this;

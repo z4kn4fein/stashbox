@@ -1,6 +1,7 @@
 ﻿using Stashbox.Utils;
 using Stashbox.Utils.Data.Immutable;
 using System;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -20,7 +21,6 @@ namespace Stashbox
             }
         }
 
-        private int disposed;
         private ImmutableLinkedList<object> disposables = ImmutableLinkedList<object>.Empty;
         private ImmutableLinkedList<Finalizable> finalizables = ImmutableLinkedList<Finalizable>.Empty;
 
@@ -117,6 +117,12 @@ namespace Stashbox
 
             foreach (var threadLocal in this.circularDependencyBarrier.Walk())
                 threadLocal.Value.Dispose();
+        }
+
+        private void ThrowIfDisposed([CallerMemberName] string caller = "<unknown>")
+        {
+            if (this.disposed == 1)
+                Shield.ThrowDisposedException(this.GetType().FullName, caller);
         }
     }
 }

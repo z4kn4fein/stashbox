@@ -6,12 +6,11 @@
     <RootNamespace>Stashbox.Tests</RootNamespace>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../sn.snk</AssemblyOriginatorKeyFile>
-    <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <LangVersion>latest</LangVersion>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp2.1' Or '$(TargetFramework)' == 'netcoreapp3.1' Or '$(TargetFramework)' == 'net5.0' Or '$(TargetFramework)' == 'net6.0'">
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1' Or '$(TargetFramework)' == 'net5.0' Or '$(TargetFramework)' == 'net6.0'">
     <DefineConstants>HAS_ASYNC_DISPOSABLE</DefineConstants>
   </PropertyGroup>
 
@@ -22,6 +21,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="3.1.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="FastExpressionCompiler" Version="2.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />
     <PackageReference Include="Moq" Version="4.10.1" />

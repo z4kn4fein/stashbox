@@ -10,6 +10,9 @@ namespace Stashbox.Resolution.Extensions
         public static Expression SelectInjectionParameterOrDefault(this IEnumerable<KeyValuePair<string, object>> injectionParameters,
             TypeInformation typeInformation)
         {
+            if (injectionParameters == null)
+                return null;
+
             var memberName = typeInformation.ParameterOrMemberName;
             var matchingParam = injectionParameters.FirstOrDefault(param => param.Key == memberName);
             if (matchingParam.Equals(default(KeyValuePair<string, object>))) return null;

@@ -7,10 +7,10 @@
     --search-input-background-color: var(--base-background-color);
 
     --base-line-height: 1.55;
-    --base-color: #b2b8be;
-    --heading-color: #c3c8ce;
+    --base-color: #c5cace;
+    --heading-color: #dcdfe4;
 
-    --theme-color: #3190bd;
+    --theme-color: #379fcf;
     --theme-2-color: #fd9572;
 
     --sidebar-toggle-icon-stroke-width: 2px;
@@ -71,7 +71,7 @@
     --pagination-border-top: 1px solid var(--table-cell-border-color);
     --pagination-title-color: var(--heading-color);
 
-    --docsifytabs-tab-highlight-px: 2px;
+    --docsifytabs-tab-highlight-px: 0px;
     --docsifytabs-tab-color: #73818b;
 
     --copycode-background: var(--theme-color);
@@ -389,11 +389,20 @@ button.sidebar-toggle {
 
 .docsify-tabs__tab {
     cursor: pointer;
+    border-bottom: 2px solid transparent !important;
+    margin-bottom: 0 !important;
 }
 
 .docsify-tabs__tab--active {
     color: var(--heading-color) !important;
-    background-color: #1c242c !important;
+    background-color: #1f2730 !important;
+    border-bottom: 2px solid var(--theme-color) !important;
+    margin-bottom: 0 !important;
+}
+
+.docsify-tabs__tab:not(.docsify-tabs__tab--active):hover {
+    border-bottom: 2px solid #1f6383 !important;
+    margin-bottom: 0 !important;
 }
 
 

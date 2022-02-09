@@ -1,41 +1,18 @@
 ﻿using Stashbox.Exceptions;
-using Stashbox.Expressions;
+using Stashbox.Resolution;
 using Stashbox.Utils;
+using Stashbox.Utils.Data;
 using Stashbox.Utils.Data.Immutable;
 using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
+using System.Linq;
+using System.Linq.Expressions;
 using System.Threading;
 
 namespace Stashbox
 {
     internal sealed partial class ResolutionScope : IResolutionScope
     {
-        private class DelegateCache
-        {
-            public ImmutableTree<object, Func<IResolutionScope, object>> ServiceDelegates = ImmutableTree<object, Func<IResolutionScope, object>>.Empty;
-            public ImmutableTree<object, Func<IResolutionScope, Delegate>> FactoryDelegates = ImmutableTree<object, Func<IResolutionScope, Delegate>>.Empty;
-        }
-
-        private class DelegateCacheProvider
-        {
-            public readonly DelegateCache DefaultCache = new();
-            public ImmutableTree<object, DelegateCache> NamedCache = ImmutableTree<object, DelegateCache>.Empty;
-
-            public DelegateCache GetNamedCache(object name)
-            {
-                var cache = this.NamedCache.GetOrDefaultByValue(name);
-                if (cache != null) return cache;
-
-                var newCache = new DelegateCache();
-                if (Swap.SwapValue(ref this.NamedCache, (t1, t2, _, _, items) =>
-                     items.AddOrUpdate(t1, t2, false), name, newCache, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder))
-                    return newCache;
-
-                return this.NamedCache.GetOrDefaultByValue(name) ?? newCache;
-            }
-        }
-
         private class ScopedEvaluator
         {
             private const int MaxWaitTimeInMs = 3000;
@@ -43,7 +20,7 @@ namespace Stashbox
             private int evaluated;
             private object evaluatedObject = Default;
 
-            public object Evaluate(IResolutionScope scope, Func<IResolutionScope, object> factory, Type serviceType)
+            public object Evaluate(IResolutionScope scope, IRequestContext requestContext, Func<IResolutionScope, IRequestContext, object> factory, Type serviceType)
             {
                 if (!ReferenceEquals(this.evaluatedObject, Default))
                     return this.evaluatedObject;
@@ -51,7 +28,7 @@ namespace Stashbox
                 if (Interlocked.CompareExchange(ref this.evaluated, 1, 0) != 0)
                     return this.WaitForEvaluation(serviceType);
 
-                this.evaluatedObject = factory(scope);
+                this.evaluatedObject = factory(scope, requestContext);
                 return this.evaluatedObject;
             }
 
@@ -66,7 +43,7 @@ namespace Stashbox
                         var currentTime = (uint)Environment.TickCount;
                         if (MaxWaitTimeInMs <= currentTime - startTime)
                             throw new ResolutionFailedException(serviceType,
-                                $"The scoped service {serviceType} was unavailable after {MaxWaitTimeInMs} ms. " +
+                                $"The service {serviceType} was unavailable after {MaxWaitTimeInMs} ms. " +
                                 "It's possible that the thread used to construct it crashed by a handled exception." +
                                 "This exception is supposed to prevent other caller threads from infinite waiting for service construction.");
                     }
@@ -78,98 +55,61 @@ namespace Stashbox
             }
         }
 
+        private int disposed;
         private readonly IContainerContext containerContext;
         private readonly DelegateCacheProvider delegateCacheProvider;
-        private readonly DelegateCache delegateCache;
-
-        private ImmutableTree<ScopedEvaluator> scopedItems = ImmutableTree<ScopedEvaluator>.Empty;
-        private ImmutableTree<object, object> scopedInstances = ImmutableTree<object, object>.Empty;
+        private ImmutableTree<ScopedEvaluator> scopedInstances = ImmutableTree<ScopedEvaluator>.Empty;
+        private ImmutableTree<object, object> lateKnownInstances = ImmutableTree<object, object>.Empty;
         private ImmutableTree<ThreadLocal<bool>> circularDependencyBarrier = ImmutableTree<ThreadLocal<bool>>.Empty;
+
+
+        internal readonly DelegateCache DelegateCache;
 
         public object Name { get; }
 
         public IResolutionScope ParentScope { get; }
 
-        private ResolutionScope(IContainerContext containerContext,
-            DelegateCacheProvider delegateCacheProvider, object name)
+        public ResolutionScope(IContainerContext containerContext)
         {
             this.containerContext = containerContext;
-            this.Name = name;
-            this.delegateCacheProvider = delegateCacheProvider;
+            this.delegateCacheProvider = new DelegateCacheProvider();
+            this.DelegateCache = new DelegateCache();
+        }
 
-            this.delegateCache = name == null
+        private ResolutionScope(IResolutionScope parent, IContainerContext containerContext, DelegateCacheProvider delegateCacheProvider, object name)
+        {
+            this.containerContext = containerContext;
+            this.delegateCacheProvider = delegateCacheProvider;
+            this.ParentScope = parent;
+            this.Name = name;
+            this.DelegateCache = name == null
                 ? delegateCacheProvider.DefaultCache
                 : delegateCacheProvider.GetNamedCache(name);
         }
 
-        internal ResolutionScope(IContainerContext containerContext)
-            : this(containerContext, new DelegateCacheProvider(), null)
-        { }
-
-        private ResolutionScope(IContainerContext containerContext,
-            IResolutionScope parent, DelegateCacheProvider delegateCacheProvider, object name = null)
-            : this(containerContext, delegateCacheProvider, name)
-        {
-            this.ParentScope = parent;
-        }
-
-        public IDependencyResolver BeginScope(object name = null, bool attachToParent = false)
+        public object GetOrAddScopedObject(int key, Func<IResolutionScope, IRequestContext, object> factory,
+            IRequestContext requestContext, Type requestedType)
         {
             this.ThrowIfDisposed();
 
-            var scope = new ResolutionScope(this.containerContext, this, this.delegateCacheProvider, name);
-
-            if (attachToParent)
-                this.AddDisposableTracking(scope);
-
-            return scope;
-        }
-
-        public IDependencyResolver PutInstanceInScope(Type typeFrom, object instance, bool withoutDisposalTracking = false, object name = null)
-        {
-            this.ThrowIfDisposed();
-            Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
-            Shield.EnsureNotNull(instance, nameof(instance));
-
-            var key = name ?? typeFrom;
-            Swap.SwapValue(ref this.scopedInstances, (t1, t2, _, _, instances) =>
-                instances.AddOrUpdate(t1, t2, false), key, instance, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
-
-            if (!withoutDisposalTracking && instance is IDisposable disposable)
-                this.AddDisposableTracking(disposable);
-
-            this.InvalidateDelegateCache();
-
-            return this;
-        }
-
-        public object GetOrAddScopedObject(int key, Func<IResolutionScope, object> factory, Type requestedType, bool validateLifetimeFromRootScope = false)
-        {
-            this.ThrowIfDisposed();
-
-            var item = this.scopedItems.GetOrDefault(key);
-            if (item != null) return item.Evaluate(this, factory, requestedType);
-
-            if (validateLifetimeFromRootScope &&
-                this.containerContext.ContainerConfiguration.LifetimeValidationEnabled &&
-                ReferenceEquals(this, this.containerContext.RootScope))
-                throw new LifetimeValidationFailedException(requestedType,
-                    $"Resolution of scoped {requestedType} from the root scope is not allowed, " +
-                    $"that would promote the service's lifetime to singleton.");
+            var item = this.scopedInstances.GetOrDefault(key);
+            if (item != null) return item.Evaluate(this, requestContext, factory, requestedType);
 
             var evaluator = new ScopedEvaluator();
-            return Swap.SwapValue(ref this.scopedItems, (t1, t2, _, _, items) =>
-                items.AddOrUpdate(t1, t2), key, evaluator, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder) 
-                ? evaluator.Evaluate(this, factory, requestedType) 
-                : this.scopedItems.GetOrDefault(key).Evaluate(this, factory, requestedType);
+            return Swap.SwapValue(ref this.scopedInstances, (t1, t2, _, _, items) =>
+                items.AddOrUpdate(t1, t2), key, evaluator, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder)
+                ? evaluator.Evaluate(this, requestContext, factory, requestedType)
+                : this.scopedInstances.GetOrDefault(key).Evaluate(this, requestContext, factory, requestedType);
         }
 
         public void InvalidateDelegateCache()
         {
             this.ThrowIfDisposed();
 
-            this.delegateCacheProvider.DefaultCache.ServiceDelegates = ImmutableTree<object, Func<IResolutionScope, object>>.Empty;
-            this.delegateCacheProvider.DefaultCache.FactoryDelegates = ImmutableTree<object, Func<IResolutionScope, Delegate>>.Empty;
+            this.delegateCacheProvider.DefaultCache.ServiceDelegates = this.DelegateCache.ServiceDelegates = 
+                ImmutableTree<object, Func<IResolutionScope, IRequestContext, object>>.Empty;
+            this.delegateCacheProvider.DefaultCache.RequestContextAwareDelegates = this.DelegateCache.RequestContextAwareDelegates = 
+                ImmutableTree<object, Func<IResolutionScope, IRequestContext, object>>.Empty;
             this.delegateCacheProvider.NamedCache = ImmutableTree<object, DelegateCache>.Empty;
         }
 
@@ -204,10 +144,31 @@ namespace Stashbox
                 check.Value = false;
         }
 
-        private void ThrowIfDisposed([CallerMemberName] string caller = "<unknown>")
+        internal HashTree<object, ConstantExpression> ProcessDependencyOverrides(object[] dependencyOverrides)
         {
-            if (this.disposed == 1)
-                Shield.ThrowDisposedException(this.GetType().FullName, caller);
+            if (dependencyOverrides == null && this.lateKnownInstances.IsEmpty)
+                return null;
+
+            var result = new HashTree<object, ConstantExpression>();
+
+            if (!this.lateKnownInstances.IsEmpty)
+                foreach (var lateKnownInstance in this.lateKnownInstances.Walk())
+                    result.Add(lateKnownInstance.Key, lateKnownInstance.Value.AsConstant(), false);
+
+            if (dependencyOverrides == null) return result;
+
+            foreach (var dependencyOverride in dependencyOverrides)
+            {
+                var type = dependencyOverride.GetType();
+                var expression = dependencyOverride.AsConstant();
+
+                result.Add(type, expression, false);
+
+                foreach (var baseType in type.GetRegisterableInterfaceTypes().Concat(type.GetRegisterableBaseTypes()))
+                    result.Add(baseType, expression, false);
+            }
+
+            return result;
         }
     }
 }

@@ -1,6 +1,10 @@
-﻿using Stashbox.Exceptions;
+﻿using Stashbox.Configuration;
+using Stashbox.Exceptions;
+using Stashbox.Tests.Utils;
 using Stashbox.Utils;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -9,10 +13,11 @@ namespace Stashbox.Tests
 
     public class LifetimeTests
     {
-        [Fact]
-        public void LifetimeTests_Resolve()
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void LifetimeTests_Resolve(CompilerType compilerType)
         {
-            using IStashboxContainer container = new StashboxContainer();
+            using IStashboxContainer container = new StashboxContainer(c => c.WithCompiler(compilerType));
             container.RegisterSingleton<ITest1, Test1>();
             container.Register<ITest2, Test2>();
             container.Register<ITest3, Test3>();
@@ -27,10 +32,11 @@ namespace Stashbox.Tests
             Assert.NotNull(test3);
         }
 
-        [Fact]
-        public void LifetimeTests_Resolve_Parallel()
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void LifetimeTests_Resolve_Parallel(CompilerType compilerType)
         {
-            using IStashboxContainer container = new StashboxContainer();
+            using IStashboxContainer container = new StashboxContainer(c => c.WithCompiler(compilerType));
             container.RegisterSingleton(typeof(ITest1), typeof(Test1));
             container.Register<ITest2, Test2>();
             container.Register<ITest3, Test3>();
@@ -48,10 +54,11 @@ namespace Stashbox.Tests
             });
         }
 
-        [Fact]
-        public void LifetimeTests_Resolve_Parallel_Lazy()
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void LifetimeTests_Resolve_Parallel_Lazy(CompilerType compilerType)
         {
-            using IStashboxContainer container = new StashboxContainer();
+            using IStashboxContainer container = new StashboxContainer(c => c.WithCompiler(compilerType));
             container.Register<ITest1, Test1>(context => context.WithSingletonLifetime());
             container.Register<ITest2, Test2>();
             container.Register<ITest3, Test3>();
@@ -69,10 +76,11 @@ namespace Stashbox.Tests
             });
         }
 
-        [Fact]
-        public void LifetimeTests_Per_Resolution_Request_Dependency()
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void LifetimeTests_Per_Scoped_Resolution_Request_Dependency(CompilerType compilerType)
         {
-            using var container = new StashboxContainer()
+            using var container = new StashboxContainer(c => c.WithCompiler(compilerType))
                     .Register<Test5>(context => context.WithPerScopedRequestLifetime())
                     .Register<Test6>()
                     .Register<Test7>();
@@ -86,10 +94,11 @@ namespace Stashbox.Tests
             Assert.NotSame(inst2.Test5, inst1.Test6.Test5);
         }
 
-        [Fact]
-        public void LifetimeTests_Per_Resolution_Request_Dependency_Scoped()
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void LifetimeTests_Per_Scoped_Resolution_Request_Dependency_Scoped(CompilerType compilerType)
         {
-            using var container = new StashboxContainer()
+            using var container = new StashboxContainer(c => c.WithCompiler(compilerType))
                 .Register<Test5>(context => context.WithPerScopedRequestLifetime())
                 .RegisterScoped<Test6>()
                 .Register<Test7>();
@@ -105,19 +114,21 @@ namespace Stashbox.Tests
             Assert.NotSame(inst2.Test5, inst1.Test6.Test5);
         }
 
-        [Fact]
-        public void LifetimeTests_Per_Resolution_Request_Dependency_WithNull()
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void LifetimeTests_Per_Scoped_Resolution_Request_Dependency_WithNull(CompilerType compilerType)
         {
-            using IStashboxContainer container = new StashboxContainer();
+            using IStashboxContainer container = new StashboxContainer(c => c.WithCompiler(compilerType));
             container.Register<Test6>(context => context.WithPerScopedRequestLifetime());
 
             Assert.Null(container.Resolve<Test6>(nullResultAllowed: true));
         }
 
-        [Fact]
-        public void LifetimeTests_Per_Resolution_Request()
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void LifetimeTests_Per_Scoped_Resolution_Request(CompilerType compilerType)
         {
-            using IStashboxContainer container = new StashboxContainer();
+            using IStashboxContainer container = new StashboxContainer(c => c.WithCompiler(compilerType));
             container.Register<Test5>(context => context.WithPerScopedRequestLifetime());
 
             var inst1 = container.Resolve<Test5>();
@@ -126,19 +137,21 @@ namespace Stashbox.Tests
             Assert.NotSame(inst1, inst2);
         }
 
-        [Fact]
-        public void LifetimeTests_Scoped_WithNull()
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void LifetimeTests_Scoped_WithNull(CompilerType compilerType)
         {
-            using IStashboxContainer container = new StashboxContainer();
+            using IStashboxContainer container = new StashboxContainer(c => c.WithCompiler(compilerType));
             container.RegisterScoped<Test6>();
 
             Assert.Null(container.BeginScope().Resolve<Test6>(nullResultAllowed: true));
         }
 
-        [Fact]
-        public void LifetimeTests_DefinesScope_Generic()
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void LifetimeTests_DefinesScope_Generic(CompilerType compilerType)
         {
-            using IStashboxContainer container = new StashboxContainer();
+            using IStashboxContainer container = new StashboxContainer(c => c.WithCompiler(compilerType));
             container.Register<Test6>();
             container.Register<Test7>(c => c.DefinesScope());
             container.RegisterScoped<Test5>();
@@ -152,10 +165,11 @@ namespace Stashbox.Tests
             Assert.Same(inst2.Test5, inst2.Test6.Test5);
         }
 
-        [Fact]
-        public void LifetimeTests_DefinesScope()
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void LifetimeTests_DefinesScope(CompilerType compilerType)
         {
-            using IStashboxContainer container = new StashboxContainer();
+            using IStashboxContainer container = new StashboxContainer(c => c.WithCompiler(compilerType));
             container.Register<Test6>();
             container.Register(typeof(Test7), c => c.DefinesScope());
             container.RegisterScoped<Test5>();
@@ -167,6 +181,99 @@ namespace Stashbox.Tests
 
             Assert.NotSame(inst1.Test5, inst2.Test5);
             Assert.Same(inst2.Test5, inst2.Test6.Test5);
+        }
+
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void LifetimeTests_Per_Request(CompilerType compilerType)
+        {
+            using IStashboxContainer container = new StashboxContainer(c => c.WithCompiler(compilerType));
+            container.Register<Test5>(c => c.WithPerRequestLifetime());
+            container.Register<Test6>();
+            container.Register<Test7>();
+
+            var inst = container.Resolve<Test7>();
+            var t5 = container.Resolve<Test5>();
+
+            Assert.NotNull(inst.Test5);
+            Assert.NotNull(inst.Test6.Test5);
+            Assert.Same(inst.Test5, inst.Test6.Test5);
+            Assert.NotSame(t5, inst.Test5);
+        }
+
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void LifetimeTests_Per_Request_WithScope(CompilerType compilerType)
+        {
+            using IStashboxContainer container = new StashboxContainer(c => c.WithCompiler(compilerType));
+            container.Register<Test5>(c => c.WithPerRequestLifetime());
+            container.Register<Test6>(c => c.WithScopedLifetime());
+            container.Register<Test7>();
+
+            using var scope = container.BeginScope();
+
+            var inst = scope.Resolve<Test7>();
+            var t5 = scope.Resolve<Test5>();
+
+            Assert.NotNull(inst.Test5);
+            Assert.NotNull(inst.Test6.Test5);
+            Assert.Same(inst.Test5, inst.Test6.Test5);
+            Assert.NotSame(t5, inst.Test5);
+        }
+
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void LifetimeTests_Per_Request_Enumerable(CompilerType compilerType)
+        {
+            using IStashboxContainer container = new StashboxContainer(c => c.WithCompiler(compilerType));
+            container.Register<Test5>(c => c.WithPerRequestLifetime());
+            container.Register<Test6>();
+            container.Register<Test7>();
+
+            var inst = container.ResolveAll<Test7>().First();
+            var t5 = container.ResolveAll<Test5>().First();
+
+            Assert.NotNull(inst.Test5);
+            Assert.NotNull(inst.Test6.Test5);
+            Assert.Same(inst.Test5, inst.Test6.Test5);
+            Assert.NotSame(t5, inst.Test5);
+        }
+
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void LifetimeTests_Per_Request_Wrapper_Enumerable(CompilerType compilerType)
+        {
+            using IStashboxContainer container = new StashboxContainer(c => c.WithCompiler(compilerType));
+            container.Register<Test5>(c => c.WithPerRequestLifetime());
+            container.Register<Test6>();
+            container.Register<Test9>();
+
+            var inst = container.Resolve<Test9>();
+            var t5 = container.Resolve<Test5>();
+
+            Assert.NotNull(inst.Test5);
+            Assert.NotNull(inst.Test6.Test5);
+            Assert.Same(inst.Test5.First(), inst.Test6.Test5);
+            Assert.NotSame(t5, inst.Test5.First());
+        }
+
+
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void LifetimeTests_Per_Request_Wrapper_Lazy(CompilerType compilerType)
+        {
+            using IStashboxContainer container = new StashboxContainer(c => c.WithCompiler(compilerType));
+            container.Register<Test5>(c => c.WithPerRequestLifetime());
+            container.Register<Test6>();
+            container.Register<Test10>();
+
+            var inst = container.Resolve<Test10>();
+            var t5 = container.Resolve<Test5>();
+
+            Assert.NotNull(inst.Test5);
+            Assert.NotNull(inst.Test6.Test5);
+            Assert.Same(inst.Test5.Value, inst.Test6.Test5);
+            Assert.NotSame(t5, inst.Test5.Value);
         }
 
         [Theory]
@@ -389,6 +496,30 @@ namespace Stashbox.Tests
 
             public Test8(Test6 test6)
             {
+                Test6 = test6;
+            }
+        }
+
+        class Test9
+        {
+            public IEnumerable<Test5> Test5 { get; }
+            public Test6 Test6 { get; }
+
+            public Test9(IEnumerable<Test5> test5, Test6 test6)
+            {
+                Test5 = test5;
+                Test6 = test6;
+            }
+        }
+
+        class Test10
+        {
+            public Lazy<Test5> Test5 { get; }
+            public Test6 Test6 { get; }
+
+            public Test10(Lazy<Test5> test5, Test6 test6)
+            {
+                Test5 = test5;
                 Test6 = test6;
             }
         }

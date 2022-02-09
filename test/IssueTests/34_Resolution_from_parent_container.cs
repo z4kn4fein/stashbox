@@ -80,7 +80,7 @@ namespace Stashbox.Tests.IssueTests
             container.Register<ITest5, Test5>();
 
             var child = container.CreateChildContainer();
-            child.Register<ITest2, Test2>();
+            child.Register<ITest2, Test2>(c => c.WithMetadata(new object()));
 
             var child2 = child.CreateChildContainer();
             child2.Register<ITest3, Test3>();
@@ -96,7 +96,6 @@ namespace Stashbox.Tests.IssueTests
             Assert.NotNull(test3.Enumerable);
             Assert.Single(test3.Enumerable);
             Assert.NotNull(test3.Tuple.Item1);
-            Assert.NotNull(test3.Tuple.Item2);
         }
 
         interface ITest1 { }
@@ -110,7 +109,7 @@ namespace Stashbox.Tests.IssueTests
             Func<ITest2> Func { get; }
             Lazy<ITest2> Lazy { get; }
             IEnumerable<ITest3> Enumerable { get; }
-            Tuple<ITest2, ITest3> Tuple { get; }
+            Tuple<ITest2, object> Tuple { get; }
         }
 
         class Test1 : ITest1
@@ -130,7 +129,7 @@ namespace Stashbox.Tests.IssueTests
 
         class Test5 : ITest5
         {
-            public Test5(Func<ITest2> func, Lazy<ITest2> lazy, IEnumerable<ITest3> enumerable, Tuple<ITest2, ITest3> tuple)
+            public Test5(Func<ITest2> func, Lazy<ITest2> lazy, IEnumerable<ITest3> enumerable, Tuple<ITest2, object> tuple)
             {
                 Func = func;
                 Lazy = lazy;
@@ -141,7 +140,7 @@ namespace Stashbox.Tests.IssueTests
             public Func<ITest2> Func { get; }
             public Lazy<ITest2> Lazy { get; }
             public IEnumerable<ITest3> Enumerable { get; }
-            public Tuple<ITest2, ITest3> Tuple { get; }
+            public Tuple<ITest2, object> Tuple { get; }
         }
 
     }

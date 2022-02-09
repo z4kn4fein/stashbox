@@ -26,18 +26,18 @@ namespace Stashbox.Registration
             var newRepository = ImmutableBucket<Type, ServiceRegistration>.Empty.Add(serviceRegistration.ImplementationType, serviceRegistration);
 
             if (remap)
-                Swap.SwapValue(ref this.repository, (t1, t2, t3, t4, repo) =>
-                    repo.AddOrUpdate(t1, t2, true, (oldValue, newValue) => newValue), type, newRepository,
+                Swap.SwapValue(ref this.repository, (t1, t2, _, _, repo) =>
+                    repo.AddOrUpdate(t1, t2, true, (_, newValue) => newValue), type, newRepository,
                     Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
             else
-                Swap.SwapValue(ref this.repository, (t1, t2, t3, t4, repo) =>
-                    repo.AddOrUpdate(t1, t2, true, (oldValue, newValue) => oldValue
+                Swap.SwapValue(ref this.repository, (t1, t2, t3, _, repo) =>
+                    repo.AddOrUpdate(t1, t2, true, (oldValue, _) => oldValue
                         .AddOrUpdate(t3.ImplementationType, t3, t3.RegistrationContext.ReplaceExistingRegistration)),
                             type, newRepository, serviceRegistration, Constants.DelegatePlaceholder);
         }
 
         public IEnumerable<ServiceRegistration> GetDecoratorsOrDefault(Type implementationTypeToDecorate, TypeInformation typeInformation, ResolutionContext resolutionContext) =>
-            this.GetRegistrationsForType(typeInformation.Type)?.FilterInclusiveOrDefault(typeInformation.CloneForType(implementationTypeToDecorate), resolutionContext, this.filters);
+            this.GetRegistrationsForType(typeInformation.Type)?.FilterInclusiveOrDefault(typeInformation.Clone(implementationTypeToDecorate), resolutionContext, this.filters);
 
         public ServiceRegistration GetNextDecoratorOrDefault(Type implementationTypeToDecorate, TypeInformation typeInformation, ResolutionContext resolutionContext) =>
             this.GetRegistrationsForType(typeInformation.Type)?.SelectOrDefault(typeInformation, resolutionContext, this.filters);

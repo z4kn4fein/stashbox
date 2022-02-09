@@ -31,17 +31,17 @@ namespace Stashbox.Lifetime
         }
 
         /// <inheritdoc />
-        protected override Expression ApplyLifetime(Func<IResolutionScope, object> factory,
+        protected override Expression ApplyLifetime(Func<IResolutionScope, IRequestContext, object> factory,
             ServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType) =>
-            GetScopeValueMethod.CallStaticMethod(
-                resolutionContext.CurrentScopeParameter,
-                    factory.AsConstant(),
-                    resolveType.AsConstant(),
-                    serviceRegistration.RegistrationId.AsConstant(),
-                    this.ScopeName.AsConstant()).ConvertTo(resolveType);
+            GetScopeValueMethod.CallStaticMethod(resolutionContext.CurrentScopeParameter,
+                resolutionContext.RequestContextParameter,
+                factory.AsConstant(),
+                resolveType.AsConstant(),
+                serviceRegistration.RegistrationId.AsConstant(),
+                this.ScopeName.AsConstant()).ConvertTo(resolveType);
 
-        private static object GetScopedValue(IResolutionScope currentScope, Func<IResolutionScope, object> factory, Type requestedType,
-            int scopeId, object scopeName)
+        private static object GetScopedValue(IResolutionScope currentScope, IRequestContext requestContext,
+            Func<IResolutionScope, IRequestContext, object> factory, Type requestedType, int scopeId, object scopeName)
         {
             var scope = currentScope;
             while (scope != null && scope.Name != scopeName)
@@ -50,7 +50,7 @@ namespace Stashbox.Lifetime
             if (scope == null)
                 throw new InvalidOperationException($"The scope '{scopeName}' not found.");
 
-            return scope.GetOrAddScopedObject(scopeId, factory, requestedType);
+            return scope.GetOrAddScopedObject(scopeId, factory, requestContext, requestedType);
         }
     }
 }

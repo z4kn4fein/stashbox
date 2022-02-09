@@ -3,7 +3,8 @@
     public enum CompilerType
     {
         Default,
-        ForcedMicrosoft,
-        ForcedBuiltIn
+        Microsoft,
+        Stashbox,
+        FastExpressionCompiler,
     }
 }

@@ -8,23 +8,21 @@
     <Authors>Peter Csajtai</Authors>
     <Company>Peter Csajtai</Company>
     <Product>Stashbox</Product>
-    <Copyright>Copyright © Peter Csajtai 2021</Copyright>
+    <Copyright>Copyright © Peter Csajtai 2022</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://z4kn4fein.github.io/stashbox</PackageProjectUrl>
     <PackageIcon>icon.png</PackageIcon>
     <RepositoryUrl>https://github.com/z4kn4fein/stashbox</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <PackageTags>Stashbox di dependencyinjection ioc dotnet netstandard</PackageTags>
+    <PackageTags>Stashbox di dependency-injection ioc dotnet netstandard</PackageTags>
     <Description>Stashbox is a lightweight, fast and portable dependency injection framework for .NET based solutions.</Description>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../sn.snk</AssemblyOriginatorKeyFile>
-    <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <Version>1.0.0</Version>
     <PackageVersion>1.0.0</PackageVersion>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <DebugType>portable</DebugType>
     <LangVersion>latest</LangVersion>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
@@ -86,11 +84,10 @@
   </ItemGroup>
 
   <ItemGroup>
+	<None Include="..\.github\workflows\*.yml" />
     <None Include="..\.version" />
     <None Include="..\appveyor.yml" />
     <None Include="..\appveyor-release.yml" />
-    <None Include="..\.travis.yml" />
-    <None Include="..\coverage.ps1" />
     <None Include="..\README.md" />
     <None Include="..\CHANGELOG.md" />
   </ItemGroup>

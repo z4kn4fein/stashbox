@@ -76,7 +76,7 @@ namespace Stashbox
         /// <param name="withoutDisposalTracking">If it's set to true the container will exclude the instance from disposal tracking.</param>
         /// <param name="name">The dependency name of the instance.</param>
         /// <returns>The scope.</returns>
-        IDependencyResolver PutInstanceInScope(Type typeFrom, object instance, bool withoutDisposalTracking = false, object name = null);
+        void PutInstanceInScope(Type typeFrom, object instance, bool withoutDisposalTracking = false, object name = null);
 
         /// <summary>
         /// Builds up an existing instance. This means the container performs member and method injections on it without registering it into the container.
@@ -100,7 +100,7 @@ namespace Stashbox
         /// </summary>
         /// <param name="token">The cancellation token.</param>
         /// <returns>The initializer task.</returns>
-        ValueTask InvokeAsyncInitializers(CancellationToken token = default(CancellationToken));
+        ValueTask InvokeAsyncInitializers(CancellationToken token = default);
 
         /// <summary>
         /// Checks whether a type can be resolved by the container, or not.

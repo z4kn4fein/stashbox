@@ -1,11 +1,10 @@
 ﻿using Stashbox.Registration;
 using Stashbox.Registration.Fluent;
 using System;
-using System.Linq.Expressions;
 
 namespace Stashbox.Resolution.Resolvers
 {
-    internal class UnknownTypeResolver : IResolver, ILookup
+    internal class UnknownTypeResolver : IServiceResolver, ILookup
     {
         public bool CanLookupService(TypeInformation typeInfo, ResolutionContext resolutionContext) =>
             this.CanUseForResolution(typeInfo, resolutionContext);
@@ -16,7 +15,7 @@ namespace Stashbox.Resolution.Resolvers
             typeInfo.Type.IsResolvableType() ||
             resolutionContext.RequestInitiatorContainerContext.ContainerConfiguration.UnknownTypeConfigurator != null;
 
-        public Expression GetExpression(
+        public ServiceContext GetExpression(
             IResolutionStrategy resolutionStrategy,
             TypeInformation typeInfo,
             ResolutionContext resolutionContext)

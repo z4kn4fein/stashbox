@@ -41,7 +41,7 @@ namespace Stashbox.Expressions
             for (var i = 0; i < length - 1; i++)
             {
                 var typeInfo = new TypeInformation(serviceRegistration.RegistrationContext.FactoryParameters[i], null);
-                yield return resolutionContext.CurrentContainerContext.ResolutionStrategy.BuildExpressionForType(resolutionContext, typeInfo);
+                yield return resolutionContext.CurrentContainerContext.ResolutionStrategy.BuildExpressionForType(resolutionContext, typeInfo)?.ServiceExpression;
             }
         }
     }

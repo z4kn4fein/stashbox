@@ -31,19 +31,27 @@ install:
     Update-AppveyorBuild -Version "$env:build_version-$env:appveyor_build_number"
     dotnet tool install -g InheritDocTool
 
+dotnet_csproj:
+  patch: true
+  file: 'src\stashbox.csproj'
+  version: $(build_version)
+  package_version: $(build_version)
+  assembly_version: $(build_version)
+  file_version: $(build_version)
+  informational_version: $(build_version)
+
 before_build:
-- ps: . .\patch-version.ps1 "src\stashbox.csproj" $env:build_version $env:build_version
+- dotnet restore stashbox.sln
 
 build_script:
-- msbuild /t:Restore /p:Configuration=%configuration% stashbox.sln
-- msbuild /t:Build /p:Configuration=%configuration% /p:ContinuousIntegrationBuild=true stashbox.sln
+- dotnet build -c %configuration% /p:ContinuousIntegrationBuild=true stashbox.sln
 
 test_script:
 - dotnet test test\stashbox.tests.csproj -f net6.0 -c %configuration% --no-build
 
 after_build:
 - inheritdoc -o
-- msbuild /t:Pack /p:IncludeSymbols=true /p:Configuration=%configuration% /p:PackageOutputPath=..\artifacts src\stashbox.csproj
+- dotnet pack -c %configuration% /p:IncludeSymbols=true /p:PackageOutputPath=..\artifacts src\stashbox.csproj
 
 artifacts:
   - path: artifacts\Stashbox.*.nupkg

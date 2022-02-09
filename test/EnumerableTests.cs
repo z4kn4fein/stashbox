@@ -614,7 +614,7 @@ namespace Stashbox.Tests
             public Test22(ITest1[] tests)
             {
                 Shield.EnsureNotNull(tests, nameof(tests));
-                Assert.Equal(3, tests.Count());
+                Assert.Equal(3, tests.Length);
             }
         }
     }

@@ -7,7 +7,7 @@ using System.Linq.Expressions;
 namespace Stashbox.Lifetime
 {
     /// <summary>
-    /// Represents a singleton lifetime manager.
+    /// Represents a singleton lifetime.
     /// </summary>
     public class SingletonLifetime : FactoryLifetimeDescriptor
     {
@@ -15,23 +15,22 @@ namespace Stashbox.Lifetime
         protected override int LifeSpan => 20;
 
         /// <inheritdoc />
-        protected override Expression ApplyLifetime(Func<IResolutionScope, object> factory,
+        private protected override bool StoreResultInLocalVariable => true;
+
+        /// <inheritdoc />
+        protected override Expression ApplyLifetime(Func<IResolutionScope, IRequestContext, object> factory,
             ServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType)
         {
             var rootScope = resolutionContext.RequestInitiatorContainerContext.ContainerConfiguration.ReBuildSingletonsInChildContainerEnabled
                 ? resolutionContext.RequestInitiatorContainerContext.RootScope
                 : resolutionContext.CurrentContainerContext.RootScope;
 
-            // do not build singletons during validation, we just have to ensure the expression tree is valid
-            if (resolutionContext.IsValidationRequest)
-                return rootScope.AsConstant().CallMethod(Constants.GetOrAddScopedObjectMethod,
+            return rootScope.AsConstant().CallMethod(Constants.GetOrAddScopedObjectMethod,
                     serviceRegistration.RegistrationId.AsConstant(),
                     factory.AsConstant(),
-                    resolveType.AsConstant(),
-                    false.AsConstant()).ConvertTo(resolveType);
-
-            return rootScope.GetOrAddScopedObject(serviceRegistration.RegistrationId, factory, resolveType)
-                    .AsConstant();
+                    resolutionContext.RequestContextParameter,
+                    resolveType.AsConstant())
+                .ConvertTo(resolveType);
         }
     }
 }

@@ -63,22 +63,22 @@ namespace Stashbox.Configuration
             /// <summary>
             /// None will be injected.
             /// </summary>
-            None = 0,
+            None = 1 << 1,
 
             /// <summary>
             /// With this flag the container will perform auto injection on properties which has a public setter.
             /// </summary>
-            PropertiesWithPublicSetter = 4,
+            PropertiesWithPublicSetter = 1 << 2,
 
             /// <summary>
             /// With this flag the container will perform auto injection on properties which has a non public setter as well.
             /// </summary>
-            PropertiesWithLimitedAccess = 8,
+            PropertiesWithLimitedAccess = 1 << 3,
 
             /// <summary>
             /// With this flag the container will perform auto injection on private fields too.
             /// </summary>
-            PrivateFields = 16
+            PrivateFields = 1 << 4
         }
 
         /// <summary>

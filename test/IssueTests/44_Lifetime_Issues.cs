@@ -31,8 +31,10 @@ namespace Stashbox.Tests.IssueTests
 
             public static PrivateArgs<T> Get(params object[] args)
             {
-                var res = new PrivateArgs<T>();
-                res.ArgList = args;
+                var res = new PrivateArgs<T>
+                {
+                    ArgList = args
+                };
                 return res;
             }
 

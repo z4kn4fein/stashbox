@@ -98,18 +98,6 @@ namespace Stashbox
             resolver.ResolveFactory(typeof(TService), name, nullResultAllowed, typeof(T1), typeof(T2), typeof(T3), typeof(T4)) as Func<T1, T2, T3, T4, TService>;
 
         /// <summary>
-        /// Puts an instance into the scope which will be dropped when the scope is being disposed.
-        /// </summary>
-        /// <typeparam name="TFrom">The service type.</typeparam>
-        /// <param name="resolver">The dependency resolver.</param>
-        /// <param name="instance">The instance.</param>
-        /// <param name="withoutDisposalTracking">If it's set to true the container will exclude the instance from the disposal tracking.</param>
-        /// <param name="name">The identifier.</param>
-        /// <returns>The scope.</returns>
-        public static IDependencyResolver PutInstanceInScope<TFrom>(this IDependencyResolver resolver, TFrom instance, bool withoutDisposalTracking = false, object name = null) =>
-            resolver.PutInstanceInScope(typeof(TFrom), instance, withoutDisposalTracking, name);
-
-        /// <summary>
         /// On the fly activates an object without registering it into the container. If you want to resolve a
         /// registered service use the <see cref="IDependencyResolver.Resolve(Type, bool, object[])" /> instead.
         /// </summary>
@@ -119,5 +107,17 @@ namespace Stashbox
         /// <returns>The built object.</returns>
         public static TTo Activate<TTo>(this IDependencyResolver resolver, params object[] arguments) =>
             (TTo)resolver.Activate(typeof(TTo), arguments);
+
+        /// <summary>
+        /// Puts an instance into the scope which will be dropped when the scope is being disposed.
+        /// </summary>
+        /// <typeparam name="TFrom">The service type.</typeparam>
+        /// <param name="resolver">The resolver.</param>
+        /// <param name="instance">The instance.</param>
+        /// <param name="withoutDisposalTracking">If it's set to true the container will exclude the instance from the disposal tracking.</param>
+        /// <param name="name">The identifier.</param>
+        /// <returns>The scope.</returns>
+        public static void PutInstanceInScope<TFrom>(this IDependencyResolver resolver, TFrom instance, bool withoutDisposalTracking = false, object name = null) =>
+            resolver.PutInstanceInScope(typeof(TFrom), instance, withoutDisposalTracking, name);
     }
 }

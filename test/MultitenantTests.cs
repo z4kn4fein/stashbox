@@ -213,34 +213,34 @@ namespace Stashbox.Tests
             await md.DisposeAsync();
         }
 #endif
-    }
 
-    interface IA { }
+        interface IA { }
 
-    class A : IA { }
+        class A : IA { }
 
-    class B : IA { }
+        class B : IA { }
 
-    class C : IA, IDisposable
-    {
-        public bool Disposed { get; private set; }
-
-        public void Dispose()
+        class C : IA, IDisposable
         {
-            if (this.Disposed)
-                throw new ObjectDisposedException(nameof(C));
+            public bool Disposed { get; private set; }
 
-            this.Disposed = true;
-        }
-    }
+            public void Dispose()
+            {
+                if (this.Disposed)
+                    throw new ObjectDisposedException(nameof(C));
 
-    class D
-    {
-        public D(IA ia)
-        {
-            Ia = ia;
+                this.Disposed = true;
+            }
         }
 
-        public IA Ia { get; }
+        class D
+        {
+            public D(IA ia)
+            {
+                Ia = ia;
+            }
+
+            public IA Ia { get; }
+        }
     }
 }

@@ -20,22 +20,25 @@ namespace Stashbox.Registration
         {
             RegistrationSelectionRules.GenericFilter,
             RegistrationSelectionRules.NameFilter,
+            RegistrationSelectionRules.MetadataFilter,
             RegistrationSelectionRules.ScopeNameFilter,
-            RegistrationSelectionRules.ConditionFilter
+            RegistrationSelectionRules.ConditionFilter,
         };
 
         private readonly IRegistrationSelectionRule[] topLevelFilters =
         {
             RegistrationSelectionRules.GenericFilter,
             RegistrationSelectionRules.NameFilter,
-            RegistrationSelectionRules.ScopeNameFilter
+            RegistrationSelectionRules.MetadataFilter,
+            RegistrationSelectionRules.ScopeNameFilter,
         };
 
         private readonly IRegistrationSelectionRule[] enumerableFilters =
         {
             RegistrationSelectionRules.GenericFilter,
             RegistrationSelectionRules.ScopeNameFilter,
-            RegistrationSelectionRules.ConditionFilter
+            RegistrationSelectionRules.ConditionFilter,
+            RegistrationSelectionRules.MetadataFilter,
         };
 
         public RegistrationRepository(ContainerConfiguration containerConfiguration)

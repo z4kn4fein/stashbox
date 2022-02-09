@@ -29,7 +29,7 @@ namespace Stashbox.Expressions
                 if (injectionParameter != null) yield return injectionParameter;
 
                 yield return resolutionContext.CurrentContainerContext.ResolutionStrategy.BuildExpressionForType(
-                    resolutionContext, parameter) ?? throw new ResolutionFailedException(method.DeclaringType, registrationContext.Name,
+                    resolutionContext, parameter)?.ServiceExpression ?? throw new ResolutionFailedException(method.DeclaringType, registrationContext.Name,
                     $"Method {method} found with unresolvable parameter: ({parameter.Type}){parameter.ParameterOrMemberName}");
             }
         }
@@ -48,8 +48,8 @@ namespace Stashbox.Expressions
                 var containingFactoryParameter = constructorsEnumerable
                     .Where(c => c.GetParameters()
                         .Any(p => resolutionContext.ParameterExpressions
-                            .WhereOrDefault(pe => pe.Any(pexp => pexp.I2.Type == p.ParameterType ||
-                                                 pexp.I2.Type.Implements(p.ParameterType)))?.Any() ?? false));
+                            .WhereOrDefault(pe => pe.Any(item => item.I2.Type == p.ParameterType ||
+                                                                 item.I2.Type.Implements(p.ParameterType)))?.Any() ?? false));
 
                 var everythingElse = constructorsEnumerable.Except(containingFactoryParameter);
                 constructors = containingFactoryParameter.Concat(everythingElse).CastToArray();
@@ -136,7 +136,7 @@ namespace Stashbox.Expressions
                 var injectionParameter = registrationContext.InjectionParameters.SelectInjectionParameterOrDefault(parameter);
 
                 parameterExpressions[i] = injectionParameter ?? resolutionContext.CurrentContainerContext.ResolutionStrategy
-                    .BuildExpressionForType(resolutionContext, parameter);
+                    .BuildExpressionForType(resolutionContext, parameter)?.ServiceExpression;
 
                 if (parameterExpressions[i] != null) continue;
 

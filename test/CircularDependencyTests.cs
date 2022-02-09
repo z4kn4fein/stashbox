@@ -100,7 +100,7 @@ namespace Stashbox.Tests
         public void CircularDependencyTests_Tuple()
         {
             using var container = new StashboxContainer();
-            container.Register<ITest1, Test7>();
+            container.Register<ITest1, Test7>(c => c.WithMetadata(new object()));
             Assert.Throws<CircularDependencyException>(() => container.Resolve<ITest1>());
         }
 
@@ -212,7 +212,7 @@ namespace Stashbox.Tests
 
         class Test7 : ITest1
         {
-            public Test7(Tuple<ITest1> test1)
+            public Test7(Tuple<ITest1, object> test1)
             {
             }
         }

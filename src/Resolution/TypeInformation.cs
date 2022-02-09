@@ -21,7 +21,12 @@ namespace Stashbox.Resolution
         /// <summary>
         /// The name of the dependency.
         /// </summary>
-        public object DependencyName { get; }
+        public object DependencyName { get; private set; }
+
+        /// <summary>
+        /// The type of the metadata.
+        /// </summary>
+        public Type MetadataType { get; private set; }
 
         /// <summary>
         /// Custom attributes of the dependency.
@@ -62,10 +67,24 @@ namespace Stashbox.Resolution
             this.DefaultValue = defaultValue;
         }
 
-        internal TypeInformation CloneForType(Type type)
+        /// <summary>
+        /// Clones the type information with different type.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <param name="dependencyName">The dependency name.</param>
+        /// <param name="metadataType">The metadata type.</param>
+        /// <returns>The cloned type information.</returns>
+        public TypeInformation Clone(Type type, object dependencyName = null, Type metadataType = null)
         {
             var clone = (TypeInformation)this.MemberwiseClone();
             clone.Type = type;
+
+            if (dependencyName != null)
+                clone.DependencyName = dependencyName;
+            
+            if (metadataType != null)
+                clone.MetadataType = metadataType;
+            
             return clone;
         }
     }

@@ -15,6 +15,9 @@ namespace Stashbox.Benchmarks
             BenchmarkRunner.Run<ScopedBenchmarks>();
             //BenchmarkRunner.Run<FuncBenchmarks>();
             //BenchmarkRunner.Run<FinalizerBenchmarks>();
+            //BenchmarkRunner.Run<NullableBenchmarks>();
+            //BenchmarkRunner.Run<BeginScopeBenchmarks>();
+            //BenchmarkRunner.Run<SingletonBenchmarks>();
             Console.ReadKey();
         }
     }

@@ -1,6 +1,4 @@
-﻿using Stashbox.Utils;
-using System;
-using System.Linq.Expressions;
+﻿using System;
 
 namespace Stashbox.Registration.Fluent
 {
@@ -18,7 +16,7 @@ namespace Stashbox.Registration.Fluent
         /// </summary>
         /// <param name="instance">The instance.</param>
         /// <param name="wireUp">If true, the instance will be wired into the container, it will perform member and method injection on it.</param>
-        /// <returns>The configurator itself.</returns>
+        /// <returns>The fluent configurator.</returns>
         public RegistrationConfigurator<TService, TImplementation> WithInstance(TService instance, bool wireUp = false)
         {
             this.Context.ExistingInstance = instance;
@@ -42,7 +40,7 @@ namespace Stashbox.Registration.Fluent
         /// </summary>
         /// <param name="instance">The instance.</param>
         /// <param name="wireUp">If true, the instance will be wired into the container, it will perform member and method injection on it.</param>
-        /// <returns>The configurator itself.</returns>
+        /// <returns>The fluent configurator.</returns>
         public RegistrationConfigurator WithInstance(object instance, bool wireUp = false)
         {
             this.Context.ExistingInstance = instance;

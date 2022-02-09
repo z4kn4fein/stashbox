@@ -77,15 +77,17 @@ This validation enforces the following rules, and when they are being violated, 
   that would promote the service's lifetime to a singleton.
   ```
 
-2. *When the life-span of a dependency is shorter than its parent's*. It's called [captive dependency](https://blog.ploeh.dk/2014/06/02/captive-dependency/). Every lifetime has a `LifeSpan` value, which determines how long the related service lives. The main rule is that services may not contain dependencies with shorter life-spans like singletons should not depend on scoped services. The only exception is the life-span value `0`, which indicates that the related service is state-less and could be injected into any service.  
-    These are the current `LifeSpan` values: 
+2. *When the life-span of a dependency is shorter than its parent's*. It's called [captive dependency](https://blog.ploeh.dk/2014/06/02/captive-dependency/). Every lifetime has a `LifeSpan` value, which determines how long the related service lives. The main rule is that services may not contain dependencies with shorter life-spans like singletons should not depend on scoped services. The only exception is the life-span value `0`, which indicates that the related service is state-less and could be injected into any service. 
+
+    These are the `LifeSpan` values of the pre-defined lifetimes: 
      - **Singleton**: 20
      - **Scoped**: 10
      - **NamedScope**: 10
+     - **PerRequest**: 0
      - **PerScopedRequest**: 0
      - **Transient**: 0
 
-  The exception message would be:
+  In case of a failed validation the exception message would be:
   ```
   The life-span of Namespace.Service (ScopedLifetime|10) is shorter than 
   its direct or indirect parent's Namespace.Dependency (Singleton|20). 

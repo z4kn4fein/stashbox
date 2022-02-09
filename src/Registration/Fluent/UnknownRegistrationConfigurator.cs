@@ -17,7 +17,7 @@ namespace Stashbox.Registration.Fluent
         /// Sets the current registration's implementation type.
         /// </summary>
         /// <param name="implementationType">The implementation type.</param>
-        /// <returns>The configurator itself.</returns>
+        /// <returns>The fluent configurator.</returns>
         public UnknownRegistrationConfigurator SetImplementationType(Type implementationType)
         {
             if (!implementationType.Implements(base.ServiceType))
@@ -31,7 +31,7 @@ namespace Stashbox.Registration.Fluent
         /// <summary>
         /// Marks the current unknown type registration as skipped.
         /// </summary>
-        /// <returns>The configurator itself.</returns>
+        /// <returns>The fluent configurator.</returns>
         public UnknownRegistrationConfigurator Skip()
         {
             this.RegistrationShouldBeSkipped = true;

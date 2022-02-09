@@ -40,7 +40,7 @@ namespace Stashbox.Tests
         }
 
         [Fact]
-        public void NamedResolveTests_Ensure_Delegate_Cache_Works()
+        public void NamedResolveTests_Ensure_Delegate_Cache_Works_OnRoot()
         {
             using var container = new StashboxContainer()
                 .Register<IA, A>("A");
@@ -49,9 +49,8 @@ namespace Stashbox.Tests
             container.Resolve<IA>("A");
 
             var scopeType = container.ContainerContext.RootScope.GetType();
-            var cacheProvider = scopeType.GetField("delegateCacheProvider", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(container.ContainerContext.RootScope);
-            var defaultCache = cacheProvider.GetType().GetField("DefaultCache").GetValue(cacheProvider);
-            var serviceFactories = defaultCache.GetType().GetField("ServiceDelegates").GetValue(defaultCache);
+            var delegateCache = scopeType.GetField("DelegateCache", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(container.ContainerContext.RootScope);
+            var serviceFactories = delegateCache.GetType().GetField("ServiceDelegates").GetValue(delegateCache);
 
             var enumerator = (IEnumerable)serviceFactories.GetType().GetMethod("Walk").Invoke(serviceFactories, Type.EmptyTypes);
 
@@ -63,7 +62,7 @@ namespace Stashbox.Tests
         }
 
         [Fact]
-        public void NamedResolveTests_Ensure_Delegate_Cache_Works_Equality_By_Value()
+        public void NamedResolveTests_Ensure_Delegate_Cache_Works_By_Value_OnRoot()
         {
             var key = new StringBuilder("A");
             using var container = new StashboxContainer()
@@ -73,9 +72,8 @@ namespace Stashbox.Tests
             container.Resolve<IA>(key.ToString());
 
             var scopeType = container.ContainerContext.RootScope.GetType();
-            var cacheProvider = scopeType.GetField("delegateCacheProvider", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(container.ContainerContext.RootScope);
-            var defaultCache = cacheProvider.GetType().GetField("DefaultCache").GetValue(cacheProvider);
-            var serviceFactories = defaultCache.GetType().GetField("ServiceDelegates").GetValue(defaultCache);
+            var delegateCache = scopeType.GetField("DelegateCache", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(container.ContainerContext.RootScope);
+            var serviceFactories = delegateCache.GetType().GetField("ServiceDelegates").GetValue(delegateCache);
 
             var enumerator = (IEnumerable)serviceFactories.GetType().GetMethod("Walk").Invoke(serviceFactories, Type.EmptyTypes);
 
@@ -84,6 +82,40 @@ namespace Stashbox.Tests
                 length++;
 
             Assert.Equal(1, length);
+        }
+
+        [Fact]
+        public void NamedResolveTests_Ensure_Delegate_Cache_Shared_Between_UnNamed_Scopes()
+        {
+            var key = new StringBuilder("A");
+            using var container = new StashboxContainer();
+
+            var scope1 = container.BeginScope();
+            var scope2 = container.BeginScope();
+            var scope3 = scope2.BeginScope();
+
+            var scopeType = scope1.GetType();
+            var delegateCache1 = scopeType.GetField("DelegateCache", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(scope1);
+            var delegateCache2 = scopeType.GetField("DelegateCache", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(scope2);
+            var delegateCache3 = scopeType.GetField("DelegateCache", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(scope3);
+
+            Assert.Same(delegateCache1, delegateCache2);
+            Assert.Same(delegateCache2, delegateCache3);
+        }
+
+        [Fact]
+        public void NamedResolveTests_Ensure_Delegate_Cache_Not_Shared_Between_Root_And_UnNamed_Scopes()
+        {
+            var key = new StringBuilder("A");
+            using var container = new StashboxContainer();
+
+            var scope = container.BeginScope();
+
+            var scopeType = scope.GetType();
+            var delegateCache1 = scopeType.GetField("DelegateCache", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(scope);
+            var delegateCache2 = scopeType.GetField("DelegateCache", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(container.ContainerContext.RootScope);
+
+            Assert.NotSame(delegateCache1, delegateCache2);
         }
 
         [Fact]

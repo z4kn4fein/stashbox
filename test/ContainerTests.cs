@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Xunit;
-using System.Reflection;
 
 namespace Stashbox.Tests
 {
@@ -113,7 +112,7 @@ namespace Stashbox.Tests
 
             var reg = container.GetRegistrationMappings().First(r => r.Key == typeof(Test1));
             var t = new Test1();
-            var res = container.ContainerContext.RootScope.GetOrAddScopedObject(reg.Value.RegistrationId, s => t, typeof(Test1));
+            var res = container.ContainerContext.RootScope.GetOrAddScopedObject(reg.Value.RegistrationId, (s, r) => t, null, typeof(Test1));
 
             Assert.Same(t, res);
         }
@@ -147,14 +146,14 @@ namespace Stashbox.Tests
             Assert.True(container.CanResolve<IEnumerable<ITest2>>());
             Assert.True(container.CanResolve<Lazy<ITest2>>());
             Assert.True(container.CanResolve<Func<ITest2>>());
-            Assert.True(container.CanResolve<Tuple<ITest2>>());
+            Assert.True(container.CanResolve<Tuple<ITest2, object>>());
 
             Assert.True(child.CanResolve<ITest1>());
             Assert.True(child.CanResolve(typeof(ITest2)));
             Assert.True(child.CanResolve<IEnumerable<ITest2>>());
             Assert.True(child.CanResolve<Lazy<ITest2>>());
             Assert.True(child.CanResolve<Func<ITest2>>());
-            Assert.True(child.CanResolve<Tuple<ITest2>>());
+            Assert.True(child.CanResolve<Tuple<ITest2, object>>());
 
             Assert.False(container.CanResolve<ITest3>());
             Assert.False(container.CanResolve<ITest1>("test"));
@@ -445,6 +444,21 @@ namespace Stashbox.Tests
         public void ContainerTests_Throws_Disposed_Exceptions()
         {
             var container = new StashboxContainer();
+
+            var scope = container.BeginScope();
+            scope.Dispose();
+
+            Assert.Throws<ObjectDisposedException>(() => scope.Activate(this.GetType()));
+            Assert.Throws<ObjectDisposedException>(() => scope.BeginScope());
+            Assert.Throws<ObjectDisposedException>(() => scope.BuildUp(new object()));
+            Assert.Throws<ObjectDisposedException>(() => scope.CanResolve(this.GetType()));
+            Assert.Throws<ObjectDisposedException>(() => scope.GetService(this.GetType()));
+            Assert.Throws<ObjectDisposedException>(() => scope.PutInstanceInScope(this.GetType()));
+            Assert.Throws<ObjectDisposedException>(() => scope.Resolve(this.GetType()));
+            Assert.Throws<ObjectDisposedException>(() => scope.ResolveAll(this.GetType()));
+            Assert.Throws<ObjectDisposedException>(() => scope.ResolveFactory(this.GetType()));
+            Assert.ThrowsAsync<ObjectDisposedException>(async () => await scope.InvokeAsyncInitializers());
+
             container.Dispose();
 
             Assert.Throws<ObjectDisposedException>(() => container.Activate(this.GetType()));
@@ -480,6 +494,7 @@ namespace Stashbox.Tests
             Assert.Throws<ObjectDisposedException>(() => container.ResolveFactory(this.GetType()));
             Assert.Throws<ObjectDisposedException>(() => container.Validate());
             Assert.Throws<ObjectDisposedException>(() => container.WireUp(new object()));
+            Assert.ThrowsAsync<ObjectDisposedException>(async () => await container.InvokeAsyncInitializers());
         }
 
         interface ITest1 { }
@@ -545,19 +560,19 @@ namespace Stashbox.Tests
             public Tuple<ITest2, ITest3> Tuple { get; }
         }
 
-        class TestResolver : IResolver
+        class TestResolver : IServiceResolver
         {
             public bool CanUseForResolution(TypeInformation typeInfo, ResolutionContext resolutionInfo)
             {
                 return typeInfo.Type == typeof(ITest1);
             }
 
-            public Expression GetExpression(
+            public ServiceContext GetExpression(
                 IResolutionStrategy resolutionStrategy,
                 TypeInformation typeInfo,
                 ResolutionContext resolutionInfo)
             {
-                return Expression.Constant(new Test1());
+                return new ServiceContext(Expression.Constant(new Test1()), null);
             }
         }
 
@@ -568,20 +583,20 @@ namespace Stashbox.Tests
                 return typeInfo.Type == typeof(ITest1);
             }
 
-            public Expression GetExpression(
+            public ServiceContext GetExpression(
                 IResolutionStrategy resolutionStrategy,
                 TypeInformation typeInfo,
                 ResolutionContext resolutionInfo)
             {
-                return Expression.Constant(new Test1());
+                return new ServiceContext(Expression.Constant(new Test1()), null);
             }
 
-            public IEnumerable<Expression> GetExpressionsForEnumerableRequest(
+            public IEnumerable<ServiceContext> GetExpressionsForEnumerableRequest(
                 IResolutionStrategy resolutionStrategy,
                 TypeInformation typeInfo,
                 ResolutionContext resolutionInfo)
             {
-                return new Expression[] { Expression.Constant(new Test1()) };
+                return new ServiceContext[] { new ServiceContext(Expression.Constant(new Test1()), null) };
             }
         }
 

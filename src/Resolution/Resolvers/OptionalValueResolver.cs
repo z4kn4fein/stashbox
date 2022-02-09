@@ -2,13 +2,13 @@
 
 namespace Stashbox.Resolution.Resolvers
 {
-    internal class OptionalValueResolver : IResolver
+    internal class OptionalValueResolver : IServiceResolver
     {
-        public Expression GetExpression(
+        public ServiceContext GetExpression(
             IResolutionStrategy resolutionStrategy,
             TypeInformation typeInfo,
             ResolutionContext resolutionContext) =>
-            typeInfo.DefaultValue.AsConstant(typeInfo.Type);
+            typeInfo.DefaultValue.AsConstant(typeInfo.Type).AsContext();
 
         public bool CanUseForResolution(TypeInformation typeInfo, ResolutionContext resolutionContext) =>
             typeInfo.HasDefaultValue;

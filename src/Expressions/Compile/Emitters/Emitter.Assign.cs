@@ -1,6 +1,5 @@
 ﻿using Stashbox.Expressions.Compile.Extensions;
 using System.Linq.Expressions;
-using System.Reflection;
 using System.Reflection.Emit;
 
 namespace Stashbox.Expressions.Compile.Emitters

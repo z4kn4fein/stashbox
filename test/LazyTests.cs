@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Stashbox.Exceptions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
@@ -46,7 +47,7 @@ namespace Stashbox.Tests
         [Fact]
         public void LazyTests_Resolve_Func_Param()
         {
-            var container = new StashboxContainer(config => config.WithCircularDependencyWithLazy());
+            var container = new StashboxContainer();
             container.Register<ITest2, Test3>();
             var inst = container.Resolve<Lazy<Func<int, Lazy<ITest2>>>>();
 
@@ -113,47 +114,25 @@ namespace Stashbox.Tests
         }
 
         [Fact]
-        public void LazyTests_Resolve_Circular()
-        {
-            var container = new StashboxContainer(config =>
-            config.WithCircularDependencyWithLazy());
-
-            container.RegisterSingleton<Circular1>();
-            container.RegisterSingleton<Circular2>();
-
-            var inst1 = container.Resolve<Circular1>();
-            var inst2 = container.Resolve<Circular2>();
-
-            Assert.Same(inst2, inst1.Dep.Value);
-            Assert.Same(inst1, inst2.Dep.Value);
-        }
-
-        [Fact]
         public void LazyTests_Resolve_Circular_Evaluate()
         {
-            var container = new StashboxContainer(config =>
-            config.WithCircularDependencyWithLazy());
+            var container = new StashboxContainer();
 
             container.Register<Circular1>();
             container.Register<Circular2>();
 
-            var inst1 = container.Resolve<Circular1>();
-
-            Assert.NotNull(inst1.Dep.Value.Dep.Value.Dep.Value.Dep);
+            Assert.Throws<CircularDependencyException>(() => container.Resolve<Circular1>());
         }
 
         [Fact]
         public void LazyTests_Resolve_Circular_Evaluate_Singleton()
         {
-            var container = new StashboxContainer(config =>
-            config.WithCircularDependencyWithLazy());
+            var container = new StashboxContainer();
 
             container.RegisterSingleton<Circular1>();
             container.RegisterSingleton<Circular2>();
 
-            var inst1 = container.Resolve<Circular1>();
-
-            Assert.NotNull(inst1.Dep.Value.Dep.Value.Dep.Value.Dep);
+            Assert.Throws<CircularDependencyException>(() => container.Resolve<Circular1>());
         }
 
         interface ITest

@@ -12,14 +12,19 @@ namespace Stashbox.Resolution
     /// <summary>
     /// Represents information about the actual resolution flow.
     /// </summary>
-    public class ResolutionContext : IResolutionContext
+    public class ResolutionContext
     {
+        internal class PerRequestConfiguration
+        {
+            public bool RequiresRequestContext { get; set; }
+            public bool FactoryDelegateCacheEnabled { get; set; }
+        }
+
         private Tree<Expression> expressionCache;
-        private readonly Tree<Func<IResolutionScope, object>> factoryCache;
+        private readonly Tree<Func<IResolutionScope, IRequestContext, object>> factoryCache;
         private readonly HashTree<object, ConstantExpression> expressionOverrides;
         private readonly Utils.Data.Stack<int> circularDependencyBarrier;
 
-        internal IContainerContext RequestInitiatorContainerContext { get; }
         internal ExpandableArray<Expression> SingleInstructions { get; private set; }
         internal Tree<ParameterExpression> DefinedVariables { get; private set; }
         internal ExpandableArray<Pair<bool, ParameterExpression>[]> ParameterExpressions { get; private set; }
@@ -30,10 +35,11 @@ namespace Stashbox.Resolution
         internal bool PerResolutionRequestCacheEnabled { get; private set; }
         internal bool UnknownTypeCheckDisabled { get; private set; }
         internal bool ShouldFallBackToRequestInitiatorContext { get; private set; }
-        internal bool FactoryDelegateCacheEnabled { get; }
+        internal bool IsTopRequest { get; private set; }
+
         internal Utils.Data.Stack<object> ScopeNames { get; }
-        internal bool IsValidationRequest { get; }
-        internal bool IsTopRequest { get; set; }
+        internal IContainerContext RequestInitiatorContainerContext { get; }
+        internal PerRequestConfiguration RequestConfiguration { get; }
 
         /// <summary>
         /// True if null result is allowed, otherwise false.
@@ -51,27 +57,33 @@ namespace Stashbox.Resolution
         public ParameterExpression CurrentScopeParameter { get; private set; }
 
         /// <summary>
+        /// The currently resolving scope.
+        /// </summary>
+        public ParameterExpression RequestContextParameter { get; private set; }
+
+        /// <summary>
         /// The context of the current container instance.
         /// </summary>
         public IContainerContext CurrentContainerContext { get; private set; }
 
-        internal ResolutionContext(IEnumerable<object> initialScopeNames,
+        private ResolutionContext(IEnumerable<object> initialScopeNames,
             IContainerContext currentContainerContext,
+            bool isTopLevel,
             bool isRequestedFromRoot,
-            bool nullResultAllowed = false,
-            bool isValidationRequest = false,
-            HashTree<object, ConstantExpression> dependencyOverrides = null,
-            ParameterExpression[] initialParameters = null)
+            bool nullResultAllowed,
+            HashTree<object, ConstantExpression> dependencyOverrides,
+            ParameterExpression[] initialParameters)
         {
-
+            this.RequestConfiguration = new PerRequestConfiguration();
+            this.IsTopRequest = isTopLevel;
             this.DefinedVariables = new Tree<ParameterExpression>();
             this.SingleInstructions = new ExpandableArray<Expression>();
             this.RemainingDecorators = new ExpandableArray<Type, Utils.Data.Stack<ServiceRegistration>>();
             this.CurrentDecorators = new ExpandableArray<ServiceRegistration>();
             this.expressionOverrides = dependencyOverrides;
             this.NullResultAllowed = nullResultAllowed;
-            this.IsValidationRequest = isValidationRequest;
             this.CurrentScopeParameter = Constants.ResolutionScopeParameter;
+            this.RequestContextParameter = Constants.RequestContextParameter;
             this.ParameterExpressions = initialParameters != null
                 ? new ExpandableArray<Pair<bool, ParameterExpression>[]>()
                     {initialParameters.AsParameterPairs()}
@@ -79,11 +91,10 @@ namespace Stashbox.Resolution
             this.ScopeNames = initialScopeNames.AsStack();
             this.circularDependencyBarrier = new Utils.Data.Stack<int>();
             this.expressionCache = new Tree<Expression>();
-            this.factoryCache = new Tree<Func<IResolutionScope, object>>();
+            this.factoryCache = new Tree<Func<IResolutionScope, IRequestContext, object>>();
             this.IsRequestedFromRoot = isRequestedFromRoot;
             this.CurrentContainerContext = this.RequestInitiatorContainerContext = currentContainerContext;
-            this.FactoryDelegateCacheEnabled = this.PerResolutionRequestCacheEnabled = dependencyOverrides == null;
-            this.IsTopRequest = true;
+            this.RequestConfiguration.FactoryDelegateCacheEnabled = this.PerResolutionRequestCacheEnabled = dependencyOverrides == null;
         }
 
         /// <summary>
@@ -116,26 +127,16 @@ namespace Stashbox.Resolution
         public ParameterExpression GetKnownVariableOrDefault(int key) =>
              this.DefinedVariables.GetOrDefault(key);
 
-        /// <inheritdoc />
-        public object GetDependencyOverrideOrDefault(Type dependencyType)
-        {
-            var @override = this.GetExpressionOverrideOrDefault(dependencyType);
-            return @override?.Value;
-        }
-
-        /// <inheritdoc />
-        public TResult GetDependencyOverrideOrDefault<TResult>() => (TResult)this.GetDependencyOverrideOrDefault(typeof(TResult));
-
         internal void CacheExpression(int key, Expression expression) =>
             this.expressionCache.Add(key, expression);
 
         internal Expression GetCachedExpression(int key) =>
             this.expressionCache.GetOrDefault(key);
 
-        internal void CacheFactory(int key, Func<IResolutionScope, object> factory) =>
+        internal void CacheFactory(int key, Func<IResolutionScope, IRequestContext, object> factory) =>
             this.factoryCache.Add(key, factory);
 
-        internal Func<IResolutionScope, object> GetCachedFactory(int key) =>
+        internal Func<IResolutionScope, IRequestContext, object> GetCachedFactory(int key) =>
             this.factoryCache.GetOrDefault(key);
 
         internal ConstantExpression GetExpressionOverrideOrDefault(Type type, object name = null) =>
@@ -150,6 +151,47 @@ namespace Stashbox.Resolution
         internal void LetDownCircularDependencyBarrier() =>
             this.circularDependencyBarrier.Pop();
 
+        internal static ResolutionContext BeginTopLevelContext(
+            IEnumerable<object> initialScopeNames,
+            IContainerContext currentContainerContext,
+            bool isRequestedFromRoot,
+            HashTree<object, ConstantExpression> dependencyOverrides = null,
+            ParameterExpression[] initialParameters = null) =>
+            new(initialScopeNames,
+                currentContainerContext,
+                true,
+                isRequestedFromRoot,
+                false,
+                dependencyOverrides,
+                initialParameters);
+
+        internal static ResolutionContext BeginNullableTopLevelContext(
+            IEnumerable<object> initialScopeNames,
+            IContainerContext currentContainerContext,
+            bool isRequestedFromRoot,
+            HashTree<object, ConstantExpression> dependencyOverrides = null,
+            ParameterExpression[] initialParameters = null) =>
+            new(initialScopeNames,
+                currentContainerContext,
+                true,
+                isRequestedFromRoot,
+                true,
+                dependencyOverrides,
+                initialParameters);
+
+        internal static ResolutionContext BeginValidationContext(IContainerContext currentContainerContext) =>
+            new(Constants.EmptyArray<object>(), currentContainerContext, true, false, false, null, null);
+
+        internal ResolutionContext BeginSubDependencyContext()
+        {
+            if (!this.IsTopRequest)
+                return this;
+
+            var clone = this.Clone();
+            clone.IsTopRequest = false;
+            return clone;
+        }
+
         internal ResolutionContext BeginCrossContainerContext(IContainerContext currentContainerContext)
         {
             var clone = this.Clone();
@@ -158,7 +200,7 @@ namespace Stashbox.Resolution
             return clone;
         }
 
-        internal ResolutionContext BeginNewScopeContext(KeyValue<object, ParameterExpression> scopeParameter)
+        internal ResolutionContext BeginNewScopeContext(ReadOnlyKeyValue<object, ParameterExpression> scopeParameter)
         {
             this.ScopeNames.PushBack(scopeParameter.Key);
             var clone = this.BeginSubGraph();
@@ -177,6 +219,9 @@ namespace Stashbox.Resolution
 
         internal ResolutionContext BeginUnknownTypeCheckDisabledContext()
         {
+            if (this.UnknownTypeCheckDisabled)
+                return this;
+
             var clone = this.Clone();
             clone.UnknownTypeCheckDisabled = true;
             return clone;

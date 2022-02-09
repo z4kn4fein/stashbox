@@ -21,9 +21,14 @@
         public static readonly LifetimeDescriptor Scoped = new ScopedLifetime();
 
         /// <summary>
-        /// PerRequest lifetime.
+        /// Per scoped request lifetime, that re-uses the produced instance within a scoped service's resolution tree.
         /// </summary>
         public static readonly LifetimeDescriptor PerScopedRequest = new PerScopedRequestLifetime();
+
+        /// <summary>
+        /// Per resolution request lifetime.
+        /// </summary>
+        public static readonly LifetimeDescriptor PerRequest = new PerRequestLifetime();
 
         /// <summary>
         /// Produces a NamedScope lifetime.

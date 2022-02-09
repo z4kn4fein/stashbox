@@ -14,7 +14,7 @@
 - **Advanced**
 - [Generics](advanced/generics)
 - [Decorators](advanced/decorators)
-- [Resolvers](advanced/resolvers)
+- [Wrappers & resolvers](advanced/wrappers-resolvers)
 - [Child containers](advanced/child-containers)
 - [Special resolution cases](advanced/special-resolution-cases)
 - **Diagnostics**

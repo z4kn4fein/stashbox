@@ -7,7 +7,7 @@ namespace Stashbox.Registration
     {
         public static void Register(IContainerContext containerContext, ServiceRegistration serviceRegistration, Type serviceType)
         {
-            if (serviceRegistration.RegistrationContext.AdditionalServiceTypes.Length > 0)
+            if (serviceRegistration.RegistrationContext.AdditionalServiceTypes != null)
                 foreach (var additionalServiceType in serviceRegistration.RegistrationContext.AdditionalServiceTypes.Distinct())
                 {
                     if (additionalServiceType.IsOpenGenericType())
@@ -35,7 +35,7 @@ namespace Stashbox.Registration
 
         public static void ReMap(IContainerContext containerContext, ServiceRegistration serviceRegistration, Type serviceType)
         {
-            if (serviceRegistration.RegistrationContext.AdditionalServiceTypes.Length > 0)
+            if (serviceRegistration.RegistrationContext.AdditionalServiceTypes != null)
                 foreach (var additionalServiceType in serviceRegistration.RegistrationContext.AdditionalServiceTypes.Distinct())
                     ReMapInternal(containerContext, serviceRegistration, additionalServiceType);
 

@@ -8,21 +8,21 @@ Stashbox and its extensions are distributed via [NuGet](https://www.nuget.org/pa
 
 You can install the package by typing the following into the Package Manager Console:
 ```
-Install-Package Stashbox -Version 4.1.0
+Install-Package Stashbox -Version 5.0.0
 ```
 
 #### **dotnet CLI**
 
 You can install the package by using the dotnet cli:
 ```
-dotnet add package Stashbox --version 4.1.0
+dotnet add package Stashbox --version 5.0.0
 ```
 
 #### **PackageReference**
 
 You can add the package into the package references of your `.csproj`:
 ```
-<PackageReference Include="Stashbox" Version="4.1.0" />
+<PackageReference Include="Stashbox" Version="5.0.0" />
 ```
 
 <!-- tabs:end -->
@@ -38,11 +38,9 @@ To achieve the most efficient usage of Stashbox, you should follow these steps:
 - [Validate](diagnostics/validation) the state of the container and the registrations with the `.Validate()` method. *(Optional)*
 - During the lifetime of the application, use the container to resolve your services.
 - Create [scopes](usage/scopes) and use them to resolve your services. *(Optional)*
-- On application exit, call the container's `.Dispose()` method to clean up the resources. *(Optional)*
+- On application exit, call the container's `.Dispose()` or `.DisposeAsync()` method to clean up the resources. *(Optional)*
 
-?> You should create only a single instance from `StashboxContainer` (plus child containers if you use them) per application domain. `StashboxContainer` instances are thread-safe.
-
-!> Don't create new `StashboxContainer` instances continuously. Such action will bypass the container's internal delegate cache and could lead to poor performance. 
+!> You should create only a single instance from `StashboxContainer` (plus child containers if you use them) per application domain. `StashboxContainer` instances are thread-safe. Do not create new container instances continuously, such action will bypass the container's internal delegate cache and could lead to performance degradation. 
 
 ## How it works?
 Stashbox builds and maintains a collection of registered services. When a service is requested, Stashbox starts looking for a matching registration with the same service type. If it finds one, the container initiates a scan on the implementation type's available constructors and selects the one with the most arguments it knows how to resolve by matching argument types to other registrations.

@@ -118,6 +118,11 @@ namespace Stashbox.Registration
         /// </summary>
         public Func<MemberInfo, bool> AutoMemberInjectionFilter { get; internal set; }
 
+        /// <summary>
+        /// The additional metadata.
+        /// </summary>
+        public object Metadata { get; internal set; }
+
         internal ExpandableArray<Type> TargetTypeConditions { get; set; }
         internal ExpandableArray<Func<TypeInformation, bool>> ResolutionConditions { get; set; }
         internal ExpandableArray<Type> AttributeConditions { get; set; }
@@ -125,15 +130,5 @@ namespace Stashbox.Registration
         internal bool ReplaceExistingRegistrationOnlyIfExists { get; set; }
         internal ExpandableArray<Type> AdditionalServiceTypes { get; set; }
         internal ExpandableArray<KeyValuePair<string, object>> InjectionParameters { get; set; }
-
-        internal RegistrationContext()
-        {
-            this.AttributeConditions = new ExpandableArray<Type>();
-            this.TargetTypeConditions = new ExpandableArray<Type>();
-            this.ResolutionConditions = new ExpandableArray<Func<TypeInformation, bool>>();
-            this.AdditionalServiceTypes = new ExpandableArray<Type>();
-            this.InjectionParameters = new ExpandableArray<KeyValuePair<string, object>>();
-            this.DependencyBindings = new Dictionary<object, object>();
-        }
     }
 }

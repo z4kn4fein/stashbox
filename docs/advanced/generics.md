@@ -202,13 +202,13 @@ If we request `IEventHandler<IUpdatedEvent>`, only `UpdatedEventHandler` would b
 ## Wrappers
 Stashbox can implicitly wrap your services into different data structures. All functionalities covered in the [service resolution](usage/service-resolution) are applied to the wrappers. Every wrapper request starts as a standard resolution; only the result is wrapped in the requested structure.
 
- This section will cover those pre-defined wrapper types that Stashbox supports. The collection wrapper is used to support resolution requests with all those collection types described in the [Multiple implementations](usage/advanced-registration?id=multiple-implementations) section.
+ This section will cover those pre-defined wrapper types that Stashbox supports. The enumerable wrapper (not listed here) is used to support resolution requests of all those collection types described in the [Multiple implementations](usage/advanced-registration?id=multiple-implementations) section.
 
 <!-- panels:start -->
 
 <!-- div:left-panel -->
 ### Lazy
-With requesting `Lazy<>`, the container will implicitly construct a new `Lazy<>` instance with a factory delegate as constructor argument used to instantiate the wrapped service. 
+When requesting `Lazy<>`, the container implicitly constructs a new `Lazy<>` instance with a factory delegate as its constructor argument used to instantiate the underlying service. 
 
 <!-- div:right-panel -->
 ```cs
@@ -224,12 +224,12 @@ IJob job = lazyJob.Value;
 
 <!-- div:left-panel -->
 ### Func
-With requesting `Func<>`, the container will implicitly create a factory delegate used to instantiate the wrapped service. 
+When requesting `Func<>`, the container implicitly creates a factory delegate used to instantiate the underlying service.
 
-You have the option to request a delegate that allows supplying some or all of the dependencies as delegate parameters.
+It's possible to request a delegate that expects some or all of the dependencies as delegate parameters.
 Parameters are used for sub-dependencies as well, like: `(arg) => new A(new B(arg))`
 
-When a dependency is not covered with a parameter, the container will resolve it.
+When a dependency is not available as a parameter, it will be resolved from the container directly.
 
 <!-- div:right-panel -->
 
@@ -260,16 +260,82 @@ IJob job = funcOfJob(config["connectionString"], new ConsoleLogger());
 <!-- panels:start -->
 
 <!-- div:left-panel -->
-### Tuple
-With requesting `Tuple<>`, the container will implicitly wrap the requested service types into a tuple. 
+### Metadata & Tuple
+With the `.WithMetadata()` registration option, you can attach additional information to a service.
+To gather this information, you can request the service wrapped in either `Metadata<,>` or `Tuple<,>`.
 
+`Metadata<,>` is a type from the `Stashbox` package, so you might prefer using `Tuple<,>` if you want to avoid referencing Stashbox in certain parts of your project.
+
+You can also filter a collection of services by their metadata. Requesting `IEnumerable<Tuple<,>>` will yield only those services that have the given type of metadata.
+<!-- div:right-panel -->
+
+<!-- tabs:start -->
+##### **Single service**
+```cs
+container.Register<IJob, DbBackup>(options => options
+    .WithMetadata("connection-string-to-db"));
+
+var jobWithConnectionString = container.Resolve<Metadata<IJob, string>>();
+// prints: "connection-string-to-db"
+Console.WriteLine(jobWithConnectionString.Data);
+
+var alsoJobWithConnectionString = container.Resolve<Tuple<IJob, string>>();
+// prints: "connection-string-to-db"
+Console.WriteLine(alsoJobWithConnectionString.Item2);
+```
+
+##### **Collection filtering**
+```cs
+container.Register<IService, Service1>(options => options
+    .WithMetadata("meta-1"));
+container.Register<IService, Service2>(options => options
+    .WithMetadata("meta-2"));
+container.Register<IService, Service3>(options => options
+    .WithMetadata(5));
+
+// the result is: [Service1, Service2]
+var servicesWithStringMetadata = container.Resolve<Tuple<IService, string>[]>();
+
+// the result is: [Service3]
+var servicesWithIntMetadata = container.Resolve<Tuple<IService, int>[]>();
+```
+
+<!-- tabs:end -->
+
+<!-- panels:end -->
+
+?> Metadata can also be a complex type e.g., an `IDictionary<>`.
+
+!> When no service found for a particular metadata type, the container throws a [ResolutionFailedException](diagnostics/validation?id=resolution-validation). In case of an `IEnumerable<>` request, an empty collection will be returned for a non-existing metadata.
+
+<!-- panels:start -->
+
+<!-- div:left-panel -->
+### KeyValuePair & ReadOnlyKeyValue
+With named registration, you can give your service unique identifiers. Requesting a service wrapped in a `KeyValuePair<object, TYourService>` or `ReadOnlyKeyValue<object, TYourService>` returns the requested service with its identifier as key.
+
+`ReadOnlyKeyValue<,>` is a type from the `Stashbox` package, so you might prefer using `KeyValuePair<,>` if you want to avoid referencing Stashbox in certain parts of your project.
+
+Requesting an `IEnumerable<KeyValuePair<,>>` will return all services of the requested type along their identifiers. When a service don't have an identifier the `Key` will be set to `null`.
 <!-- div:right-panel -->
 ```cs
-container.Register<IJob, DbBackup>();
-container.Register<ITask, EmailSending>();
-// tuple is holding DbBackup and EmailSending.
-Tuple<IJob, ITask> tuple = container.Resolve<Tuple<IJob, ITask>>();
+container.Register<IService, Service1>("FirstServiceId");
+container.Register<IService, Service2>("SecondServiceId");
+container.Register<IService, Service3>();
+
+var serviceKeyValue1 = container
+    .Resolve<KeyValuePair<object, IService>>("FirstServiceId");
+// prints: "FirstServiceId"
+Console.WriteLine(serviceKeyValue1.Key);
+
+var serviceKeyValue2 = container
+    .Resolve<ReadOnlyKeyValue<object, IService>>("SecondServiceId");
+// prints: "SecondServiceId"
+Console.WriteLine(serviceKeyValue2.Key);
+
+// ["FirstServiceId": Service1, "SecondServiceId": Service2, null: Service3 ]
+var servicesWithKeys = container.Resolve<KeyValuePair<object, IService>[]>();
 ```
 <!-- panels:end -->
 
-?> Wrappers can be composed like: `IEnumerable<Func<ILogger, Lazy<IJob>>>`.
+?> Wrappers can be composed e.g., `IEnumerable<Func<ILogger, Tuple<Lazy<IJob>, string>>>`.

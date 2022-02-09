@@ -25,7 +25,7 @@ namespace Stashbox.Expressions.Compile.Emitters
                 if (!expression.Expressions[i].TryEmit(generator, context, parameters))
                     return false;
 
-                if (type.IsValueType)
+                if (itemType.IsValueType)
                     generator.Emit(OpCodes.Stelem, itemType);
                 else
                     generator.Emit(OpCodes.Stelem_Ref);

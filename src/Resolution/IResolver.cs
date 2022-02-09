@@ -1,13 +1,11 @@
-﻿using Stashbox.Resolution.Resolvers;
-using System.Collections.Generic;
-using System.Linq.Expressions;
+﻿using System.Collections.Generic;
 
 namespace Stashbox.Resolution
 {
     /// <summary>
     /// Represents a dependency resolver.
     /// </summary>
-    public interface IResolver
+    public interface IServiceResolver : IResolver
     {
         /// <summary>
         /// Produces an expression for creating an instance.
@@ -16,7 +14,7 @@ namespace Stashbox.Resolution
         /// <param name="typeInfo">The information about the type to resolve.</param>
         /// <param name="resolutionContext">The contextual information about the current resolution call.</param>
         /// <returns>The built resolution expression.</returns>
-        Expression GetExpression(
+        ServiceContext GetExpression(
             IResolutionStrategy resolutionStrategy,
             TypeInformation typeInfo,
             ResolutionContext resolutionContext);
@@ -32,9 +30,9 @@ namespace Stashbox.Resolution
     }
 
     /// <summary>
-    /// Represents a dependency resolver used by the <see cref="EnumerableResolver"/> to construct collection of expressions.
+    /// Represents a dependency resolver that can produce a collection of services.
     /// </summary>
-    public interface IEnumerableSupportedResolver : IResolver
+    public interface IEnumerableSupportedResolver : IServiceResolver
     {
         /// <summary>
         /// Produces an array of expressions, one for every registered service identified by the requested type.
@@ -43,7 +41,7 @@ namespace Stashbox.Resolution
         /// <param name="typeInfo">The information about the type to resolve.</param>
         /// <param name="resolutionContext">The contextual information about the current resolution call.</param>
         /// <returns>The array of all the resolution expression built by the resolver.</returns>
-        IEnumerable<Expression> GetExpressionsForEnumerableRequest(
+        IEnumerable<ServiceContext> GetExpressionsForEnumerableRequest(
             IResolutionStrategy resolutionStrategy,
             TypeInformation typeInfo,
             ResolutionContext resolutionContext);

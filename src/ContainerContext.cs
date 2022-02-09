@@ -6,14 +6,14 @@ namespace Stashbox
 {
     internal class ContainerContext : IContainerContext
     {
-        public ContainerContext(IContainerContext parentContext, IResolutionStrategy resolutionStrategy,
-            ContainerConfiguration containerConfiguration)
+        public ContainerContext(IContainerContext parentContext,
+            IResolutionStrategy resolutionStrategy, ContainerConfiguration containerConfiguration)
         {
             this.ContainerConfiguration = containerConfiguration;
             this.ParentContext = parentContext;
+            this.RootScope = new ResolutionScope(this);
             this.RegistrationRepository = new RegistrationRepository(containerConfiguration);
             this.DecoratorRepository = new DecoratorRepository();
-            this.RootScope = new ResolutionScope(this);
             this.ResolutionStrategy = resolutionStrategy;
         }
 

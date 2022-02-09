@@ -56,17 +56,6 @@ namespace Stashbox.Configuration
         }
 
         /// <summary>
-        /// Enables or disables circular dependencies through Lazy objects.
-        /// </summary>
-        /// <param name="enabled">True when the feature should be enabled, otherwise false.</param>
-        /// <returns>The container configurator.</returns>
-        public ContainerConfigurator WithCircularDependencyWithLazy(bool enabled = true)
-        {
-            this.ContainerConfiguration.CircularDependenciesWithLazyEnabled = enabled;
-            return this;
-        }
-
-        /// <summary>
         /// Enables or disables the default value injection.
         /// </summary>
         /// <param name="enabled">True when the feature should be enabled, otherwise false.</param>

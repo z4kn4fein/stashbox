@@ -40,8 +40,11 @@ namespace Stashbox
             return initializable;
         }
 
+        /// <inheritdoc />
         public async ValueTask InvokeAsyncInitializers(CancellationToken token = default)
         {
+            this.ThrowIfDisposed();
+
             if (this.ParentScope != null)
                 await this.ParentScope.InvokeAsyncInitializers(token).ConfigureAwait(false);
 

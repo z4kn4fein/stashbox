@@ -14,9 +14,11 @@ namespace Stashbox.Registration
 
             return registrationConfiguration.ImplementationType.IsOpenGenericType()
                 ? new OpenGenericRegistration(registrationConfiguration.ImplementationType,
-                containerContext.ContainerConfiguration, registrationConfiguration.Context, isDecorator)
+                    containerContext.ContainerConfiguration.RegistrationBehavior,
+                    registrationConfiguration.Context, isDecorator)
                 : new ServiceRegistration(registrationConfiguration.ImplementationType, DetermineRegistrationType(registrationConfiguration),
-                containerContext.ContainerConfiguration, registrationConfiguration.Context, isDecorator);
+                    containerContext.ContainerConfiguration.RegistrationBehavior,
+                    registrationConfiguration.Context, isDecorator);
         }
 
         private static void PreProcessExistingInstanceIfNeeded(IContainerContext containerContext, RegistrationContext registrationContext, Type implementationType)

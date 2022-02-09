@@ -1,15 +1,14 @@
 ﻿using System.Linq.Expressions;
-using System.Reflection;
 
 namespace Stashbox.Resolution.Resolvers
 {
-    internal class DefaultValueResolver : IResolver
+    internal class DefaultValueResolver : IServiceResolver
     {
-        public Expression GetExpression(
+        public ServiceContext GetExpression(
             IResolutionStrategy resolutionStrategy,
             TypeInformation typeInfo,
             ResolutionContext resolutionContext) =>
-            typeInfo.Type.AsDefault();
+            typeInfo.Type.AsDefault().AsContext();
 
         public bool CanUseForResolution(TypeInformation typeInfo, ResolutionContext resolutionContext) =>
             resolutionContext.CurrentContainerContext.ContainerConfiguration.DefaultValueInjectionEnabled &&

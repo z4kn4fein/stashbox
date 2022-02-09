@@ -142,7 +142,7 @@ namespace Stashbox.Utils.Data
             else
             {
                 node.Collisions ??= new ExpandableArray<TKey, TValue>();
-                node.Collisions.Add(new KeyValue<TKey, TValue>(key, value));
+                node.Collisions.Add(new ReadOnlyKeyValue<TKey, TValue>(key, value));
             }
         }
     }

@@ -9,18 +9,20 @@ namespace Stashbox.Tests.IssueTests
         [Fact]
         public void Ensure_Context_Available_In_Factory()
         {
-            var depOverride = new Dep2();
+            var fakeOverride = new object();
+            var dep2Override = new Dep2();
             using var container = new StashboxContainer()
-                .Register<Test>(c => c.WithFactory<IResolutionContext>(ctx =>
+                .Register<Test>(c => c.WithFactory<IRequestContext>(ctx =>
                 {
                     var d = ctx.GetDependencyOverrideOrDefault<Dep2>();
-                    Assert.Same(depOverride, d);
+                    Assert.Same(dep2Override, d);
+                    Assert.Equal(new object[] { dep2Override, fakeOverride }, ctx.GetOverrides());
                     return new Test(d);
                 }))
                 .Register<Dep1>();
 
-            var t = container.Resolve<Test>(dependencyOverrides: new object[] { depOverride });
-            Assert.Same(depOverride, t.Dep);
+            var t = container.Resolve<Test>(dependencyOverrides: new[] { dep2Override, fakeOverride });
+            Assert.Same(dep2Override, t.Dep);
         }
 
         [Fact]

@@ -1,7 +1,6 @@
 ﻿using Stashbox.Configuration;
 using Stashbox.Registration;
 using Stashbox.Resolution;
-using Stashbox.Resolution.Resolvers;
 using Stashbox.Utils;
 using System;
 using System.Collections.Generic;
@@ -18,41 +17,28 @@ namespace Stashbox
     /// </summary>
     public sealed partial class StashboxContainer : IStashboxContainer
     {
-        private readonly ContainerConfigurator containerConfigurator;
-        private readonly ResolutionStrategy resolutionStrategy;
         private int disposed;
+        private readonly ContainerConfigurator containerConfigurator;
+        private readonly ResolutionScope rootScope;
 
         /// <summary>
         /// Constructs a <see cref="StashboxContainer"/>.
         /// </summary>
         public StashboxContainer(Action<ContainerConfigurator> config = null)
-            : this(new ContainerConfigurator(), config)
+            : this(null, new ResolutionStrategy(), new ContainerConfigurator(), config)
+        { }
+
+        private StashboxContainer(IStashboxContainer parentContainer, IResolutionStrategy resolutionStrategy,
+            ContainerConfigurator containerConfigurator, Action<ContainerConfigurator> config = null)
         {
-            this.resolutionStrategy = new ResolutionStrategy();
-
-            this.ContainerContext = new ContainerContext(null, resolutionStrategy,
-                this.containerConfigurator.ContainerConfiguration);
-
-            this.RegisterResolvers();
-        }
-
-        private StashboxContainer(IStashboxContainer parentContainer,
-            ResolutionStrategy resolutionStrategy, ContainerConfigurator containerConfigurator, 
-            Action<ContainerConfigurator> config = null)
-            : this(containerConfigurator, config)
-        {
-            this.resolutionStrategy = resolutionStrategy;
-
-            this.ContainerContext = new ContainerContext(parentContainer.ContainerContext, resolutionStrategy,
-                this.containerConfigurator.ContainerConfiguration);
-        }
-
-        private StashboxContainer(ContainerConfigurator containerConfigurator, Action<ContainerConfigurator> config = null)
-        {
+            this.ContainerContext = new ContainerContext(parentContainer?.ContainerContext, resolutionStrategy, containerConfigurator.ContainerConfiguration);
+            this.rootScope = (ResolutionScope)this.ContainerContext.RootScope;
             this.containerConfigurator = containerConfigurator;
-
             config?.Invoke(this.containerConfigurator);
         }
+
+        /// <inheritdoc />
+        public IContainerContext ContainerContext { get; }
 
         /// <inheritdoc />
         public void RegisterResolver(IResolver resolver)
@@ -60,16 +46,8 @@ namespace Stashbox
             this.ThrowIfDisposed();
             Shield.EnsureNotNull(resolver, nameof(resolver));
 
-            this.resolutionStrategy.RegisterResolver(resolver);
+            this.ContainerContext.ResolutionStrategy.RegisterResolver(resolver);
         }
-
-        /// <inheritdoc />
-        public bool CanResolve<TFrom>(object name = null) =>
-            this.CanResolve(typeof(TFrom), name);
-
-        /// <inheritdoc />
-        public bool CanResolve(Type typeFrom, object name = null) => 
-            this.ContainerContext.RootScope.CanResolve(typeFrom, name);
 
         /// <inheritdoc />
         public bool IsRegistered<TFrom>(object name = null) =>
@@ -97,9 +75,8 @@ namespace Stashbox
             {
                 try
                 {
-                    this.resolutionStrategy.BuildExpressionForRegistration(serviceRegistration.Value,
-                        new ResolutionContext(this.ContainerContext.RootScope.GetActiveScopeNames(),
-                            this.ContainerContext, false, false, true),
+                    this.ContainerContext.ResolutionStrategy.BuildExpressionForRegistration(serviceRegistration.Value,
+                        ResolutionContext.BeginValidationContext(this.ContainerContext),
                         new TypeInformation(serviceRegistration.Key, serviceRegistration.Value.RegistrationContext.Name));
                 }
                 catch (Exception ex)
@@ -113,20 +90,13 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public IContainerContext ContainerContext { get; }
-
-        /// <inheritdoc />
         public IStashboxContainer CreateChildContainer(Action<ContainerConfigurator> config = null)
         {
             this.ThrowIfDisposed();
 
-            return new StashboxContainer(this, this.resolutionStrategy,
+            return new StashboxContainer(this, this.ContainerContext.ResolutionStrategy,
                     new ContainerConfigurator(this.ContainerContext.ContainerConfiguration.Clone()), config);
         }
-
-        /// <inheritdoc />
-        public IDependencyResolver BeginScope(object name = null, bool attachToParent = false) =>
-            this.ContainerContext.RootScope.BeginScope(name, attachToParent);
 
         /// <inheritdoc />
         public void Configure(Action<ContainerConfigurator> config)
@@ -153,21 +123,9 @@ namespace Stashbox
         public IEnumerable<RegistrationDiagnosticsInfo> GetRegistrationDiagnostics()
         {
             this.ThrowIfDisposed();
+
             foreach (var reg in this.ContainerContext.RegistrationRepository.GetRegistrationMappings())
                 yield return new RegistrationDiagnosticsInfo(reg.Key, reg.Value.ImplementationType, reg.Value.RegistrationContext.Name);
-        }
-
-        private void RegisterResolvers()
-        {
-            this.resolutionStrategy.RegisterResolver(new EnumerableResolver());
-            this.resolutionStrategy.RegisterResolver(new LazyResolver());
-            this.resolutionStrategy.RegisterResolver(new FuncResolver());
-            this.resolutionStrategy.RegisterResolver(new TupleResolver());
-            this.resolutionStrategy.RegisterResolver(new OptionalValueResolver());
-            this.resolutionStrategy.RegisterResolver(new DefaultValueResolver());
-
-            this.resolutionStrategy.RegisterLastChanceResolver(new ParentContainerResolver());
-            this.resolutionStrategy.RegisterLastChanceResolver(new UnknownTypeResolver());
         }
 
         private void ThrowIfDisposed([CallerMemberName] string caller = "<unknown>")

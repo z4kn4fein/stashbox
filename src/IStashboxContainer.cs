@@ -12,9 +12,9 @@ namespace Stashbox
     public interface IStashboxContainer : IDependencyRegistrator, IDependencyResolver, IDependencyReMapper, IDependencyCollectionRegistrator, IDecoratorRegistrator, IFuncRegistrator
     {
         /// <summary>
-        /// Registers an <see cref="IResolver"/> into the container.
+        /// Registers an <see cref="IResolver"/>.
         /// </summary>
-        /// <param name="resolver">The resolver.</param>
+        /// <param name="resolver">The resolver implementation.</param>
         void RegisterResolver(IResolver resolver);
 
         /// <summary>
@@ -24,12 +24,12 @@ namespace Stashbox
         IStashboxContainer CreateChildContainer(Action<ContainerConfigurator> config = null);
 
         /// <summary>
-        /// Stores the container context.
+        /// The container context.
         /// </summary>
         IContainerContext ContainerContext { get; }
 
         /// <summary>
-        /// Checks a type is registered in the container.
+        /// Checks whether a type is registered in the container.
         /// </summary>
         /// <typeparam name="TFrom">The service type.</typeparam>
         /// <param name="name">The registration name.</param>
@@ -37,7 +37,7 @@ namespace Stashbox
         bool IsRegistered<TFrom>(object name = null);
 
         /// <summary>
-        /// Checks a type is registered in the container.
+        /// Checks whether a type is registered in the container.
         /// </summary>
         /// <param name="typeFrom">The service type.</param>
         /// <param name="name">The registration name.</param>

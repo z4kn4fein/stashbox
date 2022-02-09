@@ -19,7 +19,7 @@ namespace Stashbox.Lifetime
         private protected override bool StoreResultInLocalVariable => true;
 
         /// <inheritdoc />
-        protected override Expression ApplyLifetime(Func<IResolutionScope, object> factory,
+        protected override Expression ApplyLifetime(Func<IResolutionScope, IRequestContext, object> factory,
             ServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType)
         {
             if (resolutionContext.CurrentContainerContext.ContainerConfiguration.LifetimeValidationEnabled &&
@@ -31,8 +31,8 @@ namespace Stashbox.Lifetime
             return resolutionContext.CurrentScopeParameter.CallMethod(Constants.GetOrAddScopedObjectMethod,
                     serviceRegistration.RegistrationId.AsConstant(),
                     factory.AsConstant(),
-                    resolveType.AsConstant(),
-                    true.AsConstant())
+                    resolutionContext.RequestContextParameter,
+                    resolveType.AsConstant())
                 .ConvertTo(resolveType);
         }
     }

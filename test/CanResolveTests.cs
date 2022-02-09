@@ -43,7 +43,7 @@ namespace Stashbox.Tests
 
             Assert.True(container.CanResolve<Func<IA>>());
             Assert.True(container.CanResolve<Lazy<IA>>());
-            Assert.True(container.CanResolve<Tuple<IA>>());
+            Assert.True(container.CanResolve<Tuple<IA, object>>());
         }
 
         [Fact]

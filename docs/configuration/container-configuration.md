@@ -213,16 +213,6 @@ new StashboxContainer(options => options.WithRuntimeCircularDependencyTracking()
 
 !> By default, the container checks for circular dependencies when it builds the expression graph, but this could not prevent stack overflows when factory delegates passed by the user are containing circular dependencies. If you turn this feature on, the container will generate nodes into the expression tree that tracks the entering and exiting resolution calls across user-defined factory delegates.
 
-## Circular dependencies with lazy
-<!-- panels:start -->
-<!-- div:left-panel -->
-With this option, you can enable or disable circular dependencies through `Lazy<>` objects.
-<!-- div:right-panel -->
-```cs
-new StashboxContainer(options => options.WithCircularDependencyWithLazy());
-```
-<!-- panels:end -->
-
 ## Default value injection
 <!-- panels:start -->
 <!-- div:left-panel -->

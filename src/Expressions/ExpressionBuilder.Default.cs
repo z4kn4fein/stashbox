@@ -2,7 +2,6 @@
 using Stashbox.Registration;
 using Stashbox.Resolution;
 using Stashbox.Utils;
-using Stashbox.Utils.Data;
 using System.Linq.Expressions;
 
 namespace Stashbox.Expressions
@@ -32,7 +31,7 @@ namespace Stashbox.Expressions
                     serviceRegistration.RegistrationContext.DefinedScopeName.AsConstant(),
                     true.AsConstant());
 
-            var newScopeContext = resolutionContext.BeginNewScopeContext(new KeyValue<object, ParameterExpression>(serviceRegistration.RegistrationContext.DefinedScopeName, variable));
+            var newScopeContext = resolutionContext.BeginNewScopeContext(new ReadOnlyKeyValue<object, ParameterExpression>(serviceRegistration.RegistrationContext.DefinedScopeName, variable));
 
             resolutionContext.AddDefinedVariable(variable);
             resolutionContext.AddInstruction(variable.AssignTo(newScope.ConvertTo(Constants.ResolutionScopeType)));

@@ -1,5 +1,10 @@
 # Stashbox
-[![Appveyor build status](https://img.shields.io/appveyor/ci/pcsajtai/stashbox/master.svg?label=appveyor)](https://ci.appveyor.com/project/pcsajtai/stashbox/branch/master) [![Travis CI build status](https://img.shields.io/travis/com/z4kn4fein/stashbox/master.svg?label=travis)](https://app.travis-ci.com/github/z4kn4fein/stashbox) [![Tests](https://img.shields.io/appveyor/tests/pcsajtai/stashbox-0vuru/master.svg)](https://ci.appveyor.com/project/pcsajtai/stashbox-0vuru/build/tests) [![Coverage Status](https://img.shields.io/codecov/c/github/z4kn4fein/stashbox.svg)](https://codecov.io/gh/z4kn4fein/stashbox) [![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=stashbox&metric=alert_status)](https://sonarcloud.io/dashboard?id=stashbox) [![Sourcelink](https://img.shields.io/badge/sourcelink-enabled-brightgreen.svg)](https://github.com/dotnet/sourcelink)
+[![Appveyor Build Status](https://img.shields.io/appveyor/build/pcsajtai/stashbox?logo=appveyor&logoColor=white)](https://ci.appveyor.com/project/pcsajtai/stashbox/branch/master) 
+[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/z4kn4fein/stashbox/Build%20on%20Linux%20and%20macOS?logo=GitHub)](https://github.com/z4kn4fein/stashbox/actions/workflows/linux-macOS-CI.yml) 
+[![Sonar Tests](https://img.shields.io/sonar/tests/z4kn4fein_stashbox?compact_message&logo=sonarcloud&server=https%3A%2F%2Fsonarcloud.io)](https://sonarcloud.io/project/overview?id=z4kn4fein_stashbox) 
+[![Sonar Coverage](https://img.shields.io/sonar/coverage/z4kn4fein_stashbox?logo=SonarCloud&server=https%3A%2F%2Fsonarcloud.io)](https://sonarcloud.io/project/overview?id=z4kn4fein_stashbox) 
+[![Sonar Quality Gate](https://img.shields.io/sonar/quality_gate/z4kn4fein_stashbox?logo=sonarcloud&server=https%3A%2F%2Fsonarcloud.io)](https://sonarcloud.io/project/overview?id=z4kn4fein_stashbox) 
+[![Sourcelink](https://img.shields.io/badge/sourcelink-enabled-brightgreen.svg)](https://github.com/dotnet/sourcelink)
 
 Stashbox is a lightweight, fast and portable dependency injection framework for .NET based solutions. It encourages the building of loosely coupled applications and simplifies the construction of hierarchical object structures. It can be integrated easily with .NET Core, Generic Host, ASP.NET, Xamarin, and many other applications.
 
@@ -7,7 +12,7 @@ Stashbox is a lightweight, fast and portable dependency injection framework for 
 - [Release notes](https://z4kn4fein.github.io/stashbox/#/changelog)
 - [ASP.NET Core sample](https://github.com/z4kn4fein/stashbox-extensions-dependencyinjection/tree/master/sample)
 
-Github (stable) | NuGet (stable) | Fuget (stable) | NuGet (daily)
+Github (stable) | NuGet (stable) | Fuget (stable) | NuGet (pre-release)
 --- | --- | --- | ---
 [![Github release](https://img.shields.io/github/release/z4kn4fein/stashbox.svg)](https://github.com/z4kn4fein/stashbox/releases) | [![NuGet Version](https://buildstats.info/nuget/Stashbox)](https://www.nuget.org/packages/Stashbox/) | [![Stashbox on fuget.org](https://www.fuget.org/packages/Stashbox/badge.svg?v=4.1.0)](https://www.fuget.org/packages/Stashbox) | [![Nuget pre-release](https://img.shields.io/nuget/vpre/Stashbox)](https://www.nuget.org/packages/Stashbox/)
 

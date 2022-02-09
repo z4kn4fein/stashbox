@@ -1,4 +1,5 @@
-﻿using Stashbox.Tests.Utils;
+﻿using FastExpressionCompiler;
+using Stashbox.Tests.Utils;
 
 namespace Stashbox.Configuration
 {
@@ -8,11 +9,14 @@ namespace Stashbox.Configuration
         {
             switch (compilerType)
             {
-                case CompilerType.ForcedMicrosoft:
+                case CompilerType.Microsoft:
                     configurator.WithExpressionCompiler(Rules.ExpressionCompilers.MicrosoftExpressionCompiler);
                     break;
-                case CompilerType.ForcedBuiltIn:
+                case CompilerType.Stashbox:
                     configurator.WithExpressionCompiler(Rules.ExpressionCompilers.StashboxExpressionCompiler);
+                    break;
+                case CompilerType.FastExpressionCompiler:
+                    configurator.WithExpressionCompiler(lambda => lambda.CompileFast());
                     break;
             }
         }

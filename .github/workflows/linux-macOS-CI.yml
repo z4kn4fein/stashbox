@@ -1,0 +1,37 @@
+name: Build on Linux and macOS
+on:
+  push:
+    branches: [ master, v5 ]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - 'appveyor*'
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+env:
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  build-test:
+    name: Build & test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ macos-latest, ubuntu-latest ]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: | 
+            3.1.x
+            5.0.x
+            6.0.x
+      - name: Restore
+        run: dotnet restore
+      - name: Test
+        run: |
+          dotnet test test/stashbox.tests.csproj -c Release -f netcoreapp3.1 --no-restore
+          dotnet test test/stashbox.tests.csproj -c Release -f net5.0 --no-restore
+          dotnet test test/stashbox.tests.csproj -c Release -f net6.0 --no-restore
