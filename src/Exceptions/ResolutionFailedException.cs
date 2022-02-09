@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Stashbox.Utils;
+using System;
 using System.Runtime.Serialization;
 
 namespace Stashbox.Exceptions
@@ -31,7 +32,7 @@ namespace Stashbox.Exceptions
         }
 
         /// <inheritdoc />
-        protected ServiceAlreadyRegisteredException(SerializationInfo info, StreamingContext context)
+        protected ResolutionFailedException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             this.Type = (Type)info.GetValue("Type", typeof(Type));
