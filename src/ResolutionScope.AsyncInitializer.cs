@@ -8,7 +8,7 @@ namespace Stashbox
 {
     internal sealed partial class ResolutionScope
     {
-        private class AsyncInitializable
+        private sealed class AsyncInitializable
         {
             private readonly object item;
             private readonly Func<object, IDependencyResolver, CancellationToken, Task> initializer;
