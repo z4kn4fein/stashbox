@@ -13,7 +13,7 @@ namespace Stashbox
 {
     internal sealed partial class ResolutionScope : IResolutionScope
     {
-        private class ScopedEvaluator
+        private sealed class ScopedEvaluator
         {
             private const int MaxWaitTimeInMs = 3000;
             private static readonly object Default = new();

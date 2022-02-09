@@ -105,7 +105,7 @@ namespace Stashbox.Registration
                     Constants.DelegatePlaceholder,
                     Constants.DelegatePlaceholder);
 
-        public bool ContainsRegistration(Type type, object name, bool includeOpenGenerics = false) =>
+        public bool ContainsRegistration(Type type, object name, bool includeOpenGenerics = true) =>
             serviceRepository.ContainsRegistration(type, name, includeOpenGenerics);
 
         public IEnumerable<KeyValuePair<Type, ServiceRegistration>> GetRegistrationMappings() =>

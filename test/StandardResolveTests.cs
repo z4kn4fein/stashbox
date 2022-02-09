@@ -327,7 +327,7 @@ namespace Stashbox.Tests
             container.Register(typeof(ITest1), typeof(Test1));
             container.Register(typeof(ITest2), typeof(Test22));
 
-            var inst = container.Resolve<ITest2>();
+            Assert.NotNull(container.Resolve<ITest2>());
         }
 
         [Fact]
@@ -339,7 +339,7 @@ namespace Stashbox.Tests
             container.Register(typeof(ITest1), typeof(Test12), context => context.WithName("test12"));
             container.Register(typeof(ITest2), typeof(Test222));
 
-            var inst = container.Resolve<ITest2>();
+            Assert.NotNull(container.Resolve<ITest2>());
         }
 
         [Fact]
@@ -350,7 +350,7 @@ namespace Stashbox.Tests
             container.Register(typeof(ITest1), typeof(Test1));
             container.Register(typeof(ITest2), typeof(Test2222));
 
-            var inst = container.Resolve<ITest2>();
+            Assert.NotNull(container.Resolve<ITest2>());
         }
 
         [Fact]
