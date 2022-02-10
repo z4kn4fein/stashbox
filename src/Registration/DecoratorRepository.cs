@@ -39,9 +39,6 @@ namespace Stashbox.Registration
         public IEnumerable<ServiceRegistration> GetDecoratorsOrDefault(Type implementationTypeToDecorate, TypeInformation typeInformation, ResolutionContext resolutionContext) =>
             this.GetRegistrationsForType(typeInformation.Type)?.FilterInclusiveOrDefault(typeInformation.Clone(implementationTypeToDecorate), resolutionContext, this.filters);
 
-        public ServiceRegistration GetNextDecoratorOrDefault(Type implementationTypeToDecorate, TypeInformation typeInformation, ResolutionContext resolutionContext) =>
-            this.GetRegistrationsForType(typeInformation.Type)?.SelectOrDefault(typeInformation, resolutionContext, this.filters);
-
         public IEnumerable<KeyValuePair<Type, ServiceRegistration>> GetRegistrationMappings() =>
             repository.Walk().SelectMany(reg => reg.Value.Select(r => new KeyValuePair<Type, ServiceRegistration>(reg.Key, r)));
 

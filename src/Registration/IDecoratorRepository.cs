@@ -27,15 +27,6 @@ namespace Stashbox.Registration
         IEnumerable<ServiceRegistration> GetDecoratorsOrDefault(Type implementationTypeToDecorate, TypeInformation typeInformation, ResolutionContext resolutionContext);
 
         /// <summary>
-        /// Gets a decorator registration.
-        /// </summary>
-        /// <param name="implementationTypeToDecorate">The implementation type to decorate.</param>
-        /// <param name="typeInformation">The info about the decorated type.</param>
-        /// <param name="resolutionContext">The resolution context.</param>
-        /// <returns>The decorator registrations if any exists, otherwise null.</returns>
-        ServiceRegistration GetNextDecoratorOrDefault(Type implementationTypeToDecorate, TypeInformation typeInformation, ResolutionContext resolutionContext);
-
-        /// <summary>
         /// Returns all registration mappings.
         /// </summary>
         /// <returns>The registration mappings.</returns>
