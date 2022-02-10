@@ -36,6 +36,12 @@ namespace Stashbox.Tests
             Assert.Throws<ArgumentException>(() => new StashboxContainer().Activate<ITest>());
         }
 
+        [Fact]
+        public void ActivateTests_Fail_On_Scope()
+        {
+            Assert.Throws<ArgumentException>(() => new StashboxContainer().BeginScope().Activate<ITest>());
+        }
+
         interface ITest { }
 
         class Test : ITest { }
