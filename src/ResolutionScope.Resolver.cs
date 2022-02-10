@@ -69,8 +69,8 @@ namespace Stashbox
             if (cachedFactory != null)
                 return (IEnumerable<TKey>)cachedFactory(this, RequestContext.Empty);
 
-            return (IEnumerable<TKey>)this.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByRef(type)?.Invoke(this, RequestContext.FromOverrides(dependencyOverrides)) ??
-                (IEnumerable<TKey>)this.BuildAndResolveService(type, dependencyOverrides: dependencyOverrides);
+            return (IEnumerable<TKey>)this.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByRef(type)?.Invoke(this, RequestContext.Begin()) ??
+                (IEnumerable<TKey>)this.BuildAndResolveService(type);
         }
 
         /// <inheritdoc />
@@ -86,8 +86,8 @@ namespace Stashbox
             if (cachedFactory != null)
                 return (IEnumerable<object>)cachedFactory(this, RequestContext.Empty);
 
-            return (IEnumerable<object>)this.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByRef(type)?.Invoke(this, RequestContext.FromOverrides(dependencyOverrides)) ??
-                (IEnumerable<object>)this.BuildAndResolveService(type, dependencyOverrides: dependencyOverrides);
+            return (IEnumerable<object>)this.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByRef(type)?.Invoke(this, RequestContext.Begin()) ??
+                (IEnumerable<object>)this.BuildAndResolveService(type);
         }
 
         /// <inheritdoc />

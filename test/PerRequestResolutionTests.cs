@@ -324,7 +324,9 @@ namespace Stashbox.Tests
             container.Register<IA, A1>(c => c.WithPerRequestLifetime())
                 .Register<B>();
 
-            var c = container.Activate<C>();
+            using var scope = container.BeginScope();
+
+            var c = scope.Activate<C>();
 
             Assert.IsType<A1>(c.A);
             Assert.IsType<A1>(c.B.A);
@@ -333,7 +335,7 @@ namespace Stashbox.Tests
 
             IA preA = new A2();
 
-            c = container.Activate<C>(new[] { preA });
+            c = scope.Activate<C>(new[] { preA });
 
             Assert.IsType<A2>(c.A);
             Assert.IsType<A2>(c.B.A);

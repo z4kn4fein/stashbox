@@ -24,8 +24,8 @@ namespace Stashbox
 			if (cachedFactory != null)
 				return cachedFactory(this.rootScope, RequestContext.Empty);
 
-			return this.rootScope.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByRef(typeFrom)?.Invoke(this.rootScope, RequestContext.FromOverrides(dependencyOverrides)) ??
-				this.rootScope.BuildAndResolveService(typeFrom, nullResultAllowed: nullResultAllowed, dependencyOverrides: dependencyOverrides);
+			return this.rootScope.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByRef(typeFrom)?.Invoke(this.rootScope, RequestContext.Begin()) ??
+				this.rootScope.BuildAndResolveService(typeFrom, nullResultAllowed: nullResultAllowed);
 		}
 
 		/// <inheritdoc />
@@ -40,8 +40,8 @@ namespace Stashbox
 			if (cachedFactory != null)
 				return cachedFactory(this.rootScope, RequestContext.Empty);
 
-			return this.rootScope.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByValue(name)?.Invoke(this.rootScope, RequestContext.FromOverrides(dependencyOverrides)) ??
-				this.rootScope.BuildAndResolveService(typeFrom, name, nullResultAllowed, dependencyOverrides);
+			return this.rootScope.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByValue(name)?.Invoke(this.rootScope, RequestContext.Begin()) ??
+				this.rootScope.BuildAndResolveService(typeFrom, name, nullResultAllowed);
 		}
 
 		/// <inheritdoc />
@@ -70,8 +70,8 @@ namespace Stashbox
 			if (cachedFactory != null)
 				return (IEnumerable<TKey>)cachedFactory(this.rootScope, RequestContext.Empty);
 
-			return (IEnumerable<TKey>)this.rootScope.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByRef(type)?.Invoke(this.rootScope, RequestContext.FromOverrides(dependencyOverrides)) ??
-				(IEnumerable<TKey>)this.rootScope.BuildAndResolveService(type, dependencyOverrides: dependencyOverrides);
+			return (IEnumerable<TKey>)this.rootScope.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByRef(type)?.Invoke(this.rootScope, RequestContext.Begin()) ??
+				(IEnumerable<TKey>)this.rootScope.BuildAndResolveService(type);
 		}
 
 		/// <inheritdoc />
@@ -87,8 +87,8 @@ namespace Stashbox
 			if (cachedFactory != null)
 				return (IEnumerable<object>)cachedFactory(this.rootScope, RequestContext.Empty);
 
-			return (IEnumerable<object>)this.rootScope.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByRef(type)?.Invoke(this.rootScope, RequestContext.FromOverrides(dependencyOverrides)) ??
-				(IEnumerable<object>)this.rootScope.BuildAndResolveService(type, dependencyOverrides: dependencyOverrides);
+			return (IEnumerable<object>)this.rootScope.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByRef(type)?.Invoke(this.rootScope, RequestContext.Begin()) ??
+				(IEnumerable<object>)this.rootScope.BuildAndResolveService(type);
 		}
 
 		/// <inheritdoc />
