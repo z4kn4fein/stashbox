@@ -6,7 +6,7 @@ namespace Stashbox.Resolution
     /// <summary>
     /// Represents the context of a service.
     /// </summary>
-    public class ServiceContext
+    public readonly struct ServiceContext
     {
         /// <summary>
         /// The expression that describes the instantiation of the service.

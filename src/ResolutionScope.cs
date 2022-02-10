@@ -88,18 +88,18 @@ namespace Stashbox
         }
 
         public object GetOrAddScopedObject(int key, Func<IResolutionScope, IRequestContext, object> factory,
-            IRequestContext requestContext, Type requestedType)
+            IRequestContext requestContext, Type serviceType)
         {
             this.ThrowIfDisposed();
 
             var item = this.scopedInstances.GetOrDefault(key);
-            if (item != null) return item.Evaluate(this, requestContext, factory, requestedType);
+            if (item != null) return item.Evaluate(this, requestContext, factory, serviceType);
 
             var evaluator = new ScopedEvaluator();
             return Swap.SwapValue(ref this.scopedInstances, (t1, t2, _, _, items) =>
                 items.AddOrUpdate(t1, t2), key, evaluator, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder)
-                ? evaluator.Evaluate(this, requestContext, factory, requestedType)
-                : this.scopedInstances.GetOrDefault(key).Evaluate(this, requestContext, factory, requestedType);
+                ? evaluator.Evaluate(this, requestContext, factory, serviceType)
+                : this.scopedInstances.GetOrDefault(key).Evaluate(this, requestContext, factory, serviceType);
         }
 
         public void InvalidateDelegateCache()

@@ -1,4 +1,5 @@
-﻿using Stashbox.Configuration;
+﻿using Moq;
+using Stashbox.Configuration;
 using Stashbox.Exceptions;
 using Stashbox.Lifetime;
 using Stashbox.Resolution;
@@ -210,6 +211,19 @@ namespace Stashbox.Tests
             var inst = container.Resolve<IEnumerable<ITest1>>();
 
             Assert.IsType<Test1>(inst.First());
+        }
+
+        [Fact]
+        public void ContainerTests_ResolverTest_Null_Context_DoesNot_Break()
+        {
+            var container = new StashboxContainer();
+            var mockResolver = new Mock<IServiceResolver>();
+            mockResolver.Setup(r => r.CanUseForResolution(It.IsAny<TypeInformation>(), It.IsAny<ResolutionContext>())).Returns(true);
+            mockResolver.Setup(r => r.GetExpression(It.IsAny<IResolutionStrategy>(), It.IsAny<TypeInformation>(), It.IsAny<ResolutionContext>())).Returns<ServiceContext>(null);
+            container.RegisterResolver(mockResolver.Object);
+            
+            Assert.Throws<ResolutionFailedException>(() => container.Resolve<ITest1>());
+            mockResolver.Verify(r => r.GetExpression(It.IsAny<IResolutionStrategy>(), It.IsAny<TypeInformation>(), It.IsAny<ResolutionContext>()), Times.Once);
         }
 
         [Fact]

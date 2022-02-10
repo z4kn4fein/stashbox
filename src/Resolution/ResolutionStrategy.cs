@@ -152,7 +152,7 @@ namespace Stashbox.Resolution
                     case IServiceWrapper serviceWrapper when serviceWrapper.TryUnWrap(typeInformation, out var unWrappedServiceType):
                     {
                         var serviceContext = this.BuildExpressionForType(resolutionContext, unWrappedServiceType);
-                        return serviceContext == null ? null : serviceWrapper
+                        return serviceContext.ServiceExpression == null ? default : serviceWrapper
                                 .WrapExpression(typeInformation, unWrappedServiceType, serviceContext)
                                 .AsServiceContext(serviceContext.ServiceRegistration);
                     }
@@ -160,7 +160,7 @@ namespace Stashbox.Resolution
                     {
                         var parameterExpressions = parameters.Select(p => p.AsParameter()).CastToArray();
                         var serviceContext = this.BuildExpressionForType(resolutionContext.BeginContextWithFunctionParameters(parameterExpressions), unWrappedParameterizedType);
-                        return serviceContext == null ? null : parameterizedWrapper
+                        return serviceContext.ServiceExpression == null ? default : parameterizedWrapper
                                 .WrapExpression(typeInformation, unWrappedParameterizedType, serviceContext, parameterExpressions)
                                 .AsServiceContext(serviceContext.ServiceRegistration);
                     }
@@ -210,7 +210,7 @@ namespace Stashbox.Resolution
                     return resolver.GetExpression(this, typeInformation, resolutionContext);
             }
 
-            return null;
+            return default;
         }
 
         private IEnumerable<ServiceContext> BuildEnumerableExpressionsUsingResolvers(ResolutionContext resolutionContext, TypeInformation typeInformation)

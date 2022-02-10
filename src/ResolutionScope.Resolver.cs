@@ -190,7 +190,7 @@ namespace Stashbox
                     this.ParentScope == null, this.ProcessDependencyOverrides(dependencyOverrides));
 
             var expression = this.containerContext.ResolutionStrategy
-                .BuildExpressionForType(resolutionContext, new TypeInformation(type, name))?.ServiceExpression;
+                .BuildExpressionForType(resolutionContext, new TypeInformation(type, name)).ServiceExpression;
             if (expression == null)
                 return nullResultAllowed ? null : throw new ResolutionFailedException(type, name);
 
@@ -216,7 +216,7 @@ namespace Stashbox
                     this.ParentScope == null, initialParameters: parameterTypes.AsParameters());
 
             var initExpression = this.containerContext.ResolutionStrategy
-                .BuildExpressionForType(resolutionContext, new TypeInformation(type, name))?.ServiceExpression;
+                .BuildExpressionForType(resolutionContext, new TypeInformation(type, name)).ServiceExpression;
             if (initExpression == null)
                 return nullResultAllowed ? null : throw new ResolutionFailedException(type, name);
 

@@ -29,7 +29,7 @@ namespace Stashbox.Lifetime
                     serviceRegistration.RegistrationId.AsConstant(),
                     factory.AsConstant(),
                     resolutionContext.RequestContextParameter,
-                    resolveType.AsConstant())
+                    serviceRegistration.ImplementationType.AsConstant())
                 .ConvertTo(resolveType);
         }
     }

@@ -318,6 +318,20 @@ namespace Stashbox.Tests
             Assert.Contains("The life-span of", exception.Message);
         }
 
+        [Fact]
+        public void LifetimeTests_Named_Scope_Lifetime_Not_Resolvable_From_Singleton()
+        {
+            using IStashboxContainer container = new StashboxContainer();
+            container.RegisterSingleton<Test6>();
+            container.Register<Test5>(c => c.WithLifetime(Lifetimes.NamedScope("A")));
+
+            using var scope = container.BeginScope("A");
+
+            var exception = Assert.Throws<ResolutionFailedException>(() => scope.Resolve<Test6>());
+            Assert.Equal(typeof(Test5), exception.Type);
+            Assert.Contains("The scope 'A' was not found to resolve", exception.Message);
+        }
+
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
@@ -449,6 +463,21 @@ namespace Stashbox.Tests
                 scope.Resolve<Test6>();
                 Assert.NotNull(container.Resolve<Test6>());
             }
+        }
+
+        [Fact]
+        public void LifetimeTests_Named_Scoped_Is_Not_Resolvable_From_Root_AfterResolved()
+        {
+            using IStashboxContainer container = new StashboxContainer();
+
+            container.Register<Test6>();
+            container.Register<Test5>(c => c.InNamedScope("A"));
+
+            using var scope = container.BeginScope("A");
+            scope.Resolve<Test6>();
+            var exception = Assert.Throws<ResolutionFailedException>(() => container.Resolve<Test6>());
+            Assert.Equal(typeof(Test6), exception.Type);
+            Assert.Contains("found with unresolvable parameter", exception.Message);
         }
 
         interface ITest1 { string Name { get; set; } }

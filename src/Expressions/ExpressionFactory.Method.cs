@@ -29,7 +29,7 @@ namespace Stashbox.Expressions
                 if (injectionParameter != null) yield return injectionParameter;
 
                 yield return resolutionContext.CurrentContainerContext.ResolutionStrategy.BuildExpressionForType(
-                    resolutionContext, parameter)?.ServiceExpression ?? throw new ResolutionFailedException(method.DeclaringType, registrationContext.Name,
+                    resolutionContext, parameter).ServiceExpression ?? throw new ResolutionFailedException(method.DeclaringType, registrationContext.Name,
                     $"Method {method} found with unresolvable parameter: ({parameter.Type}){parameter.ParameterOrMemberName}");
             }
         }
@@ -136,7 +136,7 @@ namespace Stashbox.Expressions
                 var injectionParameter = registrationContext.InjectionParameters.SelectInjectionParameterOrDefault(parameter);
 
                 parameterExpressions[i] = injectionParameter ?? resolutionContext.CurrentContainerContext.ResolutionStrategy
-                    .BuildExpressionForType(resolutionContext, parameter)?.ServiceExpression;
+                    .BuildExpressionForType(resolutionContext, parameter).ServiceExpression;
 
                 if (parameterExpressions[i] != null) continue;
 

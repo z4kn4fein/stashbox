@@ -1,4 +1,5 @@
-﻿using Stashbox.Registration;
+﻿using Stashbox.Exceptions;
+using Stashbox.Registration;
 using Stashbox.Resolution;
 using System;
 using System.Linq.Expressions;
@@ -36,21 +37,21 @@ namespace Stashbox.Lifetime
             GetScopeValueMethod.CallStaticMethod(resolutionContext.CurrentScopeParameter,
                 resolutionContext.RequestContextParameter,
                 factory.AsConstant(),
-                resolveType.AsConstant(),
+                serviceRegistration.ImplementationType.AsConstant(),
                 serviceRegistration.RegistrationId.AsConstant(),
                 this.ScopeName.AsConstant()).ConvertTo(resolveType);
 
         private static object GetScopedValue(IResolutionScope currentScope, IRequestContext requestContext,
-            Func<IResolutionScope, IRequestContext, object> factory, Type requestedType, int scopeId, object scopeName)
+            Func<IResolutionScope, IRequestContext, object> factory, Type serviceType, int scopeId, object scopeName)
         {
             var scope = currentScope;
             while (scope != null && scope.Name != scopeName)
                 scope = scope.ParentScope;
 
             if (scope == null)
-                throw new InvalidOperationException($"The scope '{scopeName}' not found.");
+                throw new ResolutionFailedException(serviceType, message: $"The scope '{scopeName}' was not found to resolve {serviceType.FullName} with named scope lifetime.");
 
-            return scope.GetOrAddScopedObject(scopeId, factory, requestContext, requestedType);
+            return scope.GetOrAddScopedObject(scopeId, factory, requestContext, serviceType);
         }
     }
 }

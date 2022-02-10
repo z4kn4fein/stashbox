@@ -33,7 +33,7 @@ namespace Stashbox.Resolution.Resolvers
             configurator?.Invoke(registrationConfigurator);
 
             if (!registrationConfigurator.TypeMapIsValid(out _) || registrationConfigurator.RegistrationShouldBeSkipped)
-                return null;
+                return default;
 
             var registration = RegistrationBuilder.BuildServiceRegistration(resolutionContext.RequestInitiatorContainerContext,
                 registrationConfigurator, false);

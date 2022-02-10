@@ -51,10 +51,10 @@ namespace Stashbox
         /// <param name="key">The key.</param>
         /// <param name="factory">The value factory used to create the object if it doesn't exist yet.</param>
         /// <param name="requestContext">The request context.</param>
-        /// <param name="requestedType">The type of the requested service.</param>
+        /// <param name="serviceType">The type of the service.</param>
         /// <returns>The scoped object.</returns>
         object GetOrAddScopedObject(int key, Func<IResolutionScope, IRequestContext, object> factory,
-            IRequestContext requestContext, Type requestedType);
+            IRequestContext requestContext, Type serviceType);
         
         /// <summary>
         /// Invalidates the delegate cache.

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Stashbox.Resolution;
+using System;
 using System.Collections.Generic;
 using Xunit;
 
@@ -104,6 +105,16 @@ namespace Stashbox.Tests
 
             Assert.True(scope.CanResolve<IEnumerable<IA>>());
             Assert.True(scope.CanResolve<IEnumerable<IB<IA>>>());
+        }
+
+        [Fact]
+        public void CanResolveTests_Special_Types()
+        {
+            using var scope = new StashboxContainer();
+
+            Assert.True(scope.CanResolve<IServiceProvider>());
+            Assert.True(scope.CanResolve<IDependencyResolver>());
+            Assert.True(scope.CanResolve<IRequestContext>());
         }
 
         interface IA { }

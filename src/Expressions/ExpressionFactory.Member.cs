@@ -44,7 +44,7 @@ namespace Stashbox.Expressions
             if (injectionParameter != null) return injectionParameter;
 
             var memberExpression = resolutionContext.CurrentContainerContext
-                .ResolutionStrategy.BuildExpressionForType(resolutionContext, memberTypeInfo)?.ServiceExpression;
+                .ResolutionStrategy.BuildExpressionForType(resolutionContext, memberTypeInfo).ServiceExpression;
 
             if (memberExpression != null || resolutionContext.NullResultAllowed) return memberExpression;
 
