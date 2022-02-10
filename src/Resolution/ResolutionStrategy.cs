@@ -31,10 +31,10 @@ namespace Stashbox.Resolution
         public ServiceContext BuildExpressionForType(ResolutionContext resolutionContext, TypeInformation typeInformation)
         {
             if (typeInformation.Type == Constants.ResolverType || typeInformation.Type == Constants.ServiceProviderType)
-                return resolutionContext.CurrentScopeParameter.AsContext();
+                return resolutionContext.CurrentScopeParameter.AsServiceContext();
 
             if (typeInformation.Type == Constants.RequestContextType)
-                return resolutionContext.RequestContextParameter.AsContext();
+                return resolutionContext.RequestContextParameter.AsServiceContext();
 
             if (!resolutionContext.IsTopRequest)
             {
@@ -51,19 +51,19 @@ namespace Stashbox.Resolution
                         if (parameters == null) continue;
                         var selected = parameters.FirstOrDefault(parameter => !parameter.I1) ?? parameters[parameters.Length - 1];
                         selected.I1 = true;
-                        return selected.I2.AsContext();
+                        return selected.I2.AsServiceContext();
                     }
                 }
 
                 var decorators = resolutionContext.RemainingDecorators.GetOrDefaultByRef(typeInformation.Type);
                 if (decorators is { Length: > 0 })
                     return BuildExpressionForDecorator(decorators.Front(),
-                        resolutionContext.BeginDecoratingContext(typeInformation.Type, decorators), typeInformation.Type, decorators).AsContext();
+                        resolutionContext.BeginDecoratingContext(typeInformation.Type, decorators), typeInformation.Type, decorators).AsServiceContext();
             }
 
             var exprOverride = resolutionContext.GetExpressionOverrideOrDefault(typeInformation.Type, typeInformation.DependencyName);
             if (exprOverride != null)
-                return exprOverride.AsContext();
+                return exprOverride.AsServiceContext();
 
             var registration = resolutionContext.CurrentContainerContext.RegistrationRepository
                 .GetRegistrationOrDefault(typeInformation, resolutionContext);
@@ -91,7 +91,7 @@ namespace Stashbox.Resolution
                 decorators.ReplaceBack(registration);
                 return BuildExpressionForDecorator(decorators.Front(),
                     resolutionContext.BeginDecoratingContext(typeInformation.Type, decorators),
-                    typeInformation.Type, decorators).AsContext(registration);
+                    typeInformation.Type, decorators).AsServiceContext(registration);
             });
         }
 
@@ -106,12 +106,12 @@ namespace Stashbox.Resolution
                 .GetDecoratorsOrDefault(serviceRegistration.ImplementationType, typeInformation, resolutionContext);
 
             if (decorators == null)
-                return BuildExpressionAndApplyLifetime(serviceRegistration, resolutionContext, requestedType).AsContext(serviceRegistration);
+                return BuildExpressionAndApplyLifetime(serviceRegistration, resolutionContext, requestedType).AsServiceContext(serviceRegistration);
 
             var stack = decorators.AsStack();
             stack.PushBack(serviceRegistration);
             return BuildExpressionForDecorator(stack.Front(),
-                resolutionContext.BeginDecoratingContext(requestedType, stack), requestedType, stack).AsContext(serviceRegistration);
+                resolutionContext.BeginDecoratingContext(requestedType, stack), requestedType, stack).AsServiceContext(serviceRegistration);
         }
 
         public bool IsTypeResolvable(ResolutionContext resolutionContext, TypeInformation typeInformation)
@@ -148,13 +148,13 @@ namespace Stashbox.Resolution
                     case IEnumerableWrapper enumerableWrapper when enumerableWrapper.TryUnWrap(typeInformation, out var unWrappedEnumerable):
                         return enumerableWrapper
                             .WrapExpression(typeInformation, unWrappedEnumerable, this.BuildExpressionsForEnumerableRequest(resolutionContext, unWrappedEnumerable))
-                            .AsContext();
+                            .AsServiceContext();
                     case IServiceWrapper serviceWrapper when serviceWrapper.TryUnWrap(typeInformation, out var unWrappedServiceType):
                     {
                         var serviceContext = this.BuildExpressionForType(resolutionContext, unWrappedServiceType);
                         return serviceContext == null ? null : serviceWrapper
                                 .WrapExpression(typeInformation, unWrappedServiceType, serviceContext)
-                                .AsContext(serviceContext.ServiceRegistration);
+                                .AsServiceContext(serviceContext.ServiceRegistration);
                     }
                     case IParameterizedWrapper parameterizedWrapper when parameterizedWrapper.TryUnWrap(typeInformation, out var unWrappedParameterizedType, out var parameters):
                     {
@@ -162,7 +162,7 @@ namespace Stashbox.Resolution
                         var serviceContext = this.BuildExpressionForType(resolutionContext.BeginContextWithFunctionParameters(parameterExpressions), unWrappedParameterizedType);
                         return serviceContext == null ? null : parameterizedWrapper
                                 .WrapExpression(typeInformation, unWrappedParameterizedType, serviceContext, parameterExpressions)
-                                .AsContext(serviceContext.ServiceRegistration);
+                                .AsServiceContext(serviceContext.ServiceRegistration);
                     }
                 }
             }
@@ -184,7 +184,7 @@ namespace Stashbox.Resolution
                         var serviceContexts = this.BuildExpressionsForEnumerableRequest(resolutionContext, unWrappedServiceType);
                         return serviceContexts.Select(serviceContext => serviceWrapper
                             .WrapExpression(typeInformation, unWrappedServiceType, serviceContext)
-                            .AsContext(serviceContext.ServiceRegistration));
+                            .AsServiceContext(serviceContext.ServiceRegistration));
                     }
                     case IParameterizedWrapper parameterizedWrapper when parameterizedWrapper.TryUnWrap(typeInformation, out var unWrappedParameterizedType, out var parameters):
                     {
@@ -192,7 +192,7 @@ namespace Stashbox.Resolution
                         var serviceContexts = this.BuildExpressionsForEnumerableRequest(resolutionContext.BeginContextWithFunctionParameters(parameterExpressions), unWrappedParameterizedType);
                         return serviceContexts.Select(serviceContext => parameterizedWrapper
                             .WrapExpression(typeInformation, unWrappedParameterizedType, serviceContext, parameterExpressions)
-                            .AsContext(serviceContext.ServiceRegistration));
+                            .AsServiceContext(serviceContext.ServiceRegistration));
                     }
                 }
             }

@@ -39,6 +39,6 @@ namespace Stashbox.Registration
         /// The string representation of the registration.
         /// </summary>
         /// <returns>The string representation of the registration.</returns>
-        public override string ToString() => $"{this.ServiceType.GetDiagnosticsView()} => {this.ImplementationType.GetDiagnosticsView()}, name: {this.Name}";
+        public override string ToString() => $"{this.ServiceType.GetDiagnosticsView()} => {this.ImplementationType.GetDiagnosticsView()}, name: {this.Name ?? "null"}";
     }
 }

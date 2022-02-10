@@ -360,7 +360,8 @@ namespace Stashbox.Tests
             config.WithConstructorSelectionRule(Rules.ConstructorSelection.PreferLeastParameters));
             container.Register(typeof(ITest2), typeof(Test222));
 
-            Assert.Throws<ResolutionFailedException>(() => container.Resolve<ITest2>());
+            var exception = Assert.Throws<ResolutionFailedException>(() => container.Resolve<ITest2>());
+            Assert.Equal(typeof(Test222), exception.Type);
         }
 
         [Fact]

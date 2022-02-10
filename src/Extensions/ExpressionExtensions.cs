@@ -15,9 +15,6 @@ namespace System.Linq.Expressions
     /// </summary>
     public static class ExpressionExtensions
     {
-        internal static ServiceContext AsContext(this Expression expression, ServiceRegistration serviceRegistration = null) => 
-            new(expression, serviceRegistration);
-
         private static Expression PostProcess(this Expression expression)
         {
             if (expression.NodeType == ExpressionType.Convert &&
@@ -102,6 +99,15 @@ namespace System.Linq.Expressions
 
             return (Func<IResolutionScope, IRequestContext, Delegate>)factory;
         }
+
+        /// <summary>
+        /// Creates a <see cref="ServiceContext"/> from the given <see cref="Expression"/>.
+        /// </summary>
+        /// <param name="expression">The expression to wrap within the context.</param>
+        /// <param name="serviceRegistration">Optional service registration when it's available.</param>
+        /// <returns>The service context.</returns>
+        public static ServiceContext AsServiceContext(this Expression expression, ServiceRegistration serviceRegistration = null) =>
+            new(expression, serviceRegistration);
 
         /// <summary>
         /// Compiles a lambda expression into a Func delegate.

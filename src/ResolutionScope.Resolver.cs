@@ -23,8 +23,8 @@ namespace Stashbox
             if (cachedFactory != null)
                 return cachedFactory(this, RequestContext.Empty);
 
-            return this.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByRef(typeFrom)?.Invoke(this, RequestContext.FromOverrides(dependencyOverrides)) ??
-                this.BuildAndResolveService(typeFrom, nullResultAllowed: nullResultAllowed, dependencyOverrides: dependencyOverrides);
+            return this.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByRef(typeFrom)?.Invoke(this, RequestContext.Begin()) ??
+                this.BuildAndResolveService(typeFrom, nullResultAllowed: nullResultAllowed);
         }
 
         /// <inheritdoc />
@@ -39,8 +39,8 @@ namespace Stashbox
             if (cachedFactory != null)
                 return cachedFactory(this, RequestContext.Empty);
 
-            return this.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByValue(name)?.Invoke(this, RequestContext.FromOverrides(dependencyOverrides)) ??
-                this.BuildAndResolveService(typeFrom, name, nullResultAllowed, dependencyOverrides);
+            return this.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByValue(name)?.Invoke(this, RequestContext.Begin()) ??
+                this.BuildAndResolveService(typeFrom, name, nullResultAllowed);
         }
 
         /// <inheritdoc />

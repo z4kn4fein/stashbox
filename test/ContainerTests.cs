@@ -276,9 +276,10 @@ namespace Stashbox.Tests
         [Fact]
         public void ContainerTests_Configuration_DuplicatedBehavior_Throws()
         {
-            Assert.Throws<ServiceAlreadyRegisteredException>(() => new StashboxContainer(c =>
+            var exception = Assert.Throws<ServiceAlreadyRegisteredException>(() => new StashboxContainer(c =>
                 c.WithRegistrationBehavior(Rules.RegistrationBehavior.ThrowException))
             .Register<S>().Register<S>());
+            Assert.Equal(typeof(S), exception.Type);
         }
 
         [Fact]
@@ -337,6 +338,16 @@ namespace Stashbox.Tests
         }
 
         [Fact]
+        public void ContainerTests_Diagnostics_Print()
+        {
+            var regs = new StashboxContainer()
+            .Register<ITest1, Test1>("t1").Register<Test1>().GetRegistrationDiagnostics().Select(d => d.ToString()).OrderBy(s => s).ToArray();
+
+            Assert.Equal("ITest1 => Test1, name: t1", regs[0]);
+            Assert.Equal("Test1 => Test1, name: null", regs[1]);
+        }
+
+        [Fact]
         public void ContainerTests_Configuration_DuplicatedBehavior_Preserve_Cache_Invalidates()
         {
             using var container = new StashboxContainer(c =>
@@ -368,10 +379,10 @@ namespace Stashbox.Tests
         public void ContainerTests_Throws_When_TypeMap_Invalid()
         {
             using var container = new StashboxContainer();
-            Assert.Throws<InvalidRegistrationException>(() => container.Register(typeof(ITest1), typeof(Test2)));
-            Assert.Throws<InvalidRegistrationException>(() => container.RegisterDecorator(typeof(ITest1), typeof(Test2)));
-            Assert.Throws<InvalidRegistrationException>(() => container.RegisterDecorator<ITest1>(typeof(Test2)));
-            Assert.Throws<InvalidRegistrationException>(() => container.ReMapDecorator<ITest1>(typeof(Test2)));
+            Assert.Equal(typeof(Test2), Assert.Throws<InvalidRegistrationException>(() => container.Register(typeof(ITest1), typeof(Test2))).Type);
+            Assert.Equal(typeof(Test2), Assert.Throws<InvalidRegistrationException>(() => container.RegisterDecorator(typeof(ITest1), typeof(Test2))).Type);
+            Assert.Equal(typeof(Test2), Assert.Throws<InvalidRegistrationException>(() => container.RegisterDecorator<ITest1>(typeof(Test2))).Type);
+            Assert.Equal(typeof(Test2), Assert.Throws<InvalidRegistrationException>(() => container.ReMapDecorator<ITest1>(typeof(Test2))).Type);
         }
 
         [Fact]

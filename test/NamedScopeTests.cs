@@ -295,6 +295,28 @@ namespace Stashbox.Tests
 
         [Theory]
         [ClassData(typeof(CompilerTypeTestData))]
+        public void NamedScope_Throws_ResolutionFailedException_Wrong_Scope(CompilerType compilerType)
+        {
+            var container = new StashboxContainer(c => c.WithCompiler(compilerType))
+                .Register<ITest, Test>(config => config.InNamedScope("A"));
+
+            using var scope = container.BeginScope("B");
+            Assert.Throws<ResolutionFailedException>(() => scope.Resolve<ITest>());
+        }
+
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void NamedScope_Throws_ResolutionFailedException_Wrong_Scope_Null(CompilerType compilerType)
+        {
+            var container = new StashboxContainer(c => c.WithCompiler(compilerType))
+                .Register<ITest, Test>(config => config.InNamedScope("A"));
+
+            using var scope = container.BeginScope("B");
+            Assert.Null(scope.Resolve<ITest>(nullResultAllowed: true));
+        }
+
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
         public void NamedScope_WithNull(CompilerType compilerType)
         {
             var container = new StashboxContainer(c => c.WithCompiler(compilerType))

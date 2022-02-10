@@ -56,6 +56,56 @@ namespace Stashbox.Tests
             Assert.True(container.CanResolve<IEnumerable<IB<IA>>>());
         }
 
+        [Fact]
+        public void CanResolveTests_ExplicitService_Scope()
+        {
+            using var scope = new StashboxContainer()
+                .Register<IA, A>().BeginScope();
+
+            Assert.True(scope.CanResolve<IA>());
+            Assert.False(scope.CanResolve<A>());
+        }
+
+        [Fact]
+        public void CanResolveTests_OpenGeneric_Scope()
+        {
+            using var scope = new StashboxContainer()
+                .Register(typeof(IB<>), typeof(B<>)).BeginScope();
+
+            Assert.False(scope.CanResolve(typeof(IB<>)));
+            Assert.True(scope.CanResolve<IB<IA>>());
+        }
+
+        [Fact]
+        public void CanResolveTests_ClosedGeneric_Scope()
+        {
+            using var scope = new StashboxContainer()
+                .Register(typeof(IB<IA>), typeof(B<IA>)).BeginScope();
+
+            Assert.True(scope.CanResolve<IB<IA>>());
+        }
+
+        [Fact]
+        public void CanResolveTests_Wrapper_Scope()
+        {
+            using var scope = new StashboxContainer()
+                .Register<IA, A>().BeginScope();
+
+            Assert.True(scope.CanResolve<Func<IA>>());
+            Assert.True(scope.CanResolve<Lazy<IA>>());
+            Assert.True(scope.CanResolve<Tuple<IA, object>>());
+        }
+
+        [Fact]
+        public void CanResolveTests_Enumerable_Scope()
+        {
+            using var scope = new StashboxContainer()
+                .Register<IA, A>().BeginScope();
+
+            Assert.True(scope.CanResolve<IEnumerable<IA>>());
+            Assert.True(scope.CanResolve<IEnumerable<IB<IA>>>());
+        }
+
         interface IA { }
 
         class A : IA { }

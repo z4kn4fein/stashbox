@@ -64,7 +64,7 @@ class CustomResolver : IServiceResolver
         ResolutionContext resolutionContext)
     {
         var expression = GenerateExpression(); // resolution expression generation.
-        return new ServiceContext(expression, null);
+        return expression.AsServiceContext();
     }
 
     public bool CanUseForResolution(

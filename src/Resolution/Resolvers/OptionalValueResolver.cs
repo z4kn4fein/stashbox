@@ -8,7 +8,7 @@ namespace Stashbox.Resolution.Resolvers
             IResolutionStrategy resolutionStrategy,
             TypeInformation typeInfo,
             ResolutionContext resolutionContext) =>
-            typeInfo.DefaultValue.AsConstant(typeInfo.Type).AsContext();
+            typeInfo.DefaultValue.AsConstant(typeInfo.Type).AsServiceContext();
 
         public bool CanUseForResolution(TypeInformation typeInfo, ResolutionContext resolutionContext) =>
             typeInfo.HasDefaultValue;

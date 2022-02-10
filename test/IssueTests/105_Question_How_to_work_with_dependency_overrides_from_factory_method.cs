@@ -26,6 +26,21 @@ namespace Stashbox.Tests.IssueTests
         }
 
         [Fact]
+        public void Returns_Null_When_No_Overrides_Passed()
+        {
+            using var container = new StashboxContainer()
+                .Register<Dep1>(c => c.WithFactory<IRequestContext>(ctx =>
+                {
+                    var d = ctx.GetDependencyOverrideOrDefault<Dep2>();
+                    Assert.Null(d);
+                    Assert.Empty(ctx.GetOverrides());
+                    return new Dep1();
+                }));
+
+            container.Resolve<Dep1>();
+        }
+
+        [Fact]
         public void Ensure_Override_Doesnt_Trigger_Unknown()
         {
             var depOverride = new Dep2();

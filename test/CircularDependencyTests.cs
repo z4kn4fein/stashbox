@@ -15,11 +15,12 @@ namespace Stashbox.Tests
         {
             using var container = new StashboxContainer();
             container.Register<ITest1, Test1>();
-            Assert.Throws<CircularDependencyException>(() => container.Resolve<ITest1>());
+            var exception = Assert.Throws<CircularDependencyException>(() => container.Resolve<ITest1>());
+            Assert.Equal(typeof(Test1), exception.Type);
         }
 
         [Fact]
-        public void CircularDependencyTests_StandardResolve_Parallel_ShouldntThrow()
+        public void CircularDependencyTests_StandardResolve_Parallel_ShouldNotThrow()
         {
             using var container = new StashboxContainer();
             container.Register<ITest1, Test4>();
@@ -30,7 +31,7 @@ namespace Stashbox.Tests
         }
 
         [Fact]
-        public void CircularDependencyTests_StandardResolve_Parallel_Runtime_ShouldntThrow()
+        public void CircularDependencyTests_StandardResolve_Parallel_Runtime_ShouldNotThrow()
         {
             using var container = new StashboxContainer(config => config.WithRuntimeCircularDependencyTracking());
             container.Register<ITest1, Test4>();

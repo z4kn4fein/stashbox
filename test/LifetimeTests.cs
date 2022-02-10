@@ -1,5 +1,6 @@
 ﻿using Stashbox.Configuration;
 using Stashbox.Exceptions;
+using Stashbox.Lifetime;
 using Stashbox.Tests.Utils;
 using Stashbox.Utils;
 using System;
@@ -294,12 +295,27 @@ namespace Stashbox.Tests
             if (enabledValidation)
             {
                 var exception = Assert.Throws<LifetimeValidationFailedException>(() => scope.Resolve<Test6>());
+                Assert.Equal(typeof(Test5), exception.Type);
                 Assert.Contains("The life-span of", exception.Message);
             }
             else
             {
                 Assert.NotNull(scope.Resolve<Test6>());
             }
+        }
+
+        [Fact]
+        public void LifetimeTests_Named_Scope_Lifetime_Not_Resolvable_From_Longer_Direct()
+        {
+            using IStashboxContainer container = new StashboxContainer(c => c.WithLifetimeValidation());
+            container.RegisterSingleton<Test6>();
+            container.Register<Test5>(c => c.WithLifetime(Lifetimes.NamedScope("A")));
+
+            using var scope = container.BeginScope("A");
+
+            var exception = Assert.Throws<LifetimeValidationFailedException>(() => scope.Resolve<Test6>());
+            Assert.Equal(typeof(Test5), exception.Type);
+            Assert.Contains("The life-span of", exception.Message);
         }
 
         [Theory]
@@ -321,12 +337,28 @@ namespace Stashbox.Tests
             if (enabledValidation)
             {
                 var exception = Assert.Throws<LifetimeValidationFailedException>(() => scope.Resolve<Test8>());
+                Assert.Equal(typeof(Test5), exception.Type);
                 Assert.Contains("The life-span of", exception.Message);
             }
             else
             {
                 Assert.NotNull(scope.Resolve<Test8>());
             }
+        }
+
+        [Fact]
+        public void LifetimeTests_Named_Scope_Lifetime_Not_Resolvable_From_Longer_InDirect()
+        {
+            using IStashboxContainer container = new StashboxContainer(c => c.WithLifetimeValidation());
+            container.RegisterSingleton<Test8>();
+            container.Register<Test6>();
+            container.Register<Test5>(c => c.InNamedScope("A"));
+
+            using var scope = container.BeginScope("A");
+
+            var exception = Assert.Throws<LifetimeValidationFailedException>(() => scope.Resolve<Test8>());
+            Assert.Equal(typeof(Test5), exception.Type);
+            Assert.Contains("The life-span of", exception.Message);
         }
 
         [Theory]
@@ -345,12 +377,22 @@ namespace Stashbox.Tests
             if (enabledValidation)
             {
                 var exception = Assert.Throws<LifetimeValidationFailedException>(() => container.Resolve<Test5>());
+                Assert.Equal(typeof(Test5), exception.Type);
                 Assert.Contains("from the root scope", exception.Message);
             }
             else
             {
                 Assert.NotNull(container.Resolve<Test5>());
             }
+        }
+
+        [Fact]
+        public void LifetimeTests_Named_Scoped_Is_Not_Resolvable_From_Root_Direct()
+        {
+            using IStashboxContainer container = new StashboxContainer();
+            container.Register<Test5>(c => c.InNamedScope("A"));
+
+            Assert.Throws<ResolutionFailedException>(() => container.Resolve<Test5>());
         }
 
         [Theory]
@@ -370,6 +412,7 @@ namespace Stashbox.Tests
             if (enabledValidation)
             {
                 var exception = Assert.Throws<LifetimeValidationFailedException>(() => container.Resolve<Test6>());
+                Assert.Equal(typeof(Test5), exception.Type);
                 Assert.Contains("from the root scope", exception.Message);
             }
             else
@@ -397,6 +440,7 @@ namespace Stashbox.Tests
                 using var scope = container.BeginScope();
                 scope.Resolve<Test6>();
                 var exception = Assert.Throws<LifetimeValidationFailedException>(() => container.Resolve<Test6>());
+                Assert.Equal(typeof(Test5), exception.Type);
                 Assert.Contains("from the root scope", exception.Message);
             }
             else

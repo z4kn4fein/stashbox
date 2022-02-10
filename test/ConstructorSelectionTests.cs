@@ -33,7 +33,9 @@ namespace Stashbox.Tests
         {
             using var container = new StashboxContainer();
             container.Register<Test>(context => context.WithConstructorByArgumentTypes(typeof(Dep), typeof(Dep2)));
-            Assert.Throws<ResolutionFailedException>(() => container.Resolve<Test>());
+            var exception = Assert.Throws<ResolutionFailedException>(() => container.Resolve<Test>());
+
+            Assert.Equal(typeof(Test), exception.Type);
         }
 
         [Fact]
