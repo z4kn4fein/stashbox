@@ -1,5 +1,6 @@
 window.$docsify = {
   loadSidebar: true,
+  gtag: 'G-HLNT9WV1HH',
 
   maxLevel   : 2,
   subMaxLevel: 2,
@@ -40,8 +41,9 @@ window.$docsify = {
   onlyCover: true,
 
   plugins: [
+    useGtag,
     renderHeader,
     editOnGithubPlugin,
-    glossaryPlugin,  
+    glossaryPlugin,
   ]
 }
