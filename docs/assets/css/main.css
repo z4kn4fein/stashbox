@@ -96,13 +96,17 @@
     --code-theme-text       : #c5c5c5;
     --code-theme-variable   : #99c;
 
-    --selection-color      : #004292;
+    --selection-color      : #0050b1;
 
     --link-text-decoration: none;
     --link-text-decoration--hover: underline;
     --link-color: var(--theme-color);
 
     --docsifytabs-margin: 1.1em 0 1.5em 0;
+}
+
+.sidebar .search .input-wrap {
+    align-items: center !important;
 }
 
 .sidebar::-webkit-scrollbar {
