@@ -13,7 +13,7 @@ Lifetime management is the concept of controlling how long a service's instances
 <!-- div:left-panel -->
 When you are not specifying a lifetime during registration, Stashbox will use the default lifetime. By default, it's set to **Transient**, but you can override it with the `.WithDefaultLifetime()` [container configuration option](configuration/container-configuration?id=default-lifetime). 
 
-You can choose either from the pre-defined lifetimes in the `Lifetimes` static class or use a [custom one](#custom-lifetime).
+You can choose either from the pre-defined lifetimes defined in the `Lifetimes` static class or use a [custom one](#custom-lifetime).
 <!-- div:right-panel -->
 
 <!-- tabs:start -->
@@ -44,7 +44,7 @@ var container = new StashboxContainer(options => options
 ## Transient lifetime
 
 <!-- div:left-panel -->
-A new instance will be created for every resolution request. If a transient is referred by multiple consumers in the same resolution tree, each of them will get its instance.
+A new instance will be created for every resolution request. If a transient is referred by multiple consumers in the same resolution tree, each of them will get a new instance.
 
 <!-- div:right-panel -->
 ```cs
@@ -54,9 +54,7 @@ container.Register<IJob, DbBackup>(options => options
 
 <!-- panels:end -->
 
-!> Transient services are not tracked for disposal by default but this feature can be turned on with the `.WithDisposableTransientTracking()` [option](configuration/container-configuration?id=tracking-disposable-transients).
-
-?> When the tracking of disposable transients is enabled, they will be tracked and disposed by the actual [scope](usage/scopes) on which the resolution request was initiated or by the root scope when the resolution request was made on the container.
+?> Transient services are not tracked for disposal by default, but this feature can be turned on with the `.WithDisposableTransientTracking()` [container configuration option](configuration/container-configuration?id=tracking-disposable-transients). When it's enabled, the current [scope](usage/scopes) on which the resolution request was initiated takes the responsibility to track and dispose the transient services.
 
 <!-- panels:start -->
 
@@ -93,7 +91,7 @@ container.RegisterSingleton<IJob, DbBackup>();
 ## Scoped lifetime
 
 <!-- div:left-panel -->
-A new instance is created for each [scope](usage/scopes), and that instance will be returned (and reused) for every resolution request initiated on the given scope. It's like the singleton lifetime within a scope. 
+A new instance is created for each [scope](usage/scopes), and that instance will be returned for every resolution request initiated on the given scope. It's like a singleton lifetime within the scope. 
 
 ?> Scoped services are disposed when their scope is being disposed.
 

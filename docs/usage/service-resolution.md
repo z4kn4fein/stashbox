@@ -1,4 +1,4 @@
-# Service Resolution
+# Service resolution
 When you have all your components registered and configured adequately, you can resolve them from the container or a [scope](usage/scopes) by requesting their service type.
 
 During a service's resolution, the container walks through the entire resolution tree and instantiates all dependencies required for the service construction.

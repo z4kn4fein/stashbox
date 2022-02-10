@@ -227,7 +227,7 @@ scope.PutInstanceInScope<IDrow>(new DbBackup(), false, name: "DbBackup");
 ```
 <!-- panels:end -->
 
-!> Instances added to a scope this way would override existing registrations with the same service type.
+!> Instances added to a scope this way will override existing registrations with the same service type.
 
 ## Disposal
 
@@ -237,7 +237,7 @@ scope.PutInstanceInScope<IDrow>(new DbBackup(), false, name: "DbBackup");
 
 Services that implement either `IDisposable` or `IAsyncDisposable` are tracked by the currently resolving scope. This means that when the scope is being disposed, all the tracked disposable instances will be disposed with it.
 
-?> Disposing the container will dispose all the singleton instances.
+?> Disposing the container will dispose all the singleton instances and their dependencies.
 
 <!-- div:right-panel -->
 
