@@ -41,7 +41,7 @@ window.$docsify = {
   onlyCover: true,
 
   plugins: [
-    useGtag,
+    useGtagAnalytics,
     renderHeader,
     editOnGithubPlugin,
     glossaryPlugin,

@@ -31,7 +31,7 @@ function collect() {
     });
 }
 
-function useGtag(hook) {
+function useGtagAnalytics(hook) {
     if (!$docsify.gtag) {
         console.error('GTAG is required.');
         return;
