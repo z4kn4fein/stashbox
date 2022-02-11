@@ -77,6 +77,6 @@ IEnumerable<RegistrationDiagnosticsInfo> diagnostics =
 diagnostics.ForEach(Console.WriteLine);
 // output:
 // IJob => DbBackup, name: DbBackupJob
-// IEventHandler<> => EventHandler<>, name:
+// IEventHandler<> => EventHandler<>, name: null
 ```
 <!-- panels:end -->
