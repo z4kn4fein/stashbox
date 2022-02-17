@@ -184,7 +184,7 @@ DbJobExecutor executor = scope.Resolve<DbJobExecutor>();
 ## Per-request lifetime
 
 <!-- div:left-panel -->
-The requested service will be re-used within the whole resolution request. For each individual request a new instance will be created.
+The requested service will be reused within the whole resolution request. For each individual request a new instance will be created.
 
 <!-- div:right-panel -->
 

@@ -252,14 +252,14 @@ container.Register<IJob, DbBackup>();
 IJob job = container.Resolve<IJob>();
 ```
 #### **Singleton**
-A service with `Singleton` lifetime will be instantiated once and re-used during the container's lifetime.
+A service with `Singleton` lifetime will be instantiated once and reused during the container's lifetime.
 ```cs
 container.RegisterSingleton<IJob, DbBackup>();
 IJob job = container.Resolve<IJob>();
 ```
 #### **Scoped**
 The `Scoped` lifetime behaves like a `Singleton` within a [scope](usage/scopes). 
-The scoped service is instantiated once and re-used during the scope's lifetime.
+The scoped service is instantiated once and reused during the scope's lifetime.
 ```cs
 container.RegisterScoped<IJob, DbBackup>();
 IJob job = container.Resolve<IJob>();
