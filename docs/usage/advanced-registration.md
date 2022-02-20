@@ -70,7 +70,7 @@ container.Register<IJob, DbBackup>(options => options
 ### Factory with parameter override
 Suppose you'd want to use custom parameters for your service's instantiation rather than captured variables in lambda closures. In that case, you can register a `Func<>` delegate that you can use with parameters at resolution time.
 
-?> This example is about pre-registered factories; however, the container can also implicitly [wrap](advanced/generics?id=func) your service in a `Func<>` without pre-registering.
+?> This example is about pre-registered factories; however, the container can also implicitly [wrap](advanced/wrappers-resolvers?id=func) your service in a `Func<>` without pre-registering.
 <!-- div:right-panel -->
 
 <!-- tabs:start -->
@@ -252,7 +252,7 @@ ICollection<IJob> jobs = container.Resolve<ICollection<IJob>>();
 <!-- div:left-panel -->
 When you have multiple implementations registered to a service, a request to the service type without a name will return the **last registered implementation**.
 
-?> Not only names can be used to distinguish registrations, [conditions](usage/service-resolution?id=conditional-resolution) and [named scopes](usage/scopes?id=named-scopes) can also influence the results.
+?> Not only names can be used to distinguish registrations, [conditions](usage/service-resolution?id=conditional-resolution), [named scopes](usage/scopes?id=named-scopes), and [metadata](advanced/wrappers-resolvers?id=metadata-amp-tuple) can also influence the results.
 <!-- div:right-panel -->
 
 ```cs

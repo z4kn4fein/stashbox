@@ -345,7 +345,7 @@ var processor = container.Resolve<IEventProcessor>();
 
 <!-- div:left-panel -->
 
-Decorators are also applied to wrapped services. It means, in addition to the decoration, you can wrap your services in supported [wrappers](advanced/generics?id=wrappers).
+Decorators are also applied to wrapped services. It means, in addition to the decoration, you can wrap your services in supported [wrappers](advanced/wrappers-resolvers?id=wrappers).
 
 <!-- div:right-panel -->
 

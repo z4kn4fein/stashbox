@@ -6,7 +6,7 @@
 [![Sonar Quality Gate](https://img.shields.io/sonar/quality_gate/z4kn4fein_stashbox?logo=sonarcloud&server=https%3A%2F%2Fsonarcloud.io)](https://sonarcloud.io/project/overview?id=z4kn4fein_stashbox) 
 [![Sourcelink](https://img.shields.io/badge/sourcelink-enabled-brightgreen.svg)](https://github.com/dotnet/sourcelink)
 
-Stashbox is a lightweight, fast and portable dependency injection framework for .NET based solutions. It encourages the building of loosely coupled applications and simplifies the construction of hierarchical object structures. It can be integrated easily with .NET Core, Generic Host, ASP.NET, Xamarin, and many other applications.
+Stashbox is a lightweight, fast, and portable dependency injection framework for .NET-based solutions. It encourages the building of loosely coupled applications and simplifies the construction of hierarchical object structures. It can be integrated easily with .NET Core, Generic Host, ASP.NET, Xamarin, and many other applications.
 
 - [Documentation](https://z4kn4fein.github.io/stashbox)
 - [Release notes](https://z4kn4fein.github.io/stashbox/#/changelog)

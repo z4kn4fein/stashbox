@@ -11,8 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [v5.0.0] - 2022-02-09
 ### Added
-- Additional [metadata registration](https://z4kn4fein.github.io/stashbox/#/advanced/generics?id=metadata-amp-tuple) option.
-- Support for requesting a [service along with its identifier](https://z4kn4fein.github.io/stashbox/#/advanced/generics?id=keyvaluepair-amp-readonlykeyvalue).
+- Additional [metadata registration](https://z4kn4fein.github.io/stashbox/#/advanced/wrappers-resolvers?id=metadata-amp-tuple) option.
+- Support for requesting a [service along with its identifier](https://z4kn4fein.github.io/stashbox/#/advanced/wrappers-resolvers?id=keyvaluepair-amp-readonlykeyvalue).
 - Support for [per-request lifetime](https://z4kn4fein.github.io/stashbox/#/usage/lifetimes?id=per-request-lifetime).
 - New, clearer API for wrapper extensions.
 
@@ -20,7 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - There was a bug in the expression compiler that resulted in wrong IL generation in case of value types inside `IEnumerable<>`.
 
 ### Changed
-- `Tuple<>` requests are not resolved with services in all its items anymore. It's became part of the newly introduced [resolution with metadata](https://z4kn4fein.github.io/stashbox/#/advanced/generics?id=metadata-amp-tuple) feature.
+- `Tuple<>` requests are not resolved with services in all its items anymore. It's became part of the newly introduced [resolution with metadata](https://z4kn4fein.github.io/stashbox/#/advanced/wrappers-resolvers?id=metadata-amp-tuple) feature.
 - The `IResolver` interface became the base for the newly introduced `IServiceWrapper` and `IServiceResolver` interfaces. These became the main entrypoints for [container extensions](advanced/wrappers-resolvers).
 - To make the dependency overrides available in factories the `IResolutionContext` was bound to the generated expression tree and the compiled delegate. ([#105](https://github.com/z4kn4fein/stashbox/issues/105)) This temporary solution could lead issues as the resolution context is static between the compiled delegates, however the dependency overrides are not.
 

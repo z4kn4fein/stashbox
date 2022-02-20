@@ -15,7 +15,7 @@
     <RepositoryUrl>https://github.com/z4kn4fein/stashbox</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>Stashbox di dependency-injection ioc dotnet netstandard</PackageTags>
-    <Description>Stashbox is a lightweight, fast and portable dependency injection framework for .NET based solutions.</Description>
+    <Description>Stashbox is a lightweight, fast, and portable dependency injection framework for .NET-based solutions.</Description>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <SignAssembly>true</SignAssembly>
@@ -84,7 +84,7 @@
   </ItemGroup>
 
   <ItemGroup>
-	<None Include="..\.github\workflows\*.yml" />
+    <None Include="..\.github\workflows\*.yml" />
     <None Include="..\.version" />
     <None Include="..\appveyor.yml" />
     <None Include="..\appveyor-release.yml" />

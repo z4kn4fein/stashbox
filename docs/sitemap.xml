@@ -2,74 +2,92 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://z4kn4fein.github.io/stashbox</loc>
+    <lastmod>2022-02-17T20:18:28+01:00</lastmod>
   </url>
    
   <url>
     <loc>https://z4kn4fein.github.io/stashbox/#/usage/lifetimes</loc>
+    <lastmod>2022-02-17T20:12:53+01:00</lastmod>
   </url>
    
   <url>
     <loc>https://z4kn4fein.github.io/stashbox/#/usage/basics</loc>
+    <lastmod>2022-02-17T20:12:53+01:00</lastmod>
   </url>
    
   <url>
     <loc>https://z4kn4fein.github.io/stashbox/#/diagnostics/utilities</loc>
+    <lastmod>2022-02-11T13:11:08+01:00</lastmod>
   </url>
    
   <url>
     <loc>https://z4kn4fein.github.io/stashbox/#/usage/service-resolution</loc>
+    <lastmod>2022-02-10T19:36:23+01:00</lastmod>
   </url>
    
   <url>
     <loc>https://z4kn4fein.github.io/stashbox/#/usage/scopes</loc>
+    <lastmod>2022-02-10T19:36:23+01:00</lastmod>
   </url>
    
   <url>
     <loc>https://z4kn4fein.github.io/stashbox/#/getting-started/overview</loc>
+    <lastmod>2022-02-10T15:51:36+01:00</lastmod>
   </url>
    
   <url>
     <loc>https://z4kn4fein.github.io/stashbox/#/getting-started/introduction</loc>
+    <lastmod>2022-02-10T15:51:36+01:00</lastmod>
   </url>
    
   <url>
     <loc>https://z4kn4fein.github.io/stashbox/#/advanced/wrappers-resolvers</loc>
+    <lastmod>2022-02-10T03:18:57+01:00</lastmod>
   </url>
    
   <url>
     <loc>https://z4kn4fein.github.io/stashbox/#/diagnostics/validation</loc>
+    <lastmod>2022-02-09T19:39:36+01:00</lastmod>
   </url>
    
   <url>
     <loc>https://z4kn4fein.github.io/stashbox/#/configuration/registration-configuration</loc>
+    <lastmod>2022-02-09T19:39:36+01:00</lastmod>
   </url>
    
   <url>
     <loc>https://z4kn4fein.github.io/stashbox/#/configuration/container-configuration</loc>
+    <lastmod>2022-02-09T19:39:36+01:00</lastmod>
   </url>
    
   <url>
     <loc>https://z4kn4fein.github.io/stashbox/#/advanced/generics</loc>
+    <lastmod>2022-02-09T19:39:36+01:00</lastmod>
   </url>
    
   <url>
     <loc>https://z4kn4fein.github.io/stashbox/#/advanced/child-containers</loc>
+    <lastmod>2022-02-09T19:39:36+01:00</lastmod>
   </url>
    
   <url>
     <loc>https://z4kn4fein.github.io/stashbox/#/usage/advanced-registration</loc>
+    <lastmod>2022-01-22T15:58:44+01:00</lastmod>
   </url>
    
   <url>
     <loc>https://z4kn4fein.github.io/stashbox/#/advanced/special-resolution-cases</loc>
+    <lastmod>2022-01-22T15:58:44+01:00</lastmod>
   </url>
    
   <url>
     <loc>https://z4kn4fein.github.io/stashbox/#/advanced/decorators</loc>
+    <lastmod>2022-01-22T15:58:44+01:00</lastmod>
   </url>
    
   <url>
     <loc>https://z4kn4fein.github.io/stashbox/#/_glossary</loc>
+    <lastmod>2022-01-22T15:58:44+01:00</lastmod>
   </url>
   
 </urlset>
