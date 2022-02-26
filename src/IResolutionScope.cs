@@ -73,6 +73,7 @@ namespace Stashbox
         /// </summary>
         /// <param name="key">The key of the dependency.</param>
         /// <param name="type">The type of the dependency.</param>
+        [Obsolete("Please use parameterized factory registrations to avoid circular dependencies across delegates. `.Register<Service>(options => options.WithFactory<Dependency>(dependency => new Service(dependency)))`")]
         void CheckRuntimeCircularDependencyBarrier(int key, Type type);
 
         /// <summary>
@@ -80,6 +81,7 @@ namespace Stashbox
         /// Resets the runtime circular dependency checks state for a node.
         /// </summary>
         /// <param name="key"></param>
+        [Obsolete("Please use parameterized factory registrations to avoid circular dependencies across delegates. `.Register<Service>(options => options.WithFactory<Dependency>(dependency => new Service(dependency)))`")]
         void ResetRuntimeCircularDependencyBarrier(int key);
     }
 }

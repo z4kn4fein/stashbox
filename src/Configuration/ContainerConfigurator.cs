@@ -49,6 +49,7 @@ namespace Stashbox.Configuration
         /// </summary>
         /// <param name="enabled">True when the feature should be enabled, otherwise false.</param>
         /// <returns>The container configurator.</returns>
+        [Obsolete("Please use parameterized factory registrations to avoid circular dependencies across delegates. `.Register<Service>(options => options.WithFactory<Dependency>(dependency => new Service(dependency)))`")]
         public ContainerConfigurator WithRuntimeCircularDependencyTracking(bool enabled = true)
         {
             this.ContainerConfiguration.RuntimeCircularDependencyTrackingEnabled = enabled;

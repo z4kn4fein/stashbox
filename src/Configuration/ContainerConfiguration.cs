@@ -35,6 +35,7 @@ namespace Stashbox.Configuration
         /// <summary>
         /// If it's set to true the container will track circular dependencies in the compiled delegates and will throw an exception if any of it found.
         /// </summary>
+        [Obsolete("Please use parameterized factory registrations to avoid circular dependencies across delegates. `.Register<Service>(options => options.WithFactory<Dependency>(dependency => new Service(dependency)))`")]
         public bool RuntimeCircularDependencyTrackingEnabled { get; internal set; }
 
         /// <summary>

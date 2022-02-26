@@ -53,7 +53,9 @@ namespace Stashbox.Expressions
         private static Expression CheckRuntimeCircularDependencyExpression(Expression expression,
             ServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type requestedType)
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             if (!resolutionContext.CurrentContainerContext.ContainerConfiguration.RuntimeCircularDependencyTrackingEnabled)
+#pragma warning restore CS0618 // Type or member is obsolete
                 return expression;
 
             var variable = requestedType.AsVariable();

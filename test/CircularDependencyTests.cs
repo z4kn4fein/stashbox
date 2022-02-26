@@ -33,7 +33,9 @@ namespace Stashbox.Tests
         [Fact]
         public void CircularDependencyTests_StandardResolve_Parallel_Runtime_ShouldNotThrow()
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             using var container = new StashboxContainer(config => config.WithRuntimeCircularDependencyTracking());
+#pragma warning restore CS0618 // Type or member is obsolete
             container.Register<ITest1, Test4>();
             Parallel.For(0, 5000, i =>
             {
@@ -116,7 +118,9 @@ namespace Stashbox.Tests
         [Fact]
         public void CircularDependencyTests_Runtime()
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             using var container = new StashboxContainer(config => config.WithRuntimeCircularDependencyTracking());
+#pragma warning restore CS0618 // Type or member is obsolete
             container.Register<ITest1, Test1>(config => config.WithFactory(r => (Test1)r.Resolve<ITest1>()));
             Assert.Throws<CircularDependencyException>(() => container.Resolve<ITest1>());
         }
@@ -133,7 +137,9 @@ namespace Stashbox.Tests
         [Fact]
         public async Task CircularDependencyTests_Runtime_Async()
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             await using var container = new StashboxContainer(config => config.WithRuntimeCircularDependencyTracking());
+#pragma warning restore CS0618 // Type or member is obsolete
             container.Register<ITest1, Test1>(config => config.WithFactory(r => (Test1)r.Resolve<ITest1>()));
             Assert.Throws<CircularDependencyException>(() => container.Resolve<ITest1>());
         }

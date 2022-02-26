@@ -202,8 +202,12 @@ new StashboxContainer(options => options
 <!-- panels:end -->
 
 ## Circular dependencies in delegates
+
+!> **[DEPRECATED]** Use [dependency parameters in factory delegates](usage/advanced-registration?id=consider-this-before-using-the-resolver-parameter-inside-a-factory) instead to prevent circular dependencies across delegates.
+
 <!-- panels:start -->
 <!-- div:left-panel -->
+
 With this option, you can enable or disable the runtime circular dependency tracking.
 <!-- div:right-panel -->
 ```cs
@@ -211,7 +215,7 @@ new StashboxContainer(options => options.WithRuntimeCircularDependencyTracking()
 ```
 <!-- panels:end -->
 
-!> By default, the container checks for circular dependencies when it builds the expression graph, but this could not prevent stack overflows when factory delegates passed by the user are containing circular dependencies. If you turn this feature on, the container will generate nodes into the expression tree that tracks the entering and exiting resolution calls across user-defined factory delegates.
+?> By default, the container checks for circular dependencies when it builds the resolution tree, but this could not prevent stack overflows when factory delegates passed by the user are containing circular dependencies. If you turn this feature on, the container will generate nodes into the expression tree that tracks the entering and exiting resolution calls across user-defined factory delegates.
 
 ## Default value injection
 <!-- panels:start -->

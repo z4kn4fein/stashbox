@@ -67,8 +67,8 @@ container.Register<IJob, DbBackup>(options => options
 <!-- panels:start -->
 
 <!-- div:left-panel -->
-### Factory with parameter override
-Suppose you'd want to use custom parameters for your service's instantiation rather than captured variables in lambda closures. In that case, you can register a `Func<>` delegate that you can use with parameters at resolution time.
+### Factories with parameter overrides
+Suppose you'd want to use custom parameters for your service's instantiation rather than captured variables in lambda closures. In that case, you can register a `Func<>` delegate with parameters that you can use to pass your dependencies at resolution time.
 
 ?> This example is about pre-registered factories; however, the container can also implicitly [wrap](advanced/wrappers-resolvers?id=func) your service in a `Func<>` without pre-registering.
 <!-- div:right-panel -->
@@ -125,17 +125,14 @@ var service = func(2);
 <!-- panels:start -->
 
 <!-- div:left-panel -->
-### Consider these before using the resolver parameter inside a factory
-Delegate factories are a black-box for the container. It doesn't have much control over what's happening inside them, which means when you resolve additional dependencies with the dependency resolver parameter, they could easily bypass the [lifetime](diagnostics/validation?id=lifetime-validation) and [circular dependency](diagnostics/validation?id=circular-dependency) validations. Fortunately, there are options to keep them validated anyway:
+### Consider this before using the resolver parameter inside a factory
+Delegate factories are a black-box for the container. It doesn't have control over what's happening inside a delegate, which means when you resolve additional dependencies with the dependency resolver parameter, they could easily bypass the [lifetime](diagnostics/validation?id=lifetime-validation) and [circular dependency](diagnostics/validation?id=circular-dependency) validations. Fortunately, you have the option to keep them validated anyway with parameterized factory delegates.
 
-- **Parameterized factories instead of resolver**: rather than using the dependency resolver parameter inside the factory, let the container inject the dependencies into the delegate as parameters. With this, the resolution tree's integrity remains stable because no service resolution happens inside the black-box, and each parameter is validated.
-
-- There is a [container configuration option](configuration/container-configuration?id=circular-dependencies-in-delegates) that enables **circular dependency tracking even across delegates that uses the resolver parameter** to resolve dependencies. When this option is enabled, the container generates extra expression nodes into the resolution tree to detect circles, but at the price of a much more complex tree structure and longer dependency walkthrough.
+#### Delegates with dependencies passed as parameters
+Rather than using the dependency resolver parameter inside the factory, let the container inject the dependencies into the delegate as parameters. This way, the resolution tree's integrity remains stable because no service resolution happens inside the black-box, and each parameter is validated.
 
 <!-- div:right-panel -->
 
-<!-- tabs:start -->
-#### **Parameterized factory**
 ```cs
 interface IEventProcessor { }
 
@@ -159,37 +156,6 @@ container.Register<IEventProcessor, EventProcessor>(options => options
 // it passes them to the factory as delegate parameters.
 IEventProcessor processor = container.Resolve<IEventProcessor>();
 ```
-
-#### **Resolver with circle tracking**
-```cs
-interface IEventProcessor { }
-
-class EventProcessor : IEventProcessor
-{
-    public EventProcessor(ILogger logger, IEventValidator validator)
-    { }
-}
-
-// enabling the circular dependency tracking across factory delegates.
-using var container = new StashboxContainer(options => 
-    options.WithRuntimeCircularDependencyTracking());
-
-container.Register<ILogger, ConsoleLogger>();
-container.Register<IEventValidator, EventValidator>();
-
-container.Register<IEventProcessor, EventProcessor>(options => options
-    // Ilogger and IEventValidator instances are resolved by the 
-    // passed resolver, so they will bypass the circular and captive 
-    // dependency validation. However the extra tracker nodes will catch
-    // the circular dependencies anyway.
-    .WithFactory(resolver => new EventProcessor(
-        resolver.Resolve<ILogger>(), resolver.Resolve<IEventValidator>()));
-
-// the container uses the factory to instantiate the processor, and 
-// generates the extra circle tracker expression nodes into the tree.
-IEventProcessor processor = container.Resolve<IEventProcessor>();
-```
-<!-- tabs:end -->
 
 <!-- panels:end -->
 
