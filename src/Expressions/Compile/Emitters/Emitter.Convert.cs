@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Reflection.Emit;
 
 namespace Stashbox.Expressions.Compile.Emitters
@@ -20,9 +21,10 @@ namespace Stashbox.Expressions.Compile.Emitters
             var typeToIsNullable = typeTo.IsNullableType();
             var typeToUnderlyingType = Nullable.GetUnderlyingType(typeTo);
 
-            if (typeToIsNullable && typeFrom == typeToUnderlyingType)
+            ConstructorInfo? constructor;
+            if (typeToIsNullable && typeFrom == typeToUnderlyingType && (constructor = typeTo.GetFirstConstructor()) != null)
             {
-                generator.Emit(OpCodes.Newobj, typeTo.GetFirstConstructor());
+                generator.Emit(OpCodes.Newobj, constructor);
                 return true;
             }
 

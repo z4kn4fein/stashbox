@@ -5,18 +5,19 @@ using Stashbox.Utils;
 
 namespace Stashbox.Resolution
 {
-    internal class RequestContext : IPerRequestInstanceHolder
+    internal class RequestContext : IInternalRequestContext
     {
         public static readonly RequestContext Empty = new();
 
-        public static RequestContext FromOverrides(object[] overrides) => new(overrides);
+        public static RequestContext FromOverrides(object[]? overrides) => new(overrides);
 
         public static RequestContext Begin() => new();
 
+        private readonly Tree<object> excludedInstances = new();
         private readonly Tree<object> perRequestInstances = new();
-        private readonly object[] overrides;
+        private readonly object[]? overrides;
         
-        private RequestContext(object[] overrides = null)
+        private RequestContext(object[]? overrides = null)
         {
             this.overrides = overrides;
         }
@@ -31,12 +32,25 @@ namespace Stashbox.Resolution
             return instance;
         }
 
-        public object GetDependencyOverrideOrDefault(Type dependencyType) =>
+        public object? GetDependencyOverrideOrDefault(Type dependencyType) =>
             this.overrides?.FirstOrDefault(dependencyType.IsInstanceOfType);
 
-        public TResult GetDependencyOverrideOrDefault<TResult>() =>
-            (TResult)this.GetDependencyOverrideOrDefault(typeof(TResult));
+        public TResult? GetDependencyOverrideOrDefault<TResult>() =>
+            (TResult?)this.GetDependencyOverrideOrDefault(typeof(TResult));
 
         public object[] GetOverrides() => this.overrides ?? Constants.EmptyArray<object>();
+
+        public bool IsInstanceExcludedFromTracking(object instance)
+        {
+            var excluded = this.excludedInstances.GetOrDefault(instance.GetHashCode());
+            return excluded != null && ReferenceEquals(excluded, instance);
+        }
+
+        public TInstance ExcludeFromTracking<TInstance>(TInstance value) 
+            where TInstance : class
+        {
+            this.excludedInstances.Add(value.GetHashCode(), value);
+            return value;
+        }
     }
 }

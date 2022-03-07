@@ -6,27 +6,27 @@ namespace Stashbox.Expressions.Compile
 {
     internal class CompilerContext
     {
-        public ExpandableArray<Expression> DefinedVariables;
+        public readonly ExpandableArray<Expression> DefinedVariables;
 
-        public bool HasCapturedVariablesArgument;
+        public readonly bool HasCapturedVariablesArgument;
 
-        public bool IsNestedLambda;
+        public readonly bool IsNestedLambda;
 
         public readonly ExpandableArray<object> Constants;
 
         public readonly ExpandableArray<Expression> CapturedArguments;
 
-        public readonly Closure Target;
+        public readonly Closure? Target;
 
-        public LocalBuilder[] LocalBuilders;
+        public LocalBuilder[]? LocalBuilders;
 
-        public LocalBuilder CapturedArgumentsHolderVariable;
+        public LocalBuilder? CapturedArgumentsHolderVariable;
 
         public readonly ExpandableArray<LambdaExpression, NestedLambda> NestedLambdas;
 
         public readonly bool HasClosure;
 
-        public CompilerContext(Closure target,
+        public CompilerContext(Closure? target,
             ExpandableArray<object> constants,
             ExpandableArray<Expression> definedVariables,
             ExpandableArray<Expression> capturedArguments,
@@ -41,13 +41,39 @@ namespace Stashbox.Expressions.Compile
             this.HasCapturedVariablesArgument = capturedArguments.Length > 0;
         }
 
-        public CompilerContext CreateNew(ExpandableArray<Expression> definedVariables, bool isNestedLambda, bool hasCapturedArgument)
+        private CompilerContext(ExpandableArray<Expression> definedVariables, 
+            bool hasCapturedVariablesArgument, 
+            bool isNestedLambda, 
+            ExpandableArray<object> constants, 
+            ExpandableArray<Expression> capturedArguments, 
+            Closure? target, 
+            LocalBuilder[]? localBuilders, 
+            LocalBuilder? capturedArgumentsHolderVariable, 
+            ExpandableArray<LambdaExpression, NestedLambda> nestedLambdas, 
+            bool hasClosure)
         {
-            var clone = (CompilerContext)this.MemberwiseClone();
-            clone.DefinedVariables = definedVariables;
-            clone.IsNestedLambda = isNestedLambda;
-            clone.HasCapturedVariablesArgument = hasCapturedArgument;
-            return clone;
+            DefinedVariables = definedVariables;
+            HasCapturedVariablesArgument = hasCapturedVariablesArgument;
+            IsNestedLambda = isNestedLambda;
+            Constants = constants;
+            CapturedArguments = capturedArguments;
+            Target = target;
+            LocalBuilders = localBuilders;
+            CapturedArgumentsHolderVariable = capturedArgumentsHolderVariable;
+            NestedLambdas = nestedLambdas;
+            HasClosure = hasClosure;
         }
+
+        public CompilerContext Clone(ExpandableArray<Expression> definedVariables, bool isNestedLambda, bool hasCapturedArgument) =>
+            new(definedVariables,
+                hasCapturedArgument,
+                isNestedLambda,
+                this.Constants,
+                this.CapturedArguments,
+                this.Target,
+                this.LocalBuilders,
+                this.CapturedArgumentsHolderVariable,
+                this.NestedLambdas,
+                this.HasClosure);
     }
 }

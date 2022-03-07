@@ -412,16 +412,16 @@ IEnumerable<IJob> jobs = container.ResolveAll<IJob>();
 ## Optional resolution
 
 <!-- div:left-panel -->
-In cases where it's not guaranteed that a service is resolvable, either because it's not registered or any of its dependencies are missing, you can attempt an optional resolution by using the `nullResultAllowed` parameter of the `.Resolve()` method. 
+In cases where it's not guaranteed that a service is resolvable, either because it's not registered or any of its dependencies are missing, you can attempt an optional resolution by using the `ResolveOrDefault()` method. 
 
-In this case, the resolution request will return with `null` when the attempt fails.
+In this case, the resolution request will return with `null` (or `default` in case of type values) when the attempt fails.
 <!-- div:right-panel -->
 
 <!-- tabs:start -->
 #### **Generic API**
 ```cs
 // returns null when the resolution fails.
-IJob job = container.Resolve<IJob>(nullResultAllowed: true);
+IJob job = container.ResolveOrDefault<IJob>();
 
 // throws ResolutionFailedException when the resolution fails.
 IJob job = container.Resolve<IJob>();
@@ -429,7 +429,7 @@ IJob job = container.Resolve<IJob>();
 #### **Runtime type API**
 ```cs
 // returns null when the resolution fails.
-object job = container.Resolve(typeof(IJob), nullResultAllowed: true);
+object job = container.ResolveOrDefault(typeof(IJob));
 
 // throws ResolutionFailedException when the resolution fails.
 object job = container.Resolve(typeof(IJob));

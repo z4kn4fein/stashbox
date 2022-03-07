@@ -9,11 +9,11 @@ namespace Stashbox.Expressions.Compile
 {
     internal static class ExpressionEmitter
     {
-        public static bool TryEmit(this LambdaExpression expression, out Delegate resultDelegate) =>
+        public static bool TryEmit(this LambdaExpression expression, out Delegate? resultDelegate) =>
             TryEmit(expression.Body, out resultDelegate, expression.Type, expression.ReturnType,
                 expression.Parameters.ToArray());
 
-        public static bool TryEmit(this Expression expression, out Delegate resultDelegate, Type delegateType,
+        public static bool TryEmit(this Expression expression, out Delegate? resultDelegate, Type delegateType,
             Type returnType, params ParameterExpression[] parameters)
         {
             resultDelegate = null;

@@ -48,7 +48,7 @@ namespace Stashbox.Expressions.Compile.Emitters
                     break;
                 case Type typeValue:
                     generator.Emit(OpCodes.Ldtoken, typeValue);
-                    generator.Emit(OpCodes.Call, typeof(Type).GetMethod("GetTypeFromHandle"));
+                    generator.Emit(OpCodes.Call, typeof(Type).GetMethod("GetTypeFromHandle")!);
                     break;
                 default:
                     return false;

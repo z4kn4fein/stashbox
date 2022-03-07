@@ -20,7 +20,7 @@ namespace Stashbox.Registration
         /// <summary>
         /// The registration name.
         /// </summary>
-        public readonly object Name;
+        public readonly object? Name;
 
         /// <summary>
         /// Constructs a <see cref="RegistrationDiagnosticsInfo"/>.
@@ -28,7 +28,7 @@ namespace Stashbox.Registration
         /// <param name="serviceType">The service type.</param>
         /// <param name="implementationType">The implementation type.</param>
         /// <param name="name">The registration name.</param>
-        public RegistrationDiagnosticsInfo(Type serviceType, Type implementationType, object name) : this()
+        public RegistrationDiagnosticsInfo(Type serviceType, Type implementationType, object? name) : this()
         {
             this.ServiceType = serviceType;
             this.ImplementationType = implementationType;

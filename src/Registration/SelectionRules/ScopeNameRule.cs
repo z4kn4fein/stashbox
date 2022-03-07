@@ -12,7 +12,8 @@ namespace Stashbox.Registration.SelectionRules
 
             return resolutionContext.ScopeNames.Length == 0 ||
                 !registration.HasScopeName ||
-                resolutionContext.ScopeNames.Contains(registration.NamedScopeRestrictionIdentifier);
+                (registration.NamedScopeRestrictionIdentifier != null &&
+                resolutionContext.ScopeNames.Contains(registration.NamedScopeRestrictionIdentifier));
         }
 
         public bool ShouldIncrementWeight(TypeInformation typeInformation, 

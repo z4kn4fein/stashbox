@@ -7,6 +7,8 @@ namespace Stashbox.Registration.Fluent
 {
     internal class FluentCompositor<TService, TImplementation> : FluentServiceConfigurator<TService, TImplementation,
         FluentCompositor<TService, TImplementation>>
+        where TService : class
+        where TImplementation : class, TService
     {
         internal FluentCompositor(Type serviceType, Type implementationType, RegistrationContext registrationContext) : base(serviceType, implementationType, registrationContext)
         { }
@@ -18,7 +20,7 @@ namespace Stashbox.Registration.Fluent
         { }
     }
 
-    internal interface IFluentCompositor<TImplementation, TConfigurator>
+    internal interface IFluentCompositor<TImplementation, out TConfigurator>
     {
         /// <summary>
         /// Sets a member (property / field) as a dependency that should be filled by the container.
@@ -26,7 +28,7 @@ namespace Stashbox.Registration.Fluent
         /// <param name="expression">The member expression.</param>
         /// <param name="dependencyName">The name of the dependency.</param>
         /// <returns>The fluent configurator.</returns>
-        TConfigurator WithDependencyBinding<TResult>(Expression<Func<TImplementation, TResult>> expression, object dependencyName = null);
+        TConfigurator WithDependencyBinding<TResult>(Expression<Func<TImplementation, TResult>> expression, object? dependencyName = null);
 
         /// <summary>
         /// Sets a delegate which will be called when the container is being disposed.
@@ -107,7 +109,7 @@ namespace Stashbox.Registration.Fluent
         TConfigurator WithFactory<T1, T2, T3, T4, T5>(Func<T1, T2, T3, T4, T5, TImplementation> factory, bool isCompiledLambda = false);
     }
 
-    internal interface IFluentCompositor<TConfigurator>
+    internal interface IFluentCompositor<out TConfigurator>
     {
         /// <summary>
         /// Sets a container factory delegate for the registration.

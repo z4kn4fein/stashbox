@@ -1,4 +1,5 @@
-﻿using Stashbox.Utils;
+﻿using Stashbox.Resolution;
+using Stashbox.Utils;
 using Stashbox.Utils.Data.Immutable;
 using System;
 using System.Runtime.CompilerServices;
@@ -33,6 +34,17 @@ namespace Stashbox
                 Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
 
             return disposable;
+        }
+
+        public object AddRequestContextAwareDisposableTracking(object disposable, IRequestContext requestContext)
+        {
+            this.ThrowIfDisposed();
+
+            var internalContext = (IInternalRequestContext)requestContext;
+            if (internalContext.IsInstanceExcludedFromTracking(disposable))
+                return disposable;
+
+            return this.AddDisposableTracking(disposable);
         }
 
         public object AddWithFinalizer(object finalizable, Action<object> finalizer)

@@ -11,10 +11,8 @@ namespace Stashbox.Resolution.Wrappers
         public Expression WrapExpression(TypeInformation originalTypeInformation, TypeInformation wrappedTypeInformation, 
             ServiceContext serviceContext)
         {
-            var lazyArgumentInfo = originalTypeInformation.Clone(originalTypeInformation.Type.GetGenericArguments()[0]);
-
-            var ctorParamType = Constants.FuncType.MakeGenericType(lazyArgumentInfo.Type);
-            var lazyConstructor = originalTypeInformation.Type.GetConstructor(ctorParamType);
+            var ctorParamType = Constants.FuncType.MakeGenericType(wrappedTypeInformation.Type);
+            var lazyConstructor = originalTypeInformation.Type.GetConstructor(ctorParamType)!;
             return lazyConstructor.MakeNew(serviceContext.ServiceExpression.AsLambda());
         }
 
@@ -22,7 +20,7 @@ namespace Stashbox.Resolution.Wrappers
         {
             if (!IsLazy(typeInformation.Type))
             {
-                unWrappedType = null;
+                unWrappedType = default;
                 return false;
             }
 

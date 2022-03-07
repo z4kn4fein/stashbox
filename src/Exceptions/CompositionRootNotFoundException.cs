@@ -15,7 +15,7 @@ namespace Stashbox.Exceptions
         /// </summary>
         /// <param name="assembly">The scanned assembly.</param>
         /// <param name="innerException">The inner exception.</param>
-        public CompositionRootNotFoundException(Assembly assembly, Exception innerException = null)
+        public CompositionRootNotFoundException(Assembly assembly, Exception? innerException = null)
             : base($"No ICompositionRoot found in the given assembly: {assembly.FullName}.", innerException)
         { }
 

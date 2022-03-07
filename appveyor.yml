@@ -3,13 +3,6 @@ environment:
     secure: z/dKTRVRPmpItPTM/lYdX7dBJk3roDLV98Uj1XzpDqqV868xhHX8dnyKwPAJooUj
   build_version: ''
 
-deploy:
-- provider: NuGet
-  api_key:
-    secure: reeMv8YSGs2hypmjbqAl5z0mxm4QBgHRYsnSwsYUXJZ76begJoSdg51CWGFyBPgt
-  on:
-    branch: master
-
 skip_tags: true
 
 skip_commits:

@@ -68,9 +68,7 @@ container.Register<IJob, DbBackup>(options => options
 
 <!-- div:left-panel -->
 ### Factories with parameter overrides
-Suppose you'd want to use custom parameters for your service's instantiation rather than captured variables in lambda closures. In that case, you can register a `Func<>` delegate with parameters that you can use to pass your dependencies at resolution time.
-
-?> This example is about pre-registered factories; however, the container can also implicitly [wrap](advanced/wrappers-resolvers?id=func) your service in a `Func<>` without pre-registering.
+Stashbox can implicitly [wrap](advanced/wrappers-resolvers?id=func) your service in a `Func<>` delegate and lets you pass parameters that can override your service's dependencies. Moreover, you can register your own custom delegate that the container will resolve when you request your service wrapped in a `Func<>`.
 <!-- div:right-panel -->
 
 <!-- tabs:start -->
@@ -79,7 +77,7 @@ Suppose you'd want to use custom parameters for your service's instantiation rat
 container.RegisterFunc<string, IJob>((connectionString, resolver) => 
     new DbBackup(connectionString, resolver.Resolve<ILogger>()));
 
-Func<string, IJob> backupFactory = container.ResolveFactory<string, IJob>();
+Func<string, IJob> backupFactory = container.Resolve<Func<string, IJob>>();
 IJob dbBackup = backupFactory(Configuration["ConnectionString"]);
 ```
 

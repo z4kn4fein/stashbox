@@ -22,7 +22,7 @@ namespace Stashbox.Multitenant
         /// Constructs a <see cref="TenantDistributor"/>.
         /// </summary>
         /// <param name="rootContainer">A pre-configured root container, used to create child tenant containers. If not set, a new will be created.</param>
-        public TenantDistributor(IStashboxContainer rootContainer = null)
+        public TenantDistributor(IStashboxContainer? rootContainer = null)
         {
             this.RootContainer = rootContainer ?? new StashboxContainer();
         }
@@ -30,9 +30,6 @@ namespace Stashbox.Multitenant
         /// <inheritdoc />
         public void ConfigureTenant(object tenantId, Func<IStashboxContainer, IDisposable> tenantConfig)
         {
-            Shield.EnsureNotNull(tenantId, nameof(tenantId));
-            Shield.EnsureNotNull(tenantConfig, nameof(tenantConfig));
-
             var tenantContainer = this.RootContainer.CreateChildContainer();
 
             if (!Swap.SwapValue(ref this.tenantRepository,
@@ -46,11 +43,7 @@ namespace Stashbox.Multitenant
         }
 
         /// <inheritdoc />
-        public IDependencyResolver GetTenant(object tenantId)
-        {
-            Shield.EnsureNotNull(tenantId, nameof(tenantId));
-            return this.tenantRepository.GetOrDefaultByValue(tenantId);
-        }
+        public IDependencyResolver? GetTenant(object tenantId) => this.tenantRepository.GetOrDefaultByValue(tenantId);
 
         /// <inheritdoc />
         public void Validate()

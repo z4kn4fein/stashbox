@@ -15,7 +15,7 @@ namespace Stashbox.Tests.IssueTests
             var reg = mappings.First();
 
             Assert.Equal(typeof(Test), reg.Key);
-            Assert.Same(Lifetimes.Scoped, reg.Value.RegistrationContext.Lifetime);
+            Assert.Same(Lifetimes.Scoped, reg.Value.Lifetime);
         }
 
         [Fact]
@@ -27,7 +27,7 @@ namespace Stashbox.Tests.IssueTests
             var reg = mappings.First();
 
             Assert.Equal(typeof(Test), reg.Key);
-            Assert.Same(Lifetimes.Singleton, reg.Value.RegistrationContext.Lifetime);
+            Assert.Same(Lifetimes.Singleton, reg.Value.Lifetime);
         }
 
         [Fact]
@@ -39,7 +39,7 @@ namespace Stashbox.Tests.IssueTests
             var reg = mappings.First();
 
             Assert.Equal(typeof(Test), reg.Key);
-            Assert.Same(Lifetimes.Transient, reg.Value.RegistrationContext.Lifetime);
+            Assert.Same(Lifetimes.Transient, reg.Value.Lifetime);
         }
 
         class Test { }

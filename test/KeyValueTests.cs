@@ -3,7 +3,6 @@ using Stashbox.Exceptions;
 using Stashbox.Tests.Utils;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Xunit;
 
 namespace Stashbox.Tests
@@ -17,6 +16,15 @@ namespace Stashbox.Tests
             container.Register<IT, A>("A");
 
             Assert.Throws<ResolutionFailedException>(() => container.Resolve<KeyValuePair<string, IT>>("A"));
+        }
+
+        [Fact]
+        public void KeyValueTests_NotFound_Null()
+        {
+            var container = new StashboxContainer();
+            container.Register<IT, A>("A");
+
+            Assert.Equal(default, container.ResolveOrDefault<KeyValuePair<string, IT>>("A"));
         }
 
         [Theory]

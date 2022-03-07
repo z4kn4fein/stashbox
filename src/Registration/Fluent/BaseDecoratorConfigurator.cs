@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Stashbox.Lifetime;
+using System;
 using System.Linq;
 
 namespace Stashbox.Registration.Fluent
@@ -11,7 +12,9 @@ namespace Stashbox.Registration.Fluent
         where TConfigurator : BaseDecoratorConfigurator<TConfigurator>
     {
         internal BaseDecoratorConfigurator(Type serviceType, Type implementationType) : base(serviceType, implementationType)
-        { }
+        {
+            this.Context.Lifetime = Lifetimes.Empty;
+        }
 
         /// <summary>
         /// Sets a decorated target condition for the registration.
@@ -25,7 +28,7 @@ namespace Stashbox.Registration.Fluent
         /// </summary>
         /// <param name="targetType">The type of the decorated service.</param>
         /// <returns>The fluent configurator.</returns>
-        public TConfigurator WhenDecoratedServiceIs(Type targetType) => this.When(t => t.Type == targetType);
+        public TConfigurator WhenDecoratedServiceIs(Type targetType) => this.When(typeInfo => typeInfo.Type == targetType);
 
         /// <summary>
         /// Sets a decorated target condition for the registration.

@@ -11,7 +11,7 @@ namespace Stashbox.Expressions.Compile.Emitters
         {
             var lambdaIndex = context.NestedLambdas.IndexAndValueOf(expression, out var lambda);
 
-            if (lambdaIndex == -1) return false;
+            if (lambdaIndex == -1 || context.Target == null || lambda == null) return false;
 
             var lambdaClosureIndex = lambdaIndex + (context.Target.Constants.Length - context.NestedLambdas.Length);
 
@@ -22,7 +22,7 @@ namespace Stashbox.Expressions.Compile.Emitters
 
             if (lambda.UsesCapturedArgument)
             {
-                if (!context.IsNestedLambda)
+                if (!context.IsNestedLambda && context.CapturedArgumentsHolderVariable != null)
                     generator.Emit(OpCodes.Ldloc, context.CapturedArgumentsHolderVariable);
                 else
                     generator.Emit(OpCodes.Ldarg_1);
@@ -31,7 +31,8 @@ namespace Stashbox.Expressions.Compile.Emitters
             var variables = lambda.ParameterExpressions;
             var nestedParameters = expression.Parameters.CastToArray();
 
-            var nestedContext = context.CreateNew(variables, true, lambda.UsesCapturedArgument);
+            var nestedContext = context.Clone(variables, true, lambda.UsesCapturedArgument);
+            if (nestedContext.Target == null) return false;
 
             var method = new DynamicMethod(string.Empty,
                 expression.ReturnType,

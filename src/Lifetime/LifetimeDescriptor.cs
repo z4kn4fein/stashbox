@@ -34,7 +34,7 @@ namespace Stashbox.Lifetime
             this.Name = this.GetType().Name;
         }
 
-        internal Expression ApplyLifetime(ServiceRegistration serviceRegistration,
+        internal Expression? ApplyLifetime(ServiceRegistration serviceRegistration,
             ResolutionContext resolutionContext, Type requestedType)
         {
             if (resolutionContext.CurrentContainerContext.ContainerConfiguration.LifetimeValidationEnabled &&
@@ -67,10 +67,10 @@ namespace Stashbox.Lifetime
             return variable;
         }
 
-        private protected abstract Expression BuildLifetimeAppliedExpression(ServiceRegistration serviceRegistration,
+        private protected abstract Expression? BuildLifetimeAppliedExpression(ServiceRegistration serviceRegistration,
             ResolutionContext resolutionContext, Type requestedType);
 
-        private protected static Expression GetExpressionForRegistration(ServiceRegistration serviceRegistration,
+        private protected static Expression? GetExpressionForRegistration(ServiceRegistration serviceRegistration,
             ResolutionContext resolutionContext, Type requestedType)
         {
             if (!IsRegistrationOutputCacheable(serviceRegistration, resolutionContext))
@@ -81,6 +81,9 @@ namespace Stashbox.Lifetime
                 return expression;
 
             expression = ExpressionBuilder.BuildExpressionForRegistration(serviceRegistration, resolutionContext, requestedType);
+            if (expression == null)
+                return null;
+
             resolutionContext.CacheExpression(serviceRegistration.RegistrationId, expression);
             return expression;
         }
@@ -89,6 +92,6 @@ namespace Stashbox.Lifetime
             !serviceRegistration.IsDecorator &&
             resolutionContext.RequestConfiguration.FactoryDelegateCacheEnabled &&
             resolutionContext.PerResolutionRequestCacheEnabled &&
-            serviceRegistration.RegistrationType != RegistrationType.OpenGeneric;
+            serviceRegistration is not OpenGenericRegistration;
     }
 }

@@ -13,7 +13,7 @@ namespace System
 {
     internal static class TypeExtensions
     {
-        public static Type GetEnumerableType(this Type type)
+        public static Type? GetEnumerableType(this Type type)
         {
             if (type.IsArray)
                 return type.GetElementType();
@@ -30,7 +30,7 @@ namespace System
         public static bool IsOpenGenericType(this Type type) =>
             type.IsGenericType && type.ContainsGenericParameters;
 
-        public static ConstructorInfo GetConstructor(this Type type, params Type[] args) =>
+        public static ConstructorInfo? GetConstructor(this Type type, params Type[] args) =>
             type.GetConstructors().FirstOrDefault(c => c.GetParameters().Select(p => p.ParameterType).SequenceEqual(args));
 
         public static bool IsDisposable(this Type type) =>
@@ -91,23 +91,23 @@ namespace System
               && type.IsGenericType
               && type.GetGenericTypeDefinition() == genericType;
 
-        public static ConstructorInfo GetFirstConstructor(this Type type) =>
+        public static ConstructorInfo? GetFirstConstructor(this Type type) =>
             type.GetConstructors().FirstOrDefault();
 
         public static TypeInformation AsTypeInformation(this ParameterInfo parameter,
-            Type declaringType,
-            RegistrationContext registrationContext,
+            Type? declaringType,
+            ServiceRegistration serviceRegistration,
             ContainerConfiguration containerConfiguration)
         {
             var customAttributes = parameter.GetCustomAttributes();
             var dependencyName = parameter.GetDependencyAttribute()?.Name;
 
-            if (registrationContext.DependencyBindings != null || containerConfiguration.TreatingParameterAndMemberNameAsDependencyNameEnabled)
+            if (serviceRegistration.DependencyBindings != null || containerConfiguration.TreatingParameterAndMemberNameAsDependencyNameEnabled)
             {
-                if (registrationContext.DependencyBindings != null && registrationContext.DependencyBindings.TryGetValue(parameter.Name,
+                if (serviceRegistration.DependencyBindings != null && parameter.Name != null && serviceRegistration.DependencyBindings.TryGetValue(parameter.Name,
                     out var foundNamedDependencyName))
                     dependencyName = foundNamedDependencyName;
-                else if (registrationContext.DependencyBindings != null && registrationContext.DependencyBindings.TryGetValue(parameter.ParameterType,
+                else if (serviceRegistration.DependencyBindings != null && serviceRegistration.DependencyBindings.TryGetValue(parameter.ParameterType,
                     out var foundTypedDependencyName))
                     dependencyName = foundTypedDependencyName;
                 else if (dependencyName == null &&
@@ -122,19 +122,20 @@ namespace System
                 customAttributes,
                 parameter.Name,
                 parameter.HasDefaultValue(),
-                parameter.DefaultValue);
+                parameter.DefaultValue,
+                null);
         }
 
         public static TypeInformation AsTypeInformation(this MemberInfo member,
-            RegistrationContext registrationContext,
+            ServiceRegistration serviceRegistration,
             ContainerConfiguration containerConfiguration)
         {
             var customAttributes = member.GetCustomAttributes();
             var dependencyName = member.GetDependencyAttribute()?.Name;
 
-            if (registrationContext.DependencyBindings != null || containerConfiguration.TreatingParameterAndMemberNameAsDependencyNameEnabled)
+            if (serviceRegistration.DependencyBindings != null || containerConfiguration.TreatingParameterAndMemberNameAsDependencyNameEnabled)
             {
-                if (registrationContext.DependencyBindings != null && registrationContext.DependencyBindings.TryGetValue(member.Name, out var foundNamedDependencyName))
+                if (serviceRegistration.DependencyBindings != null && serviceRegistration.DependencyBindings.TryGetValue(member.Name, out var foundNamedDependencyName))
                     dependencyName = foundNamedDependencyName;
                 else if (dependencyName == null && containerConfiguration.TreatingParameterAndMemberNameAsDependencyNameEnabled)
                     dependencyName = member.Name;
@@ -148,6 +149,7 @@ namespace System
                 customAttributes, 
                 member.Name, 
                 false, 
+                null,
                 null);
         }
 
@@ -165,11 +167,11 @@ namespace System
         }
 
         public static MemberInfo[] GetUsableMembers(this Type type,
-            RegistrationContext contextData,
+            ServiceRegistration serviceRegistration,
             ContainerConfiguration containerConfiguration)
         {
-            var autoMemberInjectionEnabled = containerConfiguration.AutoMemberInjectionEnabled || contextData.AutoMemberInjectionEnabled;
-            var autoMemberInjectionRule = contextData.AutoMemberInjectionEnabled ? contextData.AutoMemberInjectionRule :
+            var autoMemberInjectionEnabled = containerConfiguration.AutoMemberInjectionEnabled || serviceRegistration.AutoMemberInjectionEnabled;
+            var autoMemberInjectionRule = serviceRegistration.AutoMemberInjectionEnabled ? serviceRegistration.AutoMemberInjectionRule :
                 containerConfiguration.AutoMemberInjectionRule;
 
             var publicPropsEnabled = autoMemberInjectionEnabled && (autoMemberInjectionRule & Rules.AutoMemberInjectionRules.PropertiesWithPublicSetter) == Rules.AutoMemberInjectionRules.PropertiesWithPublicSetter;
@@ -177,62 +179,61 @@ namespace System
             var fieldsEnabled = autoMemberInjectionEnabled && (autoMemberInjectionRule & Rules.AutoMemberInjectionRules.PrivateFields) == Rules.AutoMemberInjectionRules.PrivateFields;
 
             IEnumerable<MemberInfo> properties = type.GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance)
-                .Where(member => member.FilterProperty(contextData, containerConfiguration, publicPropsEnabled, limitedPropsEnabled));
+                .Where(member => member.FilterProperty(serviceRegistration, containerConfiguration, publicPropsEnabled, limitedPropsEnabled));
             IEnumerable<MemberInfo> fields = type.GetFields(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance)
-                .Where(member => member.FilterField(contextData, containerConfiguration, fieldsEnabled));
+                .Where(member => member.FilterField(serviceRegistration, containerConfiguration, fieldsEnabled));
 
             var baseType = type.BaseType;
             while (baseType != null && !baseType.IsObjectType())
             {
                 properties = properties.Concat(baseType.GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance)
-                    .Where(member => member.FilterProperty(contextData, containerConfiguration, publicPropsEnabled, limitedPropsEnabled)));
+                    .Where(member => member.FilterProperty(serviceRegistration, containerConfiguration, publicPropsEnabled, limitedPropsEnabled)));
                 fields = fields.Concat(baseType.GetFields(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance)
-                    .Where(member => member.FilterField(contextData, containerConfiguration, fieldsEnabled)));
+                    .Where(member => member.FilterField(serviceRegistration, containerConfiguration, fieldsEnabled)));
                 baseType = baseType.BaseType;
             }
 
             return properties.Concat(fields).CastToArray();
         }
 
-        public static bool SatisfiesGenericConstraintsOf(this Type typeForCheck, Type against)
+        public static bool SatisfiesGenericConstraintsOf(this Type implementationType, Type serviceType)
         {
-            if (!against.IsGenericTypeDefinition) return true;
+            if (!implementationType.IsGenericTypeDefinition) return true;
 
-            var parameters = against.GetGenericArguments();
-            var parametersLength = parameters.Length;
-            var arguments = typeForCheck.GetGenericArguments();
-            var argumentsLength = arguments.Length;
+            var serviceParameters = serviceType.GetGenericArguments();
+            var serviceParametersLength = serviceParameters.Length;
+            var implementationParameters = implementationType.GetGenericArguments();
+            var implementationParametersLength = implementationParameters.Length;
 
-            for (var i = 0; i < parametersLength; i++)
+            for (var i = 0; i < implementationParametersLength; i++)
             {
-                var paramType = parameters[i];
-                var parameterPosition = paramType.GenericParameterPosition;
-                if (parameterPosition >= argumentsLength)
+                var implementationParameter = implementationParameters[i];
+                var parameterPosition = implementationParameter.GenericParameterPosition;
+                if (parameterPosition >= serviceParametersLength)
                     return false;
 
-                var argumentForValidation = arguments[parameterPosition];
-                var parameterAttributes = paramType.GenericParameterAttributes;
+                var argumentToValidate = serviceParameters[parameterPosition];
+                var parameterAttributes = implementationParameter.GenericParameterAttributes;
 
                 if (parameterAttributes.HasDefaultConstructorConstraint() &&
-                    !argumentForValidation.IsPrimitive &&
-                    !argumentForValidation.HasPublicParameterlessConstructor())
+                    !argumentToValidate.IsPrimitive &&
+                    !argumentToValidate.HasPublicParameterlessConstructor())
                     return false;
 
                 if (parameterAttributes.HasReferenceTypeConstraint() &&
-                    !argumentForValidation.IsClass)
+                    !argumentToValidate.IsClass)
                     return false;
 
-                var constraints = paramType.GetGenericParameterConstraints();
+                var constraints = implementationParameter.GetGenericParameterConstraints();
                 var constraintsLength = constraints.Length;
 
                 if (constraints.Length <= 0) continue;
 
                 var found = false;
-                for (var j = 0; j < constraintsLength; j++)
+                for (var j = 0; !found && j < constraintsLength; j++)
                 {
-                    var con = constraints[j];
-                    var constraintForCheck = con.IsClosedGenericType() ? con.GetGenericTypeDefinition().MakeGenericType(argumentForValidation) : con;
-                    if (argumentForValidation.Implements(constraintForCheck))
+                    var constraintForCheck = constraints[j];
+                    if (argumentToValidate.Implements(constraintForCheck))
                         found = true;
                 }
 
@@ -278,30 +279,30 @@ namespace System
         private static bool HasReferenceTypeConstraint(this GenericParameterAttributes attributes) =>
             (attributes & GenericParameterAttributes.ReferenceTypeConstraint) == GenericParameterAttributes.ReferenceTypeConstraint;
         
-        private static bool FilterProperty(this PropertyInfo prop, RegistrationContext contextData,
+        private static bool FilterProperty(this PropertyInfo prop, ServiceRegistration serviceRegistration,
             ContainerConfiguration containerConfiguration, bool publicPropsEnabled, bool limitedPropsEnabled)
         {
             var valid = prop.CanWrite && !prop.IsIndexer() &&
                     (prop.GetDependencyAttribute() != null ||
                      publicPropsEnabled && prop.GetSetMethod() != null || limitedPropsEnabled ||
-                     (contextData.DependencyBindings != null && contextData.DependencyBindings.ContainsKey(prop.Name)));
+                     (serviceRegistration.DependencyBindings != null && serviceRegistration.DependencyBindings.ContainsKey(prop.Name)));
 
             valid = valid && (containerConfiguration.AutoMemberInjectionFilter == null || containerConfiguration.AutoMemberInjectionFilter(prop));
-            valid = valid && (contextData.AutoMemberInjectionFilter == null || contextData.AutoMemberInjectionFilter(prop));
+            valid = valid && (serviceRegistration.AutoMemberInjectionFilter == null || serviceRegistration.AutoMemberInjectionFilter(prop));
 
             return valid;
         }
 
-        private static bool FilterField(this FieldInfo field, RegistrationContext contextData,
+        private static bool FilterField(this FieldInfo field, ServiceRegistration serviceRegistration,
             ContainerConfiguration containerConfiguration, bool fieldsEnabled)
         {
             var valid = !field.IsInitOnly && !field.IsBackingField() &&
                         (field.GetDependencyAttribute() != null ||
                          fieldsEnabled ||
-                         (contextData.DependencyBindings != null && contextData.DependencyBindings.ContainsKey(field.Name)));
+                         (serviceRegistration.DependencyBindings != null && serviceRegistration.DependencyBindings.ContainsKey(field.Name)));
 
             valid = valid && (containerConfiguration.AutoMemberInjectionFilter == null || containerConfiguration.AutoMemberInjectionFilter(field));
-            valid = valid && (contextData.AutoMemberInjectionFilter == null || contextData.AutoMemberInjectionFilter(field));
+            valid = valid && (serviceRegistration.AutoMemberInjectionFilter == null || serviceRegistration.AutoMemberInjectionFilter(field));
 
             return valid;
         }
@@ -318,22 +319,22 @@ namespace System
         private static bool HasPublicParameterlessConstructor(this Type type) =>
             type.GetConstructors().FirstOrDefault(c => c.GetParameters().Length == 0) != null;
         
-        private static DependencyAttribute GetDependencyAttribute(this MemberInfo property)
+        private static DependencyAttribute? GetDependencyAttribute(this MemberInfo property)
         {
             var attr = property.GetCustomAttributes(Constants.DependencyAttributeType, false).FirstOrDefault();
-            return (DependencyAttribute)attr;
+            return attr as DependencyAttribute;
         }
 
-        private static DependencyAttribute GetDependencyAttribute(this ParameterInfo parameter)
+        private static DependencyAttribute? GetDependencyAttribute(this ParameterInfo parameter)
         {
             var attr = parameter.GetCustomAttributes(Constants.DependencyAttributeType, false).FirstOrDefault();
-            return (DependencyAttribute)attr;
+            return attr as DependencyAttribute;
         }
 
-        private static InjectionMethodAttribute GetInjectionAttribute(this MemberInfo method)
+        private static InjectionMethodAttribute? GetInjectionAttribute(this MemberInfo method)
         {
             var attr = method.GetCustomAttributes(Constants.InjectionAttributeType, false).FirstOrDefault();
-            return (InjectionMethodAttribute)attr;
+            return attr as InjectionMethodAttribute;
         }
     }
 }

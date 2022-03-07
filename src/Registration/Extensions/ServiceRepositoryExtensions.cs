@@ -10,7 +10,7 @@ namespace Stashbox.Registration.Extensions
 {
     internal static class ServiceRepositoryExtensions
     {
-        public static bool ContainsRegistration(this ImmutableTree<Type, ImmutableBucket<object, ServiceRegistration>> repository, Type type, object name, bool includeOpenGenerics)
+        public static bool ContainsRegistration(this ImmutableTree<Type, ImmutableBucket<object, ServiceRegistration>> repository, Type type, object? name, bool includeOpenGenerics)
         {
             var registrations = repository.GetOrDefaultByRef(type);
             if (name != null && registrations != null)
@@ -19,16 +19,16 @@ namespace Stashbox.Registration.Extensions
             if (registrations != null || !includeOpenGenerics || !type.IsClosedGenericType()) return registrations != null;
 
             registrations = repository.GetOrDefaultByRef(type.GetGenericTypeDefinition());
-            return registrations?.Any(reg => type.SatisfiesGenericConstraintsOf(reg.ImplementationType)) ?? false;
+            return registrations?.Any(reg => reg.ImplementationType.SatisfiesGenericConstraintsOf(type)) ?? false;
         }
 
-        public static ServiceRegistration SelectOrDefault(this IEnumerable<ServiceRegistration> registrations,
+        public static ServiceRegistration? SelectOrDefault(this IEnumerable<ServiceRegistration> registrations,
             TypeInformation typeInformation,
             ResolutionContext resolutionContext,
             IRegistrationSelectionRule[] registrationSelectionRules)
         {
             var maxWeight = 0;
-            ServiceRegistration result = null;
+            ServiceRegistration? result = null;
 
             foreach (var serviceRegistration in registrations)
             {
@@ -43,7 +43,7 @@ namespace Stashbox.Registration.Extensions
             return result;
         }
 
-        public static IEnumerable<ServiceRegistration> FilterExclusiveOrDefault(this IEnumerable<ServiceRegistration> registrations,
+        public static IEnumerable<ServiceRegistration>? FilterExclusiveOrDefault(this IEnumerable<ServiceRegistration> registrations,
             TypeInformation typeInformation,
             ResolutionContext resolutionContext,
             IRegistrationSelectionRule[] registrationSelectionRules)
@@ -70,7 +70,7 @@ namespace Stashbox.Registration.Extensions
                     : common;
         }
 
-        public static IEnumerable<ServiceRegistration> FilterInclusiveOrDefault(this IEnumerable<ServiceRegistration> registrations,
+        public static IEnumerable<ServiceRegistration> FilterInclusive(this IEnumerable<ServiceRegistration> registrations,
             TypeInformation typeInformation,
             ResolutionContext resolutionContext,
             IRegistrationSelectionRule[] registrationSelectionRules) =>

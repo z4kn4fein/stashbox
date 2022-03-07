@@ -29,7 +29,7 @@ There might be cases when rather than finding out that a service is registered, 
 `CanResolve()` returns `true` only when at least one of the following is true:
 - The requested type is registered in the current or one of the parent containers.
 - The requested type is a closed generic type and its open generic definition is registered.
-- The requested type is a wrapper (`IEnumerable<>`, `Lazy<>`, `Func<>`, `KeyValuePair<>`, `ReadOnlyKeyValue<>`, `Metadata<>`, or `Tuple<>`) and the underlying type is registered.
+- The requested type is a wrapper (`IEnumerable<>`, `Lazy<>`, `Func<>`, `KeyValuePair<,>`, `ReadOnlyKeyValue<,>`, `Metadata<,>`, `ValueTuple<,>`, or `Tuple<,>`) and the underlying type is registered.
 - The requested type is not registered but it's resolvable and the [unknown type resolution](configuration/container-configuration?id=unknown-type-resolution) is enabled.
 
 <!-- div:right-panel -->

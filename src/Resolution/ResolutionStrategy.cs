@@ -34,7 +34,10 @@ namespace Stashbox.Resolution
                 return resolutionContext.CurrentScopeParameter.AsServiceContext();
 
             if (typeInformation.Type == Constants.RequestContextType)
+            {
+                resolutionContext.RequestConfiguration.RequiresRequestContext = true;
                 return resolutionContext.RequestContextParameter.AsServiceContext();
+            }
 
             if (!resolutionContext.IsTopRequest)
             {
@@ -45,10 +48,10 @@ namespace Stashbox.Resolution
                     for (var i = length; i-- > 0;)
                     {
                         var parameters = resolutionContext.ParameterExpressions[i]
-                            .WhereOrDefault(p => p.I2.Type == type ||
-                                                 p.I2.Type.Implements(type));
+                            .Where(p => p.I2.Type == type ||
+                                                 p.I2.Type.Implements(type)).CastToArray();
 
-                        if (parameters == null) continue;
+                        if (parameters.Length == 0) continue;
                         var selected = parameters.FirstOrDefault(parameter => !parameter.I1) ?? parameters[parameters.Length - 1];
                         selected.I1 = true;
                         return selected.I2.AsServiceContext();
@@ -61,7 +64,7 @@ namespace Stashbox.Resolution
                         resolutionContext.BeginDecoratingContext(typeInformation.Type, decorators), typeInformation.Type, decorators).AsServiceContext();
             }
 
-            var exprOverride = resolutionContext.GetExpressionOverrideOrDefault(typeInformation.Type, typeInformation.DependencyName);
+            var exprOverride = resolutionContext.ExpressionOverrides?.GetOrDefaultByValue(typeInformation.DependencyName ?? typeInformation.Type);
             if (exprOverride != null)
                 return exprOverride.AsServiceContext();
 
@@ -128,7 +131,7 @@ namespace Stashbox.Resolution
                 this.IsWrappedTypeRegistered(typeInformation, resolutionContext))
                 return true;
 
-            var exprOverride = resolutionContext.GetExpressionOverrideOrDefault(typeInformation.Type, typeInformation.DependencyName);
+            var exprOverride = resolutionContext.ExpressionOverrides?.GetOrDefaultByValue(typeInformation.DependencyName ?? typeInformation.Type);
             return exprOverride != null || this.CanLookupService(typeInformation, resolutionContext);
         }
 
@@ -152,7 +155,7 @@ namespace Stashbox.Resolution
                     case IServiceWrapper serviceWrapper when serviceWrapper.TryUnWrap(typeInformation, out var unWrappedServiceType):
                     {
                         var serviceContext = this.BuildExpressionForType(resolutionContext, unWrappedServiceType);
-                        return serviceContext.ServiceExpression == null ? default : serviceWrapper
+                        return serviceContext.IsEmpty() ? default : serviceWrapper
                                 .WrapExpression(typeInformation, unWrappedServiceType, serviceContext)
                                 .AsServiceContext(serviceContext.ServiceRegistration);
                     }
@@ -160,7 +163,7 @@ namespace Stashbox.Resolution
                     {
                         var parameterExpressions = parameters.Select(p => p.AsParameter()).CastToArray();
                         var serviceContext = this.BuildExpressionForType(resolutionContext.BeginContextWithFunctionParameters(parameterExpressions), unWrappedParameterizedType);
-                        return serviceContext.ServiceExpression == null ? default : parameterizedWrapper
+                        return serviceContext.IsEmpty() ? default : parameterizedWrapper
                                 .WrapExpression(typeInformation, unWrappedParameterizedType, serviceContext, parameterExpressions)
                                 .AsServiceContext(serviceContext.ServiceRegistration);
                     }
@@ -259,28 +262,30 @@ namespace Stashbox.Resolution
             return false;
         }
 
-        private static Expression BuildExpressionForDecorator(ServiceRegistration serviceRegistration,
+        private static Expression? BuildExpressionForDecorator(ServiceRegistration serviceRegistration,
             ResolutionContext resolutionContext, Type requestedType, Utils.Data.Stack<ServiceRegistration> decorators)
         {
             if (serviceRegistration is OpenGenericRegistration openGenericRegistration)
                 serviceRegistration = openGenericRegistration.ProduceClosedRegistration(requestedType, resolutionContext);
 
             return BuildExpressionAndApplyLifetime(serviceRegistration, resolutionContext,
-                requestedType, decorators.PeekBack()?.RegistrationContext.Lifetime);
+                requestedType, decorators.PeekBack()?.Lifetime);
         }
 
-        private static Expression BuildExpressionAndApplyLifetime(ServiceRegistration serviceRegistration,
-            ResolutionContext resolutionContext, Type requestedType, LifetimeDescriptor secondaryLifetimeDescriptor = null)
+        private static Expression? BuildExpressionAndApplyLifetime(ServiceRegistration serviceRegistration,
+            ResolutionContext resolutionContext, Type requestedType, LifetimeDescriptor? secondaryLifetimeDescriptor = null)
         {
-            var lifetimeDescriptor = serviceRegistration.RegistrationContext.Lifetime ?? secondaryLifetimeDescriptor;
-            if (!IsOutputLifetimeManageable(serviceRegistration) || lifetimeDescriptor == null)
-                return ExpressionBuilder.BuildExpressionForRegistration(serviceRegistration, resolutionContext, requestedType);
-
-            return lifetimeDescriptor.ApplyLifetime(serviceRegistration, resolutionContext, requestedType);
+            var lifetimeDescriptor = secondaryLifetimeDescriptor != null && serviceRegistration.Lifetime is EmptyLifetime 
+                ? secondaryLifetimeDescriptor
+                : serviceRegistration.Lifetime;
+            
+            return !IsOutputLifetimeManageable(serviceRegistration) 
+                ? ExpressionBuilder.BuildExpressionForRegistration(serviceRegistration, resolutionContext, requestedType) 
+                : lifetimeDescriptor.ApplyLifetime(serviceRegistration, resolutionContext, requestedType);
         }
 
         private static bool IsOutputLifetimeManageable(ServiceRegistration serviceRegistration) =>
-            serviceRegistration.RegistrationType != RegistrationType.OpenGeneric &&
-            serviceRegistration.RegistrationType != RegistrationType.Instance;
+            serviceRegistration is not OpenGenericRegistration &&
+            serviceRegistration is not InstanceRegistration;
     }
 }

@@ -12,7 +12,7 @@ namespace Stashbox.Exceptions
         /// <summary>
         /// The type the container is trying to register.
         /// </summary>
-        public Type Type { get; }
+        public Type? Type { get; }
 
         /// <summary>
         /// Constructs a <see cref="InvalidRegistrationException"/>.
@@ -20,8 +20,8 @@ namespace Stashbox.Exceptions
         /// <param name="type">The type of the service.</param>
         /// <param name="message">The exception message.</param>
         /// <param name="innerException">The inner exception.</param>
-        public InvalidRegistrationException(Type type, string message, Exception innerException = null)
-            : base($"Invalid registration with type {type.FullName}. Details: {message}", innerException)
+        public InvalidRegistrationException(Type? type, string message, Exception? innerException = null)
+            : base($"Invalid registration with type '{type?.FullName}'. Details: {message}", innerException)
         {
             this.Type = type;
         }

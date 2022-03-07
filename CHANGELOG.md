@@ -4,6 +4,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v5.2.0] - 2022-03-07
+### Fixed
+- Unable to resolve IHubContext. [#114](https://github.com/z4kn4fein/stashbox/issues/114)
+### Added
+- Null-safety by enabling null-state analysis.
+- Option to exclude a factory's result from dispose tracking, even if it would be tracked by default. This gives the ability to decide within the factory delegate that the result should be tracked or not.
+  ```cs
+  .Register<Service>(options => options
+      .WithFactory<IRequestContext>(requestContext => 
+          requestContext.ExcludeFromTracking(/* get an existing or instantiate a new service */)
+      )
+  );
+  ```
+- A new `ResolveFactoryOrDefault()` method that allows `null` results.
+- A new `ResolveOrDefault()` method that allows `null` results.
+- `ValueTuple<,>` [metadata](https://z4kn4fein.github.io/stashbox/#/advanced/wrappers-resolvers?id=metadata-amp-tuple) support.
+
+### Changed
+- `Resolve()` with the `nullResultAllowed` parameter became obsolete, it was replaced by `ResolveOrDefault()`.
+- Each `ResolveFactory<>()` method became obsolete as their functionality is equivalent to `Resolve<Func<>>()`.
+
+### Removed
+- `nullResultAllowed` parameter of `ResolveFactory()`.
+
 ## [v5.1.0] - 2022-02-27
 ### Changed
 - Marked the `.WithRuntimeCircularDependencyTracking()` container configuration option as **Obsolete** in favor of [parameterized factory delegates](https://z4kn4fein.github.io/stashbox/#/usage/advanced-registration?id=consider-this-before-using-the-resolver-parameter-inside-a-factory).
@@ -201,6 +225,7 @@ The validation was executed only at the expression tree building phase, so an al
 - Removed the legacy container extension functionality.
 - Removed the support of PCL v259.
 
+[v5.2.0]: https://github.com/z4kn4fein/stashbox/compare/5.1.0...5.2.0
 [v5.1.0]: https://github.com/z4kn4fein/stashbox/compare/5.0.1...5.1.0
 [v5.0.1]: https://github.com/z4kn4fein/stashbox/compare/5.0.0...5.0.1
 [v5.0.0]: https://github.com/z4kn4fein/stashbox/compare/4.1.0...5.0.0

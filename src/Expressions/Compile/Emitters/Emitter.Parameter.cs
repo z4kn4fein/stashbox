@@ -25,7 +25,7 @@ namespace Stashbox.Expressions.Compile.Emitters
             }
 
             var definedVariableIndex = context.DefinedVariables.IndexOf(expression);
-            if (definedVariableIndex != -1)
+            if (definedVariableIndex != -1 && context.LocalBuilders != null)
             {
                 generator.Emit(OpCodes.Ldloc, context.LocalBuilders[definedVariableIndex]);
                 return true;

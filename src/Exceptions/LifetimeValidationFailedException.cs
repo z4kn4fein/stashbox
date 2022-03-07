@@ -12,14 +12,14 @@ namespace Stashbox.Exceptions
         /// <summary>
         /// The type the container is currently resolving.
         /// </summary>
-        public Type Type { get; }
+        public Type? Type { get; }
 
         /// <summary>
         /// Constructs a <see cref="LifetimeValidationFailedException"/>.
         /// </summary>
         /// <param name="type">The type of the service.</param>
         /// <param name="message">The exception message.</param>
-        public LifetimeValidationFailedException(Type type, string message)
+        public LifetimeValidationFailedException(Type? type, string message)
             : base(message)
         {
             this.Type = type;

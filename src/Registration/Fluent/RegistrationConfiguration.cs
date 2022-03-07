@@ -32,7 +32,7 @@ namespace Stashbox.Registration.Fluent
 
         internal bool TypeMapIsValid(out string error)
         {
-            error = null;
+            error = string.Empty;
             if (this.Context.Factory != null)
                 return true;
 
@@ -52,7 +52,7 @@ namespace Stashbox.Registration.Fluent
 
         internal bool ImplementationIsResolvable(out string error)
         {
-            error = null;
+            error = string.Empty;
             if (this.Context.Factory != null)
                 return true;
 

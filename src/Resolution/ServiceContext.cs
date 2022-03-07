@@ -16,17 +16,22 @@ namespace Stashbox.Resolution
         /// <summary>
         /// The registration of the service.
         /// </summary>
-        public readonly ServiceRegistration ServiceRegistration;
+        public readonly ServiceRegistration? ServiceRegistration;
 
         /// <summary>
         /// Constructs a <see cref="ServiceContext"/>.
         /// </summary>
         /// <param name="serviceExpression">The expression that describes the instantiation of the service.</param>
         /// <param name="serviceRegistration">The registration of the service.</param>
-        public ServiceContext(Expression serviceExpression, ServiceRegistration serviceRegistration)
+        public ServiceContext(Expression serviceExpression, ServiceRegistration? serviceRegistration)
         {
             this.ServiceExpression = serviceExpression;
             this.ServiceRegistration = serviceRegistration;
         }
+
+        internal bool IsEmpty() => this.Equals(default);
+        
+        private bool Equals(ServiceContext other) =>
+            ReferenceEquals(ServiceExpression, other.ServiceExpression) && ReferenceEquals(ServiceRegistration, other.ServiceRegistration);
     }
 }

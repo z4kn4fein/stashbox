@@ -1,6 +1,5 @@
 ﻿using Stashbox.Exceptions;
 using Stashbox.Registration.Fluent;
-using Stashbox.Utils;
 using System;
 using Stashbox.Registration;
 
@@ -9,7 +8,7 @@ namespace Stashbox
     public partial class StashboxContainer
     {
         /// <inheritdoc />
-        public IStashboxContainer ReMap<TFrom, TTo>(Action<RegistrationConfigurator<TFrom, TTo>> configurator = null)
+        public IStashboxContainer ReMap<TFrom, TTo>(Action<RegistrationConfigurator<TFrom, TTo>>? configurator = null)
             where TFrom : class
             where TTo : class, TFrom
         {
@@ -20,11 +19,10 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public IStashboxContainer ReMap<TFrom>(Type typeTo, Action<RegistrationConfigurator<TFrom, TFrom>> configurator = null)
+        public IStashboxContainer ReMap<TFrom>(Type typeTo, Action<RegistrationConfigurator<TFrom, TFrom>>? configurator = null)
             where TFrom : class
         {
             this.ThrowIfDisposed();
-            Shield.EnsureNotNull(typeTo, nameof(typeTo));
 
             var registrationConfigurator = new RegistrationConfigurator<TFrom, TFrom>(typeof(TFrom), typeTo);
             configurator?.Invoke(registrationConfigurator);
@@ -36,11 +34,9 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public IStashboxContainer ReMap(Type typeFrom, Type typeTo, Action<RegistrationConfigurator> configurator = null)
+        public IStashboxContainer ReMap(Type typeFrom, Type typeTo, Action<RegistrationConfigurator>? configurator = null)
         {
             this.ThrowIfDisposed();
-            Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
-            Shield.EnsureNotNull(typeTo, nameof(typeTo));
 
             var registrationConfigurator = new RegistrationConfigurator(typeFrom, typeTo);
             configurator?.Invoke(registrationConfigurator);
@@ -52,7 +48,7 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public IStashboxContainer ReMap<TTo>(Action<RegistrationConfigurator<TTo, TTo>> configurator = null)
+        public IStashboxContainer ReMap<TTo>(Action<RegistrationConfigurator<TTo, TTo>>? configurator = null)
              where TTo : class
         {
             this.ThrowIfDisposed();
@@ -67,11 +63,9 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public IStashboxContainer ReMapDecorator(Type typeFrom, Type typeTo, Action<DecoratorConfigurator> configurator = null)
+        public IStashboxContainer ReMapDecorator(Type typeFrom, Type typeTo, Action<DecoratorConfigurator>? configurator = null)
         {
             this.ThrowIfDisposed();
-            Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
-            Shield.EnsureNotNull(typeTo, nameof(typeTo));
 
             var decoratorConfigurator = new DecoratorConfigurator(typeFrom, typeTo);
             configurator?.Invoke(decoratorConfigurator);
@@ -83,7 +77,7 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public IStashboxContainer ReMapDecorator<TFrom, TTo>(Action<DecoratorConfigurator<TFrom, TTo>> configurator = null)
+        public IStashboxContainer ReMapDecorator<TFrom, TTo>(Action<DecoratorConfigurator<TFrom, TTo>>? configurator = null)
             where TFrom : class
             where TTo : class, TFrom
         {
@@ -94,11 +88,10 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public IStashboxContainer ReMapDecorator<TFrom>(Type typeTo, Action<DecoratorConfigurator<TFrom, TFrom>> configurator = null)
+        public IStashboxContainer ReMapDecorator<TFrom>(Type typeTo, Action<DecoratorConfigurator<TFrom, TFrom>>? configurator = null)
             where TFrom : class
         {
             this.ThrowIfDisposed();
-            Shield.EnsureNotNull(typeTo, nameof(typeTo));
 
             var registrationConfigurator = new DecoratorConfigurator<TFrom, TFrom>(typeof(TFrom), typeTo);
             configurator?.Invoke(registrationConfigurator);

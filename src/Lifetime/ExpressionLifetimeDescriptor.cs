@@ -10,7 +10,7 @@ namespace Stashbox.Lifetime
     /// </summary>
     public abstract class ExpressionLifetimeDescriptor : LifetimeDescriptor
     {
-        private protected override Expression BuildLifetimeAppliedExpression(ServiceRegistration serviceRegistration,
+        private protected override Expression? BuildLifetimeAppliedExpression(ServiceRegistration serviceRegistration,
             ResolutionContext resolutionContext, Type requestedType)
         {
             var expression = GetExpressionForRegistration(serviceRegistration, resolutionContext, requestedType);

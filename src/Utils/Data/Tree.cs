@@ -9,8 +9,8 @@ namespace Stashbox.Utils.Data
         {
             public readonly int StoredKey;
             public TValue StoredValue;
-            public Node Left;
-            public Node Right;
+            public Node? Left;
+            public Node? Right;
             public int Height;
 
             public Node(int key, TValue value)
@@ -21,7 +21,7 @@ namespace Stashbox.Utils.Data
             }
         }
 
-        private Node root;
+        private Node? root;
 
         public bool IsEmpty => this.root == null;
 
@@ -31,7 +31,7 @@ namespace Stashbox.Utils.Data
         }
 
         [MethodImpl(Constants.Inline)]
-        public TValue GetOrDefault(int key)
+        public TValue? GetOrDefault(int key)
         {
             if (this.root == null)
                 return default;
@@ -50,7 +50,7 @@ namespace Stashbox.Utils.Data
             if (node.Left == null && node.Right == null)
                 return 1;
 
-            return 1 + (node.Left?.Height ?? node.Right.Height);
+            return 1 + (node.Left?.Height ?? node.Right!.Height);
         }
 
         private static int GetBalance(Node node)
@@ -61,13 +61,13 @@ namespace Stashbox.Utils.Data
             if (node.Left == null && node.Right == null)
                 return 0;
 
-            return node.Left?.Height ?? node.Right.Height * -1;
+            return node.Left?.Height ?? node.Right!.Height * -1;
         }
 
         private static Node RotateLeft(Node node)
         {
             var current = node.Right;
-            var left = current.Left;
+            var left = current!.Left;
 
             current.Left = node;
             node.Right = left;
@@ -81,7 +81,7 @@ namespace Stashbox.Utils.Data
         private static Node RotateRight(Node node)
         {
             var current = node.Left;
-            var right = current.Right;
+            var right = current!.Right;
 
             current.Right = node;
             node.Left = right;
@@ -92,7 +92,7 @@ namespace Stashbox.Utils.Data
             return current;
         }
 
-        private static Node Add(Node node, int key, TValue value)
+        private static Node Add(Node? node, int key, TValue value)
         {
             if (node == null)
                 return new Node(key, value);
@@ -113,15 +113,15 @@ namespace Stashbox.Utils.Data
 
             switch (balance)
             {
-                case >= 2 when GetBalance(node.Left) == -1:
-                    node.Left = RotateLeft(node.Left);
+                case >= 2 when GetBalance(node.Left!) == -1:
+                    node.Left = RotateLeft(node.Left!);
                     node = RotateRight(node);
                     break;
                 case >= 2:
                     node = RotateRight(node);
                     break;
-                case <= -2 when GetBalance(node.Right) == 1:
-                    node.Right = RotateRight(node.Right);
+                case <= -2 when GetBalance(node.Right!) == 1:
+                    node.Right = RotateRight(node.Right!);
                     node = RotateLeft(node);
                     break;
                 case <= -2:

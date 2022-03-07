@@ -16,8 +16,8 @@ namespace Stashbox.Exceptions
         /// <param name="type">The type on the constructor was not found.</param>
         /// <param name="argumentTypes">The arguments.</param>
         /// <param name="innerException">The inner exception</param>
-        public ConstructorNotFoundException(Type type, Type[] argumentTypes, Exception innerException = null) :
-            base($"Constructor not found for {type.FullName} with the given argument types: {argumentTypes.Select(t => t.FullName).Aggregate((t1, t2) => $"{t1}, {t2}")}.", innerException)
+        public ConstructorNotFoundException(Type type, Type[] argumentTypes, Exception? innerException = null) :
+            base($"Constructor not found for '{type.FullName}' with the given argument types: {argumentTypes.Select(t => t.FullName).Aggregate((t1, t2) => $"{t1}, {t2}")}.", innerException)
         { }
 
         /// <summary>
@@ -25,8 +25,8 @@ namespace Stashbox.Exceptions
         /// </summary>
         /// <param name="type">The type on the constructor was not found.</param>
         /// <param name="innerException">The inner exception</param>
-        public ConstructorNotFoundException(Type type, Exception innerException = null) :
-            base($"Constructor not found for {type.FullName} with no arguments.", innerException)
+        public ConstructorNotFoundException(Type type, Exception? innerException = null) :
+            base($"Constructor not found for '{type.FullName}' with no arguments.", innerException)
         { }
 
         /// <summary>
@@ -35,8 +35,8 @@ namespace Stashbox.Exceptions
         /// <param name="type">The type on the constructor was not found.</param>
         /// <param name="argument">The argument type.</param>
         /// <param name="innerException">The inner exception</param>
-        public ConstructorNotFoundException(Type type, Type argument, Exception innerException = null) :
-            base($"Constructor not found for {type.FullName} with the argument type: {argument.FullName}.", innerException)
+        public ConstructorNotFoundException(Type type, Type argument, Exception? innerException = null) :
+            base($"Constructor not found for '{type.FullName}' with the argument type: {argument.FullName}.", innerException)
         { }
 
         /// <inheritdoc />

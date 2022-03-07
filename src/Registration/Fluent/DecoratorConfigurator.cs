@@ -10,6 +10,8 @@ namespace Stashbox.Registration.Fluent
     /// </summary>
     public class DecoratorConfigurator<TService, TImplementation> : BaseDecoratorConfigurator<DecoratorConfigurator<TService, TImplementation>>,
         IFluentCompositor<TImplementation, DecoratorConfigurator<TService, TImplementation>>
+        where TService : class
+        where TImplementation : class, TService
     {
         private readonly FluentCompositor<TService, TImplementation> compositor;
 
@@ -19,7 +21,7 @@ namespace Stashbox.Registration.Fluent
         }
 
         /// <inheritdoc />
-        public DecoratorConfigurator<TService, TImplementation> WithDependencyBinding<TResult>(Expression<Func<TImplementation, TResult>> expression, object dependencyName = null)
+        public DecoratorConfigurator<TService, TImplementation> WithDependencyBinding<TResult>(Expression<Func<TImplementation, TResult>> expression, object? dependencyName = null)
         {
             this.compositor.WithDependencyBinding(expression, dependencyName);
             return this;

@@ -1,27 +1,27 @@
-﻿using Stashbox.Registration;
-using Stashbox.Resolution;
+﻿using Stashbox.Resolution;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Stashbox.Registration;
 
 namespace Stashbox.Expressions
 {
     internal static partial class ExpressionBuilder
     {
-        private static Expression GetExpressionForFunc(ServiceRegistration serviceRegistration, ResolutionContext resolutionContext)
+        private static Expression GetExpressionForFunc(FuncRegistration serviceRegistration, ResolutionContext resolutionContext)
         {
-            var internalMethodInfo = serviceRegistration.RegistrationContext.FuncDelegate.GetMethod();
+            var internalMethodInfo = serviceRegistration.FuncDelegate.GetMethod();
 
-            var parameters = GetFuncParametersWithScope(serviceRegistration.ImplementationType.GetMethod("Invoke").GetParameters(), resolutionContext);
-            if (serviceRegistration.RegistrationContext.FuncDelegate.IsCompiledLambda())
-                return serviceRegistration.RegistrationContext.FuncDelegate.InvokeDelegate(parameters)
+            var parameters = GetFuncParametersWithScope(serviceRegistration.ImplementationType.GetMethod("Invoke")!.GetParameters(), resolutionContext);
+            if (serviceRegistration.FuncDelegate.IsCompiledLambda())
+                return serviceRegistration.FuncDelegate.InvokeDelegate(parameters)
                     .AsLambda(parameters.Take(parameters.Length - 1).Cast<ParameterExpression>());
 
             var expr = internalMethodInfo.IsStatic
                 ? internalMethodInfo.CallStaticMethod(parameters)
-                : serviceRegistration.RegistrationContext.FuncDelegate.Target.AsConstant().CallMethod(internalMethodInfo, parameters);
+                : serviceRegistration.FuncDelegate.Target.AsConstant().CallMethod(internalMethodInfo, parameters);
 
             return expr.AsLambda(parameters.Take(parameters.Length - 1).Cast<ParameterExpression>());
         }

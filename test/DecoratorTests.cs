@@ -710,6 +710,21 @@ namespace Stashbox.Tests
 
         [Theory]
         [ClassData(typeof(CompilerTypeTestData))]
+        public void DecoratorTests_Inheriting_Lifetime(CompilerType compilerType)
+        {
+            using var container = new StashboxContainer(c => c.WithCompiler(compilerType));
+            container.RegisterSingleton<ITest1, Test1>();
+            container.RegisterDecorator<ITest1, TestDecorator1>();
+
+            var t1 = container.Resolve<ITest1>();
+            var t2 = container.Resolve<ITest1>();
+
+            Assert.Same(t1, t2);
+            Assert.Same(t1.Test, t2.Test);
+        }
+
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
         public void DecoratorTests_Different_Decoretees(CompilerType compilerType)
         {
             using var container = new StashboxContainer(c => c.WithCompiler(compilerType));
@@ -1098,8 +1113,8 @@ namespace Stashbox.Tests
 
             var registration = container.ContainerContext.DecoratorRepository.GetRegistrationMappings().First().Value;
 
-            Assert.NotNull(registration.RegistrationContext.Initializer);
-            Assert.Equal(Lifetimes.Singleton, registration.RegistrationContext.Lifetime);
+            Assert.NotNull(registration.Initializer);
+            Assert.Equal(Lifetimes.Singleton, registration.Lifetime);
         }
 
         interface IT1 { }

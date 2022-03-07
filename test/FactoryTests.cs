@@ -1,6 +1,8 @@
 ﻿using Stashbox.Attributes;
 using Stashbox.Configuration;
+using Stashbox.Resolution;
 using Stashbox.Tests.Utils;
+using System;
 using Xunit;
 
 namespace Stashbox.Tests
@@ -349,6 +351,78 @@ namespace Stashbox.Tests
             Assert.Same(scope, inst.DependencyResolver);
         }
 
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void FactoryTests_Ensure_Exclude_Works(CompilerType compilerType)
+        {
+            using var container = new StashboxContainer(c => c.WithCompiler(compilerType).WithDisposableTransientTracking());
+            var disposable = new Disposable();
+            Disposable second;
+            bool shouldSkip = true;
+            container.Register<Disposable>(context => context
+                .WithFactory<IRequestContext>(requestContext =>
+                {
+                    if (shouldSkip)
+                    {
+                        shouldSkip = false;
+                        return requestContext.ExcludeFromTracking(disposable);
+                    }
+
+                    return new Disposable();
+                }));
+
+            {
+                using var scope = container.BeginScope();
+                var inst = scope.Resolve<Disposable>();
+
+                Assert.Same(disposable, inst);
+
+                second = scope.Resolve<Disposable>();
+
+                Assert.NotSame(disposable, second);
+            }
+
+            Assert.True(second.IsDisposed);
+            Assert.False(disposable.IsDisposed);
+        }
+
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void FactoryTests_Ensure_Exclude_Works_Scoped(CompilerType compilerType)
+        {
+            using var container = new StashboxContainer(c => c.WithCompiler(compilerType));
+            var disposable = new Disposable();
+            Disposable second;
+            bool shouldSkip = true;
+            container.Register<Disposable>(context => context
+            .WithScopedLifetime()
+                .WithFactory<IRequestContext>(requestContext =>
+                {
+                    if (shouldSkip)
+                    {
+                        shouldSkip = false;
+                        return requestContext.ExcludeFromTracking(disposable);
+                    }
+
+                    return new Disposable();
+                }));
+
+            {
+                using var scope1 = container.BeginScope();
+                var inst = scope1.Resolve<Disposable>();
+
+                Assert.Same(disposable, inst);
+
+                using var scope2 = container.BeginScope();
+                second = scope2.Resolve<Disposable>();
+
+                Assert.NotSame(disposable, second);
+            }
+
+            Assert.True(second.IsDisposed);
+            Assert.False(disposable.IsDisposed);
+        }
+
         interface ITest { string Name { get; } }
 
         interface ITest1 { ITest Test { get; } }
@@ -432,5 +506,17 @@ namespace Stashbox.Tests
         class TComp : IT1, IT2, IT3, IT4, IT5 { }
 
         class Dummy { }
+
+        class Disposable : IDisposable
+        {
+            public bool IsDisposed { get; set; }
+            public void Dispose()
+            {
+                if (this.IsDisposed)
+                    throw new ObjectDisposedException(nameof(Disposable));
+
+                this.IsDisposed = true;
+            }
+        }
     }
 }

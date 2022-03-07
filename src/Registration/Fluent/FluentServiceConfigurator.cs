@@ -12,6 +12,8 @@ namespace Stashbox.Registration.Fluent
     /// </summary>
     public class FluentServiceConfigurator<TService, TImplementation, TConfigurator> : FluentServiceConfigurator<TConfigurator>, IFluentCompositor<TImplementation, TConfigurator>
         where TConfigurator : FluentServiceConfigurator<TService, TImplementation, TConfigurator>
+        where TService : class
+        where TImplementation : class, TService
     {
         internal FluentServiceConfigurator(Type serviceType, Type implementationType)
             : base(serviceType, implementationType)
@@ -22,15 +24,13 @@ namespace Stashbox.Registration.Fluent
         { }
 
         /// <inheritdoc />
-        public TConfigurator WithDependencyBinding<TResult>(Expression<Func<TImplementation, TResult>> expression, object dependencyName = null)
+        public TConfigurator WithDependencyBinding<TResult>(Expression<Func<TImplementation, TResult>> expression, object? dependencyName = null)
         {
             if (expression.Body is not MemberExpression memberExpression)
                 throw new ArgumentException("The expression must be a member expression (Property or Field)",
                     nameof(expression));
 
-            if (this.Context.DependencyBindings == null)
-                this.Context.DependencyBindings = new Dictionary<object, object>();
-
+            this.Context.DependencyBindings ??= new Dictionary<object, object?>();
             this.Context.DependencyBindings.Add(memberExpression.Member.Name, dependencyName);
             return (TConfigurator)this;
 
@@ -39,8 +39,7 @@ namespace Stashbox.Registration.Fluent
         /// <inheritdoc />
         public TConfigurator WithFinalizer(Action<TImplementation> finalizer)
         {
-            if (finalizer == null)
-                return (TConfigurator)this;
+            Shield.EnsureNotNull(finalizer, nameof(finalizer));
 
             base.Context.Finalizer = o => finalizer((TImplementation)o);
             return (TConfigurator)this;
@@ -49,6 +48,8 @@ namespace Stashbox.Registration.Fluent
         /// <inheritdoc />
         public TConfigurator WithInitializer(Action<TImplementation, IDependencyResolver> initializer)
         {
+            Shield.EnsureNotNull(initializer, nameof(initializer));
+
             base.Context.Initializer = initializer;
             return (TConfigurator)this;
         }
@@ -56,8 +57,7 @@ namespace Stashbox.Registration.Fluent
         /// <inheritdoc />
         public TConfigurator WithAsyncInitializer(Func<TImplementation, IDependencyResolver, CancellationToken, Task> initializer)
         {
-            if (initializer == null)
-                return (TConfigurator)this;
+            Shield.EnsureNotNull(initializer, nameof(initializer));
 
             base.Context.AsyncInitializer = (o, r, t) => initializer((TImplementation)o, r, t);
             return (TConfigurator)this;
@@ -132,7 +132,7 @@ namespace Stashbox.Registration.Fluent
         /// </summary>
         /// <param name="metadata">The metadata.</param>
         /// <returns>The fluent configurator.</returns>
-        public TConfigurator WithMetadata(object metadata)
+        public TConfigurator WithMetadata(object? metadata)
         {
             this.Context.Metadata = metadata;
             return (TConfigurator)this;
@@ -143,7 +143,7 @@ namespace Stashbox.Registration.Fluent
         /// </summary>
         /// <param name="name">The name of the registration.</param>
         /// <returns>The fluent configurator.</returns>
-        public TConfigurator WithName(object name)
+        public TConfigurator WithName(object? name)
         {
             this.Context.Name = name;
             return (TConfigurator)this;
@@ -154,7 +154,7 @@ namespace Stashbox.Registration.Fluent
         /// </summary>
         /// <param name="scopeName">The name of the scope. When the name is null, the type which defines the scope is used as name.</param>
         /// <returns>The fluent configurator.</returns>
-        public TConfigurator DefinesScope(object scopeName = null)
+        public TConfigurator DefinesScope(object? scopeName = null)
         {
             this.Context.DefinedScopeName = scopeName ?? this.ImplementationType;
             return (TConfigurator)this;

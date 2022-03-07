@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq.Expressions;
 
 namespace Stashbox.Utils
 {
@@ -8,35 +7,13 @@ namespace Stashbox.Utils
     /// </summary>
     public static class Shield
     {
-        private static string GetMemberName<T>(Expression<Func<T>> memberExpression)
-        {
-            if (memberExpression.Body is not MemberExpression expressionBody)
-                throw new ArgumentException("The given expression is not a MemberExpression.");
-
-            return expressionBody.Member.Name;
-        }
-
-        /// <summary>
-        /// Checks the value of the given object and throws an ArgumentNullException if it == null.
-        /// </summary>
-        /// <typeparam name="T">Type of the object.</typeparam>
-        /// <param name="memberExpression">The expression which returns with the object to be checked.</param>
-        public static void EnsureNotNull<T>(Expression<Func<T>> memberExpression) where T : class
-        {
-            if (memberExpression == null)
-                throw new ArgumentNullException(nameof(memberExpression));
-
-            if (memberExpression.Compile()() == null)
-                throw new ArgumentNullException(GetMemberName(memberExpression));
-        }
-
         /// <summary>
         /// Checks the value of the given object and throws an ArgumentNullException if it == null.
         /// </summary>
         /// <typeparam name="T">Type of the object.</typeparam>
         /// <param name="obj">The object to be checked.</param>
         /// <param name="parameterName">The name of the parameter to be checked.</param>
-        public static void EnsureNotNull<T>(T obj, string parameterName) where T : class
+        public static void EnsureNotNull<T>(T obj, string parameterName)
         {
             if (obj == null)
                 throw new ArgumentNullException(parameterName);
@@ -46,42 +23,13 @@ namespace Stashbox.Utils
         /// Checks the value of the given object and throws an ArgumentNullException with the given message if it == null.
         /// </summary>
         /// <typeparam name="T">Type of the object.</typeparam>
-        /// <param name="memberExpression">The expression which returns with the object to be checked.</param>
-        /// <param name="message">The message to be shown in the exception.</param>
-        public static void EnsureNotNull<T>(Expression<Func<T>> memberExpression, string message) where T : class
-        {
-            if (memberExpression == null)
-                throw new ArgumentNullException(nameof(memberExpression));
-
-            if (memberExpression.Compile()() == null)
-                throw new ArgumentNullException(GetMemberName(memberExpression), message);
-        }
-
-        /// <summary>
-        /// Checks the value of the given object and throws an ArgumentNullException with the given message if it == null.
-        /// </summary>
-        /// <typeparam name="T">Type of the object.</typeparam>
         /// <param name="obj">The object to be checked.</param>
         /// <param name="parameterName">The name of the parameter to be checked.</param>
         /// <param name="message">The message to be shown in the exception.</param>
-        public static void EnsureNotNull<T>(T obj, string parameterName, string message) where T : class
+        public static void EnsureNotNull<T>(T obj, string parameterName, string message)
         {
-            if (obj == null)
+            if (obj == null || obj.Equals(default))
                 throw new ArgumentNullException(parameterName, message);
-        }
-
-
-        /// <summary>
-        /// Checks the value of the given string and throws an ArgumentException if it == null or empty.
-        /// </summary>
-        /// <param name="memberExpression">The expression which returns with the string to be checked.</param>
-        public static void EnsureNotNullOrEmpty(Expression<Func<string>> memberExpression)
-        {
-            if (memberExpression == null)
-                throw new ArgumentNullException(nameof(memberExpression));
-
-            if (string.IsNullOrWhiteSpace(memberExpression.Compile()()))
-                throw new ArgumentException(string.Empty, GetMemberName(memberExpression));
         }
 
         /// <summary>
@@ -103,7 +51,7 @@ namespace Stashbox.Utils
         public static void EnsureGreaterThan(int actual, int reference)
         {
             if (reference >= actual)
-                throw new ArgumentException($"The given number is lesser or equal than: {reference}");
+                throw new ArgumentException($"The given number is less or equal than: {reference}");
         }
 
         /// <summary>
@@ -128,7 +76,7 @@ namespace Stashbox.Utils
                 throw new ArgumentException($"{nameof(obj)} is not {typeof(TType)}.", nameof(obj));
         }
 
-        internal static void ThrowDisposedException(string name, string caller) =>
-            throw new ObjectDisposedException(name, $"The member '{caller}' was called on {name} but it has been disposed already.");
+        internal static void ThrowDisposedException(string? name, string caller) =>
+            throw new ObjectDisposedException(name, $"The member '{caller}' was called on '{name}' but it has been disposed already.");
     }
 }

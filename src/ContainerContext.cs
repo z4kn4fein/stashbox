@@ -6,7 +6,7 @@ namespace Stashbox
 {
     internal class ContainerContext : IContainerContext
     {
-        public ContainerContext(IContainerContext parentContext,
+        public ContainerContext(IContainerContext? parentContext,
             IResolutionStrategy resolutionStrategy, ContainerConfiguration containerConfiguration)
         {
             this.ContainerConfiguration = containerConfiguration;
@@ -21,7 +21,7 @@ namespace Stashbox
 
         public IDecoratorRepository DecoratorRepository { get; }
 
-        public IContainerContext ParentContext { get; }
+        public IContainerContext? ParentContext { get; }
 
         public IResolutionScope RootScope { get; }
 

@@ -7,15 +7,12 @@ namespace Stashbox.Resolution.Extensions
 {
     internal static class InjectionParameterExtensions
     {
-        public static Expression SelectInjectionParameterOrDefault(this IEnumerable<KeyValuePair<string, object>> injectionParameters,
+        public static Expression? SelectInjectionParameterOrDefault(this IEnumerable<KeyValuePair<string, object?>> injectionParameters,
             TypeInformation typeInformation)
         {
-            if (injectionParameters == null)
-                return null;
-
             var memberName = typeInformation.ParameterOrMemberName;
             var matchingParam = injectionParameters.FirstOrDefault(param => param.Key == memberName);
-            if (matchingParam.Equals(default(KeyValuePair<string, object>))) return null;
+            if (matchingParam.Equals(default(KeyValuePair<string, object?>))) return null;
 
             if (matchingParam.Value == null)
                 return typeInformation.Type == Constants.ObjectType

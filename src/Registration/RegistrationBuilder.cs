@@ -12,13 +12,7 @@ namespace Stashbox.Registration
             if (!isDecorator)
                 registrationConfiguration.Context.Lifetime = ChooseLifeTime(containerContext, registrationConfiguration.Context);
 
-            return registrationConfiguration.ImplementationType.IsOpenGenericType()
-                ? new OpenGenericRegistration(registrationConfiguration.ImplementationType,
-                    containerContext.ContainerConfiguration.RegistrationBehavior,
-                    registrationConfiguration.Context, isDecorator)
-                : new ServiceRegistration(registrationConfiguration.ImplementationType, DetermineRegistrationType(registrationConfiguration),
-                    containerContext.ContainerConfiguration.RegistrationBehavior,
-                    registrationConfiguration.Context, isDecorator);
+            return DetermineRegistrationType(registrationConfiguration, containerContext, isDecorator);
         }
 
         private static void PreProcessExistingInstanceIfNeeded(IContainerContext containerContext, RegistrationContext registrationContext, Type implementationType)
@@ -36,16 +30,25 @@ namespace Stashbox.Registration
                 ? Lifetimes.Singleton
                 : registrationContext.Lifetime ?? containerContext.ContainerConfiguration.DefaultLifetime;
 
-        private static RegistrationType DetermineRegistrationType(RegistrationConfiguration registrationConfiguration)
+        private static ServiceRegistration DetermineRegistrationType(RegistrationConfiguration registrationConfiguration,
+            IContainerContext containerContext, bool isDecorator)
         {
+            if (registrationConfiguration.ImplementationType.IsOpenGenericType())
+                return new OpenGenericRegistration(registrationConfiguration.ImplementationType,
+                    registrationConfiguration.Context, containerContext.ContainerConfiguration, isDecorator);
+            
             if (registrationConfiguration.Context.ExistingInstance != null)
-                return registrationConfiguration.Context.IsWireUp
-                    ? RegistrationType.WireUp
-                    : RegistrationType.Instance;
+                return new InstanceRegistration(registrationConfiguration.ImplementationType,
+                    registrationConfiguration.Context, containerContext.ContainerConfiguration, isDecorator,
+                    registrationConfiguration.Context.ExistingInstance);
 
-            return registrationConfiguration.Context.Factory != null
-                ? RegistrationType.Factory
-                : RegistrationType.Default;
+            if (registrationConfiguration.Context.Factory != null && registrationConfiguration.Context.FactoryParameters != null)
+                return new FactoryRegistration(registrationConfiguration.ImplementationType,
+                    registrationConfiguration.Context, containerContext.ContainerConfiguration, isDecorator,
+                    registrationConfiguration.Context.Factory, registrationConfiguration.Context.FactoryParameters);
+
+            return new ServiceRegistration(registrationConfiguration.ImplementationType,
+                    registrationConfiguration.Context, containerContext.ContainerConfiguration, isDecorator);
         }
     }
 }

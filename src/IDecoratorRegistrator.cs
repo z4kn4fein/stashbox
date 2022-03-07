@@ -15,7 +15,7 @@ namespace Stashbox
         /// <param name="typeTo">The implementation type.</param>
         /// <param name="configurator">The configurator for the registered types.</param>
         /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
-        IStashboxContainer RegisterDecorator(Type typeFrom, Type typeTo, Action<DecoratorConfigurator> configurator = null);
+        IStashboxContainer RegisterDecorator(Type typeFrom, Type typeTo, Action<DecoratorConfigurator>? configurator = null);
 
         /// <summary>
         /// Registers a decorator type into the container with custom configuration.
@@ -24,7 +24,7 @@ namespace Stashbox
         /// <typeparam name="TTo">The implementation type.</typeparam>
         /// <param name="configurator">The configurator for the registered types.</param>
         /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
-        IStashboxContainer RegisterDecorator<TFrom, TTo>(Action<DecoratorConfigurator<TFrom, TTo>> configurator = null)
+        IStashboxContainer RegisterDecorator<TFrom, TTo>(Action<DecoratorConfigurator<TFrom, TTo>>? configurator = null)
             where TFrom : class
             where TTo : class, TFrom;
 
@@ -35,7 +35,7 @@ namespace Stashbox
         /// <param name="typeTo">The implementation type.</param>
         /// <param name="configurator">The configurator for the registered types.</param>
         /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
-        IStashboxContainer RegisterDecorator(Type typeTo, Action<DecoratorConfigurator> configurator = null);
+        IStashboxContainer RegisterDecorator(Type typeTo, Action<DecoratorConfigurator>? configurator = null);
 
         /// <summary>
         /// Registers a decorator type into the container with custom configuration. 
@@ -44,7 +44,7 @@ namespace Stashbox
         /// <typeparam name="TTo">The implementation type.</typeparam>
         /// <param name="configurator">The configurator for the registered types.</param>
         /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
-        IStashboxContainer RegisterDecorator<TTo>(Action<DecoratorConfigurator<TTo, TTo>> configurator = null)
+        IStashboxContainer RegisterDecorator<TTo>(Action<DecoratorConfigurator<TTo, TTo>>? configurator = null)
             where TTo : class;
 
         /// <summary>
@@ -55,7 +55,7 @@ namespace Stashbox
         /// <param name="configurator">The configurator for the registered types.</param>
         /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
         IStashboxContainer RegisterDecorator<TFrom>(Type typeTo,
-            Action<DecoratorConfigurator<TFrom, TFrom>> configurator = null)
+            Action<DecoratorConfigurator<TFrom, TFrom>>? configurator = null)
             where TFrom : class;
     }
 }

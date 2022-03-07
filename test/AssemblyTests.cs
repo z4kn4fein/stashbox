@@ -133,7 +133,8 @@ namespace Stashbox.Tests
                     context.WithScopedLifetime();
             });
 
-            var regs = container.ContainerContext.RegistrationRepository.GetRegistrationMappings().Where(r => r.Value.RegistrationContext.Lifetime is ScopedLifetime).ToArray();
+            var regs = container.ContainerContext.RegistrationRepository.GetRegistrationMappings()
+                .Where(r => r.Value.Lifetime is ScopedLifetime).ToArray();
 
             Assert.True(regs.Length > 0);
         }
@@ -148,7 +149,8 @@ namespace Stashbox.Tests
                     context.WithScopedLifetime();
             });
 
-            var regs = container.ContainerContext.RegistrationRepository.GetRegistrationMappings().Where(r => r.Value.RegistrationContext.Lifetime is ScopedLifetime).ToArray();
+            var regs = container.ContainerContext.RegistrationRepository.GetRegistrationMappings()
+                .Where(r => r.Value.Lifetime is ScopedLifetime).ToArray();
 
             Assert.True(regs.Length > 0);
         }

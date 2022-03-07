@@ -15,19 +15,27 @@ namespace Stashbox
         /// <summary>
         /// The parent scope.
         /// </summary>
-        IResolutionScope ParentScope { get; }
+        IResolutionScope? ParentScope { get; }
 
         /// <summary>
         /// The name of the scope, if it's null then it's a regular nameless scope.
         /// </summary>
-        object Name { get; }
+        object? Name { get; }
 
         /// <summary>
-        /// Adds a service for further disposable tracking.
+        /// Adds a service to dispose tracking.
         /// </summary>
         /// <param name="disposable">The <see cref="IDisposable"/> object.</param>
         /// <returns>The <see cref="IDisposable"/> object.</returns>
         object AddDisposableTracking(object disposable);
+
+        /// <summary>
+        /// Adds a service to dispose tracking.
+        /// </summary>
+        /// <param name="disposable">The <see cref="IDisposable"/> object.</param>
+        /// <param name="requestContext">The request context.</param>
+        /// <returns>The <see cref="IDisposable"/> object.</returns>
+        object AddRequestContextAwareDisposableTracking(object disposable, IRequestContext requestContext);
 
         /// <summary>
         /// Adds a service with a cleanup delegate.

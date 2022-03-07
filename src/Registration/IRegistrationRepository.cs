@@ -31,7 +31,7 @@ namespace Stashbox.Registration
         /// <param name="typeInfo">The type info.</param>
         /// <param name="resolutionContext">The resolution context.</param>
         /// <returns>The registration or null, if it doesn't exist.</returns>
-        ServiceRegistration GetRegistrationOrDefault(TypeInformation typeInfo, ResolutionContext resolutionContext);
+        ServiceRegistration? GetRegistrationOrDefault(TypeInformation typeInfo, ResolutionContext resolutionContext);
 
         /// <summary>
         /// Returns all registrations for a type.
@@ -39,7 +39,7 @@ namespace Stashbox.Registration
         /// <param name="typeInfo">The requested type.</param>
         /// <param name="resolutionContext">The resolution context.</param>
         /// <returns>The registrations or null, if it doesn't exist.</returns>
-        IEnumerable<ServiceRegistration> GetRegistrationsOrDefault(TypeInformation typeInfo, ResolutionContext resolutionContext);
+        IEnumerable<ServiceRegistration>? GetRegistrationsOrDefault(TypeInformation typeInfo, ResolutionContext resolutionContext);
 
         /// <summary>
         /// Returns all registration mappings.
@@ -54,6 +54,6 @@ namespace Stashbox.Registration
         /// <param name="name">The requested name.</param>
         /// <param name="includeOpenGenerics">Determines whether open generic registrations should be taken into account when the given type is closed generic.</param>
         /// <returns>True if the registration found, otherwise false.</returns>
-        bool ContainsRegistration(Type type, object name, bool includeOpenGenerics = true);
+        bool ContainsRegistration(Type type, object? name, bool includeOpenGenerics = true);
     }
 }

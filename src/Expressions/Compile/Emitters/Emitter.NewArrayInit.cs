@@ -11,6 +11,7 @@ namespace Stashbox.Expressions.Compile.Emitters
         {
             var type = expression.Type;
             var itemType = type.GetEnumerableType();
+            if (itemType == null) return false;
 
             var length = expression.Expressions.Count;
 

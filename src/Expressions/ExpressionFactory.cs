@@ -21,11 +21,11 @@ namespace Stashbox.Expressions
                 instance = instance.ConvertTo(serviceRegistration.ImplementationType);
 
             var methods = serviceRegistration.ImplementationType.GetUsableMethods();
-            var members = serviceRegistration.ImplementationType.GetUsableMembers(serviceRegistration.RegistrationContext,
+            var members = serviceRegistration.ImplementationType.GetUsableMembers(serviceRegistration,
                 resolutionContext.CurrentContainerContext.ContainerConfiguration);
 
             if (members.Length == 0 && methods.Length == 0 &&
-                serviceRegistration.RegistrationContext.Initializer == null) return instance;
+                serviceRegistration.Initializer == null) return instance;
 
             var variable = instance.Type.AsVariable();
             var assign = variable.AssignTo(instance);
@@ -33,14 +33,14 @@ namespace Stashbox.Expressions
             var lines = new ExpandableArray<Expression> { assign };
 
             lines.AddRange(GetMemberExpressions(members,
-                serviceRegistration.RegistrationContext, resolutionContext, variable));
+                serviceRegistration, resolutionContext, variable));
 
             lines.AddRange(CreateMethodExpressions(methods,
-                serviceRegistration.RegistrationContext, resolutionContext, variable));
+                serviceRegistration, resolutionContext, variable));
 
-            if (serviceRegistration.RegistrationContext.Initializer != null)
-                lines.Add(serviceRegistration.RegistrationContext.Initializer.AsConstant()
-                    .CallMethod(serviceRegistration.RegistrationContext.Initializer.GetType().GetMethod("Invoke"),
+            if (serviceRegistration.Initializer != null)
+                lines.Add(serviceRegistration.Initializer.AsConstant()
+                    .CallMethod(serviceRegistration.Initializer.GetType().GetMethod("Invoke")!,
                         variable, resolutionContext.CurrentScopeParameter));
 
             lines.Add(variable.Type != serviceType ? variable.ConvertTo(serviceType) : variable);
@@ -53,11 +53,11 @@ namespace Stashbox.Expressions
             Expression instance,
             Type serviceType)
         {
-            var registrationContext = RegistrationContext.Empty;
+            var serviceRegistration = ServiceRegistration.Empty;
             var type = instance.Type;
 
             var methods = type.GetUsableMethods();
-            var members = type.GetUsableMembers(registrationContext,
+            var members = type.GetUsableMembers(serviceRegistration,
                 resolutionContext.CurrentContainerContext.ContainerConfiguration);
 
             if (members.Length == 0 && methods.Length == 0) return instance;
@@ -68,28 +68,28 @@ namespace Stashbox.Expressions
             var lines = new ExpandableArray<Expression> { assign };
 
             lines.AddRange(GetMemberExpressions(members,
-                registrationContext, resolutionContext, variable));
+                serviceRegistration, resolutionContext, variable));
 
             lines.AddRange(CreateMethodExpressions(methods,
-                registrationContext, resolutionContext, instance));
+                serviceRegistration, resolutionContext, instance));
 
             lines.Add(variable.Type != serviceType ? variable.ConvertTo(serviceType) : variable);
 
             return lines.AsBlock(variable);
         }
 
-        public static Expression ConstructExpression(
+        public static Expression? ConstructExpression(
             ServiceRegistration serviceRegistration,
             ResolutionContext resolutionContext)
         {
             var constructors = serviceRegistration.ImplementationType.GetConstructors();
             var methods = serviceRegistration.ImplementationType.GetUsableMethods();
-            var members = serviceRegistration.ImplementationType.GetUsableMembers(serviceRegistration.RegistrationContext,
+            var members = serviceRegistration.ImplementationType.GetUsableMembers(serviceRegistration,
                 resolutionContext.CurrentContainerContext.ContainerConfiguration);
 
             var initExpression = CreateInitExpression(
                 serviceRegistration.ImplementationType,
-                serviceRegistration.RegistrationContext,
+                serviceRegistration,
                 resolutionContext,
                 constructors);
             if (initExpression == null)
@@ -97,9 +97,9 @@ namespace Stashbox.Expressions
 
             if (members.Length > 0)
                 initExpression = initExpression.InitMembers(GetMemberBindings(members,
-                    serviceRegistration.RegistrationContext, resolutionContext));
+                    serviceRegistration, resolutionContext));
 
-            if (methods.Length == 0 && serviceRegistration.RegistrationContext.Initializer == null)
+            if (methods.Length == 0 && serviceRegistration.Initializer == null)
                 return initExpression;
 
             var variable = initExpression.Type.AsVariable();
@@ -108,11 +108,11 @@ namespace Stashbox.Expressions
             var lines = new ExpandableArray<Expression> { assign };
 
             lines.AddRange(CreateMethodExpressions(methods,
-                serviceRegistration.RegistrationContext, resolutionContext, variable));
+                serviceRegistration, resolutionContext, variable));
 
-            if (serviceRegistration.RegistrationContext.Initializer != null)
-                lines.Add(serviceRegistration.RegistrationContext.Initializer.AsConstant()
-                    .CallMethod(serviceRegistration.RegistrationContext.Initializer.GetType().GetMethod("Invoke"),
+            if (serviceRegistration.Initializer != null)
+                lines.Add(serviceRegistration.Initializer.AsConstant()
+                    .CallMethod(serviceRegistration.Initializer.GetType().GetMethod("Invoke")!,
                         variable, resolutionContext.CurrentScopeParameter));
 
             lines.Add(variable);
@@ -120,25 +120,28 @@ namespace Stashbox.Expressions
             return lines.AsBlock(variable);
         }
 
-        public static Expression ConstructExpression(
+        public static Expression? ConstructExpression(
             ResolutionContext resolutionContext,
             Type serviceType)
         {
-            var registrationContext = RegistrationContext.Empty;
+            var serviceRegistration = ServiceRegistration.Empty;
             var methods = serviceType.GetUsableMethods();
-            var members = serviceType.GetUsableMembers(registrationContext,
+            var members = serviceType.GetUsableMembers(serviceRegistration,
                 resolutionContext.CurrentContainerContext.ContainerConfiguration);
 
-            var initExpression = (Expression)SelectConstructor(
+            var initExpression = SelectConstructor(
                 serviceType,
-                registrationContext,
+                serviceRegistration,
                 resolutionContext,
                 serviceType.GetConstructors(),
-                out var parameters).MakeNew(parameters);
+                out var parameters)?.MakeNew(parameters) as Expression;
+
+            if (initExpression == null)
+                return null;
 
             if (members.Length > 0)
                 initExpression = initExpression.InitMembers(GetMemberBindings(members,
-                    registrationContext, resolutionContext));
+                    serviceRegistration, resolutionContext));
 
             if (methods.Length == 0) return initExpression;
 
@@ -146,35 +149,35 @@ namespace Stashbox.Expressions
             var assign = variable.AssignTo(initExpression);
 
             var lines = new ExpandableArray<Expression> { assign };
-            lines.AddRange(CreateMethodExpressions(methods, registrationContext, resolutionContext, variable));
+            lines.AddRange(CreateMethodExpressions(methods, serviceRegistration, resolutionContext, variable));
             lines.Add(variable);
 
             return lines.AsBlock(variable);
         }
 
-        private static Expression CreateInitExpression(
+        private static Expression? CreateInitExpression(
             Type typeToConstruct,
-            RegistrationContext registrationContext,
+            ServiceRegistration serviceRegistration,
             ResolutionContext resolutionContext,
             IEnumerable<ConstructorInfo> constructors)
         {
-            if (registrationContext.SelectedConstructor != null)
+            if (serviceRegistration.SelectedConstructor != null)
             {
-                if (registrationContext.ConstructorArguments != null)
-                    return registrationContext.SelectedConstructor
-                        .MakeNew(registrationContext.ConstructorArguments.Select(Expression.Constant));
+                if (serviceRegistration.ConstructorArguments != null)
+                    return serviceRegistration.SelectedConstructor
+                        .MakeNew(serviceRegistration.ConstructorArguments.Select(Expression.Constant));
 
-                return registrationContext.SelectedConstructor.MakeNew(
+                return serviceRegistration.SelectedConstructor.MakeNew(
                     CreateParameterExpressionsForMethod(
-                        registrationContext,
-                        resolutionContext, registrationContext.SelectedConstructor));
+                        serviceRegistration,
+                        resolutionContext, serviceRegistration.SelectedConstructor));
             }
 
-            var rule = registrationContext.ConstructorSelectionRule ??
+            var rule = serviceRegistration.ConstructorSelectionRule ??
                        resolutionContext.CurrentContainerContext.ContainerConfiguration.ConstructorSelectionRule;
             constructors = rule(constructors);
 
-            return SelectConstructor(typeToConstruct, registrationContext, resolutionContext,
+            return SelectConstructor(typeToConstruct, serviceRegistration, resolutionContext,
                 constructors, out var parameters)?.MakeNew(parameters);
         }
     }

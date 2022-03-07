@@ -5,20 +5,19 @@ namespace Stashbox.Configuration
 {
     public static class ContainerConfiguratorExtensions
     {
-        public static void WithCompiler(this ContainerConfigurator configurator, CompilerType compilerType)
+        public static ContainerConfigurator WithCompiler(this ContainerConfigurator configurator, CompilerType compilerType)
         {
             switch (compilerType)
             {
                 case CompilerType.Microsoft:
-                    configurator.WithExpressionCompiler(Rules.ExpressionCompilers.MicrosoftExpressionCompiler);
-                    break;
+                    return configurator.WithExpressionCompiler(Rules.ExpressionCompilers.MicrosoftExpressionCompiler);
                 case CompilerType.Stashbox:
-                    configurator.WithExpressionCompiler(Rules.ExpressionCompilers.StashboxExpressionCompiler);
-                    break;
+                    return configurator.WithExpressionCompiler(Rules.ExpressionCompilers.StashboxExpressionCompiler);
                 case CompilerType.FastExpressionCompiler:
-                    configurator.WithExpressionCompiler(lambda => lambda.CompileFast());
-                    break;
+                    return configurator.WithExpressionCompiler(lambda => lambda.CompileFast());
             }
+
+            return configurator;
         }
     }
 }

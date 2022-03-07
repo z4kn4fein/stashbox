@@ -18,6 +18,7 @@ namespace Stashbox.Benchmarks
             //BenchmarkRunner.Run<NullableBenchmarks>();
             //BenchmarkRunner.Run<BeginScopeBenchmarks>();
             //BenchmarkRunner.Run<SingletonBenchmarks>();
+            //BenchmarkRunner.Run<DecoratorBenchmarks>();
             Console.ReadKey();
         }
     }

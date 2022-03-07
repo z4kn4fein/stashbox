@@ -238,7 +238,7 @@ namespace Stashbox.Tests
 
             Assert.Single(regs);
             Assert.Equal(typeof(Test1), regs[0].Key);
-            Assert.True(regs[0].Value.RegistrationContext.Lifetime is SingletonLifetime);
+            Assert.True(regs[0].Value.Lifetime is SingletonLifetime);
         }
 
         [Fact]
@@ -515,8 +515,10 @@ namespace Stashbox.Tests
             Assert.Throws<ObjectDisposedException>(() => container.ReMap<ITest1, Test1>());
             Assert.Throws<ObjectDisposedException>(() => container.ReMapDecorator(this.GetType(), this.GetType()));
             Assert.Throws<ObjectDisposedException>(() => container.Resolve(this.GetType()));
+            Assert.Throws<ObjectDisposedException>(() => container.ResolveOrDefault(this.GetType()));
             Assert.Throws<ObjectDisposedException>(() => container.ResolveAll(this.GetType()));
             Assert.Throws<ObjectDisposedException>(() => container.ResolveFactory(this.GetType()));
+            Assert.Throws<ObjectDisposedException>(() => container.ResolveFactoryOrDefault(this.GetType()));
             Assert.Throws<ObjectDisposedException>(() => container.Validate());
             Assert.Throws<ObjectDisposedException>(() => container.WireUp(new object()));
             Assert.ThrowsAsync<ObjectDisposedException>(async () => await container.InvokeAsyncInitializers());

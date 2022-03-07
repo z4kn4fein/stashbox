@@ -19,8 +19,8 @@ namespace Stashbox
         /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
         IStashboxContainer RegisterTypesAs(Type typeFrom,
             IEnumerable<Type> types,
-            Func<Type, bool> selector = null,
-            Action<RegistrationConfigurator> configurator = null);
+            Func<Type, bool>? selector = null,
+            Action<RegistrationConfigurator>? configurator = null);
 
         /// <summary>
         /// Registers a collection of types into the container.
@@ -32,10 +32,10 @@ namespace Stashbox
         /// <param name="configurator">The configurator for the registered types.</param>
         /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
         IStashboxContainer RegisterTypes(IEnumerable<Type> types,
-            Func<Type, bool> selector = null,
-            Func<Type, Type, bool> serviceTypeSelector = null,
+            Func<Type, bool>? selector = null,
+            Func<Type, Type, bool>? serviceTypeSelector = null,
             bool registerSelf = true,
-            Action<RegistrationConfigurator> configurator = null);
+            Action<RegistrationConfigurator>? configurator = null);
 
         /// <summary>
         /// Composes services by calling the <see cref="ICompositionRoot.Compose"/> method of the given root.

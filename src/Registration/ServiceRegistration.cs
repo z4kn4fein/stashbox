@@ -1,9 +1,13 @@
-﻿using Stashbox.Configuration;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
+using Stashbox.Configuration;
 using Stashbox.Lifetime;
 using Stashbox.Resolution;
-using System;
-using System.Linq;
-using System.Threading;
+using Stashbox.Utils.Data;
 
 namespace Stashbox.Registration
 {
@@ -12,24 +16,11 @@ namespace Stashbox.Registration
     /// </summary>
     public class ServiceRegistration
     {
-        private static int globalRegistrationId;
+        internal static readonly ServiceRegistration Empty = new();
 
-        private static int globalRegistrationOrder;
+        private static int GlobalRegistrationId;
 
-        /// <summary>
-        /// The implementation type.
-        /// </summary>
-        public Type ImplementationType { get; }
-
-        /// <summary>
-        /// The registration context.
-        /// </summary>
-        public RegistrationContext RegistrationContext { get; }
-
-        /// <summary>
-        /// The registration id.
-        /// </summary>
-        public int RegistrationId { get; }
+        private static int GlobalRegistrationOrder;
 
         /// <summary>
         /// The registration order indicator.
@@ -37,47 +28,172 @@ namespace Stashbox.Registration
         public int RegistrationOrder { get; private set; }
 
         /// <summary>
-        /// True if the registration is a decorator.
+        /// The implementation type.
         /// </summary>
-        public bool IsDecorator { get; }
+        public readonly Type ImplementationType;
 
         /// <summary>
-        /// Represents the nature of the registration.
+        /// The registration id.
         /// </summary>
-        public RegistrationType RegistrationType { get; }
+        public readonly int RegistrationId;
 
+        /// <summary>
+        /// True if the registration is a decorator.
+        /// </summary>
+        public readonly bool IsDecorator;
+
+        /// <summary>
+        /// Name of the registration.
+        /// </summary>
+        public readonly object? Name;
+
+        /// <summary>
+        /// The selected constructor if any was set.
+        /// </summary>
+        public readonly ConstructorInfo? SelectedConstructor;
+
+        /// <summary>
+        /// The arguments of the selected constructor if any was set.
+        /// </summary>
+        public readonly object[]? ConstructorArguments;
+
+        /// <summary>
+        /// Lifetime of the registration.
+        /// </summary>
+        public readonly LifetimeDescriptor Lifetime;
+
+        /// <summary>
+        /// Dependency names or types that are bound to named registrations.
+        /// </summary>
+        public readonly Dictionary<object, object?>? DependencyBindings;
+        /// <summary>
+        /// The cleanup delegate.
+        /// </summary>
+        public readonly Action<object>? Finalizer;
+
+        /// <summary>
+        /// The initializer delegate.
+        /// </summary>
+        public readonly Delegate? Initializer;
+
+        /// <summary>
+        /// The async initializer delegate.
+        /// </summary>
+        public readonly Func<object, IDependencyResolver, CancellationToken, Task>? AsyncInitializer;
+
+        /// <summary>
+        /// The auto member injection rule for the registration.
+        /// </summary>
+        public readonly Rules.AutoMemberInjectionRules AutoMemberInjectionRule;
+
+        /// <summary>
+        /// True if auto member injection is enabled on this instance.
+        /// </summary>
+        public readonly bool AutoMemberInjectionEnabled;
+
+        /// <summary>
+        /// True if the lifetime of the service is owned externally.
+        /// </summary>
+        public readonly bool IsLifetimeExternallyOwned;
+
+        /// <summary>
+        /// The name of the scope this registration defines.
+        /// </summary>
+        public readonly object? DefinedScopeName;
+
+        /// <summary>
+        /// The constructor selection rule.
+        /// </summary>
+        public readonly Func<IEnumerable<ConstructorInfo>, IEnumerable<ConstructorInfo>>? ConstructorSelectionRule;
+
+        /// <summary>
+        /// A filter delegate used to determine which members should be auto injected and which are not.
+        /// </summary>
+        public readonly Func<MemberInfo, bool>? AutoMemberInjectionFilter;
+
+        /// <summary>
+        /// The additional metadata.
+        /// </summary>
+        public readonly object? Metadata;
+
+        internal readonly bool ReplaceExistingRegistration;
+        internal readonly bool ReplaceExistingRegistrationOnlyIfExists;
+        internal readonly ExpandableArray<Type>? AdditionalServiceTypes;
+        internal readonly ExpandableArray<KeyValuePair<string, object?>>? InjectionParameters;
         internal readonly bool HasScopeName;
-
-        internal readonly object NamedScopeRestrictionIdentifier;
-
+        internal readonly object? NamedScopeRestrictionIdentifier;
         internal readonly bool HasCondition;
-
         internal readonly object RegistrationDiscriminator;
 
-        internal ServiceRegistration(Type implementationType, RegistrationType registrationType,
-            Rules.RegistrationBehavior currentRegistrationBehavior, RegistrationContext registrationContext, bool isDecorator)
+        private readonly ExpandableArray<Type>? targetTypeConditions;
+        private readonly ExpandableArray<Func<TypeInformation, bool>>? resolutionConditions;
+        private readonly ExpandableArray<Type>? attributeConditions;
+
+        private ServiceRegistration()
         {
-            this.ImplementationType = implementationType;
-            this.RegistrationContext = registrationContext;
-            this.IsDecorator = isDecorator;
-            this.RegistrationType = registrationType;
-
-            if (this.RegistrationContext.Lifetime is NamedScopeLifetime lifetime)
-            {
-                this.HasScopeName = true;
-                this.NamedScopeRestrictionIdentifier = lifetime.ScopeName;
-            }
-
-            this.HasCondition = this.RegistrationContext.TargetTypeConditions != null ||
-                this.RegistrationContext.ResolutionConditions != null ||
-                this.RegistrationContext.AttributeConditions != null;
-
-            this.RegistrationId = ReserveRegistrationId();
-            this.RegistrationOrder = ReserveRegistrationOrder();
-            this.RegistrationDiscriminator = currentRegistrationBehavior == Rules.RegistrationBehavior.PreserveDuplications
-                    ? this.RegistrationId
-                    : this.RegistrationContext.Name ?? implementationType;
+            this.RegistrationDiscriminator = new object();
+            this.Lifetime = Lifetimes.Transient;
+            this.ImplementationType = this.GetType();
+            this.ConstructorSelectionRule = Rules.ConstructorSelection.PreferMostParameters;
         }
+
+        internal ServiceRegistration(Type implementationType, RegistrationContext registrationContext, 
+            ContainerConfiguration containerConfiguration, bool isDecorator)
+            : this(implementationType,
+                containerConfiguration.RegistrationBehavior,
+                isDecorator,
+                registrationContext.Name,
+                registrationContext.SelectedConstructor,
+                registrationContext.ConstructorArguments,
+                registrationContext.Lifetime ?? containerConfiguration.DefaultLifetime,
+                registrationContext.DependencyBindings,
+                registrationContext.Finalizer,
+                registrationContext.Initializer,
+                registrationContext.AsyncInitializer,
+                registrationContext.AutoMemberInjectionRule,
+                registrationContext.AutoMemberInjectionEnabled,
+                registrationContext.IsLifetimeExternallyOwned,
+                registrationContext.DefinedScopeName,
+                registrationContext.ConstructorSelectionRule,
+                registrationContext.AutoMemberInjectionFilter,
+                registrationContext.Metadata,
+                registrationContext.TargetTypeConditions,
+                registrationContext.ResolutionConditions,
+                registrationContext.AttributeConditions,
+                registrationContext.ReplaceExistingRegistration,
+                registrationContext.ReplaceExistingRegistrationOnlyIfExists,
+                registrationContext.AdditionalServiceTypes,
+                registrationContext.InjectionParameters)
+        { }
+
+        internal ServiceRegistration(Type implementationType, object? name,
+            ContainerConfiguration containerConfiguration, ServiceRegistration baseRegistration)
+            : this(implementationType,
+                containerConfiguration.RegistrationBehavior,
+                baseRegistration.IsDecorator,
+                name,
+                baseRegistration.SelectedConstructor,
+                baseRegistration.ConstructorArguments,
+                baseRegistration.Lifetime,
+                baseRegistration.DependencyBindings,
+                baseRegistration.Finalizer,
+                baseRegistration.Initializer,
+                baseRegistration.AsyncInitializer,
+                baseRegistration.AutoMemberInjectionRule,
+                baseRegistration.AutoMemberInjectionEnabled,
+                baseRegistration.IsLifetimeExternallyOwned,
+                baseRegistration.DefinedScopeName,
+                baseRegistration.ConstructorSelectionRule,
+                baseRegistration.AutoMemberInjectionFilter,
+                baseRegistration.Metadata,
+                baseRegistration.targetTypeConditions,
+                baseRegistration.resolutionConditions,
+                baseRegistration.attributeConditions,
+                baseRegistration.ReplaceExistingRegistration,
+                baseRegistration.ReplaceExistingRegistrationOnlyIfExists,
+                baseRegistration.AdditionalServiceTypes,
+                baseRegistration.InjectionParameters)
+        { }
 
         internal bool IsUsableForCurrentContext(TypeInformation typeInfo) =>
             this.HasParentTypeConditionAndMatch(typeInfo) ||
@@ -88,24 +204,24 @@ namespace Stashbox.Registration
             this.RegistrationOrder = serviceRegistration.RegistrationOrder;
 
         private bool HasParentTypeConditionAndMatch(TypeInformation typeInfo) =>
-            this.RegistrationContext.TargetTypeConditions != null && 
-            typeInfo.ParentType != null && 
-            this.RegistrationContext.TargetTypeConditions.Contains(typeInfo.ParentType);
+            this.targetTypeConditions != null &&
+            typeInfo.ParentType != null &&
+            this.targetTypeConditions.Contains(typeInfo.ParentType);
 
         private bool HasAttributeConditionAndMatch(TypeInformation typeInfo) =>
-            this.RegistrationContext.AttributeConditions != null && 
+            this.attributeConditions != null &&
             typeInfo.CustomAttributes != null &&
-            this.RegistrationContext.AttributeConditions.Intersect(typeInfo.CustomAttributes.Select(attribute => attribute.GetType())).Any();
+            this.attributeConditions.Intersect(typeInfo.CustomAttributes.Select(attribute => attribute.GetType())).Any();
 
         private bool HasResolutionConditionAndMatch(TypeInformation typeInfo)
         {
-            if (this.RegistrationContext.ResolutionConditions == null)
+            if (this.resolutionConditions == null)
                 return false;
 
-            var length = this.RegistrationContext.ResolutionConditions.Length;
+            var length = this.resolutionConditions.Length;
             for (var i = 0; i < length; i++)
             {
-                if (this.RegistrationContext.ResolutionConditions[i](typeInfo))
+                if (this.resolutionConditions[i](typeInfo))
                     return true;
             }
 
@@ -113,9 +229,78 @@ namespace Stashbox.Registration
         }
 
         private static int ReserveRegistrationId() =>
-            Interlocked.Increment(ref globalRegistrationId);
+            Interlocked.Increment(ref GlobalRegistrationId);
 
         private static int ReserveRegistrationOrder() =>
-            Interlocked.Increment(ref globalRegistrationOrder);
+            Interlocked.Increment(ref GlobalRegistrationOrder);
+
+        private ServiceRegistration(
+            Type implementationType,
+            Rules.RegistrationBehavior currentRegistrationBehavior,
+            bool isDecorator,
+            object? name,
+            ConstructorInfo? selectedConstructor,
+            object[]? constructorArguments,
+            LifetimeDescriptor lifetime,
+            Dictionary<object, object?>? dependencyBindings,
+            Action<object>? finalizer,
+            Delegate? initializer,
+            Func<object, IDependencyResolver, CancellationToken, Task>? asyncInitializer,
+            Rules.AutoMemberInjectionRules autoMemberInjectionRule,
+            bool autoMemberInjectionEnabled,
+            bool isLifetimeExternallyOwned,
+            object? definedScopeName,
+            Func<IEnumerable<ConstructorInfo>, IEnumerable<ConstructorInfo>>? constructorSelectionRule,
+            Func<MemberInfo, bool>? autoMemberInjectionFilter,
+            object? metadata,
+            ExpandableArray<Type>? targetTypeConditions,
+            ExpandableArray<Func<TypeInformation, bool>>? resolutionConditions,
+            ExpandableArray<Type>? attributeConditions,
+            bool replaceExistingRegistration,
+            bool replaceExistingRegistrationOnlyIfExists,
+            ExpandableArray<Type>? additionalServiceTypes,
+            ExpandableArray<KeyValuePair<string, object?>>? injectionParameters)
+        {
+            this.ImplementationType = implementationType;
+            this.IsDecorator = isDecorator;
+            this.Name = name;
+            this.SelectedConstructor = selectedConstructor;
+            this.ConstructorArguments = constructorArguments;
+            this.Lifetime = lifetime;
+            this.DependencyBindings = dependencyBindings;
+            this.Finalizer = finalizer;
+            this.Initializer = initializer;
+            this.AsyncInitializer = asyncInitializer;
+            this.AutoMemberInjectionRule = autoMemberInjectionRule;
+            this.AutoMemberInjectionEnabled = autoMemberInjectionEnabled;
+            this.IsLifetimeExternallyOwned = isLifetimeExternallyOwned;
+            this.DefinedScopeName = definedScopeName;
+            this.ConstructorSelectionRule = constructorSelectionRule;
+            this.AutoMemberInjectionFilter = autoMemberInjectionFilter;
+            this.Metadata = metadata;
+            this.targetTypeConditions = targetTypeConditions;
+            this.resolutionConditions = resolutionConditions;
+            this.attributeConditions = attributeConditions;
+            this.ReplaceExistingRegistration = replaceExistingRegistration;
+            this.ReplaceExistingRegistrationOnlyIfExists = replaceExistingRegistrationOnlyIfExists;
+            this.AdditionalServiceTypes = additionalServiceTypes;
+            this.InjectionParameters = injectionParameters;
+
+            if (lifetime is NamedScopeLifetime namedScopeLifetime)
+            {
+                this.HasScopeName = true;
+                this.NamedScopeRestrictionIdentifier = namedScopeLifetime.ScopeName;
+            }
+
+            this.HasCondition = targetTypeConditions != null ||
+                                resolutionConditions != null ||
+                                attributeConditions != null;
+
+            this.RegistrationId = ReserveRegistrationId();
+            this.RegistrationOrder = ReserveRegistrationOrder();
+            this.RegistrationDiscriminator = currentRegistrationBehavior == Rules.RegistrationBehavior.PreserveDuplications
+                ? this.RegistrationId
+                : name ?? implementationType;
+        }
     }
 }

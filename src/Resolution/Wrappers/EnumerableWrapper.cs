@@ -17,7 +17,7 @@ namespace Stashbox.Resolution.Wrappers
             var enumerableType = typeInformation.Type.GetEnumerableType();
             if (enumerableType == null)
             {
-                unWrappedType = null;
+                unWrappedType = default;
                 return false;
             }
 

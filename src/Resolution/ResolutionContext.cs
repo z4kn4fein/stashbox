@@ -1,6 +1,7 @@
 ﻿using Stashbox.Registration;
 using Stashbox.Utils;
 using Stashbox.Utils.Data;
+using Stashbox.Utils.Data.Immutable;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,81 +21,134 @@ namespace Stashbox.Resolution
             public bool FactoryDelegateCacheEnabled { get; set; }
         }
 
-        private Tree<Expression> expressionCache;
-        private readonly Tree<Func<IResolutionScope, IRequestContext, object>> factoryCache;
-        private readonly HashTree<object, ConstantExpression> expressionOverrides;
-        private readonly Utils.Data.Stack<int> circularDependencyBarrier;
+        private readonly Tree<Expression> expressionCache;
 
-        internal ExpandableArray<Expression> SingleInstructions { get; private set; }
-        internal Tree<ParameterExpression> DefinedVariables { get; private set; }
-        internal ExpandableArray<Pair<bool, ParameterExpression>[]> ParameterExpressions { get; private set; }
-        internal ExpandableArray<Type, Utils.Data.Stack<ServiceRegistration>> RemainingDecorators { get; private set; }
-        internal ExpandableArray<ServiceRegistration> CurrentDecorators { get; private set; }
-        internal int CurrentLifeSpan { get; private set; }
-        internal string NameOfServiceLifeSpanValidatingAgainst { get; private set; }
-        internal bool PerResolutionRequestCacheEnabled { get; private set; }
-        internal bool UnknownTypeCheckDisabled { get; private set; }
-        internal bool ShouldFallBackToRequestInitiatorContext { get; private set; }
-        internal bool IsTopRequest { get; private set; }
-
-        internal Utils.Data.Stack<object> ScopeNames { get; }
-        internal IContainerContext RequestInitiatorContainerContext { get; }
-        internal PerRequestConfiguration RequestConfiguration { get; }
+        internal readonly Utils.Data.Stack<object> ScopeNames;
+        internal readonly PerRequestConfiguration RequestConfiguration;
+        internal readonly IContainerContext RequestInitiatorContainerContext;
+        internal readonly Utils.Data.Stack<int> CircularDependencyBarrier;
+        internal readonly Tree<Func<IResolutionScope, IRequestContext, object>> FactoryCache;
+        internal readonly HashTree<object, ConstantExpression>? ExpressionOverrides;
+        internal readonly ExpandableArray<Expression> SingleInstructions;
+        internal readonly Tree<ParameterExpression> DefinedVariables;
+        internal readonly ExpandableArray<Pair<bool, ParameterExpression>[]> ParameterExpressions;
+        internal readonly ExpandableArray<Type, Utils.Data.Stack<ServiceRegistration>> RemainingDecorators;
+        internal readonly ExpandableArray<ServiceRegistration> CurrentDecorators;
+        internal readonly int CurrentLifeSpan;
+        internal readonly string? NameOfServiceLifeSpanValidatingAgainst;
+        internal readonly bool PerResolutionRequestCacheEnabled;
+        internal readonly bool UnknownTypeCheckDisabled;
+        internal readonly bool ShouldFallBackToRequestInitiatorContext;
+        internal readonly bool IsTopRequest;
 
         /// <summary>
         /// True if null result is allowed, otherwise false.
         /// </summary>
-        public bool NullResultAllowed { get; }
+        public readonly bool NullResultAllowed;
 
         /// <summary>
         /// When it's true, it indicates that the current resolution request was made from the root scope.
         /// </summary>
-        public bool IsRequestedFromRoot { get; }
+        public readonly bool IsRequestedFromRoot;
 
         /// <summary>
         /// The currently resolving scope.
         /// </summary>
-        public ParameterExpression CurrentScopeParameter { get; private set; }
+        public readonly ParameterExpression RequestContextParameter;
 
         /// <summary>
         /// The currently resolving scope.
         /// </summary>
-        public ParameterExpression RequestContextParameter { get; private set; }
+        public readonly ParameterExpression CurrentScopeParameter;
 
         /// <summary>
         /// The context of the current container instance.
         /// </summary>
-        public IContainerContext CurrentContainerContext { get; private set; }
+        public readonly IContainerContext CurrentContainerContext;
 
         private ResolutionContext(IEnumerable<object> initialScopeNames,
             IContainerContext currentContainerContext,
             bool isTopLevel,
             bool isRequestedFromRoot,
             bool nullResultAllowed,
-            HashTree<object, ConstantExpression> dependencyOverrides,
-            ParameterExpression[] initialParameters)
+            object[]? dependencyOverrides,
+            ImmutableTree<object, object>? knownInstances,
+            ParameterExpression[]? initialParameters)
         {
             this.RequestConfiguration = new PerRequestConfiguration();
-            this.IsTopRequest = isTopLevel;
             this.DefinedVariables = new Tree<ParameterExpression>();
             this.SingleInstructions = new ExpandableArray<Expression>();
             this.RemainingDecorators = new ExpandableArray<Type, Utils.Data.Stack<ServiceRegistration>>();
             this.CurrentDecorators = new ExpandableArray<ServiceRegistration>();
-            this.expressionOverrides = dependencyOverrides;
+            this.CircularDependencyBarrier = new Utils.Data.Stack<int>();
+            this.expressionCache = new Tree<Expression>();
+            this.FactoryCache = new Tree<Func<IResolutionScope, IRequestContext, object>>();
             this.NullResultAllowed = nullResultAllowed;
+            this.IsRequestedFromRoot = isRequestedFromRoot;
+            this.IsTopRequest = isTopLevel;
+            this.ScopeNames = initialScopeNames.AsStack();
             this.CurrentScopeParameter = Constants.ResolutionScopeParameter;
             this.RequestContextParameter = Constants.RequestContextParameter;
+            this.CurrentContainerContext = this.RequestInitiatorContainerContext = currentContainerContext;
+            this.RequestConfiguration.FactoryDelegateCacheEnabled = this.PerResolutionRequestCacheEnabled = dependencyOverrides == null;
+
+            this.ExpressionOverrides = dependencyOverrides == null && (knownInstances == null || knownInstances.IsEmpty)
+                ? null
+                : ProcessDependencyOverrides(dependencyOverrides, knownInstances);
+
             this.ParameterExpressions = initialParameters != null
                 ? new ExpandableArray<Pair<bool, ParameterExpression>[]>()
                     {initialParameters.AsParameterPairs()}
                 : new ExpandableArray<Pair<bool, ParameterExpression>[]>();
-            this.ScopeNames = initialScopeNames.AsStack();
-            this.circularDependencyBarrier = new Utils.Data.Stack<int>();
-            this.expressionCache = new Tree<Expression>();
-            this.factoryCache = new Tree<Func<IResolutionScope, IRequestContext, object>>();
+        }
+
+        private ResolutionContext(PerRequestConfiguration perRequestConfiguration,
+            Tree<ParameterExpression> definedVariables,
+            ExpandableArray<Expression> singleInstructions,
+            ExpandableArray<Type, Utils.Data.Stack<ServiceRegistration>> remainingDecorators,
+            ExpandableArray<ServiceRegistration> currentDecorators,
+            Utils.Data.Stack<int> circularDependencyBarrier,
+            Tree<Expression> cachedExpressions,
+            Tree<Func<IResolutionScope, IRequestContext, object>> factoryCache,
+            Utils.Data.Stack<object> scopeNames,
+            ParameterExpression currentScopeParameter,
+            ParameterExpression requestContextParameter,
+            IContainerContext currentContainerContext,
+            IContainerContext requestInitiatorContainerContext,
+            HashTree<object, ConstantExpression>? expressionOverrides,
+            ExpandableArray<Pair<bool, ParameterExpression>[]> parameterExpressions,
+            bool nullResultAllowed,
+            bool isRequestedFromRoot,
+            bool isTopLevel,
+            string? nameOfServiceLifeSpanValidatingAgainst,
+            int currentLifeSpan,
+            bool perResolutionRequestCacheEnabled,
+            bool unknownTypeCheckDisabled,
+            bool shouldFallBackToRequestInitiatorContext)
+        {
+            this.RequestConfiguration = perRequestConfiguration;
+            this.DefinedVariables = definedVariables;
+            this.SingleInstructions = singleInstructions;
+            this.RemainingDecorators = remainingDecorators;
+            this.CurrentDecorators = currentDecorators;
+            this.CircularDependencyBarrier = circularDependencyBarrier;
+            this.expressionCache = cachedExpressions;
+            this.FactoryCache = factoryCache;
+            this.NullResultAllowed = nullResultAllowed;
             this.IsRequestedFromRoot = isRequestedFromRoot;
-            this.CurrentContainerContext = this.RequestInitiatorContainerContext = currentContainerContext;
-            this.RequestConfiguration.FactoryDelegateCacheEnabled = this.PerResolutionRequestCacheEnabled = dependencyOverrides == null;
+            this.IsTopRequest = isTopLevel;
+            this.ScopeNames = scopeNames;
+            this.CurrentScopeParameter = currentScopeParameter;
+            this.RequestContextParameter = requestContextParameter;
+            this.CurrentContainerContext = currentContainerContext;
+            this.RequestInitiatorContainerContext = requestInitiatorContainerContext;
+            this.ExpressionOverrides = expressionOverrides;
+            this.ParameterExpressions = parameterExpressions;
+            this.NameOfServiceLifeSpanValidatingAgainst = nameOfServiceLifeSpanValidatingAgainst;
+            this.CurrentLifeSpan = currentLifeSpan;
+            this.PerResolutionRequestCacheEnabled = perResolutionRequestCacheEnabled;
+            this.UnknownTypeCheckDisabled = unknownTypeCheckDisabled;
+            this.ShouldFallBackToRequestInitiatorContext = shouldFallBackToRequestInitiatorContext;
         }
 
         /// <summary>
@@ -124,138 +178,154 @@ namespace Stashbox.Resolution
         /// </summary>
         /// <param name="key">The key of the variable.</param>
         /// <returns>The variable.</returns>
-        public ParameterExpression GetKnownVariableOrDefault(int key) =>
+        public ParameterExpression? GetKnownVariableOrDefault(int key) =>
              this.DefinedVariables.GetOrDefault(key);
 
         internal void CacheExpression(int key, Expression expression) =>
             this.expressionCache.Add(key, expression);
 
-        internal Expression GetCachedExpression(int key) =>
+        internal Expression? GetCachedExpression(int key) =>
             this.expressionCache.GetOrDefault(key);
-
-        internal void CacheFactory(int key, Func<IResolutionScope, IRequestContext, object> factory) =>
-            this.factoryCache.Add(key, factory);
-
-        internal Func<IResolutionScope, IRequestContext, object> GetCachedFactory(int key) =>
-            this.factoryCache.GetOrDefault(key);
-
-        internal ConstantExpression GetExpressionOverrideOrDefault(Type type, object name = null) =>
-            this.expressionOverrides?.GetOrDefaultByValue(name ?? type);
-
-        internal bool WeAreInCircle(int key) =>
-            this.circularDependencyBarrier.Contains(key);
-
-        internal void PullOutCircularDependencyBarrier(int key) =>
-            this.circularDependencyBarrier.Add(key);
-
-        internal void LetDownCircularDependencyBarrier() =>
-            this.circularDependencyBarrier.Pop();
 
         internal static ResolutionContext BeginTopLevelContext(
             IEnumerable<object> initialScopeNames,
             IContainerContext currentContainerContext,
             bool isRequestedFromRoot,
-            HashTree<object, ConstantExpression> dependencyOverrides = null,
-            ParameterExpression[] initialParameters = null) =>
+            object[]? dependencyOverrides = null,
+            ImmutableTree<object, object>? knownInstances = null,
+            ParameterExpression[]? initialParameters = null) =>
             new(initialScopeNames,
                 currentContainerContext,
                 true,
                 isRequestedFromRoot,
                 false,
                 dependencyOverrides,
+                knownInstances,
                 initialParameters);
 
         internal static ResolutionContext BeginNullableTopLevelContext(
             IEnumerable<object> initialScopeNames,
             IContainerContext currentContainerContext,
             bool isRequestedFromRoot,
-            HashTree<object, ConstantExpression> dependencyOverrides = null,
-            ParameterExpression[] initialParameters = null) =>
+            object[]? dependencyOverrides = null,
+            ImmutableTree<object, object>? knownInstances = null,
+            ParameterExpression[]? initialParameters = null) =>
             new(initialScopeNames,
                 currentContainerContext,
                 true,
                 isRequestedFromRoot,
                 true,
                 dependencyOverrides,
+                knownInstances,
                 initialParameters);
 
         internal static ResolutionContext BeginValidationContext(IContainerContext currentContainerContext) =>
-            new(Constants.EmptyArray<object>(), currentContainerContext, true, false, false, null, null);
+            new(Constants.EmptyArray<object>(), currentContainerContext, true, false, false, null, null, null);
 
-        internal ResolutionContext BeginSubDependencyContext()
-        {
-            if (!this.IsTopRequest)
-                return this;
+        internal ResolutionContext BeginSubDependencyContext() => !this.IsTopRequest ? this : this.Clone(isTopRequest: false);
 
-            var clone = this.Clone();
-            clone.IsTopRequest = false;
-            return clone;
-        }
-
-        internal ResolutionContext BeginCrossContainerContext(IContainerContext currentContainerContext)
-        {
-            var clone = this.Clone();
-            clone.CurrentContainerContext = currentContainerContext;
-            clone.ShouldFallBackToRequestInitiatorContext = clone.RequestInitiatorContainerContext != currentContainerContext;
-            return clone;
-        }
+        internal ResolutionContext BeginCrossContainerContext(IContainerContext currentContainerContext) =>
+            this.Clone(currentContainerContext: currentContainerContext,
+                shouldFallBackToRequestInitiatorContext: this.RequestInitiatorContainerContext != currentContainerContext);
 
         internal ResolutionContext BeginNewScopeContext(ReadOnlyKeyValue<object, ParameterExpression> scopeParameter)
         {
             this.ScopeNames.PushBack(scopeParameter.Key);
-            var clone = this.BeginSubGraph();
-            clone.CurrentScopeParameter = scopeParameter.Value;
-            return clone;
+            return this.Clone(definedVariables: new Tree<ParameterExpression>(),
+                singleInstructions: new ExpandableArray<Expression>(),
+                cachedExpressions: new Tree<Expression>(),
+                scopeNames: this.ScopeNames,
+                currentScopeParameter: scopeParameter.Value);
         }
 
-        internal ResolutionContext BeginSubGraph()
-        {
-            var clone = this.Clone();
-            clone.DefinedVariables = new Tree<ParameterExpression>();
-            clone.SingleInstructions = new ExpandableArray<Expression>();
-            clone.expressionCache = new Tree<Expression>();
-            return clone;
-        }
+        internal ResolutionContext BeginSubGraph() =>
+            this.Clone(definedVariables: new Tree<ParameterExpression>(),
+                singleInstructions: new ExpandableArray<Expression>(),
+                cachedExpressions: new Tree<Expression>());
 
-        internal ResolutionContext BeginUnknownTypeCheckDisabledContext()
-        {
-            if (this.UnknownTypeCheckDisabled)
-                return this;
+        internal ResolutionContext BeginUnknownTypeCheckDisabledContext() => 
+            this.UnknownTypeCheckDisabled ? this : this.Clone(unknownTypeCheckDisabled: true);
 
-            var clone = this.Clone();
-            clone.UnknownTypeCheckDisabled = true;
-            return clone;
-        }
+        internal ResolutionContext BeginContextWithFunctionParameters(ParameterExpression[] parameterExpressions) =>
+            this.Clone(parameterExpressions: new ExpandableArray<Pair<bool, ParameterExpression>[]>(this.ParameterExpressions)
+                {parameterExpressions.AsParameterPairs()}, perResolutionRequestCacheEnabled: false);
 
-        internal ResolutionContext BeginContextWithFunctionParameters(ParameterExpression[] parameterExpressions)
+        internal ResolutionContext BeginDecoratingContext(Type decoratingType, IEnumerable<ServiceRegistration> serviceRegistrations)
         {
-            var clone = this.Clone();
-            clone.ParameterExpressions = new ExpandableArray<Pair<bool, ParameterExpression>[]>(this.ParameterExpressions)
-                {parameterExpressions.AsParameterPairs()};
-            clone.PerResolutionRequestCacheEnabled = false;
-            return clone;
-        }
-
-        internal ResolutionContext BeginDecoratingContext(Type decoratingType, Utils.Data.Stack<ServiceRegistration> serviceRegistrations)
-        {
-            var clone = this.Clone();
             var newStack = new Utils.Data.Stack<ServiceRegistration>(serviceRegistrations);
             var current = newStack.Pop();
+            var decorators = new ExpandableArray<Type, Utils.Data.Stack<ServiceRegistration>>(this.RemainingDecorators);
+            decorators.AddOrUpdate(decoratingType, newStack);
 
-            clone.CurrentDecorators = new ExpandableArray<ServiceRegistration>(this.CurrentDecorators) { current };
-            clone.RemainingDecorators = new ExpandableArray<Type, Utils.Data.Stack<ServiceRegistration>>(this.RemainingDecorators);
-            clone.RemainingDecorators.AddOrUpdate(decoratingType, newStack);
-            return clone;
+            return this.Clone(currentDecorators: new ExpandableArray<ServiceRegistration>(this.CurrentDecorators) { current },
+                remainingDecorators: decorators);
         }
 
-        internal ResolutionContext BeginLifetimeValidationContext(int lifeSpan, string currentlyLifeSpanValidatingService)
+        internal ResolutionContext BeginLifetimeValidationContext(int lifeSpan, string currentlyLifeSpanValidatingService) =>
+            this.Clone(currentLifeSpan: lifeSpan, nameOfServiceLifeSpanValidatingAgainst: currentlyLifeSpanValidatingService);
+
+        private static HashTree<object, ConstantExpression> ProcessDependencyOverrides(object[]? dependencyOverrides, ImmutableTree<object, object>? knownInstances)
         {
-            var clone = this.Clone();
-            clone.CurrentLifeSpan = lifeSpan;
-            clone.NameOfServiceLifeSpanValidatingAgainst = currentlyLifeSpanValidatingService;
-            return clone;
+            var result = new HashTree<object, ConstantExpression>();
+
+            if (knownInstances is { IsEmpty: false })
+                foreach (var lateKnownInstance in knownInstances.Walk())
+                    result.Add(lateKnownInstance.Key, lateKnownInstance.Value.AsConstant(), false);
+
+            if (dependencyOverrides == null) return result;
+
+            foreach (var dependencyOverride in dependencyOverrides)
+            {
+                var type = dependencyOverride.GetType();
+                var expression = dependencyOverride.AsConstant();
+
+                result.Add(type, expression, false);
+
+                foreach (var baseType in type.GetRegisterableInterfaceTypes().Concat(type.GetRegisterableBaseTypes()))
+                    result.Add(baseType, expression, false);
+            }
+
+            return result;
         }
 
-        private ResolutionContext Clone() => (ResolutionContext)this.MemberwiseClone();
+        private ResolutionContext Clone(
+            Tree<ParameterExpression>? definedVariables = null,
+            ExpandableArray<Expression>? singleInstructions = null,
+            ExpandableArray<Type, Utils.Data.Stack<ServiceRegistration>>? remainingDecorators = null,
+            ExpandableArray<ServiceRegistration>? currentDecorators = null,
+            Tree<Expression>? cachedExpressions = null,
+            Utils.Data.Stack<object>? scopeNames = null,
+            ParameterExpression? currentScopeParameter = null,
+            IContainerContext? currentContainerContext = null,
+            ExpandableArray<Pair<bool, ParameterExpression>[]>? parameterExpressions = null,
+            string? nameOfServiceLifeSpanValidatingAgainst = null,
+            int? currentLifeSpan = null,
+            bool? isTopRequest = null,
+            bool? perResolutionRequestCacheEnabled = null,
+            bool? unknownTypeCheckDisabled = null,
+            bool? shouldFallBackToRequestInitiatorContext = null) => 
+            new(this.RequestConfiguration,
+                definedVariables ?? this.DefinedVariables,
+                singleInstructions ?? this.SingleInstructions,
+                remainingDecorators ?? this.RemainingDecorators,
+                currentDecorators ?? this.CurrentDecorators,
+                this.CircularDependencyBarrier,
+                cachedExpressions ?? this.expressionCache,
+                this.FactoryCache,
+                scopeNames ?? this.ScopeNames,
+                currentScopeParameter ?? this.CurrentScopeParameter,
+                this.RequestContextParameter,
+                currentContainerContext ?? this.CurrentContainerContext,
+                this.RequestInitiatorContainerContext,
+                this.ExpressionOverrides,
+                parameterExpressions ?? this.ParameterExpressions,
+                this.NullResultAllowed,
+                this.IsRequestedFromRoot,
+                isTopRequest ?? this.IsTopRequest,
+                nameOfServiceLifeSpanValidatingAgainst ?? this.NameOfServiceLifeSpanValidatingAgainst,
+                currentLifeSpan ?? this.CurrentLifeSpan,
+                perResolutionRequestCacheEnabled ?? this.PerResolutionRequestCacheEnabled,
+                unknownTypeCheckDisabled ?? this.UnknownTypeCheckDisabled,
+                shouldFallBackToRequestInitiatorContext ?? this.ShouldFallBackToRequestInitiatorContext);
     }
 }

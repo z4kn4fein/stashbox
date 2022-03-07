@@ -14,39 +14,39 @@ namespace Stashbox.Expressions
     {
         private static IEnumerable<Expression> GetMemberExpressions(
             IEnumerable<MemberInfo> members,
-            RegistrationContext registrationContext,
+            ServiceRegistration serviceRegistration,
             ResolutionContext resolutionContext,
             Expression instance) =>
             from member in members
-            let expression = GetMemberExpression(member, registrationContext, resolutionContext)
+            let expression = GetMemberExpression(member, serviceRegistration, resolutionContext)
             where expression != null
             select instance.Member(member).AssignTo(expression);
 
         private static IEnumerable<MemberBinding> GetMemberBindings(
             IEnumerable<MemberInfo> members,
-            RegistrationContext registrationContext,
+            ServiceRegistration serviceRegistration,
             ResolutionContext resolutionContext) =>
             from member in members
-            let expression = GetMemberExpression(member, registrationContext, resolutionContext)
+            let expression = GetMemberExpression(member, serviceRegistration, resolutionContext)
             where expression != null
             select member.AssignTo(expression);
 
 
         private static Expression GetMemberExpression(
             MemberInfo member,
-            RegistrationContext registrationContext,
+            ServiceRegistration serviceRegistration,
             ResolutionContext resolutionContext)
         {
-            var memberTypeInfo = member.AsTypeInformation(registrationContext,
+            var memberTypeInfo = member.AsTypeInformation(serviceRegistration,
                 resolutionContext.CurrentContainerContext.ContainerConfiguration);
 
-            var injectionParameter = registrationContext.InjectionParameters.SelectInjectionParameterOrDefault(memberTypeInfo);
+            var injectionParameter = serviceRegistration.InjectionParameters?.SelectInjectionParameterOrDefault(memberTypeInfo);
             if (injectionParameter != null) return injectionParameter;
 
-            var memberExpression = resolutionContext.CurrentContainerContext
-                .ResolutionStrategy.BuildExpressionForType(resolutionContext, memberTypeInfo).ServiceExpression;
+            var serviceContext = resolutionContext.CurrentContainerContext
+                .ResolutionStrategy.BuildExpressionForType(resolutionContext, memberTypeInfo);
 
-            if (memberExpression != null || resolutionContext.NullResultAllowed) return memberExpression;
+            if (!serviceContext.IsEmpty() || resolutionContext.NullResultAllowed) return serviceContext.ServiceExpression;
 
             var memberType = member is PropertyInfo ? "property" : "field";
             throw new ResolutionFailedException(memberTypeInfo.ParentType, memberTypeInfo.DependencyName,

@@ -80,7 +80,7 @@ namespace Stashbox.Utils.Data.Immutable
             return new ImmutableBucket<TKey, TValue>(newRepository);
         }
 
-        internal ImmutableBucket<TKey, TValue> AddOrUpdate(TKey key, TValue value, bool byRef, Func<TValue, TValue, TValue> update = null)
+        internal ImmutableBucket<TKey, TValue> AddOrUpdate(TKey key, TValue value, bool byRef, Func<TValue, TValue, TValue>? update = null)
         {
             if (this.Length == 0)
                 return new ImmutableBucket<TKey, TValue>(new[] { new ReadOnlyKeyValue<TKey, TValue>(key, value) });
@@ -137,7 +137,7 @@ namespace Stashbox.Utils.Data.Immutable
             return new ImmutableBucket<TKey, TValue>(newRepository);
         }
 
-        internal ImmutableBucket<TKey, TValue> ReplaceIfExists(TKey key, TValue value, bool byRef, Func<TValue, TValue, TValue> update = null)
+        internal ImmutableBucket<TKey, TValue> ReplaceIfExists(TKey key, TValue value, bool byRef, Func<TValue, TValue, TValue>? update = null)
         {
             if (this.Length == 0)
                 return this;
@@ -169,7 +169,7 @@ namespace Stashbox.Utils.Data.Immutable
         }
 
         [MethodImpl(Constants.Inline)]
-        public TValue GetOrDefaultByValue(TKey key)
+        public TValue? GetOrDefaultByValue(TKey key)
         {
             var length = this.Repository.Length;
             for (var i = 0; i < length; i++)
@@ -183,7 +183,7 @@ namespace Stashbox.Utils.Data.Immutable
         }
 
         [MethodImpl(Constants.Inline)]
-        public TValue GetOrDefaultByRef(TKey key)
+        public TValue? GetOrDefaultByRef(TKey key)
         {
             var length = this.Repository.Length;
             for (var i = 0; i < length; i++)

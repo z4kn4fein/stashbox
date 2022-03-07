@@ -9,43 +9,47 @@ namespace Stashbox.Expressions
 {
     internal static partial class ExpressionBuilder
     {
-        internal static Expression BuildExpressionForRegistration(ServiceRegistration serviceRegistration,
+        internal static Expression? BuildExpressionForRegistration(ServiceRegistration serviceRegistration,
             ResolutionContext resolutionContext, Type requestedType)
         {
             var expression = BuildExpressionByRegistrationType(serviceRegistration, resolutionContext, requestedType);
             if (expression == null)
                 return null;
 
-            if (serviceRegistration.RegistrationContext.ExistingInstance == null && serviceRegistration.RegistrationContext.AsyncInitializer != null)
+            if (serviceRegistration is not InstanceRegistration && serviceRegistration.AsyncInitializer != null)
                 expression = resolutionContext.CurrentScopeParameter.CallMethod(Constants.AddWithAsyncInitializerMethod, expression,
-                    serviceRegistration.RegistrationContext.AsyncInitializer.AsConstant()).ConvertTo(requestedType);
+                    serviceRegistration.AsyncInitializer.AsConstant()).ConvertTo(requestedType);
 
-            if (serviceRegistration.RegistrationContext.ExistingInstance == null && serviceRegistration.RegistrationContext.Finalizer != null)
+            if (serviceRegistration is not InstanceRegistration && serviceRegistration.Finalizer != null)
                 expression = resolutionContext.CurrentScopeParameter.CallMethod(Constants.AddWithFinalizerMethod, expression,
-                    serviceRegistration.RegistrationContext.Finalizer.AsConstant()).ConvertTo(requestedType);
+                    serviceRegistration.Finalizer.AsConstant()).ConvertTo(requestedType);
 
             if (!ShouldHandleDisposal(resolutionContext.CurrentContainerContext, serviceRegistration) || !expression.Type.IsDisposable())
                 return CheckRuntimeCircularDependencyExpression(expression, serviceRegistration, resolutionContext, requestedType);
 
-            return CheckRuntimeCircularDependencyExpression(resolutionContext.CurrentScopeParameter
-                .CallMethod(Constants.AddDisposalMethod, expression).ConvertTo(requestedType),
-                serviceRegistration, resolutionContext, requestedType);
+            var disposeTrackingExpression = resolutionContext.RequestConfiguration.RequiresRequestContext 
+                ? resolutionContext.CurrentScopeParameter.CallMethod(Constants.AddRequestContextAwareDisposalMethod, 
+                    expression, resolutionContext.RequestContextParameter).ConvertTo(requestedType)
+                : resolutionContext.CurrentScopeParameter.CallMethod(Constants.AddDisposalMethod, expression).ConvertTo(requestedType);
+
+            return CheckRuntimeCircularDependencyExpression(disposeTrackingExpression, serviceRegistration, resolutionContext, requestedType);
         }
 
-        private static Expression BuildExpressionByRegistrationType(ServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type requestedType)
+        private static Expression? BuildExpressionByRegistrationType(ServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type requestedType)
         {
             resolutionContext = resolutionContext.ShouldFallBackToRequestInitiatorContext
                 ? resolutionContext.BeginCrossContainerContext(resolutionContext.RequestInitiatorContainerContext)
                 : resolutionContext;
 
-            return serviceRegistration.RegistrationType switch
+            return serviceRegistration switch
             {
-                RegistrationType.Factory => GetExpressionForFactory(serviceRegistration, resolutionContext, requestedType),
-                RegistrationType.Instance => serviceRegistration.RegistrationContext.ExistingInstance.AsConstant(),
-                RegistrationType.WireUp => ExpressionFactory.ConstructBuildUpExpression(serviceRegistration,
-                    resolutionContext, serviceRegistration.RegistrationContext.ExistingInstance.AsConstant(),
-                    serviceRegistration.ImplementationType),
-                RegistrationType.Func => GetExpressionForFunc(serviceRegistration, resolutionContext),
+                FactoryRegistration factoryRegistration => GetExpressionForFactory(factoryRegistration, resolutionContext, requestedType),
+                InstanceRegistration instanceRegistration => instanceRegistration.IsWireUp 
+                    ? ExpressionFactory.ConstructBuildUpExpression(serviceRegistration,
+                        resolutionContext, instanceRegistration.ExistingInstance.AsConstant(),
+                        serviceRegistration.ImplementationType)
+                    : instanceRegistration.ExistingInstance.AsConstant(),
+                FuncRegistration funcRegistration => GetExpressionForFunc(funcRegistration, resolutionContext),
                 _ => GetExpressionForDefault(serviceRegistration, resolutionContext)
             };
         }
@@ -76,12 +80,12 @@ namespace Stashbox.Expressions
 
         private static bool ShouldHandleDisposal(IContainerContext containerContext, ServiceRegistration serviceRegistration)
         {
-            if (serviceRegistration.RegistrationContext.IsLifetimeExternallyOwned ||
-                serviceRegistration.RegistrationContext.ExistingInstance != null)
+            if (serviceRegistration.IsLifetimeExternallyOwned ||
+                serviceRegistration is InstanceRegistration)
                 return false;
 
             return containerContext.ContainerConfiguration.TrackTransientsForDisposalEnabled ||
-                   serviceRegistration.RegistrationContext.Lifetime is not TransientLifetime;
+                   serviceRegistration.Lifetime is not TransientLifetime;
         }
     }
 }

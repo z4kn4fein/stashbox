@@ -8,8 +8,8 @@ namespace Stashbox.Registration.SelectionRules
             ServiceRegistration registration, ResolutionContext resolutionContext)
         {
             if (typeInformation.MetadataType != null)
-                return registration.RegistrationContext.Metadata != null &&
-                    typeInformation.MetadataType.IsInstanceOfType(registration.RegistrationContext.Metadata);
+                return registration.Metadata != null &&
+                    typeInformation.MetadataType.IsInstanceOfType(registration.Metadata);
 
             return true;
         }
@@ -17,7 +17,7 @@ namespace Stashbox.Registration.SelectionRules
         public bool ShouldIncrementWeight(TypeInformation typeInformation,
             ServiceRegistration registration, ResolutionContext resolutionContext) =>
             typeInformation.MetadataType != null &&
-            registration.RegistrationContext.Metadata != null &&
-            typeInformation.MetadataType.IsInstanceOfType(registration.RegistrationContext.Metadata);
+            registration.Metadata != null &&
+            typeInformation.MetadataType.IsInstanceOfType(registration.Metadata);
     }
 }

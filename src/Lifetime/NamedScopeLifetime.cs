@@ -12,7 +12,7 @@ namespace Stashbox.Lifetime
     /// </summary>
     public class NamedScopeLifetime : FactoryLifetimeDescriptor
     {
-        private static readonly MethodInfo GetScopeValueMethod = typeof(NamedScopeLifetime).GetMethod(nameof(GetScopedValue), BindingFlags.Static | BindingFlags.NonPublic);
+        private static readonly MethodInfo GetScopeValueMethod = typeof(NamedScopeLifetime).GetMethod(nameof(GetScopedValue), BindingFlags.Static | BindingFlags.NonPublic)!;
 
         /// <summary>
         /// The name of the scope where this lifetime activates.

@@ -137,7 +137,7 @@ namespace Stashbox.Tests
 
             var reg = container.GetRegistrationMappings().First(r => r.Value.ImplementationType == typeof(RefDep));
 
-            Assert.Equal("Ref", reg.Value.RegistrationContext.Name);
+            Assert.Equal("Ref", reg.Value.Name);
         }
 
         [Fact]
@@ -152,7 +152,7 @@ namespace Stashbox.Tests
 
             var reg = container.GetRegistrationMappings().First(r => r.Value.ImplementationType == typeof(RefDep));
 
-            Assert.Equal("fromUnknownConfig", reg.Value.RegistrationContext.Name);
+            Assert.Equal("fromUnknownConfig", reg.Value.Name);
         }
 
         [Fact]

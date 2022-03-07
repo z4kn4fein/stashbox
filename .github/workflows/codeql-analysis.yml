@@ -13,7 +13,7 @@ name: "CodeQL"
 
 on:
   push:
-    branches: [ master, v5 ]
+    branches: [ master, dev ]
     paths-ignore:
       - '**.md'
       - 'docs/**'

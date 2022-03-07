@@ -11,8 +11,8 @@ namespace Stashbox
         /// <inheritdoc />
         public IStashboxContainer RegisterTypesAs(Type typeFrom,
             IEnumerable<Type> types,
-            Func<Type, bool> selector = null,
-            Action<RegistrationConfigurator> configurator = null)
+            Func<Type, bool>? selector = null,
+            Action<RegistrationConfigurator>? configurator = null)
         {
             Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
             Shield.EnsureNotNull(types, nameof(types));
@@ -41,10 +41,10 @@ namespace Stashbox
 
         /// <inheritdoc />
         public IStashboxContainer RegisterTypes(IEnumerable<Type> types,
-            Func<Type, bool> selector = null,
-            Func<Type, Type, bool> serviceTypeSelector = null,
+            Func<Type, bool>? selector = null,
+            Func<Type, Type, bool>? serviceTypeSelector = null,
             bool registerSelf = true,
-            Action<RegistrationConfigurator> configurator = null)
+            Action<RegistrationConfigurator>? configurator = null)
         {
             Shield.EnsureNotNull(types, nameof(types));
 
@@ -93,11 +93,13 @@ namespace Stashbox
         public IStashboxContainer ComposeBy(ICompositionRoot compositionRoot)
         {
             this.ThrowIfDisposed();
+            Shield.EnsureNotNull(compositionRoot, nameof(compositionRoot));
+
             compositionRoot.Compose(this);
             return this;
         }
 
-        private void RegisterTypeAs(Type typeFrom, Type type, Action<RegistrationConfigurator> configurator)
+        private void RegisterTypeAs(Type typeFrom, Type type, Action<RegistrationConfigurator>? configurator)
         {
             if (configurator == null)
                 this.Register(typeFrom, type);

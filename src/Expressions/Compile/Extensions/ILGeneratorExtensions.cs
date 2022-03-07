@@ -18,7 +18,7 @@ namespace Stashbox.Expressions.Compile.Extensions
             return local;
         }
 
-        public static void CopyParametersToCapturedArgumentsIfAny(this ILGenerator generator, CompilerContext context, ParameterExpression[] parameters)
+        public static void CopyParametersToCapturedArgumentsIfAny(this ILGenerator generator, CompilerContext context, Expression[] parameters)
         {
             var length = context.CapturedArguments.Length;
             for (var i = 0; i < length; i++)
@@ -44,7 +44,7 @@ namespace Stashbox.Expressions.Compile.Extensions
 
         public static void LoadCapturedArgumentHolder(this ILGenerator generator, CompilerContext context)
         {
-            if (!context.IsNestedLambda)
+            if (!context.IsNestedLambda && context.CapturedArgumentsHolderVariable != null)
                 generator.Emit(OpCodes.Ldloc, context.CapturedArgumentsHolderVariable);
             else
                 generator.Emit(context.HasClosure ? OpCodes.Ldarg_1 : OpCodes.Ldarg_0);
@@ -64,7 +64,7 @@ namespace Stashbox.Expressions.Compile.Extensions
                 case 7: generator.Emit(OpCodes.Ldc_I4_7); break;
                 case 8: generator.Emit(OpCodes.Ldc_I4_8); break;
                 default:
-                    if (intValue >= sbyte.MinValue && intValue <= sbyte.MaxValue)
+                    if (intValue is >= sbyte.MinValue and <= sbyte.MaxValue)
                         generator.Emit(OpCodes.Ldc_I4_S, (sbyte)intValue);
                     else
                         generator.Emit(OpCodes.Ldc_I4, intValue);

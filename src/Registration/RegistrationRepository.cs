@@ -48,7 +48,7 @@ namespace Stashbox.Registration
 
         public bool AddOrUpdateRegistration(ServiceRegistration registration, Type serviceType)
         {
-            if (registration.RegistrationContext.ReplaceExistingRegistrationOnlyIfExists)
+            if (registration.ReplaceExistingRegistrationOnlyIfExists)
                 return Swap.SwapValue(ref this.serviceRepository, (reg, type, _, _, repo) =>
                     repo.UpdateIfExists(type, true, regs => regs.ReplaceIfExists(reg.RegistrationDiscriminator, reg, false,
                         (old, @new) =>
@@ -65,7 +65,7 @@ namespace Stashbox.Registration
                 repo.AddOrUpdate(type, newRepo, true,
                     (oldValue, _) =>
                     {
-                        var allowUpdate = reg.RegistrationContext.ReplaceExistingRegistration ||
+                        var allowUpdate = reg.ReplaceExistingRegistration ||
                                           regBehavior == Rules.RegistrationBehavior.ReplaceExisting;
 
                         if (!allowUpdate && regBehavior == Rules.RegistrationBehavior.PreserveDuplications)
@@ -93,7 +93,7 @@ namespace Stashbox.Registration
         }
 
         public bool AddOrReMapRegistration(ServiceRegistration registration, Type serviceType) =>
-            registration.RegistrationContext.ReplaceExistingRegistrationOnlyIfExists
+            registration.ReplaceExistingRegistrationOnlyIfExists
                 ? Swap.SwapValue(ref this.serviceRepository, (type, newRepo, _, _, repo) =>
                     repo.UpdateIfExists(type, newRepo, true), serviceType,
                     new ImmutableBucket<object, ServiceRegistration>(registration.RegistrationDiscriminator, registration),
@@ -105,24 +105,24 @@ namespace Stashbox.Registration
                     Constants.DelegatePlaceholder,
                     Constants.DelegatePlaceholder);
 
-        public bool ContainsRegistration(Type type, object name, bool includeOpenGenerics = true) =>
+        public bool ContainsRegistration(Type type, object? name, bool includeOpenGenerics = true) =>
             serviceRepository.ContainsRegistration(type, name, includeOpenGenerics);
 
         public IEnumerable<KeyValuePair<Type, ServiceRegistration>> GetRegistrationMappings() =>
              serviceRepository.Walk().SelectMany(reg => reg.Value.Select(r => new KeyValuePair<Type, ServiceRegistration>(reg.Key, r)));
 
-        public ServiceRegistration GetRegistrationOrDefault(TypeInformation typeInfo, ResolutionContext resolutionContext) =>
+        public ServiceRegistration? GetRegistrationOrDefault(TypeInformation typeInfo, ResolutionContext resolutionContext) =>
             this.GetRegistrationsForType(typeInfo.Type)?.SelectOrDefault(typeInfo, resolutionContext,
                 resolutionContext.IsTopRequest ? this.topLevelFilters : this.filters);
 
-        public IEnumerable<ServiceRegistration> GetRegistrationsOrDefault(TypeInformation typeInfo, ResolutionContext resolutionContext) =>
+        public IEnumerable<ServiceRegistration>? GetRegistrationsOrDefault(TypeInformation typeInfo, ResolutionContext resolutionContext) =>
             this.GetRegistrationsForType(typeInfo.Type)
                 ?.FilterExclusiveOrDefault(typeInfo, resolutionContext, this.enumerableFilters)
                 ?.OrderBy(reg => reg.RegistrationOrder);
 
-        private IEnumerable<ServiceRegistration> GetRegistrationsForType(Type type)
+        private IEnumerable<ServiceRegistration>? GetRegistrationsForType(Type type)
         {
-            IEnumerable<ServiceRegistration> registrations = serviceRepository.GetOrDefaultByRef(type);
+            IEnumerable<ServiceRegistration>? registrations = serviceRepository.GetOrDefaultByRef(type);
             if (!type.IsClosedGenericType()) return registrations;
 
             var openGenerics = serviceRepository.GetOrDefaultByRef(type.GetGenericTypeDefinition());

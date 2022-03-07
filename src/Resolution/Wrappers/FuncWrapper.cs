@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Stashbox.Utils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -29,8 +30,8 @@ namespace Stashbox.Resolution.Wrappers
         {
             if (!IsFunc(typeInformation.Type))
             {
-                unWrappedType = null;
-                parameterTypes = null;
+                unWrappedType = default;
+                parameterTypes = Constants.EmptyTypes;
                 return false;
             }
 

@@ -1,4 +1,5 @@
-﻿using Stashbox.Expressions;
+﻿using Stashbox.Exceptions;
+using Stashbox.Expressions;
 using Stashbox.Resolution;
 using Stashbox.Utils;
 using System;
@@ -13,39 +14,79 @@ namespace Stashbox
     public partial class StashboxContainer
     {
 		/// <inheritdoc />
-		public object Resolve(Type typeFrom, bool nullResultAllowed = false, object[] dependencyOverrides = null)
+		public object? Resolve(Type typeFrom, bool nullResultAllowed, object[]? dependencyOverrides = null) =>
+			nullResultAllowed ? this.ResolveOrDefault(typeFrom, dependencyOverrides) : this.Resolve(typeFrom, dependencyOverrides);
+
+		/// <inheritdoc />
+		public object? Resolve(Type typeFrom, object name, bool nullResultAllowed, object[]? dependencyOverrides = null) =>
+			nullResultAllowed ? this.ResolveOrDefault(typeFrom, name, dependencyOverrides) : this.Resolve(typeFrom, name, dependencyOverrides);
+
+		/// <inheritdoc />
+		public object Resolve(Type typeFrom, object[]? dependencyOverrides = null)
 		{
 			this.ThrowIfDisposed();
 
 			if (dependencyOverrides != null)
-				return this.rootScope.BuildAndResolveService(typeFrom, nullResultAllowed: nullResultAllowed, dependencyOverrides: dependencyOverrides);
+				return this.rootScope.BuildAndResolveService(typeFrom, name: null, dependencyOverrides: dependencyOverrides);
 
 			var cachedFactory = this.rootScope.DelegateCache.ServiceDelegates.GetOrDefaultByRef(typeFrom);
 			if (cachedFactory != null)
 				return cachedFactory(this.rootScope, RequestContext.Empty);
 
 			return this.rootScope.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByRef(typeFrom)?.Invoke(this.rootScope, RequestContext.Begin()) ??
-				this.rootScope.BuildAndResolveService(typeFrom, nullResultAllowed: nullResultAllowed);
+				this.rootScope.BuildAndResolveService(typeFrom, name: null, dependencyOverrides: null);
 		}
 
 		/// <inheritdoc />
-		public object Resolve(Type typeFrom, object name, bool nullResultAllowed = false, object[] dependencyOverrides = null)
+		public object Resolve(Type typeFrom, object name, object[]? dependencyOverrides = null)
 		{
 			this.ThrowIfDisposed();
 
 			if (dependencyOverrides != null)
-				return this.rootScope.BuildAndResolveService(typeFrom, name, nullResultAllowed, dependencyOverrides);
+				return this.rootScope.BuildAndResolveService(typeFrom, name, dependencyOverrides: dependencyOverrides);
 
 			var cachedFactory = this.rootScope.DelegateCache.ServiceDelegates.GetOrDefaultByValue(name);
 			if (cachedFactory != null)
 				return cachedFactory(this.rootScope, RequestContext.Empty);
 
 			return this.rootScope.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByValue(name)?.Invoke(this.rootScope, RequestContext.Begin()) ??
-				this.rootScope.BuildAndResolveService(typeFrom, name, nullResultAllowed);
+				this.rootScope.BuildAndResolveService(typeFrom, name, dependencyOverrides: null);
 		}
 
 		/// <inheritdoc />
-		public object GetService(Type serviceType)
+		public object? ResolveOrDefault(Type typeFrom, object[]? dependencyOverrides = null)
+		{
+			this.ThrowIfDisposed();
+
+			if (dependencyOverrides != null)
+				return this.rootScope.BuildAndResolveServiceOrDefault(typeFrom, name: null, dependencyOverrides: dependencyOverrides);
+
+			var cachedFactory = this.rootScope.DelegateCache.ServiceDelegates.GetOrDefaultByRef(typeFrom);
+			if (cachedFactory != null)
+				return cachedFactory(this.rootScope, RequestContext.Empty);
+
+			return this.rootScope.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByRef(typeFrom)?.Invoke(this.rootScope, RequestContext.Begin()) ??
+				this.rootScope.BuildAndResolveServiceOrDefault(typeFrom, name: null, dependencyOverrides: null);
+		}
+
+		/// <inheritdoc />
+		public object? ResolveOrDefault(Type typeFrom, object name, object[]? dependencyOverrides = null)
+		{
+			this.ThrowIfDisposed();
+
+			if (dependencyOverrides != null)
+				return this.rootScope.BuildAndResolveServiceOrDefault(typeFrom, name, dependencyOverrides: dependencyOverrides);
+
+			var cachedFactory = this.rootScope.DelegateCache.ServiceDelegates.GetOrDefaultByValue(name);
+			if (cachedFactory != null)
+				return cachedFactory(this.rootScope, RequestContext.Empty);
+
+			return this.rootScope.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByValue(name)?.Invoke(this.rootScope, RequestContext.Begin()) ??
+				this.rootScope.BuildAndResolveServiceOrDefault(typeFrom, name, dependencyOverrides: null);
+		}
+
+		/// <inheritdoc />
+		public object? GetService(Type serviceType)
 		{
 			this.ThrowIfDisposed();
 
@@ -54,45 +95,45 @@ namespace Stashbox
 				return cachedFactory(this.rootScope, RequestContext.Empty);
 
 			return this.rootScope.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByRef(serviceType)?.Invoke(this.rootScope, RequestContext.Begin()) ??
-				this.rootScope.BuildAndResolveService(serviceType, nullResultAllowed: true);
+				this.rootScope.BuildAndResolveServiceOrDefault(serviceType, name: null, dependencyOverrides: null);
 		}
 
 		/// <inheritdoc />
-		public IEnumerable<TKey> ResolveAll<TKey>(object[] dependencyOverrides = null)
+		public IEnumerable<TKey> ResolveAll<TKey>(object[]? dependencyOverrides = null)
 		{
 			this.ThrowIfDisposed();
 
 			var type = typeof(IEnumerable<TKey>);
 			if (dependencyOverrides != null)
-				return (IEnumerable<TKey>)this.rootScope.BuildAndResolveService(type, dependencyOverrides: dependencyOverrides);
+				return (IEnumerable<TKey>)this.rootScope.BuildAndResolveService(type, name: null, dependencyOverrides: dependencyOverrides);
 
 			var cachedFactory = this.rootScope.DelegateCache.ServiceDelegates.GetOrDefaultByRef(type);
 			if (cachedFactory != null)
 				return (IEnumerable<TKey>)cachedFactory(this.rootScope, RequestContext.Empty);
 
-			return (IEnumerable<TKey>)this.rootScope.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByRef(type)?.Invoke(this.rootScope, RequestContext.Begin()) ??
-				(IEnumerable<TKey>)this.rootScope.BuildAndResolveService(type);
+			return (IEnumerable<TKey>)(this.rootScope.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByRef(type)?.Invoke(this.rootScope, RequestContext.Begin()) ??
+				this.rootScope.BuildAndResolveService(type, name: null, dependencyOverrides: null));
 		}
 
 		/// <inheritdoc />
-		public IEnumerable<object> ResolveAll(Type typeFrom, object[] dependencyOverrides = null)
+		public IEnumerable<object> ResolveAll(Type typeFrom, object[]? dependencyOverrides = null)
 		{
 			this.ThrowIfDisposed();
 
 			var type = typeof(IEnumerable<>).MakeGenericType(typeFrom);
 			if (dependencyOverrides != null)
-				return (IEnumerable<object>)this.rootScope.BuildAndResolveService(type, dependencyOverrides: dependencyOverrides);
+				return (IEnumerable<object>)this.rootScope.BuildAndResolveService(type, name: null, dependencyOverrides: dependencyOverrides);
 
 			var cachedFactory = this.rootScope.DelegateCache.ServiceDelegates.GetOrDefaultByRef(type);
 			if (cachedFactory != null)
 				return (IEnumerable<object>)cachedFactory(this.rootScope, RequestContext.Empty);
 
-			return (IEnumerable<object>)this.rootScope.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByRef(type)?.Invoke(this.rootScope, RequestContext.Begin()) ??
-				(IEnumerable<object>)this.rootScope.BuildAndResolveService(type);
+			return (IEnumerable<object>)(this.rootScope.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByRef(type)?.Invoke(this.rootScope, RequestContext.Begin()) ??
+				this.rootScope.BuildAndResolveService(type, name: null, dependencyOverrides: null));
 		}
 
 		/// <inheritdoc />
-		public Delegate ResolveFactory(Type typeFrom, object name = null, bool nullResultAllowed = false, params Type[] parameterTypes)
+		public Delegate ResolveFactory(Type typeFrom, object? name = null, params Type[] parameterTypes)
 		{
 			this.ThrowIfDisposed();
 
@@ -101,12 +142,27 @@ namespace Stashbox
 			if (cachedFactory != null)
 				return (Delegate)cachedFactory(this.rootScope, RequestContext.Empty);
 
-			return (Delegate)this.rootScope.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByRef(key)?.Invoke(this.rootScope, RequestContext.Begin()) ??
-				this.rootScope.BuildAndResolveFactoryDelegate(typeFrom, parameterTypes, name, key, nullResultAllowed);
+			return (Delegate?)this.rootScope.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByRef(key)?.Invoke(this.rootScope, RequestContext.Begin()) ??
+				this.rootScope.BuildAndResolveFactoryDelegate(typeFrom, parameterTypes, name, key);
+		}
+
+		/// <inheritdoc />
+		public Delegate? ResolveFactoryOrDefault(Type typeFrom, object? name = null, params Type[] parameterTypes)
+		{
+			this.ThrowIfDisposed();
+
+			var key = $"{name ?? ""}{string.Join("", parameterTypes.Append(typeFrom).Select(t => t.FullName))}";
+			var cachedFactory = this.rootScope.DelegateCache.ServiceDelegates.GetOrDefaultByValue(key);
+			if (cachedFactory != null)
+				return (Delegate)cachedFactory(this.rootScope, RequestContext.Empty);
+
+			return (Delegate?)this.rootScope.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByRef(key)?.Invoke(this.rootScope, RequestContext.Begin()) ??
+				this.rootScope.BuildAndResolveFactoryDelegateOrDefault(typeFrom, parameterTypes, name, key);
 		}
 
 		/// <inheritdoc />
 		public TTo BuildUp<TTo>(TTo instance)
+			where TTo : class
 		{
 			this.ThrowIfDisposed();
 
@@ -118,26 +174,15 @@ namespace Stashbox
 		}
 
 		/// <inheritdoc />
-		public object Activate(Type type, params object[] arguments)
-		{
-			this.ThrowIfDisposed();
-
-			if (!type.IsResolvableType())
-				throw new ArgumentException($"The given type ({type.FullName}) could not be activated on the fly by the container.");
-
-			var resolutionContext = ResolutionContext.BeginTopLevelContext(this.rootScope.GetActiveScopeNames(), this.ContainerContext, true,
-				dependencyOverrides: this.rootScope.ProcessDependencyOverrides(arguments));
-			var expression = ExpressionFactory.ConstructExpression(resolutionContext, type);
-			return expression.CompileDelegate(resolutionContext, this.ContainerContext.ContainerConfiguration)(this.rootScope,
-				resolutionContext.RequestConfiguration.RequiresRequestContext ? RequestContext.Begin() : RequestContext.Empty);
-		}
+		public object Activate(Type type, params object[] arguments) =>
+			this.rootScope.Activate(type, arguments);
 
 		/// <inheritdoc />
-		public bool CanResolve<TFrom>(object name = null) =>
+		public bool CanResolve<TFrom>(object? name = null) =>
 			this.CanResolve(typeof(TFrom), name);
 
 		/// <inheritdoc />
-		public bool CanResolve(Type typeFrom, object name = null)
+		public bool CanResolve(Type typeFrom, object? name = null)
 		{
 			this.ThrowIfDisposed();
 			Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
@@ -152,11 +197,11 @@ namespace Stashbox
 			this.rootScope.InvokeAsyncInitializers(token);
 
 		/// <inheritdoc />
-		public IDependencyResolver BeginScope(object name = null, bool attachToParent = false)
+		public IDependencyResolver BeginScope(object? name = null, bool attachToParent = false)
 			=> this.rootScope.BeginScope(name, attachToParent);
 
 		/// <inheritdoc />
-		public void PutInstanceInScope(Type typeFrom, object instance, bool withoutDisposalTracking = false, object name = null) =>
+		public void PutInstanceInScope(Type typeFrom, object instance, bool withoutDisposalTracking = false, object? name = null) =>
 			this.rootScope.PutInstanceInScope(typeFrom, instance, withoutDisposalTracking, name);
 	}
 }

@@ -34,5 +34,7 @@
         /// Produces a NamedScope lifetime.
         /// </summary>
         public static LifetimeDescriptor NamedScope(object name) => new NamedScopeLifetime(name);
+
+        internal static readonly LifetimeDescriptor Empty = new EmptyLifetime();
     }
 }

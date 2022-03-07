@@ -1,4 +1,6 @@
-﻿namespace Stashbox.Utils.Data.Immutable
+﻿#nullable disable
+
+namespace Stashbox.Utils.Data.Immutable
 {
     internal class ImmutableLinkedList<TValue>
     {

@@ -18,8 +18,8 @@ namespace Stashbox.Resolution.Wrappers
         public Expression WrapExpression(TypeInformation originalTypeInformation, TypeInformation wrappedTypeInformation, ServiceContext serviceContext)
         {
             var arguments = originalTypeInformation.Type.GetGenericArguments();
-            var constructor = originalTypeInformation.Type.GetConstructor(arguments);
-            var name = serviceContext.ServiceRegistration?.RegistrationContext?.Name;
+            var constructor = originalTypeInformation.Type.GetConstructor(arguments)!;
+            var name = serviceContext.ServiceRegistration?.Name;
             return constructor.MakeNew(name.AsConstant(), serviceContext.ServiceExpression);
         }
 
@@ -27,7 +27,7 @@ namespace Stashbox.Resolution.Wrappers
         {
             if (!IsKeyValueType(typeInformation.Type))
             {
-                unWrappedType = null;
+                unWrappedType = default;
                 return false;
             }
 
@@ -36,7 +36,7 @@ namespace Stashbox.Resolution.Wrappers
 
             if (nameType != Constants.ObjectType)
             {
-                unWrappedType = null;
+                unWrappedType = default;
                 return false;
             }
 

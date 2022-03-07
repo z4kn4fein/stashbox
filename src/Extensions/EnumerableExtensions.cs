@@ -10,12 +10,6 @@ namespace System.Linq
         public static TEnumerable[] CastToArray<TEnumerable>(this IEnumerable<TEnumerable> enumerable) =>
             enumerable is TEnumerable[] array ? array : enumerable.ToArray();
 
-        public static TEnumerable[] WhereOrDefault<TEnumerable>(this IEnumerable<TEnumerable> enumerable, Func<TEnumerable, bool> predicate)
-        {
-            var result = enumerable.Where(predicate).CastToArray();
-            return result.Length > 0 ? result : null;
-        }
-
         public static T[] Append<T>(this T[] array, T item)
         {
             var count = array.Length;
@@ -33,7 +27,7 @@ namespace System.Linq
 
         public static int GetReferenceIndex<TElement>(this TElement[] array, TElement element) where TElement : class
         {
-            if (array == null || array.Length == 0) return -1;
+            if (array.Length == 0) return -1;
 
             var length = array.Length;
             if (length == 1) return ReferenceEquals(array[0], element) ? 0 : -1;

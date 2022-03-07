@@ -17,9 +17,9 @@ namespace Stashbox.Configuration
         /// </summary>
         public ContainerConfiguration ContainerConfiguration { get; }
 
-        internal ContainerConfigurator(ContainerConfiguration containerConfiguration = null)
+        internal ContainerConfigurator(ContainerConfiguration? containerConfiguration = null)
         {
-            this.ContainerConfiguration = containerConfiguration ?? ContainerConfiguration.DefaultContainerConfiguration();
+            this.ContainerConfiguration = containerConfiguration ?? new ContainerConfiguration();
         }
 
         /// <summary>
@@ -73,7 +73,7 @@ namespace Stashbox.Configuration
         /// <param name="configurator">An optional configuration action used during the registration of the unknown type.</param>
         /// <param name="enabled">True when the feature should be enabled, otherwise false.</param>
         /// <returns>The container configurator.</returns>
-        public ContainerConfigurator WithUnknownTypeResolution(Action<UnknownRegistrationConfigurator> configurator = null, bool enabled = true)
+        public ContainerConfigurator WithUnknownTypeResolution(Action<UnknownRegistrationConfigurator>? configurator = null, bool enabled = true)
         {
             this.ContainerConfiguration.UnknownTypeResolutionEnabled = enabled;
             this.ContainerConfiguration.UnknownTypeConfigurator = configurator;
@@ -87,7 +87,7 @@ namespace Stashbox.Configuration
         /// <param name="filter">An optional filter predicate used to select which properties or fields of a type should be auto injected.</param>
         /// <param name="enabled">True when the feature should be enabled, otherwise false.</param>
         /// <returns>The container configurator.</returns>
-        public ContainerConfigurator WithAutoMemberInjection(Rules.AutoMemberInjectionRules rule = Rules.AutoMemberInjectionRules.PropertiesWithPublicSetter, Func<MemberInfo, bool> filter = null, bool enabled = true)
+        public ContainerConfigurator WithAutoMemberInjection(Rules.AutoMemberInjectionRules rule = Rules.AutoMemberInjectionRules.PropertiesWithPublicSetter, Func<MemberInfo, bool>? filter = null, bool enabled = true)
         {
             this.ContainerConfiguration.AutoMemberInjectionEnabled = enabled;
             this.ContainerConfiguration.AutoMemberInjectionRule = rule;

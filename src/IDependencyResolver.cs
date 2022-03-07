@@ -22,7 +22,8 @@ namespace Stashbox
         /// <param name="nullResultAllowed">If true, the container will return with null instead of throwing <see cref="ResolutionFailedException"/>.</param>
         /// <param name="dependencyOverrides">A collection of objects which are used to override certain dependencies of the requested service.</param>
         /// <returns>The resolved object.</returns>
-        object Resolve(Type typeFrom, bool nullResultAllowed = false, object[] dependencyOverrides = null);
+        [Obsolete("Please use Resolve(type) or ResolveOrDefault(type) instead.")]
+        object? Resolve(Type typeFrom, bool nullResultAllowed, object[]? dependencyOverrides = null);
 
         /// <summary>
         /// Resolves an instance from the container.
@@ -32,7 +33,42 @@ namespace Stashbox
         /// <param name="nullResultAllowed">If true, the container will return with null instead of throwing <see cref="ResolutionFailedException"/>.</param>
         /// <param name="dependencyOverrides">A collection of objects which are used to override certain dependencies of the requested service.</param>
         /// <returns>The resolved object.</returns>
-        object Resolve(Type typeFrom, object name, bool nullResultAllowed = false, object[] dependencyOverrides = null);
+        [Obsolete("Please use Resolve(type, name) or ResolveOrDefault(type, name) instead.")]
+        object? Resolve(Type typeFrom, object name, bool nullResultAllowed, object[]? dependencyOverrides = null);
+
+        /// <summary>
+        /// Resolves an instance from the container.
+        /// </summary>
+        /// <param name="typeFrom">The type of the requested instance.</param>
+        /// <param name="dependencyOverrides">A collection of objects which are used to override certain dependencies of the requested service.</param>
+        /// <returns>The resolved object.</returns>
+        object Resolve(Type typeFrom, object[]? dependencyOverrides = null);
+
+        /// <summary>
+        /// Resolves an instance from the container.
+        /// </summary>
+        /// <param name="typeFrom">The type of the requested instance.</param>
+        /// <param name="name">The name of the requested registration.</param>
+        /// <param name="dependencyOverrides">A collection of objects which are used to override certain dependencies of the requested service.</param>
+        /// <returns>The resolved object.</returns>
+        object Resolve(Type typeFrom, object name, object[]? dependencyOverrides = null);
+
+        /// <summary>
+        /// Resolves an instance from the container or returns default if the type is not resolvable.
+        /// </summary>
+        /// <param name="typeFrom">The type of the requested instance.</param>
+        /// <param name="dependencyOverrides">A collection of objects which are used to override certain dependencies of the requested service.</param>
+        /// <returns>The resolved object.</returns>
+        object? ResolveOrDefault(Type typeFrom, object[]? dependencyOverrides = null);
+
+        /// <summary>
+        /// Resolves an instance from the container or returns default if the type is not resolvable.
+        /// </summary>
+        /// <param name="typeFrom">The type of the requested instance.</param>
+        /// <param name="name">The name of the requested registration.</param>
+        /// <param name="dependencyOverrides">A collection of objects which are used to override certain dependencies of the requested service.</param>
+        /// <returns>The resolved object.</returns>
+        object? ResolveOrDefault(Type typeFrom, object name, object[]? dependencyOverrides = null);
 
         /// <summary>
         /// Resolves all registered types of a service.
@@ -40,7 +76,7 @@ namespace Stashbox
         /// <typeparam name="TKey">The type of the requested instance.</typeparam>
         /// <param name="dependencyOverrides">A collection of objects which are used to override certain dependencies of the requested services.</param>
         /// <returns>The resolved object.</returns>
-        IEnumerable<TKey> ResolveAll<TKey>(object[] dependencyOverrides = null);
+        IEnumerable<TKey> ResolveAll<TKey>(object[]? dependencyOverrides = null);
 
         /// <summary>
         /// Resolves all registered types of a service.
@@ -48,17 +84,25 @@ namespace Stashbox
         /// <param name="typeFrom">The type of the requested instances.</param>
         /// <param name="dependencyOverrides">A collection of objects which are used to override certain dependencies of the requested services.</param>
         /// <returns>The resolved object.</returns>
-        IEnumerable<object> ResolveAll(Type typeFrom, object[] dependencyOverrides = null);
+        IEnumerable<object> ResolveAll(Type typeFrom, object[]? dependencyOverrides = null);
 
         /// <summary>
-        /// Returns a factory method that can be used to activate the service.
+        /// Returns a factory delegate that can be used to activate the service.
         /// </summary>
         /// <param name="typeFrom">The type of the requested instances.</param>
         /// <param name="name">The name of the requested registration.</param>
-        /// <param name="nullResultAllowed">If true, the container will return with null instead of throwing <see cref="ResolutionFailedException"/>.</param>
         /// <param name="parameterTypes">The parameter type.</param>
         /// <returns>The factory delegate.</returns>
-        Delegate ResolveFactory(Type typeFrom, object name = null, bool nullResultAllowed = false, params Type[] parameterTypes);
+        Delegate ResolveFactory(Type typeFrom, object? name = null, params Type[] parameterTypes);
+
+        /// <summary>
+        /// Returns a factory delegate that can be used to activate the service or returns default if the type is not resolvable.
+        /// </summary>
+        /// <param name="typeFrom">The type of the requested instances.</param>
+        /// <param name="name">The name of the requested registration.</param>
+        /// <param name="parameterTypes">The parameter type.</param>
+        /// <returns>The factory delegate.</returns>
+        Delegate? ResolveFactoryOrDefault(Type typeFrom, object? name = null, params Type[] parameterTypes);
 
         /// <summary>
         /// Creates a new scope.
@@ -66,7 +110,7 @@ namespace Stashbox
         /// <param name="name">The name of the scope.</param>
         /// <param name="attachToParent">If true, the new scope will be attached to the lifecycle of its parent scope. When the parent is being disposed, the new scope will be disposed with it.</param>
         /// <returns>The created scope.</returns>
-        IDependencyResolver BeginScope(object name = null, bool attachToParent = false);
+        IDependencyResolver BeginScope(object? name = null, bool attachToParent = false);
 
         /// <summary>
         /// Puts an instance into the scope. The instance will be disposed along with the scope disposal.
@@ -76,7 +120,7 @@ namespace Stashbox
         /// <param name="withoutDisposalTracking">If it's set to true the container will exclude the instance from disposal tracking.</param>
         /// <param name="name">The dependency name of the instance.</param>
         /// <returns>The scope.</returns>
-        void PutInstanceInScope(Type typeFrom, object instance, bool withoutDisposalTracking = false, object name = null);
+        void PutInstanceInScope(Type typeFrom, object instance, bool withoutDisposalTracking = false, object? name = null);
 
         /// <summary>
         /// Builds up an existing instance. This means the container performs member and method injections on it without registering it into the container.
@@ -84,7 +128,8 @@ namespace Stashbox
         /// <typeparam name="TTo">The type of the requested instance.</typeparam>
         /// <param name="instance">The instance to build up.</param>
         /// <returns>The built object.</returns>
-        TTo BuildUp<TTo>(TTo instance);
+        TTo BuildUp<TTo>(TTo instance)
+            where TTo : class;
 
         /// <summary>
         /// Activates an object without registering it into the container. If you want to resolve a
@@ -108,7 +153,7 @@ namespace Stashbox
         /// <typeparam name="TFrom">The service type.</typeparam>
         /// <param name="name">The registration name.</param>
         /// <returns>True if the service can be resolved, otherwise false.</returns>
-        bool CanResolve<TFrom>(object name = null);
+        bool CanResolve<TFrom>(object? name = null);
 
         /// <summary>
         /// Checks whether a type can be resolved by the container, or not.
@@ -116,6 +161,6 @@ namespace Stashbox
         /// <param name="typeFrom">The service type.</param>
         /// <param name="name">The registration name.</param>
         /// <returns>True if the service can be resolved, otherwise false.</returns>
-        bool CanResolve(Type typeFrom, object name = null);
+        bool CanResolve(Type typeFrom, object? name = null);
     }
 }

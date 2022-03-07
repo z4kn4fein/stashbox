@@ -36,9 +36,9 @@ namespace System.Linq.Expressions
             ResolutionContext resolutionContext, ContainerConfiguration containerConfiguration)
         {
             expression = expression.PostProcess();
-            if (expression.NodeType == ExpressionType.Constant)
+            if (expression is ConstantExpression constantExpression && constantExpression.Value != null)
             {
-                var instance = ((ConstantExpression)expression).Value;
+                var instance = constantExpression.Value;
                 return (_, _) => instance;
             }
 
@@ -56,7 +56,7 @@ namespace System.Linq.Expressions
                 resolutionContext.CurrentScopeParameter, resolutionContext.RequestContextParameter))
                 factory = expression.AsLambda(resolutionContext.CurrentScopeParameter, resolutionContext.RequestContextParameter).Compile();
 
-            return (Func<IResolutionScope, IRequestContext, object>)factory;
+            return (Func<IResolutionScope, IRequestContext, object>)factory!;
         }
 
         /// <summary>
@@ -69,7 +69,7 @@ namespace System.Linq.Expressions
             if (!expression.TryEmit(out var result))
                 throw new InvalidOperationException("Could not compile the given expression!");
 
-            return result;
+            return result!;
         }
 
         /// <summary>
@@ -97,7 +97,7 @@ namespace System.Linq.Expressions
                 resolutionContext.CurrentScopeParameter, resolutionContext.RequestContextParameter))
                 factory = expression.AsLambda<Func<IResolutionScope, IRequestContext, Delegate>>(resolutionContext.CurrentScopeParameter, resolutionContext.RequestContextParameter).Compile();
 
-            return (Func<IResolutionScope, IRequestContext, Delegate>)factory;
+            return (Func<IResolutionScope, IRequestContext, Delegate>)factory!;
         }
 
         /// <summary>
@@ -106,8 +106,8 @@ namespace System.Linq.Expressions
         /// <param name="expression">The expression to wrap within the context.</param>
         /// <param name="serviceRegistration">Optional service registration when it's available.</param>
         /// <returns>The service context.</returns>
-        public static ServiceContext AsServiceContext(this Expression expression, ServiceRegistration serviceRegistration = null) =>
-            new(expression, serviceRegistration);
+        public static ServiceContext AsServiceContext(this Expression? expression, ServiceRegistration? serviceRegistration = null) =>
+            expression == null ? default : new ServiceContext(expression, serviceRegistration);
 
         /// <summary>
         /// Compiles a lambda expression into a Func delegate.
@@ -150,7 +150,7 @@ namespace System.Linq.Expressions
         /// </summary>
         /// <param name="obj">The object.</param>
         /// <returns>The constant expression.</returns>
-        public static ConstantExpression AsConstant(this object obj) => Expression.Constant(obj);
+        public static ConstantExpression AsConstant(this object? obj) => Expression.Constant(obj);
 
         /// <summary>
         /// Constructs a constant expression from an object and a type, => Expression.Constant(obj, type)
@@ -158,7 +158,7 @@ namespace System.Linq.Expressions
         /// <param name="obj">The object.</param>
         /// <param name="type">The type.</param>
         /// <returns>The constant expression.</returns>
-        public static ConstantExpression AsConstant(this object obj, Type type) => Expression.Constant(obj, type);
+        public static ConstantExpression AsConstant(this object? obj, Type type) => Expression.Constant(obj, type);
 
         /// <summary>
         /// Constructs a default expression from a type, => Expression.Default(type)
@@ -235,7 +235,7 @@ namespace System.Linq.Expressions
         /// <param name="type">The type.</param>
         /// <param name="name">The name.</param>
         /// <returns>The variable expression.</returns>
-        public static ParameterExpression AsVariable(this Type type, string name = null) => Expression.Variable(type, name);
+        public static ParameterExpression AsVariable(this Type type, string? name = null) => Expression.Variable(type, name);
 
         /// <summary>
         /// Constructs a parameter expression from a type, => Expression.Parameter(type, name)
@@ -243,7 +243,7 @@ namespace System.Linq.Expressions
         /// <param name="type">The type.</param>
         /// <param name="name">The name.</param>
         /// <returns>The parameter expression.</returns>
-        public static ParameterExpression AsParameter(this Type type, string name = null) => Expression.Parameter(type, name);
+        public static ParameterExpression AsParameter(this Type type, string? name = null) => Expression.Parameter(type, name);
 
         /// <summary>
         /// Constructs a static method call expression from a <see cref="MethodInfo"/> and its parameters, => Expression.Call(methodInfo, parameters)

@@ -38,11 +38,13 @@ namespace Stashbox.Tests
             container.Register<ITest1, Test1>(context => context.WithName("test"));
             container.Register<ITest1, Test12>(context => context.WithName("test2"));
 
-            var toReplace = container.GetRegistrationMappings().Single(r => "test".Equals(r.Value.RegistrationContext.Name));
+            var toReplace = container.GetRegistrationMappings()
+                .Single(r => "test".Equals(r.Value.Name));
 
             container.Register<ITest1, Test11>(context => context.WithName("test").ReplaceExisting());
 
-            var newReg = container.GetRegistrationMappings().Single(r => "test".Equals(r.Value.RegistrationContext.Name));
+            var newReg = container.GetRegistrationMappings()
+                .Single(r => "test".Equals(r.Value.Name));
 
             Assert.Equal(toReplace.Value.RegistrationOrder, newReg.Value.RegistrationOrder);
         }

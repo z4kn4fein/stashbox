@@ -14,6 +14,7 @@
     <PackageIcon>icon.png</PackageIcon>
     <RepositoryUrl>https://github.com/z4kn4fein/stashbox</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageTags>Stashbox di dependency-injection ioc dotnet netstandard</PackageTags>
     <Description>Stashbox is a lightweight, fast, and portable dependency injection framework for .NET-based solutions.</Description>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -30,6 +31,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReleaseNotes>https://z4kn4fein.github.io/stashbox/#/changelog</PackageReleaseNotes>
     <Configurations>Debug;Release;Benchmark</Configurations>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Benchmark'">
     <AssemblyName>Stashbox.Benchmark</AssemblyName>
@@ -61,17 +63,22 @@
     <AssemblyTitle>Stashbox .NET 6.0</AssemblyTitle>
     <DefineConstants>HAS_ASYNC_DISPOSABLE</DefineConstants>
   </PropertyGroup>
-  
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-    <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.7.0" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'net461' Or '$(TargetFramework)' == 'netstandard2.0'">
-    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="6.0.0" />
-  </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
     <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4" />
+    <PackageReference Include="System.ValueTuple" Version="4.5.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.7.0" />
+  </ItemGroup>
+  
+  <ItemGroup Condition="'$(TargetFramework)' == 'net461' Or '$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="6.0.0" />
+  </ItemGroup>
+	
+  <ItemGroup Condition="'$(TargetFramework)' == 'net461'">
+    <PackageReference Include="System.ValueTuple" Version="4.5.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -88,7 +95,7 @@
     <None Include="..\.version" />
     <None Include="..\appveyor.yml" />
     <None Include="..\appveyor-release.yml" />
-    <None Include="..\README.md" />
+    <None Include="..\README.md" Pack="true" PackagePath="" />
     <None Include="..\CHANGELOG.md" />
   </ItemGroup>
 </Project>

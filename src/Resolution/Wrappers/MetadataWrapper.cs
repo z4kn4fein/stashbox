@@ -8,6 +8,7 @@ namespace Stashbox.Resolution.Wrappers
     {
         private static readonly HashSet<Type> SupportedTypes = new()
         {
+            typeof(ValueTuple<,>),
             typeof(Tuple<,>),
             typeof(Metadata<,>),
         };
@@ -17,8 +18,8 @@ namespace Stashbox.Resolution.Wrappers
         public Expression WrapExpression(TypeInformation originalTypeInformation, TypeInformation wrappedTypeInformation, ServiceContext serviceContext)
         {
             var arguments = originalTypeInformation.Type.GetGenericArguments();
-            var constructor = originalTypeInformation.Type.GetConstructor(arguments);
-            var metadata = serviceContext.ServiceRegistration?.RegistrationContext?.Metadata;
+            var constructor = originalTypeInformation.Type.GetConstructor(arguments)!;
+            var metadata = serviceContext.ServiceRegistration?.Metadata;
             return constructor.MakeNew(serviceContext.ServiceExpression, metadata.AsConstant());
         }
 
@@ -26,7 +27,7 @@ namespace Stashbox.Resolution.Wrappers
         {
             if (!IsMetadataType(typeInformation.Type))
             {
-                unWrappedType = null;
+                unWrappedType = default;
                 return false;
             }
 

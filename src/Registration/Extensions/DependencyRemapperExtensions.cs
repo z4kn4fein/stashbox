@@ -15,7 +15,7 @@ namespace Stashbox
         /// <param name="typeTo">The service/implementation type.</param>
         /// <param name="configurator">The configurator for the registered type.</param>
         /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
-        public static IStashboxContainer ReMap(this IDependencyReMapper reMapper, Type typeTo, Action<RegistrationConfigurator> configurator = null) =>
+        public static IStashboxContainer ReMap(this IDependencyReMapper reMapper, Type typeTo, Action<RegistrationConfigurator>? configurator = null) =>
             reMapper.ReMap(typeTo, typeTo, configurator);
     }
 }

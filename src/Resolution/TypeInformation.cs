@@ -6,57 +6,63 @@ namespace Stashbox.Resolution
     /// <summary>
     /// Represents type information about a dependency.
     /// </summary>
-    public class TypeInformation
+    public readonly struct TypeInformation
     {
         /// <summary>
         /// The reflected type of the dependency.
         /// </summary>
-        public Type Type { get; private set; }
-
-        /// <summary>
-        /// The reflected type of the parent of the dependency.
-        /// </summary>
-        public Type ParentType { get; }
+        public readonly Type Type;
 
         /// <summary>
         /// The name of the dependency.
         /// </summary>
-        public object DependencyName { get; private set; }
+        public readonly object? DependencyName;
 
         /// <summary>
         /// The type of the metadata.
         /// </summary>
-        public Type MetadataType { get; private set; }
+        public readonly Type? MetadataType;
+
+        /// <summary>
+        /// The reflected type of the parent of the dependency.
+        /// </summary>
+        public readonly Type? ParentType;
 
         /// <summary>
         /// Custom attributes of the dependency.
         /// </summary>
-        public IEnumerable<Attribute> CustomAttributes { get; }
+        public readonly IEnumerable<Attribute>? CustomAttributes;
 
         /// <summary>
         /// If the dependency is a method or a constructor parameter, this property holds the parameter name, if it's a class member then the member name.
         /// </summary>
-        public string ParameterOrMemberName { get; }
+        public readonly string? ParameterOrMemberName;
 
         /// <summary>
         /// It's true if the dependency has default value.
         /// </summary>
-        public bool HasDefaultValue { get; }
+        public readonly bool HasDefaultValue;
 
         /// <summary>
         /// The default value of the dependency.
         /// </summary>
-        public object DefaultValue { get; }
+        public readonly object? DefaultValue;
 
-        internal TypeInformation(Type type, object dependencyName)
+        internal TypeInformation(Type type, object? dependencyName)
         {
             this.Type = type;
             this.DependencyName = dependencyName;
+            this.ParentType = null;
+            this.MetadataType = null;
+            this.CustomAttributes = null;
+            this.ParameterOrMemberName = null;
+            this.HasDefaultValue = false;
+            this.DefaultValue = null;
         }
 
-        internal TypeInformation(Type type, Type parentType, object dependencyName,
-            IEnumerable<Attribute> customAttributes, string parameterOrMemberName,
-            bool hasDefaultValue, object defaultValue)
+        internal TypeInformation(Type type, Type? parentType, object? dependencyName,
+            IEnumerable<Attribute>? customAttributes, string? parameterOrMemberName,
+            bool hasDefaultValue, object? defaultValue, Type? metaDataType)
         {
             this.Type = type;
             this.ParentType = parentType;
@@ -65,6 +71,7 @@ namespace Stashbox.Resolution
             this.ParameterOrMemberName = parameterOrMemberName;
             this.HasDefaultValue = hasDefaultValue;
             this.DefaultValue = defaultValue;
+            this.MetadataType = metaDataType;
         }
 
         /// <summary>
@@ -74,18 +81,14 @@ namespace Stashbox.Resolution
         /// <param name="dependencyName">The dependency name.</param>
         /// <param name="metadataType">The metadata type.</param>
         /// <returns>The cloned type information.</returns>
-        public TypeInformation Clone(Type type, object dependencyName = null, Type metadataType = null)
-        {
-            var clone = (TypeInformation)this.MemberwiseClone();
-            clone.Type = type;
-
-            if (dependencyName != null)
-                clone.DependencyName = dependencyName;
-            
-            if (metadataType != null)
-                clone.MetadataType = metadataType;
-            
-            return clone;
-        }
+        public TypeInformation Clone(Type type, object? dependencyName = null, Type? metadataType = null) =>
+            new(type,
+                this.ParentType,
+                dependencyName ?? this.DependencyName,
+                this.CustomAttributes,
+                this.ParameterOrMemberName,
+                this.HasDefaultValue,
+                this.DefaultValue,
+                metadataType ?? this.MetadataType);
     }
 }

@@ -13,7 +13,7 @@ namespace Stashbox.Expressions.Compile.Emitters
                 case ExpressionType.Parameter:
 
                     var localIndex = context.DefinedVariables.IndexOf(expression.Left);
-                    if (localIndex == -1) return false;
+                    if (localIndex == -1 || context.LocalBuilders == null) return false;
 
                     if (!expression.Right.TryEmit(generator, context, parameters))
                         return false;

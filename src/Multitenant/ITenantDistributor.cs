@@ -30,7 +30,7 @@ namespace Stashbox.Multitenant
         /// </summary>
         /// <param name="tenantId">The identifier of the tenant.</param>
         /// <returns>The pre-configured tenant container if it's exist, otherwise null.</returns>
-        IDependencyResolver GetTenant(object tenantId);
+        IDependencyResolver? GetTenant(object tenantId);
 
         /// <summary>
         /// Validates the root container and the configured tenants.

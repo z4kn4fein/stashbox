@@ -24,12 +24,12 @@ namespace Stashbox
         /// <summary>
         /// Constructs a <see cref="StashboxContainer"/>.
         /// </summary>
-        public StashboxContainer(Action<ContainerConfigurator> config = null)
+        public StashboxContainer(Action<ContainerConfigurator>? config = null)
             : this(null, new ResolutionStrategy(), new ContainerConfigurator(), config)
         { }
 
-        private StashboxContainer(IStashboxContainer parentContainer, IResolutionStrategy resolutionStrategy,
-            ContainerConfigurator containerConfigurator, Action<ContainerConfigurator> config = null)
+        private StashboxContainer(IStashboxContainer? parentContainer, IResolutionStrategy resolutionStrategy,
+            ContainerConfigurator containerConfigurator, Action<ContainerConfigurator>? config = null)
         {
             this.ContainerContext = new ContainerContext(parentContainer?.ContainerContext, resolutionStrategy, containerConfigurator.ContainerConfiguration);
             this.rootScope = (ResolutionScope)this.ContainerContext.RootScope;
@@ -50,11 +50,11 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public bool IsRegistered<TFrom>(object name = null) =>
+        public bool IsRegistered<TFrom>(object? name = null) =>
             this.IsRegistered(typeof(TFrom), name);
 
         /// <inheritdoc />
-        public bool IsRegistered(Type typeFrom, object name = null)
+        public bool IsRegistered(Type typeFrom, object? name = null)
         {
             this.ThrowIfDisposed();
             Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
@@ -77,7 +77,7 @@ namespace Stashbox
                 {
                     this.ContainerContext.ResolutionStrategy.BuildExpressionForRegistration(serviceRegistration.Value,
                         ResolutionContext.BeginValidationContext(this.ContainerContext),
-                        new TypeInformation(serviceRegistration.Key, serviceRegistration.Value.RegistrationContext.Name));
+                        new TypeInformation(serviceRegistration.Key, serviceRegistration.Value.Name));
                 }
                 catch (Exception ex)
                 {
@@ -90,7 +90,7 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public IStashboxContainer CreateChildContainer(Action<ContainerConfigurator> config = null)
+        public IStashboxContainer CreateChildContainer(Action<ContainerConfigurator>? config = null)
         {
             this.ThrowIfDisposed();
 
@@ -125,7 +125,7 @@ namespace Stashbox
             this.ThrowIfDisposed();
 
             foreach (var reg in this.ContainerContext.RegistrationRepository.GetRegistrationMappings())
-                yield return new RegistrationDiagnosticsInfo(reg.Key, reg.Value.ImplementationType, reg.Value.RegistrationContext.Name);
+                yield return new RegistrationDiagnosticsInfo(reg.Key, reg.Value.ImplementationType, reg.Value.Name);
         }
 
         private void ThrowIfDisposed([CallerMemberName] string caller = "<unknown>")

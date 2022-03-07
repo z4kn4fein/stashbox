@@ -10,29 +10,32 @@ namespace Stashbox.Lifetime
     /// </summary>
     public abstract class FactoryLifetimeDescriptor : LifetimeDescriptor
     {
-        private protected override Expression BuildLifetimeAppliedExpression(ServiceRegistration serviceRegistration,
+        private protected override Expression? BuildLifetimeAppliedExpression(ServiceRegistration serviceRegistration,
             ResolutionContext resolutionContext, Type requestedType)
         {
             var factory = GetFactoryDelegateForRegistration(serviceRegistration, resolutionContext, requestedType);
             return factory == null ? null : this.ApplyLifetime(factory, serviceRegistration, resolutionContext, requestedType);
         }
 
-        private static Func<IResolutionScope, IRequestContext, object> GetFactoryDelegateForRegistration(ServiceRegistration serviceRegistration,
+        private static Func<IResolutionScope, IRequestContext, object>? GetFactoryDelegateForRegistration(ServiceRegistration serviceRegistration,
             ResolutionContext resolutionContext, Type requestedType)
         {
             if (!IsRegistrationOutputCacheable(serviceRegistration, resolutionContext))
                 return GetNewFactoryDelegate(serviceRegistration, resolutionContext.BeginSubGraph(), requestedType);
 
-            var factory = resolutionContext.GetCachedFactory(serviceRegistration.RegistrationId);
+            var factory = resolutionContext.FactoryCache.GetOrDefault(serviceRegistration.RegistrationId);
             if (factory != null)
                 return factory;
 
             factory = GetNewFactoryDelegate(serviceRegistration, resolutionContext.BeginSubGraph(), requestedType);
-            resolutionContext.CacheFactory(serviceRegistration.RegistrationId, factory);
+            if (factory == null)
+                return null;
+
+            resolutionContext.FactoryCache.Add(serviceRegistration.RegistrationId, factory);
             return factory;
         }
 
-        private static Func<IResolutionScope, IRequestContext, object> GetNewFactoryDelegate(ServiceRegistration serviceRegistration,
+        private static Func<IResolutionScope, IRequestContext, object>? GetNewFactoryDelegate(ServiceRegistration serviceRegistration,
             ResolutionContext resolutionContext, Type requestedType) =>
             GetExpressionForRegistration(serviceRegistration, resolutionContext, requestedType)
                 ?.CompileDelegate(resolutionContext, resolutionContext.CurrentContainerContext.ContainerConfiguration);

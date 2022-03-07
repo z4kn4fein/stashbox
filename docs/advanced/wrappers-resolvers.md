@@ -6,8 +6,8 @@ Stashbox uses so-called *Wrapper* and *Resolver* implementations to handle those
 * `EnumerableWrapper`: Used to resolve a collection of services wrapped in one of the collection interfaces that a .NET `Array` implements. (`IEnumerable<>`, `IList<>`, `ICollection<>`, `IReadOnlyList<>`, `IReadOnlyCollection<>`) 
 * `LazyWrapper`: Used to resolve services [wrapped](advanced/wrappers-resolvers?id=lazy) in `Lazy<>`.
 * `FuncWrapper`: Used to resolve services [wrapped](advanced/wrappers-resolvers?id=func) in `Func<>` delegates.
-* `MetadataWrapper`: Used to resolve services [wrapped](advanced/wrappers-resolvers?id=metadata-amp-tuple) in `Tuple<>` or `Metadata<>`.
-* `KeyValueWrapper`: Used to resolve services [wrapped](advanced/wrappers-resolvers?id=keyvaluepair-amp-readonlykeyvalue) in `KeyValuePair` or `ReadOnlyKeyValue<>`.
+* `MetadataWrapper`: Used to resolve services [wrapped](advanced/wrappers-resolvers?id=metadata-amp-tuple) in `ValueTuple<,>`, `Tuple<,>`, or `Metadata<,>`.
+* `KeyValueWrapper`: Used to resolve services [wrapped](advanced/wrappers-resolvers?id=keyvaluepair-amp-readonlykeyvalue) in `KeyValuePair<,>` or `ReadOnlyKeyValue<,>`.
 * `OptionalValueResolver`: Used to resolve optional parameters.
 * `DefaultValueResolver`: Used to resolve default values.
 * `ParentContainerResolver`: Used to resolve services that are only registered in one of the parent containers.
@@ -93,11 +93,11 @@ IJob job = funcOfJob(config["connectionString"], new ConsoleLogger());
 <!-- div:left-panel -->
 ### Metadata & Tuple
 With the `.WithMetadata()` registration option, you can attach additional information to a service.
-To gather this information, you can request the service wrapped in either `Metadata<,>` or `Tuple<,>`.
+To gather this information, you can request the service wrapped in either `Metadata<,>`, `ValueTuple<,>`, or `Tuple<,>`.
 
-`Metadata<,>` is a type from the `Stashbox` package, so you might prefer using `Tuple<,>` if you want to avoid referencing Stashbox in certain parts of your project.
+`Metadata<,>` is a type from the `Stashbox` package, so you might prefer using `ValueTuple<,>` or `Tuple<,>` if you want to avoid referencing Stashbox in certain parts of your project.
 
-You can also filter a collection of services by their metadata. Requesting `IEnumerable<Tuple<,>>` will yield only those services that have the given type of metadata.
+You can also filter a collection of services by their metadata. Requesting `IEnumerable<ValueTuple<,>>` will yield only those services that have the given type of metadata.
 <!-- div:right-panel -->
 
 <!-- tabs:start -->
@@ -110,9 +110,13 @@ var jobWithConnectionString = container.Resolve<Metadata<IJob, string>>();
 // prints: "connection-string-to-db"
 Console.WriteLine(jobWithConnectionString.Data);
 
-var alsoJobWithConnectionString = container.Resolve<Tuple<IJob, string>>();
+var alsoJobWithConnectionString = container.Resolve<ValueTuple<IJob, string>>();
 // prints: "connection-string-to-db"
 Console.WriteLine(alsoJobWithConnectionString.Item2);
+
+var stillJobWithConnectionString = container.Resolve<Tuple<IJob, string>>();
+// prints: "connection-string-to-db"
+Console.WriteLine(stillJobWithConnectionString.Item2);
 ```
 
 ##### **Collection filtering**
@@ -125,17 +129,17 @@ container.Register<IService, Service3>(options => options
     .WithMetadata(5));
 
 // the result is: [Service1, Service2]
-var servicesWithStringMetadata = container.Resolve<Tuple<IService, string>[]>();
+var servicesWithStringMetadata = container.Resolve<ValueTuple<IService, string>[]>();
 
 // the result is: [Service3]
-var servicesWithIntMetadata = container.Resolve<Tuple<IService, int>[]>();
+var servicesWithIntMetadata = container.Resolve<ValueTuple<IService, int>[]>();
 ```
 
 <!-- tabs:end -->
 
 <!-- panels:end -->
 
-?> Metadata can also be a complex type e.g., an `IDictionary<>`.
+?> Metadata can also be a complex type e.g., an `IDictionary<,>`.
 
 !> When no service found for a particular metadata type, the container throws a [ResolutionFailedException](diagnostics/validation?id=resolution-validation). In case of an `IEnumerable<>` request, an empty collection will be returned for a non-existing metadata.
 

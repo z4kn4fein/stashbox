@@ -21,7 +21,7 @@ namespace Stashbox
         /// Creates a child container.
         /// </summary>
         /// <param name="config">The action delegate which will configure the child container.</param>
-        IStashboxContainer CreateChildContainer(Action<ContainerConfigurator> config = null);
+        IStashboxContainer CreateChildContainer(Action<ContainerConfigurator>? config = null);
 
         /// <summary>
         /// The container context.
@@ -34,7 +34,7 @@ namespace Stashbox
         /// <typeparam name="TFrom">The service type.</typeparam>
         /// <param name="name">The registration name.</param>
         /// <returns>True if the service is registered, otherwise false.</returns>
-        bool IsRegistered<TFrom>(object name = null);
+        bool IsRegistered<TFrom>(object? name = null);
 
         /// <summary>
         /// Checks whether a type is registered in the container.
@@ -42,7 +42,7 @@ namespace Stashbox
         /// <param name="typeFrom">The service type.</param>
         /// <param name="name">The registration name.</param>
         /// <returns>True if the service is registered, otherwise false.</returns>
-        bool IsRegistered(Type typeFrom, object name = null);
+        bool IsRegistered(Type typeFrom, object? name = null);
 
         /// <summary>
         /// Configures the container.

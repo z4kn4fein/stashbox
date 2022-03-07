@@ -22,7 +22,7 @@ namespace Stashbox
         /// <summary>
         /// The parent container context.
         /// </summary>
-        IContainerContext ParentContext { get; }
+        IContainerContext? ParentContext { get; }
 
         /// <summary>
         /// The resolution strategy.

@@ -94,7 +94,7 @@ namespace Stashbox.Registration.Fluent
         /// </summary>
         /// <param name="dependencyName">The name of the bound named registration.</param>
         /// <returns>The configurator itself.</returns>
-        public TConfigurator WithDependencyBinding<TDependency>(object dependencyName = null) =>
+        public TConfigurator WithDependencyBinding<TDependency>(object? dependencyName = null) =>
             this.WithDependencyBinding(typeof(TDependency), dependencyName);
 
         /// <summary>
@@ -103,12 +103,11 @@ namespace Stashbox.Registration.Fluent
         /// <param name="dependencyType">The type of the dependency to search for.</param>
         /// <param name="dependencyName">The name of the bound named registration.</param>
         /// <returns>The fluent configurator.</returns>
-        public TConfigurator WithDependencyBinding(Type dependencyType, object dependencyName = null)
+        public TConfigurator WithDependencyBinding(Type dependencyType, object? dependencyName = null)
         {
             Shield.EnsureNotNull(dependencyType, nameof(dependencyType));
-            if (this.Context.DependencyBindings == null)
-                this.Context.DependencyBindings = new Dictionary<object, object>();
 
+            this.Context.DependencyBindings ??= new Dictionary<object, object?>();
             this.Context.DependencyBindings.Add(dependencyType, dependencyName);
 
             return (TConfigurator)this;
@@ -120,12 +119,11 @@ namespace Stashbox.Registration.Fluent
         /// <param name="parameterName">The parameter name of the dependency to search for.</param>
         /// <param name="dependencyName">The name of the bound named registration.</param>
         /// <returns>The fluent configurator.</returns>
-        public TConfigurator WithDependencyBinding(string parameterName, object dependencyName = null)
+        public TConfigurator WithDependencyBinding(string parameterName, object? dependencyName = null)
         {
             Shield.EnsureNotNull(parameterName, nameof(parameterName));
-            if (this.Context.DependencyBindings == null)
-                this.Context.DependencyBindings = new Dictionary<object, object>();
 
+            this.Context.DependencyBindings ??= new Dictionary<object, object?>();
             this.Context.DependencyBindings.Add(parameterName, dependencyName);
 
             return (TConfigurator)this;
@@ -146,9 +144,8 @@ namespace Stashbox.Registration.Fluent
         public TConfigurator WhenDependantIs(Type targetType)
         {
             Shield.EnsureNotNull(targetType, nameof(targetType));
-            if (this.Context.TargetTypeConditions == null)
-                this.Context.TargetTypeConditions = new ExpandableArray<Type>();
 
+            this.Context.TargetTypeConditions ??= new ExpandableArray<Type>();
             this.Context.TargetTypeConditions.Add(targetType);
             return (TConfigurator)this;
         }
@@ -167,9 +164,9 @@ namespace Stashbox.Registration.Fluent
         /// <returns>The configurator itself.</returns>
         public TConfigurator WhenHas(Type attributeType)
         {
-            if (this.Context.AttributeConditions == null)
-                this.Context.AttributeConditions = new ExpandableArray<Type>();
+            Shield.EnsureNotNull(attributeType, nameof(attributeType));
 
+            this.Context.AttributeConditions ??= new ExpandableArray<Type>();
             this.Context.AttributeConditions.Add(attributeType);
             return (TConfigurator)this;
         }
@@ -181,9 +178,9 @@ namespace Stashbox.Registration.Fluent
         /// <returns>The configurator itself.</returns>
         public TConfigurator When(Func<TypeInformation, bool> resolutionCondition)
         {
-            if (this.Context.ResolutionConditions == null)
-                this.Context.ResolutionConditions = new ExpandableArray<Func<TypeInformation, bool>>();
+            Shield.EnsureNotNull(resolutionCondition, nameof(resolutionCondition));
 
+            this.Context.ResolutionConditions ??= new ExpandableArray<Func<TypeInformation, bool>>();
             this.Context.ResolutionConditions.Add(resolutionCondition);
             return (TConfigurator)this;
         }
@@ -193,11 +190,9 @@ namespace Stashbox.Registration.Fluent
         /// </summary>
         /// <param name="injectionParameters">The injection parameters.</param>
         /// <returns>The fluent configurator.</returns>
-        public TConfigurator WithInjectionParameters(params KeyValuePair<string, object>[] injectionParameters)
+        public TConfigurator WithInjectionParameters(params KeyValuePair<string, object?>[] injectionParameters)
         {
-            if (this.Context.InjectionParameters == null)
-                this.Context.InjectionParameters = new ExpandableArray<KeyValuePair<string, object>>();
-
+            this.Context.InjectionParameters ??= new ExpandableArray<KeyValuePair<string, object?>>();
             this.Context.InjectionParameters.AddRange(injectionParameters);
             return (TConfigurator)this;
         }
@@ -208,12 +203,12 @@ namespace Stashbox.Registration.Fluent
         /// <param name="name">The name of the injection parameter.</param>
         /// <param name="value">The value of the injection parameter.</param>
         /// <returns>The fluent configurator.</returns>
-        public TConfigurator WithInjectionParameter(string name, object value)
+        public TConfigurator WithInjectionParameter(string name, object? value)
         {
-            if (this.Context.InjectionParameters == null)
-                this.Context.InjectionParameters = new ExpandableArray<KeyValuePair<string, object>>();
+            Shield.EnsureNotNull(name, nameof(name));
 
-            this.Context.InjectionParameters.Add(new KeyValuePair<string, object>(name, value));
+            this.Context.InjectionParameters ??= new ExpandableArray<KeyValuePair<string, object?>>();
+            this.Context.InjectionParameters.Add(new KeyValuePair<string, object?>(name, value));
             return (TConfigurator)this;
         }
 
@@ -223,7 +218,7 @@ namespace Stashbox.Registration.Fluent
         /// <param name="rule">The auto member injection rule.</param>
         /// <param name="filter">A filter delegate used to determine which members should be auto injected and which are not.</param>
         /// <returns>The fluent configurator.</returns>
-        public TConfigurator WithAutoMemberInjection(Rules.AutoMemberInjectionRules rule = Rules.AutoMemberInjectionRules.PropertiesWithPublicSetter, Func<MemberInfo, bool> filter = null)
+        public TConfigurator WithAutoMemberInjection(Rules.AutoMemberInjectionRules rule = Rules.AutoMemberInjectionRules.PropertiesWithPublicSetter, Func<MemberInfo, bool>? filter = null)
         {
             this.Context.AutoMemberInjectionEnabled = true;
             this.Context.AutoMemberInjectionRule = rule;
@@ -312,9 +307,7 @@ namespace Stashbox.Registration.Fluent
         /// <returns>The configurator itself.</returns>
         public TConfigurator AsImplementedTypes()
         {
-            if (this.Context.AdditionalServiceTypes == null)
-                this.Context.AdditionalServiceTypes = new ExpandableArray<Type>();
-
+            this.Context.AdditionalServiceTypes ??= new ExpandableArray<Type>();
             this.Context.AdditionalServiceTypes.AddRange(this.ImplementationType.GetRegisterableInterfaceTypes()
                 .Concat(this.ImplementationType.GetRegisterableBaseTypes()));
             return (TConfigurator)this;
@@ -337,15 +330,15 @@ namespace Stashbox.Registration.Fluent
             if (!this.ImplementationType.Implements(serviceType))
                 throw new ArgumentException($"The implementation type {base.ImplementationType} does not implement the given service type {serviceType}.");
 
-            if (this.Context.AdditionalServiceTypes == null)
-                this.Context.AdditionalServiceTypes = new ExpandableArray<Type>();
-
+            this.Context.AdditionalServiceTypes ??= new ExpandableArray<Type>();
             this.Context.AdditionalServiceTypes.Add(serviceType);
             return (TConfigurator)this;
         }
 
         private protected void SetFactory(Delegate factory, bool isCompiledLambda, params Type[] parameterTypes)
         {
+            Shield.EnsureNotNull(factory, nameof(factory));
+
             this.Context.Factory = factory;
             this.Context.FactoryParameters = parameterTypes;
             this.Context.IsFactoryDelegateACompiledLambda = isCompiledLambda;

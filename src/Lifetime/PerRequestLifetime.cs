@@ -21,7 +21,7 @@ namespace Stashbox.Lifetime
             resolutionContext.RequestConfiguration.RequiresRequestContext = true;
 
             return resolutionContext.RequestContextParameter
-                .ConvertTo(Constants.PerRequestInstanceHolderType)
+                .ConvertTo(Constants.InternalRequestContextType)
                 .CallMethod(Constants.GetOrAddInstanceMethod,
                     serviceRegistration.RegistrationId.AsConstant(),
                     factory.AsConstant(),

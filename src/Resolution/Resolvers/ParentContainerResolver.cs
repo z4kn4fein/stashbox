@@ -12,14 +12,14 @@ namespace Stashbox.Resolution.Resolvers
             TypeInformation typeInfo,
             ResolutionContext resolutionContext) =>
             resolutionStrategy.BuildExpressionForType(resolutionContext.BeginCrossContainerContext(resolutionContext
-                .CurrentContainerContext.ParentContext), typeInfo);
+                .CurrentContainerContext.ParentContext!), typeInfo);
 
         public IEnumerable<ServiceContext> GetExpressionsForEnumerableRequest(
             IResolutionStrategy resolutionStrategy,
             TypeInformation typeInfo,
             ResolutionContext resolutionContext) =>
             resolutionStrategy.BuildExpressionsForEnumerableRequest(resolutionContext.BeginCrossContainerContext(resolutionContext
-                .CurrentContainerContext.ParentContext), typeInfo);
+                .CurrentContainerContext.ParentContext!), typeInfo);
 
         public bool CanLookupService(TypeInformation typeInfo, ResolutionContext resolutionContext)
         {

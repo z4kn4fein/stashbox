@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Stashbox.Utils;
+using System;
 
 namespace Stashbox.Registration.Fluent
 {
@@ -7,6 +8,8 @@ namespace Stashbox.Registration.Fluent
     /// </summary>
     public class RegistrationConfigurator<TService, TImplementation> :
         FluentServiceConfigurator<TService, TImplementation, RegistrationConfigurator<TService, TImplementation>>
+        where TService : class
+        where TImplementation : class, TService
     {
         internal RegistrationConfigurator(Type serviceType, Type implementationType) : base(serviceType, implementationType)
         { }
@@ -19,6 +22,8 @@ namespace Stashbox.Registration.Fluent
         /// <returns>The fluent configurator.</returns>
         public RegistrationConfigurator<TService, TImplementation> WithInstance(TService instance, bool wireUp = false)
         {
+            Shield.EnsureNotNull(instance, nameof(instance));
+
             this.Context.ExistingInstance = instance;
             this.Context.IsWireUp = wireUp;
             this.ImplementationType = instance.GetType();
@@ -32,8 +37,7 @@ namespace Stashbox.Registration.Fluent
     public class RegistrationConfigurator : FluentServiceConfigurator<RegistrationConfigurator>
     {
         internal RegistrationConfigurator(Type serviceType, Type implementationType) : base(serviceType, implementationType)
-        {
-        }
+        { }
 
         /// <summary>
         /// Sets an instance as the resolution target of the registration.
@@ -43,6 +47,8 @@ namespace Stashbox.Registration.Fluent
         /// <returns>The fluent configurator.</returns>
         public RegistrationConfigurator WithInstance(object instance, bool wireUp = false)
         {
+            Shield.EnsureNotNull(instance, nameof(instance));
+
             this.Context.ExistingInstance = instance;
             this.Context.IsWireUp = wireUp;
             this.ImplementationType = instance.GetType();

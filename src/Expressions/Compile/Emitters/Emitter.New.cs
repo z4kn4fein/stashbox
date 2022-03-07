@@ -10,7 +10,7 @@ namespace Stashbox.Expressions.Compile.Emitters
             if (!expression.Arguments.TryEmit(generator, context, parameters))
                 return false;
 
-            generator.Emit(OpCodes.Newobj, expression.Constructor);
+            generator.Emit(OpCodes.Newobj, expression.Constructor!);
 
             return true;
         }

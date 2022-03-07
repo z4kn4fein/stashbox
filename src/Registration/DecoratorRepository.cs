@@ -32,17 +32,17 @@ namespace Stashbox.Registration
             else
                 Swap.SwapValue(ref this.repository, (t1, t2, t3, _, repo) =>
                     repo.AddOrUpdate(t1, t2, true, (oldValue, _) => oldValue
-                        .AddOrUpdate(t3.ImplementationType, t3, t3.RegistrationContext.ReplaceExistingRegistration)),
+                        .AddOrUpdate(t3.ImplementationType, t3, t3.ReplaceExistingRegistration)),
                             type, newRepository, serviceRegistration, Constants.DelegatePlaceholder);
         }
 
-        public IEnumerable<ServiceRegistration> GetDecoratorsOrDefault(Type implementationTypeToDecorate, TypeInformation typeInformation, ResolutionContext resolutionContext) =>
-            this.GetRegistrationsForType(typeInformation.Type)?.FilterInclusiveOrDefault(typeInformation.Clone(implementationTypeToDecorate), resolutionContext, this.filters);
+        public IEnumerable<ServiceRegistration>? GetDecoratorsOrDefault(Type implementationTypeToDecorate, TypeInformation typeInformation, ResolutionContext resolutionContext) =>
+            this.GetRegistrationsForType(typeInformation.Type)?.FilterInclusive(typeInformation.Clone(implementationTypeToDecorate), resolutionContext, this.filters);
 
         public IEnumerable<KeyValuePair<Type, ServiceRegistration>> GetRegistrationMappings() =>
             repository.Walk().SelectMany(reg => reg.Value.Select(r => new KeyValuePair<Type, ServiceRegistration>(reg.Key, r)));
 
-        private IEnumerable<ServiceRegistration> GetRegistrationsForType(Type type)
+        private IEnumerable<ServiceRegistration>? GetRegistrationsForType(Type type)
         {
             var registrations = repository.GetOrDefaultByRef(type);
             return !type.IsClosedGenericType()

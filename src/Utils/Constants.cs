@@ -1,6 +1,5 @@
 ﻿using Stashbox.Resolution;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -18,7 +17,7 @@ namespace Stashbox.Utils
 
         public static readonly Type RequestContextType = typeof(IRequestContext);
 
-        public static readonly Type PerRequestInstanceHolderType = typeof(IPerRequestInstanceHolder);
+        public static readonly Type InternalRequestContextType = typeof(IInternalRequestContext);
 
         public static readonly Type ObjectType = typeof(object);
 
@@ -26,23 +25,29 @@ namespace Stashbox.Utils
 
         public static readonly ParameterExpression RequestContextParameter = RequestContextType.AsParameter("request");
 
-        public static readonly MethodInfo AddDisposalMethod = ResolutionScopeType.GetMethod(nameof(IResolutionScope.AddDisposableTracking));
+        public static readonly MethodInfo AddDisposalMethod = ResolutionScopeType.GetMethod(nameof(IResolutionScope.AddDisposableTracking))!;
 
-        public static readonly MethodInfo GetOrAddScopedObjectMethod = ResolutionScopeType.GetMethod(nameof(IResolutionScope.GetOrAddScopedObject));
+        public static readonly MethodInfo AddRequestContextAwareDisposalMethod = ResolutionScopeType.GetMethod(nameof(IResolutionScope.AddRequestContextAwareDisposableTracking))!;
 
-        public static readonly MethodInfo AddWithFinalizerMethod = ResolutionScopeType.GetMethod(nameof(IResolutionScope.AddWithFinalizer));
+        public static readonly MethodInfo GetOrAddScopedObjectMethod = ResolutionScopeType.GetMethod(nameof(IResolutionScope.GetOrAddScopedObject))!;
 
-        public static readonly MethodInfo AddWithAsyncInitializerMethod = ResolutionScopeType.GetMethod(nameof(IResolutionScope.AddWithAsyncInitializer));
+        public static readonly MethodInfo AddWithFinalizerMethod = ResolutionScopeType.GetMethod(nameof(IResolutionScope.AddWithFinalizer))!;
 
-        public static readonly MethodInfo GetOrAddInstanceMethod = PerRequestInstanceHolderType.GetMethod(nameof(IPerRequestInstanceHolder.GetOrAddInstance));
+        public static readonly MethodInfo AddWithAsyncInitializerMethod = ResolutionScopeType.GetMethod(nameof(IResolutionScope.AddWithAsyncInitializer))!;
+
+        public static readonly MethodInfo GetOrAddInstanceMethod = InternalRequestContextType.GetMethod(nameof(IInternalRequestContext.GetOrAddInstance))!;
 
         public static readonly MethodInfo CheckRuntimeCircularDependencyBarrierMethod =
-            ResolutionScopeType.GetMethod(nameof(IResolutionScope.CheckRuntimeCircularDependencyBarrier));
+#pragma warning disable 618
+            ResolutionScopeType.GetMethod(nameof(IResolutionScope.CheckRuntimeCircularDependencyBarrier))!;
+#pragma warning restore 618
 
         public static readonly MethodInfo ResetRuntimeCircularDependencyBarrierMethod =
-            ResolutionScopeType.GetMethod(nameof(IResolutionScope.ResetRuntimeCircularDependencyBarrier));
+#pragma warning disable 618
+            ResolutionScopeType.GetMethod(nameof(IResolutionScope.ResetRuntimeCircularDependencyBarrier))!;
+#pragma warning restore 618
 
-        public static readonly MethodInfo BeginScopeMethod = ResolverType.GetMethod(nameof(IDependencyResolver.BeginScope));
+        public static readonly MethodInfo BeginScopeMethod = ResolverType.GetMethod(nameof(IDependencyResolver.BeginScope))!;
 
         public static readonly Type DisposableType = typeof(IDisposable);
 

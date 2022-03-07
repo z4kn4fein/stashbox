@@ -24,8 +24,8 @@ namespace Stashbox
         /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
         public static IStashboxContainer RegisterTypesAs<TFrom>(this IDependencyCollectionRegistrator registrator,
             IEnumerable<Type> types,
-            Func<Type, bool> selector = null,
-            Action<RegistrationConfigurator> configurator = null)
+            Func<Type, bool>? selector = null,
+            Action<RegistrationConfigurator>? configurator = null)
             where TFrom : class =>
             registrator.RegisterTypesAs(typeof(TFrom),
                 types,
@@ -43,8 +43,8 @@ namespace Stashbox
         /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
         public static IStashboxContainer RegisterTypesAs<TFrom>(this IDependencyCollectionRegistrator registrator,
             Assembly assembly,
-            Func<Type, bool> selector = null,
-            Action<RegistrationConfigurator> configurator = null)
+            Func<Type, bool>? selector = null,
+            Action<RegistrationConfigurator>? configurator = null)
             where TFrom : class =>
             registrator.RegisterTypesAs(typeof(TFrom),
                 assembly.CollectTypes(),
@@ -63,8 +63,8 @@ namespace Stashbox
         public static IStashboxContainer RegisterTypesAs(this IDependencyCollectionRegistrator registrator,
             Type typeFrom,
             Assembly assembly,
-            Func<Type, bool> selector = null,
-            Action<RegistrationConfigurator> configurator = null) =>
+            Func<Type, bool>? selector = null,
+            Action<RegistrationConfigurator>? configurator = null) =>
             registrator.RegisterTypesAs(typeFrom,
                 assembly.CollectTypes(),
                 selector,
@@ -82,10 +82,10 @@ namespace Stashbox
         /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
         public static IStashboxContainer RegisterAssembly(this IDependencyCollectionRegistrator registrator,
             Assembly assembly,
-            Func<Type, bool> selector = null,
-            Func<Type, Type, bool> serviceTypeSelector = null,
+            Func<Type, bool>? selector = null,
+            Func<Type, Type, bool>? serviceTypeSelector = null,
             bool registerSelf = true,
-            Action<RegistrationConfigurator> configurator = null) =>
+            Action<RegistrationConfigurator>? configurator = null) =>
             registrator.RegisterTypes(assembly.CollectTypes(),
                 selector,
                 serviceTypeSelector,
@@ -104,10 +104,10 @@ namespace Stashbox
         /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
         public static IStashboxContainer RegisterAssemblies(this IDependencyCollectionRegistrator registrator,
             IEnumerable<Assembly> assemblies,
-            Func<Type, bool> selector = null,
-            Func<Type, Type, bool> serviceTypeSelector = null,
+            Func<Type, bool>? selector = null,
+            Func<Type, Type, bool>? serviceTypeSelector = null,
             bool registerSelf = true,
-            Action<RegistrationConfigurator> configurator = null)
+            Action<RegistrationConfigurator>? configurator = null)
         {
             Shield.EnsureNotNull(assemblies, nameof(assemblies));
 
@@ -132,10 +132,10 @@ namespace Stashbox
         /// <param name="configurator">The configurator for the registered types.</param>
         /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
         public static IStashboxContainer RegisterAssemblyContaining<TFrom>(this IDependencyCollectionRegistrator registrator,
-            Func<Type, bool> selector = null,
-            Func<Type, Type, bool> serviceTypeSelector = null,
+            Func<Type, bool>? selector = null,
+            Func<Type, Type, bool>? serviceTypeSelector = null,
             bool registerSelf = true,
-            Action<RegistrationConfigurator> configurator = null)
+            Action<RegistrationConfigurator>? configurator = null)
             where TFrom : class =>
             registrator.RegisterAssemblyContaining(typeof(TFrom),
                 selector,
@@ -155,10 +155,10 @@ namespace Stashbox
         /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
         public static IStashboxContainer RegisterAssemblyContaining(this IDependencyCollectionRegistrator registrator,
             Type typeFrom,
-            Func<Type, bool> selector = null,
-            Func<Type, Type, bool> serviceTypeSelector = null,
+            Func<Type, bool>? selector = null,
+            Func<Type, Type, bool>? serviceTypeSelector = null,
             bool registerSelf = true,
-            Action<RegistrationConfigurator> configurator = null) =>
+            Action<RegistrationConfigurator>? configurator = null) =>
             registrator.RegisterAssembly(typeFrom.Assembly,
                 selector,
                 serviceTypeSelector,
@@ -174,7 +174,7 @@ namespace Stashbox
         /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
         public static IStashboxContainer ComposeAssemblies(this IDependencyCollectionRegistrator registrator,
             IEnumerable<Assembly> assemblies,
-            Func<Type, bool> selector = null)
+            Func<Type, bool>? selector = null)
         {
             Shield.EnsureNotNull(assemblies, nameof(assemblies));
 
@@ -205,12 +205,12 @@ namespace Stashbox
         /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
         public static IStashboxContainer ComposeAssembly(this IDependencyCollectionRegistrator registrator,
             Assembly assembly,
-            Func<Type, bool> selector = null)
+            Func<Type, bool>? selector = null)
         {
             Shield.EnsureNotNull(assembly, nameof(assembly));
 
             var types = selector == null ? assembly.CollectTypes() : assembly.CollectTypes().Where(selector);
-            var compositionRootTypes = types.Where(type => type.IsResolvableType() && type.IsCompositionRoot());
+            var compositionRootTypes = types.Where(type => type.IsResolvableType() && type.IsCompositionRoot()).CastToArray();
 
             if (!compositionRootTypes.Any())
                 throw new CompositionRootNotFoundException(assembly);

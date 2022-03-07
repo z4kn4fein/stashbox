@@ -1,7 +1,7 @@
 name: Build on Linux and macOS
 on:
   push:
-    branches: [ master, v5 ]
+    branches: [ master, dev ]
     paths-ignore:
       - '**.md'
       - 'docs/**'

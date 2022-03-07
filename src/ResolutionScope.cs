@@ -1,12 +1,9 @@
 ﻿using Stashbox.Exceptions;
 using Stashbox.Resolution;
 using Stashbox.Utils;
-using Stashbox.Utils.Data;
 using Stashbox.Utils.Data.Immutable;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
 using System.Threading;
 
 namespace Stashbox
@@ -63,11 +60,11 @@ namespace Stashbox
         private ImmutableTree<ThreadLocal<bool>> circularDependencyBarrier = ImmutableTree<ThreadLocal<bool>>.Empty;
 
 
-        internal readonly DelegateCache DelegateCache;
+        internal DelegateCache DelegateCache;
 
-        public object Name { get; }
+        public object? Name { get; }
 
-        public IResolutionScope ParentScope { get; }
+        public IResolutionScope? ParentScope { get; }
 
         public ResolutionScope(IContainerContext containerContext)
         {
@@ -76,7 +73,7 @@ namespace Stashbox
             this.DelegateCache = new DelegateCache();
         }
 
-        private ResolutionScope(IResolutionScope parent, IContainerContext containerContext, DelegateCacheProvider delegateCacheProvider, object name)
+        private ResolutionScope(IResolutionScope parent, IContainerContext containerContext, DelegateCacheProvider delegateCacheProvider, object? name)
         {
             this.containerContext = containerContext;
             this.delegateCacheProvider = delegateCacheProvider;
@@ -99,7 +96,7 @@ namespace Stashbox
             return Swap.SwapValue(ref this.scopedInstances, (t1, t2, _, _, items) =>
                 items.AddOrUpdate(t1, t2), key, evaluator, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder)
                 ? evaluator.Evaluate(this, requestContext, factory, serviceType)
-                : this.scopedInstances.GetOrDefault(key).Evaluate(this, requestContext, factory, serviceType);
+                : this.scopedInstances.GetOrDefault(key)!.Evaluate(this, requestContext, factory, serviceType);
         }
 
         public void InvalidateDelegateCache()
@@ -117,7 +114,7 @@ namespace Stashbox
         {
             this.ThrowIfDisposed();
 
-            IResolutionScope current = this;
+            IResolutionScope? current = this;
             while (current != null)
             {
                 if (current.Name != null)
@@ -133,7 +130,8 @@ namespace Stashbox
             if (check is { Value: true })
                 throw new CircularDependencyException(type);
 
-            Swap.SwapValue(ref this.circularDependencyBarrier, (t1, _, _, _, barrier) => barrier.AddOrUpdate(t1, new ThreadLocal<bool>(), (old, @new) =>
+            Swap.SwapValue(ref this.circularDependencyBarrier, (t1, _, _, _, barrier) => 
+                barrier.AddOrUpdate(t1, new ThreadLocal<bool>(), (old, _) =>
                 { old.Value = true; return old; }), key, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
         }
 
@@ -142,33 +140,6 @@ namespace Stashbox
             var check = this.circularDependencyBarrier.GetOrDefault(key);
             if (check != null)
                 check.Value = false;
-        }
-
-        internal HashTree<object, ConstantExpression> ProcessDependencyOverrides(object[] dependencyOverrides)
-        {
-            if (dependencyOverrides == null && this.lateKnownInstances.IsEmpty)
-                return null;
-
-            var result = new HashTree<object, ConstantExpression>();
-
-            if (!this.lateKnownInstances.IsEmpty)
-                foreach (var lateKnownInstance in this.lateKnownInstances.Walk())
-                    result.Add(lateKnownInstance.Key, lateKnownInstance.Value.AsConstant(), false);
-
-            if (dependencyOverrides == null) return result;
-
-            foreach (var dependencyOverride in dependencyOverrides)
-            {
-                var type = dependencyOverride.GetType();
-                var expression = dependencyOverride.AsConstant();
-
-                result.Add(type, expression, false);
-
-                foreach (var baseType in type.GetRegisterableInterfaceTypes().Concat(type.GetRegisterableBaseTypes()))
-                    result.Add(baseType, expression, false);
-            }
-
-            return result;
         }
     }
 }

@@ -16,8 +16,9 @@ namespace Stashbox
         /// <param name="nullResultAllowed">If true, the container will return with null instead of throwing <see cref="ResolutionFailedException"/>.</param>
         /// <param name="dependencyOverrides">A collection of objects which are used to override certain dependencies of the requested service.</param>
         /// <returns>The resolved object.</returns>
-        public static TKey Resolve<TKey>(this IDependencyResolver resolver, bool nullResultAllowed = false, object[] dependencyOverrides = null) =>
-            (TKey)resolver.Resolve(typeof(TKey), nullResultAllowed, dependencyOverrides);
+        [Obsolete("Please use Resolve<Service>() or ResolveOrDefault<Service>() instead.")]
+        public static TKey? Resolve<TKey>(this IDependencyResolver resolver, bool nullResultAllowed, object[]? dependencyOverrides = null) =>
+            (TKey?)resolver.Resolve(typeof(TKey), nullResultAllowed, dependencyOverrides);
 
 
         /// <summary>
@@ -29,8 +30,51 @@ namespace Stashbox
         /// <param name="nullResultAllowed">If true, the container will return with null instead of throwing <see cref="ResolutionFailedException"/>.</param>
         /// <param name="dependencyOverrides">A collection of objects which are used to override certain dependencies of the requested service.</param>
         /// <returns>The resolved object.</returns>
-        public static TKey Resolve<TKey>(this IDependencyResolver resolver, object name, bool nullResultAllowed = false, object[] dependencyOverrides = null) =>
-            (TKey)resolver.Resolve(typeof(TKey), name, nullResultAllowed, dependencyOverrides);
+        [Obsolete("Please use Resolve<Service>(name) or ResolveOrDefault<Service>(name) instead.")]
+        public static TKey? Resolve<TKey>(this IDependencyResolver resolver, object name, bool nullResultAllowed, object[]? dependencyOverrides = null) =>
+            (TKey?)resolver.Resolve(typeof(TKey), name, nullResultAllowed, dependencyOverrides);
+
+        /// <summary>
+        /// Resolves an instance from the container.
+        /// </summary>
+        /// <typeparam name="TKey">The type of the requested instance.</typeparam>
+        /// <param name="resolver">The dependency resolver.</param>
+        /// <param name="dependencyOverrides">A collection of objects which are used to override certain dependencies of the requested service.</param>
+        /// <returns>The resolved object.</returns>
+        public static TKey Resolve<TKey>(this IDependencyResolver resolver, object[]? dependencyOverrides = null) =>
+            (TKey)resolver.Resolve(typeof(TKey), dependencyOverrides);
+
+        /// <summary>
+        /// Resolves an instance from the container.
+        /// </summary>
+        /// <typeparam name="TKey">The type of the requested instance.</typeparam>
+        /// <param name="resolver">The dependency resolver.</param>
+        /// <param name="name">The name of the requested registration.</param>
+        /// <param name="dependencyOverrides">A collection of objects which are used to override certain dependencies of the requested service.</param>
+        /// <returns>The resolved object.</returns>
+        public static TKey Resolve<TKey>(this IDependencyResolver resolver, object name, object[]? dependencyOverrides = null) =>
+            (TKey)resolver.Resolve(typeof(TKey), name, dependencyOverrides);
+
+        /// <summary>
+        /// Resolves an instance from the container or returns default if the type is not resolvable.
+        /// </summary>
+        /// <typeparam name="TKey">The type of the requested instance.</typeparam>
+        /// <param name="resolver">The dependency resolver.</param>
+        /// <param name="name">The name of the requested registration.</param>
+        /// <param name="dependencyOverrides">A collection of objects which are used to override certain dependencies of the requested service.</param>
+        /// <returns>The resolved object.</returns>
+        public static TKey? ResolveOrDefault<TKey>(this IDependencyResolver resolver, object name, object[]? dependencyOverrides = null) =>
+            (TKey?)(resolver.ResolveOrDefault(typeof(TKey), name, dependencyOverrides) ?? default(TKey));
+
+        /// <summary>
+        /// Resolves an instance from the container or returns default if the type is not resolvable.
+        /// </summary>
+        /// <typeparam name="TKey">The type of the requested instance.</typeparam>
+        /// <param name="resolver">The dependency resolver.</param>
+        /// <param name="dependencyOverrides">A collection of objects which are used to override certain dependencies of the requested service.</param>
+        /// <returns>The resolved object.</returns>
+        public static TKey? ResolveOrDefault<TKey>(this IDependencyResolver resolver, object[]? dependencyOverrides = null) =>
+            (TKey?)(resolver.ResolveOrDefault(typeof(TKey), dependencyOverrides) ?? default(TKey));
 
         /// <summary>
         /// Returns a factory method which can be used to activate a type.
@@ -40,8 +84,11 @@ namespace Stashbox
         /// <param name="name">The name of the requested registration.</param>
         /// <param name="nullResultAllowed">If true, the container will return with null instead of throwing <see cref="ResolutionFailedException"/>.</param>
         /// <returns>The factory delegate.</returns>
-        public static Func<TService> ResolveFactory<TService>(this IDependencyResolver resolver, object name = null, bool nullResultAllowed = false) =>
-            resolver.ResolveFactory(typeof(TService), name, nullResultAllowed) as Func<TService>;
+        [Obsolete("Please use Resolve<Func<Service>>() instead.")]
+        public static Func<TService>? ResolveFactory<TService>(this IDependencyResolver resolver, object? name = null, bool nullResultAllowed = false) =>
+            name == null 
+            ? resolver.Resolve<Func<TService>>(nullResultAllowed)
+            : resolver.Resolve<Func<TService>>(name, nullResultAllowed);
 
         /// <summary>
         /// Returns a factory method which can be used to activate a type.
@@ -52,8 +99,11 @@ namespace Stashbox
         /// <param name="name">The name of the requested registration.</param>
         /// <param name="nullResultAllowed">If true, the container will return with null instead of throwing <see cref="ResolutionFailedException"/>.</param>
         /// <returns>The factory delegate.</returns>
-        public static Func<T1, TService> ResolveFactory<T1, TService>(this IDependencyResolver resolver, object name = null, bool nullResultAllowed = false) =>
-            resolver.ResolveFactory(typeof(TService), name, nullResultAllowed, typeof(T1)) as Func<T1, TService>;
+        [Obsolete("Please use Resolve<Func<T, Service>>() instead.")]
+        public static Func<T1, TService>? ResolveFactory<T1, TService>(this IDependencyResolver resolver, object? name = null, bool nullResultAllowed = false) =>
+            name == null
+            ? resolver.Resolve<Func<T1, TService>>(nullResultAllowed)
+            : resolver.Resolve<Func<T1, TService>>(name, nullResultAllowed);
 
         /// <summary>
         /// Returns a factory method which can be used to activate a type.
@@ -65,8 +115,11 @@ namespace Stashbox
         /// <param name="name">The name of the requested registration.</param>
         /// <param name="nullResultAllowed">If true, the container will return with null instead of throwing <see cref="ResolutionFailedException"/>.</param>
         /// <returns>The factory delegate.</returns>
-        public static Func<T1, T2, TService> ResolveFactory<T1, T2, TService>(this IDependencyResolver resolver, object name = null, bool nullResultAllowed = false) =>
-            resolver.ResolveFactory(typeof(TService), name, nullResultAllowed, typeof(T1), typeof(T2)) as Func<T1, T2, TService>;
+        [Obsolete("Please use Resolve<Func<T1, T2, Service>>() instead.")]
+        public static Func<T1, T2, TService>? ResolveFactory<T1, T2, TService>(this IDependencyResolver resolver, object? name = null, bool nullResultAllowed = false) =>
+            name == null
+            ? resolver.Resolve<Func<T1, T2, TService>>(nullResultAllowed)
+            : resolver.Resolve<Func<T1, T2, TService>>(name, nullResultAllowed);
 
         /// <summary>
         /// Returns a factory method which can be used to activate a type.
@@ -79,8 +132,11 @@ namespace Stashbox
         /// <param name="name">The name of the requested registration.</param>
         /// <param name="nullResultAllowed">If true, the container will return with null instead of throwing <see cref="ResolutionFailedException"/>.</param>
         /// <returns>The factory delegate.</returns>
-        public static Func<T1, T2, T3, TService> ResolveFactory<T1, T2, T3, TService>(this IDependencyResolver resolver, object name = null, bool nullResultAllowed = false) =>
-            resolver.ResolveFactory(typeof(TService), name, nullResultAllowed, typeof(T1), typeof(T2), typeof(T3)) as Func<T1, T2, T3, TService>;
+        [Obsolete("Please use Resolve<Func<T1, T2, T3, Service>>() instead.")]
+        public static Func<T1, T2, T3, TService>? ResolveFactory<T1, T2, T3, TService>(this IDependencyResolver resolver, object? name = null, bool nullResultAllowed = false) =>
+            name == null
+            ? resolver.Resolve<Func<T1, T2, T3, TService>>(nullResultAllowed)
+            : resolver.Resolve<Func<T1, T2, T3, TService>>(name, nullResultAllowed);
 
         /// <summary>
         /// Returns a factory method which can be used to activate a type.
@@ -94,8 +150,11 @@ namespace Stashbox
         /// <param name="name">The name of the requested registration.</param>
         /// <param name="nullResultAllowed">If true, the container will return with null instead of throwing <see cref="ResolutionFailedException"/>.</param>
         /// <returns>The factory delegate.</returns>
-        public static Func<T1, T2, T3, T4, TService> ResolveFactory<T1, T2, T3, T4, TService>(this IDependencyResolver resolver, object name = null, bool nullResultAllowed = false) =>
-            resolver.ResolveFactory(typeof(TService), name, nullResultAllowed, typeof(T1), typeof(T2), typeof(T3), typeof(T4)) as Func<T1, T2, T3, T4, TService>;
+        [Obsolete("Please use Resolve<Func<T1, T2, T3, T4, Service>>() instead.")]
+        public static Func<T1, T2, T3, T4, TService>? ResolveFactory<T1, T2, T3, T4, TService>(this IDependencyResolver resolver, object? name = null, bool nullResultAllowed = false) =>
+            name == null
+            ? resolver.Resolve<Func<T1, T2, T3, T4, TService>>(nullResultAllowed)
+            : resolver.Resolve<Func<T1, T2, T3, T4, TService>>(name, nullResultAllowed);
 
         /// <summary>
         /// On the fly activates an object without registering it into the container. If you want to resolve a
@@ -117,7 +176,8 @@ namespace Stashbox
         /// <param name="withoutDisposalTracking">If it's set to true the container will exclude the instance from the disposal tracking.</param>
         /// <param name="name">The identifier.</param>
         /// <returns>The scope.</returns>
-        public static void PutInstanceInScope<TFrom>(this IDependencyResolver resolver, TFrom instance, bool withoutDisposalTracking = false, object name = null) =>
+        public static void PutInstanceInScope<TFrom>(this IDependencyResolver resolver, TFrom instance, bool withoutDisposalTracking = false, object? name = null)
+            where TFrom : class =>
             resolver.PutInstanceInScope(typeof(TFrom), instance, withoutDisposalTracking, name);
     }
 }

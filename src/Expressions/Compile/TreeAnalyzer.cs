@@ -7,7 +7,7 @@ namespace Stashbox.Expressions.Compile
 {
     internal class TreeAnalyzer
     {
-        private bool isNestedLambda;
+        private readonly bool isNestedLambda;
 
         public readonly ExpandableArray<Expression> CapturedParameters;
 
@@ -23,6 +23,19 @@ namespace Stashbox.Expressions.Compile
             this.DefinedVariables = new ExpandableArray<Expression>();
             this.NestedLambdas = new ExpandableArray<LambdaExpression, NestedLambda>();
             this.Constants = new ExpandableArray<object>();
+        }
+
+        private TreeAnalyzer(bool isNestedLambda,
+            ExpandableArray<Expression> capturedParameters,
+            ExpandableArray<Expression> definedVariables,
+            ExpandableArray<LambdaExpression, NestedLambda> nestedLambdas,
+            ExpandableArray<object> constants)
+        {
+            this.isNestedLambda = isNestedLambda;
+            CapturedParameters = capturedParameters;
+            DefinedVariables = definedVariables;
+            NestedLambdas = nestedLambdas;
+            Constants = constants;
         }
 
         public bool Analyze(Expression expression, params ParameterExpression[] parameters)
@@ -48,8 +61,8 @@ namespace Stashbox.Expressions.Compile
                         analyzer.CapturedParameters.Length > 0));
                     return true;
 
-                case ExpressionType.MemberAccess:
-                    return this.Analyze(((MemberExpression)expression).Expression, parameters);
+                case ExpressionType.MemberAccess when expression is MemberExpression memberExpression && memberExpression.Expression != null:
+                    return this.Analyze(memberExpression.Expression, parameters);
 
                 case ExpressionType.Constant:
                     var constant = (ConstantExpression)expression;
@@ -107,13 +120,8 @@ namespace Stashbox.Expressions.Compile
             return false;
         }
 
-        private TreeAnalyzer Clone(bool isLambda = false)
-        {
-            var clone = (TreeAnalyzer)this.MemberwiseClone();
-            clone.DefinedVariables = new ExpandableArray<Expression>();
-            clone.isNestedLambda = isLambda;
-            return clone;
-        }
+        private TreeAnalyzer Clone(bool isLambda = false) =>
+            new(isLambda, this.CapturedParameters, new ExpandableArray<Expression>(), this.NestedLambdas, this.Constants);
 
         private bool Analyze(IList<Expression> expressions, params ParameterExpression[] parameters)
         {

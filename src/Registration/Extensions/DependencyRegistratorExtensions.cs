@@ -1,5 +1,4 @@
-﻿using Stashbox.Utils;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace Stashbox
@@ -17,7 +16,7 @@ namespace Stashbox
         /// <param name="registrator">The dependency registrator.</param>
         /// <param name="name">The name of the registration.</param>
         /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
-        public static IStashboxContainer Register<TFrom, TTo>(this IDependencyRegistrator registrator, object name = null)
+        public static IStashboxContainer Register<TFrom, TTo>(this IDependencyRegistrator registrator, object? name = null)
             where TFrom : class
             where TTo : class, TFrom =>
             registrator.Register<TFrom, TTo>(context => context.WithName(name));
@@ -33,8 +32,6 @@ namespace Stashbox
             IEnumerable<TFrom> instances, bool withoutDisposalTracking = false)
             where TFrom : class
         {
-            Shield.EnsureNotNull(instances, nameof(instances));
-
             foreach (var instance in instances)
                 registrator.RegisterInstance(instance, withoutDisposalTracking: withoutDisposalTracking);
 
@@ -59,7 +56,7 @@ namespace Stashbox
         /// <param name="registrator">The dependency registrator.</param>
         /// <param name="name">The name of the registration.</param>
         /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
-        public static IStashboxContainer RegisterSingleton<TFrom, TTo>(this IDependencyRegistrator registrator, object name = null)
+        public static IStashboxContainer RegisterSingleton<TFrom, TTo>(this IDependencyRegistrator registrator, object? name = null)
             where TFrom : class
             where TTo : class, TFrom =>
             registrator.Register<TFrom, TTo>(context => context.WithName(name).WithSingletonLifetime());
@@ -71,7 +68,7 @@ namespace Stashbox
         /// <param name="registrator">The dependency registrator.</param>
         /// <param name="name">The name of the registration.</param>
         /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
-        public static IStashboxContainer RegisterSingleton<TTo>(this IDependencyRegistrator registrator, object name = null)
+        public static IStashboxContainer RegisterSingleton<TTo>(this IDependencyRegistrator registrator, object? name = null)
             where TTo : class =>
             registrator.Register<TTo>(context => context.WithName(name).WithSingletonLifetime());
 
@@ -84,7 +81,7 @@ namespace Stashbox
         /// <param name="name">The name of the registration.</param>
         /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
         public static IStashboxContainer RegisterSingleton(this IDependencyRegistrator registrator,
-            Type typeFrom, Type typeTo, object name = null) =>
+            Type typeFrom, Type typeTo, object? name = null) =>
             registrator.Register(typeFrom, typeTo, context => context.WithName(name).WithSingletonLifetime());
 
         /// <summary>
@@ -95,7 +92,7 @@ namespace Stashbox
         /// <param name="registrator">The dependency registrator.</param>
         /// <param name="name">The name of the registration.</param>
         /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
-        public static IStashboxContainer RegisterScoped<TFrom, TTo>(this IDependencyRegistrator registrator, object name = null)
+        public static IStashboxContainer RegisterScoped<TFrom, TTo>(this IDependencyRegistrator registrator, object? name = null)
             where TFrom : class
             where TTo : class, TFrom =>
             registrator.Register<TFrom, TTo>(context => context.WithName(name).WithScopedLifetime());
@@ -109,7 +106,7 @@ namespace Stashbox
         /// <param name="name">The name of the registration.</param>
         /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
         public static IStashboxContainer RegisterScoped(this IDependencyRegistrator registrator,
-            Type typeFrom, Type typeTo, object name = null) =>
+            Type typeFrom, Type typeTo, object? name = null) =>
             registrator.Register(typeFrom, typeTo, context => context.WithName(name).WithScopedLifetime());
 
         /// <summary>
@@ -119,7 +116,7 @@ namespace Stashbox
         /// <param name="registrator">The dependency registrator.</param>
         /// <param name="name">The name of the registration.</param>
         /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
-        public static IStashboxContainer RegisterScoped<TTo>(this IDependencyRegistrator registrator, object name = null)
+        public static IStashboxContainer RegisterScoped<TTo>(this IDependencyRegistrator registrator, object? name = null)
             where TTo : class =>
             registrator.Register<TTo>(context => context.WithName(name).WithScopedLifetime());
     }

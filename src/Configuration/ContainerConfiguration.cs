@@ -13,15 +13,6 @@ namespace Stashbox.Configuration
     /// </summary>
     public class ContainerConfiguration
     {
-        internal static ContainerConfiguration DefaultContainerConfiguration()
-        {
-            return new ContainerConfiguration
-            {
-                ConstructorSelectionRule = Rules.ConstructorSelection.PreferMostParameters,
-                DefaultLifetime = Lifetimes.Transient
-            };
-        }
-
         /// <summary>
         /// If it's set to true the container will track transient objects for disposal.
         /// </summary>
@@ -76,27 +67,27 @@ namespace Stashbox.Configuration
         /// <summary>
         /// The constructor selection rule.
         /// </summary>
-        public Func<IEnumerable<ConstructorInfo>, IEnumerable<ConstructorInfo>> ConstructorSelectionRule { get; internal set; }
+        public Func<IEnumerable<ConstructorInfo>, IEnumerable<ConstructorInfo>> ConstructorSelectionRule { get; internal set; } = Rules.ConstructorSelection.PreferMostParameters;
 
         /// <summary>
         /// Represents the configuration which will be invoked when an unknown type being registered.
         /// </summary>
-        public Action<UnknownRegistrationConfigurator> UnknownTypeConfigurator { get; internal set; }
+        public Action<UnknownRegistrationConfigurator>? UnknownTypeConfigurator { get; internal set; }
 
         /// <summary>
         /// The action which will be invoked when the container configuration changes.
         /// </summary>
-        public Action<ContainerConfiguration> ConfigurationChangedEvent { get; internal set; }
+        public Action<ContainerConfiguration>? ConfigurationChangedEvent { get; internal set; }
 
         /// <summary>
         /// A filter delegate used to determine which members should be auto injected and which are not.
         /// </summary>
-        public Func<MemberInfo, bool> AutoMemberInjectionFilter { get; internal set; }
+        public Func<MemberInfo, bool>? AutoMemberInjectionFilter { get; internal set; }
 
         /// <summary>
         /// The default lifetime, used when a service isn't configured with a lifetime.
         /// </summary>
-        public LifetimeDescriptor DefaultLifetime { get; internal set; }
+        public LifetimeDescriptor DefaultLifetime { get; internal set; } = Lifetimes.Transient;
 
         /// <summary>
         /// When it's true, the container validates the lifetime configuration of the resolution
@@ -108,11 +99,68 @@ namespace Stashbox.Configuration
         /// <summary>
         /// A delegate to use external expression compilers.
         /// </summary>
-        public Func<LambdaExpression, Delegate> ExternalExpressionCompiler { get; internal set; }
+        public Func<LambdaExpression, Delegate>? ExternalExpressionCompiler { get; internal set; }
 
-        private ContainerConfiguration()
-        { }
+        internal ContainerConfiguration() { }
 
-        internal ContainerConfiguration Clone() => (ContainerConfiguration)this.MemberwiseClone();
+        private ContainerConfiguration(bool trackTransientsForDisposalEnabled,
+            Rules.RegistrationBehavior registrationBehavior,
+            bool runtimeCircularDependencyTrackingEnabled,
+            bool defaultValueInjectionEnabled,
+            bool unknownTypeResolutionEnabled,
+            bool autoMemberInjectionEnabled,
+            bool treatingParameterAndMemberNameAsDependencyNameEnabled,
+            bool namedDependencyResolutionForUnNamedRequestsEnabled,
+            bool reBuildSingletonsInChildContainerEnabled,
+            Rules.AutoMemberInjectionRules autoMemberInjectionRule,
+            Func<IEnumerable<ConstructorInfo>, IEnumerable<ConstructorInfo>> constructorSelectionRule,
+            Action<UnknownRegistrationConfigurator>? unknownTypeConfigurator,
+            Action<ContainerConfiguration>? configurationChangedEvent,
+            Func<MemberInfo, bool>? autoMemberInjectionFilter,
+            LifetimeDescriptor defaultLifetime,
+            bool lifetimeValidationEnabled,
+            Func<LambdaExpression, Delegate>? externalExpressionCompiler)
+        {
+            TrackTransientsForDisposalEnabled = trackTransientsForDisposalEnabled;
+            RegistrationBehavior = registrationBehavior;
+#pragma warning disable CS0618 // Type or member is obsolete
+            RuntimeCircularDependencyTrackingEnabled = runtimeCircularDependencyTrackingEnabled;
+#pragma warning restore CS0618 // Type or member is obsolete
+            DefaultValueInjectionEnabled = defaultValueInjectionEnabled;
+            UnknownTypeResolutionEnabled = unknownTypeResolutionEnabled;
+            AutoMemberInjectionEnabled = autoMemberInjectionEnabled;
+            TreatingParameterAndMemberNameAsDependencyNameEnabled = treatingParameterAndMemberNameAsDependencyNameEnabled;
+            NamedDependencyResolutionForUnNamedRequestsEnabled = namedDependencyResolutionForUnNamedRequestsEnabled;
+            ReBuildSingletonsInChildContainerEnabled = reBuildSingletonsInChildContainerEnabled;
+            AutoMemberInjectionRule = autoMemberInjectionRule;
+            ConstructorSelectionRule = constructorSelectionRule;
+            UnknownTypeConfigurator = unknownTypeConfigurator;
+            ConfigurationChangedEvent = configurationChangedEvent;
+            AutoMemberInjectionFilter = autoMemberInjectionFilter;
+            DefaultLifetime = defaultLifetime;
+            LifetimeValidationEnabled = lifetimeValidationEnabled;
+            ExternalExpressionCompiler = externalExpressionCompiler;
+        }
+
+        internal ContainerConfiguration Clone() => 
+            new(this.TrackTransientsForDisposalEnabled,
+                this.RegistrationBehavior,
+#pragma warning disable CS0618 // Type or member is obsolete
+                this.RuntimeCircularDependencyTrackingEnabled,
+#pragma warning restore CS0618 // Type or member is obsolete
+                this.DefaultValueInjectionEnabled,
+                this.UnknownTypeResolutionEnabled,
+                this.AutoMemberInjectionEnabled,
+                this.TreatingParameterAndMemberNameAsDependencyNameEnabled,
+                this.NamedDependencyResolutionForUnNamedRequestsEnabled,
+                this.ReBuildSingletonsInChildContainerEnabled,
+                this.AutoMemberInjectionRule,
+                this.ConstructorSelectionRule,
+                this.UnknownTypeConfigurator,
+                this.ConfigurationChangedEvent,
+                this.AutoMemberInjectionFilter,
+                this.DefaultLifetime,
+                this.LifetimeValidationEnabled,
+                this.ExternalExpressionCompiler);
     }
 }

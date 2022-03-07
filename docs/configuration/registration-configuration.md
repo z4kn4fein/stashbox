@@ -93,13 +93,13 @@ container.Register<ILogger, ConsoleLogger>(options => options
 <!-- panels:start -->
 <!-- div:left-panel -->
 ### `WithMetadata`
-Sets additional metadata for the registration. It's attached to the service upon its resolution through `Metadata<>` or `Tuple<>` wrappers.
+Sets additional metadata for the registration. It's attached to the service upon its resolution through `ValueTuple<,>`, `Tuple<,>`, or `Metadata<,>` wrappers.
 <!-- div:right-panel -->
 ```cs
 container.Register<IJob, DbBackup>(options => options
     .WithMetadata(connectionString));
 
-var jobWithConnectionString = container.Resolve<Tuple<IJob, string>>();
+var jobWithConnectionString = container.Resolve<ValueTuple<IJob, string>>();
 Console.WriteLine(jobWithConnectionString.Item2); // prints the connection string.
 
 ```

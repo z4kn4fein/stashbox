@@ -280,7 +280,7 @@ namespace Stashbox.Tests
                 .Register<ITest, Test>(config => config.InNamedScope("A"))
                 .ContainerContext.RegistrationRepository.GetRegistrationMappings().First(reg => reg.Key == typeof(ITest));
 
-            Assert.IsType<NamedScopeLifetime>(inst.Value.RegistrationContext.Lifetime);
+            Assert.IsType<NamedScopeLifetime>(inst.Value.Lifetime);
         }
 
         [Theory]

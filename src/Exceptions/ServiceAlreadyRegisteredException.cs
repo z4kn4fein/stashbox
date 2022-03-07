@@ -14,15 +14,15 @@ namespace Stashbox.Exceptions
         /// <summary>
         /// The type the container is trying to register.
         /// </summary>
-        public Type Type { get; }
+        public Type? Type { get; }
 
         /// <summary>
         /// Constructs a <see cref="ServiceAlreadyRegisteredException"/>.
         /// </summary>
         /// <param name="type">The type of the service.</param>
         /// <param name="innerException">The inner exception.</param>
-        public ServiceAlreadyRegisteredException(Type type, Exception innerException = null)
-            : base($"The type {type.FullName} is already registered.", innerException)
+        public ServiceAlreadyRegisteredException(Type? type, Exception? innerException = null)
+            : base($"The type '{type?.FullName}' is already registered.", innerException)
         {
             this.Type = type;
         }
