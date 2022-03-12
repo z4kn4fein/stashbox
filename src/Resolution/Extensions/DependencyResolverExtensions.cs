@@ -39,31 +39,60 @@ namespace Stashbox
         /// </summary>
         /// <typeparam name="TKey">The type of the requested instance.</typeparam>
         /// <param name="resolver">The dependency resolver.</param>
+        /// <returns>The resolved object.</returns>
+        public static TKey Resolve<TKey>(this IDependencyResolver resolver) =>
+            (TKey)resolver.Resolve(typeof(TKey));
+
+        /// <summary>
+        /// Resolves an instance from the container with dependency overrides.
+        /// </summary>
+        /// <typeparam name="TKey">The type of the requested instance.</typeparam>
+        /// <param name="resolver">The dependency resolver.</param>
         /// <param name="dependencyOverrides">A collection of objects which are used to override certain dependencies of the requested service.</param>
         /// <returns>The resolved object.</returns>
-        public static TKey Resolve<TKey>(this IDependencyResolver resolver, object[]? dependencyOverrides = null) =>
+        public static TKey Resolve<TKey>(this IDependencyResolver resolver, object[] dependencyOverrides) =>
             (TKey)resolver.Resolve(typeof(TKey), dependencyOverrides);
 
         /// <summary>
-        /// Resolves an instance from the container.
+        /// Resolves a named instance from the container.
+        /// </summary>
+        /// <typeparam name="TKey">The type of the requested instance.</typeparam>
+        /// <param name="resolver">The dependency resolver.</param>
+        /// <param name="name">The name of the requested registration.</param>
+        /// <returns>The resolved object.</returns>
+        public static TKey Resolve<TKey>(this IDependencyResolver resolver, object name) =>
+            (TKey)resolver.Resolve(typeof(TKey), name);
+
+        /// <summary>
+        /// Resolves a named instance from the container with dependency overrides.
         /// </summary>
         /// <typeparam name="TKey">The type of the requested instance.</typeparam>
         /// <param name="resolver">The dependency resolver.</param>
         /// <param name="name">The name of the requested registration.</param>
         /// <param name="dependencyOverrides">A collection of objects which are used to override certain dependencies of the requested service.</param>
         /// <returns>The resolved object.</returns>
-        public static TKey Resolve<TKey>(this IDependencyResolver resolver, object name, object[]? dependencyOverrides = null) =>
+        public static TKey Resolve<TKey>(this IDependencyResolver resolver, object name, object[] dependencyOverrides) =>
             (TKey)resolver.Resolve(typeof(TKey), name, dependencyOverrides);
 
         /// <summary>
-        /// Resolves an instance from the container or returns default if the type is not resolvable.
+        /// Resolves a named instance from the container or returns default if the type is not resolvable.
+        /// </summary>
+        /// <typeparam name="TKey">The type of the requested instance.</typeparam>
+        /// <param name="resolver">The dependency resolver.</param>
+        /// <param name="name">The name of the requested registration.</param>
+        /// <returns>The resolved object.</returns>
+        public static TKey? ResolveOrDefault<TKey>(this IDependencyResolver resolver, object name) =>
+            (TKey?)(resolver.ResolveOrDefault(typeof(TKey), name) ?? default(TKey));
+
+        /// <summary>
+        /// Resolves a named instance from the container with dependency overrides or returns default if the type is not resolvable.
         /// </summary>
         /// <typeparam name="TKey">The type of the requested instance.</typeparam>
         /// <param name="resolver">The dependency resolver.</param>
         /// <param name="name">The name of the requested registration.</param>
         /// <param name="dependencyOverrides">A collection of objects which are used to override certain dependencies of the requested service.</param>
         /// <returns>The resolved object.</returns>
-        public static TKey? ResolveOrDefault<TKey>(this IDependencyResolver resolver, object name, object[]? dependencyOverrides = null) =>
+        public static TKey? ResolveOrDefault<TKey>(this IDependencyResolver resolver, object name, object[] dependencyOverrides) =>
             (TKey?)(resolver.ResolveOrDefault(typeof(TKey), name, dependencyOverrides) ?? default(TKey));
 
         /// <summary>
@@ -71,9 +100,18 @@ namespace Stashbox
         /// </summary>
         /// <typeparam name="TKey">The type of the requested instance.</typeparam>
         /// <param name="resolver">The dependency resolver.</param>
+        /// <returns>The resolved object.</returns>
+        public static TKey? ResolveOrDefault<TKey>(this IDependencyResolver resolver) =>
+            (TKey?)(resolver.ResolveOrDefault(typeof(TKey)) ?? default(TKey));
+
+        /// <summary>
+        /// Resolves an instance from the container with dependency overrides or returns default if the type is not resolvable.
+        /// </summary>
+        /// <typeparam name="TKey">The type of the requested instance.</typeparam>
+        /// <param name="resolver">The dependency resolver.</param>
         /// <param name="dependencyOverrides">A collection of objects which are used to override certain dependencies of the requested service.</param>
         /// <returns>The resolved object.</returns>
-        public static TKey? ResolveOrDefault<TKey>(this IDependencyResolver resolver, object[]? dependencyOverrides = null) =>
+        public static TKey? ResolveOrDefault<TKey>(this IDependencyResolver resolver, object[] dependencyOverrides) =>
             (TKey?)(resolver.ResolveOrDefault(typeof(TKey), dependencyOverrides) ?? default(TKey));
 
         /// <summary>

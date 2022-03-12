@@ -40,51 +40,95 @@ namespace Stashbox
         /// Resolves an instance from the container.
         /// </summary>
         /// <param name="typeFrom">The type of the requested instance.</param>
-        /// <param name="dependencyOverrides">A collection of objects which are used to override certain dependencies of the requested service.</param>
         /// <returns>The resolved object.</returns>
-        object Resolve(Type typeFrom, object[]? dependencyOverrides = null);
+        object Resolve(Type typeFrom);
 
         /// <summary>
-        /// Resolves an instance from the container.
+        /// Resolves an instance from the container with dependency overrides.
+        /// </summary>
+        /// <param name="typeFrom">The type of the requested instance.</param>
+        /// <param name="dependencyOverrides">A collection of objects which are used to override certain dependencies of the requested service.</param>
+        /// <returns>The resolved object.</returns>
+        object Resolve(Type typeFrom, object[] dependencyOverrides);
+
+        /// <summary>
+        /// Resolves a named instance from the container.
+        /// </summary>
+        /// <param name="typeFrom">The type of the requested instance.</param>
+        /// <param name="name">The name of the requested registration.</param>
+        /// <returns>The resolved object.</returns>
+        object Resolve(Type typeFrom, object name);
+
+        /// <summary>
+        /// Resolves a named instance from the container with dependency overrides.
         /// </summary>
         /// <param name="typeFrom">The type of the requested instance.</param>
         /// <param name="name">The name of the requested registration.</param>
         /// <param name="dependencyOverrides">A collection of objects which are used to override certain dependencies of the requested service.</param>
         /// <returns>The resolved object.</returns>
-        object Resolve(Type typeFrom, object name, object[]? dependencyOverrides = null);
+        object Resolve(Type typeFrom, object name, object[] dependencyOverrides);
 
         /// <summary>
         /// Resolves an instance from the container or returns default if the type is not resolvable.
         /// </summary>
         /// <param name="typeFrom">The type of the requested instance.</param>
-        /// <param name="dependencyOverrides">A collection of objects which are used to override certain dependencies of the requested service.</param>
         /// <returns>The resolved object.</returns>
-        object? ResolveOrDefault(Type typeFrom, object[]? dependencyOverrides = null);
+        object? ResolveOrDefault(Type typeFrom);
 
         /// <summary>
-        /// Resolves an instance from the container or returns default if the type is not resolvable.
+        /// Resolves an instance from the container with dependency overrides or returns default if the type is not resolvable.
+        /// </summary>
+        /// <param name="typeFrom">The type of the requested instance.</param>
+        /// <param name="dependencyOverrides">A collection of objects which are used to override certain dependencies of the requested service.</param>
+        /// <returns>The resolved object.</returns>
+        object? ResolveOrDefault(Type typeFrom, object[] dependencyOverrides);
+
+        /// <summary>
+        /// Resolves a named instance from the container or returns default if the type is not resolvable.
+        /// </summary>
+        /// <param name="typeFrom">The type of the requested instance.</param>
+        /// <param name="name">The name of the requested registration.</param>
+        /// <returns>The resolved object.</returns>
+        object? ResolveOrDefault(Type typeFrom, object name);
+
+        /// <summary>
+        /// Resolves an instance from the container with dependency overrides or returns default if the type is not resolvable.
         /// </summary>
         /// <param name="typeFrom">The type of the requested instance.</param>
         /// <param name="name">The name of the requested registration.</param>
         /// <param name="dependencyOverrides">A collection of objects which are used to override certain dependencies of the requested service.</param>
         /// <returns>The resolved object.</returns>
-        object? ResolveOrDefault(Type typeFrom, object name, object[]? dependencyOverrides = null);
+        object? ResolveOrDefault(Type typeFrom, object name, object[] dependencyOverrides);
 
         /// <summary>
-        /// Resolves all registered types of a service.
+        /// Resolves all registered implementations of a service.
+        /// </summary>
+        /// <typeparam name="TKey">The type of the requested instance.</typeparam>
+        /// <returns>The resolved object.</returns>
+        IEnumerable<TKey> ResolveAll<TKey>();
+
+        /// <summary>
+        /// Resolves all registered implementations of a service with dependency overrides.
         /// </summary>
         /// <typeparam name="TKey">The type of the requested instance.</typeparam>
         /// <param name="dependencyOverrides">A collection of objects which are used to override certain dependencies of the requested services.</param>
         /// <returns>The resolved object.</returns>
-        IEnumerable<TKey> ResolveAll<TKey>(object[]? dependencyOverrides = null);
+        IEnumerable<TKey> ResolveAll<TKey>(object[] dependencyOverrides);
 
         /// <summary>
-        /// Resolves all registered types of a service.
+        /// Resolves all registered implementations of a service.
+        /// </summary>
+        /// <param name="typeFrom">The type of the requested instances.</param>
+        /// <returns>The resolved object.</returns>
+        IEnumerable<object> ResolveAll(Type typeFrom);
+
+        /// <summary>
+        /// Resolves all registered implementations of a service with dependency overrides.
         /// </summary>
         /// <param name="typeFrom">The type of the requested instances.</param>
         /// <param name="dependencyOverrides">A collection of objects which are used to override certain dependencies of the requested services.</param>
         /// <returns>The resolved object.</returns>
-        IEnumerable<object> ResolveAll(Type typeFrom, object[]? dependencyOverrides = null);
+        IEnumerable<object> ResolveAll(Type typeFrom, object[] dependencyOverrides);
 
         /// <summary>
         /// Returns a factory delegate that can be used to activate the service.
