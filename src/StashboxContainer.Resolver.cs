@@ -1,5 +1,4 @@
-﻿using Stashbox.Exceptions;
-using Stashbox.Expressions;
+﻿using Stashbox.Expressions;
 using Stashbox.Resolution;
 using Stashbox.Utils;
 using System;
@@ -15,23 +14,11 @@ namespace Stashbox
     {
 		/// <inheritdoc />
 		public object? Resolve(Type typeFrom, bool nullResultAllowed, object[]? dependencyOverrides = null) =>
-			 nullResultAllowed
-				? dependencyOverrides == null
-					? this.ResolveOrDefault(typeFrom)
-					: this.ResolveOrDefault(typeFrom, dependencyOverrides)
-				: dependencyOverrides == null
-					? this.Resolve(typeFrom)
-					: this.Resolve(typeFrom, dependencyOverrides);
+			 this.rootScope.Resolve(typeFrom, nullResultAllowed, dependencyOverrides);
 
 		/// <inheritdoc />
 		public object? Resolve(Type typeFrom, object name, bool nullResultAllowed, object[]? dependencyOverrides = null) =>
-			nullResultAllowed
-				? dependencyOverrides == null
-					? this.ResolveOrDefault(typeFrom, name)
-					: this.ResolveOrDefault(typeFrom, name, dependencyOverrides)
-				: dependencyOverrides == null
-					? this.Resolve(typeFrom, name)
-					: this.Resolve(typeFrom, name, dependencyOverrides);
+			 this.rootScope.Resolve(typeFrom, name, nullResultAllowed, dependencyOverrides);
 
 		/// <inheritdoc />
 		public object Resolve(Type typeFrom)
