@@ -10,6 +10,8 @@ namespace Stashbox.Tests
 
     public class FactoryTests
     {
+        private delegate object Factory(Type serviceType);
+
         [Theory]
         [ClassData(typeof(CompilerTypeTestData))]
         public void FactoryTests_DependencyResolve(CompilerType compilerType)
@@ -421,6 +423,21 @@ namespace Stashbox.Tests
 
             Assert.True(second.IsDisposed);
             Assert.False(disposable.IsDisposed);
+        }
+
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void FactoryTests_Resolve_Factory_Type(CompilerType compilerType)
+        {
+            using var container = new StashboxContainer(c => c.WithCompiler(compilerType))
+                .Register<Test3>()
+                .Register<Factory>(c => c.WithFactory(r => r.Resolve));
+            
+            var factory = container.Resolve<Factory>();
+            var inst = factory(typeof(Test3));
+
+            Assert.NotNull(inst);
+            Assert.IsType<Test3>(inst);
         }
 
         interface ITest { string Name { get; } }
