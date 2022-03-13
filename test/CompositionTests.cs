@@ -111,6 +111,33 @@ namespace Stashbox.Tests
         }
 
         [Fact]
+        public void Composition_Test_MultipleDecorators_Non_Generic_Factory()
+        {
+            using var container = new StashboxContainer()
+                .Register<IA, A>()
+                .Register<IB, B>()
+                .Register<IC, C>()
+                .RegisterDecorator<IA, AD>()
+                .RegisterDecorator<IB, BD>()
+                .RegisterDecorator<IC, CD>()
+                .RegisterDecorator(typeof(D1), c => c.WithFactory<IA, IA, IB, IC>((a, a1, b, c) =>
+                {
+                    Assert.IsType<AD>(a);
+                    Assert.IsType<A>(((AD)a).A);
+                    Assert.IsType<AD>(a1);
+                    Assert.IsType<A>(((AD)a1).A);
+                    Assert.IsType<BD>(b);
+                    Assert.IsType<B>(((BD)b).B);
+                    Assert.IsType<CD>(c);
+                    Assert.IsType<C>(((CD)c).C);
+
+                    return new D1(a, b, c);
+                }));
+
+            container.Resolve<IA>();
+        }
+
+        [Fact]
         public void Composition_Test_Enumerable()
         {
             using var container = new StashboxContainer()

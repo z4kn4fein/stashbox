@@ -469,6 +469,17 @@ namespace Stashbox
             return this;
         }
 
+        private IStashboxContainer RegisterInternal(RegistrationConfiguration registrationConfiguration, bool isDecorator = false)
+        {
+            ServiceRegistrator.Register(
+                this.ContainerContext,
+                RegistrationBuilder.BuildServiceRegistration(this.ContainerContext,
+                    registrationConfiguration, isDecorator),
+                registrationConfiguration.ServiceType);
+
+            return this;
+        }
+
         private IStashboxContainer RegisterInstanceInternal(Type serviceType, Type implementationType, object instance, bool isWireUp,
             bool withoutDisposalTracking, object? name, Action<object>? finalizer = null)
         {
@@ -477,17 +488,6 @@ namespace Stashbox
                 RegistrationBuilder.BuildInstanceRegistration(this.ContainerContext,
                     implementationType, name, instance, isWireUp, withoutDisposalTracking, finalizer),
                 serviceType);
-
-            return this;
-        }
-
-        private IStashboxContainer RegisterInternal(RegistrationConfiguration registrationConfiguration, bool isDecorator = false)
-        {
-            ServiceRegistrator.Register(
-                this.ContainerContext,
-                RegistrationBuilder.BuildServiceRegistration(this.ContainerContext,
-                    registrationConfiguration, isDecorator),
-                registrationConfiguration.ServiceType);
 
             return this;
         }

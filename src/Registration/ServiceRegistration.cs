@@ -129,6 +129,45 @@ namespace Stashbox.Registration
         private readonly ExpandableArray<Func<TypeInformation, bool>>? resolutionConditions;
         private readonly ExpandableArray<Type>? attributeConditions;
 
+        internal bool IsUsableForCurrentContext(TypeInformation typeInfo) =>
+            this.HasParentTypeConditionAndMatch(typeInfo) ||
+            this.HasAttributeConditionAndMatch(typeInfo) ||
+            this.HasResolutionConditionAndMatch(typeInfo);
+
+        internal void Replaces(ServiceRegistration serviceRegistration) =>
+            this.RegistrationOrder = serviceRegistration.RegistrationOrder;
+
+        private bool HasParentTypeConditionAndMatch(TypeInformation typeInfo) =>
+            this.targetTypeConditions != null &&
+            typeInfo.ParentType != null &&
+            this.targetTypeConditions.Contains(typeInfo.ParentType);
+
+        private bool HasAttributeConditionAndMatch(TypeInformation typeInfo) =>
+            this.attributeConditions != null &&
+            typeInfo.CustomAttributes != null &&
+            this.attributeConditions.Intersect(typeInfo.CustomAttributes.Select(attribute => attribute.GetType())).Any();
+
+        private bool HasResolutionConditionAndMatch(TypeInformation typeInfo)
+        {
+            if (this.resolutionConditions == null)
+                return false;
+
+            var length = this.resolutionConditions.Length;
+            for (var i = 0; i < length; i++)
+            {
+                if (this.resolutionConditions[i](typeInfo))
+                    return true;
+            }
+
+            return false;
+        }
+
+        private static int ReserveRegistrationId() =>
+            Interlocked.Increment(ref GlobalRegistrationId);
+
+        private static int ReserveRegistrationOrder() =>
+            Interlocked.Increment(ref GlobalRegistrationOrder);
+
         private ServiceRegistration()
         {
             this.RegistrationDiscriminator = new object();
@@ -137,7 +176,7 @@ namespace Stashbox.Registration
             this.ConstructorSelectionRule = Rules.ConstructorSelection.PreferMostParameters;
         }
 
-        internal ServiceRegistration(Type implementationType, RegistrationContext registrationContext, 
+        internal ServiceRegistration(Type implementationType, RegistrationContext registrationContext,
             ContainerConfiguration containerConfiguration, bool isDecorator)
             : this(implementationType,
                 containerConfiguration,
@@ -194,45 +233,6 @@ namespace Stashbox.Registration
                 baseRegistration.AdditionalServiceTypes,
                 baseRegistration.InjectionParameters)
         { }
-
-        internal bool IsUsableForCurrentContext(TypeInformation typeInfo) =>
-            this.HasParentTypeConditionAndMatch(typeInfo) ||
-            this.HasAttributeConditionAndMatch(typeInfo) ||
-            this.HasResolutionConditionAndMatch(typeInfo);
-
-        internal void Replaces(ServiceRegistration serviceRegistration) =>
-            this.RegistrationOrder = serviceRegistration.RegistrationOrder;
-
-        private bool HasParentTypeConditionAndMatch(TypeInformation typeInfo) =>
-            this.targetTypeConditions != null &&
-            typeInfo.ParentType != null &&
-            this.targetTypeConditions.Contains(typeInfo.ParentType);
-
-        private bool HasAttributeConditionAndMatch(TypeInformation typeInfo) =>
-            this.attributeConditions != null &&
-            typeInfo.CustomAttributes != null &&
-            this.attributeConditions.Intersect(typeInfo.CustomAttributes.Select(attribute => attribute.GetType())).Any();
-
-        private bool HasResolutionConditionAndMatch(TypeInformation typeInfo)
-        {
-            if (this.resolutionConditions == null)
-                return false;
-
-            var length = this.resolutionConditions.Length;
-            for (var i = 0; i < length; i++)
-            {
-                if (this.resolutionConditions[i](typeInfo))
-                    return true;
-            }
-
-            return false;
-        }
-
-        private static int ReserveRegistrationId() =>
-            Interlocked.Increment(ref GlobalRegistrationId);
-
-        private static int ReserveRegistrationOrder() =>
-            Interlocked.Increment(ref GlobalRegistrationOrder);
 
         internal ServiceRegistration(
             Type implementationType,

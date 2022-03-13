@@ -330,6 +330,54 @@ namespace Stashbox.Tests
         }
 
         [Fact]
+        public void StandardResolveTests_Resolve_Singleton()
+        {
+            using IStashboxContainer container = new StashboxContainer();
+            container.RegisterSingleton<ITest1, Test1>();
+
+            var inst = container.Resolve<ITest1>();
+            var inst2 = container.Resolve<ITest1>();
+
+            Assert.Same(inst, inst2);
+        }
+
+        [Fact]
+        public void StandardResolveTests_Resolve_Singleton_Named()
+        {
+            using IStashboxContainer container = new StashboxContainer();
+            container.RegisterSingleton<ITest1, Test1>("A");
+
+            var inst = container.Resolve<ITest1>("A");
+            var inst2 = container.Resolve<ITest1>("A");
+
+            Assert.Same(inst, inst2);
+        }
+
+        [Fact]
+        public void StandardResolveTests_Resolve_Singleton_Self()
+        {
+            using IStashboxContainer container = new StashboxContainer();
+            container.RegisterSingleton<Test1>();
+
+            var inst = container.Resolve<Test1>();
+            var inst2 = container.Resolve<Test1>();
+
+            Assert.Same(inst, inst2);
+        }
+
+        [Fact]
+        public void StandardResolveTests_Resolve_Singleton_Self_Named()
+        {
+            using IStashboxContainer container = new StashboxContainer();
+            container.RegisterSingleton<Test1>("A");
+
+            var inst = container.Resolve<Test1>("A");
+            var inst2 = container.Resolve<Test1>("A");
+
+            Assert.Same(inst, inst2);
+        }
+
+        [Fact]
         public void StandardResolveTests_Resolve_Scoped()
         {
             using IStashboxContainer container = new StashboxContainer();
@@ -345,6 +393,90 @@ namespace Stashbox.Tests
             using var child = container.BeginScope();
             var inst3 = child.Resolve<ITest1>();
             var inst4 = child.Resolve<ITest1>();
+
+            Assert.NotSame(inst, inst3);
+            Assert.Same(inst3, inst4);
+        }
+
+        [Fact]
+        public void StandardResolveTests_Resolve_Scoped_Self()
+        {
+            using IStashboxContainer container = new StashboxContainer();
+            container.RegisterScoped<Test1>();
+
+            using var scope = container.BeginScope();
+
+            var inst = scope.Resolve<Test1>();
+            var inst2 = scope.Resolve<Test1>();
+
+            Assert.Same(inst, inst2);
+
+            using var child = container.BeginScope();
+            var inst3 = child.Resolve<Test1>();
+            var inst4 = child.Resolve<Test1>();
+
+            Assert.NotSame(inst, inst3);
+            Assert.Same(inst3, inst4);
+        }
+
+        [Fact]
+        public void StandardResolveTests_Resolve_Scoped_Self_Named()
+        {
+            using IStashboxContainer container = new StashboxContainer();
+            container.RegisterScoped<Test1>("A");
+
+            using var scope = container.BeginScope();
+
+            var inst = scope.Resolve<Test1>("A");
+            var inst2 = scope.Resolve<Test1>("A");
+
+            Assert.Same(inst, inst2);
+
+            using var child = container.BeginScope();
+            var inst3 = child.Resolve<Test1>("A");
+            var inst4 = child.Resolve<Test1>("A");
+
+            Assert.NotSame(inst, inst3);
+            Assert.Same(inst3, inst4);
+        }
+
+        [Fact]
+        public void StandardResolveTests_Resolve_Scoped_Named()
+        {
+            using IStashboxContainer container = new StashboxContainer();
+            container.RegisterScoped<ITest1, Test1>("A");
+
+            using var scope = container.BeginScope();
+
+            var inst = scope.Resolve<ITest1>("A");
+            var inst2 = scope.Resolve<ITest1>("A");
+
+            Assert.Same(inst, inst2);
+
+            using var child = container.BeginScope();
+            var inst3 = child.Resolve<ITest1>("A");
+            var inst4 = child.Resolve<ITest1>("A");
+
+            Assert.NotSame(inst, inst3);
+            Assert.Same(inst3, inst4);
+        }
+
+        [Fact]
+        public void StandardResolveTests_Register_Scoped_Named_Non_Generic()
+        {
+            using IStashboxContainer container = new StashboxContainer();
+            container.RegisterScoped(typeof(ITest1), typeof(Test1), "A");
+
+            using var scope = container.BeginScope();
+
+            var inst = scope.Resolve<ITest1>("A");
+            var inst2 = scope.Resolve<ITest1>("A");
+
+            Assert.Same(inst, inst2);
+
+            using var child = container.BeginScope();
+            var inst3 = child.Resolve<ITest1>("A");
+            var inst4 = child.Resolve<ITest1>("A");
 
             Assert.NotSame(inst, inst3);
             Assert.Same(inst3, inst4);

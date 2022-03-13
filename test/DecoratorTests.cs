@@ -207,6 +207,22 @@ namespace Stashbox.Tests
 
         [Theory]
         [ClassData(typeof(CompilerTypeTestData))]
+        public void DecoratorTests_Inject_Member_With_Config_Non_Generic_Implementation(CompilerType compilerType)
+        {
+            using var container = new StashboxContainer(c => c.WithCompiler(compilerType));
+            container.Register<ITest1, Test1>();
+            container.RegisterDecorator<ITest1>(typeof(TestDecorator3Attributeless), config => config.WithDependencyBinding("Test"));
+            var test = container.Resolve<ITest1>();
+
+            Assert.NotNull(test);
+            Assert.IsType<TestDecorator3Attributeless>(test);
+
+            Assert.NotNull(test.Test);
+            Assert.IsType<Test1>(test.Test);
+        }
+
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
         public void DecoratorTests_AutoMemberInjection_Throw_When_Member_Unresolvable(CompilerType compilerType)
         {
             using var container = new StashboxContainer(c => c.WithCompiler(compilerType));
