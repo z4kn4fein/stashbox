@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Stashbox.Utils;
+using System;
 
 namespace Stashbox.Registration.Fluent
 {
@@ -30,37 +31,20 @@ namespace Stashbox.Registration.Fluent
             this.Context = context;
         }
 
-        internal bool TypeMapIsValid(out string error)
+        internal void ValidateTypeMap()
         {
-            error = string.Empty;
             if (this.Context.Factory != null)
-                return true;
+                return;
 
-
-            if (!this.ImplementationType.IsResolvableType())
-            {
-                error = $"The type {this.ImplementationType} could not be resolved. It's probably an interface, abstract class or primitive type.";
-                return false;
-            }
-
-            if (this.ImplementationType.Implements(this.ServiceType)) return true;
-
-            error = $"The type {this.ImplementationType} does not implement the service type {this.ServiceType}.";
-            return false;
-
+            Shield.EnsureTypeMapIsValid(this.ServiceType, this.ImplementationType);
         }
 
-        internal bool ImplementationIsResolvable(out string error)
+        internal void ValidateImplementationIsResolvable()
         {
-            error = string.Empty;
             if (this.Context.Factory != null)
-                return true;
+                return;
 
-            if (this.ImplementationType.IsResolvableType()) return true;
-
-            error = $"The type {this.ImplementationType} could not be resolved. It's probably an interface, abstract class or primitive type.";
-            return false;
-
+            Shield.EnsureIsResolvable(this.ImplementationType);
         }
     }
 }

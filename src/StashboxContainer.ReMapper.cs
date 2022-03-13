@@ -1,5 +1,4 @@
-﻿using Stashbox.Exceptions;
-using Stashbox.Registration.Fluent;
+﻿using Stashbox.Registration.Fluent;
 using System;
 using Stashbox.Registration;
 
@@ -27,8 +26,7 @@ namespace Stashbox
             var registrationConfigurator = new RegistrationConfigurator<TFrom, TFrom>(typeof(TFrom), typeTo);
             configurator?.Invoke(registrationConfigurator);
 
-            if (!registrationConfigurator.TypeMapIsValid(out var error))
-                throw new InvalidRegistrationException(registrationConfigurator.ImplementationType, error);
+            registrationConfigurator.ValidateTypeMap();
 
             return this.ReMapInternal(registrationConfigurator);
         }
@@ -41,8 +39,7 @@ namespace Stashbox
             var registrationConfigurator = new RegistrationConfigurator(typeFrom, typeTo);
             configurator?.Invoke(registrationConfigurator);
 
-            if (!registrationConfigurator.TypeMapIsValid(out var error))
-                throw new InvalidRegistrationException(registrationConfigurator.ImplementationType, error);
+            registrationConfigurator.ValidateTypeMap();
 
             return this.ReMapInternal(registrationConfigurator);
         }
@@ -56,8 +53,7 @@ namespace Stashbox
             var registrationConfigurator = new RegistrationConfigurator<TTo, TTo>(type, type);
             configurator?.Invoke(registrationConfigurator);
 
-            if (!registrationConfigurator.ImplementationIsResolvable(out var error))
-                throw new InvalidRegistrationException(registrationConfigurator.ImplementationType, error);
+            registrationConfigurator.ValidateImplementationIsResolvable();
 
             return this.ReMapInternal(registrationConfigurator);
         }
@@ -70,8 +66,7 @@ namespace Stashbox
             var decoratorConfigurator = new DecoratorConfigurator(typeFrom, typeTo);
             configurator?.Invoke(decoratorConfigurator);
 
-            if (!decoratorConfigurator.TypeMapIsValid(out var error))
-                throw new InvalidRegistrationException(decoratorConfigurator.ImplementationType, error);
+            decoratorConfigurator.ValidateTypeMap();
 
             return this.ReMapInternal(decoratorConfigurator, true);
         }
@@ -93,13 +88,12 @@ namespace Stashbox
         {
             this.ThrowIfDisposed();
 
-            var registrationConfigurator = new DecoratorConfigurator<TFrom, TFrom>(typeof(TFrom), typeTo);
-            configurator?.Invoke(registrationConfigurator);
+            var decoratorConfigurator = new DecoratorConfigurator<TFrom, TFrom>(typeof(TFrom), typeTo);
+            configurator?.Invoke(decoratorConfigurator);
 
-            if (!registrationConfigurator.TypeMapIsValid(out var error))
-                throw new InvalidRegistrationException(registrationConfigurator.ImplementationType, error);
+            decoratorConfigurator.ValidateTypeMap();
 
-            return this.ReMapInternal(registrationConfigurator, true);
+            return this.ReMapInternal(decoratorConfigurator, true);
         }
 
         private IStashboxContainer ReMapInternal(RegistrationConfiguration registrationConfiguration,

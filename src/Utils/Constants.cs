@@ -9,6 +9,8 @@ namespace Stashbox.Utils
 {
     internal static class Constants
     {
+        public static readonly Type StringType = typeof(string);
+
         public static readonly Type ResolutionScopeType = typeof(IResolutionScope);
 
         public static readonly Type ServiceProviderType = typeof(IServiceProvider);

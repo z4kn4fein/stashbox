@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Stashbox.Exceptions;
+using System;
 
 namespace Stashbox.Utils
 {
@@ -74,6 +75,20 @@ namespace Stashbox.Utils
         {
             if (obj is not TType)
                 throw new ArgumentException($"{nameof(obj)} is not {typeof(TType)}.", nameof(obj));
+        }
+
+        internal static void EnsureTypeMapIsValid(Type serviceType, Type implementationType)
+        {
+            EnsureIsResolvable(implementationType);
+
+            if (!implementationType.Implements(serviceType))
+                throw new InvalidRegistrationException(implementationType, $"The type {implementationType} does not implement the service type {serviceType}.");
+        }
+
+        internal static void EnsureIsResolvable(Type implementationType)
+        {
+            if (!implementationType.IsResolvableType())
+                throw new InvalidRegistrationException(implementationType, $"The type {implementationType} could not be resolved. It's probably an interface, abstract class or primitive type.");
         }
 
         internal static void ThrowDisposedException(string? name, string caller) =>

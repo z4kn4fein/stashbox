@@ -328,7 +328,7 @@ namespace Stashbox.Registration.Fluent
         public TConfigurator AsServiceAlso(Type serviceType)
         {
             if (!this.ImplementationType.Implements(serviceType))
-                throw new ArgumentException($"The implementation type {base.ImplementationType} does not implement the given service type {serviceType}.");
+                throw new ArgumentException($"The implementation type {this.ImplementationType} does not implement the given service type {serviceType}.");
 
             this.Context.AdditionalServiceTypes ??= new ExpandableArray<Type>();
             this.Context.AdditionalServiceTypes.Add(serviceType);

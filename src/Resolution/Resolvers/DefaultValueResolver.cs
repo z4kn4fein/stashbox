@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿using Stashbox.Utils;
+using System.Linq.Expressions;
 
 namespace Stashbox.Resolution.Resolvers
 {
@@ -13,6 +14,6 @@ namespace Stashbox.Resolution.Resolvers
         public bool CanUseForResolution(TypeInformation typeInfo, ResolutionContext resolutionContext) =>
             resolutionContext.CurrentContainerContext.ContainerConfiguration.DefaultValueInjectionEnabled &&
                  (typeInfo.Type.IsValueType
-                    || typeInfo.Type == typeof(string));
+                    || typeInfo.Type == Constants.StringType);
     }
 }

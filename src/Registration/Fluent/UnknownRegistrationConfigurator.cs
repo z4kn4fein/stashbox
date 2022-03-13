@@ -20,10 +20,10 @@ namespace Stashbox.Registration.Fluent
         /// <returns>The fluent configurator.</returns>
         public UnknownRegistrationConfigurator SetImplementationType(Type implementationType)
         {
-            if (!implementationType.Implements(base.ServiceType))
-                throw new ArgumentException($"The type {implementationType} does not implement the actual service type {base.ServiceType}.");
+            if (!implementationType.Implements(this.ServiceType))
+                throw new ArgumentException($"The type {implementationType} does not implement the actual service type {this.ServiceType}.");
 
-            base.ImplementationType = implementationType;
+            this.ImplementationType = implementationType;
             return this;
 
         }

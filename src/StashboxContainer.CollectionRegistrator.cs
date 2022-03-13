@@ -67,10 +67,18 @@ namespace Stashbox
                     }).Select(t => t.GetGenericTypeDefinition());
 
                 foreach (var service in serviceTypes)
-                    this.Register(service, type, configurator);
+                    _ = configurator switch
+                    {
+                        null => this.Register(service, type),
+                        _ => this.Register(service, type, configurator)
+                    };
 
                 if (registerSelf)
-                    this.Register(type, configurator);
+                    _ = configurator switch
+                    {
+                        null => this.Register(type),
+                        _ => this.Register(type, configurator)
+                    };
             }
 
             return this;
@@ -101,10 +109,11 @@ namespace Stashbox
 
         private void RegisterTypeAs(Type typeFrom, Type type, Action<RegistrationConfigurator>? configurator)
         {
-            if (configurator == null)
-                this.Register(typeFrom, type);
-            else
-                this.Register(typeFrom, type, configurator);
+            _ = configurator switch
+            {
+                null => this.Register(typeFrom, type),
+                _ => this.Register(typeFrom, type, configurator)
+            };
         }
     }
 }

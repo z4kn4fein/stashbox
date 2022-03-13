@@ -140,12 +140,12 @@ namespace Stashbox.Registration
         internal ServiceRegistration(Type implementationType, RegistrationContext registrationContext, 
             ContainerConfiguration containerConfiguration, bool isDecorator)
             : this(implementationType,
-                containerConfiguration.RegistrationBehavior,
+                containerConfiguration,
                 isDecorator,
                 registrationContext.Name,
+                registrationContext.Lifetime,
                 registrationContext.SelectedConstructor,
                 registrationContext.ConstructorArguments,
-                registrationContext.Lifetime ?? containerConfiguration.DefaultLifetime,
                 registrationContext.DependencyBindings,
                 registrationContext.Finalizer,
                 registrationContext.Initializer,
@@ -169,12 +169,12 @@ namespace Stashbox.Registration
         internal ServiceRegistration(Type implementationType, object? name,
             ContainerConfiguration containerConfiguration, ServiceRegistration baseRegistration)
             : this(implementationType,
-                containerConfiguration.RegistrationBehavior,
+                containerConfiguration,
                 baseRegistration.IsDecorator,
                 name,
+                baseRegistration.Lifetime,
                 baseRegistration.SelectedConstructor,
                 baseRegistration.ConstructorArguments,
-                baseRegistration.Lifetime,
                 baseRegistration.DependencyBindings,
                 baseRegistration.Finalizer,
                 baseRegistration.Initializer,
@@ -234,39 +234,39 @@ namespace Stashbox.Registration
         private static int ReserveRegistrationOrder() =>
             Interlocked.Increment(ref GlobalRegistrationOrder);
 
-        private ServiceRegistration(
+        internal ServiceRegistration(
             Type implementationType,
-            Rules.RegistrationBehavior currentRegistrationBehavior,
+            ContainerConfiguration containerConfiguration,
             bool isDecorator,
             object? name,
-            ConstructorInfo? selectedConstructor,
-            object[]? constructorArguments,
-            LifetimeDescriptor lifetime,
-            Dictionary<object, object?>? dependencyBindings,
-            Action<object>? finalizer,
-            Delegate? initializer,
-            Func<object, IDependencyResolver, CancellationToken, Task>? asyncInitializer,
-            Rules.AutoMemberInjectionRules autoMemberInjectionRule,
-            bool autoMemberInjectionEnabled,
-            bool isLifetimeExternallyOwned,
-            object? definedScopeName,
-            Func<IEnumerable<ConstructorInfo>, IEnumerable<ConstructorInfo>>? constructorSelectionRule,
-            Func<MemberInfo, bool>? autoMemberInjectionFilter,
-            object? metadata,
-            ExpandableArray<Type>? targetTypeConditions,
-            ExpandableArray<Func<TypeInformation, bool>>? resolutionConditions,
-            ExpandableArray<Type>? attributeConditions,
-            bool replaceExistingRegistration,
-            bool replaceExistingRegistrationOnlyIfExists,
-            ExpandableArray<Type>? additionalServiceTypes,
-            ExpandableArray<KeyValuePair<string, object?>>? injectionParameters)
+            LifetimeDescriptor? lifetime,
+            ConstructorInfo? selectedConstructor = null,
+            object[]? constructorArguments = null,
+            Dictionary<object, object?>? dependencyBindings = null,
+            Action<object>? finalizer = null,
+            Delegate? initializer = null,
+            Func<object, IDependencyResolver, CancellationToken, Task>? asyncInitializer = null,
+            Rules.AutoMemberInjectionRules autoMemberInjectionRule = default,
+            bool autoMemberInjectionEnabled = false,
+            bool isLifetimeExternallyOwned = false,
+            object? definedScopeName = null,
+            Func<IEnumerable<ConstructorInfo>, IEnumerable<ConstructorInfo>>? constructorSelectionRule = null,
+            Func<MemberInfo, bool>? autoMemberInjectionFilter = null,
+            object? metadata = null,
+            ExpandableArray<Type>? targetTypeConditions = null,
+            ExpandableArray<Func<TypeInformation, bool>>? resolutionConditions = null,
+            ExpandableArray<Type>? attributeConditions = null,
+            bool replaceExistingRegistration = false,
+            bool replaceExistingRegistrationOnlyIfExists = false,
+            ExpandableArray<Type>? additionalServiceTypes = null,
+            ExpandableArray<KeyValuePair<string, object?>>? injectionParameters = null)
         {
             this.ImplementationType = implementationType;
             this.IsDecorator = isDecorator;
             this.Name = name;
             this.SelectedConstructor = selectedConstructor;
             this.ConstructorArguments = constructorArguments;
-            this.Lifetime = lifetime;
+            this.Lifetime = lifetime ?? containerConfiguration.DefaultLifetime;
             this.DependencyBindings = dependencyBindings;
             this.Finalizer = finalizer;
             this.Initializer = initializer;
@@ -298,7 +298,7 @@ namespace Stashbox.Registration
 
             this.RegistrationId = ReserveRegistrationId();
             this.RegistrationOrder = ReserveRegistrationOrder();
-            this.RegistrationDiscriminator = currentRegistrationBehavior == Rules.RegistrationBehavior.PreserveDuplications
+            this.RegistrationDiscriminator = containerConfiguration.RegistrationBehavior == Rules.RegistrationBehavior.PreserveDuplications
                 ? this.RegistrationId
                 : name ?? implementationType;
         }

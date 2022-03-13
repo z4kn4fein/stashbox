@@ -18,7 +18,7 @@ namespace System
             if (type.IsArray)
                 return type.GetElementType();
 
-            if (type.ImplementsGenericType(typeof(IEnumerable<>)) && type != typeof(string) && type.GenericTypeArguments.Length == 1)
+            if (type.ImplementsGenericType(typeof(IEnumerable<>)) && type != Constants.StringType && type.GenericTypeArguments.Length == 1)
                 return type.GenericTypeArguments[0];
 
             return null;
@@ -47,7 +47,7 @@ namespace System
             !type.IsAbstract &&
                 !type.IsInterface &&
                 type.IsClass &&
-                type != typeof(string) &&
+                type != Constants.StringType &&
                 type.GetCustomAttribute<CompilerGeneratedAttribute>() == null;
 
         public static IEnumerable<Type> GetRegisterableInterfaceTypes(this Type type) =>

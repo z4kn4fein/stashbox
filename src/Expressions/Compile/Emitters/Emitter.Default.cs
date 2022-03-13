@@ -1,6 +1,7 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection.Emit;
 using Stashbox.Expressions.Compile.Extensions;
+using Stashbox.Utils;
 
 namespace Stashbox.Expressions.Compile.Emitters
 {
@@ -13,7 +14,7 @@ namespace Stashbox.Expressions.Compile.Emitters
             if (type == typeof(void))
                 return true;
 
-            if (type == typeof(string))
+            if (type == Constants.StringType)
                 generator.Emit(OpCodes.Ldnull);
             else if (type == typeof(bool) ||
                      type == typeof(byte) ||

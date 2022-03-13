@@ -8,22 +8,42 @@ namespace Stashbox.Registration
     {
         public static ServiceRegistration BuildServiceRegistration(IContainerContext containerContext, RegistrationConfiguration registrationConfiguration, bool isDecorator)
         {
-            PreProcessExistingInstanceIfNeeded(containerContext, registrationConfiguration.Context, registrationConfiguration.ImplementationType);
+            PreProcessExistingInstanceIfNeeded(containerContext, registrationConfiguration.Context.ExistingInstance,
+                registrationConfiguration.Context.IsLifetimeExternallyOwned, registrationConfiguration.Context.Finalizer, 
+                registrationConfiguration.ImplementationType);
+
             if (!isDecorator)
                 registrationConfiguration.Context.Lifetime = ChooseLifeTime(containerContext, registrationConfiguration.Context);
 
             return DetermineRegistrationType(registrationConfiguration, containerContext, isDecorator);
         }
 
-        private static void PreProcessExistingInstanceIfNeeded(IContainerContext containerContext, RegistrationContext registrationContext, Type implementationType)
+        public static ServiceRegistration BuildServiceRegistration(IContainerContext containerContext, Type implementationType,
+            object? name, LifetimeDescriptor? lifetime, bool isDecorator) =>
+            implementationType.IsOpenGenericType() 
+                ? new OpenGenericRegistration(implementationType, containerContext.ContainerConfiguration, name, lifetime, isDecorator)
+                : new ServiceRegistration(implementationType, containerContext.ContainerConfiguration, isDecorator, name, lifetime);
+
+        public static ServiceRegistration BuildInstanceRegistration(IContainerContext containerContext, Type implementationType, object? name, 
+            object instance, bool isWireUp, bool isLifetimeExternallyOwned, Action<object>? finalizerDelegate)
         {
-            if (registrationContext.ExistingInstance == null) return;
+            PreProcessExistingInstanceIfNeeded(containerContext, instance,
+                isLifetimeExternallyOwned, finalizerDelegate, implementationType);
 
-            if (!registrationContext.IsLifetimeExternallyOwned && implementationType.IsDisposable())
-                containerContext.RootScope.AddDisposableTracking(registrationContext.ExistingInstance);
+            return new InstanceRegistration(implementationType, name, instance, isWireUp, 
+                isLifetimeExternallyOwned, finalizerDelegate, containerContext.ContainerConfiguration);
+        }
 
-            if (registrationContext.Finalizer == null) return;
-            containerContext.RootScope.AddWithFinalizer(registrationContext.ExistingInstance, registrationContext.Finalizer);
+        private static void PreProcessExistingInstanceIfNeeded(IContainerContext containerContext, object? instance,
+            bool isLifetimeExternallyOwned, Action<object>? finalizer, Type implementationType)
+        {
+            if (instance == null) return;
+
+            if (!isLifetimeExternallyOwned && implementationType.IsDisposable())
+                containerContext.RootScope.AddDisposableTracking(instance);
+
+            if (finalizer == null) return;
+            containerContext.RootScope.AddWithFinalizer(instance, finalizer);
         }
 
         private static LifetimeDescriptor ChooseLifeTime(IContainerContext containerContext, RegistrationContext registrationContext) => registrationContext.IsWireUp
@@ -36,7 +56,7 @@ namespace Stashbox.Registration
             if (registrationConfiguration.ImplementationType.IsOpenGenericType())
                 return new OpenGenericRegistration(registrationConfiguration.ImplementationType,
                     registrationConfiguration.Context, containerContext.ContainerConfiguration, isDecorator);
-            
+
             if (registrationConfiguration.Context.ExistingInstance != null)
                 return new InstanceRegistration(registrationConfiguration.ImplementationType,
                     registrationConfiguration.Context, containerContext.ContainerConfiguration, isDecorator,

@@ -41,7 +41,7 @@ namespace Stashbox.Registration.Fluent
         {
             Shield.EnsureNotNull(finalizer, nameof(finalizer));
 
-            base.Context.Finalizer = o => finalizer((TImplementation)o);
+            this.Context.Finalizer = o => finalizer((TImplementation)o);
             return (TConfigurator)this;
         }
 
@@ -50,7 +50,7 @@ namespace Stashbox.Registration.Fluent
         {
             Shield.EnsureNotNull(initializer, nameof(initializer));
 
-            base.Context.Initializer = initializer;
+            this.Context.Initializer = initializer;
             return (TConfigurator)this;
         }
 
@@ -59,7 +59,7 @@ namespace Stashbox.Registration.Fluent
         {
             Shield.EnsureNotNull(initializer, nameof(initializer));
 
-            base.Context.AsyncInitializer = (o, r, t) => initializer((TImplementation)o, r, t);
+            this.Context.AsyncInitializer = (o, r, t) => initializer((TImplementation)o, r, t);
             return (TConfigurator)this;
         }
 

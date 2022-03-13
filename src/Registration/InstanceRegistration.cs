@@ -1,5 +1,6 @@
 ﻿using System;
 using Stashbox.Configuration;
+using Stashbox.Lifetime;
 
 namespace Stashbox.Registration
 {
@@ -23,6 +24,14 @@ namespace Stashbox.Registration
             : base(implementationType, registrationContext, containerConfiguration, isDecorator)
         {
             this.IsWireUp = registrationContext.IsWireUp;
+            this.ExistingInstance = existingInstance;
+        }
+
+        internal InstanceRegistration(Type implementationType, object? name, object existingInstance, 
+            bool isWireUp, bool isLifetimeExternallyOwned, Action<object>? finalizer, ContainerConfiguration containerConfiguration)
+            : base(implementationType, containerConfiguration, false, name, Lifetimes.Transient, isLifetimeExternallyOwned: isLifetimeExternallyOwned, finalizer: finalizer)
+        {
+            this.IsWireUp = isWireUp;
             this.ExistingInstance = existingInstance;
         }
     }
