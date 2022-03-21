@@ -22,8 +22,8 @@ namespace Stashbox
             }
 
             public ValueTask InvokeAsync(IDependencyResolver resolver, CancellationToken token) =>
-                Interlocked.CompareExchange(ref initialized, 1, 0) != 0 
-                    ? default 
+                Interlocked.CompareExchange(ref initialized, 1, 0) != 0
+                    ? default
                     : new ValueTask(initializer(item, resolver, token));
         }
 

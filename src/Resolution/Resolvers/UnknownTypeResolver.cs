@@ -32,7 +32,7 @@ namespace Stashbox.Resolution.Resolvers
             var registrationConfigurator = new UnknownRegistrationConfigurator(typeInfo.Type, typeInfo.Type);
             configurator?.Invoke(registrationConfigurator);
 
-            if (!registrationConfigurator.ImplementationType.IsResolvableType() || 
+            if (!registrationConfigurator.ImplementationType.IsResolvableType() ||
                 !registrationConfigurator.ImplementationType.Implements(registrationConfigurator.ServiceType) ||
                 registrationConfigurator.RegistrationShouldBeSkipped)
                 return default;

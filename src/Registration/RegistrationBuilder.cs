@@ -9,7 +9,7 @@ namespace Stashbox.Registration
         public static ServiceRegistration BuildServiceRegistration(IContainerContext containerContext, RegistrationConfiguration registrationConfiguration, bool isDecorator)
         {
             PreProcessExistingInstanceIfNeeded(containerContext, registrationConfiguration.Context.ExistingInstance,
-                registrationConfiguration.Context.IsLifetimeExternallyOwned, registrationConfiguration.Context.Finalizer, 
+                registrationConfiguration.Context.IsLifetimeExternallyOwned, registrationConfiguration.Context.Finalizer,
                 registrationConfiguration.ImplementationType);
 
             if (!isDecorator)
@@ -20,17 +20,17 @@ namespace Stashbox.Registration
 
         public static ServiceRegistration BuildServiceRegistration(IContainerContext containerContext, Type implementationType,
             object? name, LifetimeDescriptor? lifetime, bool isDecorator) =>
-            implementationType.IsOpenGenericType() 
+            implementationType.IsOpenGenericType()
                 ? new OpenGenericRegistration(implementationType, containerContext.ContainerConfiguration, name, lifetime, isDecorator)
                 : new ServiceRegistration(implementationType, containerContext.ContainerConfiguration, isDecorator, name, lifetime);
 
-        public static ServiceRegistration BuildInstanceRegistration(IContainerContext containerContext, Type implementationType, object? name, 
+        public static ServiceRegistration BuildInstanceRegistration(IContainerContext containerContext, Type implementationType, object? name,
             object instance, bool isWireUp, bool isLifetimeExternallyOwned, Action<object>? finalizerDelegate)
         {
             PreProcessExistingInstanceIfNeeded(containerContext, instance,
                 isLifetimeExternallyOwned, finalizerDelegate, implementationType);
 
-            return new InstanceRegistration(implementationType, name, instance, isWireUp, 
+            return new InstanceRegistration(implementationType, name, instance, isWireUp,
                 isLifetimeExternallyOwned, finalizerDelegate, containerContext.ContainerConfiguration);
         }
 

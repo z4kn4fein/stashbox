@@ -1,7 +1,7 @@
-﻿using Stashbox.Utils.Data;
+﻿using Stashbox.Utils;
+using Stashbox.Utils.Data;
 using System;
 using System.Linq;
-using Stashbox.Utils;
 
 namespace Stashbox.Resolution
 {
@@ -16,7 +16,7 @@ namespace Stashbox.Resolution
         private readonly Tree<object> excludedInstances = new();
         private readonly Tree<object> perRequestInstances = new();
         private readonly object[]? overrides;
-        
+
         private RequestContext(object[]? overrides = null)
         {
             this.overrides = overrides;
@@ -46,7 +46,7 @@ namespace Stashbox.Resolution
             return excluded != null && ReferenceEquals(excluded, instance);
         }
 
-        public TInstance ExcludeFromTracking<TInstance>(TInstance value) 
+        public TInstance ExcludeFromTracking<TInstance>(TInstance value)
             where TInstance : class
         {
             this.excludedInstances.Add(value.GetHashCode(), value);

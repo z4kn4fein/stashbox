@@ -12,7 +12,7 @@ namespace Stashbox
     internal partial class ResolutionScope
     {
         /// <inheritdoc />
-		public object? Resolve(Type typeFrom, bool nullResultAllowed, object[]? dependencyOverrides = null) =>
+        public object? Resolve(Type typeFrom, bool nullResultAllowed, object[]? dependencyOverrides = null) =>
             nullResultAllowed
                 ? dependencyOverrides == null
                     ? this.ResolveOrDefault(typeFrom)
@@ -32,7 +32,7 @@ namespace Stashbox
                     : this.Resolve(typeFrom, name, dependencyOverrides);
 
         /// <inheritdoc />
-		public object Resolve(Type typeFrom)
+        public object Resolve(Type typeFrom)
         {
             this.ThrowIfDisposed();
 
@@ -45,7 +45,7 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-		public object Resolve(Type typeFrom, object[] dependencyOverrides)
+        public object Resolve(Type typeFrom, object[] dependencyOverrides)
         {
             this.ThrowIfDisposed();
 
@@ -75,7 +75,7 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-		public object? ResolveOrDefault(Type typeFrom)
+        public object? ResolveOrDefault(Type typeFrom)
         {
             this.ThrowIfDisposed();
 
@@ -88,7 +88,7 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-		public object? ResolveOrDefault(Type typeFrom, object[] dependencyOverrides)
+        public object? ResolveOrDefault(Type typeFrom, object[] dependencyOverrides)
         {
             this.ThrowIfDisposed();
 

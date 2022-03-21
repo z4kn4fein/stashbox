@@ -142,7 +142,7 @@ namespace Stashbox.Configuration
             ExternalExpressionCompiler = externalExpressionCompiler;
         }
 
-        internal ContainerConfiguration Clone() => 
+        internal ContainerConfiguration Clone() =>
             new(this.TrackTransientsForDisposalEnabled,
                 this.RegistrationBehavior,
 #pragma warning disable CS0618 // Type or member is obsolete

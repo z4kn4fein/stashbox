@@ -7,7 +7,7 @@ namespace Stashbox
 {
     internal class DelegateCache
     {
-        public ImmutableTree<object, Func<IResolutionScope, IRequestContext, object>> ServiceDelegates = 
+        public ImmutableTree<object, Func<IResolutionScope, IRequestContext, object>> ServiceDelegates =
             ImmutableTree<object, Func<IResolutionScope, IRequestContext, object>>.Empty;
         public ImmutableTree<object, Func<IResolutionScope, IRequestContext, object>> RequestContextAwareDelegates =
             ImmutableTree<object, Func<IResolutionScope, IRequestContext, object>>.Empty;

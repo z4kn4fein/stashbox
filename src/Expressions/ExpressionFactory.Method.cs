@@ -81,7 +81,7 @@ namespace Stashbox.Expressions
             }
 
             if (resolutionContext.CurrentContainerContext.ContainerConfiguration.UnknownTypeResolutionEnabled)
-            { 
+            {
                 for (var i = 0; i < length; i++)
                 {
                     var constructor = resultConstructors[i];
@@ -143,7 +143,7 @@ namespace Stashbox.Expressions
                     parameterExpressions[i] = injectionParameter;
                     continue;
                 }
-                
+
                 var serviceContext = resolutionContext.CurrentContainerContext.ResolutionStrategy
                     .BuildExpressionForType(resolutionContext, parameter);
 

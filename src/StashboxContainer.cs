@@ -2,13 +2,13 @@
 using Stashbox.Registration;
 using Stashbox.Resolution;
 using Stashbox.Utils;
+using Stashbox.Utils.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using Stashbox.Utils.Data;
-using System.Runtime.CompilerServices;
 
 namespace Stashbox
 {

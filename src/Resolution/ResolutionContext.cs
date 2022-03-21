@@ -243,7 +243,7 @@ namespace Stashbox.Resolution
                 singleInstructions: new ExpandableArray<Expression>(),
                 cachedExpressions: new Tree<Expression>());
 
-        internal ResolutionContext BeginUnknownTypeCheckDisabledContext() => 
+        internal ResolutionContext BeginUnknownTypeCheckDisabledContext() =>
             this.UnknownTypeCheckDisabled ? this : this.Clone(unknownTypeCheckDisabled: true);
 
         internal ResolutionContext BeginContextWithFunctionParameters(ParameterExpression[] parameterExpressions) =>
@@ -303,7 +303,7 @@ namespace Stashbox.Resolution
             bool? isTopRequest = null,
             bool? perResolutionRequestCacheEnabled = null,
             bool? unknownTypeCheckDisabled = null,
-            bool? shouldFallBackToRequestInitiatorContext = null) => 
+            bool? shouldFallBackToRequestInitiatorContext = null) =>
             new(this.RequestConfiguration,
                 definedVariables ?? this.DefinedVariables,
                 singleInstructions ?? this.SingleInstructions,

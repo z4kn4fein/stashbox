@@ -253,8 +253,8 @@ namespace Stashbox.Utils.Data.Immutable
                         new ImmutableTree<TKey, TValue>(hash, key, value), this.rightNode!, this.collisions!);
 
                 var left = this.leftNode!.AddOrUpdate(hash, key, value, byRef, updateDelegate, forceUpdate);
-                return ReferenceEquals(left, this.leftNode) 
-                    ? this 
+                return ReferenceEquals(left, this.leftNode)
+                    ? this
                     : Balance(this.storedHash, this.storedKey!, this.storedValue!, left, this.rightNode!, this.collisions!);
             }
 
@@ -264,8 +264,8 @@ namespace Stashbox.Utils.Data.Immutable
                         new ImmutableTree<TKey, TValue>(hash, key, value), this.collisions!);
 
             var right = this.rightNode!.AddOrUpdate(hash, key, value, byRef, updateDelegate, forceUpdate);
-            return ReferenceEquals(right, this.rightNode) 
-                ? this 
+            return ReferenceEquals(right, this.rightNode)
+                ? this
                 : Balance(this.storedHash, this.storedKey!, this.storedValue!, this.leftNode!, right, this.collisions!);
         }
 
@@ -329,10 +329,10 @@ namespace Stashbox.Utils.Data.Immutable
                     return new ImmutableTree<TKey, TValue>(hash, key, value, this.leftNode!, this.rightNode!, this.collisions!);
 
                 if (updateDelegate == null) return this;
-                
+
                 var newValue = updateDelegate(this.storedValue!, value);
-                return ReferenceEquals(newValue, this.storedValue) 
-                    ? this 
+                return ReferenceEquals(newValue, this.storedValue)
+                    ? this
                     : new ImmutableTree<TKey, TValue>(hash, key, newValue, this.leftNode!, this.rightNode!, this.collisions!);
 
             }
@@ -359,7 +359,7 @@ namespace Stashbox.Utils.Data.Immutable
                     this.leftNode!, this.rightNode!, this.collisions!);
 
             if (this.collisions == null) return this;
-            
+
             var currentCollisions = this.collisions.ReplaceIfExists(key, updateDelegate, byRef);
             if (ReferenceEquals(currentCollisions, this.collisions))
                 return this;
@@ -376,7 +376,7 @@ namespace Stashbox.Utils.Data.Immutable
                     this.leftNode!, this.rightNode!, this.collisions!);
 
             if (this.collisions == null) return this;
-            
+
             var currentCollisions = this.collisions.ReplaceIfExists(key, value, byRef);
             if (ReferenceEquals(currentCollisions, this.collisions))
                 return this;

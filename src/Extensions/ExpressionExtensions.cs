@@ -1,12 +1,12 @@
 ﻿using Stashbox;
 using Stashbox.Configuration;
-using Stashbox.Resolution;
-using System.Collections.Generic;
-using System.Reflection;
-using Stashbox.Utils.Data;
 using Stashbox.Expressions.Compile;
 using Stashbox.Registration;
+using Stashbox.Resolution;
 using Stashbox.Utils;
+using Stashbox.Utils.Data;
+using System.Collections.Generic;
+using System.Reflection;
 
 namespace System.Linq.Expressions
 {

@@ -27,8 +27,8 @@ namespace Stashbox.Expressions
             if (!ShouldHandleDisposal(resolutionContext.CurrentContainerContext, serviceRegistration) || !expression.Type.IsDisposable())
                 return CheckRuntimeCircularDependencyExpression(expression, serviceRegistration, resolutionContext, requestedType);
 
-            var disposeTrackingExpression = resolutionContext.RequestConfiguration.RequiresRequestContext 
-                ? resolutionContext.CurrentScopeParameter.CallMethod(Constants.AddRequestContextAwareDisposalMethod, 
+            var disposeTrackingExpression = resolutionContext.RequestConfiguration.RequiresRequestContext
+                ? resolutionContext.CurrentScopeParameter.CallMethod(Constants.AddRequestContextAwareDisposalMethod,
                     expression, resolutionContext.RequestContextParameter).ConvertTo(requestedType)
                 : resolutionContext.CurrentScopeParameter.CallMethod(Constants.AddDisposalMethod, expression).ConvertTo(requestedType);
 
@@ -44,7 +44,7 @@ namespace Stashbox.Expressions
             return serviceRegistration switch
             {
                 FactoryRegistration factoryRegistration => GetExpressionForFactory(factoryRegistration, resolutionContext, requestedType),
-                InstanceRegistration instanceRegistration => instanceRegistration.IsWireUp 
+                InstanceRegistration instanceRegistration => instanceRegistration.IsWireUp
                     ? ExpressionFactory.ConstructBuildUpExpression(serviceRegistration,
                         resolutionContext, instanceRegistration.ExistingInstance.AsConstant(),
                         serviceRegistration.ImplementationType)

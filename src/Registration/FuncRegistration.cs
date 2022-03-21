@@ -1,5 +1,5 @@
-﻿using System;
-using Stashbox.Configuration;
+﻿using Stashbox.Configuration;
+using System;
 
 namespace Stashbox.Registration
 {
@@ -12,9 +12,9 @@ namespace Stashbox.Registration
         /// The delegate to resolve when the registration is a 'Func{}'.
         /// </summary>
         public readonly Delegate FuncDelegate;
-        
-        internal FuncRegistration(Type implementationType, RegistrationContext registrationContext, 
-            ContainerConfiguration containerConfiguration, bool isDecorator, Delegate funcDelegate) 
+
+        internal FuncRegistration(Type implementationType, RegistrationContext registrationContext,
+            ContainerConfiguration containerConfiguration, bool isDecorator, Delegate funcDelegate)
             : base(implementationType, registrationContext, containerConfiguration, isDecorator)
         {
             this.FuncDelegate = funcDelegate;

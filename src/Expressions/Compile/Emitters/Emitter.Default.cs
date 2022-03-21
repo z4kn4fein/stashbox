@@ -1,7 +1,7 @@
-﻿using System.Linq.Expressions;
-using System.Reflection.Emit;
-using Stashbox.Expressions.Compile.Extensions;
+﻿using Stashbox.Expressions.Compile.Extensions;
 using Stashbox.Utils;
+using System.Linq.Expressions;
+using System.Reflection.Emit;
 
 namespace Stashbox.Expressions.Compile.Emitters
 {

@@ -1,6 +1,6 @@
-﻿using Stashbox.Registration.Fluent;
+﻿using Stashbox.Registration;
+using Stashbox.Registration.Fluent;
 using System;
-using Stashbox.Registration;
 
 namespace Stashbox
 {

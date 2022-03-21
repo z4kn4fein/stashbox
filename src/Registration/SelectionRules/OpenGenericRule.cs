@@ -10,7 +10,7 @@ namespace Stashbox.Registration.SelectionRules
             !typeInformation.Type.IsClosedGenericType() ||
             registration.ImplementationType.SatisfiesGenericConstraintsOf(typeInformation.Type);
 
-        public bool ShouldIncrementWeight(TypeInformation typeInformation, 
+        public bool ShouldIncrementWeight(TypeInformation typeInformation,
             ServiceRegistration registration, ResolutionContext resolutionContext) => false;
     }
 }

@@ -1,6 +1,6 @@
-﻿using Xunit;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using Xunit;
 
 namespace Stashbox.Tests
 {

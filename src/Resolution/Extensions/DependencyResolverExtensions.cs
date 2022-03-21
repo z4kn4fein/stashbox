@@ -124,7 +124,7 @@ namespace Stashbox
         /// <returns>The factory delegate.</returns>
         [Obsolete("Please use Resolve<Func<Service>>() instead.")]
         public static Func<TService>? ResolveFactory<TService>(this IDependencyResolver resolver, object? name = null, bool nullResultAllowed = false) =>
-            name == null 
+            name == null
             ? resolver.Resolve<Func<TService>>(nullResultAllowed)
             : resolver.Resolve<Func<TService>>(name, nullResultAllowed);
 

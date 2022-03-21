@@ -15,7 +15,7 @@ namespace Stashbox.Lifetime
         private protected override bool StoreResultInLocalVariable => true;
 
         /// <inheritdoc />
-        protected override Expression ApplyLifetime(Func<IResolutionScope, IRequestContext, object> factory, 
+        protected override Expression ApplyLifetime(Func<IResolutionScope, IRequestContext, object> factory,
             ServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType)
         {
             resolutionContext.RequestConfiguration.RequiresRequestContext = true;

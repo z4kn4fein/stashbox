@@ -47,7 +47,7 @@ namespace Stashbox.Registration.Fluent
             this.compositor.WithAsyncInitializer(initializer);
             return this;
         }
-        
+
         /// <inheritdoc />
         public DecoratorConfigurator<TService, TImplementation> WithFactory(Func<TImplementation> factory, bool isCompiledLambda = false)
         {

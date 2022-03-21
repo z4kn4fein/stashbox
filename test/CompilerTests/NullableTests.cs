@@ -1,6 +1,6 @@
-﻿using Xunit;
-using System;
+﻿using System;
 using System.Linq.Expressions;
+using Xunit;
 
 namespace Stashbox.Tests.CompilerTests
 {

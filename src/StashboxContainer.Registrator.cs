@@ -1,8 +1,8 @@
-﻿using Stashbox.Registration.Fluent;
+﻿using Stashbox.Lifetime;
+using Stashbox.Registration;
+using Stashbox.Registration.Fluent;
 using Stashbox.Utils;
 using System;
-using Stashbox.Registration;
-using Stashbox.Lifetime;
 
 namespace Stashbox
 {

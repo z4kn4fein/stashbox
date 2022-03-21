@@ -221,7 +221,7 @@ namespace Stashbox.Tests
             mockResolver.Setup(r => r.CanUseForResolution(It.IsAny<TypeInformation>(), It.IsAny<ResolutionContext>())).Returns(true);
             mockResolver.Setup(r => r.GetExpression(It.IsAny<IResolutionStrategy>(), It.IsAny<TypeInformation>(), It.IsAny<ResolutionContext>())).Returns<ServiceContext>(null);
             container.RegisterResolver(mockResolver.Object);
-            
+
             Assert.Throws<ResolutionFailedException>(() => container.Resolve<ITest1>());
             mockResolver.Verify(r => r.GetExpression(It.IsAny<IResolutionStrategy>(), It.IsAny<TypeInformation>(), It.IsAny<ResolutionContext>()), Times.Once);
         }

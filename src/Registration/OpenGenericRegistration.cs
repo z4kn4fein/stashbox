@@ -1,9 +1,9 @@
-﻿using System;
-using Stashbox.Configuration;
+﻿using Stashbox.Configuration;
 using Stashbox.Lifetime;
 using Stashbox.Resolution;
 using Stashbox.Utils;
 using Stashbox.Utils.Data.Immutable;
+using System;
 
 namespace Stashbox.Registration
 {
@@ -32,7 +32,7 @@ namespace Stashbox.Registration
             : base(implementationType,
                   containerConfiguration,
                   isDecorator,
-                  name, 
+                  name,
                   lifetime)
         { }
 

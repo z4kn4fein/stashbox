@@ -103,9 +103,9 @@ namespace Stashbox
         {
             this.ThrowIfDisposed();
 
-            this.delegateCacheProvider.DefaultCache.ServiceDelegates = this.DelegateCache.ServiceDelegates = 
+            this.delegateCacheProvider.DefaultCache.ServiceDelegates = this.DelegateCache.ServiceDelegates =
                 ImmutableTree<object, Func<IResolutionScope, IRequestContext, object>>.Empty;
-            this.delegateCacheProvider.DefaultCache.RequestContextAwareDelegates = this.DelegateCache.RequestContextAwareDelegates = 
+            this.delegateCacheProvider.DefaultCache.RequestContextAwareDelegates = this.DelegateCache.RequestContextAwareDelegates =
                 ImmutableTree<object, Func<IResolutionScope, IRequestContext, object>>.Empty;
             this.delegateCacheProvider.NamedCache = ImmutableTree<object, DelegateCache>.Empty;
         }
@@ -130,7 +130,7 @@ namespace Stashbox
             if (check is { Value: true })
                 throw new CircularDependencyException(type);
 
-            Swap.SwapValue(ref this.circularDependencyBarrier, (t1, _, _, _, barrier) => 
+            Swap.SwapValue(ref this.circularDependencyBarrier, (t1, _, _, _, barrier) =>
                 barrier.AddOrUpdate(t1, new ThreadLocal<bool>(), (old, _) =>
                 { old.Value = true; return old; }), key, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
         }

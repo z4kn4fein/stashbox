@@ -52,7 +52,7 @@ namespace Stashbox.Tests
             Assert.IsType<A>(a.Value.Value);
             Assert.Equal("A", a.Key);
         }
-        
+
         [Theory]
         [ClassData(typeof(CompilerTypeTestData))]
         public void KeyValueTests_Resolve_Wrapped_Enumerable(CompilerType compilerType)
@@ -147,7 +147,7 @@ namespace Stashbox.Tests
             Assert.IsType<B>(a.Value[1]);
             Assert.Null(a.Key);
         }
-        
+
         [Theory]
         [ClassData(typeof(CompilerTypeTestData))]
         public void ReadOnlyKeyValueTests_Resolve_Enumerable(CompilerType compilerType)

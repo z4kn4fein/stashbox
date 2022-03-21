@@ -1,13 +1,13 @@
-﻿using System;
+﻿using Stashbox.Configuration;
+using Stashbox.Lifetime;
+using Stashbox.Resolution;
+using Stashbox.Utils.Data;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using Stashbox.Configuration;
-using Stashbox.Lifetime;
-using Stashbox.Resolution;
-using Stashbox.Utils.Data;
 
 namespace Stashbox.Registration
 {

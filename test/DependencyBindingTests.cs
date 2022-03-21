@@ -1,5 +1,5 @@
-﻿using Xunit;
-using Stashbox.Attributes;
+﻿using Stashbox.Attributes;
+using Xunit;
 
 namespace Stashbox.Tests
 {

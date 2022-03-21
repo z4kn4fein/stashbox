@@ -21,7 +21,7 @@ namespace Stashbox.Resolution
         /// <param name="wrappedTypeInformation">The wrapped type's meta information.</param>
         /// <param name="serviceContext">The wrapped service's context that contains the actual instantiation expression and additional meta information.</param>
         /// <returns>The wrapped service expression.</returns>
-        Expression WrapExpression(TypeInformation originalTypeInformation, 
+        Expression WrapExpression(TypeInformation originalTypeInformation,
             TypeInformation wrappedTypeInformation,
             ServiceContext serviceContext);
 
@@ -46,7 +46,7 @@ namespace Stashbox.Resolution
         /// <param name="wrappedTypeInformation">The wrapped type's meta information.</param>
         /// <param name="serviceContexts">The service contexts that contains the actual instantiation expressions and additional meta information.</param>
         /// <returns>The wrapped service expression.</returns>
-        Expression WrapExpression(TypeInformation originalTypeInformation, TypeInformation wrappedTypeInformation, 
+        Expression WrapExpression(TypeInformation originalTypeInformation, TypeInformation wrappedTypeInformation,
             IEnumerable<ServiceContext> serviceContexts);
 
         /// <summary>

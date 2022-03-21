@@ -30,7 +30,7 @@ namespace Stashbox.Resolution
         }
 
         internal bool IsEmpty() => this.Equals(default);
-        
+
         private bool Equals(ServiceContext other) =>
             ReferenceEquals(ServiceExpression, other.ServiceExpression) && ReferenceEquals(ServiceRegistration, other.ServiceRegistration);
     }

@@ -8,7 +8,7 @@ namespace Stashbox.Resolution.Wrappers
     {
         private static bool IsLazy(Type type) => type.IsClosedGenericType() && type.GetGenericTypeDefinition() == typeof(Lazy<>);
 
-        public Expression WrapExpression(TypeInformation originalTypeInformation, TypeInformation wrappedTypeInformation, 
+        public Expression WrapExpression(TypeInformation originalTypeInformation, TypeInformation wrappedTypeInformation,
             ServiceContext serviceContext)
         {
             var ctorParamType = Constants.FuncType.MakeGenericType(wrappedTypeInformation.Type);

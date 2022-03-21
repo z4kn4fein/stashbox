@@ -41,15 +41,15 @@ namespace Stashbox.Expressions.Compile
             this.HasCapturedVariablesArgument = capturedArguments.Length > 0;
         }
 
-        private CompilerContext(ExpandableArray<Expression> definedVariables, 
-            bool hasCapturedVariablesArgument, 
-            bool isNestedLambda, 
-            ExpandableArray<object> constants, 
-            ExpandableArray<Expression> capturedArguments, 
-            Closure? target, 
-            LocalBuilder[]? localBuilders, 
-            LocalBuilder? capturedArgumentsHolderVariable, 
-            ExpandableArray<LambdaExpression, NestedLambda> nestedLambdas, 
+        private CompilerContext(ExpandableArray<Expression> definedVariables,
+            bool hasCapturedVariablesArgument,
+            bool isNestedLambda,
+            ExpandableArray<object> constants,
+            ExpandableArray<Expression> capturedArguments,
+            Closure? target,
+            LocalBuilder[]? localBuilders,
+            LocalBuilder? capturedArgumentsHolderVariable,
+            ExpandableArray<LambdaExpression, NestedLambda> nestedLambdas,
             bool hasClosure)
         {
             DefinedVariables = definedVariables;

@@ -143,12 +143,12 @@ namespace System
 
             var type = member is PropertyInfo prop ? prop.PropertyType : ((FieldInfo)member).FieldType;
             return new TypeInformation(
-                type, 
-                member.DeclaringType, 
-                dependencyName, 
-                customAttributes, 
-                member.Name, 
-                false, 
+                type,
+                member.DeclaringType,
+                dependencyName,
+                customAttributes,
+                member.Name,
+                false,
                 null,
                 null);
         }
@@ -255,7 +255,7 @@ namespace System
         public static string GetDiagnosticsView(this Type type)
         {
             if (!type.IsGenericType) return type.Name;
-            
+
             var typeName = type.Name;
             var i = typeName.IndexOf('`');
             typeName = i != -1 ? typeName.Substring(0, i) : typeName;
@@ -270,7 +270,7 @@ namespace System
 
             return typeName;
         }
-        
+
         private static bool IsObjectType(this Type type) => type == Constants.ObjectType;
 
         private static bool HasDefaultConstructorConstraint(this GenericParameterAttributes attributes) =>
@@ -278,7 +278,7 @@ namespace System
 
         private static bool HasReferenceTypeConstraint(this GenericParameterAttributes attributes) =>
             (attributes & GenericParameterAttributes.ReferenceTypeConstraint) == GenericParameterAttributes.ReferenceTypeConstraint;
-        
+
         private static bool FilterProperty(this PropertyInfo prop, ServiceRegistration serviceRegistration,
             ContainerConfiguration containerConfiguration, bool publicPropsEnabled, bool limitedPropsEnabled)
         {
@@ -306,7 +306,7 @@ namespace System
 
             return valid;
         }
-        
+
         private static bool IsBackingField(this MemberInfo field) =>
             field.Name[0] == '<';
 
@@ -318,7 +318,7 @@ namespace System
 
         private static bool HasPublicParameterlessConstructor(this Type type) =>
             type.GetConstructors().FirstOrDefault(c => c.GetParameters().Length == 0) != null;
-        
+
         private static DependencyAttribute? GetDependencyAttribute(this MemberInfo property)
         {
             var attr = property.GetCustomAttributes(Constants.DependencyAttributeType, false).FirstOrDefault();

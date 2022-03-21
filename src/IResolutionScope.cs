@@ -63,7 +63,7 @@ namespace Stashbox
         /// <returns>The scoped object.</returns>
         object GetOrAddScopedObject(int key, Func<IResolutionScope, IRequestContext, object> factory,
             IRequestContext requestContext, Type serviceType);
-        
+
         /// <summary>
         /// Invalidates the delegate cache.
         /// </summary>

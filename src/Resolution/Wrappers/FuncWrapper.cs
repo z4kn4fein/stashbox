@@ -23,7 +23,7 @@ namespace Stashbox.Resolution.Wrappers
         private static bool IsFunc(Type type) => type.IsClosedGenericType() && SupportedTypes.Contains(type.GetGenericTypeDefinition());
 
         public Expression WrapExpression(TypeInformation originalTypeInformation, TypeInformation wrappedTypeInformation,
-            ServiceContext serviceContext, IEnumerable<ParameterExpression> parameterExpressions) => 
+            ServiceContext serviceContext, IEnumerable<ParameterExpression> parameterExpressions) =>
             serviceContext.ServiceExpression.AsLambda(originalTypeInformation.Type, parameterExpressions);
 
         public bool TryUnWrap(TypeInformation typeInformation, out TypeInformation unWrappedType, out IEnumerable<Type> parameterTypes)
