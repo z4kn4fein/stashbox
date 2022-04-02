@@ -5,11 +5,6 @@ using System.Linq.Expressions;
 namespace Stashbox.Resolution
 {
     /// <summary>
-    /// The base interface for wrappers and resolvers.
-    /// </summary>
-    public interface IResolver { }
-
-    /// <summary>
     /// Represents a wrapper that can wrap a service.
     /// </summary>
     public interface IServiceWrapper : IResolver

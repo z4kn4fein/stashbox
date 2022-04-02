@@ -3,6 +3,11 @@
 namespace Stashbox.Resolution
 {
     /// <summary>
+    /// The base interface for wrappers and resolvers.
+    /// </summary>
+    public interface IResolver { }
+    
+    /// <summary>
     /// Represents a dependency resolver.
     /// </summary>
     public interface IServiceResolver : IResolver
