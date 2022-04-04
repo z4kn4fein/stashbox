@@ -43,6 +43,11 @@ namespace Stashbox.Registration
         public readonly bool IsDecorator;
 
         /// <summary>
+        /// Determines whether the service's resolution should be handled by a dynamic <see cref="IDependencyResolver.Resolve(Type)"/> call on the current <see cref="IDependencyResolver"/> instead of a pre-built instantiation expression.
+        /// </summary>
+        public readonly bool IsResolutionCallRequired;
+
+        /// <summary>
         /// Name of the registration.
         /// </summary>
         public readonly object? Name;
@@ -201,6 +206,7 @@ namespace Stashbox.Registration
                 registrationContext.AttributeConditions,
                 registrationContext.ReplaceExistingRegistration,
                 registrationContext.ReplaceExistingRegistrationOnlyIfExists,
+                registrationContext.IsResolutionCallRequired,
                 registrationContext.AdditionalServiceTypes,
                 registrationContext.InjectionParameters)
         { }
@@ -230,6 +236,7 @@ namespace Stashbox.Registration
                 baseRegistration.attributeConditions,
                 baseRegistration.ReplaceExistingRegistration,
                 baseRegistration.ReplaceExistingRegistrationOnlyIfExists,
+                baseRegistration.IsResolutionCallRequired,
                 baseRegistration.AdditionalServiceTypes,
                 baseRegistration.InjectionParameters)
         { }
@@ -258,6 +265,7 @@ namespace Stashbox.Registration
             ExpandableArray<Type>? attributeConditions = null,
             bool replaceExistingRegistration = false,
             bool replaceExistingRegistrationOnlyIfExists = false,
+            bool isResolutionCallRequired = false,
             ExpandableArray<Type>? additionalServiceTypes = null,
             ExpandableArray<KeyValuePair<string, object?>>? injectionParameters = null)
         {
@@ -283,6 +291,7 @@ namespace Stashbox.Registration
             this.attributeConditions = attributeConditions;
             this.ReplaceExistingRegistration = replaceExistingRegistration;
             this.ReplaceExistingRegistrationOnlyIfExists = replaceExistingRegistrationOnlyIfExists;
+            this.IsResolutionCallRequired = isResolutionCallRequired;
             this.AdditionalServiceTypes = additionalServiceTypes;
             this.InjectionParameters = injectionParameters;
 

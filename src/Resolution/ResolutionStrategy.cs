@@ -71,6 +71,15 @@ namespace Stashbox.Resolution
             var registration = resolutionContext.CurrentContainerContext.RegistrationRepository
                 .GetRegistrationOrDefault(typeInformation, resolutionContext);
 
+            if (!resolutionContext.IsTopRequest && registration != null && registration.IsResolutionCallRequired)
+                return resolutionContext.CurrentScopeParameter
+                    .ConvertTo(Constants.ResolverType)
+                    .CallMethod(Constants.ResolveMethod, 
+                        typeInformation.Type.AsConstant(), typeInformation.DependencyName.AsConstant(),
+                        resolutionContext.ExpressionOverrides?.Walk().Select(c => c.Value).ToArray().AsConstant() ?? Constants.EmptyArray<object>().AsConstant())
+                    .ConvertTo(typeInformation.Type)
+                    .AsServiceContext(registration);
+
             resolutionContext = resolutionContext.BeginSubDependencyContext();
             return registration != null
                 ? this.BuildExpressionForRegistration(registration, resolutionContext, typeInformation)

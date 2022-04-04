@@ -128,6 +128,16 @@ namespace Stashbox.Registration.Fluent
         { }
 
         /// <summary>
+        /// Indicates that the service's resolution should be handled by a dynamic <see cref="IDependencyResolver.Resolve(Type)"/> call on the current <see cref="IDependencyResolver"/> instead of a pre-built instantiation expression.
+        /// </summary>
+        /// <returns></returns>
+        public TConfigurator WithDynamicResolution()
+        {
+            this.Context.IsResolutionCallRequired = true;
+            return (TConfigurator)this;
+        }
+
+        /// <summary>
         /// Sets the metadata.
         /// </summary>
         /// <param name="metadata">The metadata.</param>

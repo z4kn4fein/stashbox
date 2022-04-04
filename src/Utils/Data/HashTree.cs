@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace Stashbox.Utils.Data
 {
@@ -144,6 +145,82 @@ namespace Stashbox.Utils.Data
             {
                 node.Collisions ??= new ExpandableArray<TKey, TValue>();
                 node.Collisions.Add(new ReadOnlyKeyValue<TKey, TValue>(key, value));
+            }
+        }
+
+        public IEnumerable<TValue> Walk()
+        {
+            if (this.root == null)
+                yield break;
+
+            switch (this.root.Height)
+            {
+                case 1:
+                    yield return this.root.StoredValue;
+                    break;
+                case 2:
+                    if (this.root.Left != null)
+                        yield return this.root.Left.StoredValue;
+                    yield return this.root.StoredValue;
+                    if (this.root.Right != null)
+                        yield return this.root.Right.StoredValue;
+                    break;
+                default:
+                    {
+                        var nodes = new Node[this.root.Height - 2];
+                        var currentNode = this.root;
+                        var index = -1;
+
+                        while (true)
+                        {
+                            if (currentNode != null)
+                            {
+                                if (currentNode.Height == 2)
+                                {
+                                    if (currentNode.Left != null)
+                                        yield return currentNode.Left.StoredValue;
+                                    yield return currentNode.StoredValue;
+                                    if (currentNode.Right != null)
+                                        yield return currentNode.Right.StoredValue;
+
+                                    if (index == -1)
+                                        break;
+                                    currentNode = nodes[index--];
+                                    yield return currentNode.StoredValue;
+
+                                    currentNode = currentNode.Right;
+                                }
+                                else if (currentNode.Height == 1)
+                                {
+                                    yield return currentNode.StoredValue;
+
+                                    if (index == -1)
+                                        break;
+                                    currentNode = nodes[index--];
+                                    yield return currentNode.StoredValue;
+
+                                    currentNode = currentNode.Right;
+                                }
+                                else
+                                {
+                                    nodes[++index] = currentNode;
+                                    currentNode = currentNode.Left;
+                                }
+                            }
+                            else
+                            {
+                                if (index == -1)
+                                    break;
+                                currentNode = nodes[index--];
+                                yield return currentNode.StoredValue;
+
+                                currentNode = currentNode.Right;
+                            }
+
+                        }
+
+                        break;
+                    }
             }
         }
     }

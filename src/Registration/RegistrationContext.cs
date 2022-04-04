@@ -37,6 +37,7 @@ namespace Stashbox.Registration
         public ExpandableArray<Type>? AttributeConditions;
         public bool ReplaceExistingRegistration;
         public bool ReplaceExistingRegistrationOnlyIfExists;
+        public bool IsResolutionCallRequired;
         public ExpandableArray<Type>? AdditionalServiceTypes;
         public ExpandableArray<KeyValuePair<string, object?>>? InjectionParameters;
     }

@@ -38,6 +38,10 @@ namespace Stashbox.Utils
         public static readonly MethodInfo AddWithAsyncInitializerMethod = ResolutionScopeType.GetMethod(nameof(IResolutionScope.AddWithAsyncInitializer))!;
 
         public static readonly MethodInfo GetOrAddInstanceMethod = InternalRequestContextType.GetMethod(nameof(IInternalRequestContext.GetOrAddInstance))!;
+        
+        public static readonly MethodInfo ResolveMethod =
+            ResolverType.GetMethod(nameof(IDependencyResolver.Resolve), new[] { typeof(Type),
+                ObjectType, typeof(object[]) })!;
 
         public static readonly MethodInfo CheckRuntimeCircularDependencyBarrierMethod =
 #pragma warning disable 618
