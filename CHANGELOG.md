@@ -235,6 +235,7 @@ The validation was executed only at the expression tree building phase, so an al
 - Removed the legacy container extension functionality.
 - Removed the support of PCL v259.
 
+[v5.3.0]: https://github.com/z4kn4fein/stashbox/compare/5.2.1...5.3.0
 [v5.2.1]: https://github.com/z4kn4fein/stashbox/compare/5.2.0...5.2.1
 [v5.2.0]: https://github.com/z4kn4fein/stashbox/compare/5.1.0...5.2.0
 [v5.1.0]: https://github.com/z4kn4fein/stashbox/compare/5.0.1...5.1.0
