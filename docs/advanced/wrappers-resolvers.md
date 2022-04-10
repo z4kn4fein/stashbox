@@ -5,7 +5,7 @@ Stashbox uses so-called *Wrapper* and *Resolver* implementations to handle those
 ## Pre-defined wrappers & resolvers
 * `EnumerableWrapper`: Used to resolve a collection of services wrapped in one of the collection interfaces that a .NET `Array` implements. (`IEnumerable<>`, `IList<>`, `ICollection<>`, `IReadOnlyList<>`, `IReadOnlyCollection<>`) 
 * `LazyWrapper`: Used to resolve services [wrapped](advanced/wrappers-resolvers?id=lazy) in `Lazy<>`.
-* `FuncWrapper`: Used to resolve services [wrapped](advanced/wrappers-resolvers?id=func) in `Func<>` delegates.
+* `FuncWrapper`: Used to resolve services [wrapped](advanced/wrappers-resolvers?id=delegate) in a `Delegate` that has a non-void return type like `Func<>`.
 * `MetadataWrapper`: Used to resolve services [wrapped](advanced/wrappers-resolvers?id=metadata-amp-tuple) in `ValueTuple<,>`, `Tuple<,>`, or `Metadata<,>`.
 * `KeyValueWrapper`: Used to resolve services [wrapped](advanced/wrappers-resolvers?id=keyvaluepair-amp-readonlykeyvalue) in `KeyValuePair<,>` or `ReadOnlyKeyValue<,>`.
 * `OptionalValueResolver`: Used to resolve optional parameters.
@@ -54,8 +54,9 @@ IJob job = lazyJob.Value;
 <!-- panels:start -->
 
 <!-- div:left-panel -->
-### Func
-When requesting `Func<>`, the container implicitly creates a factory delegate used to instantiate the underlying service.
+### Delegate
+
+When requesting a `Delegate`, the container implicitly creates a factory used to instantiate the underlying service.
 
 It's possible to request a delegate that expects some or all of the dependencies as delegate parameters.
 Parameters are used for sub-dependencies as well, like: `(arg) => new A(new B(arg))`
@@ -65,16 +66,7 @@ When a dependency is not available as a parameter, it will be resolved from the 
 <!-- div:right-panel -->
 
 <!-- tabs:start -->
-##### **Default**
-```cs
-container.Register<IJob, DbBackup>();
-
-// () => new DbBackup()
-Func<IJob> funcOfJob = container.Resolve<Func<IJob>>();
-IJob job = funcOfJob();
-```
-
-##### **Custom parameters**
+##### **Func**
 ```cs
 container.Register<IJob, DbBackup>();
 
@@ -84,9 +76,20 @@ Func<string, ILogger, IJob> funcOfJob = container
     
 IJob job = funcOfJob(config["connectionString"], new ConsoleLogger());
 ```
+
+##### **Custom delegate**
+```cs
+private delegate IJob JobFactory(string connectionString, ILogger logger);
+
+container.Register<IJob, DbBackup>();
+
+var jobDelegate = container.Resolve<JobFactory>();
+IJob job = jobDelegate(config["connectionString"], new ConsoleLogger());
+```
 <!-- tabs:end -->
 
 <!-- panels:end -->
+
 
 <!-- panels:start -->
 

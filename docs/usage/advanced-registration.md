@@ -68,7 +68,7 @@ container.Register<IJob, DbBackup>(options => options
 
 <!-- div:left-panel -->
 ### Factories with parameter overrides
-Stashbox can implicitly [wrap](advanced/wrappers-resolvers?id=func) your service in a `Func<>` delegate and lets you pass parameters that can override your service's dependencies. Moreover, you can register your own custom delegate that the container will resolve when you request your service wrapped in a `Func<>`.
+Stashbox can implicitly [wrap](advanced/wrappers-resolvers?id=delegate) your service in a `Delegate` and lets you pass parameters that can override your service's dependencies. Moreover, you can register your own custom delegate that the container will resolve when you request your service wrapped in a `Delegate`.
 <!-- div:right-panel -->
 
 <!-- tabs:start -->

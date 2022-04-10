@@ -1,5 +1,6 @@
 ﻿using Stashbox.Attributes;
 using Stashbox.Configuration;
+using Stashbox.Exceptions;
 using Stashbox.Resolution;
 using Stashbox.Tests.Utils;
 using System;
@@ -10,8 +11,6 @@ namespace Stashbox.Tests
 
     public class FactoryTests
     {
-        private delegate object Factory(Type serviceType);
-
         [Theory]
         [ClassData(typeof(CompilerTypeTestData))]
         public void FactoryTests_DependencyResolve(CompilerType compilerType)
@@ -425,6 +424,8 @@ namespace Stashbox.Tests
             Assert.False(disposable.IsDisposed);
         }
 
+        private delegate object Factory(Type serviceType);
+
         [Theory]
         [ClassData(typeof(CompilerTypeTestData))]
         public void FactoryTests_Resolve_Factory_Type(CompilerType compilerType)
@@ -438,6 +439,35 @@ namespace Stashbox.Tests
 
             Assert.NotNull(inst);
             Assert.IsType<Test3>(inst);
+        }
+
+        private delegate ITest TestFactory(string s);
+
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void FactoryTests_Resolve_Factory_Delegate(CompilerType compilerType)
+        {
+            using var container = new StashboxContainer(c => c.WithCompiler(compilerType))
+                .Register<ITest, Test>();
+
+            var factory = container.Resolve<TestFactory>();
+            var inst = factory("test");
+
+            Assert.NotNull(inst);
+            Assert.IsType<Test>(inst);
+            Assert.Equal("test", inst.Name);
+        }
+
+        private delegate void TestAction(string s);
+
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void FactoryTests_Resolve_Action_Throws(CompilerType compilerType)
+        {
+            using var container = new StashboxContainer(c => c.WithCompiler(compilerType))
+                .Register<ITest, Test>();
+
+            Assert.Throws<ResolutionFailedException>(() => container.Resolve<TestAction>());
         }
 
         interface ITest { string Name { get; } }

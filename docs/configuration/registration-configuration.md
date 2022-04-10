@@ -105,6 +105,22 @@ Console.WriteLine(jobWithConnectionString.Item2); // prints the connection strin
 ```
 <!-- panels:end -->
 
+<!-- panels:start -->
+<!-- div:left-panel -->
+### `WithDynamicResolution`
+Indicates that the service's resolution should be handled by a dynamic `Resolve()` call on the current `IDependencyResolver` instead of a pre-built instantiation expression.
+<!-- div:right-panel -->
+```cs
+container.Register<IJob, DbBackup>();
+container.Register<ILogger, ConsoleLogger>(options => options
+    .WithDynamicResolution());
+
+// new DbBackup(currentScope.Resolve<ILogger>());
+var job = container.Resolve<IJob>();
+
+```
+<!-- panels:end -->
+
 ## Initializer / finalizer
 <!-- panels:start -->
 <!-- div:left-panel -->

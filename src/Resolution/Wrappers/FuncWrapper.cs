@@ -8,27 +8,21 @@ namespace Stashbox.Resolution.Wrappers
 {
     internal class FuncWrapper : IParameterizedWrapper
     {
-        private static readonly HashSet<Type> SupportedTypes = new()
-        {
-            typeof(Func<>),
-            typeof(Func<,>),
-            typeof(Func<,,>),
-            typeof(Func<,,,>),
-            typeof(Func<,,,,>),
-            typeof(Func<,,,,,>),
-            typeof(Func<,,,,,,>),
-            typeof(Func<,,,,,,,>),
-        };
-
-        private static bool IsFunc(Type type) => type.IsClosedGenericType() && SupportedTypes.Contains(type.GetGenericTypeDefinition());
-
         public Expression WrapExpression(TypeInformation originalTypeInformation, TypeInformation wrappedTypeInformation,
             ServiceContext serviceContext, IEnumerable<ParameterExpression> parameterExpressions) =>
             serviceContext.ServiceExpression.AsLambda(originalTypeInformation.Type, parameterExpressions);
 
         public bool TryUnWrap(TypeInformation typeInformation, out TypeInformation unWrappedType, out IEnumerable<Type> parameterTypes)
         {
-            if (!IsFunc(typeInformation.Type))
+            if (!typeInformation.Type.IsSubclassOf(Constants.DelegateType))
+            {
+                unWrappedType = default;
+                parameterTypes = Constants.EmptyTypes;
+                return false;
+            }
+
+            var method = typeInformation.Type.GetMethod("Invoke");
+            if (method == null || method.ReturnType == Constants.VoidType)
             {
                 unWrappedType = default;
                 parameterTypes = Constants.EmptyTypes;
@@ -36,8 +30,8 @@ namespace Stashbox.Resolution.Wrappers
             }
 
             var args = typeInformation.Type.GetGenericArguments();
-            unWrappedType = typeInformation.Clone(args.LastElement());
-            parameterTypes = args.SelectButLast();
+            unWrappedType = typeInformation.Clone(method.ReturnType);
+            parameterTypes = method.GetParameters().Select(p => p.ParameterType);
             return true;
         }
     }

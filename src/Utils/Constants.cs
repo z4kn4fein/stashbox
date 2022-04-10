@@ -23,6 +23,10 @@ namespace Stashbox.Utils
 
         public static readonly Type ObjectType = typeof(object);
 
+        public static readonly Type VoidType = typeof(void);
+
+        public static readonly Type DelegateType = typeof(Delegate);
+
         public static readonly ParameterExpression ResolutionScopeParameter = ResolutionScopeType.AsParameter("scope");
 
         public static readonly ParameterExpression RequestContextParameter = RequestContextType.AsParameter("request");
