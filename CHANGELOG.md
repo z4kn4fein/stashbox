@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - `Resolve<IEnumerable<>>(name)` now returns each service that has the same name.
 ### Added
-- `ResolveAll<>(name)` that returns each service that has the same name.
+- `ResolveAll(name)` that returns each service that has the same name.
 ### Removed
 - Obsolete `Resolve()` with the `nullResultAllowed` parameter, it was replaced by `ResolveOrDefault()`.
 - Each obsolete `ResolveFactory<>()` method as their functionality is equivalent to `Resolve<Func<>>()`.
@@ -245,6 +245,7 @@ The validation was executed only at the expression tree building phase, so an al
 - Removed the legacy container extension functionality.
 - Removed the support of PCL v259.
 
+[v5.4.0]: https://github.com/z4kn4fein/stashbox/compare/5.3.0...5.4.0
 [v5.3.0]: https://github.com/z4kn4fein/stashbox/compare/5.2.1...5.3.0
 [v5.2.1]: https://github.com/z4kn4fein/stashbox/compare/5.2.0...5.2.1
 [v5.2.0]: https://github.com/z4kn4fein/stashbox/compare/5.1.0...5.2.0
