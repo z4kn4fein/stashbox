@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - `ResolveAll(name)` that returns each service that has the same name.
 ### Removed
-- Obsolete `Resolve()` with the `nullResultAllowed` parameter, it was replaced by `ResolveOrDefault()`.
+- Obsolete `Resolve()` method with the `nullResultAllowed` parameter, it was replaced by `ResolveOrDefault()`.
 - Each obsolete `ResolveFactory<>()` method as their functionality is equivalent to `Resolve<Func<>>()`.
 - Obsolete `.WithRuntimeCircularDependencyTracking()` container configuration option in favor of [parameterized factory delegates](https://z4kn4fein.github.io/stashbox/#/usage/advanced-registration?id=consider-this-before-using-the-resolver-parameter-inside-a-factory).
 
