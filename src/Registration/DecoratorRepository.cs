@@ -1,5 +1,6 @@
 ﻿using Stashbox.Registration.Extensions;
 using Stashbox.Registration.SelectionRules;
+using Stashbox.Registration.ServiceRegistrations;
 using Stashbox.Resolution;
 using Stashbox.Utils;
 using Stashbox.Utils.Data.Immutable;
@@ -32,7 +33,7 @@ namespace Stashbox.Registration
             else
                 Swap.SwapValue(ref this.repository, (t1, t2, t3, _, repo) =>
                     repo.AddOrUpdate(t1, t2, true, (oldValue, _) => oldValue
-                        .AddOrUpdate(t3.ImplementationType, t3, t3.ReplaceExistingRegistration)),
+                        .AddOrUpdate(t3.ImplementationType, t3, t3 is ComplexRegistration complex && complex.ReplaceExistingRegistration)),
                             type, newRepository, serviceRegistration, Constants.DelegatePlaceholder);
         }
 

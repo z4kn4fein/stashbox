@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Stashbox.Lifetime;
+using System;
 
 namespace Stashbox.Registration.Fluent
 {
@@ -9,9 +10,10 @@ namespace Stashbox.Registration.Fluent
     {
         internal bool RegistrationShouldBeSkipped { get; private set; }
 
-        internal UnknownRegistrationConfigurator(Type serviceType, Type implementationType) : base(serviceType, implementationType)
-        {
-        }
+        internal UnknownRegistrationConfigurator(Type serviceType, Type implementationType, object? name,
+            LifetimeDescriptor lifetimeDescriptor)
+            : base(serviceType, implementationType, lifetimeDescriptor, name)
+        { }
 
         /// <summary>
         /// Sets the current registration's implementation type.
@@ -23,7 +25,7 @@ namespace Stashbox.Registration.Fluent
             if (!implementationType.Implements(this.ServiceType))
                 throw new ArgumentException($"The type {implementationType} does not implement the actual service type {this.ServiceType}.");
 
-            this.ImplementationType = implementationType;
+            this.Registration.ImplementationType = implementationType;
             return this;
 
         }

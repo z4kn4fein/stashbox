@@ -1,4 +1,5 @@
 ﻿using Stashbox.Registration.SelectionRules;
+using Stashbox.Registration.ServiceRegistrations;
 using Stashbox.Resolution;
 using Stashbox.Utils.Data;
 using Stashbox.Utils.Data.Immutable;
@@ -10,16 +11,16 @@ namespace Stashbox.Registration.Extensions
 {
     internal static class ServiceRepositoryExtensions
     {
-        public static bool ContainsRegistration(this ImmutableTree<Type, ImmutableBucket<object, ServiceRegistration>> repository, Type type, object? name, bool includeOpenGenerics)
+        public static bool ContainsRegistration(this ImmutableTree<Type, ImmutableBucket<ServiceRegistration>> repository, Type type, object? name, bool includeOpenGenerics)
         {
             var registrations = repository.GetOrDefaultByRef(type);
             if (name != null && registrations != null)
-                return registrations.GetOrDefaultByValue(name) != null;
+                return registrations.Repository.Any(reg => reg.Name == name);
 
             if (registrations != null || !includeOpenGenerics || !type.IsClosedGenericType()) return registrations != null;
 
             registrations = repository.GetOrDefaultByRef(type.GetGenericTypeDefinition());
-            return registrations?.Any(reg => reg.ImplementationType.SatisfiesGenericConstraintsOf(type)) ?? false;
+            return registrations?.Repository.Any(reg => reg.ImplementationType.SatisfiesGenericConstraintsOf(type)) ?? false;
         }
 
         public static ServiceRegistration? SelectOrDefault(this IEnumerable<ServiceRegistration> registrations,
@@ -84,10 +85,10 @@ namespace Stashbox.Registration.Extensions
             var filterLength = registrationSelectionRules.Length;
             for (var i = 0; i < filterLength; i++)
             {
-                if (!registrationSelectionRules[i].IsValidForCurrentRequest(typeInformation, serviceRegistration, resolutionContext))
+                if (!registrationSelectionRules[i].IsValidForCurrentRequest(typeInformation, serviceRegistration, resolutionContext, out var shouldIncrementWeight))
                     return false;
 
-                if (registrationSelectionRules[i].ShouldIncrementWeight(typeInformation, serviceRegistration, resolutionContext))
+                if (shouldIncrementWeight)
                     weight++;
             }
 

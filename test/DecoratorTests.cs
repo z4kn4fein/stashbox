@@ -2,6 +2,7 @@
 using Stashbox.Configuration;
 using Stashbox.Exceptions;
 using Stashbox.Lifetime;
+using Stashbox.Registration.ServiceRegistrations;
 using Stashbox.Tests.Utils;
 using System;
 using System.Collections.Generic;
@@ -363,7 +364,7 @@ namespace Stashbox.Tests
             container.Register<ITest1, Test1>();
             container.RegisterDecorator<ITest1, TestDecorator9>();
 
-            var inst = container.Resolve<ITest1>(nullResultAllowed: true);
+            var inst = container.ResolveOrDefault<ITest1>();
 
             Assert.Null(inst);
         }
@@ -375,7 +376,7 @@ namespace Stashbox.Tests
             container.Register<ITest1, Test12>();
             container.RegisterDecorator<ITest1, TestDecorator9>();
 
-            var inst = container.Resolve<ITest1>(nullResultAllowed: true);
+            var inst = container.ResolveOrDefault<ITest1>();
 
             Assert.Null(inst);
         }
@@ -897,11 +898,25 @@ namespace Stashbox.Tests
         {
             using var container = new StashboxContainer(c => c.WithCompiler(compilerType));
             container.Register<ITest1, Test1>();
-            container.RegisterDecorator<ITest1, TestDecorator14>(c => c.WithDependencyBinding(d => d.Test));
+            container.RegisterDecorator<ITest1, TestDecorator14>();
 
             var t = container.Resolve<ITest1>();
 
             Assert.IsType<TestDecorator14>(t);
+            Assert.IsType<Test1>(t.Test);
+        }
+
+        [Theory]
+        [ClassData(typeof(CompilerTypeTestData))]
+        public void DecoratorTests_InjectMember_AttributeLess(CompilerType compilerType)
+        {
+            using var container = new StashboxContainer(c => c.WithCompiler(compilerType));
+            container.Register<ITest1, Test1>();
+            container.RegisterDecorator<ITest1, TestDecorator3Attributeless>(c => c.WithDependencyBinding(d => d.Test));
+
+            var t = container.Resolve<ITest1>();
+
+            Assert.IsType<TestDecorator3Attributeless>(t);
             Assert.IsType<Test1>(t.Test);
         }
 
@@ -1127,7 +1142,7 @@ namespace Stashbox.Tests
                 .WithSingletonLifetime()
                 .WhenDecoratedServiceIs<Test1>());
 
-            var registration = container.ContainerContext.DecoratorRepository.GetRegistrationMappings().First().Value;
+            var registration = container.ContainerContext.DecoratorRepository.GetRegistrationMappings().First().Value as ComplexRegistration;
 
             Assert.NotNull(registration.Initializer);
             Assert.Equal(Lifetimes.Singleton, registration.Lifetime);

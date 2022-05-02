@@ -1,5 +1,5 @@
 ﻿using Stashbox.Exceptions;
-using Stashbox.Registration;
+using Stashbox.Registration.ServiceRegistrations;
 using Stashbox.Resolution;
 using Stashbox.Resolution.Extensions;
 using Stashbox.Utils;
@@ -15,7 +15,7 @@ namespace Stashbox.Expressions
     internal static partial class ExpressionFactory
     {
         private static IEnumerable<Expression> CreateParameterExpressionsForMethod(
-            ServiceRegistration serviceRegistration,
+            ServiceRegistration? serviceRegistration,
             ResolutionContext resolutionContext,
             MethodBase method)
         {
@@ -26,18 +26,18 @@ namespace Stashbox.Expressions
                 var parameter = parameters[i].AsTypeInformation(method.DeclaringType, serviceRegistration,
                     resolutionContext.CurrentContainerContext.ContainerConfiguration);
 
-                var injectionParameter = serviceRegistration.InjectionParameters?.SelectInjectionParameterOrDefault(parameter);
+                var injectionParameter = (serviceRegistration as ComplexRegistration)?.InjectionParameters?.SelectInjectionParameterOrDefault(parameter);
                 if (injectionParameter != null) yield return injectionParameter;
 
                 yield return resolutionContext.CurrentContainerContext.ResolutionStrategy.BuildExpressionForType(
-                    resolutionContext, parameter).ServiceExpression ?? throw new ResolutionFailedException(method.DeclaringType, serviceRegistration.Name,
+                    resolutionContext, parameter).ServiceExpression ?? throw new ResolutionFailedException(method.DeclaringType, serviceRegistration?.Name,
                     $"Method {method} found with unresolvable parameter: ({parameter.Type}){parameter.ParameterOrMemberName}");
             }
         }
 
         private static ConstructorInfo? SelectConstructor(
             Type typeToConstruct,
-            ServiceRegistration serviceRegistration,
+            ServiceRegistration? serviceRegistration,
             ResolutionContext resolutionContext,
             IEnumerable<ConstructorInfo> constructorsEnumerable,
             out Expression[] parameterExpressions)
@@ -61,7 +61,7 @@ namespace Stashbox.Expressions
 
             if (resultConstructors.Length == 0)
                 throw new ResolutionFailedException(typeToConstruct,
-                    serviceRegistration.Name,
+                    serviceRegistration?.Name,
                     "No public constructor found. Make sure there is at least one public constructor on the type.");
 
             var checkedConstructors = new Dictionary<MethodBase, TypeInformation>();
@@ -99,12 +99,12 @@ namespace Stashbox.Expressions
             foreach (var checkedConstructor in checkedConstructors)
                 stringBuilder.AppendLine($"Constructor {checkedConstructor.Key} found with unresolvable parameter: ({checkedConstructor.Value.Type.FullName}){checkedConstructor.Value.ParameterOrMemberName}.");
 
-            throw new ResolutionFailedException(typeToConstruct, serviceRegistration.Name, stringBuilder.ToString());
+            throw new ResolutionFailedException(typeToConstruct, serviceRegistration?.Name, stringBuilder.ToString());
         }
 
         private static IEnumerable<Expression> CreateMethodExpressions(
             IEnumerable<MethodInfo> methods,
-            ServiceRegistration serviceRegistration,
+            ServiceRegistration? serviceRegistration,
             ResolutionContext resolutionContext,
             Expression instance)
         {
@@ -122,7 +122,7 @@ namespace Stashbox.Expressions
 
         private static bool TryBuildMethod(
             MethodBase method,
-            ServiceRegistration serviceRegistration,
+            ServiceRegistration? serviceRegistration,
             ResolutionContext resolutionContext,
             out TypeInformation failedParameter,
             out Expression[] parameterExpressions)
@@ -136,7 +136,7 @@ namespace Stashbox.Expressions
                 var parameter = parameters[i].AsTypeInformation(method.DeclaringType, serviceRegistration,
                     resolutionContext.CurrentContainerContext.ContainerConfiguration);
 
-                var injectionParameter = serviceRegistration.InjectionParameters?.SelectInjectionParameterOrDefault(parameter);
+                var injectionParameter = (serviceRegistration as ComplexRegistration)?.InjectionParameters?.SelectInjectionParameterOrDefault(parameter);
 
                 if (injectionParameter != null)
                 {

@@ -64,7 +64,7 @@ namespace Stashbox.Tests
         {
             using var container = new StashboxContainer(config => config.WithDefaultValueInjection());
             container.Register<Test3>();
-            var result = container.Resolve<Test3>(nullResultAllowed: true);
+            var result = container.ResolveOrDefault<Test3>();
 
             Assert.Null(result);
         }
@@ -84,7 +84,7 @@ namespace Stashbox.Tests
         {
             using var container = new StashboxContainer();
             container.Register<Test4>();
-            var inst = container.Resolve<Test4>(nullResultAllowed: true);
+            var inst = container.ResolveOrDefault<Test4>();
 
             Assert.Null(inst);
         }

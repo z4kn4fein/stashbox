@@ -15,6 +15,10 @@ namespace Stashbox.Utils.Data.Immutable
 
         public TValue this[int i] => this.Repository[i];
 
+        public ImmutableBucket(TValue value)
+            : this(new[] { value })
+        { }
+
         public ImmutableBucket(TValue[] repository)
         {
             this.Repository = repository;
@@ -45,6 +49,21 @@ namespace Stashbox.Utils.Data.Immutable
             Array.Copy(this.Repository, newRepository, index);
             newRepository[index] = value;
             Array.Copy(this.Repository, index, newRepository, index + 1, this.Length - index);
+
+            return new ImmutableBucket<TValue>(newRepository);
+        }
+
+        internal ImmutableBucket<TValue> ReplaceAt(int index, TValue value)
+        {
+            if (index > this.Length - 1)
+                throw new IndexOutOfRangeException();
+
+            if (this.Length == 0)
+                return new ImmutableBucket<TValue>(new[] { value });
+
+            var newRepository = new TValue[this.Length];
+            Array.Copy(this.Repository, newRepository, this.Length);
+            newRepository[index] = value;
 
             return new ImmutableBucket<TValue>(newRepository);
         }

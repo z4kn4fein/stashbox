@@ -24,12 +24,6 @@ namespace Stashbox.Configuration
         public Rules.RegistrationBehavior RegistrationBehavior { get; internal set; }
 
         /// <summary>
-        /// If it's set to true the container will track circular dependencies in the compiled delegates and will throw an exception if any of it found.
-        /// </summary>
-        [Obsolete("Please use parameterized factory registrations to avoid circular dependencies across delegates. `.Register<Service>(options => options.WithFactory<Dependency>(dependency => new Service(dependency)))`")]
-        public bool RuntimeCircularDependencyTrackingEnabled { get; internal set; }
-
-        /// <summary>
         /// If it's set to true, the container will inject optional and default values for missing dependencies and primitive types.
         /// </summary>
         public bool DefaultValueInjectionEnabled { get; internal set; }
@@ -105,7 +99,6 @@ namespace Stashbox.Configuration
 
         private ContainerConfiguration(bool trackTransientsForDisposalEnabled,
             Rules.RegistrationBehavior registrationBehavior,
-            bool runtimeCircularDependencyTrackingEnabled,
             bool defaultValueInjectionEnabled,
             bool unknownTypeResolutionEnabled,
             bool autoMemberInjectionEnabled,
@@ -121,33 +114,27 @@ namespace Stashbox.Configuration
             bool lifetimeValidationEnabled,
             Func<LambdaExpression, Delegate>? externalExpressionCompiler)
         {
-            TrackTransientsForDisposalEnabled = trackTransientsForDisposalEnabled;
-            RegistrationBehavior = registrationBehavior;
-#pragma warning disable CS0618 // Type or member is obsolete
-            RuntimeCircularDependencyTrackingEnabled = runtimeCircularDependencyTrackingEnabled;
-#pragma warning restore CS0618 // Type or member is obsolete
-            DefaultValueInjectionEnabled = defaultValueInjectionEnabled;
-            UnknownTypeResolutionEnabled = unknownTypeResolutionEnabled;
-            AutoMemberInjectionEnabled = autoMemberInjectionEnabled;
-            TreatingParameterAndMemberNameAsDependencyNameEnabled = treatingParameterAndMemberNameAsDependencyNameEnabled;
-            NamedDependencyResolutionForUnNamedRequestsEnabled = namedDependencyResolutionForUnNamedRequestsEnabled;
-            ReBuildSingletonsInChildContainerEnabled = reBuildSingletonsInChildContainerEnabled;
-            AutoMemberInjectionRule = autoMemberInjectionRule;
-            ConstructorSelectionRule = constructorSelectionRule;
-            UnknownTypeConfigurator = unknownTypeConfigurator;
-            ConfigurationChangedEvent = configurationChangedEvent;
-            AutoMemberInjectionFilter = autoMemberInjectionFilter;
-            DefaultLifetime = defaultLifetime;
-            LifetimeValidationEnabled = lifetimeValidationEnabled;
-            ExternalExpressionCompiler = externalExpressionCompiler;
+            this.TrackTransientsForDisposalEnabled = trackTransientsForDisposalEnabled;
+            this.RegistrationBehavior = registrationBehavior;
+            this.DefaultValueInjectionEnabled = defaultValueInjectionEnabled;
+            this.UnknownTypeResolutionEnabled = unknownTypeResolutionEnabled;
+            this.AutoMemberInjectionEnabled = autoMemberInjectionEnabled;
+            this.TreatingParameterAndMemberNameAsDependencyNameEnabled = treatingParameterAndMemberNameAsDependencyNameEnabled;
+            this.NamedDependencyResolutionForUnNamedRequestsEnabled = namedDependencyResolutionForUnNamedRequestsEnabled;
+            this.ReBuildSingletonsInChildContainerEnabled = reBuildSingletonsInChildContainerEnabled;
+            this.AutoMemberInjectionRule = autoMemberInjectionRule;
+            this.ConstructorSelectionRule = constructorSelectionRule;
+            this.UnknownTypeConfigurator = unknownTypeConfigurator;
+            this.ConfigurationChangedEvent = configurationChangedEvent;
+            this.AutoMemberInjectionFilter = autoMemberInjectionFilter;
+            this.DefaultLifetime = defaultLifetime;
+            this.LifetimeValidationEnabled = lifetimeValidationEnabled;
+            this.ExternalExpressionCompiler = externalExpressionCompiler;
         }
 
         internal ContainerConfiguration Clone() =>
             new(this.TrackTransientsForDisposalEnabled,
                 this.RegistrationBehavior,
-#pragma warning disable CS0618 // Type or member is obsolete
-                this.RuntimeCircularDependencyTrackingEnabled,
-#pragma warning restore CS0618 // Type or member is obsolete
                 this.DefaultValueInjectionEnabled,
                 this.UnknownTypeResolutionEnabled,
                 this.AutoMemberInjectionEnabled,

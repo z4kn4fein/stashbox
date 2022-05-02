@@ -1,4 +1,4 @@
-﻿using Stashbox.Registration;
+﻿using Stashbox.Registration.ServiceRegistrations;
 using System.Linq.Expressions;
 
 namespace Stashbox.Resolution

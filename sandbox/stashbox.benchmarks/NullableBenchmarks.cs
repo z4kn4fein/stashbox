@@ -22,7 +22,7 @@ namespace Stashbox.Benchmarks
         [Benchmark]
         public object New()
         {
-            return this.newContainer.Resolve(typeof(object), nullResultAllowed: true);
+            return this.newContainer.ResolveOrDefault(typeof(object));
         }
     }
 }

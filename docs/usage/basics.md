@@ -106,6 +106,22 @@ object cleanup = container.Resolve(typeof(IJob), "StorageCleanup");
 
 <!-- panels:end -->
 
+<!-- panels:start -->
+
+<!-- div:left-panel -->
+You can also get each service that share the same name by requesting an `IEnumerable<>` or using the `ResolveAll()` method with the `name` parameter.
+
+<!-- div:right-panel -->
+
+```cs
+container.Register<IJob, DbBackup>("StorageJobs")
+container.Register<IJob, StorageCleanup>("StorageJobs");
+IEnumerable<IJob> jobs = container.Resolve<IEnumerable<IJob>>("StorageJobs");
+```
+
+<!-- panels:end -->
+
+
 ## Instance registration
 <!-- panels:start -->
 

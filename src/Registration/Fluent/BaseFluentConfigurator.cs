@@ -1,6 +1,7 @@
 ﻿using Stashbox.Configuration;
 using Stashbox.Exceptions;
 using Stashbox.Lifetime;
+using Stashbox.Registration.ServiceRegistrations;
 using Stashbox.Resolution;
 using Stashbox.Utils;
 using Stashbox.Utils.Data;
@@ -18,12 +19,9 @@ namespace Stashbox.Registration.Fluent
     public class BaseFluentConfigurator<TConfigurator> : RegistrationConfiguration
         where TConfigurator : BaseFluentConfigurator<TConfigurator>
     {
-        internal BaseFluentConfigurator(Type serviceType, Type implementationType)
-            : base(serviceType, implementationType)
-        { }
-
-        internal BaseFluentConfigurator(Type serviceType, Type implementationType, RegistrationContext registrationContext)
-            : base(serviceType, implementationType, registrationContext)
+        internal BaseFluentConfigurator(Type serviceType, Type implementationType, object? name,
+            LifetimeDescriptor lifetimeDescriptor, bool isDecorator)
+            : base(serviceType, implementationType, name, lifetimeDescriptor, isDecorator)
         { }
 
         /// <summary>
@@ -33,7 +31,7 @@ namespace Stashbox.Registration.Fluent
         /// <returns>The configurator itself.</returns>
         public TConfigurator WithLifetime(LifetimeDescriptor lifetime)
         {
-            this.Context.Lifetime = lifetime;
+            this.Registration.Lifetime = lifetime;
             return (TConfigurator)this;
         }
 
@@ -107,8 +105,10 @@ namespace Stashbox.Registration.Fluent
         {
             Shield.EnsureNotNull(dependencyType, nameof(dependencyType));
 
-            this.Context.DependencyBindings ??= new Dictionary<object, object?>();
-            this.Context.DependencyBindings.Add(dependencyType, dependencyName);
+            var registration = RegistrationFactory.EnsureComplex(this.Registration);
+            registration.DependencyBindings ??= new Dictionary<object, object?>();
+            registration.DependencyBindings.Add(dependencyType, dependencyName);
+            this.Registration = registration;
 
             return (TConfigurator)this;
         }
@@ -123,8 +123,10 @@ namespace Stashbox.Registration.Fluent
         {
             Shield.EnsureNotNull(parameterName, nameof(parameterName));
 
-            this.Context.DependencyBindings ??= new Dictionary<object, object?>();
-            this.Context.DependencyBindings.Add(parameterName, dependencyName);
+            var registration = RegistrationFactory.EnsureComplex(this.Registration);
+            registration.DependencyBindings ??= new Dictionary<object, object?>();
+            registration.DependencyBindings.Add(parameterName, dependencyName);
+            this.Registration = registration;
 
             return (TConfigurator)this;
         }
@@ -145,8 +147,11 @@ namespace Stashbox.Registration.Fluent
         {
             Shield.EnsureNotNull(targetType, nameof(targetType));
 
-            this.Context.TargetTypeConditions ??= new ExpandableArray<Type>();
-            this.Context.TargetTypeConditions.Add(targetType);
+            var registration = RegistrationFactory.EnsureComplex(this.Registration);
+            registration.TargetTypeConditions ??= new ExpandableArray<Type>();
+            registration.TargetTypeConditions.Add(targetType);
+            this.Registration = registration;
+
             return (TConfigurator)this;
         }
 
@@ -166,8 +171,11 @@ namespace Stashbox.Registration.Fluent
         {
             Shield.EnsureNotNull(attributeType, nameof(attributeType));
 
-            this.Context.AttributeConditions ??= new ExpandableArray<Type>();
-            this.Context.AttributeConditions.Add(attributeType);
+            var registration = RegistrationFactory.EnsureComplex(this.Registration);
+            registration.AttributeConditions ??= new ExpandableArray<Type>();
+            registration.AttributeConditions.Add(attributeType);
+            this.Registration = registration;
+
             return (TConfigurator)this;
         }
 
@@ -180,8 +188,11 @@ namespace Stashbox.Registration.Fluent
         {
             Shield.EnsureNotNull(resolutionCondition, nameof(resolutionCondition));
 
-            this.Context.ResolutionConditions ??= new ExpandableArray<Func<TypeInformation, bool>>();
-            this.Context.ResolutionConditions.Add(resolutionCondition);
+            var registration = RegistrationFactory.EnsureComplex(this.Registration);
+            registration.ResolutionConditions ??= new ExpandableArray<Func<TypeInformation, bool>>();
+            registration.ResolutionConditions.Add(resolutionCondition);
+            this.Registration = registration;
+
             return (TConfigurator)this;
         }
 
@@ -192,8 +203,11 @@ namespace Stashbox.Registration.Fluent
         /// <returns>The fluent configurator.</returns>
         public TConfigurator WithInjectionParameters(params KeyValuePair<string, object?>[] injectionParameters)
         {
-            this.Context.InjectionParameters ??= new ExpandableArray<KeyValuePair<string, object?>>();
-            this.Context.InjectionParameters.AddRange(injectionParameters);
+            var registration = RegistrationFactory.EnsureComplex(this.Registration);
+            registration.InjectionParameters ??= new ExpandableArray<KeyValuePair<string, object?>>();
+            registration.InjectionParameters.AddRange(injectionParameters);
+            this.Registration = registration;
+
             return (TConfigurator)this;
         }
 
@@ -207,8 +221,11 @@ namespace Stashbox.Registration.Fluent
         {
             Shield.EnsureNotNull(name, nameof(name));
 
-            this.Context.InjectionParameters ??= new ExpandableArray<KeyValuePair<string, object?>>();
-            this.Context.InjectionParameters.Add(new KeyValuePair<string, object?>(name, value));
+            var registration = RegistrationFactory.EnsureComplex(this.Registration);
+            registration.InjectionParameters ??= new ExpandableArray<KeyValuePair<string, object?>>();
+            registration.InjectionParameters.Add(new KeyValuePair<string, object?>(name, value));
+            this.Registration = registration;
+
             return (TConfigurator)this;
         }
 
@@ -220,9 +237,12 @@ namespace Stashbox.Registration.Fluent
         /// <returns>The fluent configurator.</returns>
         public TConfigurator WithAutoMemberInjection(Rules.AutoMemberInjectionRules rule = Rules.AutoMemberInjectionRules.PropertiesWithPublicSetter, Func<MemberInfo, bool>? filter = null)
         {
-            this.Context.AutoMemberInjectionEnabled = true;
-            this.Context.AutoMemberInjectionRule = rule;
-            this.Context.AutoMemberInjectionFilter = filter;
+            var registration = RegistrationFactory.EnsureComplex(this.Registration);
+            registration.AutoMemberInjectionEnabled = true;
+            registration.AutoMemberInjectionRule = rule;
+            registration.AutoMemberInjectionFilter = filter;
+            this.Registration = registration;
+
             return (TConfigurator)this;
         }
 
@@ -233,7 +253,10 @@ namespace Stashbox.Registration.Fluent
         /// <returns>The fluent configurator.</returns>
         public TConfigurator WithConstructorSelectionRule(Func<IEnumerable<ConstructorInfo>, IEnumerable<ConstructorInfo>> rule)
         {
-            this.Context.ConstructorSelectionRule = rule;
+            var registration = RegistrationFactory.EnsureComplex(this.Registration);
+            registration.ConstructorSelectionRule = rule;
+            this.Registration = registration;
+
             return (TConfigurator)this;
         }
 
@@ -249,7 +272,10 @@ namespace Stashbox.Registration.Fluent
             if (constructor == null)
                 ThrowConstructorNotFoundException(this.ImplementationType, argumentTypes);
 
-            this.Context.SelectedConstructor = constructor;
+            var registration = RegistrationFactory.EnsureComplex(this.Registration);
+            registration.SelectedConstructor = constructor;
+            this.Registration = registration;
+
             return (TConfigurator)this;
         }
 
@@ -266,8 +292,11 @@ namespace Stashbox.Registration.Fluent
             if (constructor == null)
                 ThrowConstructorNotFoundException(this.ImplementationType, argTypes);
 
-            this.Context.SelectedConstructor = constructor;
-            this.Context.ConstructorArguments = arguments;
+            var registration = RegistrationFactory.EnsureComplex(this.Registration);
+            registration.SelectedConstructor = constructor;
+            registration.ConstructorArguments = arguments;
+            this.Registration = registration;
+
             return (TConfigurator)this;
         }
 
@@ -277,7 +306,10 @@ namespace Stashbox.Registration.Fluent
         /// <returns>The fluent configurator.</returns>
         public TConfigurator WithoutDisposalTracking()
         {
-            this.Context.IsLifetimeExternallyOwned = true;
+            var registration = RegistrationFactory.EnsureComplex(this.Registration);
+            registration.IsLifetimeExternallyOwned = true;
+            this.Registration = registration;
+
             return (TConfigurator)this;
         }
 
@@ -287,7 +319,10 @@ namespace Stashbox.Registration.Fluent
         /// <returns>The fluent configurator.</returns>
         public TConfigurator ReplaceExisting()
         {
-            this.Context.ReplaceExistingRegistration = true;
+            var registration = RegistrationFactory.EnsureComplex(this.Registration);
+            registration.ReplaceExistingRegistration = true;
+            this.Registration = registration;
+
             return (TConfigurator)this;
         }
 
@@ -297,7 +332,10 @@ namespace Stashbox.Registration.Fluent
         /// <returns>The fluent configurator.</returns>
         public TConfigurator ReplaceOnlyIfExists()
         {
-            this.Context.ReplaceExistingRegistrationOnlyIfExists = true;
+            var registration = RegistrationFactory.EnsureComplex(this.Registration);
+            registration.ReplaceExistingRegistrationOnlyIfExists = true;
+            this.Registration = registration;
+
             return (TConfigurator)this;
         }
 
@@ -307,9 +345,12 @@ namespace Stashbox.Registration.Fluent
         /// <returns>The configurator itself.</returns>
         public TConfigurator AsImplementedTypes()
         {
-            this.Context.AdditionalServiceTypes ??= new ExpandableArray<Type>();
-            this.Context.AdditionalServiceTypes.AddRange(this.ImplementationType.GetRegisterableInterfaceTypes()
+            var registration = RegistrationFactory.EnsureComplex(this.Registration);
+            registration.AdditionalServiceTypes ??= new ExpandableArray<Type>();
+            registration.AdditionalServiceTypes.AddRange(this.ImplementationType.GetRegisterableInterfaceTypes()
                 .Concat(this.ImplementationType.GetRegisterableBaseTypes()));
+            this.Registration = registration;
+
             return (TConfigurator)this;
         }
 
@@ -330,18 +371,21 @@ namespace Stashbox.Registration.Fluent
             if (!this.ImplementationType.Implements(serviceType))
                 throw new ArgumentException($"The implementation type {this.ImplementationType} does not implement the given service type {serviceType}.");
 
-            this.Context.AdditionalServiceTypes ??= new ExpandableArray<Type>();
-            this.Context.AdditionalServiceTypes.Add(serviceType);
+            var registration = RegistrationFactory.EnsureComplex(this.Registration);
+            registration.AdditionalServiceTypes ??= new ExpandableArray<Type>();
+            registration.AdditionalServiceTypes.Add(serviceType);
+            this.Registration = registration;
+
             return (TConfigurator)this;
         }
 
-        private protected void SetFactory(Delegate factory, bool isCompiledLambda, params Type[] parameterTypes)
+        private protected TConfigurator SetFactory(Delegate factory, bool isCompiledLambda, params Type[] parameterTypes)
         {
             Shield.EnsureNotNull(factory, nameof(factory));
 
-            this.Context.Factory = factory;
-            this.Context.FactoryParameters = parameterTypes;
-            this.Context.IsFactoryDelegateACompiledLambda = isCompiledLambda;
+            this.Registration = RegistrationFactory.EnsureFactory(factory, parameterTypes, isCompiledLambda, this.Registration);
+
+            return (TConfigurator)this;
         }
 
         private static void ThrowConstructorNotFoundException(Type type, params Type[] argTypes)

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Stashbox.Registration.ServiceRegistrations;
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 
@@ -19,7 +20,7 @@ namespace Stashbox.Resolution.Wrappers
         {
             var arguments = originalTypeInformation.Type.GetGenericArguments();
             var constructor = originalTypeInformation.Type.GetConstructor(arguments)!;
-            var metadata = serviceContext.ServiceRegistration?.Metadata;
+            var metadata = (serviceContext.ServiceRegistration as ComplexRegistration)?.Metadata;
             return constructor.MakeNew(serviceContext.ServiceExpression, metadata.AsConstant());
         }
 

@@ -13,14 +13,6 @@ namespace Stashbox
     public partial class StashboxContainer
     {
         /// <inheritdoc />
-        public object? Resolve(Type typeFrom, bool nullResultAllowed, object[]? dependencyOverrides = null) =>
-             this.rootScope.Resolve(typeFrom, nullResultAllowed, dependencyOverrides);
-
-        /// <inheritdoc />
-        public object? Resolve(Type typeFrom, object name, bool nullResultAllowed, object[]? dependencyOverrides = null) =>
-             this.rootScope.Resolve(typeFrom, name, nullResultAllowed, dependencyOverrides);
-
-        /// <inheritdoc />
         public object Resolve(Type typeFrom)
         {
             this.ThrowIfDisposed();
@@ -132,11 +124,33 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
+        public IEnumerable<TKey> ResolveAll<TKey>(object name)
+        {
+            this.ThrowIfDisposed();
+
+            var type = typeof(IEnumerable<TKey>);
+            var cachedFactory = this.rootScope.DelegateCache.ServiceDelegates.GetOrDefaultByRef(name);
+            if (cachedFactory != null)
+                return (IEnumerable<TKey>)cachedFactory(this.rootScope, RequestContext.Empty);
+
+            return (IEnumerable<TKey>)(this.rootScope.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByRef(name)?.Invoke(this.rootScope, RequestContext.Begin()) ??
+                this.rootScope.BuildAndResolveService(type, name: name, dependencyOverrides: null));
+        }
+
+        /// <inheritdoc />
         public IEnumerable<TKey> ResolveAll<TKey>(object[] dependencyOverrides)
         {
             this.ThrowIfDisposed();
 
             return (IEnumerable<TKey>)this.rootScope.BuildAndResolveService(typeof(IEnumerable<TKey>), name: null, dependencyOverrides: dependencyOverrides);
+        }
+
+        /// <inheritdoc />
+        public IEnumerable<TKey> ResolveAll<TKey>(object name, object[] dependencyOverrides)
+        {
+            this.ThrowIfDisposed();
+
+            return (IEnumerable<TKey>)this.rootScope.BuildAndResolveService(typeof(IEnumerable<TKey>), name: name, dependencyOverrides: dependencyOverrides);
         }
 
         /// <inheritdoc />
@@ -154,12 +168,35 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
+        public IEnumerable<object> ResolveAll(Type typeFrom, object name)
+        {
+            this.ThrowIfDisposed();
+
+            var type = typeof(IEnumerable<>).MakeGenericType(typeFrom);
+            var cachedFactory = this.rootScope.DelegateCache.ServiceDelegates.GetOrDefaultByRef(name);
+            if (cachedFactory != null)
+                return (IEnumerable<object>)cachedFactory(this.rootScope, RequestContext.Empty);
+
+            return (IEnumerable<object>)(this.rootScope.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByRef(name)?.Invoke(this.rootScope, RequestContext.Begin()) ??
+                this.rootScope.BuildAndResolveService(type, name: name, dependencyOverrides: null));
+        }
+
+        /// <inheritdoc />
         public IEnumerable<object> ResolveAll(Type typeFrom, object[] dependencyOverrides)
         {
             this.ThrowIfDisposed();
 
             return (IEnumerable<object>)this.rootScope.BuildAndResolveService(typeof(IEnumerable<>).MakeGenericType(typeFrom),
                 name: null, dependencyOverrides: dependencyOverrides);
+        }
+
+        /// <inheritdoc />
+        public IEnumerable<object> ResolveAll(Type typeFrom, object name, object[] dependencyOverrides)
+        {
+            this.ThrowIfDisposed();
+
+            return (IEnumerable<object>)this.rootScope.BuildAndResolveService(typeof(IEnumerable<>).MakeGenericType(typeFrom),
+                name: name, dependencyOverrides: dependencyOverrides);
         }
 
         /// <inheritdoc />

@@ -1,13 +1,11 @@
-﻿using Stashbox.Resolution;
+﻿using Stashbox.Registration.ServiceRegistrations;
+using Stashbox.Resolution;
 
 namespace Stashbox.Registration.SelectionRules
 {
     internal interface IRegistrationSelectionRule
     {
         bool IsValidForCurrentRequest(TypeInformation typeInformation,
-            ServiceRegistration registration, ResolutionContext resolutionContext);
-
-        bool ShouldIncrementWeight(TypeInformation typeInformation,
-            ServiceRegistration registration, ResolutionContext resolutionContext);
+            ServiceRegistration registration, ResolutionContext resolutionContext, out bool shouldIncrementWeight);
     }
 }

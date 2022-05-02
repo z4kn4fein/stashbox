@@ -108,7 +108,7 @@ namespace Stashbox.Tests
             inst1.Name = "test1";
             container.Resolve<ITest2>();
 
-            var factory = container.ResolveFactory<ITest1, ITest2>();
+            var factory = container.Resolve<Func<ITest1, ITest2>>();
             var inst2 = factory(inst1);
 
             Assert.NotNull(inst2);
@@ -146,7 +146,7 @@ namespace Stashbox.Tests
             inst1.Name = "test1";
             container.Resolve<ITest2>();
 
-            var factory = container.ResolveFactory<ITest1, Lazy<ITest2>>();
+            var factory = container.Resolve<Func<ITest1, Lazy<ITest2>>>();
             var inst2 = factory(inst1);
 
             Assert.NotNull(inst2);

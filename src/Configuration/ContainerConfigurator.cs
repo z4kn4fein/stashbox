@@ -45,18 +45,6 @@ namespace Stashbox.Configuration
         }
 
         /// <summary>
-        /// Enables or disables the runtime circular dependency tracking. By default, the container checks for circular dependencies when it builds the expression graph, but this could not prevent stack overflows when factory delegates passed by the user are containing circular dependencies. If you turn this feature on, the container will generate nodes into the expression tree that tracks the entering and exiting resolution calls across user-defined factory delegates.
-        /// </summary>
-        /// <param name="enabled">True when the feature should be enabled, otherwise false.</param>
-        /// <returns>The container configurator.</returns>
-        [Obsolete("Please use parameterized factory registrations to avoid circular dependencies across delegates. `.Register<Service>(options => options.WithFactory<Dependency>(dependency => new Service(dependency)))`")]
-        public ContainerConfigurator WithRuntimeCircularDependencyTracking(bool enabled = true)
-        {
-            this.ContainerConfiguration.RuntimeCircularDependencyTrackingEnabled = enabled;
-            return this;
-        }
-
-        /// <summary>
         /// Enables or disables the default value injection.
         /// </summary>
         /// <param name="enabled">True when the feature should be enabled, otherwise false.</param>

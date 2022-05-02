@@ -117,7 +117,7 @@ namespace Stashbox.Tests
         {
             using IStashboxContainer container = new StashboxContainer();
             container.Register<ITest2, Test2>();
-            var result = container.Resolve<ITest2>(nullResultAllowed: true);
+            var result = container.ResolveOrDefault<ITest2>();
 
             Assert.Null(result);
         }
@@ -134,7 +134,7 @@ namespace Stashbox.Tests
         {
             using IStashboxContainer container = new StashboxContainer();
 
-            Assert.Null(container.Resolve<ITest1>(nullResultAllowed: true));
+            Assert.Null(container.ResolveOrDefault<ITest1>());
         }
 
         [Fact]
@@ -142,8 +142,8 @@ namespace Stashbox.Tests
         {
             using IStashboxContainer container = new StashboxContainer().Register<ITest1, Test1>();
 
-            Assert.NotNull(container.Resolve<ITest1>(nullResultAllowed: true));
-            Assert.NotNull(container.Resolve<ITest1>(nullResultAllowed: true));
+            Assert.NotNull(container.ResolveOrDefault<ITest1>());
+            Assert.NotNull(container.ResolveOrDefault<ITest1>());
         }
 
         [Fact]
@@ -151,7 +151,7 @@ namespace Stashbox.Tests
         {
             using IStashboxContainer container = new StashboxContainer();
 
-            Assert.Null(container.Resolve<ITest1>(nullResultAllowed: true, new[] { new Dummy() }));
+            Assert.Null(container.ResolveOrDefault<ITest1>(new[] { new Dummy() }));
         }
 
         [Fact]
@@ -159,8 +159,8 @@ namespace Stashbox.Tests
         {
             using IStashboxContainer container = new StashboxContainer().Register<ITest2, Test2>();
 
-            Assert.NotNull(container.Resolve<ITest2>(nullResultAllowed: true, new[] { new Test1() }));
-            Assert.NotNull(container.Resolve<ITest2>(nullResultAllowed: true, new[] { new Test1() }));
+            Assert.NotNull(container.ResolveOrDefault<ITest2>(new[] { new Test1() }));
+            Assert.NotNull(container.ResolveOrDefault<ITest2>(new[] { new Test1() }));
         }
 
         [Fact]
@@ -168,7 +168,7 @@ namespace Stashbox.Tests
         {
             using IStashboxContainer container = new StashboxContainer();
 
-            Assert.Null(container.Resolve<ITest1>("test", nullResultAllowed: true));
+            Assert.Null(container.ResolveOrDefault<ITest1>("test"));
         }
 
         [Fact]
@@ -176,8 +176,8 @@ namespace Stashbox.Tests
         {
             using IStashboxContainer container = new StashboxContainer().Register<ITest1, Test1>();
 
-            Assert.NotNull(container.Resolve<ITest1>("test", nullResultAllowed: true));
-            Assert.NotNull(container.Resolve<ITest1>("test", nullResultAllowed: true));
+            Assert.Null(container.ResolveOrDefault<ITest1>("test"));
+            Assert.Null(container.ResolveOrDefault<ITest1>("test"));
         }
 
         [Fact]
@@ -185,7 +185,7 @@ namespace Stashbox.Tests
         {
             using IStashboxContainer container = new StashboxContainer();
 
-            Assert.Null(container.Resolve<ITest1>("test", nullResultAllowed: true, new[] { new Dummy() }));
+            Assert.Null(container.ResolveOrDefault<ITest1>("test", new[] { new Dummy() }));
         }
 
         [Fact]
@@ -193,8 +193,8 @@ namespace Stashbox.Tests
         {
             using IStashboxContainer container = new StashboxContainer().Register<ITest2, Test2>();
 
-            Assert.NotNull(container.Resolve<ITest2>("test", nullResultAllowed: true, new[] { new Test1() }));
-            Assert.NotNull(container.Resolve<ITest2>("test", nullResultAllowed: true, new[] { new Test1() }));
+            Assert.Null(container.ResolveOrDefault<ITest2>("test", new[] { new Test1() }));
+            Assert.Null(container.ResolveOrDefault<ITest2>("test", new[] { new Test1() }));
         }
 
 
@@ -203,7 +203,7 @@ namespace Stashbox.Tests
         {
             using var scope = new StashboxContainer().BeginScope();
 
-            Assert.Null(scope.Resolve<ITest1>(nullResultAllowed: true));
+            Assert.Null(scope.ResolveOrDefault<ITest1>());
         }
 
         [Fact]
@@ -211,8 +211,8 @@ namespace Stashbox.Tests
         {
             using var scope = new StashboxContainer().Register<ITest1, Test1>().BeginScope();
 
-            Assert.NotNull(scope.Resolve<ITest1>(nullResultAllowed: true));
-            Assert.NotNull(scope.Resolve<ITest1>(nullResultAllowed: true));
+            Assert.NotNull(scope.ResolveOrDefault<ITest1>());
+            Assert.NotNull(scope.ResolveOrDefault<ITest1>());
         }
 
         [Fact]
@@ -220,7 +220,7 @@ namespace Stashbox.Tests
         {
             using var scope = new StashboxContainer().BeginScope();
 
-            Assert.Null(scope.Resolve<ITest1>(nullResultAllowed: true, new[] { new Dummy() }));
+            Assert.Null(scope.ResolveOrDefault<ITest1>(new[] { new Dummy() }));
         }
 
         [Fact]
@@ -228,8 +228,8 @@ namespace Stashbox.Tests
         {
             using var scope = new StashboxContainer().Register<ITest2, Test2>().BeginScope();
 
-            Assert.NotNull(scope.Resolve<ITest2>(nullResultAllowed: true, new[] { new Test1() }));
-            Assert.NotNull(scope.Resolve<ITest2>(nullResultAllowed: true, new[] { new Test1() }));
+            Assert.NotNull(scope.ResolveOrDefault<ITest2>(new[] { new Test1() }));
+            Assert.NotNull(scope.ResolveOrDefault<ITest2>(new[] { new Test1() }));
         }
 
         [Fact]
@@ -237,7 +237,7 @@ namespace Stashbox.Tests
         {
             using var scope = new StashboxContainer().BeginScope();
 
-            Assert.Null(scope.Resolve<ITest1>("test", nullResultAllowed: true));
+            Assert.Null(scope.ResolveOrDefault<ITest1>("test"));
         }
 
         [Fact]
@@ -245,8 +245,8 @@ namespace Stashbox.Tests
         {
             using var scope = new StashboxContainer().Register<ITest1, Test1>().BeginScope();
 
-            Assert.NotNull(scope.Resolve<ITest1>("test", nullResultAllowed: true));
-            Assert.NotNull(scope.Resolve<ITest1>("test", nullResultAllowed: true));
+            Assert.Null(scope.ResolveOrDefault<ITest1>("test"));
+            Assert.Null(scope.ResolveOrDefault<ITest1>("test"));
         }
 
         [Fact]
@@ -254,7 +254,7 @@ namespace Stashbox.Tests
         {
             using var scope = new StashboxContainer().BeginScope();
 
-            Assert.Null(scope.Resolve<ITest1>("test", nullResultAllowed: true, new[] { new Dummy() }));
+            Assert.Null(scope.ResolveOrDefault<ITest1>("test", new[] { new Dummy() }));
         }
 
         [Fact]
@@ -262,8 +262,8 @@ namespace Stashbox.Tests
         {
             using var scope = new StashboxContainer().Register<ITest2, Test2>().BeginScope();
 
-            Assert.NotNull(scope.Resolve<ITest2>("test", nullResultAllowed: true, new[] { new Test1() }));
-            Assert.NotNull(scope.Resolve<ITest2>("test", nullResultAllowed: true, new[] { new Test1() }));
+            Assert.Null(scope.ResolveOrDefault<ITest2>("test", new[] { new Test1() }));
+            Assert.Null(scope.ResolveOrDefault<ITest2>("test", new[] { new Test1() }));
         }
 
         [Fact]
@@ -489,7 +489,7 @@ namespace Stashbox.Tests
             container.RegisterScoped<ITest1, Test1>();
 
             using var scope = container.BeginScope();
-            var factory = scope.ResolveFactory<ITest1>();
+            var factory = scope.Resolve < Func<ITest1>>();
 
             var inst = factory();
             var inst2 = factory();
@@ -497,7 +497,7 @@ namespace Stashbox.Tests
             Assert.Same(inst, inst2);
 
             using var child = container.BeginScope();
-            var scopeFactory = child.ResolveFactory<ITest1>();
+            var scopeFactory = child.Resolve < Func<ITest1>>();
             var inst3 = scopeFactory();
             var inst4 = scopeFactory();
 
@@ -542,7 +542,7 @@ namespace Stashbox.Tests
             container.RegisterScoped<ITest4, Test4>();
 
             using var scope = container.BeginScope();
-            var factory = scope.ResolveFactory<ITest4>();
+            var factory = scope.Resolve < Func<ITest4>>();
 
             var inst = factory();
             var inst2 = factory();
@@ -552,7 +552,7 @@ namespace Stashbox.Tests
             Assert.Same(inst.Test, inst2.Test2);
 
             using var child = container.BeginScope();
-            var scopedFactory = child.ResolveFactory<ITest4>();
+            var scopedFactory = child.Resolve < Func<ITest4>>();
 
             var inst3 = scopedFactory();
             var inst4 = scopedFactory();
@@ -629,7 +629,7 @@ namespace Stashbox.Tests
         {
             using IStashboxContainer container = new StashboxContainer();
             container.RegisterScoped<Test5>();
-            var inst = container.Resolve<Test5>(nullResultAllowed: true);
+            var inst = container.ResolveOrDefault<Test5>();
 
             Assert.Null(inst);
         }
@@ -639,7 +639,7 @@ namespace Stashbox.Tests
         {
             using IStashboxContainer container = new StashboxContainer();
             container.RegisterSingleton<Test5>();
-            var inst = container.Resolve<Test5>(nullResultAllowed: true);
+            var inst = container.ResolveOrDefault<Test5>();
 
             Assert.Null(inst);
         }

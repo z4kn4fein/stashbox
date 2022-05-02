@@ -12,7 +12,7 @@ namespace Stashbox.Tests.IssueTests
                 .Register<IVariantSubproduct, StainlessSteelPlate>(name);
 
             var subProduct = new Subproduct();
-            var variant = container.Resolve<IVariantSubproduct>(name, false, new[] { subProduct });
+            var variant = container.Resolve<IVariantSubproduct>(name, new[] { subProduct });
             Assert.NotNull(variant);
             Assert.Same(subProduct, variant.Subproduct);
         }

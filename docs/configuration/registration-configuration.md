@@ -522,3 +522,55 @@ container.Register<IUserRepository, UserRepository>(options => options
     .DefinesScope());
 ```
 <!-- panels:end -->
+
+## Decorator specific
+You can read more about decorators [here](advanced/decorators).
+<!-- panels:start -->
+<!-- div:left-panel -->
+### `WhenDecoratedServiceIs`
+Sets a decorated target condition for the registration.
+<!-- div:right-panel -->
+```cs
+container.RegisterDecorator<ILogger, LoggerDecorator>(options => options
+    .WhenDecoratedServiceIs<FileLogger>());
+```
+<!-- panels:end -->
+<!-- panels:start -->
+<!-- div:left-panel -->
+### `WhenDecoratedServiceHas`
+Sets an attribute condition that the decorated target has to satisfy.
+<!-- div:right-panel -->
+```cs
+container.RegisterDecorator<ILogger, LoggerDecorator>(options => options
+    .WhenDecoratedServiceHas<DetailedLoggingAttribute>());
+```
+<!-- panels:end -->
+
+## Unknown registration specific
+You can read more about unknown type resolution [here](advanced/special-resolution-cases?id=unknown-type-resolution).
+<!-- panels:start -->
+<!-- div:left-panel -->
+### `SetImplementationType`
+Sets the current registration's implementation type.
+<!-- div:right-panel -->
+```cs
+var container = new StashboxContainer(c => c.WithUnknownTypeResolution(config =>
+{
+    if (config.ServiceType == typeof(IService))
+        config.SetImplementationType(typeof(Service));
+}));
+```
+<!-- panels:end -->
+<!-- panels:start -->
+<!-- div:left-panel -->
+### `Skip`
+Marks the current unknown type registration as skipped.
+<!-- div:right-panel -->
+```cs
+var container = new StashboxContainer(c => c.WithUnknownTypeResolution(config =>
+{
+    if (config.ServiceType == typeof(IService))
+        config.Skip();
+}));
+```
+<!-- panels:end -->

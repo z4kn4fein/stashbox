@@ -1,5 +1,5 @@
 ﻿using Stashbox.Exceptions;
-using Stashbox.Registration;
+using Stashbox.Registration.ServiceRegistrations;
 using Stashbox.Resolution;
 using Stashbox.Utils;
 using System.Linq.Expressions;
@@ -21,30 +21,32 @@ namespace Stashbox.Expressions
 
         private static Expression? PrepareDefaultExpression(ServiceRegistration serviceRegistration, ResolutionContext resolutionContext)
         {
-            if (serviceRegistration.DefinedScopeName == null)
-                return ExpressionFactory.ConstructExpression(serviceRegistration, resolutionContext);
+            if (serviceRegistration is ComplexRegistration complex && complex.DefinedScopeName != null)
+            {
+                var variable = Constants.ResolutionScopeType.AsVariable();
 
-            var variable = Constants.ResolutionScopeType.AsVariable();
+                var newScope = resolutionContext.CurrentScopeParameter
+                    .CallMethod(Constants.BeginScopeMethod,
+                        complex.DefinedScopeName.AsConstant(),
+                        true.AsConstant());
 
-            var newScope = resolutionContext.CurrentScopeParameter
-                .CallMethod(Constants.BeginScopeMethod,
-                    serviceRegistration.DefinedScopeName.AsConstant(),
-                    true.AsConstant());
+                var newScopeContext = resolutionContext.BeginNewScopeContext(new ReadOnlyKeyValue<object, ParameterExpression>(complex.DefinedScopeName, variable));
 
-            var newScopeContext = resolutionContext.BeginNewScopeContext(new ReadOnlyKeyValue<object, ParameterExpression>(serviceRegistration.DefinedScopeName, variable));
+                resolutionContext.AddDefinedVariable(variable);
+                resolutionContext.AddInstruction(variable.AssignTo(newScope.ConvertTo(Constants.ResolutionScopeType)));
 
-            resolutionContext.AddDefinedVariable(variable);
-            resolutionContext.AddInstruction(variable.AssignTo(newScope.ConvertTo(Constants.ResolutionScopeType)));
+                var expression = ExpressionFactory.ConstructExpression(serviceRegistration, newScopeContext);
 
-            var expression = ExpressionFactory.ConstructExpression(serviceRegistration, newScopeContext);
+                foreach (var definedVariable in newScopeContext.DefinedVariables.Walk())
+                    resolutionContext.AddDefinedVariable(definedVariable);
 
-            foreach (var definedVariable in newScopeContext.DefinedVariables.Walk())
-                resolutionContext.AddDefinedVariable(definedVariable);
+                foreach (var instruction in newScopeContext.SingleInstructions)
+                    resolutionContext.AddInstruction(instruction);
 
-            foreach (var instruction in newScopeContext.SingleInstructions)
-                resolutionContext.AddInstruction(instruction);
+                return expression;
+            }
 
-            return expression;
+            return ExpressionFactory.ConstructExpression(serviceRegistration, resolutionContext);
         }
     }
 }

@@ -29,7 +29,7 @@ namespace Stashbox.Tests
         public void TupleTests_Resolve_Null()
         {
             var container = new StashboxContainer();
-            var inst = container.Resolve<Tuple<ITest, object>>(nullResultAllowed: true);
+            var inst = container.ResolveOrDefault<Tuple<ITest, object>>();
 
             Assert.Null(inst);
         }
@@ -429,7 +429,7 @@ namespace Stashbox.Tests
         public void MetadataTests_Resolve_Null()
         {
             var container = new StashboxContainer();
-            var inst = container.Resolve<Metadata<ITest, object>>(nullResultAllowed: true);
+            var inst = container.ResolveOrDefault<Metadata<ITest, object>>();
 
             Assert.Null(inst);
         }

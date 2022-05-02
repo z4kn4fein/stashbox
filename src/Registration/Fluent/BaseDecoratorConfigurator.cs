@@ -11,10 +11,9 @@ namespace Stashbox.Registration.Fluent
     public class BaseDecoratorConfigurator<TConfigurator> : BaseFluentConfigurator<TConfigurator>
         where TConfigurator : BaseDecoratorConfigurator<TConfigurator>
     {
-        internal BaseDecoratorConfigurator(Type serviceType, Type implementationType) : base(serviceType, implementationType)
-        {
-            this.Context.Lifetime = Lifetimes.Empty;
-        }
+        internal BaseDecoratorConfigurator(Type serviceType, Type implementationType, object? name)
+            : base(serviceType, implementationType, name, Lifetimes.Empty, true)
+        { }
 
         /// <summary>
         /// Sets a decorated target condition for the registration.
@@ -38,14 +37,14 @@ namespace Stashbox.Registration.Fluent
         public TConfigurator WhenDecoratedServiceIs(object name) => this.When(typeInfo => name.Equals(typeInfo.DependencyName));
 
         /// <summary>
-        /// Sets an attribute condition the decorated target has to satisfy.
+        /// Sets an attribute condition that the decorated target has to satisfy.
         /// </summary>
         /// <typeparam name="TAttribute">The type of the attribute.</typeparam>
         /// <returns>The fluent configurator.</returns>
         public TConfigurator WhenDecoratedServiceHas<TAttribute>() where TAttribute : Attribute => this.WhenDecoratedServiceHas(typeof(TAttribute));
 
         /// <summary>
-        /// Sets an attribute condition the decorated target has to satisfy.
+        /// Sets an attribute condition that the decorated target has to satisfy.
         /// </summary>
         /// <param name="attributeType">The type of the attribute.</param>
         /// <returns>The fluent configurator.</returns>

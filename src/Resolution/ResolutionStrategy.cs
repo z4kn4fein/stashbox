@@ -1,6 +1,6 @@
 ﻿using Stashbox.Expressions;
 using Stashbox.Lifetime;
-using Stashbox.Registration;
+using Stashbox.Registration.ServiceRegistrations;
 using Stashbox.Resolution.Resolvers;
 using Stashbox.Resolution.Wrappers;
 using Stashbox.Utils;
@@ -71,7 +71,7 @@ namespace Stashbox.Resolution
             var registration = resolutionContext.CurrentContainerContext.RegistrationRepository
                 .GetRegistrationOrDefault(typeInformation, resolutionContext);
 
-            if (!resolutionContext.IsTopRequest && registration != null && registration.IsResolutionCallRequired)
+            if (!resolutionContext.IsTopRequest && registration != null && registration is ComplexRegistration complex && complex.IsResolutionCallRequired)
                 return resolutionContext.CurrentScopeParameter
                     .ConvertTo(Constants.ResolverType)
                     .CallMethod(Constants.ResolveMethod, 
@@ -112,7 +112,10 @@ namespace Stashbox.Resolution
         {
             var requestedType = typeInformation.Type;
             if (serviceRegistration is OpenGenericRegistration openGenericRegistration)
-                serviceRegistration = openGenericRegistration.ProduceClosedRegistration(requestedType, resolutionContext);
+            {
+                var genericType = serviceRegistration.ImplementationType.MakeGenericType(requestedType.GetGenericArguments());
+                serviceRegistration = openGenericRegistration.ProduceClosedRegistration(genericType);
+            }
 
             var decorators = resolutionContext.CurrentContainerContext.DecoratorRepository
                 .GetDecoratorsOrDefault(serviceRegistration.ImplementationType, typeInformation, resolutionContext);
@@ -275,7 +278,10 @@ namespace Stashbox.Resolution
             ResolutionContext resolutionContext, Type requestedType, Utils.Data.Stack<ServiceRegistration> decorators)
         {
             if (serviceRegistration is OpenGenericRegistration openGenericRegistration)
-                serviceRegistration = openGenericRegistration.ProduceClosedRegistration(requestedType, resolutionContext);
+            {
+                var genericType = serviceRegistration.ImplementationType.MakeGenericType(requestedType.GetGenericArguments());
+                serviceRegistration = openGenericRegistration.ProduceClosedRegistration(genericType);
+            }
 
             return BuildExpressionAndApplyLifetime(serviceRegistration, resolutionContext,
                 requestedType, decorators.PeekBack()?.Lifetime);

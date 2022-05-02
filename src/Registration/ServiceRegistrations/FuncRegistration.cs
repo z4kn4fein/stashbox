@@ -1,7 +1,7 @@
-﻿using Stashbox.Configuration;
+﻿using Stashbox.Lifetime;
 using System;
 
-namespace Stashbox.Registration
+namespace Stashbox.Registration.ServiceRegistrations
 {
     /// <summary>
     /// Describes a <see cref="Func{TResult}"/> service registrations.
@@ -13,9 +13,9 @@ namespace Stashbox.Registration
         /// </summary>
         public readonly Delegate FuncDelegate;
 
-        internal FuncRegistration(Type implementationType, RegistrationContext registrationContext,
-            ContainerConfiguration containerConfiguration, bool isDecorator, Delegate funcDelegate)
-            : base(implementationType, registrationContext, containerConfiguration, isDecorator)
+        internal FuncRegistration(Delegate funcDelegate, Type implementationType, object? name,
+            LifetimeDescriptor lifetimeDescriptor, bool isDecorator)
+            : base(implementationType, name, lifetimeDescriptor, isDecorator)
         {
             this.FuncDelegate = funcDelegate;
         }

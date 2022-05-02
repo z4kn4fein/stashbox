@@ -312,7 +312,7 @@ namespace Stashbox.Tests
                 .Register<ITest, Test>(config => config.InNamedScope("A"));
 
             using var scope = container.BeginScope("B");
-            Assert.Null(scope.Resolve<ITest>(nullResultAllowed: true));
+            Assert.Null(scope.ResolveOrDefault<ITest>());
         }
 
         [Theory]
@@ -322,7 +322,7 @@ namespace Stashbox.Tests
             var container = new StashboxContainer(c => c.WithCompiler(compilerType))
                 .Register<Test2>(config => config.InNamedScope("A"));
 
-            Assert.Null(container.BeginScope("A").Resolve<Test2>(nullResultAllowed: true));
+            Assert.Null(container.BeginScope("A").ResolveOrDefault<Test2>());
         }
 
         [Theory]

@@ -1,4 +1,5 @@
-﻿using Stashbox.Resolution;
+﻿using Stashbox.Registration.ServiceRegistrations;
+using Stashbox.Resolution;
 using System;
 
 namespace Stashbox.Registration.SelectionRules
@@ -6,11 +7,11 @@ namespace Stashbox.Registration.SelectionRules
     internal class OpenGenericRule : IRegistrationSelectionRule
     {
         public bool IsValidForCurrentRequest(TypeInformation typeInformation,
-            ServiceRegistration registration, ResolutionContext resolutionContext) =>
-            !typeInformation.Type.IsClosedGenericType() ||
-            registration.ImplementationType.SatisfiesGenericConstraintsOf(typeInformation.Type);
-
-        public bool ShouldIncrementWeight(TypeInformation typeInformation,
-            ServiceRegistration registration, ResolutionContext resolutionContext) => false;
+            ServiceRegistration registration, ResolutionContext resolutionContext, out bool shouldIncrementWeight)
+        {
+            shouldIncrementWeight = false;
+            return !typeInformation.Type.IsClosedGenericType() ||
+                registration.ImplementationType.SatisfiesGenericConstraintsOf(typeInformation.Type);
+        }
     }
 }

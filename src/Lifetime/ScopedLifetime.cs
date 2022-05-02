@@ -1,5 +1,5 @@
 ﻿using Stashbox.Exceptions;
-using Stashbox.Registration;
+using Stashbox.Registration.ServiceRegistrations;
 using Stashbox.Resolution;
 using Stashbox.Utils;
 using System;

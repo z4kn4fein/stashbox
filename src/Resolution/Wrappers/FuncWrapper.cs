@@ -29,7 +29,6 @@ namespace Stashbox.Resolution.Wrappers
                 return false;
             }
 
-            var args = typeInformation.Type.GetGenericArguments();
             unWrappedType = typeInformation.Clone(method.ReturnType);
             parameterTypes = method.GetParameters().Select(p => p.ParameterType);
             return true;

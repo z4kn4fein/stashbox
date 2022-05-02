@@ -1,13 +1,12 @@
-﻿using Stashbox.Configuration;
-using System;
+﻿using System;
 using System.Linq.Expressions;
 
-namespace Stashbox.Registration
+namespace Stashbox.Registration.ServiceRegistrations
 {
     /// <summary>
     /// Describes a factory service registration.
     /// </summary>
-    public class FactoryRegistration : ServiceRegistration
+    public class FactoryRegistration : ComplexRegistration
     {
         /// <summary>
         /// Container factory of the registration.
@@ -24,13 +23,12 @@ namespace Stashbox.Registration
         /// </summary>
         public readonly bool IsFactoryDelegateACompiledLambda;
 
-        internal FactoryRegistration(Type implementationType, RegistrationContext registrationContext,
-            ContainerConfiguration containerConfiguration, bool isDecorator, Delegate factory, Type[] factoryParameters)
-            : base(implementationType, registrationContext, containerConfiguration, isDecorator)
+        internal FactoryRegistration(Delegate factory, Type[] factoryParameters, bool isCompiledLambda, ServiceRegistration baseRegistration)
+            : base(baseRegistration)
         {
             this.Factory = factory;
             this.FactoryParameters = factoryParameters;
-            this.IsFactoryDelegateACompiledLambda = registrationContext.IsFactoryDelegateACompiledLambda;
+            this.IsFactoryDelegateACompiledLambda = isCompiledLambda;
         }
     }
 }

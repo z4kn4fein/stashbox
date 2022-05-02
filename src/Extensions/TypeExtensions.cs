@@ -1,6 +1,6 @@
 ﻿using Stashbox.Attributes;
 using Stashbox.Configuration;
-using Stashbox.Registration;
+using Stashbox.Registration.ServiceRegistrations;
 using Stashbox.Resolution;
 using Stashbox.Utils;
 using System.Collections.Generic;
@@ -96,23 +96,27 @@ namespace System
 
         public static TypeInformation AsTypeInformation(this ParameterInfo parameter,
             Type? declaringType,
-            ServiceRegistration serviceRegistration,
+            ServiceRegistration? serviceRegistration,
             ContainerConfiguration containerConfiguration)
         {
             var customAttributes = parameter.GetCustomAttributes();
             var dependencyName = parameter.GetDependencyAttribute()?.Name;
 
-            if (serviceRegistration.DependencyBindings != null || containerConfiguration.TreatingParameterAndMemberNameAsDependencyNameEnabled)
+            if (serviceRegistration != null)
             {
-                if (serviceRegistration.DependencyBindings != null && parameter.Name != null && serviceRegistration.DependencyBindings.TryGetValue(parameter.Name,
-                    out var foundNamedDependencyName))
-                    dependencyName = foundNamedDependencyName;
-                else if (serviceRegistration.DependencyBindings != null && serviceRegistration.DependencyBindings.TryGetValue(parameter.ParameterType,
-                    out var foundTypedDependencyName))
-                    dependencyName = foundTypedDependencyName;
-                else if (dependencyName == null &&
-                         containerConfiguration.TreatingParameterAndMemberNameAsDependencyNameEnabled)
-                    dependencyName = parameter.Name;
+                var complexRegistration = serviceRegistration as ComplexRegistration;
+                if (complexRegistration?.DependencyBindings != null || containerConfiguration.TreatingParameterAndMemberNameAsDependencyNameEnabled)
+                {
+                    if (complexRegistration?.DependencyBindings != null && parameter.Name != null && complexRegistration.DependencyBindings.TryGetValue(parameter.Name,
+                        out var foundNamedDependencyName))
+                        dependencyName = foundNamedDependencyName;
+                    else if (complexRegistration?.DependencyBindings != null && complexRegistration.DependencyBindings.TryGetValue(parameter.ParameterType,
+                        out var foundTypedDependencyName))
+                        dependencyName = foundTypedDependencyName;
+                    else if (dependencyName == null &&
+                             containerConfiguration.TreatingParameterAndMemberNameAsDependencyNameEnabled)
+                        dependencyName = parameter.Name;
+                }
             }
 
             return new TypeInformation(
@@ -127,18 +131,22 @@ namespace System
         }
 
         public static TypeInformation AsTypeInformation(this MemberInfo member,
-            ServiceRegistration serviceRegistration,
+            ServiceRegistration? serviceRegistration,
             ContainerConfiguration containerConfiguration)
         {
             var customAttributes = member.GetCustomAttributes();
             var dependencyName = member.GetDependencyAttribute()?.Name;
 
-            if (serviceRegistration.DependencyBindings != null || containerConfiguration.TreatingParameterAndMemberNameAsDependencyNameEnabled)
+            if (serviceRegistration != null)
             {
-                if (serviceRegistration.DependencyBindings != null && serviceRegistration.DependencyBindings.TryGetValue(member.Name, out var foundNamedDependencyName))
-                    dependencyName = foundNamedDependencyName;
-                else if (dependencyName == null && containerConfiguration.TreatingParameterAndMemberNameAsDependencyNameEnabled)
-                    dependencyName = member.Name;
+                var complexRegistration = serviceRegistration as ComplexRegistration;
+                if (complexRegistration?.DependencyBindings != null || containerConfiguration.TreatingParameterAndMemberNameAsDependencyNameEnabled)
+                {
+                    if (complexRegistration?.DependencyBindings != null && complexRegistration.DependencyBindings.TryGetValue(member.Name, out var foundNamedDependencyName))
+                        dependencyName = foundNamedDependencyName;
+                    else if (dependencyName == null && containerConfiguration.TreatingParameterAndMemberNameAsDependencyNameEnabled)
+                        dependencyName = member.Name;
+                }
             }
 
             var type = member is PropertyInfo prop ? prop.PropertyType : ((FieldInfo)member).FieldType;
@@ -167,11 +175,12 @@ namespace System
         }
 
         public static MemberInfo[] GetUsableMembers(this Type type,
-            ServiceRegistration serviceRegistration,
+            ServiceRegistration? serviceRegistration,
             ContainerConfiguration containerConfiguration)
         {
-            var autoMemberInjectionEnabled = containerConfiguration.AutoMemberInjectionEnabled || serviceRegistration.AutoMemberInjectionEnabled;
-            var autoMemberInjectionRule = serviceRegistration.AutoMemberInjectionEnabled ? serviceRegistration.AutoMemberInjectionRule :
+            var complexRegistration = serviceRegistration as ComplexRegistration;
+            var autoMemberInjectionEnabled = containerConfiguration.AutoMemberInjectionEnabled || (complexRegistration?.AutoMemberInjectionEnabled ?? false);
+            var autoMemberInjectionRule = (complexRegistration?.AutoMemberInjectionEnabled ?? false) ? complexRegistration.AutoMemberInjectionRule :
                 containerConfiguration.AutoMemberInjectionRule;
 
             var publicPropsEnabled = autoMemberInjectionEnabled && (autoMemberInjectionRule & Rules.AutoMemberInjectionRules.PropertiesWithPublicSetter) == Rules.AutoMemberInjectionRules.PropertiesWithPublicSetter;
@@ -179,17 +188,17 @@ namespace System
             var fieldsEnabled = autoMemberInjectionEnabled && (autoMemberInjectionRule & Rules.AutoMemberInjectionRules.PrivateFields) == Rules.AutoMemberInjectionRules.PrivateFields;
 
             IEnumerable<MemberInfo> properties = type.GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance)
-                .Where(member => member.FilterProperty(serviceRegistration, containerConfiguration, publicPropsEnabled, limitedPropsEnabled));
+                .Where(member => member.FilterProperty(complexRegistration, containerConfiguration, publicPropsEnabled, limitedPropsEnabled));
             IEnumerable<MemberInfo> fields = type.GetFields(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance)
-                .Where(member => member.FilterField(serviceRegistration, containerConfiguration, fieldsEnabled));
+                .Where(member => member.FilterField(complexRegistration, containerConfiguration, fieldsEnabled));
 
             var baseType = type.BaseType;
             while (baseType != null && !baseType.IsObjectType())
             {
                 properties = properties.Concat(baseType.GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance)
-                    .Where(member => member.FilterProperty(serviceRegistration, containerConfiguration, publicPropsEnabled, limitedPropsEnabled)));
+                    .Where(member => member.FilterProperty(complexRegistration, containerConfiguration, publicPropsEnabled, limitedPropsEnabled)));
                 fields = fields.Concat(baseType.GetFields(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance)
-                    .Where(member => member.FilterField(serviceRegistration, containerConfiguration, fieldsEnabled)));
+                    .Where(member => member.FilterField(complexRegistration, containerConfiguration, fieldsEnabled)));
                 baseType = baseType.BaseType;
             }
 
@@ -279,30 +288,30 @@ namespace System
         private static bool HasReferenceTypeConstraint(this GenericParameterAttributes attributes) =>
             (attributes & GenericParameterAttributes.ReferenceTypeConstraint) == GenericParameterAttributes.ReferenceTypeConstraint;
 
-        private static bool FilterProperty(this PropertyInfo prop, ServiceRegistration serviceRegistration,
+        private static bool FilterProperty(this PropertyInfo prop, ComplexRegistration? serviceRegistration,
             ContainerConfiguration containerConfiguration, bool publicPropsEnabled, bool limitedPropsEnabled)
         {
             var valid = prop.CanWrite && !prop.IsIndexer() &&
                     (prop.GetDependencyAttribute() != null ||
                      publicPropsEnabled && prop.GetSetMethod() != null || limitedPropsEnabled ||
-                     (serviceRegistration.DependencyBindings != null && serviceRegistration.DependencyBindings.ContainsKey(prop.Name)));
+                     (serviceRegistration?.DependencyBindings != null && serviceRegistration.DependencyBindings.ContainsKey(prop.Name)));
 
             valid = valid && (containerConfiguration.AutoMemberInjectionFilter == null || containerConfiguration.AutoMemberInjectionFilter(prop));
-            valid = valid && (serviceRegistration.AutoMemberInjectionFilter == null || serviceRegistration.AutoMemberInjectionFilter(prop));
+            valid = valid && (serviceRegistration?.AutoMemberInjectionFilter == null || serviceRegistration.AutoMemberInjectionFilter(prop));
 
             return valid;
         }
 
-        private static bool FilterField(this FieldInfo field, ServiceRegistration serviceRegistration,
+        private static bool FilterField(this FieldInfo field, ComplexRegistration? serviceRegistration,
             ContainerConfiguration containerConfiguration, bool fieldsEnabled)
         {
             var valid = !field.IsInitOnly && !field.IsBackingField() &&
                         (field.GetDependencyAttribute() != null ||
                          fieldsEnabled ||
-                         (serviceRegistration.DependencyBindings != null && serviceRegistration.DependencyBindings.ContainsKey(field.Name)));
+                         (serviceRegistration?.DependencyBindings != null && serviceRegistration.DependencyBindings.ContainsKey(field.Name)));
 
             valid = valid && (containerConfiguration.AutoMemberInjectionFilter == null || containerConfiguration.AutoMemberInjectionFilter(field));
-            valid = valid && (serviceRegistration.AutoMemberInjectionFilter == null || serviceRegistration.AutoMemberInjectionFilter(field));
+            valid = valid && (serviceRegistration?.AutoMemberInjectionFilter == null || serviceRegistration.AutoMemberInjectionFilter(field));
 
             return valid;
         }

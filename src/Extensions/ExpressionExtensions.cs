@@ -1,7 +1,7 @@
 ﻿using Stashbox;
 using Stashbox.Configuration;
 using Stashbox.Expressions.Compile;
-using Stashbox.Registration;
+using Stashbox.Registration.ServiceRegistrations;
 using Stashbox.Resolution;
 using Stashbox.Utils;
 using Stashbox.Utils.Data;

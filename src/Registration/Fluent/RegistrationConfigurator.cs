@@ -1,4 +1,6 @@
-﻿using Stashbox.Utils;
+﻿using Stashbox.Lifetime;
+using Stashbox.Registration.ServiceRegistrations;
+using Stashbox.Utils;
 using System;
 
 namespace Stashbox.Registration.Fluent
@@ -11,7 +13,9 @@ namespace Stashbox.Registration.Fluent
         where TService : class
         where TImplementation : class, TService
     {
-        internal RegistrationConfigurator(Type serviceType, Type implementationType) : base(serviceType, implementationType)
+        internal RegistrationConfigurator(Type serviceType, Type implementationType,
+            LifetimeDescriptor lifetimeDescriptor, object? name = null)
+            : base(serviceType, implementationType, name, lifetimeDescriptor, false)
         { }
 
         /// <summary>
@@ -23,10 +27,8 @@ namespace Stashbox.Registration.Fluent
         public RegistrationConfigurator<TService, TImplementation> WithInstance(TService instance, bool wireUp = false)
         {
             Shield.EnsureNotNull(instance, nameof(instance));
+            this.Registration = RegistrationFactory.EnsureInstance(instance, wireUp, this.Registration);
 
-            this.Context.ExistingInstance = instance;
-            this.Context.IsWireUp = wireUp;
-            this.ImplementationType = instance.GetType();
             return this;
         }
     }
@@ -36,7 +38,9 @@ namespace Stashbox.Registration.Fluent
     /// </summary>
     public class RegistrationConfigurator : FluentServiceConfigurator<RegistrationConfigurator>
     {
-        internal RegistrationConfigurator(Type serviceType, Type implementationType) : base(serviceType, implementationType)
+        internal RegistrationConfigurator(Type serviceType, Type implementationType,
+            LifetimeDescriptor lifetimeDescriptor, object? name = null)
+            : base(serviceType, implementationType, name, lifetimeDescriptor, false)
         { }
 
         /// <summary>
@@ -48,10 +52,8 @@ namespace Stashbox.Registration.Fluent
         public RegistrationConfigurator WithInstance(object instance, bool wireUp = false)
         {
             Shield.EnsureNotNull(instance, nameof(instance));
+            this.Registration = RegistrationFactory.EnsureInstance(instance, wireUp, this.Registration);
 
-            this.Context.ExistingInstance = instance;
-            this.Context.IsWireUp = wireUp;
-            this.ImplementationType = instance.GetType();
             return this;
         }
     }

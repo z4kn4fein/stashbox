@@ -2,6 +2,7 @@
 using Stashbox.Exceptions;
 using Stashbox.Registration.Extensions;
 using Stashbox.Registration.SelectionRules;
+using Stashbox.Registration.ServiceRegistrations;
 using Stashbox.Resolution;
 using Stashbox.Utils;
 using Stashbox.Utils.Data.Immutable;
@@ -13,7 +14,7 @@ namespace Stashbox.Registration
 {
     internal class RegistrationRepository : IRegistrationRepository
     {
-        private ImmutableTree<Type, ImmutableBucket<object, ServiceRegistration>> serviceRepository = ImmutableTree<Type, ImmutableBucket<object, ServiceRegistration>>.Empty;
+        private ImmutableTree<Type, ImmutableBucket<ServiceRegistration>> serviceRepository = ImmutableTree<Type, ImmutableBucket<ServiceRegistration>>.Empty;
         private readonly ContainerConfiguration containerConfiguration;
 
         private readonly IRegistrationSelectionRule[] filters =
@@ -48,14 +49,29 @@ namespace Stashbox.Registration
 
         public bool AddOrUpdateRegistration(ServiceRegistration registration, Type serviceType)
         {
-            if (registration.ReplaceExistingRegistrationOnlyIfExists)
+            if (registration is ComplexRegistration complexRegistration && complexRegistration.ReplaceExistingRegistrationOnlyIfExists)
                 return Swap.SwapValue(ref this.serviceRepository, (reg, type, _, _, repo) =>
-                    repo.UpdateIfExists(type, true, regs => regs.ReplaceIfExists(reg.RegistrationDiscriminator, reg, false,
-                        (old, @new) =>
+                    repo.UpdateIfExists(type, true, regs =>
+                    {
+                        int existingIndex = -1;
+                        for (int i = 0; i < regs.Length; i++)
                         {
-                            @new.Replaces(old);
-                            return @new;
-                        })),
+                            var current = regs[i];
+                            var existingDiscriminator = current.Name ?? current.ImplementationType;
+                            var newDiscriminator = reg.Name ?? reg.ImplementationType;
+                            if (existingDiscriminator.Equals(newDiscriminator))
+                                existingIndex = i;
+                        }
+
+                        if (existingIndex != -1)
+                        {
+                            var replaced = regs[existingIndex];
+                            reg.Replaces(replaced);
+                            return regs.ReplaceAt(existingIndex, reg);
+                        }
+
+                        return regs;
+                    }),
                     registration,
                     serviceType,
                     Constants.DelegatePlaceholder,
@@ -65,43 +81,55 @@ namespace Stashbox.Registration
                 repo.AddOrUpdate(type, newRepo, true,
                     (oldValue, _) =>
                     {
-                        var allowUpdate = reg.ReplaceExistingRegistration ||
+                        var allowUpdate = reg is ComplexRegistration complex && complex.ReplaceExistingRegistration ||
                                           regBehavior == Rules.RegistrationBehavior.ReplaceExisting;
 
                         if (!allowUpdate && regBehavior == Rules.RegistrationBehavior.PreserveDuplications)
-                            return oldValue.Add(reg.RegistrationDiscriminator, reg);
+                            return oldValue.Add(reg);
 
-                        return oldValue.AddOrUpdate(reg.RegistrationDiscriminator, reg, false,
-                            (old, @new) =>
+                        int existingIndex = -1;
+                        for (int i = 0; i < oldValue.Length; i++)
+                        {
+                            var current = oldValue[i];
+                            var existingDiscriminator = current.Name ?? current.ImplementationType;
+                            var newDiscriminator = reg.Name ?? reg.ImplementationType;
+                            if (existingDiscriminator.Equals(newDiscriminator))
+                                existingIndex = i;
+                        }
+
+                        if (existingIndex != -1)
+                        {
+                            switch (allowUpdate)
                             {
-                                switch (allowUpdate)
-                                {
-                                    case false when regBehavior == Rules.RegistrationBehavior.ThrowException:
-                                        throw new ServiceAlreadyRegisteredException(old.ImplementationType);
-                                    case false:
-                                        return old;
-                                    default:
-                                        @new.Replaces(old);
-                                        return @new;
-                                }
-                            });
+                                case false when regBehavior == Rules.RegistrationBehavior.ThrowException:
+                                    throw new ServiceAlreadyRegisteredException(reg.ImplementationType);
+                                case false:
+                                    return oldValue;
+                                default:
+                                    var replaced = oldValue[existingIndex];
+                                    reg.Replaces(replaced);
+                                    return oldValue.ReplaceAt(existingIndex, reg);
+                            }
+                        }
+
+                        return oldValue.Add(reg);
                     }),
                     registration,
                     serviceType,
-                    new ImmutableBucket<object, ServiceRegistration>(registration.RegistrationDiscriminator, registration),
+                    new ImmutableBucket<ServiceRegistration>(registration),
                     this.containerConfiguration.RegistrationBehavior);
         }
 
         public bool AddOrReMapRegistration(ServiceRegistration registration, Type serviceType) =>
-            registration.ReplaceExistingRegistrationOnlyIfExists
+            registration is ComplexRegistration complexRegistration && complexRegistration.ReplaceExistingRegistrationOnlyIfExists
                 ? Swap.SwapValue(ref this.serviceRepository, (type, newRepo, _, _, repo) =>
                     repo.UpdateIfExists(type, newRepo, true), serviceType,
-                    new ImmutableBucket<object, ServiceRegistration>(registration.RegistrationDiscriminator, registration),
+                    new ImmutableBucket<ServiceRegistration>(registration),
                     Constants.DelegatePlaceholder,
                     Constants.DelegatePlaceholder)
                 : Swap.SwapValue(ref this.serviceRepository, (type, newRepo, _, _, repo) =>
                     repo.AddOrUpdate(type, newRepo, true, true), serviceType,
-                    new ImmutableBucket<object, ServiceRegistration>(registration.RegistrationDiscriminator, registration),
+                    new ImmutableBucket<ServiceRegistration>(registration),
                     Constants.DelegatePlaceholder,
                     Constants.DelegatePlaceholder);
 
@@ -109,7 +137,7 @@ namespace Stashbox.Registration
             serviceRepository.ContainsRegistration(type, name, includeOpenGenerics);
 
         public IEnumerable<KeyValuePair<Type, ServiceRegistration>> GetRegistrationMappings() =>
-             serviceRepository.Walk().SelectMany(reg => reg.Value.Select(r => new KeyValuePair<Type, ServiceRegistration>(reg.Key, r)));
+             serviceRepository.Walk().SelectMany(reg => reg.Value.Repository.Select(r => new KeyValuePair<Type, ServiceRegistration>(reg.Key, r)));
 
         public ServiceRegistration? GetRegistrationOrDefault(TypeInformation typeInfo, ResolutionContext resolutionContext) =>
             this.GetRegistrationsForType(typeInfo.Type)?.SelectOrDefault(typeInfo, resolutionContext,
@@ -122,10 +150,10 @@ namespace Stashbox.Registration
 
         private IEnumerable<ServiceRegistration>? GetRegistrationsForType(Type type)
         {
-            IEnumerable<ServiceRegistration>? registrations = serviceRepository.GetOrDefaultByRef(type);
+            IEnumerable<ServiceRegistration>? registrations = serviceRepository.GetOrDefaultByRef(type)?.Repository;
             if (!type.IsClosedGenericType()) return registrations;
 
-            var openGenerics = serviceRepository.GetOrDefaultByRef(type.GetGenericTypeDefinition());
+            var openGenerics = serviceRepository.GetOrDefaultByRef(type.GetGenericTypeDefinition())?.Repository;
 
             if (openGenerics != null)
                 registrations = registrations == null ? openGenerics : openGenerics.Concat(registrations);
@@ -135,7 +163,7 @@ namespace Stashbox.Registration
                     r.Key.GetGenericTypeDefinition() == type.GetGenericTypeDefinition() &&
                     r.Key != type &&
                     r.Key.ImplementsWithoutGenericCheck(type))
-                .SelectMany(r => r.Value).ToArray();
+                .SelectMany(r => r.Value.Repository).ToArray();
 
             if (variantGenerics.Length > 0)
                 registrations = registrations == null ? variantGenerics : variantGenerics.Concat(registrations);

@@ -1,5 +1,6 @@
 ﻿using Stashbox.Configuration;
 using Stashbox.Tests.Utils;
+using System;
 using Xunit;
 
 namespace Stashbox.Tests
@@ -13,7 +14,7 @@ namespace Stashbox.Tests
         {
             using var container = new StashboxContainer(c => c.WithCompiler(compilerType));
             container.Register<Test>();
-            var factory = container.ResolveFactory<Test>();
+            var factory = container.Resolve<Func<Test>>();
 
             Assert.NotNull(factory());
         }
@@ -25,7 +26,7 @@ namespace Stashbox.Tests
             using var container = new StashboxContainer(c => c.WithCompiler(compilerType));
             container.Register<IService, Service>(c => c.WithName("service"));
             container.Register<IService, Service1>(c => c.WithName("service1"));
-            var factory = container.ResolveFactory<IService>("service");
+            var factory = container.Resolve<Func<IService>>("service");
 
             Assert.IsType<Service>(factory());
         }
@@ -38,7 +39,7 @@ namespace Stashbox.Tests
             container.Register<Test>();
 
             using var scope = container.BeginScope();
-            var factory = scope.ResolveFactory<Test>();
+            var factory = scope.Resolve<Func<Test>>();
 
             Assert.NotNull(factory());
         }
@@ -49,7 +50,7 @@ namespace Stashbox.Tests
         {
             using var container = new StashboxContainer(c => c.WithCompiler(compilerType));
             container.Register<Test1>();
-            var factory = container.ResolveFactory<Test, Test1>();
+            var factory = container.Resolve<Func<Test, Test1>>();
 
             var test = new Test();
             var inst = factory(test);
@@ -65,7 +66,7 @@ namespace Stashbox.Tests
             container.Register<Test1>();
 
             using var scope = container.BeginScope();
-            var factory = scope.ResolveFactory<Test, Test1>();
+            var factory = scope.Resolve<Func<Test, Test1>>();
 
             var test = new Test();
             var inst = factory(test);
@@ -79,7 +80,7 @@ namespace Stashbox.Tests
         {
             using var container = new StashboxContainer(c => c.WithCompiler(compilerType));
             container.Register<Test2>();
-            var factory = container.ResolveFactory<Test, Test1, Test2>();
+            var factory = container.Resolve<Func<Test, Test1, Test2>>();
 
             var test = new Test();
             var test1 = new Test1(test);
@@ -97,7 +98,7 @@ namespace Stashbox.Tests
             container.Register<Test2>();
 
             using var scope = container.BeginScope();
-            var factory = scope.ResolveFactory<Test, Test1, Test2>();
+            var factory = scope.Resolve<Func<Test, Test1, Test2>>();
 
             var test = new Test();
             var test1 = new Test1(test);
@@ -113,7 +114,7 @@ namespace Stashbox.Tests
         {
             using var container = new StashboxContainer(c => c.WithCompiler(compilerType));
             container.Register<Test3>();
-            var factory = container.ResolveFactory<Test, Test1, Test2, Test3>();
+            var factory = container.Resolve<Func<Test, Test1, Test2, Test3>>();
 
             var test = new Test();
             var test1 = new Test1(test);
@@ -133,7 +134,7 @@ namespace Stashbox.Tests
             container.Register<Test3>();
 
             using var scope = container.BeginScope();
-            var factory = scope.ResolveFactory<Test, Test1, Test2, Test3>();
+            var factory = scope.Resolve<Func<Test, Test1, Test2, Test3>>();
 
             var test = new Test();
             var test1 = new Test1(test);
@@ -151,7 +152,7 @@ namespace Stashbox.Tests
         {
             using var container = new StashboxContainer(c => c.WithCompiler(compilerType));
             container.Register<Test4>();
-            var factory = container.ResolveFactory<Test, Test1, Test2, Test3, Test4>();
+            var factory = container.Resolve<Func<Test, Test1, Test2, Test3, Test4>>();
 
             var test = new Test();
             var test1 = new Test1(test);
@@ -173,7 +174,7 @@ namespace Stashbox.Tests
             container.Register<Test4>();
 
             using var scope = container.BeginScope();
-            var factory = scope.ResolveFactory<Test, Test1, Test2, Test3, Test4>();
+            var factory = scope.Resolve<Func<Test, Test1, Test2, Test3, Test4>>();
 
             var test = new Test();
             var test1 = new Test1(test);

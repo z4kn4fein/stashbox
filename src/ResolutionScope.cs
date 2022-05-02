@@ -57,7 +57,6 @@ namespace Stashbox
         private readonly DelegateCacheProvider delegateCacheProvider;
         private ImmutableTree<ScopedEvaluator> scopedInstances = ImmutableTree<ScopedEvaluator>.Empty;
         private ImmutableTree<object, object> lateKnownInstances = ImmutableTree<object, object>.Empty;
-        private ImmutableTree<ThreadLocal<bool>> circularDependencyBarrier = ImmutableTree<ThreadLocal<bool>>.Empty;
 
 
         internal DelegateCache DelegateCache;
@@ -122,24 +121,6 @@ namespace Stashbox
 
                 current = current.ParentScope;
             }
-        }
-
-        public void CheckRuntimeCircularDependencyBarrier(int key, Type type)
-        {
-            var check = this.circularDependencyBarrier.GetOrDefault(key);
-            if (check is { Value: true })
-                throw new CircularDependencyException(type);
-
-            Swap.SwapValue(ref this.circularDependencyBarrier, (t1, _, _, _, barrier) =>
-                barrier.AddOrUpdate(t1, new ThreadLocal<bool>(), (old, _) =>
-                { old.Value = true; return old; }), key, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
-        }
-
-        public void ResetRuntimeCircularDependencyBarrier(int key)
-        {
-            var check = this.circularDependencyBarrier.GetOrDefault(key);
-            if (check != null)
-                check.Value = false;
         }
     }
 }

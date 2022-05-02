@@ -47,16 +47,6 @@ namespace Stashbox.Utils
             ResolverType.GetMethod(nameof(IDependencyResolver.Resolve), new[] { typeof(Type),
                 ObjectType, typeof(object[]) })!;
 
-        public static readonly MethodInfo CheckRuntimeCircularDependencyBarrierMethod =
-#pragma warning disable 618
-            ResolutionScopeType.GetMethod(nameof(IResolutionScope.CheckRuntimeCircularDependencyBarrier))!;
-#pragma warning restore 618
-
-        public static readonly MethodInfo ResetRuntimeCircularDependencyBarrierMethod =
-#pragma warning disable 618
-            ResolutionScopeType.GetMethod(nameof(IResolutionScope.ResetRuntimeCircularDependencyBarrier))!;
-#pragma warning restore 618
-
         public static readonly MethodInfo BeginScopeMethod = ResolverType.GetMethod(nameof(IDependencyResolver.BeginScope))!;
 
         public static readonly Type DisposableType = typeof(IDisposable);

@@ -122,7 +122,7 @@ namespace Stashbox.Tests
             using IStashboxContainer container = new StashboxContainer(c => c.WithCompiler(compilerType));
             container.Register<Test6>(context => context.WithPerScopedRequestLifetime());
 
-            Assert.Null(container.Resolve<Test6>(nullResultAllowed: true));
+            Assert.Null(container.ResolveOrDefault<Test6>());
         }
 
         [Theory]
@@ -145,7 +145,7 @@ namespace Stashbox.Tests
             using IStashboxContainer container = new StashboxContainer(c => c.WithCompiler(compilerType));
             container.RegisterScoped<Test6>();
 
-            Assert.Null(container.BeginScope().Resolve<Test6>(nullResultAllowed: true));
+            Assert.Null(container.BeginScope().ResolveOrDefault<Test6>());
         }
 
         [Theory]

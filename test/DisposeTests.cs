@@ -376,15 +376,15 @@ namespace Stashbox.Tests
 
                 using var scope = container.BeginScope();
 
-                test = scope.ResolveFactory<ITest1>()();
-                test2 = scope.ResolveFactory<ITest2>()();
-                test3 = scope.ResolveFactory<Test3>()();
+                test = scope.Resolve<Func<ITest1>>()();
+                test2 = scope.Resolve<Func<ITest2>>()();
+                test3 = scope.Resolve<Func<Test3>>()();
 
                 using (var child = scope.BeginScope())
                 {
-                    test4 = child.ResolveFactory<ITest1>()();
-                    test5 = child.ResolveFactory<ITest2>()();
-                    test6 = child.ResolveFactory<Test3>()();
+                    test4 = child.Resolve<Func<ITest1>>()();
+                    test5 = child.Resolve<Func<ITest2>>()();
+                    test6 = child.Resolve<Func<Test3>>()();
                 }
 
                 Assert.True(test4.Disposed);
@@ -489,15 +489,15 @@ namespace Stashbox.Tests
                 container.Register<Test3>();
                 container.Register<ITest1, Test1>();
 
-                test = container.ResolveFactory<ITest1>()();
-                test2 = container.ResolveFactory<ITest2>()();
-                test3 = container.ResolveFactory<Test3>()();
+                test = container.Resolve<Func<ITest1>>()();
+                test2 = container.Resolve<Func<ITest2>>()();
+                test3 = container.Resolve<Func<Test3>>()();
 
                 using (var child = container.BeginScope())
                 {
-                    test4 = child.ResolveFactory<ITest1>()();
-                    test5 = child.ResolveFactory<ITest2>()();
-                    test6 = child.ResolveFactory<Test3>()();
+                    test4 = child.Resolve<Func<ITest1>>()();
+                    test5 = child.Resolve<Func<ITest2>>()();
+                    test6 = child.Resolve<Func<Test3>>()();
                 }
 
                 Assert.True(test4.Disposed);

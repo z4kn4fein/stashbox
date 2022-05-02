@@ -21,10 +21,7 @@ namespace Stashbox.Tests.IssueTests
 
             A inst = null;
             {
-#pragma warning disable CS0618 // Type or member is obsolete
-                using var container = new StashboxContainer(c => c.WithRuntimeCircularDependencyTracking()
-#pragma warning restore CS0618 // Type or member is obsolete
-                        .WithDisposableTransientTracking()
+                using var container = new StashboxContainer(c => c.WithDisposableTransientTracking()
                         .WithCompiler(compilerType))
                 .Register<A>(c => c.WithScopedLifetime())
                 .Register<B>(c => c.WithScopedLifetime())
@@ -87,11 +84,7 @@ namespace Stashbox.Tests.IssueTests
             {
                 using var container = new StashboxContainer(c =>
                     {
-#pragma warning disable CS0618 // Type or member is obsolete
-                        c.WithRuntimeCircularDependencyTracking()
-#pragma warning restore CS0618 // Type or member is obsolete
-                            .WithDisposableTransientTracking()
-                            .WithCompiler(compilerType);
+                        c.WithDisposableTransientTracking().WithCompiler(compilerType);
                     })
                 .Register<A>(c => c.WithScopedLifetime())
                 .Register<B>(c => c.WithSingletonLifetime())

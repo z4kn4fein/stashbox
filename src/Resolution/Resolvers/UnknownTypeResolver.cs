@@ -21,27 +21,19 @@ namespace Stashbox.Resolution.Resolvers
             ResolutionContext resolutionContext)
         {
             var name = typeInfo.DependencyName;
-            var configurator = name != null
-                ? context =>
-                {
-                    context.WithName(name);
-                    resolutionContext.RequestInitiatorContainerContext.ContainerConfiguration.UnknownTypeConfigurator?.Invoke(context);
-                }
-            : resolutionContext.RequestInitiatorContainerContext.ContainerConfiguration.UnknownTypeConfigurator;
+            var configurator = resolutionContext.RequestInitiatorContainerContext.ContainerConfiguration.UnknownTypeConfigurator;
 
-            var registrationConfigurator = new UnknownRegistrationConfigurator(typeInfo.Type, typeInfo.Type);
-            configurator?.Invoke(registrationConfigurator);
+            var unknownRegistrationConfigurator = new UnknownRegistrationConfigurator(typeInfo.Type, typeInfo.Type, name, resolutionContext.RequestInitiatorContainerContext.ContainerConfiguration.DefaultLifetime);
+            configurator?.Invoke(unknownRegistrationConfigurator);
 
-            if (!registrationConfigurator.ImplementationType.IsResolvableType() ||
-                !registrationConfigurator.ImplementationType.Implements(registrationConfigurator.ServiceType) ||
-                registrationConfigurator.RegistrationShouldBeSkipped)
+            if (!unknownRegistrationConfigurator.ImplementationType.IsResolvableType() ||
+                !unknownRegistrationConfigurator.ImplementationType.Implements(unknownRegistrationConfigurator.ServiceType) ||
+                unknownRegistrationConfigurator.RegistrationShouldBeSkipped)
                 return default;
 
-            var registration = RegistrationBuilder.BuildServiceRegistration(resolutionContext.RequestInitiatorContainerContext,
-                registrationConfigurator, false);
-            ServiceRegistrator.Register(resolutionContext.RequestInitiatorContainerContext, registration, typeInfo.Type);
+            ServiceRegistrator.Register(resolutionContext.RequestInitiatorContainerContext, unknownRegistrationConfigurator.Registration, typeInfo.Type);
 
-            return resolutionStrategy.BuildExpressionForRegistration(registration, resolutionContext.ShouldFallBackToRequestInitiatorContext
+            return resolutionStrategy.BuildExpressionForRegistration(unknownRegistrationConfigurator.Registration, resolutionContext.ShouldFallBackToRequestInitiatorContext
                 ? resolutionContext.BeginCrossContainerContext(resolutionContext.RequestInitiatorContainerContext)
                 : resolutionContext,
                 typeInfo);

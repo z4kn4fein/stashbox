@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v5.4.0] - 
+### Changed
+- `Resolve<IEnumerable<>>(name)` now returns each service that has the same name.
+### Added
+- `ResolveAll<>(name)` that returns each service that has the same name.
+### Removed
+- Obsolete `Resolve()` with the `nullResultAllowed` parameter, it was replaced by `ResolveOrDefault()`.
+- Each obsolete `ResolveFactory<>()` method as their functionality is equivalent to `Resolve<Func<>>()`.
+- Obsolete `.WithRuntimeCircularDependencyTracking()` container configuration option in favor of [parameterized factory delegates](https://z4kn4fein.github.io/stashbox/#/usage/advanced-registration?id=consider-this-before-using-the-resolver-parameter-inside-a-factory).
+
 ## [v5.3.0] - 2022-04-10
 ### Added
 - `WithDynamicResolution()` registration option to indicate that the service's resolution should be handled by a dynamic `Resolve()` call on the current `IDependencyResolver` instead of a pre-built instantiation expression.

@@ -587,9 +587,201 @@ namespace Stashbox.Tests
             Assert.Equal(3, container.Resolve<IEnumerable<ITest1>>().Count());
         }
 
+        [Fact]
+        public void EnumerableTests_Resolve_WithName()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            container.Register<ITest1, Test1>("t");
+            container.Register<ITest1, Test11>("t");
+            container.Register<ITest1, Test12>();
+
+            Assert.Equal(2, container.Resolve<IEnumerable<ITest1>>("t").Count());
+        }
+
+        [Fact]
+        public void EnumerableTests_Resolve_WithName_FromCache()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            container.Register<ITest1, Test1>("t");
+            container.Register<ITest1, Test11>("t");
+            container.Register<ITest1, Test12>();
+
+            Assert.Equal(2, container.Resolve<IEnumerable<ITest1>>("t").Count());
+            Assert.Equal(2, container.Resolve<IEnumerable<ITest1>>("t").Count());
+        }
+
+        [Fact]
+        public void EnumerableTests_ResolveAll_Generic_WithName()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            container.Register<ITest1, Test1>("t");
+            container.Register<ITest1, Test11>("t");
+            container.Register<ITest1, Test12>();
+
+            Assert.Equal(2, container.ResolveAll<ITest1>("t").Count());
+        }
+
+        [Fact]
+        public void EnumerableTests_ResolveAll_Generic_WithName_FromCache()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            container.Register<ITest1, Test1>("t");
+            container.Register<ITest1, Test11>("t");
+            container.Register<ITest1, Test12>();
+
+            Assert.Equal(2, container.ResolveAll<ITest1>("t").Count());
+            Assert.Equal(2, container.ResolveAll<ITest1>("t").Count());
+        }
+
+        [Fact]
+        public void EnumerableTests_ResolveAll_WithName()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            container.Register<ITest1, Test1>("t");
+            container.Register<ITest1, Test11>("t");
+            container.Register<ITest1, Test12>();
+
+            Assert.Equal(2, container.ResolveAll(typeof(ITest1), "t").Count());
+            Assert.Equal(2, container.ResolveAll(typeof(ITest1), "t").Count());
+        }
+
+        [Fact]
+        public void EnumerableTests_ResolveAll_WithName_FromCache()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            container.Register<ITest1, Test1>("t");
+            container.Register<ITest1, Test11>("t");
+            container.Register<ITest1, Test12>();
+
+            Assert.Equal(2, container.ResolveAll(typeof(ITest1), "t").Count());
+            Assert.Equal(2, container.ResolveAll(typeof(ITest1), "t").Count());
+        }
+
+        [Fact]
+        public void EnumerableTests_ResolveAll_PerRequest_WithName()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            container.Register<ITest1, Test1>(c => c.WithName("t").WithPerRequestLifetime());
+            container.Register<ITest1, Test11>("t");
+            container.Register<ITest1, Test12>();
+
+            Assert.Equal(2, container.ResolveAll(typeof(ITest1), "t").Count());
+        }
+
+        [Fact]
+        public void EnumerableTests_Scope_Resolve_WithName()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            container.Register<ITest1, Test1>("t");
+            container.Register<ITest1, Test11>("t");
+            container.Register<ITest1, Test12>();
+
+            Assert.Equal(2, container.BeginScope().Resolve<IEnumerable<ITest1>>("t").Count());
+        }
+
+        [Fact]
+        public void EnumerableTests_Scope_Resolve_WithName_FromCache()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            container.Register<ITest1, Test1>("t");
+            container.Register<ITest1, Test11>("t");
+            container.Register<ITest1, Test12>();
+
+            Assert.Equal(2, container.BeginScope().Resolve<IEnumerable<ITest1>>("t").Count());
+            Assert.Equal(2, container.BeginScope().Resolve<IEnumerable<ITest1>>("t").Count());
+        }
+
+        [Fact]
+        public void EnumerableTests_Scope_ResolveAll_Generic_WithName()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            container.Register<ITest1, Test1>("t");
+            container.Register<ITest1, Test11>("t");
+            container.Register<ITest1, Test12>();
+
+            Assert.Equal(2, container.BeginScope().ResolveAll<ITest1>("t").Count());
+        }
+
+        [Fact]
+        public void EnumerableTests_Scope_ResolveAll_Generic_WithName_FromCache()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            container.Register<ITest1, Test1>("t");
+            container.Register<ITest1, Test11>("t");
+            container.Register<ITest1, Test12>();
+
+            Assert.Equal(2, container.BeginScope().ResolveAll<ITest1>("t").Count());
+            Assert.Equal(2, container.BeginScope().ResolveAll<ITest1>("t").Count());
+        }
+
+        [Fact]
+        public void EnumerableTests_Scope_ResolveAll_WithName()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            container.Register<ITest1, Test1>("t");
+            container.Register<ITest1, Test11>("t");
+            container.Register<ITest1, Test12>();
+
+            Assert.Equal(2, container.BeginScope().ResolveAll(typeof(ITest1), "t").Count());
+            Assert.Equal(2, container.BeginScope().ResolveAll(typeof(ITest1), "t").Count());
+        }
+
+        [Fact]
+        public void EnumerableTests_Scope_ResolveAll_WithName_FromCache()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            container.Register<ITest1, Test1>("t");
+            container.Register<ITest1, Test11>("t");
+            container.Register<ITest1, Test12>();
+
+            Assert.Equal(2, container.BeginScope().ResolveAll(typeof(ITest1), "t").Count());
+            Assert.Equal(2, container.BeginScope().ResolveAll(typeof(ITest1), "t").Count());
+        }
+
+        [Fact]
+        public void EnumerableTests_Scope_ResolveAll_PerRequest_WithName()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            container.Register<ITest1, Test1>(c => c.WithName("t").WithPerRequestLifetime());
+            container.Register<ITest1, Test11>("t");
+            container.Register<ITest1, Test12>();
+
+            Assert.Equal(2, container.BeginScope().ResolveAll(typeof(ITest1), "t").Count());
+        }
+
+        [Fact]
+        public void EnumerableTests_ResolveAll_WithName_WithOverrides()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            container.Register<ITest3, Test31>("t");
+            container.Register<ITest3, Test32>("t");
+            container.Register<ITest3, Test33>();
+
+            var inst = container.ResolveAll(typeof(ITest3), "t", new object[] { new Test1() }).OfType<ITest3>().ToArray();
+            Assert.Equal(2, inst.Length);
+            Assert.IsType<Test1>(inst[0].Test);
+            Assert.IsType<Test1>(inst[1].Test);
+        }
+
+        [Fact]
+        public void EnumerableTests_ResolveAll_Generic_WithName_WithOverrides()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            container.Register<ITest3, Test31>("t");
+            container.Register<ITest3, Test32>("t");
+            container.Register<ITest3, Test33>();
+
+            var inst = container.ResolveAll<ITest3>("t", new object[] { new Test1() }).ToArray();
+            Assert.Equal(2, inst.Length);
+            Assert.IsType<Test1>(inst[0].Test);
+            Assert.IsType<Test1>(inst[1].Test);
+        }
+
         interface ITest1 { }
 
         interface ITest2 { }
+
+        interface ITest3 { ITest1 Test { get; } }
 
         class Test1 : ITest1
         { }
@@ -615,6 +807,36 @@ namespace Stashbox.Tests
             {
                 Shield.EnsureNotNull(tests, nameof(tests));
                 Assert.Equal(3, tests.Length);
+            }
+        }
+
+        class Test31 : ITest3
+        {
+            public ITest1 Test { get; }
+
+            public Test31(ITest1 test)
+            {
+                this.Test = test;
+            }
+        }
+
+        class Test32 : ITest3
+        {
+            public ITest1 Test { get; }
+
+            public Test32(ITest1 test)
+            {
+                this.Test = test;
+            }
+        }
+
+        class Test33 : ITest3
+        {
+            public ITest1 Test { get; }
+
+            public Test33(ITest1 test)
+            {
+                this.Test = test;
             }
         }
     }

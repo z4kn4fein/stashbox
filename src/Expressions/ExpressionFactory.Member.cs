@@ -1,5 +1,5 @@
 ﻿using Stashbox.Exceptions;
-using Stashbox.Registration;
+using Stashbox.Registration.ServiceRegistrations;
 using Stashbox.Resolution;
 using Stashbox.Resolution.Extensions;
 using System;
@@ -14,7 +14,7 @@ namespace Stashbox.Expressions
     {
         private static IEnumerable<Expression> GetMemberExpressions(
             IEnumerable<MemberInfo> members,
-            ServiceRegistration serviceRegistration,
+            ServiceRegistration? serviceRegistration,
             ResolutionContext resolutionContext,
             Expression instance) =>
             from member in members
@@ -24,7 +24,7 @@ namespace Stashbox.Expressions
 
         private static IEnumerable<MemberBinding> GetMemberBindings(
             IEnumerable<MemberInfo> members,
-            ServiceRegistration serviceRegistration,
+            ServiceRegistration? serviceRegistration,
             ResolutionContext resolutionContext) =>
             from member in members
             let expression = GetMemberExpression(member, serviceRegistration, resolutionContext)
@@ -34,13 +34,13 @@ namespace Stashbox.Expressions
 
         private static Expression GetMemberExpression(
             MemberInfo member,
-            ServiceRegistration serviceRegistration,
+            ServiceRegistration? serviceRegistration,
             ResolutionContext resolutionContext)
         {
             var memberTypeInfo = member.AsTypeInformation(serviceRegistration,
                 resolutionContext.CurrentContainerContext.ContainerConfiguration);
 
-            var injectionParameter = serviceRegistration.InjectionParameters?.SelectInjectionParameterOrDefault(memberTypeInfo);
+            var injectionParameter = (serviceRegistration as ComplexRegistration)?.InjectionParameters?.SelectInjectionParameterOrDefault(memberTypeInfo);
             if (injectionParameter != null) return injectionParameter;
 
             var serviceContext = resolutionContext.CurrentContainerContext

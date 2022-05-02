@@ -1,4 +1,6 @@
-﻿using Stashbox.Utils;
+﻿using Stashbox.Lifetime;
+using Stashbox.Registration.ServiceRegistrations;
+using Stashbox.Utils;
 using System;
 
 namespace Stashbox.Registration.Fluent
@@ -16,24 +18,20 @@ namespace Stashbox.Registration.Fluent
         /// <summary>
         /// The implementation type.
         /// </summary>
-        public Type ImplementationType { get; protected set; }
+        public Type ImplementationType => this.Registration.ImplementationType;
 
-        internal RegistrationContext Context { get; }
+        internal ServiceRegistration Registration { get; set; }
 
-        internal RegistrationConfiguration(Type serviceType, Type implementationType)
-            : this(serviceType, implementationType, new RegistrationContext())
-        { }
-
-        internal RegistrationConfiguration(Type serviceType, Type implementationType, RegistrationContext context)
+        internal RegistrationConfiguration(Type serviceType, Type implementationType, object? name,
+            LifetimeDescriptor lifetimeDescriptor, bool isDecorator)
         {
             this.ServiceType = serviceType;
-            this.ImplementationType = implementationType;
-            this.Context = context;
+            this.Registration = new ServiceRegistration(implementationType, name, lifetimeDescriptor, isDecorator);
         }
 
         internal void ValidateTypeMap()
         {
-            if (this.Context.Factory != null)
+            if (this.Registration is FactoryRegistration)
                 return;
 
             Shield.EnsureTypeMapIsValid(this.ServiceType, this.ImplementationType);
@@ -41,7 +39,7 @@ namespace Stashbox.Registration.Fluent
 
         internal void ValidateImplementationIsResolvable()
         {
-            if (this.Context.Factory != null)
+            if (this.Registration is FactoryRegistration)
                 return;
 
             Shield.EnsureIsResolvable(this.ImplementationType);

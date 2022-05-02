@@ -12,26 +12,6 @@ namespace Stashbox
     internal partial class ResolutionScope
     {
         /// <inheritdoc />
-        public object? Resolve(Type typeFrom, bool nullResultAllowed, object[]? dependencyOverrides = null) =>
-            nullResultAllowed
-                ? dependencyOverrides == null
-                    ? this.ResolveOrDefault(typeFrom)
-                    : this.ResolveOrDefault(typeFrom, dependencyOverrides)
-                : dependencyOverrides == null
-                    ? this.Resolve(typeFrom)
-                    : this.Resolve(typeFrom, dependencyOverrides);
-
-        /// <inheritdoc />
-        public object? Resolve(Type typeFrom, object name, bool nullResultAllowed, object[]? dependencyOverrides = null) =>
-            nullResultAllowed
-                ? dependencyOverrides == null
-                    ? this.ResolveOrDefault(typeFrom, name)
-                    : this.ResolveOrDefault(typeFrom, name, dependencyOverrides)
-                : dependencyOverrides == null
-                    ? this.Resolve(typeFrom, name)
-                    : this.Resolve(typeFrom, name, dependencyOverrides);
-
-        /// <inheritdoc />
         public object Resolve(Type typeFrom)
         {
             this.ThrowIfDisposed();
@@ -144,12 +124,34 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
+        public IEnumerable<TKey> ResolveAll<TKey>(object name)
+        {
+            this.ThrowIfDisposed();
+
+            var type = typeof(IEnumerable<TKey>);
+            var cachedFactory = this.DelegateCache.ServiceDelegates.GetOrDefaultByRef(name);
+            if (cachedFactory != null)
+                return (IEnumerable<TKey>)cachedFactory(this, RequestContext.Empty);
+
+            return (IEnumerable<TKey>)(this.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByRef(name)?.Invoke(this, RequestContext.Begin()) ??
+                this.BuildAndResolveService(type, name: name, dependencyOverrides: null));
+        }
+
+        /// <inheritdoc />
         public IEnumerable<TKey> ResolveAll<TKey>(object[] dependencyOverrides)
         {
             this.ThrowIfDisposed();
 
             var type = typeof(IEnumerable<TKey>);
             return (IEnumerable<TKey>)this.BuildAndResolveService(type, name: null, dependencyOverrides: dependencyOverrides);
+        }
+
+        /// <inheritdoc />
+        public IEnumerable<TKey> ResolveAll<TKey>(object name, object[] dependencyOverrides)
+        {
+            this.ThrowIfDisposed();
+
+            return (IEnumerable<TKey>)this.BuildAndResolveService(typeof(IEnumerable<TKey>), name: name, dependencyOverrides: dependencyOverrides);
         }
 
         /// <inheritdoc />
@@ -167,12 +169,35 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
+        public IEnumerable<object> ResolveAll(Type typeFrom, object name)
+        {
+            this.ThrowIfDisposed();
+
+            var type = typeof(IEnumerable<>).MakeGenericType(typeFrom);
+            var cachedFactory = this.DelegateCache.ServiceDelegates.GetOrDefaultByRef(name);
+            if (cachedFactory != null)
+                return (IEnumerable<object>)cachedFactory(this, RequestContext.Empty);
+
+            return (IEnumerable<object>)(this.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByRef(name)?.Invoke(this, RequestContext.Begin()) ??
+                this.BuildAndResolveService(type, name: name, dependencyOverrides: null));
+        }
+
+        /// <inheritdoc />
         public IEnumerable<object> ResolveAll(Type typeFrom, object[] dependencyOverrides)
         {
             this.ThrowIfDisposed();
 
             var type = typeof(IEnumerable<>).MakeGenericType(typeFrom);
             return (IEnumerable<object>)this.BuildAndResolveService(type, name: null, dependencyOverrides: dependencyOverrides);
+        }
+
+        /// <inheritdoc />
+        public IEnumerable<object> ResolveAll(Type typeFrom, object name, object[] dependencyOverrides)
+        {
+            this.ThrowIfDisposed();
+
+            return (IEnumerable<object>)this.BuildAndResolveService(typeof(IEnumerable<>).MakeGenericType(typeFrom),
+                name: name, dependencyOverrides: dependencyOverrides);
         }
 
         /// <inheritdoc />

@@ -12,7 +12,7 @@ namespace Stashbox
             where TTo : class, TFrom
         {
             this.ThrowIfDisposed();
-            var registrationConfigurator = new RegistrationConfigurator<TFrom, TTo>(typeof(TFrom), typeof(TTo));
+            var registrationConfigurator = new RegistrationConfigurator<TFrom, TTo>(typeof(TFrom), typeof(TTo), this.containerConfigurator.ContainerConfiguration.DefaultLifetime);
             configurator?.Invoke(registrationConfigurator);
             return this.ReMapInternal(registrationConfigurator);
         }
@@ -23,7 +23,7 @@ namespace Stashbox
         {
             this.ThrowIfDisposed();
 
-            var registrationConfigurator = new RegistrationConfigurator<TFrom, TFrom>(typeof(TFrom), typeTo);
+            var registrationConfigurator = new RegistrationConfigurator<TFrom, TFrom>(typeof(TFrom), typeTo, this.containerConfigurator.ContainerConfiguration.DefaultLifetime);
             configurator?.Invoke(registrationConfigurator);
 
             registrationConfigurator.ValidateTypeMap();
@@ -36,7 +36,7 @@ namespace Stashbox
         {
             this.ThrowIfDisposed();
 
-            var registrationConfigurator = new RegistrationConfigurator(typeFrom, typeTo);
+            var registrationConfigurator = new RegistrationConfigurator(typeFrom, typeTo, this.containerConfigurator.ContainerConfiguration.DefaultLifetime);
             configurator?.Invoke(registrationConfigurator);
 
             registrationConfigurator.ValidateTypeMap();
@@ -50,7 +50,7 @@ namespace Stashbox
         {
             this.ThrowIfDisposed();
             var type = typeof(TTo);
-            var registrationConfigurator = new RegistrationConfigurator<TTo, TTo>(type, type);
+            var registrationConfigurator = new RegistrationConfigurator<TTo, TTo>(type, type, this.containerConfigurator.ContainerConfiguration.DefaultLifetime);
             configurator?.Invoke(registrationConfigurator);
 
             registrationConfigurator.ValidateImplementationIsResolvable();
@@ -68,7 +68,7 @@ namespace Stashbox
 
             decoratorConfigurator.ValidateTypeMap();
 
-            return this.ReMapInternal(decoratorConfigurator, true);
+            return this.ReMapInternal(decoratorConfigurator);
         }
 
         /// <inheritdoc />
@@ -79,7 +79,7 @@ namespace Stashbox
             this.ThrowIfDisposed();
             var decoratorConfigurator = new DecoratorConfigurator<TFrom, TTo>(typeof(TFrom), typeof(TTo));
             configurator?.Invoke(decoratorConfigurator);
-            return this.ReMapInternal(decoratorConfigurator, true);
+            return this.ReMapInternal(decoratorConfigurator);
         }
 
         /// <inheritdoc />
@@ -93,16 +93,14 @@ namespace Stashbox
 
             decoratorConfigurator.ValidateTypeMap();
 
-            return this.ReMapInternal(decoratorConfigurator, true);
+            return this.ReMapInternal(decoratorConfigurator);
         }
 
-        private IStashboxContainer ReMapInternal(RegistrationConfiguration registrationConfiguration,
-            bool isDecorator = false)
+        private IStashboxContainer ReMapInternal(RegistrationConfiguration registrationConfiguration)
         {
             ServiceRegistrator.ReMap(
                 this.ContainerContext,
-                RegistrationBuilder.BuildServiceRegistration(this.ContainerContext,
-                    registrationConfiguration, isDecorator),
+                registrationConfiguration.Registration,
                 registrationConfiguration.ServiceType);
 
             return this;

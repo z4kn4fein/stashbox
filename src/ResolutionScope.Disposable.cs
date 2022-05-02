@@ -65,7 +65,6 @@ namespace Stashbox
 
             this.CallFinalizers();
             this.CallDisposes();
-            this.ReleaseRuntimeCircularDependencyBarriers();
         }
 
 #if HAS_ASYNC_DISPOSABLE
@@ -77,7 +76,6 @@ namespace Stashbox
 
             this.CallFinalizers();
             await CallAsyncDisposes().ConfigureAwait(false);
-            this.ReleaseRuntimeCircularDependencyBarriers();
 
             async ValueTask CallAsyncDisposes()
             {
@@ -120,15 +118,6 @@ namespace Stashbox
                 disposable.Dispose();
                 root = root.Next;
             }
-        }
-
-        private void ReleaseRuntimeCircularDependencyBarriers()
-        {
-            if (this.circularDependencyBarrier.IsEmpty)
-                return;
-
-            foreach (var threadLocal in this.circularDependencyBarrier.Walk())
-                threadLocal.Value.Dispose();
         }
 
         private void ThrowIfDisposed([CallerMemberName] string caller = "<unknown>")

@@ -74,7 +74,7 @@ namespace Stashbox.Tests
         public void FuncTests_Resolve_Null()
         {
             var container = new StashboxContainer();
-            var inst = container.Resolve<Func<ITest>>(nullResultAllowed: true);
+            var inst = container.ResolveOrDefault<Func<ITest>>();
 
             Assert.Null(inst);
         }
@@ -95,7 +95,7 @@ namespace Stashbox.Tests
         public void FuncTests_Resolve_Lazy_Null()
         {
             var container = new StashboxContainer();
-            var inst = container.Resolve<Func<Lazy<ITest>>>(nullResultAllowed: true);
+            var inst = container.ResolveOrDefault<Func<Lazy<ITest>>>();
 
             Assert.Null(inst);
         }
@@ -139,7 +139,7 @@ namespace Stashbox.Tests
         {
             var container = new StashboxContainer();
             container.Register<Test2>();
-            var inst = container.Resolve<Test2>(nullResultAllowed: true);
+            var inst = container.ResolveOrDefault<Test2>();
 
             Assert.Null(inst);
         }

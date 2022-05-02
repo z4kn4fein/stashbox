@@ -1,25 +1,26 @@
-﻿using Stashbox.Resolution;
+﻿using Stashbox.Lifetime;
+using Stashbox.Registration.ServiceRegistrations;
+using Stashbox.Resolution;
 
 namespace Stashbox.Registration.SelectionRules
 {
     internal class ScopeNameRule : IRegistrationSelectionRule
     {
         public bool IsValidForCurrentRequest(TypeInformation typeInformation,
-            ServiceRegistration registration, ResolutionContext resolutionContext)
+            ServiceRegistration registration, ResolutionContext resolutionContext, out bool shouldIncrementWeight)
         {
-            if (resolutionContext.ScopeNames.Length == 0 && registration.HasScopeName)
+            if (registration.Lifetime is not NamedScopeLifetime namedScopeLifetime)
+            {
+                shouldIncrementWeight = false;
+                return true;
+            }
+
+            shouldIncrementWeight = false;
+            if (resolutionContext.ScopeNames.Length == 0)
                 return false;
 
-            return resolutionContext.ScopeNames.Length == 0 ||
-                !registration.HasScopeName ||
-                (registration.NamedScopeRestrictionIdentifier != null &&
-                resolutionContext.ScopeNames.Contains(registration.NamedScopeRestrictionIdentifier));
+            shouldIncrementWeight = resolutionContext.ScopeNames.First() == namedScopeLifetime.ScopeName;
+            return resolutionContext.ScopeNames.Contains(namedScopeLifetime.ScopeName);
         }
-
-        public bool ShouldIncrementWeight(TypeInformation typeInformation,
-            ServiceRegistration registration, ResolutionContext resolutionContext) =>
-            resolutionContext.ScopeNames.Length != 0 &&
-            registration.HasScopeName &&
-            resolutionContext.ScopeNames.First() == registration.NamedScopeRestrictionIdentifier;
     }
 }

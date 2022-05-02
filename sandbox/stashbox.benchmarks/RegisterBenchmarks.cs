@@ -16,15 +16,17 @@ namespace Stashbox.Benchmarks
         [Benchmark(Baseline = true)]
         public object Old()
         {
-            return this.oldContainer.Register<A>();
+            return this.oldContainer.Register<A>().Register<B>();
         }
 
         [Benchmark]
         public object New()
         {
-            return this.newContainer.Register<A>();
+            return this.newContainer.Register<A>().Register<B>();
         }
 
         class A { }
+
+        class B { }
     }
 }

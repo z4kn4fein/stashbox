@@ -67,12 +67,13 @@ namespace Stashbox.Tests.IssueTests
                     .TreatParameterAndMemberNameAsDependencyName()
                     .WithNamedDependencyResolutionForUnNamedRequests())
                 .Register<Test3>()
-                .Register<ITest, Test1>("t1");
+                .Register<ITest, Test1>("t1")
+                .Register<ITest, Test2>();
 
             var inst = container.Resolve<Test3>();
 
             Assert.IsType<Test1>(inst.T1);
-            Assert.IsType<Test1>(inst.T2);
+            Assert.IsType<Test2>(inst.T2);
         }
 
         [Fact]
