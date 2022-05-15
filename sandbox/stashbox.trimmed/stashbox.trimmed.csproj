@@ -14,7 +14,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\stashbox.csproj" />
-    <TrimmerRootAssembly Include="Stashbox.Trimmed" />
   </ItemGroup>
 
 </Project>
