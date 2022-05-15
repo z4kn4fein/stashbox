@@ -251,16 +251,6 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public IStashboxContainer RegisterDecorator<TFrom, TTo>()
-            where TFrom : class
-            where TTo : class, TFrom
-        {
-            this.ThrowIfDisposed();
-
-            return this.RegisterInternal(typeof(TFrom), typeof(TTo), lifetime: Lifetimes.Empty, isDecorator: true);
-        }
-
-        /// <inheritdoc />
         public IStashboxContainer RegisterDecorator<TFrom, TTo>(Action<DecoratorConfigurator<TFrom, TTo>>? configurator = null)
             where TFrom : class
             where TTo : class, TFrom
