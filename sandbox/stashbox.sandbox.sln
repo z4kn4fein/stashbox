@@ -1,14 +1,16 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28010.2003
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32421.90
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Stashbox.Benchmarks", "stashbox.benchmarks\Stashbox.Benchmarks.csproj", "{AF205E54-7B55-436A-81DB-5B010B7E9CD6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "stashbox.benchmarks", "stashbox.benchmarks\stashbox.benchmarks.csproj", "{AF205E54-7B55-436A-81DB-5B010B7E9CD6}"
 	ProjectSection(ProjectDependencies) = postProject
 		{FB1985B6-E9A5-4662-89D7-87BEF62D94FB} = {FB1985B6-E9A5-4662-89D7-87BEF62D94FB}
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "stashbox", "..\src\stashbox.csproj", "{FB1985B6-E9A5-4662-89D7-87BEF62D94FB}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "stashbox.trimmed", "stashbox.trimmed\stashbox.trimmed.csproj", "{DFC8FD7D-E4DF-49D8-ACA3-517144EC1D34}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,6 +31,12 @@ Global
 		{FB1985B6-E9A5-4662-89D7-87BEF62D94FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FB1985B6-E9A5-4662-89D7-87BEF62D94FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FB1985B6-E9A5-4662-89D7-87BEF62D94FB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DFC8FD7D-E4DF-49D8-ACA3-517144EC1D34}.Benchmark|Any CPU.ActiveCfg = Debug|Any CPU
+		{DFC8FD7D-E4DF-49D8-ACA3-517144EC1D34}.Benchmark|Any CPU.Build.0 = Debug|Any CPU
+		{DFC8FD7D-E4DF-49D8-ACA3-517144EC1D34}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DFC8FD7D-E4DF-49D8-ACA3-517144EC1D34}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DFC8FD7D-E4DF-49D8-ACA3-517144EC1D34}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DFC8FD7D-E4DF-49D8-ACA3-517144EC1D34}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

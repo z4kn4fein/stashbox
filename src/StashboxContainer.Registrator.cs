@@ -10,16 +10,6 @@ namespace Stashbox
     public partial class StashboxContainer
     {
         /// <inheritdoc />
-        public IStashboxContainer Register<TFrom, TTo>()
-            where TFrom : class
-            where TTo : class, TFrom
-        {
-            this.ThrowIfDisposed();
-
-            return this.RegisterInternal(typeof(TFrom), typeof(TTo));
-        }
-
-        /// <inheritdoc />
         public IStashboxContainer Register<TFrom, TTo>(Action<RegistrationConfigurator<TFrom, TTo>> configurator)
             where TFrom : class
             where TTo : class, TFrom
@@ -32,7 +22,7 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public IStashboxContainer Register<TFrom, TTo>(object name)
+        public IStashboxContainer Register<TFrom, TTo>(object? name = null)
             where TFrom : class
             where TTo : class, TFrom
         {
@@ -42,7 +32,7 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public IStashboxContainer Register<TFrom>(Type typeTo)
+        public IStashboxContainer Register<TFrom>(Type typeTo, Action<RegistrationConfigurator<TFrom, TFrom>>? configurator = null)
             where TFrom : class
         {
             this.ThrowIfDisposed();
@@ -50,19 +40,13 @@ namespace Stashbox
 
             var typeFrom = typeof(TFrom);
 
-            Shield.EnsureTypeMapIsValid(typeFrom, typeTo);
+            if (configurator == null)
+            {
+                Shield.EnsureTypeMapIsValid(typeFrom, typeTo);
+                return this.RegisterInternal(typeFrom, typeTo);
+            }
 
-            return this.RegisterInternal(typeof(TFrom), typeTo);
-        }
-
-        /// <inheritdoc />
-        public IStashboxContainer Register<TFrom>(Type typeTo, Action<RegistrationConfigurator<TFrom, TFrom>> configurator)
-            where TFrom : class
-        {
-            this.ThrowIfDisposed();
-            Shield.EnsureNotNull(typeTo, nameof(typeTo));
-
-            var registrationConfigurator = new RegistrationConfigurator<TFrom, TFrom>(typeof(TFrom), typeTo, this.containerConfigurator.ContainerConfiguration.DefaultLifetime);
+            var registrationConfigurator = new RegistrationConfigurator<TFrom, TFrom>(typeFrom, typeTo, this.containerConfigurator.ContainerConfiguration.DefaultLifetime);
             configurator(registrationConfigurator);
 
             registrationConfigurator.ValidateTypeMap();
@@ -70,41 +54,23 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public IStashboxContainer Register(Type typeFrom, Type typeTo)
+        public IStashboxContainer Register(Type typeFrom, Type typeTo, Action<RegistrationConfigurator>? configurator = null)
         {
             this.ThrowIfDisposed();
             Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
             Shield.EnsureNotNull(typeTo, nameof(typeTo));
-            Shield.EnsureTypeMapIsValid(typeFrom, typeTo);
 
-            return this.RegisterInternal(typeFrom, typeTo);
-        }
-
-        /// <inheritdoc />
-        public IStashboxContainer Register(Type typeFrom, Type typeTo, Action<RegistrationConfigurator> configurator)
-        {
-            this.ThrowIfDisposed();
-            Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
-            Shield.EnsureNotNull(typeTo, nameof(typeTo));
+            if (configurator == null)
+            {
+                Shield.EnsureTypeMapIsValid(typeFrom, typeTo);
+                return this.RegisterInternal(typeFrom, typeTo);
+            }
 
             var registrationConfigurator = new RegistrationConfigurator(typeFrom, typeTo, this.containerConfigurator.ContainerConfiguration.DefaultLifetime);
             configurator(registrationConfigurator);
 
             registrationConfigurator.ValidateTypeMap();
-
             return this.RegisterInternal(registrationConfigurator);
-        }
-
-        /// <inheritdoc />
-        public IStashboxContainer Register<TTo>()
-            where TTo : class
-        {
-            this.ThrowIfDisposed();
-
-            var type = typeof(TTo);
-            Shield.EnsureIsResolvable(type);
-
-            return this.RegisterInternal(type, type);
         }
 
         /// <inheritdoc />
@@ -118,25 +84,32 @@ namespace Stashbox
             configurator(registrationConfigurator);
 
             registrationConfigurator.ValidateImplementationIsResolvable();
-
             return this.RegisterInternal(registrationConfigurator);
         }
 
         /// <inheritdoc />
-        public IStashboxContainer Register(Type typeTo)
+        public IStashboxContainer Register<TTo>(object? name = null)
+            where TTo : class
         {
             this.ThrowIfDisposed();
-            Shield.EnsureNotNull(typeTo, nameof(typeTo));
-            Shield.EnsureIsResolvable(typeTo);
 
-            return this.RegisterInternal(typeTo, typeTo);
+            var type = typeof(TTo);
+            Shield.EnsureIsResolvable(type);
+
+            return this.RegisterInternal(type, type, name);
         }
 
         /// <inheritdoc />
-        public IStashboxContainer Register(Type typeTo, Action<RegistrationConfigurator> configurator)
+        public IStashboxContainer Register(Type typeTo, Action<RegistrationConfigurator>? configurator = null)
         {
             this.ThrowIfDisposed();
             Shield.EnsureNotNull(typeTo, nameof(typeTo));
+
+            if (configurator == null)
+            {
+                Shield.EnsureIsResolvable(typeTo);
+                return this.RegisterInternal(typeTo, typeTo);
+            }
 
             var registrationConfigurator = new RegistrationConfigurator(typeTo, typeTo, this.containerConfigurator.ContainerConfiguration.DefaultLifetime);
             configurator(registrationConfigurator);
@@ -147,17 +120,7 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public IStashboxContainer RegisterSingleton<TFrom, TTo>()
-            where TFrom : class
-            where TTo : class, TFrom
-        {
-            this.ThrowIfDisposed();
-
-            return this.RegisterInternal(typeof(TFrom), typeof(TTo), lifetime: Lifetimes.Singleton);
-        }
-
-        /// <inheritdoc />
-        public IStashboxContainer RegisterSingleton<TFrom, TTo>(object name)
+        public IStashboxContainer RegisterSingleton<TFrom, TTo>(object? name = null)
             where TFrom : class
             where TTo : class, TFrom
         {
@@ -167,19 +130,7 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public IStashboxContainer RegisterSingleton<TTo>()
-            where TTo : class
-        {
-            this.ThrowIfDisposed();
-
-            var type = typeof(TTo);
-            Shield.EnsureIsResolvable(type);
-
-            return this.RegisterInternal(type, type, lifetime: Lifetimes.Singleton);
-        }
-
-        /// <inheritdoc />
-        public IStashboxContainer RegisterSingleton<TTo>(object name)
+        public IStashboxContainer RegisterSingleton<TTo>(object? name = null)
             where TTo : class
         {
             this.ThrowIfDisposed();
@@ -191,18 +142,7 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public IStashboxContainer RegisterSingleton(Type typeFrom, Type typeTo)
-        {
-            this.ThrowIfDisposed();
-            Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
-            Shield.EnsureNotNull(typeTo, nameof(typeTo));
-            Shield.EnsureTypeMapIsValid(typeFrom, typeTo);
-
-            return this.RegisterInternal(typeFrom, typeTo, lifetime: Lifetimes.Singleton);
-        }
-
-        /// <inheritdoc />
-        public IStashboxContainer RegisterSingleton(Type typeFrom, Type typeTo, object name)
+        public IStashboxContainer RegisterSingleton(Type typeFrom, Type typeTo, object? name = null)
         {
             this.ThrowIfDisposed();
             Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
@@ -213,17 +153,7 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public IStashboxContainer RegisterScoped<TFrom, TTo>()
-            where TFrom : class
-            where TTo : class, TFrom
-        {
-            this.ThrowIfDisposed();
-
-            return this.RegisterInternal(typeof(TFrom), typeof(TTo), lifetime: Lifetimes.Scoped);
-        }
-
-        /// <inheritdoc />
-        public IStashboxContainer RegisterScoped<TFrom, TTo>(object name)
+        public IStashboxContainer RegisterScoped<TFrom, TTo>(object? name = null)
             where TFrom : class
             where TTo : class, TFrom
         {
@@ -233,18 +163,7 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public IStashboxContainer RegisterScoped(Type typeFrom, Type typeTo)
-        {
-            this.ThrowIfDisposed();
-            Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
-            Shield.EnsureNotNull(typeTo, nameof(typeTo));
-            Shield.EnsureTypeMapIsValid(typeFrom, typeTo);
-
-            return this.RegisterInternal(typeFrom, typeTo, lifetime: Lifetimes.Scoped);
-        }
-
-        /// <inheritdoc />
-        public IStashboxContainer RegisterScoped(Type typeFrom, Type typeTo, object name)
+        public IStashboxContainer RegisterScoped(Type typeFrom, Type typeTo, object? name = null)
         {
             this.ThrowIfDisposed();
             Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
@@ -255,19 +174,7 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public IStashboxContainer RegisterScoped<TTo>()
-            where TTo : class
-        {
-            this.ThrowIfDisposed();
-
-            var type = typeof(TTo);
-            Shield.EnsureIsResolvable(type);
-
-            return this.RegisterInternal(type, type, lifetime: Lifetimes.Scoped);
-        }
-
-        /// <inheritdoc />
-        public IStashboxContainer RegisterScoped<TTo>(object name)
+        public IStashboxContainer RegisterScoped<TTo>(object? name = null)
             where TTo : class
         {
             this.ThrowIfDisposed();
@@ -323,22 +230,17 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public IStashboxContainer RegisterDecorator(Type typeFrom, Type typeTo)
+        public IStashboxContainer RegisterDecorator(Type typeFrom, Type typeTo, Action<DecoratorConfigurator>? configurator = null)
         {
             this.ThrowIfDisposed();
             Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
             Shield.EnsureNotNull(typeTo, nameof(typeTo));
-            Shield.EnsureTypeMapIsValid(typeFrom, typeTo);
 
-            return this.RegisterInternal(typeFrom, typeTo, lifetime: Lifetimes.Empty, isDecorator: true);
-        }
-
-        /// <inheritdoc />
-        public IStashboxContainer RegisterDecorator(Type typeFrom, Type typeTo, Action<DecoratorConfigurator> configurator)
-        {
-            this.ThrowIfDisposed();
-            Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
-            Shield.EnsureNotNull(typeTo, nameof(typeTo));
+            if (configurator == null)
+            {
+                Shield.EnsureTypeMapIsValid(typeFrom, typeTo);
+                return this.RegisterInternal(typeFrom, typeTo, lifetime: Lifetimes.Empty, isDecorator: true);
+            }
 
             var decoratorConfigurator = new DecoratorConfigurator(typeFrom, typeTo);
             configurator(decoratorConfigurator);
@@ -359,11 +261,13 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public IStashboxContainer RegisterDecorator<TFrom, TTo>(Action<DecoratorConfigurator<TFrom, TTo>> configurator)
+        public IStashboxContainer RegisterDecorator<TFrom, TTo>(Action<DecoratorConfigurator<TFrom, TTo>>? configurator = null)
             where TFrom : class
             where TTo : class, TFrom
         {
             this.ThrowIfDisposed();
+
+            if (configurator == null) return this.RegisterInternal(typeof(TFrom), typeof(TTo), lifetime: Lifetimes.Empty, isDecorator: true);
 
             var decoratorConfigurator = new DecoratorConfigurator<TFrom, TTo>(typeof(TFrom), typeof(TTo));
             configurator(decoratorConfigurator);
@@ -371,12 +275,13 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public IStashboxContainer RegisterDecorator(Type typeTo)
+        public IStashboxContainer RegisterDecorator(Type typeTo, Action<DecoratorConfigurator>? configurator = null)
         {
             this.ThrowIfDisposed();
             Shield.EnsureNotNull(typeTo, nameof(typeTo));
 
             var decoratorConfigurator = new DecoratorConfigurator(typeTo, typeTo);
+            configurator?.Invoke(decoratorConfigurator);
             decoratorConfigurator
                 .AsImplementedTypes()
                 .ValidateTypeMap();
@@ -385,29 +290,14 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public IStashboxContainer RegisterDecorator(Type typeTo, Action<DecoratorConfigurator> configurator)
-        {
-            this.ThrowIfDisposed();
-            Shield.EnsureNotNull(typeTo, nameof(typeTo));
-
-            var decoratorConfigurator = new DecoratorConfigurator(typeTo, typeTo);
-            configurator(decoratorConfigurator);
-            decoratorConfigurator
-                .AsImplementedTypes()
-                .ValidateTypeMap();
-
-            return this.RegisterInternal(decoratorConfigurator);
-        }
-
-        /// <inheritdoc />
-        public IStashboxContainer RegisterDecorator<TTo>()
+        public IStashboxContainer RegisterDecorator<TTo>(Action<DecoratorConfigurator<TTo, TTo>>? configurator = null)
             where TTo : class
         {
             this.ThrowIfDisposed();
-
             var type = typeof(TTo);
 
             var decoratorConfigurator = new DecoratorConfigurator<TTo, TTo>(type, type);
+            configurator?.Invoke(decoratorConfigurator);
             decoratorConfigurator
                 .AsImplementedTypes()
                 .ValidateImplementationIsResolvable();
@@ -416,23 +306,7 @@ namespace Stashbox
         }
 
         /// <inheritdoc />
-        public IStashboxContainer RegisterDecorator<TTo>(Action<DecoratorConfigurator<TTo, TTo>> configurator)
-            where TTo : class
-        {
-            this.ThrowIfDisposed();
-            var type = typeof(TTo);
-
-            var decoratorConfigurator = new DecoratorConfigurator<TTo, TTo>(type, type);
-            configurator(decoratorConfigurator);
-            decoratorConfigurator
-                .AsImplementedTypes()
-                .ValidateImplementationIsResolvable();
-
-            return this.RegisterInternal(decoratorConfigurator);
-        }
-
-        /// <inheritdoc />
-        public IStashboxContainer RegisterDecorator<TFrom>(Type typeTo)
+        public IStashboxContainer RegisterDecorator<TFrom>(Type typeTo, Action<DecoratorConfigurator<TFrom, TFrom>>? configurator = null)
             where TFrom : class
         {
             this.ThrowIfDisposed();
@@ -440,17 +314,11 @@ namespace Stashbox
 
             var typeFrom = typeof(TFrom);
 
-            Shield.EnsureTypeMapIsValid(typeFrom, typeTo);
-
-            return this.RegisterInternal(typeFrom, typeTo, lifetime: Lifetimes.Empty, isDecorator: true);
-        }
-
-        /// <inheritdoc />
-        public IStashboxContainer RegisterDecorator<TFrom>(Type typeTo, Action<DecoratorConfigurator<TFrom, TFrom>> configurator)
-            where TFrom : class
-        {
-            this.ThrowIfDisposed();
-            Shield.EnsureNotNull(typeTo, nameof(typeTo));
+            if (configurator == null)
+            {
+                Shield.EnsureTypeMapIsValid(typeFrom, typeTo);
+                return this.RegisterInternal(typeFrom, typeTo, lifetime: Lifetimes.Empty, isDecorator: true);
+            }
 
             var decoratorConfigurator = new DecoratorConfigurator<TFrom, TFrom>(typeof(TFrom), typeTo);
             configurator(decoratorConfigurator);

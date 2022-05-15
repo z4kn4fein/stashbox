@@ -16,9 +16,9 @@ namespace Stashbox.Benchmarks
         [GlobalSetup]
         public void Setup()
         {
-            this.oldContainer.Register<A>(c => c.WithFinalizer(a => a.Finalize()).WithScopedLifetime());
+            this.oldContainer.Register<A>(c => c.WithFinalizer(a => a.FinalizeA()).WithScopedLifetime());
 
-            this.newContainer.Register<A>(c => c.WithFinalizer(a => a.Finalize()).WithScopedLifetime());
+            this.newContainer.Register<A>(c => c.WithFinalizer(a => a.FinalizeA()).WithScopedLifetime());
         }
 
         [Benchmark(Baseline = true)]
@@ -57,7 +57,7 @@ namespace Stashbox.Benchmarks
         {
             private bool isFinalized;
 
-            public void Finalize()
+            public void FinalizeA()
             {
                 this.isFinalized = true;
             }

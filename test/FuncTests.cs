@@ -415,7 +415,7 @@ namespace Stashbox.Tests
         {
             var container = new StashboxContainer();
 
-            Parallel.For(0, 5000, i =>
+            Parallel.For(0, 2000, i =>
              {
                  container.RegisterFunc<ITest>(resolver => new Test(), i.ToString());
 

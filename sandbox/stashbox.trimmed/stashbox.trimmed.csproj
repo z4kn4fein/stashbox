@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <PublishTrimmed>true</PublishTrimmed>
+    <TrimmerDefaultAction>link</TrimmerDefaultAction>
+    <PublishSingleFile>true</PublishSingleFile>
+    <AssemblyName>Stashbox.Trimmed</AssemblyName>
+    <RootNamespace>Stashbox.Trimmed</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\stashbox.csproj" />
+    <TrimmerRootAssembly Include="Stashbox.Trimmed" />
+  </ItemGroup>
+
+</Project>

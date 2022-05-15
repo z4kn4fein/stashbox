@@ -14,29 +14,18 @@ namespace Stashbox
         /// <typeparam name="TFrom">The service type.</typeparam>
         /// <typeparam name="TTo">The implementation type.</typeparam>
         /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
-        IStashboxContainer Register<TFrom, TTo>()
-            where TFrom : class
-            where TTo : class, TFrom;
-
-        /// <summary>
-        /// Registers a service into the container with custom configuration.
-        /// </summary>
-        /// <typeparam name="TFrom">The service type.</typeparam>
-        /// <typeparam name="TTo">The implementation type.</typeparam>
-        /// <param name="configurator">The configurator for the registered types.</param>
-        /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
         IStashboxContainer Register<TFrom, TTo>(Action<RegistrationConfigurator<TFrom, TTo>> configurator)
             where TFrom : class
             where TTo : class, TFrom;
 
         /// <summary>
-        /// Registers a service with a name.
+        /// Registers a service into the container with a name.
         /// </summary>
         /// <typeparam name="TFrom">The service type.</typeparam>
         /// <typeparam name="TTo">The implementation type.</typeparam>
         /// <param name="name">The name of the registration.</param>
         /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
-        IStashboxContainer Register<TFrom, TTo>(object name)
+        IStashboxContainer Register<TFrom, TTo>(object? name = null)
             where TFrom : class
             where TTo : class, TFrom;
 
@@ -45,18 +34,9 @@ namespace Stashbox
         /// </summary>
         /// <typeparam name="TFrom">The service type.</typeparam>
         /// <param name="typeTo">The implementation type.</param>
-        /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
-        IStashboxContainer Register<TFrom>(Type typeTo)
-            where TFrom : class;
-
-        /// <summary>
-        /// Registers a service into the container with custom configuration.
-        /// </summary>
-        /// <typeparam name="TFrom">The service type.</typeparam>
-        /// <param name="typeTo">The implementation type.</param>
         /// <param name="configurator">The configurator for the registered types.</param>
         /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
-        IStashboxContainer Register<TFrom>(Type typeTo, Action<RegistrationConfigurator<TFrom, TFrom>> configurator)
+        IStashboxContainer Register<TFrom>(Type typeTo, Action<RegistrationConfigurator<TFrom, TFrom>>? configurator = null)
             where TFrom : class;
 
         /// <summary>
@@ -64,28 +44,12 @@ namespace Stashbox
         /// </summary>
         /// <param name="typeFrom">The service type.</param>
         /// <param name="typeTo">The implementation type.</param>
-        /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
-        IStashboxContainer Register(Type typeFrom, Type typeTo);
-
-        /// <summary>
-        /// Registers a service into the container with custom configuration.
-        /// </summary>
-        /// <param name="typeFrom">The service type.</param>
-        /// <param name="typeTo">The implementation type.</param>
         /// <param name="configurator">The configurator for the registered types.</param>
         /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
-        IStashboxContainer Register(Type typeFrom, Type typeTo, Action<RegistrationConfigurator> configurator);
+        IStashboxContainer Register(Type typeFrom, Type typeTo, Action<RegistrationConfigurator>? configurator = null);
 
         /// <summary>
         /// Registers a service into the container.
-        /// </summary>
-        /// <typeparam name="TTo">The service/implementation type.</typeparam>
-        /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
-        IStashboxContainer Register<TTo>()
-             where TTo : class;
-
-        /// <summary>
-        /// Registers a service into the container with custom configuration.
         /// </summary>
         /// <typeparam name="TTo">The service/implementation type.</typeparam>
         /// <param name="configurator">The configurator for the registered types.</param>
@@ -96,27 +60,19 @@ namespace Stashbox
         /// <summary>
         /// Registers a service into the container.
         /// </summary>
-        /// <param name="typeTo">The service/implementation type.</param>
+        /// <typeparam name="TTo">The service/implementation type.</typeparam>
+        /// <param name="name">The name of the registration.</param>
         /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
-        IStashboxContainer Register(Type typeTo);
+        IStashboxContainer Register<TTo>(object? name = null)
+             where TTo : class;
 
         /// <summary>
-        /// Registers a service into the container with custom configuration.
+        /// Registers a service into the container.
         /// </summary>
         /// <param name="typeTo">The service/implementation type.</param>
         /// <param name="configurator">The configurator for the registered types.</param>
         /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
-        IStashboxContainer Register(Type typeTo, Action<RegistrationConfigurator> configurator);
-
-        /// <summary>
-        /// Registers a service with singleton lifetime.
-        /// </summary>
-        /// <typeparam name="TFrom">The service type.</typeparam>
-        /// <typeparam name="TTo">The implementation type.</typeparam>
-        /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
-        IStashboxContainer RegisterSingleton<TFrom, TTo>()
-            where TFrom : class
-            where TTo : class, TFrom;
+        IStashboxContainer Register(Type typeTo, Action<RegistrationConfigurator>? configurator = null);
 
         /// <summary>
         /// Registers a named service with singleton lifetime.
@@ -125,17 +81,9 @@ namespace Stashbox
         /// <typeparam name="TTo">The implementation type.</typeparam>
         /// <param name="name">The name of the registration.</param>
         /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
-        IStashboxContainer RegisterSingleton<TFrom, TTo>(object name)
+        IStashboxContainer RegisterSingleton<TFrom, TTo>(object? name = null)
             where TFrom : class
             where TTo : class, TFrom;
-
-        /// <summary>
-        /// Registers a service with singleton lifetime.
-        /// </summary>
-        /// <typeparam name="TTo">The service/implementation type.</typeparam>
-        /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
-        IStashboxContainer RegisterSingleton<TTo>()
-            where TTo : class;
 
         /// <summary>
         /// Registers a named service with singleton lifetime.
@@ -143,16 +91,8 @@ namespace Stashbox
         /// <typeparam name="TTo">The service/implementation type.</typeparam>
         /// <param name="name">The name of the registration.</param>
         /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
-        IStashboxContainer RegisterSingleton<TTo>(object name)
+        IStashboxContainer RegisterSingleton<TTo>(object? name = null)
             where TTo : class;
-
-        /// <summary>
-        /// Registers a service with singleton lifetime.
-        /// </summary>
-        /// <param name="typeFrom">The service type.</param>
-        /// <param name="typeTo">The implementation type.</param>
-        /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
-        IStashboxContainer RegisterSingleton(Type typeFrom, Type typeTo);
 
         /// <summary>
         /// Registers a named service with singleton lifetime.
@@ -161,17 +101,7 @@ namespace Stashbox
         /// <param name="typeTo">The implementation type.</param>
         /// <param name="name">The name of the registration.</param>
         /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
-        IStashboxContainer RegisterSingleton(Type typeFrom, Type typeTo, object name);
-
-        /// <summary>
-        /// Registers a service with scoped lifetime.
-        /// </summary>
-        /// <typeparam name="TFrom">The service type.</typeparam>
-        /// <typeparam name="TTo">The implementation type.</typeparam>
-        /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
-        IStashboxContainer RegisterScoped<TFrom, TTo>()
-            where TFrom : class
-            where TTo : class, TFrom;
+        IStashboxContainer RegisterSingleton(Type typeFrom, Type typeTo, object? name = null);
 
         /// <summary>
         /// Registers a named service with scoped lifetime.
@@ -180,34 +110,18 @@ namespace Stashbox
         /// <typeparam name="TTo">The implementation type.</typeparam>
         /// <param name="name">The name of the registration.</param>
         /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
-        IStashboxContainer RegisterScoped<TFrom, TTo>(object name)
+        IStashboxContainer RegisterScoped<TFrom, TTo>(object? name = null)
             where TFrom : class
             where TTo : class, TFrom;
 
         /// <summary>
-        /// Registers a service with scoped lifetime.
-        /// </summary>
-        /// <param name="typeFrom">The service type.</param>
-        /// <param name="typeTo">The implementation type.</param>
-        /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
-        IStashboxContainer RegisterScoped(Type typeFrom, Type typeTo);
-
-        /// <summary>
         /// Registers a named service with scoped lifetime.
         /// </summary>
         /// <param name="typeFrom">The service type.</param>
         /// <param name="typeTo">The implementation type.</param>
         /// <param name="name">The name of the registration.</param>
         /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
-        IStashboxContainer RegisterScoped(Type typeFrom, Type typeTo, object name);
-
-        /// <summary>
-        /// Registers a service with scoped lifetime.
-        /// </summary>
-        /// <typeparam name="TTo">The implementation type.</typeparam>
-        /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
-        IStashboxContainer RegisterScoped<TTo>()
-            where TTo : class;
+        IStashboxContainer RegisterScoped(Type typeFrom, Type typeTo, object? name = null);
 
         /// <summary>
         /// Registers a named service with scoped lifetime.
@@ -215,7 +129,7 @@ namespace Stashbox
         /// <typeparam name="TTo">The implementation type.</typeparam>
         /// <param name="name">The name of the registration.</param>
         /// <returns>The <see cref="IStashboxContainer"/> instance.</returns>
-        IStashboxContainer RegisterScoped<TTo>(object name)
+        IStashboxContainer RegisterScoped<TTo>(object? name = null)
             where TTo : class;
 
         /// <summary>

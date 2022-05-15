@@ -16,7 +16,7 @@ namespace Stashbox.Benchmarks
         [Benchmark(Baseline = true)]
         public object Old()
         {
-            return this.oldContainer.Resolve(typeof(object), nullResultAllowed: true);
+            return this.oldContainer.ResolveOrDefault(typeof(object));
         }
 
         [Benchmark]

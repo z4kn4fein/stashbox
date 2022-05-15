@@ -21,6 +21,17 @@ namespace Stashbox.Tests
         }
 
         [Fact]
+        public void NamedResolveTests_Resolve_ImplType()
+        {
+            using var container = new StashboxContainer()
+                .Register<A>("A")
+                .Register<B>("B");
+
+            Assert.IsType<A>(container.Resolve<A>("A"));
+            Assert.IsType<B>(container.Resolve<B>("B"));
+        }
+
+        [Fact]
         public void NamedResolveTests_Resolve_Throw_On_Same_Name()
         {
             Assert.Throws<ServiceAlreadyRegisteredException>(
