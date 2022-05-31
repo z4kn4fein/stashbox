@@ -362,6 +362,28 @@ namespace Stashbox.Tests
         }
 
         [Fact]
+        public void ContainerTests_Cache_Diag()
+        {
+            using var container = new StashboxContainer()
+            .Register<ITest1, Test1>("t1").Register<ITest1, Test1>().Register<Test1>();
+
+            container.Resolve<ITest1>();
+            container.Resolve<ITest1>("t1");
+            container.Resolve<Test1>();
+
+            var cache = container.GetDelegateCacheEntries().ToArray();
+
+            Assert.Equal(2, cache.Length);
+            Assert.Equal(typeof(ITest1), cache[0].ServiceType);
+            Assert.Equal(typeof(Test1), cache[1].ServiceType);
+            Assert.IsType<Test1>(cache[0].CachedDelegate.Invoke(container.ContainerContext.RootScope, null));
+            Assert.IsType<Test1>(cache[1].CachedDelegate.Invoke(container.ContainerContext.RootScope, null));
+            Assert.Single(cache[0].NamedCacheEntries);
+            Assert.Null(cache[1].NamedCacheEntries);
+            Assert.Equal("t1", cache[0].NamedCacheEntries.First().Name);
+        }
+
+        [Fact]
         public void ContainerTests_Configuration_DuplicatedBehavior_Preserve_Cache_Invalidates()
         {
             using var container = new StashboxContainer(c =>

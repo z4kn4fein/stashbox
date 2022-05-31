@@ -1,16 +1,26 @@
-﻿using Stashbox.Resolution;
-using Stashbox.Utils;
+﻿using Stashbox.Utils;
 using Stashbox.Utils.Data.Immutable;
 using System;
 
-namespace Stashbox
+namespace Stashbox.Resolution
 {
     internal class DelegateCache
     {
-        public ImmutableTree<object, Func<IResolutionScope, IRequestContext, object>> ServiceDelegates =
-            ImmutableTree<object, Func<IResolutionScope, IRequestContext, object>>.Empty;
-        public ImmutableTree<object, Func<IResolutionScope, IRequestContext, object>> RequestContextAwareDelegates =
-            ImmutableTree<object, Func<IResolutionScope, IRequestContext, object>>.Empty;
+        public ImmutableTree<Type, CacheEntry> ServiceDelegates = ImmutableTree<Type, CacheEntry>.Empty;
+        public ImmutableTree<Type, CacheEntry> RequestContextAwareDelegates = ImmutableTree<Type, CacheEntry>.Empty;
+    }
+
+    internal class CacheEntry
+    {
+        public readonly Func<IResolutionScope, IRequestContext, object>? ServiceFactory;
+
+        public readonly ImmutableTree<object, Func<IResolutionScope, IRequestContext, object>>? NamedFactories;
+
+        public CacheEntry(Func<IResolutionScope, IRequestContext, object>? serviceFactory, ImmutableTree<object, Func<IResolutionScope, IRequestContext, object>>? namedFactories)
+        {
+            this.ServiceFactory = serviceFactory;
+            this.NamedFactories = namedFactories;
+        }
     }
 
     internal class DelegateCacheProvider

@@ -17,11 +17,11 @@ namespace Stashbox
         {
             this.ThrowIfDisposed();
 
-            var cachedFactory = this.rootScope.DelegateCache.ServiceDelegates.GetOrDefaultByRef(typeFrom);
+            var cachedFactory = this.rootScope.DelegateCache.ServiceDelegates.GetOrDefaultByRef(typeFrom)?.ServiceFactory;
             if (cachedFactory != null)
                 return cachedFactory(this.rootScope, RequestContext.Empty);
 
-            return this.rootScope.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByRef(typeFrom)?.Invoke(this.rootScope, RequestContext.Begin()) ??
+            return this.rootScope.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByRef(typeFrom)?.ServiceFactory?.Invoke(this.rootScope, RequestContext.Begin()) ??
                 this.rootScope.BuildAndResolveService(typeFrom, name: null, dependencyOverrides: null);
         }
 
@@ -38,11 +38,11 @@ namespace Stashbox
         {
             this.ThrowIfDisposed();
 
-            var cachedFactory = this.rootScope.DelegateCache.ServiceDelegates.GetOrDefaultByValue(name);
+            var cachedFactory = this.rootScope.DelegateCache.ServiceDelegates.GetOrDefaultByRef(typeFrom)?.NamedFactories?.GetOrDefaultByValue(name);
             if (cachedFactory != null)
                 return cachedFactory(this.rootScope, RequestContext.Empty);
 
-            return this.rootScope.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByValue(name)?.Invoke(this.rootScope, RequestContext.Begin()) ??
+            return this.rootScope.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByRef(typeFrom)?.NamedFactories?.GetOrDefaultByValue(name)?.Invoke(this.rootScope, RequestContext.Begin()) ??
                 this.rootScope.BuildAndResolveService(typeFrom, name, dependencyOverrides: null);
         }
 
@@ -59,11 +59,11 @@ namespace Stashbox
         {
             this.ThrowIfDisposed();
 
-            var cachedFactory = this.rootScope.DelegateCache.ServiceDelegates.GetOrDefaultByRef(typeFrom);
+            var cachedFactory = this.rootScope.DelegateCache.ServiceDelegates.GetOrDefaultByRef(typeFrom)?.ServiceFactory;
             if (cachedFactory != null)
                 return cachedFactory(this.rootScope, RequestContext.Empty);
 
-            return this.rootScope.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByRef(typeFrom)?.Invoke(this.rootScope, RequestContext.Begin()) ??
+            return this.rootScope.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByRef(typeFrom)?.ServiceFactory?.Invoke(this.rootScope, RequestContext.Begin()) ??
                 this.rootScope.BuildAndResolveServiceOrDefault(typeFrom, name: null, dependencyOverrides: null);
         }
 
@@ -80,11 +80,11 @@ namespace Stashbox
         {
             this.ThrowIfDisposed();
 
-            var cachedFactory = this.rootScope.DelegateCache.ServiceDelegates.GetOrDefaultByValue(name);
+            var cachedFactory = this.rootScope.DelegateCache.ServiceDelegates.GetOrDefaultByRef(typeFrom)?.NamedFactories?.GetOrDefaultByValue(name);
             if (cachedFactory != null)
                 return cachedFactory(this.rootScope, RequestContext.Empty);
 
-            return this.rootScope.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByValue(name)?.Invoke(this.rootScope, RequestContext.Begin()) ??
+            return this.rootScope.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByRef(typeFrom)?.NamedFactories?.GetOrDefaultByValue(name)?.Invoke(this.rootScope, RequestContext.Begin()) ??
                 this.rootScope.BuildAndResolveServiceOrDefault(typeFrom, name, dependencyOverrides: null);
         }
 
@@ -101,11 +101,11 @@ namespace Stashbox
         {
             this.ThrowIfDisposed();
 
-            var cachedFactory = this.rootScope.DelegateCache.ServiceDelegates.GetOrDefaultByRef(serviceType);
+            var cachedFactory = this.rootScope.DelegateCache.ServiceDelegates.GetOrDefaultByRef(serviceType)?.ServiceFactory;
             if (cachedFactory != null)
                 return cachedFactory(this.rootScope, RequestContext.Empty);
 
-            return this.rootScope.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByRef(serviceType)?.Invoke(this.rootScope, RequestContext.Begin()) ??
+            return this.rootScope.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByRef(serviceType)?.ServiceFactory?.Invoke(this.rootScope, RequestContext.Begin()) ??
                 this.rootScope.BuildAndResolveServiceOrDefault(serviceType, name: null, dependencyOverrides: null);
         }
 
@@ -115,11 +115,11 @@ namespace Stashbox
             this.ThrowIfDisposed();
 
             var type = typeof(IEnumerable<TKey>);
-            var cachedFactory = this.rootScope.DelegateCache.ServiceDelegates.GetOrDefaultByRef(type);
+            var cachedFactory = this.rootScope.DelegateCache.ServiceDelegates.GetOrDefaultByRef(type)?.ServiceFactory;
             if (cachedFactory != null)
                 return (IEnumerable<TKey>)cachedFactory(this.rootScope, RequestContext.Empty);
 
-            return (IEnumerable<TKey>)(this.rootScope.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByRef(type)?.Invoke(this.rootScope, RequestContext.Begin()) ??
+            return (IEnumerable<TKey>)(this.rootScope.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByRef(type)?.ServiceFactory?.Invoke(this.rootScope, RequestContext.Begin()) ??
                 this.rootScope.BuildAndResolveService(type, name: null, dependencyOverrides: null));
         }
 
@@ -129,11 +129,11 @@ namespace Stashbox
             this.ThrowIfDisposed();
 
             var type = typeof(IEnumerable<TKey>);
-            var cachedFactory = this.rootScope.DelegateCache.ServiceDelegates.GetOrDefaultByRef(name);
+            var cachedFactory = this.rootScope.DelegateCache.ServiceDelegates.GetOrDefaultByRef(type)?.NamedFactories?.GetOrDefaultByValue(name);
             if (cachedFactory != null)
                 return (IEnumerable<TKey>)cachedFactory(this.rootScope, RequestContext.Empty);
 
-            return (IEnumerable<TKey>)(this.rootScope.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByRef(name)?.Invoke(this.rootScope, RequestContext.Begin()) ??
+            return (IEnumerable<TKey>)(this.rootScope.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByRef(type)?.NamedFactories?.GetOrDefaultByValue(name)?.Invoke(this.rootScope, RequestContext.Begin()) ??
                 this.rootScope.BuildAndResolveService(type, name: name, dependencyOverrides: null));
         }
 
@@ -159,11 +159,11 @@ namespace Stashbox
             this.ThrowIfDisposed();
 
             var type = typeof(IEnumerable<>).MakeGenericType(typeFrom);
-            var cachedFactory = this.rootScope.DelegateCache.ServiceDelegates.GetOrDefaultByRef(type);
+            var cachedFactory = this.rootScope.DelegateCache.ServiceDelegates.GetOrDefaultByRef(type)?.ServiceFactory;
             if (cachedFactory != null)
                 return (IEnumerable<object>)cachedFactory(this.rootScope, RequestContext.Empty);
 
-            return (IEnumerable<object>)(this.rootScope.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByRef(type)?.Invoke(this.rootScope, RequestContext.Begin()) ??
+            return (IEnumerable<object>)(this.rootScope.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByRef(type)?.ServiceFactory?.Invoke(this.rootScope, RequestContext.Begin()) ??
                 this.rootScope.BuildAndResolveService(type, name: null, dependencyOverrides: null));
         }
 
@@ -173,11 +173,11 @@ namespace Stashbox
             this.ThrowIfDisposed();
 
             var type = typeof(IEnumerable<>).MakeGenericType(typeFrom);
-            var cachedFactory = this.rootScope.DelegateCache.ServiceDelegates.GetOrDefaultByRef(name);
+            var cachedFactory = this.rootScope.DelegateCache.ServiceDelegates.GetOrDefaultByRef(type)?.NamedFactories?.GetOrDefaultByValue(name);
             if (cachedFactory != null)
                 return (IEnumerable<object>)cachedFactory(this.rootScope, RequestContext.Empty);
 
-            return (IEnumerable<object>)(this.rootScope.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByRef(name)?.Invoke(this.rootScope, RequestContext.Begin()) ??
+            return (IEnumerable<object>)(this.rootScope.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByRef(type)?.NamedFactories?.GetOrDefaultByValue(name)?.Invoke(this.rootScope, RequestContext.Begin()) ??
                 this.rootScope.BuildAndResolveService(type, name: name, dependencyOverrides: null));
         }
 
@@ -205,11 +205,11 @@ namespace Stashbox
             this.ThrowIfDisposed();
 
             var key = $"{name ?? ""}{string.Join("", parameterTypes.Append(typeFrom).Select(t => t.FullName))}";
-            var cachedFactory = this.rootScope.DelegateCache.ServiceDelegates.GetOrDefaultByValue(key);
+            var cachedFactory = this.rootScope.DelegateCache.ServiceDelegates.GetOrDefaultByRef(typeFrom)?.NamedFactories?.GetOrDefaultByValue(key);
             if (cachedFactory != null)
                 return (Delegate)cachedFactory(this.rootScope, RequestContext.Empty);
 
-            return (Delegate?)this.rootScope.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByRef(key)?.Invoke(this.rootScope, RequestContext.Begin()) ??
+            return (Delegate?)this.rootScope.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByRef(typeFrom)?.NamedFactories?.GetOrDefaultByValue(key)?.Invoke(this.rootScope, RequestContext.Begin()) ??
                 this.rootScope.BuildAndResolveFactoryDelegate(typeFrom, parameterTypes, name, key);
         }
 
@@ -219,11 +219,11 @@ namespace Stashbox
             this.ThrowIfDisposed();
 
             var key = $"{name ?? ""}{string.Join("", parameterTypes.Append(typeFrom).Select(t => t.FullName))}";
-            var cachedFactory = this.rootScope.DelegateCache.ServiceDelegates.GetOrDefaultByValue(key);
+            var cachedFactory = this.rootScope.DelegateCache.ServiceDelegates.GetOrDefaultByRef(typeFrom)?.NamedFactories?.GetOrDefaultByValue(key);
             if (cachedFactory != null)
                 return (Delegate)cachedFactory(this.rootScope, RequestContext.Empty);
 
-            return (Delegate?)this.rootScope.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByRef(key)?.Invoke(this.rootScope, RequestContext.Begin()) ??
+            return (Delegate?)this.rootScope.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByRef(typeFrom)?.NamedFactories?.GetOrDefaultByValue(key)?.Invoke(this.rootScope, RequestContext.Begin()) ??
                 this.rootScope.BuildAndResolveFactoryDelegateOrDefault(typeFrom, parameterTypes, name, key);
         }
 
@@ -270,5 +270,9 @@ namespace Stashbox
         /// <inheritdoc />
         public void PutInstanceInScope(Type typeFrom, object instance, bool withoutDisposalTracking = false, object? name = null) =>
             this.rootScope.PutInstanceInScope(typeFrom, instance, withoutDisposalTracking, name);
+
+        /// <inheritdoc />
+        public IEnumerable<DelegateCacheEntry> GetDelegateCacheEntries() =>
+            this.rootScope.GetDelegateCacheEntries();
     }
 }

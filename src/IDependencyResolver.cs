@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Stashbox.Resolution;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -217,5 +218,11 @@ namespace Stashbox
         /// <param name="name">The registration name.</param>
         /// <returns>True if the service can be resolved, otherwise false.</returns>
         bool CanResolve(Type typeFrom, object? name = null);
+
+        /// <summary>
+        /// Returns all cached service resolution delegates.
+        /// </summary>
+        /// <returns>The service resolution delegates.</returns>
+        IEnumerable<DelegateCacheEntry> GetDelegateCacheEntries();
     }
 }

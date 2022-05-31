@@ -103,9 +103,9 @@ namespace Stashbox
             this.ThrowIfDisposed();
 
             this.delegateCacheProvider.DefaultCache.ServiceDelegates = this.DelegateCache.ServiceDelegates =
-                ImmutableTree<object, Func<IResolutionScope, IRequestContext, object>>.Empty;
+                ImmutableTree<Type, CacheEntry>.Empty;
             this.delegateCacheProvider.DefaultCache.RequestContextAwareDelegates = this.DelegateCache.RequestContextAwareDelegates =
-                ImmutableTree<object, Func<IResolutionScope, IRequestContext, object>>.Empty;
+                ImmutableTree<Type, CacheEntry>.Empty;
             this.delegateCacheProvider.NamedCache = ImmutableTree<object, DelegateCache>.Empty;
         }
 
