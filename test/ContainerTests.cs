@@ -362,6 +362,19 @@ namespace Stashbox.Tests
         }
 
         [Fact]
+        public void ContainerTests_Diagnostics_Generic_Print()
+        {
+            var regs = new StashboxContainer()
+            .Register(typeof(TestOpenGeneric<>), c => c.WithName("t1"))
+            .Register(typeof(TestOpenGeneric<>)).GetRegistrationDiagnostics()
+            .Select(d => d.ToString()).OrderBy(s => s)
+            .ToArray();
+
+            Assert.Equal("TestOpenGeneric<> => TestOpenGeneric<>, name: null", regs[0]);
+            Assert.Equal("TestOpenGeneric<> => TestOpenGeneric<>, name: t1", regs[1]);
+        }
+
+        [Fact]
         public void ContainerTests_Cache_Diag()
         {
             using var container = new StashboxContainer()

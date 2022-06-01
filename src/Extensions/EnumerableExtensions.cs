@@ -39,20 +39,6 @@ namespace System.Linq
             return -1;
         }
 
-        public static TSource[] SelectButLast<TSource>(this TSource[] source)
-        {
-            var length = source.Length;
-            if (length == 1)
-                return Constants.EmptyArray<TSource>();
-
-            var resultLength = length - 1;
-            var result = new TSource[resultLength];
-            for (var i = 0; i < resultLength; i++)
-                result[i] = source[i];
-
-            return result;
-        }
-
         public static TResult LastElement<TResult>(this TResult[] source) =>
 #if NET5_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
             source[^1];
