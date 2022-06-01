@@ -32,6 +32,7 @@
     <PackageReleaseNotes>https://z4kn4fein.github.io/stashbox/#/changelog</PackageReleaseNotes>
     <Configurations>Debug;Release;Benchmark</Configurations>
     <Nullable>enable</Nullable>
+    <NoWarn>CA1032</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Benchmark'">
     <AssemblyName>Stashbox.Benchmark</AssemblyName>

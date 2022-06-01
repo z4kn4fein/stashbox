@@ -267,7 +267,11 @@ namespace System
 
             var typeName = type.Name;
             var i = typeName.IndexOf('`');
+#if NET5_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            typeName = i != -1 ? typeName[..i] : typeName;
+#else
             typeName = i != -1 ? typeName.Substring(0, i) : typeName;
+#endif
 
             typeName += "<";
             if (type.IsGenericTypeDefinition)

@@ -1,6 +1,5 @@
 ﻿using Stashbox.Exceptions;
-using System;
-using System.Collections;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using Xunit;
@@ -59,17 +58,8 @@ namespace Stashbox.Tests
             container.Resolve<IA>("A");
             container.Resolve<IA>("A");
 
-            var scopeType = container.ContainerContext.RootScope.GetType();
-            var delegateCache = scopeType.GetField("DelegateCache", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(container.ContainerContext.RootScope);
-            var serviceFactories = delegateCache.GetType().GetField("ServiceDelegates").GetValue(delegateCache);
-
-            var enumerator = (IEnumerable)serviceFactories.GetType().GetMethod("Walk").Invoke(serviceFactories, Type.EmptyTypes);
-
-            var length = 0;
-            foreach (var item in enumerator)
-                length++;
-
-            Assert.Equal(1, length);
+            var cache = container.ContainerContext.RootScope.GetDelegateCacheEntries();
+            Assert.Single(cache);
         }
 
         [Fact]
@@ -82,17 +72,8 @@ namespace Stashbox.Tests
             container.Resolve<IA>("A");
             container.Resolve<IA>(key.ToString());
 
-            var scopeType = container.ContainerContext.RootScope.GetType();
-            var delegateCache = scopeType.GetField("DelegateCache", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(container.ContainerContext.RootScope);
-            var serviceFactories = delegateCache.GetType().GetField("ServiceDelegates").GetValue(delegateCache);
-
-            var enumerator = (IEnumerable)serviceFactories.GetType().GetMethod("Walk").Invoke(serviceFactories, Type.EmptyTypes);
-
-            var length = 0;
-            foreach (var item in enumerator)
-                length++;
-
-            Assert.Equal(1, length);
+            var cache = container.ContainerContext.RootScope.GetDelegateCacheEntries();
+            Assert.Single(cache);
         }
 
         [Fact]
@@ -132,42 +113,48 @@ namespace Stashbox.Tests
         [Fact]
         public void NamedResolveTests_Named_Scope_Cache_Works()
         {
-            using var container = new StashboxContainer();
+            using var container = new StashboxContainer()
+                .Register<A>()
+                .Register<B>();
 
-            container.BeginScope("A");
-            container.BeginScope("A");
+            var scope1 = container.BeginScope("A");
+            var scope2 = container.BeginScope("A");
 
-            var scopeType = container.ContainerContext.RootScope.GetType();
-            var cacheProvider = scopeType.GetField("delegateCacheProvider", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(container.ContainerContext.RootScope);
-            var namedCache = cacheProvider.GetType().GetField("NamedCache").GetValue(cacheProvider);
-            var enumerator = (IEnumerable)namedCache.GetType().GetMethod("Walk").Invoke(namedCache, Type.EmptyTypes);
+            scope1.Resolve<A>();
+            scope2.Resolve<B>();
 
-            var length = 0;
-            foreach (var item in enumerator)
-                length++;
+            var rootCache = container.ContainerContext.RootScope.GetDelegateCacheEntries();
+            Assert.Empty(rootCache);
 
-            Assert.Equal(1, length);
+            var scope1Cache = scope1.GetDelegateCacheEntries();
+            Assert.Equal(2, scope1Cache.Count());
+
+            var scope2Cache = scope2.GetDelegateCacheEntries();
+            Assert.Equal(2, scope2Cache.Count());
         }
 
         [Fact]
         public void NamedResolveTests_Named_Scope_Cache_Works_Equality_By_Value()
         {
             var key = new StringBuilder("A");
-            using var container = new StashboxContainer();
+            using var container = new StashboxContainer()
+                .Register<A>()
+                .Register<B>();
 
-            container.BeginScope("A");
-            container.BeginScope(key.ToString());
+            var scope1 = container.BeginScope("A");
+            var scope2 = container.BeginScope("A");
 
-            var scopeType = container.ContainerContext.RootScope.GetType();
-            var cacheProvider = scopeType.GetField("delegateCacheProvider", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(container.ContainerContext.RootScope);
-            var namedCache = cacheProvider.GetType().GetField("NamedCache").GetValue(cacheProvider);
-            var enumerator = (IEnumerable)namedCache.GetType().GetMethod("Walk").Invoke(namedCache, Type.EmptyTypes);
+            scope1.Resolve<A>();
+            scope2.Resolve<B>();
 
-            var length = 0;
-            foreach (var item in enumerator)
-                length++;
+            var rootCache = container.ContainerContext.RootScope.GetDelegateCacheEntries();
+            Assert.Empty(rootCache);
 
-            Assert.Equal(1, length);
+            var scope1Cache = scope1.GetDelegateCacheEntries();
+            Assert.Equal(2, scope1Cache.Count());
+
+            var scope2Cache = scope2.GetDelegateCacheEntries();
+            Assert.Equal(2, scope2Cache.Count());
         }
 
         interface IA { }

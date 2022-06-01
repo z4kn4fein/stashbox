@@ -36,7 +36,7 @@ namespace Stashbox
         /// <param name="typeFrom">The type of the requested service.</param>
         /// <param name="name">The name of the requested service.</param>
         /// <returns>The resolved object.</returns>
-        object Resolve(Type typeFrom, object name);
+        object Resolve(Type typeFrom, object? name);
 
         /// <summary>
         /// Resolves a named instance from the container with dependency overrides.
@@ -45,7 +45,7 @@ namespace Stashbox
         /// <param name="name">The name of the requested service.</param>
         /// <param name="dependencyOverrides">A collection of objects which are used to override certain dependencies of the requested service.</param>
         /// <returns>The resolved object.</returns>
-        object Resolve(Type typeFrom, object name, object[] dependencyOverrides);
+        object Resolve(Type typeFrom, object? name, object[] dependencyOverrides);
 
         /// <summary>
         /// Resolves an instance from the container or returns default if the type is not resolvable.
@@ -68,7 +68,7 @@ namespace Stashbox
         /// <param name="typeFrom">The type of the requested service.</param>
         /// <param name="name">The name of the requested service.</param>
         /// <returns>The resolved object.</returns>
-        object? ResolveOrDefault(Type typeFrom, object name);
+        object? ResolveOrDefault(Type typeFrom, object? name);
 
         /// <summary>
         /// Resolves an instance from the container with dependency overrides or returns default if the type is not resolvable.
@@ -77,7 +77,7 @@ namespace Stashbox
         /// <param name="name">The name of the requested service.</param>
         /// <param name="dependencyOverrides">A collection of objects which are used to override certain dependencies of the requested service.</param>
         /// <returns>The resolved object.</returns>
-        object? ResolveOrDefault(Type typeFrom, object name, object[] dependencyOverrides);
+        object? ResolveOrDefault(Type typeFrom, object? name, object[] dependencyOverrides);
 
         /// <summary>
         /// Resolves all registered implementations of a service.
@@ -91,7 +91,7 @@ namespace Stashbox
         /// </summary>
         /// <typeparam name="TKey">The type of the requested service.</typeparam>
         /// <returns>The resolved object.</returns>
-        IEnumerable<TKey> ResolveAll<TKey>(object name);
+        IEnumerable<TKey> ResolveAll<TKey>(object? name);
 
         /// <summary>
         /// Resolves all registered implementations of a service with dependency overrides.
@@ -108,7 +108,7 @@ namespace Stashbox
         /// <param name="name">The name of the requested services.</param>
         /// <param name="dependencyOverrides">A collection of objects which are used to override certain dependencies of the requested services.</param>
         /// <returns>The resolved object.</returns>
-        IEnumerable<TKey> ResolveAll<TKey>(object name, object[] dependencyOverrides);
+        IEnumerable<TKey> ResolveAll<TKey>(object? name, object[] dependencyOverrides);
 
         /// <summary>
         /// Resolves all registered implementations of a service.
@@ -123,7 +123,7 @@ namespace Stashbox
         /// <param name="typeFrom">The type of the requested services.</param>
         /// <param name="name">The name of the requested services.</param>
         /// <returns>The resolved object.</returns>
-        IEnumerable<object> ResolveAll(Type typeFrom, object name);
+        IEnumerable<object> ResolveAll(Type typeFrom, object? name);
 
         /// <summary>
         /// Resolves all registered implementations of a service with dependency overrides.
@@ -140,7 +140,7 @@ namespace Stashbox
         /// <param name="name">The name of the requested services.</param>
         /// <param name="dependencyOverrides">A collection of objects which are used to override certain dependencies of the requested services.</param>
         /// <returns>The resolved object.</returns>
-        IEnumerable<object> ResolveAll(Type typeFrom, object name, object[] dependencyOverrides);
+        IEnumerable<object> ResolveAll(Type typeFrom, object? name, object[] dependencyOverrides);
 
         /// <summary>
         /// Returns a factory delegate that can be used to activate the service.

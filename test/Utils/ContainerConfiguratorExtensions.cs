@@ -7,17 +7,13 @@ namespace Stashbox.Configuration
     {
         public static ContainerConfigurator WithCompiler(this ContainerConfigurator configurator, CompilerType compilerType)
         {
-            switch (compilerType)
+            return compilerType switch
             {
-                case CompilerType.Microsoft:
-                    return configurator.WithExpressionCompiler(Rules.ExpressionCompilers.MicrosoftExpressionCompiler);
-                case CompilerType.Stashbox:
-                    return configurator.WithExpressionCompiler(Rules.ExpressionCompilers.StashboxExpressionCompiler);
-                case CompilerType.FastExpressionCompiler:
-                    return configurator.WithExpressionCompiler(lambda => lambda.CompileFast());
-            }
-
-            return configurator;
+                CompilerType.Microsoft => configurator.WithExpressionCompiler(Rules.ExpressionCompilers.MicrosoftExpressionCompiler),
+                CompilerType.Stashbox => configurator.WithExpressionCompiler(Rules.ExpressionCompilers.StashboxExpressionCompiler),
+                CompilerType.FastExpressionCompiler => configurator.WithExpressionCompiler(lambda => lambda.CompileFast()),
+                _ => configurator,
+            };
         }
     }
 }

@@ -53,7 +53,12 @@ namespace System.Linq
             return result;
         }
 
-        public static TResult LastElement<TResult>(this TResult[] source) => source[source.Length - 1];
+        public static TResult LastElement<TResult>(this TResult[] source) =>
+#if NET5_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            source[^1];
+#else
+            source[source.Length - 1];
+#endif
 
         public static ParameterExpression[] AsParameters(this Type[] source)
         {
@@ -83,6 +88,10 @@ namespace System.Linq
 
     internal static class InternalArrayHelper<T>
     {
+#if NET5_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+        public static readonly T[] Empty = Array.Empty<T>();
+#else
         public static readonly T[] Empty = new T[0];
+#endif
     }
 }

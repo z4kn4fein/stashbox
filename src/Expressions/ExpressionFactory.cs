@@ -132,14 +132,12 @@ namespace Stashbox.Expressions
             var members = serviceType.GetUsableMembers(null,
                 resolutionContext.CurrentContainerContext.ContainerConfiguration);
 
-            var initExpression = SelectConstructor(
+            if (SelectConstructor(
                 serviceType,
                 null,
                 resolutionContext,
                 serviceType.GetConstructors(),
-                out var parameters)?.MakeNew(parameters) as Expression;
-
-            if (initExpression == null)
+                out var parameters)?.MakeNew(parameters) is not Expression initExpression)
                 return null;
 
             if (members.Length > 0)

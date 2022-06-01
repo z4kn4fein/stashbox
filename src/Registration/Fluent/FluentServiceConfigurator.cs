@@ -221,9 +221,7 @@ namespace Stashbox.Registration.Fluent
         /// <returns>The fluent configurator.</returns>
         public TConfigurator WithName(object? name)
         {
-            var registration = RegistrationFactory.EnsureComplex(this.Registration);
-            registration.Name = name;
-            this.Registration = registration;
+            this.Registration.Name = name;
 
             return (TConfigurator)this;
         }

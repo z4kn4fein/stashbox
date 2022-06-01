@@ -164,6 +164,65 @@ namespace Stashbox.Tests
         }
 
         [Fact]
+        public void StandardResolveTests_DependencyResolve_ResolutionFailed_NullName()
+        {
+            using IStashboxContainer container = new StashboxContainer();
+            container.Register<ITest2, Test2>();
+            Assert.Throws<ResolutionFailedException>(() => container.Resolve<ITest2>((object)null));
+        }
+
+        [Fact]
+        public void StandardResolveTests_DependencyResolve_ResolutionFailed_AllowNull_NullName()
+        {
+            using IStashboxContainer container = new StashboxContainer();
+            container.Register<ITest2, Test2>();
+            var result = container.ResolveOrDefault<ITest2>((object)null);
+
+            Assert.Null(result);
+        }
+
+        [Fact]
+        public void StandardResolveTests_Resolve_ResolutionFailed_NullName()
+        {
+            using IStashboxContainer container = new StashboxContainer();
+            Assert.Throws<ResolutionFailedException>(() => container.Resolve<ITest1>((object)null));
+        }
+
+        [Fact]
+        public void StandardResolveTests_Resolve_ResolutionFailed_AllowNull_NullName()
+        {
+            using IStashboxContainer container = new StashboxContainer();
+
+            Assert.Null(container.ResolveOrDefault<ITest1>((object)null));
+        }
+
+        [Fact]
+        public void StandardResolveTests_Resolve_ResolutionSuccess_AllowNull_NullName()
+        {
+            using IStashboxContainer container = new StashboxContainer().Register<ITest1, Test1>();
+
+            Assert.NotNull(container.ResolveOrDefault<ITest1>((object)null));
+            Assert.NotNull(container.ResolveOrDefault<ITest1>((object)null));
+        }
+
+        [Fact]
+        public void StandardResolveTests_Resolve_ResolutionFailed_AllowNull_Override_NullName()
+        {
+            using IStashboxContainer container = new StashboxContainer();
+
+            Assert.Null(container.ResolveOrDefault<ITest1>(null, new[] { new Dummy() }));
+        }
+
+        [Fact]
+        public void StandardResolveTests_Resolve_ResolutionSuccess_AllowNull_Override_NullName()
+        {
+            using IStashboxContainer container = new StashboxContainer().Register<ITest2, Test2>();
+
+            Assert.NotNull(container.ResolveOrDefault<ITest2>(null, new[] { new Test1() }));
+            Assert.NotNull(container.ResolveOrDefault<ITest2>(null, new[] { new Test1() }));
+        }
+
+        [Fact]
         public void StandardResolveTests_Resolve_ResolutionFailed_AllowNull_Named()
         {
             using IStashboxContainer container = new StashboxContainer();
@@ -230,6 +289,40 @@ namespace Stashbox.Tests
 
             Assert.NotNull(scope.ResolveOrDefault<ITest2>(new[] { new Test1() }));
             Assert.NotNull(scope.ResolveOrDefault<ITest2>(new[] { new Test1() }));
+        }
+
+        [Fact]
+        public void StandardResolveTests_Scope_Resolve_ResolutionFailed_AllowNull_NullName()
+        {
+            using var scope = new StashboxContainer().BeginScope();
+
+            Assert.Null(scope.ResolveOrDefault<ITest1>((object)null));
+        }
+
+        [Fact]
+        public void StandardResolveTests_Scope_Resolve_ResolutionSuccess_AllowNull_NullName()
+        {
+            using var scope = new StashboxContainer().Register<ITest1, Test1>().BeginScope();
+
+            Assert.NotNull(scope.ResolveOrDefault<ITest1>((object)null));
+            Assert.NotNull(scope.ResolveOrDefault<ITest1>((object)null));
+        }
+
+        [Fact]
+        public void StandardResolveTests_Scope_Resolve_ResolutionFailed_AllowNull_Override_NullName()
+        {
+            using var scope = new StashboxContainer().BeginScope();
+
+            Assert.Null(scope.ResolveOrDefault<ITest1>(null, new[] { new Dummy() }));
+        }
+
+        [Fact]
+        public void StandardResolveTests_Scope_Resolve_ResolutionSuccess_AllowNull_Override_NullName()
+        {
+            using var scope = new StashboxContainer().Register<ITest2, Test2>().BeginScope();
+
+            Assert.NotNull(scope.ResolveOrDefault<ITest2>(null, new[] { new Test1() }));
+            Assert.NotNull(scope.ResolveOrDefault<ITest2>(null, new[] { new Test1() }));
         }
 
         [Fact]

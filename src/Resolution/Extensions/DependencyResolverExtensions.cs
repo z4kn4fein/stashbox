@@ -33,7 +33,7 @@ namespace Stashbox
         /// <param name="resolver">The dependency resolver.</param>
         /// <param name="name">The name of the requested registration.</param>
         /// <returns>The resolved object.</returns>
-        public static TKey Resolve<TKey>(this IDependencyResolver resolver, object name) =>
+        public static TKey Resolve<TKey>(this IDependencyResolver resolver, object? name) =>
             (TKey)resolver.Resolve(typeof(TKey), name);
 
         /// <summary>
@@ -44,7 +44,7 @@ namespace Stashbox
         /// <param name="name">The name of the requested registration.</param>
         /// <param name="dependencyOverrides">A collection of objects which are used to override certain dependencies of the requested service.</param>
         /// <returns>The resolved object.</returns>
-        public static TKey Resolve<TKey>(this IDependencyResolver resolver, object name, object[] dependencyOverrides) =>
+        public static TKey Resolve<TKey>(this IDependencyResolver resolver, object? name, object[] dependencyOverrides) =>
             (TKey)resolver.Resolve(typeof(TKey), name, dependencyOverrides);
 
         /// <summary>
@@ -54,7 +54,7 @@ namespace Stashbox
         /// <param name="resolver">The dependency resolver.</param>
         /// <param name="name">The name of the requested registration.</param>
         /// <returns>The resolved object.</returns>
-        public static TKey? ResolveOrDefault<TKey>(this IDependencyResolver resolver, object name) =>
+        public static TKey? ResolveOrDefault<TKey>(this IDependencyResolver resolver, object? name) =>
             (TKey?)(resolver.ResolveOrDefault(typeof(TKey), name) ?? default(TKey));
 
         /// <summary>
@@ -65,7 +65,7 @@ namespace Stashbox
         /// <param name="name">The name of the requested registration.</param>
         /// <param name="dependencyOverrides">A collection of objects which are used to override certain dependencies of the requested service.</param>
         /// <returns>The resolved object.</returns>
-        public static TKey? ResolveOrDefault<TKey>(this IDependencyResolver resolver, object name, object[] dependencyOverrides) =>
+        public static TKey? ResolveOrDefault<TKey>(this IDependencyResolver resolver, object? name, object[] dependencyOverrides) =>
             (TKey?)(resolver.ResolveOrDefault(typeof(TKey), name, dependencyOverrides) ?? default(TKey));
 
         /// <summary>
