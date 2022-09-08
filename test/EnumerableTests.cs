@@ -595,7 +595,22 @@ namespace Stashbox.Tests
             container.Register<ITest1, Test11>("t");
             container.Register<ITest1, Test12>();
 
-            Assert.Equal(2, container.Resolve<IEnumerable<ITest1>>("t").Count());
+            var instances = container.Resolve<IEnumerable<ITest1>>("t").ToArray();
+
+            Assert.Equal(2, instances.Length);
+            Assert.IsType<Test1>(instances[0]);
+            Assert.IsType<Test11>(instances[1]);
+        }
+
+        [Fact]
+        public void EnumerableTests_Resolve_WithName_Single()
+        {
+            IStashboxContainer container = new StashboxContainer();
+            container.Register<ITest1, Test1>("t1");
+            container.Register<ITest1, Test11>("t2");
+            container.Register<ITest1, Test12>();
+
+            Assert.Single(container.Resolve<IEnumerable<ITest1>>("t1"));
         }
 
         [Fact]

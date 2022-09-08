@@ -7,6 +7,7 @@ using Stashbox.Resolution;
 using Stashbox.Utils;
 using Stashbox.Utils.Data.Immutable;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -37,6 +38,7 @@ namespace Stashbox.Registration
         private readonly IRegistrationSelectionRule[] enumerableFilters =
         {
             RegistrationSelectionRules.GenericFilter,
+            RegistrationSelectionRules.EnumerableNameFilter,
             RegistrationSelectionRules.ScopeNameFilter,
             RegistrationSelectionRules.ConditionFilter,
             RegistrationSelectionRules.MetadataFilter,
@@ -81,8 +83,8 @@ namespace Stashbox.Registration
                 repo.AddOrUpdate(type, newRepo, true,
                     (oldValue, _) =>
                     {
-                        var allowUpdate = reg is ComplexRegistration complex && complex.ReplaceExistingRegistration ||
-                                          regBehavior == Rules.RegistrationBehavior.ReplaceExisting;
+                        var replaceExisting = reg is ComplexRegistration complex && complex.ReplaceExistingRegistration;
+                        var allowUpdate = replaceExisting || regBehavior == Rules.RegistrationBehavior.ReplaceExisting;
 
                         if (!allowUpdate && regBehavior == Rules.RegistrationBehavior.PreserveDuplications)
                             return oldValue.Add(reg);
@@ -91,6 +93,7 @@ namespace Stashbox.Registration
                         for (int i = 0; i < oldValue.Length; i++)
                         {
                             var current = oldValue[i];
+                            if (!replaceExisting && current.ImplementationType != reg.ImplementationType) continue;
                             var existingDiscriminator = current.Name ?? current.ImplementationType;
                             var newDiscriminator = reg.Name ?? reg.ImplementationType;
                             if (existingDiscriminator.Equals(newDiscriminator))

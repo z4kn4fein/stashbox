@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v5.4.3] -
+### Fixed
+- Named resolution using ResolveAll returns all named and unnamed instances disregarding the WithNamedDependencyResolutionForUnNamedRequests flag. [#118](https://github.com/z4kn4fein/stashbox/issues/118)
+
 ## [v5.4.2] - 2022-06-02
 ### Fixed
 - Name conflict on the service resolution delegates.
