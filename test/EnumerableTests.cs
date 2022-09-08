@@ -621,8 +621,17 @@ namespace Stashbox.Tests
             container.Register<ITest1, Test11>("t");
             container.Register<ITest1, Test12>();
 
-            Assert.Equal(2, container.Resolve<IEnumerable<ITest1>>("t").Count());
-            Assert.Equal(2, container.Resolve<IEnumerable<ITest1>>("t").Count());
+            var instances = container.Resolve<IEnumerable<ITest1>>("t").ToArray();
+
+            Assert.Equal(2, instances.Length);
+            Assert.IsType<Test1>(instances[0]);
+            Assert.IsType<Test11>(instances[1]);
+
+            var instances2 = container.Resolve<IEnumerable<ITest1>>("t").ToArray();
+
+            Assert.Equal(2, instances2.Length);
+            Assert.IsType<Test1>(instances2[0]);
+            Assert.IsType<Test11>(instances2[1]);
         }
 
         [Fact]
@@ -633,7 +642,11 @@ namespace Stashbox.Tests
             container.Register<ITest1, Test11>("t");
             container.Register<ITest1, Test12>();
 
-            Assert.Equal(2, container.ResolveAll<ITest1>("t").Count());
+            var instances = container.ResolveAll<ITest1>("t").ToArray();
+
+            Assert.Equal(2, instances.Length);
+            Assert.IsType<Test1>(instances[0]);
+            Assert.IsType<Test11>(instances[1]);
         }
 
         [Fact]
@@ -644,8 +657,17 @@ namespace Stashbox.Tests
             container.Register<ITest1, Test11>("t");
             container.Register<ITest1, Test12>();
 
-            Assert.Equal(2, container.ResolveAll<ITest1>("t").Count());
-            Assert.Equal(2, container.ResolveAll<ITest1>("t").Count());
+            var instances = container.ResolveAll<ITest1>("t").ToArray();
+
+            Assert.Equal(2, instances.Length);
+            Assert.IsType<Test1>(instances[0]);
+            Assert.IsType<Test11>(instances[1]);
+
+            var instances2 = container.ResolveAll<ITest1>("t").ToArray();
+
+            Assert.Equal(2, instances2.Length);
+            Assert.IsType<Test1>(instances2[0]);
+            Assert.IsType<Test11>(instances2[1]);
         }
 
         [Fact]
@@ -656,8 +678,11 @@ namespace Stashbox.Tests
             container.Register<ITest1, Test11>("t");
             container.Register<ITest1, Test12>();
 
-            Assert.Equal(2, container.ResolveAll(typeof(ITest1), "t").Count());
-            Assert.Equal(2, container.ResolveAll(typeof(ITest1), "t").Count());
+            var instances = container.ResolveAll(typeof(ITest1), "t").ToArray();
+
+            Assert.Equal(2, instances.Length);
+            Assert.IsType<Test1>(instances[0]);
+            Assert.IsType<Test11>(instances[1]);
         }
 
         [Fact]
@@ -668,8 +693,17 @@ namespace Stashbox.Tests
             container.Register<ITest1, Test11>("t");
             container.Register<ITest1, Test12>();
 
-            Assert.Equal(2, container.ResolveAll(typeof(ITest1), "t").Count());
-            Assert.Equal(2, container.ResolveAll(typeof(ITest1), "t").Count());
+            var instances = container.ResolveAll(typeof(ITest1), "t").ToArray();
+
+            Assert.Equal(2, instances.Length);
+            Assert.IsType<Test1>(instances[0]);
+            Assert.IsType<Test11>(instances[1]);
+
+            var instances2 = container.ResolveAll(typeof(ITest1), "t").ToArray();
+
+            Assert.Equal(2, instances2.Length);
+            Assert.IsType<Test1>(instances2[0]);
+            Assert.IsType<Test11>(instances2[1]);
         }
 
         [Fact]
@@ -680,7 +714,11 @@ namespace Stashbox.Tests
             container.Register<ITest1, Test11>("t");
             container.Register<ITest1, Test12>();
 
-            Assert.Equal(2, container.ResolveAll(typeof(ITest1), "t").Count());
+            var instances = container.ResolveAll(typeof(ITest1), "t").ToArray();
+
+            Assert.Equal(2, instances.Length);
+            Assert.IsType<Test1>(instances[0]);
+            Assert.IsType<Test11>(instances[1]);
         }
 
         [Fact]
@@ -691,7 +729,11 @@ namespace Stashbox.Tests
             container.Register<ITest1, Test11>("t");
             container.Register<ITest1, Test12>();
 
-            Assert.Equal(2, container.BeginScope().Resolve<IEnumerable<ITest1>>("t").Count());
+            var instances = container.BeginScope().Resolve<IEnumerable<ITest1>>("t").ToArray();
+
+            Assert.Equal(2, instances.Length);
+            Assert.IsType<Test1>(instances[0]);
+            Assert.IsType<Test11>(instances[1]);
         }
 
         [Fact]
@@ -702,8 +744,17 @@ namespace Stashbox.Tests
             container.Register<ITest1, Test11>("t");
             container.Register<ITest1, Test12>();
 
-            Assert.Equal(2, container.BeginScope().Resolve<IEnumerable<ITest1>>("t").Count());
-            Assert.Equal(2, container.BeginScope().Resolve<IEnumerable<ITest1>>("t").Count());
+            var instances = container.BeginScope().Resolve<IEnumerable<ITest1>>("t").ToArray();
+
+            Assert.Equal(2, instances.Length);
+            Assert.IsType<Test1>(instances[0]);
+            Assert.IsType<Test11>(instances[1]); 
+            
+            var instances2 = container.BeginScope().Resolve<IEnumerable<ITest1>>("t").ToArray();
+
+            Assert.Equal(2, instances2.Length);
+            Assert.IsType<Test1>(instances2[0]);
+            Assert.IsType<Test11>(instances2[1]);
         }
 
         [Fact]
@@ -714,7 +765,11 @@ namespace Stashbox.Tests
             container.Register<ITest1, Test11>("t");
             container.Register<ITest1, Test12>();
 
-            Assert.Equal(2, container.BeginScope().ResolveAll<ITest1>("t").Count());
+            var instances = container.BeginScope().ResolveAll<ITest1>("t").ToArray();
+
+            Assert.Equal(2, instances.Length);
+            Assert.IsType<Test1>(instances[0]);
+            Assert.IsType<Test11>(instances[1]);
         }
 
         [Fact]
@@ -725,8 +780,17 @@ namespace Stashbox.Tests
             container.Register<ITest1, Test11>("t");
             container.Register<ITest1, Test12>();
 
-            Assert.Equal(2, container.BeginScope().ResolveAll<ITest1>("t").Count());
-            Assert.Equal(2, container.BeginScope().ResolveAll<ITest1>("t").Count());
+            var instances = container.BeginScope().ResolveAll<ITest1>("t").ToArray();
+
+            Assert.Equal(2, instances.Length);
+            Assert.IsType<Test1>(instances[0]);
+            Assert.IsType<Test11>(instances[1]);
+
+            var instances2 = container.BeginScope().ResolveAll<ITest1>("t").ToArray();
+
+            Assert.Equal(2, instances2.Length);
+            Assert.IsType<Test1>(instances2[0]);
+            Assert.IsType<Test11>(instances2[1]);
         }
 
         [Fact]
@@ -737,8 +801,11 @@ namespace Stashbox.Tests
             container.Register<ITest1, Test11>("t");
             container.Register<ITest1, Test12>();
 
-            Assert.Equal(2, container.BeginScope().ResolveAll(typeof(ITest1), "t").Count());
-            Assert.Equal(2, container.BeginScope().ResolveAll(typeof(ITest1), "t").Count());
+            var instances = container.BeginScope().ResolveAll(typeof(ITest1), "t").ToArray();
+
+            Assert.Equal(2, instances.Length);
+            Assert.IsType<Test1>(instances[0]);
+            Assert.IsType<Test11>(instances[1]);
         }
 
         [Fact]
@@ -749,8 +816,17 @@ namespace Stashbox.Tests
             container.Register<ITest1, Test11>("t");
             container.Register<ITest1, Test12>();
 
-            Assert.Equal(2, container.BeginScope().ResolveAll(typeof(ITest1), "t").Count());
-            Assert.Equal(2, container.BeginScope().ResolveAll(typeof(ITest1), "t").Count());
+            var instances = container.BeginScope().ResolveAll(typeof(ITest1), "t").ToArray();
+
+            Assert.Equal(2, instances.Length);
+            Assert.IsType<Test1>(instances[0]);
+            Assert.IsType<Test11>(instances[1]);
+
+            var instances2 = container.BeginScope().ResolveAll(typeof(ITest1), "t").ToArray();
+
+            Assert.Equal(2, instances2.Length);
+            Assert.IsType<Test1>(instances2[0]);
+            Assert.IsType<Test11>(instances2[1]);
         }
 
         [Fact]
@@ -761,7 +837,11 @@ namespace Stashbox.Tests
             container.Register<ITest1, Test11>("t");
             container.Register<ITest1, Test12>();
 
-            Assert.Equal(2, container.BeginScope().ResolveAll(typeof(ITest1), "t").Count());
+            var instances = container.BeginScope().ResolveAll(typeof(ITest1), "t").ToArray();
+
+            Assert.Equal(2, instances.Length);
+            Assert.IsType<Test1>(instances[0]);
+            Assert.IsType<Test11>(instances[1]);
         }
 
         [Fact]
