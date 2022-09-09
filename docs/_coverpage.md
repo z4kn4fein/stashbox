@@ -1,6 +1,6 @@
 ![logo](assets/images/icon.png)
 
-# Stashbox <small>5.4.2</small>
+# Stashbox <small>5.4.3</small>
 
 > A lightweight, fast, and portable .NET DI framework.
 
