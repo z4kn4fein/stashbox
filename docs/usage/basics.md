@@ -92,13 +92,13 @@ The same name must be used to resolve the named service.
 <!-- tabs:start -->
 #### **Generic API**
 ```cs
-container.Register<IJob, DbBackup>("DbBackup")
+container.Register<IJob, DbBackup>("DbBackup");
 container.Register<IJob, StorageCleanup>("StorageCleanup");
 IJob cleanup = container.Resolve<IJob>("StorageCleanup");
 ```
 #### **Runtime type API**
 ```cs
-container.Register(typeof(IJob), typeof(DbBackup), "DbBackup")
+container.Register(typeof(IJob), typeof(DbBackup), "DbBackup");
 container.Register(typeof(IJob), typeof(StorageCleanup), "StorageCleanup");
 object cleanup = container.Resolve(typeof(IJob), "StorageCleanup");
 ```
@@ -114,8 +114,10 @@ You can also get each service that share the same name by requesting an `IEnumer
 <!-- div:right-panel -->
 
 ```cs
-container.Register<IJob, DbBackup>("StorageJobs")
+container.Register<IJob, DbBackup>("StorageJobs");
 container.Register<IJob, StorageCleanup>("StorageJobs");
+container.Register<IJob, AnotherJob>();
+// jobs will be [DbBackup, StorageCleanup].
 IEnumerable<IJob> jobs = container.Resolve<IEnumerable<IJob>>("StorageJobs");
 ```
 
