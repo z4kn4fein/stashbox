@@ -1,7 +1,7 @@
 ﻿using Stashbox;
 using Stashbox.Configuration;
 using Stashbox.Expressions.Compile;
-using Stashbox.Registration.ServiceRegistrations;
+using Stashbox.Registration;
 using Stashbox.Resolution;
 using Stashbox.Utils;
 using Stashbox.Utils.Data;
@@ -107,7 +107,7 @@ namespace System.Linq.Expressions
         /// <param name="serviceRegistration">Optional service registration when it's available.</param>
         /// <returns>The service context.</returns>
         public static ServiceContext AsServiceContext(this Expression? expression, ServiceRegistration? serviceRegistration = null) =>
-            expression == null ? default : new ServiceContext(expression, serviceRegistration);
+            expression == null ? ServiceContext.Empty : new ServiceContext(expression, serviceRegistration);
 
         /// <summary>
         /// Compiles a lambda expression into a Func delegate.

@@ -2,7 +2,6 @@
 using Stashbox.Configuration;
 using Stashbox.Exceptions;
 using Stashbox.Lifetime;
-using Stashbox.Registration.ServiceRegistrations;
 using Stashbox.Tests.Utils;
 using System;
 using System.Collections.Generic;
@@ -1142,9 +1141,9 @@ namespace Stashbox.Tests
                 .WithSingletonLifetime()
                 .WhenDecoratedServiceIs<Test1>());
 
-            var registration = container.ContainerContext.DecoratorRepository.GetRegistrationMappings().First().Value as ComplexRegistration;
+            var registration = container.ContainerContext.DecoratorRepository.GetRegistrationMappings().First().Value;
 
-            Assert.NotNull(registration.Initializer);
+            Assert.NotNull(registration.Options[5]);
             Assert.Equal(Lifetimes.Singleton, registration.Lifetime);
         }
 

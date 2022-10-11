@@ -1,4 +1,4 @@
-﻿using Stashbox.Registration.ServiceRegistrations;
+﻿using Stashbox.Registration;
 using System.Collections.Generic;
 
 namespace Stashbox.Resolution

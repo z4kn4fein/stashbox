@@ -1,5 +1,6 @@
-﻿using Stashbox.Registration.ServiceRegistrations;
+﻿using Stashbox.Registration;
 using System;
+using System.Collections.Generic;
 
 namespace Stashbox
 {
@@ -29,7 +30,10 @@ namespace Stashbox
         {
             this.ThrowIfDisposed();
 
-            var registration = new FuncRegistration(factory, factoryType, name, this.ContainerContext.ContainerConfiguration.DefaultLifetime, false);
+            var registration = new ServiceRegistration(factoryType, name, this.ContainerContext.ContainerConfiguration.DefaultLifetime, false, new Dictionary<byte, object?>
+            {
+                { OptionIds.RegistrationTypeOptions, factory }
+            });
             this.ContainerContext.RegistrationRepository.AddOrUpdateRegistration(registration, factoryType);
             return this;
         }

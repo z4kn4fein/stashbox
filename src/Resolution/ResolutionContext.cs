@@ -1,4 +1,4 @@
-﻿using Stashbox.Registration.ServiceRegistrations;
+﻿using Stashbox.Registration;
 using Stashbox.Utils;
 using Stashbox.Utils.Data;
 using Stashbox.Utils.Data.Immutable;
@@ -40,6 +40,8 @@ namespace Stashbox.Resolution
         internal readonly bool UnknownTypeCheckDisabled;
         internal readonly bool ShouldFallBackToRequestInitiatorContext;
         internal readonly bool IsTopRequest;
+        internal readonly RequestContext RequestContext;
+        internal readonly bool IsValidationContext;
 
         /// <summary>
         /// True if null result is allowed, otherwise false.
@@ -71,6 +73,7 @@ namespace Stashbox.Resolution
             bool isTopLevel,
             bool isRequestedFromRoot,
             bool nullResultAllowed,
+            bool isValidationContext,
             object[]? dependencyOverrides,
             ImmutableTree<object, object>? knownInstances,
             ParameterExpression[]? initialParameters)
@@ -91,6 +94,8 @@ namespace Stashbox.Resolution
             this.RequestContextParameter = Constants.RequestContextParameter;
             this.CurrentContainerContext = this.RequestInitiatorContainerContext = currentContainerContext;
             this.RequestConfiguration.FactoryDelegateCacheEnabled = this.PerResolutionRequestCacheEnabled = dependencyOverrides == null;
+            this.RequestContext = dependencyOverrides != null ? RequestContext.FromOverrides(dependencyOverrides) : RequestContext.Begin();
+            this.IsValidationContext = isValidationContext;
 
             this.ExpressionOverrides = dependencyOverrides == null && (knownInstances == null || knownInstances.IsEmpty)
                 ? null
@@ -117,6 +122,7 @@ namespace Stashbox.Resolution
             IContainerContext requestInitiatorContainerContext,
             HashTree<object, ConstantExpression>? expressionOverrides,
             ExpandableArray<Pair<bool, ParameterExpression>[]> parameterExpressions,
+            RequestContext requestContext,
             bool nullResultAllowed,
             bool isRequestedFromRoot,
             bool isTopLevel,
@@ -124,7 +130,8 @@ namespace Stashbox.Resolution
             int currentLifeSpan,
             bool perResolutionRequestCacheEnabled,
             bool unknownTypeCheckDisabled,
-            bool shouldFallBackToRequestInitiatorContext)
+            bool shouldFallBackToRequestInitiatorContext,
+            bool isValidationContext)
         {
             this.RequestConfiguration = perRequestConfiguration;
             this.DefinedVariables = definedVariables;
@@ -149,6 +156,8 @@ namespace Stashbox.Resolution
             this.PerResolutionRequestCacheEnabled = perResolutionRequestCacheEnabled;
             this.UnknownTypeCheckDisabled = unknownTypeCheckDisabled;
             this.ShouldFallBackToRequestInitiatorContext = shouldFallBackToRequestInitiatorContext;
+            this.RequestContext = requestContext;
+            this.IsValidationContext = isValidationContext;
         }
 
         /// <summary>
@@ -199,6 +208,7 @@ namespace Stashbox.Resolution
                 true,
                 isRequestedFromRoot,
                 false,
+                false,
                 dependencyOverrides,
                 knownInstances,
                 initialParameters);
@@ -215,12 +225,13 @@ namespace Stashbox.Resolution
                 true,
                 isRequestedFromRoot,
                 true,
+                false,
                 dependencyOverrides,
                 knownInstances,
                 initialParameters);
 
         internal static ResolutionContext BeginValidationContext(IContainerContext currentContainerContext) =>
-            new(Constants.EmptyArray<object>(), currentContainerContext, true, false, false, null, null, null);
+            new(Constants.EmptyArray<object>(), currentContainerContext, true, false, false, true, null, null, null);
 
         internal ResolutionContext BeginSubDependencyContext() => !this.IsTopRequest ? this : this.Clone(isTopRequest: false);
 
@@ -319,6 +330,7 @@ namespace Stashbox.Resolution
                 this.RequestInitiatorContainerContext,
                 this.ExpressionOverrides,
                 parameterExpressions ?? this.ParameterExpressions,
+                this.RequestContext,
                 this.NullResultAllowed,
                 this.IsRequestedFromRoot,
                 isTopRequest ?? this.IsTopRequest,
@@ -326,6 +338,7 @@ namespace Stashbox.Resolution
                 currentLifeSpan ?? this.CurrentLifeSpan,
                 perResolutionRequestCacheEnabled ?? this.PerResolutionRequestCacheEnabled,
                 unknownTypeCheckDisabled ?? this.UnknownTypeCheckDisabled,
-                shouldFallBackToRequestInitiatorContext ?? this.ShouldFallBackToRequestInitiatorContext);
+                shouldFallBackToRequestInitiatorContext ?? this.ShouldFallBackToRequestInitiatorContext,
+                this.IsValidationContext);
     }
 }

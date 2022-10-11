@@ -1,4 +1,4 @@
-﻿using Stashbox.Registration.ServiceRegistrations;
+﻿using Stashbox.Registration;
 using System.Linq.Expressions;
 
 namespace Stashbox.Resolution
@@ -29,9 +29,8 @@ namespace Stashbox.Resolution
             this.ServiceRegistration = serviceRegistration;
         }
 
-        internal bool IsEmpty() => this.Equals(default);
+        internal bool IsEmpty() => Equals(this, Empty);
 
-        private bool Equals(ServiceContext other) =>
-            ReferenceEquals(ServiceExpression, other.ServiceExpression) && ReferenceEquals(ServiceRegistration, other.ServiceRegistration);
+        internal static readonly ServiceContext Empty = default;
     }
 }

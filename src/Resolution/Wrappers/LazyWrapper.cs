@@ -20,7 +20,7 @@ namespace Stashbox.Resolution.Wrappers
         {
             if (!IsLazy(typeInformation.Type))
             {
-                unWrappedType = default;
+                unWrappedType = TypeInformation.Empty;
                 return false;
             }
 

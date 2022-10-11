@@ -29,11 +29,11 @@ namespace Stashbox.Resolution.Resolvers
             if (!unknownRegistrationConfigurator.ImplementationType.IsResolvableType() ||
                 !unknownRegistrationConfigurator.ImplementationType.Implements(unknownRegistrationConfigurator.ServiceType) ||
                 unknownRegistrationConfigurator.RegistrationShouldBeSkipped)
-                return default;
+                return ServiceContext.Empty;
 
-            ServiceRegistrator.Register(resolutionContext.RequestInitiatorContainerContext, unknownRegistrationConfigurator.Registration, typeInfo.Type);
+            ServiceRegistrator.Register(resolutionContext.RequestInitiatorContainerContext, unknownRegistrationConfigurator, typeInfo.Type);
 
-            return resolutionStrategy.BuildExpressionForRegistration(unknownRegistrationConfigurator.Registration, resolutionContext.ShouldFallBackToRequestInitiatorContext
+            return resolutionStrategy.BuildExpressionForRegistration(unknownRegistrationConfigurator, resolutionContext.ShouldFallBackToRequestInitiatorContext
                 ? resolutionContext.BeginCrossContainerContext(resolutionContext.RequestInitiatorContainerContext)
                 : resolutionContext,
                 typeInfo);

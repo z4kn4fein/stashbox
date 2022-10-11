@@ -1,4 +1,4 @@
-﻿using Stashbox.Registration.ServiceRegistrations;
+﻿using Stashbox.Registration;
 using Stashbox.Resolution;
 using Stashbox.Utils;
 using System;
@@ -25,12 +25,17 @@ namespace Stashbox.Lifetime
                 ? resolutionContext.RequestInitiatorContainerContext.RootScope
                 : resolutionContext.CurrentContainerContext.RootScope;
 
-            return rootScope.AsConstant().CallMethod(Constants.GetOrAddScopedObjectMethod,
-                    serviceRegistration.RegistrationId.AsConstant(),
-                    factory.AsConstant(),
-                    resolutionContext.RequestContextParameter,
-                    serviceRegistration.ImplementationType.AsConstant())
-                .ConvertTo(resolveType);
+            // do not build singletons during validation, we just have to ensure the expression tree is valid
+            if (resolutionContext.IsValidationContext)
+                return rootScope.AsConstant().CallMethod(Constants.GetOrAddScopedObjectMethod,
+                        serviceRegistration.RegistrationId.AsConstant(),
+                        factory.AsConstant(),
+                        resolutionContext.RequestContextParameter,
+                        serviceRegistration.ImplementationType.AsConstant())
+                    .ConvertTo(resolveType);
+
+            return rootScope.GetOrAddScopedObject(serviceRegistration.RegistrationId, factory, 
+                resolutionContext.RequestContext, serviceRegistration.ImplementationType).AsConstant();
         }
     }
 }

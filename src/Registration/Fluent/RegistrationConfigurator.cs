@@ -1,7 +1,7 @@
 ﻿using Stashbox.Lifetime;
-using Stashbox.Registration.ServiceRegistrations;
 using Stashbox.Utils;
 using System;
+using System.Collections.Generic;
 
 namespace Stashbox.Registration.Fluent
 {
@@ -27,7 +27,10 @@ namespace Stashbox.Registration.Fluent
         public RegistrationConfigurator<TService, TImplementation> WithInstance(TService instance, bool wireUp = false)
         {
             Shield.EnsureNotNull(instance, nameof(instance));
-            this.Registration = RegistrationFactory.EnsureInstance(instance, wireUp, this.Registration);
+
+            this.Options ??= new Dictionary<byte, object?>();
+            this.Options[OptionIds.RegistrationTypeOptions] = new InstanceOptions(instance, wireUp);
+            this.ImplementationType = instance.GetType();
 
             return this;
         }
@@ -52,7 +55,10 @@ namespace Stashbox.Registration.Fluent
         public RegistrationConfigurator WithInstance(object instance, bool wireUp = false)
         {
             Shield.EnsureNotNull(instance, nameof(instance));
-            this.Registration = RegistrationFactory.EnsureInstance(instance, wireUp, this.Registration);
+
+            this.Options ??= new Dictionary<byte, object?>();
+            this.Options[OptionIds.RegistrationTypeOptions] = new InstanceOptions(instance, wireUp);
+            this.ImplementationType = instance.GetType();
 
             return this;
         }

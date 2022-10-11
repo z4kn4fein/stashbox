@@ -1,7 +1,8 @@
 ﻿using Stashbox.Exceptions;
-using Stashbox.Registration.ServiceRegistrations;
+using Stashbox.Registration;
 using Stashbox.Resolution;
 using Stashbox.Resolution.Extensions;
+using Stashbox.Utils.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,7 +41,7 @@ namespace Stashbox.Expressions
             var memberTypeInfo = member.AsTypeInformation(serviceRegistration,
                 resolutionContext.CurrentContainerContext.ContainerConfiguration);
 
-            var injectionParameter = (serviceRegistration as ComplexRegistration)?.InjectionParameters?.SelectInjectionParameterOrDefault(memberTypeInfo);
+            var injectionParameter = serviceRegistration?.Options.GetOrDefault<ExpandableArray<KeyValuePair<string, object?>>>(OptionIds.InjectionParameters)?.SelectInjectionParameterOrDefault(memberTypeInfo);
             if (injectionParameter != null) return injectionParameter;
 
             var serviceContext = resolutionContext.CurrentContainerContext

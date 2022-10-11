@@ -1,5 +1,4 @@
 ﻿using Stashbox.Registration.SelectionRules;
-using Stashbox.Registration.ServiceRegistrations;
 using Stashbox.Resolution;
 using Stashbox.Utils.Data;
 using Stashbox.Utils.Data.Immutable;

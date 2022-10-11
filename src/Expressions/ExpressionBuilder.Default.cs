@@ -1,7 +1,8 @@
 ﻿using Stashbox.Exceptions;
-using Stashbox.Registration.ServiceRegistrations;
+using Stashbox.Registration;
 using Stashbox.Resolution;
 using Stashbox.Utils;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 
 namespace Stashbox.Expressions
@@ -21,16 +22,17 @@ namespace Stashbox.Expressions
 
         private static Expression? PrepareDefaultExpression(ServiceRegistration serviceRegistration, ResolutionContext resolutionContext)
         {
-            if (serviceRegistration is ComplexRegistration complex && complex.DefinedScopeName != null)
+            var definedScopeName = serviceRegistration.Options.GetOrDefault(OptionIds.DefinedScopeName);
+            if (definedScopeName != null)
             {
                 var variable = Constants.ResolutionScopeType.AsVariable();
 
                 var newScope = resolutionContext.CurrentScopeParameter
                     .CallMethod(Constants.BeginScopeMethod,
-                        complex.DefinedScopeName.AsConstant(),
+                        definedScopeName.AsConstant(),
                         true.AsConstant());
 
-                var newScopeContext = resolutionContext.BeginNewScopeContext(new ReadOnlyKeyValue<object, ParameterExpression>(complex.DefinedScopeName, variable));
+                var newScopeContext = resolutionContext.BeginNewScopeContext(new ReadOnlyKeyValue<object, ParameterExpression>(definedScopeName, variable));
 
                 resolutionContext.AddDefinedVariable(variable);
                 resolutionContext.AddInstruction(variable.AssignTo(newScope.ConvertTo(Constants.ResolutionScopeType)));

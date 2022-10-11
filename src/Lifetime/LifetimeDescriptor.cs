@@ -1,6 +1,6 @@
 ﻿using Stashbox.Exceptions;
 using Stashbox.Expressions;
-using Stashbox.Registration.ServiceRegistrations;
+using Stashbox.Registration;
 using Stashbox.Resolution;
 using System;
 using System.Linq.Expressions;

@@ -25,7 +25,7 @@ namespace Stashbox.Registration.Fluent
             if (!implementationType.Implements(this.ServiceType))
                 throw new ArgumentException($"The type {implementationType} does not implement the actual service type {this.ServiceType}.");
 
-            this.Registration.ImplementationType = implementationType;
+            this.ImplementationType = implementationType;
             return this;
 
         }

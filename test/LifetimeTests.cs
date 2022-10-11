@@ -480,6 +480,20 @@ namespace Stashbox.Tests
             Assert.Contains("found with unresolvable parameter", exception.Message);
         }
 
+        [Fact]
+        public void LifetimeTests_PerRequest_With_Singleton()
+        {
+            using IStashboxContainer container = new StashboxContainer();
+
+            container.Register<Test6>(c => c.WithSingletonLifetime());
+            container.Register<Test5>(c => c.WithPerRequestLifetime());
+            container.Register<Test7>();
+
+            var inst = container.Resolve<Test7>();
+
+            Assert.Same(inst.Test5, inst.Test6.Test5);
+        }
+
         interface ITest1 { string Name { get; set; } }
 
         interface ITest2 { string Name { get; set; } }

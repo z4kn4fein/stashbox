@@ -1,5 +1,4 @@
 ﻿using Stashbox.Lifetime;
-using Stashbox.Registration.ServiceRegistrations;
 using Stashbox.Utils;
 using System;
 using System.Collections.Generic;
@@ -34,10 +33,11 @@ namespace Stashbox.Registration.Fluent
                 throw new ArgumentException("The expression must be a member expression (Property or Field)",
                     nameof(expression));
 
-            var registration = RegistrationFactory.EnsureComplex(this.Registration);
-            registration.DependencyBindings ??= new Dictionary<object, object?>();
-            registration.DependencyBindings.Add(memberExpression.Member.Name, dependencyName);
-            this.Registration = registration;
+            this.Options ??= new Dictionary<byte, object?>();
+            if (this.Options.TryGetValue(OptionIds.DependencyBindings, out var value) && value is Dictionary<object, object?> bindings)
+                bindings.Add(memberExpression.Member.Name, dependencyName);
+            else
+                this.Options[OptionIds.DependencyBindings] = new Dictionary<object, object?> { { memberExpression.Member.Name, dependencyName } };
 
             return (TConfigurator)this;
 
@@ -52,9 +52,8 @@ namespace Stashbox.Registration.Fluent
         {
             Shield.EnsureNotNull(finalizer, nameof(finalizer));
 
-            var registration = RegistrationFactory.EnsureComplex(this.Registration);
-            registration.Finalizer = o => finalizer((TImplementation)o);
-            this.Registration = registration;
+            this.Options ??= new Dictionary<byte, object?>();
+            this.Options[OptionIds.Finalizer] = new Action<object>(o => finalizer((TImplementation)o));
 
             return (TConfigurator)this;
         }
@@ -68,9 +67,8 @@ namespace Stashbox.Registration.Fluent
         {
             Shield.EnsureNotNull(initializer, nameof(initializer));
 
-            var registration = RegistrationFactory.EnsureComplex(this.Registration);
-            registration.Initializer = initializer;
-            this.Registration = registration;
+            this.Options ??= new Dictionary<byte, object?>();
+            this.Options[OptionIds.Initializer] = initializer;
 
             return (TConfigurator)this;
         }
@@ -84,9 +82,8 @@ namespace Stashbox.Registration.Fluent
         {
             Shield.EnsureNotNull(initializer, nameof(initializer));
 
-            var registration = RegistrationFactory.EnsureComplex(this.Registration);
-            registration.AsyncInitializer = (o, r, t) => initializer((TImplementation)o, r, t);
-            this.Registration = registration;
+            this.Options ??= new Dictionary<byte, object?>();
+            this.Options[OptionIds.AsyncInitializer] = new Func<object, IDependencyResolver, CancellationToken, Task>((o, r, t) => initializer((TImplementation)o, r, t));
 
             return (TConfigurator)this;
         }
@@ -193,9 +190,8 @@ namespace Stashbox.Registration.Fluent
         /// <returns></returns>
         public TConfigurator WithDynamicResolution()
         {
-            var registration = RegistrationFactory.EnsureComplex(this.Registration);
-            registration.IsResolutionCallRequired = true;
-            this.Registration = registration;
+            this.Options ??= new Dictionary<byte, object?>();
+            this.Options[OptionIds.IsResolutionCallRequired] = true;
 
             return (TConfigurator)this;
         }
@@ -207,9 +203,8 @@ namespace Stashbox.Registration.Fluent
         /// <returns>The fluent configurator.</returns>
         public TConfigurator WithMetadata(object? metadata)
         {
-            var registration = RegistrationFactory.EnsureComplex(this.Registration);
-            registration.Metadata = metadata;
-            this.Registration = registration;
+            this.Options ??= new Dictionary<byte, object?>();
+            this.Options[OptionIds.Metadata] = metadata;
 
             return (TConfigurator)this;
         }
@@ -221,7 +216,7 @@ namespace Stashbox.Registration.Fluent
         /// <returns>The fluent configurator.</returns>
         public TConfigurator WithName(object? name)
         {
-            this.Registration.Name = name;
+            this.Name = name;
 
             return (TConfigurator)this;
         }
@@ -233,9 +228,8 @@ namespace Stashbox.Registration.Fluent
         /// <returns>The fluent configurator.</returns>
         public TConfigurator DefinesScope(object? scopeName = null)
         {
-            var registration = RegistrationFactory.EnsureComplex(this.Registration);
-            registration.DefinedScopeName = scopeName ?? this.ImplementationType;
-            this.Registration = registration;
+            this.Options ??= new Dictionary<byte, object?>();
+            this.Options[OptionIds.DefinedScopeName] = scopeName ?? this.ImplementationType;
 
             return (TConfigurator)this;
         }

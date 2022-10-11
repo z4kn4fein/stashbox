@@ -1,8 +1,9 @@
 ﻿using Stashbox.Exceptions;
-using Stashbox.Registration.ServiceRegistrations;
+using Stashbox.Registration;
 using Stashbox.Resolution;
 using Stashbox.Resolution.Extensions;
 using Stashbox.Utils;
+using Stashbox.Utils.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,7 +27,7 @@ namespace Stashbox.Expressions
                 var parameter = parameters[i].AsTypeInformation(method.DeclaringType, serviceRegistration,
                     resolutionContext.CurrentContainerContext.ContainerConfiguration);
 
-                var injectionParameter = (serviceRegistration as ComplexRegistration)?.InjectionParameters?.SelectInjectionParameterOrDefault(parameter);
+                var injectionParameter = serviceRegistration?.Options.GetOrDefault<ExpandableArray<KeyValuePair<string, object?>>>(OptionIds.InjectionParameters)?.SelectInjectionParameterOrDefault(parameter);
                 if (injectionParameter != null) yield return injectionParameter;
 
                 yield return resolutionContext.CurrentContainerContext.ResolutionStrategy.BuildExpressionForType(
@@ -136,8 +137,7 @@ namespace Stashbox.Expressions
                 var parameter = parameters[i].AsTypeInformation(method.DeclaringType, serviceRegistration,
                     resolutionContext.CurrentContainerContext.ContainerConfiguration);
 
-                var injectionParameter = (serviceRegistration as ComplexRegistration)?.InjectionParameters?.SelectInjectionParameterOrDefault(parameter);
-
+                var injectionParameter = serviceRegistration?.Options.GetOrDefault<ExpandableArray<KeyValuePair<string, object?>>>(OptionIds.InjectionParameters)?.SelectInjectionParameterOrDefault(parameter);
                 if (injectionParameter != null)
                 {
                     parameterExpressions[i] = injectionParameter;

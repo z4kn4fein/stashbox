@@ -1,5 +1,5 @@
-﻿using Stashbox.Registration.ServiceRegistrations;
-using Stashbox.Resolution;
+﻿using Stashbox.Resolution;
+using System.Collections.Generic;
 
 namespace Stashbox.Registration.SelectionRules
 {
@@ -8,25 +8,15 @@ namespace Stashbox.Registration.SelectionRules
         public bool IsValidForCurrentRequest(TypeInformation typeInformation,
             ServiceRegistration registration, ResolutionContext resolutionContext, out bool shouldIncrementWeight)
         {
-            if (registration is not ComplexRegistration complexRegistration)
+            var conditions = registration.Options.GetOrDefault<ConditionOptions>(OptionIds.ConditionOptions);
+            if (conditions is not null)
             {
-                shouldIncrementWeight = false;
-                return true;
-            }
-
-            if (HasCondition(complexRegistration))
-            {
-                shouldIncrementWeight = complexRegistration.IsUsableForCurrentContext(typeInformation);
+                shouldIncrementWeight = registration.IsUsableForCurrentContext(typeInformation, conditions);
                 return shouldIncrementWeight;
             }
 
             shouldIncrementWeight = false;
-            return !HasCondition(complexRegistration);
+            return conditions is null;
         }
-
-        private static bool HasCondition(ComplexRegistration serviceRegistration) =>
-            serviceRegistration.TargetTypeConditions != null ||
-            serviceRegistration.ResolutionConditions != null ||
-            serviceRegistration.AttributeConditions != null;
     }
 }

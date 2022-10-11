@@ -2,12 +2,10 @@
 using Stashbox.Exceptions;
 using Stashbox.Registration.Extensions;
 using Stashbox.Registration.SelectionRules;
-using Stashbox.Registration.ServiceRegistrations;
 using Stashbox.Resolution;
 using Stashbox.Utils;
 using Stashbox.Utils.Data.Immutable;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -51,7 +49,7 @@ namespace Stashbox.Registration
 
         public bool AddOrUpdateRegistration(ServiceRegistration registration, Type serviceType)
         {
-            if (registration is ComplexRegistration complexRegistration && complexRegistration.ReplaceExistingRegistrationOnlyIfExists)
+            if (registration.Options.IsOn(OptionIds.ReplaceExistingRegistrationOnlyIfExists))
                 return Swap.SwapValue(ref this.serviceRepository, (reg, type, _, _, repo) =>
                     repo.UpdateIfExists(type, true, regs =>
                     {
@@ -83,7 +81,7 @@ namespace Stashbox.Registration
                 repo.AddOrUpdate(type, newRepo, true,
                     (oldValue, _) =>
                     {
-                        var replaceExisting = reg is ComplexRegistration complex && complex.ReplaceExistingRegistration;
+                        var replaceExisting = reg.Options.IsOn(OptionIds.ReplaceExistingRegistration);
                         var allowUpdate = replaceExisting || regBehavior == Rules.RegistrationBehavior.ReplaceExisting;
 
                         if (!allowUpdate && regBehavior == Rules.RegistrationBehavior.PreserveDuplications)
@@ -124,7 +122,7 @@ namespace Stashbox.Registration
         }
 
         public bool AddOrReMapRegistration(ServiceRegistration registration, Type serviceType) =>
-            registration is ComplexRegistration complexRegistration && complexRegistration.ReplaceExistingRegistrationOnlyIfExists
+            registration.Options.IsOn(OptionIds.ReplaceExistingRegistrationOnlyIfExists)
                 ? Swap.SwapValue(ref this.serviceRepository, (type, newRepo, _, _, repo) =>
                     repo.UpdateIfExists(type, newRepo, true), serviceType,
                     new ImmutableBucket<ServiceRegistration>(registration),

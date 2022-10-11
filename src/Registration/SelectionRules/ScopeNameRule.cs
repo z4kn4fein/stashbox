@@ -1,5 +1,4 @@
 ﻿using Stashbox.Lifetime;
-using Stashbox.Registration.ServiceRegistrations;
 using Stashbox.Resolution;
 
 namespace Stashbox.Registration.SelectionRules

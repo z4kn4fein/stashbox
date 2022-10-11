@@ -16,7 +16,7 @@ namespace Stashbox.Resolution.Wrappers
         {
             if (!typeInformation.Type.IsSubclassOf(Constants.DelegateType))
             {
-                unWrappedType = default;
+                unWrappedType = TypeInformation.Empty;
                 parameterTypes = Constants.EmptyTypes;
                 return false;
             }
@@ -24,7 +24,7 @@ namespace Stashbox.Resolution.Wrappers
             var method = typeInformation.Type.GetMethod("Invoke");
             if (method == null || method.ReturnType == Constants.VoidType)
             {
-                unWrappedType = default;
+                unWrappedType = TypeInformation.Empty;
                 parameterTypes = Constants.EmptyTypes;
                 return false;
             }

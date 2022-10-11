@@ -379,8 +379,8 @@ namespace Stashbox
                     c.AddOrUpdate(t1, new CacheEntry(factory, null), true, (old, _) => new CacheEntry(t2, old.NamedFactories)), 
                         serivceType, factory, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
 
-            return factory(this, resolutionContext.RequestConfiguration.RequiresRequestContext || dependencyOverrides != null
-                ? RequestContext.FromOverrides(dependencyOverrides)
+            return factory(this, resolutionContext.RequestConfiguration.RequiresRequestContext
+                ? resolutionContext.RequestContext
                 : RequestContext.Empty);
         }
 
@@ -402,8 +402,8 @@ namespace Stashbox
                     });
                 }, serivceType, key, factory, Constants.DelegatePlaceholder);
 
-            return factory(this, resolutionContext.RequestConfiguration.RequiresRequestContext || dependencyOverrides != null
-                ? RequestContext.FromOverrides(dependencyOverrides)
+            return factory(this, resolutionContext.RequestConfiguration.RequiresRequestContext
+                ? resolutionContext.RequestContext
                 : RequestContext.Empty);
         }
 

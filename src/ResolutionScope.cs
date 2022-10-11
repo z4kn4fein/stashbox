@@ -86,8 +86,6 @@ namespace Stashbox
         public object GetOrAddScopedObject(int key, Func<IResolutionScope, IRequestContext, object> factory,
             IRequestContext requestContext, Type serviceType)
         {
-            this.ThrowIfDisposed();
-
             var item = this.scopedInstances.GetOrDefault(key);
             if (item != null) return item.Evaluate(this, requestContext, factory, serviceType);
 

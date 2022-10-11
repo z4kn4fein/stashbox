@@ -1,4 +1,4 @@
-﻿using Stashbox.Registration.ServiceRegistrations;
+﻿using Stashbox.Registration;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
@@ -16,11 +16,12 @@ namespace Stashbox.Resolution.Wrappers
 
         private static bool IsMetadataType(Type type) => type.IsClosedGenericType() && SupportedTypes.Contains(type.GetGenericTypeDefinition());
 
-        public Expression WrapExpression(TypeInformation originalTypeInformation, TypeInformation wrappedTypeInformation, ServiceContext serviceContext)
+        public Expression WrapExpression(TypeInformation originalTypeInformation, TypeInformation wrappedTypeInformation, 
+            ServiceContext serviceContext)
         {
             var arguments = originalTypeInformation.Type.GetGenericArguments();
             var constructor = originalTypeInformation.Type.GetConstructor(arguments)!;
-            var metadata = (serviceContext.ServiceRegistration as ComplexRegistration)?.Metadata;
+            var metadata = serviceContext.ServiceRegistration?.Options.GetOrDefault(OptionIds.Metadata);
             return constructor.MakeNew(serviceContext.ServiceExpression, metadata.AsConstant());
         }
 
@@ -28,7 +29,7 @@ namespace Stashbox.Resolution.Wrappers
         {
             if (!IsMetadataType(typeInformation.Type))
             {
-                unWrappedType = default;
+                unWrappedType = TypeInformation.Empty;
                 return false;
             }
 

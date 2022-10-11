@@ -1,5 +1,5 @@
 ﻿using Stashbox.Exceptions;
-using Stashbox.Registration.ServiceRegistrations;
+using Stashbox.Registration;
 using Stashbox.Resolution;
 using System;
 using System.Collections.Generic;
@@ -9,38 +9,38 @@ namespace Stashbox.Expressions
 {
     internal static partial class ExpressionBuilder
     {
-        private static Expression GetExpressionForFactory(FactoryRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType)
+        private static Expression GetExpressionForFactory(ServiceRegistration serviceRegistration, FactoryOptions factoryOptions, ResolutionContext resolutionContext, Type resolveType)
         {
             if (resolutionContext.CircularDependencyBarrier.Contains(serviceRegistration.RegistrationId))
                 throw new CircularDependencyException(serviceRegistration.ImplementationType);
 
             resolutionContext.CircularDependencyBarrier.Add(serviceRegistration.RegistrationId);
 
-            var parameters = GetFactoryParameters(serviceRegistration, resolutionContext);
-            var expression = ConstructFactoryExpression(serviceRegistration, parameters);
+            var parameters = GetFactoryParameters(factoryOptions, resolutionContext);
+            var expression = ConstructFactoryExpression(factoryOptions, parameters);
             var result = ExpressionFactory.ConstructBuildUpExpression(serviceRegistration, resolutionContext, expression, resolveType);
 
             resolutionContext.CircularDependencyBarrier.Pop();
             return result;
         }
 
-        private static Expression ConstructFactoryExpression(FactoryRegistration serviceRegistration, IEnumerable<Expression> parameters)
+        private static Expression ConstructFactoryExpression(FactoryOptions factoryOptions, IEnumerable<Expression> parameters)
         {
-            if (serviceRegistration.IsFactoryDelegateACompiledLambda || serviceRegistration.Factory.IsCompiledLambda())
-                return serviceRegistration.Factory.InvokeDelegate(parameters);
+            if (factoryOptions.IsFactoryDelegateACompiledLambda || factoryOptions.Factory.IsCompiledLambda())
+                return factoryOptions.Factory.InvokeDelegate(parameters);
 
-            var method = serviceRegistration.Factory.GetMethod();
+            var method = factoryOptions.Factory.GetMethod();
             return method.IsStatic
                 ? method.CallStaticMethod(parameters)
-                : method.CallMethod(serviceRegistration.Factory.Target.AsConstant(), parameters);
+                : method.CallMethod(factoryOptions.Factory.Target.AsConstant(), parameters);
         }
 
-        private static IEnumerable<Expression> GetFactoryParameters(FactoryRegistration serviceRegistration, ResolutionContext resolutionContext)
+        private static IEnumerable<Expression> GetFactoryParameters(FactoryOptions factoryOptions, ResolutionContext resolutionContext)
         {
-            var length = serviceRegistration.FactoryParameters.Length;
+            var length = factoryOptions.FactoryParameters.Length;
             for (var i = 0; i < length - 1; i++)
             {
-                var typeInfo = new TypeInformation(serviceRegistration.FactoryParameters[i], null);
+                var typeInfo = new TypeInformation(factoryOptions.FactoryParameters[i], null);
                 yield return resolutionContext.CurrentContainerContext.ResolutionStrategy.BuildExpressionForType(resolutionContext, typeInfo).ServiceExpression;
             }
         }

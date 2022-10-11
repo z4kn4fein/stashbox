@@ -1,6 +1,7 @@
 ﻿using Stashbox.Lifetime;
-using Stashbox.Registration.ServiceRegistrations;
+using Stashbox.Utils.Data;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Stashbox.Registration
@@ -10,12 +11,12 @@ namespace Stashbox.Registration
         public static void Register(IContainerContext containerContext, ServiceRegistration serviceRegistration, Type serviceType)
         {
             if (serviceRegistration.ImplementationType.IsOpenGenericType())
-                serviceRegistration = RegistrationFactory.EnsureOpenGeneric(serviceRegistration);
+                serviceRegistration = new OpenGenericRegistration(serviceRegistration);
 
             PreProcessRegistration(containerContext, serviceRegistration);
 
-            if (serviceRegistration is ComplexRegistration complexRegistration && complexRegistration.AdditionalServiceTypes != null)
-                foreach (var additionalServiceType in complexRegistration.AdditionalServiceTypes.Distinct())
+            if (serviceRegistration.Options.TryGet(OptionIds.AdditionalServiceTypes, out var types) && types is ExpandableArray<Type> additionalTypes)
+                foreach (var additionalServiceType in additionalTypes.Distinct())
                 {
                     if (additionalServiceType.IsOpenGenericType())
                     {
@@ -32,12 +33,12 @@ namespace Stashbox.Registration
         public static void ReMap(IContainerContext containerContext, ServiceRegistration serviceRegistration, Type serviceType)
         {
             if (serviceRegistration.ImplementationType.IsOpenGenericType())
-                serviceRegistration = RegistrationFactory.EnsureOpenGeneric(serviceRegistration);
+                serviceRegistration = new OpenGenericRegistration(serviceRegistration);
 
             PreProcessRegistration(containerContext, serviceRegistration);
 
-            if (serviceRegistration is ComplexRegistration complexRegistration && complexRegistration.AdditionalServiceTypes != null)
-                foreach (var additionalServiceType in complexRegistration.AdditionalServiceTypes.Distinct())
+            if (serviceRegistration.Options.TryGet(OptionIds.AdditionalServiceTypes, out var types) && types is ExpandableArray<Type> additionalTypes)
+                foreach (var additionalServiceType in additionalTypes.Distinct())
                     ReMapInternal(containerContext, serviceRegistration, additionalServiceType);
 
             ReMapInternal(containerContext, serviceRegistration, serviceType);
@@ -66,13 +67,13 @@ namespace Stashbox.Registration
 
         private static void PreProcessRegistration(IContainerContext containerContext, ServiceRegistration serviceRegistration)
         {
-            if (serviceRegistration is InstanceRegistration instanceRegistration)
+            if (serviceRegistration.Options.TryGet(OptionIds.RegistrationTypeOptions, out var opts) && opts is InstanceOptions instanceOptions)
             {
-                PreProcessExistingInstanceIfNeeded(containerContext, instanceRegistration.ExistingInstance, instanceRegistration.IsLifetimeExternallyOwned, 
-                    instanceRegistration.Finalizer, instanceRegistration.ImplementationType);
+                PreProcessExistingInstanceIfNeeded(containerContext, instanceOptions.ExistingInstance, serviceRegistration.Options.IsOn(OptionIds.IsLifetimeExternallyOwned), 
+                    serviceRegistration.Options.GetOrDefault<Action<object>>(OptionIds.Finalizer), serviceRegistration.ImplementationType);
 
-                if (instanceRegistration.IsWireUp)
-                    instanceRegistration.Lifetime = Lifetimes.Singleton;
+                if (instanceOptions.IsWireUp)
+                    serviceRegistration.Lifetime = Lifetimes.Singleton;
             }
         }
 

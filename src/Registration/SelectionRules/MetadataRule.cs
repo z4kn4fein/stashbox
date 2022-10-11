@@ -1,5 +1,5 @@
-﻿using Stashbox.Registration.ServiceRegistrations;
-using Stashbox.Resolution;
+﻿using Stashbox.Resolution;
+using System.Collections.Generic;
 
 namespace Stashbox.Registration.SelectionRules
 {
@@ -11,10 +11,9 @@ namespace Stashbox.Registration.SelectionRules
             shouldIncrementWeight = false;
             if (typeInformation.MetadataType != null)
             {
-                if(registration is not ComplexRegistration complexRegistration)
-                    return false;
+                var metadata = registration.Options.GetOrDefault(OptionIds.Metadata);
 
-                shouldIncrementWeight = complexRegistration.Metadata != null && typeInformation.MetadataType.IsInstanceOfType(complexRegistration.Metadata);
+                shouldIncrementWeight = metadata != null && typeInformation.MetadataType.IsInstanceOfType(metadata);
                 return shouldIncrementWeight;
             }
 

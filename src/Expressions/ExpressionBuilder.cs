@@ -1,9 +1,10 @@
 ﻿using Stashbox.Lifetime;
-using Stashbox.Registration.ServiceRegistrations;
+using Stashbox.Registration;
 using Stashbox.Resolution;
 using Stashbox.Utils;
 using System;
 using System.Linq.Expressions;
+using System.Collections.Generic;
 
 namespace Stashbox.Expressions
 {
@@ -16,17 +17,17 @@ namespace Stashbox.Expressions
             if (expression == null)
                 return null;
 
-            if (serviceRegistration is not InstanceRegistration && serviceRegistration is ComplexRegistration complex)
+            if (serviceRegistration.Options != null && !serviceRegistration.IsInstance())
             {
-                if (complex.AsyncInitializer != null)
+                if (serviceRegistration.Options.TryGetValue(OptionIds.AsyncInitializer, out var asyncInitializer))
                     expression = resolutionContext.CurrentScopeParameter.CallMethod(Constants.AddWithAsyncInitializerMethod, expression,
-                        complex.AsyncInitializer.AsConstant()).ConvertTo(requestedType);
+                        asyncInitializer.AsConstant()).ConvertTo(requestedType);
 
-                if (complex.Finalizer != null)
+                if (serviceRegistration.Options.TryGetValue(OptionIds.Finalizer, out var finalizer))
                     expression = resolutionContext.CurrentScopeParameter.CallMethod(Constants.AddWithFinalizerMethod, expression,
-                        complex.Finalizer.AsConstant()).ConvertTo(requestedType);
+                        finalizer.AsConstant()).ConvertTo(requestedType);
             }
-                
+
             if (!ShouldHandleDisposal(resolutionContext.CurrentContainerContext, serviceRegistration) || !expression.Type.IsDisposable())
                 return expression;
 
@@ -42,23 +43,25 @@ namespace Stashbox.Expressions
                 ? resolutionContext.BeginCrossContainerContext(resolutionContext.RequestInitiatorContainerContext)
                 : resolutionContext;
 
-            return serviceRegistration switch
+            var options = serviceRegistration.Options?.GetOrDefault(OptionIds.RegistrationTypeOptions);
+
+            return options switch
             {
-                FactoryRegistration factoryRegistration => GetExpressionForFactory(factoryRegistration, resolutionContext, requestedType),
-                InstanceRegistration instanceRegistration => instanceRegistration.IsWireUp
+                FactoryOptions factoryOptions => GetExpressionForFactory(serviceRegistration, factoryOptions, resolutionContext, requestedType),
+                InstanceOptions instanceRegistration => instanceRegistration.IsWireUp
                     ? ExpressionFactory.ConstructBuildUpExpression(serviceRegistration,
                         resolutionContext, instanceRegistration.ExistingInstance.AsConstant(),
                         serviceRegistration.ImplementationType)
                     : instanceRegistration.ExistingInstance.AsConstant(),
-                FuncRegistration funcRegistration => GetExpressionForFunc(funcRegistration, resolutionContext),
+                Delegate func => GetExpressionForFunc(serviceRegistration, func, resolutionContext),
                 _ => GetExpressionForDefault(serviceRegistration, resolutionContext)
             };
         }
 
         private static bool ShouldHandleDisposal(IContainerContext containerContext, ServiceRegistration serviceRegistration)
         {
-            if (serviceRegistration is ComplexRegistration complex && complex.IsLifetimeExternallyOwned ||
-                serviceRegistration is InstanceRegistration)
+            if (serviceRegistration.Options.IsOn(OptionIds.IsLifetimeExternallyOwned) ||
+                serviceRegistration.IsInstance())
                 return false;
 
             return containerContext.ContainerConfiguration.TrackTransientsForDisposalEnabled ||

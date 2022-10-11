@@ -1,4 +1,4 @@
-﻿using Stashbox.Registration.ServiceRegistrations;
+﻿using Stashbox.Registration;
 using Stashbox.Resolution;
 using Stashbox.Utils.Data;
 using System;
@@ -24,10 +24,10 @@ namespace Stashbox.Expressions
             var members = serviceRegistration.ImplementationType.GetUsableMembers(serviceRegistration,
                 resolutionContext.CurrentContainerContext.ContainerConfiguration);
 
-            var complexRegistration = serviceRegistration as ComplexRegistration;
+            var initializer = serviceRegistration.Options.GetOrDefault(OptionIds.Initializer);
 
             if (members.Length == 0 && methods.Length == 0 &&
-                complexRegistration?.Initializer == null) return instance;
+                initializer == null) return instance;
 
             var variable = instance.Type.AsVariable();
             var assign = variable.AssignTo(instance);
@@ -40,9 +40,9 @@ namespace Stashbox.Expressions
             lines.AddRange(CreateMethodExpressions(methods,
                 serviceRegistration, resolutionContext, variable));
 
-            if (complexRegistration?.Initializer != null)
-                lines.Add(complexRegistration.Initializer.AsConstant()
-                    .CallMethod(complexRegistration.Initializer.GetType().GetMethod("Invoke")!,
+            if (initializer != null)
+                lines.Add(initializer.AsConstant()
+                    .CallMethod(initializer.GetType().GetMethod("Invoke")!,
                         variable, resolutionContext.CurrentScopeParameter));
 
             lines.Add(variable.Type != serviceType ? variable.ConvertTo(serviceType) : variable);
@@ -101,9 +101,9 @@ namespace Stashbox.Expressions
                 initExpression = initExpression.InitMembers(GetMemberBindings(members,
                     serviceRegistration, resolutionContext));
 
-            var complexRegistration = serviceRegistration as ComplexRegistration;
+            var initializer = serviceRegistration.Options.GetOrDefault(OptionIds.Initializer);
 
-            if (methods.Length == 0 && complexRegistration?.Initializer == null)
+            if (methods.Length == 0 && initializer == null)
                 return initExpression;
 
             var variable = initExpression.Type.AsVariable();
@@ -114,9 +114,9 @@ namespace Stashbox.Expressions
             lines.AddRange(CreateMethodExpressions(methods,
                 serviceRegistration, resolutionContext, variable));
 
-            if (complexRegistration?.Initializer != null)
-                lines.Add(complexRegistration.Initializer.AsConstant()
-                    .CallMethod(complexRegistration.Initializer.GetType().GetMethod("Invoke")!,
+            if (initializer != null)
+                lines.Add(initializer.AsConstant()
+                    .CallMethod(initializer.GetType().GetMethod("Invoke")!,
                         variable, resolutionContext.CurrentScopeParameter));
 
             lines.Add(variable);
@@ -163,23 +163,25 @@ namespace Stashbox.Expressions
             IEnumerable<ConstructorInfo> constructors)
         {
             var rule = resolutionContext.CurrentContainerContext.ContainerConfiguration.ConstructorSelectionRule;
-            if (serviceRegistration is ComplexRegistration complexRegistration)
+            var constructorOptions = serviceRegistration.Options.GetOrDefault<ConstructorOptions>(OptionIds.ConstructorOptions);
+            if (constructorOptions != null)
             {
-                if (complexRegistration.SelectedConstructor != null)
+                if (constructorOptions.SelectedConstructor != null)
                 {
-                    if (complexRegistration.ConstructorArguments != null)
-                        return complexRegistration.SelectedConstructor
-                            .MakeNew(complexRegistration.ConstructorArguments.Select(Expression.Constant));
+                    if (constructorOptions.ConstructorArguments != null)
+                        return constructorOptions.SelectedConstructor
+                            .MakeNew(constructorOptions.ConstructorArguments.Select(Expression.Constant));
 
-                    return complexRegistration.SelectedConstructor.MakeNew(
+                    return constructorOptions.SelectedConstructor.MakeNew(
                         CreateParameterExpressionsForMethod(
                             serviceRegistration,
-                            resolutionContext, complexRegistration.SelectedConstructor));
+                            resolutionContext, constructorOptions.SelectedConstructor));
                 }
-
-                if (complexRegistration.ConstructorSelectionRule != null)
-                    rule = complexRegistration.ConstructorSelectionRule;
             }
+
+            var constructorSelectionRule = serviceRegistration.Options.GetOrDefault<Func<IEnumerable<ConstructorInfo>, IEnumerable<ConstructorInfo>>>(OptionIds.ConstructorSelectionRule);
+            if (constructorSelectionRule != null)
+                rule = constructorSelectionRule;
 
             constructors = rule(constructors);
 

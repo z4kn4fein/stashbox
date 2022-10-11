@@ -1,4 +1,5 @@
-﻿using Stashbox.Utils;
+﻿using Stashbox.Registration;
+using Stashbox.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
@@ -15,7 +16,8 @@ namespace Stashbox.Resolution.Wrappers
 
         private static bool IsKeyValueType(Type type) => type.IsClosedGenericType() && SupportedTypes.Contains(type.GetGenericTypeDefinition());
 
-        public Expression WrapExpression(TypeInformation originalTypeInformation, TypeInformation wrappedTypeInformation, ServiceContext serviceContext)
+        public Expression WrapExpression(TypeInformation originalTypeInformation, TypeInformation wrappedTypeInformation, 
+            ServiceContext serviceContext)
         {
             var arguments = originalTypeInformation.Type.GetGenericArguments();
             var constructor = originalTypeInformation.Type.GetConstructor(arguments)!;
@@ -27,7 +29,7 @@ namespace Stashbox.Resolution.Wrappers
         {
             if (!IsKeyValueType(typeInformation.Type))
             {
-                unWrappedType = default;
+                unWrappedType = TypeInformation.Empty;
                 return false;
             }
 
@@ -36,7 +38,7 @@ namespace Stashbox.Resolution.Wrappers
 
             if (nameType != Constants.ObjectType)
             {
-                unWrappedType = default;
+                unWrappedType = TypeInformation.Empty;
                 return false;
             }
 

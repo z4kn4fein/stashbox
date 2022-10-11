@@ -90,5 +90,7 @@ namespace Stashbox.Resolution
                 this.HasDefaultValue,
                 this.DefaultValue,
                 metadataType ?? this.MetadataType);
+
+        internal static readonly TypeInformation Empty = default;
     }
 }

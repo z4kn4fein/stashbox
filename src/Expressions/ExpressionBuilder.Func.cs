@@ -1,4 +1,4 @@
-﻿using Stashbox.Registration.ServiceRegistrations;
+﻿using Stashbox.Registration;
 using Stashbox.Resolution;
 using System;
 using System.Collections.Generic;
@@ -10,18 +10,18 @@ namespace Stashbox.Expressions
 {
     internal static partial class ExpressionBuilder
     {
-        private static Expression GetExpressionForFunc(FuncRegistration serviceRegistration, ResolutionContext resolutionContext)
+        private static Expression GetExpressionForFunc(ServiceRegistration serviceRegistration, Delegate func, ResolutionContext resolutionContext)
         {
-            var internalMethodInfo = serviceRegistration.FuncDelegate.GetMethod();
+            var internalMethodInfo = func.GetMethod();
 
             var parameters = GetFuncParametersWithScope(serviceRegistration.ImplementationType.GetMethod("Invoke")!.GetParameters(), resolutionContext);
-            if (serviceRegistration.FuncDelegate.IsCompiledLambda())
-                return serviceRegistration.FuncDelegate.InvokeDelegate(parameters)
+            if (func.IsCompiledLambda())
+                return func.InvokeDelegate(parameters)
                     .AsLambda(parameters.Take(parameters.Length - 1).Cast<ParameterExpression>());
 
             var expr = internalMethodInfo.IsStatic
                 ? internalMethodInfo.CallStaticMethod(parameters)
-                : serviceRegistration.FuncDelegate.Target.AsConstant().CallMethod(internalMethodInfo, parameters);
+                : func.Target.AsConstant().CallMethod(internalMethodInfo, parameters);
 
             return expr.AsLambda(parameters.Take(parameters.Length - 1).Cast<ParameterExpression>());
         }
