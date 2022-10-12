@@ -27,6 +27,7 @@ namespace Stashbox.Benchmarks
                     BenchmarkConverter.TypeToBenchmarks( typeof(BeginScopeBenchmarks), config),
                     BenchmarkConverter.TypeToBenchmarks( typeof(SingletonBenchmarks), config),
                     BenchmarkConverter.TypeToBenchmarks( typeof(DecoratorBenchmarks), config),
+                    BenchmarkConverter.TypeToBenchmarks( typeof(ChildContainerBenchmarks), config),
                 });
 
             Console.ReadKey();

@@ -29,7 +29,10 @@ namespace Stashbox.Resolution
             this.ServiceRegistration = serviceRegistration;
         }
 
-        internal bool IsEmpty() => Equals(this, Empty);
+        internal bool IsEmpty() => this.Equals(Empty);
+
+        private bool Equals(ServiceContext other) =>
+            ReferenceEquals(ServiceExpression, other.ServiceExpression) && ReferenceEquals(ServiceRegistration, other.ServiceRegistration);
 
         internal static readonly ServiceContext Empty = default;
     }

@@ -21,8 +21,7 @@ namespace Stashbox.Resolution
             public bool FactoryDelegateCacheEnabled { get; set; }
         }
 
-        private readonly Tree<Expression> expressionCache;
-
+        internal readonly Tree<Expression> ExpressionCache;
         internal readonly Utils.Data.Stack<object> ScopeNames;
         internal readonly PerRequestConfiguration RequestConfiguration;
         internal readonly IContainerContext RequestInitiatorContainerContext;
@@ -84,7 +83,7 @@ namespace Stashbox.Resolution
             this.RemainingDecorators = new ExpandableArray<Type, Utils.Data.Stack<ServiceRegistration>>();
             this.CurrentDecorators = new ExpandableArray<ServiceRegistration>();
             this.CircularDependencyBarrier = new Utils.Data.Stack<int>();
-            this.expressionCache = new Tree<Expression>();
+            this.ExpressionCache = new Tree<Expression>();
             this.FactoryCache = new Tree<Func<IResolutionScope, IRequestContext, object>>();
             this.NullResultAllowed = nullResultAllowed;
             this.IsRequestedFromRoot = isRequestedFromRoot;
@@ -139,7 +138,7 @@ namespace Stashbox.Resolution
             this.RemainingDecorators = remainingDecorators;
             this.CurrentDecorators = currentDecorators;
             this.CircularDependencyBarrier = circularDependencyBarrier;
-            this.expressionCache = cachedExpressions;
+            this.ExpressionCache = cachedExpressions;
             this.FactoryCache = factoryCache;
             this.NullResultAllowed = nullResultAllowed;
             this.IsRequestedFromRoot = isRequestedFromRoot;
@@ -182,19 +181,8 @@ namespace Stashbox.Resolution
         public void AddDefinedVariable(ParameterExpression parameter) =>
             this.DefinedVariables.Add(RuntimeHelpers.GetHashCode(parameter), parameter);
 
-        /// <summary>
-        /// Gets an already defined global variable.
-        /// </summary>
-        /// <param name="key">The key of the variable.</param>
-        /// <returns>The variable.</returns>
-        public ParameterExpression? GetKnownVariableOrDefault(int key) =>
-             this.DefinedVariables.GetOrDefault(key);
-
         internal void CacheExpression(int key, Expression expression) =>
-            this.expressionCache.Add(key, expression);
-
-        internal Expression? GetCachedExpression(int key) =>
-            this.expressionCache.GetOrDefault(key);
+            this.ExpressionCache.Add(key, expression);
 
         internal static ResolutionContext BeginTopLevelContext(
             IEnumerable<object> initialScopeNames,
@@ -321,7 +309,7 @@ namespace Stashbox.Resolution
                 remainingDecorators ?? this.RemainingDecorators,
                 currentDecorators ?? this.CurrentDecorators,
                 this.CircularDependencyBarrier,
-                cachedExpressions ?? this.expressionCache,
+                cachedExpressions ?? this.ExpressionCache,
                 this.FactoryCache,
                 scopeNames ?? this.ScopeNames,
                 currentScopeParameter ?? this.CurrentScopeParameter,

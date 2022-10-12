@@ -53,7 +53,7 @@ namespace Stashbox.Lifetime
             if (!this.StoreResultInLocalVariable)
                 return this.BuildLifetimeAppliedExpression(serviceRegistration, resolutionContext, requestedType);
 
-            var variable = resolutionContext.GetKnownVariableOrDefault(serviceRegistration.RegistrationId);
+            var variable = resolutionContext.DefinedVariables.GetOrDefault(serviceRegistration.RegistrationId);
             if (variable != null)
                 return variable;
 
@@ -76,7 +76,7 @@ namespace Stashbox.Lifetime
             if (!IsRegistrationOutputCacheable(serviceRegistration, resolutionContext))
                 return ExpressionBuilder.BuildExpressionForRegistration(serviceRegistration, resolutionContext, requestedType);
 
-            var expression = resolutionContext.GetCachedExpression(serviceRegistration.RegistrationId);
+            var expression = resolutionContext.ExpressionCache.GetOrDefault(serviceRegistration.RegistrationId);
             if (expression != null)
                 return expression;
 
