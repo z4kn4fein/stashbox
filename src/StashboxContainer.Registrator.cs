@@ -314,7 +314,7 @@ namespace Stashbox
                 return this.RegisterInternal(typeFrom, typeTo, lifetime: Lifetimes.Empty, isDecorator: true);
             }
 
-            var decoratorConfigurator = new DecoratorConfigurator<TFrom, TFrom>(typeof(TFrom), typeTo);
+            var decoratorConfigurator = new DecoratorConfigurator<TFrom, TFrom>(typeFrom, typeTo);
             configurator(decoratorConfigurator);
 
             decoratorConfigurator.ValidateTypeMap();

@@ -20,7 +20,7 @@ namespace Stashbox.Registration
             var found = closedGenericRegistrations.GetOrDefaultByRef(requestedType);
             if (found != null) return found;
             var genericType = ImplementationType.MakeGenericType(requestedType.GetGenericArguments());
-            var newRegistration = new ServiceRegistration(genericType, null, Lifetime, IsDecorator);
+            var newRegistration = new ServiceRegistration(genericType, null, Lifetime, IsDecorator, Options);
             return Swap.SwapValue(ref closedGenericRegistrations, (t1, t2, _, _, items) =>
                 items.AddOrUpdate(t1, t2, true), requestedType, newRegistration, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder)
                     ? newRegistration

@@ -1,6 +1,7 @@
 ﻿using Stashbox.Attributes;
 using Stashbox.Configuration;
 using Stashbox.Exceptions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -421,6 +422,31 @@ namespace Stashbox.Tests
 
             Assert.Single(services);
         }
+
+        [Fact]
+        public void Ensure_Open_Generic_Options_Are_Not_Ignored()
+        {
+            using var container = new StashboxContainer()
+                .Register(typeof(B<>), c => c.WithMetadata("A"))
+                .Register<A>();
+
+            var inst = container.Resolve<A>();
+
+            Assert.NotNull(inst);
+            Assert.Equal("A", inst.Name);
+        }
+
+        class A
+        {
+            public object Name { get; set; }
+
+            public A(Tuple<B<int>, object> b)
+            {
+                this.Name = b.Item2;
+            }
+        }
+
+        class B<T> { }
 
         interface IConstraint { }
 
