@@ -70,9 +70,9 @@ namespace Stashbox.Registration
         internal void Replaces(ServiceRegistration serviceRegistration) =>
             this.RegistrationOrder = serviceRegistration.RegistrationOrder;
 
-        internal bool IsFactory() => Options?.GetOrDefault(OptionIds.RegistrationTypeOptions) is FactoryOptions;
+        internal bool IsFactory() => Options.GetOrDefault(OptionIds.RegistrationTypeOptions) is FactoryOptions;
 
-        internal bool IsInstance() => Options?.GetOrDefault(OptionIds.RegistrationTypeOptions) is InstanceOptions;
+        internal bool IsInstance() => Options.GetOrDefault(OptionIds.RegistrationTypeOptions) is InstanceOptions;
 
         internal bool IsUsableForCurrentContext(TypeInformation typeInfo, ConditionOptions conditionOptions) =>
             HasParentTypeConditionAndMatch(typeInfo, conditionOptions) ||

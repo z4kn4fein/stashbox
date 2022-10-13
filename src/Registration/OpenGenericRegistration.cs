@@ -10,6 +10,7 @@ namespace Stashbox.Registration
     public class OpenGenericRegistration : ServiceRegistration
     {
         private ImmutableTree<Type, ServiceRegistration> closedGenericRegistrations = ImmutableTree<Type, ServiceRegistration>.Empty;
+        
         internal OpenGenericRegistration(ServiceRegistration serviceRegistration)
             : base(serviceRegistration.ImplementationType, serviceRegistration.Name, serviceRegistration.Lifetime, serviceRegistration.IsDecorator,
                   serviceRegistration.Options, serviceRegistration.RegistrationId, serviceRegistration.RegistrationOrder)
