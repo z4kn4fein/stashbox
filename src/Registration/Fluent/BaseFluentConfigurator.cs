@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Xml.Linq;
 
 namespace Stashbox.Registration.Fluent
 {
@@ -388,7 +389,10 @@ namespace Stashbox.Registration.Fluent
                 throw new ArgumentException($"The implementation type {this.ImplementationType} does not implement the given service type {serviceType}.");
 
             this.Options ??= new Dictionary<RegistrationOption, object?>();
-            this.Options[RegistrationOption.AdditionalServiceTypes] = new ExpandableArray<Type> { serviceType };
+            if (this.Options.TryGetValue(RegistrationOption.AdditionalServiceTypes, out var option) && option is ExpandableArray<Type> serviceTypes)
+                serviceTypes.Add(serviceType);
+            else
+                this.Options[RegistrationOption.AdditionalServiceTypes] = new ExpandableArray<Type> { serviceType };
 
             return (TConfigurator)this;
         }
