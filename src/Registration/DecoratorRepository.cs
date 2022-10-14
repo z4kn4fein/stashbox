@@ -32,7 +32,7 @@ namespace Stashbox.Registration
             else
                 Swap.SwapValue(ref this.repository, (t1, t2, t3, _, repo) =>
                     repo.AddOrUpdate(t1, t2, true, (oldValue, _) => oldValue
-                        .AddOrUpdate(t3.ImplementationType, t3, t3.Options.IsOn(OptionIds.ReplaceExistingRegistration))),
+                        .AddOrUpdate(t3.ImplementationType, t3, t3.Options.IsOn(RegistrationOption.ReplaceExistingRegistration))),
                             type, newRepository, serviceRegistration, Constants.DelegatePlaceholder);
         }
 

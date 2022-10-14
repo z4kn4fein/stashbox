@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace Stashbox.Utils.Data.Immutable
 {
+    [DebuggerTypeProxy(typeof(ImmutebleTreeDebugView<>))]
     internal sealed class ImmutableTree<TValue>
     {
         public static readonly ImmutableTree<TValue> Empty = new();
@@ -150,6 +153,17 @@ namespace Stashbox.Utils.Data.Immutable
         }
     }
 
+    internal class ImmutebleTreeDebugView<TValue>
+    {
+        private readonly ImmutableTree<TValue> tree;
+
+        public ImmutebleTreeDebugView(ImmutableTree<TValue> tree) { this.tree = tree; }
+
+        [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
+        public ReadOnlyKeyValue<int, TValue>[] Items { get { return tree.Walk().ToArray(); } }
+    }
+
+    [DebuggerTypeProxy(typeof(ImmutebleTreeDebugView<,>))]
     internal sealed class ImmutableTree<TKey, TValue>
         where TKey : class
     {
@@ -459,5 +473,15 @@ namespace Stashbox.Utils.Data.Immutable
                 }
             }
         }
+    }
+
+    internal class ImmutebleTreeDebugView<TKey, TValue> where TKey : class
+    {
+        private readonly ImmutableTree<TKey, TValue> tree;
+
+        public ImmutebleTreeDebugView(ImmutableTree<TKey, TValue> tree) { this.tree = tree; }
+
+        [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
+        public ReadOnlyKeyValue<TKey, TValue>[] Items { get { return tree.Walk().ToArray(); } }
     }
 }

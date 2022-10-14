@@ -111,11 +111,11 @@ namespace Stashbox.Registration.Fluent
         {
             Shield.EnsureNotNull(dependencyType, nameof(dependencyType));
 
-            this.Options ??= new Dictionary<byte, object?>();
-            if (this.Options.TryGetValue(OptionIds.DependencyBindings, out var value) && value is Dictionary<object, object?> bindings)
+            this.Options ??= new Dictionary<RegistrationOption, object?>();
+            if (this.Options.TryGetValue(RegistrationOption.DependencyBindings, out var value) && value is Dictionary<object, object?> bindings)
                 bindings.Add(dependencyType, dependencyName);
             else
-                this.Options[OptionIds.DependencyBindings] = new Dictionary<object, object?> { { dependencyType, dependencyName } };
+                this.Options[RegistrationOption.DependencyBindings] = new Dictionary<object, object?> { { dependencyType, dependencyName } };
 
             return (TConfigurator)this;
         }
@@ -130,11 +130,11 @@ namespace Stashbox.Registration.Fluent
         {
             Shield.EnsureNotNull(parameterName, nameof(parameterName));
 
-            this.Options ??= new Dictionary<byte, object?>();
-            if (this.Options.TryGetValue(OptionIds.DependencyBindings, out var value) && value is Dictionary<object, object?> bindings)
+            this.Options ??= new Dictionary<RegistrationOption, object?>();
+            if (this.Options.TryGetValue(RegistrationOption.DependencyBindings, out var value) && value is Dictionary<object, object?> bindings)
                 bindings.Add(parameterName, dependencyName);
             else
-                this.Options[OptionIds.DependencyBindings] = new Dictionary<object, object?> { { parameterName, dependencyName } };
+                this.Options[RegistrationOption.DependencyBindings] = new Dictionary<object, object?> { { parameterName, dependencyName } };
 
             return (TConfigurator)this;
         }
@@ -155,14 +155,14 @@ namespace Stashbox.Registration.Fluent
         {
             Shield.EnsureNotNull(targetType, nameof(targetType));
 
-            this.Options ??= new Dictionary<byte, object?>();
-            if (this.Options.TryGetValue(OptionIds.ConditionOptions, out var value) && value is ConditionOptions conditions)
+            this.Options ??= new Dictionary<RegistrationOption, object?>();
+            if (this.Options.TryGetValue(RegistrationOption.ConditionOptions, out var value) && value is ConditionOptions conditions)
             {
                 conditions.TargetTypeConditions ??= new ExpandableArray<Type>();
                 conditions.TargetTypeConditions.Add(targetType);
             }
             else
-                this.Options[OptionIds.ConditionOptions] = new ConditionOptions { TargetTypeConditions = new ExpandableArray<Type> { targetType } };
+                this.Options[RegistrationOption.ConditionOptions] = new ConditionOptions { TargetTypeConditions = new ExpandableArray<Type> { targetType } };
 
             return (TConfigurator)this;
         }
@@ -183,14 +183,14 @@ namespace Stashbox.Registration.Fluent
         {
             Shield.EnsureNotNull(attributeType, nameof(attributeType));
 
-            this.Options ??= new Dictionary<byte, object?>();
-            if (this.Options.TryGetValue(OptionIds.ConditionOptions, out var value) && value is ConditionOptions conditions)
+            this.Options ??= new Dictionary<RegistrationOption, object?>();
+            if (this.Options.TryGetValue(RegistrationOption.ConditionOptions, out var value) && value is ConditionOptions conditions)
             {
                 conditions.AttributeConditions ??= new ExpandableArray<Type>();
                 conditions.AttributeConditions.Add(attributeType);
             }
             else
-                this.Options[OptionIds.ConditionOptions] = new ConditionOptions { AttributeConditions = new ExpandableArray<Type> { attributeType } };
+                this.Options[RegistrationOption.ConditionOptions] = new ConditionOptions { AttributeConditions = new ExpandableArray<Type> { attributeType } };
 
             return (TConfigurator)this;
         }
@@ -204,14 +204,14 @@ namespace Stashbox.Registration.Fluent
         {
             Shield.EnsureNotNull(resolutionCondition, nameof(resolutionCondition));
 
-            this.Options ??= new Dictionary<byte, object?>();
-            if (this.Options.TryGetValue(OptionIds.ConditionOptions, out var value) && value is ConditionOptions conditions)
+            this.Options ??= new Dictionary<RegistrationOption, object?>();
+            if (this.Options.TryGetValue(RegistrationOption.ConditionOptions, out var value) && value is ConditionOptions conditions)
             {
                 conditions.ResolutionConditions ??= new ExpandableArray<Func<TypeInformation, bool>>();
                 conditions.ResolutionConditions.Add(resolutionCondition);
             }
             else
-                this.Options[OptionIds.ConditionOptions] = new ConditionOptions { ResolutionConditions = new ExpandableArray<Func<TypeInformation, bool>> { resolutionCondition } };
+                this.Options[RegistrationOption.ConditionOptions] = new ConditionOptions { ResolutionConditions = new ExpandableArray<Func<TypeInformation, bool>> { resolutionCondition } };
 
             return (TConfigurator)this;
         }
@@ -223,11 +223,11 @@ namespace Stashbox.Registration.Fluent
         /// <returns>The fluent configurator.</returns>
         public TConfigurator WithInjectionParameters(params KeyValuePair<string, object?>[] injectionParameters)
         {
-            this.Options ??= new Dictionary<byte, object?>();
-            if (this.Options.TryGetValue(OptionIds.InjectionParameters, out var value) && value is ExpandableArray<KeyValuePair<string, object?>> parameters)
+            this.Options ??= new Dictionary<RegistrationOption, object?>();
+            if (this.Options.TryGetValue(RegistrationOption.InjectionParameters, out var value) && value is ExpandableArray<KeyValuePair<string, object?>> parameters)
                 parameters.AddRange(injectionParameters);
             else
-                this.Options[OptionIds.InjectionParameters] = new ExpandableArray<KeyValuePair<string, object?>>(injectionParameters);
+                this.Options[RegistrationOption.InjectionParameters] = new ExpandableArray<KeyValuePair<string, object?>>(injectionParameters);
 
             return (TConfigurator)this;
         }
@@ -242,11 +242,11 @@ namespace Stashbox.Registration.Fluent
         {
             Shield.EnsureNotNull(name, nameof(name));
 
-            this.Options ??= new Dictionary<byte, object?>();
-            if (this.Options.TryGetValue(OptionIds.InjectionParameters, out var injectionParams) && injectionParams is ExpandableArray<KeyValuePair<string, object?>> parameters)
+            this.Options ??= new Dictionary<RegistrationOption, object?>();
+            if (this.Options.TryGetValue(RegistrationOption.InjectionParameters, out var injectionParams) && injectionParams is ExpandableArray<KeyValuePair<string, object?>> parameters)
                 parameters.Add(new KeyValuePair<string, object?>(name, value));
             else
-                this.Options[OptionIds.InjectionParameters] = new ExpandableArray<KeyValuePair<string, object?>> { new KeyValuePair<string, object?>(name, value) };
+                this.Options[RegistrationOption.InjectionParameters] = new ExpandableArray<KeyValuePair<string, object?>> { new KeyValuePair<string, object?>(name, value) };
 
             return (TConfigurator)this;
         }
@@ -259,8 +259,8 @@ namespace Stashbox.Registration.Fluent
         /// <returns>The fluent configurator.</returns>
         public TConfigurator WithAutoMemberInjection(Rules.AutoMemberInjectionRules rule = Rules.AutoMemberInjectionRules.PropertiesWithPublicSetter, Func<MemberInfo, bool>? filter = null)
         {
-            this.Options ??= new Dictionary<byte, object?>();
-            this.Options[OptionIds.AutoMemberOptions] = new AutoMemberOptions(rule, filter);
+            this.Options ??= new Dictionary<RegistrationOption, object?>();
+            this.Options[RegistrationOption.AutoMemberOptions] = new AutoMemberOptions(rule, filter);
 
             return (TConfigurator)this;
         }
@@ -272,8 +272,8 @@ namespace Stashbox.Registration.Fluent
         /// <returns>The fluent configurator.</returns>
         public TConfigurator WithConstructorSelectionRule(Func<IEnumerable<ConstructorInfo>, IEnumerable<ConstructorInfo>> rule)
         {
-            this.Options ??= new Dictionary<byte, object?>();
-            this.Options[OptionIds.ConstructorSelectionRule] = rule;
+            this.Options ??= new Dictionary<RegistrationOption, object?>();
+            this.Options[RegistrationOption.ConstructorSelectionRule] = rule;
 
             return (TConfigurator)this;
         }
@@ -293,8 +293,8 @@ namespace Stashbox.Registration.Fluent
                 return (TConfigurator)this;
             }
 
-            this.Options ??= new Dictionary<byte, object?>();
-            this.Options[OptionIds.ConstructorOptions] = new ConstructorOptions(constructor, null);
+            this.Options ??= new Dictionary<RegistrationOption, object?>();
+            this.Options[RegistrationOption.ConstructorOptions] = new ConstructorOptions(constructor, null);
 
             return (TConfigurator)this;
         }
@@ -315,8 +315,8 @@ namespace Stashbox.Registration.Fluent
                 return (TConfigurator)this;
             }
 
-            this.Options ??= new Dictionary<byte, object?>();
-            this.Options[OptionIds.ConstructorOptions] = new ConstructorOptions(constructor, arguments);
+            this.Options ??= new Dictionary<RegistrationOption, object?>();
+            this.Options[RegistrationOption.ConstructorOptions] = new ConstructorOptions(constructor, arguments);
 
             return (TConfigurator)this;
         }
@@ -327,8 +327,8 @@ namespace Stashbox.Registration.Fluent
         /// <returns>The fluent configurator.</returns>
         public TConfigurator WithoutDisposalTracking()
         {
-            this.Options ??= new Dictionary<byte, object?>();
-            this.Options[OptionIds.IsLifetimeExternallyOwned] = true;
+            this.Options ??= new Dictionary<RegistrationOption, object?>();
+            this.Options[RegistrationOption.IsLifetimeExternallyOwned] = true;
 
             return (TConfigurator)this;
         }
@@ -339,8 +339,8 @@ namespace Stashbox.Registration.Fluent
         /// <returns>The fluent configurator.</returns>
         public TConfigurator ReplaceExisting()
         {
-            this.Options ??= new Dictionary<byte, object?>();
-            this.Options[OptionIds.ReplaceExistingRegistration] = true;
+            this.Options ??= new Dictionary<RegistrationOption, object?>();
+            this.Options[RegistrationOption.ReplaceExistingRegistration] = true;
 
             return (TConfigurator)this;
         }
@@ -351,8 +351,8 @@ namespace Stashbox.Registration.Fluent
         /// <returns>The fluent configurator.</returns>
         public TConfigurator ReplaceOnlyIfExists()
         {
-            this.Options ??= new Dictionary<byte, object?>();
-            this.Options[OptionIds.ReplaceExistingRegistrationOnlyIfExists] = true;
+            this.Options ??= new Dictionary<RegistrationOption, object?>();
+            this.Options[RegistrationOption.ReplaceExistingRegistrationOnlyIfExists] = true;
 
             return (TConfigurator)this;
         }
@@ -363,8 +363,8 @@ namespace Stashbox.Registration.Fluent
         /// <returns>The configurator itself.</returns>
         public TConfigurator AsImplementedTypes()
         {
-            this.Options ??= new Dictionary<byte, object?>();
-            this.Options[OptionIds.AdditionalServiceTypes] = new ExpandableArray<Type>(this.ImplementationType.GetRegisterableInterfaceTypes()
+            this.Options ??= new Dictionary<RegistrationOption, object?>();
+            this.Options[RegistrationOption.AdditionalServiceTypes] = new ExpandableArray<Type>(this.ImplementationType.GetRegisterableInterfaceTypes()
                 .Concat(this.ImplementationType.GetRegisterableBaseTypes()));
 
             return (TConfigurator)this;
@@ -387,8 +387,8 @@ namespace Stashbox.Registration.Fluent
             if (!this.ImplementationType.Implements(serviceType))
                 throw new ArgumentException($"The implementation type {this.ImplementationType} does not implement the given service type {serviceType}.");
 
-            this.Options ??= new Dictionary<byte, object?>();
-            this.Options[OptionIds.AdditionalServiceTypes] = new ExpandableArray<Type> { serviceType };
+            this.Options ??= new Dictionary<RegistrationOption, object?>();
+            this.Options[RegistrationOption.AdditionalServiceTypes] = new ExpandableArray<Type> { serviceType };
 
             return (TConfigurator)this;
         }
@@ -413,8 +413,8 @@ namespace Stashbox.Registration.Fluent
         {
             Shield.EnsureNotNull(factory, nameof(factory));
 
-            this.Options ??= new Dictionary<byte, object?>();
-            this.Options[OptionIds.RegistrationTypeOptions] = new FactoryOptions(factory, parameterTypes, isCompiledLambda);
+            this.Options ??= new Dictionary<RegistrationOption, object?>();
+            this.Options[RegistrationOption.RegistrationTypeOptions] = new FactoryOptions(factory, parameterTypes, isCompiledLambda);
 
             return (TConfigurator)this;
         }

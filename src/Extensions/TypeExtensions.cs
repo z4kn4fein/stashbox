@@ -104,7 +104,7 @@ namespace System
 
             if (serviceRegistration != null)
             {
-                var dependencyBindings = serviceRegistration?.Options.GetOrDefault<Dictionary<object, object?>>(OptionIds.DependencyBindings);
+                var dependencyBindings = serviceRegistration?.Options.GetOrDefault<Dictionary<object, object?>>(RegistrationOption.DependencyBindings);
                 if (dependencyBindings != null || containerConfiguration.TreatingParameterAndMemberNameAsDependencyNameEnabled)
                 {
                     if (dependencyBindings != null && parameter.Name != null && dependencyBindings.TryGetValue(parameter.Name,
@@ -139,7 +139,7 @@ namespace System
 
             if (serviceRegistration != null)
             {
-                var dependencyBindings = serviceRegistration?.Options.GetOrDefault<Dictionary<object, object?>>(OptionIds.DependencyBindings);
+                var dependencyBindings = serviceRegistration?.Options.GetOrDefault<Dictionary<object, object?>>(RegistrationOption.DependencyBindings);
                 if (dependencyBindings != null || containerConfiguration.TreatingParameterAndMemberNameAsDependencyNameEnabled)
                 {
                     if (dependencyBindings != null && dependencyBindings.TryGetValue(member.Name, out var foundNamedDependencyName))
@@ -178,7 +178,7 @@ namespace System
             ServiceRegistration? serviceRegistration,
             ContainerConfiguration containerConfiguration)
         {
-            var autoMemberOptions = serviceRegistration?.Options.GetOrDefault<AutoMemberOptions>(OptionIds.AutoMemberOptions);
+            var autoMemberOptions = serviceRegistration?.Options.GetOrDefault<AutoMemberOptions>(RegistrationOption.AutoMemberOptions);
             var autoMemberInjectionEnabled = containerConfiguration.AutoMemberInjectionEnabled || (autoMemberOptions != null);
             var autoMemberInjectionRule = (autoMemberOptions != null) ? autoMemberOptions.AutoMemberInjectionRule :
                 containerConfiguration.AutoMemberInjectionRule;
@@ -187,7 +187,7 @@ namespace System
             var limitedPropsEnabled = autoMemberInjectionEnabled && (autoMemberInjectionRule & Rules.AutoMemberInjectionRules.PropertiesWithLimitedAccess) == Rules.AutoMemberInjectionRules.PropertiesWithLimitedAccess;
             var fieldsEnabled = autoMemberInjectionEnabled && (autoMemberInjectionRule & Rules.AutoMemberInjectionRules.PrivateFields) == Rules.AutoMemberInjectionRules.PrivateFields;
 
-            var dependencyBindings = serviceRegistration?.Options.GetOrDefault<Dictionary<object, object?>>(OptionIds.DependencyBindings);
+            var dependencyBindings = serviceRegistration?.Options.GetOrDefault<Dictionary<object, object?>>(RegistrationOption.DependencyBindings);
 
             IEnumerable<MemberInfo> properties = type.GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance)
                 .Where(member => member.FilterProperty(dependencyBindings, autoMemberOptions, containerConfiguration, publicPropsEnabled, limitedPropsEnabled));

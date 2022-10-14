@@ -19,11 +19,11 @@ namespace Stashbox.Expressions
 
             if (serviceRegistration.Options != null && !serviceRegistration.IsInstance())
             {
-                if (serviceRegistration.Options.TryGetValue(OptionIds.AsyncInitializer, out var asyncInitializer))
+                if (serviceRegistration.Options.TryGetValue(RegistrationOption.AsyncInitializer, out var asyncInitializer))
                     expression = resolutionContext.CurrentScopeParameter.CallMethod(Constants.AddWithAsyncInitializerMethod, expression,
                         asyncInitializer.AsConstant()).ConvertTo(requestedType);
 
-                if (serviceRegistration.Options.TryGetValue(OptionIds.Finalizer, out var finalizer))
+                if (serviceRegistration.Options.TryGetValue(RegistrationOption.Finalizer, out var finalizer))
                     expression = resolutionContext.CurrentScopeParameter.CallMethod(Constants.AddWithFinalizerMethod, expression,
                         finalizer.AsConstant()).ConvertTo(requestedType);
             }
@@ -43,7 +43,7 @@ namespace Stashbox.Expressions
                 ? resolutionContext.BeginCrossContainerContext(resolutionContext.RequestInitiatorContainerContext)
                 : resolutionContext;
 
-            var options = serviceRegistration.Options?.GetOrDefault(OptionIds.RegistrationTypeOptions);
+            var options = serviceRegistration.Options?.GetOrDefault(RegistrationOption.RegistrationTypeOptions);
 
             return options switch
             {
@@ -60,7 +60,7 @@ namespace Stashbox.Expressions
 
         private static bool ShouldHandleDisposal(IContainerContext containerContext, ServiceRegistration serviceRegistration)
         {
-            if (serviceRegistration.Options.IsOn(OptionIds.IsLifetimeExternallyOwned) ||
+            if (serviceRegistration.Options.IsOn(RegistrationOption.IsLifetimeExternallyOwned) ||
                 serviceRegistration.IsInstance())
                 return false;
 

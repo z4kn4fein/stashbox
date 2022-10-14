@@ -28,8 +28,8 @@ namespace Stashbox.Registration.Fluent
         {
             Shield.EnsureNotNull(instance, nameof(instance));
 
-            this.Options ??= new Dictionary<byte, object?>();
-            this.Options[OptionIds.RegistrationTypeOptions] = new InstanceOptions(instance, wireUp);
+            this.Options ??= new Dictionary<RegistrationOption, object?>();
+            this.Options[RegistrationOption.RegistrationTypeOptions] = new InstanceOptions(instance, wireUp);
             this.ImplementationType = instance.GetType();
 
             return this;
@@ -56,8 +56,8 @@ namespace Stashbox.Registration.Fluent
         {
             Shield.EnsureNotNull(instance, nameof(instance));
 
-            this.Options ??= new Dictionary<byte, object?>();
-            this.Options[OptionIds.RegistrationTypeOptions] = new InstanceOptions(instance, wireUp);
+            this.Options ??= new Dictionary<RegistrationOption, object?>();
+            this.Options[RegistrationOption.RegistrationTypeOptions] = new InstanceOptions(instance, wireUp);
             this.ImplementationType = instance.GetType();
 
             return this;

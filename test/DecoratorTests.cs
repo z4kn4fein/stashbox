@@ -2,6 +2,7 @@
 using Stashbox.Configuration;
 using Stashbox.Exceptions;
 using Stashbox.Lifetime;
+using Stashbox.Registration;
 using Stashbox.Tests.Utils;
 using System;
 using System.Collections.Generic;
@@ -1143,7 +1144,7 @@ namespace Stashbox.Tests
 
             var registration = container.ContainerContext.DecoratorRepository.GetRegistrationMappings().First().Value;
 
-            Assert.NotNull(registration.Options[5]);
+            Assert.NotNull(registration.RegistrationOptions[RegistrationOption.Initializer]);
             Assert.Equal(Lifetimes.Singleton, registration.Lifetime);
         }
 

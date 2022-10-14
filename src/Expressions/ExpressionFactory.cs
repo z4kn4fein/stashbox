@@ -24,7 +24,7 @@ namespace Stashbox.Expressions
             var members = serviceRegistration.ImplementationType.GetUsableMembers(serviceRegistration,
                 resolutionContext.CurrentContainerContext.ContainerConfiguration);
 
-            var initializer = serviceRegistration.Options.GetOrDefault(OptionIds.Initializer);
+            var initializer = serviceRegistration.Options.GetOrDefault(RegistrationOption.Initializer);
 
             if (members.Length == 0 && methods.Length == 0 &&
                 initializer == null) return instance;
@@ -101,7 +101,7 @@ namespace Stashbox.Expressions
                 initExpression = initExpression.InitMembers(GetMemberBindings(members,
                     serviceRegistration, resolutionContext));
 
-            var initializer = serviceRegistration.Options.GetOrDefault(OptionIds.Initializer);
+            var initializer = serviceRegistration.Options.GetOrDefault(RegistrationOption.Initializer);
 
             if (methods.Length == 0 && initializer == null)
                 return initExpression;
@@ -163,7 +163,7 @@ namespace Stashbox.Expressions
             IEnumerable<ConstructorInfo> constructors)
         {
             var rule = resolutionContext.CurrentContainerContext.ContainerConfiguration.ConstructorSelectionRule;
-            var constructorOptions = serviceRegistration.Options.GetOrDefault<ConstructorOptions>(OptionIds.ConstructorOptions);
+            var constructorOptions = serviceRegistration.Options.GetOrDefault<ConstructorOptions>(RegistrationOption.ConstructorOptions);
             if (constructorOptions != null)
             {
                 if (constructorOptions.SelectedConstructor != null)
@@ -179,7 +179,7 @@ namespace Stashbox.Expressions
                 }
             }
 
-            var constructorSelectionRule = serviceRegistration.Options.GetOrDefault<Func<IEnumerable<ConstructorInfo>, IEnumerable<ConstructorInfo>>>(OptionIds.ConstructorSelectionRule);
+            var constructorSelectionRule = serviceRegistration.Options.GetOrDefault<Func<IEnumerable<ConstructorInfo>, IEnumerable<ConstructorInfo>>>(RegistrationOption.ConstructorSelectionRule);
             if (constructorSelectionRule != null)
                 rule = constructorSelectionRule;
 

@@ -33,11 +33,11 @@ namespace Stashbox.Registration.Fluent
                 throw new ArgumentException("The expression must be a member expression (Property or Field)",
                     nameof(expression));
 
-            this.Options ??= new Dictionary<byte, object?>();
-            if (this.Options.TryGetValue(OptionIds.DependencyBindings, out var value) && value is Dictionary<object, object?> bindings)
+            this.Options ??= new Dictionary<RegistrationOption, object?>();
+            if (this.Options.TryGetValue(RegistrationOption.DependencyBindings, out var value) && value is Dictionary<object, object?> bindings)
                 bindings.Add(memberExpression.Member.Name, dependencyName);
             else
-                this.Options[OptionIds.DependencyBindings] = new Dictionary<object, object?> { { memberExpression.Member.Name, dependencyName } };
+                this.Options[RegistrationOption.DependencyBindings] = new Dictionary<object, object?> { { memberExpression.Member.Name, dependencyName } };
 
             return (TConfigurator)this;
 
@@ -52,8 +52,8 @@ namespace Stashbox.Registration.Fluent
         {
             Shield.EnsureNotNull(finalizer, nameof(finalizer));
 
-            this.Options ??= new Dictionary<byte, object?>();
-            this.Options[OptionIds.Finalizer] = new Action<object>(o => finalizer((TImplementation)o));
+            this.Options ??= new Dictionary<RegistrationOption, object?>();
+            this.Options[RegistrationOption.Finalizer] = new Action<object>(o => finalizer((TImplementation)o));
 
             return (TConfigurator)this;
         }
@@ -67,8 +67,8 @@ namespace Stashbox.Registration.Fluent
         {
             Shield.EnsureNotNull(initializer, nameof(initializer));
 
-            this.Options ??= new Dictionary<byte, object?>();
-            this.Options[OptionIds.Initializer] = initializer;
+            this.Options ??= new Dictionary<RegistrationOption, object?>();
+            this.Options[RegistrationOption.Initializer] = initializer;
 
             return (TConfigurator)this;
         }
@@ -82,8 +82,8 @@ namespace Stashbox.Registration.Fluent
         {
             Shield.EnsureNotNull(initializer, nameof(initializer));
 
-            this.Options ??= new Dictionary<byte, object?>();
-            this.Options[OptionIds.AsyncInitializer] = new Func<object, IDependencyResolver, CancellationToken, Task>((o, r, t) => initializer((TImplementation)o, r, t));
+            this.Options ??= new Dictionary<RegistrationOption, object?>();
+            this.Options[RegistrationOption.AsyncInitializer] = new Func<object, IDependencyResolver, CancellationToken, Task>((o, r, t) => initializer((TImplementation)o, r, t));
 
             return (TConfigurator)this;
         }
@@ -190,8 +190,8 @@ namespace Stashbox.Registration.Fluent
         /// <returns></returns>
         public TConfigurator WithDynamicResolution()
         {
-            this.Options ??= new Dictionary<byte, object?>();
-            this.Options[OptionIds.IsResolutionCallRequired] = true;
+            this.Options ??= new Dictionary<RegistrationOption, object?>();
+            this.Options[RegistrationOption.IsResolutionCallRequired] = true;
 
             return (TConfigurator)this;
         }
@@ -203,8 +203,8 @@ namespace Stashbox.Registration.Fluent
         /// <returns>The fluent configurator.</returns>
         public TConfigurator WithMetadata(object? metadata)
         {
-            this.Options ??= new Dictionary<byte, object?>();
-            this.Options[OptionIds.Metadata] = metadata;
+            this.Options ??= new Dictionary<RegistrationOption, object?>();
+            this.Options[RegistrationOption.Metadata] = metadata;
 
             return (TConfigurator)this;
         }
@@ -228,8 +228,8 @@ namespace Stashbox.Registration.Fluent
         /// <returns>The fluent configurator.</returns>
         public TConfigurator DefinesScope(object? scopeName = null)
         {
-            this.Options ??= new Dictionary<byte, object?>();
-            this.Options[OptionIds.DefinedScopeName] = scopeName ?? this.ImplementationType;
+            this.Options ??= new Dictionary<RegistrationOption, object?>();
+            this.Options[RegistrationOption.DefinedScopeName] = scopeName ?? this.ImplementationType;
 
             return (TConfigurator)this;
         }

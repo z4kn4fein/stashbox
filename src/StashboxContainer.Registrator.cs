@@ -348,11 +348,11 @@ namespace Stashbox
         {
             ServiceRegistrator.Register(
                 this.ContainerContext,
-                new ServiceRegistration(implementationType, name, Lifetimes.Empty, false, new Dictionary<byte, object?>
+                new ServiceRegistration(implementationType, name, Lifetimes.Empty, false, new Dictionary<RegistrationOption, object?>
                 {
-                    { OptionIds.Finalizer, finalizer },
-                    { OptionIds.IsLifetimeExternallyOwned, withoutDisposalTracking },
-                    { OptionIds.RegistrationTypeOptions, new InstanceOptions(instance, isWireUp) }
+                    { RegistrationOption.Finalizer, finalizer },
+                    { RegistrationOption.IsLifetimeExternallyOwned, withoutDisposalTracking },
+                    { RegistrationOption.RegistrationTypeOptions, new InstanceOptions(instance, isWireUp) }
                 }),
                 serviceType);
 

@@ -8,7 +8,7 @@ namespace Stashbox.Registration.SelectionRules
         public bool IsValidForCurrentRequest(TypeInformation typeInformation,
             ServiceRegistration registration, ResolutionContext resolutionContext, out bool shouldIncrementWeight)
         {
-            var conditions = registration.Options.GetOrDefault<ConditionOptions>(OptionIds.ConditionOptions);
+            var conditions = registration.Options.GetOrDefault<ConditionOptions>(RegistrationOption.ConditionOptions);
             if (conditions is not null)
             {
                 shouldIncrementWeight = registration.IsUsableForCurrentContext(typeInformation, conditions);

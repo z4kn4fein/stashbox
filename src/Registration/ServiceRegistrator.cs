@@ -15,7 +15,7 @@ namespace Stashbox.Registration
 
             PreProcessRegistration(containerContext, serviceRegistration);
 
-            if (serviceRegistration.Options.TryGet(OptionIds.AdditionalServiceTypes, out var types) && types is ExpandableArray<Type> additionalTypes)
+            if (serviceRegistration.Options.TryGet(RegistrationOption.AdditionalServiceTypes, out var types) && types is ExpandableArray<Type> additionalTypes)
                 foreach (var additionalServiceType in additionalTypes.Distinct())
                 {
                     if (additionalServiceType.IsOpenGenericType())
@@ -37,7 +37,7 @@ namespace Stashbox.Registration
 
             PreProcessRegistration(containerContext, serviceRegistration);
 
-            if (serviceRegistration.Options.TryGet(OptionIds.AdditionalServiceTypes, out var types) && types is ExpandableArray<Type> additionalTypes)
+            if (serviceRegistration.Options.TryGet(RegistrationOption.AdditionalServiceTypes, out var types) && types is ExpandableArray<Type> additionalTypes)
                 foreach (var additionalServiceType in additionalTypes.Distinct())
                     ReMapInternal(containerContext, serviceRegistration, additionalServiceType);
 
@@ -67,10 +67,10 @@ namespace Stashbox.Registration
 
         private static void PreProcessRegistration(IContainerContext containerContext, ServiceRegistration serviceRegistration)
         {
-            if (serviceRegistration.Options.TryGet(OptionIds.RegistrationTypeOptions, out var opts) && opts is InstanceOptions instanceOptions)
+            if (serviceRegistration.Options.TryGet(RegistrationOption.RegistrationTypeOptions, out var opts) && opts is InstanceOptions instanceOptions)
             {
-                PreProcessExistingInstanceIfNeeded(containerContext, instanceOptions.ExistingInstance, serviceRegistration.Options.IsOn(OptionIds.IsLifetimeExternallyOwned), 
-                    serviceRegistration.Options.GetOrDefault<Action<object>>(OptionIds.Finalizer), serviceRegistration.ImplementationType);
+                PreProcessExistingInstanceIfNeeded(containerContext, instanceOptions.ExistingInstance, serviceRegistration.Options.IsOn(RegistrationOption.IsLifetimeExternallyOwned), 
+                    serviceRegistration.Options.GetOrDefault<Action<object>>(RegistrationOption.Finalizer), serviceRegistration.ImplementationType);
 
                 if (instanceOptions.IsWireUp)
                     serviceRegistration.Lifetime = Lifetimes.Singleton;

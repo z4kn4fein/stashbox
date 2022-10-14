@@ -41,7 +41,7 @@ namespace Stashbox.Expressions
             var memberTypeInfo = member.AsTypeInformation(serviceRegistration,
                 resolutionContext.CurrentContainerContext.ContainerConfiguration);
 
-            var injectionParameter = serviceRegistration?.Options.GetOrDefault<ExpandableArray<KeyValuePair<string, object?>>>(OptionIds.InjectionParameters)?.SelectInjectionParameterOrDefault(memberTypeInfo);
+            var injectionParameter = serviceRegistration?.Options.GetOrDefault<ExpandableArray<KeyValuePair<string, object?>>>(RegistrationOption.InjectionParameters)?.SelectInjectionParameterOrDefault(memberTypeInfo);
             if (injectionParameter != null) return injectionParameter;
 
             var serviceContext = resolutionContext.CurrentContainerContext

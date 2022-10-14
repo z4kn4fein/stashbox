@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 namespace Stashbox.Utils.Data.Immutable
 {
+    [DebuggerTypeProxy(typeof(ImmutebleBucketDebugView<>))]
     internal class ImmutableBucket<TValue>
     {
         public static readonly ImmutableBucket<TValue> Empty = new(Constants.EmptyArray<TValue>());
@@ -67,6 +69,16 @@ namespace Stashbox.Utils.Data.Immutable
 
             return new ImmutableBucket<TValue>(newRepository);
         }
+    }
+
+    internal class ImmutebleBucketDebugView<TValue>
+    {
+        private readonly ImmutableBucket<TValue> bucket;
+
+        public ImmutebleBucketDebugView(ImmutableBucket<TValue> bucket) { this.bucket = bucket; }
+
+        [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
+        public TValue[] Items { get { return bucket.Repository; } }
     }
 
     internal class ImmutableBucket<TKey, TValue> : IEnumerable<TValue>

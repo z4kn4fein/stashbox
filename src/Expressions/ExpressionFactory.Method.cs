@@ -27,7 +27,7 @@ namespace Stashbox.Expressions
                 var parameter = parameters[i].AsTypeInformation(method.DeclaringType, serviceRegistration,
                     resolutionContext.CurrentContainerContext.ContainerConfiguration);
 
-                var injectionParameter = serviceRegistration?.Options.GetOrDefault<ExpandableArray<KeyValuePair<string, object?>>>(OptionIds.InjectionParameters)?.SelectInjectionParameterOrDefault(parameter);
+                var injectionParameter = serviceRegistration?.Options.GetOrDefault<ExpandableArray<KeyValuePair<string, object?>>>(RegistrationOption.InjectionParameters)?.SelectInjectionParameterOrDefault(parameter);
                 if (injectionParameter != null) yield return injectionParameter;
 
                 yield return resolutionContext.CurrentContainerContext.ResolutionStrategy.BuildExpressionForType(
@@ -137,7 +137,7 @@ namespace Stashbox.Expressions
                 var parameter = parameters[i].AsTypeInformation(method.DeclaringType, serviceRegistration,
                     resolutionContext.CurrentContainerContext.ContainerConfiguration);
 
-                var injectionParameter = serviceRegistration?.Options.GetOrDefault<ExpandableArray<KeyValuePair<string, object?>>>(OptionIds.InjectionParameters)?.SelectInjectionParameterOrDefault(parameter);
+                var injectionParameter = serviceRegistration?.Options.GetOrDefault<ExpandableArray<KeyValuePair<string, object?>>>(RegistrationOption.InjectionParameters)?.SelectInjectionParameterOrDefault(parameter);
                 if (injectionParameter != null)
                 {
                     parameterExpressions[i] = injectionParameter;

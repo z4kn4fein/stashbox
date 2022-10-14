@@ -30,9 +30,9 @@ namespace Stashbox
         {
             this.ThrowIfDisposed();
 
-            var registration = new ServiceRegistration(factoryType, name, this.ContainerContext.ContainerConfiguration.DefaultLifetime, false, new Dictionary<byte, object?>
+            var registration = new ServiceRegistration(factoryType, name, this.ContainerContext.ContainerConfiguration.DefaultLifetime, false, new Dictionary<RegistrationOption, object?>
             {
-                { OptionIds.RegistrationTypeOptions, factory }
+                { RegistrationOption.RegistrationTypeOptions, factory }
             });
             this.ContainerContext.RegistrationRepository.AddOrUpdateRegistration(registration, factoryType);
             return this;

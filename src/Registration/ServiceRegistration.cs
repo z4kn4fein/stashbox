@@ -4,7 +4,9 @@ using Stashbox.Resolution;
 using Stashbox.Utils.Data;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
 
@@ -13,6 +15,7 @@ namespace Stashbox.Registration
     /// <summary>
     /// Represents a service registration.
     /// </summary>
+    [DebuggerDisplay("Name = {Name}, Lifetime = {Lifetime.Name}", Name = "{ImplementationType}")]
     public class ServiceRegistration
     {
         private static int GlobalRegistrationId = int.MinValue;
@@ -50,12 +53,15 @@ namespace Stashbox.Registration
         public Type ImplementationType { get; internal set; }
 
         /// <summary>
-        /// Advanced options.
+        /// Advanced registration options.
         /// </summary>
-        public Dictionary<byte, object?>? Options { get; internal set; }
+        public IReadOnlyDictionary<RegistrationOption, object?>? RegistrationOptions => this.Options;
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        internal Dictionary<RegistrationOption, object?>? Options;
 
         internal ServiceRegistration(Type implementationType, object? name,
-            LifetimeDescriptor lifetimeDescriptor, bool isDecorator, Dictionary<byte, object?>? options = null, 
+            LifetimeDescriptor lifetimeDescriptor, bool isDecorator, Dictionary<RegistrationOption, object?>? options = null, 
             int? registrationId = null, int? order = null)
         {
             this.ImplementationType = implementationType;
@@ -70,9 +76,9 @@ namespace Stashbox.Registration
         internal void Replaces(ServiceRegistration serviceRegistration) =>
             this.RegistrationOrder = serviceRegistration.RegistrationOrder;
 
-        internal bool IsFactory() => Options.GetOrDefault(OptionIds.RegistrationTypeOptions) is FactoryOptions;
+        internal bool IsFactory() => Options.GetOrDefault(RegistrationOption.RegistrationTypeOptions) is FactoryOptions;
 
-        internal bool IsInstance() => Options.GetOrDefault(OptionIds.RegistrationTypeOptions) is InstanceOptions;
+        internal bool IsInstance() => Options.GetOrDefault(RegistrationOption.RegistrationTypeOptions) is InstanceOptions;
 
         internal bool IsUsableForCurrentContext(TypeInformation typeInfo, ConditionOptions conditionOptions) =>
             HasParentTypeConditionAndMatch(typeInfo, conditionOptions) ||
@@ -110,31 +116,115 @@ namespace Stashbox.Registration
 
     }
 
-    internal static class OptionIds
+    /// <summary>
+    /// 
+    /// </summary>
+    public enum RegistrationOption
     {
-        public const byte IsResolutionCallRequired = 0;
-        public const byte ConstructorOptions = 1;
-        public const byte AutoMemberOptions = 2;
-        public const byte DependencyBindings = 3;
-        public const byte Finalizer = 4;
-        public const byte Initializer = 5;
-        public const byte AsyncInitializer = 6;
-        public const byte IsLifetimeExternallyOwned = 7;
-        public const byte DefinedScopeName = 8;
-        public const byte ConstructorSelectionRule = 9;
-        public const byte Metadata = 10;
-        public const byte ReplaceExistingRegistration = 11;
-        public const byte ReplaceExistingRegistrationOnlyIfExists = 12;
-        public const byte AdditionalServiceTypes = 13;
-        public const byte InjectionParameters = 14;
-        public const byte ConditionOptions = 15;
-        public const byte RegistrationTypeOptions = 16;
+        /// <summary>
+        /// Determines whether the service's resolution should be handled by a dynamic <see cref="IDependencyResolver.Resolve(Type)"/> call on the current <see cref="IDependencyResolver"/> instead of a pre-built instantiation expression.
+        /// </summary>
+        IsResolutionCallRequired,
+
+        /// <summary>
+        /// Constructor related registration options.
+        /// </summary>
+        ConstructorOptions,
+
+        /// <summary>
+        /// Auto member injection related registration options.
+        /// </summary>
+        AutoMemberOptions,
+
+        /// <summary>
+        /// Dependency names or types that are bound to named registrations.
+        /// </summary>
+        DependencyBindings,
+
+        /// <summary>
+        /// The cleanup delegate.
+        /// </summary>
+        Finalizer,
+
+        /// <summary>
+        /// The initializer delegate.
+        /// </summary>
+        Initializer,
+
+        /// <summary>
+        /// The async initializer delegate.
+        /// </summary>
+        AsyncInitializer,
+
+        /// <summary>
+        /// True if the lifetime of the service is owned externally.
+        /// </summary>
+        IsLifetimeExternallyOwned,
+
+        /// <summary>
+        /// The name of the scope this registration defines.
+        /// </summary>
+        DefinedScopeName,
+
+        /// <summary>
+        /// The constructor selection rule.
+        /// </summary>
+        ConstructorSelectionRule,
+
+        /// <summary>
+        /// The additional metadata.
+        /// </summary>
+        Metadata,
+
+        /// <summary>
+        /// Indicates whther this registration should replace an existing registration.
+        /// </summary>
+        ReplaceExistingRegistration,
+
+        /// <summary>
+        /// Indicates whther this registration should replace a registration only when it's exist.
+        /// </summary>
+        ReplaceExistingRegistrationOnlyIfExists,
+
+        /// <summary>
+        /// Additional service types to map.
+        /// </summary>
+        AdditionalServiceTypes,
+
+        /// <summary>
+        /// Injection parameters.
+        /// </summary>
+        InjectionParameters,
+
+        /// <summary>
+        /// Condition related registration options.
+        /// </summary>
+        ConditionOptions,
+
+        /// <summary>
+        /// Options related to instance or factory registrations.
+        /// </summary>
+        RegistrationTypeOptions,
     }
 
-    internal class FactoryOptions
+    /// <summary>
+    /// Represents the factory registration options.
+    /// </summary>
+    public class FactoryOptions
     {
+        /// <summary>
+        /// Container factory of the registration.
+        /// </summary>
         public readonly Delegate Factory;
+
+        /// <summary>
+        /// Parameters to inject for the factory registration.
+        /// </summary>
         public readonly Type[] FactoryParameters;
+
+        /// <summary>
+        /// Flag that indicates the passed factory delegate is a compiled lambda from <see cref="Expression"/>.
+        /// </summary>
         public readonly bool IsFactoryDelegateACompiledLambda;
 
         internal FactoryOptions(Delegate factory, Type[] factoryParameters, bool isCompiledLambda)
@@ -145,9 +235,19 @@ namespace Stashbox.Registration
         }
     }
 
-    internal class InstanceOptions
+    /// <summary>
+    /// Represents the instance registration options.
+    /// </summary>
+    public class InstanceOptions
     {
+        /// <summary>
+        /// If true, the existing instance will be wired into the container, it will perform member and method injection on it.
+        /// </summary>
         public readonly bool IsWireUp;
+
+        /// <summary>
+        /// The already stored instance which was provided by instance or wired up registration.
+        /// </summary>
         public readonly object ExistingInstance;
 
         internal InstanceOptions(object existingInstance, bool isWireUp)
@@ -157,9 +257,19 @@ namespace Stashbox.Registration
         }
     }
 
-    internal class AutoMemberOptions
+    /// <summary>
+    /// Represents the auto member injection related registration options.
+    /// </summary>
+    public class AutoMemberOptions
     {
+        /// <summary>
+        /// The auto member injection rule for the registration.
+        /// </summary>
         public readonly Rules.AutoMemberInjectionRules AutoMemberInjectionRule;
+
+        /// <summary>
+        /// A filter delegate used to determine which members should be auto injected and which are not.
+        /// </summary>
         public readonly Func<MemberInfo, bool>? AutoMemberInjectionFilter;
 
         internal AutoMemberOptions(Rules.AutoMemberInjectionRules autoMemberInjectionRule, Func<MemberInfo, bool>? autoMemberInjectionFilter)
@@ -169,13 +279,22 @@ namespace Stashbox.Registration
         }
     }
 
-    internal class ConstructorOptions
+    /// <summary>
+    /// Represents the constructor related registration options.
+    /// </summary>
+    public class ConstructorOptions
     {
+        /// <summary>
+        /// The selected constructor if any was set.
+        /// </summary>
         public readonly ConstructorInfo SelectedConstructor;
 
+        /// <summary>
+        /// The arguments of the selected constructor if any was set.
+        /// </summary>
         public readonly object[]? ConstructorArguments;
 
-        public ConstructorOptions(ConstructorInfo selectedConstructor, object[]? constructorArguments)
+        internal ConstructorOptions(ConstructorInfo selectedConstructor, object[]? constructorArguments)
         {
             this.SelectedConstructor = selectedConstructor;
             this.ConstructorArguments = constructorArguments;

@@ -21,7 +21,7 @@ namespace Stashbox.Resolution.Wrappers
         {
             var arguments = originalTypeInformation.Type.GetGenericArguments();
             var constructor = originalTypeInformation.Type.GetConstructor(arguments)!;
-            var metadata = serviceContext.ServiceRegistration?.Options.GetOrDefault(OptionIds.Metadata);
+            var metadata = serviceContext.ServiceRegistration?.Options.GetOrDefault(RegistrationOption.Metadata);
             return constructor.MakeNew(serviceContext.ServiceExpression, metadata.AsConstant());
         }
 

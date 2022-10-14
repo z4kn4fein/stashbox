@@ -1,10 +1,13 @@
-﻿namespace Stashbox
+﻿using System.Diagnostics;
+
+namespace Stashbox
 {
     /// <summary>
     /// Represents a readonly key-value pair.
     /// </summary>
     /// <typeparam name="TKey">Type of the key.</typeparam>
     /// <typeparam name="TValue">Type of the value.</typeparam>
+    [DebuggerDisplay("{Value}", Name = "{Key}")]
     public readonly struct ReadOnlyKeyValue<TKey, TValue>
     {
         /// <summary>

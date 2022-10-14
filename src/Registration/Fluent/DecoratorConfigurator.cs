@@ -30,11 +30,11 @@ namespace Stashbox.Registration.Fluent
                 throw new ArgumentException("The expression must be a member expression (Property or Field)",
                     nameof(expression));
 
-            this.Options ??= new Dictionary<byte, object?>();
-            if (this.Options.TryGetValue(OptionIds.DependencyBindings, out var value) && value is Dictionary<object, object?> bindings)
+            this.Options ??= new Dictionary<RegistrationOption, object?>();
+            if (this.Options.TryGetValue(RegistrationOption.DependencyBindings, out var value) && value is Dictionary<object, object?> bindings)
                 bindings.Add(memberExpression.Member.Name, dependencyName);
             else
-                this.Options[OptionIds.DependencyBindings] = new Dictionary<object, object?> { { memberExpression.Member.Name, dependencyName } };
+                this.Options[RegistrationOption.DependencyBindings] = new Dictionary<object, object?> { { memberExpression.Member.Name, dependencyName } };
 
             return this;
         }
@@ -48,8 +48,8 @@ namespace Stashbox.Registration.Fluent
         {
             Shield.EnsureNotNull(finalizer, nameof(finalizer));
 
-            this.Options ??= new Dictionary<byte, object?>();
-            this.Options[OptionIds.Finalizer] = new Action<object>(o => finalizer((TImplementation)o));
+            this.Options ??= new Dictionary<RegistrationOption, object?>();
+            this.Options[RegistrationOption.Finalizer] = new Action<object>(o => finalizer((TImplementation)o));
 
             return this;
         }
@@ -63,8 +63,8 @@ namespace Stashbox.Registration.Fluent
         {
             Shield.EnsureNotNull(initializer, nameof(initializer));
 
-            this.Options ??= new Dictionary<byte, object?>();
-            this.Options[OptionIds.Initializer] = initializer;
+            this.Options ??= new Dictionary<RegistrationOption, object?>();
+            this.Options[RegistrationOption.Initializer] = initializer;
 
             return this;
         }
@@ -78,8 +78,8 @@ namespace Stashbox.Registration.Fluent
         {
             Shield.EnsureNotNull(initializer, nameof(initializer));
 
-            this.Options ??= new Dictionary<byte, object?>();
-            this.Options[OptionIds.AsyncInitializer] = new Func<object, IDependencyResolver, CancellationToken, Task>((o, r, t) => initializer((TImplementation)o, r, t));
+            this.Options ??= new Dictionary<RegistrationOption, object?>();
+            this.Options[RegistrationOption.AsyncInitializer] = new Func<object, IDependencyResolver, CancellationToken, Task>((o, r, t) => initializer((TImplementation)o, r, t));
 
             return this;
         }

@@ -22,7 +22,7 @@ namespace Stashbox.Expressions
 
         private static Expression? PrepareDefaultExpression(ServiceRegistration serviceRegistration, ResolutionContext resolutionContext)
         {
-            var definedScopeName = serviceRegistration.Options.GetOrDefault(OptionIds.DefinedScopeName);
+            var definedScopeName = serviceRegistration.Options.GetOrDefault(RegistrationOption.DefinedScopeName);
             if (definedScopeName != null)
             {
                 var variable = Constants.ResolutionScopeType.AsVariable();

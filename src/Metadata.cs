@@ -1,4 +1,7 @@
-﻿namespace Stashbox
+﻿using System.Diagnostics;
+using System.Xml.Linq;
+
+namespace Stashbox
 {
     /// <summary>
     /// Describes a wrapper for services with additional metadata.

@@ -76,7 +76,7 @@ namespace Stashbox.Resolution
             var registration = resolutionContext.CurrentContainerContext.RegistrationRepository
                 .GetRegistrationOrDefault(typeInformation, resolutionContext);
 
-            var isResolutionCallRequired = registration?.Options.IsOn(OptionIds.IsResolutionCallRequired) ?? false;
+            var isResolutionCallRequired = registration?.Options.IsOn(RegistrationOption.IsResolutionCallRequired) ?? false;
             if (!resolutionContext.IsTopRequest && registration != null && isResolutionCallRequired)
                 return resolutionContext.CurrentScopeParameter
                     .ConvertTo(Constants.ResolverType)

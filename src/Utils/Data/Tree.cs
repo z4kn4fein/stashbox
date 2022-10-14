@@ -1,8 +1,11 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace Stashbox.Utils.Data
 {
+    [DebuggerTypeProxy(typeof(TreeDebugView<>))]
     internal sealed class Tree<TValue>
     {
         private class Node
@@ -207,5 +210,15 @@ namespace Stashbox.Utils.Data
                     }
             }
         }
+    }
+
+    internal class TreeDebugView<TValue>
+    {
+        private readonly Tree<TValue> tree;
+
+        public TreeDebugView(Tree<TValue> tree) { this.tree = tree; }
+
+        [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
+        public TValue[] Items { get { return tree.Walk().ToArray(); } }
     }
 }

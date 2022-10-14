@@ -1,8 +1,11 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace Stashbox.Utils.Data
 {
+    [DebuggerTypeProxy(typeof(HashTreeDebugView<,>))]
     internal sealed class HashTree<TKey, TValue>
         where TKey : class
     {
@@ -223,5 +226,15 @@ namespace Stashbox.Utils.Data
                     }
             }
         }
+    }
+
+    internal class HashTreeDebugView<TKey, TValue> where TKey : class
+    {
+        private readonly HashTree<TKey, TValue> tree;
+
+        public HashTreeDebugView(HashTree<TKey, TValue> tree) { this.tree = tree; }
+
+        [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
+        public TValue[] Items { get { return tree.Walk().ToArray(); } }
     }
 }

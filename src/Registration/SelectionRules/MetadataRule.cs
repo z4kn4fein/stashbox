@@ -11,7 +11,7 @@ namespace Stashbox.Registration.SelectionRules
             shouldIncrementWeight = false;
             if (typeInformation.MetadataType != null)
             {
-                var metadata = registration.Options.GetOrDefault(OptionIds.Metadata);
+                var metadata = registration.Options.GetOrDefault(RegistrationOption.Metadata);
 
                 shouldIncrementWeight = metadata != null && typeInformation.MetadataType.IsInstanceOfType(metadata);
                 return shouldIncrementWeight;
