@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
  
+## [v5.5.3] - 2022-11-29
+### Fixed
+- `IsRegistered()` produced falsy results on requests with dynamically constructed string service names.
+
 ## [v5.5.2] - 2022-10-14
 ### Fixed
 - [#119](https://github.com/z4kn4fein/stashbox/issues/119)
@@ -272,7 +276,8 @@ The validation was executed only at the expression tree building phase, so an al
 - Removed the legacy container extension functionality.
 - Removed the support of PCL v259.
 
-[v5.5.1]: https://github.com/z4kn4fein/stashbox/compare/5.5.1...5.5.2
+[v5.5.3]: https://github.com/z4kn4fein/stashbox/compare/5.5.2...5.5.3
+[v5.5.2]: https://github.com/z4kn4fein/stashbox/compare/5.5.1...5.5.2
 [v5.5.1]: https://github.com/z4kn4fein/stashbox/compare/5.5.0...5.5.1
 [v5.5.0]: https://github.com/z4kn4fein/stashbox/compare/5.4.3...5.5.0
 [v5.4.3]: https://github.com/z4kn4fein/stashbox/compare/5.4.2...5.4.3

@@ -15,7 +15,7 @@
 
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.13.1" />
-    <PackageReference Include="Stashbox" Version="5.4.3" />
+    <PackageReference Include="Stashbox" Version="5.5.2" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">

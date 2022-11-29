@@ -14,7 +14,7 @@ namespace Stashbox.Registration.Extensions
         {
             var registrations = repository.GetOrDefaultByRef(type);
             if (name != null && registrations != null)
-                return registrations.Repository.Any(reg => reg.Name == name);
+                return registrations.Repository.Any(reg => name.Equals(reg.Name));
 
             if (registrations != null || !includeOpenGenerics || !type.IsClosedGenericType()) return registrations != null;
 

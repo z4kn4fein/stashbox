@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using TestAssembly;
 using Xunit;
 
 namespace Stashbox.Tests
@@ -184,6 +186,18 @@ namespace Stashbox.Tests
             Assert.IsType<D3<string>>(d);
             Assert.IsType<G<string>>(((D3<string>)d).G.ElementAt(0));
             Assert.IsType<GG<string>>(((D3<string>)d).G.ElementAt(1));
+        }
+
+        [Fact]
+        public void Composition_Named_From_DifferentAssembly()
+        {
+            using var container = new StashboxContainer()
+                .ComposeAssembly(typeof(Composition).Assembly);
+
+            container.RegisterFunc<string, bool>((name, resolver) => container.IsRegistered<IComp>("Comp"), name: "IsTokenProviderRegistered");
+            var factory = container.Resolve<Func<string, bool>>("IsTokenProviderRegistered");
+
+            Assert.True(factory("Comp"));
         }
 
         interface IA { }

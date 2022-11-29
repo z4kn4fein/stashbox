@@ -183,6 +183,16 @@ namespace Stashbox.Tests
         }
 
         [Fact]
+        public void ContainerTests_IsRegistered_VariableName()
+        {
+            var name = "name".ToLower();
+            var container = new StashboxContainer();
+            container.Register<ITest1, Test1>(c => c.WithName("name"));
+
+            Assert.True(container.IsRegistered<ITest1>(name));
+        }
+
+        [Fact]
         public void ContainerTests_IsRegistered_OpenGeneric()
         {
             var container = new StashboxContainer()

@@ -6,4 +6,7 @@
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../../sn.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\stashbox.csproj" />
+  </ItemGroup>
 </Project>
