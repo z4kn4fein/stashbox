@@ -16,7 +16,7 @@ namespace Stashbox.Tests
 
             var regs = container.GetRegistrationDiagnostics().ToArray();
 
-            Assert.Equal(30, regs.Length);
+            Assert.Equal(34, regs.Length);
         }
 
         [Fact]
@@ -28,7 +28,7 @@ namespace Stashbox.Tests
 
             var regs = container.GetRegistrationDiagnostics().ToArray();
 
-            Assert.Equal(28, regs.Length);
+            Assert.Equal(32, regs.Length);
         }
 
         [Fact]
@@ -40,7 +40,7 @@ namespace Stashbox.Tests
 
             var regs = container.GetRegistrationDiagnostics().ToArray();
 
-            Assert.Equal(16, regs.Length);
+            Assert.Equal(18, regs.Length);
         }
 
         [Fact]
@@ -64,7 +64,7 @@ namespace Stashbox.Tests
 
             var regs = container.ContainerContext.RegistrationRepository.GetRegistrationMappings().ToArray();
 
-            Assert.Equal(30, regs.Length);
+            Assert.Equal(34, regs.Length);
         }
 
         [Fact]
@@ -75,7 +75,7 @@ namespace Stashbox.Tests
 
             var regs = container.ContainerContext.RegistrationRepository.GetRegistrationMappings().ToArray();
 
-            Assert.Equal(30, regs.Length);
+            Assert.Equal(34, regs.Length);
             Assert.Contains(regs, reg => reg.Key == typeof(TA_T1));
         }
 
