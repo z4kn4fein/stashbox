@@ -9,7 +9,7 @@ namespace Stashbox.Expressions
 {
     internal static partial class ExpressionBuilder
     {
-        private static Expression GetExpressionForFactory(ServiceRegistration serviceRegistration, FactoryOptions factoryOptions, ResolutionContext resolutionContext, Type resolveType)
+        private static Expression GetExpressionForFactory(ServiceRegistration serviceRegistration, FactoryOptions factoryOptions, ResolutionContext resolutionContext, TypeInformation typeInformation)
         {
             if (resolutionContext.CircularDependencyBarrier.Contains(serviceRegistration.RegistrationId))
                 throw new CircularDependencyException(serviceRegistration.ImplementationType);
@@ -18,7 +18,7 @@ namespace Stashbox.Expressions
 
             var parameters = GetFactoryParameters(factoryOptions, resolutionContext);
             var expression = ConstructFactoryExpression(factoryOptions, parameters);
-            var result = ExpressionFactory.ConstructBuildUpExpression(serviceRegistration, resolutionContext, expression, resolveType);
+            var result = ExpressionFactory.ConstructBuildUpExpression(serviceRegistration, resolutionContext, expression, typeInformation);
 
             resolutionContext.CircularDependencyBarrier.Pop();
             return result;

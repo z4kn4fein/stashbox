@@ -18,13 +18,14 @@ namespace Stashbox.Expressions
         private static IEnumerable<Expression> CreateParameterExpressionsForMethod(
             ServiceRegistration? serviceRegistration,
             ResolutionContext resolutionContext,
-            MethodBase method)
+            MethodBase method,
+            TypeInformation typeInformation)
         {
             var parameters = method.GetParameters();
             var paramLength = parameters.Length;
             for (var i = 0; i < paramLength; i++)
             {
-                var parameter = parameters[i].AsTypeInformation(method.DeclaringType, serviceRegistration,
+                var parameter = parameters[i].AsTypeInformation(method.DeclaringType, typeInformation, serviceRegistration,
                     resolutionContext.CurrentContainerContext.ContainerConfiguration);
 
                 var injectionParameter = serviceRegistration?.Options.GetOrDefault<ExpandableArray<KeyValuePair<string, object?>>>(RegistrationOption.InjectionParameters)?.SelectInjectionParameterOrDefault(parameter);
@@ -39,6 +40,7 @@ namespace Stashbox.Expressions
         private static ConstructorInfo? SelectConstructor(
             Type typeToConstruct,
             ServiceRegistration? serviceRegistration,
+            TypeInformation typeInformation,
             ResolutionContext resolutionContext,
             IEnumerable<ConstructorInfo> constructorsEnumerable,
             out Expression[] parameterExpressions)
@@ -75,7 +77,7 @@ namespace Stashbox.Expressions
             for (var i = 0; i < length; i++)
             {
                 var constructor = resultConstructors[i];
-                if (TryBuildMethod(constructor, serviceRegistration, unknownTypeCheckDisabledContext,
+                if (TryBuildMethod(constructor, serviceRegistration, unknownTypeCheckDisabledContext, typeInformation,
                     out var failedParameter, out parameterExpressions)) return constructor;
 
                 checkedConstructors.Add(constructor, failedParameter);
@@ -86,7 +88,7 @@ namespace Stashbox.Expressions
                 for (var i = 0; i < length; i++)
                 {
                     var constructor = resultConstructors[i];
-                    if (TryBuildMethod(constructor, serviceRegistration, resolutionContext, out _, out parameterExpressions))
+                    if (TryBuildMethod(constructor, serviceRegistration, resolutionContext, typeInformation, out _, out parameterExpressions))
                         return constructor;
                 }
             }
@@ -107,7 +109,8 @@ namespace Stashbox.Expressions
             IEnumerable<MethodInfo> methods,
             ServiceRegistration? serviceRegistration,
             ResolutionContext resolutionContext,
-            Expression instance)
+            Expression instance,
+            TypeInformation typeInformation)
         {
             foreach (var method in methods)
             {
@@ -117,7 +120,7 @@ namespace Stashbox.Expressions
                 else
                     yield return instance.CallMethod(method,
                         CreateParameterExpressionsForMethod(
-                        serviceRegistration, resolutionContext, method));
+                        serviceRegistration, resolutionContext, method, typeInformation));
             }
         }
 
@@ -125,16 +128,17 @@ namespace Stashbox.Expressions
             MethodBase method,
             ServiceRegistration? serviceRegistration,
             ResolutionContext resolutionContext,
+            TypeInformation typeInformation,
             out TypeInformation failedParameter,
             out Expression[] parameterExpressions)
         {
             var parameters = method.GetParameters();
             var paramLength = parameters.Length;
             parameterExpressions = new Expression[paramLength];
-            failedParameter = default;
+            failedParameter = TypeInformation.Empty;
             for (var i = 0; i < paramLength; i++)
             {
-                var parameter = parameters[i].AsTypeInformation(method.DeclaringType, serviceRegistration,
+                var parameter = parameters[i].AsTypeInformation(method.DeclaringType, typeInformation, serviceRegistration,
                     resolutionContext.CurrentContainerContext.ContainerConfiguration);
 
                 var injectionParameter = serviceRegistration?.Options.GetOrDefault<ExpandableArray<KeyValuePair<string, object?>>>(RegistrationOption.InjectionParameters)?.SelectInjectionParameterOrDefault(parameter);

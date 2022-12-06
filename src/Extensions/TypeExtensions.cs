@@ -96,6 +96,7 @@ namespace System
 
         public static TypeInformation AsTypeInformation(this ParameterInfo parameter,
             Type? declaringType,
+            TypeInformation parent,
             ServiceRegistration? serviceRegistration,
             ContainerConfiguration containerConfiguration)
         {
@@ -122,6 +123,7 @@ namespace System
             return new TypeInformation(
                 parameter.ParameterType,
                 declaringType,
+                parent,
                 dependencyName,
                 customAttributes,
                 parameter.Name,
@@ -130,8 +132,9 @@ namespace System
                 null);
         }
 
-        public static TypeInformation AsTypeInformation(this MemberInfo member,
+        public static TypeInformation AsTypeInformation(this MemberInfo member, 
             ServiceRegistration? serviceRegistration,
+            TypeInformation parent,
             ContainerConfiguration containerConfiguration)
         {
             var customAttributes = member.GetCustomAttributes();
@@ -153,6 +156,7 @@ namespace System
             return new TypeInformation(
                 type,
                 member.DeclaringType,
+                parent,
                 dependencyName,
                 customAttributes,
                 member.Name,

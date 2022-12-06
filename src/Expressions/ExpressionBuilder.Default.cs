@@ -9,18 +9,18 @@ namespace Stashbox.Expressions
 {
     internal static partial class ExpressionBuilder
     {
-        private static Expression? GetExpressionForDefault(ServiceRegistration serviceRegistration, ResolutionContext resolutionContext)
+        private static Expression? GetExpressionForDefault(ServiceRegistration serviceRegistration, ResolutionContext resolutionContext, TypeInformation typeInformation)
         {
             if (resolutionContext.CircularDependencyBarrier.Contains(serviceRegistration.RegistrationId))
                 throw new CircularDependencyException(serviceRegistration.ImplementationType);
 
             resolutionContext.CircularDependencyBarrier.Add(serviceRegistration.RegistrationId);
-            var result = PrepareDefaultExpression(serviceRegistration, resolutionContext);
+            var result = PrepareDefaultExpression(serviceRegistration, resolutionContext, typeInformation);
             resolutionContext.CircularDependencyBarrier.Pop();
             return result;
         }
 
-        private static Expression? PrepareDefaultExpression(ServiceRegistration serviceRegistration, ResolutionContext resolutionContext)
+        private static Expression? PrepareDefaultExpression(ServiceRegistration serviceRegistration, ResolutionContext resolutionContext, TypeInformation typeInformation)
         {
             var definedScopeName = serviceRegistration.Options.GetOrDefault(RegistrationOption.DefinedScopeName);
             if (definedScopeName != null)
@@ -37,7 +37,7 @@ namespace Stashbox.Expressions
                 resolutionContext.AddDefinedVariable(variable);
                 resolutionContext.AddInstruction(variable.AssignTo(newScope.ConvertTo(Constants.ResolutionScopeType)));
 
-                var expression = ExpressionFactory.ConstructExpression(serviceRegistration, newScopeContext);
+                var expression = ExpressionFactory.ConstructExpression(serviceRegistration, newScopeContext, typeInformation);
 
                 foreach (var definedVariable in newScopeContext.DefinedVariables.Walk())
                     resolutionContext.AddDefinedVariable(definedVariable);
@@ -48,7 +48,7 @@ namespace Stashbox.Expressions
                 return expression;
             }
 
-            return ExpressionFactory.ConstructExpression(serviceRegistration, resolutionContext);
+            return ExpressionFactory.ConstructExpression(serviceRegistration, resolutionContext, typeInformation);
         }
     }
 }

@@ -61,7 +61,7 @@ namespace Stashbox.Registration
         internal Dictionary<RegistrationOption, object?>? Options;
 
         internal ServiceRegistration(Type implementationType, object? name,
-            LifetimeDescriptor lifetimeDescriptor, bool isDecorator, Dictionary<RegistrationOption, object?>? options = null, 
+            LifetimeDescriptor lifetimeDescriptor, bool isDecorator, Dictionary<RegistrationOption, object?>? options = null,
             int? registrationId = null, int? order = null)
         {
             this.ImplementationType = implementationType;
@@ -86,14 +86,14 @@ namespace Stashbox.Registration
             HasResolutionConditionAndMatch(typeInfo, conditionOptions);
 
         private bool HasParentTypeConditionAndMatch(TypeInformation typeInfo, ConditionOptions conditionOptions) =>
-            conditionOptions.TargetTypeConditions != null &&
-            typeInfo.ParentType != null &&
-            conditionOptions.TargetTypeConditions.Contains(typeInfo.ParentType);
+            (conditionOptions.TargetTypeConditions != null && CheckTypeConditions(conditionOptions.TargetTypeConditions, typeInfo)) ||
+            (conditionOptions.TargetTypeInResolutionPathConditions != null && CheckInPathTypeConditions(conditionOptions.TargetTypeInResolutionPathConditions, typeInfo));
 
         private bool HasAttributeConditionAndMatch(TypeInformation typeInfo, ConditionOptions conditionOptions) =>
-            conditionOptions.AttributeConditions != null &&
+            (conditionOptions.AttributeConditions != null &&
             typeInfo.CustomAttributes != null &&
-            conditionOptions.AttributeConditions.Intersect(typeInfo.CustomAttributes.Select(attribute => attribute.GetType())).Any();
+            conditionOptions.AttributeConditions.Intersect(typeInfo.CustomAttributes.Select(attribute => attribute.GetType())).Any()) ||
+            (conditionOptions.AttributeInResolutionPathConditions != null && CheckInPathAttributeConditions(conditionOptions.AttributeInResolutionPathConditions, typeInfo));
 
         private bool HasResolutionConditionAndMatch(TypeInformation typeInfo, ConditionOptions conditionOptions)
         {
@@ -108,6 +108,77 @@ namespace Stashbox.Registration
             return false;
         }
 
+        private static bool CheckInPathTypeConditions(ExpandableArray<object?, Type> conditions, TypeInformation typeInformation)
+        {
+            var current = typeInformation;
+            do
+            {
+                if (CheckTypeConditions(conditions, current))
+                    return true;
+                current = current.Parent;
+            } while (current != null);
+            return false;
+        }
+
+        private static bool CheckTypeConditions(ExpandableArray<object?, Type> conditions, TypeInformation typeInformation)
+        {
+            if (typeInformation.ParentType == null) return false;
+
+            var length = conditions.Length;
+            for (int i = 0; i < length; i++)
+            {
+                var item = conditions[i];
+                if (CheckSingleCondition(item, typeInformation))
+                    return true;
+            }
+
+            return false;
+
+            static bool CheckSingleCondition(ReadOnlyKeyValue<object?, Type> condition, TypeInformation typeInformation)
+            {
+                if (condition.Key != null)
+                {
+                    if (typeInformation.Parent == null) return false;
+                    return condition.Key.Equals(typeInformation.Parent.DependencyName) && condition.Value == typeInformation.ParentType;
+                }
+                return condition.Value == typeInformation.ParentType;
+            }
+        }
+
+        private static bool CheckInPathAttributeConditions(ExpandableArray<object?, Type> attributes, TypeInformation typeInformation)
+        {
+            var current = typeInformation;
+            do
+            {
+                if (CheckAttributeConditions(attributes, current))
+                    return true;
+                current = current.Parent;
+            } while (current != null);
+            return false;
+        }
+
+        private static bool CheckAttributeConditions(ExpandableArray<object?, Type> attributes, TypeInformation typeInformation)
+        {
+            if (typeInformation.CustomAttributes == null) return false;
+            var customAttributes = typeInformation.CustomAttributes.Select(attribute => attribute.GetType()).ToList();
+            if (customAttributes.Count == 0) return false;
+            var length = attributes.Length;
+            for (int i = 0; i < length; i++)
+            {
+                var item = attributes[i];
+                if (item.Key != null)
+                {
+                    if (typeInformation.Parent == null) continue;
+                    if(item.Key.Equals(typeInformation.Parent.DependencyName) && customAttributes.Contains(item.Value))
+                        return true;
+                }
+                if (customAttributes.Contains(item.Value))
+                    return true;
+            }
+
+            return false;
+        }
+
         private static int ReserveRegistrationId() =>
             Interlocked.Increment(ref GlobalRegistrationId);
 
@@ -117,7 +188,7 @@ namespace Stashbox.Registration
     }
 
     /// <summary>
-    /// 
+    /// Represents the registration option types.
     /// </summary>
     public enum RegistrationOption
     {
@@ -303,8 +374,10 @@ namespace Stashbox.Registration
 
     internal class ConditionOptions
     {
-        internal ExpandableArray<Type>? TargetTypeConditions { get; set; }
+        internal ExpandableArray<object?, Type>? TargetTypeConditions { get; set; }
+        internal ExpandableArray<object?, Type>? TargetTypeInResolutionPathConditions { get; set; }
         internal ExpandableArray<Func<TypeInformation, bool>>? ResolutionConditions { get; set; }
         internal ExpandableArray<Type>? AttributeConditions { get; set; }
+        internal ExpandableArray<object?, Type>? AttributeInResolutionPathConditions { get; set; }
     }
 }

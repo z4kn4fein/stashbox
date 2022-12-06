@@ -11,23 +11,23 @@ namespace Stashbox.Lifetime
     public abstract class FactoryLifetimeDescriptor : LifetimeDescriptor
     {
         private protected override Expression? BuildLifetimeAppliedExpression(ServiceRegistration serviceRegistration,
-            ResolutionContext resolutionContext, Type requestedType)
+            ResolutionContext resolutionContext, TypeInformation typeInformation)
         {
-            var factory = GetFactoryDelegateForRegistration(serviceRegistration, resolutionContext, requestedType);
-            return factory == null ? null : this.ApplyLifetime(factory, serviceRegistration, resolutionContext, requestedType);
+            var factory = GetFactoryDelegateForRegistration(serviceRegistration, resolutionContext, typeInformation);
+            return factory == null ? null : this.ApplyLifetime(factory, serviceRegistration, resolutionContext, typeInformation.Type);
         }
 
         private static Func<IResolutionScope, IRequestContext, object>? GetFactoryDelegateForRegistration(ServiceRegistration serviceRegistration,
-            ResolutionContext resolutionContext, Type requestedType)
+            ResolutionContext resolutionContext, TypeInformation typeInformation)
         {
             if (!IsRegistrationOutputCacheable(serviceRegistration, resolutionContext))
-                return GetNewFactoryDelegate(serviceRegistration, resolutionContext.BeginSubGraph(), requestedType);
+                return GetNewFactoryDelegate(serviceRegistration, resolutionContext.BeginSubGraph(), typeInformation);
 
             var factory = resolutionContext.FactoryCache.GetOrDefault(serviceRegistration.RegistrationId);
             if (factory != null)
                 return factory;
 
-            factory = GetNewFactoryDelegate(serviceRegistration, resolutionContext.BeginSubGraph(), requestedType);
+            factory = GetNewFactoryDelegate(serviceRegistration, resolutionContext.BeginSubGraph(), typeInformation);
             if (factory == null)
                 return null;
 
@@ -36,8 +36,8 @@ namespace Stashbox.Lifetime
         }
 
         private static Func<IResolutionScope, IRequestContext, object>? GetNewFactoryDelegate(ServiceRegistration serviceRegistration,
-            ResolutionContext resolutionContext, Type requestedType) =>
-            GetExpressionForRegistration(serviceRegistration, resolutionContext, requestedType)
+            ResolutionContext resolutionContext, TypeInformation typeInformation) =>
+            GetExpressionForRegistration(serviceRegistration, resolutionContext, typeInformation)
                 ?.CompileDelegate(resolutionContext, resolutionContext.CurrentContainerContext.ContainerConfiguration);
 
         /// <summary>

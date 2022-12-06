@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Xml.Linq;
 
 namespace Stashbox.Registration.Fluent
 {
@@ -144,26 +143,62 @@ namespace Stashbox.Registration.Fluent
         /// Sets a parent target condition for the registration.
         /// </summary>
         /// <typeparam name="TTarget">The type of the parent.</typeparam>
+        /// <param name="name">The optional name of the parent.</param>
         /// <returns>The configurator itself.</returns>
-        public TConfigurator WhenDependantIs<TTarget>() where TTarget : class => this.WhenDependantIs(typeof(TTarget));
+        public TConfigurator WhenDependantIs<TTarget>(object? name = null) where TTarget : class => this.WhenDependantIs(typeof(TTarget), name);
 
         /// <summary>
         /// Sets a parent target condition for the registration.
         /// </summary>
         /// <param name="targetType">The type of the parent.</param>
+        /// <param name="name">The optional name of the parent.</param>
         /// <returns>The configurator itself.</returns>
-        public TConfigurator WhenDependantIs(Type targetType)
+        public TConfigurator WhenDependantIs(Type targetType, object? name = null)
         {
             Shield.EnsureNotNull(targetType, nameof(targetType));
 
             this.Options ??= new Dictionary<RegistrationOption, object?>();
             if (this.Options.TryGetValue(RegistrationOption.ConditionOptions, out var value) && value is ConditionOptions conditions)
             {
-                conditions.TargetTypeConditions ??= new ExpandableArray<Type>();
-                conditions.TargetTypeConditions.Add(targetType);
+                conditions.TargetTypeConditions ??= new ExpandableArray<object?, Type>();
+                conditions.TargetTypeConditions.Add(new ReadOnlyKeyValue<object?, Type>(name, targetType));
             }
             else
-                this.Options[RegistrationOption.ConditionOptions] = new ConditionOptions { TargetTypeConditions = new ExpandableArray<Type> { targetType } };
+                this.Options[RegistrationOption.ConditionOptions] = 
+                    new ConditionOptions { TargetTypeConditions = new ExpandableArray<object?, Type> { new ReadOnlyKeyValue<object?, Type>(name, targetType) } };
+
+            return (TConfigurator)this;
+        }
+
+        /// <summary>
+        /// Sets a resolution path condition for the registration. The service will be selected only in the resolution path of the given target.
+        /// This means that only the direct and sub-dependencies of the target type will get the configured service.
+        /// </summary>
+        /// <typeparam name="TTarget">The type of the parent.</typeparam>
+        /// <param name="name">The optional name of the parent.</param>
+        /// <returns>The configurator itself.</returns>
+        public TConfigurator WhenInResolutionPathOf<TTarget>(object? name = null) where TTarget : class => this.WhenInResolutionPathOf(typeof(TTarget), name);
+
+        /// <summary>
+        /// Sets a resolution path condition for the registration. The service will be selected only in the resolution path of the given target.
+        /// This means that only the direct and sub-dependencies of the target type will get the configured service.
+        /// </summary>
+        /// <param name="targetType">The type of the parent.</param>
+        /// <param name="name">The optional name of the parent.</param>
+        /// <returns>The configurator itself.</returns>
+        public TConfigurator WhenInResolutionPathOf(Type targetType, object? name = null)
+        {
+            Shield.EnsureNotNull(targetType, nameof(targetType));
+
+            this.Options ??= new Dictionary<RegistrationOption, object?>();
+            if (this.Options.TryGetValue(RegistrationOption.ConditionOptions, out var value) && value is ConditionOptions conditions)
+            {
+                conditions.TargetTypeInResolutionPathConditions ??= new ExpandableArray<object?, Type>();
+                conditions.TargetTypeInResolutionPathConditions.Add(new ReadOnlyKeyValue<object?, Type>(name, targetType));
+            }
+            else
+                this.Options[RegistrationOption.ConditionOptions] =
+                    new ConditionOptions { TargetTypeInResolutionPathConditions = new ExpandableArray<object?, Type> { new ReadOnlyKeyValue<object?, Type>(name, targetType) } };
 
             return (TConfigurator)this;
         }
@@ -173,7 +208,7 @@ namespace Stashbox.Registration.Fluent
         /// </summary>
         /// <typeparam name="TAttribute">The type of the attribute.</typeparam>
         /// <returns>The configurator itself.</returns>
-        public TConfigurator WhenHas<TAttribute>() where TAttribute : Attribute => this.WhenHas(typeof(TAttribute));
+        public TConfigurator WhenHas<TAttribute>(object? name = null) where TAttribute : Attribute => this.WhenHas(typeof(TAttribute));
 
         /// <summary>
         /// Sets an attribute condition for the registration.
@@ -191,7 +226,40 @@ namespace Stashbox.Registration.Fluent
                 conditions.AttributeConditions.Add(attributeType);
             }
             else
-                this.Options[RegistrationOption.ConditionOptions] = new ConditionOptions { AttributeConditions = new ExpandableArray<Type> { attributeType } };
+                this.Options[RegistrationOption.ConditionOptions] = 
+                    new ConditionOptions { AttributeConditions = new ExpandableArray<Type> { attributeType } };
+
+            return (TConfigurator)this;
+        }
+
+        /// <summary>
+        /// Sets a resolution path condition for the registration. The service will be selected only in the resolution path of the target that has the given attribute.
+        /// This means that only the direct and sub-dependencies of the target type that has the given attribute will get the configured service.
+        /// </summary>
+        /// <typeparam name="TAttribute">The type of the attribute.</typeparam>
+        /// <returns>The configurator itself.</returns>
+        public TConfigurator WhenResolutionPathHas<TAttribute>(object? name = null) where TAttribute : Attribute => this.WhenResolutionPathHas(typeof(TAttribute), name);
+
+        /// <summary>
+        /// Sets a resolution path condition for the registration. The service will be selected only in the resolution path of the target that has the given attribute.
+        /// This means that only the direct and sub-dependencies of the target type that has the given attribute will get the configured service.
+        /// </summary>
+        /// <param name="attributeType">The type of the attribute.</param>
+        /// <param name="name">The optional name of the target that has the desired attribute.</param>
+        /// <returns>The configurator itself.</returns>
+        public TConfigurator WhenResolutionPathHas(Type attributeType, object? name = null)
+        {
+            Shield.EnsureNotNull(attributeType, nameof(attributeType));
+
+            this.Options ??= new Dictionary<RegistrationOption, object?>();
+            if (this.Options.TryGetValue(RegistrationOption.ConditionOptions, out var value) && value is ConditionOptions conditions)
+            {
+                conditions.AttributeInResolutionPathConditions ??= new ExpandableArray<object?, Type>();
+                conditions.AttributeInResolutionPathConditions.Add(new ReadOnlyKeyValue<object?, Type>(name, attributeType));
+            }
+            else
+                this.Options[RegistrationOption.ConditionOptions] =
+                    new ConditionOptions { AttributeInResolutionPathConditions = new ExpandableArray<object?, Type> { new ReadOnlyKeyValue<object?, Type>(name, attributeType) } };
 
             return (TConfigurator)this;
         }

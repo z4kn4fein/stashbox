@@ -15,7 +15,7 @@ namespace Stashbox.Expressions
             ServiceRegistration serviceRegistration,
             ResolutionContext resolutionContext,
             Expression instance,
-            Type serviceType)
+            TypeInformation typeInformation)
         {
             if (instance.Type != serviceRegistration.ImplementationType)
                 instance = instance.ConvertTo(serviceRegistration.ImplementationType);
@@ -35,17 +35,17 @@ namespace Stashbox.Expressions
             var lines = new ExpandableArray<Expression> { assign };
 
             lines.AddRange(GetMemberExpressions(members,
-                serviceRegistration, resolutionContext, variable));
+                serviceRegistration, resolutionContext, variable, typeInformation));
 
             lines.AddRange(CreateMethodExpressions(methods,
-                serviceRegistration, resolutionContext, variable));
+                serviceRegistration, resolutionContext, variable, typeInformation));
 
             if (initializer != null)
                 lines.Add(initializer.AsConstant()
                     .CallMethod(initializer.GetType().GetMethod("Invoke")!,
                         variable, resolutionContext.CurrentScopeParameter));
 
-            lines.Add(variable.Type != serviceType ? variable.ConvertTo(serviceType) : variable);
+            lines.Add(variable.Type != typeInformation.Type ? variable.ConvertTo(typeInformation.Type) : variable);
 
             return lines.AsBlock(variable);
         }
@@ -53,7 +53,7 @@ namespace Stashbox.Expressions
         public static Expression ConstructBuildUpExpression(
             ResolutionContext resolutionContext,
             Expression instance,
-            Type serviceType)
+            TypeInformation typeInformation)
         {
             var type = instance.Type;
 
@@ -69,25 +69,27 @@ namespace Stashbox.Expressions
             var lines = new ExpandableArray<Expression> { assign };
 
             lines.AddRange(GetMemberExpressions(members,
-                null, resolutionContext, variable));
+                null, resolutionContext, variable, typeInformation));
 
             lines.AddRange(CreateMethodExpressions(methods,
-                null, resolutionContext, instance));
+                null, resolutionContext, instance, typeInformation));
 
-            lines.Add(variable.Type != serviceType ? variable.ConvertTo(serviceType) : variable);
+            lines.Add(variable.Type != typeInformation.Type ? variable.ConvertTo(typeInformation.Type) : variable);
 
             return lines.AsBlock(variable);
         }
 
         public static Expression? ConstructExpression(
             ServiceRegistration serviceRegistration,
-            ResolutionContext resolutionContext)
+            ResolutionContext resolutionContext,
+            TypeInformation typeInformation)
         {
             var constructors = serviceRegistration.ImplementationType.GetConstructors();
 
             var initExpression = CreateInitExpression(
                 serviceRegistration.ImplementationType,
                 serviceRegistration,
+                typeInformation,
                 resolutionContext,
                 constructors);
             if (initExpression == null)
@@ -99,7 +101,7 @@ namespace Stashbox.Expressions
 
             if (members.Length > 0)
                 initExpression = initExpression.InitMembers(GetMemberBindings(members,
-                    serviceRegistration, resolutionContext));
+                    serviceRegistration, resolutionContext, typeInformation));
 
             var initializer = serviceRegistration.Options.GetOrDefault(RegistrationOption.Initializer);
 
@@ -112,7 +114,7 @@ namespace Stashbox.Expressions
             var lines = new ExpandableArray<Expression> { assign };
 
             lines.AddRange(CreateMethodExpressions(methods,
-                serviceRegistration, resolutionContext, variable));
+                serviceRegistration, resolutionContext, variable, typeInformation));
 
             if (initializer != null)
                 lines.Add(initializer.AsConstant()
@@ -125,24 +127,24 @@ namespace Stashbox.Expressions
         }
 
         public static Expression? ConstructExpression(
-            ResolutionContext resolutionContext,
-            Type serviceType)
+            ResolutionContext resolutionContext, TypeInformation typeInformation)
         {
-            var methods = serviceType.GetUsableMethods();
-            var members = serviceType.GetUsableMembers(null,
+            var methods = typeInformation.Type.GetUsableMethods();
+            var members = typeInformation.Type.GetUsableMembers(null,
                 resolutionContext.CurrentContainerContext.ContainerConfiguration);
 
             if (SelectConstructor(
-                serviceType,
+                typeInformation.Type,
                 null,
+                typeInformation,
                 resolutionContext,
-                serviceType.GetConstructors(),
+                typeInformation.Type.GetConstructors(),
                 out var parameters)?.MakeNew(parameters) is not Expression initExpression)
                 return null;
 
             if (members.Length > 0)
                 initExpression = initExpression.InitMembers(GetMemberBindings(members,
-                    null, resolutionContext));
+                    null, resolutionContext, typeInformation));
 
             if (methods.Length == 0) return initExpression;
 
@@ -150,7 +152,7 @@ namespace Stashbox.Expressions
             var assign = variable.AssignTo(initExpression);
 
             var lines = new ExpandableArray<Expression> { assign };
-            lines.AddRange(CreateMethodExpressions(methods, null, resolutionContext, variable));
+            lines.AddRange(CreateMethodExpressions(methods, null, resolutionContext, variable, typeInformation));
             lines.Add(variable);
 
             return lines.AsBlock(variable);
@@ -159,6 +161,7 @@ namespace Stashbox.Expressions
         private static Expression? CreateInitExpression(
             Type typeToConstruct,
             ServiceRegistration serviceRegistration,
+            TypeInformation typeInformation,
             ResolutionContext resolutionContext,
             IEnumerable<ConstructorInfo> constructors)
         {
@@ -175,7 +178,7 @@ namespace Stashbox.Expressions
                     return constructorOptions.SelectedConstructor.MakeNew(
                         CreateParameterExpressionsForMethod(
                             serviceRegistration,
-                            resolutionContext, constructorOptions.SelectedConstructor));
+                            resolutionContext, constructorOptions.SelectedConstructor, typeInformation));
                 }
             }
 
@@ -185,7 +188,7 @@ namespace Stashbox.Expressions
 
             constructors = rule(constructors);
 
-            return SelectConstructor(typeToConstruct, serviceRegistration, resolutionContext,
+            return SelectConstructor(typeToConstruct, serviceRegistration, typeInformation, resolutionContext,
                 constructors, out var parameters)?.MakeNew(parameters);
         }
     }

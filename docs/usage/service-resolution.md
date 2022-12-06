@@ -283,15 +283,20 @@ IJob job = container.Resolve<IJob>();
 <!-- div:left-panel -->
 Stashbox can resolve a particular dependency based on its context. This context is typically the reflected type information of the dependency, its usage, and the type it gets injected into.
 
-**Attribute**: you can filter on constructor, method, property, or field attributes to select the desired dependency for your service. In contrast to the `Dependency` attribute, this configuration method doesn't tie your application to Stashbox because you can use your attributes.
+- **Attribute**: you can filter on constructor, method, property, or field attributes to select the desired dependency for your service. In contrast to the `Dependency` attribute, this configuration method doesn't tie your application to Stashbox because you can use your attributes.
 
-**Parent type**: you can filter on what type the given service is injected into.
+- **Parent type**: you can filter on what type the given service is injected into.
 
-**Custom**: with this, you can build your selection logic based on the passed contextual type information.
+- **Resolution path**: similar to the parent type and attribute condition but extended with inheritance. You can set that the given service is only usable in a type's resolution path. This means that each direct and sub-dependency of the selected type must use the given service as dependency.
+
+- **Custom**: with this, you can build your own selection logic based on the passed contextual type information.
 
 The specified conditions are behaving like filters when a **collection** is requested.
 
 When you use the same conditional option multiple times, the container will evaluate them **combined with OR** logical operator.
+
+?> [Here](configuration/registration-configuration?id=conditions) you can find each condition related registration option.
+
 <!-- div:right-panel -->
 
 
@@ -333,6 +338,33 @@ container.Register<ILogger, ConsoleLogger>(options => options
 container.Register<IJob, DbBackup>();
 
 // the container will resolve DbBackup with ConsoleLogger.
+IJob job = container.Resolve<IJob>();
+```
+
+#### **Resolution path**
+```cs
+class DbBackup : IJob
+{
+    public DbBackup(IStorage storage)
+    { }
+}
+
+class FileStorage : IStorage
+{
+    public FileStorage(ILogger logger) 
+    { }
+}
+
+container.Register<ILogger, ConsoleLogger>(options => options
+    // inject only when we are in the
+    // resolution path of DbBackup
+    .WhenInResolutionPathOf<DbBackup>());
+
+container.Register<IStorage, FileStorage>();
+container.Register<IJob, DbBackup>();
+
+// the container will select ConsoleLogger for FileStorage
+// because they are injected into DbBackup.
 IJob job = container.Resolve<IJob>();
 ```
 

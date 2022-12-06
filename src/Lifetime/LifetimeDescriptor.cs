@@ -3,7 +3,6 @@ using Stashbox.Expressions;
 using Stashbox.Registration;
 using Stashbox.Resolution;
 using System;
-using System.Diagnostics;
 using System.Linq.Expressions;
 
 namespace Stashbox.Lifetime
@@ -36,7 +35,7 @@ namespace Stashbox.Lifetime
         }
 
         internal Expression? ApplyLifetime(ServiceRegistration serviceRegistration,
-            ResolutionContext resolutionContext, Type requestedType)
+            ResolutionContext resolutionContext, TypeInformation typeInformation)
         {
             if (resolutionContext.CurrentContainerContext.ContainerConfiguration.LifetimeValidationEnabled &&
                 this.LifeSpan > 0)
@@ -52,36 +51,36 @@ namespace Stashbox.Lifetime
             }
 
             if (!this.StoreResultInLocalVariable)
-                return this.BuildLifetimeAppliedExpression(serviceRegistration, resolutionContext, requestedType);
+                return this.BuildLifetimeAppliedExpression(serviceRegistration, resolutionContext, typeInformation);
 
             var variable = resolutionContext.DefinedVariables.GetOrDefault(serviceRegistration.RegistrationId);
             if (variable != null)
                 return variable;
 
-            var resultExpression = this.BuildLifetimeAppliedExpression(serviceRegistration, resolutionContext, requestedType);
+            var resultExpression = this.BuildLifetimeAppliedExpression(serviceRegistration, resolutionContext, typeInformation);
             if (resultExpression == null)
                 return null;
 
-            variable = requestedType.AsVariable();
+            variable = typeInformation.Type.AsVariable();
             resolutionContext.AddDefinedVariable(serviceRegistration.RegistrationId, variable);
             resolutionContext.AddInstruction(variable.AssignTo(resultExpression));
             return variable;
         }
 
         private protected abstract Expression? BuildLifetimeAppliedExpression(ServiceRegistration serviceRegistration,
-            ResolutionContext resolutionContext, Type requestedType);
+            ResolutionContext resolutionContext, TypeInformation typeInformation);
 
         private protected static Expression? GetExpressionForRegistration(ServiceRegistration serviceRegistration,
-            ResolutionContext resolutionContext, Type requestedType)
+            ResolutionContext resolutionContext, TypeInformation typeInformation)
         {
             if (!IsRegistrationOutputCacheable(serviceRegistration, resolutionContext))
-                return ExpressionBuilder.BuildExpressionForRegistration(serviceRegistration, resolutionContext, requestedType);
+                return ExpressionBuilder.BuildExpressionForRegistration(serviceRegistration, resolutionContext, typeInformation);
 
             var expression = resolutionContext.ExpressionCache.GetOrDefault(serviceRegistration.RegistrationId);
             if (expression != null)
                 return expression;
 
-            expression = ExpressionBuilder.BuildExpressionForRegistration(serviceRegistration, resolutionContext, requestedType);
+            expression = ExpressionBuilder.BuildExpressionForRegistration(serviceRegistration, resolutionContext, typeInformation);
             if (expression == null)
                 return null;
 

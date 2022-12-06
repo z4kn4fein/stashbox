@@ -17,18 +17,20 @@ namespace Stashbox.Expressions
             IEnumerable<MemberInfo> members,
             ServiceRegistration? serviceRegistration,
             ResolutionContext resolutionContext,
-            Expression instance) =>
+            Expression instance,
+            TypeInformation typeInformation) =>
             from member in members
-            let expression = GetMemberExpression(member, serviceRegistration, resolutionContext)
+            let expression = GetMemberExpression(member, serviceRegistration, resolutionContext, typeInformation)
             where expression != null
             select instance.Member(member).AssignTo(expression);
 
         private static IEnumerable<MemberBinding> GetMemberBindings(
             IEnumerable<MemberInfo> members,
             ServiceRegistration? serviceRegistration,
-            ResolutionContext resolutionContext) =>
+            ResolutionContext resolutionContext,
+            TypeInformation typeInformation) =>
             from member in members
-            let expression = GetMemberExpression(member, serviceRegistration, resolutionContext)
+            let expression = GetMemberExpression(member, serviceRegistration, resolutionContext, typeInformation)
             where expression != null
             select member.AssignTo(expression);
 
@@ -36,9 +38,10 @@ namespace Stashbox.Expressions
         private static Expression GetMemberExpression(
             MemberInfo member,
             ServiceRegistration? serviceRegistration,
-            ResolutionContext resolutionContext)
+            ResolutionContext resolutionContext,
+            TypeInformation typeInformation)
         {
-            var memberTypeInfo = member.AsTypeInformation(serviceRegistration,
+            var memberTypeInfo = member.AsTypeInformation(serviceRegistration, typeInformation,
                 resolutionContext.CurrentContainerContext.ContainerConfiguration);
 
             var injectionParameter = serviceRegistration?.Options.GetOrDefault<ExpandableArray<KeyValuePair<string, object?>>>(RegistrationOption.InjectionParameters)?.SelectInjectionParameterOrDefault(memberTypeInfo);

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Stashbox.Utils;
+using System;
 using System.Collections.Generic;
 
 namespace Stashbox.Resolution
@@ -6,7 +7,7 @@ namespace Stashbox.Resolution
     /// <summary>
     /// Represents type information about a dependency.
     /// </summary>
-    public readonly struct TypeInformation
+    public class TypeInformation
     {
         /// <summary>
         /// The reflected type of the dependency.
@@ -48,6 +49,11 @@ namespace Stashbox.Resolution
         /// </summary>
         public readonly object? DefaultValue;
 
+        /// <summary>
+        /// The parent type's metadata.
+        /// </summary>
+        public readonly TypeInformation? Parent;
+
         internal TypeInformation(Type type, object? dependencyName)
         {
             this.Type = type;
@@ -58,9 +64,10 @@ namespace Stashbox.Resolution
             this.ParameterOrMemberName = null;
             this.HasDefaultValue = false;
             this.DefaultValue = null;
+            this.Parent = null;
         }
 
-        internal TypeInformation(Type type, Type? parentType, object? dependencyName,
+        internal TypeInformation(Type type, Type? parentType, TypeInformation? parent, object? dependencyName,
             IEnumerable<Attribute>? customAttributes, string? parameterOrMemberName,
             bool hasDefaultValue, object? defaultValue, Type? metaDataType)
         {
@@ -72,6 +79,7 @@ namespace Stashbox.Resolution
             this.HasDefaultValue = hasDefaultValue;
             this.DefaultValue = defaultValue;
             this.MetadataType = metaDataType;
+            this.Parent = parent;
         }
 
         /// <summary>
@@ -84,6 +92,7 @@ namespace Stashbox.Resolution
         public TypeInformation Clone(Type type, object? dependencyName = null, Type? metadataType = null) =>
             new(type,
                 this.ParentType,
+                this.Parent,
                 dependencyName ?? this.DependencyName,
                 this.CustomAttributes,
                 this.ParameterOrMemberName,
@@ -91,6 +100,6 @@ namespace Stashbox.Resolution
                 this.DefaultValue,
                 metadataType ?? this.MetadataType);
 
-        internal static readonly TypeInformation Empty = default;
+        internal static readonly TypeInformation Empty = new(Constants.ObjectType, null);
     }
 }

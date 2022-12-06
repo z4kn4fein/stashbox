@@ -261,12 +261,39 @@ container.Register<ILogger, ConsoleLogger>(config => config
 <!-- panels:end -->
 <!-- panels:start -->
 <!-- div:left-panel -->
+### `WhenResolutionPathHas`
+Sets a resolution path condition for the registration. The service will be selected only in the resolution path of the target that has the given attribute.
+This means that only the direct and sub-dependencies of the target type that has the given attribute will get the configured service.
+<!-- div:right-panel -->
+```cs
+container.Register<ILogger, ConsoleLogger>(config => config
+    // Each direct and sub-dependency of any service that has
+    // a ConsoleAttribute will get FileLogger wherever they 
+    // depend on ILogger. 
+    .WhenResolutionPathHas<ConsoleAttribute>());
+```
+<!-- panels:end -->
+<!-- panels:start -->
+<!-- div:left-panel -->
 ### `WhenDependantIs`
 Sets a parent target condition for the registration.
 <!-- div:right-panel -->
 ```cs
 container.Register<ILogger, FileLogger>(config => config
     .WhenDependantIs<UserRepository>());
+```
+<!-- panels:end -->
+<!-- panels:start -->
+<!-- div:left-panel -->
+### `WhenInResolutionPathOf`
+Sets a resolution path condition for the registration. The service will be selected only in the resolution path of the given target.
+This means that only the direct and sub-dependencies of the target type will get the configured service.
+<!-- div:right-panel -->
+```cs
+container.Register<ILogger, FileLogger>(config => config
+    // Each direct and sub-dependency of UserRepository
+    // will get FileLogger wherever they depend on ILogger. 
+    .WhenInResolutionPathOf<UserRepository>());
 ```
 <!-- panels:end -->
 <!-- panels:start -->

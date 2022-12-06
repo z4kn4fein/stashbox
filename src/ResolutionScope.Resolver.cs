@@ -224,7 +224,7 @@ namespace Stashbox
 
             var resolutionContext = ResolutionContext.BeginTopLevelContext(this.GetActiveScopeNames(),
                 this.containerContext, this.ParentScope == null);
-            var expression = ExpressionFactory.ConstructBuildUpExpression(resolutionContext, instance.AsConstant(), typeof(TTo));
+            var expression = ExpressionFactory.ConstructBuildUpExpression(resolutionContext, instance.AsConstant(), new TypeInformation(typeof(TTo), null));
             return (TTo)expression.CompileDelegate(resolutionContext, this.containerContext.ContainerConfiguration)(this,
                 resolutionContext.RequestConfiguration.RequiresRequestContext
                 ? RequestContext.Begin()
@@ -241,7 +241,7 @@ namespace Stashbox
 
             var resolutionContext = ResolutionContext.BeginTopLevelContext(this.GetActiveScopeNames(), this.containerContext, this.ParentScope == null,
                 arguments, this.lateKnownInstances);
-            var expression = ExpressionFactory.ConstructExpression(resolutionContext, type);
+            var expression = ExpressionFactory.ConstructExpression(resolutionContext, new TypeInformation(type, null));
             return expression?.CompileDelegate(resolutionContext, this.containerContext.ContainerConfiguration)(this,
                 resolutionContext.RequestConfiguration.RequiresRequestContext
                 ? RequestContext.Begin()
