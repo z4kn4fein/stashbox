@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - `WhenResolutionPathHas()` & `WhenInResolutionPathOf()` registration options for handling more conditional resolution cases. They extend the original *parent type* and *attribute* conditions with inheritance.
 
+### Fixed
+- Name comparison during named scope resolution.
+
 ## [v5.5.3] - 2022-11-29
 ### Fixed
 - `IsRegistered()` produced falsy results on requests with dynamically constructed string service names.

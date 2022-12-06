@@ -18,7 +18,7 @@ namespace Stashbox.Registration.SelectionRules
             if (resolutionContext.ScopeNames.Length == 0)
                 return false;
 
-            shouldIncrementWeight = resolutionContext.ScopeNames.First() == namedScopeLifetime.ScopeName;
+            shouldIncrementWeight = resolutionContext.ScopeNames.First().Equals(namedScopeLifetime.ScopeName);
             return resolutionContext.ScopeNames.Contains(namedScopeLifetime.ScopeName);
         }
     }

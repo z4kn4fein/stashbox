@@ -16,11 +16,12 @@ namespace Stashbox.Tests
         [ClassData(typeof(CompilerTypeTestData))]
         public void NamedScope_Simple_Resolve_Prefer_Named(CompilerType compilerType)
         {
+            var name = "A".ToLower();
             var inst = new StashboxContainer(config => config.WithCompiler(compilerType))
                 .Register<ITest, Test11>()
-                .Register<ITest, Test>(config => config.InNamedScope("A"))
+                .Register<ITest, Test>(config => config.InNamedScope(name))
                 .Register<ITest, Test1>()
-                .BeginScope("A")
+                .BeginScope(name)
                 .Resolve<ITest>();
 
             Assert.IsType<Test>(inst);

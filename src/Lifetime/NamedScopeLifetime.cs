@@ -45,7 +45,7 @@ namespace Stashbox.Lifetime
             Func<IResolutionScope, IRequestContext, object> factory, Type serviceType, int scopeId, object scopeName)
         {
             var scope = currentScope;
-            while (scope != null && scope.Name != scopeName)
+            while (scope != null && !scopeName.Equals(scope.Name))
                 scope = scope.ParentScope;
 
             if (scope == null)
