@@ -316,8 +316,8 @@ namespace Stashbox
 
             var factory = serviceContext.ServiceExpression.CompileDelegate(resolutionContext, this.containerContext.ContainerConfiguration);
             return name != null
-                ? StoreAndInvokeNamedServiceDelegate(type, name, factory, resolutionContext, dependencyOverrides)
-                : StoreAndInvokeServiceDelegate(type, factory, resolutionContext, dependencyOverrides);
+                ? StoreAndInvokeNamedServiceDelegate(type, name, factory, resolutionContext)
+                : StoreAndInvokeServiceDelegate(type, factory, resolutionContext);
         }
 
         internal object? BuildAndResolveServiceOrDefault(Type type, object? name, object[]? dependencyOverrides)
@@ -331,8 +331,8 @@ namespace Stashbox
 
             var factory = serviceContext.ServiceExpression.CompileDelegate(resolutionContext, this.containerContext.ContainerConfiguration);
             return name != null 
-                ? StoreAndInvokeNamedServiceDelegate(type, name, factory, resolutionContext, dependencyOverrides)
-                : StoreAndInvokeServiceDelegate(type, factory, resolutionContext, dependencyOverrides);
+                ? StoreAndInvokeNamedServiceDelegate(type, name, factory, resolutionContext)
+                : StoreAndInvokeServiceDelegate(type, factory, resolutionContext);
         }
 
         internal Delegate BuildAndResolveFactoryDelegate(Type type, Type[] parameterTypes, object? name, string key)
@@ -370,7 +370,7 @@ namespace Stashbox
         }
 
         private object StoreAndInvokeServiceDelegate(Type serivceType, Func<IResolutionScope, IRequestContext, object> factory,
-            ResolutionContext resolutionContext, object[]? dependencyOverrides = null)
+            ResolutionContext resolutionContext)
         {
             if (resolutionContext.RequestConfiguration.FactoryDelegateCacheEnabled)
                 Swap.SwapValue(ref resolutionContext.RequestConfiguration.RequiresRequestContext
@@ -385,7 +385,7 @@ namespace Stashbox
         }
 
         private object StoreAndInvokeNamedServiceDelegate(Type serivceType, object key, Func<IResolutionScope, IRequestContext, object> factory,
-           ResolutionContext resolutionContext, object[]? dependencyOverrides = null)
+           ResolutionContext resolutionContext)
         {
             if (resolutionContext.RequestConfiguration.FactoryDelegateCacheEnabled)
                 Swap.SwapValue(ref resolutionContext.RequestConfiguration.RequiresRequestContext

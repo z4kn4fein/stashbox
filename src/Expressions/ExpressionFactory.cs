@@ -167,19 +167,16 @@ namespace Stashbox.Expressions
         {
             var rule = resolutionContext.CurrentContainerContext.ContainerConfiguration.ConstructorSelectionRule;
             var constructorOptions = serviceRegistration.Options.GetOrDefault<ConstructorOptions>(RegistrationOption.ConstructorOptions);
-            if (constructorOptions != null)
+            if (constructorOptions != null && constructorOptions.SelectedConstructor != null)
             {
-                if (constructorOptions.SelectedConstructor != null)
-                {
-                    if (constructorOptions.ConstructorArguments != null)
-                        return constructorOptions.SelectedConstructor
-                            .MakeNew(constructorOptions.ConstructorArguments.Select(Expression.Constant));
+                if (constructorOptions.ConstructorArguments != null)
+                    return constructorOptions.SelectedConstructor
+                        .MakeNew(constructorOptions.ConstructorArguments.Select(Expression.Constant));
 
-                    return constructorOptions.SelectedConstructor.MakeNew(
-                        CreateParameterExpressionsForMethod(
-                            serviceRegistration,
-                            resolutionContext, constructorOptions.SelectedConstructor, typeInformation));
-                }
+                return constructorOptions.SelectedConstructor.MakeNew(
+                    CreateParameterExpressionsForMethod(
+                        serviceRegistration,
+                        resolutionContext, constructorOptions.SelectedConstructor, typeInformation));
             }
 
             var constructorSelectionRule = serviceRegistration.Options.GetOrDefault<Func<IEnumerable<ConstructorInfo>, IEnumerable<ConstructorInfo>>>(RegistrationOption.ConstructorSelectionRule);

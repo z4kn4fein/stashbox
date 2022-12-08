@@ -9,8 +9,8 @@ namespace Stashbox.Resolution.Wrappers
     {
         public Expression WrapExpression(TypeInformation originalTypeInformation,
             TypeInformation wrappedTypeInformation,
-            IEnumerable<ServiceContext> expressions) =>
-            wrappedTypeInformation.Type.InitNewArray(expressions.Select(e => e.ServiceExpression));
+            IEnumerable<ServiceContext> serviceContexts) =>
+            wrappedTypeInformation.Type.InitNewArray(serviceContexts.Select(e => e.ServiceExpression));
 
         public bool TryUnWrap(TypeInformation typeInformation, out TypeInformation unWrappedType)
         {

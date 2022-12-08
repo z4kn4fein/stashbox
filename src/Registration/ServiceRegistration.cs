@@ -85,17 +85,17 @@ namespace Stashbox.Registration
             HasAttributeConditionAndMatch(typeInfo, conditionOptions) ||
             HasResolutionConditionAndMatch(typeInfo, conditionOptions);
 
-        private bool HasParentTypeConditionAndMatch(TypeInformation typeInfo, ConditionOptions conditionOptions) =>
+        private static bool HasParentTypeConditionAndMatch(TypeInformation typeInfo, ConditionOptions conditionOptions) =>
             (conditionOptions.TargetTypeConditions != null && CheckTypeConditions(conditionOptions.TargetTypeConditions, typeInfo)) ||
             (conditionOptions.TargetTypeInResolutionPathConditions != null && CheckInPathTypeConditions(conditionOptions.TargetTypeInResolutionPathConditions, typeInfo));
 
-        private bool HasAttributeConditionAndMatch(TypeInformation typeInfo, ConditionOptions conditionOptions) =>
+        private static bool HasAttributeConditionAndMatch(TypeInformation typeInfo, ConditionOptions conditionOptions) =>
             (conditionOptions.AttributeConditions != null &&
             typeInfo.CustomAttributes != null &&
             conditionOptions.AttributeConditions.Intersect(typeInfo.CustomAttributes.Select(attribute => attribute.GetType())).Any()) ||
             (conditionOptions.AttributeInResolutionPathConditions != null && CheckInPathAttributeConditions(conditionOptions.AttributeInResolutionPathConditions, typeInfo));
 
-        private bool HasResolutionConditionAndMatch(TypeInformation typeInfo, ConditionOptions conditionOptions)
+        private static bool HasResolutionConditionAndMatch(TypeInformation typeInfo, ConditionOptions conditionOptions)
         {
             if (conditionOptions.ResolutionConditions == null)
                 return false;
