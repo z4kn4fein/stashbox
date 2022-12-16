@@ -1,7 +1,7 @@
 # Stashbox
 
 [![Appveyor Build Status](https://img.shields.io/appveyor/build/pcsajtai/stashbox?logo=appveyor&logoColor=white)](https://ci.appveyor.com/project/pcsajtai/stashbox/branch/master) 
-[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/z4kn4fein/stashbox/Build%20on%20Linux%20and%20macOS?logo=GitHub)](https://github.com/z4kn4fein/stashbox/actions/workflows/linux-macOS-CI.yml) 
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/z4kn4fein/stashbox-extensions-dependencyinjection/linux-macOS-CI.yml?logo=GitHub&branch=master)](https://github.com/z4kn4fein/stashbox-extensions-dependencyinjection/actions/workflows/linux-macOS-CI.yml)
 [![Sonar Tests](https://img.shields.io/sonar/tests/z4kn4fein_stashbox?compact_message&logo=sonarcloud&server=https%3A%2F%2Fsonarcloud.io)](https://sonarcloud.io/project/overview?id=z4kn4fein_stashbox) 
 [![Sonar Coverage](https://img.shields.io/sonar/coverage/z4kn4fein_stashbox?logo=SonarCloud&server=https%3A%2F%2Fsonarcloud.io)](https://sonarcloud.io/project/overview?id=z4kn4fein_stashbox) 
 [![Sonar Quality Gate](https://img.shields.io/sonar/quality_gate/z4kn4fein_stashbox?logo=sonarcloud&server=https%3A%2F%2Fsonarcloud.io)](https://sonarcloud.io/project/overview?id=z4kn4fein_stashbox) 
