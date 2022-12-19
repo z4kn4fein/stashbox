@@ -180,6 +180,7 @@ namespace Stashbox.Tests
             d.Validate();
             d.GetRegistrationMappings();
             d.GetRegistrationDiagnostics();
+            d.Register<IA, C>(c => { });
             d.Register<IA, C>();
             d.Register<IA, C>("a");
             d.Register<IA>(typeof(C));
