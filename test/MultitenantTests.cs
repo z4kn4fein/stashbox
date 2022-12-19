@@ -117,7 +117,7 @@ namespace Stashbox.Tests
 
             var md = new TenantDistributor(container);
 
-            md.ConfigureTenant("C", c => c);
+            md.ConfigureTenant("C", c => { });
             var tenant = md.GetTenant("C");
 
             var inst = (C)tenant.Resolve<IA>();
@@ -170,7 +170,7 @@ namespace Stashbox.Tests
 
             var md = new TenantDistributor(container);
 
-            md.ConfigureTenant("C", c => c);
+            md.ConfigureTenant("C", c => { });
             var tenant = md.GetTenant("C");
 
             var inst = (C)tenant.Resolve<IA>();
