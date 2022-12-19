@@ -5,18 +5,13 @@ namespace Stashbox.Multitenant
     /// <summary>
     /// Represents a tenant distributor that manages tenants in a multi-tenant environment.
     /// </summary>
-    public interface ITenantDistributor :
+    public interface ITenantDistributor : IStashboxContainer,
 #if HAS_ASYNC_DISPOSABLE
         IAsyncDisposable,
 #endif
         IDisposable
 
     {
-        /// <summary>
-        /// The root container.
-        /// </summary>
-        IStashboxContainer RootContainer { get; }
-
         /// <summary>
         /// Adds a tenant with a specified service configuration to the distributor.
         /// </summary>

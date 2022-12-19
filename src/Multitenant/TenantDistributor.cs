@@ -15,13 +15,14 @@ namespace Stashbox.Multitenant
     /// <summary>
     /// Represents a tenant distributor that manages tenants in a multi-tenant environment.
     /// </summary>
-    public sealed class TenantDistributor : ITenantDistributor, IStashboxContainer
+    public sealed class TenantDistributor : ITenantDistributor
     {
         private int disposed;
-        private ImmutableTree<object, IStashboxContainer> tenantRepository = ImmutableTree<object, IStashboxContainer>.Empty;
 
-        /// <inheritdoc />
-        public IStashboxContainer RootContainer { get; }
+        private ImmutableTree<object, IStashboxContainer> tenantRepository =
+            ImmutableTree<object, IStashboxContainer>.Empty;
+
+        private readonly IStashboxContainer rootContainer;
 
         /// <summary>
         /// Constructs a <see cref="TenantDistributor"/>.
@@ -29,7 +30,7 @@ namespace Stashbox.Multitenant
         /// <param name="rootContainer">A pre-configured root container, used to create child tenant containers. If not set, a new will be created.</param>
         public TenantDistributor(IStashboxContainer? rootContainer = null)
         {
-            this.RootContainer = rootContainer ?? new StashboxContainer();
+            this.rootContainer = rootContainer ?? new StashboxContainer();
         }
 
         /// <inheritdoc />
@@ -50,17 +51,17 @@ namespace Stashbox.Multitenant
         /// <inheritdoc />
         public IDependencyResolver? GetTenant(object tenantId) => this.tenantRepository.GetOrDefaultByValue(tenantId);
         /// <inheritdoc />
-        public void RegisterResolver(IResolver resolver) => RootContainer.RegisterResolver(resolver);
+        public void RegisterResolver(IResolver resolver) => rootContainer.RegisterResolver(resolver);
         /// <inheritdoc />
-        public IStashboxContainer CreateChildContainer(Action<ContainerConfigurator>? config = null) => RootContainer.CreateChildContainer(config);
+        public IStashboxContainer CreateChildContainer(Action<ContainerConfigurator>? config = null) => rootContainer.CreateChildContainer(config);
         /// <inheritdoc />
-        public IContainerContext ContainerContext => RootContainer.ContainerContext;
+        public IContainerContext ContainerContext => rootContainer.ContainerContext;
         /// <inheritdoc />
-        public bool IsRegistered<TFrom>(object? name = null) => RootContainer.IsRegistered<TFrom>(name);
+        public bool IsRegistered<TFrom>(object? name = null) => rootContainer.IsRegistered<TFrom>(name);
         /// <inheritdoc />
-        public bool IsRegistered(Type typeFrom, object? name = null) => RootContainer.IsRegistered(typeFrom, name);
+        public bool IsRegistered(Type typeFrom, object? name = null) => rootContainer.IsRegistered(typeFrom, name);
         /// <inheritdoc />
-        public void Configure(Action<ContainerConfigurator> config) => RootContainer.Configure(config);
+        public void Configure(Action<ContainerConfigurator> config) => rootContainer.Configure(config);
         /// <inheritdoc />
         public void Validate()
         {
@@ -68,7 +69,7 @@ namespace Stashbox.Multitenant
 
             try
             {
-                this.RootContainer.Validate();
+                this.rootContainer.Validate();
             }
             catch (AggregateException ex)
             {
@@ -91,160 +92,160 @@ namespace Stashbox.Multitenant
                 throw new AggregateException("Tenant distributor validation failed. See the inner exceptions for details.", exceptions);
         }
         /// <inheritdoc />
-        public IEnumerable<KeyValuePair<Type, ServiceRegistration>> GetRegistrationMappings() => RootContainer.GetRegistrationMappings();
+        public IEnumerable<KeyValuePair<Type, ServiceRegistration>> GetRegistrationMappings() => rootContainer.GetRegistrationMappings();
         /// <inheritdoc />
-        public IEnumerable<RegistrationDiagnosticsInfo> GetRegistrationDiagnostics() => RootContainer.GetRegistrationDiagnostics();
+        public IEnumerable<RegistrationDiagnosticsInfo> GetRegistrationDiagnostics() => rootContainer.GetRegistrationDiagnostics();
         /// <inheritdoc />
         public void Dispose()
         {
             if (Interlocked.CompareExchange(ref this.disposed, 1, 0) != 0)
                 return;
 
-            this.RootContainer.Dispose();
+            this.rootContainer.Dispose();
         }
 #if HAS_ASYNC_DISPOSABLE
         /// <inheritdoc />
-        public ValueTask DisposeAsync() => Interlocked.CompareExchange(ref this.disposed, 1, 0) != 0 ? new ValueTask(Task.CompletedTask) : this.RootContainer.DisposeAsync();
+        public ValueTask DisposeAsync() => Interlocked.CompareExchange(ref this.disposed, 1, 0) != 0 ? new ValueTask(Task.CompletedTask) : this.rootContainer.DisposeAsync();
 #endif
         /// <inheritdoc />
-        public IStashboxContainer Register<TFrom, TTo>(Action<RegistrationConfigurator<TFrom, TTo>> configurator) where TFrom : class where TTo : class, TFrom => RootContainer.Register(configurator);
+        public IStashboxContainer Register<TFrom, TTo>(Action<RegistrationConfigurator<TFrom, TTo>> configurator) where TFrom : class where TTo : class, TFrom => rootContainer.Register(configurator);
         /// <inheritdoc />
-        public IStashboxContainer Register<TFrom, TTo>(object? name = null) where TFrom : class where TTo : class, TFrom => RootContainer.Register<TFrom, TTo>(name);
+        public IStashboxContainer Register<TFrom, TTo>(object? name = null) where TFrom : class where TTo : class, TFrom => rootContainer.Register<TFrom, TTo>(name);
         /// <inheritdoc />
-        public IStashboxContainer Register<TFrom>(Type typeTo, Action<RegistrationConfigurator<TFrom, TFrom>>? configurator = null) where TFrom : class => RootContainer.Register(typeTo, configurator);
+        public IStashboxContainer Register<TFrom>(Type typeTo, Action<RegistrationConfigurator<TFrom, TFrom>>? configurator = null) where TFrom : class => rootContainer.Register(typeTo, configurator);
         /// <inheritdoc />
-        public IStashboxContainer Register(Type typeFrom, Type typeTo, Action<RegistrationConfigurator>? configurator = null) => RootContainer.Register(typeFrom, typeTo, configurator);
+        public IStashboxContainer Register(Type typeFrom, Type typeTo, Action<RegistrationConfigurator>? configurator = null) => rootContainer.Register(typeFrom, typeTo, configurator);
         /// <inheritdoc />
-        public IStashboxContainer Register<TTo>(Action<RegistrationConfigurator<TTo, TTo>> configurator) where TTo : class => RootContainer.Register<TTo>(configurator);
+        public IStashboxContainer Register<TTo>(Action<RegistrationConfigurator<TTo, TTo>> configurator) where TTo : class => rootContainer.Register<TTo>(configurator);
         /// <inheritdoc />
-        public IStashboxContainer Register<TTo>(object? name = null) where TTo : class => RootContainer.Register<TTo>(name);
+        public IStashboxContainer Register<TTo>(object? name = null) where TTo : class => rootContainer.Register<TTo>(name);
         /// <inheritdoc />
-        public IStashboxContainer Register(Type typeTo, Action<RegistrationConfigurator>? configurator = null) => RootContainer.Register(typeTo, configurator);
+        public IStashboxContainer Register(Type typeTo, Action<RegistrationConfigurator>? configurator = null) => rootContainer.Register(typeTo, configurator);
         /// <inheritdoc />
-        public IStashboxContainer RegisterSingleton<TFrom, TTo>(object? name = null) where TFrom : class where TTo : class, TFrom => RootContainer.RegisterSingleton<TFrom, TTo>(name);
+        public IStashboxContainer RegisterSingleton<TFrom, TTo>(object? name = null) where TFrom : class where TTo : class, TFrom => rootContainer.RegisterSingleton<TFrom, TTo>(name);
         /// <inheritdoc />
-        public IStashboxContainer RegisterSingleton<TTo>(object? name = null) where TTo : class => RootContainer.RegisterSingleton<TTo>(name);
+        public IStashboxContainer RegisterSingleton<TTo>(object? name = null) where TTo : class => rootContainer.RegisterSingleton<TTo>(name);
         /// <inheritdoc />
-        public IStashboxContainer RegisterSingleton(Type typeFrom, Type typeTo, object? name = null) => RootContainer.RegisterSingleton(typeFrom, typeTo, name);
+        public IStashboxContainer RegisterSingleton(Type typeFrom, Type typeTo, object? name = null) => rootContainer.RegisterSingleton(typeFrom, typeTo, name);
         /// <inheritdoc />
-        public IStashboxContainer RegisterScoped<TFrom, TTo>(object? name = null) where TFrom : class where TTo : class, TFrom => RootContainer.RegisterScoped<TFrom, TTo>(name);
+        public IStashboxContainer RegisterScoped<TFrom, TTo>(object? name = null) where TFrom : class where TTo : class, TFrom => rootContainer.RegisterScoped<TFrom, TTo>(name);
         /// <inheritdoc />
-        public IStashboxContainer RegisterScoped(Type typeFrom, Type typeTo, object? name = null) => RootContainer.RegisterScoped(typeFrom, typeTo, name);
+        public IStashboxContainer RegisterScoped(Type typeFrom, Type typeTo, object? name = null) => rootContainer.RegisterScoped(typeFrom, typeTo, name);
         /// <inheritdoc />
-        public IStashboxContainer RegisterScoped<TTo>(object? name = null) where TTo : class => RootContainer.RegisterScoped<TTo>(name);
+        public IStashboxContainer RegisterScoped<TTo>(object? name = null) where TTo : class => rootContainer.RegisterScoped<TTo>(name);
         /// <inheritdoc />
         public IStashboxContainer RegisterInstance<TInstance>(TInstance instance, object? name = null,
             bool withoutDisposalTracking = false, Action<TInstance>? finalizerDelegate = null) where TInstance : class =>
-            RootContainer.RegisterInstance(instance, name, withoutDisposalTracking, finalizerDelegate);
+            rootContainer.RegisterInstance(instance, name, withoutDisposalTracking, finalizerDelegate);
         /// <inheritdoc />
         public IStashboxContainer RegisterInstance(object instance, Type serviceType, object? name = null,
             bool withoutDisposalTracking = false) =>
-            RootContainer.RegisterInstance(instance, serviceType, name, withoutDisposalTracking);
+            rootContainer.RegisterInstance(instance, serviceType, name, withoutDisposalTracking);
         /// <inheritdoc />
         public IStashboxContainer WireUp<TInstance>(TInstance instance, object? name = null, bool withoutDisposalTracking = false,
             Action<TInstance>? finalizerDelegate = null) where TInstance : class =>
-            RootContainer.WireUp(instance, name, withoutDisposalTracking, finalizerDelegate);
+            rootContainer.WireUp(instance, name, withoutDisposalTracking, finalizerDelegate);
         /// <inheritdoc />
-        public IStashboxContainer WireUp(object instance, Type serviceType, object? name = null, bool withoutDisposalTracking = false) => RootContainer.WireUp(instance, serviceType, name, withoutDisposalTracking);
+        public IStashboxContainer WireUp(object instance, Type serviceType, object? name = null, bool withoutDisposalTracking = false) => rootContainer.WireUp(instance, serviceType, name, withoutDisposalTracking);
         /// <inheritdoc />
-        public object? GetService(Type serviceType) => RootContainer.GetService(serviceType);
+        public object? GetService(Type serviceType) => rootContainer.GetService(serviceType);
         /// <inheritdoc />
-        public object Resolve(Type typeFrom) => RootContainer.Resolve(typeFrom);
+        public object Resolve(Type typeFrom) => rootContainer.Resolve(typeFrom);
         /// <inheritdoc />
-        public object Resolve(Type typeFrom, object[] dependencyOverrides) => RootContainer.Resolve(typeFrom, dependencyOverrides);
+        public object Resolve(Type typeFrom, object[] dependencyOverrides) => rootContainer.Resolve(typeFrom, dependencyOverrides);
         /// <inheritdoc />
-        public object Resolve(Type typeFrom, object? name) => RootContainer.Resolve(typeFrom, name);
+        public object Resolve(Type typeFrom, object? name) => rootContainer.Resolve(typeFrom, name);
         /// <inheritdoc />
-        public object Resolve(Type typeFrom, object? name, object[] dependencyOverrides) => RootContainer.Resolve(typeFrom, name, dependencyOverrides);
+        public object Resolve(Type typeFrom, object? name, object[] dependencyOverrides) => rootContainer.Resolve(typeFrom, name, dependencyOverrides);
         /// <inheritdoc />
-        public object? ResolveOrDefault(Type typeFrom) => RootContainer.ResolveOrDefault(typeFrom);
+        public object? ResolveOrDefault(Type typeFrom) => rootContainer.ResolveOrDefault(typeFrom);
         /// <inheritdoc />
-        public object? ResolveOrDefault(Type typeFrom, object[] dependencyOverrides) => RootContainer.ResolveOrDefault(typeFrom, dependencyOverrides);
+        public object? ResolveOrDefault(Type typeFrom, object[] dependencyOverrides) => rootContainer.ResolveOrDefault(typeFrom, dependencyOverrides);
         /// <inheritdoc />
-        public object? ResolveOrDefault(Type typeFrom, object? name) => RootContainer.ResolveOrDefault(typeFrom, name);
+        public object? ResolveOrDefault(Type typeFrom, object? name) => rootContainer.ResolveOrDefault(typeFrom, name);
         /// <inheritdoc />
-        public object? ResolveOrDefault(Type typeFrom, object? name, object[] dependencyOverrides) => RootContainer.ResolveOrDefault(typeFrom, name, dependencyOverrides);
+        public object? ResolveOrDefault(Type typeFrom, object? name, object[] dependencyOverrides) => rootContainer.ResolveOrDefault(typeFrom, name, dependencyOverrides);
         /// <inheritdoc />
-        public IEnumerable<TKey> ResolveAll<TKey>() => RootContainer.ResolveAll<TKey>();
+        public IEnumerable<TKey> ResolveAll<TKey>() => rootContainer.ResolveAll<TKey>();
         /// <inheritdoc />
-        public IEnumerable<TKey> ResolveAll<TKey>(object? name) => RootContainer.ResolveAll<TKey>(name);
+        public IEnumerable<TKey> ResolveAll<TKey>(object? name) => rootContainer.ResolveAll<TKey>(name);
         /// <inheritdoc />
-        public IEnumerable<TKey> ResolveAll<TKey>(object[] dependencyOverrides) => RootContainer.ResolveAll<TKey>(dependencyOverrides);
+        public IEnumerable<TKey> ResolveAll<TKey>(object[] dependencyOverrides) => rootContainer.ResolveAll<TKey>(dependencyOverrides);
         /// <inheritdoc />
-        public IEnumerable<TKey> ResolveAll<TKey>(object? name, object[] dependencyOverrides) => RootContainer.ResolveAll<TKey>(name, dependencyOverrides);
+        public IEnumerable<TKey> ResolveAll<TKey>(object? name, object[] dependencyOverrides) => rootContainer.ResolveAll<TKey>(name, dependencyOverrides);
         /// <inheritdoc />
-        public IEnumerable<object> ResolveAll(Type typeFrom) => RootContainer.ResolveAll(typeFrom);
+        public IEnumerable<object> ResolveAll(Type typeFrom) => rootContainer.ResolveAll(typeFrom);
         /// <inheritdoc />
-        public IEnumerable<object> ResolveAll(Type typeFrom, object? name) => RootContainer.ResolveAll(typeFrom, name);
+        public IEnumerable<object> ResolveAll(Type typeFrom, object? name) => rootContainer.ResolveAll(typeFrom, name);
         /// <inheritdoc />
-        public IEnumerable<object> ResolveAll(Type typeFrom, object[] dependencyOverrides) => RootContainer.ResolveAll(typeFrom, dependencyOverrides);
+        public IEnumerable<object> ResolveAll(Type typeFrom, object[] dependencyOverrides) => rootContainer.ResolveAll(typeFrom, dependencyOverrides);
         /// <inheritdoc />
-        public IEnumerable<object> ResolveAll(Type typeFrom, object? name, object[] dependencyOverrides) => RootContainer.ResolveAll(typeFrom, name, dependencyOverrides);
+        public IEnumerable<object> ResolveAll(Type typeFrom, object? name, object[] dependencyOverrides) => rootContainer.ResolveAll(typeFrom, name, dependencyOverrides);
         /// <inheritdoc />
-        public Delegate ResolveFactory(Type typeFrom, object? name = null, params Type[] parameterTypes) => RootContainer.ResolveFactory(typeFrom, name, parameterTypes);
+        public Delegate ResolveFactory(Type typeFrom, object? name = null, params Type[] parameterTypes) => rootContainer.ResolveFactory(typeFrom, name, parameterTypes);
         /// <inheritdoc />
-        public Delegate? ResolveFactoryOrDefault(Type typeFrom, object? name = null, params Type[] parameterTypes) => RootContainer.ResolveFactoryOrDefault(typeFrom, name, parameterTypes);
+        public Delegate? ResolveFactoryOrDefault(Type typeFrom, object? name = null, params Type[] parameterTypes) => rootContainer.ResolveFactoryOrDefault(typeFrom, name, parameterTypes);
         /// <inheritdoc />
-        public IDependencyResolver BeginScope(object? name = null, bool attachToParent = false) => RootContainer.BeginScope(name, attachToParent);
+        public IDependencyResolver BeginScope(object? name = null, bool attachToParent = false) => rootContainer.BeginScope(name, attachToParent);
         /// <inheritdoc />
-        public void PutInstanceInScope(Type typeFrom, object instance, bool withoutDisposalTracking = false, object? name = null) => RootContainer.PutInstanceInScope(typeFrom, instance, withoutDisposalTracking, name);
+        public void PutInstanceInScope(Type typeFrom, object instance, bool withoutDisposalTracking = false, object? name = null) => rootContainer.PutInstanceInScope(typeFrom, instance, withoutDisposalTracking, name);
         /// <inheritdoc />
-        public TTo BuildUp<TTo>(TTo instance) where TTo : class => RootContainer.BuildUp(instance);
+        public TTo BuildUp<TTo>(TTo instance) where TTo : class => rootContainer.BuildUp(instance);
         /// <inheritdoc />
-        public object Activate(Type type, params object[] arguments) => RootContainer.Activate(type, arguments);
+        public object Activate(Type type, params object[] arguments) => rootContainer.Activate(type, arguments);
         /// <inheritdoc />
-        public ValueTask InvokeAsyncInitializers(CancellationToken token = default) => RootContainer.InvokeAsyncInitializers(token);
+        public ValueTask InvokeAsyncInitializers(CancellationToken token = default) => rootContainer.InvokeAsyncInitializers(token);
         /// <inheritdoc />
-        public bool CanResolve<TFrom>(object? name = null) => RootContainer.CanResolve<TFrom>(name);
+        public bool CanResolve<TFrom>(object? name = null) => rootContainer.CanResolve<TFrom>(name);
         /// <inheritdoc />
-        public bool CanResolve(Type typeFrom, object? name = null) => RootContainer.CanResolve(typeFrom, name);
+        public bool CanResolve(Type typeFrom, object? name = null) => rootContainer.CanResolve(typeFrom, name);
         /// <inheritdoc />
-        public IEnumerable<DelegateCacheEntry> GetDelegateCacheEntries() => RootContainer.GetDelegateCacheEntries();
+        public IEnumerable<DelegateCacheEntry> GetDelegateCacheEntries() => rootContainer.GetDelegateCacheEntries();
         /// <inheritdoc />
-        public IStashboxContainer ReMap<TFrom, TTo>(Action<RegistrationConfigurator<TFrom, TTo>>? configurator = null) where TFrom : class where TTo : class, TFrom => RootContainer.ReMap(configurator);
+        public IStashboxContainer ReMap<TFrom, TTo>(Action<RegistrationConfigurator<TFrom, TTo>>? configurator = null) where TFrom : class where TTo : class, TFrom => rootContainer.ReMap(configurator);
         /// <inheritdoc />
-        public IStashboxContainer ReMap<TFrom>(Type typeTo, Action<RegistrationConfigurator<TFrom, TFrom>>? configurator = null) where TFrom : class => RootContainer.ReMap(typeTo, configurator);
+        public IStashboxContainer ReMap<TFrom>(Type typeTo, Action<RegistrationConfigurator<TFrom, TFrom>>? configurator = null) where TFrom : class => rootContainer.ReMap(typeTo, configurator);
         /// <inheritdoc />
-        public IStashboxContainer ReMap(Type typeFrom, Type typeTo, Action<RegistrationConfigurator>? configurator = null) => RootContainer.ReMap(typeFrom, typeTo, configurator);
+        public IStashboxContainer ReMap(Type typeFrom, Type typeTo, Action<RegistrationConfigurator>? configurator = null) => rootContainer.ReMap(typeFrom, typeTo, configurator);
         /// <inheritdoc />
-        public IStashboxContainer ReMap<TTo>(Action<RegistrationConfigurator<TTo, TTo>>? configurator = null) where TTo : class => RootContainer.ReMap<TTo>(configurator);
+        public IStashboxContainer ReMap<TTo>(Action<RegistrationConfigurator<TTo, TTo>>? configurator = null) where TTo : class => rootContainer.ReMap<TTo>(configurator);
         /// <inheritdoc />
-        public IStashboxContainer ReMapDecorator(Type typeFrom, Type typeTo, Action<DecoratorConfigurator>? configurator = null) => RootContainer.ReMapDecorator(typeFrom, typeTo, configurator);
+        public IStashboxContainer ReMapDecorator(Type typeFrom, Type typeTo, Action<DecoratorConfigurator>? configurator = null) => rootContainer.ReMapDecorator(typeFrom, typeTo, configurator);
         /// <inheritdoc />
-        public IStashboxContainer ReMapDecorator<TFrom, TTo>(Action<DecoratorConfigurator<TFrom, TTo>>? configurator = null) where TFrom : class where TTo : class, TFrom => RootContainer.ReMapDecorator(configurator);
+        public IStashboxContainer ReMapDecorator<TFrom, TTo>(Action<DecoratorConfigurator<TFrom, TTo>>? configurator = null) where TFrom : class where TTo : class, TFrom => rootContainer.ReMapDecorator(configurator);
         /// <inheritdoc />
-        public IStashboxContainer ReMapDecorator<TFrom>(Type typeTo, Action<DecoratorConfigurator<TFrom, TFrom>>? configurator = null) where TFrom : class => RootContainer.ReMapDecorator(typeTo, configurator);
+        public IStashboxContainer ReMapDecorator<TFrom>(Type typeTo, Action<DecoratorConfigurator<TFrom, TFrom>>? configurator = null) where TFrom : class => rootContainer.ReMapDecorator(typeTo, configurator);
         /// <inheritdoc />
         public IStashboxContainer RegisterTypesAs(Type typeFrom, IEnumerable<Type> types, Func<Type, bool>? selector = null,
             Action<RegistrationConfigurator>? configurator = null) =>
-            RootContainer.RegisterTypesAs(typeFrom, types, selector, configurator);
+            rootContainer.RegisterTypesAs(typeFrom, types, selector, configurator);
         /// <inheritdoc />
         public IStashboxContainer RegisterTypes(IEnumerable<Type> types, Func<Type, bool>? selector = null, Func<Type, Type, bool>? serviceTypeSelector = null,
             bool registerSelf = true, Action<RegistrationConfigurator>? configurator = null) =>
-            RootContainer.RegisterTypes(types, selector, serviceTypeSelector, registerSelf, configurator);
+            rootContainer.RegisterTypes(types, selector, serviceTypeSelector, registerSelf, configurator);
         /// <inheritdoc />
-        public IStashboxContainer ComposeBy(Type compositionRootType, params object[] compositionRootArguments) => RootContainer.ComposeBy(compositionRootType, compositionRootArguments);
+        public IStashboxContainer ComposeBy(Type compositionRootType, params object[] compositionRootArguments) => rootContainer.ComposeBy(compositionRootType, compositionRootArguments);
         /// <inheritdoc />
-        public IStashboxContainer ComposeBy(ICompositionRoot compositionRoot) => RootContainer.ComposeBy(compositionRoot);
+        public IStashboxContainer ComposeBy(ICompositionRoot compositionRoot) => rootContainer.ComposeBy(compositionRoot);
         /// <inheritdoc />
-        public IStashboxContainer RegisterDecorator(Type typeFrom, Type typeTo, Action<DecoratorConfigurator>? configurator = null) => RootContainer.RegisterDecorator(typeFrom, typeTo, configurator);
+        public IStashboxContainer RegisterDecorator(Type typeFrom, Type typeTo, Action<DecoratorConfigurator>? configurator = null) => rootContainer.RegisterDecorator(typeFrom, typeTo, configurator);
         /// <inheritdoc />
-        public IStashboxContainer RegisterDecorator<TFrom, TTo>(Action<DecoratorConfigurator<TFrom, TTo>>? configurator = null) where TFrom : class where TTo : class, TFrom => RootContainer.RegisterDecorator(configurator);
+        public IStashboxContainer RegisterDecorator<TFrom, TTo>(Action<DecoratorConfigurator<TFrom, TTo>>? configurator = null) where TFrom : class where TTo : class, TFrom => rootContainer.RegisterDecorator(configurator);
         /// <inheritdoc />
-        public IStashboxContainer RegisterDecorator(Type typeTo, Action<DecoratorConfigurator>? configurator = null) => RootContainer.RegisterDecorator(typeTo, configurator);
+        public IStashboxContainer RegisterDecorator(Type typeTo, Action<DecoratorConfigurator>? configurator = null) => rootContainer.RegisterDecorator(typeTo, configurator);
         /// <inheritdoc />
-        public IStashboxContainer RegisterDecorator<TTo>(Action<DecoratorConfigurator<TTo, TTo>>? configurator = null) where TTo : class => RootContainer.RegisterDecorator<TTo>(configurator);
+        public IStashboxContainer RegisterDecorator<TTo>(Action<DecoratorConfigurator<TTo, TTo>>? configurator = null) where TTo : class => rootContainer.RegisterDecorator<TTo>(configurator);
         /// <inheritdoc />
-        public IStashboxContainer RegisterDecorator<TFrom>(Type typeTo, Action<DecoratorConfigurator<TFrom, TFrom>>? configurator = null) where TFrom : class => RootContainer.RegisterDecorator(typeTo, configurator);
+        public IStashboxContainer RegisterDecorator<TFrom>(Type typeTo, Action<DecoratorConfigurator<TFrom, TFrom>>? configurator = null) where TFrom : class => rootContainer.RegisterDecorator(typeTo, configurator);
         /// <inheritdoc />
-        public IStashboxContainer RegisterFunc<TService>(Func<IDependencyResolver, TService> factory, object? name = null) => RootContainer.RegisterFunc(factory, name);
+        public IStashboxContainer RegisterFunc<TService>(Func<IDependencyResolver, TService> factory, object? name = null) => rootContainer.RegisterFunc(factory, name);
         /// <inheritdoc />
-        public IStashboxContainer RegisterFunc<T1, TService>(Func<T1, IDependencyResolver, TService> factory, object? name = null) => RootContainer.RegisterFunc(factory, name);
+        public IStashboxContainer RegisterFunc<T1, TService>(Func<T1, IDependencyResolver, TService> factory, object? name = null) => rootContainer.RegisterFunc(factory, name);
         /// <inheritdoc />
-        public IStashboxContainer RegisterFunc<T1, T2, TService>(Func<T1, T2, IDependencyResolver, TService> factory, object? name = null) => RootContainer.RegisterFunc(factory, name);
+        public IStashboxContainer RegisterFunc<T1, T2, TService>(Func<T1, T2, IDependencyResolver, TService> factory, object? name = null) => rootContainer.RegisterFunc(factory, name);
         /// <inheritdoc />
-        public IStashboxContainer RegisterFunc<T1, T2, T3, TService>(Func<T1, T2, T3, IDependencyResolver, TService> factory, object? name = null) => RootContainer.RegisterFunc(factory, name);
+        public IStashboxContainer RegisterFunc<T1, T2, T3, TService>(Func<T1, T2, T3, IDependencyResolver, TService> factory, object? name = null) => rootContainer.RegisterFunc(factory, name);
         /// <inheritdoc />
-        public IStashboxContainer RegisterFunc<T1, T2, T3, T4, TService>(Func<T1, T2, T3, T4, IDependencyResolver, TService> factory, object? name = null) => RootContainer.RegisterFunc(factory, name);
+        public IStashboxContainer RegisterFunc<T1, T2, T3, T4, TService>(Func<T1, T2, T3, T4, IDependencyResolver, TService> factory, object? name = null) => rootContainer.RegisterFunc(factory, name);
     }
 }
