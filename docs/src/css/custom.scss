@@ -20,7 +20,8 @@
 
   --ifm-menu-color: var(--ifm-color-content-secondary);
   --menu-secondary-color: rgb(83, 83, 95);
-  --base-backround-color: #f6f8fa;
+  --base-contrast-background-color: var(--ifm-color-primary);
+  --base-contrast-background-hover-color: var(--ifm-color-primary-dark);
 }
 
 [data-theme='dark'] {
@@ -33,7 +34,8 @@
   --ifm-color-primary-lightest: #a4e4ff;
   
   --menu-secondary-color: rgb(192, 192, 199);
-  --base-backround-color: #272727;
+  --base-contrast-background-color: var(--ifm-color-primary-darkest);
+  --base-contrast-background-hover-color: #0079ad;
 
   h2 {
     border-bottom: 1px solid rgba(122, 122, 122, 0.3);
@@ -42,6 +44,12 @@
 
 .theme-doc-sidebar-container .button--outline {
   border: 0 !important;
+  background-color: var(--ifm-hover-overlay);
+  margin-right: 1px;
+}
+
+.theme-doc-sidebar-container div[role='button'] {
+  background-color: var(--ifm-hover-overlay);
 }
 
 .dropdown__link svg {

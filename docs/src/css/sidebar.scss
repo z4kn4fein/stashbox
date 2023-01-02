@@ -2,6 +2,10 @@
     font-size: 13px;
     font-weight: 600;
     text-transform: uppercase;
+
+    .menu__link--active {
+        color: var(--ifm-menu-color);
+    }
 }
 
 .menu>.menu__list .menu__list {

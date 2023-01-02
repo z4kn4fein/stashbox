@@ -1,12 +1,12 @@
 .pagination-nav__link {
-    background-color: var(--ifm-color-primary-darkest);
+    background-color: var(--base-contrast-background-color);
     border: none;
     color: #fff;
     transition: background-color .2s;
 }
 
 .pagination-nav__link:hover {
-    background-color: #0089c4;
+    background-color: var(--base-contrast-background-hover-color);
     color: #fff;
 }
 
@@ -30,15 +30,4 @@
 
 .pagination-nav__link--prev:hover .pagination-nav__label {
     padding-left: 0;
-}
-
-[data-theme='light'] {
-    .pagination-nav__link {
-        background-color: var(--ifm-color-primary);
-    }
-
-    .pagination-nav__link:hover {
-        background-color: #0079ad;
-        color: #fff;
-    }
 }
