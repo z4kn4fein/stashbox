@@ -1,0 +1,13 @@
+.separator {
+    height: 1.7rem;
+    width: 1px;
+    background-color: var(--ifm-navbar-link-color);
+    opacity: .2;
+    margin: 0 12px 0 10px;
+}
+
+@media screen and (max-width: 996px) {
+    .separator {
+        display: none;
+    }
+}

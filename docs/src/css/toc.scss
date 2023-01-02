@@ -1,0 +1,29 @@
+.table-of-contents {
+    font-size: 12px;
+}
+
+.table-of-contents__link:not(.table-of-contents__link--active) {
+    color: var(--menu-secondary-color);
+}
+
+.table-of-contents__link:hover {
+    color: var(--ifm-color-primary);
+}
+
+.table-of-contents li {
+    position: relative;
+}
+
+ul ul .table-of-contents__link--active:before {
+    left: -33px;
+}
+
+.table-of-contents__link--active:before {
+    background: var(--ifm-color-primary);
+    width: 2px;
+    position: absolute;
+    bottom: 0;
+    left: -17px;
+    top: 0;
+    content: " ";
+}

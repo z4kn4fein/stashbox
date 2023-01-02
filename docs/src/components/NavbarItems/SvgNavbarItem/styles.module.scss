@@ -1,0 +1,22 @@
+.icon_container {
+    display: flex;
+    align-items: center;
+}
+
+.icon {
+    color: var(--ifm-navbar-link-color);
+    width: 24px;
+    height: 24px;
+    transition: opacity .2s;
+    display: flex;
+    align-items: center;
+}
+
+.icon:hover {
+    opacity: .7;
+}
+
+.link {
+    padding: 10px 10px;
+    margin-bottom: 3px;
+}

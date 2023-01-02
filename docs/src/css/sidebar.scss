@@ -1,0 +1,33 @@
+.menu__list-item-collapsible {
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.menu>.menu__list .menu__list {
+    font-size: 14px;
+    font-weight: 400;
+    margin-bottom: 14px;
+    padding-left: 0;
+
+    .menu__link:not(.menu__link--active) {
+        color: var(--menu-secondary-color);
+        margin-left: 4px;
+    }
+
+    .menu__link--active {
+        border-left: 4px solid var(--ifm-color-primary);
+    }
+}
+
+.menu__list-item {
+    .dropdown-separator {
+      display: none;
+    }
+}
+  
+.menu__list {
+    .nav-icon {
+      display: none;
+    }
+}

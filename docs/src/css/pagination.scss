@@ -1,0 +1,44 @@
+.pagination-nav__link {
+    background-color: var(--ifm-color-primary-darkest);
+    border: none;
+    color: #fff;
+    transition: background-color .2s;
+}
+
+.pagination-nav__link:hover {
+    background-color: #006691;
+    color: #fff;
+}
+
+.pagination-nav__sublabel {
+    display: none;
+}
+
+.pagination-nav__link--next .pagination-nav__label {
+    transition: padding-right .2s;
+    padding-right: .25rem;
+}
+
+.pagination-nav__link--next:hover .pagination-nav__label {
+    padding-right: 0;
+}
+
+.pagination-nav__link--prev .pagination-nav__label {
+    transition: padding-left .2s;
+    padding-left: .25rem;
+}
+
+.pagination-nav__link--prev:hover .pagination-nav__label {
+    padding-left: 0;
+}
+
+[data-theme='light'] {
+    .pagination-nav__link {
+        background-color: var(--ifm-color-primary);
+    }
+
+    .pagination-nav__link:hover {
+        background-color: #0079ad;
+        color: #fff;
+    }
+}

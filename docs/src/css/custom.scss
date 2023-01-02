@@ -1,0 +1,88 @@
+/**
+ * Any CSS included here will be global. The classic template
+ * bundles Infima by default. Infima is a CSS framework designed to
+ * work well for content-centric websites.
+ */
+
+@use 'sidebar';
+@use 'toc';
+@use 'pagination';
+@use 'tab';
+
+:root {
+  --ifm-color-primary: #3385b5;
+  --ifm-color-primary-dark: #2e78a3;
+  --ifm-color-primary-darker: #2b719a;
+  --ifm-color-primary-darkest: #245d7f;
+  --ifm-color-primary-light: #3892c7;
+  --ifm-color-primary-lighter: #4197ca;
+  --ifm-color-primary-lightest: #5ca6d1;
+
+  --ifm-menu-color: var(--ifm-color-content-secondary);
+  --menu-secondary-color: rgb(83, 83, 95);
+  --base-backround-color: #f6f8fa;
+}
+
+[data-theme='dark'] {
+  --ifm-color-primary: #43c8ff;
+  --ifm-color-primary-dark: #23bfff;
+  --ifm-color-primary-darker: #13baff;
+  --ifm-color-primary-darkest: #009fe1;
+  --ifm-color-primary-light: #63d1ff;
+  --ifm-color-primary-lighter: #73d6ff;
+  --ifm-color-primary-lightest: #a4e4ff;
+  
+  --menu-secondary-color: rgb(192, 192, 199);
+  --base-backround-color: #272727;
+
+  h2 {
+    border-bottom: 1px solid rgba(122, 122, 122, 0.3);
+  }
+}
+
+
+
+.collapseSidebarButton_node_modules-\@docusaurus-theme-classic-lib-theme-DocSidebar-Desktop-CollapseButton-styles-module {
+  border: 0 !important;
+}
+
+.iconExternalLink_node_modules-\@docusaurus-theme-classic-lib-theme-Icon-ExternalLink-styles-module {
+  opacity: .5;
+  width: 10px;
+  height: 10px;
+}
+
+.navbar-title {
+  font-size: .875rem;
+  padding: 0.2rem 0.2rem;
+  font-weight: 500;
+}
+
+.dropdown-separator {
+  margin: 0.3rem 0;
+  opacity: .3;
+}
+
+h1, h2 {
+  font-weight: 600;
+}
+
+h2 {
+  border-bottom: 1px solid rgba(165, 165, 165, 0.3);
+  padding-bottom: 5px;
+}
+
+.dropdown__link {
+  color: var(--menu-secondary-color);
+  font-weight: 400;
+}
+
+.button--mid {
+  --ifm-button-size-multiplier: 1.2;
+}
+
+@media screen and (max-width: 460px) {
+  .button--mid {
+    --ifm-button-size-multiplier: 1;
+  }
+}

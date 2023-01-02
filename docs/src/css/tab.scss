@@ -1,0 +1,29 @@
+li[role='tab'] {
+    font-weight: 500;
+    padding: .6rem 1rem;
+  }
+
+li[role='tab'][aria-selected='true'] {
+  background-color: var(--base-backround-color);
+}
+
+li[role='tab'][aria-selected='false'] {
+  background-color: var(--base-backround-color);
+  opacity: .7;
+  transition: opacity .2s;
+}
+
+li[role='tab'][aria-selected='false']:hover {
+    opacity: 1;
+  }
+
+li[role='tab']:not(:first-of-type) {
+  margin-left: 5px;
+}
+
+@media screen and (max-width: 996px) {
+  li[role='tab'] {
+    font-size: 14px;
+    padding: .6rem .5rem;
+  }
+}

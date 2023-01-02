@@ -1,0 +1,89 @@
+/**
+ * CSS files with the .module.css suffix will be treated as CSS modules
+ * and scoped locally.
+ */
+
+.heroBanner {
+  padding: 4rem 0;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.logo {
+  margin: 15px 0 20px 0;
+}
+
+.attributes {
+  font-size: 1em;
+  margin-bottom: 40px;
+  color: var(--ifm-color-gray-600);
+}
+
+.buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 30px;
+}
+
+.buttons a {
+  margin: 5px;
+}
+
+.title {
+  font-size: 3em;
+  font-weight: bold;
+}
+
+.subtitle {
+  font-size: 1.2em;
+}
+
+.installContainer {
+  margin: auto;
+  max-width: 400px;
+}
+
+.install {
+  margin: 40px 0 40px 0;
+
+  .pre {
+    background-color: var(--base-backround-color);
+    font-family: monospace;
+    font-size: 14px;
+  }
+} 
+
+.command {
+  color: yellow;
+}
+
+.command_start {
+  -webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* IE 10 and IE 11 */
+  user-select: none; /* Standard syntax */
+  color: var(--ifm-color-gray-600);
+}
+
+.options {
+  color: var(--ifm-color-gray-600);
+}
+
+[data-theme='light'] {
+  .command {
+    color: darkgoldenrod;
+  }
+}
+
+@media screen and (max-width: 996px) {
+  .heroBanner {
+    padding: 2rem;
+  }
+}
+
+@media screen and (max-width: 460px) {
+  .button--mid {
+    --ifm-button-size-multiplier: 1;
+  }
+}
