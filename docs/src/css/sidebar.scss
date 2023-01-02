@@ -7,22 +7,36 @@
 .menu>.menu__list .menu__list {
     font-size: 14px;
     font-weight: 400;
-    margin-bottom: 14px;
-    padding-left: 0;
+    margin-bottom: 4px;
+    padding-left: 14px;
+
+    .menu__link {
+        padding-top: 8px;
+        padding-bottom: 8px;
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+    }
 
     .menu__link:not(.menu__link--active) {
         color: var(--menu-secondary-color);
-        margin-left: 4px;
+        padding-left: 13px;
+        border-left: 1px solid var(--ifm-toc-border-color);
+        margin-left: 3px;
     }
 
     .menu__link--active {
-        border-left: 4px solid var(--ifm-color-primary);
+        border-left: 3px solid var(--ifm-color-primary);
+        margin-left: 2px;
     }
 }
 
 .menu__list-item {
     .dropdown-separator {
       display: none;
+    }
+
+    &:not(:first-child) {
+        margin-top: 0;
     }
 }
   
