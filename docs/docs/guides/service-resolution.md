@@ -176,7 +176,7 @@ IJob job = container.Resolve<IJob>();
 
 
 :::caution
-Attributes provide a more straightforward configuration, but using them also tightens the bond between your application and Stashbox. If that's an issue for you, the same functionality is available on the *registration API* as [dependency binding](usage/service-resolution?id=dependency-binding).
+Attributes provide a more straightforward configuration, but using them also tightens the bond between your application and Stashbox. If that's an issue for you, the same functionality is available on the *registration API* as [dependency binding](/docs/guides/service-resolution#dependency-binding).
 :::
 
 ## Dependency binding
