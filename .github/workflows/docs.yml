@@ -2,7 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [ docusaurus ]
+    branches: [ master ]
     paths:
       - 'docs/**'
       - '.github/workflows/docs.yml'
