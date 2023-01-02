@@ -18,12 +18,14 @@
   --ifm-color-primary-lighter: #4197ca;
   --ifm-color-primary-lightest: #5ca6d1;
 
-  --ifm-container-width-xl: 1420px;
-
   --ifm-menu-color: var(--ifm-color-content-secondary);
   --menu-secondary-color: rgb(83, 83, 95);
   --base-contrast-background-color: var(--ifm-color-primary);
   --base-contrast-background-hover-color: var(--ifm-color-primary-dark);
+
+  @media (min-width: 1840px) {
+    --ifm-container-width-xl: 1440px;
+  }
 }
 
 [data-theme='dark'] {
