@@ -76,11 +76,11 @@ h2 {
 }
 
 .button--mid {
-  --ifm-button-size-multiplier: 1;
+  --ifm-button-size-multiplier: 1.1;
 }
 
 @media screen and (max-width: 460px) {
   .button--mid {
-    --ifm-button-size-multiplier: .9;
+    --ifm-button-size-multiplier: 1;
   }
 }

@@ -24,7 +24,7 @@ function HomepageHeader() {
 
         <div className={styles.installContainer}>
           <div className={styles.install}>
-            <pre><span className={styles.command_start}>{'>'} </span><span className={styles.command}>dotnet</span> <span>add package Stashbox</span> <span className={styles.options}>--version</span> 5.7.0</pre>
+            <pre><span className={styles.command_start}>{'$'} </span><span className={styles.command}>dotnet</span><span> add package Stashbox</span><span className={styles.options}> --version</span> 5.7.0<span className={styles.cursor}></span></pre>
           </div>
         </div>
        
