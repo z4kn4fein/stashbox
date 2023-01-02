@@ -18,7 +18,7 @@ The container validates the given types during registration and throws the follo
   ```
 
 ### ServiceAlreadyRegisteredException
-*When the given [implementation type](/docs/getting-started/glossary#service-type--implementation-type) is already registered* and the `RegistrationBehavior` [container configuration option](configuration/container-configuration?id=registration-behavior) is set to `ThrowException`:
+*When the given [implementation type](/docs/getting-started/glossary#service-type--implementation-type) is already registered* and the `RegistrationBehavior` [container configuration option](/docs/configuration/container-configuration#registration-behavior) is set to `ThrowException`:
 ```
 The type Namespace.Service is already registered.
 ```

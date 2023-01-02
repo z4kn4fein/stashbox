@@ -148,7 +148,7 @@ var service = func(2);
 <div>
 
 ### Consider this before using the resolver parameter inside a factory
-Delegate factories are a black-box for the container. It doesn't have control over what's happening inside a delegate, which means when you resolve additional dependencies with the [dependency resolver](/docs/getting-started/glossary#dependency-resolver) parameter, they could easily bypass the [lifetime](diagnostics/validation?id=lifetime-validation) and [circular dependency](diagnostics/validation?id=circular-dependency) validations. Fortunately, you have the option to keep them validated anyway with parameterized factory delegates.
+Delegate factories are a black-box for the container. It doesn't have control over what's happening inside a delegate, which means when you resolve additional dependencies with the [dependency resolver](/docs/getting-started/glossary#dependency-resolver) parameter, they could easily bypass the [lifetime](/docs/diagnostics/validation#lifetime-validation) and [circular dependency](/docs/diagnostics/validation#circular-dependency) validations. Fortunately, you have the option to keep them validated anyway with parameterized factory delegates.
 
 #### Delegates with dependencies passed as parameters
 Rather than using the [dependency resolver](/docs/getting-started/glossary#dependency-resolver) parameter inside the factory, let the container inject the dependencies into the delegate as parameters. This way, the [resolution tree's](/docs/getting-started/glossary#resolution-tree) integrity remains stable because no service resolution happens inside the black-box, and each parameter is validated.

@@ -14,7 +14,7 @@ Stashbox provides several methods that enable registering services, and we'll go
 
 Stashbox allows registration operations via the `Register()` methods. 
 
-During registration, the container checks whether the [service type](/docs/getting-started/glossary#service-type--implementation-type) is assignable from the [implementation type](/docs/getting-started/glossary#service-type--implementation-type) and if not, the container throws an [exception](diagnostics/validation?id=registration-validation). 
+During registration, the container checks whether the [service type](/docs/getting-started/glossary#service-type--implementation-type) is assignable from the [implementation type](/docs/getting-started/glossary#service-type--implementation-type) and if not, the container throws an [exception](/docs/diagnostics/validation#registration-validation). 
 
 Also, when the implementation is not resolvable, the container throws the same [exception](/docs/diagnostics/validation#registration-validation).
 
@@ -246,7 +246,7 @@ IEnumerable<IJob> jobs = container.ResolveAll<IJob>();
 With re-map, you can bind new implementations to a [service type](/docs/getting-started/glossary#service-type--implementation-type) and delete its old registrations in one action. 
 
 :::caution
-When there are multiple registrations mapped to a [service type](/docs/getting-started/glossary#service-type--implementation-type), `.ReMap()` will replace all of them with the given [implementation type](/docs/getting-started/glossary#service-type--implementation-type). If you want to replace only one specified service, use the `.ReplaceExisting()` [configuration option](configuration/registration-configuration?id=replace).
+When there are multiple registrations mapped to a [service type](/docs/getting-started/glossary#service-type--implementation-type), `.ReMap()` will replace all of them with the given [implementation type](/docs/getting-started/glossary#service-type--implementation-type). If you want to replace only one specified service, use the `.ReplaceExisting()` [configuration option](/docs/configuration/registration-configuration#replace).
 :::
 
 </div>
