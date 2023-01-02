@@ -6,6 +6,8 @@ on:
     paths:
       - 'docs/**'
 
+  workflow_dispatch:
+
 jobs:
   deploy:
     name: Deploy to GitHub Pages
