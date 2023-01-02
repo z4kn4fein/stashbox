@@ -173,17 +173,17 @@ const config = {
           },
           {
             type: 'custom-icon',
-            icon: 'github',
-            position: 'right',
-            className: 'nav-icon',
-            href: 'https://github.com/z4kn4fein/stashbox'
-          },
-          {
-            type: 'custom-icon',
             icon: 'nuget',
             position: 'right',
             className: 'nav-icon',
             href: 'https://www.nuget.org/packages/Stashbox'
+          },
+          {
+            type: 'custom-icon',
+            icon: 'github',
+            position: 'right',
+            className: 'nav-icon',
+            href: 'https://github.com/z4kn4fein/stashbox'
           },
           {
             type: 'custom-separator',
