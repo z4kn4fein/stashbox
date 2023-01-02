@@ -31,7 +31,7 @@ const config = {
           showLastUpdateTime: true,
           sidebarCollapsible: true,
           editUrl:
-            'https://github.com/z4kn4fein/stashbox/tree/main/docs',
+            'https://github.com/z4kn4fein/stashbox/edit/master/docs',
         },
         theme: {
           customCss: require.resolve('./src/css/custom.scss'),
