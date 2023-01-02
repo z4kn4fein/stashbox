@@ -6,7 +6,7 @@ const config = {
   title: 'Stashbox',
   tagline: 'A lightweight, fast, and portable .NET DI framework.',
   url: 'https://z4kn4fein.github.io',
-  baseUrl: '/',
+  baseUrl: '/stashbox',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
