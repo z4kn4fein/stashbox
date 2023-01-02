@@ -40,13 +40,11 @@
   }
 }
 
-
-
-.collapseSidebarButton_node_modules-\@docusaurus-theme-classic-lib-theme-DocSidebar-Desktop-CollapseButton-styles-module {
+.theme-doc-sidebar-container .button--outline {
   border: 0 !important;
 }
 
-.iconExternalLink_node_modules-\@docusaurus-theme-classic-lib-theme-Icon-ExternalLink-styles-module {
+.dropdown__link svg {
   opacity: .5;
   width: 10px;
   height: 10px;
@@ -78,11 +76,11 @@ h2 {
 }
 
 .button--mid {
-  --ifm-button-size-multiplier: 1.2;
+  --ifm-button-size-multiplier: 1;
 }
 
 @media screen and (max-width: 460px) {
   .button--mid {
-    --ifm-button-size-multiplier: 1;
+    --ifm-button-size-multiplier: .9;
   }
 }
