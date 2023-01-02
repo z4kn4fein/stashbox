@@ -29,7 +29,7 @@
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <PackageReleaseNotes>https://z4kn4fein.github.io/stashbox/#/changelog</PackageReleaseNotes>
+    <PackageReleaseNotes>https://github.com/z4kn4fein/stashbox/blob/master/CHANGELOG.md</PackageReleaseNotes>
     <Configurations>Debug;Release;Benchmark</Configurations>
     <Nullable>enable</Nullable>
     <NoWarn>CA1032</NoWarn>

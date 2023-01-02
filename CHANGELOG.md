@@ -54,12 +54,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Obsolete `Resolve()` method with the `nullResultAllowed` parameter, it was replaced by `ResolveOrDefault()`.
 - Each obsolete `ResolveFactory<>()` method as their functionality is equivalent to `Resolve<Func<>>()`.
-- Obsolete `.WithRuntimeCircularDependencyTracking()` container configuration option in favor of [parameterized factory delegates](https://z4kn4fein.github.io/stashbox/#/usage/advanced-registration?id=consider-this-before-using-the-resolver-parameter-inside-a-factory).
+- Obsolete `.WithRuntimeCircularDependencyTracking()` container configuration option in favor of [parameterized factory delegates](https://z4kn4fein.github.io/stashbox/docs/guides/advanced-registration#consider-this-before-using-the-resolver-parameter-inside-a-factory).
 
 ## [v5.3.0] - 2022-04-10
 ### Added
 - `WithDynamicResolution()` registration option to indicate that the service's resolution should be handled by a dynamic `Resolve()` call on the current `IDependencyResolver` instead of a pre-built instantiation expression.
-- Support for resolving custom [Delegate](https://z4kn4fein.github.io/stashbox/#/advanced/wrappers-resolvers?id=delegate) types alongside `Func<>`.
+- Support for resolving custom [Delegate](https://z4kn4fein.github.io/stashbox/docs/advanced/wrappers-resolvers#delegate) types alongside `Func<>`.
 
 ## [v5.2.1] - 2022-03-12
 ### Fixed
@@ -81,7 +81,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   ```
 - A new `ResolveFactoryOrDefault()` method that allows `null` results.
 - A new `ResolveOrDefault()` method that allows `null` results.
-- `ValueTuple<,>` [metadata](https://z4kn4fein.github.io/stashbox/#/advanced/wrappers-resolvers?id=metadata-amp-tuple) support.
+- `ValueTuple<,>` [metadata](https://z4kn4fein.github.io/stashbox/docs/advanced/wrappers-resolvers#metadata--tuple) support.
 
 ### Changed
 - `Resolve()` with the `nullResultAllowed` parameter became obsolete, it was replaced by `ResolveOrDefault()`.
@@ -92,7 +92,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [v5.1.0] - 2022-02-27
 ### Changed
-- Marked the `.WithRuntimeCircularDependencyTracking()` container configuration option as **Obsolete** in favor of [parameterized factory delegates](https://z4kn4fein.github.io/stashbox/#/usage/advanced-registration?id=consider-this-before-using-the-resolver-parameter-inside-a-factory).
+- Marked the `.WithRuntimeCircularDependencyTracking()` container configuration option as **Obsolete** in favor of [parameterized factory delegates](https://z4kn4fein.github.io/stashbox/docs/guides/advanced-registration#consider-this-before-using-the-resolver-parameter-inside-a-factory).
 
 ## [v5.0.1] - 2022-02-10
 ### Changed
@@ -101,17 +101,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [v5.0.0] - 2022-02-09
 ### Added
-- Additional [metadata registration](https://z4kn4fein.github.io/stashbox/#/advanced/wrappers-resolvers?id=metadata-amp-tuple) option.
-- Support for requesting a [service along with its identifier](https://z4kn4fein.github.io/stashbox/#/advanced/wrappers-resolvers?id=keyvaluepair-amp-readonlykeyvalue).
-- Support for [per-request lifetime](https://z4kn4fein.github.io/stashbox/#/usage/lifetimes?id=per-request-lifetime).
+- Additional [metadata registration](https://z4kn4fein.github.io/stashbox/docs/advanced/wrappers-resolvers#metadata--tuple) option.
+- Support for requesting a [service along with its identifier](https://z4kn4fein.github.io/stashbox/docs/advanced/wrappers-resolvers#keyvaluepair--readonlykeyvalue).
+- Support for [per-request lifetime](https://z4kn4fein.github.io/stashbox/docs/guides/lifetimes#per-request-lifetime).
 - New, clearer API for wrapper extensions.
 
 ### Fixed
 - There was a bug in the expression compiler that resulted in wrong IL generation in case of value types inside `IEnumerable<>`.
 
 ### Changed
-- `Tuple<>` requests are not resolved with services in all its items anymore. It's became part of the newly introduced [resolution with metadata](https://z4kn4fein.github.io/stashbox/#/advanced/wrappers-resolvers?id=metadata-amp-tuple) feature.
-- The `IResolver` interface became the base for the newly introduced `IServiceWrapper` and `IServiceResolver` interfaces. These became the main entrypoints for [container extensions](advanced/wrappers-resolvers).
+- `Tuple<>` requests are not resolved with services in all its items anymore. It's became part of the newly introduced [resolution with metadata](https://z4kn4fein.github.io/stashbox/docs/advanced/wrappers-resolvers#metadata--tuple) feature.
+- The `IResolver` interface became the base for the newly introduced `IServiceWrapper` and `IServiceResolver` interfaces. These became the main entrypoints for [container extensions](https://z4kn4fein.github.io/stashbox/docs/advanced/wrappers-resolvers).
 - To make the dependency overrides available in factories the `IResolutionContext` was bound to the generated expression tree and the compiled delegate. ([#105](https://github.com/z4kn4fein/stashbox/issues/105)) This temporary solution could lead issues as the resolution context is static between the compiled delegates, however the dependency overrides are not.
 
   To resolve this, a new `IRequestContext` parameter is introduced for each compiled factory delegate that can be used to access overrides. (The same context object is used to produce and track per-request services)
@@ -134,7 +134,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    - The given type is registered in the current or one of the parent containers.
    - The given type is a closed generic type and its open generic definition is registered.
    - The given type is a wrapper (`IEnumerable<>`, `Lazy<>`, `Func<>`, or `Tuple<>`) and the underlying type is registered.
-   - The given type is not registered but it's resolvable and the [unknown type resolution](https://z4kn4fein.github.io/stashbox/#/advanced/special-resolution-cases?id=unknown-type-resolution) is enabled.
+   - The given type is not registered but it's resolvable and the [unknown type resolution](https://z4kn4fein.github.io/stashbox/docs/advanced/special-resolution-cases#unknown-type-resolution) is enabled.
 
 ## [v4.0.0] - 2021-11-18
 ### Removed
@@ -166,12 +166,12 @@ The validation was executed only at the expression tree building phase, so an al
 [API changes](https://www.fuget.org/packages/Stashbox/3.6.0/lib/netstandard2.1/diff/3.5.1/)
 
 ### Added
-- Parameterized factory delegates. [Read more](https://z4kn4fein.github.io/stashbox/#/usage/advanced-registration?id=factory-registration). Also, [here](https://z4kn4fein.github.io/stashbox/#/configuration/registration-configuration?id=factory) is the list of the new factory configuration methods.
-- Multiple conditions from the same type are now combined with **OR** logical operator. [Read more](https://z4kn4fein.github.io/stashbox/#/usage/service-resolution?id=conditional-resolution).
-- Named version of the `.WhenDecoratedServiceIs()` decorator condition. [Read more](https://z4kn4fein.github.io/stashbox/#/advanced/decorators?id=conditional-decoration).
+- Parameterized factory delegates. [Read more](https://z4kn4fein.github.io/stashbox/docs/guides/advanced-registration#factory-registration). Also, [here](https://z4kn4fein.github.io/stashbox/docs/configuration/registration-configuration#factory) is the list of the new factory configuration methods.
+- Multiple conditions from the same type are now combined with **OR** logical operator. [Read more](https://z4kn4fein.github.io/stashbox/docs/guides/service-resolution#conditional-resolution).
+- Named version of the `.WhenDecoratedServiceIs()` decorator condition. [Read more](https://z4kn4fein.github.io/stashbox/docs/advanced/decorators#conditional-decoration).
 
 ### Deprecated
-- `.InjectMember()` registration configuration option. `.WithDependencyBindig()` should be used instead. [Read more](https://z4kn4fein.github.io/stashbox/#/configuration/registration-configuration?id=dependency-configuration).
+- `.InjectMember()` registration configuration option. `.WithDependencyBindig()` should be used instead. [Read more](https://z4kn4fein.github.io/stashbox/docs/configuration/registration-configuration#dependency-configuration).
 
 ### Removed
 - The `GetRegistrationOrDefault(type, resolutionContext, name)` method of the `IRegistrationRepository` interface.
@@ -274,7 +274,7 @@ The validation was executed only at the expression tree building phase, so an al
 - `WithMemberInjectionWithoutAnnotation()` container configuration option has been renamed to `WithAutoMemberInjection()`.
 - `SetImplementationType()` option has been added to the registration configuration used when unknown type detected.
 - Removed the `GetScopedInstace()` method from the `IResolutionScope`, they are treated as expression overrides now and consumed automatically by the container.
-- Lifetimes became stateless and their API has been changed, read [this](https://z4kn4fein.github.io/stashbox/#/usage/lifetimes) for more info.
+- Lifetimes became stateless and their API has been changed, read [this](https://z4kn4fein.github.io/stashbox/docs/guides/lifetimes) for more info.
 - Lifetime validation has been added:
  - Tracking dependencies that has shorter life-span than their direct or indirect parent's.
  - Tracking scoped services resolved from root.

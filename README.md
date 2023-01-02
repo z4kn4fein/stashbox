@@ -9,7 +9,7 @@
 Stashbox is a lightweight, fast, and portable dependency injection framework for .NET-based solutions. It encourages the building of loosely coupled applications and simplifies the construction of hierarchical object structures. It can be integrated easily with .NET Core, Generic Host, ASP.NET, Xamarin, and many other applications.
 
 - [Documentation](https://z4kn4fein.github.io/stashbox)
-- [Release notes](https://z4kn4fein.github.io/stashbox/#/changelog)
+- [Release notes](https://github.com/z4kn4fein/stashbox/blob/master/CHANGELOG.md)
 - [ASP.NET Core sample](https://github.com/z4kn4fein/stashbox-extensions-dependencyinjection/tree/master/sample)
 
 Github (stable) | NuGet (stable) | Fuget (stable)                                                                                                                 | NuGet (pre-release)
