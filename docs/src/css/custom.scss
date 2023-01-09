@@ -92,6 +92,36 @@ h2 {
   --ifm-button-size-multiplier: 1.1;
 }
 
+mark {
+  background-color: none;
+  background: linear-gradient(90deg, mark 50%, rgba(255, 255, 255, 0) 50%);
+  color: inherit;
+  background-position: 100% 0;
+  background-size: 200% 100%;
+  animation: bga1 .5s cubic-bezier(0.165, 0.84, 0.44, 1) forwards, bga2 .5s cubic-bezier(0.165, 0.84, 0.44, 1) 3s forwards;
+}
+
+@keyframes bga1 {
+  from {
+    color: inherit;    
+  }
+  to {
+    color: black;
+    background-position: 0 0;
+  }
+}
+
+@keyframes bga2 {
+  from {
+    background-position: 0 0;
+    color: black;
+  }
+  to {
+    background-position: 100% 0;
+    color: inherit;
+  }
+}
+
 @media screen and (max-width: 460px) {
   .button--mid {
     --ifm-button-size-multiplier: 1;
