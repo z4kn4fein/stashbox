@@ -92,7 +92,7 @@ h2 {
   --ifm-button-size-multiplier: 1.1;
 }
 
-mark {
+div:not(.navbar__search) mark {
   background-color: none;
   background: linear-gradient(90deg, mark 50%, rgba(255, 255, 255, 0) 50%);
   color: inherit;
