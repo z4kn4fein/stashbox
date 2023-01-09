@@ -15,6 +15,44 @@ div[class^='searchBox'], div[class*=' searchBox']{
     position: static;
 }
 
+main[class^='docMainContainer'], main[class*=' docMainContainer'] {
+    mark {
+        background-color: none;
+        background: linear-gradient(90deg, mark 50%, rgba(255, 255, 255, 0) 50%);
+        color: inherit;
+        background-position: 100% 0;
+        background-size: 200% 100%;
+        animation: bga1 .5s cubic-bezier(0.165, 0.84, 0.44, 1) forwards, bga2 .5s cubic-bezier(0.165, 0.84, 0.44, 1) 4s forwards, clear 0s 4.5s forwards;
+    }
+  
+    @keyframes bga1 {
+        from {
+        color: inherit;    
+        }
+        to {
+        color: black;
+        background-position: 0 0;
+        }
+    }
+    
+    @keyframes bga2 {
+        from {
+        background-position: 0 0;
+        color: black;
+        }
+        to {
+        background-position: 100% 0;
+        color: inherit;
+        }
+    }
+    
+    @keyframes clear {
+        to {
+        background: none;
+        }
+    }
+}
+
 @media (max-width: 996px) {
     .navbar__search {
         margin-left: 8px !important;
