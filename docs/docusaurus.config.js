@@ -1,4 +1,5 @@
 // @ts-check
+// @ts-ignore
 const prismLightTheme = require('prism-react-renderer/themes/github');
 
 /** @type {import('@docusaurus/types').Config} */
@@ -39,6 +40,21 @@ const config = {
         gtag: {
           trackingID: 'G-HLNT9WV1HH'
         }
+      }),
+    ],
+  ],
+
+  themes: [
+    [
+      // @ts-ignore
+      '@easyops-cn/docusaurus-search-local',
+      /** @type {import("@easyops-cn/docusaurus-search-local").PluginOptions} */
+      // @ts-ignore
+      ({
+        hashed: true,
+        highlightSearchTermsOnTargetPage: true,
+        explicitSearchResultPath: true,
+        searchBarShortcutHint: false,
       }),
     ],
   ],
