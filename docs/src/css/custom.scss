@@ -92,13 +92,13 @@ h2 {
   --ifm-button-size-multiplier: 1.1;
 }
 
-div:not(.navbar__search) mark {
+.container mark {
   background-color: none;
   background: linear-gradient(90deg, mark 50%, rgba(255, 255, 255, 0) 50%);
   color: inherit;
   background-position: 100% 0;
   background-size: 200% 100%;
-  animation: bga1 .5s cubic-bezier(0.165, 0.84, 0.44, 1) forwards, bga2 .5s cubic-bezier(0.165, 0.84, 0.44, 1) 4s forwards;
+  animation: bga1 .5s cubic-bezier(0.165, 0.84, 0.44, 1) forwards, bga2 .5s cubic-bezier(0.165, 0.84, 0.44, 1) 4s forwards, clear 0s 4.5s forwards;
 }
 
 @keyframes bga1 {
@@ -119,6 +119,12 @@ div:not(.navbar__search) mark {
   to {
     background-position: 100% 0;
     color: inherit;
+  }
+}
+
+@keyframes clear {
+  to {
+    background: none;
   }
 }
 
