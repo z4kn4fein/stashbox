@@ -27,28 +27,28 @@ main[class^='docMainContainer'], main[class*=' docMainContainer'] {
   
     @keyframes bga1 {
         from {
-        color: inherit;    
+            color: inherit;    
         }
         to {
-        color: black;
-        background-position: 0 0;
+            color: black;
+            background-position: 0 0;
         }
     }
     
     @keyframes bga2 {
         from {
-        background-position: 0 0;
-        color: black;
+            background-position: 0 0;
+            color: black;
         }
         to {
-        background-position: 100% 0;
-        color: inherit;
+            background-position: 100% 0;
+            color: inherit;
         }
     }
     
     @keyframes clear {
         to {
-        background: none;
+            background: none;
         }
     }
 }
