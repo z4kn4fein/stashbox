@@ -89,6 +89,10 @@ const config = {
                 label: 'ASP.NET Core',
               },
               {
+                href: 'https://github.com/z4kn4fein/stashbox-extensions-dependencyinjection#multitenant',
+                label: 'ASP.NET Core Multitenant',
+              },
+              {
                 href: 'https://github.com/z4kn4fein/stashbox-extensions-dependencyinjection#net-generic-host',
                 label: '.NET Generic Host',
               },
