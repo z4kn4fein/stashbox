@@ -52,7 +52,7 @@ function Footer() {
             <div className={clsx(styles.footer_title, "footer__title")}>REPOSITORY</div>
             <Link
               to="https://github.com/z4kn4fein/stashbox">
-                <img src="https://github-readme-stats.vercel.app/api/pin/?username=z4kn4fein&repo=stashbox&show_owner=true&title_color=43c8ff&text_color=e3e3e3&bg_color=2a313c&icon_color=f9f9f9"></img>
+                <img src="https://github-readme-stats-pcsajtai.vercel.app/api/pin/?username=z4kn4fein&repo=stashbox&show_owner=true&title_color=43c8ff&text_color=e3e3e3&bg_color=2a313c&icon_color=f9f9f9"></img>
             </Link>
           </div>
 
