@@ -1,18 +1,17 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection.Emit;
 
-namespace Stashbox.Expressions.Compile.Emitters
+namespace Stashbox.Expressions.Compile.Emitters;
+
+internal static partial class Emitter
 {
-    internal static partial class Emitter
+    private static bool TryEmit(this NewExpression expression, ILGenerator generator, CompilerContext context, params ParameterExpression[] parameters)
     {
-        private static bool TryEmit(this NewExpression expression, ILGenerator generator, CompilerContext context, params ParameterExpression[] parameters)
-        {
-            if (!expression.Arguments.TryEmit(generator, context, parameters))
-                return false;
+        if (!expression.Arguments.TryEmit(generator, context, parameters))
+            return false;
 
-            generator.Emit(OpCodes.Newobj, expression.Constructor!);
+        generator.Emit(OpCodes.Newobj, expression.Constructor!);
 
-            return true;
-        }
+        return true;
     }
 }

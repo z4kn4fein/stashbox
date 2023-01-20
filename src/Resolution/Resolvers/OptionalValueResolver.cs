@@ -1,16 +1,15 @@
 ﻿using System.Linq.Expressions;
 
-namespace Stashbox.Resolution.Resolvers
-{
-    internal class OptionalValueResolver : IServiceResolver
-    {
-        public ServiceContext GetExpression(
-            IResolutionStrategy resolutionStrategy,
-            TypeInformation typeInfo,
-            ResolutionContext resolutionContext) =>
-            typeInfo.DefaultValue.AsConstant(typeInfo.Type).AsServiceContext();
+namespace Stashbox.Resolution.Resolvers;
 
-        public bool CanUseForResolution(TypeInformation typeInfo, ResolutionContext resolutionContext) =>
-            typeInfo.HasDefaultValue;
-    }
+internal class OptionalValueResolver : IServiceResolver
+{
+    public ServiceContext GetExpression(
+        IResolutionStrategy resolutionStrategy,
+        TypeInformation typeInfo,
+        ResolutionContext resolutionContext) =>
+        typeInfo.DefaultValue.AsConstant(typeInfo.Type).AsServiceContext();
+
+    public bool CanUseForResolution(TypeInformation typeInfo, ResolutionContext resolutionContext) =>
+        typeInfo.HasDefaultValue;
 }

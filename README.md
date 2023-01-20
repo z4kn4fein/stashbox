@@ -14,7 +14,7 @@ Stashbox is a lightweight, fast, and portable dependency injection framework for
 
 Github (stable) | NuGet (stable) | Fuget (stable)                                                                                                                 | NuGet (pre-release)
 --- | --- |--------------------------------------------------------------------------------------------------------------------------------| ---
-[![Github release](https://img.shields.io/github/release/z4kn4fein/stashbox.svg)](https://github.com/z4kn4fein/stashbox/releases) | [![NuGet Version](https://buildstats.info/nuget/Stashbox)](https://www.nuget.org/packages/Stashbox/) | [![Stashbox on fuget.org](https://www.fuget.org/packages/Stashbox/badge.svg?v=5.7.0)](https://www.fuget.org/packages/Stashbox) | [![Nuget pre-release](https://img.shields.io/nuget/vpre/Stashbox)](https://www.nuget.org/packages/Stashbox/)
+[![Github release](https://img.shields.io/github/release/z4kn4fein/stashbox.svg)](https://github.com/z4kn4fein/stashbox/releases) | [![NuGet Version](https://buildstats.info/nuget/Stashbox)](https://www.nuget.org/packages/Stashbox/) | [![Stashbox on fuget.org](https://www.fuget.org/packages/Stashbox/badge.svg?v=5.7.1)](https://www.fuget.org/packages/Stashbox) | [![Nuget pre-release](https://img.shields.io/nuget/vpre/Stashbox)](https://www.nuget.org/packages/Stashbox/)
 
 ## Core Attributes
  - 🚀 Fast, thread-safe, and lock-free operations.
@@ -25,9 +25,9 @@ Github (stable) | NuGet (stable) | Fuget (stable)                               
  - 🔥 Gives fast feedback on registration/resolution issues.
 
 ## Supported Platforms
-
- - .NET 4.5 and above
- - .NET Core
+ - .NET 5+
+ - .NET Standard 2.0+
+ - .NET Framework 4.5+
  - Mono
  - Universal Windows Platform
  - Xamarin (Android/iOS/Mac)
@@ -62,7 +62,6 @@ Github (stable) | NuGet (stable) | Fuget (stable)                               
  
 ## Benchmarks
  - [Performance](https://github.com/danielpalme/IocPerformance)
- - [Feature](http://featuretests.apphb.com/DependencyInjection.html)
     
 <br>
 

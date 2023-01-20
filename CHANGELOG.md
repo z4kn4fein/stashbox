@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v5.7.1] - 2023-01-20
+### Added
+- `net7.0` target framework.
+
+### Changed
+- Replaced many `typeof()` calls with static type cache.
+
 ## [v5.7.0] - 2022-12-19
 ### Changed
 - `ITenantDistributor` now extends `IStashboxContainer` for easier integration.
@@ -287,6 +294,7 @@ The validation was executed only at the expression tree building phase, so an al
 - Removed the legacy container extension functionality.
 - Removed the support of PCL v259.
 
+[v5.7.1]: https://github.com/z4kn4fein/stashbox/compare/5.7.0...5.7.1
 [v5.7.0]: https://github.com/z4kn4fein/stashbox/compare/5.6.0...5.7.0
 [v5.6.0]: https://github.com/z4kn4fein/stashbox/compare/5.5.3...5.6.0
 [v5.5.3]: https://github.com/z4kn4fein/stashbox/compare/5.5.2...5.5.3

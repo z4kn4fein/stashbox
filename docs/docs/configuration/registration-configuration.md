@@ -9,10 +9,8 @@ import TabItem from '@theme/TabItem';
 
 Most of the registration methods have an `Action<TOptions>` parameter, enabling several customization options on the given registration.
 
-Here are three examples that show how the API's usage looks like.
-They cover the same functionalities you read about in the [basics](/docs/guides/basics) section, 
-but achieved with the options API.
-
+Here are three examples that show how the API's usage looks like. 
+They cover the exact functionalities you've read about in the [basics](/docs/guides/basics) section but are achieved with the options API.
 
 </div>
 <div>
@@ -29,7 +27,7 @@ container.Register<IJob, DbBackup>(options => options
 </TabItem>
 <TabItem value="Lifetime" label="Lifetime">
 
-In the [Lifetime shortcuts](/docs/guides/basics#lifetime-shortcuts) section, it was mentioned that those methods are only sugars; under the curtain, they are also using this API:
+It was mentioned in the [Lifetime shortcuts](/docs/guides/basics#lifetime-shortcuts) section, that those methods are only sugars; under the curtain, they are also using this API:
 ```cs
 container.Register<IJob, DbBackup>(options => options
     .WithLifetime(Lifetimes.Singleton));
@@ -38,7 +36,7 @@ container.Register<IJob, DbBackup>(options => options
 </TabItem>
 <TabItem value="Instance" label="Instance">
 
-This is an example of how you can register an instance with the options API:
+An example of how you can register an instance with the options API:
 ```cs
 container.Register<IJob, DbBackup>(options => options
     .WithInstance(new DbBackup()));
@@ -52,9 +50,8 @@ container.Register<IJob, DbBackup>(options => options
 <CodeDescPanel>
 <div>
 
-The registration configuration API is fluent, which means all the related option methods can be chained after each other. 
-This nature enables an easier way of configuring complicated registrations.
-
+The registration configuration API is fluent, which means all option methods can be chained after each other. 
+This provides an easier way to configure complicated registrations.
 
 </div>
 <div>
@@ -226,7 +223,7 @@ container.Register<ILogger, FileLogger>(options => options
 <Tabs>
 <TabItem value="ReplaceExisting" label="ReplaceExisting">
 
-Indicates that the container should replace an existing registration with the current one (based on [implementation type](/docs/getting-started/glossary#service-type--implementation-type) and name). If there's no existing registration in place, the actual one will be added to the registration list.
+Indicates whether the container should replace an existing registration with the current one (based on [implementation type](/docs/getting-started/glossary#service-type--implementation-type) and name). If there's no existing registration in place, the actual one will be added to the registration list.
 ```cs
 container.Register<ILogger, ConsoleLogger>(options => options
     .ReplaceExisting());

@@ -58,7 +58,7 @@ container.Register(typeof(IJob), typeof(IJob));
 
 You can register a service to itself without specifying a [service type](/docs/getting-started/glossary#service-type--implementation-type), only the implementation ([self registration](/docs/getting-started/glossary#self-registration)). 
 
-In this case, the given implementation is considered as the [service type](/docs/getting-started/glossary#service-type--implementation-type) and must be used for requesting the service (`DbBackup` in the example).
+In this case, the given implementation is considered the [service type](/docs/getting-started/glossary#service-type--implementation-type) and must be used to request the service (`DbBackup` in the example).
 
 </div>
 <div>
@@ -243,10 +243,10 @@ IEnumerable<IJob> jobs = container.ResolveAll<IJob>();
 
 <div>
 
-With re-map, you can bind new implementations to a [service type](/docs/getting-started/glossary#service-type--implementation-type) and delete its old registrations in one action. 
+With re-map, you can bind new implementations to a [service type](/docs/getting-started/glossary#service-type--implementation-type) and delete old registrations in one action. 
 
 :::caution
-When there are multiple registrations mapped to a [service type](/docs/getting-started/glossary#service-type--implementation-type), `.ReMap()` will replace all of them with the given [implementation type](/docs/getting-started/glossary#service-type--implementation-type). If you want to replace only one specified service, use the `.ReplaceExisting()` [configuration option](/docs/configuration/registration-configuration#replace).
+When there are multiple registrations mapped to a [service type](/docs/getting-started/glossary#service-type--implementation-type), `.ReMap()` will replace all of them with the given [implementation type](/docs/getting-started/glossary#service-type--implementation-type). If you want to replace only one specific service, use the `.ReplaceExisting()` [configuration option](/docs/configuration/registration-configuration#replace).
 :::
 
 </div>
@@ -290,7 +290,7 @@ jobs = container.ResolveAll(typeof(IJob));
 
 <div>
 
-Wiring up is similar to the [Instance registration](#instance-registration) except that the container will perform property / field injection (if configured so and applicable) on the registered instance during resolution.
+Wiring up is similar to [Instance registration](#instance-registration) except that the container will perform property/field injection (if configured so and applicable) on the registered instance during resolution.
 
 </div>
 <div>
@@ -320,7 +320,7 @@ object job = container.Resolve(typeof(IJob));
 <CodeDescPanel>
 
 <div>
-The service's lifetime indicates how long the service's instance will live and the re-using policy applied when it gets injected.
+A service's lifetime indicates how long its instance will live and which re-using policy should be applied when it gets injected.
 
 This example shows how you can use the registration API's shortcuts for lifetimes. These are just sugars, and there are more ways explained in the [lifetimes](/docs/guides/lifetimes) section.
 
@@ -354,7 +354,7 @@ IJob job = container.Resolve<IJob>();
 <TabItem value="Scoped" label="Scoped">
 
 The `Scoped` lifetime behaves like a `Singleton` within a [scope](/docs/guides/scopes). 
-The scoped service is instantiated once and reused during the scope's lifetime.
+A scoped service is instantiated once and reused during the scope's whole lifetime.
 ```cs
 container.RegisterScoped<IJob, DbBackup>();
 IJob job = container.Resolve<IJob>();

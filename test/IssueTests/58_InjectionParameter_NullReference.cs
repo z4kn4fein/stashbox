@@ -1,40 +1,38 @@
 ﻿using Xunit;
 
-namespace Stashbox.Tests.IssueTests
+namespace Stashbox.Tests.IssueTests;
+
+public class InjectionParameterNullReference
 {
-
-    public class InjectionParameterNullReference
+    [Fact]
+    public void InjectionParameter_NullReference()
     {
-        [Fact]
-        public void InjectionParameter_NullReference()
-        {
-            var inst = new StashboxContainer()
-                .Register<Test>(c => c.WithInjectionParameter("arg", null))
-                .Resolve<Test>();
+        var inst = new StashboxContainer()
+            .Register<Test>(c => c.WithInjectionParameter("arg", null))
+            .Resolve<Test>();
 
-            Assert.NotNull(inst);
-        }
+        Assert.NotNull(inst);
+    }
 
-        [Fact]
-        public void InjectionParameter_NullReference_Object()
-        {
-            var inst = new StashboxContainer()
-                .Register<Test2>(c => c.WithInjectionParameter("arg", null))
-                .Resolve<Test2>();
+    [Fact]
+    public void InjectionParameter_NullReference_Object()
+    {
+        var inst = new StashboxContainer()
+            .Register<Test2>(c => c.WithInjectionParameter("arg", null))
+            .Resolve<Test2>();
 
-            Assert.NotNull(inst);
-        }
+        Assert.NotNull(inst);
+    }
 
-        class Test
-        {
-            public Test(Test2 arg)
-            { }
-        }
+    class Test
+    {
+        public Test(Test2 arg)
+        { }
+    }
 
-        class Test2
-        {
-            public Test2(object arg)
-            { }
-        }
+    class Test2
+    {
+        public Test2(object arg)
+        { }
     }
 }

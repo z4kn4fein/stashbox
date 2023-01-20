@@ -12,7 +12,7 @@ Stashbox and its extensions are distributed via [NuGet](https://www.nuget.org/pa
 
 You can install the package by typing the following into the Package Manager Console:
 ```powershell
-Install-Package Stashbox -Version 5.7.0
+Install-Package Stashbox -Version 5.7.1
 ```
 
 </TabItem>
@@ -20,7 +20,7 @@ Install-Package Stashbox -Version 5.7.0
 
 You can install the package by using the dotnet cli:
 ```bash
-dotnet add package Stashbox --version 5.7.0
+dotnet add package Stashbox --version 5.7.1
 ```
 
 </TabItem>
@@ -28,14 +28,14 @@ dotnet add package Stashbox --version 5.7.0
 
 You can add the package into the package references of your `.csproj`:
 ```xml
-<PackageReference Include="Stashbox" Version="5.7.0" />
+<PackageReference Include="Stashbox" Version="5.7.1" />
 ```
 
 </TabItem>
 </Tabs>
 
 ## Usage
-The general idea behind using Stashbox is that you structure your code from loosely coupled components with the [Dependency Inversion Principle](https://en.wikipedia.org/wiki/Dependency_inversion_principle), [Inversion Of Control](https://en.wikipedia.org/wiki/Inversion_of_control) and [Dependency Injection](https://martinfowler.com/articles/injection.html) in mind. 
+The general idea behind using Stashbox is that you structure your code with loosely coupled components with the [Dependency Inversion Principle](https://en.wikipedia.org/wiki/Dependency_inversion_principle), [Inversion Of Control](https://en.wikipedia.org/wiki/Inversion_of_control) and [Dependency Injection](https://martinfowler.com/articles/injection.html) in mind. 
 
 Rather than letting the services instantiate their dependencies inside themselves, inject the dependencies on construction. Also, rather than creating the object hierarchy manually, you can use a Dependency Injection framework that does the work for you. That's why you are here, I suppose. 🙂
 
@@ -52,11 +52,11 @@ You should create only a single instance from `StashboxContainer` (plus child co
 :::
 
 ## How it works?
-Stashbox builds and maintains a collection of [registered services](/docs/getting-started/glossary#service-registration--registered-service). When a service is requested, Stashbox starts looking for a matching registration with the same [service type](/docs/getting-started/glossary#service-type--implementation-type). If it finds one, the container initiates a scan on the [implementation type's](/docs/getting-started/glossary#service-type--implementation-type) available constructors and selects the one with the most arguments it knows how to resolve by matching argument types to other registrations.
+Stashbox builds and maintains a collection of [registered services](/docs/getting-started/glossary#service-registration--registered-service). When a service is requested for resolution, Stashbox starts looking for a matching registration that has the same [service type](/docs/getting-started/glossary#service-type--implementation-type) as the type that was requested. If it finds one, the container initiates a scan on the [implementation type's](/docs/getting-started/glossary#service-type--implementation-type) available constructors and selects the one with the most arguments it knows how to resolve by matching argument types to other registrations.
 
 When every constructor argument has a companion registration, Stashbox jumps to the first one and continues the same scanning operation. 
 
-This process is repeated until every [injectable dependency](/docs/getting-started/glossary#injectable-dependency) will have a match in the [resolution tree](/docs/getting-started/glossary#resolution-tree). At the end of the process, Stashbox has each dependency node built-up in a hierarchical object structure to instantiate the initially requested service object.
+This process is repeated until every [injectable dependency](/docs/getting-started/glossary#injectable-dependency) has a matching registration in the [resolution tree](/docs/getting-started/glossary#resolution-tree). At the end of the process, Stashbox will have each dependency node built-up in a hierarchical object structure to instantiate the initially requested service object.
 
 ## Example
 Let's see a quick example. We have three services `DbBackup`, `MessageBus` and `ConsoleLogger`. `DbBackup` has a dependency on `IEventBroadcaster` (implemented by `MessageBus`) and `ILogger` (implemented by `ConsoleLogger`), `MessageBus` also depending on an `ILogger`:
@@ -110,10 +110,10 @@ public class DbBackup : IJob
 ```
 
 :::info
-By depending only on interfaces, you decouple your services from concrete implementations. This gives you the flexibility of a more comfortable implementation replacement and isolates your components from each other. For example, unit testing benefits a lot from the possibility of replacing a real implementation with mock objects.
+By depending only on interfaces, you decouple your services from concrete implementations. This gives you the flexibility of a more comfortable implementation replacement and also isolates your components from each other. For example, unit testing benefits a lot from the possibility of replacing real implementations with mocks.
 :::
 
-The example services above used with Stashbox in a Console Application:
+The example above configured with Stashbox in a Console Application:
 
 ```cs
 using Stashbox;

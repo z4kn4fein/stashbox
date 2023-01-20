@@ -170,10 +170,6 @@ const config = {
                 href: 'https://danielpalme.github.io/IocPerformance',
                 label: 'Performance',
               },
-              {
-                href: 'http://featuretests.apphb.com/DependencyInjection.html',
-                label: 'Feature',
-              },
             ]
           },
           {

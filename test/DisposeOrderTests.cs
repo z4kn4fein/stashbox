@@ -2,102 +2,100 @@
 using System.Collections.Generic;
 using Xunit;
 
-namespace Stashbox.Tests
+namespace Stashbox.Tests;
+
+public class DisposeOrderTests
 {
-
-    public class DisposeOrderTests
+    [Fact]
+    public void Ensure_Services_Are_Disposed_In_The_Right_Order()
     {
-        [Fact]
-        public void Ensure_Services_Are_Disposed_In_The_Right_Order()
+        var disposables = new List<IDisposable>();
+        using (var container = new StashboxContainer(config => config.WithDisposableTransientTracking()))
         {
-            var disposables = new List<IDisposable>();
-            using (var container = new StashboxContainer(config => config.WithDisposableTransientTracking()))
-            {
-                var obj = container.Register<DisposableObj1>()
-                    .Register<DisposableObj2>()
-                    .Register<DisposableObj3>()
-                    .Resolve<DisposableObj3>(dependencyOverrides: new object[] { disposables });
+            var obj = container.Register<DisposableObj1>()
+                .Register<DisposableObj2>()
+                .Register<DisposableObj3>()
+                .Resolve<DisposableObj3>(dependencyOverrides: new object[] { disposables });
 
-                Assert.NotNull(obj);
-            }
-
-            Assert.IsType<DisposableObj3>(disposables[0]);
-            Assert.IsType<DisposableObj1>(disposables[1]);
-            Assert.IsType<DisposableObj2>(disposables[2]);
-            Assert.IsType<DisposableObj1>(disposables[3]);
+            Assert.NotNull(obj);
         }
 
-        [Fact]
-        public void Ensure_Services_Are_Disposed_In_The_Right_Order_InScope()
+        Assert.IsType<DisposableObj3>(disposables[0]);
+        Assert.IsType<DisposableObj1>(disposables[1]);
+        Assert.IsType<DisposableObj2>(disposables[2]);
+        Assert.IsType<DisposableObj1>(disposables[3]);
+    }
+
+    [Fact]
+    public void Ensure_Services_Are_Disposed_In_The_Right_Order_InScope()
+    {
+        var disposables = new List<IDisposable>();
+        using (var container = new StashboxContainer(config => config.WithDisposableTransientTracking()))
         {
-            var disposables = new List<IDisposable>();
-            using (var container = new StashboxContainer(config => config.WithDisposableTransientTracking()))
-            {
-                container.Register<DisposableObj1>()
-                    .Register<DisposableObj2>()
-                    .Register<DisposableObj3>();
+            container.Register<DisposableObj1>()
+                .Register<DisposableObj2>()
+                .Register<DisposableObj3>();
 
-                using var scope = container.BeginScope();
-                var obj = scope.Resolve<DisposableObj3>(dependencyOverrides: new object[] { disposables });
-                Assert.NotNull(obj);
-            }
-
-            Assert.IsType<DisposableObj3>(disposables[0]);
-            Assert.IsType<DisposableObj1>(disposables[1]);
-            Assert.IsType<DisposableObj2>(disposables[2]);
-            Assert.IsType<DisposableObj1>(disposables[3]);
+            using var scope = container.BeginScope();
+            var obj = scope.Resolve<DisposableObj3>(dependencyOverrides: new object[] { disposables });
+            Assert.NotNull(obj);
         }
 
+        Assert.IsType<DisposableObj3>(disposables[0]);
+        Assert.IsType<DisposableObj1>(disposables[1]);
+        Assert.IsType<DisposableObj2>(disposables[2]);
+        Assert.IsType<DisposableObj1>(disposables[3]);
+    }
 
-        private class DisposableObj1 : IDisposable
+
+    private class DisposableObj1 : IDisposable
+    {
+        private readonly IList<IDisposable> disposables;
+
+        public DisposableObj1(IList<IDisposable> disposables)
         {
-            private readonly IList<IDisposable> disposables;
-
-            public DisposableObj1(IList<IDisposable> disposables)
-            {
-                this.disposables = disposables;
-            }
-
-            public void Dispose()
-            {
-                this.disposables.Add(this);
-            }
+            this.disposables = disposables;
         }
 
-        private class DisposableObj2 : IDisposable
+        public void Dispose()
         {
-            private readonly IList<IDisposable> disposables;
-            private readonly DisposableObj1 dObj;
+            this.disposables.Add(this);
+        }
+    }
 
-            public DisposableObj2(IList<IDisposable> disposables, DisposableObj1 dObj)
-            {
-                this.disposables = disposables;
-                this.dObj = dObj;
-            }
+    private class DisposableObj2 : IDisposable
+    {
+        private readonly IList<IDisposable> disposables;
+        private readonly DisposableObj1 dObj;
 
-            public void Dispose()
-            {
-                this.disposables.Add(this);
-            }
+        public DisposableObj2(IList<IDisposable> disposables, DisposableObj1 dObj)
+        {
+            this.disposables = disposables;
+            this.dObj = dObj;
         }
 
-        private class DisposableObj3 : IDisposable
+        public void Dispose()
         {
-            private readonly IList<IDisposable> disposables;
-            private readonly DisposableObj2 dObj;
-            private readonly DisposableObj1 dObj1;
+            this.disposables.Add(this);
+        }
+    }
 
-            public DisposableObj3(IList<IDisposable> disposables, DisposableObj2 dObj, DisposableObj1 dObj1)
-            {
-                this.disposables = disposables;
-                this.dObj = dObj;
-                this.dObj1 = dObj1;
-            }
+    private class DisposableObj3 : IDisposable
+    {
+        private readonly IList<IDisposable> disposables;
+        private readonly DisposableObj2 dObj;
+        private readonly DisposableObj1 dObj1;
 
-            public void Dispose()
-            {
-                this.disposables.Add(this);
-            }
+        public DisposableObj3(IList<IDisposable> disposables, DisposableObj2 dObj, DisposableObj1 dObj1)
+        {
+            this.disposables = disposables;
+            this.dObj = dObj;
+            this.dObj1 = dObj1;
+        }
+
+        public void Dispose()
+        {
+            this.disposables.Add(this);
         }
     }
 }

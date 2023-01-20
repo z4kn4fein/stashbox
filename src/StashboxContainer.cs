@@ -10,138 +10,138 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Stashbox
+namespace Stashbox;
+
+/// <summary>
+/// Represents the Stashbox dependency injection container.
+/// </summary>
+public sealed partial class StashboxContainer : IStashboxContainer
 {
+    private int disposed;
+    private readonly ContainerConfigurator containerConfigurator;
+    private readonly ResolutionScope rootScope;
+
     /// <summary>
-    /// Represents the Stashbox dependency injection container.
+    /// Constructs a <see cref="StashboxContainer"/>.
     /// </summary>
-    public sealed partial class StashboxContainer : IStashboxContainer
+    public StashboxContainer(Action<ContainerConfigurator>? config = null)
+        : this(null, new ResolutionStrategy(), new ContainerConfigurator(), config)
+    { }
+
+    private StashboxContainer(IStashboxContainer? parentContainer, IResolutionStrategy resolutionStrategy,
+        ContainerConfigurator containerConfigurator, Action<ContainerConfigurator>? config = null)
     {
-        private int disposed;
-        private readonly ContainerConfigurator containerConfigurator;
-        private readonly ResolutionScope rootScope;
+        this.ContainerContext = new ContainerContext(parentContainer?.ContainerContext, resolutionStrategy, containerConfigurator.ContainerConfiguration);
+        this.rootScope = (ResolutionScope)this.ContainerContext.RootScope;
+        this.containerConfigurator = containerConfigurator;
+        config?.Invoke(this.containerConfigurator);
+    }
 
-        /// <summary>
-        /// Constructs a <see cref="StashboxContainer"/>.
-        /// </summary>
-        public StashboxContainer(Action<ContainerConfigurator>? config = null)
-            : this(null, new ResolutionStrategy(), new ContainerConfigurator(), config)
-        { }
+    /// <inheritdoc />
+    public IContainerContext ContainerContext { get; }
 
-        private StashboxContainer(IStashboxContainer? parentContainer, IResolutionStrategy resolutionStrategy,
-            ContainerConfigurator containerConfigurator, Action<ContainerConfigurator>? config = null)
+    /// <inheritdoc />
+    public void RegisterResolver(IResolver resolver)
+    {
+        this.ThrowIfDisposed();
+        Shield.EnsureNotNull(resolver, nameof(resolver));
+
+        this.ContainerContext.ResolutionStrategy.RegisterResolver(resolver);
+    }
+
+    /// <inheritdoc />
+    public bool IsRegistered<TFrom>(object? name = null) =>
+        this.IsRegistered(TypeCache<TFrom>.Type, name);
+
+    /// <inheritdoc />
+    public bool IsRegistered(Type typeFrom, object? name = null)
+    {
+        this.ThrowIfDisposed();
+        Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
+
+        return this.ContainerContext.RegistrationRepository.ContainsRegistration(typeFrom, name, false);
+    }
+
+    /// <inheritdoc />
+    public void Validate()
+    {
+        this.ThrowIfDisposed();
+
+        var exceptions = new ExpandableArray<Exception>();
+
+        foreach (var serviceRegistration in this.ContainerContext.RegistrationRepository
+                     .GetRegistrationMappings()
+                     .Where(reg => !reg.Key.IsOpenGenericType()))
         {
-            this.ContainerContext = new ContainerContext(parentContainer?.ContainerContext, resolutionStrategy, containerConfigurator.ContainerConfiguration);
-            this.rootScope = (ResolutionScope)this.ContainerContext.RootScope;
-            this.containerConfigurator = containerConfigurator;
-            config?.Invoke(this.containerConfigurator);
-        }
-
-        /// <inheritdoc />
-        public IContainerContext ContainerContext { get; }
-
-        /// <inheritdoc />
-        public void RegisterResolver(IResolver resolver)
-        {
-            this.ThrowIfDisposed();
-            Shield.EnsureNotNull(resolver, nameof(resolver));
-
-            this.ContainerContext.ResolutionStrategy.RegisterResolver(resolver);
-        }
-
-        /// <inheritdoc />
-        public bool IsRegistered<TFrom>(object? name = null) =>
-            this.IsRegistered(typeof(TFrom), name);
-
-        /// <inheritdoc />
-        public bool IsRegistered(Type typeFrom, object? name = null)
-        {
-            this.ThrowIfDisposed();
-            Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
-
-            return this.ContainerContext.RegistrationRepository.ContainsRegistration(typeFrom, name, false);
-        }
-
-        /// <inheritdoc />
-        public void Validate()
-        {
-            this.ThrowIfDisposed();
-
-            var exceptions = new ExpandableArray<Exception>();
-
-            foreach (var serviceRegistration in this.ContainerContext.RegistrationRepository
-                .GetRegistrationMappings()
-                .Where(reg => !reg.Key.IsOpenGenericType()))
+            try
             {
-                try
-                {
-                    this.ContainerContext.ResolutionStrategy.BuildExpressionForRegistration(serviceRegistration.Value,
-                        ResolutionContext.BeginValidationContext(this.ContainerContext),
-                        new TypeInformation(serviceRegistration.Key, serviceRegistration.Value.Name));
-                }
-                catch (Exception ex)
-                {
-                    exceptions.Add(ex);
-                }
+                this.ContainerContext.ResolutionStrategy.BuildExpressionForRegistration(serviceRegistration.Value,
+                    ResolutionContext.BeginValidationContext(this.ContainerContext),
+                    new TypeInformation(serviceRegistration.Key, serviceRegistration.Value.Name));
             }
-
-            if (exceptions.Length > 0)
-                throw new AggregateException("Container validation failed. See the inner exceptions for details.", exceptions);
+            catch (Exception ex)
+            {
+                exceptions.Add(ex);
+            }
         }
 
-        /// <inheritdoc />
-        public IStashboxContainer CreateChildContainer(Action<ContainerConfigurator>? config = null)
-        {
-            this.ThrowIfDisposed();
+        if (exceptions.Length > 0)
+            throw new AggregateException("Container validation failed. See the inner exceptions for details.", exceptions);
+    }
 
-            return new StashboxContainer(this, this.ContainerContext.ResolutionStrategy,
-                    new ContainerConfigurator(this.ContainerContext.ContainerConfiguration.Clone()), config);
-        }
+    /// <inheritdoc />
+    public IStashboxContainer CreateChildContainer(Action<ContainerConfigurator>? config = null)
+    {
+        this.ThrowIfDisposed();
 
-        /// <inheritdoc />
-        public void Configure(Action<ContainerConfigurator> config)
-        {
-            this.ThrowIfDisposed();
-            Shield.EnsureNotNull(config, "The config parameter cannot be null!");
+        return new StashboxContainer(this, this.ContainerContext.ResolutionStrategy,
+            new ContainerConfigurator(this.ContainerContext.ContainerConfiguration.Clone()), config);
+    }
 
-            config.Invoke(this.containerConfigurator);
-            this.containerConfigurator.ContainerConfiguration.ConfigurationChangedEvent?
-                .Invoke(this.containerConfigurator.ContainerConfiguration);
+    /// <inheritdoc />
+    public void Configure(Action<ContainerConfigurator> config)
+    {
+        this.ThrowIfDisposed();
+        Shield.EnsureNotNull(config, "The config parameter cannot be null!");
 
-            this.ContainerContext.RootScope.InvalidateDelegateCache();
-        }
+        config.Invoke(this.containerConfigurator);
+        this.containerConfigurator.ContainerConfiguration.ConfigurationChangedEvent?
+            .Invoke(this.containerConfigurator.ContainerConfiguration);
 
-        /// <inheritdoc />
-        public IEnumerable<KeyValuePair<Type, ServiceRegistration>> GetRegistrationMappings()
-        {
-            this.ThrowIfDisposed();
+        this.ContainerContext.RootScope.InvalidateDelegateCache();
+    }
 
-            return this.ContainerContext.RegistrationRepository.GetRegistrationMappings();
-        }
+    /// <inheritdoc />
+    public IEnumerable<KeyValuePair<Type, ServiceRegistration>> GetRegistrationMappings()
+    {
+        this.ThrowIfDisposed();
 
-        /// <inheritdoc />
-        public IEnumerable<RegistrationDiagnosticsInfo> GetRegistrationDiagnostics()
-        {
-            this.ThrowIfDisposed();
+        return this.ContainerContext.RegistrationRepository.GetRegistrationMappings();
+    }
 
-            foreach (var reg in this.ContainerContext.RegistrationRepository.GetRegistrationMappings())
-                yield return new RegistrationDiagnosticsInfo(reg.Key, reg.Value.ImplementationType, reg.Value.Name);
-        }
+    /// <inheritdoc />
+    public IEnumerable<RegistrationDiagnosticsInfo> GetRegistrationDiagnostics()
+    {
+        this.ThrowIfDisposed();
 
-        private void ThrowIfDisposed([CallerMemberName] string caller = "<unknown>")
-        {
-            if (this.disposed == 1)
-                Shield.ThrowDisposedException(this.GetType().FullName, caller);
-        }
+        foreach (var reg in this.ContainerContext.RegistrationRepository.GetRegistrationMappings())
+            yield return new RegistrationDiagnosticsInfo(reg.Key, reg.Value.ImplementationType, reg.Value.Name);
+    }
 
-        /// <inheritdoc />
-        public void Dispose()
-        {
-            if (Interlocked.CompareExchange(ref this.disposed, 1, 0) != 0)
-                return;
+    private void ThrowIfDisposed([CallerMemberName] string caller = "<unknown>")
+    {
+        if (this.disposed == 1)
+            Shield.ThrowDisposedException(this.GetType().FullName, caller);
+    }
 
-            this.ContainerContext.RootScope.Dispose();
-        }
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        if (Interlocked.CompareExchange(ref this.disposed, 1, 0) != 0)
+            return;
+
+        this.ContainerContext.RootScope.Dispose();
+    }
 
 #if HAS_ASYNC_DISPOSABLE
         /// <inheritdoc />
@@ -150,5 +150,4 @@ namespace Stashbox
                 ? new ValueTask(Task.CompletedTask)
                 : this.ContainerContext.RootScope.DisposeAsync();
 #endif
-    }
 }

@@ -11,157 +11,156 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 
-namespace Stashbox.Expressions
+namespace Stashbox.Expressions;
+
+internal static partial class ExpressionFactory
 {
-    internal static partial class ExpressionFactory
+    private static IEnumerable<Expression> CreateParameterExpressionsForMethod(
+        ServiceRegistration? serviceRegistration,
+        ResolutionContext resolutionContext,
+        MethodBase method,
+        TypeInformation typeInformation)
     {
-        private static IEnumerable<Expression> CreateParameterExpressionsForMethod(
-            ServiceRegistration? serviceRegistration,
-            ResolutionContext resolutionContext,
-            MethodBase method,
-            TypeInformation typeInformation)
+        var parameters = method.GetParameters();
+        var paramLength = parameters.Length;
+        for (var i = 0; i < paramLength; i++)
         {
-            var parameters = method.GetParameters();
-            var paramLength = parameters.Length;
-            for (var i = 0; i < paramLength; i++)
-            {
-                var parameter = parameters[i].AsTypeInformation(method.DeclaringType, typeInformation, serviceRegistration,
-                    resolutionContext.CurrentContainerContext.ContainerConfiguration);
+            var parameter = parameters[i].AsTypeInformation(method.DeclaringType, typeInformation, serviceRegistration,
+                resolutionContext.CurrentContainerContext.ContainerConfiguration);
 
-                var injectionParameter = serviceRegistration?.Options.GetOrDefault<ExpandableArray<KeyValuePair<string, object?>>>(RegistrationOption.InjectionParameters)?.SelectInjectionParameterOrDefault(parameter);
-                if (injectionParameter != null) yield return injectionParameter;
+            var injectionParameter = serviceRegistration?.Options.GetOrDefault<ExpandableArray<KeyValuePair<string, object?>>>(RegistrationOption.InjectionParameters)?.SelectInjectionParameterOrDefault(parameter);
+            if (injectionParameter != null) yield return injectionParameter;
 
-                yield return resolutionContext.CurrentContainerContext.ResolutionStrategy.BuildExpressionForType(
-                    resolutionContext, parameter).ServiceExpression ?? throw new ResolutionFailedException(method.DeclaringType, serviceRegistration?.Name,
-                    $"Method {method} found with unresolvable parameter: ({parameter.Type}){parameter.ParameterOrMemberName}");
-            }
+            yield return resolutionContext.CurrentContainerContext.ResolutionStrategy.BuildExpressionForType(
+                resolutionContext, parameter).ServiceExpression ?? throw new ResolutionFailedException(method.DeclaringType, serviceRegistration?.Name,
+                $"Method {method} found with unresolvable parameter: ({parameter.Type}){parameter.ParameterOrMemberName}");
+        }
+    }
+
+    private static ConstructorInfo? SelectConstructor(
+        Type typeToConstruct,
+        ServiceRegistration? serviceRegistration,
+        TypeInformation typeInformation,
+        ResolutionContext resolutionContext,
+        IEnumerable<ConstructorInfo> constructorsEnumerable,
+        out Expression[] parameterExpressions)
+    {
+        ConstructorInfo[]? resultConstructors;
+        parameterExpressions = TypeCache.EmptyArray<Expression>();
+        if (resolutionContext.ParameterExpressions.Length > 0)
+        {
+            var constructors = constructorsEnumerable.CastToArray();
+            var containingFactoryParameter = constructors
+                .Where(c => c.GetParameters()
+                    .Any(p => resolutionContext.ParameterExpressions
+                        .Any(pe => pe.Any(item => item.I2.Type == p.ParameterType || item.I2.Type.Implements(p.ParameterType)))))
+                .CastToArray();
+
+            var everythingElse = constructors.Except(containingFactoryParameter);
+            resultConstructors = containingFactoryParameter.Concat(everythingElse).CastToArray();
+        }
+        else
+            resultConstructors = constructorsEnumerable.CastToArray();
+
+        if (resultConstructors.Length == 0)
+            throw new ResolutionFailedException(typeToConstruct,
+                serviceRegistration?.Name,
+                "No public constructor found. Make sure there is at least one public constructor on the type.");
+
+        var checkedConstructors = new Dictionary<MethodBase, TypeInformation>();
+
+        var unknownTypeCheckDisabledContext = resolutionContext.CurrentContainerContext.ContainerConfiguration.UnknownTypeResolutionEnabled
+            ? resolutionContext.BeginUnknownTypeCheckDisabledContext()
+            : resolutionContext;
+
+        var length = resultConstructors.Length;
+        for (var i = 0; i < length; i++)
+        {
+            var constructor = resultConstructors[i];
+            if (TryBuildMethod(constructor, serviceRegistration, unknownTypeCheckDisabledContext, typeInformation,
+                    out var failedParameter, out parameterExpressions)) return constructor;
+
+            checkedConstructors.Add(constructor, failedParameter);
         }
 
-        private static ConstructorInfo? SelectConstructor(
-            Type typeToConstruct,
-            ServiceRegistration? serviceRegistration,
-            TypeInformation typeInformation,
-            ResolutionContext resolutionContext,
-            IEnumerable<ConstructorInfo> constructorsEnumerable,
-            out Expression[] parameterExpressions)
+        if (resolutionContext.CurrentContainerContext.ContainerConfiguration.UnknownTypeResolutionEnabled)
         {
-            ConstructorInfo[]? resultConstructors = null;
-            parameterExpressions = Constants.EmptyArray<Expression>();
-            if (resolutionContext.ParameterExpressions.Length > 0)
-            {
-                var constructors = constructorsEnumerable.CastToArray();
-                var containingFactoryParameter = constructors
-                    .Where(c => c.GetParameters()
-                        .Any(p => resolutionContext.ParameterExpressions
-                            .Any(pe => pe.Any(item => item.I2.Type == p.ParameterType || item.I2.Type.Implements(p.ParameterType)))))
-                    .CastToArray();
-
-                var everythingElse = constructors.Except(containingFactoryParameter);
-                resultConstructors = containingFactoryParameter.Concat(everythingElse).CastToArray();
-            }
-            else
-                resultConstructors = constructorsEnumerable.CastToArray();
-
-            if (resultConstructors.Length == 0)
-                throw new ResolutionFailedException(typeToConstruct,
-                    serviceRegistration?.Name,
-                    "No public constructor found. Make sure there is at least one public constructor on the type.");
-
-            var checkedConstructors = new Dictionary<MethodBase, TypeInformation>();
-
-            var unknownTypeCheckDisabledContext = resolutionContext.CurrentContainerContext.ContainerConfiguration.UnknownTypeResolutionEnabled
-                ? resolutionContext.BeginUnknownTypeCheckDisabledContext()
-                : resolutionContext;
-
-            var length = resultConstructors.Length;
             for (var i = 0; i < length; i++)
             {
                 var constructor = resultConstructors[i];
-                if (TryBuildMethod(constructor, serviceRegistration, unknownTypeCheckDisabledContext, typeInformation,
-                    out var failedParameter, out parameterExpressions)) return constructor;
-
-                checkedConstructors.Add(constructor, failedParameter);
+                if (TryBuildMethod(constructor, serviceRegistration, resolutionContext, typeInformation, out _, out parameterExpressions))
+                    return constructor;
             }
-
-            if (resolutionContext.CurrentContainerContext.ContainerConfiguration.UnknownTypeResolutionEnabled)
-            {
-                for (var i = 0; i < length; i++)
-                {
-                    var constructor = resultConstructors[i];
-                    if (TryBuildMethod(constructor, serviceRegistration, resolutionContext, typeInformation, out _, out parameterExpressions))
-                        return constructor;
-                }
-            }
-
-            if (resolutionContext.NullResultAllowed)
-            {
-                return null;
-            }
-
-            var stringBuilder = new StringBuilder();
-            foreach (var checkedConstructor in checkedConstructors)
-                stringBuilder.AppendLine($"Constructor {checkedConstructor.Key} found with unresolvable parameter: ({checkedConstructor.Value.Type.FullName}){checkedConstructor.Value.ParameterOrMemberName}.");
-
-            throw new ResolutionFailedException(typeToConstruct, serviceRegistration?.Name, stringBuilder.ToString());
         }
 
-        private static IEnumerable<Expression> CreateMethodExpressions(
-            IEnumerable<MethodInfo> methods,
-            ServiceRegistration? serviceRegistration,
-            ResolutionContext resolutionContext,
-            Expression instance,
-            TypeInformation typeInformation)
+        if (resolutionContext.NullResultAllowed)
         {
-            foreach (var method in methods)
-            {
-                var parameters = method.GetParameters();
-                if (parameters.Length == 0)
-                    yield return instance.CallMethod(method);
-                else
-                    yield return instance.CallMethod(method,
-                        CreateParameterExpressionsForMethod(
-                        serviceRegistration, resolutionContext, method, typeInformation));
-            }
+            return null;
         }
 
-        private static bool TryBuildMethod(
-            MethodBase method,
-            ServiceRegistration? serviceRegistration,
-            ResolutionContext resolutionContext,
-            TypeInformation typeInformation,
-            out TypeInformation failedParameter,
-            out Expression[] parameterExpressions)
+        var stringBuilder = new StringBuilder();
+        foreach (var checkedConstructor in checkedConstructors)
+            stringBuilder.AppendLine($"Constructor {checkedConstructor.Key} found with unresolvable parameter: ({checkedConstructor.Value.Type.FullName}){checkedConstructor.Value.ParameterOrMemberName}.");
+
+        throw new ResolutionFailedException(typeToConstruct, serviceRegistration?.Name, stringBuilder.ToString());
+    }
+
+    private static IEnumerable<Expression> CreateMethodExpressions(
+        IEnumerable<MethodInfo> methods,
+        ServiceRegistration? serviceRegistration,
+        ResolutionContext resolutionContext,
+        Expression instance,
+        TypeInformation typeInformation)
+    {
+        foreach (var method in methods)
         {
             var parameters = method.GetParameters();
-            var paramLength = parameters.Length;
-            parameterExpressions = new Expression[paramLength];
-            failedParameter = TypeInformation.Empty;
-            for (var i = 0; i < paramLength; i++)
+            if (parameters.Length == 0)
+                yield return instance.CallMethod(method);
+            else
+                yield return instance.CallMethod(method,
+                    CreateParameterExpressionsForMethod(
+                        serviceRegistration, resolutionContext, method, typeInformation));
+        }
+    }
+
+    private static bool TryBuildMethod(
+        MethodBase method,
+        ServiceRegistration? serviceRegistration,
+        ResolutionContext resolutionContext,
+        TypeInformation typeInformation,
+        out TypeInformation failedParameter,
+        out Expression[] parameterExpressions)
+    {
+        var parameters = method.GetParameters();
+        var paramLength = parameters.Length;
+        parameterExpressions = new Expression[paramLength];
+        failedParameter = TypeInformation.Empty;
+        for (var i = 0; i < paramLength; i++)
+        {
+            var parameter = parameters[i].AsTypeInformation(method.DeclaringType, typeInformation, serviceRegistration,
+                resolutionContext.CurrentContainerContext.ContainerConfiguration);
+
+            var injectionParameter = serviceRegistration?.Options.GetOrDefault<ExpandableArray<KeyValuePair<string, object?>>>(RegistrationOption.InjectionParameters)?.SelectInjectionParameterOrDefault(parameter);
+            if (injectionParameter != null)
             {
-                var parameter = parameters[i].AsTypeInformation(method.DeclaringType, typeInformation, serviceRegistration,
-                    resolutionContext.CurrentContainerContext.ContainerConfiguration);
-
-                var injectionParameter = serviceRegistration?.Options.GetOrDefault<ExpandableArray<KeyValuePair<string, object?>>>(RegistrationOption.InjectionParameters)?.SelectInjectionParameterOrDefault(parameter);
-                if (injectionParameter != null)
-                {
-                    parameterExpressions[i] = injectionParameter;
-                    continue;
-                }
-
-                var serviceContext = resolutionContext.CurrentContainerContext.ResolutionStrategy
-                    .BuildExpressionForType(resolutionContext, parameter);
-
-                if (!serviceContext.IsEmpty())
-                {
-                    parameterExpressions[i] = serviceContext.ServiceExpression;
-                    continue;
-                }
-
-                failedParameter = parameter;
-                return false;
+                parameterExpressions[i] = injectionParameter;
+                continue;
             }
 
-            return true;
+            var serviceContext = resolutionContext.CurrentContainerContext.ResolutionStrategy
+                .BuildExpressionForType(resolutionContext, parameter);
+
+            if (!serviceContext.IsEmpty())
+            {
+                parameterExpressions[i] = serviceContext.ServiceExpression;
+                continue;
+            }
+
+            failedParameter = parameter;
+            return false;
         }
+
+        return true;
     }
 }

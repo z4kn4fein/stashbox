@@ -2,148 +2,147 @@
 using System;
 using Xunit;
 
-namespace Stashbox.Tests.IssueTests
+namespace Stashbox.Tests.IssueTests;
+
+public class ResolvingFunUseWrongConstructor
 {
-    public class ResolvingFunUseWrongConstructor
+    [Fact]
+    public void Ensure_Good_Constructor_Selected()
     {
-        [Fact]
-        public void Ensure_Good_Constructor_Selected()
+        var container = new StashboxContainer();
+        container.RegisterAssemblyContaining<ClassA>();
+
+        var funcA = container.Resolve<Func<ClassA, InjectedClass>>();
+        var classA = container.Resolve<ClassA>();
+        var injectedA = funcA(classA);
+
+        var funcB = container.Resolve<Func<ClassB, InjectedClass>>();
+        var classB = container.Resolve<ClassB>();
+        var injectedB = funcB(classB);
+
+        Assert.Equal(classA, injectedA.ClassA);
+        Assert.Equal(classB, injectedB.ClassB);
+    }
+
+    class ClassA
+    { }
+
+    class ClassB
+    { }
+
+    class InjectedClass
+    {
+        public ClassA ClassA;
+        public ClassB ClassB;
+
+        public InjectedClass(ClassA classA)
         {
-            var container = new StashboxContainer();
-            container.RegisterAssemblyContaining<ClassA>();
-
-            var funcA = container.Resolve<Func<ClassA, InjectedClass>>();
-            var classA = container.Resolve<ClassA>();
-            var injectedA = funcA(classA);
-
-            var funcB = container.Resolve<Func<ClassB, InjectedClass>>();
-            var classB = container.Resolve<ClassB>();
-            var injectedB = funcB(classB);
-
-            Assert.Equal(classA, injectedA.ClassA);
-            Assert.Equal(classB, injectedB.ClassB);
+            ClassA = classA;
         }
 
-        class ClassA
-        { }
-
-        class ClassB
-        { }
-
-        class InjectedClass
+        public InjectedClass(ClassB classB)
         {
-            public ClassA ClassA;
-            public ClassB ClassB;
+            ClassB = classB;
+        }
+    }
 
-            public InjectedClass(ClassA classA)
-            {
-                ClassA = classA;
-            }
+    [Fact]
+    public void Ensure_Good_Constructor_Selected_Deeper_In_The_Tree()
+    {
+        var container = new StashboxContainer();
+        container.Register<A>().Register<B>().Register<Subject1>().Register<Subject2>();
 
-            public InjectedClass(ClassB classB)
-            {
-                ClassB = classB;
-            }
+        var fa = container.Resolve<Func<A, Subject2>>();
+        var a = container.Resolve<A>();
+        var instA = fa(a);
+
+        var fb = container.Resolve<Func<B, Subject2>>();
+        var b = container.Resolve<B>();
+        var instB = fb(b);
+
+        Assert.Equal(a, instA.Subject1.A);
+        Assert.Equal(b, instB.Subject1.B);
+    }
+
+    [Fact]
+    public void Ensure_Constructor_Most_Params_Selector_Respects_Func_Param()
+    {
+        var container = new StashboxContainer();
+        container.Register<A>().Register<B>().Register<Subject3>();
+
+        var fb = container.Resolve<Func<B, Subject3>>();
+        var b = container.Resolve<B>();
+        var instB = fb(b);
+
+        Assert.Equal(b, instB.B);
+        Assert.NotNull(instB.A);
+    }
+
+    [Fact]
+    public void Ensure_Constructor_Least_Params_Selector_Respects_Func_Param()
+    {
+        var container = new StashboxContainer();
+        container.Register<A>().Register<B>().Register<Subject3>(c => c.WithConstructorSelectionRule(Rules.ConstructorSelection.PreferLeastParameters));
+
+        var fb = container.Resolve<Func<B, Subject3>>();
+        var b = container.Resolve<B>();
+        var instB = fb(b);
+
+        Assert.Equal(b, instB.B);
+        Assert.Null(instB.A);
+    }
+
+    class A
+    { }
+
+    class B
+    { }
+
+    class Subject1
+    {
+        public Subject1(A a)
+        {
+            A = a;
         }
 
-        [Fact]
-        public void Ensure_Good_Constructor_Selected_Deeper_In_The_Tree()
+        public Subject1(B b)
         {
-            var container = new StashboxContainer();
-            container.Register<A>().Register<B>().Register<Subject1>().Register<Subject2>();
-
-            var fa = container.Resolve<Func<A, Subject2>>();
-            var a = container.Resolve<A>();
-            var instA = fa(a);
-
-            var fb = container.Resolve<Func<B, Subject2>>();
-            var b = container.Resolve<B>();
-            var instB = fb(b);
-
-            Assert.Equal(a, instA.Subject1.A);
-            Assert.Equal(b, instB.Subject1.B);
+            B = b;
         }
 
-        [Fact]
-        public void Ensure_Constructor_Most_Params_Selector_Respects_Func_Param()
+        public A A { get; }
+        public B B { get; }
+    }
+
+    class Subject2
+    {
+        public Subject2(Subject1 subject1)
         {
-            var container = new StashboxContainer();
-            container.Register<A>().Register<B>().Register<Subject3>();
-
-            var fb = container.Resolve<Func<B, Subject3>>();
-            var b = container.Resolve<B>();
-            var instB = fb(b);
-
-            Assert.Equal(b, instB.B);
-            Assert.NotNull(instB.A);
+            Subject1 = subject1;
         }
 
-        [Fact]
-        public void Ensure_Constructor_Least_Params_Selector_Respects_Func_Param()
+        public Subject1 Subject1 { get; }
+    }
+
+    class Subject3
+    {
+        public Subject3(A a)
         {
-            var container = new StashboxContainer();
-            container.Register<A>().Register<B>().Register<Subject3>(c => c.WithConstructorSelectionRule(Rules.ConstructorSelection.PreferLeastParameters));
-
-            var fb = container.Resolve<Func<B, Subject3>>();
-            var b = container.Resolve<B>();
-            var instB = fb(b);
-
-            Assert.Equal(b, instB.B);
-            Assert.Null(instB.A);
+            A = a;
         }
 
-        class A
-        { }
-
-        class B
-        { }
-
-        class Subject1
+        public Subject3(B b)
         {
-            public Subject1(A a)
-            {
-                A = a;
-            }
-
-            public Subject1(B b)
-            {
-                B = b;
-            }
-
-            public A A { get; }
-            public B B { get; }
+            B = b;
         }
 
-        class Subject2
+        public Subject3(B b, A a)
         {
-            public Subject2(Subject1 subject1)
-            {
-                Subject1 = subject1;
-            }
-
-            public Subject1 Subject1 { get; }
+            B = b;
+            A = a;
         }
 
-        class Subject3
-        {
-            public Subject3(A a)
-            {
-                A = a;
-            }
-
-            public Subject3(B b)
-            {
-                B = b;
-            }
-
-            public Subject3(B b, A a)
-            {
-                B = b;
-                A = a;
-            }
-
-            public B B { get; }
-            public A A { get; }
-        }
+        public B B { get; }
+        public A A { get; }
     }
 }

@@ -4,89 +4,88 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Stashbox.Registration
+namespace Stashbox.Registration;
+
+internal static class ServiceRegistrator
 {
-    internal static class ServiceRegistrator
+    public static void Register(IContainerContext containerContext, ServiceRegistration serviceRegistration, Type serviceType)
     {
-        public static void Register(IContainerContext containerContext, ServiceRegistration serviceRegistration, Type serviceType)
-        {
-            if (serviceRegistration.ImplementationType.IsOpenGenericType())
-                serviceRegistration = new OpenGenericRegistration(serviceRegistration);
+        if (serviceRegistration.ImplementationType.IsOpenGenericType())
+            serviceRegistration = new OpenGenericRegistration(serviceRegistration);
 
-            PreProcessRegistration(containerContext, serviceRegistration);
+        PreProcessRegistration(containerContext, serviceRegistration);
 
-            if (serviceRegistration.Options.TryGet(RegistrationOption.AdditionalServiceTypes, out var types) && types is ExpandableArray<Type> additionalTypes)
-                foreach (var additionalServiceType in additionalTypes.Distinct())
+        if (serviceRegistration.Options.TryGet(RegistrationOption.AdditionalServiceTypes, out var types) && types is ExpandableArray<Type> additionalTypes)
+            foreach (var additionalServiceType in additionalTypes.Distinct())
+            {
+                if (additionalServiceType.IsOpenGenericType())
                 {
-                    if (additionalServiceType.IsOpenGenericType())
-                    {
-                        RegisterInternal(containerContext, serviceRegistration, additionalServiceType.GetGenericTypeDefinition());
-                        continue;
-                    }
-
-                    RegisterInternal(containerContext, serviceRegistration, additionalServiceType);
+                    RegisterInternal(containerContext, serviceRegistration, additionalServiceType.GetGenericTypeDefinition());
+                    continue;
                 }
 
-            RegisterInternal(containerContext, serviceRegistration, serviceType);
-        }
-
-        public static void ReMap(IContainerContext containerContext, ServiceRegistration serviceRegistration, Type serviceType)
-        {
-            if (serviceRegistration.ImplementationType.IsOpenGenericType())
-                serviceRegistration = new OpenGenericRegistration(serviceRegistration);
-
-            PreProcessRegistration(containerContext, serviceRegistration);
-
-            if (serviceRegistration.Options.TryGet(RegistrationOption.AdditionalServiceTypes, out var types) && types is ExpandableArray<Type> additionalTypes)
-                foreach (var additionalServiceType in additionalTypes.Distinct())
-                    ReMapInternal(containerContext, serviceRegistration, additionalServiceType);
-
-            ReMapInternal(containerContext, serviceRegistration, serviceType);
-        }
-
-        private static void RegisterInternal(IContainerContext containerContext, ServiceRegistration serviceRegistration, Type serviceType)
-        {
-            if (serviceRegistration.IsDecorator)
-            {
-                containerContext.DecoratorRepository.AddDecorator(serviceType, serviceRegistration, false);
-                containerContext.RootScope.InvalidateDelegateCache();
+                RegisterInternal(containerContext, serviceRegistration, additionalServiceType);
             }
-            else if (containerContext.RegistrationRepository.AddOrUpdateRegistration(serviceRegistration, serviceType))
-                containerContext.RootScope.InvalidateDelegateCache();
-        }
 
-        private static void ReMapInternal(IContainerContext containerContext, ServiceRegistration serviceRegistration, Type serviceType)
+        RegisterInternal(containerContext, serviceRegistration, serviceType);
+    }
+
+    public static void ReMap(IContainerContext containerContext, ServiceRegistration serviceRegistration, Type serviceType)
+    {
+        if (serviceRegistration.ImplementationType.IsOpenGenericType())
+            serviceRegistration = new OpenGenericRegistration(serviceRegistration);
+
+        PreProcessRegistration(containerContext, serviceRegistration);
+
+        if (serviceRegistration.Options.TryGet(RegistrationOption.AdditionalServiceTypes, out var types) && types is ExpandableArray<Type> additionalTypes)
+            foreach (var additionalServiceType in additionalTypes.Distinct())
+                ReMapInternal(containerContext, serviceRegistration, additionalServiceType);
+
+        ReMapInternal(containerContext, serviceRegistration, serviceType);
+    }
+
+    private static void RegisterInternal(IContainerContext containerContext, ServiceRegistration serviceRegistration, Type serviceType)
+    {
+        if (serviceRegistration.IsDecorator)
         {
-            if (serviceRegistration.IsDecorator)
-                containerContext.DecoratorRepository.AddDecorator(serviceType, serviceRegistration, true);
-            else
-                containerContext.RegistrationRepository.AddOrReMapRegistration(serviceRegistration, serviceType);
-
+            containerContext.DecoratorRepository.AddDecorator(serviceType, serviceRegistration, false);
             containerContext.RootScope.InvalidateDelegateCache();
         }
+        else if (containerContext.RegistrationRepository.AddOrUpdateRegistration(serviceRegistration, serviceType))
+            containerContext.RootScope.InvalidateDelegateCache();
+    }
 
-        private static void PreProcessRegistration(IContainerContext containerContext, ServiceRegistration serviceRegistration)
-        {
-            if (serviceRegistration.Options.TryGet(RegistrationOption.RegistrationTypeOptions, out var opts) && opts is InstanceOptions instanceOptions)
-            {
-                PreProcessExistingInstanceIfNeeded(containerContext, instanceOptions.ExistingInstance, serviceRegistration.Options.IsOn(RegistrationOption.IsLifetimeExternallyOwned), 
-                    serviceRegistration.Options.GetOrDefault<Action<object>>(RegistrationOption.Finalizer), serviceRegistration.ImplementationType);
+    private static void ReMapInternal(IContainerContext containerContext, ServiceRegistration serviceRegistration, Type serviceType)
+    {
+        if (serviceRegistration.IsDecorator)
+            containerContext.DecoratorRepository.AddDecorator(serviceType, serviceRegistration, true);
+        else
+            containerContext.RegistrationRepository.AddOrReMapRegistration(serviceRegistration, serviceType);
 
-                if (instanceOptions.IsWireUp)
-                    serviceRegistration.Lifetime = Lifetimes.Singleton;
-            }
-        }
+        containerContext.RootScope.InvalidateDelegateCache();
+    }
 
-        private static void PreProcessExistingInstanceIfNeeded(IContainerContext containerContext, object? instance,
-            bool isLifetimeExternallyOwned, Action<object>? finalizer, Type implementationType)
-        {
-            if (instance == null) return;
+    private static void PreProcessRegistration(IContainerContext containerContext, ServiceRegistration serviceRegistration)
+    {
+        if (!serviceRegistration.Options.TryGet(RegistrationOption.RegistrationTypeOptions, out var opts) ||
+            opts is not InstanceOptions instanceOptions) return;
+        
+        PreProcessExistingInstanceIfNeeded(containerContext, instanceOptions.ExistingInstance, serviceRegistration.Options.IsOn(RegistrationOption.IsLifetimeExternallyOwned), 
+            serviceRegistration.Options.GetOrDefault<Action<object>>(RegistrationOption.Finalizer), serviceRegistration.ImplementationType);
 
-            if (!isLifetimeExternallyOwned && implementationType.IsDisposable())
-                containerContext.RootScope.AddDisposableTracking(instance);
+        if (instanceOptions.IsWireUp)
+            serviceRegistration.Lifetime = Lifetimes.Singleton;
+    }
 
-            if (finalizer == null) return;
-            containerContext.RootScope.AddWithFinalizer(instance, finalizer);
-        }
+    private static void PreProcessExistingInstanceIfNeeded(IContainerContext containerContext, object? instance,
+        bool isLifetimeExternallyOwned, Action<object>? finalizer, Type implementationType)
+    {
+        if (instance == null) return;
+
+        if (!isLifetimeExternallyOwned && implementationType.IsDisposable())
+            containerContext.RootScope.AddDisposableTracking(instance);
+
+        if (finalizer == null) return;
+        containerContext.RootScope.AddWithFinalizer(instance, finalizer);
     }
 }

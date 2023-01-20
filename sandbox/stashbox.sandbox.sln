@@ -12,6 +12,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "stashbox", "..\src\stashbox
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "stashbox.trimmed", "stashbox.trimmed\stashbox.trimmed.csproj", "{DFC8FD7D-E4DF-49D8-ACA3-517144EC1D34}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "stashbox.assemblyload", "stashbox.assemblyload\stashbox.assemblyload.csproj", "{A76BE134-DE84-4CC1-87E3-B91577710249}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Benchmark|Any CPU = Benchmark|Any CPU
@@ -37,6 +39,12 @@ Global
 		{DFC8FD7D-E4DF-49D8-ACA3-517144EC1D34}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DFC8FD7D-E4DF-49D8-ACA3-517144EC1D34}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DFC8FD7D-E4DF-49D8-ACA3-517144EC1D34}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A76BE134-DE84-4CC1-87E3-B91577710249}.Benchmark|Any CPU.ActiveCfg = Debug|Any CPU
+		{A76BE134-DE84-4CC1-87E3-B91577710249}.Benchmark|Any CPU.Build.0 = Debug|Any CPU
+		{A76BE134-DE84-4CC1-87E3-B91577710249}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A76BE134-DE84-4CC1-87E3-B91577710249}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A76BE134-DE84-4CC1-87E3-B91577710249}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A76BE134-DE84-4CC1-87E3-B91577710249}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

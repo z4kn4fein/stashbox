@@ -2,12 +2,11 @@
 using Stashbox.Resolution;
 using System.Linq.Expressions;
 
-namespace Stashbox.Lifetime
+namespace Stashbox.Lifetime;
+
+internal class EmptyLifetime : LifetimeDescriptor
 {
-    internal class EmptyLifetime : LifetimeDescriptor
-    {
-        private protected override Expression? BuildLifetimeAppliedExpression(ServiceRegistration serviceRegistration,
-            ResolutionContext resolutionContext, TypeInformation typeInformation)
-            => null;
-    }
+    private protected override Expression? BuildLifetimeAppliedExpression(ServiceRegistration serviceRegistration,
+        ResolutionContext resolutionContext, TypeInformation typeInformation)
+        => null;
 }

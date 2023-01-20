@@ -2,17 +2,15 @@
 using System.Collections.Generic;
 using Xunit;
 
-namespace Stashbox.Tests.IssueTests
-{
+namespace Stashbox.Tests.IssueTests;
 
-    public class DictionariesGetResolvedToArraysOfKeyTypeByDefault
+public class DictionariesGetResolvedToArraysOfKeyTypeByDefault
+{
+    [Fact]
+    public void Ensure_Dictionary_Resolves()
     {
-        [Fact]
-        public void Ensure_Dictionary_Resolves()
-        {
-            var container = new StashboxContainer(c => c.WithUnknownTypeResolution(c2 =>
-                c2.WithConstructorSelectionRule(Rules.ConstructorSelection.PreferLeastParameters)));
-            Assert.NotNull(container.Resolve<Dictionary<string, object>>());
-        }
+        var container = new StashboxContainer(c => c.WithUnknownTypeResolution(c2 =>
+            c2.WithConstructorSelectionRule(Rules.ConstructorSelection.PreferLeastParameters)));
+        Assert.NotNull(container.Resolve<Dictionary<string, object>>());
     }
 }

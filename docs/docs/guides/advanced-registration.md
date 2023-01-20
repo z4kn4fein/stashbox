@@ -3,7 +3,7 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
 # Advanced registration
-This section is about Stashbox's further configuration options, including the registration configuration API, the registration of factory delegates, multiple implementations, batch registration, the concept of the [Composition Root](https://blog.ploeh.dk/2011/07/28/CompositionRoot/) and many more.
+This section is about Stashbox's further configuration options, including the registration configuration API, the registration of factory delegates, multiple implementations, batch registrations, the concept of the [Composition Root](https://blog.ploeh.dk/2011/07/28/CompositionRoot/), and many more.
 
 :::info
 This section won't cover all the available options of the registrations API, but you can find them [here](/docs/configuration/registration-configuration).
@@ -14,11 +14,11 @@ This section won't cover all the available options of the registrations API, but
 <CodeDescPanel>
 <div>
 
-You have the option to bind a factory delegate to a registration that the container will invoke directly to instantiate your service. 
+You can bind a factory delegate to a registration that the container will invoke directly to instantiate your service. 
 
 You can use parameter-less and custom parameterized delegates as a factory. [Here](/docs/configuration/registration-configuration#factory) is the list of all available options.
 
-You can also get the current [dependency resolver](/docs/getting-started/glossary#dependency-resolver) as a delegate parameter used to resolve any additional dependencies required for service construction.
+You can also get the current [dependency resolver](/docs/getting-started/glossary#dependency-resolver) as a delegate parameter to resolve any additional dependencies required for the service construction.
 
 </div>
 <div>
@@ -330,7 +330,7 @@ DbBackup job = container.Resolve<DbBackup>(); // DbBackup
 You have the option to register multiple services in a single registration operation. 
 
 **Filters (optional):**
-First, the container will use the *implementation filter* action to select only those types from the given collection that we want to register. When we have those, the container will execute the *service filter* on their implemented interfaces and base classes to select which [service type](/docs/getting-started/glossary#service-type--implementation-type) they should be mapped to.
+First, the container will use the *implementation filter* action to select only those types from the collection we want to register. When we have those, the container will execute the *service filter* on their implemented interfaces and base classes to select which [service type](/docs/getting-started/glossary#service-type--implementation-type) they should be mapped to.
 
 :::note
 Framework types like `IDisposable` are excluded from being considered as a [service type](/docs/getting-started/glossary#service-type--implementation-type) by default.
@@ -432,7 +432,7 @@ IEnumerable<IJob> jobs = container.ResolveAll<IJob>(); // 2 items
 Another type of service filter is the `.RegisterTypesAs<T>()` method, which registers only those types that implements the `T` [service type](/docs/getting-started/glossary#service-type--implementation-type).
 
 :::note 
-This method also accepts an implementation filter and registration configurator action as the `.RegisterTypes()`.
+This method also accepts an implementation filter and a registration configurator action like `.RegisterTypes()`.
 :::
 
 :::caution
@@ -486,9 +486,9 @@ DbBackup backup = container.Resolve<DbBackup>(); // error, not found
 <CodeDescPanel>
 <div>
 
-The batch registration API's signature *(filters, registration configuration action, self-registration)* is also usable for registering services from given assemblies.
+The batch registration API *(filters, registration configuration action, self-registration)* is also usable for registering services from given assemblies.
 
-In this example, we assume that the same three services used at the batch registration are in the same assembly.
+In this example, we assume that the same three services we used in the [batch registration](#batch-registration) section are in the same assembly.
 
 :::info
 The container also detects and registers open-generic definitions (when applicable) from the supplied type collection. You can read about [open-generics here](/docs/advanced/generics#open-generics).
@@ -562,14 +562,14 @@ DbBackup backup = container.Resolve<DbBackup>(); // error, not found
 <CodeDescPanel>
 <div>
 
-The [Composition Root](https://blog.ploeh.dk/2011/07/28/CompositionRoot/) is an entry point, where all services required to make a component functional are wired together.
+The [Composition Root](https://blog.ploeh.dk/2011/07/28/CompositionRoot/) is an entry point where all services required to make a component functional are wired together.
 
 Stashbox provides an `ICompositionRoot` interface that can be used to define an entry point for a given component or even for an entire assembly. 
 
-You can wire up your *composition root* implementation with `ComposeBy<TRoot>()`, or you can let the container find and execute all available *composition roots* within an assembly.
+You can wire up your *composition root* implementation with `ComposeBy<TRoot>()`, or you can let the container find and execute all available *composition root* implementations within an assembly.
 
 :::note
-Your `ICompositionRoot` implementation also can have dependencies that the container will inject.
+Your `ICompositionRoot` implementation also can have dependencies that the container will resolve.
 :::
 
 </div>
@@ -624,10 +624,10 @@ container.ComposeBy<ExampleRoot>(new CustomRootDependency());
 <CodeDescPanel>
 <div>
 
-If you have some pre-evaluated dependencies you'd like to inject at resolution time, you can set them as an injection parameter during registration. 
+If you have pre-evaluated dependencies you'd like to inject at resolution time, you can set them as injection parameters during registration. 
 
 :::note
-Injection parameter names are matched to constructor argument and field/property names.
+Injection parameter names are matched to constructor arguments or field/property names.
 :::
 
 </div>
@@ -649,9 +649,9 @@ IJob backup = container.Resolve<IJob>();
 <CodeDescPanel>
 <div>
 
-The container provides specific extension points that could be used as hooks to react to the instantiated service's lifetime events. 
+The container provides specific extension points to let you react to lifetime events of an instantiated service. 
 
-For this reason, you can specify your own *Initializer* and *Finalizer* delegates. The finalizer is called on the service's [disposal](/docs/guides/scopes#disposal).
+For this reason, you can specify *Initializer* and *Finalizer* delegates. The *finalizer* is called upon the service's [disposal](/docs/guides/scopes#disposal), and the *initializer* is called upon the service's construction.
 
 </div>
 <div>

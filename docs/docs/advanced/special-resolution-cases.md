@@ -9,7 +9,7 @@ When this [feature](/docs/configuration/container-configuration#unknown-type-res
 <Tabs>
 <TabItem value="Default" label="Default">
 
-Without a registration configuration, the container can resolve only non-interface and non-abstract unknown types. In this case,
+Without a registration configuration, the container can resolve only non-interface and non-abstract unknown types. In the following example,
 the container creates an implicit registration for `Dependency` and injects its instance into `Service`.
 ```cs
 class Dependency { }
@@ -31,7 +31,7 @@ var service = container.Resolve<Service>();
 </TabItem>
 <TabItem value="With registration configuration" label="With registration configuration">
 
-With a registration configuration, you can control how the individual registrations of the unknown types should behave. You also have the option to react to a service resolution request. In this case, we tell the container that if it finds an unregistered `IDependency` service for the first time, it should be mapped to the `Dependency` implementation and have a singleton lifetime. Next time, when the container is coming across with this service, it will use the registration created at the first request.
+With a registration configuration, you can control how an unknown type's individual registration should behave. You can also react to a service resolution request. In the following example, we tell the container that if it finds an unregistered `IDependency` for the first time, that should be mapped to `Dependency` and have a singleton lifetime. Next time, when the container comes across this service, it will use the registration created at the first request.
 
 ```cs
 interface IDependency { }
@@ -77,11 +77,11 @@ var person = container.Resolve<Person>();
 ```
 
 :::note
-Unknown reference types will be resolved to `null` only in properties and fields.
+Unknown reference types are resolved to `null` only in properties and fields.
 :::
 
 ## Optional value injection
-Stashbox respects the optional value of constructor and method arguments.
+Stashbox respects the optional value of each constructor and method argument.
 
 ```cs
 class Person 

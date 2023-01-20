@@ -1,54 +1,53 @@
 ﻿using Stashbox.Attributes;
 using Xunit;
 
-namespace Stashbox.Tests.IssueTests
+namespace Stashbox.Tests.IssueTests;
+
+public class A
+{ }
+public class B
+{ }
+
+public class BaseClass
 {
-    public class A
-    { }
-    public class B
-    { }
+    [Dependency]
+    public A A { get; set; }
+    public bool DoneA { get; set; }
 
-    public class BaseClass
+    [InjectionMethod]
+    public void InjectA()
     {
-        [Dependency]
-        public A A { get; set; }
-        public bool DoneA { get; set; }
-
-        [InjectionMethod]
-        public void InjectA()
-        {
-            DoneA = true;
-        }
+        DoneA = true;
     }
+}
 
-    public class MainClass : BaseClass
+public class MainClass : BaseClass
+{
+    [Dependency]
+    public B B { get; set; }
+    public bool DoneB { get; set; }
+
+    [InjectionMethod]
+    public void InjectB()
     {
-        [Dependency]
-        public B B { get; set; }
-        public bool DoneB { get; set; }
-
-        [InjectionMethod]
-        public void InjectB()
-        {
-            DoneB = true;
-        }
+        DoneB = true;
     }
+}
 
-    public class BaseClassMethod
+public class BaseClassMethod
+{
+    [Fact]
+    public void Test()
     {
-        [Fact]
-        public void Test()
-        {
-            var container = new StashboxContainer();
-            container.Register<A>().Register<B>().Register<MainClass>();
+        var container = new StashboxContainer();
+        container.Register<A>().Register<B>().Register<MainClass>();
 
-            var main = container.Resolve<MainClass>();
+        var main = container.Resolve<MainClass>();
 
-            Assert.IsType<B>(main.B);
-            Assert.IsType<A>(main.A);
+        Assert.IsType<B>(main.B);
+        Assert.IsType<A>(main.A);
 
-            Assert.True(main.DoneA);
-            Assert.True(main.DoneB);
-        }
+        Assert.True(main.DoneA);
+        Assert.True(main.DoneB);
     }
 }

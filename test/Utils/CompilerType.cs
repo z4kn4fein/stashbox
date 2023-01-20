@@ -1,10 +1,9 @@
-﻿namespace Stashbox.Tests.Utils
+﻿namespace Stashbox.Tests.Utils;
+
+public enum CompilerType
 {
-    public enum CompilerType
-    {
-        Default,
-        Microsoft,
-        Stashbox,
-        FastExpressionCompiler,
-    }
+    Default,
+    Microsoft,
+    Stashbox,
+    FastExpressionCompiler,
 }

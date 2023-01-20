@@ -4,7 +4,7 @@ import TabItem from '@theme/TabItem';
 
 # Lifetimes
 
-Lifetime management is the concept of controlling how long a service's instances will live (from instantiation to [disposal](/docs/guides/scopes#disposal)) and how they will be reused between resolution requests.
+Lifetime management controls how long a service's instances will live (from instantiation to [disposal](/docs/guides/scopes#disposal)) and how they will be reused between resolution requests.
 
 :::info
 Choosing the right lifetime helps you avoid [captive dependencies](/docs/diagnostics/validation#lifetime-validation).
@@ -15,9 +15,9 @@ Choosing the right lifetime helps you avoid [captive dependencies](/docs/diagnos
 <CodeDescPanel>
 <div>
 
-When you are not specifying a lifetime during registration, Stashbox will use the default lifetime. By default, it's set to **Transient**, but you can override it with the `.WithDefaultLifetime()` [container configuration option](/docs/configuration/container-configuration#default-lifetime). 
+When you are not specifying a lifetime during registration, Stashbox will use the default lifetime. By default, it's set to [Transient](#transient-lifetime), but you can override it with the `.WithDefaultLifetime()` [container configuration option](/docs/configuration/container-configuration#default-lifetime). 
 
-You can choose either from the pre-defined lifetimes defined in the `Lifetimes` static class or use a [custom one](#custom-lifetime).
+You can choose either from the pre-defined lifetimes defined on the `Lifetimes` static class or use a [custom lifetime](#custom-lifetime).
 
 </div>
 <div>
@@ -56,7 +56,7 @@ var container = new StashboxContainer(options => options
 <CodeDescPanel>
 <div>
 
-A new instance will be created for every resolution request. If a transient is referred by multiple consumers in the same [resolution tree](/docs/getting-started/glossary#resolution-tree), each of them will get a new instance.
+A new instance is created for each resolution request. If a transient is referred by multiple consumers in the same [resolution tree](/docs/getting-started/glossary#resolution-tree), each will get a new instance.
 
 </div>
 <div>
@@ -70,7 +70,7 @@ container.Register<IJob, DbBackup>(options => options
 </CodeDescPanel>
 
 :::info
-Transient services are not tracked for disposal by default, but this feature can be turned on with the `.WithDisposableTransientTracking()` [container configuration option](/docs/configuration/container-configuration#tracking-disposable-transients). When it's enabled, the current [scope](/docs/guides/scopes) on which the resolution request was initiated takes the responsibility to track and dispose the transient services.
+Transient services are not tracked for disposal by default, but this feature can be turned on with the `.WithDisposableTransientTracking()` [container configuration option](/docs/configuration/container-configuration#tracking-disposable-transients). When it's enabled, the current [scope](/docs/guides/scopes) on which the resolution request was initiated takes the responsibility to track and dispose transient services.
 :::
 
 ## Singleton lifetime
@@ -78,7 +78,7 @@ Transient services are not tracked for disposal by default, but this feature can
 <CodeDescPanel>
 <div>
 
-A single instance will be created and reused for every resolution request and injected into every consumer.
+A single instance is created and reused for each resolution request and injected into each consumer.
 
 :::note
 Singleton services are disposed when the container ([root scope](/docs/getting-started/glossary#root-scope)) is being disposed.
@@ -112,7 +112,7 @@ container.RegisterSingleton<IJob, DbBackup>();
 <CodeDescPanel>
 <div>
 
-A new instance is created for each [scope](/docs/guides/scopes), and that instance will be returned for every resolution request initiated on the given scope. It's like a singleton lifetime within the scope. 
+A new instance is created for each [scope](/docs/guides/scopes), which will be returned for every resolution request initiated on the given scope. It's like a singleton lifetime within a scope. 
 
 :::note
 Scoped services are disposed when their scope is being disposed.
@@ -152,9 +152,9 @@ IJob job = scope.Resolve<IJob>();
 <CodeDescPanel>
 <div>
 
-It is the same as the scoped lifetime, except that the given service will be selected only when the resolution request is initiated by a scope with the same name.
+It is the same as scoped lifetime, except the given service will be selected only when a scope with the same name initiates the resolution request.
 
-You can also let a service [define](/docs/guides/scopes#service-as-scope) its own named scope within itself. During registration, this scope can be referred to by its name upon using a named scope lifetime.
+You can also let a service [define](/docs/guides/scopes#service-as-scope) its own named scope. During registration, this scope can be referred to by its name upon using a named scope lifetime.
 
 :::note
 Services with named scope lifetime are disposed when the related named scope is being disposed.
@@ -218,7 +218,7 @@ DbJobExecutor executor = scope.Resolve<DbJobExecutor>();
 <CodeDescPanel>
 <div>
 
-The requested service will be reused within the whole resolution request. For each individual request a new instance will be created.
+The requested service will be reused within the whole resolution request. A new instance is created for each individual request .
 
 </div>
 <div>
@@ -250,7 +250,7 @@ container.Register<IJob, DbBackup>(options => options
 </CodeDescPanel>
 
 ## Custom lifetime
-Suppose you'd like to use a custom lifetime. In that case, you can create your implementation by inheriting either from `FactoryLifetimeDescriptor` or from `ExpressionLifetimeDescriptor`, depending on how do you want to manage the given service instances. Then you can pass it to the `WithLifetime()` configuration method.
+If you'd like to use a custom lifetime, you can create your implementation by inheriting either from `FactoryLifetimeDescriptor` or from `ExpressionLifetimeDescriptor`, depending on how do you want to manage the service instances.
 
 - **ExpressionLifetimeDescriptor**: With this, you can build your lifetime with the expression form of the service instantiation.
   ```cs

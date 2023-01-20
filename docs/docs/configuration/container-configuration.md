@@ -27,7 +27,7 @@ var container = new StashboxContainer(options => options
 <CodeDescPanel>
 <div>
 
-The **re-configuration** of the container is also supported by calling its `.Configure()` method.
+**Re-configuration** of the container is also supported by calling its `.Configure()` method.
 
 </div>
 <div>
@@ -42,7 +42,7 @@ container.Configure(options => options.WithDisposableTransientTracking());
 
 
 ## Default configuration
-These features are set or enabled by default:
+These features are set by default:
 
 - [Constructor selection](/docs/configuration/container-configuration#constructor-selection): `Rules.ConstructorSelection.PreferMostParameters`
 - [Registration behavior](/docs/configuration/container-configuration#registration-behavior): `Rules.RegistrationBehavior.SkipDuplications`

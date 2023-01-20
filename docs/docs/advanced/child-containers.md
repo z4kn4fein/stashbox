@@ -2,7 +2,13 @@ import CodeDescPanel from '@site/src/components/CodeDescPanel';
 
 # Child containers
 
-With child containers, you can build up parent-child relationships between containers. It means you can have a different subset of services present in a child than the parent container. When a dependency is missing from the child container during a resolution request, the parent will be asked to resolve the missing service. If it's found there, the parent will return only the service's registration, and the resolution request will continue within the child. Also, child registrations with the same [service type](/docs/getting-started/glossary#service-type--implementation-type) will override the parent's services.
+With child containers, you can build up parent-child relationships between containers. This means you can have a different subset of services present in a child than in the parent container. 
+
+When a dependency is missing from the child container during a resolution request, the parent will be asked to resolve the missing service. If it's found there, the parent will return only the service's registration, and the resolution request will continue with the child. Also, child registrations with the same [service type](/docs/getting-started/glossary#service-type--implementation-type) will override the parent's services.
+
+:::info
+Child containers are the foundation of the [ASP.NET Core multi-tenant extension](https://github.com/z4kn4fein/stashbox-extensions-dependencyinjection#multitenant).
+:::
 
 ## Example
 
@@ -60,9 +66,9 @@ You can [re-configure](/docs/configuration/container-configuration) child contai
 ## Re-building singletons
 By default, singletons are instantiated and stored only in those containers that registered them. However, you can enable the re-instantiation of singletons in child containers with the `.WithReBuildSingletonsInChildContainer()` [container configuration option](/docs/configuration/container-configuration#re-build-singletons-in-child-containers). 
 
-If it's enabled, all singletons will be re-created within those containers that initiated the resolution request. It means that re-built singletons can use overridden dependencies from child containers. 
+If it's enabled, all singletons will be re-created in those containers that initiated the resolution request. By this, re-built singletons can use overridden dependencies from child containers. 
 
-It does not affect the singletons instantiated in the parent container.
+Re-building in child containers does not affect the singletons instantiated in the parent container.
 
 ```cs
 interface IDependency {}
@@ -109,22 +115,14 @@ using (var container = new StashboxContainer(options => options.WithReBuildSingl
 <CodeDescPanel>
 <div>
 
-You can build up a hierarchical tree structure from child containers because they can create other child containers with the `.CreateChildContainer()` method.
-
-:::info
-This feature is the core of the [multi-tenant package](https://github.com/z4kn4fein/stashbox-extensions-dependencyinjection#multitenant).
-:::
+You can build up a hierarchical tree structure from containers by creating more child containers with the `.CreateChildContainer()` method.
 
 </div>
 <div>
 
 ```cs
-using(var child1 = container.CreateChildContainer())
-{
-    using(var child2 = child1.CreateChildContainer())
-    { 
-    }
-}
+using var child1 = container.CreateChildContainer();
+using var child2 = child1.CreateChildContainer();
 ```
 
 </div>

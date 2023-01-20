@@ -45,6 +45,7 @@ test_script:
 - dotnet test test\stashbox.tests.csproj -f netcoreapp3.1 -c %configuration% --no-build
 - dotnet test test\stashbox.tests.csproj -f net5.0 -c %configuration% --no-build
 - dotnet test test\stashbox.tests.csproj -f net6.0 -c %configuration% --no-build
+- dotnet test test\stashbox.tests.csproj -f net7.0 -c %configuration% --no-build
 
 artifacts:
   - path: artifacts\Stashbox.*.nupkg

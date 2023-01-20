@@ -4,7 +4,7 @@ import TabItem from '@theme/TabItem';
 
 # Wrappers & resolvers 
 
-Stashbox uses so-called *Wrapper* and *Resolver* implementations to handle those special resolution requests that none of the [service registrations](/docs/getting-started/glossary#service-registration--registered-service) can fulfill. Functionalities like [wrapper](/docs/advanced/wrappers-resolvers#wrappers) and [unknown type](/docs/advanced/special-resolution-cases#unknown-type-resolution) resolution, [cross-container requests](/docs/advanced/child-containers), [optional](/docs/advanced/special-resolution-cases#optional-value-injection) and [default value](/docs/advanced/special-resolution-cases#default-value-injection) injection are all built with resolvers.
+Stashbox uses so-called *Wrapper* and *Resolver* implementations to handle special resolution requests that none of the [service registrations](/docs/getting-started/glossary#service-registration--registered-service) can fulfill. Functionalities like [wrapper](/docs/advanced/wrappers-resolvers#wrappers) and [unknown type](/docs/advanced/special-resolution-cases#unknown-type-resolution) resolution, [cross-container requests](/docs/advanced/child-containers), [optional](/docs/advanced/special-resolution-cases#optional-value-injection) and [default value](/docs/advanced/special-resolution-cases#default-value-injection) injection are all built with resolvers.
 
 ## Pre-defined wrappers & resolvers
 * `EnumerableWrapper`: Used to resolve a collection of services wrapped in one of the collection interfaces that a .NET `Array` implements. (`IEnumerable<>`, `IList<>`, `ICollection<>`, `IReadOnlyList<>`, `IReadOnlyCollection<>`) 

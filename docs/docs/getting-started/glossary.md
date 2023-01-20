@@ -38,12 +38,12 @@ container.Resolve<IService>(); // returns Implementation
 </CodeDescPanel>
 
 ## Service registration | Registered service
-It's an entity created by the container when a service is registered. The service registration stores required information about how to instantiate the service, e.g., reflected type information, name, lifetime, conditions, and more.
+It's an entity created by Stashbox when a service is registered. The service registration stores required information about how to instantiate the service, e.g., reflected type information, name, lifetime, conditions, and more.
 
 <CodeDescPanel>
 <div>
 
-In this example, we are registering a named service. The container will create a service registration entity to store the type mapping and the name. Later, the container will find the registration by combining the *Service type* and the *name*.
+In this example, we are registering a named service. The container will create a service registration entity to store the type mapping and the name. During resolution, the container will find the registration by checking for the *Service type* and the *name*.
 
 </div>
 <div>
@@ -63,7 +63,7 @@ var service = container.Resolve<IService>("Example");
 <CodeDescPanel>
 <div>
 
-It's a constructor / method argument or a property / field of a registered *Implementation type* that gets evaluated (*injected*) by the container during the service's construction.
+It's a constructor/method argument or a property/field of a registered *Implementation type* that gets evaluated (*injected*) by Stashbox during the service's construction.
 
 In this example, `Implementation` has an `IDependency` *injectable dependency* in its constructor.
 
@@ -120,7 +120,7 @@ Stashbox implicitly injects the [current scope](/docs/guides/scopes) wherever `I
 It's the [main scope](/docs/guides/scopes) created inside every container instance. It stores and handles the lifetime of all singletons. It's the base of each subsequent scope created by the container with the `.BeginScope()` method.
 
 :::caution
-[Scoped services](/docs/guides/lifetimes#scoped-lifetime) requested from the container (and not from a [scope](/docs/guides/scopes)) are managed by the root scope. This can lead to issues because their lifetime will effectively switch to singleton. Always be sure that you are not resolving scoped services directly from the container, only from a [scope](/docs/guides/scopes). This case is monitored by the [lifetime](/docs/diagnostics/validation#lifetime-validation) validation rule when it's [enabled](/docs/configuration/container-configuration#lifetime-validation). 
+[Scoped services](/docs/guides/lifetimes#scoped-lifetime) requested from the container (and not from a [scope](/docs/guides/scopes)) are managed by the root scope. This can lead to issues because their lifetime will effectively switch to singleton. Always be sure that you don't resolve scoped services directly from the container, only from a [scope](/docs/guides/scopes). This case is monitored by the [lifetime](/docs/diagnostics/validation#lifetime-validation) validation rule when it's [enabled](/docs/configuration/container-configuration#lifetime-validation). 
 :::
 
 ## Named resolution
@@ -128,7 +128,7 @@ It's the [main scope](/docs/guides/scopes) created inside every container instan
 <CodeDescPanel>
 <div>
 
-It's a resolution request for a named service. The same applies, when the container sees that a dependency in the resolution tree has a name (set by [attributes](/docs/guides/service-resolution#attributes) or [bindings](/docs/guides/service-resolution#dependency-binding)), it will search for a 
+It's a resolution request for a named service. The same applies, when the container sees a dependency in the resolution tree with a name (set by [attributes](/docs/guides/service-resolution#attributes) or [bindings](/docs/guides/service-resolution#dependency-binding)); it will search for a matching [Named registration](/docs/guides/basics#named-registration) to inject.
 
 </div>
 <div>
@@ -147,7 +147,7 @@ var service = container.Resolve<IService>("Example");
 <CodeDescPanel>
 <div>
 
-It's a registration that's mapped to itself, which means its service and implementation type is the same.
+It's a service registration that's mapped to itself. This means its service and implementation type is the same.
 
 </div>
 <div>

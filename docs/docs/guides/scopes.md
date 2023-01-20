@@ -3,7 +3,7 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
 # Scopes
-A scope is Stashbox's implementation of the unit-of-work pattern; it encapsulates a given unit used to resolve and store instances required for a given work. When a scoped service is resolved or injected, the scope ensures that it gets instantiated only once within the scope's lifetime. When the work is finished, the scope cleans up the resources by disposing every tracked disposable instance.
+A scope is Stashbox's implementation of the unit-of-work pattern; it encapsulates a given unit used to resolve and store instances required for a given work. When a scoped service is resolved or injected, the scope ensures that it gets instantiated only once within the scope's lifetime. When the work is finished, the scope cleans up the resources by disposing each tracked disposable instance.
 
 A web application is a fair usage example for scopes as it has a well-defined execution unit that can be bound to a scope - the HTTP request. Every request could have its unique scope attached to the request's lifetime. When a request ends, the scope gets closed, and all the scoped instances will be disposed.
 
@@ -14,13 +14,13 @@ A web application is a fair usage example for scopes as it has a well-defined ex
 
 You can create a scope from the container by calling its `.BeginScope()` method.
 
-Scopes can be **nested**, which means you can begin sub-scopes from existing ones with their `.BeginScope()` method. 
+Scopes can be **nested**, which means you can create sub-scopes from existing ones with their `.BeginScope()` method. 
 
 Scoped service instances are not shared across parent and sub-scope relations.
 
-Nested scopes can be **attached to their parent's lifetime**, which means when the parent gets disposed all child scopes attached to it will be disposed.
+Nested scopes can be **attached to their parent's lifetime**, which means when a parent gets disposed all child scopes attached to it will be disposed.
 
-Scopes are `IDisposable`; they track all `IDisposable` instances they resolved, so calling their `Dispose()` method or wrapping them in `using` statements is a crucial part of their service's lifetime management.
+Scopes are `IDisposable`; they track all `IDisposable` instances they resolved. Calling their `Dispose()` method or wrapping them in `using` statements is a crucial part of their service's lifetime management.
 
 </div>
 <div>
@@ -88,9 +88,9 @@ scope.Dispose();
 
 There might be cases where you don't want to use a service globally across every scope, only in specific ones. 
 
-For this reason, there is an option to identify a scope with a **name**. With this, you can differentiate specific scope groups from other scopes.
+For this reason, you can differentiate specific scope groups from other scopes with a **name**.
 
-To mark those services that only a named scope should use you can set the service's lifetime to [named scope lifetime](/docs/guides/lifetimes#named-scope-lifetime) initialized with the **scope's name**:
+You can set a service's lifetime to [named scope lifetime](/docs/guides/lifetimes#named-scope-lifetime) initialized with the **scope's name** to mark it usable only for that named scope.
 
 ```cs
 container.Register<IJob, DbBackup>(options => 
@@ -106,7 +106,9 @@ container.Register<IJob, StorageCleanup>(options =>
     options.InNamedScope("StorageScope"));
 ```
 
-Service instances with named scope lifetime are **shared across parent and sub-scope relations** when the resolution request is initiated either from the named parent scope or from one of its sub-scopes.
+:::note
+Services with named scope lifetime are **shared across parent and sub-scope relations**.
+:::
 
 If you request a name-scoped service from an un-named scope, you'll get an error or no result (depending on the configuration) because those services are selectable only by named scopes with a matching name.
 
@@ -156,14 +158,14 @@ using (var unNamed = container.BeginScope())
 <CodeDescPanel>
 <div>
 
-You can configure a service to behave like a nested named scope. It means that with the service's resolution, a new dedicated named scope will be created implicitly for managing the service's dependencies. 
+You can configure a service to behave like a nested named scope. At the resolution of this kind of service, a new dedicated named scope is created implicitly for managing the service's dependencies. 
 
 With this feature, you can organize your dependencies around logical groups (named scopes) instead of individual services.
 
-You can also bind services to a defined scope without giving it a name explicitly by using `InScopeDefinedBy()`. In this case, the defining service's [implementation type](/docs/getting-started/glossary#service-type--implementation-type) will be used for naming the scope.
+Using `InScopeDefinedBy()`, you can bind services to a defined scope without giving it a name. In this case, the defining service's [implementation type](/docs/getting-started/glossary#service-type--implementation-type) is used for naming the scope.
 
 :::note
-The lifetime of the defined scope will be attached to the current scope that was used to create the service.
+The lifetime of the defined scope is attached to the current scope that was used to create the service.
 :::
 
 </div>
@@ -221,7 +223,7 @@ scope.Dispose();
 <CodeDescPanel>
 <div>
 
-You have the option to add an already instantiated service to a scope. It means that the instance's lifetime will be tracked by the given scope.
+You can add an already instantiated service to a scope. The instance's lifetime will be tracked by the given scope.
 
 </div>
 <div>
@@ -237,7 +239,7 @@ scope.PutInstanceInScope<IJob>(new DbBackup());
 <CodeDescPanel>
 <div>
 
-You can disable the tracking by passing `true` for the `withoutDisposalTracking` parameter. In this case, only the strong reference to the instance will be dropped when the scope is disposed.
+You can disable the tracking by passing `true` for the `withoutDisposalTracking` parameter. In this case, only the strong reference to the instance is dropped when the scope is disposed.
 
 </div>
 <div>
@@ -267,7 +269,7 @@ scope.PutInstanceInScope<IDrow>(new DbBackup(), false, name: "DbBackup");
 </CodeDescPanel>
 
 :::note
-Instances added to a scope this way will take precedence over existing registrations with the same [service type](/docs/getting-started/glossary#service-type--implementation-type).
+Instances put to a scope will take precedence over existing registrations with the same [service type](/docs/getting-started/glossary#service-type--implementation-type).
 :::
 
 ## Disposal
@@ -275,7 +277,7 @@ Instances added to a scope this way will take precedence over existing registrat
 <CodeDescPanel>
 <div>
 
-Services that implement either `IDisposable` or `IAsyncDisposable` are tracked by the currently resolving scope. This means that when the scope is being disposed, all the tracked disposable instances will be disposed with it.
+The currently resolving scope tracks services that implement either `IDisposable` or `IAsyncDisposable`. This means that when the scope is disposed, all the tracked disposable instances will be disposed with it.
 
 :::note
 Disposing the container will dispose all the singleton instances and their dependencies.
@@ -314,7 +316,7 @@ scope.Dispose();
 <CodeDescPanel>
 <div>
 
-You can disable the tracking for disposal on a [service registration](/docs/getting-started/glossary#service-registration--registered-service) with the `.WithoutDisposalTracking()` option.
+You can disable the disposal tracking on a [service registration](/docs/getting-started/glossary#service-registration--registered-service) with the `.WithoutDisposalTracking()` option.
 
 </div>
 <div>
@@ -331,9 +333,9 @@ container.Register<IJob, DbBackup>(options =>
 <div>
 
 ### Async disposal
-As either the container and its scopes are implementing the `IAsyncDisposable` interface, you have the option to dispose them asynchronously when they are used in an `async` context.
+As the container and its scopes implement the `IAsyncDisposable` interface, you can dispose them asynchronously when they are used in an `async` context.
 
-Calling `DisposeAsync` disposes both `IDisposable` and `IAsyncDisposable` instances; however, calling `Dispose` only disposes the `IDisposable` instances.
+Calling `DisposeAsync` disposes both `IDisposable` and `IAsyncDisposable` instances; however, calling `Dispose` only disposes `IDisposable` instances.
 
 </div>
 <div>
@@ -369,7 +371,7 @@ await scope.DisposeAsync();
 <div>
 
 ### Finalizer delegate
-During [service registration](/docs/getting-started/glossary#service-registration--registered-service), you can set a custom finalizer delegate invoked at the service's disposal.
+During [service registration](/docs/getting-started/glossary#service-registration--registered-service), you can set a custom finalizer delegate that will be invoked at the service's disposal.
 
 </div>
 <div>

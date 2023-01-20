@@ -2,30 +2,29 @@
 using System;
 using System.Linq.Expressions;
 
-namespace Stashbox.Resolution.Wrappers
+namespace Stashbox.Resolution.Wrappers;
+
+internal class LazyWrapper : IServiceWrapper
 {
-    internal class LazyWrapper : IServiceWrapper
+    private static bool IsLazy(Type type) => type.IsClosedGenericType() && type.GetGenericTypeDefinition() == typeof(Lazy<>);
+
+    public Expression WrapExpression(TypeInformation originalTypeInformation, TypeInformation wrappedTypeInformation,
+        ServiceContext serviceContext)
     {
-        private static bool IsLazy(Type type) => type.IsClosedGenericType() && type.GetGenericTypeDefinition() == typeof(Lazy<>);
+        var ctorParamType = TypeCache.FuncType.MakeGenericType(wrappedTypeInformation.Type);
+        var lazyConstructor = originalTypeInformation.Type.GetConstructor(ctorParamType)!;
+        return lazyConstructor.MakeNew(serviceContext.ServiceExpression.AsLambda());
+    }
 
-        public Expression WrapExpression(TypeInformation originalTypeInformation, TypeInformation wrappedTypeInformation,
-            ServiceContext serviceContext)
+    public bool TryUnWrap(TypeInformation typeInformation, out TypeInformation unWrappedType)
+    {
+        if (!IsLazy(typeInformation.Type))
         {
-            var ctorParamType = Constants.FuncType.MakeGenericType(wrappedTypeInformation.Type);
-            var lazyConstructor = originalTypeInformation.Type.GetConstructor(ctorParamType)!;
-            return lazyConstructor.MakeNew(serviceContext.ServiceExpression.AsLambda());
+            unWrappedType = TypeInformation.Empty;
+            return false;
         }
 
-        public bool TryUnWrap(TypeInformation typeInformation, out TypeInformation unWrappedType)
-        {
-            if (!IsLazy(typeInformation.Type))
-            {
-                unWrappedType = TypeInformation.Empty;
-                return false;
-            }
-
-            unWrappedType = typeInformation.Clone(typeInformation.Type.GetGenericArguments()[0]);
-            return true;
-        }
+        unWrappedType = typeInformation.Clone(typeInformation.Type.GetGenericArguments()[0]);
+        return true;
     }
 }
