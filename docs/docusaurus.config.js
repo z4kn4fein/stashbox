@@ -44,21 +44,6 @@ const config = {
     ],
   ],
 
-  themes: [
-    [
-      // @ts-ignore
-      '@easyops-cn/docusaurus-search-local',
-      /** @type {import("@easyops-cn/docusaurus-search-local").PluginOptions} */
-      // @ts-ignore
-      ({
-        hashed: true,
-        highlightSearchTermsOnTargetPage: true,
-        explicitSearchResultPath: true,
-        searchBarShortcutHint: false,
-      }),
-    ],
-  ],
-
   plugins: [
     'docusaurus-plugin-sass',
   ],
@@ -254,6 +239,11 @@ const config = {
         defaultMode: 'light',
         disableSwitch: false,
         respectPrefersColorScheme: true,
+      },
+      algolia: {
+        appId: 'CYYLE77D6F',
+        apiKey: '70fdb3ec7ec00e65922f35e5a5e35562',
+        indexName: 'stashbox'
       },
     }),
 };
