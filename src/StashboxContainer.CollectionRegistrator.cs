@@ -2,6 +2,7 @@
 using Stashbox.Utils;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace Stashbox;
@@ -66,19 +67,26 @@ public partial class StashboxContainer
                     return type.GetGenericArguments().Length == t.GetGenericArguments().Length;
                 }).Select(t => t.GetGenericTypeDefinition());
 
-            foreach (var service in serviceTypes)
-                _ = configurator switch
-                {
-                    null => this.Register(service, type),
-                    _ => this.Register(service, type, configurator)
-                };
+            var finalServiceTypes = serviceTypes.ToArray();
+
+            var serviceType = finalServiceTypes.Length > 0 ? finalServiceTypes[0] : type;
+            if (finalServiceTypes.Length == 0 && !registerSelf)
+                continue;
+
+            var configuration = new RegistrationConfigurator(serviceType, type,
+                this.containerConfigurator.ContainerConfiguration.DefaultLifetime);
+
+            for (var i = 1; i < finalServiceTypes.Length; i++)
+            {
+                configuration.AsServiceAlso(finalServiceTypes[i]);
+            }
 
             if (registerSelf)
-                _ = configurator switch
-                {
-                    null => this.Register(type),
-                    _ => this.Register(type, configurator)
-                };
+                configuration.AsServiceAlso(type);
+            
+            configurator?.Invoke(configuration);
+
+            this.RegisterInternal(configuration.ServiceType, configuration);
         }
 
         return this;

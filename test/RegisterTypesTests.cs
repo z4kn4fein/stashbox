@@ -112,7 +112,7 @@ public class RegistersTests
         IStashboxContainer container = new StashboxContainer();
         container.RegisterTypes(new[] { typeof(Test), typeof(Test1), typeof(Test11), typeof(Test12) }, configurator: context =>
         {
-            if (context.ServiceType == typeof(ITest2))
+            if (context.HasServiceType(typeof(ITest2)))
                 context.WithScopedLifetime();
         });
 
@@ -128,7 +128,7 @@ public class RegistersTests
         Assert.Equal(3, test.Count());
         Assert.Equal(3, test1.Count());
         Assert.Equal(2, test2.Count());
-        Assert.Equal(2, scopeds.Length);
+        Assert.Equal(7, scopeds.Length);
     }
 
     [Fact]

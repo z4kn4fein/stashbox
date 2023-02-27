@@ -31,6 +31,33 @@ public class BaseFluentConfigurator<TConfigurator> : ServiceRegistration
     }
 
     /// <summary>
+    /// Determines whether the registration is mapped to the given service type.
+    /// </summary>
+    /// <typeparam name="TService">The target service type.</typeparam>
+    /// <returns>True when the registration is mapped to the given service type, otherwise false.</returns>
+    public bool HasServiceType<TService>() => this.HasServiceType(TypeCache<TService>.Type);
+    
+    /// <summary>
+    /// Determines whether the registration is mapped to the given service type.
+    /// </summary>
+    /// <param name="serviceType">The target service type.</param>
+    /// <returns>True when the registration is mapped to the given service type, otherwise false.</returns>
+    public bool HasServiceType(Type serviceType)
+    {
+        Shield.EnsureNotNull(serviceType, nameof(serviceType));
+        if (this.ServiceType == serviceType)
+            return true;
+
+        if (this.Options == null)
+            return false;
+        
+        if (this.Options.TryGetValue(RegistrationOption.AdditionalServiceTypes, out var option) && option is ExpandableArray<Type> serviceTypes)
+            return serviceTypes.Contains(serviceType);
+
+        return false;
+    }
+    
+    /// <summary>
     /// Sets the lifetime of the registration.
     /// </summary>
     /// <param name="lifetime">An <see cref="LifetimeDescriptor"/> implementation.</param>
@@ -433,9 +460,13 @@ public class BaseFluentConfigurator<TConfigurator> : ServiceRegistration
     public TConfigurator AsImplementedTypes()
     {
         this.Options ??= new Dictionary<RegistrationOption, object?>();
-        this.Options[RegistrationOption.AdditionalServiceTypes] = new ExpandableArray<Type>(this.ImplementationType.GetRegisterableInterfaceTypes()
-            .Concat(this.ImplementationType.GetRegisterableBaseTypes()));
-
+        var additionalTypes = this.ImplementationType.GetRegisterableInterfaceTypes()
+            .Concat(this.ImplementationType.GetRegisterableBaseTypes());
+        if (this.Options.TryGetValue(RegistrationOption.AdditionalServiceTypes, out var option) && option is ExpandableArray<Type> serviceTypes)
+            serviceTypes.AddRange(additionalTypes);
+        else
+            this.Options[RegistrationOption.AdditionalServiceTypes] = new ExpandableArray<Type>(additionalTypes);
+        
         return (TConfigurator)this;
     }
 

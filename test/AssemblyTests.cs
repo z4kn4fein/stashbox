@@ -129,7 +129,7 @@ public class AssemblyTests
         using var container = new StashboxContainer();
         container.RegisterAssemblyContaining<ITA_T1>(configurator: context =>
         {
-            if (context.ServiceType == typeof(ITA_T2))
+            if (context.HasServiceType<ITA_T2>())
                 context.WithScopedLifetime();
         });
 
@@ -145,7 +145,7 @@ public class AssemblyTests
         using var container = new StashboxContainer();
         container.RegisterAssemblyContaining<ITA_T1>(configurator: context =>
         {
-            if (context.ServiceType == typeof(TA_T1))
+            if (context.ImplementationType == typeof(TA_T1))
                 context.WithScopedLifetime();
         });
 
