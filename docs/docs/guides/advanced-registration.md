@@ -411,7 +411,7 @@ container.RegisterTypes(new[]
     },
     configurator: options => 
     {
-        if (options.ServiceType == typeof(ILogger))
+        if (options.HasServiceType<ILogger>())
             options.WithSingletonLifetime();
     });
 

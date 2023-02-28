@@ -4,6 +4,48 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v5.8.0] - 2023-02-28
+### Fixed
+- Batch registration (like `.RegisterAssembly()` and `.RegisterTypes()`) produced individual registrations for each interface/base type and implementation type pairs.
+
+  For an example class like `class Sample : ISample1, ISample2 { }` the registration mapping looked like this:
+
+  ```
+  ISample1 => NewRegistrationOf(Sample)
+  ISample1 => NewRegistrationOf(Sample)
+  ```
+  
+  Now each interface/base type is mapped to the same registration:
+  
+  ```
+   registration = NewRegistrationOf(Sample)
+   ISample1 => registration
+   ISample1 => registration
+  ```
+
+### Changed
+- There are cases where the above fix for batch registration indirectly breaks the following service type filter format:
+  ```cs
+  container.RegisterAssemblyContaining<ISample>(configurator: options =>
+      {
+          if (options.ServiceType == typeof(IService))
+              context.WithScopedLifetime();
+      });
+  ```
+  
+  This worked before because for each implemented type there was an individual registration configuration object passed to the `configurator` delegate. 
+  
+  Now it will not work properly if the bound type implements more than one type, as only one object containing each implemented type is passed to the delegate.  
+  
+  Therefore, to still support this case, a new service type checker method was introduced:
+  ```cs
+  container.RegisterAssemblyContaining<ISample>(configurator: options =>
+      {
+          if (options.HasServiceType<IService>()) // or .HasServiceType<IService>(typeof(IService))
+              context.WithScopedLifetime();
+      });
+  ```
+
 ## [v5.7.1] - 2023-01-20
 ### Added
 - `net7.0` target framework.
@@ -294,6 +336,7 @@ The validation was executed only at the expression tree building phase, so an al
 - Removed the legacy container extension functionality.
 - Removed the support of PCL v259.
 
+[v5.8.0]: https://github.com/z4kn4fein/stashbox/compare/5.7.1...5.8.0
 [v5.7.1]: https://github.com/z4kn4fein/stashbox/compare/5.7.0...5.7.1
 [v5.7.0]: https://github.com/z4kn4fein/stashbox/compare/5.6.0...5.7.0
 [v5.6.0]: https://github.com/z4kn4fein/stashbox/compare/5.5.3...5.6.0

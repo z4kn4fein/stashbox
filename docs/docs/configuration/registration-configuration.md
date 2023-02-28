@@ -179,6 +179,27 @@ var job = container.Resolve<IJob>();
 </div>
 </CodeDescPanel>
 
+<CodeDescPanel>
+<div>
+
+### `HasServiceType`
+Used to build conditions based on service type in batch/assembly registrations.
+It determines whether the registration is mapped to the given service type.
+
+</div>
+<div>
+
+```cs
+container.RegisterAssemblyContaining<IService1>(configurator: options =>
+    {
+        if (options.HasServiceType<IService2>())
+            options.WithScopedLifetime();
+    });
+
+```
+
+</div>
+</CodeDescPanel>
 
 ## Initializer / finalizer
 <CodeDescPanel>
