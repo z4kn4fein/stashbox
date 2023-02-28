@@ -41,7 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   ```cs
   container.RegisterAssemblyContaining<ISample>(configurator: options =>
       {
-          if (options.HasServiceType<IService>()) // or .HasServiceType<IService>(typeof(IService))
+          if (options.HasServiceType<IService>()) // or .HasServiceType(typeof(IService))
               context.WithScopedLifetime();
       });
   ```
