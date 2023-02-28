@@ -33,7 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
       });
   ```
   
-  This worked before because for each implemented type there was an individual registration configuration object passed to the `configurator` delegate. 
+  This worked before (and still works if the related service implements only a single type) because for each implemented type there was an individual registration configuration object passed to the `configurator` delegate. 
   
   Now it will not work properly if the bound type implements more than one type, as only one object containing each implemented type is passed to the delegate.  
   
