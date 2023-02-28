@@ -11,7 +11,7 @@ public class Issue129
         using var container = new StashboxContainer();
         container.RegisterAssemblyContaining<ITA_T1>(
             type => typeof(ITA_T1).IsAssignableFrom(type),
-            configurator: opt => opt.WithSingletonLifetime().AsImplementedTypes()
+            configurator: opt => opt.WithSingletonLifetime()
         );
 
         var all = container.ResolveAll<ITA_T1>();
