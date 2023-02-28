@@ -503,7 +503,7 @@ The container also detects and registers open-generic definitions (when applicab
 ```cs
 container.RegisterAssembly(typeof(DbBackup).Assembly,
     // service filter, register to interfaces only
-    serviceTypeSelector: (impl, service) => info.IsInterface,
+    serviceTypeSelector: (impl, service) => service.IsInterface,
     registerSelf: false,
     configurator: options => options.WithoutDisposalTracking()
 );
@@ -524,7 +524,7 @@ container.RegisterAssemblies(new[]
         typeof(JobFromAnotherAssembly).Assembly 
     },
     // service filter, register to interfaces only
-    serviceTypeSelector: (impl, service) => info.IsInterface,
+    serviceTypeSelector: (impl, service) => service.IsInterface,
     registerSelf: false,
     configurator: options => options.WithoutDisposalTracking()
 );
