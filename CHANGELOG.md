@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
   ```
   ISample1 => NewRegistrationOf(Sample)
-  ISample1 => NewRegistrationOf(Sample)
+  ISample2 => NewRegistrationOf(Sample)
   ```
   
   Now each interface/base type is mapped to the same registration:
@@ -20,7 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   ```
    registration = NewRegistrationOf(Sample)
    ISample1 => registration
-   ISample1 => registration
+   ISample2 => registration
   ```
 
 ### Changed
