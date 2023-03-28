@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v5.8.1] - 2023-03-29
+### Fixed
+- [#132](https://github.com/z4kn4fein/stashbox/issues/132): Open generic constraint validation rejected resolution requests for interface type generic arguments with `class` constraint. 
+
 ## [v5.8.0] - 2023-02-28
 ### Fixed
 - Batch registration (like `.RegisterAssembly()` and `.RegisterTypes()`) produced individual registrations for each interface/base type and implementation type pairs.
@@ -336,6 +340,7 @@ The validation was executed only at the expression tree building phase, so an al
 - Removed the legacy container extension functionality.
 - Removed the support of PCL v259.
 
+[v5.8.1]: https://github.com/z4kn4fein/stashbox/compare/5.8.0...5.8.1
 [v5.8.0]: https://github.com/z4kn4fein/stashbox/compare/5.7.1...5.8.0
 [v5.7.1]: https://github.com/z4kn4fein/stashbox/compare/5.7.0...5.7.1
 [v5.7.0]: https://github.com/z4kn4fein/stashbox/compare/5.6.0...5.7.0
