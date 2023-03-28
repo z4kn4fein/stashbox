@@ -236,7 +236,7 @@ internal static class TypeExtensions
                 return false;
 
             if (parameterAttributes.HasReferenceTypeConstraint() &&
-                !argumentToValidate.IsClass)
+                argumentToValidate is { IsClass: false, IsInterface: false })
                 return false;
 
             var constraints = implementationParameter.GetGenericParameterConstraints();
