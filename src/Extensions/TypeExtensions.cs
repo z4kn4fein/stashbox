@@ -297,8 +297,6 @@ internal static class TypeExtensions
 
     private static bool IsObjectType(this Type type) => type == TypeCache<object>.Type;
 
-    private static bool IsStruct(this Type type) => type is { IsValueType: true, IsPrimitive: false, IsEnum: false };
-
     private static bool HasDefaultConstructorConstraint(this GenericParameterAttributes attributes) =>
         (attributes & GenericParameterAttributes.DefaultConstructorConstraint) == GenericParameterAttributes.DefaultConstructorConstraint;
 
