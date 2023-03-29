@@ -231,12 +231,17 @@ internal static class TypeExtensions
             var parameterAttributes = implementationParameter.GenericParameterAttributes;
 
             if (parameterAttributes.HasDefaultConstructorConstraint() &&
+                !parameterAttributes.HasNotNullableValueTypeConstraint() &&
                 !argumentToValidate.IsPrimitive &&
                 !argumentToValidate.HasPublicParameterlessConstructor())
                 return false;
 
             if (parameterAttributes.HasReferenceTypeConstraint() &&
                 argumentToValidate is { IsClass: false, IsInterface: false })
+                return false;
+            
+            if (parameterAttributes.HasNotNullableValueTypeConstraint() &&
+                argumentToValidate is { IsValueType: false, IsPrimitive: false, IsEnum: false })
                 return false;
 
             var constraints = implementationParameter.GetGenericParameterConstraints();
@@ -292,11 +297,16 @@ internal static class TypeExtensions
 
     private static bool IsObjectType(this Type type) => type == TypeCache<object>.Type;
 
+    private static bool IsStruct(this Type type) => type is { IsValueType: true, IsPrimitive: false, IsEnum: false };
+
     private static bool HasDefaultConstructorConstraint(this GenericParameterAttributes attributes) =>
         (attributes & GenericParameterAttributes.DefaultConstructorConstraint) == GenericParameterAttributes.DefaultConstructorConstraint;
 
     private static bool HasReferenceTypeConstraint(this GenericParameterAttributes attributes) =>
         (attributes & GenericParameterAttributes.ReferenceTypeConstraint) == GenericParameterAttributes.ReferenceTypeConstraint;
+    
+    private static bool HasNotNullableValueTypeConstraint(this GenericParameterAttributes attributes) =>
+        (attributes & GenericParameterAttributes.NotNullableValueTypeConstraint) == GenericParameterAttributes.NotNullableValueTypeConstraint;
 
     private static bool FilterProperty(this PropertyInfo prop, Dictionary<object, object?>? dependencyBindings, AutoMemberOptions? autoMemberOptions,
         ContainerConfiguration containerConfiguration, bool publicPropsEnabled, bool limitedPropsEnabled)
