@@ -55,11 +55,11 @@ namespace Stashbox.Benchmarks
 
         class A
         {
-            private bool isFinalized;
+            public bool IsFinalized { get; private set; }
 
             public void FinalizeA()
             {
-                this.isFinalized = true;
+                this.IsFinalized = true;
             }
         }
     }

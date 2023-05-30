@@ -21,7 +21,7 @@ static void LoadAndUnload(IStashboxContainer container, out WeakReference<Assemb
     var context = new AssemblyLoadContext(name: "context", isCollectible: true);
     weakContext = new WeakReference<AssemblyLoadContext>(context, trackResurrection: true);
     var assembly =
-        context.LoadFromAssemblyPath(Path.Combine(Path.GetDirectoryName(container.GetType().Assembly.Location),
+        context.LoadFromAssemblyPath(Path.Combine(Path.GetDirectoryName(container.GetType().Assembly.Location) ?? throw new NullReferenceException(),
             "TestAssembly.dll"));
 
     container.RegisterAssembly(assembly);
