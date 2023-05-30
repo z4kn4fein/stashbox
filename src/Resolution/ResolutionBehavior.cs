@@ -16,16 +16,16 @@
         /// <summary>
         /// Indicates that services should be resolved from parent container (including indirect all ancestors) of the current contianer.
         /// </summary>
-        Parent = 0,
+        Parent = 1 << 0,
 
         /// <summary>
         /// Indicates that services should be resolved from current.
         /// </summary>
-        Current = 1 << 0,
+        Current = 1 << 1,
 
         /// <summary>
         /// Indicates that services should only be resolved from child containers (including indirect all predecessors) of the current container.
         /// </summary>
-        Children = 1 << 1
+        Children = 1 << 2
     }
 }

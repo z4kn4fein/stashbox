@@ -79,6 +79,25 @@ public class ContainerTests
     }
 
     [Fact]
+    public void ContainerTests_ChildContainer_DoesNotResolveFromParentWhenResolutionBehaviorCurrent()
+    {
+        var container = new StashboxContainer();
+        container.Register<ITest1, Test1>();
+
+        var child = container.CreateChildContainer();
+
+        Assert.Throws<ResolutionFailedException>(() => child.Resolve<ITest1>(ResolutionBehavior.Current));
+        var test1 = child.ResolveOrDefault<ITest1>(ResolutionBehavior.Current);
+
+        Assert.Null(test1);
+
+        test1 = child.Resolve<ITest1>();
+
+        Assert.NotNull(test1);
+        Assert.IsType<Test1>(test1);
+    }
+
+    [Fact]
     public void ContainerTests_Validate_MissingDependency()
     {
         using var container = new StashboxContainer();

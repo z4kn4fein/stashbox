@@ -98,7 +98,7 @@ public class ResolutionContext
         this.CurrentScopeParameter = Constants.ResolutionScopeParameter;
         this.RequestContextParameter = Constants.RequestContextParameter;
         this.CurrentContainerContext = this.RequestInitiatorContainerContext = currentContainerContext;
-        this.RequestConfiguration.FactoryDelegateCacheEnabled = this.PerResolutionRequestCacheEnabled = dependencyOverrides == null;
+        this.RequestConfiguration.FactoryDelegateCacheEnabled = this.PerResolutionRequestCacheEnabled = dependencyOverrides == null && !resolutionBehavior.HasFlag(ResolutionBehavior.Children);
         this.RequestContext = dependencyOverrides != null ? RequestContext.FromOverrides(dependencyOverrides) : RequestContext.Begin();
         this.IsValidationContext = isValidationContext;
 
