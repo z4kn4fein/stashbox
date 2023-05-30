@@ -266,8 +266,10 @@ internal partial class ResolutionScope
     }
 
     /// <inheritdoc />
-    public bool CanResolve<TFrom>(object? name = null, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default) =>
-        this.CanResolve(TypeCache<TFrom>.Type, name, resolutionBehavior);
+    public bool CanResolve<TFrom>(object? name = null, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default)
+    {
+        return this.CanResolve(TypeCache<TFrom>.Type, name, resolutionBehavior);
+    }
 
     /// <inheritdoc />
     public bool CanResolve(Type typeFrom, object? name = null, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default)
