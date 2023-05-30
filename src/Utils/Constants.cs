@@ -23,10 +23,10 @@ internal static class Constants
     public static readonly MethodInfo AddWithAsyncInitializerMethod = TypeCache<IResolutionScope>.Type.GetMethod(nameof(IResolutionScope.AddWithAsyncInitializer))!;
 
     public static readonly MethodInfo GetOrAddInstanceMethod = TypeCache<IInternalRequestContext>.Type.GetMethod(nameof(IInternalRequestContext.GetOrAddInstance))!;
-        
+
     public static readonly MethodInfo ResolveMethod =
         TypeCache<IDependencyResolver>.Type.GetMethod(nameof(IDependencyResolver.Resolve), new[] { TypeCache<Type>.Type,
-            TypeCache<object>.Type, TypeCache<object[]>.Type })!;
+            TypeCache<object>.Type, TypeCache<object[]>.Type, TypeCache<ResolutionBehavior>.Type })!;
 
     public static readonly MethodInfo BeginScopeMethod = TypeCache<IDependencyResolver>.Type.GetMethod(nameof(IDependencyResolver.BeginScope))!;
 

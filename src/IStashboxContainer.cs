@@ -42,16 +42,18 @@ public interface IStashboxContainer : IDependencyRegistrator, IDependencyResolve
     /// </summary>
     /// <typeparam name="TFrom">The service type.</typeparam>
     /// <param name="name">The registration name.</param>
+    /// <param name="resolutionBehavior">Service resolution behavior.</param>
     /// <returns>True if the service is registered, otherwise false.</returns>
-    bool IsRegistered<TFrom>(object? name = null);
+    bool IsRegistered<TFrom>(object? name = null, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default);
 
     /// <summary>
     /// Checks whether a type is registered in the container.
     /// </summary>
     /// <param name="typeFrom">The service type.</param>
     /// <param name="name">The registration name.</param>
+    /// <param name="resolutionBehavior">Service resolution behavior.</param>
     /// <returns>True if the service is registered, otherwise false.</returns>
-    bool IsRegistered(Type typeFrom, object? name = null);
+    bool IsRegistered(Type typeFrom, object? name = null, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default);
 
     /// <summary>
     /// Configures the container.

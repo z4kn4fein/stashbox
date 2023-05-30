@@ -69,10 +69,12 @@ public class StandardResolveTests
     {
         using IStashboxContainer container = new StashboxContainer();
         container.Register<ITest1, Test1>();
-        var test1 = container.ResolveFactory(typeof(ITest1)).DynamicInvoke();
+        var test1_1 = container.ResolveFactory(typeof(ITest1)).DynamicInvoke();
+        var test1_2 = container.ResolveFactory<ITest1>().DynamicInvoke();
 
-        Assert.NotNull(test1);
-        Assert.IsType<Test1>(test1);
+        Assert.NotNull(test1_1);
+        Assert.NotNull(test1_2);
+        Assert.IsType<Test1>(test1_2);
     }
 
     [Fact]
@@ -81,10 +83,12 @@ public class StandardResolveTests
         using IStashboxContainer container = new StashboxContainer();
         container.Register<ITest1, Test1>();
         using var child = container.BeginScope();
-        var test1 = child.ResolveFactory(typeof(ITest1)).DynamicInvoke();
+        var test1_1 = child.ResolveFactory(typeof(ITest1)).DynamicInvoke();
+        var test1_2 = child.ResolveFactory<ITest1>().DynamicInvoke();
 
-        Assert.NotNull(test1);
-        Assert.IsType<Test1>(test1);
+        Assert.NotNull(test1_1);
+        Assert.NotNull(test1_2);
+        Assert.IsType<Test1>(test1_1);
     }
 
     [Fact]
@@ -92,15 +96,18 @@ public class StandardResolveTests
     {
         using IStashboxContainer container = new StashboxContainer();
         Assert.Throws<ResolutionFailedException>(() => container.ResolveFactory(typeof(ITest1)).DynamicInvoke());
+        Assert.Throws<ResolutionFailedException>(() => container.ResolveFactory<ITest1>().DynamicInvoke());
     }
 
     [Fact]
     public void StandardResolveTests_Factory_ResolutionFailed_Null()
     {
         using IStashboxContainer container = new StashboxContainer();
-        var factory = container.ResolveFactoryOrDefault(typeof(ITest1));
+        var factory1 = container.ResolveFactoryOrDefault(typeof(ITest1));
+        var factory2 = container.ResolveFactoryOrDefault<ITest1>();
 
-        Assert.Null(factory);
+        Assert.Null(factory1);
+        Assert.Null(factory2);
     }
 
     [Fact]

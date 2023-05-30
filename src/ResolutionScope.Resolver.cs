@@ -13,7 +13,7 @@ namespace Stashbox;
 internal partial class ResolutionScope
 {
     /// <inheritdoc />
-    public object Resolve(Type typeFrom)
+    public object Resolve(Type typeFrom, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default)
     {
         this.ThrowIfDisposed();
 
@@ -22,37 +22,36 @@ internal partial class ResolutionScope
             return cachedFactory(this, RequestContext.Empty);
 
         return this.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByRef(typeFrom)?.ServiceFactory?.Invoke(this, RequestContext.Begin()) ??
-               this.BuildAndResolveService(typeFrom, name: null, dependencyOverrides: null);
+               this.BuildAndResolveService(typeFrom, name: null, dependencyOverrides: null, resolutionBehavior: resolutionBehavior);
     }
 
     /// <inheritdoc />
-    public object Resolve(Type typeFrom, object[] dependencyOverrides)
+    public object Resolve(Type typeFrom, object[] dependencyOverrides, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default)
     {
         this.ThrowIfDisposed();
 
-        return this.BuildAndResolveService(typeFrom, name: null, dependencyOverrides: dependencyOverrides);
+        return this.BuildAndResolveService(typeFrom, name: null, dependencyOverrides: dependencyOverrides, resolutionBehavior: resolutionBehavior);
     }
 
     /// <inheritdoc />
-    public object Resolve(Type typeFrom, object? name)
+    public object Resolve(Type typeFrom, object? name, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default)
     {
         this.ThrowIfDisposed();
 
         var resultFromCachedFactory = this.GetObjectFromCachedFactoryOrDefault<object>(typeFrom, name);
-        return resultFromCachedFactory ?? this.BuildAndResolveService(typeFrom, name, dependencyOverrides: null);
+        return resultFromCachedFactory ?? this.BuildAndResolveService(typeFrom, name, dependencyOverrides: null, resolutionBehavior: resolutionBehavior);
     }
 
-
     /// <inheritdoc />
-    public object Resolve(Type typeFrom, object? name, object[] dependencyOverrides)
+    public object Resolve(Type typeFrom, object? name, object[] dependencyOverrides, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default)
     {
         this.ThrowIfDisposed();
 
-        return this.BuildAndResolveService(typeFrom, name, dependencyOverrides: dependencyOverrides);
+        return this.BuildAndResolveService(typeFrom, name, dependencyOverrides: dependencyOverrides, resolutionBehavior: resolutionBehavior);
     }
 
     /// <inheritdoc />
-    public object? ResolveOrDefault(Type typeFrom)
+    public object? ResolveOrDefault(Type typeFrom, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default)
     {
         this.ThrowIfDisposed();
 
@@ -61,32 +60,32 @@ internal partial class ResolutionScope
             return cachedFactory(this, RequestContext.Empty);
 
         return this.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByRef(typeFrom)?.ServiceFactory?.Invoke(this, RequestContext.Begin()) ??
-               this.BuildAndResolveServiceOrDefault(typeFrom, name: null, dependencyOverrides: null);
+               this.BuildAndResolveServiceOrDefault(typeFrom, name: null, dependencyOverrides: null, resolutionBehavior: resolutionBehavior);
     }
 
     /// <inheritdoc />
-    public object? ResolveOrDefault(Type typeFrom, object[] dependencyOverrides)
+    public object? ResolveOrDefault(Type typeFrom, object[] dependencyOverrides, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default)
     {
         this.ThrowIfDisposed();
 
-        return this.BuildAndResolveServiceOrDefault(typeFrom, name: null, dependencyOverrides: dependencyOverrides);
+        return this.BuildAndResolveServiceOrDefault(typeFrom, name: null, dependencyOverrides: dependencyOverrides, resolutionBehavior: resolutionBehavior);
     }
 
     /// <inheritdoc />
-    public object? ResolveOrDefault(Type typeFrom, object? name)
+    public object? ResolveOrDefault(Type typeFrom, object? name, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default)
     {
         this.ThrowIfDisposed();
 
         var resultFromCachedFactory = this.GetObjectFromCachedFactoryOrDefault<object>(typeFrom, name);
-        return resultFromCachedFactory ?? this.BuildAndResolveServiceOrDefault(typeFrom, name, dependencyOverrides: null);
+        return resultFromCachedFactory ?? this.BuildAndResolveServiceOrDefault(typeFrom, name, dependencyOverrides: null, resolutionBehavior: resolutionBehavior);
     }
 
     /// <inheritdoc />
-    public object? ResolveOrDefault(Type typeFrom, object? name, object[] dependencyOverrides)
+    public object? ResolveOrDefault(Type typeFrom, object? name, object[] dependencyOverrides, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default)
     {
         this.ThrowIfDisposed();
 
-        return this.BuildAndResolveServiceOrDefault(typeFrom, name, dependencyOverrides: dependencyOverrides);
+        return this.BuildAndResolveServiceOrDefault(typeFrom, name, dependencyOverrides: dependencyOverrides, resolutionBehavior: resolutionBehavior);
     }
 
     /// <inheritdoc />
@@ -99,11 +98,11 @@ internal partial class ResolutionScope
             return cachedFactory(this, RequestContext.Empty);
 
         return this.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByRef(serviceType)?.ServiceFactory?.Invoke(this, RequestContext.Begin()) ??
-               this.BuildAndResolveServiceOrDefault(serviceType, name: null, dependencyOverrides: null);
+               this.BuildAndResolveServiceOrDefault(serviceType, name: null, dependencyOverrides: null, resolutionBehavior: ResolutionBehavior.Default);
     }
 
     /// <inheritdoc />
-    public IEnumerable<TKey> ResolveAll<TKey>()
+    public IEnumerable<TKey> ResolveAll<TKey>(ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default)
     {
         this.ThrowIfDisposed();
 
@@ -113,11 +112,11 @@ internal partial class ResolutionScope
             return (IEnumerable<TKey>)cachedFactory(this, RequestContext.Empty);
 
         return (IEnumerable<TKey>)(this.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByRef(type)?.ServiceFactory?.Invoke(this, RequestContext.Begin()) ??
-                                   this.BuildAndResolveService(type, name: null, dependencyOverrides: null));
+                                   this.BuildAndResolveService(type, name: null, dependencyOverrides: null, resolutionBehavior: resolutionBehavior));
     }
 
     /// <inheritdoc />
-    public IEnumerable<TKey> ResolveAll<TKey>(object? name)
+    public IEnumerable<TKey> ResolveAll<TKey>(object? name, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default)
     {
         this.ThrowIfDisposed();
 
@@ -125,28 +124,28 @@ internal partial class ResolutionScope
         var resultFromCachedFactory = this.GetObjectFromCachedFactoryOrDefault<IEnumerable<TKey>>(type, name);
 
         return resultFromCachedFactory ??
-               (IEnumerable<TKey>)this.BuildAndResolveService(type, name: name, dependencyOverrides: null);
+               (IEnumerable<TKey>)this.BuildAndResolveService(type, name: name, dependencyOverrides: null, resolutionBehavior: resolutionBehavior);
     }
 
     /// <inheritdoc />
-    public IEnumerable<TKey> ResolveAll<TKey>(object[] dependencyOverrides)
+    public IEnumerable<TKey> ResolveAll<TKey>(object[] dependencyOverrides, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default)
     {
         this.ThrowIfDisposed();
 
         var type = TypeCache<IEnumerable<TKey>>.Type;
-        return (IEnumerable<TKey>)this.BuildAndResolveService(type, name: null, dependencyOverrides: dependencyOverrides);
+        return (IEnumerable<TKey>)this.BuildAndResolveService(type, name: null, dependencyOverrides: dependencyOverrides, resolutionBehavior: resolutionBehavior);
     }
 
     /// <inheritdoc />
-    public IEnumerable<TKey> ResolveAll<TKey>(object? name, object[] dependencyOverrides)
+    public IEnumerable<TKey> ResolveAll<TKey>(object? name, object[] dependencyOverrides, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default)
     {
         this.ThrowIfDisposed();
 
-        return (IEnumerable<TKey>)this.BuildAndResolveService(TypeCache<IEnumerable<TKey>>.Type, name: name, dependencyOverrides: dependencyOverrides);
+        return (IEnumerable<TKey>)this.BuildAndResolveService(TypeCache<IEnumerable<TKey>>.Type, name: name, dependencyOverrides: dependencyOverrides, resolutionBehavior: resolutionBehavior);
     }
 
     /// <inheritdoc />
-    public IEnumerable<object> ResolveAll(Type typeFrom)
+    public IEnumerable<object> ResolveAll(Type typeFrom, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default)
     {
         this.ThrowIfDisposed();
 
@@ -156,54 +155,46 @@ internal partial class ResolutionScope
             return (IEnumerable<object>)cachedFactory(this, RequestContext.Empty);
 
         return (IEnumerable<object>)(this.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByRef(type)?.ServiceFactory?.Invoke(this, RequestContext.Begin()) ??
-                                     this.BuildAndResolveService(type, name: null, dependencyOverrides: null));
+                                     this.BuildAndResolveService(type, name: null, dependencyOverrides: null, resolutionBehavior: resolutionBehavior));
     }
 
     /// <inheritdoc />
-    public IEnumerable<object> ResolveAll(Type typeFrom, object? name)
+    public IEnumerable<object> ResolveAll(Type typeFrom, object? name, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default)
     {
         this.ThrowIfDisposed();
 
         var type = TypeCache.EnumerableType.MakeGenericType(typeFrom);
         var resultFromCachedFactory = this.GetObjectFromCachedFactoryOrDefault<IEnumerable<object>>(type, name);
 
-        return resultFromCachedFactory ?? (IEnumerable<object>)this.BuildAndResolveService(type, name: name, dependencyOverrides: null);
+        return resultFromCachedFactory ?? (IEnumerable<object>)this.BuildAndResolveService(type, name: name, dependencyOverrides: null, resolutionBehavior: resolutionBehavior);
     }
 
     /// <inheritdoc />
-    public IEnumerable<object> ResolveAll(Type typeFrom, object[] dependencyOverrides)
+    public IEnumerable<object> ResolveAll(Type typeFrom, object[] dependencyOverrides, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default)
     {
         this.ThrowIfDisposed();
 
         var type = TypeCache.EnumerableType.MakeGenericType(typeFrom);
-        return (IEnumerable<object>)this.BuildAndResolveService(type, name: null, dependencyOverrides: dependencyOverrides);
+        return (IEnumerable<object>)this.BuildAndResolveService(type, name: null, dependencyOverrides: dependencyOverrides, resolutionBehavior: resolutionBehavior);
     }
 
     /// <inheritdoc />
-    public IEnumerable<object> ResolveAll(Type typeFrom, object? name, object[] dependencyOverrides)
+    public IEnumerable<object> ResolveAll(Type typeFrom, object? name, object[] dependencyOverrides, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default)
     {
         this.ThrowIfDisposed();
 
         return (IEnumerable<object>)this.BuildAndResolveService(TypeCache.EnumerableType.MakeGenericType(typeFrom),
-            name: name, dependencyOverrides: dependencyOverrides);
+            name: name, dependencyOverrides: dependencyOverrides, resolutionBehavior: resolutionBehavior);
     }
 
     /// <inheritdoc />
     public Delegate ResolveFactory(Type typeFrom, object? name = null, params Type[] parameterTypes)
     {
-        this.ThrowIfDisposed();
-
-        var key = $"{name ?? ""}{string.Join("", parameterTypes.Append(typeFrom).Select(t => t.FullName))}";
-        var cachedFactory = this.DelegateCache.ServiceDelegates.GetOrDefaultByRef(typeFrom)?.NamedFactories?.GetOrDefaultByValue(key);
-        if (cachedFactory != null)
-            return (Delegate)cachedFactory(this, RequestContext.Empty);
-
-        return (Delegate?)this.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByRef(typeFrom)?.NamedFactories?.GetOrDefaultByValue(key)?.Invoke(this, RequestContext.Begin()) ??
-               this.BuildAndResolveFactoryDelegate(typeFrom, parameterTypes, name, key);
+        return ResolveFactory(typeFrom, ResolutionBehavior.Default, name, parameterTypes);
     }
 
     /// <inheritdoc />
-    public Delegate? ResolveFactoryOrDefault(Type typeFrom, object? name = null, params Type[] parameterTypes)
+    public Delegate ResolveFactory(Type typeFrom, ResolutionBehavior resolutionBehavior, object? name = null, params Type[] parameterTypes)
     {
         this.ThrowIfDisposed();
 
@@ -213,7 +204,27 @@ internal partial class ResolutionScope
             return (Delegate)cachedFactory(this, RequestContext.Empty);
 
         return (Delegate?)this.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByRef(typeFrom)?.NamedFactories?.GetOrDefaultByValue(key)?.Invoke(this, RequestContext.Begin()) ??
-               this.BuildAndResolveFactoryDelegateOrDefault(typeFrom, parameterTypes, name, key);
+               this.BuildAndResolveFactoryDelegate(typeFrom, parameterTypes, name, key, resolutionBehavior: resolutionBehavior);
+    }
+
+    /// <inheritdoc />
+    public Delegate? ResolveFactoryOrDefault(Type typeFrom, object? name = null, params Type[] parameterTypes)
+    {
+        return ResolveFactoryOrDefault(typeFrom, ResolutionBehavior.Default, name, parameterTypes);
+    }
+
+    /// <inheritdoc />
+    public Delegate? ResolveFactoryOrDefault(Type typeFrom, ResolutionBehavior resolutionBehavior, object? name = null, params Type[] parameterTypes)
+    {
+        this.ThrowIfDisposed();
+
+        var key = $"{name ?? ""}{string.Join("", parameterTypes.Append(typeFrom).Select(t => t.FullName))}";
+        var cachedFactory = this.DelegateCache.ServiceDelegates.GetOrDefaultByRef(typeFrom)?.NamedFactories?.GetOrDefaultByValue(key);
+        if (cachedFactory != null)
+            return (Delegate)cachedFactory(this, RequestContext.Empty);
+
+        return (Delegate?)this.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByRef(typeFrom)?.NamedFactories?.GetOrDefaultByValue(key)?.Invoke(this, RequestContext.Begin()) ??
+               this.BuildAndResolveFactoryDelegateOrDefault(typeFrom, parameterTypes, name, key, resolutionBehavior: resolutionBehavior);
     }
 
     /// <inheritdoc />
@@ -234,13 +245,19 @@ internal partial class ResolutionScope
     /// <inheritdoc />
     public object Activate(Type type, params object[] arguments)
     {
+        return Activate(type, ResolutionBehavior.Default, arguments);
+    }
+
+    /// <inheritdoc />
+    public object Activate(Type type, ResolutionBehavior resolutionBehavior, params object[] arguments)
+    {
         this.ThrowIfDisposed();
 
         if (!type.IsResolvableType())
             throw new ArgumentException($"The given type ({type.FullName}) could not be activated on the fly by the container.");
 
         var resolutionContext = ResolutionContext.BeginTopLevelContext(this.GetActiveScopeNames(), this.containerContext, this.ParentScope == null,
-            arguments, this.lateKnownInstances);
+            arguments, resolutionBehavior, this.lateKnownInstances);
         var expression = ExpressionFactory.ConstructExpression(resolutionContext, new TypeInformation(type, null));
         return expression?.CompileDelegate(resolutionContext, this.containerContext.ContainerConfiguration)(this,
             resolutionContext.RequestConfiguration.RequiresRequestContext
@@ -249,11 +266,11 @@ internal partial class ResolutionScope
     }
 
     /// <inheritdoc />
-    public bool CanResolve<TFrom>(object? name = null) =>
-        this.CanResolve(TypeCache<TFrom>.Type, name);
+    public bool CanResolve<TFrom>(object? name = null, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default) =>
+        this.CanResolve(TypeCache<TFrom>.Type, name, resolutionBehavior);
 
     /// <inheritdoc />
-    public bool CanResolve(Type typeFrom, object? name = null)
+    public bool CanResolve(Type typeFrom, object? name = null, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default)
     {
         this.ThrowIfDisposed();
         Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
@@ -304,10 +321,10 @@ internal partial class ResolutionScope
                 new NamedCacheEntry(n.Key, n.Value)))).OrderBy(c => c.ServiceType.FullName) ?? Enumerable.Empty<DelegateCacheEntry>();
     }
 
-    internal object BuildAndResolveService(Type type, object? name, object[]? dependencyOverrides)
+    internal object BuildAndResolveService(Type type, object? name, object[]? dependencyOverrides, ResolutionBehavior resolutionBehavior)
     {
         var resolutionContext = ResolutionContext.BeginTopLevelContext(this.GetActiveScopeNames(), this.containerContext,
-            this.ParentScope == null, dependencyOverrides, this.lateKnownInstances);
+            this.ParentScope == null, dependencyOverrides, resolutionBehavior, this.lateKnownInstances);
 
         var serviceContext = this.containerContext.ResolutionStrategy
             .BuildExpressionForType(resolutionContext, new TypeInformation(type, name));
@@ -320,25 +337,25 @@ internal partial class ResolutionScope
             : StoreAndInvokeServiceDelegate(type, factory, resolutionContext);
     }
 
-    internal object? BuildAndResolveServiceOrDefault(Type type, object? name, object[]? dependencyOverrides)
+    internal object? BuildAndResolveServiceOrDefault(Type type, object? name, object[]? dependencyOverrides, ResolutionBehavior resolutionBehavior)
     {
         var resolutionContext = ResolutionContext.BeginNullableTopLevelContext(this.GetActiveScopeNames(), this.containerContext,
-            this.ParentScope == null, dependencyOverrides, this.lateKnownInstances);
+            this.ParentScope == null, dependencyOverrides, resolutionBehavior, this.lateKnownInstances);
 
         var serviceContext = this.containerContext.ResolutionStrategy.BuildExpressionForType(resolutionContext, new TypeInformation(type, name));
         if (serviceContext.IsEmpty())
             return null;
 
         var factory = serviceContext.ServiceExpression.CompileDelegate(resolutionContext, this.containerContext.ContainerConfiguration);
-        return name != null 
+        return name != null
             ? StoreAndInvokeNamedServiceDelegate(type, name, factory, resolutionContext)
             : StoreAndInvokeServiceDelegate(type, factory, resolutionContext);
     }
 
-    internal Delegate BuildAndResolveFactoryDelegate(Type type, Type[] parameterTypes, object? name, string key)
+    internal Delegate BuildAndResolveFactoryDelegate(Type type, Type[] parameterTypes, object? name, string key, ResolutionBehavior resolutionBehavior)
     {
         var resolutionContext = ResolutionContext.BeginTopLevelContext(this.GetActiveScopeNames(), this.containerContext,
-            this.ParentScope == null, initialParameters: parameterTypes.AsParameters());
+            this.ParentScope == null, initialParameters: parameterTypes.AsParameters(), resolutionBehavior: resolutionBehavior);
 
         var serviceContext = this.containerContext.ResolutionStrategy
             .BuildExpressionForType(resolutionContext, new TypeInformation(type, name));
@@ -352,10 +369,10 @@ internal partial class ResolutionScope
         return (Delegate)StoreAndInvokeNamedServiceDelegate(type, key, factory, resolutionContext);
     }
 
-    internal Delegate? BuildAndResolveFactoryDelegateOrDefault(Type type, Type[] parameterTypes, object? name, string key)
+    internal Delegate? BuildAndResolveFactoryDelegateOrDefault(Type type, Type[] parameterTypes, object? name, string key, ResolutionBehavior resolutionBehavior)
     {
         var resolutionContext = ResolutionContext.BeginNullableTopLevelContext(this.GetActiveScopeNames(), this.containerContext,
-            this.ParentScope == null, initialParameters: parameterTypes.AsParameters());
+            this.ParentScope == null, initialParameters: parameterTypes.AsParameters(), resolutionBehavior: resolutionBehavior);
 
         var serviceContext = this.containerContext.ResolutionStrategy
             .BuildExpressionForType(resolutionContext, new TypeInformation(type, name));
@@ -376,7 +393,7 @@ internal partial class ResolutionScope
             Swap.SwapValue(ref resolutionContext.RequestConfiguration.RequiresRequestContext
                     ? ref this.DelegateCache.RequestContextAwareDelegates
                     : ref this.DelegateCache.ServiceDelegates, (t1, t2, _, _, c) =>
-                    c.AddOrUpdate(t1, new CacheEntry(factory, null), true, (old, _) => new CacheEntry(t2, old.NamedFactories)), 
+                    c.AddOrUpdate(t1, new CacheEntry(factory, null), true, (old, _) => new CacheEntry(t2, old.NamedFactories)),
                 serivceType, factory, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
 
         return factory(this, resolutionContext.RequestConfiguration.RequiresRequestContext

@@ -53,6 +53,11 @@ public class ResolutionContext
     public readonly bool IsRequestedFromRoot;
 
     /// <summary>
+    /// Service resolution behavior.
+    /// </summary>
+    public readonly ResolutionBehavior ResolutionBehavior;
+
+    /// <summary>
     /// The currently resolving scope.
     /// </summary>
     public readonly ParameterExpression RequestContextParameter;
@@ -74,6 +79,7 @@ public class ResolutionContext
         bool nullResultAllowed,
         bool isValidationContext,
         object[]? dependencyOverrides,
+        ResolutionBehavior resolutionBehavior,
         ImmutableTree<object, object>? knownInstances,
         ParameterExpression[]? initialParameters)
     {
@@ -100,6 +106,8 @@ public class ResolutionContext
             ? null
             : ProcessDependencyOverrides(dependencyOverrides, knownInstances);
 
+        this.ResolutionBehavior = resolutionBehavior;
+
         this.ParameterExpressions = initialParameters != null
             ? new ExpandableArray<Pair<bool, ParameterExpression>[]>()
                 {initialParameters.AsParameterPairs()}
@@ -121,6 +129,7 @@ public class ResolutionContext
         IContainerContext requestInitiatorContainerContext,
         HashTree<object, ConstantExpression>? expressionOverrides,
         ExpandableArray<Pair<bool, ParameterExpression>[]> parameterExpressions,
+        ResolutionBehavior resolutionBehavior,
         RequestContext requestContext,
         bool nullResultAllowed,
         bool isRequestedFromRoot,
@@ -149,6 +158,7 @@ public class ResolutionContext
         this.CurrentContainerContext = currentContainerContext;
         this.RequestInitiatorContainerContext = requestInitiatorContainerContext;
         this.ExpressionOverrides = expressionOverrides;
+        this.ResolutionBehavior = resolutionBehavior;
         this.ParameterExpressions = parameterExpressions;
         this.NameOfServiceLifeSpanValidatingAgainst = nameOfServiceLifeSpanValidatingAgainst;
         this.CurrentLifeSpan = currentLifeSpan;
@@ -189,6 +199,7 @@ public class ResolutionContext
         IContainerContext currentContainerContext,
         bool isRequestedFromRoot,
         object[]? dependencyOverrides = null,
+        ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default,
         ImmutableTree<object, object>? knownInstances = null,
         ParameterExpression[]? initialParameters = null) =>
         new(initialScopeNames,
@@ -198,6 +209,7 @@ public class ResolutionContext
             false,
             false,
             dependencyOverrides,
+            resolutionBehavior,
             knownInstances,
             initialParameters);
 
@@ -206,6 +218,7 @@ public class ResolutionContext
         IContainerContext currentContainerContext,
         bool isRequestedFromRoot,
         object[]? dependencyOverrides = null,
+        ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default,
         ImmutableTree<object, object>? knownInstances = null,
         ParameterExpression[]? initialParameters = null) =>
         new(initialScopeNames,
@@ -215,11 +228,12 @@ public class ResolutionContext
             true,
             false,
             dependencyOverrides,
+            resolutionBehavior,
             knownInstances,
             initialParameters);
 
     internal static ResolutionContext BeginValidationContext(IContainerContext currentContainerContext) =>
-        new(TypeCache.EmptyArray<object>(), currentContainerContext, true, false, false, true, null, null, null);
+        new(TypeCache.EmptyArray<object>(), currentContainerContext, true, false, false, true, null, ResolutionBehavior.Default, null, null);
 
     internal ResolutionContext BeginSubDependencyContext() => !this.IsTopRequest ? this : this.Clone(isTopRequest: false);
 
@@ -318,6 +332,7 @@ public class ResolutionContext
             this.RequestInitiatorContainerContext,
             this.ExpressionOverrides,
             parameterExpressions ?? this.ParameterExpressions,
+            this.ResolutionBehavior,
             this.RequestContext,
             this.NullResultAllowed,
             this.IsRequestedFromRoot,

@@ -1,4 +1,5 @@
 ﻿using System;
+using Stashbox.Resolution;
 using Stashbox.Utils;
 
 namespace Stashbox;
@@ -13,9 +14,10 @@ public static class DependencyResolverExtensions
     /// </summary>
     /// <typeparam name="TKey">The type of the requested instance.</typeparam>
     /// <param name="resolver">The dependency resolver.</param>
+    /// <param name="resolutionBehavior">Service resolution behavior.</param>
     /// <returns>The resolved object.</returns>
-    public static TKey Resolve<TKey>(this IDependencyResolver resolver) =>
-        (TKey)resolver.Resolve(TypeCache<TKey>.Type);
+    public static TKey Resolve<TKey>(this IDependencyResolver resolver, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default) =>
+        (TKey)resolver.Resolve(TypeCache<TKey>.Type, resolutionBehavior);
 
     /// <summary>
     /// Resolves an instance from the container with dependency overrides.
@@ -23,9 +25,10 @@ public static class DependencyResolverExtensions
     /// <typeparam name="TKey">The type of the requested instance.</typeparam>
     /// <param name="resolver">The dependency resolver.</param>
     /// <param name="dependencyOverrides">A collection of objects which are used to override certain dependencies of the requested service.</param>
+    /// <param name="resolutionBehavior">Service resolution behavior.</param>
     /// <returns>The resolved object.</returns>
-    public static TKey Resolve<TKey>(this IDependencyResolver resolver, object[] dependencyOverrides) =>
-        (TKey)resolver.Resolve(TypeCache<TKey>.Type, dependencyOverrides);
+    public static TKey Resolve<TKey>(this IDependencyResolver resolver, object[] dependencyOverrides, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default) =>
+        (TKey)resolver.Resolve(TypeCache<TKey>.Type, dependencyOverrides, resolutionBehavior);
 
     /// <summary>
     /// Resolves a named instance from the container.
@@ -33,9 +36,10 @@ public static class DependencyResolverExtensions
     /// <typeparam name="TKey">The type of the requested instance.</typeparam>
     /// <param name="resolver">The dependency resolver.</param>
     /// <param name="name">The name of the requested registration.</param>
+    /// <param name="resolutionBehavior">Service resolution behavior.</param>
     /// <returns>The resolved object.</returns>
-    public static TKey Resolve<TKey>(this IDependencyResolver resolver, object? name) =>
-        (TKey)resolver.Resolve(TypeCache<TKey>.Type, name);
+    public static TKey Resolve<TKey>(this IDependencyResolver resolver, object? name, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default) =>
+        (TKey)resolver.Resolve(TypeCache<TKey>.Type, name, resolutionBehavior);
 
     /// <summary>
     /// Resolves a named instance from the container with dependency overrides.
@@ -44,9 +48,10 @@ public static class DependencyResolverExtensions
     /// <param name="resolver">The dependency resolver.</param>
     /// <param name="name">The name of the requested registration.</param>
     /// <param name="dependencyOverrides">A collection of objects which are used to override certain dependencies of the requested service.</param>
+    /// <param name="resolutionBehavior">Service resolution behavior.</param>
     /// <returns>The resolved object.</returns>
-    public static TKey Resolve<TKey>(this IDependencyResolver resolver, object? name, object[] dependencyOverrides) =>
-        (TKey)resolver.Resolve(TypeCache<TKey>.Type, name, dependencyOverrides);
+    public static TKey Resolve<TKey>(this IDependencyResolver resolver, object? name, object[] dependencyOverrides, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default) =>
+        (TKey)resolver.Resolve(TypeCache<TKey>.Type, name, dependencyOverrides, resolutionBehavior);
 
     /// <summary>
     /// Resolves a named instance from the container or returns default if the type is not resolvable.
@@ -54,9 +59,10 @@ public static class DependencyResolverExtensions
     /// <typeparam name="TKey">The type of the requested instance.</typeparam>
     /// <param name="resolver">The dependency resolver.</param>
     /// <param name="name">The name of the requested registration.</param>
+    /// <param name="resolutionBehavior">Service resolution behavior.</param>
     /// <returns>The resolved object.</returns>
-    public static TKey? ResolveOrDefault<TKey>(this IDependencyResolver resolver, object? name) =>
-        (TKey?)(resolver.ResolveOrDefault(TypeCache<TKey>.Type, name) ?? default(TKey));
+    public static TKey? ResolveOrDefault<TKey>(this IDependencyResolver resolver, object? name, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default) =>
+        (TKey?)(resolver.ResolveOrDefault(TypeCache<TKey>.Type, name, resolutionBehavior) ?? default(TKey));
 
     /// <summary>
     /// Resolves a named instance from the container with dependency overrides or returns default if the type is not resolvable.
@@ -65,18 +71,20 @@ public static class DependencyResolverExtensions
     /// <param name="resolver">The dependency resolver.</param>
     /// <param name="name">The name of the requested registration.</param>
     /// <param name="dependencyOverrides">A collection of objects which are used to override certain dependencies of the requested service.</param>
+    /// <param name="resolutionBehavior">Service resolution behavior.</param>
     /// <returns>The resolved object.</returns>
-    public static TKey? ResolveOrDefault<TKey>(this IDependencyResolver resolver, object? name, object[] dependencyOverrides) =>
-        (TKey?)(resolver.ResolveOrDefault(TypeCache<TKey>.Type, name, dependencyOverrides) ?? default(TKey));
+    public static TKey? ResolveOrDefault<TKey>(this IDependencyResolver resolver, object? name, object[] dependencyOverrides, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default) =>
+        (TKey?)(resolver.ResolveOrDefault(TypeCache<TKey>.Type, name, dependencyOverrides, resolutionBehavior) ?? default(TKey));
 
     /// <summary>
     /// Resolves an instance from the container or returns default if the type is not resolvable.
     /// </summary>
     /// <typeparam name="TKey">The type of the requested instance.</typeparam>
     /// <param name="resolver">The dependency resolver.</param>
+    /// <param name="resolutionBehavior">Service resolution behavior.</param>
     /// <returns>The resolved object.</returns>
-    public static TKey? ResolveOrDefault<TKey>(this IDependencyResolver resolver) =>
-        (TKey?)(resolver.ResolveOrDefault(TypeCache<TKey>.Type) ?? default(TKey));
+    public static TKey? ResolveOrDefault<TKey>(this IDependencyResolver resolver, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default) =>
+        (TKey?)(resolver.ResolveOrDefault(TypeCache<TKey>.Type, resolutionBehavior) ?? default(TKey));
 
     /// <summary>
     /// Resolves an instance from the container with dependency overrides or returns default if the type is not resolvable.
@@ -84,13 +92,60 @@ public static class DependencyResolverExtensions
     /// <typeparam name="TKey">The type of the requested instance.</typeparam>
     /// <param name="resolver">The dependency resolver.</param>
     /// <param name="dependencyOverrides">A collection of objects which are used to override certain dependencies of the requested service.</param>
+    /// <param name="resolutionBehavior">Service resolution behavior.</param>
     /// <returns>The resolved object.</returns>
-    public static TKey? ResolveOrDefault<TKey>(this IDependencyResolver resolver, object[] dependencyOverrides) =>
-        (TKey?)(resolver.ResolveOrDefault(TypeCache<TKey>.Type, dependencyOverrides) ?? default(TKey));
+    public static TKey? ResolveOrDefault<TKey>(this IDependencyResolver resolver, object[] dependencyOverrides, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default) =>
+        (TKey?)(resolver.ResolveOrDefault(TypeCache<TKey>.Type, dependencyOverrides, resolutionBehavior) ?? default(TKey));
+
+    /// <summary>
+    /// Returns a factory delegate that can be used to activate the service.
+    /// </summary>
+    /// <typeparam name="TKey">The type of the requested instance.</typeparam>
+    /// <param name="resolver">The dependency resolver.</param>
+    /// <param name="name">The name of the requested registration.</param>
+    /// <param name="parameterTypes">The parameter type.</param>
+    /// <returns>The factory delegate.</returns>
+    public static Delegate ResolveFactory<TKey>(this IDependencyResolver resolver, object? name = null, params Type[] parameterTypes) =>
+        resolver.ResolveFactory(TypeCache<TKey>.Type, name, parameterTypes);
+
+    /// <summary>
+    /// Returns a factory delegate that can be used to activate the service.
+    /// </summary>
+    /// <typeparam name="TKey">The type of the requested instance.</typeparam>
+    /// <param name="resolver">The dependency resolver.</param>
+    /// <param name="resolutionBehavior">Service resolution behavior.</param>
+    /// <param name="name">The name of the requested registration.</param>
+    /// <param name="parameterTypes">The parameter type.</param>
+    /// <returns>The factory delegate.</returns>
+    public static Delegate ResolveFactory<TKey>(this IDependencyResolver resolver, ResolutionBehavior resolutionBehavior, object? name = null, params Type[] parameterTypes) =>
+        resolver.ResolveFactory(TypeCache<TKey>.Type, resolutionBehavior, name, parameterTypes);
+
+    /// <summary>
+    /// Returns a factory delegate that can be used to activate the service or returns default if the type is not resolvable.
+    /// </summary>
+    /// <typeparam name="TKey">The type of the requested instance.</typeparam>
+    /// <param name="resolver">The dependency resolver.</param>
+    /// <param name="name">The name of the requested registration.</param>
+    /// <param name="parameterTypes">The parameter type.</param>
+    /// <returns>The factory delegate.</returns>
+    public static Delegate? ResolveFactoryOrDefault<TKey>(this IDependencyResolver resolver, object? name = null, params Type[] parameterTypes) =>
+        resolver.ResolveFactoryOrDefault(TypeCache<TKey>.Type, name, parameterTypes);
+
+    /// <summary>
+    /// Returns a factory delegate that can be used to activate the service or returns default if the type is not resolvable.
+    /// </summary>
+    /// <typeparam name="TKey">The type of the requested instance.</typeparam>
+    /// <param name="resolver">The dependency resolver.</param>
+    /// <param name="resolutionBehavior">Service resolution behavior.</param>
+    /// <param name="name">The name of the requested registration.</param>
+    /// <param name="parameterTypes">The parameter type.</param>
+    /// <returns>The factory delegate.</returns>
+    public static Delegate? ResolveFactoryOrDefault<TKey>(this IDependencyResolver resolver, ResolutionBehavior resolutionBehavior, object? name = null, params Type[] parameterTypes) =>
+        resolver.ResolveFactoryOrDefault(TypeCache<TKey>.Type, resolutionBehavior, name, parameterTypes);
 
     /// <summary>
     /// On the fly activates an object without registering it into the container. If you want to resolve a
-    /// registered service use the <see cref="IDependencyResolver.Resolve(Type, object[])" /> instead.
+    /// registered service use the <see cref="IDependencyResolver.Resolve(Type, object[], ResolutionBehavior)" /> instead.
     /// </summary>
     /// <typeparam name="TTo">The service type.</typeparam>
     /// <param name="resolver">The dependency resolver.</param>
@@ -98,6 +153,18 @@ public static class DependencyResolverExtensions
     /// <returns>The built object.</returns>
     public static TTo Activate<TTo>(this IDependencyResolver resolver, params object[] arguments) =>
         (TTo)resolver.Activate(TypeCache<TTo>.Type, arguments);
+
+    /// <summary>
+    /// On the fly activates an object without registering it into the container. If you want to resolve a
+    /// registered service use the <see cref="IDependencyResolver.Resolve(Type, object[], ResolutionBehavior)" /> instead.
+    /// </summary>
+    /// <typeparam name="TTo">The service type.</typeparam>
+    /// <param name="resolver">The dependency resolver.</param>
+    /// <param name="arguments">Optional dependency overrides.</param>
+    /// <param name="resolutionBehavior">Service resolution behavior.</param>
+    /// <returns>The built object.</returns>
+    public static TTo Activate<TTo>(this IDependencyResolver resolver, ResolutionBehavior resolutionBehavior, params object[] arguments) =>
+        (TTo)resolver.Activate(TypeCache<TTo>.Type, resolutionBehavior, arguments);
 
     /// <summary>
     /// Puts an instance into the scope which will be dropped when the scope is being disposed.

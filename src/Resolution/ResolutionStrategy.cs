@@ -80,9 +80,10 @@ internal class ResolutionStrategy : IResolutionStrategy
         if (!resolutionContext.IsTopRequest && registration != null && isResolutionCallRequired)
             return resolutionContext.CurrentScopeParameter
                 .ConvertTo(TypeCache<IDependencyResolver>.Type)
-                .CallMethod(Constants.ResolveMethod, 
+                .CallMethod(Constants.ResolveMethod,
                     typeInformation.Type.AsConstant(), typeInformation.DependencyName.AsConstant(),
-                    resolutionContext.ExpressionOverrides?.Walk().Select(c => c.Value).ToArray().AsConstant() ?? TypeCache.EmptyArray<object>().AsConstant())
+                    resolutionContext.ExpressionOverrides?.Walk().Select(c => c.Value).ToArray().AsConstant() ?? TypeCache.EmptyArray<object>().AsConstant(),
+                    resolutionContext.ResolutionBehavior.AsConstant())
                 .ConvertTo(typeInformation.Type)
                 .AsServiceContext(registration);
 
@@ -169,7 +170,7 @@ internal class ResolutionStrategy : IResolutionStrategy
             {
                 case IEnumerableWrapper enumerableWrapper when enumerableWrapper.TryUnWrap(typeInformation, out var unWrappedEnumerable):
                     return enumerableWrapper
-                        .WrapExpression(typeInformation, unWrappedEnumerable, 
+                        .WrapExpression(typeInformation, unWrappedEnumerable,
                             this.BuildExpressionsForEnumerableRequest(resolutionContext, unWrappedEnumerable))
                         .AsServiceContext();
                 case IServiceWrapper serviceWrapper when serviceWrapper.TryUnWrap(typeInformation, out var unWrappedServiceType):

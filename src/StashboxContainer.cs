@@ -64,11 +64,11 @@ public sealed partial class StashboxContainer : IStashboxContainer
     }
 
     /// <inheritdoc />
-    public bool IsRegistered<TFrom>(object? name = null) =>
-        this.IsRegistered(TypeCache<TFrom>.Type, name);
+    public bool IsRegistered<TFrom>(object? name = null, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default) =>
+        this.IsRegistered(TypeCache<TFrom>.Type, name, resolutionBehavior);
 
     /// <inheritdoc />
-    public bool IsRegistered(Type typeFrom, object? name = null)
+    public bool IsRegistered(Type typeFrom, object? name = null, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default)
     {
         this.ThrowIfDisposed();
         Shield.EnsureNotNull(typeFrom, nameof(typeFrom));

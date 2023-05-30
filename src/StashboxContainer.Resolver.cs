@@ -13,7 +13,7 @@ namespace Stashbox;
 public partial class StashboxContainer
 {
     /// <inheritdoc />
-    public object Resolve(Type typeFrom)
+    public object Resolve(Type typeFrom, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default)
     {
         this.ThrowIfDisposed();
 
@@ -22,36 +22,36 @@ public partial class StashboxContainer
             return cachedFactory(this.rootScope, RequestContext.Empty);
 
         return this.rootScope.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByRef(typeFrom)?.ServiceFactory?.Invoke(this.rootScope, RequestContext.Begin()) ??
-               this.rootScope.BuildAndResolveService(typeFrom, name: null, dependencyOverrides: null);
+               this.rootScope.BuildAndResolveService(typeFrom, name: null, dependencyOverrides: null, resolutionBehavior: resolutionBehavior);
     }
 
     /// <inheritdoc />
-    public object Resolve(Type typeFrom, object[] dependencyOverrides)
+    public object Resolve(Type typeFrom, object[] dependencyOverrides, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default)
     {
         this.ThrowIfDisposed();
 
-        return this.rootScope.BuildAndResolveService(typeFrom, name: null, dependencyOverrides: dependencyOverrides);
+        return this.rootScope.BuildAndResolveService(typeFrom, name: null, dependencyOverrides: dependencyOverrides, resolutionBehavior: resolutionBehavior);
     }
 
     /// <inheritdoc />
-    public object Resolve(Type typeFrom, object? name)
+    public object Resolve(Type typeFrom, object? name, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default)
     {
         this.ThrowIfDisposed();
 
         var resultFromCachedFactory = this.rootScope.GetObjectFromCachedFactoryOrDefault<object>(typeFrom, name);
-        return resultFromCachedFactory ?? this.rootScope.BuildAndResolveService(typeFrom, name, dependencyOverrides: null);
+        return resultFromCachedFactory ?? this.rootScope.BuildAndResolveService(typeFrom, name, dependencyOverrides: null, resolutionBehavior: resolutionBehavior);
     }
 
     /// <inheritdoc />
-    public object Resolve(Type typeFrom, object? name, object[] dependencyOverrides)
+    public object Resolve(Type typeFrom, object? name, object[] dependencyOverrides, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default)
     {
         this.ThrowIfDisposed();
 
-        return this.rootScope.BuildAndResolveService(typeFrom, name, dependencyOverrides: dependencyOverrides);
+        return this.rootScope.BuildAndResolveService(typeFrom, name, dependencyOverrides: dependencyOverrides, resolutionBehavior: resolutionBehavior);
     }
 
     /// <inheritdoc />
-    public object? ResolveOrDefault(Type typeFrom)
+    public object? ResolveOrDefault(Type typeFrom, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default)
     {
         this.ThrowIfDisposed();
 
@@ -60,32 +60,32 @@ public partial class StashboxContainer
             return cachedFactory(this.rootScope, RequestContext.Empty);
 
         return this.rootScope.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByRef(typeFrom)?.ServiceFactory?.Invoke(this.rootScope, RequestContext.Begin()) ??
-               this.rootScope.BuildAndResolveServiceOrDefault(typeFrom, name: null, dependencyOverrides: null);
+               this.rootScope.BuildAndResolveServiceOrDefault(typeFrom, name: null, dependencyOverrides: null, resolutionBehavior: resolutionBehavior);
     }
 
     /// <inheritdoc />
-    public object? ResolveOrDefault(Type typeFrom, object[] dependencyOverrides)
+    public object? ResolveOrDefault(Type typeFrom, object[] dependencyOverrides, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default)
     {
         this.ThrowIfDisposed();
 
-        return this.rootScope.BuildAndResolveServiceOrDefault(typeFrom, name: null, dependencyOverrides: dependencyOverrides);
+        return this.rootScope.BuildAndResolveServiceOrDefault(typeFrom, name: null, dependencyOverrides: dependencyOverrides, resolutionBehavior: resolutionBehavior);
     }
 
     /// <inheritdoc />
-    public object? ResolveOrDefault(Type typeFrom, object? name)
+    public object? ResolveOrDefault(Type typeFrom, object? name, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default)
     {
         this.ThrowIfDisposed();
 
         var resultFromCachedFactory = this.rootScope.GetObjectFromCachedFactoryOrDefault<object>(typeFrom, name);
-        return resultFromCachedFactory ?? this.rootScope.BuildAndResolveServiceOrDefault(typeFrom, name, dependencyOverrides: null);
+        return resultFromCachedFactory ?? this.rootScope.BuildAndResolveServiceOrDefault(typeFrom, name, dependencyOverrides: null, resolutionBehavior: resolutionBehavior);
     }
 
     /// <inheritdoc />
-    public object? ResolveOrDefault(Type typeFrom, object? name, object[] dependencyOverrides)
+    public object? ResolveOrDefault(Type typeFrom, object? name, object[] dependencyOverrides, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default)
     {
         this.ThrowIfDisposed();
 
-        return this.rootScope.BuildAndResolveServiceOrDefault(typeFrom, name, dependencyOverrides: dependencyOverrides);
+        return this.rootScope.BuildAndResolveServiceOrDefault(typeFrom, name, dependencyOverrides: dependencyOverrides, resolutionBehavior: resolutionBehavior);
     }
 
     /// <inheritdoc />
@@ -98,11 +98,11 @@ public partial class StashboxContainer
             return cachedFactory(this.rootScope, RequestContext.Empty);
 
         return this.rootScope.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByRef(serviceType)?.ServiceFactory?.Invoke(this.rootScope, RequestContext.Begin()) ??
-               this.rootScope.BuildAndResolveServiceOrDefault(serviceType, name: null, dependencyOverrides: null);
+               this.rootScope.BuildAndResolveServiceOrDefault(serviceType, name: null, dependencyOverrides: null, resolutionBehavior: ResolutionBehavior.Default);
     }
 
     /// <inheritdoc />
-    public IEnumerable<TKey> ResolveAll<TKey>()
+    public IEnumerable<TKey> ResolveAll<TKey>(ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default)
     {
         this.ThrowIfDisposed();
 
@@ -112,38 +112,38 @@ public partial class StashboxContainer
             return (IEnumerable<TKey>)cachedFactory(this.rootScope, RequestContext.Empty);
 
         return (IEnumerable<TKey>)(this.rootScope.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByRef(type)?.ServiceFactory?.Invoke(this.rootScope, RequestContext.Begin()) ??
-                                   this.rootScope.BuildAndResolveService(type, name: null, dependencyOverrides: null));
+                                   this.rootScope.BuildAndResolveService(type, name: null, dependencyOverrides: null, resolutionBehavior: resolutionBehavior));
     }
 
     /// <inheritdoc />
-    public IEnumerable<TKey> ResolveAll<TKey>(object? name)
+    public IEnumerable<TKey> ResolveAll<TKey>(object? name, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default)
     {
         this.ThrowIfDisposed();
 
         var type = TypeCache<IEnumerable<TKey>>.Type;
         var resultFromCachedFactory = this.rootScope.GetObjectFromCachedFactoryOrDefault<IEnumerable<TKey>>(type, name);
         return resultFromCachedFactory ??
-               (IEnumerable<TKey>)this.rootScope.BuildAndResolveService(type, name: name, dependencyOverrides: null);
+               (IEnumerable<TKey>)this.rootScope.BuildAndResolveService(type, name: name, dependencyOverrides: null, resolutionBehavior: resolutionBehavior);
     }
 
     /// <inheritdoc />
-    public IEnumerable<TKey> ResolveAll<TKey>(object[] dependencyOverrides)
+    public IEnumerable<TKey> ResolveAll<TKey>(object[] dependencyOverrides, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default)
     {
         this.ThrowIfDisposed();
 
-        return (IEnumerable<TKey>)this.rootScope.BuildAndResolveService(TypeCache<IEnumerable<TKey>>.Type, name: null, dependencyOverrides: dependencyOverrides);
+        return (IEnumerable<TKey>)this.rootScope.BuildAndResolveService(TypeCache<IEnumerable<TKey>>.Type, name: null, dependencyOverrides: dependencyOverrides, resolutionBehavior: resolutionBehavior);
     }
 
     /// <inheritdoc />
-    public IEnumerable<TKey> ResolveAll<TKey>(object? name, object[] dependencyOverrides)
+    public IEnumerable<TKey> ResolveAll<TKey>(object? name, object[] dependencyOverrides, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default)
     {
         this.ThrowIfDisposed();
 
-        return (IEnumerable<TKey>)this.rootScope.BuildAndResolveService(TypeCache<IEnumerable<TKey>>.Type, name: name, dependencyOverrides: dependencyOverrides);
+        return (IEnumerable<TKey>)this.rootScope.BuildAndResolveService(TypeCache<IEnumerable<TKey>>.Type, name: name, dependencyOverrides: dependencyOverrides, resolutionBehavior: resolutionBehavior);
     }
 
     /// <inheritdoc />
-    public IEnumerable<object> ResolveAll(Type typeFrom)
+    public IEnumerable<object> ResolveAll(Type typeFrom, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default)
     {
         this.ThrowIfDisposed();
 
@@ -153,54 +153,46 @@ public partial class StashboxContainer
             return (IEnumerable<object>)cachedFactory(this.rootScope, RequestContext.Empty);
 
         return (IEnumerable<object>)(this.rootScope.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByRef(type)?.ServiceFactory?.Invoke(this.rootScope, RequestContext.Begin()) ??
-                                     this.rootScope.BuildAndResolveService(type, name: null, dependencyOverrides: null));
+                                     this.rootScope.BuildAndResolveService(type, name: null, dependencyOverrides: null, resolutionBehavior: resolutionBehavior));
     }
 
     /// <inheritdoc />
-    public IEnumerable<object> ResolveAll(Type typeFrom, object? name)
+    public IEnumerable<object> ResolveAll(Type typeFrom, object? name, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default)
     {
         this.ThrowIfDisposed();
 
         var type = TypeCache.EnumerableType.MakeGenericType(typeFrom);
         var resultFromCachedFactory = this.rootScope.GetObjectFromCachedFactoryOrDefault<IEnumerable<object>>(type, name);
         return resultFromCachedFactory ??
-               (IEnumerable<object>)this.rootScope.BuildAndResolveService(type, name: name, dependencyOverrides: null);
+               (IEnumerable<object>)this.rootScope.BuildAndResolveService(type, name: name, dependencyOverrides: null, resolutionBehavior: resolutionBehavior);
     }
 
     /// <inheritdoc />
-    public IEnumerable<object> ResolveAll(Type typeFrom, object[] dependencyOverrides)
+    public IEnumerable<object> ResolveAll(Type typeFrom, object[] dependencyOverrides, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default)
     {
         this.ThrowIfDisposed();
 
         return (IEnumerable<object>)this.rootScope.BuildAndResolveService(TypeCache.EnumerableType.MakeGenericType(typeFrom),
-            name: null, dependencyOverrides: dependencyOverrides);
+            name: null, dependencyOverrides: dependencyOverrides, resolutionBehavior: resolutionBehavior);
     }
 
     /// <inheritdoc />
-    public IEnumerable<object> ResolveAll(Type typeFrom, object? name, object[] dependencyOverrides)
+    public IEnumerable<object> ResolveAll(Type typeFrom, object? name, object[] dependencyOverrides, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default)
     {
         this.ThrowIfDisposed();
 
         return (IEnumerable<object>)this.rootScope.BuildAndResolveService(TypeCache.EnumerableType.MakeGenericType(typeFrom),
-            name: name, dependencyOverrides: dependencyOverrides);
+            name: name, dependencyOverrides: dependencyOverrides, resolutionBehavior: resolutionBehavior);
     }
 
     /// <inheritdoc />
     public Delegate ResolveFactory(Type typeFrom, object? name = null, params Type[] parameterTypes)
     {
-        this.ThrowIfDisposed();
-
-        var key = $"{name ?? ""}{string.Join("", parameterTypes.Append(typeFrom).Select(t => t.FullName))}";
-        var cachedFactory = this.rootScope.DelegateCache.ServiceDelegates.GetOrDefaultByRef(typeFrom)?.NamedFactories?.GetOrDefaultByValue(key);
-        if (cachedFactory != null)
-            return (Delegate)cachedFactory(this.rootScope, RequestContext.Empty);
-
-        return (Delegate?)this.rootScope.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByRef(typeFrom)?.NamedFactories?.GetOrDefaultByValue(key)?.Invoke(this.rootScope, RequestContext.Begin()) ??
-               this.rootScope.BuildAndResolveFactoryDelegate(typeFrom, parameterTypes, name, key);
+        return ResolveFactory(typeFrom, ResolutionBehavior.Default, name, parameterTypes);
     }
 
     /// <inheritdoc />
-    public Delegate? ResolveFactoryOrDefault(Type typeFrom, object? name = null, params Type[] parameterTypes)
+    public Delegate ResolveFactory(Type typeFrom, ResolutionBehavior resolutionBehavior, object? name = null, params Type[] parameterTypes)
     {
         this.ThrowIfDisposed();
 
@@ -210,7 +202,27 @@ public partial class StashboxContainer
             return (Delegate)cachedFactory(this.rootScope, RequestContext.Empty);
 
         return (Delegate?)this.rootScope.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByRef(typeFrom)?.NamedFactories?.GetOrDefaultByValue(key)?.Invoke(this.rootScope, RequestContext.Begin()) ??
-               this.rootScope.BuildAndResolveFactoryDelegateOrDefault(typeFrom, parameterTypes, name, key);
+               this.rootScope.BuildAndResolveFactoryDelegate(typeFrom, parameterTypes, name, key, resolutionBehavior: resolutionBehavior);
+    }
+
+    /// <inheritdoc />
+    public Delegate? ResolveFactoryOrDefault(Type typeFrom, object? name = null, params Type[] parameterTypes)
+    {
+        return ResolveFactoryOrDefault(typeFrom, ResolutionBehavior.Default, name, parameterTypes);
+    }
+
+    /// <inheritdoc />
+    public Delegate? ResolveFactoryOrDefault(Type typeFrom, ResolutionBehavior resolutionBehavior, object? name = null, params Type[] parameterTypes)
+    {
+        this.ThrowIfDisposed();
+
+        var key = $"{name ?? ""}{string.Join("", parameterTypes.Append(typeFrom).Select(t => t.FullName))}";
+        var cachedFactory = this.rootScope.DelegateCache.ServiceDelegates.GetOrDefaultByRef(typeFrom)?.NamedFactories?.GetOrDefaultByValue(key);
+        if (cachedFactory != null)
+            return (Delegate)cachedFactory(this.rootScope, RequestContext.Empty);
+
+        return (Delegate?)this.rootScope.DelegateCache.RequestContextAwareDelegates.GetOrDefaultByRef(typeFrom)?.NamedFactories?.GetOrDefaultByValue(key)?.Invoke(this.rootScope, RequestContext.Begin()) ??
+               this.rootScope.BuildAndResolveFactoryDelegateOrDefault(typeFrom, parameterTypes, name, key, resolutionBehavior: resolutionBehavior);
     }
 
     /// <inheritdoc />
@@ -228,14 +240,18 @@ public partial class StashboxContainer
 
     /// <inheritdoc />
     public object Activate(Type type, params object[] arguments) =>
-        this.rootScope.Activate(type, arguments);
+        Activate(type, ResolutionBehavior.Default, arguments);
 
     /// <inheritdoc />
-    public bool CanResolve<TFrom>(object? name = null) =>
-        this.CanResolve(TypeCache<TFrom>.Type, name);
+    public object Activate(Type type, ResolutionBehavior resolutionBehavior, params object[] arguments) =>
+        this.rootScope.Activate(type, resolutionBehavior, arguments);
 
     /// <inheritdoc />
-    public bool CanResolve(Type typeFrom, object? name = null)
+    public bool CanResolve<TFrom>(object? name = null, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default) =>
+        this.CanResolve(TypeCache<TFrom>.Type, name, resolutionBehavior);
+
+    /// <inheritdoc />
+    public bool CanResolve(Type typeFrom, object? name = null, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default)
     {
         this.ThrowIfDisposed();
         Shield.EnsureNotNull(typeFrom, nameof(typeFrom));

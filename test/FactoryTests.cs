@@ -431,7 +431,7 @@ public class FactoryTests
     {
         using var container = new StashboxContainer(c => c.WithCompiler(compilerType))
             .Register<Test3>()
-            .Register<Factory>(c => c.WithFactory(r => r.Resolve));
+            .Register<Factory>(c => c.WithFactory(r => ((t) => r.Resolve(t))));
 
         var factory = container.Resolve<Factory>();
         var inst = factory(typeof(Test3));

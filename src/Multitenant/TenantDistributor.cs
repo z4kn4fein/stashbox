@@ -68,9 +68,9 @@ public sealed class TenantDistributor : ITenantDistributor
     public IContainerContext ContainerContext => rootContainer.ContainerContext;
 
     /// <inheritdoc />
-    public bool IsRegistered<TFrom>(object? name = null) => rootContainer.IsRegistered<TFrom>(name);
+    public bool IsRegistered<TFrom>(object? name = null, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default) => rootContainer.IsRegistered<TFrom>(name, resolutionBehavior);
     /// <inheritdoc />
-    public bool IsRegistered(Type typeFrom, object? name = null) => rootContainer.IsRegistered(typeFrom, name);
+    public bool IsRegistered(Type typeFrom, object? name = null, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default) => rootContainer.IsRegistered(typeFrom, name, resolutionBehavior);
     /// <inheritdoc />
     public void Configure(Action<ContainerConfigurator> config) => rootContainer.Configure(config);
     /// <inheritdoc />
@@ -161,41 +161,45 @@ public sealed class TenantDistributor : ITenantDistributor
     /// <inheritdoc />
     public object? GetService(Type serviceType) => rootContainer.GetService(serviceType);
     /// <inheritdoc />
-    public object Resolve(Type typeFrom) => rootContainer.Resolve(typeFrom);
+    public object Resolve(Type typeFrom, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default) => rootContainer.Resolve(typeFrom, resolutionBehavior);
     /// <inheritdoc />
-    public object Resolve(Type typeFrom, object[] dependencyOverrides) => rootContainer.Resolve(typeFrom, dependencyOverrides);
+    public object Resolve(Type typeFrom, object[] dependencyOverrides, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default) => rootContainer.Resolve(typeFrom, dependencyOverrides, resolutionBehavior);
     /// <inheritdoc />
-    public object Resolve(Type typeFrom, object? name) => rootContainer.Resolve(typeFrom, name);
+    public object Resolve(Type typeFrom, object? name, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default) => rootContainer.Resolve(typeFrom, name, resolutionBehavior);
     /// <inheritdoc />
-    public object Resolve(Type typeFrom, object? name, object[] dependencyOverrides) => rootContainer.Resolve(typeFrom, name, dependencyOverrides);
+    public object Resolve(Type typeFrom, object? name, object[] dependencyOverrides, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default) => rootContainer.Resolve(typeFrom, name, dependencyOverrides, resolutionBehavior);
     /// <inheritdoc />
-    public object? ResolveOrDefault(Type typeFrom) => rootContainer.ResolveOrDefault(typeFrom);
+    public object? ResolveOrDefault(Type typeFrom, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default) => rootContainer.ResolveOrDefault(typeFrom, resolutionBehavior);
     /// <inheritdoc />
-    public object? ResolveOrDefault(Type typeFrom, object[] dependencyOverrides) => rootContainer.ResolveOrDefault(typeFrom, dependencyOverrides);
+    public object? ResolveOrDefault(Type typeFrom, object[] dependencyOverrides, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default) => rootContainer.ResolveOrDefault(typeFrom, dependencyOverrides, resolutionBehavior);
     /// <inheritdoc />
-    public object? ResolveOrDefault(Type typeFrom, object? name) => rootContainer.ResolveOrDefault(typeFrom, name);
+    public object? ResolveOrDefault(Type typeFrom, object? name, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default) => rootContainer.ResolveOrDefault(typeFrom, name, resolutionBehavior);
     /// <inheritdoc />
-    public object? ResolveOrDefault(Type typeFrom, object? name, object[] dependencyOverrides) => rootContainer.ResolveOrDefault(typeFrom, name, dependencyOverrides);
+    public object? ResolveOrDefault(Type typeFrom, object? name, object[] dependencyOverrides, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default) => rootContainer.ResolveOrDefault(typeFrom, name, dependencyOverrides, resolutionBehavior);
     /// <inheritdoc />
-    public IEnumerable<TKey> ResolveAll<TKey>() => rootContainer.ResolveAll<TKey>();
+    public IEnumerable<TKey> ResolveAll<TKey>(ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default) => rootContainer.ResolveAll<TKey>(resolutionBehavior);
     /// <inheritdoc />
-    public IEnumerable<TKey> ResolveAll<TKey>(object? name) => rootContainer.ResolveAll<TKey>(name);
+    public IEnumerable<TKey> ResolveAll<TKey>(object? name, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default) => rootContainer.ResolveAll<TKey>(name, resolutionBehavior);
     /// <inheritdoc />
-    public IEnumerable<TKey> ResolveAll<TKey>(object[] dependencyOverrides) => rootContainer.ResolveAll<TKey>(dependencyOverrides);
+    public IEnumerable<TKey> ResolveAll<TKey>(object[] dependencyOverrides, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default) => rootContainer.ResolveAll<TKey>(dependencyOverrides, resolutionBehavior);
     /// <inheritdoc />
-    public IEnumerable<TKey> ResolveAll<TKey>(object? name, object[] dependencyOverrides) => rootContainer.ResolveAll<TKey>(name, dependencyOverrides);
+    public IEnumerable<TKey> ResolveAll<TKey>(object? name, object[] dependencyOverrides, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default) => rootContainer.ResolveAll<TKey>(name, dependencyOverrides, resolutionBehavior);
     /// <inheritdoc />
-    public IEnumerable<object> ResolveAll(Type typeFrom) => rootContainer.ResolveAll(typeFrom);
+    public IEnumerable<object> ResolveAll(Type typeFrom, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default) => rootContainer.ResolveAll(typeFrom, resolutionBehavior);
     /// <inheritdoc />
-    public IEnumerable<object> ResolveAll(Type typeFrom, object? name) => rootContainer.ResolveAll(typeFrom, name);
+    public IEnumerable<object> ResolveAll(Type typeFrom, object? name, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default) => rootContainer.ResolveAll(typeFrom, name, resolutionBehavior);
     /// <inheritdoc />
-    public IEnumerable<object> ResolveAll(Type typeFrom, object[] dependencyOverrides) => rootContainer.ResolveAll(typeFrom, dependencyOverrides);
+    public IEnumerable<object> ResolveAll(Type typeFrom, object[] dependencyOverrides, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default) => rootContainer.ResolveAll(typeFrom, dependencyOverrides, resolutionBehavior);
     /// <inheritdoc />
-    public IEnumerable<object> ResolveAll(Type typeFrom, object? name, object[] dependencyOverrides) => rootContainer.ResolveAll(typeFrom, name, dependencyOverrides);
+    public IEnumerable<object> ResolveAll(Type typeFrom, object? name, object[] dependencyOverrides, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default) => rootContainer.ResolveAll(typeFrom, name, dependencyOverrides, resolutionBehavior);
     /// <inheritdoc />
     public Delegate ResolveFactory(Type typeFrom, object? name = null, params Type[] parameterTypes) => rootContainer.ResolveFactory(typeFrom, name, parameterTypes);
     /// <inheritdoc />
+    public Delegate ResolveFactory(Type typeFrom, ResolutionBehavior resolutionBehavior, object? name = null, params Type[] parameterTypes) => rootContainer.ResolveFactory(typeFrom, resolutionBehavior, name, parameterTypes);
+    /// <inheritdoc />
     public Delegate? ResolveFactoryOrDefault(Type typeFrom, object? name = null, params Type[] parameterTypes) => rootContainer.ResolveFactoryOrDefault(typeFrom, name, parameterTypes);
+    /// <inheritdoc />
+    public Delegate? ResolveFactoryOrDefault(Type typeFrom, ResolutionBehavior resolutionBehavior, object ? name = null, params Type[] parameterTypes) => rootContainer.ResolveFactoryOrDefault(typeFrom, resolutionBehavior, name, parameterTypes);
     /// <inheritdoc />
     public IDependencyResolver BeginScope(object? name = null, bool attachToParent = false) => rootContainer.BeginScope(name, attachToParent);
     /// <inheritdoc />
@@ -205,11 +209,13 @@ public sealed class TenantDistributor : ITenantDistributor
     /// <inheritdoc />
     public object Activate(Type type, params object[] arguments) => rootContainer.Activate(type, arguments);
     /// <inheritdoc />
+    public object Activate(Type type, ResolutionBehavior resolutionBehavior, params object[] arguments) => rootContainer.Activate(type, arguments, resolutionBehavior);
+    /// <inheritdoc />
     public ValueTask InvokeAsyncInitializers(CancellationToken token = default) => rootContainer.InvokeAsyncInitializers(token);
     /// <inheritdoc />
-    public bool CanResolve<TFrom>(object? name = null) => rootContainer.CanResolve<TFrom>(name);
+    public bool CanResolve<TFrom>(object? name = null, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default) => rootContainer.CanResolve<TFrom>(name, resolutionBehavior);
     /// <inheritdoc />
-    public bool CanResolve(Type typeFrom, object? name = null) => rootContainer.CanResolve(typeFrom, name);
+    public bool CanResolve(Type typeFrom, object? name = null, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default) => rootContainer.CanResolve(typeFrom, name, resolutionBehavior);
     /// <inheritdoc />
     public IEnumerable<DelegateCacheEntry> GetDelegateCacheEntries() => rootContainer.GetDelegateCacheEntries();
     /// <inheritdoc />
