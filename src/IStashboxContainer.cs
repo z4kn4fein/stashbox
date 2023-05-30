@@ -12,6 +12,15 @@ namespace Stashbox;
 public interface IStashboxContainer : IDependencyRegistrator, IDependencyResolver, IDependencyReMapper, IDependencyCollectionRegistrator, IDecoratorRegistrator, IFuncRegistrator
 {
     /// <summary>
+    /// A collection of child containers created from this container.
+    /// </summary>
+#if NET46_OR_GREATER
+    IReadOnlyCollection<IStashboxContainer> ChildContainers { get; }
+#else
+    IEnumerable<IStashboxContainer> ChildContainers { get; }
+#endif
+
+    /// <summary>
     /// Registers an <see cref="IResolver"/>.
     /// </summary>
     /// <param name="resolver">The resolver implementation.</param>

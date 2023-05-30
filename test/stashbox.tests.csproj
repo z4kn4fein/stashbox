@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>    
-    <TargetFrameworks>net452;netcoreapp3.1;net5.0;net6.0;net7.0</TargetFrameworks>    
-    <AssemblyName>Stashbox.Tests</AssemblyName>    
+  <PropertyGroup>
+    <TargetFrameworks>net452;netcoreapp3.1;net5.0;net6.0;net7.0</TargetFrameworks>
+    <AssemblyName>Stashbox.Tests</AssemblyName>
     <RootNamespace>Stashbox.Tests</RootNamespace>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../sn.snk</AssemblyOriginatorKeyFile>
@@ -10,7 +10,7 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1' Or '$(TargetFramework)' == 'net5.0' Or '$(TargetFramework)' == 'net6.0'">
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1' Or '$(TargetFramework)' == 'net5.0' Or '$(TargetFramework)' == 'net6.0' Or '$(TargetFramework)' == 'net7.0'">
     <DefineConstants>HAS_ASYNC_DISPOSABLE</DefineConstants>
   </PropertyGroup>
 

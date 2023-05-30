@@ -7,6 +7,7 @@ using Stashbox.Configuration;
 using Stashbox.Registration.Fluent;
 using Stashbox.Resolution;
 using Xunit;
+using System.Linq;
 
 namespace Stashbox.Tests;
 
@@ -49,6 +50,7 @@ public class MultitenantTests
         md.ConfigureTenant("A", c => c.Register<IA, B>());
 
         Assert.IsType<A>(container.Resolve<IA>());
+        Assert.Single(md.ChildContainers);
 
         var tenant = md.GetTenant("A");
 
@@ -66,6 +68,7 @@ public class MultitenantTests
         ITenantDistributor md = new TenantDistributor(container);
 
         md.ConfigureTenant("A", c => c.Register<IA, B>());
+        Assert.Single(md.ChildContainers);
 
         var tenant = md.GetTenant("A");
 
@@ -114,10 +117,12 @@ public class MultitenantTests
         md.Validate();
     }
 
-    [Fact]
-    public void MultitenantTests_Dispose()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void MultitenantTests_Dispose(bool disposeChildContainers)
     {
-        var container = new StashboxContainer(c => c.WithDisposableTransientTracking());
+        var container = new StashboxContainer(c => c.WithDisposableTransientTracking().WithDisposeChildContainers(disposeChildContainers));
         container.Register<IA, C>();
 
         ITenantDistributor md = new TenantDistributor(container);
@@ -132,12 +137,15 @@ public class MultitenantTests
         Assert.True(inst.Disposed);
         Assert.Throws<ObjectDisposedException>(() => container.Resolve<IA>());
         Assert.Throws<ObjectDisposedException>(() => tenant.Resolve<IA>());
+        Assert.Empty(md.ChildContainers);
     }
 
-    [Fact]
-    public void MultitenantTests_Dispose_Tenant()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void MultitenantTests_Dispose_Tenant(bool disposeChildContainers)
     {
-        var container = new StashboxContainer(c => c.WithDisposableTransientTracking());
+        var container = new StashboxContainer(c => c.WithDisposableTransientTracking().WithDisposeChildContainers(disposeChildContainers));
 
         ITenantDistributor md = new TenantDistributor(container);
 
@@ -152,6 +160,7 @@ public class MultitenantTests
 
         Assert.Throws<ObjectDisposedException>(() => container.Resolve<IA>());
         Assert.Throws<ObjectDisposedException>(() => tenant.Resolve<IA>());
+        Assert.Empty(md.ChildContainers);
     }
 
     [Fact]
@@ -246,7 +255,7 @@ public class MultitenantTests
         d.RegisterFunc<int, int, IA>((i, i1, arg3) => new C());
         d.RegisterFunc<int, int, int, IA>((i, i1, arg3, arg4) => new C());
         d.RegisterFunc<int, int, int, int, IA>((i, i1, arg3, arg4, arg5) => new C());
-            
+
         container.Verify(c => c.RegisterResolver(It.IsAny<IResolver>()), Times.Once);
         container.Verify(c => c.CreateChildContainer(null), Times.Once);
         container.Verify(c => c.IsRegistered<IA>(null), Times.Once);
@@ -323,10 +332,12 @@ public class MultitenantTests
     }
 
 #if HAS_ASYNC_DISPOSABLE
-        [Fact]
-        public async Task MultitenantTests_Dispose_Async()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task MultitenantTests_Dispose_Async(bool disposeChildContainers)
         {
-            var container = new StashboxContainer(c => c.WithDisposableTransientTracking());
+            var container = new StashboxContainer(c => c.WithDisposableTransientTracking().WithDisposeChildContainers(disposeChildContainers));
             container.Register<IA, C>();
 
             ITenantDistributor md = new TenantDistributor(container);
@@ -341,12 +352,15 @@ public class MultitenantTests
             Assert.True(inst.Disposed);
             Assert.Throws<ObjectDisposedException>(() => container.Resolve<IA>());
             Assert.Throws<ObjectDisposedException>(() => tenant.Resolve<IA>());
+            Assert.Empty(md.ChildContainers);
         }
 
-        [Fact]
-        public async Task MultitenantTests_Dispose_Async_Tenant()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task MultitenantTests_Dispose_Async_Tenant(bool disposeChildContainers)
         {
-            var container = new StashboxContainer(c => c.WithDisposableTransientTracking());
+            var container = new StashboxContainer(c => c.WithDisposableTransientTracking().WithDisposeChildContainers(disposeChildContainers));
 
             ITenantDistributor md = new TenantDistributor(container);
 
@@ -360,6 +374,7 @@ public class MultitenantTests
             Assert.True(inst.Disposed);
             Assert.Throws<ObjectDisposedException>(() => container.Resolve<IA>());
             Assert.Throws<ObjectDisposedException>(() => tenant.Resolve<IA>());
+            Assert.Empty(md.ChildContainers);
         }
 
         [Fact]

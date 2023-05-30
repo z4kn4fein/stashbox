@@ -60,6 +60,12 @@ public class ConfigurationTests
         container.Configure(c => c.WithDisposableTransientTracking(false));
         Assert.False(container.ContainerContext.ContainerConfiguration.TrackTransientsForDisposalEnabled);
 
+        container.Configure(c => c.WithDisposeChildContainers());
+        Assert.True(container.ContainerContext.ContainerConfiguration.DisposeChildContainers);
+
+        container.Configure(c => c.WithDisposeChildContainers(false));
+        Assert.False(container.ContainerContext.ContainerConfiguration.DisposeChildContainers);
+
 
         container.Configure(c => c.WithLifetimeValidation());
         Assert.True(container.ContainerContext.ContainerConfiguration.LifetimeValidationEnabled);

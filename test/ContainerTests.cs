@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace Stashbox.Tests;
@@ -20,8 +21,13 @@ public class ContainerTests
         container.Register<ITest1, Test1>();
         container.Register<ITest2, Test2>();
 
+        Assert.Empty(container.ChildContainers);
+
         var child = container.CreateChildContainer();
         child.Register<ITest3, Test3>();
+
+        Assert.Contains(child, container.ChildContainers);
+        Assert.Single(container.ChildContainers);
 
         var test3 = child.Resolve<ITest3>();
 
@@ -29,6 +35,34 @@ public class ContainerTests
         Assert.IsType<Test3>(test3);
         Assert.Equal(container.ContainerContext, child.ContainerContext.ParentContext);
     }
+
+    [Fact]
+    public void ContainerTests_ChildContainer_RemovedFromParentOnChildDispose()
+    {
+        var container = new StashboxContainer();
+        Assert.Empty(container.ChildContainers);
+
+        var child = container.CreateChildContainer();
+        Assert.Single(container.ChildContainers);
+
+        child.Dispose();
+        Assert.Empty(container.ChildContainers);
+    }
+
+#if HAS_ASYNC_DISPOSABLE
+    [Fact]
+    public async Task ContainerTests_ChildContainer_RemovedFromParentOnChildDisposeAsync()
+    {
+        var container = new StashboxContainer();
+        Assert.Empty(container.ChildContainers);
+
+        var child = container.CreateChildContainer();
+        Assert.Single(container.ChildContainers);
+
+        await child.DisposeAsync();
+        Assert.Empty(container.ChildContainers);
+    }
+#endif
 
     [Fact]
     public void ContainerTests_ChildContainer_ResolveFromParent()

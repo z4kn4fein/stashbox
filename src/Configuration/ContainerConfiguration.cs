@@ -19,6 +19,11 @@ public class ContainerConfiguration
     public bool TrackTransientsForDisposalEnabled { get; internal set; }
 
     /// <summary>
+    /// If it's set to true the container will dispose child containers.
+    /// </summary>
+    public bool DisposeChildContainers { get; internal set; }
+
+    /// <summary>
     /// The actual behavior used when a new service is going to be registered into the container. See the <see cref="Rules.RegistrationBehavior"/> enum for available options.
     /// </summary>
     public Rules.RegistrationBehavior RegistrationBehavior { get; internal set; }
@@ -98,6 +103,7 @@ public class ContainerConfiguration
     internal ContainerConfiguration() { }
 
     private ContainerConfiguration(bool trackTransientsForDisposalEnabled,
+        bool disposeChildContainers,
         Rules.RegistrationBehavior registrationBehavior,
         bool defaultValueInjectionEnabled,
         bool unknownTypeResolutionEnabled,
@@ -115,6 +121,7 @@ public class ContainerConfiguration
         Func<LambdaExpression, Delegate>? externalExpressionCompiler)
     {
         this.TrackTransientsForDisposalEnabled = trackTransientsForDisposalEnabled;
+        this.DisposeChildContainers = disposeChildContainers;
         this.RegistrationBehavior = registrationBehavior;
         this.DefaultValueInjectionEnabled = defaultValueInjectionEnabled;
         this.UnknownTypeResolutionEnabled = unknownTypeResolutionEnabled;
@@ -134,6 +141,7 @@ public class ContainerConfiguration
 
     internal ContainerConfiguration Clone() =>
         new(this.TrackTransientsForDisposalEnabled,
+            this.DisposeChildContainers,
             this.RegistrationBehavior,
             this.DefaultValueInjectionEnabled,
             this.UnknownTypeResolutionEnabled,

@@ -24,6 +24,14 @@ public sealed class TenantDistributor : ITenantDistributor
 
     private readonly IStashboxContainer rootContainer;
 
+#if NET46_OR_GREATER
+    /// <inheritdoc/>
+    public IReadOnlyCollection<IStashboxContainer> ChildContainers => rootContainer.ChildContainers;
+#else
+    /// <inheritdoc/>
+    public IEnumerable<IStashboxContainer> ChildContainers => rootContainer.ChildContainers;
+#endif
+
     /// <summary>
     /// Constructs a <see cref="TenantDistributor"/>.
     /// </summary>
@@ -45,7 +53,9 @@ public sealed class TenantDistributor : ITenantDistributor
                 Constants.DelegatePlaceholder,
                 Constants.DelegatePlaceholder)) return;
         tenantConfig(tenantContainer);
-        this.ContainerContext.RootScope.AddDisposableTracking(tenantContainer);
+
+        if (!rootContainer.ContainerContext.ContainerConfiguration.DisposeChildContainers)
+            this.ContainerContext.RootScope.AddDisposableTracking(tenantContainer);
     }
 
     /// <inheritdoc />
@@ -56,6 +66,7 @@ public sealed class TenantDistributor : ITenantDistributor
     public IStashboxContainer CreateChildContainer(Action<ContainerConfigurator>? config = null) => rootContainer.CreateChildContainer(config);
     /// <inheritdoc />
     public IContainerContext ContainerContext => rootContainer.ContainerContext;
+
     /// <inheritdoc />
     public bool IsRegistered<TFrom>(object? name = null) => rootContainer.IsRegistered<TFrom>(name);
     /// <inheritdoc />

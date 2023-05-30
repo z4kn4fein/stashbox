@@ -34,6 +34,17 @@ public class ContainerConfigurator
     }
 
     /// <summary>
+    /// Enables or disables child containers disposal by their parent container.
+    /// </summary>
+    /// <param name="enabled">True when the feature should be enabled, otherwise false.</param>
+    /// <returns>The container configurator.</returns>
+    public ContainerConfigurator WithDisposeChildContainers(bool enabled = true)
+    {
+        this.ContainerConfiguration.DisposeChildContainers = enabled;
+        return this;
+    }
+
+    /// <summary>
     /// Sets the actual behavior used when a new service is registered into the container. These options do not affect named registrations. See the <see cref="Rules.RegistrationBehavior"/> enum for available options.
     /// </summary>
     /// <param name="registrationBehavior">The actual registration behavior.</param>
