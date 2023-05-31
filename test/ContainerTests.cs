@@ -65,6 +65,52 @@ public class ContainerTests
 #endif
 
     [Fact]
+    public void ContainerTests_ChildContainer_ParentResolvesFromChildren()
+    {
+        var container = new StashboxContainer();
+        container.Register<ITest1, Test1>();
+        container.Register<ITest2, Test2>();
+
+        Assert.Empty(container.ChildContainers);
+
+        var child = container.CreateChildContainer();
+        child.Register<ITest3, Test3>();
+
+        Assert.Contains(child, container.ChildContainers);
+        Assert.Single(container.ChildContainers);
+
+        var test3 = container.Resolve<ITest3>(ResolutionBehavior.Default | ResolutionBehavior.Children);
+
+        Assert.NotNull(test3);
+        Assert.IsType<Test3>(test3);
+        Assert.Equal(container.ContainerContext, child.ContainerContext.ParentContext);
+    }
+
+    [Fact]
+    public void ContainerTests_ChildContainer_ChildResolvesFromParentOnly()
+    {
+        var container = new StashboxContainer();
+        container.Register<ITest1, Test1>();
+        container.Register<ITest2, Test2>();
+
+        Assert.Empty(container.ChildContainers);
+
+        var child = container.CreateChildContainer();
+        child.Register<ITest3, Test3>();
+
+        Assert.Contains(child, container.ChildContainers);
+        Assert.Single(container.ChildContainers);
+
+        var test2 = child.Resolve<ITest2>(ResolutionBehavior.Parent);
+
+        Assert.NotNull(test2);
+        Assert.IsType<Test3>(test2);
+        Assert.Equal(container.ContainerContext, child.ContainerContext.ParentContext);
+
+        Assert.Throws<ResolutionFailedException>(() => child.Resolve<ITest3>(ResolutionBehavior.Parent));
+    }
+
+    [Fact]
     public void ContainerTests_ChildContainer_ResolveFromParent()
     {
         var container = new StashboxContainer();
@@ -95,6 +141,48 @@ public class ContainerTests
 
         Assert.NotNull(test1);
         Assert.IsType<Test1>(test1);
+    }
+
+    [Fact]
+    public void ContainerTests_ChildContainer_ResolvesCorrectInstancesWhenDifferentResolutionBehaviorIsUsed()
+    {
+        var root = new StashboxContainer(c => c.WithRegistrationBehavior(Rules.RegistrationBehavior.PreserveDuplications));
+        root.Register<ITestHostedService, TestHostedService1>(c => c.WithSingletonLifetime());
+        root.Register<ITestHostedService, TestHostedService2>(c => c.WithSingletonLifetime());
+
+        var child = root.CreateChildContainer();
+        child.Register<ITestHostedService, TestHostedService3>(c => c.WithSingletonLifetime());
+        child.Register<ITestHostedService, TestHostedService4>(c => c.WithSingletonLifetime());
+
+        var childServicesFromParentAndCurrent = child.ResolveAll<ITestHostedService>();
+        Assert.Equal(4, childServicesFromParentAndCurrent.Count());
+
+        var childServicesFromParent = child.ResolveAll<ITestHostedService>(ResolutionBehavior.Parent);
+        Assert.Equal(2, childServicesFromParent.Count());
+
+        var childServicesFromCurrent = child.ResolveAll<ITestHostedService>(ResolutionBehavior.Current);
+        Assert.Equal(2, childServicesFromCurrent.Count());
+
+        Assert.NotEqual(childServicesFromParent, childServicesFromCurrent);
+
+        var childServicesFromChildren = child.ResolveAll<ITestHostedService>(ResolutionBehavior.Children);
+        Assert.Empty(childServicesFromChildren);
+
+        var rootServicesFromParentAndCurrent = child.ResolveAll<ITestHostedService>();
+        Assert.Equal(2, rootServicesFromParentAndCurrent.Count());
+
+        var rootServicesFromParent = child.ResolveAll<ITestHostedService>(ResolutionBehavior.Parent);
+        Assert.Empty(rootServicesFromParent);
+
+        var rootServicesFromCurrent = child.ResolveAll<ITestHostedService>(ResolutionBehavior.Current);
+        Assert.Equal(2, rootServicesFromCurrent.Count());
+
+        var rootServicesFromChildren = child.ResolveAll<ITestHostedService>(ResolutionBehavior.Children);
+        Assert.Equal(2, rootServicesFromChildren.Count());
+
+        Assert.NotEqual(rootServicesFromParentAndCurrent, rootServicesFromCurrent);
+        Assert.NotEqual(rootServicesFromParentAndCurrent, rootServicesFromChildren);
+        Assert.NotEqual(rootServicesFromCurrent, rootServicesFromChildren);
     }
 
     [Fact]
@@ -732,5 +820,71 @@ public class ContainerTests
     class NoPublicConstructor
     {
         protected NoPublicConstructor() { }
+    }
+
+    interface ITestHostedService
+    {
+        Guid Id { get; }
+    }
+
+    class TestHostedService1 : ITestHostedService
+    {
+        public Guid Id { get; } = Guid.NewGuid();
+
+        public override bool Equals(object obj)
+        {
+            return obj is TestHostedService1 service &&
+                   Id.Equals(service.Id);
+        }
+
+        public override int GetHashCode()
+        {
+            return 2108858624 + Id.GetHashCode();
+        }
+    }
+
+    class TestHostedService2 : ITestHostedService
+    {
+        public Guid Id { get; } = Guid.NewGuid();
+        public override bool Equals(object obj)
+        {
+            return obj is TestHostedService1 service &&
+                   Id.Equals(service.Id);
+        }
+
+        public override int GetHashCode()
+        {
+            return 2108858624 + Id.GetHashCode();
+        }
+    }
+
+    class TestHostedService3 : ITestHostedService
+    {
+        public Guid Id { get; } = Guid.NewGuid();
+        public override bool Equals(object obj)
+        {
+            return obj is TestHostedService1 service &&
+                   Id.Equals(service.Id);
+        }
+
+        public override int GetHashCode()
+        {
+            return 2108858624 + Id.GetHashCode();
+        }
+    }
+
+    class TestHostedService4 : ITestHostedService
+    {
+        public Guid Id { get; } = Guid.NewGuid();
+        public override bool Equals(object obj)
+        {
+            return obj is TestHostedService1 service &&
+                   Id.Equals(service.Id);
+        }
+
+        public override int GetHashCode()
+        {
+            return 2108858624 + Id.GetHashCode();
+        }
     }
 }
