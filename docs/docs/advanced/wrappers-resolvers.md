@@ -12,6 +12,7 @@ Stashbox uses so-called *Wrapper* and *Resolver* implementations to handle speci
 * `FuncWrapper`: Used to resolve services [wrapped](/docs/advanced/wrappers-resolvers#delegate) in a `Delegate` that has a non-void return type like `Func<>`.
 * `MetadataWrapper`: Used to resolve services [wrapped](/docs/advanced/wrappers-resolvers#metadata--tuple) in `ValueTuple<,>`, `Tuple<,>`, or `Metadata<,>`.
 * `KeyValueWrapper`: Used to resolve services [wrapped](/docs/advanced/wrappers-resolvers#keyvaluepair--readonlykeyvalue) in `KeyValuePair<,>` or `ReadOnlyKeyValue<,>`.
+* `ServiceProviderResolver`: User to resolve the actual scope as `IServiceProvider` when no other implementation is registered.
 * `OptionalValueResolver`: Used to resolve optional parameters.
 * `DefaultValueResolver`: Used to resolve default values.
 * `ParentContainerResolver`: Used to resolve services that are only registered in one of the parent containers.
@@ -285,7 +286,8 @@ Stashbox visits the wrappers and resolvers in the following order to satisfy the
 4. `MetadataWrapper`
 5. `KeyValueWrapper`
 6. **Custom, user-defined wrappers & resolvers**
-7. `OptionalValueResolver`
-8. `DefaultValueResolver`
-9. `ParentContainerResolver`
-10. `UnknownTypeResolver`
+7. `ServiceProviderResolver`
+8. `OptionalValueResolver`
+9. `DefaultValueResolver`
+10. `ParentContainerResolver`
+11. `UnknownTypeResolver`

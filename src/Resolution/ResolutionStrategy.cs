@@ -22,6 +22,7 @@ internal class ResolutionStrategy : IResolutionStrategy
         new MetadataWrapper(),
         new KeyValueWrapper(),
 
+        new ServiceProviderResolver(),
         new OptionalValueResolver(),
         new DefaultValueResolver(),
         new ParentContainerResolver(),
@@ -30,7 +31,7 @@ internal class ResolutionStrategy : IResolutionStrategy
 
     public ServiceContext BuildExpressionForType(ResolutionContext resolutionContext, TypeInformation typeInformation)
     {
-        if (typeInformation.Type == TypeCache<IDependencyResolver>.Type || typeInformation.Type == TypeCache<IServiceProvider>.Type)
+        if (typeInformation.Type == TypeCache<IDependencyResolver>.Type)
             return resolutionContext.CurrentScopeParameter.AsServiceContext();
 
         if (typeInformation.Type == TypeCache<IRequestContext>.Type)

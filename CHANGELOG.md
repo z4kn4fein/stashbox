@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v5.9.0] - 2023-05-31
+### Fixed
+- Resolving `IServiceProvider` always returned the actual resolution scope, which prevented the usage of custom registered implementations. Now, the container returns the actual resolution scope only when no other `IServiceProvider` implementation is registered.
+
 ## [v5.8.2] - 2023-03-29
 ### Fixed
 - [#133](https://github.com/z4kn4fein/stashbox/issues/133): In some cases, open generic constraint validation rejected resolution requests for generic arguments with `struct` constraint.
