@@ -25,7 +25,6 @@ public class PerRequestLifetime : FactoryLifetimeDescriptor
             .CallMethod(Constants.GetOrAddInstanceMethod,
                 serviceRegistration.RegistrationId.AsConstant(),
                 factory.AsConstant(),
-                resolutionContext.CurrentScopeParameter)
-            .ConvertTo(resolveType);
+                resolutionContext.CurrentScopeParameter);
     }
 }

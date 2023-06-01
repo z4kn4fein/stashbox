@@ -31,8 +31,7 @@ public class SingletonLifetime : FactoryLifetimeDescriptor
                     serviceRegistration.RegistrationId.AsConstant(),
                     factory.AsConstant(),
                     resolutionContext.RequestContextParameter,
-                    serviceRegistration.ImplementationType.AsConstant())
-                .ConvertTo(resolveType);
+                    serviceRegistration.ImplementationType.AsConstant());
 
         return rootScope.GetOrAddScopedObject(serviceRegistration.RegistrationId, factory, 
             resolutionContext.RequestContext, serviceRegistration.ImplementationType).AsConstant();

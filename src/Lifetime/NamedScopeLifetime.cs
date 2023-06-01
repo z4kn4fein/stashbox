@@ -40,7 +40,7 @@ public class NamedScopeLifetime : FactoryLifetimeDescriptor
             factory.AsConstant(),
             serviceRegistration.ImplementationType.AsConstant(),
             serviceRegistration.RegistrationId.AsConstant(),
-            this.ScopeName.AsConstant()).ConvertTo(resolveType);
+            this.ScopeName.AsConstant());
 
     private static object GetScopedValue(IResolutionScope currentScope, IRequestContext requestContext,
         Func<IResolutionScope, IRequestContext, object> factory, Type serviceType, int scopeId, object scopeName)

@@ -468,6 +468,36 @@ public class FactoryTests
 
         Assert.Throws<ResolutionFailedException>(() => container.Resolve<TestAction>());
     }
+    
+    [Theory]
+    [ClassData(typeof(CompilerTypeTestData))]
+    public void FactoryTests_Resolve_Multiple(CompilerType compilerType)
+    {
+        using var container = new StashboxContainer(c => c.WithCompiler(compilerType).WithDisposableTransientTracking())
+            .Register<IT1, TD>(c => c.WithFactory(() => new TD()).AsServiceAlso<IT2>().AsServiceAlso<IT3>().AsServiceAlso<IT4>())
+            .Register<TT>();
+
+        var inst = container.Resolve<TT>();
+        Assert.IsType<TD>(inst.T1);
+        Assert.IsType<TD>(inst.T2);
+        Assert.IsType<TD>(inst.T3);
+        Assert.IsType<TD>(inst.T4);
+    }
+    
+    [Theory]
+    [ClassData(typeof(CompilerTypeTestData))]
+    public void FactoryTests_Resolve_Multiple_All(CompilerType compilerType)
+    {
+        using var container = new StashboxContainer(c => c.WithCompiler(compilerType).WithDisposableTransientTracking())
+            .Register<IT1, TD>(c => c.WithFactory(() => new TD()).AsImplementedTypes())
+            .Register<TT>();
+
+        var inst = container.Resolve<TT>();
+        Assert.IsType<TD>(inst.T1);
+        Assert.IsType<TD>(inst.T2);
+        Assert.IsType<TD>(inst.T3);
+        Assert.IsType<TD>(inst.T4);
+    }
 
     interface ITest { string Name { get; } }
 
@@ -562,6 +592,28 @@ public class FactoryTests
                 throw new ObjectDisposedException(nameof(Disposable));
 
             this.IsDisposed = true;
+        }
+    }
+
+    class TD : IT1, IT2, IT3, IT4, IT5
+    {
+        [InjectionMethod]
+        public void Init() {}
+    }
+    
+    class TT
+    {
+        public IT1 T1 { get; }
+        public IT2 T2 { get; }
+        public IT3 T3 { get; }
+        public IT4 T4 { get; }
+
+        public TT(IT1 t1, IT2 t2, IT3 t3, IT4 t4)
+        {
+            T1 = t1;
+            T2 = t2;
+            T3 = t3;
+            T4 = t4;
         }
     }
 }

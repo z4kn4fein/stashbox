@@ -45,7 +45,7 @@ internal static partial class ExpressionFactory
                 .CallMethod(initializer.GetType().GetMethod("Invoke")!,
                     variable, resolutionContext.CurrentScopeParameter));
 
-        lines.Add(variable.Type != typeInformation.Type ? variable.ConvertTo(typeInformation.Type) : variable);
+        lines.Add(variable);
 
         return lines.AsBlock(variable);
     }
@@ -74,7 +74,7 @@ internal static partial class ExpressionFactory
         lines.AddRange(CreateMethodExpressions(methods,
             null, resolutionContext, instance, typeInformation));
 
-        lines.Add(variable.Type != typeInformation.Type ? variable.ConvertTo(typeInformation.Type) : variable);
+        lines.Add(variable);
 
         return lines.AsBlock(variable);
     }

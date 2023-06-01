@@ -62,6 +62,9 @@ public abstract class LifetimeDescriptor
             return null;
 
         variable = typeInformation.Type.AsVariable();
+        if (typeInformation.Type != resultExpression.Type)
+            resultExpression = resultExpression.ConvertTo(typeInformation.Type);
+        
         resolutionContext.AddDefinedVariable(serviceRegistration.RegistrationId, variable);
         resolutionContext.AddInstruction(variable.AssignTo(resultExpression));
         return variable;
