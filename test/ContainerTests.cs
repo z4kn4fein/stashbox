@@ -393,17 +393,29 @@ public class ContainerTests
         container.Resolve<ITest1>();
         container.Resolve<ITest1>("t1");
         container.Resolve<Test1>();
+        container.Resolve<Test1>(ResolutionBehavior.Parent);
+        container.Resolve<Test1>(ResolutionBehavior.Parent | ResolutionBehavior.Children);
 
-        var cache = container.GetDelegateCacheEntries().ToArray();
+        var cache = container.GetDelegateCacheEntries().OrderBy(c => c.ServiceType.FullName).ToArray();
 
-        Assert.Equal(2, cache.Length);
+        Assert.Equal(4, cache.Length);
         Assert.Equal(typeof(ITest1), cache[0].ServiceType);
         Assert.Equal(typeof(Test1), cache[1].ServiceType);
-        Assert.IsType<Test1>(cache[0].CachedDelegate.Invoke(container.ContainerContext.RootScope, null));
-        Assert.IsType<Test1>(cache[1].CachedDelegate.Invoke(container.ContainerContext.RootScope, null));
-        Assert.Single(cache[0].NamedCacheEntries);
+        Assert.Equal(typeof(Test1), cache[2].ServiceType);
+        Assert.Equal(typeof(Test1), cache[3].ServiceType);
+        Assert.IsType<Test1>(cache[0].CachedDelegate?.Invoke(container.ContainerContext.RootScope, null));
+        Assert.IsType<Test1>(cache[1].CachedDelegate?.Invoke(container.ContainerContext.RootScope, null));
+        Assert.IsType<Test1>(cache[2].CachedDelegate?.Invoke(container.ContainerContext.RootScope, null));
+        Assert.IsType<Test1>(cache[3].CachedDelegate?.Invoke(container.ContainerContext.RootScope, null));
+        Assert.Single(cache[0].NamedCacheEntries ?? new NamedCacheEntry[]{});
         Assert.Null(cache[1].NamedCacheEntries);
-        Assert.Equal("t1", cache[0].NamedCacheEntries.First().Name);
+        Assert.Null(cache[2].NamedCacheEntries);
+        Assert.Null(cache[3].NamedCacheEntries);
+        Assert.Equal("t1", cache[0].NamedCacheEntries?.First().Name);
+        Assert.Equal(ResolutionBehavior.Default, cache[0].ResolutionBehavior);
+        Assert.Equal(ResolutionBehavior.Parent, cache[1].ResolutionBehavior);
+        Assert.Equal(ResolutionBehavior.Default, cache[2].ResolutionBehavior);
+        Assert.Equal(ResolutionBehavior.Parent | ResolutionBehavior.Children, cache[3].ResolutionBehavior);
     }
 
     [Fact]

@@ -17,7 +17,8 @@ public interface ITenantDistributor : IStashboxContainer,
     /// </summary>
     /// <param name="tenantId">The identifier of the tenant.</param>
     /// <param name="tenantConfig">The service configuration of the tenant.</param>
-    void ConfigureTenant(object tenantId, Action<IStashboxContainer> tenantConfig);
+    /// <param name="attachTenantToParent">If true, the new tenant will be attached to the lifecycle of the root container. When the root is being disposed, the tenant will be disposed with it.</param>
+    void ConfigureTenant(object tenantId, Action<IStashboxContainer> tenantConfig, bool attachTenantToParent = true);
 
     /// <summary>
     /// Gets a pre-configured <see cref="IDependencyResolver"/> from the distributor which represents a tenant identified by the given id.

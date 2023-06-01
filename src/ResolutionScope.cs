@@ -101,9 +101,9 @@ internal sealed partial class ResolutionScope : IResolutionScope
         this.ThrowIfDisposed();
 
         this.delegateCacheProvider.DefaultCache.ServiceDelegates = this.DelegateCache.ServiceDelegates =
-            ImmutableTree<Type, CacheEntry>.Empty;
+            ImmutableTree<Type, ImmutableTree<CacheEntry>>.Empty;
         this.delegateCacheProvider.DefaultCache.RequestContextAwareDelegates = this.DelegateCache.RequestContextAwareDelegates =
-            ImmutableTree<Type, CacheEntry>.Empty;
+            ImmutableTree<Type, ImmutableTree<CacheEntry>>.Empty;
         this.delegateCacheProvider.NamedCache = ImmutableTree<object, DelegateCache>.Empty;
     }
 

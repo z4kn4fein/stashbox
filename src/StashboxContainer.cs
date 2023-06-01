@@ -76,7 +76,7 @@ public sealed partial class StashboxContainer : IStashboxContainer
             try
             {
                 this.ContainerContext.ResolutionStrategy.BuildExpressionForRegistration(serviceRegistration.Value,
-                    ResolutionContext.BeginValidationContext(this.ContainerContext),
+                    ResolutionContext.BeginValidationContext(this.ContainerContext, ResolutionBehavior.Default),
                     new TypeInformation(serviceRegistration.Key, serviceRegistration.Value.Name));
             }
             catch (Exception ex)
@@ -90,12 +90,17 @@ public sealed partial class StashboxContainer : IStashboxContainer
     }
 
     /// <inheritdoc />
-    public IStashboxContainer CreateChildContainer(Action<ContainerConfigurator>? config = null)
+    public IStashboxContainer CreateChildContainer(Action<ContainerConfigurator>? config = null, bool attachToParent = true)
     {
         this.ThrowIfDisposed();
 
-        return new StashboxContainer(this, this.ContainerContext.ResolutionStrategy,
+        var child = new StashboxContainer(this, this.ContainerContext.ResolutionStrategy,
             new ContainerConfigurator(this.ContainerContext.ContainerConfiguration.Clone()), config);
+        
+        if (attachToParent)
+            this.rootScope.AddDisposableTracking(child);
+
+        return child;
     }
 
     /// <inheritdoc />

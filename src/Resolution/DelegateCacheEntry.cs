@@ -14,6 +14,11 @@ public readonly struct DelegateCacheEntry
     public readonly Type ServiceType;
 
     /// <summary>
+    /// The resolution behavior that was used to construct this cache entry.
+    /// </summary>
+    public readonly ResolutionBehavior ResolutionBehavior;
+    
+    /// <summary>
     /// The cached resolution delegate.
     /// </summary>
     public readonly Func<IResolutionScope, IRequestContext, object>? CachedDelegate;
@@ -29,11 +34,13 @@ public readonly struct DelegateCacheEntry
     /// <param name="serviceType">The service type.</param>
     /// <param name="cachedDelegate">The cached resolution delegate.</param>
     /// <param name="namedCacheEntries">Named resolution delegates cached for this service.</param>
-    public DelegateCacheEntry(Type serviceType, Func<IResolutionScope, IRequestContext, object>? cachedDelegate, IEnumerable<NamedCacheEntry>? namedCacheEntries) : this()
+    /// <param name="resolutionBehavior">The resolution behavior.</param>
+    public DelegateCacheEntry(Type serviceType, Func<IResolutionScope, IRequestContext, object>? cachedDelegate, IEnumerable<NamedCacheEntry>? namedCacheEntries, ResolutionBehavior resolutionBehavior) : this()
     {
         this.ServiceType = serviceType;
         this.CachedDelegate = cachedDelegate;
         this.NamedCacheEntries = namedCacheEntries;
+        this.ResolutionBehavior = resolutionBehavior;
     }
 }
 

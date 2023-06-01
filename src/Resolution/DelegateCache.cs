@@ -6,8 +6,8 @@ namespace Stashbox.Resolution;
 
 internal class DelegateCache
 {
-    public ImmutableTree<Type, CacheEntry> ServiceDelegates = ImmutableTree<Type, CacheEntry>.Empty;
-    public ImmutableTree<Type, CacheEntry> RequestContextAwareDelegates = ImmutableTree<Type, CacheEntry>.Empty;
+    public ImmutableTree<Type, ImmutableTree<CacheEntry>> ServiceDelegates = ImmutableTree<Type, ImmutableTree<CacheEntry>>.Empty;
+    public ImmutableTree<Type, ImmutableTree<CacheEntry>> RequestContextAwareDelegates = ImmutableTree<Type, ImmutableTree<CacheEntry>>.Empty;
 }
 
 internal class CacheEntry

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Stashbox.Resolution;
 
 namespace Stashbox.Registration.Fluent;
 
@@ -185,7 +186,7 @@ public class FluentServiceConfigurator<TConfigurator> : BaseFluentConfigurator<T
     { }
 
     /// <summary>
-    /// Indicates that the service's resolution should be handled by a dynamic <see cref="IDependencyResolver.Resolve(Type)"/> call on the current <see cref="IDependencyResolver"/> instead of a pre-built instantiation expression.
+    /// Indicates that the service's resolution should be handled by a dynamic <see cref="IDependencyResolver.Resolve(Type, ResolutionBehavior)"/> call on the current <see cref="IDependencyResolver"/> instead of a pre-built instantiation expression.
     /// </summary>
     /// <returns></returns>
     public TConfigurator WithDynamicResolution()

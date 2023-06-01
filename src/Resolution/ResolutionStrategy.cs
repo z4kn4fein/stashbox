@@ -83,7 +83,8 @@ internal class ResolutionStrategy : IResolutionStrategy
                 .ConvertTo(TypeCache<IDependencyResolver>.Type)
                 .CallMethod(Constants.ResolveMethod, 
                     typeInformation.Type.AsConstant(), typeInformation.DependencyName.AsConstant(),
-                    resolutionContext.ExpressionOverrides?.Walk().Select(c => c.Value).ToArray().AsConstant() ?? TypeCache.EmptyArray<object>().AsConstant())
+                    resolutionContext.ExpressionOverrides?.Walk().Select(c => c.Value).ToArray().AsConstant() ?? TypeCache.EmptyArray<object>().AsConstant(),
+                    resolutionContext.ResolutionBehavior.AsConstant())
                 .ConvertTo(typeInformation.Type)
                 .AsServiceContext(registration);
 

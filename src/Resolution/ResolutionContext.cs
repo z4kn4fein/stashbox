@@ -66,9 +66,15 @@ public class ResolutionContext
     /// The context of the current container instance.
     /// </summary>
     public readonly IContainerContext CurrentContainerContext;
+    
+    /// <summary>
+    /// The resolution behavior.
+    /// </summary>
+    public readonly ResolutionBehavior ResolutionBehavior;
 
     private ResolutionContext(IEnumerable<object> initialScopeNames,
         IContainerContext currentContainerContext,
+        ResolutionBehavior resolutionBehavior,
         bool isTopLevel,
         bool isRequestedFromRoot,
         bool nullResultAllowed,
@@ -85,6 +91,7 @@ public class ResolutionContext
         this.CircularDependencyBarrier = new Utils.Data.Stack<int>();
         this.ExpressionCache = new Tree<Expression>();
         this.FactoryCache = new Tree<Func<IResolutionScope, IRequestContext, object>>();
+        this.ResolutionBehavior = resolutionBehavior;
         this.NullResultAllowed = nullResultAllowed;
         this.IsRequestedFromRoot = isRequestedFromRoot;
         this.IsTopRequest = isTopLevel;
@@ -122,6 +129,7 @@ public class ResolutionContext
         HashTree<object, ConstantExpression>? expressionOverrides,
         ExpandableArray<Pair<bool, ParameterExpression>[]> parameterExpressions,
         RequestContext requestContext,
+        ResolutionBehavior resolutionBehavior,
         bool nullResultAllowed,
         bool isRequestedFromRoot,
         bool isTopLevel,
@@ -157,6 +165,7 @@ public class ResolutionContext
         this.ShouldFallBackToRequestInitiatorContext = shouldFallBackToRequestInitiatorContext;
         this.RequestContext = requestContext;
         this.IsValidationContext = isValidationContext;
+        this.ResolutionBehavior = resolutionBehavior;
     }
 
     /// <summary>
@@ -187,12 +196,14 @@ public class ResolutionContext
     internal static ResolutionContext BeginTopLevelContext(
         IEnumerable<object> initialScopeNames,
         IContainerContext currentContainerContext,
+        ResolutionBehavior resolutionBehavior,
         bool isRequestedFromRoot,
         object[]? dependencyOverrides = null,
         ImmutableTree<object, object>? knownInstances = null,
         ParameterExpression[]? initialParameters = null) =>
         new(initialScopeNames,
             currentContainerContext,
+            resolutionBehavior,
             true,
             isRequestedFromRoot,
             false,
@@ -204,12 +215,14 @@ public class ResolutionContext
     internal static ResolutionContext BeginNullableTopLevelContext(
         IEnumerable<object> initialScopeNames,
         IContainerContext currentContainerContext,
+        ResolutionBehavior resolutionBehavior,
         bool isRequestedFromRoot,
         object[]? dependencyOverrides = null,
         ImmutableTree<object, object>? knownInstances = null,
         ParameterExpression[]? initialParameters = null) =>
         new(initialScopeNames,
             currentContainerContext,
+            resolutionBehavior,
             true,
             isRequestedFromRoot,
             true,
@@ -218,8 +231,8 @@ public class ResolutionContext
             knownInstances,
             initialParameters);
 
-    internal static ResolutionContext BeginValidationContext(IContainerContext currentContainerContext) =>
-        new(TypeCache.EmptyArray<object>(), currentContainerContext, true, false, false, true, null, null, null);
+    internal static ResolutionContext BeginValidationContext(IContainerContext currentContainerContext, ResolutionBehavior resolutionBehavior) =>
+        new(TypeCache.EmptyArray<object>(), currentContainerContext, resolutionBehavior, true, false, false, true, null, null, null);
 
     internal ResolutionContext BeginSubDependencyContext() => !this.IsTopRequest ? this : this.Clone(isTopRequest: false);
 
@@ -319,6 +332,7 @@ public class ResolutionContext
             this.ExpressionOverrides,
             parameterExpressions ?? this.ParameterExpressions,
             this.RequestContext,
+            this.ResolutionBehavior,
             this.NullResultAllowed,
             this.IsRequestedFromRoot,
             isTopRequest ?? this.IsTopRequest,

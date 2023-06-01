@@ -847,6 +847,7 @@ public class DisposeTests
             this.Disposed = true;
         }
     }
+    
     class Test5
     {
         [Dependency("d2")]

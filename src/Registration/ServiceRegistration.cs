@@ -193,7 +193,7 @@ public class ServiceRegistration
 public enum RegistrationOption
 {
     /// <summary>
-    /// Determines whether the service's resolution should be handled by a dynamic <see cref="IDependencyResolver.Resolve(Type)"/> call on the current <see cref="IDependencyResolver"/> instead of a pre-built instantiation expression.
+    /// Determines whether the service's resolution should be handled by a dynamic <see cref="IDependencyResolver.Resolve(Type, ResolutionBehavior)"/> call on the current <see cref="IDependencyResolver"/> instead of a pre-built instantiation expression.
     /// </summary>
     IsResolutionCallRequired,
 

@@ -21,7 +21,8 @@ public interface IStashboxContainer : IDependencyRegistrator, IDependencyResolve
     /// Creates a child container.
     /// </summary>
     /// <param name="config">The action delegate which will configure the child container.</param>
-    IStashboxContainer CreateChildContainer(Action<ContainerConfigurator>? config = null);
+    /// <param name="attachToParent">If true, the new child container will be attached to the lifecycle of its parent. When the parent is being disposed, the child will be disposed with it.</param>
+    IStashboxContainer CreateChildContainer(Action<ContainerConfigurator>? config = null, bool attachToParent = true);
 
     /// <summary>
     /// The container context.

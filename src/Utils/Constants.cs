@@ -26,11 +26,15 @@ internal static class Constants
         
     public static readonly MethodInfo ResolveMethod =
         TypeCache<IDependencyResolver>.Type.GetMethod(nameof(IDependencyResolver.Resolve), new[] { TypeCache<Type>.Type,
-            TypeCache<object>.Type, TypeCache<object[]>.Type })!;
+            TypeCache<object>.Type, TypeCache<object[]>.Type, TypeCache<ResolutionBehavior>.Type })!;
 
     public static readonly MethodInfo BeginScopeMethod = TypeCache<IDependencyResolver>.Type.GetMethod(nameof(IDependencyResolver.BeginScope))!;
 
     public const MethodImplOptions Inline = (MethodImplOptions)256;
 
     public const byte DelegatePlaceholder = 0;
+
+    public const ResolutionBehavior DefaultResolutionBehavior = ResolutionBehavior.Default;
+    
+    public const int DefaultResolutionBehaviorInt = (int)DefaultResolutionBehavior;
 }

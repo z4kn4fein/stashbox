@@ -41,10 +41,7 @@ internal partial class ResolutionScope
         this.ThrowIfDisposed();
 
         var internalContext = (IInternalRequestContext)requestContext;
-        if (internalContext.IsInstanceExcludedFromTracking(disposable))
-            return disposable;
-
-        return this.AddDisposableTracking(disposable);
+        return internalContext.IsInstanceExcludedFromTracking(disposable) ? disposable : this.AddDisposableTracking(disposable);
     }
 
     public object AddWithFinalizer(object finalizable, Action<object> finalizer)
