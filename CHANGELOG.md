@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [v5.9.1] - 2023-06-01
 ### Fixed
-- The per-request expression cache stored the underlying expressions with the type conversion to the requested service type. This caused type mismatch exceptions when a service was registered to multiple base types. Now, the cache stores the raw instantiation expression and the conversion happens one layer above when needed.
+- The per-request expression cache stored the underlying expressions with type conversion to the requested service type. This caused type mismatch exceptions when a service was registered to multiple base types. Now, the cache stores the raw instantiation expression and the conversion happens one layer above when needed.
 
 ## [v5.9.0] - 2023-05-31
 ### Fixed
@@ -352,6 +352,9 @@ The validation was executed only at the expression tree building phase, so an al
 - Removed the legacy container extension functionality.
 - Removed the support of PCL v259.
 
+[v5.9.1]: https://github.com/z4kn4fein/stashbox/compare/5.9.0...5.9.1
+[v5.9.0]: https://github.com/z4kn4fein/stashbox/compare/5.8.2...5.9.0
+[v5.8.2]: https://github.com/z4kn4fein/stashbox/compare/5.8.1...5.8.2
 [v5.8.2]: https://github.com/z4kn4fein/stashbox/compare/5.8.1...5.8.2
 [v5.8.1]: https://github.com/z4kn4fein/stashbox/compare/5.8.0...5.8.1
 [v5.8.0]: https://github.com/z4kn4fein/stashbox/compare/5.7.1...5.8.0
