@@ -32,7 +32,6 @@ public class ScopedLifetime : FactoryLifetimeDescriptor
                 serviceRegistration.RegistrationId.AsConstant(),
                 factory.AsConstant(),
                 resolutionContext.RequestContextParameter,
-                serviceRegistration.ImplementationType.AsConstant())
-            .ConvertTo(resolveType);
+                serviceRegistration.ImplementationType.AsConstant());
     }
 }

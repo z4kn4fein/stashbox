@@ -303,9 +303,13 @@ internal class ResolutionStrategy : IResolutionStrategy
             ? secondaryLifetimeDescriptor
             : serviceRegistration.Lifetime;
 
-        return !IsOutputLifetimeManageable(serviceRegistration)
+        var expression = !IsOutputLifetimeManageable(serviceRegistration)
             ? ExpressionBuilder.BuildExpressionForRegistration(serviceRegistration, resolutionContext, typeInformation)
             : lifetimeDescriptor.ApplyLifetime(serviceRegistration, resolutionContext, typeInformation);
+
+        return typeInformation.Type != expression?.Type
+            ? expression?.ConvertTo(typeInformation.Type)
+            : expression;
     }
 
     private static bool IsOutputLifetimeManageable(ServiceRegistration serviceRegistration) =>

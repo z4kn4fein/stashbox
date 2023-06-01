@@ -21,11 +21,11 @@ internal static partial class ExpressionBuilder
         {
             if (serviceRegistration.Options.TryGetValue(RegistrationOption.AsyncInitializer, out var asyncInitializer))
                 expression = resolutionContext.CurrentScopeParameter.CallMethod(Constants.AddWithAsyncInitializerMethod, expression,
-                    asyncInitializer.AsConstant()).ConvertTo(typeInformation.Type);
+                    asyncInitializer.AsConstant());
 
             if (serviceRegistration.Options.TryGetValue(RegistrationOption.Finalizer, out var finalizer))
                 expression = resolutionContext.CurrentScopeParameter.CallMethod(Constants.AddWithFinalizerMethod, expression,
-                    finalizer.AsConstant()).ConvertTo(typeInformation.Type);
+                    finalizer.AsConstant());
         }
 
         if (!ShouldHandleDisposal(resolutionContext.CurrentContainerContext, serviceRegistration) || !expression.Type.IsDisposable())
@@ -33,8 +33,8 @@ internal static partial class ExpressionBuilder
 
         return resolutionContext.RequestConfiguration.RequiresRequestContext
             ? resolutionContext.CurrentScopeParameter.CallMethod(Constants.AddRequestContextAwareDisposalMethod,
-                expression, resolutionContext.RequestContextParameter).ConvertTo(typeInformation.Type)
-            : resolutionContext.CurrentScopeParameter.CallMethod(Constants.AddDisposalMethod, expression).ConvertTo(typeInformation.Type);
+                expression, resolutionContext.RequestContextParameter)
+            : resolutionContext.CurrentScopeParameter.CallMethod(Constants.AddDisposalMethod, expression);
     }
 
     private static Expression? BuildExpressionByRegistrationType(ServiceRegistration serviceRegistration, ResolutionContext resolutionContext, TypeInformation typeInformation)
