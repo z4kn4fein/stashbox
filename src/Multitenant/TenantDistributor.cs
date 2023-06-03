@@ -1,7 +1,4 @@
-﻿using Stashbox.Utils;
-using Stashbox.Utils.Data;
-using Stashbox.Utils.Data.Immutable;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,15 +12,11 @@ namespace Stashbox.Multitenant;
 /// <summary>
 /// Represents a tenant distributor that manages tenants in a multi-tenant environment.
 /// </summary>
+[Obsolete("The functionality of this class was moved to StashboxContainer. Please use StashboxContainer.CreateChildContainer() and StashboxContainer.GetChildContainer() instead.")]
 public sealed class TenantDistributor : ITenantDistributor
 {
     private int disposed;
-
-    private ImmutableTree<object, IStashboxContainer> tenantRepository =
-        ImmutableTree<object, IStashboxContainer>.Empty;
-
     private readonly IStashboxContainer rootContainer;
-
     /// <summary>
     /// Constructs a <see cref="TenantDistributor"/>.
     /// </summary>
@@ -34,25 +27,23 @@ public sealed class TenantDistributor : ITenantDistributor
     }
 
     /// <inheritdoc />
-    public void ConfigureTenant(object tenantId, Action<IStashboxContainer> tenantConfig, bool attachTenantToParent = true)
-    {
-        var tenantContainer = this.CreateChildContainer(attachToParent: attachTenantToParent);
-
-        if (!Swap.SwapValue(ref this.tenantRepository,
-                (id, container, _, _, repo) => repo.AddOrUpdate(id, container, false, false),
-                tenantId,
-                tenantContainer,
-                Constants.DelegatePlaceholder,
-                Constants.DelegatePlaceholder)) return;
-        tenantConfig(tenantContainer);
-    }
+    public void ConfigureTenant(object tenantId, Action<IStashboxContainer> tenantConfig, bool attachTenantToRoot = true) =>
+        rootContainer.CreateChildContainer(tenantId, tenantConfig, attachTenantToRoot);
 
     /// <inheritdoc />
-    public IDependencyResolver? GetTenant(object tenantId) => this.tenantRepository.GetOrDefaultByValue(tenantId);
+    public IDependencyResolver? GetTenant(object tenantId) => rootContainer.GetChildContainer(tenantId);
+    /// <inheritdoc />
+    public IEnumerable<ReadOnlyKeyValue<object, IStashboxContainer>> ChildContainers => rootContainer.ChildContainers;
     /// <inheritdoc />
     public void RegisterResolver(IResolver resolver) => rootContainer.RegisterResolver(resolver);
     /// <inheritdoc />
     public IStashboxContainer CreateChildContainer(Action<ContainerConfigurator>? config = null, bool attachToParent = true) => rootContainer.CreateChildContainer(config, attachToParent);
+    /// <inheritdoc />
+    public IStashboxContainer CreateChildContainer(object identifier, Action<IStashboxContainer>? config = null,
+        bool attachToParent = false) => rootContainer.CreateChildContainer(identifier, config, attachToParent);
+
+    /// <inheritdoc />
+    public IStashboxContainer? GetChildContainer(object identifier) => rootContainer.GetChildContainer(identifier);
     /// <inheritdoc />
     public IContainerContext ContainerContext => rootContainer.ContainerContext;
     /// <inheritdoc />
@@ -62,34 +53,7 @@ public sealed class TenantDistributor : ITenantDistributor
     /// <inheritdoc />
     public void Configure(Action<ContainerConfigurator> config) => rootContainer.Configure(config);
     /// <inheritdoc />
-    public void Validate()
-    {
-        var exceptions = new ExpandableArray<Exception>();
-
-        try
-        {
-            this.rootContainer.Validate();
-        }
-        catch (AggregateException ex)
-        {
-            exceptions.Add(new AggregateException($"Root container validation failed. See the inner exceptions for details.", ex.InnerExceptions));
-        }
-
-        foreach (var tenant in this.tenantRepository.Walk())
-        {
-            try
-            {
-                tenant.Value.Validate();
-            }
-            catch (AggregateException ex)
-            {
-                exceptions.Add(new AggregateException($"Tenant validation failed for '{tenant.Key}'. See the inner exceptions for details.", ex.InnerExceptions));
-            }
-        }
-
-        if (exceptions.Length > 0)
-            throw new AggregateException("Tenant distributor validation failed. See the inner exceptions for details.", exceptions);
-    }
+    public void Validate() => rootContainer.Validate();
     /// <inheritdoc />
     public IEnumerable<KeyValuePair<Type, ServiceRegistration>> GetRegistrationMappings() => rootContainer.GetRegistrationMappings();
     /// <inheritdoc />

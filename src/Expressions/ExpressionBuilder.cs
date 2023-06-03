@@ -39,9 +39,7 @@ internal static partial class ExpressionBuilder
 
     private static Expression? BuildExpressionByRegistrationType(ServiceRegistration serviceRegistration, ResolutionContext resolutionContext, TypeInformation typeInformation)
     {
-        resolutionContext = resolutionContext.ShouldFallBackToRequestInitiatorContext
-            ? resolutionContext.BeginCrossContainerContext(resolutionContext.RequestInitiatorContainerContext)
-            : resolutionContext;
+        resolutionContext = resolutionContext.FallBackToRequestInitiatorIfNeeded();
 
         var options = serviceRegistration.Options?.GetOrDefault(RegistrationOption.RegistrationTypeOptions);
 

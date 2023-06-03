@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>net472;net7.0</TargetFrameworks>
+    <TargetFramework>net7.0</TargetFramework>
     <RootNamespace>Stashbox.Benchmarks</RootNamespace>
     <AssemblyName>Stashbox.Benchmarks</AssemblyName>
     <Configurations>Debug;Release;Benchmark</Configurations>
@@ -15,20 +15,12 @@
 
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.13.5" />
-    <PackageReference Include="Stashbox" Version="5.9.0" />
+    <PackageReference Include="Stashbox" Version="5.9.1" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
     <Reference Include="Stashbox.Benchmark">
       <HintPath>..\..\src\bin\Benchmark\net7.0\Stashbox.Benchmark.dll</HintPath>
-      <Aliases>from_project</Aliases>
-      <Private>true</Private>
-    </Reference>
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
-    <Reference Include="Stashbox.Benchmark">
-      <HintPath>..\..\src\bin\Benchmark\net461\Stashbox.Benchmark.dll</HintPath>
       <Aliases>from_project</Aliases>
       <Private>true</Private>
     </Reference>

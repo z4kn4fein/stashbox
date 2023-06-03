@@ -7,6 +7,7 @@ using Stashbox.Utils;
 using Stashbox.Utils.Data.Immutable;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Linq;
 using System.Linq.Expressions;
 
@@ -14,21 +15,28 @@ namespace Stashbox.Resolution;
 
 internal class ResolutionStrategy : IResolutionStrategy
 {
-    private ImmutableBucket<IResolver> resolverRepository = new(new IResolver[]
+    private readonly ParentContainerResolver parentContainerResolver;
+    private ImmutableBucket<IResolver> resolverRepository;
+
+    public ResolutionStrategy()
     {
-        new EnumerableWrapper(),
-        new LazyWrapper(),
-        new FuncWrapper(),
-        new MetadataWrapper(),
-        new KeyValueWrapper(),
+        this.parentContainerResolver = new ParentContainerResolver();
+        this.resolverRepository = new ImmutableBucket<IResolver>(new IResolver[]
+        {
+            new EnumerableWrapper(),
+            new LazyWrapper(),
+            new FuncWrapper(),
+            new MetadataWrapper(),
+            new KeyValueWrapper(),
 
-        new ServiceProviderResolver(),
-        new OptionalValueResolver(),
-        new DefaultValueResolver(),
-        new ParentContainerResolver(),
-        new UnknownTypeResolver(),
-    });
-
+            new ServiceProviderResolver(),
+            new OptionalValueResolver(),
+            new DefaultValueResolver(),
+            this.parentContainerResolver,
+            new UnknownTypeResolver(),
+        });
+    }
+    
     public ServiceContext BuildExpressionForType(ResolutionContext resolutionContext, TypeInformation typeInformation)
     {
         if (typeInformation.Type == TypeCache<IDependencyResolver>.Type)
@@ -74,8 +82,10 @@ internal class ResolutionStrategy : IResolutionStrategy
         if (exprOverride != null)
             return exprOverride.AsServiceContext();
 
-        var registration = resolutionContext.CurrentContainerContext.RegistrationRepository
-            .GetRegistrationOrDefault(typeInformation, resolutionContext);
+        var registration = resolutionContext.ResolutionBehavior.Has(ResolutionBehavior.Current) 
+            ? resolutionContext.CurrentContainerContext.RegistrationRepository
+                .GetRegistrationOrDefault(typeInformation, resolutionContext)
+            : null;
 
         var isResolutionCallRequired = registration?.Options.IsOn(RegistrationOption.IsResolutionCallRequired) ?? false;
         if (!resolutionContext.IsTopRequest && registration != null && isResolutionCallRequired)
@@ -96,13 +106,15 @@ internal class ResolutionStrategy : IResolutionStrategy
 
     public IEnumerable<ServiceContext> BuildExpressionsForEnumerableRequest(ResolutionContext resolutionContext, TypeInformation typeInformation)
     {
-        var registrations = resolutionContext.CurrentContainerContext.RegistrationRepository
-            .GetRegistrationsOrDefault(typeInformation, resolutionContext);
+        var registrations = resolutionContext.ResolutionBehavior.Has(ResolutionBehavior.Current) 
+            ? resolutionContext.CurrentContainerContext.RegistrationRepository
+                .GetRegistrationsOrDefault(typeInformation, resolutionContext)
+            : null;
 
         if (registrations == null)
             return this.BuildEnumerableExpressionUsingWrappersOrResolvers(resolutionContext, typeInformation);
 
-        return registrations.Select(registration =>
+        var expressions = registrations.Select(registration =>
         {
             var decorators = resolutionContext.RemainingDecorators.GetOrDefaultByRef(typeInformation.Type);
             if (decorators == null || decorators.Length == 0)
@@ -113,6 +125,12 @@ internal class ResolutionStrategy : IResolutionStrategy
                 resolutionContext.BeginDecoratingContext(typeInformation.Type, decorators),
                 typeInformation, decorators).AsServiceContext(registration);
         });
+
+        if (!this.parentContainerResolver.CanUseForResolution(typeInformation, resolutionContext)) return expressions;
+        
+        var parentRegistrations =
+            this.parentContainerResolver.GetExpressionsForEnumerableRequest(this, typeInformation, resolutionContext);
+        return expressions.Concat(parentRegistrations);
     }
 
     public ServiceContext BuildExpressionForRegistration(ServiceRegistration serviceRegistration,
@@ -124,8 +142,14 @@ internal class ResolutionStrategy : IResolutionStrategy
             serviceRegistration = openGenericRegistration.ProduceClosedRegistration(genericType);
         }
 
-        var decorators = resolutionContext.CurrentContainerContext.DecoratorRepository
-            .GetDecoratorsOrDefault(serviceRegistration.ImplementationType, typeInformation, resolutionContext);
+        var decoratorContext = resolutionContext.RequestInitiatorResolutionBehavior.Has(ResolutionBehavior.Current)
+            ? resolutionContext.RequestInitiatorContainerContext
+            : resolutionContext.RequestInitiatorContainerContext.ParentContext;
+
+        var decorators = resolutionContext.RequestInitiatorResolutionBehavior.Has(ResolutionBehavior.Parent)
+            ? CollectDecorators(serviceRegistration.ImplementationType, typeInformation, 
+                resolutionContext, decoratorContext)
+            : decoratorContext?.DecoratorRepository.GetDecoratorsOrDefault(serviceRegistration.ImplementationType, typeInformation, resolutionContext);
 
         if (decorators == null)
             return BuildExpressionAndApplyLifetime(serviceRegistration, resolutionContext, typeInformation)
@@ -282,6 +306,23 @@ internal class ResolutionStrategy : IResolutionStrategy
         }
 
         return false;
+    }
+
+    private static IEnumerable<ServiceRegistration>? CollectDecorators(Type implementationType,
+        TypeInformation typeInformation, ResolutionContext resolutionContext, IContainerContext? decoratorContext)
+    {
+        if (decoratorContext == null) return null;
+        var parentDecorators = CollectDecorators(implementationType, 
+            typeInformation, resolutionContext, decoratorContext.ParentContext);
+        
+        if (parentDecorators == null)
+            return decoratorContext.DecoratorRepository.GetDecoratorsOrDefault(implementationType, 
+                typeInformation, resolutionContext);
+        
+        var currentDecorators = decoratorContext.DecoratorRepository.GetDecoratorsOrDefault(implementationType, 
+            typeInformation, resolutionContext);
+
+        return currentDecorators == null ? parentDecorators : parentDecorators.Concat(currentDecorators);
     }
 
     private static Expression? BuildExpressionForDecorator(ServiceRegistration serviceRegistration,

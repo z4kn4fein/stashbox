@@ -20,11 +20,12 @@ public class ResolutionContext
         public bool RequiresRequestContext { get; set; }
         public bool FactoryDelegateCacheEnabled { get; set; }
     }
+    
+    private readonly bool shouldFallBackToRequestInitiatorContext;
 
     internal readonly Tree<Expression> ExpressionCache;
     internal readonly Utils.Data.Stack<object> ScopeNames;
     internal readonly PerRequestConfiguration RequestConfiguration;
-    internal readonly IContainerContext RequestInitiatorContainerContext;
     internal readonly Utils.Data.Stack<int> CircularDependencyBarrier;
     internal readonly Tree<Func<IResolutionScope, IRequestContext, object>> FactoryCache;
     internal readonly HashTree<object, ConstantExpression>? ExpressionOverrides;
@@ -33,11 +34,12 @@ public class ResolutionContext
     internal readonly ExpandableArray<Pair<bool, ParameterExpression>[]> ParameterExpressions;
     internal readonly ExpandableArray<Type, Utils.Data.Stack<ServiceRegistration>> RemainingDecorators;
     internal readonly ExpandableArray<ServiceRegistration> CurrentDecorators;
+    internal readonly IContainerContext RequestInitiatorContainerContext;
+    internal readonly ResolutionBehavior RequestInitiatorResolutionBehavior;
     internal readonly int CurrentLifeSpan;
     internal readonly string? NameOfServiceLifeSpanValidatingAgainst;
     internal readonly bool PerResolutionRequestCacheEnabled;
     internal readonly bool UnknownTypeCheckDisabled;
-    internal readonly bool ShouldFallBackToRequestInitiatorContext;
     internal readonly bool IsTopRequest;
     internal readonly RequestContext RequestContext;
     internal readonly bool IsValidationContext;
@@ -91,7 +93,7 @@ public class ResolutionContext
         this.CircularDependencyBarrier = new Utils.Data.Stack<int>();
         this.ExpressionCache = new Tree<Expression>();
         this.FactoryCache = new Tree<Func<IResolutionScope, IRequestContext, object>>();
-        this.ResolutionBehavior = resolutionBehavior;
+        this.ResolutionBehavior = this.RequestInitiatorResolutionBehavior = resolutionBehavior;
         this.NullResultAllowed = nullResultAllowed;
         this.IsRequestedFromRoot = isRequestedFromRoot;
         this.IsTopRequest = isTopLevel;
@@ -130,6 +132,7 @@ public class ResolutionContext
         ExpandableArray<Pair<bool, ParameterExpression>[]> parameterExpressions,
         RequestContext requestContext,
         ResolutionBehavior resolutionBehavior,
+        ResolutionBehavior requestInitiatorResolutionBehavior,
         bool nullResultAllowed,
         bool isRequestedFromRoot,
         bool isTopLevel,
@@ -162,10 +165,11 @@ public class ResolutionContext
         this.CurrentLifeSpan = currentLifeSpan;
         this.PerResolutionRequestCacheEnabled = perResolutionRequestCacheEnabled;
         this.UnknownTypeCheckDisabled = unknownTypeCheckDisabled;
-        this.ShouldFallBackToRequestInitiatorContext = shouldFallBackToRequestInitiatorContext;
+        this.shouldFallBackToRequestInitiatorContext = shouldFallBackToRequestInitiatorContext;
         this.RequestContext = requestContext;
         this.IsValidationContext = isValidationContext;
         this.ResolutionBehavior = resolutionBehavior;
+        this.RequestInitiatorResolutionBehavior = requestInitiatorResolutionBehavior;
     }
 
     /// <summary>
@@ -236,9 +240,17 @@ public class ResolutionContext
 
     internal ResolutionContext BeginSubDependencyContext() => !this.IsTopRequest ? this : this.Clone(isTopRequest: false);
 
-    internal ResolutionContext BeginCrossContainerContext(IContainerContext currentContainerContext) =>
+    internal ResolutionContext BeginParentContainerContext(IContainerContext currentContainerContext) =>
         this.Clone(currentContainerContext: currentContainerContext,
-            shouldFallBackToRequestInitiatorContext: this.RequestInitiatorContainerContext != currentContainerContext);
+            shouldFallBackToRequestInitiatorContext: this.RequestInitiatorContainerContext != currentContainerContext,
+            resolutionBehavior: this.ResolutionBehavior | ResolutionBehavior.Current);
+    
+    internal ResolutionContext FallBackToRequestInitiatorIfNeeded() =>
+        this.shouldFallBackToRequestInitiatorContext
+            ? this.Clone(currentContainerContext: this.RequestInitiatorContainerContext,
+                shouldFallBackToRequestInitiatorContext: false,
+                resolutionBehavior: this.RequestInitiatorResolutionBehavior)
+            : this;
 
     internal ResolutionContext BeginNewScopeContext(ReadOnlyKeyValue<object, ParameterExpression> scopeParameter)
     {
@@ -310,6 +322,7 @@ public class ResolutionContext
         ParameterExpression? currentScopeParameter = null,
         IContainerContext? currentContainerContext = null,
         ExpandableArray<Pair<bool, ParameterExpression>[]>? parameterExpressions = null,
+        ResolutionBehavior? resolutionBehavior = null,
         string? nameOfServiceLifeSpanValidatingAgainst = null,
         int? currentLifeSpan = null,
         bool? isTopRequest = null,
@@ -332,7 +345,8 @@ public class ResolutionContext
             this.ExpressionOverrides,
             parameterExpressions ?? this.ParameterExpressions,
             this.RequestContext,
-            this.ResolutionBehavior,
+            resolutionBehavior ?? this.ResolutionBehavior,
+            this.RequestInitiatorResolutionBehavior,
             this.NullResultAllowed,
             this.IsRequestedFromRoot,
             isTopRequest ?? this.IsTopRequest,
@@ -340,6 +354,6 @@ public class ResolutionContext
             currentLifeSpan ?? this.CurrentLifeSpan,
             perResolutionRequestCacheEnabled ?? this.PerResolutionRequestCacheEnabled,
             unknownTypeCheckDisabled ?? this.UnknownTypeCheckDisabled,
-            shouldFallBackToRequestInitiatorContext ?? this.ShouldFallBackToRequestInitiatorContext,
+            shouldFallBackToRequestInitiatorContext ?? this.shouldFallBackToRequestInitiatorContext,
             this.IsValidationContext);
 }

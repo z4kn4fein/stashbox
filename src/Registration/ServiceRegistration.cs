@@ -18,9 +18,9 @@ namespace Stashbox.Registration;
 [DebuggerDisplay("Name = {Name}, Lifetime = {Lifetime.Name}", Name = "{ImplementationType}")]
 public class ServiceRegistration
 {
-    private static int GlobalRegistrationId = int.MinValue;
+    private static int globalRegistrationId = int.MinValue;
 
-    private static int GlobalRegistrationOrder = int.MinValue;
+    private static int globalRegistrationOrder = int.MinValue;
 
     /// <summary>
     /// The registration id.
@@ -180,10 +180,10 @@ public class ServiceRegistration
     }
 
     private static int ReserveRegistrationId() =>
-        Interlocked.Increment(ref GlobalRegistrationId);
+        Interlocked.Increment(ref globalRegistrationId);
 
     private static int ReserveRegistrationOrder() =>
-        Interlocked.Increment(ref GlobalRegistrationOrder);
+        Interlocked.Increment(ref globalRegistrationOrder);
 
 }
 

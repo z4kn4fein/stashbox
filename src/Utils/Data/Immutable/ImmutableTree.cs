@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 
 namespace Stashbox.Utils.Data.Immutable;
 
-[DebuggerTypeProxy(typeof(ImmutebleTreeDebugView<>))]
+[DebuggerTypeProxy(typeof(ImmutableTreeDebugView<>))]
 internal sealed class ImmutableTree<TValue>
 {
     public static readonly ImmutableTree<TValue> Empty = new();
@@ -153,18 +153,18 @@ internal sealed class ImmutableTree<TValue>
     }
 }
 
-internal class ImmutebleTreeDebugView<TValue>
+internal class ImmutableTreeDebugView<TValue>
 {
     private readonly ImmutableTree<TValue> tree;
 
-    public ImmutebleTreeDebugView(ImmutableTree<TValue> tree) { this.tree = tree; }
+    public ImmutableTreeDebugView(ImmutableTree<TValue> tree) { this.tree = tree; }
 
     [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
-    public ReadOnlyKeyValue<int, TValue>[] Items { get { return tree.Walk().ToArray(); } }
+    public ReadOnlyKeyValue<int, TValue>[] Items => tree.Walk().ToArray();
 }
-
+#pragma warning disable 1591
 [DebuggerTypeProxy(typeof(ImmutebleTreeDebugView<,>))]
-internal sealed class ImmutableTree<TKey, TValue>
+public sealed class ImmutableTree<TKey, TValue>
     where TKey : class
 {
     public static readonly ImmutableTree<TKey, TValue> Empty = new();
@@ -251,6 +251,9 @@ internal sealed class ImmutableTree<TKey, TValue>
                 ? default
                 : node.collisions.GetOrDefaultByRef(key);
     }
+    
+    public ImmutableTree<TKey, TValue> Remove(TKey key, bool byRef) => 
+        this.Remove(byRef ? RuntimeHelpers.GetHashCode(key) : key.GetHashCode(), key, byRef);
 
     private ImmutableTree<TKey, TValue> AddOrUpdate(int hash, TKey key, TValue value, bool byRef, Func<TValue, TValue, TValue>? updateDelegate, bool forceUpdate)
     {
@@ -285,8 +288,7 @@ internal sealed class ImmutableTree<TKey, TValue>
 
     private ImmutableTree<TKey, TValue> UpdateIfExists(int hash, TKey key, bool byRef, Func<TValue, TValue> updateDelegate)
     {
-        if (this.IsEmpty)
-            return this;
+        if (this.IsEmpty) return this;
 
         if (hash == this.storedHash)
             return this.ReplaceInCollisionsIfExist(hash, key, byRef, updateDelegate);
@@ -333,6 +335,36 @@ internal sealed class ImmutableTree<TKey, TValue>
 
         return new ImmutableTree<TKey, TValue>(this.storedHash, this.storedKey!,
             this.storedValue!, this.leftNode!, right, this.collisions!);
+    }
+
+    private ImmutableTree<TKey, TValue> Remove(int hash, TKey key, bool byRef)
+    {
+        if (this.IsEmpty) return this;
+
+        if (hash != this.storedHash)
+            return hash < this.storedHash
+                ? Balance(this.storedHash, this.storedKey!, this.storedValue!, this.leftNode!.Remove(hash, key, byRef), this.rightNode!,
+                    this.collisions!)
+                : Balance(this.storedHash, this.storedKey!, this.storedValue!, this.leftNode!, this.rightNode!.Remove(hash, key, byRef),
+                    this.collisions!);
+        
+        if (byRef && ReferenceEquals(key, this.storedKey) || !byRef && Equals(key, this.storedKey))
+        {
+            if (this.height == 1) return Empty;
+            if (this.rightNode!.IsEmpty) return this.leftNode!;
+            if (this.leftNode!.IsEmpty) return this.rightNode!;
+
+            var next = this.rightNode;
+            while (!next.leftNode!.IsEmpty) next = next.leftNode;
+            return new ImmutableTree<TKey, TValue>(next.storedHash, next.storedKey!, next.storedValue!,
+                this.leftNode!, this.rightNode!.Remove(next.storedHash, next.storedKey!, byRef), next.collisions!);
+        }
+
+        if (this.collisions != null)
+            return new ImmutableTree<TKey, TValue>(this.storedHash, this.storedKey!, this.storedValue!,
+                this.leftNode!, this.rightNode!, this.collisions.Remove(key, byRef));
+            
+        return this;
     }
 
     private ImmutableTree<TKey, TValue> CheckCollision(int hash, TKey key, TValue value, bool byRef, Func<TValue, TValue, TValue>? updateDelegate, bool forceUpdate)

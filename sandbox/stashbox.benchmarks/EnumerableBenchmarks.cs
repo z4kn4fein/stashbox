@@ -30,13 +30,13 @@ namespace Stashbox.Benchmarks
         [Benchmark(Baseline = true)]
         public object Old()
         {
-            return this.oldContainer.ResolveAll(typeof(A));
+            return this.oldContainer.ResolveAll(typeof(IA));
         }
 
         [Benchmark]
         public object New()
         {
-            return this.newContainer.ResolveAll(typeof(A));
+            return this.newContainer.ResolveAll(typeof(IA));
         }
 
         interface IA { }

@@ -53,8 +53,8 @@ internal class RegistrationRepository : IRegistrationRepository
             return Swap.SwapValue(ref this.serviceRepository, (reg, type, _, _, repo) =>
                     repo.UpdateIfExists(type, true, regs =>
                     {
-                        int existingIndex = -1;
-                        for (int i = 0; i < regs.Length; i++)
+                        var existingIndex = -1;
+                        for (var i = 0; i < regs.Length; i++)
                         {
                             var current = regs[i];
                             var existingDiscriminator = current.Name ?? current.ImplementationType;
@@ -63,14 +63,11 @@ internal class RegistrationRepository : IRegistrationRepository
                                 existingIndex = i;
                         }
 
-                        if (existingIndex != -1)
-                        {
-                            var replaced = regs[existingIndex];
-                            reg.Replaces(replaced);
-                            return regs.ReplaceAt(existingIndex, reg);
-                        }
+                        if (existingIndex == -1) return regs;
+                        var replaced = regs[existingIndex];
+                        reg.Replaces(replaced);
+                        return regs.ReplaceAt(existingIndex, reg);
 
-                        return regs;
                     }),
                 registration,
                 serviceType,
@@ -87,8 +84,8 @@ internal class RegistrationRepository : IRegistrationRepository
                         if (!allowUpdate && regBehavior == Rules.RegistrationBehavior.PreserveDuplications)
                             return oldValue.Add(reg);
 
-                        int existingIndex = -1;
-                        for (int i = 0; i < oldValue.Length; i++)
+                        var existingIndex = -1;
+                        for (var i = 0; i < oldValue.Length; i++)
                         {
                             var current = oldValue[i];
                             if (!replaceExisting && current.ImplementationType != reg.ImplementationType) continue;
@@ -98,22 +95,18 @@ internal class RegistrationRepository : IRegistrationRepository
                                 existingIndex = i;
                         }
 
-                        if (existingIndex != -1)
+                        if (existingIndex == -1) return oldValue.Add(reg);
+                        switch (allowUpdate)
                         {
-                            switch (allowUpdate)
-                            {
-                                case false when regBehavior == Rules.RegistrationBehavior.ThrowException:
-                                    throw new ServiceAlreadyRegisteredException(reg.ImplementationType);
-                                case false:
-                                    return oldValue;
-                                default:
-                                    var replaced = oldValue[existingIndex];
-                                    reg.Replaces(replaced);
-                                    return oldValue.ReplaceAt(existingIndex, reg);
-                            }
+                            case false when regBehavior == Rules.RegistrationBehavior.ThrowException:
+                                throw new ServiceAlreadyRegisteredException(reg.ImplementationType);
+                            case false:
+                                return oldValue;
+                            default:
+                                var replaced = oldValue[existingIndex];
+                                reg.Replaces(replaced);
+                                return oldValue.ReplaceAt(existingIndex, reg);
                         }
-
-                        return oldValue.Add(reg);
                     }),
             registration,
             serviceType,

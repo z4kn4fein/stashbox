@@ -10,6 +10,8 @@ using Xunit;
 
 namespace Stashbox.Tests;
 
+#pragma warning disable 0618
+
 public class MultitenantTests
 {
     [Fact]

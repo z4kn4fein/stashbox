@@ -33,9 +33,8 @@ internal class UnknownTypeResolver : IServiceResolver, ILookup
 
         ServiceRegistrator.Register(resolutionContext.RequestInitiatorContainerContext, unknownRegistrationConfigurator, typeInfo.Type);
 
-        return resolutionStrategy.BuildExpressionForRegistration(unknownRegistrationConfigurator, resolutionContext.ShouldFallBackToRequestInitiatorContext
-                ? resolutionContext.BeginCrossContainerContext(resolutionContext.RequestInitiatorContainerContext)
-                : resolutionContext,
+        return resolutionStrategy.BuildExpressionForRegistration(unknownRegistrationConfigurator, 
+            resolutionContext.FallBackToRequestInitiatorIfNeeded(),
             typeInfo);
     }
 }
