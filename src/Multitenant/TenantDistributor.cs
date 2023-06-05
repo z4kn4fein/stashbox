@@ -40,7 +40,7 @@ public sealed class TenantDistributor : ITenantDistributor
     public IStashboxContainer CreateChildContainer(Action<ContainerConfigurator>? config = null, bool attachToParent = true) => rootContainer.CreateChildContainer(config, attachToParent);
     /// <inheritdoc />
     public IStashboxContainer CreateChildContainer(object identifier, Action<IStashboxContainer>? config = null,
-        bool attachToParent = false) => rootContainer.CreateChildContainer(identifier, config, attachToParent);
+        bool attachToParent = true) => rootContainer.CreateChildContainer(identifier, config, attachToParent);
 
     /// <inheritdoc />
     public IStashboxContainer? GetChildContainer(object identifier) => rootContainer.GetChildContainer(identifier);

@@ -32,7 +32,7 @@ internal static class TypeExtensions
         type is { IsGenericType: true, ContainsGenericParameters: true };
 
     public static ConstructorInfo? GetConstructor(this Type type, params Type[] args) =>
-        type.GetConstructors().FirstOrDefault(c => c.GetParameters().Select(p => p.ParameterType).SequenceEqual(args));
+        Array.Find(type.GetConstructors(), c => c.GetParameters().Select(p => p.ParameterType).SequenceEqual(args));
 
     public static bool IsDisposable(this Type type) =>
         type.Implements(TypeCache<IDisposable>.Type)
@@ -344,7 +344,7 @@ internal static class TypeExtensions
         parameter.IsOptional;
 
     private static bool HasPublicParameterlessConstructor(this Type type) =>
-        type.GetConstructors().FirstOrDefault(c => c.GetParameters().Length == 0) != null;
+        Array.Find(type.GetConstructors(), c => c.GetParameters().Length == 0) != null;
 
     private static DependencyAttribute? GetDependencyAttribute(this MemberInfo property)
     {

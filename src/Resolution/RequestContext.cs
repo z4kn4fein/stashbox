@@ -33,7 +33,7 @@ internal class RequestContext : IInternalRequestContext
     }
 
     public object? GetDependencyOverrideOrDefault(Type dependencyType) =>
-        this.overrides?.FirstOrDefault(dependencyType.IsInstanceOfType);
+        this.overrides == null ? null : Array.Find(this.overrides, dependencyType.IsInstanceOfType);
 
     public TResult? GetDependencyOverrideOrDefault<TResult>() =>
         (TResult?)this.GetDependencyOverrideOrDefault(TypeCache<TResult>.Type);

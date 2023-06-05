@@ -51,9 +51,8 @@ internal static partial class ExpressionFactory
         {
             var constructors = constructorsEnumerable.CastToArray();
             var containingFactoryParameter = constructors
-                .Where(c => c.GetParameters()
-                    .Any(p => resolutionContext.ParameterExpressions
-                        .Any(pe => pe.Any(item => item.I2.Type == p.ParameterType || item.I2.Type.Implements(p.ParameterType)))))
+                .Where(c => Array.Exists(c.GetParameters(),p => resolutionContext.ParameterExpressions
+                        .Any(pe => Array.Exists(pe, item => item.I2.Type == p.ParameterType || item.I2.Type.Implements(p.ParameterType)))))
                 .CastToArray();
 
             var everythingElse = constructors.Except(containingFactoryParameter);

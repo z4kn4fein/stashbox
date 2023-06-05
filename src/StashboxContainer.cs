@@ -18,7 +18,7 @@ namespace Stashbox;
 /// </summary>
 public sealed partial class StashboxContainer : IStashboxContainer
 {
-    private class ChildContainerStore
+    private sealed class ChildContainerStore
     {
         public ImmutableTree<object, IStashboxContainer> ChildContainers = ImmutableTree<object, IStashboxContainer>.Empty;
     }

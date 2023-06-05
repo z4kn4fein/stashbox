@@ -61,10 +61,11 @@ internal class ResolutionStrategy : IResolutionStrategy
                                     p.I2.Type.Implements(type)).CastToArray();
 
                     if (parameters.Length == 0) continue;
+                    
 #if NET5_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-                        var selected = parameters.FirstOrDefault(parameter => !parameter.I1) ?? parameters[^1];
+                    var selected = Array.Find(parameters, parameter => !parameter.I1) ?? parameters[^1];
 #else
-                    var selected = parameters.FirstOrDefault(parameter => !parameter.I1) ?? parameters[parameters.Length - 1];
+                    var selected = Array.Find(parameters, parameter => !parameter.I1) ?? parameters[parameters.Length - 1];
 #endif
 
                     selected.I1 = true;

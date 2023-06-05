@@ -162,9 +162,9 @@ internal class ImmutableTreeDebugView<TValue>
     [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
     public ReadOnlyKeyValue<int, TValue>[] Items => tree.Walk().ToArray();
 }
-#pragma warning disable 1591
+
 [DebuggerTypeProxy(typeof(ImmutebleTreeDebugView<,>))]
-public sealed class ImmutableTree<TKey, TValue>
+internal sealed class ImmutableTree<TKey, TValue>
     where TKey : class
 {
     public static readonly ImmutableTree<TKey, TValue> Empty = new();

@@ -80,7 +80,7 @@ public class ServiceRegistration
 
     internal bool IsInstance() => Options.GetOrDefault(RegistrationOption.RegistrationTypeOptions) is InstanceOptions;
 
-    internal bool IsUsableForCurrentContext(TypeInformation typeInfo, ConditionOptions conditionOptions) =>
+    internal static bool IsUsableForCurrentContext(TypeInformation typeInfo, ConditionOptions conditionOptions) =>
         HasParentTypeConditionAndMatch(typeInfo, conditionOptions) ||
         HasAttributeConditionAndMatch(typeInfo, conditionOptions) ||
         HasResolutionConditionAndMatch(typeInfo, conditionOptions);
@@ -125,7 +125,7 @@ public class ServiceRegistration
         if (typeInformation.ParentType == null) return false;
 
         var length = conditions.Length;
-        for (int i = 0; i < length; i++)
+        for (var i = 0; i < length; i++)
         {
             var item = conditions[i];
             if (CheckSingleCondition(item, typeInformation))

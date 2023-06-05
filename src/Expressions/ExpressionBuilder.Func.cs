@@ -32,10 +32,11 @@ internal static partial class ExpressionBuilder
         var expressions = new Expression[length + 1];
 
         for (var i = 0; i < length; i++)
+        {
             expressions[i] = parameterInfos[i].ParameterType.AsParameter();
-
+        }
 #if NET5_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-            expressions[^1] = resolutionContext.CurrentScopeParameter;
+        expressions[^1] = resolutionContext.CurrentScopeParameter;
 #else
         expressions[expressions.Length - 1] = resolutionContext.CurrentScopeParameter;
 #endif

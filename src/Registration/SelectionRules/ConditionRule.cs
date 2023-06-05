@@ -11,7 +11,7 @@ internal class ConditionRule : IRegistrationSelectionRule
         var conditions = registration.Options.GetOrDefault<ConditionOptions>(RegistrationOption.ConditionOptions);
         if (conditions is not null)
         {
-            shouldIncrementWeight = registration.IsUsableForCurrentContext(typeInformation, conditions);
+            shouldIncrementWeight = ServiceRegistration.IsUsableForCurrentContext(typeInformation, conditions);
             return shouldIncrementWeight;
         }
 

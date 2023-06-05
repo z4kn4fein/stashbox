@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v5.10.0] - 2023-06-04
+### Changed
+- Each `Resolve()` method now accepts a `ResolutionBehavior` flag parameter. It determines which level of the container hierarchy can take part in the service resolution. Possible values:
+  - `Parent`: Only parent containers will take part in the service's resolution.
+  - `Current`: Only the container which initiated the resolution request will take part in the service's resolution.
+  - `Default`: The default behavior, it's used when the parameter is not specified. Its value is `Parent | Current`, so both parents and the current container will take part in the service's resolution.
+- `CreateChildContainer()` now accepts an `attachToParent` boolean parameter, which indicates whether the parent container's disposal should also dispose the child. It defaults to `true`.
+- `ITenantDistributor` and `TenantDistributor` types became **obsolete**. Their functionality is available on `IStashboxContainer`.
+  - `ITenantDistributor.ConfigureTenant()` -> `IStashboxContainer.CreateChildContainer()`
+  - `ITenantDistributor.GetTenant()` -> `IStashboxContainer.GetChildContainer()`
+- Calling `Validate()` on a container will execute validation on each of its child container if it has any.
+### Fixed
+- `IEnumerable<T>` and `ResolveAll()` requests were not taking services in parent containers into account. Now, it respects the given `ResolutionBehavior` and as its default value is `Parent | Current`, `IEnumerable<T>` requests will return services from parent containers by default.
+- Decorator selection during a resolution request was not take parent containers into consideration. It now respects the given `ResolutionBehavior` parameter.
+
 ## [v5.9.1] - 2023-06-01
 ### Fixed
 - The per-request expression cache stored the underlying expressions with type conversion to the requested service type. This caused type mismatch exceptions when a service was registered to multiple base types. Now, the cache stores the raw instantiation expression and the conversion happens one layer above when needed.
@@ -352,6 +367,7 @@ The validation was executed only at the expression tree building phase, so an al
 - Removed the legacy container extension functionality.
 - Removed the support of PCL v259.
 
+[v5.10.0]: https://github.com/z4kn4fein/stashbox/compare/5.9.1...5.10.0
 [v5.9.1]: https://github.com/z4kn4fein/stashbox/compare/5.9.0...5.9.1
 [v5.9.0]: https://github.com/z4kn4fein/stashbox/compare/5.8.2...5.9.0
 [v5.8.2]: https://github.com/z4kn4fein/stashbox/compare/5.8.1...5.8.2

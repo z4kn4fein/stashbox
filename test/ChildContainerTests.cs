@@ -18,7 +18,7 @@ public class ChildContainerTests
     public void ChildContainerTests_Dispose_Parent_Disposes_Child(CompilerType compilerType)
     {
         var test = new Test();
-        var container = new StashboxContainer(c => c.WithCompiler(compilerType));
+        IStashboxContainer container = new StashboxContainer(c => c.WithCompiler(compilerType));
         var child = container.CreateChildContainer();
         child.RegisterInstance(test);
         
@@ -33,7 +33,7 @@ public class ChildContainerTests
     public void ChildContainerTests_Dispose_Parent_Not_Disposes_Child(CompilerType compilerType)
     {
         var test = new Test();
-        var container = new StashboxContainer(c => c.WithCompiler(compilerType));
+        IStashboxContainer container = new StashboxContainer(c => c.WithCompiler(compilerType));
         var child = container.CreateChildContainer(attachToParent: false);
         child.RegisterInstance(test);
         
@@ -54,7 +54,7 @@ public class ChildContainerTests
     public async Task ChildContainerTests_Dispose_Parent_Disposes_Child_Async(CompilerType compilerType)
     {
         var test = new Test();
-        var container = new StashboxContainer(c => c.WithCompiler(compilerType));
+        IStashboxContainer container = new StashboxContainer(c => c.WithCompiler(compilerType));
         var child = container.CreateChildContainer(attachToParent: true);
         child.RegisterInstance(test);
         
@@ -69,7 +69,7 @@ public class ChildContainerTests
     public async Task ChildContainerTests_Dispose_Parent_Not_Disposes_Child_Async(CompilerType compilerType)
     {
         var test = new Test();
-        var container = new StashboxContainer(c => c.WithCompiler(compilerType));
+        IStashboxContainer container = new StashboxContainer(c => c.WithCompiler(compilerType));
         var child = container.CreateChildContainer(attachToParent: false);
         child.RegisterInstance(test);
         
@@ -87,14 +87,16 @@ public class ChildContainerTests
     
     [Theory]
     [ClassData(typeof(CompilerTypeTestData))]
-    public void ChildContainerTests_Resolve_Parent_Current(CompilerType compilerType)
+    public void ChildContainerTests_ResolveAll_Parent_Current(CompilerType compilerType)
     {
         using var container = new StashboxContainer(c => c.WithCompiler(compilerType)).Register<IT, T1>().Register<IT, T2>();
         var child = container.CreateChildContainer().Register<IT, T3>().Register<IT, T4>();
 
         Assert.Equal(4, child.ResolveAll<IT>().Count());
-        Assert.Equal(2, child.ResolveAll<IT>(ResolutionBehavior.Current).Count());
-        Assert.Equal(2, child.ResolveAll<IT>(ResolutionBehavior.Parent).Count());
+        Assert.Equal(2, child.ResolveAll<IT>(name: null, dependencyOverrides: new []{new object()}, ResolutionBehavior.Current).Count());
+        Assert.Equal(2, child.ResolveAll<IT>(dependencyOverrides: new []{new object()}, ResolutionBehavior.Current).Count());
+        Assert.Equal(2, child.ResolveAll<IT>(name: null, ResolutionBehavior.Current).Count());
+        Assert.Equal(2, child.ResolveAll(typeof(IT), name: null, dependencyOverrides: new []{new object()}, ResolutionBehavior.Parent).Count());
     }
     
     [Theory]
@@ -157,12 +159,34 @@ public class ChildContainerTests
             .RegisterDecorator<IT, T6>(c => c.WithInitializer((inst, _) => inst.Init("child")));
 
         Assert.IsType<T6>(((T6)child.Resolve<IT>()).Dep);
-        Assert.IsType<T4>(((T6)child.Resolve<IT>(ResolutionBehavior.Current)).Dep);
-        Assert.IsType<T2>(((T6)child.Resolve<IT>(ResolutionBehavior.Parent)).Dep);
+        Assert.IsType<T4>(((T6)child.Resolve<IT>(dependencyOverrides: new []{new object()}, ResolutionBehavior.Current)).Dep);
+        Assert.IsType<T2>(((T6)child.Resolve<IT>(name: null, dependencyOverrides: new []{new object()}, ResolutionBehavior.Parent)).Dep);
         
         Assert.Equal("child", ((T6)child.Resolve<IT>()).ID);
-        Assert.Equal("child", ((T6)child.Resolve<IT>(ResolutionBehavior.Current)).ID);
-        Assert.Equal("parent", ((T6)child.Resolve<IT>(ResolutionBehavior.Parent)).ID);
+        Assert.Equal("child", ((T6)child.Resolve<IT>(name: null, ResolutionBehavior.Current)).ID);
+        Assert.Equal("parent", ((T6)child.Resolve(typeof(IT), ResolutionBehavior.Parent)).ID);
+    }
+    
+    [Theory]
+    [ClassData(typeof(CompilerTypeTestData))]
+    public void ChildContainerTests_ResolveOrDefault_Decorator_Parent_Current(CompilerType compilerType)
+    {
+        using var container = new StashboxContainer(c => c.WithCompiler(compilerType))
+            .Register<IT, T1>()
+            .Register<IT, T2>()
+            .RegisterDecorator<IT, T6>(c => c.WithInitializer((inst, _) => inst.Init("parent")));
+        var child = container.CreateChildContainer()
+            .Register<IT, T3>()
+            .Register<IT, T4>()
+            .RegisterDecorator<IT, T6>(c => c.WithInitializer((inst, _) => inst.Init("child")));
+
+        Assert.IsType<T6>(((T6)child.ResolveOrDefault<IT>()).Dep);
+        Assert.IsType<T4>(((T6)child.ResolveOrDefault<IT>(dependencyOverrides: new []{new object()}, ResolutionBehavior.Current)).Dep);
+        Assert.IsType<T2>(((T6)child.ResolveOrDefault<IT>(name: null, dependencyOverrides: new []{new object()}, ResolutionBehavior.Parent)).Dep);
+        
+        Assert.Equal("child", ((T6)child.ResolveOrDefault<IT>()).ID);
+        Assert.Equal("child", ((T6)child.ResolveOrDefault<IT>(name: null, ResolutionBehavior.Current)).ID);
+        Assert.Equal("parent", ((T6)child.ResolveOrDefault(typeof(IT), ResolutionBehavior.Parent)!).ID);
     }
     
     [Theory]
@@ -290,7 +314,8 @@ public class ChildContainerTests
 
         container.CreateChildContainer("A", c => c.Register<D>());
 
-        container.Validate();
+        var exception = Record.Exception(() => container.Validate());
+        Assert.Null(exception);
     }
 
     [Fact]
@@ -334,8 +359,8 @@ public class ChildContainerTests
         var container = new StashboxContainer();
         container.Register<IA, C>();
 
-        container.Dispose();
-        container.Dispose();
+        Assert.Null(Record.Exception(() => container.Dispose()));
+        Assert.Null(Record.Exception(() => container.Dispose()));
     }
     
     [Fact]
@@ -413,8 +438,8 @@ public class ChildContainerTests
         var container = new StashboxContainer();
         container.Register<IA, C>();
 
-        await container.DisposeAsync();
-        await container.DisposeAsync();
+        Assert.Null(await Record.ExceptionAsync(async () => await container.DisposeAsync()));
+        Assert.Null(await Record.ExceptionAsync(async () => await container.DisposeAsync()));
     }
     
     [Fact]

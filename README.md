@@ -12,9 +12,9 @@ Stashbox is a lightweight, fast, and portable dependency injection framework for
 - [Release notes](https://github.com/z4kn4fein/stashbox/blob/master/CHANGELOG.md)
 - [ASP.NET Core sample](https://github.com/z4kn4fein/stashbox-extensions-dependencyinjection/tree/master/sample)
 
-Github (stable) | NuGet (stable) | Fuget (stable)                                                                                                                 | NuGet (pre-release)
---- | --- |--------------------------------------------------------------------------------------------------------------------------------| ---
-[![Github release](https://img.shields.io/github/release/z4kn4fein/stashbox.svg)](https://github.com/z4kn4fein/stashbox/releases) | [![NuGet Version](https://buildstats.info/nuget/Stashbox)](https://www.nuget.org/packages/Stashbox/) | [![Stashbox on fuget.org](https://www.fuget.org/packages/Stashbox/badge.svg?v=5.9.1)](https://www.fuget.org/packages/Stashbox) | [![Nuget pre-release](https://img.shields.io/nuget/vpre/Stashbox)](https://www.nuget.org/packages/Stashbox/)
+Github (stable) | NuGet (stable) | Fuget (stable)                                                                                                                  | NuGet (pre-release)
+--- | --- |---------------------------------------------------------------------------------------------------------------------------------| ---
+[![Github release](https://img.shields.io/github/release/z4kn4fein/stashbox.svg)](https://github.com/z4kn4fein/stashbox/releases) | [![NuGet Version](https://buildstats.info/nuget/Stashbox)](https://www.nuget.org/packages/Stashbox/) | [![Stashbox on fuget.org](https://www.fuget.org/packages/Stashbox/badge.svg?v=5.10.0)](https://www.fuget.org/packages/Stashbox) | [![Nuget pre-release](https://img.shields.io/nuget/vpre/Stashbox)](https://www.nuget.org/packages/Stashbox/)
 
 ## Core Attributes
  - 🚀 Fast, thread-safe, and lock-free operations.

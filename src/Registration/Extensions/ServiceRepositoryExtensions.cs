@@ -14,12 +14,12 @@ internal static class ServiceRepositoryExtensions
     {
         var registrations = repository.GetOrDefaultByRef(type);
         if (name != null && registrations != null)
-            return registrations.Repository.Any(reg => name.Equals(reg.Name));
+            return Array.Exists(registrations.Repository, reg => name.Equals(reg.Name));
 
         if (registrations != null || !includeOpenGenerics || !type.IsClosedGenericType()) return registrations != null;
 
         registrations = repository.GetOrDefaultByRef(type.GetGenericTypeDefinition());
-        return registrations?.Repository.Any(reg => reg.ImplementationType.SatisfiesGenericConstraintsOf(type)) ?? false;
+        return registrations?.Repository != null && Array.Exists(registrations.Repository, reg => reg.ImplementationType.SatisfiesGenericConstraintsOf(type));
     }
 
     public static ServiceRegistration? SelectOrDefault(this IEnumerable<ServiceRegistration> registrations,
