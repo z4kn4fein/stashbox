@@ -7,7 +7,6 @@ using Stashbox.Utils;
 using Stashbox.Utils.Data.Immutable;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Design;
 using System.Linq;
 using System.Linq.Expressions;
 
@@ -48,7 +47,7 @@ internal class ResolutionStrategy : IResolutionStrategy
             return resolutionContext.RequestContextParameter.AsServiceContext();
         }
 
-        if (!resolutionContext.IsTopRequest)
+        if (typeInformation.IsDependency)
         {
             if (resolutionContext.ParameterExpressions.Length > 0)
             {
@@ -89,7 +88,7 @@ internal class ResolutionStrategy : IResolutionStrategy
             : null;
 
         var isResolutionCallRequired = registration?.Options.IsOn(RegistrationOption.IsResolutionCallRequired) ?? false;
-        if (!resolutionContext.IsTopRequest && registration != null && isResolutionCallRequired)
+        if (typeInformation.IsDependency && registration != null && isResolutionCallRequired)
             return resolutionContext.CurrentScopeParameter
                 .ConvertTo(TypeCache<IDependencyResolver>.Type)
                 .CallMethod(Constants.ResolveMethod, 
@@ -99,7 +98,6 @@ internal class ResolutionStrategy : IResolutionStrategy
                 .ConvertTo(typeInformation.Type)
                 .AsServiceContext(registration);
 
-        resolutionContext = resolutionContext.BeginSubDependencyContext();
         return registration != null
             ? this.BuildExpressionForRegistration(registration, resolutionContext, typeInformation)
             : this.BuildExpressionUsingWrappersOrResolvers(resolutionContext, typeInformation);
@@ -147,7 +145,7 @@ internal class ResolutionStrategy : IResolutionStrategy
             ? resolutionContext.RequestInitiatorContainerContext
             : resolutionContext.RequestInitiatorContainerContext.ParentContext;
 
-        var decorators = resolutionContext.RequestInitiatorResolutionBehavior.Has(ResolutionBehavior.Parent)
+        var decorators = resolutionContext.RequestInitiatorResolutionBehavior.Has(ResolutionBehavior.Parent) || resolutionContext.RequestInitiatorResolutionBehavior.Has(ResolutionBehavior.ParentDependency)
             ? CollectDecorators(serviceRegistration.ImplementationType, typeInformation, 
                 resolutionContext, decoratorContext)
             : decoratorContext?.DecoratorRepository.GetDecoratorsOrDefault(serviceRegistration.ImplementationType, typeInformation, resolutionContext);

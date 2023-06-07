@@ -54,6 +54,8 @@ public class TypeInformation
     /// </summary>
     public readonly TypeInformation? Parent;
 
+    internal readonly bool IsDependency;
+
     internal TypeInformation(Type type, object? dependencyName)
     {
         this.Type = type;
@@ -65,6 +67,7 @@ public class TypeInformation
         this.HasDefaultValue = false;
         this.DefaultValue = null;
         this.Parent = null;
+        this.IsDependency = false;
     }
 
     internal TypeInformation(Type type, Type? parentType, TypeInformation? parent, object? dependencyName,
@@ -80,6 +83,7 @@ public class TypeInformation
         this.DefaultValue = defaultValue;
         this.MetadataType = metaDataType;
         this.Parent = parent;
+        this.IsDependency = parentType != null;
     }
 
     /// <summary>

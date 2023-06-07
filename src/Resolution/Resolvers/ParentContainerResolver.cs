@@ -5,7 +5,9 @@ namespace Stashbox.Resolution.Resolvers;
 internal class ParentContainerResolver : IEnumerableSupportedResolver, ILookup
 {
     public bool CanUseForResolution(TypeInformation typeInfo, ResolutionContext resolutionContext) =>
-        resolutionContext.CurrentContainerContext.ParentContext != null && resolutionContext.ResolutionBehavior.Has(ResolutionBehavior.Parent);
+        resolutionContext.CurrentContainerContext.ParentContext != null && 
+        (resolutionContext.ResolutionBehavior.Has(ResolutionBehavior.Parent) || 
+         typeInfo.IsDependency && resolutionContext.ResolutionBehavior.Has(ResolutionBehavior.ParentDependency));
 
     public ServiceContext GetExpression(
         IResolutionStrategy resolutionStrategy,

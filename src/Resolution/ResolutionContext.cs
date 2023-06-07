@@ -40,7 +40,6 @@ public class ResolutionContext
     internal readonly string? NameOfServiceLifeSpanValidatingAgainst;
     internal readonly bool PerResolutionRequestCacheEnabled;
     internal readonly bool UnknownTypeCheckDisabled;
-    internal readonly bool IsTopRequest;
     internal readonly RequestContext RequestContext;
     internal readonly bool IsValidationContext;
 
@@ -77,7 +76,6 @@ public class ResolutionContext
     private ResolutionContext(IEnumerable<object> initialScopeNames,
         IContainerContext currentContainerContext,
         ResolutionBehavior resolutionBehavior,
-        bool isTopLevel,
         bool isRequestedFromRoot,
         bool nullResultAllowed,
         bool isValidationContext,
@@ -96,7 +94,6 @@ public class ResolutionContext
         this.ResolutionBehavior = this.RequestInitiatorResolutionBehavior = resolutionBehavior;
         this.NullResultAllowed = nullResultAllowed;
         this.IsRequestedFromRoot = isRequestedFromRoot;
-        this.IsTopRequest = isTopLevel;
         this.ScopeNames = initialScopeNames.AsStack();
         this.CurrentScopeParameter = Constants.ResolutionScopeParameter;
         this.RequestContextParameter = Constants.RequestContextParameter;
@@ -135,7 +132,6 @@ public class ResolutionContext
         ResolutionBehavior requestInitiatorResolutionBehavior,
         bool nullResultAllowed,
         bool isRequestedFromRoot,
-        bool isTopLevel,
         string? nameOfServiceLifeSpanValidatingAgainst,
         int currentLifeSpan,
         bool perResolutionRequestCacheEnabled,
@@ -153,7 +149,6 @@ public class ResolutionContext
         this.FactoryCache = factoryCache;
         this.NullResultAllowed = nullResultAllowed;
         this.IsRequestedFromRoot = isRequestedFromRoot;
-        this.IsTopRequest = isTopLevel;
         this.ScopeNames = scopeNames;
         this.CurrentScopeParameter = currentScopeParameter;
         this.RequestContextParameter = requestContextParameter;
@@ -208,7 +203,6 @@ public class ResolutionContext
         new(initialScopeNames,
             currentContainerContext,
             resolutionBehavior,
-            true,
             isRequestedFromRoot,
             false,
             false,
@@ -228,7 +222,6 @@ public class ResolutionContext
             currentContainerContext,
             resolutionBehavior,
             true,
-            isRequestedFromRoot,
             true,
             false,
             dependencyOverrides,
@@ -236,9 +229,7 @@ public class ResolutionContext
             initialParameters);
 
     internal static ResolutionContext BeginValidationContext(IContainerContext currentContainerContext, ResolutionBehavior resolutionBehavior) =>
-        new(TypeCache.EmptyArray<object>(), currentContainerContext, resolutionBehavior, true, false, false, true, null, null, null);
-
-    internal ResolutionContext BeginSubDependencyContext() => !this.IsTopRequest ? this : this.Clone(isTopRequest: false);
+        new(TypeCache.EmptyArray<object>(), currentContainerContext, resolutionBehavior, false, false, true, null, null, null);
 
     internal ResolutionContext BeginParentContainerContext(IContainerContext currentContainerContext) =>
         this.Clone(currentContainerContext: currentContainerContext,
@@ -325,7 +316,6 @@ public class ResolutionContext
         ResolutionBehavior? resolutionBehavior = null,
         string? nameOfServiceLifeSpanValidatingAgainst = null,
         int? currentLifeSpan = null,
-        bool? isTopRequest = null,
         bool? perResolutionRequestCacheEnabled = null,
         bool? unknownTypeCheckDisabled = null,
         bool? shouldFallBackToRequestInitiatorContext = null) =>
@@ -349,7 +339,6 @@ public class ResolutionContext
             this.RequestInitiatorResolutionBehavior,
             this.NullResultAllowed,
             this.IsRequestedFromRoot,
-            isTopRequest ?? this.IsTopRequest,
             nameOfServiceLifeSpanValidatingAgainst ?? this.NameOfServiceLifeSpanValidatingAgainst,
             currentLifeSpan ?? this.CurrentLifeSpan,
             perResolutionRequestCacheEnabled ?? this.PerResolutionRequestCacheEnabled,

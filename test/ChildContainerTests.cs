@@ -277,6 +277,73 @@ public class ChildContainerTests
     
     [Theory]
     [ClassData(typeof(CompilerTypeTestData))]
+    public void ChildContainerTests_Resolve_Parent_Dependency(CompilerType compilerType)
+    {
+        using var container = new StashboxContainer(c => c.WithCompiler(compilerType))
+            .Register<IT, T1>();
+        var child = container.CreateChildContainer()
+            .Register<D1>();
+
+        Assert.IsType<T1>(child.Resolve<D1>().Dep);
+        Assert.IsType<T1>(child.Resolve<IT>(ResolutionBehavior.Parent));
+        Assert.Throws<ResolutionFailedException>(() => child.Resolve<D1>(ResolutionBehavior.Parent));
+        Assert.Throws<ResolutionFailedException>(() => child.Resolve<D1>(ResolutionBehavior.Current));
+        Assert.IsType<T1>(child.Resolve<D1>(ResolutionBehavior.Current | ResolutionBehavior.ParentDependency).Dep);
+        Assert.Throws<ResolutionFailedException>(() => child.Resolve<IT>(ResolutionBehavior.Current | ResolutionBehavior.ParentDependency));
+    }
+    
+    [Theory]
+    [ClassData(typeof(CompilerTypeTestData))]
+    public void ChildContainerTests_Resolve_Parent_Enumerable_Dependency(CompilerType compilerType)
+    {
+        using var container = new StashboxContainer(c => c.WithCompiler(compilerType))
+            .Register<IT, T1>();
+        var child = container.CreateChildContainer()
+            .Register<D2>();
+
+        Assert.IsType<T1>(child.Resolve<D2>().Dep.First());
+        Assert.Empty(child.Resolve<D2>(ResolutionBehavior.Current).Dep);
+        Assert.IsType<T1>(child.Resolve<D2>(ResolutionBehavior.Current | ResolutionBehavior.ParentDependency).Dep.First());
+    }
+    
+    [Theory]
+    [ClassData(typeof(CompilerTypeTestData))]
+    public void ChildContainerTests_Resolve_Parent_Enumerable_Select_Dependency(CompilerType compilerType)
+    {
+        using var container = new StashboxContainer(c => c.WithCompiler(compilerType))
+            .Register<IT, T1>().Register<D2>(c => c.WithInitializer((d, _) => d.Init("parent")));
+        var child = container.CreateChildContainer()
+            .Register<IT, T2>().Register<D2>(c => c.WithInitializer((d, _) => d.Init("child")));
+
+        Assert.Equal(2, child.Resolve<D2>().Dep.Count());
+        Assert.Equal("child", child.Resolve<D2>().ID);
+        Assert.Single(child.Resolve<D2>(ResolutionBehavior.Parent).Dep);
+        Assert.Equal("parent", child.Resolve<D2>(ResolutionBehavior.Parent).ID);
+        Assert.Single(child.Resolve<D2>(ResolutionBehavior.Current).Dep);
+        Assert.Equal("child", child.Resolve<D2>(ResolutionBehavior.Current).ID);
+        Assert.Equal(2, child.Resolve<D2>(ResolutionBehavior.Current | ResolutionBehavior.ParentDependency).Dep.Count());
+        Assert.Equal("child", child.Resolve<D2>(ResolutionBehavior.Current | ResolutionBehavior.ParentDependency).ID);
+    }
+    
+    [Theory]
+    [ClassData(typeof(CompilerTypeTestData))]
+    public void ChildContainerTests_Resolve_Parent_Decorator_Dependency(CompilerType compilerType)
+    {
+        using var container = new StashboxContainer(c => c.WithCompiler(compilerType))
+            .Register<IT, T1>().RegisterDecorator<IT, T6>();
+        var child = container.CreateChildContainer()
+            .Register<D1>();
+
+        Assert.IsType<T6>(child.Resolve<D1>().Dep);
+        Assert.IsType<T6>(child.Resolve<IT>(ResolutionBehavior.Parent));
+        Assert.Throws<ResolutionFailedException>(() => child.Resolve<D1>(ResolutionBehavior.Parent));
+        Assert.Throws<ResolutionFailedException>(() => child.Resolve<D1>(ResolutionBehavior.Current));
+        Assert.IsType<T6>(child.Resolve<D1>(ResolutionBehavior.Current | ResolutionBehavior.ParentDependency).Dep);
+        Assert.Throws<ResolutionFailedException>(() => child.Resolve<IT>(ResolutionBehavior.Current | ResolutionBehavior.ParentDependency));
+    }
+    
+    [Theory]
+    [ClassData(typeof(CompilerTypeTestData))]
     public void ChildContainerTests_Resolve_Decorator_Enumerable_Parent_Current(CompilerType compilerType)
     {
         using var container = new StashboxContainer(c => c.WithCompiler(compilerType)).Register<IT, T1>().Register<IT, T2>().RegisterDecorator<IT, T5>();

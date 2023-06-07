@@ -135,7 +135,7 @@ internal class RegistrationRepository : IRegistrationRepository
 
     public ServiceRegistration? GetRegistrationOrDefault(TypeInformation typeInfo, ResolutionContext resolutionContext) =>
         this.GetRegistrationsForType(typeInfo.Type)?.SelectOrDefault(typeInfo, resolutionContext,
-            resolutionContext.IsTopRequest ? this.topLevelFilters : this.filters);
+            !typeInfo.IsDependency ? this.topLevelFilters : this.filters);
 
     public IEnumerable<ServiceRegistration>? GetRegistrationsOrDefault(TypeInformation typeInfo, ResolutionContext resolutionContext) =>
         this.GetRegistrationsForType(typeInfo.Type)
