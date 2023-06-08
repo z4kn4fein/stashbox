@@ -498,7 +498,144 @@ public class FactoryTests
         Assert.IsType<TD>(inst.T3);
         Assert.IsType<TD>(inst.T4);
     }
+    
+    [Theory]
+    [ClassData(typeof(CompilerTypeTestData))]
+    public void FactoryTests_Resolve_Action_Without_Implementation(CompilerType compilerType)
+    {
+        using var container = new StashboxContainer(c => c.WithCompiler(compilerType))
+            .Register<IT1>(c => c.WithFactory(() => new TD()));
 
+        Assert.NotNull(container.Resolve<IT1>());
+    }
+    
+    [Theory]
+    [ClassData(typeof(CompilerTypeTestData))]
+    public void FactoryTests_Resolve_Action_Without_Implementation_AsServiceAlso(CompilerType compilerType)
+    {
+        using var container = new StashboxContainer(c => c.WithCompiler(compilerType))
+            .Register<IT1>(c => c.WithFactory(() => new TD()).AsServiceAlso<IT2>());
+
+        Assert.IsType<TD>(container.Resolve<IT1>());
+        Assert.IsType<TD>(container.Resolve<IT2>());
+    }
+    
+    [Theory]
+    [ClassData(typeof(CompilerTypeTestData))]
+    public void FactoryTests_Resolve_Action_Without_Implementation_DependencyResolver_AsServiceAlso(CompilerType compilerType)
+    {
+        using var container = new StashboxContainer(c => c.WithCompiler(compilerType))
+            .Register<IT1>(c => c.WithFactory(r => new TD()).AsServiceAlso<IT2>());
+
+        Assert.IsType<TD>(container.Resolve<IT1>());
+        Assert.IsType<TD>(container.Resolve<IT2>());
+    }
+    
+    [Theory]
+    [ClassData(typeof(CompilerTypeTestData))]
+    public void FactoryTests_Resolve_Action_Without_Implementation_AsImplementedTypes(CompilerType compilerType)
+    {
+        using var container = new StashboxContainer(c => c.WithCompiler(compilerType))
+            .Register<IT1>(c => c.WithFactory(() => new TD()).AsImplementedTypes());
+
+        Assert.IsType<TD>(container.Resolve<IT1>());
+        Assert.IsType<TD>(container.Resolve<IT2>());
+    }
+    
+    [Theory]
+    [ClassData(typeof(CompilerTypeTestData))]
+    public void FactoryTests_Resolve_Action_Without_Implementation_DependencyResolver_AsImplementedTypes(CompilerType compilerType)
+    {
+        using var container = new StashboxContainer(c => c.WithCompiler(compilerType))
+            .Register<IT1>(c => c.WithFactory(r => new TD()).AsImplementedTypes());
+
+        Assert.IsType<TD>(container.Resolve<IT1>());
+        Assert.IsType<TD>(container.Resolve<IT2>());
+    }
+    
+    [Theory]
+    [ClassData(typeof(CompilerTypeTestData))]
+    public void FactoryTests_Resolve_Action_Without_Implementation_DependencyResolver_AsServiceAlso_Param(CompilerType compilerType)
+    {
+        using var container = new StashboxContainer(c => c.WithCompiler(compilerType))
+            .Register<Dummy>()
+            .Register<IT1>(c => c.WithFactory<Dummy>(_ => new TD()).AsServiceAlso<IT2>());
+
+        Assert.IsType<TD>(container.Resolve<IT1>());
+        Assert.IsType<TD>(container.Resolve<IT2>());
+    }
+    
+    [Theory]
+    [ClassData(typeof(CompilerTypeTestData))]
+    public void FactoryTests_Resolve_Action_Without_Implementation_DependencyResolver_AsImplementedTypes_Param(CompilerType compilerType)
+    {
+        using var container = new StashboxContainer(c => c.WithCompiler(compilerType))
+            .Register<Dummy>()
+            .Register<IT1>(c => c.WithFactory<Dummy>(_ => new TD()).AsImplementedTypes());
+
+        Assert.IsType<TD>(container.Resolve<IT1>());
+        Assert.Throws<ResolutionFailedException>(() => container.Resolve<IT2>());
+    }
+    
+    [Theory]
+    [ClassData(typeof(CompilerTypeTestData))]
+    public void FactoryTests_Resolve_Action_Without_Implementation_AsServiceAlso_Interface(CompilerType compilerType)
+    {
+        using var container = new StashboxContainer(c => c.WithCompiler(compilerType))
+            .Register<IT1>(c => c.WithFactory(() => (IT1)new TD()).AsServiceAlso<IT2>());
+
+        Assert.IsType<TD>(container.Resolve<IT1>());
+        Assert.IsType<TD>(container.Resolve<IT2>());
+    }
+    
+    [Theory]
+    [ClassData(typeof(CompilerTypeTestData))]
+    public void FactoryTests_Resolve_Action_Without_Implementation_AsImplementedTypes_Interface(CompilerType compilerType)
+    {
+        using var container = new StashboxContainer(c => c.WithCompiler(compilerType))
+            .Register<IT1>(c => c.WithFactory(() => (IT1)new TD()).AsImplementedTypes());
+
+        Assert.IsType<TD>(container.Resolve<IT1>());
+        Assert.Throws<ResolutionFailedException>(() => container.Resolve<IT2>());
+    }
+    
+    [Theory]
+    [ClassData(typeof(CompilerTypeTestData))]
+    public void FactoryTests_Resolve_Action_Without_Implementation_Unknown(CompilerType compilerType)
+    {
+        using var container1 = new StashboxContainer().Register<IT1, TD>();
+        
+        using var container2 = new StashboxContainer(c => c.WithCompiler(compilerType)
+            .WithUnknownTypeResolution(opts =>
+            {
+                if (opts.ServiceType == typeof(IT1))
+                    opts.WithFactory(() => container1.Resolve(opts.ServiceType)).AsServiceAlso<IT2>();
+            }));
+
+        Assert.IsType<TD>(container2.Resolve<IT1>());
+        Assert.IsType<TD>(container2.Resolve<IT2>());
+    }
+    
+    [Theory]
+    [ClassData(typeof(CompilerTypeTestData))]
+    public void FactoryTests_Resolve_Action_Without_Implementation_Unknown_Open_Generic(CompilerType compilerType)
+    {
+        using var container1 = new StashboxContainer().Register(typeof(ITG<>), typeof(TG<>));
+        
+        using var container2 = new StashboxContainer(c => c.WithCompiler(compilerType)
+            .WithUnknownTypeResolution(opts =>
+            {
+                opts.WithFactory(() => container1.Resolve(opts.ServiceType));
+            }));
+
+        Assert.IsType<TG<int>>(container2.Resolve<ITG<int>>());
+        Assert.IsType<TG<string>>(container2.Resolve<ITG<string>>());
+    }
+
+    interface ITG<T> { }
+    
+    class TG<T> : ITG<T> {}
+    
     interface ITest { string Name { get; } }
 
     interface ITest1 { ITest Test { get; } }

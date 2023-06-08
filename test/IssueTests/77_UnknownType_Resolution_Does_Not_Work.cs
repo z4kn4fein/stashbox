@@ -7,7 +7,7 @@ namespace Stashbox.Tests.IssueTests;
 public class UnknownTypeResolutionDoesNotWork
 {
     [Fact]
-    public void Ensure_Unkown_Type_Resolution_Works_With_Interface()
+    public void Ensure_Unknown_Type_Resolution_Works_With_Interface()
     {
         using var container = new StashboxContainer(c => c.WithUnknownTypeResolution(config =>
         {
@@ -23,7 +23,7 @@ public class UnknownTypeResolutionDoesNotWork
     }
 
     [Fact]
-    public void Unkown_Type_Resolution_With_Interface_Bad_Implementation()
+    public void Unknown_Type_Resolution_With_Interface_Bad_Implementation()
     {
         Assert.Throws<ArgumentException>(() =>
         {

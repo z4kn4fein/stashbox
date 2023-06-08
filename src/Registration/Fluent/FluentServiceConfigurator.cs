@@ -100,6 +100,18 @@ public class FluentServiceConfigurator<TService, TImplementation, TConfigurator>
         this.SetFactory(factory, isCompiledLambda, TypeCache<TImplementation>.Type);
         return (TConfigurator)this;
     }
+    
+    /// <summary>
+    /// Sets a parameter-less factory delegate for the registration.
+    /// </summary>
+    /// <param name="factory">The factory delegate.</param>
+    /// <param name="isCompiledLambda">Flag that indicates the passed factory delegate is a compiled lambda from <see cref="Expression"/>.</param>
+    /// <returns>The fluent configurator.</returns>
+    public TConfigurator WithFactory<TImpl>(Func<TImpl> factory, bool isCompiledLambda = false)
+    {
+        this.SetFactory(factory, TypeCache<TImpl>.Type, isCompiledLambda, TypeCache<TImpl>.Type);
+        return (TConfigurator)this;
+    }
 
     /// <summary>
     /// Sets a factory delegate for the registration that takes an <see cref="IDependencyResolver"/> as parameter.
@@ -112,6 +124,18 @@ public class FluentServiceConfigurator<TService, TImplementation, TConfigurator>
         this.SetFactory(factory, isCompiledLambda, TypeCache<IDependencyResolver>.Type, TypeCache<TImplementation>.Type);
         return (TConfigurator)this;
     }
+    
+    /// <summary>
+    /// Sets a factory delegate for the registration that takes an <see cref="IDependencyResolver"/> as parameter.
+    /// </summary>
+    /// <param name="factory">The factory delegate.</param>
+    /// <param name="isCompiledLambda">Flag that indicates the passed factory delegate is a compiled lambda from <see cref="Expression"/>.</param>
+    /// <returns>The fluent configurator.</returns>
+    public TConfigurator WithFactory<TImpl>(Func<IDependencyResolver, TImpl> factory, bool isCompiledLambda = false)
+    {
+        this.SetFactory(factory, TypeCache<TImpl>.Type, isCompiledLambda, TypeCache<IDependencyResolver>.Type, TypeCache<TImpl>.Type);
+        return (TConfigurator)this;
+    }
 
     /// <summary>
     /// Sets a parameterized factory delegate for the registration.
@@ -122,6 +146,18 @@ public class FluentServiceConfigurator<TService, TImplementation, TConfigurator>
     public TConfigurator WithFactory<T1>(Func<T1, TImplementation> factory, bool isCompiledLambda = false)
     {
         this.SetFactory(factory, isCompiledLambda, TypeCache<T1>.Type, TypeCache<TImplementation>.Type);
+        return (TConfigurator)this;
+    }
+    
+    /// <summary>
+    /// Sets a parameterized factory delegate for the registration.
+    /// </summary>
+    /// <param name="factory">The parameterized factory delegate.</param>
+    /// <param name="isCompiledLambda">Flag that indicates the passed factory delegate is a compiled lambda from <see cref="Expression"/>.</param>
+    /// <returns>The fluent configurator.</returns>
+    public TConfigurator WithFactory<T1, TImpl>(Func<T1, TImpl> factory, bool isCompiledLambda = false)
+    {
+        this.SetFactory(factory, TypeCache<TImpl>.Type, isCompiledLambda, TypeCache<T1>.Type, TypeCache<TImpl>.Type);
         return (TConfigurator)this;
     }
 

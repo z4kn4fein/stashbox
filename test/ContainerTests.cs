@@ -336,7 +336,7 @@ public class ContainerTests
 
         container.Register<ITest1, Test1>().Register<ITest1, Test11>();
 
-        Assert.Equal(2, container.GetRegistrationDiagnostics().Where(r => r.ServiceType == typeof(ITest1)).Count());
+        Assert.Equal(2, container.GetRegistrationDiagnostics().Count(r => r.ServiceType == typeof(ITest1)));
     }
 
     [Fact]

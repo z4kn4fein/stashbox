@@ -484,7 +484,7 @@ public class BaseFluentConfigurator<TConfigurator> : ServiceRegistration
     /// <returns>The configurator itself.</returns>
     public TConfigurator AsServiceAlso(Type serviceType)
     {
-        if (!this.ImplementationType.Implements(serviceType))
+        if (!IsFactory() && !this.ImplementationType.Implements(serviceType))
             throw new ArgumentException($"The implementation type {this.ImplementationType} does not implement the given service type {serviceType}.");
 
         this.Options ??= new Dictionary<RegistrationOption, object?>();
@@ -512,6 +512,14 @@ public class BaseFluentConfigurator<TConfigurator> : ServiceRegistration
         Shield.EnsureIsResolvable(ImplementationType);
     }
 
+    private protected TConfigurator SetFactory(Delegate factory, Type implementationType, bool isCompiledLambda, params Type[] parameterTypes)
+    {
+        Shield.EnsureNotNull(implementationType, nameof(implementationType));
+
+        this.ImplementationType = implementationType;
+        return this.SetFactory(factory, isCompiledLambda, parameterTypes);
+    }
+    
     private protected TConfigurator SetFactory(Delegate factory, bool isCompiledLambda, params Type[] parameterTypes)
     {
         Shield.EnsureNotNull(factory, nameof(factory));

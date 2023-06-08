@@ -26,11 +26,13 @@ internal class UnknownTypeResolver : IServiceResolver, ILookup
         var unknownRegistrationConfigurator = new UnknownRegistrationConfigurator(typeInfo.Type, typeInfo.Type, name, resolutionContext.RequestInitiatorContainerContext.ContainerConfiguration.DefaultLifetime);
         configurator?.Invoke(unknownRegistrationConfigurator);
 
-        if (!unknownRegistrationConfigurator.ImplementationType.IsResolvableType() ||
-            !unknownRegistrationConfigurator.ImplementationType.Implements(unknownRegistrationConfigurator.ServiceType) ||
-            unknownRegistrationConfigurator.RegistrationShouldBeSkipped)
+        if (unknownRegistrationConfigurator.RegistrationShouldBeSkipped)
             return ServiceContext.Empty;
 
+        if (!unknownRegistrationConfigurator.IsFactory() && (!unknownRegistrationConfigurator.ImplementationType.IsResolvableType() ||
+            !unknownRegistrationConfigurator.ImplementationType.Implements(unknownRegistrationConfigurator.ServiceType)))
+            return ServiceContext.Empty;
+        
         ServiceRegistrator.Register(resolutionContext.RequestInitiatorContainerContext, unknownRegistrationConfigurator, typeInfo.Type);
 
         return resolutionStrategy.BuildExpressionForRegistration(unknownRegistrationConfigurator, 
