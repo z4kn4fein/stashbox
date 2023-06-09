@@ -221,7 +221,7 @@ public class ResolutionContext
         new(initialScopeNames,
             currentContainerContext,
             resolutionBehavior,
-            true,
+            isRequestedFromRoot,
             true,
             false,
             dependencyOverrides,

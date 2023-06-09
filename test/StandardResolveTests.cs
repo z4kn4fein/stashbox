@@ -717,6 +717,16 @@ public class StandardResolveTests
     }
 
     [Fact]
+    public void StandardResolveTests_Resolve_Scoped_Ok()
+    {
+        using IStashboxContainer container = new StashboxContainer(config => config.WithLifetimeValidation());
+        container.RegisterScoped<Test1>();
+        var inst = container.BeginScope().ResolveOrDefault<Test1>();
+
+        Assert.NotNull(inst);
+    }
+    
+    [Fact]
     public void StandardResolveTests_Resolve_Scoped_NullDependency()
     {
         using IStashboxContainer container = new StashboxContainer();
