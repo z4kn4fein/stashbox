@@ -10,7 +10,7 @@ namespace Stashbox.Resolution;
 public enum ResolutionBehavior
 {
     /// <summary>
-    /// Indicates that both parent and the current (which initiated the resolution request) container can participate in the resolution request's service selection.
+    /// Indicates that both the parents and the current (which initiated the resolution request) container can participate in the resolution request's service selection.
     /// </summary>
     Default = Current | Parent,
 
