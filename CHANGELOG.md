@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v5.10.2] - 2023-06-13
+### Added
+- Access to the actual `TypeInformation` as a factory delegate input parameter. The `TypeInformation` holds every reflected context information about the currently resolving type. This can be useful when the resolution is, e.g., in an open generic context, and we want to know which closed generic variant is requested.
+  ```cs
+  container.Register(typeof(IService<>), options => options.WithFactory<TypeInformation>(typeInfo => /* typeInfo.Type holds the currently resolving closed generic type */));
+  ```
+
 ## [v5.10.1] - 2023-06-09
 ### Added
 - `ParentDependency` flag for `ResolutionBehavior`. It indicates that parent containers (including indirect all ancestors) can only provide dependencies for services that are already selected for resolution.
@@ -47,14 +54,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
   For an example class like `class Sample : ISample1, ISample2 { }` the registration mapping looked like this:
 
-  ```
+  ```cs
   ISample1 => NewRegistrationOf(Sample)
   ISample2 => NewRegistrationOf(Sample)
   ```
   
   Now each interface/base type is mapped to the same registration:
   
-  ```
+  ```cs
    registration = NewRegistrationOf(Sample)
    ISample1 => registration
    ISample2 => registration
@@ -373,6 +380,7 @@ The validation was executed only at the expression tree building phase, so an al
 - Removed the legacy container extension functionality.
 - Removed the support of PCL v259.
 
+[v5.10.2]: https://github.com/z4kn4fein/stashbox/compare/5.10.1...5.10.2
 [v5.10.1]: https://github.com/z4kn4fein/stashbox/compare/5.10.0...5.10.1
 [v5.10.0]: https://github.com/z4kn4fein/stashbox/compare/5.9.1...5.10.0
 [v5.9.1]: https://github.com/z4kn4fein/stashbox/compare/5.9.0...5.9.1

@@ -631,6 +631,19 @@ public class FactoryTests
         Assert.IsType<TG<int>>(container2.Resolve<ITG<int>>());
         Assert.IsType<TG<string>>(container2.Resolve<ITG<string>>());
     }
+    
+    [Theory]
+    [ClassData(typeof(CompilerTypeTestData))]
+    public void FactoryTests_Resolve_Action_Without_Implementation_Open_Generic(CompilerType compilerType)
+    {
+        using var container1 = new StashboxContainer().Register(typeof(ITG<>), typeof(TG<>));
+        
+        using var container2 = new StashboxContainer(c => c.WithCompiler(compilerType))
+            .Register(typeof(ITG<>), c => c.WithFactory<TypeInformation>(t => container1.Resolve(t.Type)));
+
+        Assert.IsType<TG<int>>(container2.Resolve<ITG<int>>());
+        Assert.IsType<TG<string>>(container2.Resolve<ITG<string>>());
+    }
 
     interface ITG<T> { }
     

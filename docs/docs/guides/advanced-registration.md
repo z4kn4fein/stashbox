@@ -184,6 +184,38 @@ IEventProcessor processor = container.Resolve<IEventProcessor>();
 </div>
 </CodeDescPanel>
 
+<CodeDescPanel>
+<div>
+
+### Accessing the currently resolving type in factories
+
+To access the currently resolving type in factory delegates, you can set the `TypeInformation` type as an input parameter of the factory.
+The `TypeInformation` holds every reflected context information about the currently resolving type. 
+
+This can be useful when the resolution is, e.g., in an open generic context, and we want to know which closed generic variant is requested.
+
+</div>
+<div>
+
+
+```cs
+interface IService<T> { }
+
+class Service<T> : IService<T> { }
+
+container.Register(typeof(IService<>), typeof(Service<>), options => 
+    options.WithFactory<TypeInformation>(typeInfo => 
+    {
+        // typeInfo.Type here holds the actual type like
+        // IService<int> based on the resolution request below.
+    }));
+    
+container.Resolve<IService<int>>();
+```
+
+</div>
+</CodeDescPanel>
+
 
 ## Multiple implementations
 

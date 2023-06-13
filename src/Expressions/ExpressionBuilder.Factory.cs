@@ -4,6 +4,7 @@ using Stashbox.Resolution;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using Stashbox.Utils;
 
 namespace Stashbox.Expressions;
 
@@ -16,7 +17,7 @@ internal static partial class ExpressionBuilder
 
         resolutionContext.CircularDependencyBarrier.Add(serviceRegistration.RegistrationId);
 
-        var parameters = GetFactoryParameters(factoryOptions, resolutionContext);
+        var parameters = GetFactoryParameters(factoryOptions, resolutionContext, typeInformation);
         var expression = ConstructFactoryExpression(factoryOptions, parameters);
         var result = ExpressionFactory.ConstructBuildUpExpression(serviceRegistration, resolutionContext, expression, typeInformation);
 
@@ -35,13 +36,21 @@ internal static partial class ExpressionBuilder
             : method.CallMethod(factoryOptions.Factory.Target.AsConstant(), parameters);
     }
 
-    private static IEnumerable<Expression> GetFactoryParameters(FactoryOptions factoryOptions, ResolutionContext resolutionContext)
+    private static IEnumerable<Expression> GetFactoryParameters(FactoryOptions factoryOptions, ResolutionContext resolutionContext, TypeInformation typeInformation)
     {
         var length = factoryOptions.FactoryParameters.Length;
         for (var i = 0; i < length - 1; i++)
         {
-            var typeInfo = new TypeInformation(factoryOptions.FactoryParameters[i], null);
-            yield return resolutionContext.CurrentContainerContext.ResolutionStrategy.BuildExpressionForType(resolutionContext, typeInfo).ServiceExpression;
+            var type = factoryOptions.FactoryParameters[i];
+            if (type == TypeCache<TypeInformation>.Type)
+            {
+                yield return typeInformation.AsConstant();
+            }
+            else
+            {
+                var typeInfo = new TypeInformation(factoryOptions.FactoryParameters[i], null);
+                yield return resolutionContext.CurrentContainerContext.ResolutionStrategy.BuildExpressionForType(resolutionContext, typeInfo).ServiceExpression;
+            }
         }
     }
 }
