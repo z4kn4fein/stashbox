@@ -163,7 +163,7 @@ public class ServiceRegistration
         var customAttributes = typeInformation.CustomAttributes.Select(attribute => attribute.GetType()).ToList();
         if (customAttributes.Count == 0) return false;
         var length = attributes.Length;
-        for (int i = 0; i < length; i++)
+        for (var i = 0; i < length; i++)
         {
             var item = attributes[i];
             if (item.Key != null)
@@ -193,7 +193,7 @@ public class ServiceRegistration
 public enum RegistrationOption
 {
     /// <summary>
-    /// Determines whether the service's resolution should be handled by a dynamic <see cref="IDependencyResolver.Resolve(Type, ResolutionBehavior)"/> call on the current <see cref="IDependencyResolver"/> instead of a pre-built instantiation expression.
+    /// Determines whether the service's resolution should be handled by a dynamic <see cref="IDependencyResolver.Resolve(Type)"/> call on the current <see cref="IDependencyResolver"/> instead of a pre-built instantiation expression.
     /// </summary>
     IsResolutionCallRequired,
 

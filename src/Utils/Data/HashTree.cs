@@ -54,7 +54,7 @@ internal sealed class HashTree<TKey, TValue>
 
     private static int CalculateHeight(Node node)
     {
-        if (node.Left != null && node.Right != null)
+        if (node is { Left: not null, Right: not null })
             return 1 + (node.Left.Height > node.Right.Height ? node.Left.Height : node.Right.Height);
 
         if (node.Left == null && node.Right == null)
@@ -65,7 +65,7 @@ internal sealed class HashTree<TKey, TValue>
 
     private static int GetBalance(Node node)
     {
-        if (node.Left != null && node.Right != null)
+        if (node is { Left: not null, Right: not null })
             return node.Left.Height - node.Right.Height;
 
         if (node.Left == null && node.Right == null)
@@ -235,5 +235,5 @@ internal class HashTreeDebugView<TKey, TValue> where TKey : class
     public HashTreeDebugView(HashTree<TKey, TValue> tree) { this.tree = tree; }
 
     [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
-    public TValue[] Items { get { return tree.Walk().ToArray(); } }
+    public TValue[] Items => tree.Walk().ToArray();
 }

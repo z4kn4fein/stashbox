@@ -197,6 +197,7 @@ public class ResolutionContext
         IContainerContext currentContainerContext,
         ResolutionBehavior resolutionBehavior,
         bool isRequestedFromRoot,
+        bool nullResultAllowed,
         object[]? dependencyOverrides = null,
         ImmutableTree<object, object>? knownInstances = null,
         ParameterExpression[]? initialParameters = null) =>
@@ -204,25 +205,7 @@ public class ResolutionContext
             currentContainerContext,
             resolutionBehavior,
             isRequestedFromRoot,
-            false,
-            false,
-            dependencyOverrides,
-            knownInstances,
-            initialParameters);
-
-    internal static ResolutionContext BeginNullableTopLevelContext(
-        IEnumerable<object> initialScopeNames,
-        IContainerContext currentContainerContext,
-        ResolutionBehavior resolutionBehavior,
-        bool isRequestedFromRoot,
-        object[]? dependencyOverrides = null,
-        ImmutableTree<object, object>? knownInstances = null,
-        ParameterExpression[]? initialParameters = null) =>
-        new(initialScopeNames,
-            currentContainerContext,
-            resolutionBehavior,
-            isRequestedFromRoot,
-            true,
+            nullResultAllowed,
             false,
             dependencyOverrides,
             knownInstances,
@@ -233,13 +216,13 @@ public class ResolutionContext
 
     internal ResolutionContext BeginParentContainerContext(IContainerContext currentContainerContext) =>
         this.Clone(currentContainerContext: currentContainerContext,
-            shouldFallBackToRequestInitiatorContext: this.RequestInitiatorContainerContext != currentContainerContext,
+            shouldFallBackToRequestInitiator: this.RequestInitiatorContainerContext != currentContainerContext,
             resolutionBehavior: this.ResolutionBehavior | ResolutionBehavior.Current);
     
     internal ResolutionContext FallBackToRequestInitiatorIfNeeded() =>
         this.shouldFallBackToRequestInitiatorContext
             ? this.Clone(currentContainerContext: this.RequestInitiatorContainerContext,
-                shouldFallBackToRequestInitiatorContext: false,
+                shouldFallBackToRequestInitiator: false,
                 resolutionBehavior: this.RequestInitiatorResolutionBehavior)
             : this;
 
@@ -318,7 +301,7 @@ public class ResolutionContext
         int? currentLifeSpan = null,
         bool? perResolutionRequestCacheEnabled = null,
         bool? unknownTypeCheckDisabled = null,
-        bool? shouldFallBackToRequestInitiatorContext = null) =>
+        bool? shouldFallBackToRequestInitiator = null) =>
         new(this.RequestConfiguration,
             definedVariables ?? this.DefinedVariables,
             singleInstructions ?? this.SingleInstructions,
@@ -343,6 +326,6 @@ public class ResolutionContext
             currentLifeSpan ?? this.CurrentLifeSpan,
             perResolutionRequestCacheEnabled ?? this.PerResolutionRequestCacheEnabled,
             unknownTypeCheckDisabled ?? this.UnknownTypeCheckDisabled,
-            shouldFallBackToRequestInitiatorContext ?? this.shouldFallBackToRequestInitiatorContext,
+            shouldFallBackToRequestInitiator ?? this.shouldFallBackToRequestInitiatorContext,
             this.IsValidationContext);
 }

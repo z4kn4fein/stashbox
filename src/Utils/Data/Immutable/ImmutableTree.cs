@@ -163,7 +163,7 @@ internal class ImmutableTreeDebugView<TValue>
     public ReadOnlyKeyValue<int, TValue>[] Items => tree.Walk().ToArray();
 }
 
-[DebuggerTypeProxy(typeof(ImmutebleTreeDebugView<,>))]
+[DebuggerTypeProxy(typeof(ImmutableTreeDebugView<,>))]
 internal sealed class ImmutableTree<TKey, TValue>
     where TKey : class
 {
@@ -507,12 +507,12 @@ internal sealed class ImmutableTree<TKey, TValue>
     }
 }
 
-internal class ImmutebleTreeDebugView<TKey, TValue> where TKey : class
+internal class ImmutableTreeDebugView<TKey, TValue> where TKey : class
 {
     private readonly ImmutableTree<TKey, TValue> tree;
 
-    public ImmutebleTreeDebugView(ImmutableTree<TKey, TValue> tree) { this.tree = tree; }
+    public ImmutableTreeDebugView(ImmutableTree<TKey, TValue> tree) { this.tree = tree; }
 
     [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
-    public ReadOnlyKeyValue<TKey, TValue>[] Items { get { return tree.Walk().ToArray(); } }
+    public ReadOnlyKeyValue<TKey, TValue>[] Items => tree.Walk().ToArray();
 }

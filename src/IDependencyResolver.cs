@@ -23,32 +23,6 @@ public interface IDependencyResolver : IServiceProvider,
     object Resolve(Type typeFrom);
 
     /// <summary>
-    /// Resolves an instance from the container.
-    /// </summary>
-    /// <param name="typeFrom">The type of the requested service.</param>
-    /// <param name="resolutionBehavior">The resolution behavior.</param>
-    /// <returns>The resolved object.</returns>
-    object Resolve(Type typeFrom, ResolutionBehavior resolutionBehavior);
-    
-    /// <summary>
-    /// Resolves an instance from the container with dependency overrides.
-    /// </summary>
-    /// <param name="typeFrom">The type of the requested service.</param>
-    /// <param name="dependencyOverrides">A collection of objects which are used to override certain dependencies of the requested service.</param>
-    /// <param name="resolutionBehavior">The resolution behavior.</param>
-    /// <returns>The resolved object.</returns>
-    object Resolve(Type typeFrom, object[] dependencyOverrides, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default);
-
-    /// <summary>
-    /// Resolves a named instance from the container.
-    /// </summary>
-    /// <param name="typeFrom">The type of the requested service.</param>
-    /// <param name="name">The name of the requested service.</param>
-    /// <param name="resolutionBehavior">The resolution behavior.</param>
-    /// <returns>The resolved object.</returns>
-    object Resolve(Type typeFrom, object? name, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default);
-
-    /// <summary>
     /// Resolves a named instance from the container with dependency overrides.
     /// </summary>
     /// <param name="typeFrom">The type of the requested service.</param>
@@ -56,7 +30,7 @@ public interface IDependencyResolver : IServiceProvider,
     /// <param name="dependencyOverrides">A collection of objects which are used to override certain dependencies of the requested service.</param>
     /// <param name="resolutionBehavior">The resolution behavior.</param>
     /// <returns>The resolved object.</returns>
-    object Resolve(Type typeFrom, object? name, object[] dependencyOverrides, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default);
+    object Resolve(Type typeFrom, object? name, object[]? dependencyOverrides, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default);
 
     /// <summary>
     /// Resolves an instance from the container or returns default if the type is not resolvable.
@@ -66,32 +40,6 @@ public interface IDependencyResolver : IServiceProvider,
     object? ResolveOrDefault(Type typeFrom);
     
     /// <summary>
-    /// Resolves an instance from the container or returns default if the type is not resolvable.
-    /// </summary>
-    /// <param name="typeFrom">The type of the requested service.</param>
-    /// <param name="resolutionBehavior">The resolution behavior.</param>
-    /// <returns>The resolved object.</returns>
-    object? ResolveOrDefault(Type typeFrom, ResolutionBehavior resolutionBehavior);
-
-    /// <summary>
-    /// Resolves an instance from the container with dependency overrides or returns default if the type is not resolvable.
-    /// </summary>
-    /// <param name="typeFrom">The type of the requested service.</param>
-    /// <param name="dependencyOverrides">A collection of objects which are used to override certain dependencies of the requested service.</param>
-    /// <param name="resolutionBehavior">The resolution behavior.</param>
-    /// <returns>The resolved object.</returns>
-    object? ResolveOrDefault(Type typeFrom, object[] dependencyOverrides, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default);
-
-    /// <summary>
-    /// Resolves a named instance from the container or returns default if the type is not resolvable.
-    /// </summary>
-    /// <param name="typeFrom">The type of the requested service.</param>
-    /// <param name="name">The name of the requested service.</param>
-    /// <param name="resolutionBehavior">The resolution behavior.</param>
-    /// <returns>The resolved object.</returns>
-    object? ResolveOrDefault(Type typeFrom, object? name, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default);
-
-    /// <summary>
     /// Resolves an instance from the container with dependency overrides or returns default if the type is not resolvable.
     /// </summary>
     /// <param name="typeFrom">The type of the requested service.</param>
@@ -99,79 +47,7 @@ public interface IDependencyResolver : IServiceProvider,
     /// <param name="dependencyOverrides">A collection of objects which are used to override certain dependencies of the requested service.</param>
     /// <param name="resolutionBehavior">The resolution behavior.</param>
     /// <returns>The resolved object.</returns>
-    object? ResolveOrDefault(Type typeFrom, object? name, object[] dependencyOverrides, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default);
-
-    /// <summary>
-    /// Resolves all registered implementations of a service.
-    /// </summary>
-    /// <typeparam name="TKey">The type of the requested service.</typeparam>
-    /// <param name="resolutionBehavior">The resolution behavior.</param>
-    /// <returns>The resolved object.</returns>
-    IEnumerable<TKey> ResolveAll<TKey>(ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default);
-
-    /// <summary>
-    /// Resolves all registered implementations of a service identified by a name.
-    /// </summary>
-    /// <typeparam name="TKey">The type of the requested service.</typeparam>
-    /// <param name="name">The name of the requested service.</param>
-    /// <param name="resolutionBehavior">The resolution behavior.</param>
-    /// <returns>The resolved object.</returns>
-    IEnumerable<TKey> ResolveAll<TKey>(object? name, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default);
-
-    /// <summary>
-    /// Resolves all registered implementations of a service with dependency overrides.
-    /// </summary>
-    /// <typeparam name="TKey">The type of the requested service.</typeparam>
-    /// <param name="dependencyOverrides">A collection of objects which are used to override certain dependencies of the requested services.</param>
-    /// <param name="resolutionBehavior">The resolution behavior.</param>
-    /// <returns>The resolved object.</returns>
-    IEnumerable<TKey> ResolveAll<TKey>(object[] dependencyOverrides, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default);
-
-    /// <summary>
-    /// Resolves all registered implementations of a service identified by a name and with dependency overrides.
-    /// </summary>
-    /// <typeparam name="TKey">The type of the requested services.</typeparam>
-    /// <param name="name">The name of the requested services.</param>
-    /// <param name="dependencyOverrides">A collection of objects which are used to override certain dependencies of the requested services.</param>
-    /// <param name="resolutionBehavior">The resolution behavior.</param>
-    /// <returns>The resolved object.</returns>
-    IEnumerable<TKey> ResolveAll<TKey>(object? name, object[] dependencyOverrides, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default);
-
-    /// <summary>
-    /// Resolves all registered implementations of a service.
-    /// </summary>
-    /// <param name="typeFrom">The type of the requested services.</param>
-    /// <param name="resolutionBehavior">The resolution behavior.</param>
-    /// <returns>The resolved object.</returns>
-    IEnumerable<object> ResolveAll(Type typeFrom, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default);
-
-    /// <summary>
-    /// Resolves all registered implementations of a service.
-    /// </summary>
-    /// <param name="typeFrom">The type of the requested services.</param>
-    /// <param name="name">The name of the requested services.</param>
-    /// <param name="resolutionBehavior">The resolution behavior.</param>
-    /// <returns>The resolved object.</returns>
-    IEnumerable<object> ResolveAll(Type typeFrom, object? name, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default);
-
-    /// <summary>
-    /// Resolves all registered implementations of a service with dependency overrides.
-    /// </summary>
-    /// <param name="typeFrom">The type of the requested services.</param>
-    /// <param name="dependencyOverrides">A collection of objects which are used to override certain dependencies of the requested services.</param>
-    /// <param name="resolutionBehavior">The resolution behavior.</param>
-    /// <returns>The resolved object.</returns>
-    IEnumerable<object> ResolveAll(Type typeFrom, object[] dependencyOverrides, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default);
-
-    /// <summary>
-    /// Resolves all registered implementations of a service with dependency overrides.
-    /// </summary>
-    /// <param name="typeFrom">The type of the requested services.</param>
-    /// <param name="name">The name of the requested services.</param>
-    /// <param name="dependencyOverrides">A collection of objects which are used to override certain dependencies of the requested services.</param>
-    /// <param name="resolutionBehavior">The resolution behavior.</param>
-    /// <returns>The resolved object.</returns>
-    IEnumerable<object> ResolveAll(Type typeFrom, object? name, object[] dependencyOverrides, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default);
+    object? ResolveOrDefault(Type typeFrom, object? name, object[]? dependencyOverrides, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default);
 
     /// <summary>
     /// Returns a factory delegate that can be used to activate the service.
@@ -223,16 +99,7 @@ public interface IDependencyResolver : IServiceProvider,
 
     /// <summary>
     /// Activates an object without registering it into the container. If you want to resolve a
-    /// registered service use the <see cref="Resolve(Type, object[], ResolutionBehavior)" /> method instead.
-    /// </summary>
-    /// <param name="type">The type to activate.</param>
-    /// <param name="arguments">Optional dependency overrides.</param>
-    /// <returns>The built object.</returns>
-    object Activate(Type type, params object[] arguments);
-    
-    /// <summary>
-    /// Activates an object without registering it into the container. If you want to resolve a
-    /// registered service use the <see cref="Resolve(Type, object[], ResolutionBehavior)" /> method instead.
+    /// registered service use the <see cref="Resolve(Type)" /> method instead.
     /// </summary>
     /// <param name="type">The type to activate.</param>
     /// <param name="resolutionBehavior">The resolution behavior.</param>
@@ -246,15 +113,6 @@ public interface IDependencyResolver : IServiceProvider,
     /// <param name="token">The cancellation token.</param>
     /// <returns>The initializer task.</returns>
     ValueTask InvokeAsyncInitializers(CancellationToken token = default);
-
-    /// <summary>
-    /// Checks whether a type can be resolved by the container, or not.
-    /// </summary>
-    /// <typeparam name="TFrom">The service type.</typeparam>
-    /// <param name="name">The registration name.</param>
-    /// <param name="resolutionBehavior">The resolution behavior.</param>
-    /// <returns>True if the service can be resolved, otherwise false.</returns>
-    bool CanResolve<TFrom>(object? name = null, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default);
 
     /// <summary>
     /// Checks whether a type can be resolved by the container, or not.

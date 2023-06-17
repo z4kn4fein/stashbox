@@ -199,11 +199,9 @@ internal class ExpandableArray<TKey, TItem> : ExpandableArray<ReadOnlyKeyValue<T
         for (var i = 0; i < length; i++)
         {
             ref readonly var item = ref Repository![i];
-            if (ReferenceEquals(item.Key, key))
-            {
-                value = item.Value;
-                return i;
-            }
+            if (!ReferenceEquals(item.Key, key)) continue;
+            value = item.Value;
+            return i;
         }
 
         return -1;
