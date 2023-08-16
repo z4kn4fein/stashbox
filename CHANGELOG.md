@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v5.11.1] - 2023-08-16
+### Fixed
+- [#142](https://github.com/z4kn4fein/stashbox/issues/142): Upon disposing child containers, their parents still held a strong reference to them.
+
 ## [v5.11.0] - 2023-06-21
 ### Changed
 - Moved several functions of `IDependencyResolver` to extension methods.
@@ -384,6 +388,7 @@ The validation was executed only at the expression tree building phase, so an al
 - Removed the legacy container extension functionality.
 - Removed the support of PCL v259.
 
+[v5.11.1]: https://github.com/z4kn4fein/stashbox/compare/5.11.0...5.11.1
 [v5.11.0]: https://github.com/z4kn4fein/stashbox/compare/5.10.2...5.11.0
 [v5.10.2]: https://github.com/z4kn4fein/stashbox/compare/5.10.1...5.10.2
 [v5.10.1]: https://github.com/z4kn4fein/stashbox/compare/5.10.0...5.10.1
