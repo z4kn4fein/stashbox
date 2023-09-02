@@ -148,7 +148,7 @@ internal class ResolutionStrategy : IResolutionStrategy
         var decorators = resolutionContext.RequestInitiatorResolutionBehavior.Has(ResolutionBehavior.Parent) || resolutionContext.RequestInitiatorResolutionBehavior.Has(ResolutionBehavior.ParentDependency)
             ? CollectDecorators(serviceRegistration.ImplementationType, typeInformation, 
                 resolutionContext, decoratorContext)
-            : decoratorContext?.DecoratorRepository.GetDecoratorsOrDefault(serviceRegistration.ImplementationType, typeInformation, resolutionContext);
+            : SearchAndFilterDecorators(serviceRegistration.ImplementationType, typeInformation, resolutionContext, decoratorContext);
 
         if (decorators == null)
             return BuildExpressionAndApplyLifetime(serviceRegistration, resolutionContext, typeInformation)
@@ -192,24 +192,40 @@ internal class ResolutionStrategy : IResolutionStrategy
 
             switch (wrapper)
             {
-                case IEnumerableWrapper enumerableWrapper when enumerableWrapper.TryUnWrap(typeInformation, out var unWrappedEnumerable):
-                    return enumerableWrapper
-                        .WrapExpression(typeInformation, unWrappedEnumerable, 
-                            this.BuildExpressionsForEnumerableRequest(resolutionContext, unWrappedEnumerable))
-                        .AsServiceContext();
-                case IServiceWrapper serviceWrapper when serviceWrapper.TryUnWrap(typeInformation, out var unWrappedServiceType):
+                case IEnumerableWrapper enumerableWrapper
+                    when enumerableWrapper.TryUnWrap(typeInformation.Type, out var unWrappedEnumerable):
                 {
-                    var serviceContext = this.BuildExpressionForType(resolutionContext, unWrappedServiceType);
+                    var unwrappedTypeInformation = typeInformation.Clone(unWrappedEnumerable);
+                    return enumerableWrapper
+                    .WrapExpression(typeInformation, unwrappedTypeInformation,
+                        this.BuildExpressionsForEnumerableRequest(resolutionContext, unwrappedTypeInformation))
+                    .AsServiceContext();
+                }
+                case IServiceWrapper serviceWrapper when serviceWrapper.TryUnWrap(typeInformation.Type, out var unWrappedServiceType):
+                {
+                    var unwrappedTypeInformation = typeInformation.Clone(unWrappedServiceType);
+                    var serviceContext = this.BuildExpressionForType(resolutionContext, unwrappedTypeInformation);
                     return serviceContext.IsEmpty() ? ServiceContext.Empty : serviceWrapper
-                        .WrapExpression(typeInformation, unWrappedServiceType, serviceContext)
+                        .WrapExpression(typeInformation, unwrappedTypeInformation, serviceContext)
                         .AsServiceContext(serviceContext.ServiceRegistration);
                 }
-                case IParameterizedWrapper parameterizedWrapper when parameterizedWrapper.TryUnWrap(typeInformation, out var unWrappedParameterizedType, out var parameters):
+                case IParameterizedWrapper parameterizedWrapper when parameterizedWrapper.TryUnWrap(typeInformation.Type, 
+                    out var unWrappedParameterizedType, out var parameters):
                 {
+                    var unwrappedTypeInformation = typeInformation.Clone(unWrappedParameterizedType);
                     var parameterExpressions = parameters.Select(p => p.AsParameter()).CastToArray();
-                    var serviceContext = this.BuildExpressionForType(resolutionContext.BeginContextWithFunctionParameters(parameterExpressions), unWrappedParameterizedType);
+                    var serviceContext = this.BuildExpressionForType(resolutionContext.BeginContextWithFunctionParameters(parameterExpressions), unwrappedTypeInformation);
                     return serviceContext.IsEmpty() ? ServiceContext.Empty : parameterizedWrapper
-                        .WrapExpression(typeInformation, unWrappedParameterizedType, serviceContext, parameterExpressions)
+                        .WrapExpression(typeInformation, unwrappedTypeInformation, serviceContext, parameterExpressions)
+                        .AsServiceContext(serviceContext.ServiceRegistration);
+                }
+                case IMetadataWrapper metadataWrapper when metadataWrapper.TryUnWrap(typeInformation.Type,
+                    out var unWrappedType, out var unwrappedMetadataType):
+                {
+                    var unwrappedTypeInformation = typeInformation.Clone(unWrappedType, metadataType: unwrappedMetadataType);
+                    var serviceContext = this.BuildExpressionForType(resolutionContext, unwrappedTypeInformation);
+                    return serviceContext.IsEmpty() ? ServiceContext.Empty : metadataWrapper
+                        .WrapExpression(typeInformation, unwrappedTypeInformation, serviceContext)
                         .AsServiceContext(serviceContext.ServiceRegistration);
                 }
             }
@@ -227,19 +243,30 @@ internal class ResolutionStrategy : IResolutionStrategy
 
             switch (wrapper)
             {
-                case IServiceWrapper serviceWrapper when serviceWrapper.TryUnWrap(typeInformation, out var unWrappedServiceType):
+                case IServiceWrapper serviceWrapper when serviceWrapper.TryUnWrap(typeInformation.Type, out var unWrappedServiceType):
                 {
-                    var serviceContexts = this.BuildExpressionsForEnumerableRequest(resolutionContext, unWrappedServiceType);
+                    var unwrappedTypeInformation = typeInformation.Clone(unWrappedServiceType);
+                    var serviceContexts = this.BuildExpressionsForEnumerableRequest(resolutionContext, unwrappedTypeInformation);
                     return serviceContexts.Select(serviceContext => serviceWrapper
-                        .WrapExpression(typeInformation, unWrappedServiceType, serviceContext)
+                        .WrapExpression(typeInformation, unwrappedTypeInformation, serviceContext)
                         .AsServiceContext(serviceContext.ServiceRegistration));
                 }
-                case IParameterizedWrapper parameterizedWrapper when parameterizedWrapper.TryUnWrap(typeInformation, out var unWrappedParameterizedType, out var parameters):
+                case IParameterizedWrapper parameterizedWrapper when parameterizedWrapper.TryUnWrap(typeInformation.Type, out var unWrappedParameterizedType, out var parameters):
                 {
+                    var unwrappedTypeInformation = typeInformation.Clone(unWrappedParameterizedType);
                     var parameterExpressions = parameters.Select(p => p.AsParameter()).CastToArray();
-                    var serviceContexts = this.BuildExpressionsForEnumerableRequest(resolutionContext.BeginContextWithFunctionParameters(parameterExpressions), unWrappedParameterizedType);
+                    var serviceContexts = this.BuildExpressionsForEnumerableRequest(resolutionContext.BeginContextWithFunctionParameters(parameterExpressions), unwrappedTypeInformation);
                     return serviceContexts.Select(serviceContext => parameterizedWrapper
-                        .WrapExpression(typeInformation, unWrappedParameterizedType, serviceContext, parameterExpressions)
+                        .WrapExpression(typeInformation, unwrappedTypeInformation, serviceContext, parameterExpressions)
+                        .AsServiceContext(serviceContext.ServiceRegistration));
+                }
+                case IMetadataWrapper metadataWrapper when metadataWrapper.TryUnWrap(typeInformation.Type,
+                    out var unWrappedType, out var unwrappedMetadataType):
+                {
+                    var unwrappedTypeInformation = typeInformation.Clone(unWrappedType, metadataType: unwrappedMetadataType);
+                    var serviceContexts = this.BuildExpressionsForEnumerableRequest(resolutionContext, unwrappedTypeInformation);
+                    return serviceContexts.Select(serviceContext => metadataWrapper
+                        .WrapExpression(typeInformation, unwrappedTypeInformation, serviceContext)
                         .AsServiceContext(serviceContext.ServiceRegistration));
                 }
             }
@@ -282,11 +309,13 @@ internal class ResolutionStrategy : IResolutionStrategy
             var middleware = this.resolverRepository[i];
             switch (middleware)
             {
-                case IEnumerableWrapper enumerableWrapper when enumerableWrapper.TryUnWrap(typeInformation, out var _):
-                case IServiceWrapper serviceWrapper when serviceWrapper.TryUnWrap(typeInformation, out var unWrappedServiceType) &&
-                                                         resolutionContext.CurrentContainerContext.RegistrationRepository.ContainsRegistration(unWrappedServiceType.Type, typeInformation.DependencyName):
-                case IParameterizedWrapper parameterizedWrapper when parameterizedWrapper.TryUnWrap(typeInformation, out var unWrappedParameterizedType, out var _) &&
-                                                                     resolutionContext.CurrentContainerContext.RegistrationRepository.ContainsRegistration(unWrappedParameterizedType.Type, typeInformation.DependencyName):
+                case IEnumerableWrapper enumerableWrapper when enumerableWrapper.TryUnWrap(typeInformation.Type, out var _):
+                case IServiceWrapper serviceWrapper when serviceWrapper.TryUnWrap(typeInformation.Type, out var unWrappedServiceType) && 
+                                                         resolutionContext.CurrentContainerContext.RegistrationRepository.ContainsRegistration(unWrappedServiceType, typeInformation.DependencyName):
+                case IParameterizedWrapper parameterizedWrapper when parameterizedWrapper.TryUnWrap(typeInformation.Type, out var unWrappedParameterizedType, out var _) && 
+                                                                     resolutionContext.CurrentContainerContext.RegistrationRepository.ContainsRegistration(unWrappedParameterizedType, typeInformation.DependencyName):
+                case IMetadataWrapper metadataWrapper when metadataWrapper.TryUnWrap(typeInformation.Type, out var unWrappedType, out var _) &&
+                                                           resolutionContext.CurrentContainerContext.RegistrationRepository.ContainsRegistration(unWrappedType, typeInformation.DependencyName):
                     return true;
             }
         }
@@ -307,7 +336,7 @@ internal class ResolutionStrategy : IResolutionStrategy
         return false;
     }
 
-    private static IEnumerable<ServiceRegistration>? CollectDecorators(Type implementationType,
+    private IEnumerable<ServiceRegistration>? CollectDecorators(Type implementationType,
         TypeInformation typeInformation, ResolutionContext resolutionContext, IContainerContext? decoratorContext)
     {
         if (decoratorContext == null) return null;
@@ -315,13 +344,51 @@ internal class ResolutionStrategy : IResolutionStrategy
             typeInformation, resolutionContext, decoratorContext.ParentContext);
         
         if (parentDecorators == null)
-            return decoratorContext.DecoratorRepository.GetDecoratorsOrDefault(implementationType, 
-                typeInformation, resolutionContext);
+            return SearchAndFilterDecorators(implementationType, 
+                typeInformation, resolutionContext, decoratorContext);
         
-        var currentDecorators = decoratorContext.DecoratorRepository.GetDecoratorsOrDefault(implementationType, 
-            typeInformation, resolutionContext);
+        var currentDecorators = SearchAndFilterDecorators(implementationType, 
+            typeInformation, resolutionContext, decoratorContext);
 
         return currentDecorators == null ? parentDecorators : parentDecorators.Concat(currentDecorators);
+    }
+    
+    private IEnumerable<ServiceRegistration>? SearchAndFilterDecorators(Type implementationType,
+        TypeInformation typeInformation, ResolutionContext resolutionContext, IContainerContext? decoratorContext)
+    {
+        var decorators = decoratorContext?.DecoratorRepository.GetDecoratorsOrDefault(implementationType, 
+            typeInformation, resolutionContext);
+
+        if (decorators == null) return null;
+
+        var filtered = decorators.Where(d =>
+        {
+            var types = d.ImplementationType.GetPossibleDependencyTypes().ToArray();
+            return types.Any(implementationType.Implements) || 
+                   types.Any(t => TryUnwrapTypeFrom(t, out var unwrapped) && implementationType.Implements(unwrapped));
+        }).ToArray();
+        
+        return filtered.Length == 0 ? null : filtered;
+    }
+
+    private bool TryUnwrapTypeFrom(Type wrapped, out Type unwrapped)
+    {
+        var length = this.resolverRepository.Length;
+        for (var i = 0; i < length; i++)
+        {
+            var resolver = this.resolverRepository[i];
+            switch (resolver)
+            {
+                case IEnumerableWrapper enumerableWrapper when enumerableWrapper.TryUnWrap(wrapped, out unwrapped):
+                case IServiceWrapper serviceWrapper when serviceWrapper.TryUnWrap(wrapped, out unwrapped):
+                case IParameterizedWrapper parameterizedWrapper when parameterizedWrapper.TryUnWrap(wrapped, out unwrapped, out _):
+                case IMetadataWrapper metadataWrapper when metadataWrapper.TryUnWrap(wrapped, out unwrapped, out _):
+                    return true;
+            }
+        }
+
+        unwrapped = TypeCache.EmptyType;
+        return false;
     }
 
     private static Expression? BuildExpressionForDecorator(ServiceRegistration serviceRegistration,

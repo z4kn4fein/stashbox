@@ -23,10 +23,10 @@ public interface IServiceWrapper : IResolver
     /// <summary>
     /// Un-wraps the underlying service type from a wrapped type request.
     /// </summary>
-    /// <param name="typeInformation">The requested type's meta information.</param>
+    /// <param name="type">The requested type to unwrap.</param>
     /// <param name="unWrappedType">The un-wrapped service type.</param>
     /// <returns>True if the un-wrapping was successful, otherwise false.</returns>
-    bool TryUnWrap(TypeInformation typeInformation, out TypeInformation unWrappedType);
+    bool TryUnWrap(Type type, out Type unWrappedType);
 }
 
 /// <summary>
@@ -47,10 +47,10 @@ public interface IEnumerableWrapper : IResolver
     /// <summary>
     /// Un-wraps the underlying service type from a wrapped type request.
     /// </summary>
-    /// <param name="typeInformation">The requested type's meta information.</param>
+    /// <param name="type">The requested type to unwrap.</param>
     /// <param name="unWrappedType">The un-wrapped service type.</param>
     /// <returns>True if the un-wrapping was successful, otherwise false.</returns>
-    bool TryUnWrap(TypeInformation typeInformation, out TypeInformation unWrappedType);
+    bool TryUnWrap(Type type, out Type unWrappedType);
 }
 
 /// <summary>
@@ -72,9 +72,34 @@ public interface IParameterizedWrapper : IResolver
     /// <summary>
     /// Un-wraps the underlying service type from a wrapped type request.
     /// </summary>
-    /// <param name="typeInformation">The requested type's meta information.</param>
+    /// <param name="type">The requested type to unwrap.</param>
     /// <param name="unWrappedType">The un-wrapped service type.</param>
     /// <param name="parameterTypes">The wrapper's parameter types.</param>
     /// <returns>True if the un-wrapping was successful, otherwise false.</returns>
-    bool TryUnWrap(TypeInformation typeInformation, out TypeInformation unWrappedType, out IEnumerable<Type> parameterTypes);
+    bool TryUnWrap(Type type, out Type unWrappedType, out IEnumerable<Type> parameterTypes);
+}
+
+/// <summary>
+/// Represents a wrapper that can wrap a service with metadata.
+/// </summary>
+public interface IMetadataWrapper : IResolver
+{
+    /// <summary>
+    /// Wraps the expression that describes the service.
+    /// </summary>
+    /// <param name="originalTypeInformation">The requested type's meta information.</param>
+    /// <param name="wrappedTypeInformation">The wrapped type's meta information.</param>
+    /// <param name="serviceContext">The wrapped service's context that contains the actual instantiation expression and additional meta information.</param>
+    /// <returns>The wrapped service expression.</returns>
+    Expression WrapExpression(TypeInformation originalTypeInformation, TypeInformation wrappedTypeInformation,
+        ServiceContext serviceContext);
+
+    /// <summary>
+    /// Un-wraps the underlying service type from a wrapped type request.
+    /// </summary>
+    /// <param name="type">The requested type to unwrap.</param>
+    /// <param name="unWrappedType">The un-wrapped service type.</param>
+    /// <param name="metadataType">The wrapper's metadata types.</param>
+    /// <returns>True if the un-wrapping was successful, otherwise false.</returns>
+    bool TryUnWrap(Type type, out Type unWrappedType, out Type metadataType);
 }

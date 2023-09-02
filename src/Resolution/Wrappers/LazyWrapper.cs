@@ -16,15 +16,15 @@ internal class LazyWrapper : IServiceWrapper
         return lazyConstructor.MakeNew(serviceContext.ServiceExpression.AsLambda());
     }
 
-    public bool TryUnWrap(TypeInformation typeInformation, out TypeInformation unWrappedType)
+    public bool TryUnWrap(Type type, out Type unWrappedType)
     {
-        if (!IsLazy(typeInformation.Type))
+        if (!IsLazy(type))
         {
-            unWrappedType = TypeInformation.Empty;
+            unWrappedType = TypeCache.EmptyType;
             return false;
         }
 
-        unWrappedType = typeInformation.Clone(typeInformation.Type.GetGenericArguments()[0]);
+        unWrappedType = type.GetGenericArguments()[0];
         return true;
     }
 }

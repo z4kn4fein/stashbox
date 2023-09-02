@@ -69,6 +69,48 @@ internal class ImmutableBucket<TValue>
 
         return new ImmutableBucket<TValue>(newRepository);
     }
+    
+    public ImmutableBucket<TValue> AddIfNotExist(TValue value)
+    {
+        if (this.Length == 0)
+            return this;
+
+        var count = this.Length - 1;
+        while (count >= 0)
+        {
+            ref readonly var item = ref this.Repository[count];
+            if (ReferenceEquals(item, value))
+                break;
+
+            count--;
+        }
+
+        return count != -1 ? this : this.Add(value);
+    }
+    
+    public ImmutableBucket<TValue> Remove(TValue value)
+    {
+        if (this.Length == 0)
+            return this;
+
+        var count = this.Length - 1;
+        while (count >= 0)
+        {
+            ref readonly var item = ref this.Repository[count];
+            if (ReferenceEquals(item, value))
+                break;
+
+            count--;
+        }
+
+        if (count == -1)
+            return this;
+        
+        var newRepository = new TValue[this.Length - 1];
+        Array.Copy(this.Repository, newRepository, count);
+        Array.Copy(this.Repository, count + 1, newRepository, count, this.Length - 1 - count);
+        return new ImmutableBucket<TValue>(newRepository);
+    }
 }
 
 internal class ImmutableBucketDebugView<TValue>

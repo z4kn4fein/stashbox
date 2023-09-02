@@ -60,6 +60,9 @@ internal partial class ResolutionScope
         if (Interlocked.CompareExchange(ref this.disposed, 1, 0) != 0)
             return;
 
+        this.RemoveSelfFromParent();
+        this.DisposeChildScopes();
+        
         this.CallFinalizers();
         this.CallDisposes();
     }
@@ -71,6 +74,9 @@ internal partial class ResolutionScope
             if (Interlocked.CompareExchange(ref this.disposed, 1, 0) != 0)
                 return;
 
+            this.RemoveSelfFromParent();
+            await this.DisposeChildScopesAsync().ConfigureAwait(false);
+            
             this.CallFinalizers();
             await CallAsyncDisposes().ConfigureAwait(false);
 
@@ -95,8 +101,34 @@ internal partial class ResolutionScope
                 }
             }
         }
+        
+        private async ValueTask DisposeChildScopesAsync()
+        {
+            if (this.childScopes.IsEmpty) return;
+            
+            foreach (var childScope in this.childScopes.Walk())
+                await childScope.DisposeAsync().ConfigureAwait(false);
+        }
 #endif
 
+    private void DisposeChildScopes()
+    {
+        if (this.childScopes.IsEmpty) return;
+            
+        foreach (var childScope in this.childScopes.Walk())
+            childScope.Dispose();
+    }
+    
+    private void RemoveSelfFromParent()
+    {
+        if (this.parentScope is null || !this.attachedToParent) return;
+        
+        Swap.SwapValue(ref this.parentScope.childScopes, (t1, _, _, _, childRepo) =>
+                childRepo.Remove(t1),
+            this, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder,
+            Constants.DelegatePlaceholder);
+    }
+    
     private void CallFinalizers()
     {
         var rootFinalizable = this.finalizables;

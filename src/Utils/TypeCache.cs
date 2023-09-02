@@ -12,6 +12,8 @@ internal static class TypeCache<TType>
 
 internal static class TypeCache
 {
+    public static readonly Type EmptyType = TypeCache<object>.Type;
+    
     public static readonly Type FuncType = typeof(Func<>);
 
     public static readonly Type[] EmptyTypes = EmptyArray<Type>();

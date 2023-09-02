@@ -24,24 +24,24 @@ internal class KeyValueWrapper : IServiceWrapper
         return constructor.MakeNew(name.AsConstant(), serviceContext.ServiceExpression);
     }
 
-    public bool TryUnWrap(TypeInformation typeInformation, out TypeInformation unWrappedType)
+    public bool TryUnWrap(Type type, out Type unWrappedType)
     {
-        if (!IsKeyValueType(typeInformation.Type))
+        if (!IsKeyValueType(type))
         {
-            unWrappedType = TypeInformation.Empty;
+            unWrappedType = TypeCache.EmptyType;
             return false;
         }
 
-        var arguments = typeInformation.Type.GetGenericArguments();
+        var arguments = type.GetGenericArguments();
         var nameType = arguments[0];
 
         if (nameType != TypeCache<object>.Type)
         {
-            unWrappedType = TypeInformation.Empty;
+            unWrappedType = TypeCache.EmptyType;
             return false;
         }
 
-        unWrappedType = typeInformation.Clone(arguments[1]);
+        unWrappedType = arguments[1];
         return true;
     }
 }

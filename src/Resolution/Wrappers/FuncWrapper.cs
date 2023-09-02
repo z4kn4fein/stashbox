@@ -12,24 +12,24 @@ internal class FuncWrapper : IParameterizedWrapper
         ServiceContext serviceContext, IEnumerable<ParameterExpression> parameterExpressions) =>
         serviceContext.ServiceExpression.AsLambda(originalTypeInformation.Type, parameterExpressions);
 
-    public bool TryUnWrap(TypeInformation typeInformation, out TypeInformation unWrappedType, out IEnumerable<Type> parameterTypes)
+    public bool TryUnWrap(Type type, out Type unWrappedType, out IEnumerable<Type> parameterTypes)
     {
-        if (!typeInformation.Type.IsSubclassOf(TypeCache<Delegate>.Type))
+        if (!type.IsSubclassOf(TypeCache<Delegate>.Type))
         {
-            unWrappedType = TypeInformation.Empty;
+            unWrappedType = TypeCache.EmptyType;
             parameterTypes = TypeCache.EmptyTypes;
             return false;
         }
 
-        var method = typeInformation.Type.GetMethod("Invoke");
+        var method = type.GetMethod("Invoke");
         if (method == null || method.ReturnType == TypeCache.VoidType)
         {
-            unWrappedType = TypeInformation.Empty;
+            unWrappedType = TypeCache.EmptyType;
             parameterTypes = TypeCache.EmptyTypes;
             return false;
         }
 
-        unWrappedType = typeInformation.Clone(method.ReturnType);
+        unWrappedType = method.ReturnType;
         parameterTypes = method.GetParameters().Select(p => p.ParameterType);
         return true;
     }

@@ -69,6 +69,17 @@ internal static class TypeExtensions
         }
     }
 
+    public static IEnumerable<Type> GetPossibleDependencyTypes(this Type type)
+    {
+        var constructorParameterTypes = type.GetConstructors()
+            .SelectMany(c => c.GetParameters().Select(p => p.ParameterType));
+
+        var memberTypes = type.GetProperties().Select(p => p.PropertyType)
+            .Concat(type.GetFields().Select(f => f.FieldType));
+
+        return constructorParameterTypes.Concat(memberTypes).Distinct();
+    }
+
     public static bool Implements(this Type type, Type interfaceType) =>
         type == interfaceType || (interfaceType.IsOpenGenericType()
             ? type.ImplementsGenericType(interfaceType.GetGenericTypeDefinition())

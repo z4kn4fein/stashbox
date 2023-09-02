@@ -2,10 +2,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using Stashbox.Utils;
 
 namespace Stashbox.Resolution.Wrappers;
 
-internal class MetadataWrapper : IServiceWrapper
+internal class MetadataWrapper : IMetadataWrapper
 {
     private static readonly HashSet<Type> SupportedTypes = new()
     {
@@ -25,18 +26,19 @@ internal class MetadataWrapper : IServiceWrapper
         return constructor.MakeNew(serviceContext.ServiceExpression, metadata.AsConstant());
     }
 
-    public bool TryUnWrap(TypeInformation typeInformation, out TypeInformation unWrappedType)
+    public bool TryUnWrap(Type type, out Type unWrappedType, out Type metadataType)
     {
-        if (!IsMetadataType(typeInformation.Type))
+        if (!IsMetadataType(type))
         {
-            unWrappedType = TypeInformation.Empty;
+            unWrappedType = TypeCache.EmptyType;
+            metadataType = TypeCache.EmptyType;
             return false;
         }
 
-        var arguments = typeInformation.Type.GetGenericArguments();
+        var arguments = type.GetGenericArguments();
         var serviceType = arguments[0];
-        var metadataType = arguments[1];
-        unWrappedType = typeInformation.Clone(serviceType, metadataType: metadataType);
+        metadataType = arguments[1];
+        unWrappedType = serviceType;
         return true;
     }
 }

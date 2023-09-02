@@ -43,9 +43,6 @@ internal sealed class ImmutableTree<TValue>
     private ImmutableTree()
     { }
 
-    public ImmutableTree<TValue> AddOrUpdate(int key, TValue value, Func<TValue, TValue, TValue>? updateDelegate = null) =>
-        this.Add(key, value, updateDelegate, false);
-
     [MethodImpl(Constants.Inline)]
     public TValue? GetOrDefault(int key)
     {
@@ -58,27 +55,44 @@ internal sealed class ImmutableTree<TValue>
         return !node.IsEmpty ? node.storedValue : default;
     }
 
-    private ImmutableTree<TValue> Add(int hash, TValue value, Func<TValue, TValue, TValue>? updateDelegate, bool forceUpdate)
+    public ImmutableTree<TValue> AddOrUpdate(int key, TValue value, Func<TValue, TValue, TValue>? updateDelegate = null)
     {
         if (this.IsEmpty)
-            return new ImmutableTree<TValue>(hash, value);
+            return new ImmutableTree<TValue>(key, value);
 
-        if (hash == this.storedHash)
+        if (key == this.storedHash)
             return updateDelegate != null
-                ? new ImmutableTree<TValue>(hash, updateDelegate(this.storedValue!, value), this.leftNode!, this.rightNode!)
-                : forceUpdate
-                    ? new ImmutableTree<TValue>(hash, value, this.leftNode!, this.rightNode!)
-                    : this;
+                ? new ImmutableTree<TValue>(key, updateDelegate(this.storedValue!, value), this.leftNode!, this.rightNode!)
+                : this;
 
-        return hash < this.storedHash
+        return key < this.storedHash
             ? this.height == 1
                 ? new ImmutableTree<TValue>(this.storedHash, this.storedValue!,
-                    new ImmutableTree<TValue>(hash, value), this.rightNode!)
-                : Balance(this.storedHash, this.storedValue!, this.leftNode!.Add(hash, value, updateDelegate, forceUpdate), this.rightNode!)
+                    new ImmutableTree<TValue>(key, value), this.rightNode!)
+                : Balance(this.storedHash, this.storedValue!, this.leftNode!.AddOrUpdate(key, value, updateDelegate), this.rightNode!)
             : this.height == 1
                 ? new ImmutableTree<TValue>(this.storedHash, this.storedValue!, this.leftNode!,
-                    new ImmutableTree<TValue>(hash, value))
-                : Balance(this.storedHash, this.storedValue!, this.leftNode!, this.rightNode!.Add(hash, value, updateDelegate, forceUpdate));
+                    new ImmutableTree<TValue>(key, value))
+                : Balance(this.storedHash, this.storedValue!, this.leftNode!, this.rightNode!.AddOrUpdate(key, value, updateDelegate));
+    }
+    
+    public ImmutableTree<TValue> Remove(int key)
+    {
+        if (this.IsEmpty) return this;
+
+        if (key != this.storedHash)
+            return key < this.storedHash
+                ? Balance(this.storedHash, this.storedValue!, this.leftNode!.Remove(key), this.rightNode!)
+                : Balance(this.storedHash, this.storedValue!, this.leftNode!, this.rightNode!.Remove(key));
+        
+        if (this.height == 1) return Empty;
+        if (this.rightNode!.IsEmpty) return this.leftNode!;
+        if (this.leftNode!.IsEmpty) return this.rightNode!;
+
+        var next = this.rightNode;
+        while (!next.leftNode!.IsEmpty) next = next.leftNode;
+        return new ImmutableTree<TValue>(next.storedHash, next.storedValue!,
+            this.leftNode!, this.rightNode!.Remove(next.storedHash));
     }
 
     private static ImmutableTree<TValue> Balance(int hash, TValue value, ImmutableTree<TValue> left, ImmutableTree<TValue> right)
@@ -515,4 +529,208 @@ internal class ImmutableTreeDebugView<TKey, TValue> where TKey : class
 
     [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
     public ReadOnlyKeyValue<TKey, TValue>[] Items => tree.Walk().ToArray();
+}
+
+[DebuggerTypeProxy(typeof(ImmutableRefTreeDebugView<>))]
+internal sealed class ImmutableRefTree<TValue>
+    where TValue : class
+{
+    public static readonly ImmutableRefTree<TValue> Empty = new();
+
+    private readonly int height;
+    private readonly int storedHash;
+    private readonly TValue? storedValue;
+    private readonly ImmutableRefTree<TValue>? leftNode;
+    private readonly ImmutableRefTree<TValue>? rightNode;
+    private readonly ImmutableBucket<TValue>? collisions;
+
+    public readonly bool IsEmpty = true;
+
+    private ImmutableRefTree(int hash, TValue value, ImmutableRefTree<TValue> left,
+        ImmutableRefTree<TValue> right, ImmutableBucket<TValue> collisions)
+    {
+        this.collisions = collisions;
+        this.storedHash = hash;
+        this.leftNode = left;
+        this.rightNode = right;
+        this.storedValue = value;
+        this.IsEmpty = false;
+        this.height = 1 + (left.height > right.height ? left.height : right.height);
+    }
+
+    private ImmutableRefTree()
+    { }
+
+    private ImmutableRefTree(int hash, TValue value)
+    {
+        this.storedHash = hash;
+        this.leftNode = Empty;
+        this.rightNode = Empty;
+        this.storedValue = value;
+        this.IsEmpty = false;
+        this.height = 1;
+    }
+
+    public ImmutableRefTree<TValue> AddOrSkip(TValue value) =>
+        this.AddOrUpdate(RuntimeHelpers.GetHashCode(value), value);
+    
+    public ImmutableRefTree<TValue> Remove(TValue value) => 
+        this.Remove(RuntimeHelpers.GetHashCode(value), value);
+
+    private ImmutableRefTree<TValue> AddOrUpdate(int hash, TValue value)
+    {
+        if (this.IsEmpty)
+            return new ImmutableRefTree<TValue>(hash, value);
+
+        if (hash == this.storedHash)
+            return this.CheckCollision(hash, value);
+
+        if (hash < this.storedHash)
+        {
+            if (this.height == 1)
+                return new ImmutableRefTree<TValue>(this.storedHash, this.storedValue!,
+                    new ImmutableRefTree<TValue>(hash, value), this.rightNode!, this.collisions!);
+
+            var left = this.leftNode!.AddOrUpdate(hash, value);
+            return ReferenceEquals(left, this.leftNode)
+                ? this
+                : Balance(this.storedHash, this.storedValue!, left, this.rightNode!, this.collisions!);
+        }
+
+
+        if (this.height == 1)
+            return new ImmutableRefTree<TValue>(this.storedHash, this.storedValue!, this.leftNode!,
+                new ImmutableRefTree<TValue>(hash, value), this.collisions!);
+
+        var right = this.rightNode!.AddOrUpdate(hash, value);
+        return ReferenceEquals(right, this.rightNode)
+            ? this
+            : Balance(this.storedHash, this.storedValue!, this.leftNode!, right, this.collisions!);
+    }
+
+    private ImmutableRefTree<TValue> Remove(int hash, TValue value)
+    {
+        if (this.IsEmpty) return this;
+
+        if (hash != this.storedHash)
+            return hash < this.storedHash
+                ? Balance(this.storedHash, this.storedValue!, this.leftNode!.Remove(hash, value), this.rightNode!,
+                    this.collisions!)
+                : Balance(this.storedHash, this.storedValue!, this.leftNode!, this.rightNode!.Remove(hash, value),
+                    this.collisions!);
+        
+        if (ReferenceEquals(value, this.storedValue))
+        {
+            if (this.height == 1) return Empty;
+            if (this.rightNode!.IsEmpty) return this.leftNode!;
+            if (this.leftNode!.IsEmpty) return this.rightNode!;
+
+            var next = this.rightNode;
+            while (!next.leftNode!.IsEmpty) next = next.leftNode;
+            return new ImmutableRefTree<TValue>(next.storedHash, next.storedValue!,
+                this.leftNode!, this.rightNode!.Remove(next.storedHash, next.storedValue!), next.collisions!);
+        }
+
+        if (this.collisions != null)
+            return new ImmutableRefTree<TValue>(this.storedHash, this.storedValue!,
+                this.leftNode!, this.rightNode!, this.collisions.Remove(value));
+            
+        return this;
+    }
+
+    private ImmutableRefTree<TValue> CheckCollision(int hash, TValue value)
+    {
+        if (ReferenceEquals(value, this.storedValue)) return this;
+
+        if (this.collisions == null)
+            return new ImmutableRefTree<TValue>(hash, value, this.leftNode!, this.rightNode!,
+                ImmutableBucket<TValue>.Empty.Add(value));
+
+        return new ImmutableRefTree<TValue>(hash, value, this.leftNode!, this.rightNode!,
+            this.collisions.AddIfNotExist(value));
+    }
+    
+    private static ImmutableRefTree<TValue> Balance(int hash, TValue value, ImmutableRefTree<TValue> left, ImmutableRefTree<TValue> right, ImmutableBucket<TValue> collisions)
+    {
+        var balance = left.height - right.height;
+
+        return balance switch
+        {
+            >= 2 => left.leftNode!.height - left.rightNode!.height == -1
+                ? RotateLeftRight(hash, value, left, right, collisions)
+                : RotateRight(hash, value, left, right, collisions),
+            <= -2 => right.leftNode!.height - right.rightNode!.height == 1
+                ? RotateRightLeft(hash, value, left, right, collisions)
+                : RotateLeft(hash, value, left, right, collisions),
+            _ => new ImmutableRefTree<TValue>(hash, value, left, right, collisions)
+        };
+    }
+
+    private static ImmutableRefTree<TValue> RotateRight(int hash, TValue value, ImmutableRefTree<TValue> left, ImmutableRefTree<TValue> right, ImmutableBucket<TValue> collisions)
+    {
+        var r = new ImmutableRefTree<TValue>(hash, value, left.rightNode!, right, collisions);
+        return new ImmutableRefTree<TValue>(left.storedHash, left.storedValue!, left.leftNode!, r, left.collisions!);
+    }
+
+    private static ImmutableRefTree<TValue> RotateLeft(int hash, TValue value, ImmutableRefTree<TValue> left, ImmutableRefTree<TValue> right, ImmutableBucket<TValue> collisions)
+    {
+        var l = new ImmutableRefTree<TValue>(hash, value, left, right.leftNode!, collisions);
+        return new ImmutableRefTree<TValue>(right.storedHash, right.storedValue!, l, right.rightNode!, right.collisions!);
+    }
+
+    private static ImmutableRefTree<TValue> RotateRightLeft(int hash, TValue value, ImmutableRefTree<TValue> left, ImmutableRefTree<TValue> right, ImmutableBucket<TValue> collisions)
+    {
+        var l = new ImmutableRefTree<TValue>(hash, value, left, right.leftNode!.leftNode!, collisions);
+        var r = new ImmutableRefTree<TValue>(right.storedHash, right.storedValue!, right.leftNode.rightNode!, right.rightNode!, right.collisions!);
+        return new ImmutableRefTree<TValue>(right.leftNode.storedHash, right.leftNode.storedValue!, l, r, right.leftNode.collisions!);
+    }
+
+    private static ImmutableRefTree<TValue> RotateLeftRight(int hash, TValue value, ImmutableRefTree<TValue> left, ImmutableRefTree<TValue> right, ImmutableBucket<TValue> collisions)
+    {
+        var l = new ImmutableRefTree<TValue>(left.storedHash, left.storedValue!, left.leftNode!, left.rightNode!.leftNode!, left.collisions!);
+        var r = new ImmutableRefTree<TValue>(hash, value, left.rightNode.rightNode!, right, collisions);
+        return new ImmutableRefTree<TValue>(left.rightNode.storedHash, left.rightNode.storedValue!, l, r, left.rightNode.collisions!);
+    }
+
+    public override string ToString() => this.IsEmpty ? "empty" : $"{this.storedValue}";
+
+    public IEnumerable<TValue> Walk()
+    {
+        if (this.IsEmpty)
+            yield break;
+
+        var nodes = new ImmutableRefTree<TValue>[this.height];
+        var currentNode = this;
+        var index = -1;
+
+        while (!currentNode!.IsEmpty || index != -1)
+        {
+            if (!currentNode.IsEmpty)
+            {
+                nodes[++index] = currentNode;
+                currentNode = currentNode.leftNode;
+            }
+            else
+            {
+                currentNode = nodes[index--];
+                yield return currentNode.storedValue!;
+
+                if (currentNode.collisions != null)
+                    foreach (var keyValue in currentNode.collisions.Repository)
+                        yield return keyValue;
+
+                currentNode = currentNode.rightNode;
+            }
+        }
+    }
+}
+
+internal class ImmutableRefTreeDebugView<TValue> where TValue : class
+{
+    private readonly ImmutableRefTree<TValue> tree;
+
+    public ImmutableRefTreeDebugView(ImmutableRefTree<TValue> tree) { this.tree = tree; }
+
+    [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
+    public TValue[] Items => tree.Walk().ToArray();
 }
