@@ -1,5 +1,8 @@
 ﻿using Stashbox.Attributes;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using Xunit;
 
 namespace Stashbox.Tests;
@@ -792,6 +795,37 @@ public class DisposeTests
         scope.Dispose();
 
         Assert.True(test.Disposed);
+    }
+    
+    [Fact]
+    public void DisposeTests_Scope_Removed_From_Parent()
+    {
+        var container = new StashboxContainer();
+        container.RegisterScoped<Test1>();
+
+        var scope = container.BeginScope();
+        var sub1 = scope.BeginScope(attachToParent: true);
+        var sub2 = sub1.BeginScope(attachToParent: true);
+
+        var type = scope.GetType();
+        var childScopesField = type.GetField("childScopes", BindingFlags.Instance | BindingFlags.NonPublic);
+        var childScopesValue = childScopesField.GetValue(scope);
+        var children = (IEnumerable<IResolutionScope>)childScopesValue.GetType().GetMethod("Walk").Invoke(childScopesValue, null);
+        
+        Assert.Single(children);
+        
+        var t1 = sub1.Resolve<Test1>();
+        var t2 = sub2.Resolve<Test1>();
+        
+        sub1.Dispose();
+        
+        Assert.True(t1.Disposed);
+        Assert.True(t2.Disposed);
+        
+        childScopesValue = childScopesField.GetValue(scope);
+        children = (IEnumerable<IResolutionScope>)childScopesValue.GetType().GetMethod("Walk").Invoke(childScopesValue, null);
+        
+        Assert.Empty(children);
     }
 
     interface ITest11 { }
