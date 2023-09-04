@@ -44,10 +44,25 @@ internal class DecoratorRepository : IDecoratorRepository
 
     private IEnumerable<ServiceRegistration>? GetRegistrationsForType(Type type)
     {
-        var registrations = repository.GetOrDefaultByRef(type);
-        return !type.IsClosedGenericType()
-            ? registrations
-            : repository.GetOrDefaultByRef(type.GetGenericTypeDefinition());
+        IEnumerable<ServiceRegistration>? registrations = repository.GetOrDefaultByRef(type);
+        if (!type.IsClosedGenericType()) return registrations;
+        
+        var openGenerics = repository.GetOrDefaultByRef(type.GetGenericTypeDefinition());
+
+        if (openGenerics != null)
+            registrations = registrations == null ? openGenerics : openGenerics.Concat(registrations);
+
+        var variantGenerics = repository.Walk()
+            .Where(r => r.Key.IsGenericType &&
+                        r.Key.GetGenericTypeDefinition() == type.GetGenericTypeDefinition() &&
+                        r.Key != type &&
+                        r.Key.ImplementsWithoutGenericCheck(type))
+            .SelectMany(r => r.Value).ToArray();
+
+        if (variantGenerics.Length > 0)
+            registrations = registrations == null ? variantGenerics : variantGenerics.Concat(registrations);
+
+        return registrations;
     }
 
 }
