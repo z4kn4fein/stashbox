@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v5.12.1] - 2023-09-05
+### Fixed
+- [#144](https://github.com/z4kn4fein/stashbox/issues/144): There was a case where closed generic decorators were not taken into account during service resolution.
+- [#143](https://github.com/z4kn4fein/stashbox/issues/143): Child scopes attached to their parents were not removed from disposal tracking when they were disposed individually.
+- [#141](https://github.com/z4kn4fein/stashbox/issues/141): There was a case where wrong decorators were selected during an `IEnumerable<T>` resolution call.
+
 ## [v5.11.1] - 2023-08-16
 ### Fixed
 - [#142](https://github.com/z4kn4fein/stashbox/issues/142): Upon disposing child containers, their parents still held a strong reference to them.
@@ -388,6 +394,7 @@ The validation was executed only at the expression tree building phase, so an al
 - Removed the legacy container extension functionality.
 - Removed the support of PCL v259.
 
+[v5.12.1]: https://github.com/z4kn4fein/stashbox/compare/5.11.1...5.12.1
 [v5.11.1]: https://github.com/z4kn4fein/stashbox/compare/5.11.0...5.11.1
 [v5.11.0]: https://github.com/z4kn4fein/stashbox/compare/5.10.2...5.11.0
 [v5.10.2]: https://github.com/z4kn4fein/stashbox/compare/5.10.1...5.10.2
