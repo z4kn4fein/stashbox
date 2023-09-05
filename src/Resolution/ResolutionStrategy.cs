@@ -411,7 +411,7 @@ internal class ResolutionStrategy : IResolutionStrategy
             ? secondaryLifetimeDescriptor
             : serviceRegistration.Lifetime;
 
-        var expression = !IsOutputLifetimeManageable(serviceRegistration)
+        var expression = !IsOutputLifetimeManageable(serviceRegistration) || lifetimeDescriptor is EmptyLifetime
             ? ExpressionBuilder.BuildExpressionForRegistration(serviceRegistration, resolutionContext, typeInformation)
             : lifetimeDescriptor.ApplyLifetime(serviceRegistration, resolutionContext, typeInformation);
 

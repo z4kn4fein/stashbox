@@ -1146,6 +1146,24 @@ public class DecoratorTests
         Assert.NotNull(registration.RegistrationOptions[RegistrationOption.Initializer]);
         Assert.Equal(Lifetimes.Singleton, registration.Lifetime);
     }
+    
+    [Fact]
+    public void DecoratorTests_Compositor_ChildContainer()
+    {
+        using var container = new StashboxContainer();
+
+        container.RegisterScoped<ITest1, Test1>();
+        container.RegisterScoped<ITest1, Test11>();
+        container.RegisterDecorator<ITest1, TestDecorator8>();
+
+        var child = container.CreateChildContainer();
+
+        child.RegisterInstance<ITest1>(new Test13());
+
+        var a = child.Resolve<ITest1>();
+        
+        Assert.NotEmpty(((TestDecorator8)a).Decoretees);
+    }
 
     interface IT1 { }
 
@@ -1216,6 +1234,11 @@ public class DecoratorTests
         {
 
         }
+    }
+    
+    class Test13 : ITest1
+    {
+        public ITest1 Test { get; }
     }
 
     class TestDisp : IDisp
@@ -1345,10 +1368,12 @@ public class DecoratorTests
 
     class TestDecorator8 : ITest1
     {
+        public IEnumerable<ITest1> Decoretees { get; }
         public ITest1 Test { get; }
 
         public TestDecorator8(IEnumerable<ITest1> test1)
         {
+            Decoretees = test1;
             this.Test = test1.First();
         }
     }
