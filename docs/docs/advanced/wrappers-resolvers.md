@@ -225,21 +225,17 @@ class CustomWrapper : IServiceWrapper
 
     // this method is called by the container to determine whether a 
     // given requested type is wrapped by a supported wrapper type.
-    public bool TryUnWrap(
-        TypeInformation typeInformation, 
-        out TypeInformation unWrappedType)
+    public bool TryUnWrap(Type type, out Type unWrappedType)
     {
         // this is just a reference implementation of 
         // un-wrapping a service from a given wrapper.
-        if (!CanUnWrapServiceType(typeInformation.Type))
+        if (!CanUnWrapServiceType(type))
         {
-            unWrappedType = null;
+            unWrappedType = typeof(object);
             return false;
         }
 
-        var type = UnWrapServiceType(typeInformation.Type)
-
-        unWrappedType = typeInformation.Clone(type);
+        unWrappedType = UnWrapServiceType(type);
         return true;
     }
 }
