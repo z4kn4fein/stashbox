@@ -4,8 +4,8 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
-
-import darkTheme from 'prism-react-renderer/themes/vsDark/index.cjs.js';
+import {themes} from 'prism-react-renderer';
+const darkTheme = themes.vsDark;
 
 export default {
   plain: {

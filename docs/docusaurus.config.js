@@ -1,6 +1,7 @@
 // @ts-check
 // @ts-ignore
-const prismLightTheme = require('prism-react-renderer/themes/github');
+import {themes} from 'prism-react-renderer';
+const prismLightTheme = themes.github;
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
