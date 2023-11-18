@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
+using Stashbox.Attributes;
+using Stashbox.Utils.Data;
 
 namespace Stashbox.Configuration;
 
@@ -166,6 +168,43 @@ public class ContainerConfigurator
     public ContainerConfigurator WithExpressionCompiler(Func<LambdaExpression, Delegate> compilerDelegate)
     {
         this.ContainerConfiguration.ExternalExpressionCompiler = compilerDelegate;
+        return this;
+    }
+    
+    /// <summary>
+    /// Sets the universal name that represents a special name which allows named resolution work for any given name.
+    /// </summary>
+    /// <param name="name">The universal name.</param>
+    /// <returns>The container configurator.</returns>
+    public ContainerConfigurator WithUniversalName(object name)
+    {
+        this.ContainerConfiguration.UniversalName = name;
+        return this;
+    }
+    
+    /// <summary>
+    /// Adds an attribute type that is considered a dependency name indicator just like <see cref="DependencyNameAttribute"/>. 
+    /// </summary>
+    /// <typeparam name="TAttribute">The attribute type.</typeparam>
+    /// <returns>The container configurator.</returns>
+    public ContainerConfigurator WithAdditionalDependencyNameAttribute<TAttribute>()
+        where TAttribute : Attribute
+    {
+        this.ContainerConfiguration.AdditionalDependencyNameAttributeTypes ??= new ExpandableArray<Type>();
+        this.ContainerConfiguration.AdditionalDependencyNameAttributeTypes.Add(typeof(TAttribute));
+        return this;
+    }
+    
+    /// <summary>
+    /// Adds an attribute type that is considered a dependency indicator just like <see cref="DependencyAttribute"/>. 
+    /// </summary>
+    /// <typeparam name="TAttribute">The attribute type.</typeparam>
+    /// <returns>The container configurator.</returns>
+    public ContainerConfigurator WithAdditionalDependencyAttribute<TAttribute>()
+        where TAttribute : Attribute
+    {
+        this.ContainerConfiguration.AdditionalDependencyAttributeTypes ??= new ExpandableArray<Type>();
+        this.ContainerConfiguration.AdditionalDependencyAttributeTypes.Add(typeof(TAttribute));
         return this;
     }
 }

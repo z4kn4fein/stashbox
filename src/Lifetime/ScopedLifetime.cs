@@ -13,14 +13,14 @@ namespace Stashbox.Lifetime;
 public class ScopedLifetime : FactoryLifetimeDescriptor
 {
     /// <inheritdoc />
-    protected override int LifeSpan => 10;
+    protected internal override int LifeSpan => 10;
 
     /// <inheritdoc />
-    private protected override bool StoreResultInLocalVariable => true;
+    internal override bool StoreResultInLocalVariable => true;
 
     /// <inheritdoc />
     protected override Expression ApplyLifetime(Func<IResolutionScope, IRequestContext, object> factory,
-        ServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType)
+        ServiceRegistration serviceRegistration, ResolutionContext resolutionContext, TypeInformation typeInformation)
     {
         if (resolutionContext.CurrentContainerContext.ContainerConfiguration.LifetimeValidationEnabled &&
             resolutionContext.IsRequestedFromRoot)
@@ -29,7 +29,8 @@ public class ScopedLifetime : FactoryLifetimeDescriptor
                 $"that would promote the service's lifetime to singleton.");
 
         return resolutionContext.CurrentScopeParameter.CallMethod(Constants.GetOrAddScopedObjectMethod,
-                serviceRegistration.RegistrationId.AsConstant(),
+                serviceRegistration.GetDiscriminator(typeInformation, 
+                    resolutionContext.CurrentContainerContext.ContainerConfiguration).AsConstant(),
                 factory.AsConstant(),
                 resolutionContext.RequestContextParameter,
                 serviceRegistration.ImplementationType.AsConstant());

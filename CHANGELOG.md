@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v5.13.0] - 2023-11-18
+### Added
+- .NET 8.0 target.
+- [#134](https://github.com/z4kn4fein/stashbox/issues/134) Concept of [Auto lifetime](https://z4kn4fein.github.io/stashbox/docs/guides/lifetimes#auto-lifetime):
+  - It aligns to the lifetime of the resolved service's dependencies. When the underlying service has a dependency with a higher lifespan, this lifetime will inherit that lifespan up to a given boundary.
+- Auto injection of `required` members.
+- MS.DI compatibility features for supporting [keyed services](https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-8#keyed-di-services):
+  - `DependencyName` attribute. When a parameter is marked with this attribute, the container will pass the given dependency's name to it.
+  - `WithUniversalName()` container configuration method. It sets the universal name which is a special name that allows named resolution work for any given name.
+  - `WithAdditionalDependencyNameAttribute()` container configuration method. It adds an attribute type that is considered a dependency name indicator just like the [`DependencyName` attribute](https://z4kn4fein.github.io/stashbox/docs/guides/service-resolution#attributes).
+  - `WithAdditionalDependencyAttribute()` container configuration method. It adds an attribute type that is considered a dependency indicator just like the [`Dependency` attribute](https://z4kn4fein.github.io/stashbox/docs/guides/service-resolution#attributes).
+
 ## [v5.12.2] - 2023-09-05
 ### Fixed
 - There was an issue where using decorators with instance registrations resulted in resolution failure.
@@ -398,6 +410,7 @@ The validation was executed only at the expression tree building phase, so an al
 - Removed the legacy container extension functionality.
 - Removed the support of PCL v259.
 
+[v5.13.0]: https://github.com/z4kn4fein/stashbox/compare/5.12.2...5.13.0
 [v5.12.2]: https://github.com/z4kn4fein/stashbox/compare/5.12.1...5.12.2
 [v5.12.1]: https://github.com/z4kn4fein/stashbox/compare/5.11.1...5.12.1
 [v5.11.1]: https://github.com/z4kn4fein/stashbox/compare/5.11.0...5.11.1

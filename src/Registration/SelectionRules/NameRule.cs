@@ -21,6 +21,14 @@ internal class NameRule : IRegistrationSelectionRule
             shouldIncrementWeight = true;
             return true;
         }
+        
+        if (typeInformation.DependencyName != null &&
+            registration.Name != null &&
+            registration.Name.Equals(resolutionContext.CurrentContainerContext.ContainerConfiguration.UniversalName))
+        {
+            shouldIncrementWeight = false;
+            return true;
+        }
 
         if (typeInformation.DependencyName == null &&
             registration.Name != null &&

@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
+using Stashbox.Lifetime;
 
 namespace Stashbox.Resolution;
 
@@ -17,8 +18,13 @@ public class ResolutionContext
 {
     internal class PerRequestConfiguration
     {
-        public bool RequiresRequestContext { get; set; }
-        public bool FactoryDelegateCacheEnabled { get; set; }
+        public bool RequiresRequestContext;
+        public bool FactoryDelegateCacheEnabled;
+    }
+
+    internal class AutoLifetimeTracker
+    {
+        public LifetimeDescriptor HighestRankingLifetime = Lifetimes.Transient;
     }
     
     private readonly bool shouldFallBackToRequestInitiatorContext;
@@ -42,6 +48,7 @@ public class ResolutionContext
     internal readonly bool UnknownTypeCheckDisabled;
     internal readonly RequestContext RequestContext;
     internal readonly bool IsValidationContext;
+    internal readonly AutoLifetimeTracker? AutoLifetimeTracking;
 
     /// <summary>
     /// True if null result is allowed, otherwise false.
@@ -101,6 +108,7 @@ public class ResolutionContext
         this.RequestConfiguration.FactoryDelegateCacheEnabled = this.PerResolutionRequestCacheEnabled = dependencyOverrides == null;
         this.RequestContext = dependencyOverrides != null ? RequestContext.FromOverrides(dependencyOverrides) : RequestContext.Begin();
         this.IsValidationContext = isValidationContext;
+        this.AutoLifetimeTracking = null;
 
         this.ExpressionOverrides = dependencyOverrides == null && (knownInstances == null || knownInstances.IsEmpty)
             ? null
@@ -128,6 +136,7 @@ public class ResolutionContext
         HashTree<object, ConstantExpression>? expressionOverrides,
         ExpandableArray<Pair<bool, ParameterExpression>[]> parameterExpressions,
         RequestContext requestContext,
+        AutoLifetimeTracker? autoLifetimeTracker,
         ResolutionBehavior resolutionBehavior,
         ResolutionBehavior requestInitiatorResolutionBehavior,
         bool nullResultAllowed,
@@ -165,6 +174,7 @@ public class ResolutionContext
         this.IsValidationContext = isValidationContext;
         this.ResolutionBehavior = resolutionBehavior;
         this.RequestInitiatorResolutionBehavior = requestInitiatorResolutionBehavior;
+        this.AutoLifetimeTracking = autoLifetimeTracker;
     }
 
     /// <summary>
@@ -262,6 +272,12 @@ public class ResolutionContext
     internal ResolutionContext BeginLifetimeValidationContext(int lifeSpan, string currentlyLifeSpanValidatingService) =>
         this.Clone(currentLifeSpan: lifeSpan, nameOfServiceLifeSpanValidatingAgainst: currentlyLifeSpanValidatingService);
 
+    internal ResolutionContext BeginAutoLifetimeTrackingContext(AutoLifetimeTracker autoLifetimeTracker) =>
+        this.Clone(autoLifetimeTracker: autoLifetimeTracker,
+            definedVariables: new Tree<ParameterExpression>(),
+            singleInstructions: new ExpandableArray<Expression>(),
+            cachedExpressions: new Tree<Expression>());
+    
     private static HashTree<object, ConstantExpression> ProcessDependencyOverrides(object[]? dependencyOverrides, ImmutableTree<object, object>? knownInstances)
     {
         var result = new HashTree<object, ConstantExpression>();
@@ -297,6 +313,7 @@ public class ResolutionContext
         IContainerContext? currentContainerContext = null,
         ExpandableArray<Pair<bool, ParameterExpression>[]>? parameterExpressions = null,
         ResolutionBehavior? resolutionBehavior = null,
+        AutoLifetimeTracker? autoLifetimeTracker = null,
         string? nameOfServiceLifeSpanValidatingAgainst = null,
         int? currentLifeSpan = null,
         bool? perResolutionRequestCacheEnabled = null,
@@ -318,6 +335,7 @@ public class ResolutionContext
             this.ExpressionOverrides,
             parameterExpressions ?? this.ParameterExpressions,
             this.RequestContext,
+            autoLifetimeTracker ?? this.AutoLifetimeTracking,
             resolutionBehavior ?? this.ResolutionBehavior,
             this.RequestInitiatorResolutionBehavior,
             this.NullResultAllowed,

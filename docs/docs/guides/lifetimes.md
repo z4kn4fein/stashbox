@@ -156,10 +156,6 @@ It is the same as scoped lifetime, except the given service will be selected onl
 
 You can also let a service [define](/docs/guides/scopes#service-as-scope) its own named scope. During registration, this scope can be referred to by its name upon using a named scope lifetime.
 
-:::note
-Services with named scope lifetime are disposed when the related named scope is being disposed.
-:::
-
 </div>
 <div>
 
@@ -213,6 +209,10 @@ DbJobExecutor executor = scope.Resolve<DbJobExecutor>();
 </div>
 </CodeDescPanel>
 
+:::note
+Services with named scope lifetime are disposed when the related named scope is being disposed.
+:::
+
 ## Per-request lifetime
 
 <CodeDescPanel>
@@ -244,6 +244,66 @@ The requested service will behave like a singleton, but only within a scoped dep
 ```cs
 container.Register<IJob, DbBackup>(options => options
     .WithPerScopedRequestLifetime());
+```
+
+</div>
+</CodeDescPanel>
+
+## Auto lifetime
+
+<CodeDescPanel>
+<div>
+
+The requested service's lifetime will align to the lifetime of its dependencies. When the requested service has a dependency with a higher lifespan, this lifetime will inherit that lifespan up to a given boundary.
+
+</div>
+<div>
+
+```cs
+container.Register<IJob, DbBackup>(options => options
+    .WithAutoLifetime(Lifetimes.Scoped /* boundary lifetime */));
+```
+
+</div>
+</CodeDescPanel>
+
+<CodeDescPanel>
+<div>
+
+If the requested service has auto lifetime with a scoped boundary and it has only transient dependencies, it'll inherit their transient lifetime.
+
+</div>
+<div>
+
+```cs
+container.Register<ILogger, Logger>();
+
+container.Register<IJob, DbBackup>(options => options
+    .WithAutoLifetime(Lifetimes.Scoped /* boundary lifetime */));
+
+// job has transient lifetime.
+var job = container.Resolve<IJob>();
+```
+
+</div>
+</CodeDescPanel>
+
+<CodeDescPanel>
+<div>
+
+When there's a dependency with higher lifespan than the given boundary, the requested service will get the boundary lifetime.
+
+</div>
+<div>
+
+```cs
+container.RegisterSingleton<ILogger, Logger>();
+
+container.Register<IJob, DbBackup>(options => options
+    .WithAutoLifetime(Lifetimes.Scoped /* boundary lifetime */));
+
+// job has scoped lifetime.
+var job = container.Resolve<IJob>();
 ```
 
 </div>

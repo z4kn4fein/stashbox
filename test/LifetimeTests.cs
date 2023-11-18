@@ -492,6 +492,72 @@ public class LifetimeTests
 
         Assert.Same(inst.Test5, inst.Test6.Test5);
     }
+    
+    [Theory]
+    [ClassData(typeof(CompilerTypeTestData))]
+    public void LifetimeTests_AutoLifetime(CompilerType compilerType)
+    {
+        using IStashboxContainer container = new StashboxContainer(c => c.WithCompiler(compilerType));
+
+        container.Register<Test6>();
+        container.Register<Test5>(c => c.WithSingletonLifetime());
+        container.Register<Test8>(c => c.WithAutoLifetime(Lifetimes.Singleton));
+
+        Assert.Same(container.Resolve<Test8>(), container.Resolve<Test8>());
+    }
+    
+    [Theory]
+    [ClassData(typeof(CompilerTypeTestData))]
+    public void LifetimeTests_AutoLifetime_Scoped(CompilerType compilerType)
+    {
+        using IStashboxContainer container = new StashboxContainer(c => c.WithCompiler(compilerType));
+
+        container.Register<Test6>();
+        container.Register<Test5>(c => c.WithSingletonLifetime());
+        container.Register<Test8>(c => c.WithAutoLifetime(Lifetimes.Scoped));
+
+        Assert.NotSame(container.BeginScope().Resolve<Test8>(), container.BeginScope().Resolve<Test8>());
+
+        var scope = container.BeginScope();
+        Assert.Same(scope.Resolve<Test8>(), scope.Resolve<Test8>());
+    }
+    
+    [Theory]
+    [ClassData(typeof(CompilerTypeTestData))]
+    public void LifetimeTests_AutoLifetime_Transient(CompilerType compilerType)
+    {
+        using IStashboxContainer container = new StashboxContainer(c => c.WithCompiler(compilerType));
+
+        container.Register<Test6>();
+        container.Register<Test5>(c => c.WithSingletonLifetime());
+        container.Register<Test8>(c => c.WithAutoLifetime(Lifetimes.Transient));
+
+        Assert.NotSame(container.Resolve<Test8>(), container.Resolve<Test8>());
+    }
+    
+    [Theory]
+    [ClassData(typeof(CompilerTypeTestData))]
+    public void LifetimeTests_AutoLifetime_Remains_Transient(CompilerType compilerType)
+    {
+        using IStashboxContainer container = new StashboxContainer(c => c.WithCompiler(compilerType));
+
+        container.Register<Test6>();
+        container.Register<Test5>();
+        container.Register<Test8>(c => c.WithAutoLifetime(Lifetimes.Singleton));
+
+        Assert.NotSame(container.Resolve<Test8>(), container.Resolve<Test8>());
+    }
+    
+    [Theory]
+    [ClassData(typeof(CompilerTypeTestData))]
+    public void LifetimeTests_AutoLifetime_Without_Dependency(CompilerType compilerType)
+    {
+        using IStashboxContainer container = new StashboxContainer(c => c.WithCompiler(compilerType));
+
+        container.Register<Test5>(c => c.WithAutoLifetime(Lifetimes.Singleton));
+
+        Assert.NotSame(container.Resolve<Test5>(), container.Resolve<Test5>());
+    }
 
     interface ITest1 { string Name { get; set; } }
 

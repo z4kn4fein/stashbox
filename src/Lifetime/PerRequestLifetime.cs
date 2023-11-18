@@ -12,18 +12,19 @@ namespace Stashbox.Lifetime;
 public class PerRequestLifetime : FactoryLifetimeDescriptor
 {
     /// <inheritdoc />
-    private protected override bool StoreResultInLocalVariable => true;
+    internal override bool StoreResultInLocalVariable => true;
 
     /// <inheritdoc />
     protected override Expression ApplyLifetime(Func<IResolutionScope, IRequestContext, object> factory,
-        ServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType)
+        ServiceRegistration serviceRegistration, ResolutionContext resolutionContext, TypeInformation typeInformation)
     {
         resolutionContext.RequestConfiguration.RequiresRequestContext = true;
 
         return resolutionContext.RequestContextParameter
             .ConvertTo(TypeCache<IInternalRequestContext>.Type)
             .CallMethod(Constants.GetOrAddInstanceMethod,
-                serviceRegistration.RegistrationId.AsConstant(),
+                serviceRegistration.GetDiscriminator(typeInformation, 
+                    resolutionContext.CurrentContainerContext.ContainerConfiguration).AsConstant(),
                 factory.AsConstant(),
                 resolutionContext.CurrentScopeParameter);
     }

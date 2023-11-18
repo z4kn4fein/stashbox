@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
+using Stashbox.Utils.Data;
 
 namespace Stashbox.Configuration;
 
@@ -90,6 +91,12 @@ public class ContainerConfiguration
     /// </summary>
     public bool LifetimeValidationEnabled { get; internal set; }
 
+    internal object? UniversalName { get; set; }
+    
+    internal ExpandableArray<Type>? AdditionalDependencyNameAttributeTypes { get; set; }
+    
+    internal ExpandableArray<Type>? AdditionalDependencyAttributeTypes { get; set; }
+
     /// <summary>
     /// A delegate to use external expression compilers.
     /// </summary>
@@ -112,7 +119,10 @@ public class ContainerConfiguration
         Func<MemberInfo, bool>? autoMemberInjectionFilter,
         LifetimeDescriptor defaultLifetime,
         bool lifetimeValidationEnabled,
-        Func<LambdaExpression, Delegate>? externalExpressionCompiler)
+        Func<LambdaExpression, Delegate>? externalExpressionCompiler,
+        object? universalName,
+        ExpandableArray<Type>? additionalDependencyNameAttributeTypes,
+        ExpandableArray<Type>? additionalDependencyAttributeTypes)
     {
         this.TrackTransientsForDisposalEnabled = trackTransientsForDisposalEnabled;
         this.RegistrationBehavior = registrationBehavior;
@@ -130,6 +140,9 @@ public class ContainerConfiguration
         this.DefaultLifetime = defaultLifetime;
         this.LifetimeValidationEnabled = lifetimeValidationEnabled;
         this.ExternalExpressionCompiler = externalExpressionCompiler;
+        this.UniversalName = universalName;
+        this.AdditionalDependencyNameAttributeTypes = additionalDependencyNameAttributeTypes;
+        this.AdditionalDependencyAttributeTypes = additionalDependencyAttributeTypes;
     }
 
     internal ContainerConfiguration Clone() =>
@@ -148,5 +161,8 @@ public class ContainerConfiguration
             this.AutoMemberInjectionFilter,
             this.DefaultLifetime,
             this.LifetimeValidationEnabled,
-            this.ExternalExpressionCompiler);
+            this.ExternalExpressionCompiler,
+            this.UniversalName,
+            this.AdditionalDependencyNameAttributeTypes,
+            this.AdditionalDependencyAttributeTypes);
 }

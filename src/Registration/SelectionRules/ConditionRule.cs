@@ -9,7 +9,7 @@ internal class ConditionRule : IRegistrationSelectionRule
         ServiceRegistration registration, ResolutionContext resolutionContext, out bool shouldIncrementWeight)
     {
         var conditions = registration.Options.GetOrDefault<ConditionOptions>(RegistrationOption.ConditionOptions);
-        if (conditions is not null)
+        if (conditions != null)
         {
             shouldIncrementWeight = ServiceRegistration.IsUsableForCurrentContext(typeInformation, conditions);
             return shouldIncrementWeight;

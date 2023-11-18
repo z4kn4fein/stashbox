@@ -6,5 +6,5 @@
 public class PerScopedRequestLifetime : TransientLifetime
 {
     /// <inheritdoc />
-    private protected override bool StoreResultInLocalVariable => true;
+    internal override bool StoreResultInLocalVariable => true;
 }

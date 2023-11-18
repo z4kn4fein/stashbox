@@ -46,6 +46,9 @@ internal class ResolutionStrategy : IResolutionStrategy
             resolutionContext.RequestConfiguration.RequiresRequestContext = true;
             return resolutionContext.RequestContextParameter.AsServiceContext();
         }
+        
+        if (typeInformation is { HasDependencyNameAttribute: true, Parent: not null })
+            return typeInformation.Parent.DependencyName.AsConstant().ConvertTo(typeInformation.Type).AsServiceContext();
 
         if (typeInformation.IsDependency)
         {

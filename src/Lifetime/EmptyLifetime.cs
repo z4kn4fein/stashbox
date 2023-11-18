@@ -9,4 +9,9 @@ internal class EmptyLifetime : LifetimeDescriptor
     private protected override Expression? BuildLifetimeAppliedExpression(ServiceRegistration serviceRegistration,
         ResolutionContext resolutionContext, TypeInformation typeInformation)
         => null;
+
+    internal override Expression? ApplyLifetimeToExpression(Expression? expression,
+        ServiceRegistration serviceRegistration,
+        ResolutionContext resolutionContext, TypeInformation typeInformation)
+        => null;
 }

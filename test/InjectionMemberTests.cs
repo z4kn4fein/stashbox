@@ -164,6 +164,22 @@ public class InjectionMemberTests
 
         Assert.Throws<ResolutionFailedException>(() => container.Resolve<Test7>());
     }
+    
+#if HAS_REQUIRED
+    [Fact]
+    public void InjectionMemberTests_AutoInject_Required()
+    {
+        using var container = new StashboxContainer()
+            .Register<Test8>()
+            .Register<Test5>()
+            .Register<Test4>();
+
+        var inst = container.Resolve<Test8>();
+        
+        Assert.NotNull(inst.Test4);
+        Assert.NotNull(inst.Test5);
+    }
+#endif
 
     interface ITest { }
 
@@ -223,4 +239,11 @@ public class InjectionMemberTests
         private Test4 test4;
 #pragma warning restore 169
     }
+#if HAS_REQUIRED
+    class Test8
+    {
+        public required Test4 Test4 { get; init; }
+        public required Test5 Test5;
+    }    
+#endif
 }

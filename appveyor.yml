@@ -20,6 +20,10 @@ install:
     $env:build_version = Get-Content ".version"
     Update-AppveyorBuild -Version "$env:build_version-preview-$env:appveyor_build_number"
     dotnet tool install -g InheritDocTool
+    
+    Invoke-WebRequest 'https://dot.net/v1/dotnet-install.ps1' -OutFile dotnet-install.ps1
+    ./dotnet-install.ps1 -Channel 7.0
+    ./dotnet-install.ps1 -Channel 8.0
 
 dotnet_csproj:
   patch: true
@@ -46,6 +50,7 @@ test_script:
 - dotnet test test\stashbox.tests.csproj -f net5.0 -c %configuration% --no-build
 - dotnet test test\stashbox.tests.csproj -f net6.0 -c %configuration% --no-build
 - dotnet test test\stashbox.tests.csproj -f net7.0 -c %configuration% --no-build
+- dotnet test test\stashbox.tests.csproj -f net8.0 -c %configuration% --no-build
 
 artifacts:
   - path: artifacts\Stashbox.*.nupkg

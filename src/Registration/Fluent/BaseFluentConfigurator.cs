@@ -99,6 +99,14 @@ public class BaseFluentConfigurator<TConfigurator> : ServiceRegistration
     /// </summary>
     /// <returns>The configurator itself.</returns>
     public TConfigurator WithPerRequestLifetime() => this.WithLifetime(Lifetimes.PerRequest);
+    
+    /// <summary>
+    /// Sets the lifetime to auto lifetime. This lifetime aligns to the lifetime of the resolved service's dependencies.
+    /// When the underlying service has a dependency with a higher lifespan, this lifetime will inherit that lifespan up to a given boundary.
+    /// </summary>
+    /// <param name="boundaryLifetime">The lifetime that represents a boundary which the derived lifetime must not exceed.</param>
+    /// <returns>The configurator itself.</returns>
+    public TConfigurator WithAutoLifetime(LifetimeDescriptor boundaryLifetime) => this.WithLifetime(Lifetimes.Auto(boundaryLifetime));
 
     /// <summary>
     /// Sets a scope name condition for the registration, it will be used only when a scope with the given name requests it.

@@ -15,7 +15,8 @@ internal class EnumerableNameRule : IRegistrationSelectionRule
 
         if (typeInformation.DependencyName != null &&
             registration.Name != null &&
-            registration.Name.Equals(typeInformation.DependencyName))
+            (registration.Name.Equals(typeInformation.DependencyName) || 
+            registration.Name.Equals(resolutionContext.CurrentContainerContext.ContainerConfiguration.UniversalName)))
         {
             shouldIncrementWeight = true;
             return true;

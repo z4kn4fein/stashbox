@@ -12,6 +12,6 @@ public class TransientLifetime : ExpressionLifetimeDescriptor
 {
     /// <inheritdoc />
     protected override Expression ApplyLifetime(Expression expression,
-        ServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType) =>
+        ServiceRegistration serviceRegistration, ResolutionContext resolutionContext, TypeInformation typeInformation) =>
         expression;
 }

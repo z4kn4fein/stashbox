@@ -374,7 +374,7 @@ container.Register<ILogger, ConsoleLogger>(config => config
 <div>
 
 ### `WithPerScopedRequestLifetime`
-Sets the lifetime to `PerScopedRequestLifetime`. That means this registration will behave like a singleton within every scoped resolution request.
+Sets the lifetime to `PerScopedRequestLifetime`. This lifetime will create a new instance between scoped services. This means that every scoped service will get a different instance but within their dependency tree it will behave as a singleton.
 
 </div>
 <div>
@@ -382,6 +382,40 @@ Sets the lifetime to `PerScopedRequestLifetime`. That means this registration wi
 ```cs
 container.Register<ILogger, ConsoleLogger>(options => options
     .WithPerScopedRequestLifetime());
+```
+
+</div>
+</CodeDescPanel>
+
+<CodeDescPanel>
+<div>
+
+### `WithPerRequestLifetime`
+Sets the lifetime to `PerRequestLifetime`. This lifetime will create a new instance between resolution requests. Within the request the same instance will be re-used.
+
+</div>
+<div>
+
+```cs
+container.Register<ILogger, ConsoleLogger>(options => options
+    .WithPerRequestLifetime());
+```
+
+</div>
+</CodeDescPanel>
+
+<CodeDescPanel>
+<div>
+
+### `WithAutoLifetime`
+Sets the lifetime to auto lifetime. This lifetime aligns to the lifetime of the resolved service's dependencies. When the underlying service has a dependency with a higher lifespan, this lifetime will inherit that lifespan up to a given boundary.
+
+</div>
+<div>
+
+```cs
+container.Register<ILogger, ConsoleLogger>(options => options
+    .WithAutoLifetime(Lifetimes.Scoped /* boundary lifetime */));
 ```
 
 </div>
@@ -708,7 +742,9 @@ container.Register<ILogger, ConsoleLogger>(options => options
 </div>
 </CodeDescPanel>
 
-
+:::info
+Members defined with C# 11's [`required`](https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/required) keyword are automatically injected by the container. 
+:::
 
 ## Injection parameters
 <CodeDescPanel>

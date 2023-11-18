@@ -21,7 +21,7 @@ public class NamedScopeLifetime : FactoryLifetimeDescriptor
     public readonly object ScopeName;
 
     /// <inheritdoc />
-    protected override int LifeSpan => 10;
+    protected internal override int LifeSpan => 10;
 
     /// <summary>
     /// Constructs a <see cref="NamedScopeLifetime"/>.
@@ -34,12 +34,13 @@ public class NamedScopeLifetime : FactoryLifetimeDescriptor
 
     /// <inheritdoc />
     protected override Expression ApplyLifetime(Func<IResolutionScope, IRequestContext, object> factory,
-        ServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType) =>
+        ServiceRegistration serviceRegistration, ResolutionContext resolutionContext, TypeInformation typeInformation) =>
         GetScopeValueMethod.CallStaticMethod(resolutionContext.CurrentScopeParameter,
             resolutionContext.RequestContextParameter,
             factory.AsConstant(),
             serviceRegistration.ImplementationType.AsConstant(),
-            serviceRegistration.RegistrationId.AsConstant(),
+            serviceRegistration.GetDiscriminator(typeInformation, 
+                resolutionContext.CurrentContainerContext.ContainerConfiguration).AsConstant(),
             this.ScopeName.AsConstant());
 
     private static object GetScopedValue(IResolutionScope currentScope, IRequestContext requestContext,

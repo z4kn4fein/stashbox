@@ -12,14 +12,13 @@ namespace Stashbox.Lifetime;
 /// </summary>
 public abstract class LifetimeDescriptor
 {
-
-    private protected virtual bool StoreResultInLocalVariable => false;
+    internal virtual bool StoreResultInLocalVariable => false;
 
     /// <summary>
     /// An indicator used to validate the lifetime configuration of the resolution tree.
     /// Services with longer life-span shouldn't contain dependencies with shorter ones.
     /// </summary>
-    protected virtual int LifeSpan => 0;
+    protected internal virtual int LifeSpan => 0;
 
     /// <summary>
     /// The name of the lifetime, used only for diagnostic reasons.
@@ -50,6 +49,11 @@ public abstract class LifetimeDescriptor
                 $"{serviceRegistration.ImplementationType} ({this.Name}|{this.LifeSpan})");
         }
 
+        if (resolutionContext.AutoLifetimeTracking != null && this.LifeSpan > resolutionContext.AutoLifetimeTracking.HighestRankingLifetime.LifeSpan)
+        {
+            resolutionContext.AutoLifetimeTracking.HighestRankingLifetime = this;
+        }
+
         if (!this.StoreResultInLocalVariable)
             return this.BuildLifetimeAppliedExpression(serviceRegistration, resolutionContext, typeInformation);
 
@@ -71,6 +75,9 @@ public abstract class LifetimeDescriptor
     }
 
     private protected abstract Expression? BuildLifetimeAppliedExpression(ServiceRegistration serviceRegistration,
+        ResolutionContext resolutionContext, TypeInformation typeInformation);
+    
+    internal abstract Expression? ApplyLifetimeToExpression(Expression? expression, ServiceRegistration serviceRegistration,
         ResolutionContext resolutionContext, TypeInformation typeInformation);
 
     private protected static Expression? GetExpressionForRegistration(ServiceRegistration serviceRegistration,

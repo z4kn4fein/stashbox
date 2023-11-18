@@ -68,6 +68,7 @@ new StashboxContainer(options => options
 
 ## Auto member-injection
 With this option, you can enable or disable the auto member-injection without [attributes](/docs/guides/service-resolution#attributes).
+
 <CodeDescPanel>
 <div>
 
@@ -140,9 +141,26 @@ new StashboxContainer(options => options
 </div>
 </CodeDescPanel>
 
+<CodeDescPanel>
+<div>
 
-:::note
-Member selection filter: `config.WithAutoMemberInjection(filter: member => member.Type != typeof(IJob))`
+#### Member selection filter
+You can pass your own member selection logic to control which members should be auto injected.
+
+</div>
+<div>
+
+```cs
+new StashboxContainer(options => options
+    .WithAutoMemberInjection(
+        filter: member => member.Type != typeof(ILogger)));
+```
+
+</div>
+</CodeDescPanel>
+
+:::info
+Members defined with C# 11's [`required`](https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/required) keyword are automatically injected by the container. 
 :::
 
 ## Constructor selection
@@ -328,6 +346,57 @@ new StashboxContainer(options => options
 </div>
 </CodeDescPanel>
 
+## Named service resolution
+<CodeDescPanel>
+<div>
+
+### `WithUniversalName`
+Sets the universal name that represents a special name which allows named resolution work for any given name.
+
+</div>
+<div>
+
+```cs
+new StashboxContainer(options => options
+    .WithUniversalName("Any"));
+```
+
+</div>
+</CodeDescPanel>
+
+<CodeDescPanel>
+<div>
+
+### `WithAdditionalDependencyNameAttribute`
+Adds an attribute type that is considered a dependency name indicator just like the [`DependencyName` attribute](/docs/guides/service-resolution#attributes).
+
+</div>
+<div>
+
+```cs
+new StashboxContainer(options => options
+    .WithAdditionalDependencyNameAttribute<CustomNameAttribute>());
+```
+
+</div>
+</CodeDescPanel>
+
+<CodeDescPanel>
+<div>
+
+### `WithAdditionalDependencyAttribute`
+Adds an attribute type that is considered a dependency indicator just like the [`Dependency` attribute](/docs/guides/service-resolution#attributes).
+
+</div>
+<div>
+
+```cs
+new StashboxContainer(options => options
+    .WithAdditionalDependencyAttribute<CustomDependencyAttribute>());
+```
+
+</div>
+</CodeDescPanel>
 
 ## Default value injection
 <CodeDescPanel>

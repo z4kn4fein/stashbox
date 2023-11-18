@@ -73,6 +73,24 @@ public class ServiceRegistration
         this.RegistrationOrder = order ?? ReserveRegistrationOrder();
     }
 
+    /// <summary>
+    /// Returns the service discriminator used to distinguish service instances.
+    /// If <see cref="ContainerConfiguration.UniversalName"/> used for service name it returns the requested dependency name's hash.
+    /// Otherwise, the service's registration identifier is used.
+    /// </summary>
+    /// <param name="typeInformation">The type info of the requested type.</param>
+    /// <param name="containerConfiguration">The container configuration.</param>
+    /// <returns>The registration's discriminator.</returns>
+    public int GetDiscriminator(TypeInformation typeInformation, ContainerConfiguration containerConfiguration)
+    {
+        if (containerConfiguration.UniversalName != null && 
+            containerConfiguration.UniversalName.Equals(this.Name) && 
+            typeInformation.DependencyName != null)
+            return typeInformation.DependencyName.GetHashCode() ^ this.RegistrationId;
+
+        return this.RegistrationId;
+    }
+
     internal void Replaces(ServiceRegistration serviceRegistration) =>
         this.RegistrationOrder = serviceRegistration.RegistrationOrder;
 

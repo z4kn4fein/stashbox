@@ -113,7 +113,7 @@ internal static class TypeExtensions
         ContainerConfiguration containerConfiguration)
     {
         var customAttributes = parameter.GetCustomAttributes();
-        var dependencyName = parameter.GetDependencyAttribute()?.Name;
+        var dependencyName = parameter.GetNameFromDependencyAttribute(containerConfiguration);
 
         if (serviceRegistration != null)
         {
@@ -141,6 +141,7 @@ internal static class TypeExtensions
             parameter.Name,
             parameter.HasDefaultValue(),
             parameter.DefaultValue,
+            parameter.HasDependencyNameAttribute(containerConfiguration),
             null);
     }
 
@@ -150,7 +151,7 @@ internal static class TypeExtensions
         ContainerConfiguration containerConfiguration)
     {
         var customAttributes = member.GetCustomAttributes();
-        var dependencyName = member.GetDependencyAttribute()?.Name;
+        var dependencyName = member.GetNameFromDependencyAttribute(containerConfiguration);
 
         if (serviceRegistration != null)
         {
@@ -174,6 +175,7 @@ internal static class TypeExtensions
             member.Name,
             false,
             null,
+            member.HasDependencyNameAttribute(containerConfiguration),
             null);
     }
 
@@ -274,6 +276,16 @@ internal static class TypeExtensions
         return true;
     }
 
+    public static bool HasDependencyNameAttribute(this ParameterInfo parameterInfo, ContainerConfiguration containerConfiguration) =>
+        parameterInfo.GetCustomAttributes(TypeCache<DependencyNameAttribute>.Type, false).FirstOrDefault() != null ||
+        parameterInfo.CustomAttributes.Any(ca => containerConfiguration.AdditionalDependencyNameAttributeTypes != null && 
+                                                 containerConfiguration.AdditionalDependencyNameAttributeTypes.Contains(ca.AttributeType));
+
+    public static bool HasDependencyNameAttribute(this MemberInfo memberInfo, ContainerConfiguration containerConfiguration) =>
+        memberInfo.GetCustomAttributes(TypeCache<DependencyNameAttribute>.Type, false).FirstOrDefault() != null || 
+        memberInfo.CustomAttributes.Any(ca => containerConfiguration.AdditionalDependencyNameAttributeTypes != null && 
+                                              containerConfiguration.AdditionalDependencyNameAttributeTypes.Contains(ca.AttributeType));
+    
     public static bool IsNullableType(this Type type) =>
         type.IsGenericType && type.GetGenericTypeDefinition() == TypeCache.NullableType;
 
@@ -321,10 +333,13 @@ internal static class TypeExtensions
         ContainerConfiguration containerConfiguration, bool publicPropsEnabled, bool limitedPropsEnabled)
     {
         var valid = prop.CanWrite && !prop.IsIndexer() &&
-                    (prop.GetDependencyAttribute() != null ||
+                    (prop.HasDependencyAttribute(containerConfiguration) || 
+#if HAS_REQUIRED
+                     prop.HasRequiredAttribute() ||
+#endif
                      publicPropsEnabled && prop.GetSetMethod() != null || limitedPropsEnabled ||
                      (dependencyBindings != null && dependencyBindings.ContainsKey(prop.Name)));
-
+        
         valid = valid && (containerConfiguration.AutoMemberInjectionFilter == null || containerConfiguration.AutoMemberInjectionFilter(prop));
         valid = valid && (autoMemberOptions?.AutoMemberInjectionFilter == null || autoMemberOptions.AutoMemberInjectionFilter(prop));
 
@@ -335,7 +350,10 @@ internal static class TypeExtensions
         ContainerConfiguration containerConfiguration, bool fieldsEnabled)
     {
         var valid = !field.IsInitOnly && !field.IsBackingField() &&
-                    (field.GetDependencyAttribute() != null ||
+                    (field.HasDependencyAttribute(containerConfiguration) || 
+#if HAS_REQUIRED
+                     field.HasRequiredAttribute() ||
+#endif
                      fieldsEnabled ||
                      (dependencyBindings != null && dependencyBindings.ContainsKey(field.Name)));
 
@@ -357,17 +375,37 @@ internal static class TypeExtensions
     private static bool HasPublicParameterlessConstructor(this Type type) =>
         Array.Find(type.GetConstructors(), c => c.GetParameters().Length == 0) != null;
 
-    private static DependencyAttribute? GetDependencyAttribute(this MemberInfo property)
+    private static object? GetNameFromDependencyAttribute(this MemberInfo property, ContainerConfiguration containerConfiguration)
     {
         var attr = property.GetCustomAttributes(TypeCache<DependencyAttribute>.Type, false).FirstOrDefault();
-        return attr as DependencyAttribute;
+        if (attr != null) return (attr as DependencyAttribute)?.Name;
+
+        var msAttr = property.CustomAttributes.FirstOrDefault(a => containerConfiguration.AdditionalDependencyAttributeTypes != null &&
+                                                                   containerConfiguration.AdditionalDependencyAttributeTypes.Contains(a.AttributeType));
+        return msAttr?.ConstructorArguments.FirstOrDefault().Value;
     }
 
-    private static DependencyAttribute? GetDependencyAttribute(this ParameterInfo parameter)
+    private static object? GetNameFromDependencyAttribute(this ParameterInfo parameter, ContainerConfiguration containerConfiguration)
     {
         var attr = parameter.GetCustomAttributes(TypeCache<DependencyAttribute>.Type, false).FirstOrDefault();
-        return attr as DependencyAttribute;
+        if (attr != null) return (attr as DependencyAttribute)?.Name;
+
+        var msAttr = parameter.CustomAttributes.FirstOrDefault(a => containerConfiguration.AdditionalDependencyAttributeTypes != null &&
+                                                                    containerConfiguration.AdditionalDependencyAttributeTypes.Contains(a.AttributeType));
+        return msAttr?.ConstructorArguments.FirstOrDefault().Value;
     }
+
+    private static bool HasDependencyAttribute(this MemberInfo property, ContainerConfiguration containerConfiguration)
+    {
+        return property.GetCustomAttributes(TypeCache<DependencyAttribute>.Type, false).FirstOrDefault() != null ||
+               property.CustomAttributes.Any(a => containerConfiguration.AdditionalDependencyAttributeTypes != null &&
+                                                  containerConfiguration.AdditionalDependencyAttributeTypes.Contains(a.AttributeType));
+    }
+    
+#if HAS_REQUIRED
+    private static bool HasRequiredAttribute(this MemberInfo memberInfo) =>
+        memberInfo.GetCustomAttributes(TypeCache<RequiredMemberAttribute>.Type, false).FirstOrDefault() != null;
+#endif
 
     private static InjectionMethodAttribute? GetInjectionAttribute(this MemberInfo method)
     {

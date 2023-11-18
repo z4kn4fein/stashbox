@@ -111,6 +111,21 @@ public class AspNetCoreFailingSpecTestsForConstrainedGenerics
     }
 }
 
+interface IFakeService
+{
+}
+
+interface IFakeSingletonService : IFakeService
+{
+}
+
+interface IFakeEveryService :
+    IFakeService,
+    IFakeSingletonService,
+    IFakeOpenGenericService<PocoClass>
+{
+}
+
 interface IFakeOpenGenericService<T>
 {
     T Value { get; }
@@ -172,7 +187,7 @@ class ClassImplementingIComparable : IComparable<ClassImplementingIComparable>
     public int CompareTo(ClassImplementingIComparable other) => 0;
 }
 
-class FakeService : IFakeOpenGenericService<PocoClass>, IDisposable
+class FakeService : IFakeEveryService, IDisposable
 {
     public PocoClass Value { get; set; }
 

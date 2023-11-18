@@ -14,8 +14,15 @@ public abstract class FactoryLifetimeDescriptor : LifetimeDescriptor
         ResolutionContext resolutionContext, TypeInformation typeInformation)
     {
         var factory = GetFactoryDelegateForRegistration(serviceRegistration, resolutionContext, typeInformation);
-        return factory == null ? null : this.ApplyLifetime(factory, serviceRegistration, resolutionContext, typeInformation.Type);
+        return factory == null ? null : this.ApplyLifetime(factory, serviceRegistration, resolutionContext, typeInformation);
     }
+    
+    internal override Expression? ApplyLifetimeToExpression(Expression? expression,
+        ServiceRegistration serviceRegistration,
+        ResolutionContext resolutionContext, TypeInformation typeInformation) => expression == null
+        ? null
+        : this.ApplyLifetime(expression.CompileDelegate(resolutionContext, resolutionContext.CurrentContainerContext.ContainerConfiguration), 
+            serviceRegistration, resolutionContext, typeInformation);
 
     private static Func<IResolutionScope, IRequestContext, object>? GetFactoryDelegateForRegistration(ServiceRegistration serviceRegistration,
         ResolutionContext resolutionContext, TypeInformation typeInformation)
@@ -46,8 +53,8 @@ public abstract class FactoryLifetimeDescriptor : LifetimeDescriptor
     /// <param name="factory">The factory which can be used to instantiate the service.</param>
     /// <param name="serviceRegistration">The service registration.</param>
     /// <param name="resolutionContext">The info about the actual resolution.</param>
-    /// <param name="resolveType">The type of the resolved service.</param>
+    /// <param name="typeInformation">The type information of the resolved service.</param>
     /// <returns>The lifetime managed expression.</returns>
     protected abstract Expression ApplyLifetime(Func<IResolutionScope, IRequestContext, object> factory, ServiceRegistration serviceRegistration,
-        ResolutionContext resolutionContext, Type resolveType);
+        ResolutionContext resolutionContext, TypeInformation typeInformation);
 }

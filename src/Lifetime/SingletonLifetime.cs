@@ -12,14 +12,14 @@ namespace Stashbox.Lifetime;
 public class SingletonLifetime : FactoryLifetimeDescriptor
 {
     /// <inheritdoc />
-    protected override int LifeSpan => 20;
+    protected internal override int LifeSpan => 20;
 
     /// <inheritdoc />
-    private protected override bool StoreResultInLocalVariable => true;
+    internal override bool StoreResultInLocalVariable => true;
 
     /// <inheritdoc />
     protected override Expression ApplyLifetime(Func<IResolutionScope, IRequestContext, object> factory,
-        ServiceRegistration serviceRegistration, ResolutionContext resolutionContext, Type resolveType)
+        ServiceRegistration serviceRegistration, ResolutionContext resolutionContext, TypeInformation typeInformation)
     {
         var rootScope = resolutionContext.RequestInitiatorContainerContext.ContainerConfiguration.ReBuildSingletonsInChildContainerEnabled
             ? resolutionContext.RequestInitiatorContainerContext.RootScope
@@ -28,12 +28,14 @@ public class SingletonLifetime : FactoryLifetimeDescriptor
         // do not build singletons during validation, we just have to ensure the expression tree is valid
         if (resolutionContext.IsValidationContext)
             return rootScope.AsConstant().CallMethod(Constants.GetOrAddScopedObjectMethod,
-                    serviceRegistration.RegistrationId.AsConstant(),
+                    serviceRegistration.GetDiscriminator(typeInformation, 
+                        resolutionContext.CurrentContainerContext.ContainerConfiguration).AsConstant(),
                     factory.AsConstant(),
                     resolutionContext.RequestContextParameter,
                     serviceRegistration.ImplementationType.AsConstant());
 
-        return rootScope.GetOrAddScopedObject(serviceRegistration.RegistrationId, factory, 
+        return rootScope.GetOrAddScopedObject(serviceRegistration.GetDiscriminator(typeInformation, 
+                resolutionContext.CurrentContainerContext.ContainerConfiguration), factory, 
             resolutionContext.RequestContext, serviceRegistration.ImplementationType).AsConstant();
     }
 }

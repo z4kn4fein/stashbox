@@ -26,6 +26,9 @@ public class CircularDependencyException : Exception
     }
 
     /// <inheritdoc />
+#if NET8_0_OR_GREATER
+    [Obsolete(DiagnosticId = "SYSLIB0051")] // add this attribute to the serialization ctor
+#endif
     protected CircularDependencyException(SerializationInfo info, StreamingContext context)
         : base(info, context)
     { }

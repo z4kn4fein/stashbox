@@ -50,6 +50,11 @@ public class TypeInformation
     public readonly object? DefaultValue;
 
     /// <summary>
+    /// Indicates whether the dependency has a <see cref="DependencyName"/> or similar attribute.
+    /// </summary>
+    public bool HasDependencyNameAttribute { get; set; }
+    
+    /// <summary>
     /// The parent type's metadata.
     /// </summary>
     public readonly TypeInformation? Parent;
@@ -68,11 +73,12 @@ public class TypeInformation
         this.DefaultValue = null;
         this.Parent = null;
         this.IsDependency = false;
+        this.HasDependencyNameAttribute = false;
     }
 
     internal TypeInformation(Type type, Type? parentType, TypeInformation? parent, object? dependencyName,
         IEnumerable<Attribute>? customAttributes, string? parameterOrMemberName,
-        bool hasDefaultValue, object? defaultValue, Type? metaDataType)
+        bool hasDefaultValue, object? defaultValue, bool hasDependencyNameAttribute, Type? metaDataType)
     {
         this.Type = type;
         this.ParentType = parentType;
@@ -83,7 +89,8 @@ public class TypeInformation
         this.DefaultValue = defaultValue;
         this.MetadataType = metaDataType;
         this.Parent = parent;
-        this.IsDependency = parentType != null;
+        this.IsDependency = parentType != null; 
+        this.HasDependencyNameAttribute = hasDependencyNameAttribute;
     }
 
     /// <summary>
@@ -102,6 +109,7 @@ public class TypeInformation
             this.ParameterOrMemberName,
             this.HasDefaultValue,
             this.DefaultValue,
+            this.HasDependencyNameAttribute,
             metadataType ?? this.MetadataType);
 
     internal static readonly TypeInformation Empty = new(TypeCache<object>.Type, null);

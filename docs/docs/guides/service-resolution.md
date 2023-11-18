@@ -19,6 +19,8 @@ Stashbox, by default, uses the constructor that has the most parameters it knows
 
 [Property/field injection](/docs/configuration/registration-configuration#property-field-injection) is also supported in cases where constructor injection is not applicable.
 
+Members defined with C# 11's [`required`](https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/required) keyword are automatically injected by the container. 
+
 :::info 
 [Constructor selection](/docs/configuration/container-configuration#constructor-selection) and [property/field injection](/docs/configuration/container-configuration#auto-member-injection) is also configurable container-wide.
 :::
@@ -97,6 +99,8 @@ Attributes can give you control over how Stashbox selects dependencies for a ser
 
 - **On a property/field**: first, it enables *auto-injection* on the marked property/field (even if it wasn't configured at registration explicitly), and just as with the method parameter, it allows [named resolution](/docs/getting-started/glossary#named-resolution).
 
+**DependencyName attribute**: marks a parameter to let the container know that it must pass the given dependency's name to it.
+
 **InjectionMethod attribute**: marks a method to be called when the requested service is instantiated.
 
 </div>
@@ -148,6 +152,24 @@ IJob job = container.Resolve<IJob>();
 ```
 
 </TabItem>
+<TabItem value="DependencyName" label="DependencyName">
+
+```cs
+class DbBackup : IJob
+{
+    public string Name { get; set; }
+
+    public DbBackup([DependencyName] string name) 
+    { }
+}
+
+container.Register<IJob, DbBackup>("Backup");
+
+// job.Name is "Backup".
+IJob job = container.Resolve<IJob>();
+```
+
+</TabItem>
 <TabItem value="Method" label="Method">
 
 ```cs
@@ -176,19 +198,84 @@ IJob job = container.Resolve<IJob>();
 
 
 :::caution
-Attributes provide a more straightforward configuration, but using them also tightens the bond between your application and Stashbox. If you consider this an issue, the same functionality is available on the *registration API* as [dependency binding](/docs/guides/service-resolution#dependency-binding).
+Attributes provide a more straightforward configuration, but using them also tightens the bond between your application and Stashbox. If you consider this an issue, you can use the [dependency binding](/docs/guides/service-resolution#dependency-binding) API or [your own attributes](/docs/guides/service-resolution#using-your-own-attributes).
 :::
+
+### Using your own attributes
+
+<CodeDescPanel>
+<div>
+There's an option to extend the container's dependency finding mechanism with your own attributes.
+
+- **Additional Dependency attributes**: you can use the [`.WithAdditionalDependencyAttribute()`](/docs/configuration/container-configuration#withadditionaldependencyattribute) container configuration option to let the container know that it should watch for additional attributes besides the built-in [`Dependency`](/docs/guides/service-resolution#attributes) attribute upon building up the [resolution tree](/docs/getting-started/glossary#resolution-tree).
+
+- **Additional DependencyName attributes**: you can use the [`.WithAdditionalDependencyNameAttribute()`](/docs/configuration/container-configuration#withadditionaldependencynameattribute) container configuration option to use additional dependency name indicator attributes besides the built-in [`DependencyName`](/docs/guides/service-resolution#attributes) attribute.
+
+</div>
+<div>
+
+<Tabs>
+<TabItem value="Dependency" label="Dependency">
+
+```cs
+class DbBackup : IJob
+{
+    [CustomDependency("Console")]
+    public ILogger Logger { get; set; }
+
+    public DbBackup() 
+    { }
+}
+
+var container = new StashboxContainer(options => options
+    .WithAdditionalDependencyAttribute<CustomDependencyAttribute>());
+
+container.Register<ILogger, ConsoleLogger>("Console");
+container.Register<ILogger, FileLogger>("File");
+
+container.Register<IJob, DbBackup>();
+
+// the container will resolve DbBackup with ConsoleLogger.
+IJob job = container.Resolve<IJob>();
+```
+
+</TabItem>
+<TabItem value="DependencyName" label="DependencyName">
+
+```cs
+class DbBackup : IJob
+{
+    public string Name { get; set; }
+
+    public DbBackup([CustomName] string name) 
+    { }
+}
+
+var container = new StashboxContainer(options => options
+    .WithAdditionalDependencyNameAttribute<CustomNameAttribute>());
+
+container.Register<IJob, DbBackup>("Backup");
+
+// job.Name is "Backup".
+IJob job = container.Resolve<IJob>();
+```
+
+</TabItem>
+</Tabs>
+
+</div>
+</CodeDescPanel>
 
 ## Dependency binding
 
 <CodeDescPanel>
 <div>
 
-The same dependency configuration as attributes is available on the registration configuration API.
+The same dependency configuration functionality as attributes, but without attributes.
 
-- **Bind to parameter**: it has the same functionality as the [Dependency attribute](/docs/guides/service-resolution#attributes) on a constructor or method parameter, enabling the [named resolution](/docs/getting-started/glossary#named-resolution).
+- **Binding to a parameter**: the same functionality as the [`Dependency`](/docs/guides/service-resolution#attributes) attribute on a constructor or method parameter, enabling [named resolution](/docs/getting-started/glossary#named-resolution).
 
-- **Bind to property/field**: it has the same functionality as the [Dependency attribute](/docs/guides/service-resolution#attributes), enabling the injection of the given property/field.
+- **Binding to a property/field**: the same functionality as the [`Dependency`](/docs/guides/service-resolution#attributes) attribute, enabling the injection of the given property/field.
 
 :::info
 There are further dependency binding options [available](/docs/configuration/registration-configuration#dependency-configuration) on the registration configuration API.

@@ -33,7 +33,17 @@ public static class Lifetimes
     /// <summary>
     /// Produces a NamedScope lifetime.
     /// </summary>
+    /// <param name="name">The name of the scope.</param>
+    /// <returns>A named-scope lifetime.</returns>
     public static LifetimeDescriptor NamedScope(object name) => new NamedScopeLifetime(name);
+
+    /// <summary>
+    /// Produces a lifetime that aligns to the lifetime of the resolved service's dependencies.
+    /// When the underlying service has a dependency with a higher lifespan, this lifetime will inherit that lifespan up to a given boundary.
+    /// </summary>
+    /// <param name="boundaryLifetime">The lifetime that represents a boundary which the derived lifetime must not exceed.</param>
+    /// <returns>An auto lifetime.</returns>
+    public static LifetimeDescriptor Auto(LifetimeDescriptor boundaryLifetime) => new AutoLifetime(boundaryLifetime);
 
     internal static readonly LifetimeDescriptor Empty = new EmptyLifetime();
 }

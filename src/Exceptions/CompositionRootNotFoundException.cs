@@ -20,6 +20,9 @@ public class CompositionRootNotFoundException : Exception
     { }
 
     /// <inheritdoc />
+#if NET8_0_OR_GREATER
+    [Obsolete(DiagnosticId = "SYSLIB0051")] // add this attribute to the serialization ctor
+#endif
     protected CompositionRootNotFoundException(SerializationInfo info, StreamingContext context)
         : base(info, context)
     { }
