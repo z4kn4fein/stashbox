@@ -206,8 +206,9 @@ internal static class TypeExtensions
 
         var dependencyBindings = serviceRegistration?.Options.GetOrDefault<Dictionary<object, object?>>(RegistrationOption.DependencyBindings);
 
-        var requiredInjectionEnabled = containerConfiguration.RequiredMemberInjectionEnabled;
-        requiredInjectionEnabled = requiredInjectionEnabled && (serviceRegistration?.Options.GetOrDefault<bool?>(RegistrationOption.RequiredMemberInjectionEnabled) ?? true);
+        var globalRequiredInjectionEnabled = containerConfiguration.RequiredMemberInjectionEnabled;
+        var regRequiredInjectionEnabled = serviceRegistration?.Options.GetOrDefault<bool?>(RegistrationOption.RequiredMemberInjectionEnabled);
+        var requiredInjectionEnabled = regRequiredInjectionEnabled ?? globalRequiredInjectionEnabled;
         
         IEnumerable<MemberInfo> properties = type.GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance)
             .Where(member => member.FilterProperty(dependencyBindings, autoMemberOptions, containerConfiguration, publicPropsEnabled, limitedPropsEnabled, requiredInjectionEnabled));
