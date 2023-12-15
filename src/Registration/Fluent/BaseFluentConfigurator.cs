@@ -368,6 +368,19 @@ public class BaseFluentConfigurator<TConfigurator> : ServiceRegistration
 
         return (TConfigurator)this;
     }
+    
+    /// <summary>
+    /// Enables or disables required member injection.
+    /// </summary>
+    /// <param name="enabled">True when the feature should be enabled, otherwise false.</param>
+    /// <returns>The container configurator.</returns>
+    public TConfigurator WithRequiredMemberInjection(bool enabled = true)
+    {
+        this.Options ??= new Dictionary<RegistrationOption, object?>();
+        this.Options[RegistrationOption.RequiredMemberInjectionEnabled] = enabled;
+
+        return (TConfigurator)this;
+    }
 
     /// <summary>
     /// The constructor selection rule.

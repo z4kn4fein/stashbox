@@ -742,9 +742,27 @@ container.Register<ILogger, ConsoleLogger>(options => options
 </div>
 </CodeDescPanel>
 
-:::info
-Members defined with C# 11's [`required`](https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/required) keyword are automatically injected by the container. 
+## Required member injection
+<CodeDescPanel>
+<div>
+
+With this option, you can enable or disable the auto injection of members defined with C# 11's [`required`](https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/required) keyword.
+
+</div>
+<div>
+
+```cs
+container.Register<IUserRepository, UserRepository>(options => options
+    .WithRequiredMemberInjection(enabled: false));
+```
+
+</div>
+</CodeDescPanel>
+
+:::note
+The required member injection option is **enabled** by default.
 :::
+
 
 ## Injection parameters
 <CodeDescPanel>

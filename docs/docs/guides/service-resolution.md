@@ -20,6 +20,7 @@ Stashbox, by default, uses the constructor that has the most parameters it knows
 [Property/field injection](/docs/configuration/registration-configuration#property-field-injection) is also supported in cases where constructor injection is not applicable.
 
 Members defined with C# 11's [`required`](https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/keywords/required) keyword are automatically injected by the container. 
+This behavior can be controlled with [registration](/docs/configuration/registration-configuration#required-member-injection) or [container](/docs/configuration/container-configuration#required-member-injection) configuration options 
 
 :::info 
 [Constructor selection](/docs/configuration/container-configuration#constructor-selection) and [property/field injection](/docs/configuration/container-configuration#auto-member-injection) is also configurable container-wide.
@@ -99,7 +100,7 @@ Attributes can give you control over how Stashbox selects dependencies for a ser
 
 - **On a property/field**: first, it enables *auto-injection* on the marked property/field (even if it wasn't configured at registration explicitly), and just as with the method parameter, it allows [named resolution](/docs/getting-started/glossary#named-resolution).
 
-**DependencyName attribute**: marks a parameter to let the container know that it must pass the given dependency's name to it.
+**DependencyName attribute**: a parameter marked with this attribute will get the related service's dependency name.
 
 **InjectionMethod attribute**: marks a method to be called when the requested service is instantiated.
 
@@ -165,8 +166,10 @@ class DbBackup : IJob
 
 container.Register<IJob, DbBackup>("Backup");
 
-// job.Name is "Backup".
+
 IJob job = container.Resolve<IJob>();
+// name is "Backup".
+var name = job.Name;
 ```
 
 </TabItem>
@@ -256,8 +259,9 @@ var container = new StashboxContainer(options => options
 
 container.Register<IJob, DbBackup>("Backup");
 
-// job.Name is "Backup".
 IJob job = container.Resolve<IJob>();
+// name is "Backup".
+var name = job.Name;
 ```
 
 </TabItem>

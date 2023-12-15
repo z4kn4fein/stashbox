@@ -84,6 +84,17 @@ public class ContainerConfigurator
         this.ContainerConfiguration.AutoMemberInjectionFilter = filter;
         return this;
     }
+    
+    /// <summary>
+    /// Enables or disables required member injection.
+    /// </summary>
+    /// <param name="enabled">True when the feature should be enabled, otherwise false.</param>
+    /// <returns>The container configurator.</returns>
+    public ContainerConfigurator WithRequiredMemberInjection(bool enabled = true)
+    {
+        this.ContainerConfiguration.RequiredMemberInjectionEnabled = enabled;
+        return this;
+    }
 
     /// <summary>
     /// Sets the constructor selection rule used to determine which constructor should the container use for instantiation

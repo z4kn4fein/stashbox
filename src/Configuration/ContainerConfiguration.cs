@@ -40,6 +40,11 @@ public class ContainerConfiguration
     public bool AutoMemberInjectionEnabled { get; internal set; }
 
     /// <summary>
+    /// If it's set to true, the container will inject required fields and properties.
+    /// </summary>
+    public bool RequiredMemberInjectionEnabled { get; internal set; } = true;
+
+    /// <summary>
     /// If it's set to true, the container will treat the name of a constructor/method parameter or member name as a dependency name used by named resolution.
     /// </summary>
     public bool TreatingParameterAndMemberNameAsDependencyNameEnabled { get; internal set; }

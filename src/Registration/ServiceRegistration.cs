@@ -294,6 +294,11 @@ public enum RegistrationOption
     /// Options related to instance or factory registrations.
     /// </summary>
     RegistrationTypeOptions,
+    
+    /// <summary>
+    /// Required member injection related registration options.
+    /// </summary>
+    RequiredMemberInjectionEnabled,
 }
 
 /// <summary>

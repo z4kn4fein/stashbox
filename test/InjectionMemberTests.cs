@@ -179,6 +179,48 @@ public class InjectionMemberTests
         Assert.NotNull(inst.Test4);
         Assert.NotNull(inst.Test5);
     }
+    
+    [Fact]
+    public void InjectionMemberTests_AutoInject_Required_Disabled_Global()
+    {
+        using var container = new StashboxContainer(c => c.WithRequiredMemberInjection(false))
+            .Register<Test8>()
+            .Register<Test5>()
+            .Register<Test4>();
+
+        var inst = container.Resolve<Test8>();
+        
+        Assert.Null(inst.Test4);
+        Assert.Null(inst.Test5);
+    }
+    
+    [Fact]
+    public void InjectionMemberTests_AutoInject_Required_Disabled_Reg()
+    {
+        using var container = new StashboxContainer()
+            .Register<Test8>(c => c.WithRequiredMemberInjection(false))
+            .Register<Test5>()
+            .Register<Test4>();
+
+        var inst = container.Resolve<Test8>();
+        
+        Assert.Null(inst.Test4);
+        Assert.Null(inst.Test5);
+    }
+    
+    [Fact]
+    public void InjectionMemberTests_AutoInject_Required_Disabled_Global_Enabled_Reg()
+    {
+        using var container = new StashboxContainer(c => c.WithRequiredMemberInjection(false))
+            .Register<Test8>(c => c.WithRequiredMemberInjection())
+            .Register<Test5>()
+            .Register<Test4>();
+
+        var inst = container.Resolve<Test8>();
+        
+        Assert.NotNull(inst.Test4);
+        Assert.NotNull(inst.Test5);
+    }
 #endif
 
     interface ITest { }

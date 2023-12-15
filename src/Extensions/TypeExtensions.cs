@@ -206,18 +206,21 @@ internal static class TypeExtensions
 
         var dependencyBindings = serviceRegistration?.Options.GetOrDefault<Dictionary<object, object?>>(RegistrationOption.DependencyBindings);
 
+        var requiredInjectionEnabled = containerConfiguration.RequiredMemberInjectionEnabled;
+        requiredInjectionEnabled = requiredInjectionEnabled && (serviceRegistration?.Options.GetOrDefault<bool?>(RegistrationOption.RequiredMemberInjectionEnabled) ?? true);
+        
         IEnumerable<MemberInfo> properties = type.GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance)
-            .Where(member => member.FilterProperty(dependencyBindings, autoMemberOptions, containerConfiguration, publicPropsEnabled, limitedPropsEnabled));
+            .Where(member => member.FilterProperty(dependencyBindings, autoMemberOptions, containerConfiguration, publicPropsEnabled, limitedPropsEnabled, requiredInjectionEnabled));
         IEnumerable<MemberInfo> fields = type.GetFields(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance)
-            .Where(member => member.FilterField(dependencyBindings, autoMemberOptions,  containerConfiguration, fieldsEnabled));
+            .Where(member => member.FilterField(dependencyBindings, autoMemberOptions,  containerConfiguration, fieldsEnabled, requiredInjectionEnabled));
 
         var baseType = type.BaseType;
         while (baseType != null && !baseType.IsObjectType())
         {
             properties = properties.Concat(baseType.GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance)
-                .Where(member => member.FilterProperty(dependencyBindings, autoMemberOptions, containerConfiguration, publicPropsEnabled, limitedPropsEnabled)));
+                .Where(member => member.FilterProperty(dependencyBindings, autoMemberOptions, containerConfiguration, publicPropsEnabled, limitedPropsEnabled, requiredInjectionEnabled)));
             fields = fields.Concat(baseType.GetFields(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance)
-                .Where(member => member.FilterField(dependencyBindings, autoMemberOptions, containerConfiguration, fieldsEnabled)));
+                .Where(member => member.FilterField(dependencyBindings, autoMemberOptions, containerConfiguration, fieldsEnabled, requiredInjectionEnabled)));
             baseType = baseType.BaseType;
         }
 
@@ -330,12 +333,12 @@ internal static class TypeExtensions
         (attributes & GenericParameterAttributes.NotNullableValueTypeConstraint) == GenericParameterAttributes.NotNullableValueTypeConstraint;
 
     private static bool FilterProperty(this PropertyInfo prop, Dictionary<object, object?>? dependencyBindings, AutoMemberOptions? autoMemberOptions,
-        ContainerConfiguration containerConfiguration, bool publicPropsEnabled, bool limitedPropsEnabled)
+        ContainerConfiguration containerConfiguration, bool publicPropsEnabled, bool limitedPropsEnabled, bool requiredInjectionEnabled)
     {
         var valid = prop.CanWrite && !prop.IsIndexer() &&
                     (prop.HasDependencyAttribute(containerConfiguration) || 
 #if HAS_REQUIRED
-                     prop.HasRequiredAttribute() ||
+                     (prop.HasRequiredAttribute() && requiredInjectionEnabled) ||
 #endif
                      publicPropsEnabled && prop.GetSetMethod() != null || limitedPropsEnabled ||
                      (dependencyBindings != null && dependencyBindings.ContainsKey(prop.Name)));
@@ -347,12 +350,12 @@ internal static class TypeExtensions
     }
 
     private static bool FilterField(this FieldInfo field, Dictionary<object, object?>? dependencyBindings, AutoMemberOptions? autoMemberOptions,
-        ContainerConfiguration containerConfiguration, bool fieldsEnabled)
+        ContainerConfiguration containerConfiguration, bool fieldsEnabled, bool requiredInjectionEnabled)
     {
         var valid = !field.IsInitOnly && !field.IsBackingField() &&
                     (field.HasDependencyAttribute(containerConfiguration) || 
 #if HAS_REQUIRED
-                     field.HasRequiredAttribute() ||
+                     (field.HasRequiredAttribute() && requiredInjectionEnabled) ||
 #endif
                      fieldsEnabled ||
                      (dependencyBindings != null && dependencyBindings.ContainsKey(field.Name)));
