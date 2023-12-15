@@ -1,7 +1,7 @@
 deploy:
 - provider: NuGet
   api_key:
-    secure: S0bE5IsZCsBBcbLdoUBmMmzKQqsQFHCqXxwfcpoU1dAGAi5D7IPN+gypYrtrApBt
+    secure: hTtp0t1aPpoDDP8CDkxeXiXdFW7y8ChrYOTZMxFz1ZAn4ltyt1Fwp6A7O34mV5Vw
 
 - provider: NuGet
   server: https://nuget.pkg.github.com/z4kn4fein/index.json
