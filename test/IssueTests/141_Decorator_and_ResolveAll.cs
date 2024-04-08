@@ -44,13 +44,13 @@ public class DecoratorAndResolveAll
         void CommonMethod();
     }
     
-    interface IAnimalRepository : IDataRepository { }
+    interface IAnimalRepository : IDataRepository;
 
-    interface ICarRepository : IDataRepository { }
+    interface ICarRepository : IDataRepository;
 
-    interface IPhoneRepository : IDataRepository { }
+    interface IPhoneRepository : IDataRepository;
 
-    interface IHouseRepository : IDataRepository { }
+    interface IHouseRepository : IDataRepository;
 
     sealed class AnimalRepository : IAnimalRepository
     {

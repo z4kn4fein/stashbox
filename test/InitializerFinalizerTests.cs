@@ -237,7 +237,7 @@ public class InitializerFinalizerTests
 
         var initializables = new List<IT>();
 
-        container.Resolve<T3>(dependencyOverrides: new[] { initializables });
+        container.Resolve<T3>(dependencyOverrides: [initializables]);
         await container.InvokeAsyncInitializers();
 
         Assert.Equal(3, initializables.Count);
@@ -257,7 +257,7 @@ public class InitializerFinalizerTests
 
         var initializables = new List<IT>();
 
-        container.Resolve<T3>(dependencyOverrides: new[] { initializables });
+        container.Resolve<T3>(dependencyOverrides: [initializables]);
         await container.InvokeAsyncInitializers();
 
         Assert.Equal(4, initializables.Count);
@@ -280,7 +280,7 @@ public class InitializerFinalizerTests
 
         using var scope = container.BeginScope();
 
-        scope.Resolve<T3>(dependencyOverrides: new[] { initializables });
+        scope.Resolve<T3>(dependencyOverrides: [initializables]);
         await scope.InvokeAsyncInitializers();
 
         Assert.Equal(3, initializables.Count);
@@ -289,7 +289,7 @@ public class InitializerFinalizerTests
         Assert.IsType<T2>(initializables[1]);
         Assert.IsType<T1>(initializables[2]);
 
-        scope.Resolve<T3>(dependencyOverrides: new[] { initializables });
+        scope.Resolve<T3>(dependencyOverrides: [initializables]);
         await scope.InvokeAsyncInitializers();
         Assert.Equal(3, initializables.Count);
     }
@@ -306,7 +306,7 @@ public class InitializerFinalizerTests
 
         using var scope1 = container.BeginScope();
 
-        scope1.Resolve<T3>(dependencyOverrides: new[] { initializables });
+        scope1.Resolve<T3>(dependencyOverrides: [initializables]);
         await scope1.InvokeAsyncInitializers();
 
         Assert.Equal(3, initializables.Count);
@@ -317,7 +317,7 @@ public class InitializerFinalizerTests
 
         using var scope2 = container.BeginScope();
 
-        scope2.Resolve<T3>(dependencyOverrides: new[] { initializables });
+        scope2.Resolve<T3>(dependencyOverrides: [initializables]);
         await scope2.InvokeAsyncInitializers();
 
         Assert.Equal(5, initializables.Count);
@@ -340,7 +340,7 @@ public class InitializerFinalizerTests
                 .Register<F3>(c => c.WithFinalizer(t => t.Fin()));
 
 
-            container.Resolve<F3>(dependencyOverrides: new[] { finalizables });
+            container.Resolve<F3>(dependencyOverrides: [finalizables]);
         }
 
         Assert.Equal(3, finalizables.Count);
@@ -361,7 +361,7 @@ public class InitializerFinalizerTests
                 .Register<F3>(c => c.WithFinalizer(t => t.Fin()));
 
 
-            container.Resolve<F3>(dependencyOverrides: new[] { finalizables });
+            container.Resolve<F3>(dependencyOverrides: [finalizables]);
         }
 
         Assert.Equal(4, finalizables.Count);
@@ -379,8 +379,7 @@ public class InitializerFinalizerTests
         void Method();
     }
 
-    class Test1
-    { }
+    class Test1;
 
     class Test : ITest
     {
@@ -406,7 +405,7 @@ public class InitializerFinalizerTests
         public bool MethodCalled { get; private set; }
     }
 
-    interface IT { }
+    interface IT;
 
     class T1 : IT
     {

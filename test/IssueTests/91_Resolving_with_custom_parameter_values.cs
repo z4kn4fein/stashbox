@@ -12,7 +12,7 @@ public class ResolvingWithCustomParameterValues
             .Register<IVariantSubproduct, StainlessSteelPlate>(name);
 
         var subProduct = new Subproduct();
-        var variant = container.Resolve<IVariantSubproduct>(name, new[] { subProduct });
+        var variant = container.Resolve<IVariantSubproduct>(name, [subProduct]);
         Assert.NotNull(variant);
         Assert.Same(subProduct, variant.Subproduct);
     }
@@ -22,11 +22,9 @@ public class ResolvingWithCustomParameterValues
         ISubproduct Subproduct { get; }
     }
 
-    interface ISubproduct
-    { }
+    interface ISubproduct;
 
-    class Subproduct : ISubproduct
-    { }
+    class Subproduct : ISubproduct;
 
     class VariantSubproduct : IVariantSubproduct
     {

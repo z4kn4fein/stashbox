@@ -22,11 +22,9 @@ public class ReplaceDoesntWorkingSingleton
         Assert.IsType<Test2>(test2);
     }
 
-    interface ITest { }
+    interface ITest;
 
-    class Test1 : ITest
-    { }
+    class Test1 : ITest;
 
-    class Test2 : ITest
-    { }
+    class Test2 : ITest;
 }

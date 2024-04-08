@@ -32,11 +32,9 @@ interface ICoreFactory
     ILogManager GetLogManager();
 }
 
-interface IEngine
-{ }
+interface IEngine;
 
-interface ILogManager
-{ }
+interface ILogManager;
 
 class CoreFactory : ICoreFactory
 {

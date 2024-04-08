@@ -3,10 +3,8 @@ using Xunit;
 
 namespace Stashbox.Tests.IssueTests;
 
-public class A
-{ }
-public class B
-{ }
+public class A;
+public class B;
 
 public class BaseClass
 {

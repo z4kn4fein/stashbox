@@ -576,11 +576,11 @@ public class ContainerTests
         Assert.ThrowsAsync<ObjectDisposedException>(async () => await container.InvokeAsyncInitializers());
     }
 
-    interface ITest1 { }
+    interface ITest1;
 
-    interface ITest2 { }
+    interface ITest2;
 
-    interface ITest3 { }
+    interface ITest3;
 
     interface ITest5
     {
@@ -590,13 +590,9 @@ public class ContainerTests
         Tuple<ITest2, ITest3> Tuple { get; }
     }
 
-    class Test1 : ITest1
-    {
-    }
+    class Test1 : ITest1;
 
-    class Test11 : ITest1
-    {
-    }
+    class Test11 : ITest1;
 
     class Test2 : ITest2
     {
@@ -681,7 +677,7 @@ public class ContainerTests
 
     class S { public int Id { get; set; } }
 
-    class TestOpenGeneric<T> { }
+    class TestOpenGeneric<T>;
 
     class NoPublicConstructor
     {

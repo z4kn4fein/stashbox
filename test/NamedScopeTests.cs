@@ -409,17 +409,13 @@ public class NamedScopeTests
         Assert.IsType<Test>(inst);
     }
 
-    interface ITest
-    { }
+    interface ITest;
 
-    class Test : ITest
-    { }
+    class Test : ITest;
 
-    class Test1 : ITest
-    { }
+    class Test1 : ITest;
 
-    class Test11 : ITest
-    { }
+    class Test11 : ITest;
 
     class Test12 : ITest, IDisposable
     {

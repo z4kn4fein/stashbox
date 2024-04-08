@@ -4,10 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v5.14.1] - 2024-04-08
+### Fixed
+- [#163](https://github.com/z4kn4fein/stashbox/issues/163): Last-write win problem when hash collision happens.
+
 ## [v5.14.0] - 2023-12-15
 ### Added
 - `WithRequiredMemberInjection()` [registration](https://z4kn4fein.github.io/stashbox/docs/configuration/registration-configuration#required-member-injection) and [container](https://z4kn4fein.github.io/stashbox/docs/configuration/container-configuration#required-member-injection) configuration option to control the auto injection of `required` members.
-
 
 ## [v5.13.0] - 2023-11-18
 ### Added
@@ -415,6 +418,7 @@ The validation was executed only at the expression tree building phase, so an al
 - Removed the legacy container extension functionality.
 - Removed the support of PCL v259.
 
+[v5.14.1]: https://github.com/z4kn4fein/stashbox/compare/5.14.0...5.14.1
 [v5.14.0]: https://github.com/z4kn4fein/stashbox/compare/5.13.0...5.14.0
 [v5.13.0]: https://github.com/z4kn4fein/stashbox/compare/5.12.2...5.13.0
 [v5.12.2]: https://github.com/z4kn4fein/stashbox/compare/5.12.1...5.12.2

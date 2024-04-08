@@ -23,9 +23,9 @@ public class ProgrammaticMultipleInstancesRegistration
         Assert.Equal(2, regs.Count());
     }
 
-    interface ITest { }
+    interface ITest;
 
-    class Test : ITest { }
+    class Test : ITest;
 
-    class Test1 : ITest { }
+    class Test1 : ITest;
 }

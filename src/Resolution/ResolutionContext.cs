@@ -92,10 +92,10 @@ public class ResolutionContext
     {
         this.RequestConfiguration = new PerRequestConfiguration();
         this.DefinedVariables = new Tree<ParameterExpression>();
-        this.SingleInstructions = new ExpandableArray<Expression>();
-        this.RemainingDecorators = new ExpandableArray<Type, Utils.Data.Stack<ServiceRegistration>>();
-        this.CurrentDecorators = new ExpandableArray<ServiceRegistration>();
-        this.CircularDependencyBarrier = new Utils.Data.Stack<int>();
+        this.SingleInstructions = [];
+        this.RemainingDecorators = [];
+        this.CurrentDecorators = [];
+        this.CircularDependencyBarrier = [];
         this.ExpressionCache = new Tree<Expression>();
         this.FactoryCache = new Tree<Func<IResolutionScope, IRequestContext, object>>();
         this.ResolutionBehavior = this.RequestInitiatorResolutionBehavior = resolutionBehavior;
@@ -115,9 +115,8 @@ public class ResolutionContext
             : ProcessDependencyOverrides(dependencyOverrides, knownInstances);
 
         this.ParameterExpressions = initialParameters != null
-            ? new ExpandableArray<Pair<bool, ParameterExpression>[]>()
-                {initialParameters.AsParameterPairs()}
-            : new ExpandableArray<Pair<bool, ParameterExpression>[]>();
+            ? [initialParameters.AsParameterPairs()]
+            : [];
     }
 
     private ResolutionContext(PerRequestConfiguration perRequestConfiguration,
@@ -284,7 +283,7 @@ public class ResolutionContext
 
         if (knownInstances is { IsEmpty: false })
             foreach (var lateKnownInstance in knownInstances.Walk())
-                result.Add(lateKnownInstance.Key, lateKnownInstance.Value.AsConstant(), false);
+                result.Add(lateKnownInstance.Key, lateKnownInstance.Value.AsConstant());
 
         if (dependencyOverrides == null) return result;
 
@@ -293,10 +292,10 @@ public class ResolutionContext
             var type = dependencyOverride.GetType();
             var expression = dependencyOverride.AsConstant();
 
-            result.Add(type, expression, false);
+            result.Add(type, expression);
 
             foreach (var baseType in type.GetRegisterableInterfaceTypes().Concat(type.GetRegisterableBaseTypes()))
-                result.Add(baseType, expression, false);
+                result.Add(baseType, expression);
         }
 
         return result;

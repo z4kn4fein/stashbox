@@ -7,10 +7,10 @@ namespace Stashbox.Tests.IssueTests;
 
 public class LifetimeIssues
 {
-    class DoResolveAttribute : Attribute { }
-    interface ITier1 { }
+    class DoResolveAttribute : Attribute;
+    interface ITier1;
     class Tier1 : ITier1 {[DoResolve] public ITier2 Inner { get; set; }[DoResolve] public TierBase OtherInner { get; set; } }
-    interface ITier2 { }
+    interface ITier2;
     class Tier2 : ITier2 { public Tier2(string name) { Name = name; } public string Name { get; set; } }
     abstract class TierBase { public int Id { get; protected set; } }
     class Tier3 : TierBase { public Tier3(int id) { Id = id; }[DoResolve] public ITier2 Inner { get; set; } }
@@ -93,7 +93,7 @@ public class LifetimeIssues
                 .WithUnknownTypeResolution(ctx => ctx.WhenHas<DoResolveAttribute>())
                 .WithAutoMemberInjection(
                     Stashbox.Configuration.Rules.AutoMemberInjectionRules.PropertiesWithPublicSetter,
-                    ti => ti.CustomAttributes.OfType<DoResolveAttribute>().Any()
+                    ti => ti.CustomAttributes.Any(a => a.GetType() == typeof(DoResolveAttribute))
                 )
         );
 
@@ -126,7 +126,7 @@ public class LifetimeIssues
                         })
                         .WithAutoMemberInjection(
                             Stashbox.Configuration.Rules.AutoMemberInjectionRules.PropertiesWithPublicSetter,
-                            ti => ti.CustomAttributes.OfType<DoResolveAttribute>().Any())
+                            ti => ti.CustomAttributes.Any(a => a.GetType() == typeof(DoResolveAttribute)))
                         // Simple extension method allowing conditional configuration inline
                         .ApplyIf(scopeConfig != null, scopeConfig)
             );

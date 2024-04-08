@@ -97,11 +97,11 @@ public class ResolutionFromParentContainerTests
         Assert.NotNull(test3.Tuple.Item1);
     }
 
-    interface ITest1 { }
+    interface ITest1;
 
-    interface ITest2 { }
+    interface ITest2;
 
-    interface ITest3 { }
+    interface ITest3;
 
     interface ITest5
     {
@@ -111,8 +111,7 @@ public class ResolutionFromParentContainerTests
         Tuple<ITest2, object> Tuple { get; }
     }
 
-    class Test1 : ITest1
-    { }
+    class Test1 : ITest1;
 
     class Test2 : ITest2
     {

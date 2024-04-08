@@ -18,13 +18,11 @@ public class ConditionsOnMemberNameAreNotEasyToRecognize
         Assert.IsType<Test11>(test5.Test11);
     }
 
-    interface ITest1 { }
+    interface ITest1;
 
-    class Test1 : ITest1
-    { }
+    class Test1 : ITest1;
 
-    class Test11 : ITest1
-    { }
+    class Test11 : ITest1;
 
     class Test2
     {

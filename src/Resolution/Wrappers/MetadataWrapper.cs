@@ -8,12 +8,12 @@ namespace Stashbox.Resolution.Wrappers;
 
 internal class MetadataWrapper : IMetadataWrapper
 {
-    private static readonly HashSet<Type> SupportedTypes = new()
-    {
+    private static readonly HashSet<Type> SupportedTypes =
+    [
         typeof(ValueTuple<,>),
         typeof(Tuple<,>),
-        typeof(Metadata<,>),
-    };
+        typeof(Metadata<,>)
+    ];
 
     private static bool IsMetadataType(Type type) => type.IsClosedGenericType() && SupportedTypes.Contains(type.GetGenericTypeDefinition());
 

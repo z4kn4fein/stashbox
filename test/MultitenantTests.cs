@@ -203,22 +203,22 @@ public class MultitenantTests
         d.GetService(typeof(IA));
         d.Resolve(typeof(IA));
         d.Resolve(typeof(IA), ResolutionBehavior.Default);
-        d.Resolve(typeof(IA), new object[] { "a" });
-        d.Resolve(typeof(IA), "a", new object[] { "a" });
+        d.Resolve(typeof(IA), ["a"]);
+        d.Resolve(typeof(IA), "a", ["a"]);
         d.Resolve(typeof(IA), "a");
         d.ResolveOrDefault(typeof(IA));
         d.ResolveOrDefault(typeof(IA), ResolutionBehavior.Default);
-        d.ResolveOrDefault(typeof(IA), new object[] { "a" });
-        d.ResolveOrDefault(typeof(IA), "a", new object[] { "a" });
+        d.ResolveOrDefault(typeof(IA), ["a"]);
+        d.ResolveOrDefault(typeof(IA), "a", ["a"]);
         d.ResolveOrDefault(typeof(IA), "a");
         d.ResolveAll<IA>();
         d.ResolveAll<IA>("a");
-        d.ResolveAll<IA>(new object[] { "a" });
-        d.ResolveAll<IA>("a", new object[] { "a" });
+        d.ResolveAll<IA>(["a"]);
+        d.ResolveAll<IA>("a", ["a"]);
         d.ResolveAll(typeof(IA));
         d.ResolveAll(typeof(IA),"a");
-        d.ResolveAll(typeof(IA),new object[] { "a" });
-        d.ResolveAll(typeof(IA),"a", new object[] { "a" });
+        d.ResolveAll(typeof(IA), ["a"]);
+        d.ResolveAll(typeof(IA),"a", ["a"]);
         d.ResolveFactory(typeof(IA));
         d.ResolveFactoryOrDefault(typeof(IA));
         d.BeginScope();
@@ -367,11 +367,11 @@ public class MultitenantTests
         }
 #endif
 
-    interface IA { }
+    interface IA;
 
-    class A : IA { }
+    class A : IA;
 
-    class B : IA { }
+    class B : IA;
 
     class C : IA, IDisposable
     {

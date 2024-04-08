@@ -32,7 +32,7 @@ public class WithDynamicResolutionTests
             .Register<C>(c => c.WithDependencyBinding("B"));
 
         var @override = new A();
-        var inst = container.Resolve<C>(new[] { @override });
+        var inst = container.Resolve<C>([@override]);
 
         Assert.Same(@override, inst.B.A);
     }
@@ -53,8 +53,7 @@ public class WithDynamicResolutionTests
         Assert.NotNull(circle2.Circle1.Value.Circle2);
     }
 
-    class A
-    { }
+    class A;
 
     class B
     {

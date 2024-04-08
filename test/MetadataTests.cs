@@ -609,23 +609,17 @@ public class MetadataTests
         Assert.IsType<B>(unfiltered[1]);
     }
 
-    interface ITest
-    { }
+    interface ITest;
 
-    interface ITest1
-    { }
+    interface ITest1;
 
-    class Test : ITest
-    { }
+    class Test : ITest;
 
-    class A : ITest
-    { }
+    class A : ITest;
 
-    class B : ITest
-    { }
+    class B : ITest;
 
-    class Test1 : ITest1
-    { }
+    class Test1 : ITest1;
 
     class Test2
     {

@@ -308,9 +308,7 @@ public class KeyedTests
         Assert.NotSame(first, second);
     }
 
-    internal interface IService
-    {
-    }
+    internal interface IService;
 
     internal class Service : IService
     {
@@ -371,7 +369,7 @@ public class KeyedTests
         public ServiceWithIntKey([DependencyName] int id) => this.id = id;
     }
     
-    internal class AdditionalNameAttribute : Attribute { }
+    internal class AdditionalNameAttribute : Attribute;
 
     internal class AdditionalDependencyAttribute : Attribute
     {

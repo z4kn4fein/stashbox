@@ -114,11 +114,11 @@ public class WireUpTests
         Assert.IsType<Test>(inst.test);
     }
 
-    interface ITest { }
+    interface ITest;
 
     interface ITest1 { ITest Test { get; } }
 
-    class Test : ITest { }
+    class Test : ITest;
 
     class Test1 : ITest1
     {

@@ -18,7 +18,7 @@ internal class ImmutableBucket<TValue>
     public TValue this[int i] => this.Repository[i];
 
     public ImmutableBucket(TValue value)
-        : this(new[] { value })
+        : this([value])
     { }
 
     public ImmutableBucket(TValue[] repository)
@@ -30,7 +30,7 @@ internal class ImmutableBucket<TValue>
     internal ImmutableBucket<TValue> Add(TValue value)
     {
         if (this.Length == 0)
-            return new ImmutableBucket<TValue>(new[] { value });
+            return new ImmutableBucket<TValue>([value]);
 
         var newRepository = new TValue[this.Length + 1];
         Array.Copy(this.Repository, newRepository, this.Length);
@@ -45,7 +45,7 @@ internal class ImmutableBucket<TValue>
             throw new IndexOutOfRangeException();
 
         if (this.Length == 0)
-            return new ImmutableBucket<TValue>(new[] { value });
+            return new ImmutableBucket<TValue>([value]);
 
         var newRepository = new TValue[this.Length + 1];
         Array.Copy(this.Repository, newRepository, index);
@@ -61,7 +61,7 @@ internal class ImmutableBucket<TValue>
             throw new IndexOutOfRangeException();
 
         if (this.Length == 0)
-            return new ImmutableBucket<TValue>(new[] { value });
+            return new ImmutableBucket<TValue>([value]);
 
         var newRepository = new TValue[this.Length];
         Array.Copy(this.Repository, newRepository, this.Length);
@@ -140,7 +140,7 @@ internal class ImmutableBucket<TKey, TValue> : IEnumerable<TValue>
     public ImmutableBucket<TKey, TValue> Add(TKey key, TValue value)
     {
         if (this.Length == 0)
-            return new ImmutableBucket<TKey, TValue>(new[] { new ReadOnlyKeyValue<TKey, TValue>(key, value) });
+            return new ImmutableBucket<TKey, TValue>([new ReadOnlyKeyValue<TKey, TValue>(key, value)]);
 
         var newRepository = new ReadOnlyKeyValue<TKey, TValue>[this.Length + 1];
         Array.Copy(this.Repository, newRepository, this.Length);
@@ -149,10 +149,10 @@ internal class ImmutableBucket<TKey, TValue> : IEnumerable<TValue>
         return new ImmutableBucket<TKey, TValue>(newRepository);
     }
 
-    public ImmutableBucket<TKey, TValue> AddOrUpdate(TKey key, TValue value, bool byRef, Func<TValue, TValue, TValue>? update = null)
+    public ImmutableBucket<TKey, TValue> AddOrUpdate(TKey key, TValue value, bool byRef)
     {
         if (this.Length == 0)
-            return new ImmutableBucket<TKey, TValue>(new[] { new ReadOnlyKeyValue<TKey, TValue>(key, value) });
+            return new ImmutableBucket<TKey, TValue>([new ReadOnlyKeyValue<TKey, TValue>(key, value)]);
 
         var count = this.Length - 1;
         while (count >= 0)
@@ -167,14 +167,9 @@ internal class ImmutableBucket<TKey, TValue> : IEnumerable<TValue>
         if (count == -1)
             return this.Add(key, value);
 
-        var old = this.Repository[count].Value;
-        var @new = update == null ? value : update(old, value);
-        if (ReferenceEquals(@new, old))
-            return this;
-
         var newRepository = new ReadOnlyKeyValue<TKey, TValue>[this.Length];
         Array.Copy(this.Repository, newRepository, this.Length);
-        newRepository[count] = new ReadOnlyKeyValue<TKey, TValue>(key, @new);
+        newRepository[count] = new ReadOnlyKeyValue<TKey, TValue>(key, value);
 
         return new ImmutableBucket<TKey, TValue>(newRepository);
     }
@@ -197,9 +192,8 @@ internal class ImmutableBucket<TKey, TValue> : IEnumerable<TValue>
         if (count == -1)
             return this;
 
-        var length = this.Length - 1;
-        var newRepository = new ReadOnlyKeyValue<TKey, TValue>[length];
-        Array.Copy(this.Repository, newRepository, length);
+        var newRepository = new ReadOnlyKeyValue<TKey, TValue>[this.Length];
+        Array.Copy(this.Repository, newRepository, this.Length);
 
         newRepository[count] = new ReadOnlyKeyValue<TKey, TValue>(key, updateDelegate(newRepository[count].Value));
 
@@ -236,7 +230,7 @@ internal class ImmutableBucket<TKey, TValue> : IEnumerable<TValue>
 
         return new ImmutableBucket<TKey, TValue>(newRepository);
     }
-
+    
     [MethodImpl(Constants.Inline)]
     public TValue? GetOrDefaultByValue(TKey key)
     {
@@ -286,6 +280,22 @@ internal class ImmutableBucket<TKey, TValue> : IEnumerable<TValue>
         var newRepository = new ReadOnlyKeyValue<TKey, TValue>[this.Length - 1];
         Array.Copy(this.Repository, newRepository, count);
         Array.Copy(this.Repository, count + 1, newRepository, count, this.Length - 1 - count);
+        return new ImmutableBucket<TKey, TValue>(newRepository);
+    }
+    
+    public ImmutableBucket<TKey, TValue> RemoveFirst()
+    {
+        switch (this.Length)
+        {
+            case 0:
+                return this;
+            case 1:
+                return new ImmutableBucket<TKey, TValue>([]);
+        }
+
+        var newRepository = new ReadOnlyKeyValue<TKey, TValue>[this.Length - 1];
+        Array.Copy(this.Repository, 1, newRepository, 0, this.Length - 1);
+
         return new ImmutableBucket<TKey, TValue>(newRepository);
     }
     

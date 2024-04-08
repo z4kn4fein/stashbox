@@ -34,7 +34,7 @@ internal class Stack<TValue> : ExpandableArray<TValue>
         if (this.Length == 0)
         {
             this.Length = 1;
-            this.Repository = new[] { item };
+            this.Repository = [item];
             return;
         }
 

@@ -418,21 +418,18 @@ public class ReMapTests
         Assert.Throws<InvalidRegistrationException>(() => container.ReMapDecorator(typeof(ITest1), typeof(Test2)));
     }
 
-    interface ITest1 { }
+    interface ITest1;
 
     interface ITest2
     {
         ITest1 Test1 { get; }
     }
 
-    class Test1 : ITest1
-    { }
+    class Test1 : ITest1;
 
-    class Test11 : ITest1
-    { }
+    class Test11 : ITest1;
 
-    class Test12 : ITest1
-    { }
+    class Test12 : ITest1;
 
     class Test2 : ITest2
     {

@@ -82,9 +82,9 @@ public class DoesScopeAttachToParentOnlyAffectDisposeBehaviour
     }
 }
 
-class Cached1 : Disposable { }
+class Cached1 : Disposable;
 
-class Cached2 : Disposable { }
+class Cached2 : Disposable;
 
 class Job1 : Disposable
 {

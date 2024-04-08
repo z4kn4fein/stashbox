@@ -38,7 +38,5 @@ public class DifferentTypesRegisteredWithTheSameName
         }
     }
 
-    sealed class Bar
-    {
-    }
+    sealed class Bar;
 }

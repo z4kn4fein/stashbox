@@ -76,16 +76,13 @@ public class DependencyBindingTests
 
     }
 
-    interface ITest1 { }
+    interface ITest1;
 
-    class Test1 : ITest1
-    { }
+    class Test1 : ITest1;
 
-    class Test11 : ITest1
-    { }
+    class Test11 : ITest1;
 
-    class Test12 : ITest1
-    { }
+    class Test12 : ITest1;
 
     class Test
     {

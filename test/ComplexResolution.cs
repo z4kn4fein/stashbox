@@ -138,7 +138,7 @@ public class ComplexResolution
         public Single3 Single3 { get; }
     }
 
-    class T4 { }
+    class T4;
 
     class Scoped1
     {
@@ -174,7 +174,7 @@ public class ComplexResolution
         public Single3 Single3 { get; }
     }
 
-    class Scoped3 { }
+    class Scoped3;
 
     class Single1
     {
@@ -198,7 +198,7 @@ public class ComplexResolution
         public Single3 Single3 { get; }
     }
 
-    class Single3 { }
+    class Single3;
 
     class Func1
     {

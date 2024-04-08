@@ -606,10 +606,7 @@ public class FuncTests
         }
     }
 
-    class Dep1
-    {
-
-    }
+    class Dep1;
 
     class Dep2
     {
@@ -621,10 +618,7 @@ public class FuncTests
         }
     }
 
-    class Dep3
-    {
-
-    }
+    class Dep3;
 
     class Dep4
     {
@@ -636,8 +630,7 @@ public class FuncTests
         }
     }
 
-    interface ITest
-    { }
+    interface ITest;
 
     interface IFTest1
     {
@@ -705,11 +698,9 @@ public class FuncTests
         }
     }
 
-    class Test : ITest
-    { }
+    class Test : ITest;
 
-    class Test1 : ITest
-    { }
+    class Test1 : ITest;
 
     class Test2
     {

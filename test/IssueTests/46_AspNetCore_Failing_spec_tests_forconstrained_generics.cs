@@ -111,20 +111,14 @@ public class AspNetCoreFailingSpecTestsForConstrainedGenerics
     }
 }
 
-interface IFakeService
-{
-}
+interface IFakeService;
 
-interface IFakeSingletonService : IFakeService
-{
-}
+interface IFakeSingletonService : IFakeService;
 
 interface IFakeEveryService :
     IFakeService,
     IFakeSingletonService,
-    IFakeOpenGenericService<PocoClass>
-{
-}
+    IFakeOpenGenericService<PocoClass>;
 
 interface IFakeOpenGenericService<T>
 {
@@ -171,9 +165,7 @@ class ClassWithStructConstraint<T> : IFakeOpenGenericService<T>
     public T Value { get; } = default;
 }
 
-class PocoClass
-{
-}
+class PocoClass;
 
 class ClassWithPrivateCtor
 {

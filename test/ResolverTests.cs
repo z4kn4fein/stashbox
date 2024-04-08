@@ -369,6 +369,5 @@ public class ResolverTests
         { }
     }
 
-    class RefDep
-    { }
+    class RefDep;
 }

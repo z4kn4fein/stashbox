@@ -101,11 +101,11 @@ public class NamedUnnamedResolutionNotWorkingAsExpected
         Assert.IsType<Test2>(inst.T2);
     }
 
-    interface ITest { }
+    interface ITest;
 
-    class Test1 : ITest { }
+    class Test1 : ITest;
 
-    class Test2 : ITest { }
+    class Test2 : ITest;
 
     class Test3
     {

@@ -14,18 +14,16 @@ public class UnableToResolveIHubContext
         Assert.NotNull(container.Resolve<IHubContext<TestHub, ITest>>());
     }
 
-    class Hub { }
+    class Hub;
 
     class Hub<T> : Hub
-        where T : class
-    { }
+        where T : class;
 
     interface IHubContext<THub, T>
         where THub : Hub<T>
-        where T : class
-    { }
+        where T : class;
 
-    class HubLifetimeManager<THub> where THub : Hub { }
+    class HubLifetimeManager<THub> where THub : Hub;
 
     class HubContext<THub, T> : IHubContext<THub, T>
         where THub : Hub<T>
@@ -35,8 +33,7 @@ public class UnableToResolveIHubContext
         { }
     }
 
-    interface ITest { }
+    interface ITest;
 
-    class TestHub : Hub<ITest>
-    { }
+    class TestHub : Hub<ITest>;
 }

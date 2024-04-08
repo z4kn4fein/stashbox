@@ -41,9 +41,9 @@ public class ActivateTests
         Assert.Throws<ArgumentException>(() => new StashboxContainer().BeginScope().Activate<ITest>());
     }
 
-    interface ITest { }
+    interface ITest;
 
-    class Test : ITest { }
+    class Test : ITest;
 
     class Test1
     {

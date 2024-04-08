@@ -20,17 +20,17 @@ public class GenericResolutionIssue
         Assert.Equal(5, mappings.Count());
     }
 
-    class C { }
+    class C;
 
-    class AT : IA<C>, IA<C, long>, IB<C>, IC<C, string> { }
+    class AT : IA<C>, IA<C, long>, IB<C>, IC<C, string>;
 
-    interface IA<T> { }
+    interface IA<T>;
 
-    interface IA<T, R> { }
+    interface IA<T, R>;
 
-    interface IB<T> { }
+    interface IB<T>;
 
-    interface IC<T, R> { }
+    interface IC<T, R>;
 
     class B
     {

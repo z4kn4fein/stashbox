@@ -203,7 +203,7 @@ public class OverrideTests
         IStashboxContainer container = new StashboxContainer();
         container.Register<ITest2, Test2>();
 
-        var inst = container.Resolve<ITest2>(dependencyOverrides: new object[] { new Test1 { Name = "test" } });
+        var inst = container.Resolve<ITest2>(dependencyOverrides: [new Test1 { Name = "test" }]);
 
         Assert.NotNull(inst);
         Assert.IsType<Test2>(inst);
@@ -216,13 +216,13 @@ public class OverrideTests
         IStashboxContainer container = new StashboxContainer();
         container.Register<ITest2, Test2>();
 
-        var inst = container.Resolve<ITest2>(dependencyOverrides: new object[] { new Test1 { Name = "test" } });
+        var inst = container.Resolve<ITest2>(dependencyOverrides: [new Test1 { Name = "test" }]);
 
         Assert.NotNull(inst);
         Assert.IsType<Test2>(inst);
         Assert.Equal("test", inst.Name);
 
-        var inst2 = container.Resolve<ITest2>(dependencyOverrides: new object[] { new Test1 { Name = "test2" } });
+        var inst2 = container.Resolve<ITest2>(dependencyOverrides: [new Test1 { Name = "test2" }]);
 
         Assert.NotNull(inst2);
         Assert.IsType<Test2>(inst2);
@@ -235,7 +235,7 @@ public class OverrideTests
         IStashboxContainer container = new StashboxContainer();
         container.Register<ITest2, Test2>();
 
-        var inst = (ITest2)container.Resolve(typeof(ITest2), dependencyOverrides: new object[] { new Test1 { Name = "test" } });
+        var inst = (ITest2)container.Resolve(typeof(ITest2), dependencyOverrides: [new Test1 { Name = "test" }]);
 
         Assert.NotNull(inst);
         Assert.IsType<Test2>(inst);
@@ -248,7 +248,7 @@ public class OverrideTests
         IStashboxContainer container = new StashboxContainer();
         container.Register<ITest2, Test2>();
 
-        var inst = container.ResolveAll<ITest2>(new object[] { new Test1 { Name = "test" } }).First();
+        var inst = container.ResolveAll<ITest2>([new Test1 { Name = "test" }]).First();
 
         Assert.NotNull(inst);
         Assert.IsType<Test2>(inst);
@@ -261,7 +261,7 @@ public class OverrideTests
         IStashboxContainer container = new StashboxContainer();
         container.Register<ITest2, Test2>();
 
-        var inst = (ITest2)container.ResolveAll(typeof(ITest2), new object[] { new Test1 { Name = "test" } }).First();
+        var inst = (ITest2)container.ResolveAll(typeof(ITest2), [new Test1 { Name = "test" }]).First();
 
         Assert.NotNull(inst);
         Assert.IsType<Test2>(inst);

@@ -21,5 +21,5 @@ public class FastExpressionCompilerIssue
             .Resolve<Test>());
     }
 
-    class Test { };
+    class Test;
 }

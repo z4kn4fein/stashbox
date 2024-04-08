@@ -46,8 +46,7 @@ public class IdentityServerNotCompatible
         { }
     }
 
-    class Scoped
-    { }
+    class Scoped;
 
     class ScopedProxy
     {

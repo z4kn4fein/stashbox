@@ -38,8 +38,7 @@ public class IssueWithMemberInjectionwithAttributeButPrivateSetter
         Assert.True(test.Test1Prop != null, "test.Test1Prop != null");
     }
 
-    class Test
-    { }
+    class Test;
 
     class Test1
     {

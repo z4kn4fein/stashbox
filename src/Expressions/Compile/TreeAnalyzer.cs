@@ -19,10 +19,10 @@ internal class TreeAnalyzer
 
     public TreeAnalyzer()
     {
-        this.CapturedParameters = new ExpandableArray<Expression>();
-        this.DefinedVariables = new ExpandableArray<Expression>();
-        this.NestedLambdas = new ExpandableArray<LambdaExpression, NestedLambda>();
-        this.Constants = new ExpandableArray<object>();
+        this.CapturedParameters = [];
+        this.DefinedVariables = [];
+        this.NestedLambdas = [];
+        this.Constants = [];
     }
 
     private TreeAnalyzer(bool isNestedLambda,
@@ -121,7 +121,7 @@ internal class TreeAnalyzer
     }
 
     private TreeAnalyzer Clone(bool isLambda = false) =>
-        new(isLambda, this.CapturedParameters, new ExpandableArray<Expression>(), this.NestedLambdas, this.Constants);
+        new(isLambda, this.CapturedParameters, [], this.NestedLambdas, this.Constants);
 
     private bool Analyze(IList<Expression> expressions, params ParameterExpression[] parameters)
     {

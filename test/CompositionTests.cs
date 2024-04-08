@@ -200,33 +200,33 @@ public class CompositionTests
         Assert.True(factory("Comp"));
     }
 
-    interface IA { }
+    interface IA;
 
-    interface IB { }
+    interface IB;
 
-    interface IC { }
+    interface IC;
 
-    interface IG<T> { }
+    interface IG<T>;
 
-    interface IG1<T> { }
+    interface IG1<T>;
 
-    class A : IA { }
+    class A : IA;
 
-    class AA : IA { }
+    class AA : IA;
 
-    class B : IB { }
+    class B : IB;
 
-    class BB : IB { }
+    class BB : IB;
 
-    class C : IC { }
+    class C : IC;
 
-    class CC : IC { }
+    class CC : IC;
 
-    class G<T> : IG<T> { }
+    class G<T> : IG<T>;
 
-    class G1<T> : IG1<T> { }
+    class G1<T> : IG1<T>;
 
-    class GG<T>/*WP*/ : IG<T> { }
+    class GG<T>/*WP*/ : IG<T>;
 
     class D1 : IA, IB, IC
     {

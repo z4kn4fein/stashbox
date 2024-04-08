@@ -187,17 +187,13 @@ public class ResolveFactoryTests
         Assert.Same(test3, inst.Test3);
     }
 
-    interface IService
-    { }
+    interface IService;
 
-    class Service : IService
-    { }
+    class Service : IService;
 
-    class Service1 : IService
-    { }
+    class Service1 : IService;
 
-    class Test
-    { }
+    class Test;
 
     class Test1
     {

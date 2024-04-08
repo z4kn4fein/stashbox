@@ -13,8 +13,7 @@ public class CircularDependencyTrackingDoesntWorkWithFactoryResolution
         Assert.Throws<CircularDependencyException>(() => container.Resolve<IFoo>());
     }
 
-    interface IFoo
-    { }
+    interface IFoo;
 
     class Foo : IFoo
     {

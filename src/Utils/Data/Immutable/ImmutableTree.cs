@@ -364,6 +364,13 @@ internal sealed class ImmutableTree<TKey, TValue>
         
         if (byRef && ReferenceEquals(key, this.storedKey) || !byRef && Equals(key, this.storedKey))
         {
+            if (this.collisions is { Length: > 0 })
+            {
+                var first = this.collisions.Repository[0];
+                return new ImmutableTree<TKey, TValue>(hash, first.Key, first.Value, this.leftNode!, this.rightNode!,
+                    this.collisions.RemoveFirst());
+            }
+            
             if (this.height == 1) return Empty;
             if (this.rightNode!.IsEmpty) return this.leftNode!;
             if (this.leftNode!.IsEmpty) return this.rightNode!;
@@ -398,7 +405,7 @@ internal sealed class ImmutableTree<TKey, TValue>
         }
 
         if (this.collisions == null)
-            return new ImmutableTree<TKey, TValue>(hash, key, value, this.leftNode!, this.rightNode!,
+            return new ImmutableTree<TKey, TValue>(hash, this.storedKey!, this.storedValue!, this.leftNode!, this.rightNode!,
                 ImmutableBucket<TKey, TValue>.Empty.Add(key, value));
 
         var @new = updateDelegate == null || forceUpdate
@@ -408,7 +415,7 @@ internal sealed class ImmutableTree<TKey, TValue>
         if (ReferenceEquals(@new, this.storedValue))
             return this;
 
-        return new ImmutableTree<TKey, TValue>(hash, key, value, this.leftNode!, this.rightNode!,
+        return new ImmutableTree<TKey, TValue>(hash, this.storedKey!, this.storedValue!, this.leftNode!, this.rightNode!,
             this.collisions.AddOrUpdate(key, @new, byRef));
     }
 
@@ -426,7 +433,6 @@ internal sealed class ImmutableTree<TKey, TValue>
 
         return new ImmutableTree<TKey, TValue>(this.storedHash, this.storedKey!,
             this.storedValue!, this.leftNode!, this.rightNode!, currentCollisions);
-
     }
 
     private ImmutableTree<TKey, TValue> ReplaceInCollisionsIfExist(int hash, TKey key, TValue value, bool byRef)
@@ -443,7 +449,6 @@ internal sealed class ImmutableTree<TKey, TValue>
 
         return new ImmutableTree<TKey, TValue>(this.storedHash, this.storedKey!,
             this.storedValue!, this.leftNode!, this.rightNode!, currentCollisions);
-
     }
 
     private static ImmutableTree<TKey, TValue> Balance(int hash, TKey key, TValue value, ImmutableTree<TKey, TValue> left, ImmutableTree<TKey, TValue> right, ImmutableBucket<TKey, TValue> collisions)

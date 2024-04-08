@@ -64,11 +64,9 @@ public class UnknownTypeResolutionDoesNotWork
         Assert.NotNull(container.ResolveOrDefault<ITest>());
     }
 
-    interface ITest
-    { }
+    interface ITest;
 
-    class Test : ITest
-    { }
+    class Test : ITest;
 
     class Test1
     {

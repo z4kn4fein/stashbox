@@ -36,7 +36,7 @@ public class ComposeByWithInstanceOrInjection
             .ComposeBy<TestRoot2>(5);
     }
 
-    class TestDep { }
+    class TestDep;
 
     class TestRoot : ICompositionRoot
     {

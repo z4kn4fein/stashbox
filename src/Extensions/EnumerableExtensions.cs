@@ -13,7 +13,7 @@ internal static class EnumerableExtensions
     {
         var count = array.Length;
         if (count == 0)
-            return new[] { item };
+            return [item];
 
         var arr = new T[count + 1];
         Array.Copy(array, arr, count);

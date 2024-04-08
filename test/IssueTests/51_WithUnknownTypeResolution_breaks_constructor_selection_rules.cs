@@ -30,9 +30,9 @@ public class WithUnknownTypeResolutionBreaksConstructorSelectionRules
         Assert.Null(inst.Dep);
     }
 
-    class Dep { }
+    class Dep;
 
-    class Dep1 { }
+    class Dep1;
 
     class Test
     {

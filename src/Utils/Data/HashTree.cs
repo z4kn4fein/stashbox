@@ -30,13 +30,13 @@ internal sealed class HashTree<TKey, TValue>
 
     private Node? root;
 
-    public void Add(TKey key, TValue value, bool byRef = true)
+    public void Add(TKey key, TValue value)
     {
-        this.root = Add(this.root, key, byRef ? RuntimeHelpers.GetHashCode(key) : key.GetHashCode(), value, byRef);
+        this.root = Add(this.root, key, key.GetHashCode(), value);
     }
 
     [MethodImpl(Constants.Inline)]
-    public TValue? GetOrDefaultByValue(TKey key)
+    public TValue? GetOrDefault(TKey key)
     {
         if (this.root == null)
             return default;
@@ -100,21 +100,21 @@ internal sealed class HashTree<TKey, TValue>
         return current;
     }
 
-    private static Node Add(Node? node, TKey key, int hash, TValue value, bool byRef)
+    private static Node Add(Node? node, TKey key, int hash, TValue value)
     {
         if (node == null)
             return new Node(key, value, hash);
 
         if (node.StoredHash == hash)
         {
-            CheckCollisions(node, key, value, byRef);
+            CheckCollisions(node, key, value);
             return node;
         }
 
         if (node.StoredHash > hash)
-            node.Left = Add(node.Left, key, hash, value, byRef);
+            node.Left = Add(node.Left, key, hash, value);
         else
-            node.Right = Add(node.Right, key, hash, value, byRef);
+            node.Right = Add(node.Right, key, hash, value);
 
         node.Height = CalculateHeight(node);
         var balance = GetBalance(node);
@@ -140,13 +140,13 @@ internal sealed class HashTree<TKey, TValue>
         return node;
     }
 
-    private static void CheckCollisions(Node node, TKey key, TValue value, bool byRef)
+    private static void CheckCollisions(Node node, TKey key, TValue value)
     {
-        if (byRef && ReferenceEquals(key, node.StoredKey) || !byRef && Equals(key, node.StoredKey))
+        if (Equals(key, node.StoredKey))
             node.StoredValue = value;
         else
         {
-            node.Collisions ??= new ExpandableArray<TKey, TValue>();
+            node.Collisions ??= [];
             node.Collisions.Add(new ReadOnlyKeyValue<TKey, TValue>(key, value));
         }
     }

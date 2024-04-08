@@ -14,9 +14,9 @@ public class WithFactoryMemberInjectionNotWorkingWithImplementationType
         Assert.NotNull(((Test)inst).Dummy);
     }
 
-    class Dummy { }
+    class Dummy;
 
-    interface ITest { }
+    interface ITest;
 
     class Test : ITest
     {

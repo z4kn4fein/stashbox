@@ -15,7 +15,7 @@ public class ChainedNamedScopesAreNotWorkingProperly
         Assert.NotNull(container.Resolve<NamedScopeTest3>());
     }
 
-    class NamedScopeTest1 { }
+    class NamedScopeTest1;
 
     class NamedScopeTest2
     {

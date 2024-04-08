@@ -146,7 +146,7 @@ public class AttributeTest
         Assert.True(inst.MethodInvoked);
     }
 
-    interface ITest1 { }
+    interface ITest1;
 
     interface ITest2 { ITest1 test1 { get; set; } }
 
@@ -154,14 +154,11 @@ public class AttributeTest
 
     interface ITest4 { Lazy<ITest2> test2 { get; set; } Lazy<ITest1> test1 { get; set; } bool MethodInvoked { get; set; } }
 
-    class Test1 : ITest1
-    { }
+    class Test1 : ITest1;
 
-    class Test11 : ITest1
-    { }
+    class Test11 : ITest1;
 
-    class Test12 : ITest1
-    { }
+    class Test12 : ITest1;
 
     class Test22 : ITest2 { public ITest1 test1 { get; set; } }
 

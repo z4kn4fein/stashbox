@@ -57,8 +57,8 @@ public class ServiceProviderTests
         Assert.IsType<CustomSp>(container.Resolve<SpAware>().Test2);
     }
 
-    interface ITest { }
-    interface ITest2 { }
+    interface ITest;
+    interface ITest2;
     
     class CustomSp : IServiceProvider, ITest, ITest2, IDisposable
     {

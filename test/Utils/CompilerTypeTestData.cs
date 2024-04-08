@@ -7,10 +7,10 @@ public class CompilerTypeTestData : IEnumerable<object[]>
 {
     public IEnumerator<object[]> GetEnumerator()
     {
-        yield return new object[] { CompilerType.Default };
-        yield return new object[] { CompilerType.Microsoft };
-        yield return new object[] { CompilerType.Stashbox };
-        yield return new object[] { CompilerType.FastExpressionCompiler };
+        yield return [CompilerType.Default];
+        yield return [CompilerType.Microsoft];
+        yield return [CompilerType.Stashbox];
+        yield return [CompilerType.FastExpressionCompiler];
     }
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

@@ -17,30 +17,30 @@ internal class RegistrationRepository : IRegistrationRepository
     private readonly ContainerConfiguration containerConfiguration;
 
     private readonly IRegistrationSelectionRule[] filters =
-    {
+    [
         RegistrationSelectionRules.GenericFilter,
         RegistrationSelectionRules.NameFilter,
         RegistrationSelectionRules.MetadataFilter,
         RegistrationSelectionRules.ScopeNameFilter,
-        RegistrationSelectionRules.ConditionFilter,
-    };
+        RegistrationSelectionRules.ConditionFilter
+    ];
 
     private readonly IRegistrationSelectionRule[] topLevelFilters =
-    {
+    [
         RegistrationSelectionRules.GenericFilter,
         RegistrationSelectionRules.NameFilter,
         RegistrationSelectionRules.MetadataFilter,
-        RegistrationSelectionRules.ScopeNameFilter,
-    };
+        RegistrationSelectionRules.ScopeNameFilter
+    ];
 
     private readonly IRegistrationSelectionRule[] enumerableFilters =
-    {
+    [
         RegistrationSelectionRules.GenericFilter,
         RegistrationSelectionRules.EnumerableNameFilter,
         RegistrationSelectionRules.ScopeNameFilter,
         RegistrationSelectionRules.ConditionFilter,
-        RegistrationSelectionRules.MetadataFilter,
-    };
+        RegistrationSelectionRules.MetadataFilter
+    ];
 
     public RegistrationRepository(ContainerConfiguration containerConfiguration)
     {

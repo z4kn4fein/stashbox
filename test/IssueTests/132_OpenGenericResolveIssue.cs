@@ -26,27 +26,19 @@ public class OpenGenericResolveIssue
         Assert.NotNull(container.Resolve<IS<D>>());
     }
 
-    interface IA
-    { }
+    interface IA;
     
-    class B
-    { }
+    class B;
     
-    abstract class C
-    { }
+    abstract class C;
     
-    interface IA<TK, out TV> where TV : class
-    { }
+    interface IA<TK, out TV> where TV : class;
 
-    class A<TK, TV> : IA<TK, TV> where TV : class
-    { }
+    class A<TK, TV> : IA<TK, TV> where TV : class;
 
-    interface IS<T> where T : struct
-    { }
+    interface IS<T> where T : struct;
 
-    class S<T> : IS<T> where T:struct 
-    { }
+    class S<T> : IS<T> where T:struct;
     
-    struct D
-    { }
+    struct D;
 }

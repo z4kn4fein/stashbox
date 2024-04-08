@@ -645,9 +645,9 @@ public class FactoryTests
         Assert.IsType<TG<string>>(container2.Resolve<ITG<string>>());
     }
 
-    interface ITG<T> { }
+    interface ITG<T>;
     
-    class TG<T> : ITG<T> {}
+    class TG<T> : ITG<T>;
     
     interface ITest { string Name { get; } }
 
@@ -719,19 +719,19 @@ public class FactoryTests
         }
     }
 
-    interface IT1 { }
+    interface IT1;
 
-    interface IT2 { }
+    interface IT2;
 
-    interface IT3 { }
+    interface IT3;
 
-    interface IT4 { }
+    interface IT4;
 
-    interface IT5 { }
+    interface IT5;
 
-    class TComp : IT1, IT2, IT3, IT4, IT5 { }
+    class TComp : IT1, IT2, IT3, IT4, IT5;
 
-    class Dummy { }
+    class Dummy;
 
     class Disposable : IDisposable
     {

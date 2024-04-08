@@ -135,15 +135,15 @@ public class CircularDependencyTests
         }
 #endif
 
-    interface ITest1 { }
+    interface ITest1;
 
-    interface ITest2 { }
+    interface ITest2;
 
-    interface ITest3 { }
+    interface ITest3;
 
-    interface ITest1<I, K> { }
+    interface ITest1<I, K>;
 
-    class Test4 : ITest1 { }
+    class Test4 : ITest1;
 
     class Test1<I, K> : ITest1<I, K>
     {

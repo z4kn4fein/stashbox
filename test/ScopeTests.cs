@@ -120,7 +120,7 @@ public class ScopeTests
     {
         using var container = new StashboxContainer().Register<A>();
         using var scope = container.BeginScope();
-        scope.ResolveOrDefault<A>(dependencyOverrides: new[] { new A() });
+        scope.ResolveOrDefault<A>(dependencyOverrides: [new A()]);
 
         var cache = scope.GetDelegateCacheEntries();
         Assert.Empty(cache);
@@ -131,7 +131,7 @@ public class ScopeTests
         Assert.Single(cache);
     }
 
-    private class A { }
-    private class B { }
-    private class C { }
+    private class A;
+    private class B;
+    private class C;
 }

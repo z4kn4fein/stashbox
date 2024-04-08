@@ -20,8 +20,7 @@ internal class ResolutionStrategy : IResolutionStrategy
     public ResolutionStrategy()
     {
         this.parentContainerResolver = new ParentContainerResolver();
-        this.resolverRepository = new ImmutableBucket<IResolver>(new IResolver[]
-        {
+        this.resolverRepository = new ImmutableBucket<IResolver>([
             new EnumerableWrapper(),
             new LazyWrapper(),
             new FuncWrapper(),
@@ -32,8 +31,8 @@ internal class ResolutionStrategy : IResolutionStrategy
             new OptionalValueResolver(),
             new DefaultValueResolver(),
             this.parentContainerResolver,
-            new UnknownTypeResolver(),
-        });
+            new UnknownTypeResolver()
+        ]);
     }
     
     public ServiceContext BuildExpressionForType(ResolutionContext resolutionContext, TypeInformation typeInformation)
@@ -81,7 +80,7 @@ internal class ResolutionStrategy : IResolutionStrategy
                     resolutionContext.BeginDecoratingContext(typeInformation.Type, decorators), typeInformation, decorators).AsServiceContext();
         }
 
-        var exprOverride = resolutionContext.ExpressionOverrides?.GetOrDefaultByValue(typeInformation.DependencyName ?? typeInformation.Type);
+        var exprOverride = resolutionContext.ExpressionOverrides?.GetOrDefault(typeInformation.DependencyName ?? typeInformation.Type);
         if (exprOverride != null)
             return exprOverride.AsServiceContext();
 
@@ -178,7 +177,7 @@ internal class ResolutionStrategy : IResolutionStrategy
             this.IsWrappedTypeRegistered(typeInformation, resolutionContext))
             return true;
 
-        var exprOverride = resolutionContext.ExpressionOverrides?.GetOrDefaultByValue(typeInformation.DependencyName ?? typeInformation.Type);
+        var exprOverride = resolutionContext.ExpressionOverrides?.GetOrDefault(typeInformation.DependencyName ?? typeInformation.Type);
         return exprOverride != null || this.CanLookupService(typeInformation, resolutionContext);
     }
 

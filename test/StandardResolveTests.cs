@@ -150,7 +150,7 @@ public class StandardResolveTests
     {
         using IStashboxContainer container = new StashboxContainer();
 
-        Assert.Null(container.ResolveOrDefault<ITest1>(new[] { new Dummy() }));
+        Assert.Null(container.ResolveOrDefault<ITest1>([new Dummy()]));
     }
 
     [Fact]
@@ -158,8 +158,8 @@ public class StandardResolveTests
     {
         using IStashboxContainer container = new StashboxContainer().Register<ITest2, Test2>();
 
-        Assert.NotNull(container.ResolveOrDefault<ITest2>(new[] { new Test1() }));
-        Assert.NotNull(container.ResolveOrDefault<ITest2>(new[] { new Test1() }));
+        Assert.NotNull(container.ResolveOrDefault<ITest2>([new Test1()]));
+        Assert.NotNull(container.ResolveOrDefault<ITest2>([new Test1()]));
     }
 
     [Fact]
@@ -209,7 +209,7 @@ public class StandardResolveTests
     {
         using IStashboxContainer container = new StashboxContainer();
 
-        Assert.Null(container.ResolveOrDefault<ITest1>(null, new[] { new Dummy() }));
+        Assert.Null(container.ResolveOrDefault<ITest1>(null, [new Dummy()]));
     }
 
     [Fact]
@@ -217,8 +217,8 @@ public class StandardResolveTests
     {
         using IStashboxContainer container = new StashboxContainer().Register<ITest2, Test2>();
 
-        Assert.NotNull(container.ResolveOrDefault<ITest2>(null, new[] { new Test1() }));
-        Assert.NotNull(container.ResolveOrDefault<ITest2>(null, new[] { new Test1() }));
+        Assert.NotNull(container.ResolveOrDefault<ITest2>(null, [new Test1()]));
+        Assert.NotNull(container.ResolveOrDefault<ITest2>(null, [new Test1()]));
     }
 
     [Fact]
@@ -243,7 +243,7 @@ public class StandardResolveTests
     {
         using IStashboxContainer container = new StashboxContainer();
 
-        Assert.Null(container.ResolveOrDefault<ITest1>("test", new[] { new Dummy() }));
+        Assert.Null(container.ResolveOrDefault<ITest1>("test", [new Dummy()]));
     }
 
     [Fact]
@@ -251,8 +251,8 @@ public class StandardResolveTests
     {
         using IStashboxContainer container = new StashboxContainer().Register<ITest2, Test2>();
 
-        Assert.Null(container.ResolveOrDefault<ITest2>("test", new[] { new Test1() }));
-        Assert.Null(container.ResolveOrDefault<ITest2>("test", new[] { new Test1() }));
+        Assert.Null(container.ResolveOrDefault<ITest2>("test", [new Test1()]));
+        Assert.Null(container.ResolveOrDefault<ITest2>("test", [new Test1()]));
     }
 
 
@@ -278,7 +278,7 @@ public class StandardResolveTests
     {
         using var scope = new StashboxContainer().BeginScope();
 
-        Assert.Null(scope.ResolveOrDefault<ITest1>(new[] { new Dummy() }));
+        Assert.Null(scope.ResolveOrDefault<ITest1>([new Dummy()]));
     }
 
     [Fact]
@@ -286,8 +286,8 @@ public class StandardResolveTests
     {
         using var scope = new StashboxContainer().Register<ITest2, Test2>().BeginScope();
 
-        Assert.NotNull(scope.ResolveOrDefault<ITest2>(new[] { new Test1() }));
-        Assert.NotNull(scope.ResolveOrDefault<ITest2>(new[] { new Test1() }));
+        Assert.NotNull(scope.ResolveOrDefault<ITest2>([new Test1()]));
+        Assert.NotNull(scope.ResolveOrDefault<ITest2>([new Test1()]));
     }
 
     [Fact]
@@ -312,7 +312,7 @@ public class StandardResolveTests
     {
         using var scope = new StashboxContainer().BeginScope();
 
-        Assert.Null(scope.ResolveOrDefault<ITest1>(null, new[] { new Dummy() }));
+        Assert.Null(scope.ResolveOrDefault<ITest1>(null, [new Dummy()]));
     }
 
     [Fact]
@@ -320,8 +320,8 @@ public class StandardResolveTests
     {
         using var scope = new StashboxContainer().Register<ITest2, Test2>().BeginScope();
 
-        Assert.NotNull(scope.ResolveOrDefault<ITest2>(null, new[] { new Test1() }));
-        Assert.NotNull(scope.ResolveOrDefault<ITest2>(null, new[] { new Test1() }));
+        Assert.NotNull(scope.ResolveOrDefault<ITest2>(null, [new Test1()]));
+        Assert.NotNull(scope.ResolveOrDefault<ITest2>(null, [new Test1()]));
     }
 
     [Fact]
@@ -346,7 +346,7 @@ public class StandardResolveTests
     {
         using var scope = new StashboxContainer().BeginScope();
 
-        Assert.Null(scope.ResolveOrDefault<ITest1>("test", new[] { new Dummy() }));
+        Assert.Null(scope.ResolveOrDefault<ITest1>("test", [new Dummy()]));
     }
 
     [Fact]
@@ -354,8 +354,8 @@ public class StandardResolveTests
     {
         using var scope = new StashboxContainer().Register<ITest2, Test2>().BeginScope();
 
-        Assert.Null(scope.ResolveOrDefault<ITest2>("test", new[] { new Test1() }));
-        Assert.Null(scope.ResolveOrDefault<ITest2>("test", new[] { new Test1() }));
+        Assert.Null(scope.ResolveOrDefault<ITest2>("test", [new Test1()]));
+        Assert.Null(scope.ResolveOrDefault<ITest2>("test", [new Test1()]));
     }
 
     [Fact]
@@ -937,7 +937,5 @@ public class StandardResolveTests
         }
     }
 
-    class Dummy
-    {
-    }
+    class Dummy;
 }

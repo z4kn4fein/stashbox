@@ -24,25 +24,15 @@ public class CallInterception
         Assert.NotNull(container.Resolve<ILevel2Service>());
     }
 
-    public interface ILevel1Service
-    {
-    }
+    public interface ILevel1Service;
 
-    public interface ILevel2bService
-    {
-    }
+    public interface ILevel2bService;
 
-    public interface ILevel2Service
-    {
-    }
+    public interface ILevel2Service;
 
-    public interface ILevel3Service
-    {
-    }
+    public interface ILevel3Service;
 
-    public interface ILevel4Service
-    {
-    }
+    public interface ILevel4Service;
 
     class Level1Service : ILevel1Service
     {

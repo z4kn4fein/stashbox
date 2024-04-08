@@ -24,11 +24,9 @@ public class ResolvingFunUseWrongConstructor
         Assert.Equal(classB, injectedB.ClassB);
     }
 
-    class ClassA
-    { }
+    class ClassA;
 
-    class ClassB
-    { }
+    class ClassB;
 
     class InjectedClass
     {
@@ -92,11 +90,9 @@ public class ResolvingFunUseWrongConstructor
         Assert.Null(instB.A);
     }
 
-    class A
-    { }
+    class A;
 
-    class B
-    { }
+    class B;
 
     class Subject1
     {

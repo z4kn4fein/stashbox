@@ -18,15 +18,11 @@ public class MixtureOfNamedAndNonNamedRegistrationTests
         Assert.IsType<Test>(test);
     }
 
-    interface ITest
-    { }
+    interface ITest;
 
-    class Test : ITest
-    { }
+    class Test : ITest;
 
-    class Test1 : ITest
-    { }
+    class Test1 : ITest;
 
-    class Test2 : ITest
-    { }
+    class Test2 : ITest;
 }

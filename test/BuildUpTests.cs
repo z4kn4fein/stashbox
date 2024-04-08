@@ -76,7 +76,7 @@ public class BuildUpTests
 
     interface ITest1 { ITest Test { get; } }
 
-    interface ITest3 { }
+    interface ITest3;
 
     class Test : ITest
     {

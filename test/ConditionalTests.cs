@@ -353,20 +353,17 @@ public class ConditionalTests
         Assert.NotNull(((Test13)t.Test).Dummy);
     }
 
-    interface ITest1 { }
+    interface ITest1;
 
     interface ITest2 { ITest1 test1 { get; set; } ITest1 test12 { get; set; } }
 
-    class Dummy { }
+    class Dummy;
 
-    class Test1 : ITest1
-    { }
+    class Test1 : ITest1;
 
-    class Test11 : ITest1
-    { }
+    class Test11 : ITest1;
 
-    class Test12 : ITest1
-    { }
+    class Test12 : ITest1;
 
     class Test13 : ITest1
     {
@@ -434,12 +431,8 @@ public class ConditionalTests
     }
 
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property | AttributeTargets.Parameter)]
-    class TestConditionAttribute : Attribute
-    {
-    }
+    class TestConditionAttribute : Attribute;
 
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property | AttributeTargets.Parameter)]
-    class TestCondition2Attribute : Attribute
-    {
-    }
+    class TestCondition2Attribute : Attribute;
 }

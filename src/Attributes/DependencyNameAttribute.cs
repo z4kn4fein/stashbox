@@ -6,6 +6,4 @@ namespace Stashbox.Attributes;
 /// When a parameter is marked with this attribute, the container will pass the given dependency's name to it.
 /// </summary>
 [AttributeUsage(AttributeTargets.Parameter)]
-public class DependencyNameAttribute : Attribute
-{
-}
+public class DependencyNameAttribute : Attribute;

@@ -223,15 +223,15 @@ public class InjectionMemberTests
     }
 #endif
 
-    interface ITest { }
+    interface ITest;
 
     interface ITest1 { ITest Test { get; } }
 
-    class Test : ITest { }
+    class Test : ITest;
 
-    class TestM1 : ITest { }
+    class TestM1 : ITest;
 
-    class TestM2 : ITest { }
+    class TestM2 : ITest;
 
     class Test1 : ITest1
     {
@@ -263,9 +263,9 @@ public class InjectionMemberTests
         public void Test() { }
     }
 
-    class Test4 { }
+    class Test4;
 
-    class Test5 { }
+    class Test5;
 
     class Test6
     {
@@ -285,7 +285,9 @@ public class InjectionMemberTests
     class Test8
     {
         public required Test4 Test4 { get; init; }
+#pragma warning disable CS0649 // Field is never assigned to, and will always have its default value
         public required Test5 Test5;
+#pragma warning restore CS0649 // Field is never assigned to, and will always have its default value
     }    
 #endif
 }

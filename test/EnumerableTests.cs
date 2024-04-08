@@ -851,7 +851,7 @@ public class EnumerableTests
         container.Register<ITest3, Test32>("t");
         container.Register<ITest3, Test33>();
 
-        var inst = container.ResolveAll(typeof(ITest3), "t", new object[] { new Test1() }).OfType<ITest3>().ToArray();
+        var inst = container.ResolveAll(typeof(ITest3), "t", [new Test1()]).OfType<ITest3>().ToArray();
         Assert.Equal(2, inst.Length);
         Assert.IsType<Test1>(inst[0].Test);
         Assert.IsType<Test1>(inst[1].Test);
@@ -865,26 +865,23 @@ public class EnumerableTests
         container.Register<ITest3, Test32>("t");
         container.Register<ITest3, Test33>();
 
-        var inst = container.ResolveAll<ITest3>("t", new object[] { new Test1() }).ToArray();
+        var inst = container.ResolveAll<ITest3>("t", [new Test1()]).ToArray();
         Assert.Equal(2, inst.Length);
         Assert.IsType<Test1>(inst[0].Test);
         Assert.IsType<Test1>(inst[1].Test);
     }
 
-    interface ITest1 { }
+    interface ITest1;
 
-    interface ITest2 { }
+    interface ITest2;
 
     interface ITest3 { ITest1 Test { get; } }
 
-    class Test1 : ITest1
-    { }
+    class Test1 : ITest1;
 
-    class Test11 : ITest1
-    { }
+    class Test11 : ITest1;
 
-    class Test12 : ITest1
-    { }
+    class Test12 : ITest1;
 
     class Test2 : ITest2
     {

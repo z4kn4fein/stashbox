@@ -52,10 +52,9 @@ public class NamedResolutioUsingResolveAllReturnsAllNamedAndUnnameInstanсes
         Assert.Single(inst.Tests);
     }
 
-    interface ITest { }
+    interface ITest;
 
-    class Test1 : ITest
-    { }
+    class Test1 : ITest;
 
     class Test2
     {

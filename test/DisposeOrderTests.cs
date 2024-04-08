@@ -15,7 +15,7 @@ public class DisposeOrderTests
             var obj = container.Register<DisposableObj1>()
                 .Register<DisposableObj2>()
                 .Register<DisposableObj3>()
-                .Resolve<DisposableObj3>(dependencyOverrides: new object[] { disposables });
+                .Resolve<DisposableObj3>(dependencyOverrides: [disposables]);
 
             Assert.NotNull(obj);
         }
@@ -37,7 +37,7 @@ public class DisposeOrderTests
                 .Register<DisposableObj3>();
 
             using var scope = container.BeginScope();
-            var obj = scope.Resolve<DisposableObj3>(dependencyOverrides: new object[] { disposables });
+            var obj = scope.Resolve<DisposableObj3>(dependencyOverrides: [disposables]);
             Assert.NotNull(obj);
         }
 

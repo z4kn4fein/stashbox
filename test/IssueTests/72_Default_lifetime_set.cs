@@ -42,5 +42,5 @@ public class DefaultLifetimeSet
         Assert.Same(Lifetimes.Transient, reg.Value.Lifetime);
     }
 
-    class Test { }
+    class Test;
 }

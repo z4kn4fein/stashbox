@@ -201,7 +201,7 @@ public class ContainerConfigurator
     public ContainerConfigurator WithAdditionalDependencyNameAttribute<TAttribute>()
         where TAttribute : Attribute
     {
-        this.ContainerConfiguration.AdditionalDependencyNameAttributeTypes ??= new ExpandableArray<Type>();
+        this.ContainerConfiguration.AdditionalDependencyNameAttributeTypes ??= [];
         this.ContainerConfiguration.AdditionalDependencyNameAttributeTypes.Add(typeof(TAttribute));
         return this;
     }
@@ -214,7 +214,7 @@ public class ContainerConfigurator
     public ContainerConfigurator WithAdditionalDependencyAttribute<TAttribute>()
         where TAttribute : Attribute
     {
-        this.ContainerConfiguration.AdditionalDependencyAttributeTypes ??= new ExpandableArray<Type>();
+        this.ContainerConfiguration.AdditionalDependencyAttributeTypes ??= [];
         this.ContainerConfiguration.AdditionalDependencyAttributeTypes.Add(typeof(TAttribute));
         return this;
     }

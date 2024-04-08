@@ -10,7 +10,7 @@ public class ResolverFactoryIssue
     {
         var factory = new StashboxContainer()
             .Register<IFoo, Foobar>()
-            .ResolveFactory(typeof(IFoo), parameterTypes: new[] { typeof(string), typeof(string) });
+            .ResolveFactory(typeof(IFoo), parameterTypes: [typeof(string), typeof(string)]);
 
         Assert.Equal("foobar", ((IFoo)factory.DynamicInvoke("foo", "bar")).Result);
     }

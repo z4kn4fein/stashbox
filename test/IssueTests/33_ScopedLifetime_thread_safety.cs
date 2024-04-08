@@ -55,9 +55,9 @@ public class ScopedLifetimeThreadSafeTests
         }
     }
 
-    class Test { }
+    class Test;
 
-    class TestG<T> { }
+    class TestG<T>;
 
     class TestC
     {

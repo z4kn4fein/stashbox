@@ -93,10 +93,10 @@ public class ChildContainerTests
         var child = container.CreateChildContainer().Register<IT, T3>().Register<IT, T4>();
 
         Assert.Equal(4, child.ResolveAll<IT>().Count());
-        Assert.Equal(2, child.ResolveAll<IT>(name: null, dependencyOverrides: new []{new object()}, ResolutionBehavior.Current).Count());
-        Assert.Equal(2, child.ResolveAll<IT>(dependencyOverrides: new []{new object()}, ResolutionBehavior.Current).Count());
+        Assert.Equal(2, child.ResolveAll<IT>(name: null, dependencyOverrides: [new object()], ResolutionBehavior.Current).Count());
+        Assert.Equal(2, child.ResolveAll<IT>(dependencyOverrides: [new object()], ResolutionBehavior.Current).Count());
         Assert.Equal(2, child.ResolveAll<IT>(name: null, ResolutionBehavior.Current).Count());
-        Assert.Equal(2, child.ResolveAll(typeof(IT), name: null, dependencyOverrides: new []{new object()}, ResolutionBehavior.Parent).Count());
+        Assert.Equal(2, child.ResolveAll(typeof(IT), name: null, dependencyOverrides: [new object()], ResolutionBehavior.Parent).Count());
     }
     
     [Theory]
@@ -107,10 +107,10 @@ public class ChildContainerTests
         var child = container.CreateChildContainer().Register<IT, T3>().Register<IT, T4>();
 
         Assert.Equal(4, child.BeginScope().ResolveAll<IT>().Count());
-        Assert.Equal(2, child.BeginScope().ResolveAll<IT>(name: null, dependencyOverrides: new []{new object()}, ResolutionBehavior.Current).Count());
-        Assert.Equal(2, child.BeginScope().ResolveAll<IT>(dependencyOverrides: new []{new object()}, ResolutionBehavior.Current).Count());
+        Assert.Equal(2, child.BeginScope().ResolveAll<IT>(name: null, dependencyOverrides: [new object()], ResolutionBehavior.Current).Count());
+        Assert.Equal(2, child.BeginScope().ResolveAll<IT>(dependencyOverrides: [new object()], ResolutionBehavior.Current).Count());
         Assert.Equal(2, child.BeginScope().ResolveAll<IT>(name: null, ResolutionBehavior.Current).Count());
-        Assert.Equal(2, child.BeginScope().ResolveAll(typeof(IT), name: null, dependencyOverrides: new []{new object()}, ResolutionBehavior.Parent).Count());
+        Assert.Equal(2, child.BeginScope().ResolveAll(typeof(IT), name: null, dependencyOverrides: [new object()], ResolutionBehavior.Parent).Count());
     }
     
     [Theory]
@@ -173,8 +173,8 @@ public class ChildContainerTests
             .RegisterDecorator<IT, T6>(c => c.WithInitializer((inst, _) => inst.Init("child")));
 
         Assert.IsType<T6>(((T6)child.Resolve<IT>()).Dep);
-        Assert.IsType<T4>(((T6)child.Resolve<IT>(dependencyOverrides: new []{new object()}, ResolutionBehavior.Current)).Dep);
-        Assert.IsType<T2>(((T6)child.Resolve<IT>(name: null, dependencyOverrides: new []{new object()}, ResolutionBehavior.Parent)).Dep);
+        Assert.IsType<T4>(((T6)child.Resolve<IT>(dependencyOverrides: [new object()], ResolutionBehavior.Current)).Dep);
+        Assert.IsType<T2>(((T6)child.Resolve<IT>(name: null, dependencyOverrides: [new object()], ResolutionBehavior.Parent)).Dep);
         
         Assert.Equal("child", ((T6)child.Resolve<IT>()).ID);
         Assert.Equal("child", ((T6)child.Resolve<IT>(name: null, ResolutionBehavior.Current)).ID);
@@ -195,8 +195,8 @@ public class ChildContainerTests
             .RegisterDecorator<IT, T6>(c => c.WithInitializer((inst, _) => inst.Init("child")));
 
         Assert.IsType<T6>(((T6)child.BeginScope().Resolve<IT>()).Dep);
-        Assert.IsType<T4>(((T6)child.BeginScope().Resolve<IT>(dependencyOverrides: new []{new object()}, ResolutionBehavior.Current)).Dep);
-        Assert.IsType<T2>(((T6)child.BeginScope().Resolve<IT>(name: null, dependencyOverrides: new []{new object()}, ResolutionBehavior.Parent)).Dep);
+        Assert.IsType<T4>(((T6)child.BeginScope().Resolve<IT>(dependencyOverrides: [new object()], ResolutionBehavior.Current)).Dep);
+        Assert.IsType<T2>(((T6)child.BeginScope().Resolve<IT>(name: null, dependencyOverrides: [new object()], ResolutionBehavior.Parent)).Dep);
         
         Assert.Equal("child", ((T6)child.BeginScope().Resolve<IT>()).ID);
         Assert.Equal("child", ((T6)child.BeginScope().Resolve<IT>(name: null, ResolutionBehavior.Current)).ID);
@@ -217,8 +217,8 @@ public class ChildContainerTests
             .RegisterDecorator<IT, T6>(c => c.WithInitializer((inst, _) => inst.Init("child")));
 
         Assert.IsType<T6>(((T6)child.ResolveOrDefault<IT>()).Dep);
-        Assert.IsType<T4>(((T6)child.ResolveOrDefault<IT>(dependencyOverrides: new []{new object()}, ResolutionBehavior.Current)).Dep);
-        Assert.IsType<T2>(((T6)child.ResolveOrDefault<IT>(name: null, dependencyOverrides: new []{new object()}, ResolutionBehavior.Parent)).Dep);
+        Assert.IsType<T4>(((T6)child.ResolveOrDefault<IT>(dependencyOverrides: [new object()], ResolutionBehavior.Current)).Dep);
+        Assert.IsType<T2>(((T6)child.ResolveOrDefault<IT>(name: null, dependencyOverrides: [new object()], ResolutionBehavior.Parent)).Dep);
         
         Assert.Equal("child", ((T6)child.ResolveOrDefault<IT>()).ID);
         Assert.Equal("child", ((T6)child.ResolveOrDefault<IT>(name: null, ResolutionBehavior.Current)).ID);
@@ -239,8 +239,8 @@ public class ChildContainerTests
             .RegisterDecorator<IT, T6>(c => c.WithInitializer((inst, _) => inst.Init("child")));
 
         Assert.IsType<T6>(((T6)child.BeginScope().ResolveOrDefault<IT>()).Dep);
-        Assert.IsType<T4>(((T6)child.BeginScope().ResolveOrDefault<IT>(dependencyOverrides: new []{new object()}, ResolutionBehavior.Current)).Dep);
-        Assert.IsType<T2>(((T6)child.BeginScope().ResolveOrDefault<IT>(name: null, dependencyOverrides: new []{new object()}, ResolutionBehavior.Parent)).Dep);
+        Assert.IsType<T4>(((T6)child.BeginScope().ResolveOrDefault<IT>(dependencyOverrides: [new object()], ResolutionBehavior.Current)).Dep);
+        Assert.IsType<T2>(((T6)child.BeginScope().ResolveOrDefault<IT>(name: null, dependencyOverrides: [new object()], ResolutionBehavior.Parent)).Dep);
         
         Assert.Equal("child", ((T6)child.BeginScope().ResolveOrDefault<IT>()).ID);
         Assert.Equal("child", ((T6)child.BeginScope().ResolveOrDefault<IT>(name: null, ResolutionBehavior.Current)).ID);
@@ -587,12 +587,12 @@ public class ChildContainerTests
     }
 #endif
 
-    interface IT { }
+    interface IT;
     
-    class T1 : IT { }
-    class T2 : IT { }
-    class T3 : IT { }
-    class T4 : IT { }
+    class T1 : IT;
+    class T2 : IT;
+    class T3 : IT;
+    class T4 : IT;
 
     class T5 : IT
     {
@@ -639,11 +639,11 @@ public class ChildContainerTests
         }
     }
     
-    interface IA { }
+    interface IA;
 
-    class A : IA { }
+    class A : IA;
 
-    class B : IA { }
+    class B : IA;
 
     class C : IA, IDisposable
     {

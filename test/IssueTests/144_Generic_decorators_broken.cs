@@ -30,11 +30,9 @@ public class GenericDecoratorsBroken
         Assert.IsType<Command<Context>>(((Decorator<Context>)decorator).Dep);
     }
 
-    interface ICommand<T>
-    { }
+    interface ICommand<T>;
     
-    class Command <T> : ICommand<T>
-    { }
+    class Command <T> : ICommand<T>;
 
     class Decorator<T> : ICommand<T>
     {
@@ -46,5 +44,5 @@ public class GenericDecoratorsBroken
         }
     }
     
-    class Context {}
+    class Context;
 }

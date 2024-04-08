@@ -388,41 +388,41 @@ public class RegistersTests
         Assert.Same(inst, inst1);
     }
 
-    interface ITest { }
+    interface ITest;
 
-    interface ITest1 { }
+    interface ITest1;
 
-    interface ITest2 { }
+    interface ITest2;
 
-    class Test : ITest { }
+    class Test : ITest;
 
-    interface IGenTest<T> { }
+    interface IGenTest<T>;
 
-    class GenTest<T> : IGenTest<T> { }
+    class GenTest<T> : IGenTest<T>;
 
-    class GenTest1 : GenTest<int> { }
+    class GenTest1 : GenTest<int>;
 
-    class GenTest2 : GenTest<double> { }
+    class GenTest2 : GenTest<double>;
 
-    class GenTest3 : GenTest<object> { }
+    class GenTest3 : GenTest<object>;
 
-    class GenTest4 : IGenTest<int> { }
+    class GenTest4 : IGenTest<int>;
 
-    class GenTest5 : IGenTest<double> { }
+    class GenTest5 : IGenTest<double>;
 
-    class GenTest6 : IGenTest<object> { }
+    class GenTest6 : IGenTest<object>;
 
-    class Test2 { }
+    class Test2;
 
-    class Test1 : ITest, ITest1 { }
+    class Test1 : ITest, ITest1;
 
-    class Test11 : ITest1, ITest2 { }
+    class Test11 : ITest1, ITest2;
 
-    class Test12 : ITest, ITest1, ITest2 { }
+    class Test12 : ITest, ITest1, ITest2;
 
-    class Test13 : Test12 { }
+    class Test13 : Test12;
 
-    class Test14 : Test13 { }
+    class Test14 : Test13;
 
     class TestCompositionRoot : ICompositionRoot
     {

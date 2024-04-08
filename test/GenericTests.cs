@@ -445,31 +445,31 @@ public class GenericTests
         }
     }
 
-    class B<T> { }
+    class B<T>;
 
-    interface IConstraint { }
+    interface IConstraint;
 
-    interface IConstraint1 { }
+    interface IConstraint1;
 
-    interface IConstraintTest<T> { }
+    interface IConstraintTest<T>;
 
-    interface IContravariant<in T> { }
+    interface IContravariant<in T>;
 
-    interface ICovariant<out T> { }
+    interface ICovariant<out T>;
 
-    class ConstraintTest<T> : IConstraintTest<T> { }
+    class ConstraintTest<T> : IConstraintTest<T>;
 
-    class ConstraintTest2<T> : IConstraintTest<T> where T : IConstraint { }
+    class ConstraintTest2<T> : IConstraintTest<T> where T : IConstraint;
 
-    class ConstraintTest3<T> : IConstraintTest<T> where T : IConstraint1 { }
+    class ConstraintTest3<T> : IConstraintTest<T> where T : IConstraint1;
 
-    class ConstraintTest4 : IContravariant<IConstraint1> { }
+    class ConstraintTest4 : IContravariant<IConstraint1>;
 
-    class ConstraintTest5 : IContravariant<ConstraintArgument1> { }
+    class ConstraintTest5 : IContravariant<ConstraintArgument1>;
 
-    class ConstraintTest6 : ICovariant<IConstraint1> { }
+    class ConstraintTest6 : ICovariant<IConstraint1>;
 
-    class ConstraintTest7 : ICovariant<ConstraintArgument1> { }
+    class ConstraintTest7 : ICovariant<ConstraintArgument1>;
 
     class ConstraintDecorator<T> : IConstraintTest<T> where T : IConstraint
     {
@@ -483,9 +483,9 @@ public class GenericTests
         public IConstraintTest<T> ConstraintTest { get; set; }
     }
 
-    class ConstraintArgument { }
+    class ConstraintArgument;
 
-    class ConstraintArgument1 : IConstraint1 { }
+    class ConstraintArgument1 : IConstraint1;
 
     class ConstraintTest3
     {
@@ -579,13 +579,12 @@ public class GenericTests
         public T Value { get; }
     }
 
-    class Stub { }
-    class Stub1 { }
+    class Stub;
+    class Stub1;
 
-    interface IGen<T>
-    { }
+    interface IGen<T>;
 
-    class Gen<T> : IGen<T> { }
+    class Gen<T> : IGen<T>;
 
     class Gen
     {

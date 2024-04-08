@@ -15,7 +15,7 @@ internal static class CollectionExtensions
             case 0:
                 return TypeCache.EmptyTypes;
             case 1:
-                return new[] { parameters[0].Type };
+                return [parameters[0].Type];
         }
 
         var types = new Type[count];
@@ -28,7 +28,7 @@ internal static class CollectionExtensions
     {
         var count = types.Length;
         if (count == 0)
-            return new[] { type };
+            return [type];
 
         var arr = new Type[count + 1];
         arr[0] = type;
@@ -40,7 +40,7 @@ internal static class CollectionExtensions
     {
         var count = types.Length;
         if (count == 0)
-            return new[] { type };
+            return [type];
 
         var arr = new Type[count + 1];
         Array.Copy(types, 0, arr, 0, count);

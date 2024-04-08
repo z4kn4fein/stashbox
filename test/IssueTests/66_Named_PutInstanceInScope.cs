@@ -37,6 +37,5 @@ public class NamedPutInstanceInScope
         }
     }
 
-    class A
-    { }
+    class A;
 }

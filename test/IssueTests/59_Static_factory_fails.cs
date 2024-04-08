@@ -58,7 +58,7 @@ public class StaticFactoryFails
 
     private static T ResolverFactory(IDependencyResolver resolver) => new();
 
-    private class T { }
+    private class T;
 
     private static class St
     {

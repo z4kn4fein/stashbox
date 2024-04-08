@@ -92,11 +92,11 @@ public class InstanceBuilderTests
         Assert.Same(inst, dep2);
     }
 
-    interface ITest { }
+    interface ITest;
 
     interface ITest1 { ITest Test { get; } }
 
-    class Test : ITest { }
+    class Test : ITest;
 
     class Test1 : ITest1
     {

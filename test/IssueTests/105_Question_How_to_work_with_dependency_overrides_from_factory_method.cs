@@ -16,12 +16,12 @@ public class QuestionHowTWorkWithDependencyOverridesFromFactoryMethod
             {
                 var d = ctx.GetDependencyOverrideOrDefault<Dep2>();
                 Assert.Same(dep2Override, d);
-                Assert.Equal(new object[] { dep2Override, fakeOverride }, ctx.GetOverrides());
+                Assert.Equal([dep2Override, fakeOverride], ctx.GetOverrides());
                 return new Test(d);
             }))
             .Register<Dep1>();
 
-        var t = container.Resolve<Test>(dependencyOverrides: new[] { dep2Override, fakeOverride });
+        var t = container.Resolve<Test>(dependencyOverrides: [dep2Override, fakeOverride]);
         Assert.Same(dep2Override, t.Dep);
     }
 
@@ -50,7 +50,7 @@ public class QuestionHowTWorkWithDependencyOverridesFromFactoryMethod
             }))
             .Register<Test>();
 
-        var t = container.Resolve<Test>(dependencyOverrides: new object[] { depOverride });
+        var t = container.Resolve<Test>(dependencyOverrides: [depOverride]);
         Assert.Same(depOverride, t.Dep);
     }
 
@@ -90,9 +90,9 @@ public class QuestionHowTWorkWithDependencyOverridesFromFactoryMethod
         }
     }
 
-    interface IDep { }
+    interface IDep;
 
-    class Dep1 : IDep { }
+    class Dep1 : IDep;
 
-    class Dep2 : IDep { }
+    class Dep2 : IDep;
 }

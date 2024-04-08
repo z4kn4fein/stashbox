@@ -180,9 +180,9 @@ public class KeyValueTests
         Assert.Null(values[1].Key);
     }
 
-    interface IT { }
+    interface IT;
 
-    class A : IT { }
+    class A : IT;
 
-    class B : IT { }
+    class B : IT;
 }

@@ -7,11 +7,11 @@ namespace Stashbox.Resolution.Wrappers;
 
 internal class KeyValueWrapper : IServiceWrapper
 {
-    private static readonly HashSet<Type> SupportedTypes = new()
-    {
+    private static readonly HashSet<Type> SupportedTypes =
+    [
         typeof(KeyValuePair<,>),
-        typeof(ReadOnlyKeyValue<,>),
-    };
+        typeof(ReadOnlyKeyValue<,>)
+    ];
 
     private static bool IsKeyValueType(Type type) => type.IsClosedGenericType() && SupportedTypes.Contains(type.GetGenericTypeDefinition());
 

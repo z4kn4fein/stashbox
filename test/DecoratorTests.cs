@@ -1165,26 +1165,26 @@ public class DecoratorTests
         Assert.NotEmpty(((TestDecorator8)a).Decoretees);
     }
 
-    interface IT1 { }
+    interface IT1;
 
-    interface IT2 { }
+    interface IT2;
 
-    interface IT3 { }
+    interface IT3;
 
-    interface IT4 { }
+    interface IT4;
 
-    interface IT5 { }
+    interface IT5;
 
-    class TComp : IT1, IT2, IT3, IT4, IT5 { }
+    class TComp : IT1, IT2, IT3, IT4, IT5;
 
 
     interface ITest1 { ITest1 Test { get; } }
 
     interface ITest2 { ITest2 Test2 { get; } }
 
-    interface IDecoratorDep { }
+    interface IDecoratorDep;
 
-    interface IDep { }
+    interface IDep;
 
     interface ITest1<T> { ITest1<T> Test { get; } }
 
@@ -1449,11 +1449,11 @@ public class DecoratorTests
         public ITest1 Test11 { get; set; }
     }
 
-    class Decorator1Attribute : Attribute { }
+    class Decorator1Attribute : Attribute;
 
-    class Decorator2Attribute : Attribute { }
+    class Decorator2Attribute : Attribute;
 
-    class Decorator3Attribute : Attribute { }
+    class Decorator3Attribute : Attribute;
 
     [Decorator1]
     class TestService : ITest1

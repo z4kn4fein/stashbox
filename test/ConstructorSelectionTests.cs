@@ -107,14 +107,11 @@ public class ConstructorSelectionTests
         Assert.Same(arg1, test.PArg1);
     }
 
-    class Dep
-    { }
+    class Dep;
 
-    class Dep2
-    { }
+    class Dep2;
 
-    class Dep3
-    { }
+    class Dep3;
 
     class DepDecorator : Dep
     {
@@ -160,13 +157,13 @@ public class ConstructorSelectionTests
         }
     }
 
-    interface IArg { }
+    interface IArg;
 
-    interface IArg1 { }
+    interface IArg1;
 
-    class Arg : IArg { }
+    class Arg : IArg;
 
-    class Arg1 : IArg1 { }
+    class Arg1 : IArg1;
 
     class Test1
     {

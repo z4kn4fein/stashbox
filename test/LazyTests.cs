@@ -134,11 +134,9 @@ public class LazyTests
         Assert.Throws<CircularDependencyException>(() => container.Resolve<Circular1>());
     }
 
-    interface ITest
-    { }
+    interface ITest;
 
-    class Test : ITest
-    { }
+    class Test : ITest;
 
     interface ITest2
     {

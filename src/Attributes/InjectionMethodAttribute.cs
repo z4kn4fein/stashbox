@@ -6,5 +6,4 @@ namespace Stashbox.Attributes;
 /// Represents an attribute for tracking injection methods.
 /// </summary>
 [AttributeUsage(AttributeTargets.Method)]
-public sealed class InjectionMethodAttribute : Attribute
-{ }
+public sealed class InjectionMethodAttribute : Attribute;

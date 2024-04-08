@@ -14,12 +14,12 @@ internal class DecoratorRepository : IDecoratorRepository
     private ImmutableTree<Type, ImmutableBucket<Type, ServiceRegistration>> repository = ImmutableTree<Type, ImmutableBucket<Type, ServiceRegistration>>.Empty;
 
     private readonly IRegistrationSelectionRule[] filters =
-    {
+    [
         RegistrationSelectionRules.GenericFilter,
         RegistrationSelectionRules.ConditionFilter,
         RegistrationSelectionRules.ScopeNameFilter,
-        RegistrationSelectionRules.DecoratorFilter,
-    };
+        RegistrationSelectionRules.DecoratorFilter
+    ];
 
     public void AddDecorator(Type type, ServiceRegistration serviceRegistration, bool remap)
     {

@@ -76,13 +76,13 @@ public class GenerateOneInstanceForMultipleInterfaces
         Assert.Same(inst4, inst5);
     }
 
-    interface ITest { }
+    interface ITest;
 
-    interface ITest1 { }
+    interface ITest1;
 
-    interface ITest2 { }
+    interface ITest2;
 
-    class Test { }
+    class Test;
 
-    class Test2 : Test, ITest, ITest1, ITest2 { }
+    class Test2 : Test, ITest, ITest1, ITest2;
 }

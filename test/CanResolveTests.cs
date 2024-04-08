@@ -117,11 +117,11 @@ public class CanResolveTests
         Assert.True(scope.CanResolve<IRequestContext>());
     }
 
-    interface IA { }
+    interface IA;
 
-    class A : IA { }
+    class A : IA;
 
-    interface IB<T> { }
+    interface IB<T>;
 
-    class B<T> : IB<T> { }
+    class B<T> : IB<T>;
 }

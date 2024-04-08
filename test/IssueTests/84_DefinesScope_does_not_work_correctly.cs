@@ -45,5 +45,4 @@ class ProductService
     }
 }
 
-class ProductRepository
-{ }
+class ProductRepository;

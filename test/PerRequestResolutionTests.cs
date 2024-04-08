@@ -18,7 +18,7 @@ public class PerRequestResolutionTests
         var c1 = scope.Resolve<C>();
         var c2 = scope.Resolve<C>();
         IA preA = new A2();
-        var c3 = scope.Resolve<C>(dependencyOverrides: new[] { preA });
+        var c3 = scope.Resolve<C>(dependencyOverrides: [preA]);
 
         Assert.IsType<A1>(c1.A);
         Assert.IsType<A1>(c1.B.A);
@@ -45,7 +45,7 @@ public class PerRequestResolutionTests
         var c1 = container.Resolve<C>();
         var c2 = container.Resolve<C>();
         IA preA = new A2();
-        var c3 = container.Resolve<C>(dependencyOverrides: new[] { preA });
+        var c3 = container.Resolve<C>(dependencyOverrides: [preA]);
 
         Assert.IsType<A1>(c1.A);
         Assert.IsType<A1>(c1.B.A);
@@ -76,7 +76,7 @@ public class PerRequestResolutionTests
         var c1 = scope.Resolve<C>("C");
         var c2 = scope.Resolve<C>("C");
         IA preA = new A2();
-        var c3 = scope.Resolve<C>("C", dependencyOverrides: new[] { preA });
+        var c3 = scope.Resolve<C>("C", dependencyOverrides: [preA]);
 
         Assert.IsType<A1>(c1.A);
         Assert.IsType<A1>(c1.B.A);
@@ -106,7 +106,7 @@ public class PerRequestResolutionTests
         var c1 = container.Resolve<C>("C");
         var c2 = container.Resolve<C>("C");
         IA preA = new A2();
-        var c3 = container.Resolve<C>("C", dependencyOverrides: new[] { preA });
+        var c3 = container.Resolve<C>("C", dependencyOverrides: [preA]);
 
         Assert.IsType<A1>(c1.A);
         Assert.IsType<A1>(c1.B.A);
@@ -245,7 +245,7 @@ public class PerRequestResolutionTests
 
         IA preA = new A2();
 
-        each = scope.ResolveAll(typeof(C), new[] { preA }).Cast<C>().ToArray();
+        each = scope.ResolveAll(typeof(C), [preA]).Cast<C>().ToArray();
 
         Assert.IsType<A2>(each[0].A);
         Assert.Same(each[0].A, each[0].B.A);
@@ -268,7 +268,7 @@ public class PerRequestResolutionTests
 
         IA preA = new A2();
 
-        each = scope.ResolveAll<C>(new[] { preA }).ToArray();
+        each = scope.ResolveAll<C>([preA]).ToArray();
 
         Assert.IsType<A2>(each[0].A);
         Assert.Same(each[0].A, each[0].B.A);
@@ -289,7 +289,7 @@ public class PerRequestResolutionTests
 
         IA preA = new A2();
 
-        each = container.ResolveAll(typeof(C), new[] { preA }).Cast<C>().ToArray();
+        each = container.ResolveAll(typeof(C), [preA]).Cast<C>().ToArray();
 
         Assert.IsType<A2>(each[0].A);
         Assert.Same(each[0].A, each[0].B.A);
@@ -310,7 +310,7 @@ public class PerRequestResolutionTests
 
         IA preA = new A2();
 
-        each = container.ResolveAll<C>(new[] { preA }).ToArray();
+        each = container.ResolveAll<C>([preA]).ToArray();
 
         Assert.IsType<A2>(each[0].A);
         Assert.Same(each[0].A, each[0].B.A);
@@ -335,7 +335,7 @@ public class PerRequestResolutionTests
 
         IA preA = new A2();
 
-        c = scope.Activate<C>(new[] { preA });
+        c = scope.Activate<C>([preA]);
 
         Assert.IsType<A2>(c.A);
         Assert.IsType<A2>(c.B.A);
@@ -360,7 +360,7 @@ public class PerRequestResolutionTests
 
         IA preA = new A2();
 
-        c = container.Activate<C>(new[] { preA });
+        c = container.Activate<C>([preA]);
 
         Assert.IsType<A2>(c.A);
         Assert.IsType<A2>(c.B.A);
@@ -368,11 +368,11 @@ public class PerRequestResolutionTests
         Assert.Same(c.A, c.B.A);
     }
 
-    interface IA { }
+    interface IA;
 
-    class A1 : IA { }
+    class A1 : IA;
 
-    class A2 : IA { }
+    class A2 : IA;
 
     class B
     {

@@ -827,9 +827,9 @@ public class DisposeTests
         Assert.Empty(children);
     }
 
-    interface ITest11 { }
+    interface ITest11;
 
-    interface ITest12 { }
+    interface ITest12;
 
     interface ITest1 : ITest11, ITest12, IDisposable { bool Disposed { get; } }
 

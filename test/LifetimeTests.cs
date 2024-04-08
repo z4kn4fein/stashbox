@@ -616,9 +616,7 @@ public class LifetimeTests
         }
     }
 
-    class Test5
-    {
-    }
+    class Test5;
 
     class Test6
     {

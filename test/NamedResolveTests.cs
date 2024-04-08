@@ -154,13 +154,13 @@ public class NamedResolveTests
         Assert.Equal(2, scope2Cache.Count());
     }
 
-    interface IA { }
+    interface IA;
 
-    class A : IA { }
+    class A : IA;
 
-    class B : IA { }
+    class B : IA;
 
-    class C : IA { }
+    class C : IA;
 
-    class D : IA { }
+    class D : IA;
 }

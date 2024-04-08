@@ -195,7 +195,7 @@ public class BaseFluentConfigurator<TConfigurator> : ServiceRegistration
         this.Options ??= new Dictionary<RegistrationOption, object?>();
         if (this.Options.TryGetValue(RegistrationOption.ConditionOptions, out var value) && value is ConditionOptions conditions)
         {
-            conditions.TargetTypeConditions ??= new ExpandableArray<object?, Type>();
+            conditions.TargetTypeConditions ??= [];
             conditions.TargetTypeConditions.Add(new ReadOnlyKeyValue<object?, Type>(name, targetType));
         }
         else
@@ -228,7 +228,7 @@ public class BaseFluentConfigurator<TConfigurator> : ServiceRegistration
         this.Options ??= new Dictionary<RegistrationOption, object?>();
         if (this.Options.TryGetValue(RegistrationOption.ConditionOptions, out var value) && value is ConditionOptions conditions)
         {
-            conditions.TargetTypeInResolutionPathConditions ??= new ExpandableArray<object?, Type>();
+            conditions.TargetTypeInResolutionPathConditions ??= [];
             conditions.TargetTypeInResolutionPathConditions.Add(new ReadOnlyKeyValue<object?, Type>(name, targetType));
         }
         else
@@ -257,7 +257,7 @@ public class BaseFluentConfigurator<TConfigurator> : ServiceRegistration
         this.Options ??= new Dictionary<RegistrationOption, object?>();
         if (this.Options.TryGetValue(RegistrationOption.ConditionOptions, out var value) && value is ConditionOptions conditions)
         {
-            conditions.AttributeConditions ??= new ExpandableArray<Type>();
+            conditions.AttributeConditions ??= [];
             conditions.AttributeConditions.Add(attributeType);
         }
         else
@@ -289,7 +289,7 @@ public class BaseFluentConfigurator<TConfigurator> : ServiceRegistration
         this.Options ??= new Dictionary<RegistrationOption, object?>();
         if (this.Options.TryGetValue(RegistrationOption.ConditionOptions, out var value) && value is ConditionOptions conditions)
         {
-            conditions.AttributeInResolutionPathConditions ??= new ExpandableArray<object?, Type>();
+            conditions.AttributeInResolutionPathConditions ??= [];
             conditions.AttributeInResolutionPathConditions.Add(new ReadOnlyKeyValue<object?, Type>(name, attributeType));
         }
         else
@@ -311,7 +311,7 @@ public class BaseFluentConfigurator<TConfigurator> : ServiceRegistration
         this.Options ??= new Dictionary<RegistrationOption, object?>();
         if (this.Options.TryGetValue(RegistrationOption.ConditionOptions, out var value) && value is ConditionOptions conditions)
         {
-            conditions.ResolutionConditions ??= new ExpandableArray<Func<TypeInformation, bool>>();
+            conditions.ResolutionConditions ??= [];
             conditions.ResolutionConditions.Add(resolutionCondition);
         }
         else

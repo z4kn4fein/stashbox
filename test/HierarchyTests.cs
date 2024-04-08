@@ -73,8 +73,7 @@ public class HierarchyTests
         Assert.IsType<Test6>(((Test2)r.Subs[1]).Subs[1]);
     }
 
-    interface ITest
-    { }
+    interface ITest;
 
     class R
     {
@@ -96,19 +95,11 @@ public class HierarchyTests
         public ITest[] Subs { get; set; }
     }
 
-    class Test3 : ITest
-    {
-    }
+    class Test3 : ITest;
 
-    class Test4 : ITest
-    {
-    }
+    class Test4 : ITest;
 
-    class Test5 : ITest
-    {
-    }
+    class Test5 : ITest;
 
-    class Test6 : ITest
-    {
-    }
+    class Test6 : ITest;
 }
