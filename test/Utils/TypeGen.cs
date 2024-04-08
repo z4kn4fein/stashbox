@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Stashbox.Tests.Utils;
 
-public class TypeGen
+public static class TypeGen
 {
     public static (Type, Type) GetCollidingTypes()
     {
