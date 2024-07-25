@@ -80,7 +80,7 @@ public class ContainerConfiguration
     public Action<ContainerConfiguration>? ConfigurationChangedEvent { get; internal set; }
 
     /// <summary>
-    /// A filter delegate used to determine which members should be auto injected and which are not.
+    /// A filter delegate used to determine which members should be auto-injected and which are not.
     /// </summary>
     public Func<MemberInfo, bool>? AutoMemberInjectionFilter { get; internal set; }
 
@@ -99,7 +99,7 @@ public class ContainerConfiguration
     /// <summary>
     /// When it's true, the container checks for generic covariance and contravariance during the resolution of generic type collections.
     /// </summary>
-    public bool VariantGenericTypesEnabled { get; internal set; }
+    public bool VariantGenericTypesEnabled { get; internal set; } = true;
     
     internal object? UniversalName { get; set; }
     
