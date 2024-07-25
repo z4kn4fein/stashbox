@@ -13,7 +13,7 @@ internal class ContainerContext : IContainerContext
         this.ParentContext = parentContext;
         this.RootScope = new ResolutionScope(this);
         this.RegistrationRepository = new RegistrationRepository(containerConfiguration);
-        this.DecoratorRepository = new DecoratorRepository();
+        this.DecoratorRepository = new DecoratorRepository(containerConfiguration);
         this.ResolutionStrategy = resolutionStrategy;
     }
 

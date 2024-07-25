@@ -96,6 +96,11 @@ public class ContainerConfiguration
     /// </summary>
     public bool LifetimeValidationEnabled { get; internal set; }
 
+    /// <summary>
+    /// When it's true, the container checks for generic covariance and contravariance during the resolution of generic type collections.
+    /// </summary>
+    public bool VariantGenericTypesEnabled { get; internal set; }
+    
     internal object? UniversalName { get; set; }
     
     internal ExpandableArray<Type>? AdditionalDependencyNameAttributeTypes { get; set; }
@@ -117,6 +122,7 @@ public class ContainerConfiguration
         bool treatingParameterAndMemberNameAsDependencyNameEnabled,
         bool namedDependencyResolutionForUnNamedRequestsEnabled,
         bool reBuildSingletonsInChildContainerEnabled,
+        bool variantGenericTypesEnabled,
         Rules.AutoMemberInjectionRules autoMemberInjectionRule,
         Func<IEnumerable<ConstructorInfo>, IEnumerable<ConstructorInfo>> constructorSelectionRule,
         Action<UnknownRegistrationConfigurator>? unknownTypeConfigurator,
@@ -137,6 +143,7 @@ public class ContainerConfiguration
         this.TreatingParameterAndMemberNameAsDependencyNameEnabled = treatingParameterAndMemberNameAsDependencyNameEnabled;
         this.NamedDependencyResolutionForUnNamedRequestsEnabled = namedDependencyResolutionForUnNamedRequestsEnabled;
         this.ReBuildSingletonsInChildContainerEnabled = reBuildSingletonsInChildContainerEnabled;
+        this.VariantGenericTypesEnabled = variantGenericTypesEnabled;
         this.AutoMemberInjectionRule = autoMemberInjectionRule;
         this.ConstructorSelectionRule = constructorSelectionRule;
         this.UnknownTypeConfigurator = unknownTypeConfigurator;
@@ -159,6 +166,7 @@ public class ContainerConfiguration
             this.TreatingParameterAndMemberNameAsDependencyNameEnabled,
             this.NamedDependencyResolutionForUnNamedRequestsEnabled,
             this.ReBuildSingletonsInChildContainerEnabled,
+            this.VariantGenericTypesEnabled,
             this.AutoMemberInjectionRule,
             this.ConstructorSelectionRule,
             this.UnknownTypeConfigurator,

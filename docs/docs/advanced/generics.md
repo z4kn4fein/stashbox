@@ -225,3 +225,7 @@ If we request `IEventHandler<IUpdatedEvent>`, only `UpdatedEventHandler` would b
 
 </TabItem>
 </Tabs>
+
+:::info
+The check for variant generic types is enabled by default, but it can be turned off via a [container configuration option](/docs/configuration/container-configuration#generic-variance).
+:::

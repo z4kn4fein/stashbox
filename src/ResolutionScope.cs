@@ -40,7 +40,7 @@ internal sealed partial class ResolutionScope : IResolutionScope
                     var currentTime = (uint)Environment.TickCount;
                     if (MaxWaitTimeInMs <= currentTime - startTime)
                         throw new ResolutionFailedException(serviceType,
-                            $"The service {serviceType} was unavailable after {MaxWaitTimeInMs} ms. " +
+                            message: $"The service {serviceType} was unavailable after {MaxWaitTimeInMs} ms. " +
                             "It's possible that the thread used to construct it crashed by a handled exception." +
                             "This exception is supposed to prevent other caller threads from infinite waiting for service construction.");
                 }

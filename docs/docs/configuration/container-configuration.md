@@ -328,6 +328,22 @@ new StashboxContainer(options => options
 </div>
 </CodeDescPanel>
 
+## Generic variance
+<CodeDescPanel>
+<div>
+
+With this option, you can enable or disable the check for [generic covariance and contravariance](/docs/advanced/generics#variance) during the resolution of generic type collections. _This option is enabled by default_.
+
+</div>
+<div>
+
+```cs
+new StashboxContainer(options => options
+    .WithVariantGenericTypes());
+```
+
+</div>
+</CodeDescPanel>
 
 ## Conventional resolution
 <CodeDescPanel>

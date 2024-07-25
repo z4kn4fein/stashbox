@@ -6,10 +6,11 @@ using Stashbox.Utils.Data.Immutable;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Stashbox.Configuration;
 
 namespace Stashbox.Registration;
 
-internal class DecoratorRepository : IDecoratorRepository
+internal class DecoratorRepository(ContainerConfiguration containerConfiguration) : IDecoratorRepository
 {
     private ImmutableTree<Type, ImmutableBucket<Type, ServiceRegistration>> repository = ImmutableTree<Type, ImmutableBucket<Type, ServiceRegistration>>.Empty;
 
@@ -52,6 +53,9 @@ internal class DecoratorRepository : IDecoratorRepository
         if (openGenerics != null)
             registrations = registrations == null ? openGenerics : openGenerics.Concat(registrations);
 
+        if (!containerConfiguration.VariantGenericTypesEnabled)
+            return registrations;
+        
         var variantGenerics = repository.Walk()
             .Where(r => r.Key.IsGenericType &&
                         r.Key.GetGenericTypeDefinition() == type.GetGenericTypeDefinition() &&

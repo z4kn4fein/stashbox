@@ -170,6 +170,17 @@ public class ContainerConfigurator
         this.ContainerConfiguration.ReBuildSingletonsInChildContainerEnabled = enabled;
         return this;
     }
+    
+    /// <summary>
+    /// Enables or disables the check for generic covariance and contravariance during the resolution of generic type collections.
+    /// </summary>
+    /// <param name="enabled">True when the feature should be enabled, otherwise false.</param>
+    /// <returns>The container configurator.</returns>
+    public ContainerConfigurator WithVariantGenericTypes(bool enabled = true)
+    {
+        this.ContainerConfiguration.VariantGenericTypesEnabled = enabled;
+        return this;
+    }
 
     /// <summary>
     /// Sets an external expression tree compiler used by the container to compile the generated expressions.

@@ -11,10 +11,9 @@ using System.Linq;
 
 namespace Stashbox.Registration;
 
-internal class RegistrationRepository : IRegistrationRepository
+internal class RegistrationRepository(ContainerConfiguration containerConfiguration) : IRegistrationRepository
 {
     private ImmutableTree<Type, ImmutableBucket<ServiceRegistration>> serviceRepository = ImmutableTree<Type, ImmutableBucket<ServiceRegistration>>.Empty;
-    private readonly ContainerConfiguration containerConfiguration;
 
     private readonly IRegistrationSelectionRule[] filters =
     [
@@ -41,11 +40,6 @@ internal class RegistrationRepository : IRegistrationRepository
         RegistrationSelectionRules.ConditionFilter,
         RegistrationSelectionRules.MetadataFilter
     ];
-
-    public RegistrationRepository(ContainerConfiguration containerConfiguration)
-    {
-        this.containerConfiguration = containerConfiguration;
-    }
 
     public bool AddOrUpdateRegistration(ServiceRegistration registration, Type serviceType)
     {
@@ -111,7 +105,7 @@ internal class RegistrationRepository : IRegistrationRepository
             registration,
             serviceType,
             new ImmutableBucket<ServiceRegistration>(registration),
-            this.containerConfiguration.RegistrationBehavior);
+            containerConfiguration.RegistrationBehavior);
     }
 
     public bool AddOrReMapRegistration(ServiceRegistration registration, Type serviceType) =>
@@ -152,6 +146,9 @@ internal class RegistrationRepository : IRegistrationRepository
         if (openGenerics != null)
             registrations = registrations == null ? openGenerics : openGenerics.Concat(registrations);
 
+        if (!containerConfiguration.VariantGenericTypesEnabled)
+            return registrations;
+        
         var variantGenerics = serviceRepository.Walk()
             .Where(r => r.Key.IsGenericType &&
                         r.Key.GetGenericTypeDefinition() == type.GetGenericTypeDefinition() &&

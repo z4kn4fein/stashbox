@@ -2,11 +2,13 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <RootNamespace>Stashbox.Benchmarks</RootNamespace>
     <AssemblyName>Stashbox.Benchmarks</AssemblyName>
     <Configurations>Debug;Release;Benchmark</Configurations>
     <LangVersion>latest</LangVersion>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>../../sn.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Benchmark|AnyCPU'">
@@ -15,12 +17,12 @@
 
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.13.5" />
-    <PackageReference Include="Stashbox" Version="5.9.1" />
+    <PackageReference Include="Stashbox" Version="5.14.1" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
     <Reference Include="Stashbox.Benchmark">
-      <HintPath>..\..\src\bin\Benchmark\net7.0\Stashbox.Benchmark.dll</HintPath>
+      <HintPath>..\..\src\bin\Benchmark\net8.0\Stashbox.Benchmark.dll</HintPath>
       <Aliases>from_project</Aliases>
       <Private>true</Private>
     </Reference>

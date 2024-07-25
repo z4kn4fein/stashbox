@@ -1,5 +1,6 @@
 ﻿extern alias from_nuget;
 extern alias from_project;
+using System.Collections.Generic;
 using BenchmarkDotNet.Attributes;
 
 namespace Stashbox.Benchmarks
@@ -30,13 +31,13 @@ namespace Stashbox.Benchmarks
         [Benchmark(Baseline = true)]
         public object Old()
         {
-            return this.oldContainer.ResolveAll(typeof(IA));
+            return this.oldContainer.Resolve(typeof(IEnumerable<IA>));
         }
 
         [Benchmark]
         public object New()
         {
-            return this.newContainer.ResolveAll(typeof(IA));
+            return this.newContainer.Resolve(typeof(IEnumerable<IA>));
         }
 
         interface IA { }
