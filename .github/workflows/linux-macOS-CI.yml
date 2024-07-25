@@ -19,7 +19,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ macos-latest, ubuntu-latest ]
+        os: [ macos-13, ubuntu-latest ]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4
