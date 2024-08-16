@@ -21,7 +21,7 @@ public class NamedPutInstanceInScope
 
             scope.PutInstanceInScope(a1);
             scope.PutInstanceInScope(a2, name: "a");
-            scope.PutInstanceInScope(a2);
+            scope.PutInstanceInScope(a3);
 
             Assert.Same(a2, scope.Resolve<A>("a"));
         }
@@ -31,7 +31,7 @@ public class NamedPutInstanceInScope
 
             scope.PutInstanceInScope(a1, name: "a1");
             scope.PutInstanceInScope(a2, name: "a2");
-            scope.PutInstanceInScope(a2, name: "a3");
+            scope.PutInstanceInScope(a3, name: "a3");
 
             Assert.Same(a2, scope.Resolve<A>("a2"));
         }

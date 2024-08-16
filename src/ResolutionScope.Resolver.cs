@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Stashbox.Utils.Data;
 
 namespace Stashbox;
 
@@ -176,7 +177,7 @@ internal partial class ResolutionScope
         var scope = new ResolutionScope(this, this.containerContext, this.delegateCacheProvider, name, attachToParent);
 
         if (attachToParent)
-            Swap.SwapValue(ref this.childScopes, (t1, t2, _, _, childStore) =>
+            Swap.SwapValue(ref this.childScopes, (t1, _, _, _, childStore) =>
                     childStore.AddOrSkip(t1),
                 scope, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
 
@@ -190,10 +191,13 @@ internal partial class ResolutionScope
 
         Shield.EnsureNotNull(typeFrom, nameof(typeFrom));
         Shield.EnsureNotNull(instance, nameof(instance));
+        
+        var @override = Override.Of(typeFrom, instance, name);
 
-        var key = name ?? typeFrom;
-        Swap.SwapValue(ref this.lateKnownInstances, (t1, t2, _, _, instances) =>
-            instances.AddOrUpdate(t1, t2, false), key, instance, Constants.DelegatePlaceholder, Constants.DelegatePlaceholder);
+        Swap.SwapValue(ref this.lateKnownInstances, (t1, t2, t3, _, instances) =>
+            instances.AddOrUpdate(t1, t2, false, (o, _) => 
+                o.Add(t3)), typeFrom, new ImmutableBucket<Override>([@override]), 
+            @override, Constants.DelegatePlaceholder);
 
         if (!withoutDisposalTracking && instance is IDisposable disposable)
             this.AddDisposableTracking(disposable);

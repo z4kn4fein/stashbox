@@ -65,12 +65,13 @@ public sealed partial class StashboxContainer : IStashboxContainer
         this.childContainerStore.ChildContainers.Walk();
 
     /// <inheritdoc />
-    public void RegisterResolver(IResolver resolver)
+    public IStashboxContainer RegisterResolver(IResolver resolver)
     {
         this.ThrowIfDisposed();
         Shield.EnsureNotNull(resolver, nameof(resolver));
 
         this.ContainerContext.ResolutionStrategy.RegisterResolver(resolver);
+        return this;
     }
 
     /// <inheritdoc />
@@ -158,7 +159,7 @@ public sealed partial class StashboxContainer : IStashboxContainer
         this.childContainerStore.ChildContainers.GetOrDefaultByValue(identifier);
 
     /// <inheritdoc />
-    public void Configure(Action<ContainerConfigurator> config)
+    public IStashboxContainer Configure(Action<ContainerConfigurator> config)
     {
         this.ThrowIfDisposed();
         Shield.EnsureNotNull(config, "The config parameter cannot be null!");
@@ -168,6 +169,7 @@ public sealed partial class StashboxContainer : IStashboxContainer
             .Invoke(this.containerConfigurator.ContainerConfiguration);
 
         this.ContainerContext.RootScope.InvalidateDelegateCache();
+        return this;
     }
 
     /// <inheritdoc />

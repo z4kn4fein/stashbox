@@ -80,9 +80,16 @@ internal class ResolutionStrategy : IResolutionStrategy
                     resolutionContext.BeginDecoratingContext(typeInformation.Type, decorators), typeInformation, decorators).AsServiceContext();
         }
 
-        var exprOverride = resolutionContext.ExpressionOverrides?.GetOrDefault(typeInformation.DependencyName ?? typeInformation.Type);
+        var exprOverride = resolutionContext.ExpressionOverrides?.GetOrDefault(typeInformation.Type);
         if (exprOverride != null)
-            return exprOverride.AsServiceContext();
+        {
+            var expression = typeInformation.DependencyName != null
+                ? exprOverride.LastOrDefault(e => typeInformation.DependencyName.Equals(e.DependencyName))
+                : exprOverride.LastOrDefault();
+
+            if (expression != null)
+                return expression.Instance.AsConstant().AsServiceContext();
+        }
 
         var registration = resolutionContext.ResolutionBehavior.Has(ResolutionBehavior.Current) 
             ? resolutionContext.CurrentContainerContext.RegistrationRepository
@@ -90,12 +97,13 @@ internal class ResolutionStrategy : IResolutionStrategy
             : null;
 
         var isResolutionCallRequired = registration?.Options.IsOn(RegistrationOption.IsResolutionCallRequired) ?? false;
-        if (typeInformation.IsDependency && registration != null && isResolutionCallRequired)
+        if (isResolutionCallRequired && typeInformation.IsDependency && registration != null)
             return resolutionContext.CurrentScopeParameter
                 .ConvertTo(TypeCache<IDependencyResolver>.Type)
                 .CallMethod(Constants.ResolveMethod, 
                     typeInformation.Type.AsConstant(), typeInformation.DependencyName.AsConstant(),
-                    resolutionContext.ExpressionOverrides?.Walk().Select(c => c.Value).ToArray().AsConstant() ?? TypeCache.EmptyArray<object>().AsConstant(),
+                    resolutionContext.ExpressionOverrides?.Walk().SelectMany(c => 
+                        c.Select(ov => ov)).ToArray().AsConstant() ?? TypeCache.EmptyArray<object>().AsConstant(),
                     resolutionContext.ResolutionBehavior.AsConstant())
                 .ConvertTo(typeInformation.Type)
                 .AsServiceContext(registration);
@@ -177,8 +185,12 @@ internal class ResolutionStrategy : IResolutionStrategy
             this.IsWrappedTypeRegistered(typeInformation, resolutionContext))
             return true;
 
-        var exprOverride = resolutionContext.ExpressionOverrides?.GetOrDefault(typeInformation.DependencyName ?? typeInformation.Type);
-        return exprOverride != null || this.CanLookupService(typeInformation, resolutionContext);
+        var exprOverride = resolutionContext.ExpressionOverrides?.GetOrDefault(typeInformation.Type);
+        if (exprOverride == null) return this.CanLookupService(typeInformation, resolutionContext);
+        if (typeInformation.DependencyName != null)
+            return exprOverride.LastOrDefault(exp => exp.DependencyName == typeInformation.DependencyName) != null;
+
+        return true;
     }
 
     public void RegisterResolver(IResolver resolver) =>

@@ -35,7 +35,7 @@ public sealed class TenantDistributor : ITenantDistributor
     /// <inheritdoc />
     public IEnumerable<ReadOnlyKeyValue<object, IStashboxContainer>> ChildContainers => rootContainer.ChildContainers;
     /// <inheritdoc />
-    public void RegisterResolver(IResolver resolver) => rootContainer.RegisterResolver(resolver);
+    public IStashboxContainer RegisterResolver(IResolver resolver) => rootContainer.RegisterResolver(resolver);
     /// <inheritdoc />
     public IStashboxContainer CreateChildContainer(Action<ContainerConfigurator>? config = null, bool attachToParent = true) => rootContainer.CreateChildContainer(config, attachToParent);
     /// <inheritdoc />
@@ -51,7 +51,7 @@ public sealed class TenantDistributor : ITenantDistributor
     /// <inheritdoc />
     public bool IsRegistered(Type typeFrom, object? name = null) => rootContainer.IsRegistered(typeFrom, name);
     /// <inheritdoc />
-    public void Configure(Action<ContainerConfigurator> config) => rootContainer.Configure(config);
+    public IStashboxContainer Configure(Action<ContainerConfigurator> config) => rootContainer.Configure(config);
     /// <inheritdoc />
     public void Validate() => rootContainer.Validate();
     /// <inheritdoc />

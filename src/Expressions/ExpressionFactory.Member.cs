@@ -53,8 +53,8 @@ internal static partial class ExpressionFactory
         if (!serviceContext.IsEmpty() || resolutionContext.NullResultAllowed) return serviceContext.ServiceExpression;
 
         var memberType = member is PropertyInfo ? "property" : "field";
-        throw new ResolutionFailedException(memberTypeInfo.ParentType, memberTypeInfo.DependencyName,
-            $"Unresolvable {memberType}: ({memberTypeInfo.Type.FullName}){memberTypeInfo.ParameterOrMemberName}.");
+        throw new ResolutionFailedException(memberTypeInfo.ParentType, null,
+            $"Unresolvable {memberType}: ({memberTypeInfo.Type.FullName}){memberTypeInfo.ParameterOrMemberName}{(memberTypeInfo.DependencyName != null ? $" with name '{memberTypeInfo.DependencyName}'" : string.Empty)}.");
 
     }
 }

@@ -34,7 +34,7 @@ public class ResolutionContext
     internal readonly PerRequestConfiguration RequestConfiguration;
     internal readonly Utils.Data.Stack<int> CircularDependencyBarrier;
     internal readonly Tree<Func<IResolutionScope, IRequestContext, object>> FactoryCache;
-    internal readonly HashTree<object, ConstantExpression>? ExpressionOverrides;
+    internal readonly HashTree<Type, ExpandableArray<Override>>? ExpressionOverrides;
     internal readonly ExpandableArray<Expression> SingleInstructions;
     internal readonly Tree<ParameterExpression> DefinedVariables;
     internal readonly ExpandableArray<Pair<bool, ParameterExpression>[]> ParameterExpressions;
@@ -87,7 +87,7 @@ public class ResolutionContext
         bool nullResultAllowed,
         bool isValidationContext,
         object[]? dependencyOverrides,
-        ImmutableTree<object, object>? knownInstances,
+        ImmutableTree<Type, ImmutableBucket<Override>>? knownInstances,
         ParameterExpression[]? initialParameters)
     {
         this.RequestConfiguration = new PerRequestConfiguration();
@@ -132,7 +132,7 @@ public class ResolutionContext
         ParameterExpression requestContextParameter,
         IContainerContext currentContainerContext,
         IContainerContext requestInitiatorContainerContext,
-        HashTree<object, ConstantExpression>? expressionOverrides,
+        HashTree<Type, ExpandableArray<Override>>? expressionOverrides,
         ExpandableArray<Pair<bool, ParameterExpression>[]> parameterExpressions,
         RequestContext requestContext,
         AutoLifetimeTracker? autoLifetimeTracker,
@@ -208,7 +208,7 @@ public class ResolutionContext
         bool isRequestedFromRoot,
         bool nullResultAllowed,
         object[]? dependencyOverrides = null,
-        ImmutableTree<object, object>? knownInstances = null,
+        ImmutableTree<Type, ImmutableBucket<Override>>? knownInstances = null,
         ParameterExpression[]? initialParameters = null) =>
         new(initialScopeNames,
             currentContainerContext,
@@ -277,28 +277,42 @@ public class ResolutionContext
             singleInstructions: new ExpandableArray<Expression>(),
             cachedExpressions: new Tree<Expression>());
     
-    private static HashTree<object, ConstantExpression> ProcessDependencyOverrides(object[]? dependencyOverrides, ImmutableTree<object, object>? knownInstances)
+    private static HashTree<Type, ExpandableArray<Override>> ProcessDependencyOverrides(object[]? dependencyOverrides, ImmutableTree<Type, ImmutableBucket<Override>>? knownInstances)
     {
-        var result = new HashTree<object, ConstantExpression>();
+        var overrides = new HashTree<Type, ExpandableArray<Override>>();
 
         if (knownInstances is { IsEmpty: false })
             foreach (var lateKnownInstance in knownInstances.Walk())
-                result.Add(lateKnownInstance.Key, lateKnownInstance.Value.AsConstant());
+                overrides.Add(lateKnownInstance.Key, new ExpandableArray<Override>(lateKnownInstance.Value.Repository));
 
-        if (dependencyOverrides == null) return result;
+        if (dependencyOverrides == null) return overrides;
 
         foreach (var dependencyOverride in dependencyOverrides)
         {
+            if (dependencyOverride is Override @override)
+            {
+                var arr = overrides.GetOrDefault(@override.Type);
+                if (arr != null) 
+                    arr.Add(@override);
+                else
+                    overrides.Add(@override.Type, [@override]);
+                continue;
+            }
+            
             var type = dependencyOverride.GetType();
-            var expression = dependencyOverride.AsConstant();
-
-            result.Add(type, expression);
-
-            foreach (var baseType in type.GetRegisterableInterfaceTypes().Concat(type.GetRegisterableBaseTypes()))
-                result.Add(baseType, expression);
+            Type[] allTypes = [type, .. type.GetRegisterableInterfaceTypes().Concat(type.GetRegisterableBaseTypes())];
+            foreach (var depType in allTypes)
+            {
+                var expOverride = Override.Of(depType, instance: dependencyOverride);
+                var depOverride = overrides.GetOrDefault(depType);
+                if (depOverride != null) 
+                    depOverride.Add(expOverride);
+                else 
+                    overrides.Add(depType, new ExpandableArray<Override>(new [] {expOverride}));
+            }
         }
 
-        return result;
+        return overrides;
     }
 
     private ResolutionContext Clone(

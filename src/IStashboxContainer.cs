@@ -25,7 +25,8 @@ public interface IStashboxContainer : IDependencyRegistrator, IDependencyResolve
     /// Registers an <see cref="IResolver"/>.
     /// </summary>
     /// <param name="resolver">The resolver implementation.</param>
-    void RegisterResolver(IResolver resolver);
+    /// <returns>The container itself.</returns>
+    IStashboxContainer RegisterResolver(IResolver resolver);
 
     /// <summary>
     /// Creates a child container.
@@ -69,7 +70,8 @@ public interface IStashboxContainer : IDependencyRegistrator, IDependencyResolve
     /// Configures the container.
     /// </summary>
     /// <param name="config">The action delegate which will configure the container.</param>
-    void Configure(Action<ContainerConfigurator> config);
+    /// <returns>The container itself.</returns>
+    IStashboxContainer Configure(Action<ContainerConfigurator> config);
 
     /// <summary>
     /// Validates the current state of the container.

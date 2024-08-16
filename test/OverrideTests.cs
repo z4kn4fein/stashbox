@@ -3,6 +3,7 @@ using Stashbox.Utils;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Stashbox.Exceptions;
 using Xunit;
 
 namespace Stashbox.Tests;
@@ -211,7 +212,7 @@ public class OverrideTests
     }
 
     [Fact]
-    public void OverrideTests_Resolve_DependencyOverride_ShouldntCached()
+    public void OverrideTests_Resolve_DependencyOverride_Should_Not_Cached()
     {
         IStashboxContainer container = new StashboxContainer();
         container.Register<ITest2, Test2>();
@@ -227,6 +228,48 @@ public class OverrideTests
         Assert.NotNull(inst2);
         Assert.IsType<Test2>(inst2);
         Assert.Equal("test2", inst2.Name);
+    }
+    
+    [Fact]
+    public void OverrideTests_Resolve_DependencyOverride_Named()
+    {
+        IStashboxContainer container = new StashboxContainer();
+        container.Register<ITest2, Test2>(c => c.WithDependencyBinding<ITest1>("test"));
+
+        var inst = container.Resolve<ITest2>(dependencyOverrides: 
+        [
+            Override.Of<ITest1>(new Test1 { Name = "test" }, "test"), 
+            Override.Of<ITest1>(new Test1 { Name = "test2" }, "test2")
+        ]);
+
+        Assert.NotNull(inst);
+        Assert.IsType<Test2>(inst);
+        Assert.Equal("test", inst.Name);
+
+        Assert.Throws<ResolutionFailedException>(() =>
+        {
+            container.Resolve<ITest2>(dependencyOverrides: 
+            [
+                Override.Of<ITest1>(new Test1 { Name = "test" }), 
+                Override.Of<ITest1>(new Test1 { Name = "test2" })
+            ]);
+        });
+    }
+    
+    [Fact]
+    public void OverrideTests_Resolve_DependencyOverride_NotNamed()
+    {
+        IStashboxContainer container = new StashboxContainer();
+        container.Register<ITest2, Test2>();
+
+        var inst = container.Resolve<ITest2>(dependencyOverrides: 
+        [
+            Override.Of<ITest1>(new Test1 { Name = "test" })
+        ]);
+
+        Assert.NotNull(inst);
+        Assert.IsType<Test2>(inst);
+        Assert.Equal("test", inst.Name);
     }
 
     [Fact]

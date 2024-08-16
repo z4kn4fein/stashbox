@@ -58,7 +58,7 @@ internal sealed partial class ResolutionScope : IResolutionScope
     private readonly DelegateCacheProvider delegateCacheProvider;
     private readonly ResolutionScope? parentScope;
     private ImmutableTree<ScopedEvaluator> scopedInstances = ImmutableTree<ScopedEvaluator>.Empty;
-    private ImmutableTree<object, object> lateKnownInstances = ImmutableTree<object, object>.Empty;
+    private ImmutableTree<Type, ImmutableBucket<Override>> lateKnownInstances = ImmutableTree<Type, ImmutableBucket<Override>>.Empty;
     private ImmutableRefTree<IResolutionScope> childScopes = ImmutableRefTree<IResolutionScope>.Empty;
 
 
