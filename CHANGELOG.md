@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   var service = container.Resolve<IService>([ Override.Of(instance, "name") ]);
   ```
 - `WithExceptionOverEmptyCollection()` container configuration option to control whether the container should return an empty collection or throw a `ResolutionFailedException` when a non-resolvable service is requested through a collection type.
+### Changed
+- The `.Configure()` and `.RegisterResolver()` methods now return with the actual `IStashboxContainer` to allow a fluent call chain.
 
 ## [v5.15.0] - 2024-07-26
 ### Added
