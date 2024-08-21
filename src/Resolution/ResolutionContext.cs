@@ -239,7 +239,7 @@ public class ResolutionContext
     {
         this.ScopeNames.PushBack(scopeParameter.Key);
         return this.Clone(definedVariables: new Tree<ParameterExpression>(),
-            singleInstructions: new ExpandableArray<Expression>(),
+            singleInstructions: [],
             cachedExpressions: new Tree<Expression>(),
             scopeNames: this.ScopeNames,
             currentScopeParameter: scopeParameter.Value);
@@ -247,7 +247,7 @@ public class ResolutionContext
 
     internal ResolutionContext BeginSubGraph() =>
         this.Clone(definedVariables: new Tree<ParameterExpression>(),
-            singleInstructions: new ExpandableArray<Expression>(),
+            singleInstructions: [],
             cachedExpressions: new Tree<Expression>());
 
     internal ResolutionContext BeginUnknownTypeCheckDisabledContext() =>
@@ -274,7 +274,7 @@ public class ResolutionContext
     internal ResolutionContext BeginAutoLifetimeTrackingContext(AutoLifetimeTracker autoLifetimeTracker) =>
         this.Clone(autoLifetimeTracker: autoLifetimeTracker,
             definedVariables: new Tree<ParameterExpression>(),
-            singleInstructions: new ExpandableArray<Expression>(),
+            singleInstructions: [],
             cachedExpressions: new Tree<Expression>());
     
     private static HashTree<Type, ExpandableArray<Override>> ProcessDependencyOverrides(object[]? dependencyOverrides, ImmutableTree<Type, ImmutableBucket<Override>>? knownInstances)

@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v5.16.0] - 2024-08-21
+### Added
+- [#165](https://github.com/z4kn4fein/stashbox/issues/165): A new `Override` type that provides more control over dependency overrides. Usage:
+  ```cs
+  var service = container.Resolve<IService>([ Override.Of(instance, "name") ]);
+  ```
+- `WithExceptionOverEmptyCollection()` container configuration option to control whether the container should return an empty collection or throw a `ResolutionFailedException` when a non-resolvable service is requested through a collection type.
+
 ## [v5.15.0] - 2024-07-26
 ### Added
 - Option to turn off generic covariance and contravariance check during the resolution of generic type collections.

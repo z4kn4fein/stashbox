@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
+using Stashbox.Exceptions;
 using Stashbox.Utils.Data;
 
 namespace Stashbox.Configuration;
@@ -101,6 +102,11 @@ public class ContainerConfiguration
     /// </summary>
     public bool VariantGenericTypesEnabled { get; internal set; } = true;
     
+    /// <summary>
+    /// When it's true, the container throws a <see cref="ResolutionFailedException"/> when no services are found for a collection resolution request.
+    /// </summary>
+    public bool ExceptionOverEmptyCollectionEnabled { get; internal set; }
+    
     internal object? UniversalName { get; set; }
     
     internal ExpandableArray<Type>? AdditionalDependencyNameAttributeTypes { get; set; }
@@ -123,6 +129,7 @@ public class ContainerConfiguration
         bool namedDependencyResolutionForUnNamedRequestsEnabled,
         bool reBuildSingletonsInChildContainerEnabled,
         bool variantGenericTypesEnabled,
+        bool exceptionOverEmptyCollectionEnabled,
         Rules.AutoMemberInjectionRules autoMemberInjectionRule,
         Func<IEnumerable<ConstructorInfo>, IEnumerable<ConstructorInfo>> constructorSelectionRule,
         Action<UnknownRegistrationConfigurator>? unknownTypeConfigurator,
@@ -144,6 +151,7 @@ public class ContainerConfiguration
         this.NamedDependencyResolutionForUnNamedRequestsEnabled = namedDependencyResolutionForUnNamedRequestsEnabled;
         this.ReBuildSingletonsInChildContainerEnabled = reBuildSingletonsInChildContainerEnabled;
         this.VariantGenericTypesEnabled = variantGenericTypesEnabled;
+        this.ExceptionOverEmptyCollectionEnabled = exceptionOverEmptyCollectionEnabled;
         this.AutoMemberInjectionRule = autoMemberInjectionRule;
         this.ConstructorSelectionRule = constructorSelectionRule;
         this.UnknownTypeConfigurator = unknownTypeConfigurator;
@@ -167,6 +175,7 @@ public class ContainerConfiguration
             this.NamedDependencyResolutionForUnNamedRequestsEnabled,
             this.ReBuildSingletonsInChildContainerEnabled,
             this.VariantGenericTypesEnabled,
+            this.ExceptionOverEmptyCollectionEnabled,
             this.AutoMemberInjectionRule,
             this.ConstructorSelectionRule,
             this.UnknownTypeConfigurator,

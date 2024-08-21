@@ -1,4 +1,5 @@
-﻿using Stashbox.Registration;
+﻿using System;
+using Stashbox.Registration;
 using System.Collections.Generic;
 
 namespace Stashbox.Resolution;
@@ -26,7 +27,7 @@ public interface IResolutionStrategy
     /// Builds all the resolution expressions for the enumerable service request.
     /// </summary>
     /// <param name="resolutionContext">The resolution context.</param>
-    /// <param name="typeInformation">The type info of the requested service.</param>
+    /// <param name="typeInformation">The type information of the enumerable item type.</param>
     /// <returns>The built expression tree.</returns>
     IEnumerable<ServiceContext> BuildExpressionsForEnumerableRequest(ResolutionContext resolutionContext, TypeInformation typeInformation);
 

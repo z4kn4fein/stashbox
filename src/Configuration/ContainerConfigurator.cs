@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using Stashbox.Attributes;
+using Stashbox.Exceptions;
 using Stashbox.Utils.Data;
 
 namespace Stashbox.Configuration;
@@ -179,6 +180,18 @@ public class ContainerConfigurator
     public ContainerConfigurator WithVariantGenericTypes(bool enabled = true)
     {
         this.ContainerConfiguration.VariantGenericTypesEnabled = enabled;
+        return this;
+    }
+
+    /// <summary>
+    /// Enables or disables the throwing of a <see cref="ResolutionFailedException"/> when no services are found for a collection resolution request.
+    /// When this feature is disabled (default), the container returns an empty array for the collection resolution request.
+    /// </summary>
+    /// <param name="enabled">True when the feature should be enabled, otherwise false.</param>
+    /// <returns>The container configurator.</returns>
+    public ContainerConfigurator WithExceptionOverEmptyCollection(bool enabled = true)
+    {
+        this.ContainerConfiguration.ExceptionOverEmptyCollectionEnabled = enabled;
         return this;
     }
 

@@ -45,9 +45,7 @@ internal static class TypeExtensions
         type.Implements(TypeCache<ICompositionRoot>.Type);
 
     public static bool IsResolvableType(this Type type) =>
-        !type.IsAbstract &&
-        !type.IsInterface &&
-        type.IsClass &&
+        type is { IsAbstract: false, IsInterface: false, IsClass: true } &&
         type != TypeCache<string>.Type &&
         type.GetCustomAttribute<CompilerGeneratedAttribute>() == null;
 
@@ -89,16 +87,16 @@ internal static class TypeExtensions
         interfaceType.IsAssignableFrom(type);
 
     private static bool ImplementsGenericType(this Type type, Type genericType) =>
-        MapsToGenericTypeDefinition(type, genericType) ||
-        HasInterfaceThatMapsToGenericTypeDefinition(type, genericType) ||
+        type.MapsToGenericTypeDefinition(genericType) ||
+        type.HasInterfaceThatMapsToGenericTypeDefinition(genericType) ||
         type.BaseType != null && type.BaseType.ImplementsGenericType(genericType);
 
-    private static bool HasInterfaceThatMapsToGenericTypeDefinition(Type type, Type genericType) =>
+    private static bool HasInterfaceThatMapsToGenericTypeDefinition(this Type type, Type genericType) =>
         type.GetInterfaces()
             .Where(it => it.IsGenericType)
             .Any(it => it.GetGenericTypeDefinition() == genericType);
 
-    private static bool MapsToGenericTypeDefinition(Type type, Type genericType) =>
+    public static bool MapsToGenericTypeDefinition(this Type type, Type genericType) =>
         genericType.IsGenericTypeDefinition
         && type.IsGenericType
         && type.GetGenericTypeDefinition() == genericType;
@@ -280,12 +278,12 @@ internal static class TypeExtensions
         return true;
     }
 
-    public static bool HasDependencyNameAttribute(this ParameterInfo parameterInfo, ContainerConfiguration containerConfiguration) =>
+    private static bool HasDependencyNameAttribute(this ParameterInfo parameterInfo, ContainerConfiguration containerConfiguration) =>
         parameterInfo.GetCustomAttributes(TypeCache<DependencyNameAttribute>.Type, false).FirstOrDefault() != null ||
         parameterInfo.CustomAttributes.Any(ca => containerConfiguration.AdditionalDependencyNameAttributeTypes != null && 
                                                  containerConfiguration.AdditionalDependencyNameAttributeTypes.Contains(ca.AttributeType));
 
-    public static bool HasDependencyNameAttribute(this MemberInfo memberInfo, ContainerConfiguration containerConfiguration) =>
+    private static bool HasDependencyNameAttribute(this MemberInfo memberInfo, ContainerConfiguration containerConfiguration) =>
         memberInfo.GetCustomAttributes(TypeCache<DependencyNameAttribute>.Type, false).FirstOrDefault() != null || 
         memberInfo.CustomAttributes.Any(ca => containerConfiguration.AdditionalDependencyNameAttributeTypes != null && 
                                               containerConfiguration.AdditionalDependencyNameAttributeTypes.Contains(ca.AttributeType));

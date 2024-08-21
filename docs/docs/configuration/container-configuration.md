@@ -332,7 +332,9 @@ new StashboxContainer(options => options
 <CodeDescPanel>
 <div>
 
-With this option, you can enable or disable the check for [generic covariance and contravariance](/docs/advanced/generics#variance) during the resolution of generic type collections. _This option is enabled by default_.
+With this option, you can enable or disable the check for [generic covariance and contravariance](/docs/advanced/generics#variance) during the resolution of generic type collections. 
+
+_This option is enabled by default_.
 
 </div>
 <div>
@@ -340,6 +342,23 @@ With this option, you can enable or disable the check for [generic covariance an
 ```cs
 new StashboxContainer(options => options
     .WithVariantGenericTypes());
+```
+
+</div>
+</CodeDescPanel>
+
+## Empty collection handling
+<CodeDescPanel>
+<div>
+
+With this option, you can enable or disable the throwing of a `ResolutionFailedException` when no services are found for a collection resolution request. When this feature is disabled _(default)_, the container returns an empty array for those request.
+
+</div>
+<div>
+
+```cs
+new StashboxContainer(options => options
+    .WithExceptionOverEmptyCollection());
 ```
 
 </div>

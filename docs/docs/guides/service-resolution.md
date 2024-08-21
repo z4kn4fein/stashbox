@@ -635,6 +635,49 @@ object backup = container.Resolve(typeof(DbBackup),
 </div>
 </CodeDescPanel>
 
+<CodeDescPanel>
+<div>
+
+To get more control over your overrides (like giving them name to allow [named resolution](/docs/getting-started/glossary#named-resolution)), you can use the `Override` built-in wrapper.
+
+```cs
+class DbBackup : IJob
+{
+    public DbBackup([Dependency("console")]ILogger logger)
+    { }
+}
+```
+
+</div>
+<div>
+
+<Tabs groupId="generic-runtime-apis">
+<TabItem value="Generic API" label="Generic API">
+
+```cs
+DbBackup backup = container.Resolve<DbBackup>( 
+    dependencyOverrides: new object[] 
+    { 
+        Override.Of<ILogger>(new ConsoleLogger(), "console"), 
+    });
+```
+
+</TabItem>
+<TabItem value="Runtime type API" label="Runtime type API">
+
+```cs
+object backup = container.Resolve(typeof(DbBackup),
+    dependencyOverrides: new object[] 
+    { 
+        Override.Of(typeof(ILogger), new ConsoleLogger(), "console"), 
+    });
+```
+
+</TabItem>
+</Tabs>
+</div>
+</CodeDescPanel>
+
 ## Activation
 
 <CodeDescPanel>

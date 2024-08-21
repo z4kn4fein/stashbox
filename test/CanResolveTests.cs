@@ -1,6 +1,7 @@
 ﻿using Stashbox.Resolution;
 using System;
 using System.Collections.Generic;
+using Stashbox.Exceptions;
 using Xunit;
 
 namespace Stashbox.Tests;
@@ -116,12 +117,27 @@ public class CanResolveTests
         Assert.True(scope.CanResolve<IDependencyResolver>());
         Assert.True(scope.CanResolve<IRequestContext>());
     }
+    
+    [Fact]
+    public void CanResolveTests_WithExceptionOverEmptyCollection()
+    {
+        var container = new StashboxContainer(c => c.WithExceptionOverEmptyCollection()).Register<C>();
 
-    interface IA;
+        Assert.False(container.CanResolve<byte[]>());
+        Assert.Null(container.ResolveOrDefault<C>());
+        var ex = Assert.Throws<ResolutionFailedException>(() => container.Resolve<C>());
+        Assert.Contains("Constructor Void .ctor(Byte[]) found with unresolvable parameter: (System.Byte[])payload.", ex.Message);
+    }
 
-    class A : IA;
+    private interface IA;
 
-    interface IB<T>;
+    private class A : IA;
 
-    class B<T> : IB<T>;
+    private interface IB<T>;
+
+    private class B<T> : IB<T>;
+
+#pragma warning disable CS9113 // Parameter is unread.
+    private class C(byte[] payload);
+#pragma warning restore CS9113 // Parameter is unread.
 }

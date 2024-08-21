@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Stashbox.Resolution;
 
@@ -43,7 +44,7 @@ public interface IEnumerableSupportedResolver : IServiceResolver
     /// Produces an array of expressions, one for every registered service identified by the requested type.
     /// </summary>
     /// <param name="resolutionStrategy">The resolution strategy used to build the underlying resolution expression tree.</param>
-    /// <param name="typeInfo">The information about the type to resolve.</param>
+    /// <param name="typeInfo">The information about the enumerable item type to resolve.</param>
     /// <param name="resolutionContext">The contextual information about the current resolution call.</param>
     /// <returns>The array of all the resolution expression built by the resolver.</returns>
     IEnumerable<ServiceContext> GetExpressionsForEnumerableRequest(

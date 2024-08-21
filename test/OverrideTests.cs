@@ -236,9 +236,9 @@ public class OverrideTests
         IStashboxContainer container = new StashboxContainer();
         container.Register<ITest2, Test2>(c => c.WithDependencyBinding<ITest1>("test"));
 
-        var inst = container.Resolve<ITest2>(dependencyOverrides: 
+        var inst = container.Resolve<ITest2>( 
         [
-            Override.Of<ITest1>(new Test1 { Name = "test" }, "test"), 
+            Override.Of(typeof(ITest1), new Test1 { Name = "test" }, "test"), 
             Override.Of<ITest1>(new Test1 { Name = "test2" }, "test2")
         ]);
 
@@ -248,7 +248,7 @@ public class OverrideTests
 
         Assert.Throws<ResolutionFailedException>(() =>
         {
-            container.Resolve<ITest2>(dependencyOverrides: 
+            container.Resolve<ITest2>(
             [
                 Override.Of<ITest1>(new Test1 { Name = "test" }), 
                 Override.Of<ITest1>(new Test1 { Name = "test2" })
@@ -337,19 +337,19 @@ public class OverrideTests
         Assert.Equal(nameof(Test9), inst.Name);
     }
 
-    interface ITest1 { string Name { get; set; } }
+    private interface ITest1 { string Name { get; set; } }
 
-    interface ITest2 { string Name { get; set; } }
+    private interface ITest2 { string Name { get; set; } }
 
-    interface ITest3 { string Name { get; set; } bool MethodInvoked { get; } }
+    private interface ITest3 { string Name { get; set; } bool MethodInvoked { get; } }
 
-    interface ITest4 { string Name { get; set; } }
+    private interface ITest4 { string Name { get; set; } }
 
-    interface ITest5 { string Name { get; set; } }
+    private interface ITest5 { string Name { get; set; } }
 
-    interface ITest6 { string Name { get; set; } }
+    private interface ITest6 { string Name { get; set; } }
 
-    class Test4 : ITest4
+    private class Test4 : ITest4
     {
         public string Name { get; set; }
 
@@ -359,12 +359,12 @@ public class OverrideTests
         }
     }
 
-    class Test5 : ITest5
+    private class Test5 : ITest5
     {
         public string Name { get; set; }
     }
 
-    class Test6 : ITest6
+    private class Test6 : ITest6
     {
         public string Name { get; set; }
 
@@ -374,12 +374,12 @@ public class OverrideTests
         }
     }
 
-    class Test1 : ITest1
+    private class Test1 : ITest1
     {
         public string Name { get; set; }
     }
 
-    class Test2 : ITest2
+    private class Test2 : ITest2
     {
         public string Name { get; set; }
 
@@ -389,7 +389,7 @@ public class OverrideTests
         }
     }
 
-    class Test3 : ITest3
+    private class Test3 : ITest3
     {
         public string Name { get; set; }
 
@@ -409,7 +409,7 @@ public class OverrideTests
         }
     }
 
-    class Test7
+    private class Test7
     {
         public string Name { get; set; }
 
@@ -419,7 +419,7 @@ public class OverrideTests
         }
     }
 
-    class Test8
+    private class Test8
     {
         public string Name { get; set; }
 
@@ -429,7 +429,7 @@ public class OverrideTests
         }
     }
 
-    class Test9
+    private class Test9
     {
         public string Name { get; set; }
 
