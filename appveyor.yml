@@ -22,6 +22,7 @@ install:
     dotnet tool install -g InheritDocTool
     
     Invoke-WebRequest 'https://dot.net/v1/dotnet-install.ps1' -OutFile dotnet-install.ps1
+    ./dotnet-install.ps1 -Channel 5.0
     ./dotnet-install.ps1 -Channel 7.0
     ./dotnet-install.ps1 -Channel 8.0
 
