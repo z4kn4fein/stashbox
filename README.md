@@ -1,6 +1,7 @@
 # Stashbox
 [![Appveyor Build Status](https://img.shields.io/appveyor/build/pcsajtai/stashbox?logo=appveyor&logoColor=white)](https://ci.appveyor.com/project/pcsajtai/stashbox/branch/master) 
-[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/z4kn4fein/stashbox/linux-macOS-CI.yml?logo=GitHub&branch=master)](https://github.com/z4kn4fein/stashbox/actions/workflows/linux-macOS-CI.yml) 
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/z4kn4fein/stashbox/linux-macOS-CI.yml?logo=GitHub&branch=master)](https://github.com/z4kn4fein/stashbox/actions/workflows/linux-macOS-CI.yml)
+[![NuGet Downloads](https://img.shields.io/nuget/dt/Stashbox?label=nuget)](https://www.nuget.org/packages/Stashbox)
 [![Sonar Tests](https://img.shields.io/sonar/tests/z4kn4fein_stashbox?compact_message&logo=sonarcloud&server=https%3A%2F%2Fsonarcloud.io)](https://sonarcloud.io/project/overview?id=z4kn4fein_stashbox) 
 [![Sonar Coverage](https://img.shields.io/sonar/coverage/z4kn4fein_stashbox?logo=SonarCloud&server=https%3A%2F%2Fsonarcloud.io)](https://sonarcloud.io/project/overview?id=z4kn4fein_stashbox) 
 [![Sonar Quality Gate](https://img.shields.io/sonar/quality_gate/z4kn4fein_stashbox?logo=sonarcloud&server=https%3A%2F%2Fsonarcloud.io)](https://sonarcloud.io/project/overview?id=z4kn4fein_stashbox) 
@@ -12,9 +13,9 @@ Stashbox is a lightweight, fast, and portable dependency injection framework for
 - [Release notes](https://github.com/z4kn4fein/stashbox/blob/master/CHANGELOG.md)
 - [ASP.NET Core sample](https://github.com/z4kn4fein/stashbox-extensions-dependencyinjection/tree/master/sample)
 
-Github (stable) | NuGet (stable) | Fuget (stable)                                                                                                                  | NuGet (pre-release)
---- | --- |---------------------------------------------------------------------------------------------------------------------------------| ---
-[![Github release](https://img.shields.io/github/release/z4kn4fein/stashbox.svg)](https://github.com/z4kn4fein/stashbox/releases) | [![NuGet Version](https://buildstats.info/nuget/Stashbox)](https://www.nuget.org/packages/Stashbox/) | [![Stashbox on fuget.org](https://www.fuget.org/packages/Stashbox/badge.svg?v=5.16.0)](https://www.fuget.org/packages/Stashbox) | [![Nuget pre-release](https://img.shields.io/nuget/vpre/Stashbox)](https://www.nuget.org/packages/Stashbox/)
+Github (stable) | NuGet (stable) | NuGet (pre-release)
+--- | --- | ---
+[![Github release](https://img.shields.io/github/release/z4kn4fein/stashbox.svg)](https://github.com/z4kn4fein/stashbox/releases) | [![NuGet Version](https://img.shields.io/nuget/v/Stashbox)](https://www.nuget.org/packages/Stashbox) | [![Nuget pre-release](https://img.shields.io/nuget/vpre/Stashbox)](https://www.nuget.org/packages/Stashbox/)
 
 ## Core Attributes
  - 🚀 Fast, thread-safe, and lock-free operations.
