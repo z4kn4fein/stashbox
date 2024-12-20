@@ -96,10 +96,10 @@ foreach (var child in container.ChildContainers)
 You can control which level of the container hierarchy can participate in the service resolution with the `ResolutionBehavior` parameter. 
 
 Possible values:
-- `Default`: The default behavior, it's used when the parameter is not specified. Its value is `Parent | Current`, so the parents and the current container (which initiated the resolution request) can participate in the resolution request's service selection.
-- `Parent`: Indicates that parent containers (including indirect all ancestors) can participate in the resolution request's service selection.
+- `Default`: The default behavior, it's used when the parameter is not specified. Its value is `Parent | Current`, so both the current container (which initiated the resolution request) and its parents can participate in the resolution request's service selection.
+- `Parent`: Indicates that parent containers (including all indirect ancestors) can participate in the resolution request's service selection.
 - `Current`: Indicates that the current container (which initiated the resolution request) can participate in the service selection.
-- `ParentDependency`: Indicates that parent containers (including indirect all ancestors) can only provide dependencies for services that are already selected for resolution.
+- `ParentDependency`: Indicates that parent containers (including all indirect ancestors) can only provide dependencies for services that are already selected for resolution.
 - `PreferEnumerableInCurrent`: Upon enumerable resolution, services from the current container (which initiated the resolution request) are preferred, ignoring services from parent containers.
 
 ```csharp

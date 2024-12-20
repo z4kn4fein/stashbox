@@ -71,14 +71,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [v5.10.1] - 2023-06-09
 ### Added
-- `ParentDependency` flag for `ResolutionBehavior`. It indicates that parent containers (including indirect all ancestors) can only provide dependencies for services that are already selected for resolution.
+- `ParentDependency` flag for `ResolutionBehavior`. It indicates that parent containers (including all indirect ancestors) can only provide dependencies for services that are already selected for resolution.
 ### Fixed
 - During factory resolution, the type map check failed for registrations like: `.Register<IService>(c => c.WithFactory(/* ... */).AsServiceAlso<IAnother>())`. Now, the container gets the implementation type from the generic context where it's possible.
 
 ## [v5.10.0] - 2023-06-04
 ### Changed
 - Each `Resolve()` method now accepts a `ResolutionBehavior` flag parameter. It determines which level of the container hierarchy can take part in the service resolution. Possible values:
-  - `Parent`: Indicates that parent containers (including indirect all ancestors) can participate in the resolution request's service selection.
+  - `Parent`: Indicates that parent containers (including all indirect ancestors) can participate in the resolution request's service selection.
   - `Current`: Indicates that the current container (which initiated the resolution request) can participate in the service selection.
   - `Default`: The default behavior, it's used when the parameter is not specified. Its value is `Parent | Current`, so the parents and the current (which initiated the resolution request) container can participate in the resolution request's service selection.
 - `CreateChildContainer()` now accepts an `attachToParent` boolean parameter, which indicates whether the parent container's disposal should also dispose the child. It defaults to `true`.
