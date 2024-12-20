@@ -30,7 +30,7 @@ public enum ResolutionBehavior
     ParentDependency = 1 << 2,
     
     /// <summary>
-    /// Upon enumerable resolution, services from the current (which initiated the resolution request) container are preferred, ignoring services from parent containers.
+    /// Upon enumerable resolution, services from the current container (which initiated the resolution request) are preferred, ignoring services from parent containers.
     /// </summary>
     PreferEnumerableInCurrent = 1 << 3,
 }
