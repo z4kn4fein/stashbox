@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace Stashbox.Resolution;
 
@@ -30,7 +29,7 @@ public enum ResolutionBehavior
     ParentDependency = 1 << 2,
     
     /// <summary>
-    /// Upon enumerable resolution, services from the current container (which initiated the resolution request) are preferred, ignoring services from parent containers.
+    /// Upon enumerable resolution, when both <see cref="Current"/> and <see cref="Parent"/> behaviors are enabled, and the current container has the appropriate services, the resolution will prefer those and ignore the parent containers. When the current container doesn't have the requested services, the parent containers will serve the request.
     /// </summary>
     PreferEnumerableInCurrent = 1 << 3,
 }

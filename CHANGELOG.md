@@ -6,7 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [v5.17.0] - 2024-12-20
 ### Added
-- `PreferEnumerableInCurrent` option to `ResolutionBehavior` enum. When this option is used upon enumerable resolution, services from the current container (which initiated the resolution request) are preferred, ignoring services from parent containers.
+- `PreferEnumerableInCurrent` option to `ResolutionBehavior` enum. When this option is used upon enumerable resolution the following applies:
+  - When both `Current` and `Parent` behaviors are enabled, and the current container has the appropriate services, the resolution will prefer those and ignore the parent containers. When the current container doesn't have the requested services, the parent containers will serve the request.
 ### Changed
 - Enumerable resolution requests across child-parent containers resulted in the wrong order. Now, the resulting collection contains the parent services first and the child services at the end of the collection.
 
