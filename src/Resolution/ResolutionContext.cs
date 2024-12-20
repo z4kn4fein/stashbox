@@ -51,6 +51,11 @@ public class ResolutionContext
     internal readonly AutoLifetimeTracker? AutoLifetimeTracking;
 
     /// <summary>
+    /// True if the resolution is currently in the parent context.
+    /// </summary>
+    public readonly bool IsInParentContext;
+    
+    /// <summary>
     /// True if null result is allowed, otherwise false.
     /// </summary>
     public readonly bool NullResultAllowed;
@@ -174,6 +179,7 @@ public class ResolutionContext
         this.ResolutionBehavior = resolutionBehavior;
         this.RequestInitiatorResolutionBehavior = requestInitiatorResolutionBehavior;
         this.AutoLifetimeTracking = autoLifetimeTracker;
+        this.IsInParentContext = requestInitiatorContainerContext != currentContainerContext;
     }
 
     /// <summary>

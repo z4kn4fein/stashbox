@@ -12,7 +12,7 @@ Stashbox and its extensions are distributed via [NuGet](https://www.nuget.org/pa
 
 You can install the package by typing the following into the Package Manager Console:
 ```powershell
-Install-Package Stashbox -Version 5.16.0
+Install-Package Stashbox -Version 5.17.0
 ```
 
 </TabItem>
@@ -20,7 +20,7 @@ Install-Package Stashbox -Version 5.16.0
 
 You can install the package by using the dotnet cli:
 ```bash
-dotnet add package Stashbox --version 5.16.0
+dotnet add package Stashbox --version 5.17.0
 ```
 
 </TabItem>
@@ -28,7 +28,7 @@ dotnet add package Stashbox --version 5.16.0
 
 You can add the package into the package references of your `.csproj`:
 ```xml
-<PackageReference Include="Stashbox" Version="5.16.0" />
+<PackageReference Include="Stashbox" Version="5.17.0" />
 ```
 
 </TabItem>

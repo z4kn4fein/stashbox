@@ -327,6 +327,49 @@ public class ChildContainerTests
     
     [Theory]
     [ClassData(typeof(CompilerTypeTestData))]
+    public void ChildContainerTests_Resolve_PreferCurrent_Enumerable_Select_Dependency(CompilerType compilerType)
+    {
+        using var container = new StashboxContainer(c => c.WithCompiler(compilerType))
+            .Register<IT, T1>().Register<IT, T2>().Register<IT2, T11>().Register<IT2, T12>()
+            .Register<D2>(c => c.WithInitializer((d, _) => d.Init("parent")))
+            .Register<D2_2>(c => c.WithInitializer((d, _) => d.Init("parent2")));
+        var child = container.CreateChildContainer()
+            .Register<IT, T3>().Register<IT, T4>()
+            .Register<D2>(c => c.WithInitializer((d, _) => d.Init("child")))
+            .Register<D2_2>(c => c.WithInitializer((d, _) => d.Init("child2")));
+
+        var inst = child.Resolve<D2>(ResolutionBehavior.Default | ResolutionBehavior.PreferEnumerableInCurrent);
+        Assert.Equal(2, inst.Dep.Count());
+        Assert.Equal("child", inst.ID);
+        Assert.IsType<T3>(inst.Dep.ElementAt(0));
+        Assert.IsType<T4>(inst.Dep.ElementAt(1));
+        
+        var inst2 = child.Resolve<D2_2>(ResolutionBehavior.Default | ResolutionBehavior.PreferEnumerableInCurrent);
+        Assert.Equal(2, inst2.Dep.Count());
+        Assert.Equal("child2", inst2.ID);
+        Assert.IsType<T11>(inst2.Dep.ElementAt(0));
+        Assert.IsType<T12>(inst2.Dep.ElementAt(1));
+
+        child.Register<IT2, T13>();
+        
+        inst2 = child.Resolve<D2_2>(ResolutionBehavior.Default | ResolutionBehavior.PreferEnumerableInCurrent);
+        Assert.Single(inst2.Dep);
+        Assert.Equal("child2", inst2.ID);
+        Assert.IsType<T13>(inst2.Dep.ElementAt(0));
+
+        var child2 = child.CreateChildContainer();
+        child2.Register<D2_2>(c => c.WithInitializer((d, _) => d.Init("child3")));
+        
+        inst2 = child2.Resolve<D2_2>(ResolutionBehavior.Default | ResolutionBehavior.PreferEnumerableInCurrent);
+        Assert.Equal(3, inst2.Dep.Count());
+        Assert.Equal("child3", inst2.ID);
+        Assert.IsType<T11>(inst2.Dep.ElementAt(0));
+        Assert.IsType<T12>(inst2.Dep.ElementAt(1));
+        Assert.IsType<T13>(inst2.Dep.ElementAt(2));
+    }
+    
+    [Theory]
+    [ClassData(typeof(CompilerTypeTestData))]
     public void ChildContainerTests_Resolve_Parent_Decorator_Dependency(CompilerType compilerType)
     {
         using var container = new StashboxContainer(c => c.WithCompiler(compilerType))
@@ -588,12 +631,17 @@ public class ChildContainerTests
 #endif
 
     interface IT;
+    interface IT2;
     
     class T1 : IT;
     class T2 : IT;
     class T3 : IT;
     class T4 : IT;
 
+    class T11 : IT2;
+    class T12 : IT2;
+    class T13 : IT2;
+    
     class T5 : IT
     {
         public IEnumerable<IT> Dep { get; }
@@ -621,6 +669,14 @@ public class ChildContainerTests
         public string ID { get; private set; }
         public IEnumerable<IT> Dep { get; }
         public D2(IEnumerable<IT> Dep) { this.Dep = Dep; }
+        public void Init(string id) => ID = id;
+    }
+    
+    class D2_2
+    {
+        public string ID { get; private set; }
+        public IEnumerable<IT2> Dep { get; }
+        public D2_2(IEnumerable<IT2> Dep) { this.Dep = Dep; }
         public void Init(string id) => ID = id;
     }
 

@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v5.17.0] - 2024-12-20
+### Added
+- `PreferEnumerableInCurrent` option to `ResolutionBehavior` enum. When this option is used upon enumerable resolution, services from the current (which initiated the resolution request) container are preferred, ignoring services from parent containers.
+### Changed
+- Enumerable resolution requests across child-parent containers resulted in the wrong order. Now, the resulting collection contains the parent services first and the child services at the end of the collection.
+
 ## [v5.16.0] - 2024-08-21
 ### Added
 - [#165](https://github.com/z4kn4fein/stashbox/issues/165): A new `Override` type that provides more control over dependency overrides. Usage:
@@ -432,6 +438,7 @@ The validation was executed only at the expression tree building phase, so an al
 - Removed the legacy container extension functionality.
 - Removed the support of PCL v259.
 
+[v5.17.0]: https://github.com/z4kn4fein/stashbox/compare/5.16.0...5.17.0
 [v5.16.0]: https://github.com/z4kn4fein/stashbox/compare/5.15.0...5.16.0
 [v5.15.0]: https://github.com/z4kn4fein/stashbox/compare/5.14.1...5.15.0
 [v5.14.1]: https://github.com/z4kn4fein/stashbox/compare/5.14.0...5.14.1

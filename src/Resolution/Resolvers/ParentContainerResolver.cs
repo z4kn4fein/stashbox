@@ -26,7 +26,7 @@ internal class ParentContainerResolver : IEnumerableSupportedResolver, ILookup
 
     public bool CanLookupService(TypeInformation typeInfo, ResolutionContext resolutionContext)
     {
-        if (resolutionContext.CurrentContainerContext.ParentContext == null || !resolutionContext.ResolutionBehavior.Has(ResolutionBehavior.Parent))
+        if (resolutionContext.CurrentContainerContext.ParentContext == null || !this.CanUseForResolution(typeInfo, resolutionContext))
             return false;
 
         return resolutionContext.CurrentContainerContext.ResolutionStrategy.IsTypeResolvable(resolutionContext.BeginParentContainerContext(resolutionContext

@@ -100,6 +100,7 @@ Possible values:
 - `Parent`: Indicates that parent containers (including indirect all ancestors) can participate in the resolution request's service selection.
 - `Current`: Indicates that the current container (which initiated the resolution request) can participate in the service selection.
 - `ParentDependency`: Indicates that parent containers (including indirect all ancestors) can only provide dependencies for services that are already selected for resolution.
+- `PreferEnumerableInCurrent`: Upon enumerable resolution, services from the current container (which initiated the resolution request) are preferred, ignoring services from parent containers.
 
 ```csharp
 interface IService {}

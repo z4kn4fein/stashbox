@@ -28,4 +28,9 @@ public enum ResolutionBehavior
     /// Indicates that parent containers (including indirect all ancestors) can only provide dependencies for services that are already selected for resolution.
     /// </summary>
     ParentDependency = 1 << 2,
+    
+    /// <summary>
+    /// Upon enumerable resolution, services from the current (which initiated the resolution request) container are preferred, ignoring services from parent containers.
+    /// </summary>
+    PreferEnumerableInCurrent = 1 << 3,
 }

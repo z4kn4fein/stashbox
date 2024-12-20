@@ -139,12 +139,16 @@ internal class ResolutionStrategy : IResolutionStrategy
                 typeInformation, decorators).AsServiceContext(registration);
         });
 
+        if (resolutionContext.ResolutionBehavior.Has(ResolutionBehavior.PreferEnumerableInCurrent) &&
+            !resolutionContext.IsInParentContext)
+            return expressions;
+        
         if (!this.parentContainerResolver.CanUseForResolution(typeInformation, resolutionContext)) return expressions;
 
         var parentRegistrations =
             this.parentContainerResolver.GetExpressionsForEnumerableRequest(this, typeInformation,
                 resolutionContext);
-        return expressions.Concat(parentRegistrations);
+        return parentRegistrations.Concat(expressions);
     }
 
     public ServiceContext BuildExpressionForRegistration(ServiceRegistration serviceRegistration,
