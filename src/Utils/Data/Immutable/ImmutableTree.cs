@@ -401,7 +401,6 @@ internal sealed class ImmutableTree<TKey, TValue>
             return ReferenceEquals(newValue, this.storedValue)
                 ? this
                 : new ImmutableTree<TKey, TValue>(hash, key, newValue, this.leftNode!, this.rightNode!, this.collisions!);
-
         }
 
         if (this.collisions == null)

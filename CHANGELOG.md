@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v5.17.1] - 2025-02-18
+### Fixed
+- [#183](https://github.com/z4kn4fein/stashbox/issues/183): `ResolveAll()` fails when service type hash collision.
+
+
 ## [v5.17.0] - 2024-12-20
 ### Added
 - `PreferEnumerableInCurrent` option to `ResolutionBehavior` enum. When this option is used upon enumerable resolution the following applies:
@@ -439,6 +444,7 @@ The validation was executed only at the expression tree building phase, so an al
 - Removed the legacy container extension functionality.
 - Removed the support of PCL v259.
 
+[v5.17.1]: https://github.com/z4kn4fein/stashbox/compare/5.17.0...5.17.1
 [v5.17.0]: https://github.com/z4kn4fein/stashbox/compare/5.16.0...5.17.0
 [v5.16.0]: https://github.com/z4kn4fein/stashbox/compare/5.15.0...5.16.0
 [v5.15.0]: https://github.com/z4kn4fein/stashbox/compare/5.14.1...5.15.0
