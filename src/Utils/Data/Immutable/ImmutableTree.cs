@@ -408,11 +408,12 @@ internal sealed class ImmutableTree<TKey, TValue>
             return new ImmutableTree<TKey, TValue>(hash, this.storedKey!, this.storedValue!, this.leftNode!, this.rightNode!,
                 ImmutableBucket<TKey, TValue>.Empty.Add(key, value));
 
-        var @new = updateDelegate == null || forceUpdate
+        var collision = byRef ? this.collisions.GetOrDefaultByRef(key) : this.collisions.GetOrDefaultByValue(key);
+        var @new = collision == null || updateDelegate == null || forceUpdate
             ? value
-            : updateDelegate(this.storedValue!, value);
+            : updateDelegate(collision, value);
 
-        if (ReferenceEquals(@new, this.storedValue))
+        if (ReferenceEquals(@new, collision))
             return this;
 
         return new ImmutableTree<TKey, TValue>(hash, this.storedKey!, this.storedValue!, this.leftNode!, this.rightNode!,
