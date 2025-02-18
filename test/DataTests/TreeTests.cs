@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Stashbox.Tests.Utils;
 using Stashbox.Utils.Data;
 using Stashbox.Utils.Data.Immutable;
@@ -17,38 +18,38 @@ public class TreeTests
         var a = new A();
         var b = new B();
         var c = new C();
-        var imTree = ImmutableTree<object, object>.Empty;
-        var tree = new HashTree<object, object>();
+        var imTree = ImmutableTree<object, List<object>>.Empty;
+        var tree = new HashTree<object, List<object>>();
 
-        imTree = imTree.AddOrUpdate(key1, a, false);
-        imTree = imTree.AddOrUpdate(key2, b, false);
-        tree.Add(key1, a);
-        tree.Add(key2, b);
+        imTree = imTree.AddOrUpdate(key1, [a], false);
+        imTree = imTree.AddOrUpdate(key2, [b], false);
+        tree.Add(key1, [a]);
+        tree.Add(key2, [b]);
         
-        Assert.Equal(a, imTree.GetOrDefaultByValue(key1));
-        Assert.Equal(b, imTree.GetOrDefaultByValue(key2));
-        Assert.Equal(a, tree.GetOrDefault(key1));
-        Assert.Equal(b, tree.GetOrDefault(key2));
+        Assert.Equal([a], imTree.GetOrDefaultByValue(key1));
+        Assert.Equal([b], imTree.GetOrDefaultByValue(key2));
+        Assert.Equal([a], tree.GetOrDefault(key1));
+        Assert.Equal([b], tree.GetOrDefault(key2));
 
-        imTree = imTree.AddOrUpdate(key2, c, false, (_, n) => n);
+        imTree = imTree.AddOrUpdate(key2, [c], false, (list, n) => [..list, ..n]);
         
-        Assert.Equal(a, imTree.GetOrDefaultByValue(key1));
-        Assert.Equal(c, imTree.GetOrDefaultByValue(key2));
+        Assert.Equal([a], imTree.GetOrDefaultByValue(key1));
+        Assert.Equal([b, c], imTree.GetOrDefaultByValue(key2));
 
-        imTree = imTree.AddOrUpdate(key2, b, false, true);
+        imTree = imTree.AddOrUpdate(key2, [b], false, true);
         
-        Assert.Equal(a, imTree.GetOrDefaultByValue(key1));
-        Assert.Equal(b, imTree.GetOrDefaultByValue(key2));
+        Assert.Equal([a], imTree.GetOrDefaultByValue(key1));
+        Assert.Equal([b], imTree.GetOrDefaultByValue(key2));
         
-        imTree = imTree.UpdateIfExists(key2, false, _ => c);
+        imTree = imTree.UpdateIfExists(key2, false, list => [..list, c]);
         
-        Assert.Equal(a, imTree.GetOrDefaultByValue(key1));
-        Assert.Equal(c, imTree.GetOrDefaultByValue(key2));
+        Assert.Equal([a], imTree.GetOrDefaultByValue(key1));
+        Assert.Equal([b, c], imTree.GetOrDefaultByValue(key2));
         
-        imTree = imTree.UpdateIfExists(key2, b, false);
+        imTree = imTree.UpdateIfExists(key2, [b], false);
         
-        Assert.Equal(a, imTree.GetOrDefaultByValue(key1));
-        Assert.Equal(b, imTree.GetOrDefaultByValue(key2));
+        Assert.Equal([a], imTree.GetOrDefaultByValue(key1));
+        Assert.Equal([b], imTree.GetOrDefaultByValue(key2));
     }
     
     [Fact]
@@ -59,38 +60,38 @@ public class TreeTests
         var a = new A();
         var b = new B();
         var c = new C();
-        var imTree = ImmutableTree<Type, object>.Empty;
-        var tree = new HashTree<Type, object>();
+        var imTree = ImmutableTree<Type, List<object>>.Empty;
+        var tree = new HashTree<Type, List<object>>();
 
-        imTree = imTree.AddOrUpdate(key1, a, true);
-        imTree = imTree.AddOrUpdate(key2, b, true);
-        tree.Add(key1, a);
-        tree.Add(key2, b);
+        imTree = imTree.AddOrUpdate(key1, [a], true);
+        imTree = imTree.AddOrUpdate(key2, [b], true);
+        tree.Add(key1, [a]);
+        tree.Add(key2, [b]);
         
-        Assert.Equal(a, imTree.GetOrDefaultByRef(key1));
-        Assert.Equal(b, imTree.GetOrDefaultByRef(key2));
-        Assert.Equal(a, tree.GetOrDefault(key1));
-        Assert.Equal(b, tree.GetOrDefault(key2));
+        Assert.Equal([a], imTree.GetOrDefaultByRef(key1));
+        Assert.Equal([b], imTree.GetOrDefaultByRef(key2));
+        Assert.Equal([a], tree.GetOrDefault(key1));
+        Assert.Equal([b], tree.GetOrDefault(key2));
 
-        imTree = imTree.AddOrUpdate(key2, c, true, (_, n) => n);
+        imTree = imTree.AddOrUpdate(key2, [c], true, (list, n) => [..list, ..n]);
         
-        Assert.Equal(a, imTree.GetOrDefaultByRef(key1));
-        Assert.Equal(c, imTree.GetOrDefaultByRef(key2));
+        Assert.Equal([a], imTree.GetOrDefaultByRef(key1));
+        Assert.Equal([b, c], imTree.GetOrDefaultByRef(key2));
 
-        imTree = imTree.AddOrUpdate(key2, b, true, true);
+        imTree = imTree.AddOrUpdate(key2, [b], true, true);
         
-        Assert.Equal(a, imTree.GetOrDefaultByRef(key1));
-        Assert.Equal(b, imTree.GetOrDefaultByRef(key2));
+        Assert.Equal([a], imTree.GetOrDefaultByRef(key1));
+        Assert.Equal([b], imTree.GetOrDefaultByRef(key2));
         
-        imTree = imTree.UpdateIfExists(key2, true, _ => c);
+        imTree = imTree.UpdateIfExists(key2, true, list => [..list, c]);
         
-        Assert.Equal(a, imTree.GetOrDefaultByRef(key1));
-        Assert.Equal(c, imTree.GetOrDefaultByRef(key2));
+        Assert.Equal([a], imTree.GetOrDefaultByRef(key1));
+        Assert.Equal([b, c], imTree.GetOrDefaultByRef(key2));
         
-        imTree = imTree.UpdateIfExists(key2, b, true);
+        imTree = imTree.UpdateIfExists(key2, [b], true);
         
-        Assert.Equal(a, imTree.GetOrDefaultByRef(key1));
-        Assert.Equal(b, imTree.GetOrDefaultByRef(key2));
+        Assert.Equal([a], imTree.GetOrDefaultByRef(key1));
+        Assert.Equal([b], imTree.GetOrDefaultByRef(key2));
     }
     
     [Fact]
