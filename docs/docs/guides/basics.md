@@ -257,7 +257,7 @@ When there are multiple registrations mapped to a [service type](/docs/getting-s
 
 ```cs
 container.Register<IJob, DbBackup>();
-container.ReMap<IJob, StorageCleanup>();
+container.Register<IJob, StorageCleanup>();
 // jobs contain all two jobs
 IEnumerable<IJob> jobs = container.ResolveAll<IJob>();
 
