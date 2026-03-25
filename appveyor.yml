@@ -19,10 +19,8 @@ install:
 - ps: |
     $env:build_version = Get-Content ".version"
     Update-AppveyorBuild -Version "$env:build_version-preview-$env:appveyor_build_number"
-    dotnet tool install -g InheritDocTool
     
     Invoke-WebRequest 'https://dot.net/v1/dotnet-install.ps1' -OutFile dotnet-install.ps1
-    ./dotnet-install.ps1 -Channel 3.1.0
     ./dotnet-install.ps1 -Channel 8.0
     ./dotnet-install.ps1 -Channel 9.0
     ./dotnet-install.ps1 -Channel 10.0
@@ -43,7 +41,6 @@ build_script:
 - dotnet build -c %configuration% /p:ContinuousIntegrationBuild=true stashbox.sln
 
 after_build:
-- inheritdoc -o
 - dotnet pack -c %configuration% /p:IncludeSymbols=true /p:PackageOutputPath=..\artifacts src\stashbox.csproj
 
 test_script:

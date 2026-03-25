@@ -53,7 +53,6 @@ test_script:
 - dotnet test test\stashbox.tests.csproj -f net8.0 -c %configuration% --no-build
 
 after_build:
-- inheritdoc -o
 - dotnet pack -c %configuration% /p:IncludeSymbols=true /p:PackageOutputPath=..\artifacts src\stashbox.csproj
 
 artifacts:
