@@ -12,8 +12,6 @@ namespace Stashbox.Lifetime;
 /// </summary>
 public abstract class LifetimeDescriptor
 {
-    internal virtual bool StoreResultInLocalVariable => false;
-
     /// <summary>
     /// An indicator used to validate the lifetime configuration of the resolution tree.
     /// Services with longer life-span shouldn't contain dependencies with shorter ones.
@@ -54,24 +52,7 @@ public abstract class LifetimeDescriptor
             resolutionContext.AutoLifetimeTracking.HighestRankingLifetime = this;
         }
 
-        if (!this.StoreResultInLocalVariable)
-            return this.BuildLifetimeAppliedExpression(serviceRegistration, resolutionContext, typeInformation);
-
-        var variable = resolutionContext.DefinedVariables.GetOrDefault(serviceRegistration.RegistrationId);
-        if (variable != null)
-            return variable;
-
-        var resultExpression = this.BuildLifetimeAppliedExpression(serviceRegistration, resolutionContext, typeInformation);
-        if (resultExpression == null)
-            return null;
-
-        variable = typeInformation.Type.AsVariable();
-        if (typeInformation.Type != resultExpression.Type)
-            resultExpression = resultExpression.ConvertTo(typeInformation.Type);
-        
-        resolutionContext.AddDefinedVariable(serviceRegistration.RegistrationId, variable);
-        resolutionContext.AddInstruction(variable.AssignTo(resultExpression));
-        return variable;
+        return this.BuildLifetimeAppliedExpression(serviceRegistration, resolutionContext, typeInformation);
     }
 
     private protected abstract Expression? BuildLifetimeAppliedExpression(ServiceRegistration serviceRegistration,

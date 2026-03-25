@@ -231,24 +231,6 @@ container.Register<IJob, DbBackup>(options => options
 </div>
 </CodeDescPanel>
 
-## Per-scoped request lifetime
-
-<CodeDescPanel>
-<div>
-
-The requested service will behave like a singleton, but only within a scoped dependency request. This means every scoped service will get a new exclusive instance that will be used by its sub-dependencies as well.
-
-</div>
-<div>
-
-```cs
-container.Register<IJob, DbBackup>(options => options
-    .WithPerScopedRequestLifetime());
-```
-
-</div>
-</CodeDescPanel>
-
 ## Auto lifetime
 
 <CodeDescPanel>

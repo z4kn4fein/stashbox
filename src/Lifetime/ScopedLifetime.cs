@@ -16,9 +16,6 @@ public class ScopedLifetime : FactoryLifetimeDescriptor
     protected internal override int LifeSpan => 10;
 
     /// <inheritdoc />
-    internal override bool StoreResultInLocalVariable => true;
-
-    /// <inheritdoc />
     protected override Expression ApplyLifetime(Func<IResolutionScope, IRequestContext, object> factory,
         ServiceRegistration serviceRegistration, ResolutionContext resolutionContext, TypeInformation typeInformation)
     {

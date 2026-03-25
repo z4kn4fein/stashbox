@@ -87,13 +87,6 @@ public class BaseFluentConfigurator<TConfigurator> : ServiceRegistration
     public TConfigurator WithTransientLifetime() => this.WithLifetime(Lifetimes.Transient);
 
     /// <summary>
-    /// Sets the lifetime to <see cref="PerScopedRequestLifetime"/>. This lifetime will create a new instance between scoped services. This means
-    /// that every scoped service will get a different instance but within their dependency tree it will behave as a singleton.
-    /// </summary>
-    /// <returns>The configurator itself.</returns>
-    public TConfigurator WithPerScopedRequestLifetime() => this.WithLifetime(Lifetimes.PerScopedRequest);
-
-    /// <summary>
     /// Sets the lifetime to <see cref="PerRequestLifetime"/>. This lifetime will create a new instance between resolution requests. 
     /// Within the request the same instance will be re-used.
     /// </summary>

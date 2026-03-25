@@ -11,14 +11,14 @@ public interface IRequestContext
     /// Returns a dependency override for a given type.
     /// </summary>
     /// <param name="dependencyType">The type of the dependency override.</param>
-    /// <returns>The object used for override a dependency.</returns>
+    /// <returns>The object used to override a dependency.</returns>
     object? GetDependencyOverrideOrDefault(Type dependencyType);
 
     /// <summary>
     /// Returns a dependency override for a given type.
     /// </summary>
     /// <typeparam name="TResult">The type of the dependency override.</typeparam>
-    /// <returns>The object used for override a dependency.</returns>
+    /// <returns>The object used to override a dependency.</returns>
     TResult? GetDependencyOverrideOrDefault<TResult>();
 
     /// <summary>
@@ -27,7 +27,7 @@ public interface IRequestContext
     object[] GetOverrides();
 
     /// <summary>
-    /// Marks an instance as non disposable, so the container will exclude it from dispose tracking.
+    /// Marks an instance as non-disposable, so the container will exclude it from disposal tracking.
     /// </summary>
     /// <param name="value">The instance to mark.</param>
     /// <returns>The instance.</returns>

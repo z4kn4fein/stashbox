@@ -22,9 +22,9 @@ install:
     dotnet tool install -g InheritDocTool
     
     Invoke-WebRequest 'https://dot.net/v1/dotnet-install.ps1' -OutFile dotnet-install.ps1
-    ./dotnet-install.ps1 -Channel 5.0
-    ./dotnet-install.ps1 -Channel 7.0
     ./dotnet-install.ps1 -Channel 8.0
+    ./dotnet-install.ps1 -Channel 9.0
+    ./dotnet-install.ps1 -Channel 10.0
 
 dotnet_csproj:
   patch: true
@@ -46,12 +46,9 @@ after_build:
 - dotnet pack -c %configuration% /p:IncludeSymbols=true /p:PackageOutputPath=..\artifacts src\stashbox.csproj
 
 test_script:
-- dotnet test test\stashbox.tests.csproj -f net452 -c %configuration% --no-build
-- dotnet test test\stashbox.tests.csproj -f netcoreapp3.1 -c %configuration% --no-build
-- dotnet test test\stashbox.tests.csproj -f net5.0 -c %configuration% --no-build
-- dotnet test test\stashbox.tests.csproj -f net6.0 -c %configuration% --no-build
-- dotnet test test\stashbox.tests.csproj -f net7.0 -c %configuration% --no-build
 - dotnet test test\stashbox.tests.csproj -f net8.0 -c %configuration% --no-build
+- dotnet test test\stashbox.tests.csproj -f net9.0 -c %configuration% --no-build
+- dotnet test test\stashbox.tests.csproj -f net10.0 -c %configuration% --no-build
 
 artifacts:
   - path: artifacts\Stashbox.*.nupkg

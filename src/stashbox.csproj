@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net45;net461;netstandard2.0;netstandard2.1;net5.0;net6.0;net7.0;net8.0</TargetFrameworks>
+    <TargetFrameworks>net461;netstandard2.0;netstandard2.1;net5.0;net6.0;net7.0;net8.0;net9.0;net10.0</TargetFrameworks>
     <AssemblyName>Stashbox</AssemblyName>
     <AssemblyTitle>Stashbox</AssemblyTitle>
     <RootNamespace>Stashbox</RootNamespace>
@@ -49,9 +49,6 @@
     <AssemblyTitle>Stashbox .NET Standard 2.1</AssemblyTitle>
     <DefineConstants>HAS_ASYNC_DISPOSABLE</DefineConstants>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net45'">
-    <AssemblyTitle>Stashbox .NET 4.5</AssemblyTitle>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'net461'">
     <AssemblyTitle>Stashbox .NET 4.6.1</AssemblyTitle>
     <DefineConstants>HAS_ASYNC_DISPOSABLE</DefineConstants>
@@ -74,10 +71,15 @@
     <DefineConstants>HAS_ASYNC_DISPOSABLE;HAS_REQUIRED</DefineConstants>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
-    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4" />
-    <PackageReference Include="System.ValueTuple" Version="4.5.0" />
-  </ItemGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net9.0'">
+    <AssemblyTitle>Stashbox .NET 9.0</AssemblyTitle>
+    <DefineConstants>HAS_ASYNC_DISPOSABLE;HAS_REQUIRED</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net10.0'">
+    <AssemblyTitle>Stashbox .NET 10.0</AssemblyTitle>
+    <DefineConstants>HAS_ASYNC_DISPOSABLE;HAS_REQUIRED</DefineConstants>
+  </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.7.0" />

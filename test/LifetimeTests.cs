@@ -78,67 +78,6 @@ public class LifetimeTests
 
     [Theory]
     [ClassData(typeof(CompilerTypeTestData))]
-    public void LifetimeTests_Per_Scoped_Resolution_Request_Dependency(CompilerType compilerType)
-    {
-        using var container = new StashboxContainer(c => c.WithCompiler(compilerType))
-            .Register<Test5>(context => context.WithPerScopedRequestLifetime())
-            .Register<Test6>()
-            .Register<Test7>();
-
-        var inst1 = container.Resolve<Test7>();
-        var inst2 = container.Resolve<Test7>();
-
-        Assert.Same(inst1.Test5, inst1.Test6.Test5);
-        Assert.Same(inst2.Test5, inst2.Test6.Test5);
-        Assert.NotSame(inst1.Test5, inst2.Test6.Test5);
-        Assert.NotSame(inst2.Test5, inst1.Test6.Test5);
-    }
-
-    [Theory]
-    [ClassData(typeof(CompilerTypeTestData))]
-    public void LifetimeTests_Per_Scoped_Resolution_Request_Dependency_Scoped(CompilerType compilerType)
-    {
-        using var container = new StashboxContainer(c => c.WithCompiler(compilerType))
-            .Register<Test5>(context => context.WithPerScopedRequestLifetime())
-            .RegisterScoped<Test6>()
-            .Register<Test7>();
-
-        using var scope = container.BeginScope();
-
-        var inst1 = scope.Resolve<Test7>();
-        var inst2 = scope.Resolve<Test7>();
-
-        Assert.NotSame(inst1.Test5, inst1.Test6.Test5);
-        Assert.NotSame(inst2.Test5, inst2.Test6.Test5);
-        Assert.NotSame(inst1.Test5, inst2.Test6.Test5);
-        Assert.NotSame(inst2.Test5, inst1.Test6.Test5);
-    }
-
-    [Theory]
-    [ClassData(typeof(CompilerTypeTestData))]
-    public void LifetimeTests_Per_Scoped_Resolution_Request_Dependency_WithNull(CompilerType compilerType)
-    {
-        using IStashboxContainer container = new StashboxContainer(c => c.WithCompiler(compilerType));
-        container.Register<Test6>(context => context.WithPerScopedRequestLifetime());
-
-        Assert.Null(container.ResolveOrDefault<Test6>());
-    }
-
-    [Theory]
-    [ClassData(typeof(CompilerTypeTestData))]
-    public void LifetimeTests_Per_Scoped_Resolution_Request(CompilerType compilerType)
-    {
-        using IStashboxContainer container = new StashboxContainer(c => c.WithCompiler(compilerType));
-        container.Register<Test5>(context => context.WithPerScopedRequestLifetime());
-
-        var inst1 = container.Resolve<Test5>();
-        var inst2 = container.Resolve<Test5>();
-
-        Assert.NotSame(inst1, inst2);
-    }
-
-    [Theory]
-    [ClassData(typeof(CompilerTypeTestData))]
     public void LifetimeTests_Scoped_WithNull(CompilerType compilerType)
     {
         using IStashboxContainer container = new StashboxContainer(c => c.WithCompiler(compilerType));

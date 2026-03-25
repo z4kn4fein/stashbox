@@ -12,9 +12,6 @@ namespace Stashbox.Lifetime;
 public class PerRequestLifetime : FactoryLifetimeDescriptor
 {
     /// <inheritdoc />
-    internal override bool StoreResultInLocalVariable => true;
-
-    /// <inheritdoc />
     protected override Expression ApplyLifetime(Func<IResolutionScope, IRequestContext, object> factory,
         ServiceRegistration serviceRegistration, ResolutionContext resolutionContext, TypeInformation typeInformation)
     {

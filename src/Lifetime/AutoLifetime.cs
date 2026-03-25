@@ -4,18 +4,11 @@ using Stashbox.Resolution;
 
 namespace Stashbox.Lifetime;
 
-internal class AutoLifetime : LifetimeDescriptor
+internal class AutoLifetime(LifetimeDescriptor boundaryLifetime) : LifetimeDescriptor
 {
-    private LifetimeDescriptor selectedLifetime;
-
-    internal override bool StoreResultInLocalVariable => this.selectedLifetime.StoreResultInLocalVariable;
+    private LifetimeDescriptor selectedLifetime = boundaryLifetime;
 
     protected internal override int LifeSpan => this.selectedLifetime.LifeSpan;
-
-    public AutoLifetime(LifetimeDescriptor boundaryLifetime)
-    {
-        this.selectedLifetime = boundaryLifetime;
-    }
 
     private protected override Expression? BuildLifetimeAppliedExpression(ServiceRegistration serviceRegistration,
         ResolutionContext resolutionContext, TypeInformation typeInformation)

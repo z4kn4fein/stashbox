@@ -28,6 +28,8 @@ jobs:
             6.0.x
             7.0.x
             8.0.x
+            9.0.x
+            10.0.x
       - name: Restore
         run: dotnet restore
       - name: Test
@@ -35,3 +37,5 @@ jobs:
           dotnet test test/stashbox.tests.csproj -c Release -f net6.0 --no-restore
           dotnet test test/stashbox.tests.csproj -c Release -f net7.0 --no-restore
           dotnet test test/stashbox.tests.csproj -c Release -f net8.0 --no-restore
+          dotnet test test/stashbox.tests.csproj -c Release -f net9.0 --no-restore
+          dotnet test test/stashbox.tests.csproj -c Release -f net10.0 --no-restore
