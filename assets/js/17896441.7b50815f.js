@@ -1,0 +1,1 @@
+"use strict";(globalThis.webpackChunkwebsite=globalThis.webpackChunkwebsite||[]).push([[401],{4428(e,s,i){i.d(s,{A:()=>h});var n=i(3457),b=(i(6540),i(4848));function h(e){return(0,b.jsx)(b.Fragment,{children:(0,b.jsx)(n.A,{...e,showLineNumbers:!0})})}}}]);
