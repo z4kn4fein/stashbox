@@ -1,1 +1,1 @@
-Visit the [Github Releases](https://github.com/z4kn4fein/stashbox/releases) page of this repository for a complete changelog.
+Visit the [Github Releases](https://github.com/z4kn4fein/stashbox/releases) page of the repository for a complete changelog.
