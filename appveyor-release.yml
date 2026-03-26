@@ -32,7 +32,7 @@ install:
     dotnet tool install -g InheritDocTool
     
     Invoke-WebRequest 'https://dot.net/v1/dotnet-install.ps1' -OutFile dotnet-install.ps1
-    ./dotnet-install.ps1 -Channel 8.0
+    ./dotnet-install.ps1 -Channel 10.0
 
 dotnet_csproj:
   patch: true
@@ -50,7 +50,7 @@ build_script:
 - dotnet build -c %configuration% /p:ContinuousIntegrationBuild=true stashbox.sln
 
 test_script:
-- dotnet test test\stashbox.tests.csproj -f net8.0 -c %configuration% --no-build
+- dotnet test test\stashbox.tests.csproj -f net10.0 -c %configuration% --no-build
 
 after_build:
 - dotnet pack -c %configuration% /p:IncludeSymbols=true /p:PackageOutputPath=..\artifacts src\stashbox.csproj
