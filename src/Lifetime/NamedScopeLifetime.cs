@@ -13,7 +13,9 @@ namespace Stashbox.Lifetime;
 /// </summary>
 public class NamedScopeLifetime : FactoryLifetimeDescriptor
 {
-    private static readonly MethodInfo GetScopeValueMethod = TypeCache<NamedScopeLifetime>.Type.GetMethod(nameof(GetScopedValue), BindingFlags.Static | BindingFlags.NonPublic)!;
+    private static readonly MethodInfo GetScopeValueMethod =
+        TypeCache<NamedScopeLifetime>.Type.GetMethod(nameof(GetScopedValue),
+            BindingFlags.Static | BindingFlags.NonPublic)!;
 
     /// <summary>
     /// The name of the scope where this lifetime activates.
@@ -34,24 +36,31 @@ public class NamedScopeLifetime : FactoryLifetimeDescriptor
 
     /// <inheritdoc />
     protected override Expression ApplyLifetime(Func<IResolutionScope, IRequestContext, object> factory,
-        ServiceRegistration serviceRegistration, ResolutionContext resolutionContext, TypeInformation typeInformation) =>
+        ServiceRegistration serviceRegistration, ResolutionContext resolutionContext,
+        TypeInformation typeInformation) =>
         GetScopeValueMethod.CallStaticMethod(resolutionContext.CurrentScopeParameter,
             resolutionContext.RequestContextParameter,
             factory.AsConstant(),
             serviceRegistration.ImplementationType.AsConstant(),
-            serviceRegistration.GetDiscriminator(typeInformation, 
+            serviceRegistration.GetDiscriminator(typeInformation,
                 resolutionContext.CurrentContainerContext.ContainerConfiguration).AsConstant(),
-            this.ScopeName.AsConstant());
+            this.ScopeName.AsConstant(),
+            resolutionContext.CurrentContainerContext.ContainerConfiguration.ExternalResolutionFailedExceptionType
+                .AsConstant().ConvertTo(TypeCache<Type>.Type));
 
     private static object GetScopedValue(IResolutionScope currentScope, IRequestContext requestContext,
-        Func<IResolutionScope, IRequestContext, object> factory, Type serviceType, int scopeId, object scopeName)
+        Func<IResolutionScope, IRequestContext, object> factory, Type serviceType, int scopeId, object scopeName,
+        Type? externalExceptionType)
     {
         var scope = currentScope;
         while (scope != null && !scopeName.Equals(scope.Name))
             scope = scope.ParentScope;
 
         if (scope == null)
-            throw new ResolutionFailedException(serviceType, message: $"The scope '{scopeName}' was not found to resolve {serviceType.FullName} with named scope lifetime.");
+            throw ResolutionFailedException.CreateWithDesiredExceptionType(serviceType,
+                message:
+                $"The scope '{scopeName}' was not found to resolve {serviceType.FullName} with named scope lifetime.",
+                externalExceptionType: externalExceptionType);
 
         return scope.GetOrAddScopedObject(scopeId, factory, requestContext, serviceType);
     }

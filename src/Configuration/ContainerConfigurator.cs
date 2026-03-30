@@ -27,6 +27,7 @@ public class ContainerConfigurator
 
     /// <summary>
     /// Enables or disables the tracking of disposable transient objects.
+    /// It's disabled by default.
     /// </summary>
     /// <param name="enabled">True when the feature should be enabled, otherwise false.</param>
     /// <returns>The container configurator.</returns>
@@ -49,6 +50,7 @@ public class ContainerConfigurator
 
     /// <summary>
     /// Enables or disables the default value injection.
+    /// It's disabled by default.
     /// </summary>
     /// <param name="enabled">True when the feature should be enabled, otherwise false.</param>
     /// <returns>The container configurator.</returns>
@@ -60,6 +62,7 @@ public class ContainerConfigurator
 
     /// <summary>
     /// Enables or disables the unknown type resolution.
+    /// It's disabled by default.
     /// </summary>
     /// <param name="configurator">An optional configuration action used during the registration of the unknown type.</param>
     /// <param name="enabled">True when the feature should be enabled, otherwise false.</param>
@@ -88,6 +91,7 @@ public class ContainerConfigurator
     
     /// <summary>
     /// Enables or disables required member injection.
+    /// It's disabled by default.
     /// </summary>
     /// <param name="enabled">True when the feature should be enabled, otherwise false.</param>
     /// <returns>The container configurator.</returns>
@@ -98,7 +102,7 @@ public class ContainerConfigurator
     }
 
     /// <summary>
-    /// Sets the constructor selection rule used to determine which constructor should the container use for instantiation
+    /// Sets the constructor selection rule used to determine which constructor the container should use for instantiation
     /// </summary>
     /// <returns>The container configurator.</returns>
     public ContainerConfigurator WithConstructorSelectionRule(Func<IEnumerable<ConstructorInfo>, IEnumerable<ConstructorInfo>> selectionRule)
@@ -119,6 +123,7 @@ public class ContainerConfigurator
 
     /// <summary>
     /// Enables or disables conventional resolution, which means the container treats the constructor/method parameter or member names as dependency names used by named resolution.
+    /// It's disabled by default.
     /// </summary>
     /// <param name="enabled">True when the feature should be enabled, otherwise false.</param>
     /// <returns>The container configurator.</returns>
@@ -129,16 +134,43 @@ public class ContainerConfigurator
     }
 
     /// <summary>
-    /// Enables or disables the selection of named registrations when the resolution request is un-named but with the same type.
+    /// Enables or disables the selection of named registrations when the resolution request is unnamed.
+    /// It's disabled by default.
+    /// </summary>
+    /// <param name="enabled">True when the feature should be enabled, otherwise false.</param>
+    /// <param name="enabledForCollectionRequests">Enables or disables the selection of named registrations when a collection resolution request is unnamed. It's enabled by default.</param>
+    /// <returns>The container configurator.</returns>
+    public ContainerConfigurator WithNamedDependencyResolutionForUnNamedRequests(bool enabled = true, bool enabledForCollectionRequests = true)
+    {
+        this.ContainerConfiguration.NamedDependencyResolutionForUnNamedRequestsEnabled = enabled;
+        this.ContainerConfiguration.NamedDependencyResolutionForUnNamedCollectionRequestsEnabled = enabledForCollectionRequests;
+        return this;
+    }
+    
+    /// <summary>
+    /// Enables or disables the selection of services with <see cref="ContainerConfiguration.UniversalName"/> for a universal named resolution request.
+    /// It's disabled by default.
     /// </summary>
     /// <param name="enabled">True when the feature should be enabled, otherwise false.</param>
     /// <returns>The container configurator.</returns>
-    public ContainerConfigurator WithNamedDependencyResolutionForUnNamedRequests(bool enabled = true)
+    public ContainerConfigurator WithIgnoreServicesWithUniversalNameForUniversalNamedRequests(bool enabled = true)
     {
-        this.ContainerConfiguration.NamedDependencyResolutionForUnNamedRequestsEnabled = enabled;
+        this.ContainerConfiguration.IgnoreServicesWithUniversalNameForUniversalNamedRequests = enabled;
         return this;
     }
-
+    
+    /// <summary>
+    /// Enables or disables throwing a <see cref="ResolutionFailedException"/> when a named dependency is not resolvable even for requests initiated by <see cref="IDependencyResolver.ResolveOrDefault(Type)" />.
+    /// It's disabled by default.
+    /// </summary>
+    /// <param name="enabled">True when the feature should be enabled, otherwise false.</param>
+    /// <returns>The container configurator.</returns>
+    public ContainerConfigurator WithForceThrowWhenNamedDependencyIsNotResolvable(bool enabled = true)
+    {
+        this.ContainerConfiguration.ForceThrowWhenNamedDependencyIsNotResolvable = enabled;
+        return this;
+    }
+    
     /// <summary>
     /// Sets the default lifetime used when a service doesn't have a configured one.
     /// </summary>
@@ -152,6 +184,7 @@ public class ContainerConfigurator
 
     /// <summary>
     /// Enables or disables the life-span and root resolution validation on the dependency tree.
+    /// It's disabled by default.
     /// </summary>
     /// <param name="enabled">True when the feature should be enabled, otherwise false.</param>
     /// <returns>The container configurator.</returns>
@@ -162,7 +195,10 @@ public class ContainerConfigurator
     }
 
     /// <summary>
-    /// Enables or disables the re-building of singletons in child containers. It allows the child containers to effectively override singleton dependencies in the parent. This feature is not affecting the already built singleton instances in the parent.
+    /// Enables or disables the re-building of singletons in child containers.
+    /// It allows the child containers to effectively override singleton dependencies in the parent.
+    /// This feature is not affecting the already built singleton instances in the parent.
+    /// It's disabled by default.
     /// </summary>
     /// <param name="enabled">True when the feature should be enabled, otherwise false.</param>
     /// <returns>The container configurator.</returns>
@@ -174,6 +210,7 @@ public class ContainerConfigurator
     
     /// <summary>
     /// Enables or disables the check for generic covariance and contravariance during the resolution of generic type collections.
+    /// It's disabled by default.
     /// </summary>
     /// <param name="enabled">True when the feature should be enabled, otherwise false.</param>
     /// <returns>The container configurator.</returns>
@@ -186,6 +223,7 @@ public class ContainerConfigurator
     /// <summary>
     /// Enables or disables the throwing of a <see cref="ResolutionFailedException"/> when no services are found for a collection resolution request.
     /// When this feature is disabled (default), the container returns an empty array for the collection resolution request.
+    /// It's disabled by default.
     /// </summary>
     /// <param name="enabled">True when the feature should be enabled, otherwise false.</param>
     /// <returns>The container configurator.</returns>
@@ -240,6 +278,18 @@ public class ContainerConfigurator
     {
         this.ContainerConfiguration.AdditionalDependencyAttributeTypes ??= [];
         this.ContainerConfiguration.AdditionalDependencyAttributeTypes.Add(typeof(TAttribute));
+        return this;
+    }
+    
+    /// <summary>
+    /// Wraps each <see cref="ResolutionFailedException"/> with the given exception type. 
+    /// </summary>
+    /// <typeparam name="TException">The exception type.</typeparam>
+    /// <returns>The container configurator.</returns>
+    public ContainerConfigurator OverrideResolutionFailedExceptionWith<TException>()
+        where TException : Exception
+    {
+        this.ContainerConfiguration.ExternalResolutionFailedExceptionType = typeof(TException);
         return this;
     }
 }

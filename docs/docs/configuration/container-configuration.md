@@ -387,12 +387,16 @@ new StashboxContainer(options => options
 
 With this option, you can enable or disable the selection of named registrations when the resolution request is un-named but with the same type.
 
+The `enabledForCollectionRequests` argument controls whether named registrations should be returned for an unnamed collection resolution request. It's **enabled** by default.
 </div>
 <div>
 
 ```cs
 new StashboxContainer(options => options
-    .WithNamedDependencyResolutionForUnNamedRequests());
+    .WithNamedDependencyResolutionForUnNamedRequests(
+        enabled: true,
+        enabledForCollectionRequests: true
+    ));
 ```
 
 </div>
@@ -445,6 +449,59 @@ Adds an attribute type that is considered a dependency indicator just like the [
 ```cs
 new StashboxContainer(options => options
     .WithAdditionalDependencyAttribute<CustomDependencyAttribute>());
+```
+
+</div>
+</CodeDescPanel>
+
+<CodeDescPanel>
+<div>
+
+### `WithIgnoreServicesWithUniversalNameForUniversalNamedRequests`
+Enables or disables the selection of services with `UniversalName` for a universal named resolution request.
+
+</div>
+<div>
+
+```cs
+new StashboxContainer(options => options
+    .WithIgnoreServicesWithUniversalNameForUniversalNamedRequests());
+```
+
+</div>
+</CodeDescPanel>
+
+<CodeDescPanel>
+<div>
+
+### `WithForceThrowWhenNamedDependencyIsNotResolvable`
+Enables or disables throwing a `ResolutionFailedException` when a named dependency is not resolvable even for requests initiated by `.ResolveOrDefault()`.
+
+</div>
+<div>
+
+```cs
+new StashboxContainer(options => options
+    .WithForceThrowWhenNamedDependencyIsNotResolvable());
+```
+
+</div>
+</CodeDescPanel>
+
+## Overriding the exception thrown upon resolution failure
+
+<CodeDescPanel>
+<div>
+
+With this option, you can override the default `ResolutionFailedException` type thrown when the service resolution fails.
+The details of the exception remain the same, only the type gets overridden.
+
+</div>
+<div>
+
+```cs
+new StashboxContainer(options => options
+    .OverrideResolutionFailedExceptionWith<InvalidOperationException>());
 ```
 
 </div>

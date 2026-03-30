@@ -2,6 +2,7 @@
 using System.Linq;
 using Stashbox.Attributes;
 using Stashbox.Configuration;
+using Stashbox.Exceptions;
 using Stashbox.Resolution;
 using Stashbox.Tests.IssueTests;
 using Xunit;
@@ -11,7 +12,7 @@ namespace Stashbox.Tests;
 public class KeyedTests
 {
     private static object UniversalName = new();
-    
+
     [Fact]
     public void ResolveKeyedService()
     {
@@ -34,7 +35,8 @@ public class KeyedTests
         using var container = new StashboxContainer(config => config
             .WithDisposableTransientTracking()
             .WithRegistrationBehavior(Rules.RegistrationBehavior.PreserveDuplications));
-        container.Register(typeof(IFakeOpenGenericService<>), typeof(FakeOpenGenericService<>), c => c.WithName("my-service"));
+        container.Register(typeof(IFakeOpenGenericService<>), typeof(FakeOpenGenericService<>),
+            c => c.WithName("my-service"));
         container.RegisterSingleton<IFakeSingletonService, FakeService>();
 
         // Act
@@ -161,7 +163,7 @@ public class KeyedTests
             .WithInstance(service2).WithSingletonLifetime());
 
         var services = container.ResolveAll<IFakeOpenGenericService<PocoClass>>("some-key").ToList();
-        Assert.Equal(new[] { service1, service2 }, services);
+        Assert.Equal(new[] { service2 }, services);
     }
 
     [Fact]
@@ -180,7 +182,7 @@ public class KeyedTests
         Assert.Equal("service1", svc.Service1.ToString());
         Assert.Equal("service2", svc.Service2.ToString());
     }
-    
+
     [Fact]
     public void ResolveKeyedServiceSingletonInstanceWithKeyedParameterWithAdditionalAttribute()
     {
@@ -234,20 +236,6 @@ public class KeyedTests
             Assert.Same(s1, s2);
             Assert.Equal(key, s1.ToString());
         }
-    }
-
-    [Fact]
-    public void ResolveKeyedServiceSingletonFactoryWithAnyKeyIgnoreWrongType()
-    {
-        using var container = new StashboxContainer(config => config
-            .WithUniversalName(UniversalName)
-            .WithDisposableTransientTracking()
-            .WithRegistrationBehavior(Rules.RegistrationBehavior.PreserveDuplications));
-        container.Register<IService, ServiceWithIntKey>(UniversalName);
-
-        Assert.Null(container.ResolveOrDefault<IService>());
-        Assert.NotNull(container.ResolveOrDefault<IService>(87));
-        Assert.ThrowsAny<InvalidCastException>(() => container.Resolve<IService>(new object()));
     }
 
     [Fact]
@@ -308,72 +296,251 @@ public class KeyedTests
         Assert.NotSame(first, second);
     }
 
-    internal interface IService;
-
-    internal class Service : IService
+    [Fact]
+    public void ResolveKeyedServicesAnyKey()
     {
-        private readonly string id;
+        var service1 = new Service();
+        var service2 = new Service();
+        var service3 = new Service();
+        var service4 = new Service();
+        var service5 = new Service();
+        var service6 = new Service();
+        using var container = new StashboxContainer(config => config
+            .WithUniversalName(UniversalName)
+            .WithDisposableTransientTracking()
+            .WithRegistrationBehavior(Rules.RegistrationBehavior.PreserveDuplications));
+        container.Register<IService, Service>(c =>
+            c.WithInstance(service1).WithName("first-service").WithSingletonLifetime());
+        container.Register<IService, Service>(c =>
+            c.WithInstance(service2).WithName("service").WithSingletonLifetime());
+        container.Register<IService, Service>(c =>
+            c.WithInstance(service3).WithName("service").WithSingletonLifetime());
+        container.Register<IService, Service>(c =>
+            c.WithInstance(service4).WithName("service").WithSingletonLifetime());
+        container.Register<IService, Service>(c => c.WithInstance(service5).WithName(null).WithSingletonLifetime());
+        container.Register<IService, Service>(c => c.WithInstance(service6).WithSingletonLifetime());
 
-        public Service() => id = Guid.NewGuid().ToString();
+        // Return all services registered with a non null key
+        var allServices = container.ResolveAll<IService>(UniversalName).ToList();
+        Assert.Equal(4, allServices.Count);
+        Assert.Equal(new[] { service1, service2, service3, service4 }, allServices);
 
-        public Service([DependencyName] string id) => this.id = id;
+        // Check again (caching)
+        var allServices2 = container.ResolveAll<IService>(UniversalName).ToList();
+        Assert.Equal(allServices, allServices2);
+    }
+
+    [Fact]
+    public void ResolveKeyedServicesAnyKeyWithAnyKeyRegistration()
+    {
+        var service1 = new Service();
+        var service2 = new Service();
+        var service3 = new Service();
+        var service4 = new Service();
+        var service5 = new Service();
+        var service6 = new Service();
+        using var container = new StashboxContainer(config => config
+            .WithUniversalName(UniversalName)
+            .WithDisposableTransientTracking()
+            .WithRegistrationBehavior(Rules.RegistrationBehavior.PreserveDuplications));
+        container.Register<IService, Service>(c => c.WithFactory(() => new Service()).WithName(UniversalName));
+        container.Register<IService, Service>(c =>
+            c.WithInstance(service1).WithName("first-service").WithSingletonLifetime());
+        container.Register<IService, Service>(c =>
+            c.WithInstance(service2).WithName("service").WithSingletonLifetime());
+        container.Register<IService, Service>(c =>
+            c.WithInstance(service3).WithName("service").WithSingletonLifetime());
+        container.Register<IService, Service>(c =>
+            c.WithInstance(service4).WithName("service").WithSingletonLifetime());
+        container.Register<IService, Service>(c => c.WithInstance(service5).WithName(null).WithSingletonLifetime());
+        container.Register<IService, Service>(c => c.WithInstance(service6).WithSingletonLifetime());
+
+        _ = container.Resolve<IService>("something-else");
+        _ = container.Resolve<IService>("something-else-again");
+
+        // Return all services registered with a non null key, but not the one "created" with KeyedService.AnyKey
+        var allServices = container.ResolveAll<IService>(UniversalName).ToList();
+        Assert.Equal(5, allServices.Count);
+        Assert.Equal([service1, service2, service3, service4], allServices.Skip(1));
+    }
+
+    [Fact]
+    public void CombinationalRegistration()
+    {
+        Service service1 = new();
+        Service service2 = new();
+        Service keyedService1 = new();
+        Service keyedService2 = new();
+        Service anykeyService1 = new();
+        Service anykeyService2 = new();
+        Service nullkeyService1 = new();
+        Service nullkeyService2 = new();
+        using var container = new StashboxContainer(config => config
+            .WithUniversalName(UniversalName)
+            .WithDisposableTransientTracking()
+            .WithNamedDependencyResolutionForUnNamedRequests(false, false)
+            .OverrideResolutionFailedExceptionWith<InvalidOperationException>()
+            .WithIgnoreServicesWithUniversalNameForUniversalNamedRequests()
+            .WithForceThrowWhenNamedDependencyIsNotResolvable()
+            .WithRegistrationBehavior(Rules.RegistrationBehavior.PreserveDuplications));
+        container.Register<IService, Service>(c => c.WithInstance(service1).WithSingletonLifetime());
+        container.Register<IService, Service>(c => c.WithInstance(service2).WithSingletonLifetime());
+        container.Register<IService, Service>(c =>
+            c.WithInstance(nullkeyService1).WithName(null).WithSingletonLifetime());
+        container.Register<IService, Service>(c =>
+            c.WithInstance(nullkeyService2).WithName(null).WithSingletonLifetime());
+        container.Register<IService, Service>(c =>
+            c.WithInstance(anykeyService1).WithName(UniversalName).WithSingletonLifetime());
+        container.Register<IService, Service>(c =>
+            c.WithInstance(anykeyService2).WithName(UniversalName).WithSingletonLifetime());
+        container.Register<IService, Service>(c =>
+            c.WithInstance(keyedService1).WithName("keyedService").WithSingletonLifetime());
+        container.Register<IService, Service>(c =>
+            c.WithInstance(keyedService2).WithName("keyedService").WithSingletonLifetime());
+
+        Assert.Equal(
+            [service1, service2, nullkeyService1, nullkeyService2],
+            container.ResolveAll<IService>());
+        Assert.Equal(nullkeyService2, container.Resolve<IService>());
+        Assert.Equal(
+            [service1, service2, nullkeyService1, nullkeyService2],
+            container.ResolveAll<IService>());
+        Assert.Equal(nullkeyService2, container.Resolve<IService>());
+        Assert.Equal(
+            [keyedService1, keyedService2],
+            container.ResolveAll<IService>(UniversalName));
+        Assert.Throws<InvalidOperationException>(() => container.ResolveOrDefault<IService>(UniversalName));
+        Assert.Equal(
+            [keyedService1, keyedService2],
+            container.ResolveAll<IService>("keyedService"));
+        Assert.Equal(keyedService2, container.Resolve<IService>("keyedService"));
+    }
+    
+    [Fact]
+    public void ResolveKeyedServiceWithKeyedParameter_MissingRegistration_FirstParameter()
+    {
+        using var container = new StashboxContainer(config => config
+            .WithUniversalName(UniversalName)
+            .WithDisposableTransientTracking()
+            .WithNamedDependencyResolutionForUnNamedRequests(false, false)
+            .OverrideResolutionFailedExceptionWith<InvalidOperationException>()
+            .WithIgnoreServicesWithUniversalNameForUniversalNamedRequests()
+            .WithForceThrowWhenNamedDependencyIsNotResolvable()
+            .WithRegistrationBehavior(Rules.RegistrationBehavior.PreserveDuplications));
+
+        container.RegisterSingleton<OtherService>();
+        
+        Assert.Null(container.ResolveOrDefault<IService>());
+        Assert.Throws<InvalidOperationException>(() => container.ResolveOrDefault<OtherService>());
+    }
+    
+    [Fact]
+    public void ResolveKeyedServiceWithKeyedParameter_MissingRegistration_SecondParameter()
+    {
+        using var container = new StashboxContainer(config => config
+            .WithUniversalName(UniversalName)
+            .WithDisposableTransientTracking()
+            .WithNamedDependencyResolutionForUnNamedRequests(false, false)
+            .OverrideResolutionFailedExceptionWith<InvalidOperationException>()
+            .WithIgnoreServicesWithUniversalNameForUniversalNamedRequests()
+            .WithForceThrowWhenNamedDependencyIsNotResolvable()
+            .WithRegistrationBehavior(Rules.RegistrationBehavior.PreserveDuplications));
+
+        container.RegisterSingleton<OtherService>();
+
+        container.RegisterSingleton<IService, Service>("service1");
+
+        Assert.Null(container.ResolveOrDefault<IService>());
+        Assert.Throws<InvalidOperationException>(() => container.ResolveOrDefault<OtherService>());
+    }
+    
+    [Fact]
+    public void ResolveKeyedServiceWithKeyedParameter_MissingRegistrationButWithUnkeyedService()
+    {
+        using var container = new StashboxContainer(config => config
+            .WithUniversalName(UniversalName)
+            .WithDisposableTransientTracking()
+            .WithNamedDependencyResolutionForUnNamedRequests(false, false)
+            .OverrideResolutionFailedExceptionWith<InvalidOperationException>()
+            .WithIgnoreServicesWithUniversalNameForUniversalNamedRequests()
+            .WithForceThrowWhenNamedDependencyIsNotResolvable()
+            .WithRegistrationBehavior(Rules.RegistrationBehavior.PreserveDuplications));
+
+        container.RegisterSingleton<OtherService>();
+        
+        container.RegisterSingleton<IService, Service>();
+
+        Assert.NotNull(container.ResolveOrDefault<IService>());
+        Assert.Throws<InvalidOperationException>(() => container.ResolveOrDefault<OtherService>());
+    }
+    
+    [Fact]
+    public void ResolveKeyedServiceSingletonFactoryWithAnyKeyIgnoreWrongType()
+    {
+        using var container = new StashboxContainer(config => config
+            .WithUniversalName(UniversalName)
+            .WithDisposableTransientTracking()
+            .WithNamedDependencyResolutionForUnNamedRequests(false, false)
+            .OverrideResolutionFailedExceptionWith<InvalidOperationException>()
+            .WithIgnoreServicesWithUniversalNameForUniversalNamedRequests()
+            .WithForceThrowWhenNamedDependencyIsNotResolvable()
+            .WithRegistrationBehavior(Rules.RegistrationBehavior.PreserveDuplications));
+        container.Register<IService, ServiceWithIntKey>(UniversalName);
+
+        Assert.Null(container.ResolveOrDefault<IService>());
+        Assert.NotNull(container.ResolveOrDefault<IService>(87));
+        Assert.ThrowsAny<InvalidOperationException>(() => container.ResolveOrDefault<IService>(new object()));
+    }
+
+    private interface IService;
+
+    private class Service([DependencyName] string id) : IService
+    {
+        public Service() : this(Guid.NewGuid().ToString())
+        {
+        }
 
         public override string ToString() => id;
     }
-    
-    internal class Service2 : IService
+
+    private class Service2([AdditionalName] string id) : IService
     {
-        private readonly string id;
-
-        public Service2() => id = Guid.NewGuid().ToString();
-
-        public Service2([AdditionalName] string id) => this.id = id;
+        public Service2() : this(Guid.NewGuid().ToString())
+        {
+        }
 
         public override string ToString() => id;
     }
 
-    internal class OtherService
+    private class OtherService(
+        [Dependency("service1")] IService service1,
+        [Dependency("service2")] IService service2)
     {
-        public OtherService(
-            [Dependency("service1")] IService service1,
-            [Dependency("service2")] IService service2)
-        {
-            Service1 = service1;
-            Service2 = service2;
-        }
+        public IService Service1 { get; } = service1;
 
-        public IService Service1 { get; }
-
-        public IService Service2 { get; }
-    }
-    
-    internal class OtherService2
-    {
-        public OtherService2(
-            [AdditionalDependency("service1")] IService service1,
-            [AdditionalDependency("service2")] IService service2)
-        {
-            Service1 = service1;
-            Service2 = service2;
-        }
-
-        public IService Service1 { get; }
-
-        public IService Service2 { get; }
+        public IService Service2 { get; } = service2;
     }
 
-    internal class ServiceWithIntKey : IService
+    private class OtherService2(
+        [AdditionalDependency("service1")] IService service1,
+        [AdditionalDependency("service2")] IService service2)
     {
-        private readonly int id;
+        public IService Service1 { get; } = service1;
 
-        public ServiceWithIntKey([DependencyName] int id) => this.id = id;
+        public IService Service2 { get; } = service2;
     }
-    
-    internal class AdditionalNameAttribute : Attribute;
 
-    internal class AdditionalDependencyAttribute : Attribute
+    private class ServiceWithIntKey([DependencyName] int id) : IService
+    {
+        private readonly int id = id;
+    }
+
+    private class AdditionalNameAttribute : Attribute;
+
+    private class AdditionalDependencyAttribute : Attribute
     {
         public AdditionalDependencyAttribute(string name)
-        { }
+        {
+        }
     }
 }

@@ -9,6 +9,8 @@ namespace Stashbox.Exceptions;
 [Serializable]
 public class ResolutionFailedException : Exception
 {
+    private const string DefaultMessage = "Service is not registered properly or unresolvable type requested.";
+    
     /// <summary>
     /// The type the container is currently resolving.
     /// </summary>
@@ -23,9 +25,9 @@ public class ResolutionFailedException : Exception
     /// <param name="innerException">The inner exception.</param>
     public ResolutionFailedException(Type? type,
         object? name = null,
-        string message = "Service is not registered properly or unresolvable type requested.",
+        string? message = null,
         Exception? innerException = null)
-        : base($"Unable to resolve type '{type?.FullName}'{(name != null ? " with name \'" + name + "\'" : "")}.{Environment.NewLine}{message}", innerException)
+        : base(ConstructMessage(type, name, message), innerException)
     {
         this.Type = type;
     }
@@ -37,4 +39,21 @@ public class ResolutionFailedException : Exception
     protected ResolutionFailedException(SerializationInfo info, StreamingContext context)
         : base(info, context)
     { }
+
+    private static string ConstructMessage(Type? serviceType,
+        object? name = null,
+        string? message = null) =>
+        $"Unable to resolve type '{serviceType?.FullName}'{(name != null ? " with name \'" + name + "\'" : "")}.{Environment.NewLine}{message ?? DefaultMessage}";
+    
+    internal static Exception CreateWithDesiredExceptionType(Type? serviceType,
+        object? name = null,
+        string? message = null,
+        Exception? innerException = null,
+        Type? externalExceptionType = null)
+    {
+        if (externalExceptionType == null) 
+            return new ResolutionFailedException(serviceType, name, message, innerException);
+
+        return (Exception)(Activator.CreateInstance(externalExceptionType, ConstructMessage(serviceType, name, message), innerException) ?? new ResolutionFailedException(serviceType, name, message, innerException));
+    }
 }

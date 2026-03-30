@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
+using Stashbox.Exceptions;
 using Stashbox.Lifetime;
 
 namespace Stashbox.Resolution;
@@ -337,7 +338,8 @@ public class ResolutionContext
         int? currentLifeSpan = null,
         bool? perResolutionRequestCacheEnabled = null,
         bool? unknownTypeCheckDisabled = null,
-        bool? shouldFallBackToRequestInitiator = null) =>
+        bool? shouldFallBackToRequestInitiator = null,
+        bool? nullResultAllowed = null) =>
         new(this.RequestConfiguration,
             definedVariables ?? this.DefinedVariables,
             singleInstructions ?? this.SingleInstructions,
@@ -357,7 +359,7 @@ public class ResolutionContext
             autoLifetimeTracker ?? this.AutoLifetimeTracking,
             resolutionBehavior ?? this.ResolutionBehavior,
             this.RequestInitiatorResolutionBehavior,
-            this.NullResultAllowed,
+            nullResultAllowed ?? this.NullResultAllowed,
             this.IsRequestedFromRoot,
             nameOfServiceLifeSpanValidatingAgainst ?? this.NameOfServiceLifeSpanValidatingAgainst,
             currentLifeSpan ?? this.CurrentLifeSpan,

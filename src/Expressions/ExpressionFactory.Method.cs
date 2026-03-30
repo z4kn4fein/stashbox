@@ -32,8 +32,9 @@ internal static partial class ExpressionFactory
             if (injectionParameter != null) yield return injectionParameter;
 
             yield return resolutionContext.CurrentContainerContext.ResolutionStrategy.BuildExpressionForType(
-                resolutionContext, parameter).ServiceExpression ?? throw new ResolutionFailedException(method.DeclaringType, serviceRegistration?.Name,
-                $"Method {method} found with unresolvable parameter: ({parameter.Type}){parameter.ParameterOrMemberName}");
+                resolutionContext, parameter).ServiceExpression ?? throw ResolutionFailedException.CreateWithDesiredExceptionType(method.DeclaringType, serviceRegistration?.Name,
+                $"Method {method} found with unresolvable parameter: ({parameter.Type}){parameter.ParameterOrMemberName}",
+                externalExceptionType: resolutionContext.CurrentContainerContext.ContainerConfiguration.ExternalResolutionFailedExceptionType);
         }
     }
 
@@ -62,9 +63,10 @@ internal static partial class ExpressionFactory
             resultConstructors = constructorsEnumerable.CastToArray();
 
         if (resultConstructors.Length == 0)
-            throw new ResolutionFailedException(typeToConstruct,
+            throw ResolutionFailedException.CreateWithDesiredExceptionType(typeToConstruct,
                 serviceRegistration?.Name,
-                "No public constructor found. Make sure there is at least one public constructor on the type.");
+                "No public constructor found. Make sure there is at least one public constructor on the type.",
+                externalExceptionType: resolutionContext.CurrentContainerContext.ContainerConfiguration.ExternalResolutionFailedExceptionType);
 
         var checkedConstructors = new Dictionary<MethodBase, TypeInformation>();
 
@@ -101,7 +103,7 @@ internal static partial class ExpressionFactory
         foreach (var checkedConstructor in checkedConstructors)
             stringBuilder.AppendLine($"Constructor {checkedConstructor.Key} found with unresolvable parameter: ({checkedConstructor.Value.Type.FullName}){checkedConstructor.Value.ParameterOrMemberName}.");
 
-        throw new ResolutionFailedException(typeToConstruct, serviceRegistration?.Name, stringBuilder.ToString());
+        throw ResolutionFailedException.CreateWithDesiredExceptionType(typeToConstruct, serviceRegistration?.Name, stringBuilder.ToString(), externalExceptionType: resolutionContext.CurrentContainerContext.ContainerConfiguration.ExternalResolutionFailedExceptionType);
     }
 
     private static IEnumerable<Expression> CreateMethodExpressions(

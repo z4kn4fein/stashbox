@@ -74,13 +74,13 @@ public class ConfigurationTests
         container.Configure(c => c.WithExpressionCompiler(null));
         Assert.Null(container.ContainerContext.ContainerConfiguration.ExternalExpressionCompiler);
 
+        Assert.True(container.ContainerContext.ContainerConfiguration.NamedDependencyResolutionForUnNamedCollectionRequestsEnabled);
         container.Configure(c => c.WithNamedDependencyResolutionForUnNamedRequests());
         Assert.True(container.ContainerContext.ContainerConfiguration.NamedDependencyResolutionForUnNamedRequestsEnabled);
-
-        container.Configure(c => c.WithNamedDependencyResolutionForUnNamedRequests(false));
+        container.Configure(c => c.WithNamedDependencyResolutionForUnNamedRequests(false, false));
         Assert.False(container.ContainerContext.ContainerConfiguration.NamedDependencyResolutionForUnNamedRequestsEnabled);
-
-
+        Assert.False(container.ContainerContext.ContainerConfiguration.NamedDependencyResolutionForUnNamedCollectionRequestsEnabled);
+        
         container.Configure(c => c.TreatParameterAndMemberNameAsDependencyName());
         Assert.True(container.ContainerContext.ContainerConfiguration.TreatingParameterAndMemberNameAsDependencyNameEnabled);
 

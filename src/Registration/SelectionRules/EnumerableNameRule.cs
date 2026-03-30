@@ -10,13 +10,28 @@ internal class EnumerableNameRule : IRegistrationSelectionRule
         if (typeInformation.DependencyName == null)
         {
             shouldIncrementWeight = false;
-            return true;
+            return resolutionContext.CurrentContainerContext.ContainerConfiguration.NamedDependencyResolutionForUnNamedCollectionRequestsEnabled || registration.Name == null;
         }
 
+        if (resolutionContext.CurrentContainerContext.ContainerConfiguration.IgnoreServicesWithUniversalNameForUniversalNamedRequests &&
+            typeInformation.DependencyName != null && typeInformation.DependencyName.Equals(resolutionContext.CurrentContainerContext.ContainerConfiguration.UniversalName) &&
+            registration.Name != null && registration.Name.Equals(resolutionContext.CurrentContainerContext.ContainerConfiguration.UniversalName))
+        {
+            shouldIncrementWeight = false;
+            return false;
+        }
+        
         if (typeInformation.DependencyName != null &&
             registration.Name != null &&
-            (registration.Name.Equals(typeInformation.DependencyName) || 
-            registration.Name.Equals(resolutionContext.CurrentContainerContext.ContainerConfiguration.UniversalName)))
+            registration.Name.Equals(typeInformation.DependencyName))
+        {
+            shouldIncrementWeight = true;
+            return true;
+        }
+        
+        if (typeInformation.DependencyName != null &&
+            typeInformation.DependencyName.Equals(resolutionContext.CurrentContainerContext.ContainerConfiguration.UniversalName) &&
+            registration.Name != null)
         {
             shouldIncrementWeight = true;
             return true;

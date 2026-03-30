@@ -155,7 +155,7 @@ internal partial class ResolutionScope
         return expression?.CompileDelegate(resolutionContext, this.containerContext.ContainerConfiguration)(this,
             resolutionContext.RequestConfiguration.RequiresRequestContext
                 ? RequestContext.Begin()
-                : RequestContext.Empty) ?? throw new ResolutionFailedException(type);
+                : RequestContext.Empty) ?? throw ResolutionFailedException.CreateWithDesiredExceptionType(type, externalExceptionType: resolutionContext.CurrentContainerContext.ContainerConfiguration.ExternalResolutionFailedExceptionType);
     }
 
     /// <inheritdoc />
@@ -223,7 +223,7 @@ internal partial class ResolutionScope
         var serviceContext = this.containerContext.ResolutionStrategy
             .BuildExpressionForType(resolutionContext, new TypeInformation(type, name));
         if (serviceContext.IsEmpty())
-            throw new ResolutionFailedException(type, name);
+            throw ResolutionFailedException.CreateWithDesiredExceptionType(type, name, externalExceptionType: resolutionContext.CurrentContainerContext.ContainerConfiguration.ExternalResolutionFailedExceptionType);
 
         var factory = serviceContext.ServiceExpression.CompileDelegate(resolutionContext, this.containerContext.ContainerConfiguration);
         return name != null
@@ -254,7 +254,7 @@ internal partial class ResolutionScope
         var serviceContext = this.containerContext.ResolutionStrategy
             .BuildExpressionForType(resolutionContext, new TypeInformation(type, name));
         if (serviceContext.IsEmpty())
-            throw new ResolutionFailedException(type, name);
+            throw ResolutionFailedException.CreateWithDesiredExceptionType(type, name, externalExceptionType: resolutionContext.CurrentContainerContext.ContainerConfiguration.ExternalResolutionFailedExceptionType);
 
         var expression = serviceContext.ServiceExpression.AsLambda(resolutionContext.ParameterExpressions
             .SelectMany(x => x.Select(i => i.I2)));

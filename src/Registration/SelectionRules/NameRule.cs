@@ -13,6 +13,13 @@ internal class NameRule : IRegistrationSelectionRule
             shouldIncrementWeight = false;
             return true;
         }
+        
+        if (resolutionContext.CurrentContainerContext.ContainerConfiguration.IgnoreServicesWithUniversalNameForUniversalNamedRequests &&
+            typeInformation.DependencyName != null && typeInformation.DependencyName.Equals(resolutionContext.CurrentContainerContext.ContainerConfiguration.UniversalName))
+        {
+            shouldIncrementWeight = false;
+            return false;
+        }
 
         if (typeInformation.DependencyName != null &&
             registration.Name != null &&
@@ -25,6 +32,14 @@ internal class NameRule : IRegistrationSelectionRule
         if (typeInformation.DependencyName != null &&
             registration.Name != null &&
             registration.Name.Equals(resolutionContext.CurrentContainerContext.ContainerConfiguration.UniversalName))
+        {
+            shouldIncrementWeight = false;
+            return true;
+        }
+        
+        if (typeInformation.DependencyName != null &&
+            typeInformation.DependencyName.Equals(resolutionContext.CurrentContainerContext.ContainerConfiguration.UniversalName) &&
+            registration.Name != null)
         {
             shouldIncrementWeight = false;
             return true;

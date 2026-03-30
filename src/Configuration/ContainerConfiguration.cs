@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using Stashbox.Exceptions;
+using Stashbox.Utils;
 using Stashbox.Utils.Data;
 
 namespace Stashbox.Configuration;
@@ -51,10 +52,25 @@ public class ContainerConfiguration
     public bool TreatingParameterAndMemberNameAsDependencyNameEnabled { get; internal set; }
 
     /// <summary>
-    /// If it's set to true, the container will use an unnamed registration when a named one not found for a request with dependency name.
+    /// If it's set to true, the container will use an unnamed registration when a named one not found for a request with a dependency name.
     /// </summary>
     public bool NamedDependencyResolutionForUnNamedRequestsEnabled { get; internal set; }
 
+    /// <summary>
+    /// If it's set to true, the container will use an unnamed registration when a named one not found for a request with a dependency name.
+    /// </summary>
+    public bool NamedDependencyResolutionForUnNamedCollectionRequestsEnabled { get; internal set; } = true;
+    
+    /// <summary>
+    /// If it's set to true, the container won't select services with <see cref="ContainerConfiguration.UniversalName"/> for a universal name resolution request.
+    /// </summary>
+    public bool IgnoreServicesWithUniversalNameForUniversalNamedRequests { get; internal set; }
+
+    /// <summary>
+    /// If it's set to true, the container will throw a <see cref="ResolutionFailedException"/> when a named dependency is not resolvable even for requests initiated by <see cref="IDependencyResolver.ResolveOrDefault(Type)" />.
+    /// </summary>
+    public bool ForceThrowWhenNamedDependencyIsNotResolvable { get; internal set; }
+    
     /// <summary>
     /// If it's set to true, in a child-parent container case singletons will be rebuilt with the dependencies overridden in the child, not affecting the already built instance in the parent.
     /// </summary>
@@ -108,6 +124,8 @@ public class ContainerConfiguration
     public bool ExceptionOverEmptyCollectionEnabled { get; internal set; }
     
     internal object? UniversalName { get; set; }
+
+    internal Type? ExternalResolutionFailedExceptionType { get; set; }
     
     internal ExpandableArray<Type>? AdditionalDependencyNameAttributeTypes { get; set; }
     
@@ -127,6 +145,7 @@ public class ContainerConfiguration
         bool autoMemberInjectionEnabled,
         bool treatingParameterAndMemberNameAsDependencyNameEnabled,
         bool namedDependencyResolutionForUnNamedRequestsEnabled,
+        bool namedDependencyResolutionForUnNamedCollectionRequestsEnabled,
         bool reBuildSingletonsInChildContainerEnabled,
         bool variantGenericTypesEnabled,
         bool exceptionOverEmptyCollectionEnabled,
@@ -139,6 +158,7 @@ public class ContainerConfiguration
         bool lifetimeValidationEnabled,
         Func<LambdaExpression, Delegate>? externalExpressionCompiler,
         object? universalName,
+        Type? externalResolutionFailedExceptionType,
         ExpandableArray<Type>? additionalDependencyNameAttributeTypes,
         ExpandableArray<Type>? additionalDependencyAttributeTypes)
     {
@@ -149,6 +169,7 @@ public class ContainerConfiguration
         this.AutoMemberInjectionEnabled = autoMemberInjectionEnabled;
         this.TreatingParameterAndMemberNameAsDependencyNameEnabled = treatingParameterAndMemberNameAsDependencyNameEnabled;
         this.NamedDependencyResolutionForUnNamedRequestsEnabled = namedDependencyResolutionForUnNamedRequestsEnabled;
+        this.NamedDependencyResolutionForUnNamedCollectionRequestsEnabled = namedDependencyResolutionForUnNamedCollectionRequestsEnabled;
         this.ReBuildSingletonsInChildContainerEnabled = reBuildSingletonsInChildContainerEnabled;
         this.VariantGenericTypesEnabled = variantGenericTypesEnabled;
         this.ExceptionOverEmptyCollectionEnabled = exceptionOverEmptyCollectionEnabled;
@@ -163,6 +184,7 @@ public class ContainerConfiguration
         this.UniversalName = universalName;
         this.AdditionalDependencyNameAttributeTypes = additionalDependencyNameAttributeTypes;
         this.AdditionalDependencyAttributeTypes = additionalDependencyAttributeTypes;
+        this.ExternalResolutionFailedExceptionType = externalResolutionFailedExceptionType;
     }
 
     internal ContainerConfiguration Clone() =>
@@ -173,6 +195,7 @@ public class ContainerConfiguration
             this.AutoMemberInjectionEnabled,
             this.TreatingParameterAndMemberNameAsDependencyNameEnabled,
             this.NamedDependencyResolutionForUnNamedRequestsEnabled,
+            this.NamedDependencyResolutionForUnNamedCollectionRequestsEnabled,
             this.ReBuildSingletonsInChildContainerEnabled,
             this.VariantGenericTypesEnabled,
             this.ExceptionOverEmptyCollectionEnabled,
@@ -185,6 +208,7 @@ public class ContainerConfiguration
             this.LifetimeValidationEnabled,
             this.ExternalExpressionCompiler,
             this.UniversalName,
+            this.ExternalResolutionFailedExceptionType,
             this.AdditionalDependencyNameAttributeTypes,
             this.AdditionalDependencyAttributeTypes);
 }

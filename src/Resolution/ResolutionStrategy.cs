@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Stashbox.Exceptions;
 
 namespace Stashbox.Resolution;
 
@@ -46,10 +47,10 @@ internal class ResolutionStrategy : IResolutionStrategy
             return resolutionContext.RequestContextParameter.AsServiceContext();
         }
 
-        if (typeInformation is { HasDependencyNameAttribute: true, Parent: not null })
+        if (typeInformation is { HasDependencyNameAttribute: true, Parent.DependencyName: not null } && typeInformation.Parent.DependencyName.GetType() == typeInformation.Type)
             return typeInformation.Parent.DependencyName.AsConstant().ConvertTo(typeInformation.Type)
                 .AsServiceContext();
-
+        
         if (typeInformation.IsDependency)
         {
             if (resolutionContext.ParameterExpressions.Length > 0)
@@ -111,9 +112,16 @@ internal class ResolutionStrategy : IResolutionStrategy
                 .ConvertTo(typeInformation.Type)
                 .AsServiceContext(registration);
 
-        return registration != null
+        var serviceContext = registration != null
             ? this.BuildExpressionForRegistration(registration, resolutionContext, typeInformation)
             : this.BuildExpressionUsingWrappersOrResolvers(resolutionContext, typeInformation);
+        
+        if (serviceContext.IsEmpty() && resolutionContext.CurrentContainerContext.ContainerConfiguration
+                .ForceThrowWhenNamedDependencyIsNotResolvable && typeInformation.DependencyName != null)
+            throw ResolutionFailedException.CreateWithDesiredExceptionType(typeInformation.Type, typeInformation.DependencyName, 
+                externalExceptionType: resolutionContext.CurrentContainerContext.ContainerConfiguration.ExternalResolutionFailedExceptionType);
+
+        return serviceContext;
     }
 
     public IEnumerable<ServiceContext> BuildExpressionsForEnumerableRequest(ResolutionContext resolutionContext,

@@ -40,7 +40,7 @@ public class TypeInformation
     public readonly string? ParameterOrMemberName;
 
     /// <summary>
-    /// It's true if the dependency has default value.
+    /// It's true if the dependency has a default value.
     /// </summary>
     public readonly bool HasDefaultValue;
 
