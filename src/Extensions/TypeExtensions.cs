@@ -373,9 +373,11 @@ internal static class TypeExtensions
     private static TypeInformation.DefaultValueHolder? GetOptionalDefaultValue(this ParameterInfo parameter)
     {
         if (!parameter.IsOptional) return null;
-        if (parameter.DefaultValue != null && parameter.DefaultValue.GetType() != TypeCache<Missing>.Type) 
-            return new TypeInformation.DefaultValueHolder(parameter.DefaultValue);
-        return parameter.IsNullableMember() ? new TypeInformation.DefaultValueHolder(null) : null;
+        if (parameter.DefaultValue != null && parameter.DefaultValue.GetType() == TypeCache<Missing>.Type) 
+            return parameter.IsNullableMember() 
+                ? new TypeInformation.DefaultValueHolder(null) 
+                : null;
+        return new TypeInformation.DefaultValueHolder(parameter.DefaultValue);
     }
 
     private static bool IsNullableMember(this ParameterInfo parameter) => 
