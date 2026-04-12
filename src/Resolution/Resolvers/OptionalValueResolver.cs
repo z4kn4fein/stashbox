@@ -8,8 +8,8 @@ internal class OptionalValueResolver : IServiceResolver
         IResolutionStrategy resolutionStrategy,
         TypeInformation typeInfo,
         ResolutionContext resolutionContext) =>
-        typeInfo.DefaultValue.AsConstant(typeInfo.Type).AsServiceContext();
+        (typeInfo.DefaultValue?.Value ?? null).AsConstant(typeInfo.Type).AsServiceContext();
 
     public bool CanUseForResolution(TypeInformation typeInfo, ResolutionContext resolutionContext) =>
-        typeInfo.HasDefaultValue;
+        typeInfo.DefaultValue != null;
 }

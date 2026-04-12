@@ -20,6 +20,15 @@ public class StashboxDoesNotHandleOptionalCorrectly
         Assert.NotNull(container.Resolve<D>());
     }
     
+    [Fact]
+    public void Optional_Works_Unknown()
+    {
+        using var container = new StashboxContainer(c => c.WithUnknownTypeResolution());
+        container.Register<E>();
+
+        Assert.NotNull(container.Resolve<E>());
+    }
+    
     private class A { }
     
     private class B([Optional] A? a) { }
@@ -27,4 +36,6 @@ public class StashboxDoesNotHandleOptionalCorrectly
     private class C([Optional] int? a) { }
     
     private class D([Optional] string? a) { }
+    
+    private class E([Optional] A a) { }
 }

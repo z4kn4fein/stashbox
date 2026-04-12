@@ -138,8 +138,7 @@ internal static class TypeExtensions
             dependencyName,
             customAttributes,
             parameter.Name,
-            parameter.HasDefaultValue(),
-            parameter.HasDefaultValue() ? parameter.GetDefaultValue() : null,
+            parameter.GetOptionalDefaultValue(),
             parameter.HasDependencyNameAttribute(containerConfiguration),
             null);
     }
@@ -172,7 +171,6 @@ internal static class TypeExtensions
             dependencyName,
             customAttributes,
             member.Name,
-            false,
             null,
             member.HasDependencyNameAttribute(containerConfiguration),
             null);
@@ -372,14 +370,12 @@ internal static class TypeExtensions
     private static bool IsIndexer(this PropertyInfo property) =>
         property.GetIndexParameters().Length != 0;
 
-    private static bool HasDefaultValue(this ParameterInfo parameter) =>
-        parameter.IsOptional;
-
-    private static object? GetDefaultValue(this ParameterInfo parameter)
+    private static TypeInformation.DefaultValueHolder? GetOptionalDefaultValue(this ParameterInfo parameter)
     {
+        if (!parameter.IsOptional) return null;
         if (parameter.DefaultValue != null && parameter.DefaultValue.GetType() != TypeCache<Missing>.Type) 
-            return parameter.DefaultValue;
-        return parameter.IsNullableMember() ? null : parameter.DefaultValue;
+            return new TypeInformation.DefaultValueHolder(parameter.DefaultValue);
+        return parameter.IsNullableMember() ? new TypeInformation.DefaultValueHolder(null) : null;
     }
 
     private static bool IsNullableMember(this ParameterInfo parameter) => 

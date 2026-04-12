@@ -10,6 +10,18 @@ namespace Stashbox.Resolution;
 public class TypeInformation
 {
     /// <summary>
+    /// Represents a method or ctor parameter's default value.
+    /// </summary>
+    /// <param name="value"></param>
+    public class DefaultValueHolder(object? value)
+    {
+        /// <summary>
+        /// The default value.
+        /// </summary>
+        public object? Value { get; } = value;
+    }
+    
+    /// <summary>
     /// The reflected type of the dependency.
     /// </summary>
     public readonly Type Type;
@@ -40,14 +52,9 @@ public class TypeInformation
     public readonly string? ParameterOrMemberName;
 
     /// <summary>
-    /// It's true if the dependency has a default value.
-    /// </summary>
-    public readonly bool HasDefaultValue;
-
-    /// <summary>
     /// The default value of the dependency.
     /// </summary>
-    public readonly object? DefaultValue;
+    public readonly DefaultValueHolder? DefaultValue;
 
     /// <summary>
     /// Indicates whether the dependency has a <see cref="DependencyName"/> or similar attribute.
@@ -69,7 +76,6 @@ public class TypeInformation
         this.MetadataType = null;
         this.CustomAttributes = null;
         this.ParameterOrMemberName = null;
-        this.HasDefaultValue = false;
         this.DefaultValue = null;
         this.Parent = null;
         this.IsDependency = false;
@@ -78,14 +84,13 @@ public class TypeInformation
 
     internal TypeInformation(Type type, Type? parentType, TypeInformation? parent, object? dependencyName,
         IEnumerable<Attribute>? customAttributes, string? parameterOrMemberName,
-        bool hasDefaultValue, object? defaultValue, bool hasDependencyNameAttribute, Type? metaDataType)
+        DefaultValueHolder? defaultValue, bool hasDependencyNameAttribute, Type? metaDataType)
     {
         this.Type = type;
         this.ParentType = parentType;
         this.DependencyName = dependencyName;
         this.CustomAttributes = customAttributes;
         this.ParameterOrMemberName = parameterOrMemberName;
-        this.HasDefaultValue = hasDefaultValue;
         this.DefaultValue = defaultValue;
         this.MetadataType = metaDataType;
         this.Parent = parent;
@@ -107,7 +112,6 @@ public class TypeInformation
             dependencyName ?? this.DependencyName,
             this.CustomAttributes,
             this.ParameterOrMemberName,
-            this.HasDefaultValue,
             this.DefaultValue,
             this.HasDependencyNameAttribute,
             metadataType ?? this.MetadataType);
