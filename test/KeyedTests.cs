@@ -409,7 +409,8 @@ public class KeyedTests
         Assert.Equal(
             [keyedService1, keyedService2],
             container.ResolveAll<IService>(UniversalName));
-        Assert.Throws<InvalidOperationException>(() => container.ResolveOrDefault<IService>(UniversalName));
+        Assert.Throws<InvalidOperationException>(() => container.Resolve<IService>(UniversalName));
+        Assert.Null(container.ResolveOrDefault<IService>(UniversalName));
         Assert.Equal(
             [keyedService1, keyedService2],
             container.ResolveAll<IService>("keyedService"));
@@ -431,7 +432,8 @@ public class KeyedTests
         container.RegisterSingleton<OtherService>();
         
         Assert.Null(container.ResolveOrDefault<IService>());
-        Assert.Throws<InvalidOperationException>(() => container.ResolveOrDefault<OtherService>());
+        Assert.Null(container.ResolveOrDefault<OtherService>());
+        Assert.Throws<InvalidOperationException>(container.Resolve<OtherService>);
     }
     
     [Fact]
@@ -451,7 +453,7 @@ public class KeyedTests
         container.RegisterSingleton<IService, Service>("service1");
 
         Assert.Null(container.ResolveOrDefault<IService>());
-        Assert.Throws<InvalidOperationException>(() => container.ResolveOrDefault<OtherService>());
+        Assert.Null(container.ResolveOrDefault<OtherService>());
     }
     
     [Fact]
@@ -471,7 +473,7 @@ public class KeyedTests
         container.RegisterSingleton<IService, Service>();
 
         Assert.NotNull(container.ResolveOrDefault<IService>());
-        Assert.Throws<InvalidOperationException>(() => container.ResolveOrDefault<OtherService>());
+        Assert.Null(container.ResolveOrDefault<OtherService>());
     }
     
     [Fact]
@@ -489,7 +491,7 @@ public class KeyedTests
 
         Assert.Null(container.ResolveOrDefault<IService>());
         Assert.NotNull(container.ResolveOrDefault<IService>(87));
-        Assert.ThrowsAny<InvalidOperationException>(() => container.ResolveOrDefault<IService>(new object()));
+        Assert.Null(container.ResolveOrDefault<IService>(new object()));
     }
 
     private interface IService;

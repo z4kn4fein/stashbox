@@ -47,10 +47,11 @@ internal class ResolutionStrategy : IResolutionStrategy
             return resolutionContext.RequestContextParameter.AsServiceContext();
         }
 
-        if (typeInformation is { HasDependencyNameAttribute: true, Parent.DependencyName: not null } && typeInformation.Parent.DependencyName.GetType() == typeInformation.Type)
+        if (typeInformation is { HasDependencyNameAttribute: true, Parent.DependencyName: not null } &&
+            typeInformation.Parent.DependencyName.GetType() == typeInformation.Type)
             return typeInformation.Parent.DependencyName.AsConstant().ConvertTo(typeInformation.Type)
                 .AsServiceContext();
-        
+
         if (typeInformation.IsDependency)
         {
             if (resolutionContext.ParameterExpressions.Length > 0)
@@ -112,16 +113,9 @@ internal class ResolutionStrategy : IResolutionStrategy
                 .ConvertTo(typeInformation.Type)
                 .AsServiceContext(registration);
 
-        var serviceContext = registration != null
+        return registration != null
             ? this.BuildExpressionForRegistration(registration, resolutionContext, typeInformation)
             : this.BuildExpressionUsingWrappersOrResolvers(resolutionContext, typeInformation);
-        
-        if (serviceContext.IsEmpty() && resolutionContext.CurrentContainerContext.ContainerConfiguration
-                .ForceThrowWhenNamedDependencyIsNotResolvable && typeInformation.DependencyName != null)
-            throw ResolutionFailedException.CreateWithDesiredExceptionType(typeInformation.Type, typeInformation.DependencyName, 
-                externalExceptionType: resolutionContext.CurrentContainerContext.ContainerConfiguration.ExternalResolutionFailedExceptionType);
-
-        return serviceContext;
     }
 
     public IEnumerable<ServiceContext> BuildExpressionsForEnumerableRequest(ResolutionContext resolutionContext,
@@ -150,7 +144,7 @@ internal class ResolutionStrategy : IResolutionStrategy
         if (resolutionContext.ResolutionBehavior.Has(ResolutionBehavior.PreferEnumerableInCurrent) &&
             !resolutionContext.IsInParentContext)
             return expressions;
-        
+
         if (!this.parentContainerResolver.CanUseForResolution(typeInformation, resolutionContext)) return expressions;
 
         var parentRegistrations =
@@ -236,7 +230,8 @@ internal class ResolutionStrategy : IResolutionStrategy
                     var unwrappedTypeInformation = typeInformation.Clone(unWrappedEnumerable);
                     var expressions = this.BuildExpressionsForEnumerableRequest(resolutionContext,
                         unwrappedTypeInformation);
-                    if (resolutionContext.CurrentContainerContext.ContainerConfiguration.ExceptionOverEmptyCollectionEnabled && 
+                    if (resolutionContext.CurrentContainerContext.ContainerConfiguration
+                            .ExceptionOverEmptyCollectionEnabled &&
                         !typeInformation.Type.MapsToGenericTypeDefinition(TypeCache.EnumerableType) &&
                         expressions == TypeCache.EmptyArray<ServiceContext>()) return ServiceContext.Empty;
                     return enumerableWrapper
