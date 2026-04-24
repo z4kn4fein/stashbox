@@ -475,7 +475,7 @@ new StashboxContainer(options => options
 <div>
 
 ### `WithForceThrowWhenNamedDependencyIsNotResolvable`
-Enables or disables throwing a `ResolutionFailedException` when a named dependency is not resolvable even for requests initiated by `.ResolveOrDefault()`.
+Enables or disables throwing a `ResolutionFailedException` when a named dependency is not resolvable. Requests initiated by `.ResolveOrDefault()` may also throw when a named subdependency is not resolvable for example through the `Dependency` attribute.
 
 </div>
 <div>
