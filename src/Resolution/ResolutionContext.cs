@@ -57,7 +57,7 @@ public class ResolutionContext
     public readonly bool IsInParentContext;
     
     /// <summary>
-    /// True if null result is allowed, otherwise false.
+    /// True if a null result is allowed, otherwise false.
     /// </summary>
     public readonly bool NullResultAllowed;
 

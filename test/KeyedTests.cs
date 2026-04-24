@@ -410,7 +410,6 @@ public class KeyedTests
             [keyedService1, keyedService2],
             container.ResolveAll<IService>(UniversalName));
         Assert.Throws<InvalidOperationException>(() => container.Resolve<IService>(UniversalName));
-        Assert.Null(container.ResolveOrDefault<IService>(UniversalName));
         Assert.Equal(
             [keyedService1, keyedService2],
             container.ResolveAll<IService>("keyedService"));
@@ -432,8 +431,7 @@ public class KeyedTests
         container.RegisterSingleton<OtherService>();
         
         Assert.Null(container.ResolveOrDefault<IService>());
-        Assert.Null(container.ResolveOrDefault<OtherService>());
-        Assert.Throws<InvalidOperationException>(container.Resolve<OtherService>);
+        Assert.Throws<InvalidOperationException>(container.ResolveOrDefault<OtherService>);
     }
     
     [Fact]
@@ -453,7 +451,7 @@ public class KeyedTests
         container.RegisterSingleton<IService, Service>("service1");
 
         Assert.Null(container.ResolveOrDefault<IService>());
-        Assert.Null(container.ResolveOrDefault<OtherService>());
+        Assert.Throws<InvalidOperationException>(container.ResolveOrDefault<OtherService>);
     }
     
     [Fact]
@@ -473,7 +471,7 @@ public class KeyedTests
         container.RegisterSingleton<IService, Service>();
 
         Assert.NotNull(container.ResolveOrDefault<IService>());
-        Assert.Null(container.ResolveOrDefault<OtherService>());
+        Assert.Throws<InvalidOperationException>(container.ResolveOrDefault<OtherService>);
     }
     
     [Fact]
@@ -491,7 +489,22 @@ public class KeyedTests
 
         Assert.Null(container.ResolveOrDefault<IService>());
         Assert.NotNull(container.ResolveOrDefault<IService>(87));
-        Assert.Null(container.ResolveOrDefault<IService>(new object()));
+        Assert.ThrowsAny<InvalidOperationException>(() => container.ResolveOrDefault<IService>(new object()));
+    }
+
+    [Fact]
+    public void EnsureNamedResolveOrDefaultDoesntThrow()
+    {
+        using var container = new StashboxContainer(config => config
+            .WithUniversalName(UniversalName)
+            .WithDisposableTransientTracking()
+            .WithNamedDependencyResolutionForUnNamedRequests(false, false)
+            .OverrideResolutionFailedExceptionWith<InvalidOperationException>()
+            .WithIgnoreServicesWithUniversalNameForUniversalNamedRequests()
+            .WithForceThrowWhenNamedDependencyIsNotResolvable()
+            .WithRegistrationBehavior(Rules.RegistrationBehavior.PreserveDuplications));
+        
+        Assert.Null(container.ResolveOrDefault<IService>("missing"));
     }
 
     private interface IService;

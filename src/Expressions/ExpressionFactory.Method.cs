@@ -94,11 +94,11 @@ internal static partial class ExpressionFactory
             }
         }
 
-        if (resolutionContext.NullResultAllowed)
-        {
-            return null;
-        }
+        var mustThrowBecauseOfUnresolvableNamedDependency = resolutionContext.CurrentContainerContext.ContainerConfiguration.ForceThrowWhenNamedDependencyIsNotResolvable
+                                                            && checkedConstructors.Any(ctor => ctor.Value.DependencyName != null || ctor.Value.HasDependencyNameAttribute);
 
+        if (!mustThrowBecauseOfUnresolvableNamedDependency && resolutionContext.NullResultAllowed) return null;
+        
         var stringBuilder = new StringBuilder();
         foreach (var checkedConstructor in checkedConstructors)
             stringBuilder.AppendLine($"Constructor {checkedConstructor.Key} found with unresolvable parameter: ({checkedConstructor.Value.Type.FullName}){checkedConstructor.Value.ParameterOrMemberName}.");
