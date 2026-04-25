@@ -98,7 +98,6 @@ This validation enforces the following rules. When they are violated, the contai
    - **Scoped**: 10
    - **NamedScope**: 10
    - **PerRequest**: 0
-   - **PerScopedRequest**: 0
    - **Transient**: 0
 
   In case of a failed validation the exception message would be:

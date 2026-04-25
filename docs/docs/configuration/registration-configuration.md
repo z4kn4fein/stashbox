@@ -373,23 +373,6 @@ container.Register<ILogger, ConsoleLogger>(config => config
 <CodeDescPanel>
 <div>
 
-### `WithPerScopedRequestLifetime`
-Sets the lifetime to `PerScopedRequestLifetime`. This lifetime will create a new instance between scoped services. This means that every scoped service will get a different instance but within their dependency tree it will behave as a singleton.
-
-</div>
-<div>
-
-```cs
-container.Register<ILogger, ConsoleLogger>(options => options
-    .WithPerScopedRequestLifetime());
-```
-
-</div>
-</CodeDescPanel>
-
-<CodeDescPanel>
-<div>
-
 ### `WithPerRequestLifetime`
 Sets the lifetime to `PerRequestLifetime`. This lifetime will create a new instance between resolution requests. Within the request the same instance will be re-used.
 
