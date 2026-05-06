@@ -13,7 +13,9 @@ internal static partial class ExpressionBuilder
     private static Expression GetExpressionForFactory(ServiceRegistration serviceRegistration, FactoryOptions factoryOptions, ResolutionContext resolutionContext, TypeInformation typeInformation)
     {
         if (resolutionContext.CircularDependencyBarrier.Contains(serviceRegistration.RegistrationId))
-            throw new CircularDependencyException(serviceRegistration.ImplementationType);
+            throw ResolutionFailedException.CreateWithDesiredExceptionType(serviceRegistration.ImplementationType, serviceRegistration.Name, 
+                $"Circular dependency detected during the resolution of '{serviceRegistration.ImplementationType.FullName}'.",
+                externalExceptionType: resolutionContext.CurrentContainerContext.ContainerConfiguration.ExternalResolutionFailedExceptionType);
 
         resolutionContext.CircularDependencyBarrier.Add(serviceRegistration.RegistrationId);
 

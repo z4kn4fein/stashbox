@@ -1,6 +1,6 @@
 // @ts-check
 // @ts-ignore
-import {themes} from 'prism-react-renderer';
+import { themes } from 'prism-react-renderer';
 const prismLightTheme = themes.github;
 
 /** @type {import('@docusaurus/types').Config} */
@@ -13,7 +13,7 @@ const config = {
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
 
-  organizationName: 'z4kn4fein', 
+  organizationName: 'z4kn4fein',
   projectName: 'stashbox',
   trailingSlash: false,
 
@@ -163,19 +163,9 @@ const config = {
             ]
           },
           {
-            type: 'dropdown',
             position: 'left',
             label: 'Changelog',
-            items: [
-              {
-                href: 'https://github.com/z4kn4fein/stashbox/blob/master/CHANGELOG.md',
-                label: 'Release notes',
-              },
-              {
-                href: 'https://github.com/z4kn4fein/stashbox/releases',
-                label: 'GitHub releases',
-              },
-            ]
+            href: 'https://github.com/z4kn4fein/stashbox/releases'
           },
           {
             type: 'custom-icon',
@@ -203,21 +193,21 @@ const config = {
           {
             title: 'GUIDES',
             items: [
-              {label: 'Basic usage', to: 'docs/guides/basics'},
-              {label: 'Advanced registration', to: 'docs/guides/advanced-registration'},
-              {label: 'Service resolution', to: 'docs/guides/service-resolution'},
-              {label: 'Lifetimes', to: 'docs/guides/lifetimes'},
-              {label: 'Scopes', to: 'docs/guides/scopes'},
+              { label: 'Basic usage', to: 'docs/guides/basics' },
+              { label: 'Advanced registration', to: 'docs/guides/advanced-registration' },
+              { label: 'Service resolution', to: 'docs/guides/service-resolution' },
+              { label: 'Lifetimes', to: 'docs/guides/lifetimes' },
+              { label: 'Scopes', to: 'docs/guides/scopes' },
             ],
           },
           {
             title: 'ADVANCED',
             items: [
-              {label: 'Generics', to: 'docs/advanced/generics'},
-              {label: 'Decorators', to: 'docs/advanced/decorators'},
-              {label: 'Wrappers & resolvers', to: 'docs/advanced/wrappers-resolvers'},
-              {label: 'Child containers', to: 'docs/advanced/child-containers'},
-              {label: 'Special resolution cases', to: 'docs/advanced/special-resolution-cases'},
+              { label: 'Generics', to: 'docs/advanced/generics' },
+              { label: 'Decorators', to: 'docs/advanced/decorators' },
+              { label: 'Wrappers & resolvers', to: 'docs/advanced/wrappers-resolvers' },
+              { label: 'Child containers', to: 'docs/advanced/child-containers' },
+              { label: 'Special resolution cases', to: 'docs/advanced/special-resolution-cases' },
             ],
           }
         ],

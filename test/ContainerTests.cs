@@ -60,7 +60,7 @@ public class ContainerTests
         container.Register<ITest1, Test4>();
         container.Register<ITest3, Test3>();
         var agr = Assert.Throws<AggregateException>(() => container.Validate());
-        Assert.IsType<CircularDependencyException>(agr.InnerExceptions[0]);
+        Assert.IsType<ResolutionFailedException>(agr.InnerExceptions[0]);
     }
 
     [Fact]
@@ -99,8 +99,7 @@ public class ContainerTests
         var agr = Assert.Throws<AggregateException>(() => container.Validate());
 
         Assert.Equal(3, agr.InnerExceptions.Count);
-        Assert.Equal(2, agr.InnerExceptions.Count(e => e is CircularDependencyException));
-        Assert.Equal(1, agr.InnerExceptions.Count(e => e is ResolutionFailedException));
+        Assert.Equal(3, agr.InnerExceptions.Count(e => e is ResolutionFailedException));
     }
 
     [Fact]

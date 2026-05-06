@@ -497,6 +497,18 @@ public class LifetimeTests
 
         Assert.NotSame(container.Resolve<Test5>(), container.Resolve<Test5>());
     }
+    
+    [Theory]
+    [ClassData(typeof(CompilerTypeTestData))]
+    public void LifetimeTests_Singleton_Recursive(CompilerType compilerType)
+    {
+        using IStashboxContainer container = new StashboxContainer(c => c.WithCompiler(compilerType));
+
+        container.RegisterSingleton<Test11>();
+
+        var ex = Assert.Throws<ResolutionFailedException>(container.Resolve<Test11>);
+        Assert.Contains("attempted to resolve itself while already under construction.", ex.Message);
+    }
 
     interface ITest1 { string Name { get; set; } }
 
@@ -610,6 +622,14 @@ public class LifetimeTests
         {
             Test5 = test5;
             Test6 = test6;
+        }
+    }
+    
+    class Test11
+    {
+        public Test11(IDependencyResolver resolver)
+        {
+            resolver.Resolve<Test11>();
         }
     }
 }

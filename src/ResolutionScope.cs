@@ -14,7 +14,7 @@ internal sealed partial class ResolutionScope : IResolutionScope
     {
         private const int MaxWaitTimeInMs = 3000;
         private static readonly object Default = new();
-        private int evaluated;
+        private int constructingThreadId = -1;
         private object evaluatedObject = Default;
 
         public object Evaluate(IResolutionScope scope, IRequestContext requestContext, Func<IResolutionScope, IRequestContext, object> factory, Type serviceType)
@@ -22,7 +22,7 @@ internal sealed partial class ResolutionScope : IResolutionScope
             if (!ReferenceEquals(this.evaluatedObject, Default))
                 return this.evaluatedObject;
 
-            if (Interlocked.CompareExchange(ref this.evaluated, 1, 0) != 0)
+            if (Interlocked.CompareExchange(ref this.constructingThreadId, Environment.CurrentManagedThreadId, -1) != -1)
                 return this.WaitForEvaluation(serviceType);
 
             this.evaluatedObject = factory(scope, requestContext);
@@ -31,6 +31,11 @@ internal sealed partial class ResolutionScope : IResolutionScope
 
         private object WaitForEvaluation(Type serviceType)
         {
+            if (this.constructingThreadId == Environment.CurrentManagedThreadId)
+                throw new ResolutionFailedException(serviceType,  
+                    message: $"The resolution of {serviceType} attempted to resolve itself while already under construction. " +
+                             $"This service is configured to only allow a single instance per scope.");
+            
             SpinWait spin = default;
             var startTime = (uint)Environment.TickCount;
             while (ReferenceEquals(this.evaluatedObject, Default))
@@ -40,9 +45,7 @@ internal sealed partial class ResolutionScope : IResolutionScope
                     var currentTime = (uint)Environment.TickCount;
                     if (MaxWaitTimeInMs <= currentTime - startTime)
                         throw new ResolutionFailedException(serviceType,
-                            message: $"The service {serviceType} was unavailable after {MaxWaitTimeInMs} ms. " +
-                            "It's possible that the thread used to construct it crashed by a handled exception." +
-                            "This exception is supposed to prevent other caller threads from infinite waiting for service construction.");
+                            message: $"It's possible that the thread used to construct {serviceType} was not able to finish the construction due to a handled exception.");
                 }
 
                 spin.SpinOnce();

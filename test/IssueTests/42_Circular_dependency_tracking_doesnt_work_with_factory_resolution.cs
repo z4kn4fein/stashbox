@@ -10,7 +10,7 @@ public class CircularDependencyTrackingDoesntWorkWithFactoryResolution
     {
         var container = new StashboxContainer();
         container.Register<IFoo, Foo>(registrator => registrator.WithFactory<IFoo>(f => new Foo(f)));
-        Assert.Throws<CircularDependencyException>(() => container.Resolve<IFoo>());
+        Assert.Throws<ResolutionFailedException>(container.Resolve<IFoo>);
     }
 
     interface IFoo;

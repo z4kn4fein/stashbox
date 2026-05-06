@@ -120,7 +120,7 @@ public class LazyTests
         container.Register<Circular1>();
         container.Register<Circular2>();
 
-        Assert.Throws<CircularDependencyException>(() => container.Resolve<Circular1>());
+        Assert.Throws<ResolutionFailedException>(container.Resolve<Circular1>);
     }
 
     [Fact]
@@ -131,7 +131,7 @@ public class LazyTests
         container.RegisterSingleton<Circular1>();
         container.RegisterSingleton<Circular2>();
 
-        Assert.Throws<CircularDependencyException>(() => container.Resolve<Circular1>());
+        Assert.Throws<ResolutionFailedException>(container.Resolve<Circular1>);
     }
 
     interface ITest;

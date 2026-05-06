@@ -14,8 +14,18 @@ public class CircularDependencyTests
     {
         using var container = new StashboxContainer();
         container.Register<ITest1, Test1>();
-        var exception = Assert.Throws<CircularDependencyException>(() => container.Resolve<ITest1>());
+        var exception = Assert.Throws<ResolutionFailedException>(container.Resolve<ITest1>);
         Assert.Equal(typeof(Test1), exception.Type);
+        Assert.Contains("Circular dependency detected during the resolution of", exception.Message);
+    }
+    
+    [Fact]
+    public void CircularDependencyTests_StandardResolve_Exception_Override()
+    {
+        using var container = new StashboxContainer(c => c.OverrideResolutionFailedExceptionWith<InvalidOperationException>());
+        container.Register<ITest1, Test1>();
+        var exception = Assert.Throws<InvalidOperationException>(container.Resolve<ITest1>);
+        Assert.Contains("Circular dependency detected during the resolution of", exception.Message);
     }
 
     [Fact]
@@ -34,7 +44,7 @@ public class CircularDependencyTests
     {
         using var container = new StashboxContainer();
         container.Register<ITest1, Test2>();
-        Assert.Throws<CircularDependencyException>(() => container.Resolve<ITest1>());
+        Assert.Throws<ResolutionFailedException>(container.Resolve<ITest1>);
     }
 
     [Fact]
@@ -42,7 +52,7 @@ public class CircularDependencyTests
     {
         using var container = new StashboxContainer();
         container.Register<ITest1, Test3>();
-        Assert.Throws<CircularDependencyException>(() => container.Resolve<ITest1>());
+        Assert.Throws<ResolutionFailedException>(container.Resolve<ITest1>);
     }
 
     [Fact]
@@ -50,7 +60,7 @@ public class CircularDependencyTests
     {
         using var container = new StashboxContainer();
         container.Register(typeof(ITest1<,>), typeof(Test1<,>));
-        Assert.Throws<CircularDependencyException>(() => container.Resolve<ITest1<int, int>>());
+        Assert.Throws<ResolutionFailedException>(container.Resolve<ITest1<int, int>>);
     }
 
     [Fact]
@@ -58,7 +68,7 @@ public class CircularDependencyTests
     {
         using var container = new StashboxContainer();
         container.Register(typeof(ITest1<,>), typeof(Test2<,>));
-        Assert.Throws<CircularDependencyException>(() => container.Resolve<ITest1<int, int>>());
+        Assert.Throws<ResolutionFailedException>(container.Resolve<ITest1<int, int>>);
     }
 
     [Fact]
@@ -66,7 +76,7 @@ public class CircularDependencyTests
     {
         using var container = new StashboxContainer();
         container.Register(typeof(ITest1<,>), typeof(Test3<,>));
-        Assert.Throws<CircularDependencyException>(() => container.Resolve<ITest1<int, int>>());
+        Assert.Throws<ResolutionFailedException>(container.Resolve<ITest1<int, int>>);
     }
 
     [Fact]
@@ -74,7 +84,7 @@ public class CircularDependencyTests
     {
         using var container = new StashboxContainer();
         container.Register<ITest1, Test5>();
-        Assert.Throws<CircularDependencyException>(() => container.Resolve<ITest1>());
+        Assert.Throws<ResolutionFailedException>(container.Resolve<ITest1>);
     }
 
     [Fact]
@@ -82,7 +92,7 @@ public class CircularDependencyTests
     {
         using var container = new StashboxContainer();
         container.Register<ITest1, Test6>();
-        Assert.Throws<CircularDependencyException>(() => container.Resolve<ITest1>());
+        Assert.Throws<ResolutionFailedException>(container.Resolve<ITest1>);
     }
 
     [Fact]
@@ -90,7 +100,7 @@ public class CircularDependencyTests
     {
         using var container = new StashboxContainer();
         container.Register<ITest1, Test7>(c => c.WithMetadata(new object()));
-        Assert.Throws<CircularDependencyException>(() => container.Resolve<ITest1>());
+        Assert.Throws<ResolutionFailedException>(container.Resolve<ITest1>);
     }
 
     [Fact]
@@ -98,7 +108,7 @@ public class CircularDependencyTests
     {
         using var container = new StashboxContainer();
         container.Register<ITest1, Test8>();
-        Assert.Throws<CircularDependencyException>(() => container.Resolve<ITest1>());
+        Assert.Throws<ResolutionFailedException>(container.Resolve<ITest1>);
     }
 
     [Fact]
@@ -106,7 +116,7 @@ public class CircularDependencyTests
     {
         using var container = new StashboxContainer();
         container.Register<ITest1, Test1>(config => config.WithFactory<ITest1>(d => new Test1(d)));
-        Assert.Throws<CircularDependencyException>(() => container.Resolve<ITest1>());
+        Assert.Throws<ResolutionFailedException>(container.Resolve<ITest1>);
     }
 
     [Fact]
@@ -114,7 +124,7 @@ public class CircularDependencyTests
     {
         using var container = new StashboxContainer();
         container.Register<ITest1, Test1>(config => config.WithFactory<ITest1>(t => (Test1)t));
-        Assert.Throws<CircularDependencyException>(() => container.Resolve<ITest1>());
+        Assert.Throws<ResolutionFailedException>(container.Resolve<ITest1>);
     }
 
 #if HAS_ASYNC_DISPOSABLE
@@ -123,7 +133,7 @@ public class CircularDependencyTests
         {
             await using var container = new StashboxContainer();
             container.Register<ITest1, Test1>(config => config.WithFactory<ITest1>(t => new Test1(t)));
-            Assert.Throws<CircularDependencyException>(() => container.Resolve<ITest1>());
+            Assert.Throws<ResolutionFailedException>(container.Resolve<ITest1>);
         }
 
         [Fact]
@@ -131,7 +141,7 @@ public class CircularDependencyTests
         {
             await using var container = new StashboxContainer();
             container.Register<ITest1, Test1>(config => config.WithFactory<ITest1>(t => (Test1)t));
-            Assert.Throws<CircularDependencyException>(() => container.Resolve<ITest1>());
+            Assert.Throws<ResolutionFailedException>(container.Resolve<ITest1>);
         }
 #endif
 

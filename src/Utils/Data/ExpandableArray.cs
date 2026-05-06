@@ -10,9 +10,6 @@ internal class ExpandableArray<TItem> : IEnumerable<TItem>
 {
     private const int InitialSize = 8;
 
-    public static ExpandableArray<TItem> FromEnumerable(IEnumerable<TItem> initial) =>
-        new(initial);
-
     public int Length;
 
     protected TItem[]? Repository;
