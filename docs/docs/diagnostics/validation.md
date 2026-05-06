@@ -109,7 +109,7 @@ This validation enforces the following rules. When they are violated, the contai
   ```
 
 ## Circular dependency
-When the container encounters a circular dependency loop in the [resolution tree](/docs/getting-started/glossary#resolution-tree), it throws a `CircularDependencyException`.
+When the container encounters a circular dependency loop in the [resolution tree](/docs/getting-started/glossary#resolution-tree), it throws a `ResolutionFailedException`.
 
 ```cs
 class Service1
