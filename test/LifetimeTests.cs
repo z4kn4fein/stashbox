@@ -507,7 +507,7 @@ public class LifetimeTests
         container.RegisterSingleton<Test11>();
 
         var ex = Assert.Throws<ResolutionFailedException>(container.Resolve<Test11>);
-        Assert.Contains("attempted to resolve itself while already under construction.", ex.Message);
+        Assert.Contains("Circular dependency was detected while resolving", ex.Message);
     }
     
     [Theory]

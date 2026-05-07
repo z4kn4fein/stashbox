@@ -128,7 +128,7 @@ var service = container.Resolve<Service1>();
 ```
 The exception message is:  
 ```
-Circular dependency detected during the resolution of Namespace.Service1.
+Circular dependency was detected while resolving Namespace.Service1.
 ```
 
 ## Other exceptions

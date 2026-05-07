@@ -16,7 +16,7 @@ public class CircularDependencyTests
         container.Register<ITest1, Test1>();
         var exception = Assert.Throws<ResolutionFailedException>(container.Resolve<ITest1>);
         Assert.Equal(typeof(Test1), exception.Type);
-        Assert.Contains("Circular dependency detected during the resolution of", exception.Message);
+        Assert.Contains("Circular dependency was detected while resolving", exception.Message);
     }
     
     [Fact]
@@ -25,7 +25,7 @@ public class CircularDependencyTests
         using var container = new StashboxContainer(c => c.OverrideResolutionFailedExceptionWith<InvalidOperationException>());
         container.Register<ITest1, Test1>();
         var exception = Assert.Throws<InvalidOperationException>(container.Resolve<ITest1>);
-        Assert.Contains("Circular dependency detected during the resolution of", exception.Message);
+        Assert.Contains("Circular dependency was detected while resolving", exception.Message);
     }
 
     [Fact]

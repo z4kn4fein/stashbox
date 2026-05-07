@@ -34,8 +34,9 @@ internal sealed partial class ResolutionScope : IResolutionScope
         {
             if (Volatile.Read(ref this.constructingThreadId) == Environment.CurrentManagedThreadId)
                 throw new ResolutionFailedException(serviceType,  
-                    message: $"The resolution of {serviceType} attempted to resolve itself while already under construction. " +
-                             $"This service is configured to only allow a single instance per scope.");
+                    message: $"Circular dependency was detected while resolving {serviceType}. " +
+                             $"The same scoped/singleton service was requested again before its construction completed. " +
+                             $"This service is configured to allow only one instance per scope.");
             
             SpinWait spin = default;
             var startTime = (uint)Environment.TickCount;
