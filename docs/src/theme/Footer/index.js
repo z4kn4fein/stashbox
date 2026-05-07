@@ -9,16 +9,6 @@ import SvgIcon from '../../components/SvgIcon';
 
 const footerLinks = [
   {
-    link: "https://3vj.short.gy/stashbox-slack",
-    icon: "slack",
-    text: "Slack"
-  },
-  {
-    link: "https://gitter.im/z4kn4fein/stashbox",
-    icon: "gitter",
-    text: "Gitter"
-  },
-  {
     link: "https://github.com/z4kn4fein/stashbox",
     icon: "github",
     text: "GitHub"
@@ -28,11 +18,6 @@ const footerLinks = [
     icon: "nuget",
     text: "NuGet"
   },
-  {
-    link: "https://www.fuget.org/packages/Stashbox",
-    icon: "api",
-    text: "API Documentation"
-  }
 ]
 
 function Footer() {
