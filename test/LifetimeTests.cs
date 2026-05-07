@@ -509,6 +509,21 @@ public class LifetimeTests
         var ex = Assert.Throws<ResolutionFailedException>(container.Resolve<Test11>);
         Assert.Contains("attempted to resolve itself while already under construction.", ex.Message);
     }
+    
+    [Theory]
+    [ClassData(typeof(CompilerTypeTestData))]
+    public void LifetimeTests_Singleton_Subsequent_Calls_Get_The_Same_Exception(CompilerType compilerType)
+    {
+        using IStashboxContainer container = new StashboxContainer(c => c.WithCompiler(compilerType));
+
+        container.RegisterSingleton<Test12>();
+
+        var ex = Assert.Throws<ResolutionFailedException>(container.Resolve<Test12>);
+        Assert.Contains("Service is not registered properly or unresolvable type requested.", ex.Message);
+        
+        ex = Assert.Throws<ResolutionFailedException>(container.Resolve<Test12>);
+        Assert.Contains("Service is not registered properly or unresolvable type requested.", ex.Message);
+    }
 
     interface ITest1 { string Name { get; set; } }
 
@@ -628,6 +643,14 @@ public class LifetimeTests
     class Test11
     {
         public Test11(IDependencyResolver resolver)
+        {
+            resolver.Resolve<Test11>();
+        }
+    }
+    
+    class Test12
+    {
+        public Test12(IDependencyResolver resolver)
         {
             resolver.Resolve<Test11>();
         }

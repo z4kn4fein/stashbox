@@ -4,6 +4,8 @@ using Stashbox.Utils;
 using Stashbox.Utils.Data.Immutable;
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using System.Runtime.ExceptionServices;
 using System.Threading;
 
 namespace Stashbox;
@@ -19,39 +21,69 @@ internal sealed partial class ResolutionScope : IResolutionScope
 
         public object Evaluate(IResolutionScope scope, IRequestContext requestContext, Func<IResolutionScope, IRequestContext, object> factory, Type serviceType)
         {
-            if (!ReferenceEquals(this.evaluatedObject, Default))
-                return this.evaluatedObject;
+            var evaluated = Volatile.Read(ref this.evaluatedObject);
+            if (!ReferenceEquals(evaluated, Default))
+                return GetEvaluatedObjectOrThrow(evaluated);
 
-            if (Interlocked.CompareExchange(ref this.constructingThreadId, Environment.CurrentManagedThreadId, -1) != -1)
-                return this.WaitForEvaluation(serviceType);
-
-            this.evaluatedObject = factory(scope, requestContext);
-            return this.evaluatedObject;
+            return Interlocked.CompareExchange(ref this.constructingThreadId, Environment.CurrentManagedThreadId, -1) != -1 
+                ? this.WaitForEvaluation(serviceType) 
+                : this.EvaluateFactory(scope, requestContext, factory);
         }
 
         private object WaitForEvaluation(Type serviceType)
         {
-            if (this.constructingThreadId == Environment.CurrentManagedThreadId)
+            if (Volatile.Read(ref this.constructingThreadId) == Environment.CurrentManagedThreadId)
                 throw new ResolutionFailedException(serviceType,  
                     message: $"The resolution of {serviceType} attempted to resolve itself while already under construction. " +
                              $"This service is configured to only allow a single instance per scope.");
             
             SpinWait spin = default;
             var startTime = (uint)Environment.TickCount;
-            while (ReferenceEquals(this.evaluatedObject, Default))
+            object evaluated;
+            while (ReferenceEquals(evaluated = Volatile.Read(ref this.evaluatedObject), Default))
             {
                 if (spin.NextSpinWillYield)
                 {
                     var currentTime = (uint)Environment.TickCount;
                     if (MaxWaitTimeInMs <= currentTime - startTime)
                         throw new ResolutionFailedException(serviceType,
-                            message: $"It's possible that the thread used to construct {serviceType} was not able to finish the construction due to a handled exception.");
+                            message: $"The construction of {serviceType} did not complete within the expected time. " +
+                                     $"It's possible that the factory is blocked, deadlocked, or waiting on another resolution.");
                 }
 
                 spin.SpinOnce();
             }
 
-            return this.evaluatedObject;
+            return GetEvaluatedObjectOrThrow(evaluated);
+        }
+        
+        private static object GetEvaluatedObjectOrThrow(object evaluated)
+        {
+            if (evaluated is FailedEvaluation failedEvaluation)
+                failedEvaluation.ExceptionDispatchInfo.Throw();
+
+            return evaluated;
+        }
+        
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private object EvaluateFactory(IResolutionScope scope, IRequestContext requestContext, Func<IResolutionScope, IRequestContext, object> factory)
+        {
+            try
+            {
+                var evaluated = factory(scope, requestContext);
+                Volatile.Write(ref this.evaluatedObject, evaluated);
+                return evaluated;
+            }
+            catch (Exception ex)
+            {
+                Volatile.Write(ref this.evaluatedObject, new FailedEvaluation(ex));
+                throw;
+            }
+        }
+        
+        private sealed class FailedEvaluation(Exception exception)
+        {
+            internal readonly ExceptionDispatchInfo ExceptionDispatchInfo = ExceptionDispatchInfo.Capture(exception);
         }
     }
     
