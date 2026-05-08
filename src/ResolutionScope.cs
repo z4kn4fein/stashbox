@@ -48,7 +48,7 @@ internal sealed partial class ResolutionScope : IResolutionScope
                     var currentTime = (uint)Environment.TickCount;
                     if (MaxWaitTimeInMs <= currentTime - startTime)
                         throw new ResolutionFailedException(serviceType,
-                            message: $"The construction of {serviceType} did not complete within the expected time. " +
+                            message: $"The construction of '{serviceType}' did not complete within the expected time. " +
                                      $"It's possible that the factory is blocked, deadlocked, or waiting on another resolution.");
                 }
 
