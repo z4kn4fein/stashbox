@@ -38,7 +38,7 @@ public static class DependencyResolverExtensions
     /// <param name="dependencyOverrides">A collection of objects which are used to override certain dependencies of the requested service.</param>
     /// <param name="resolutionBehavior">The resolution behavior.</param>
     /// <returns>The resolved object.</returns>
-    public static TKey Resolve<TKey>(this IDependencyResolver resolver, object[] dependencyOverrides, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default) =>
+    public static TKey Resolve<TKey>(this IDependencyResolver resolver, object[]? dependencyOverrides, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default) =>
         (TKey)resolver.Resolve(TypeCache<TKey>.Type, null, dependencyOverrides, resolutionBehavior);
 
     /// <summary>
@@ -61,7 +61,7 @@ public static class DependencyResolverExtensions
     /// <param name="dependencyOverrides">A collection of objects which are used to override certain dependencies of the requested service.</param>
     /// <param name="resolutionBehavior">The resolution behavior.</param>
     /// <returns>The resolved object.</returns>
-    public static TKey Resolve<TKey>(this IDependencyResolver resolver, object? name, object[] dependencyOverrides, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default) =>
+    public static TKey Resolve<TKey>(this IDependencyResolver resolver, object? name, object[]? dependencyOverrides, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default) =>
         (TKey)resolver.Resolve(TypeCache<TKey>.Type, name, dependencyOverrides, resolutionBehavior);
 
     /// <summary>
@@ -82,7 +82,7 @@ public static class DependencyResolverExtensions
     /// <param name="dependencyOverrides">A collection of objects which are used to override certain dependencies of the requested service.</param>
     /// <param name="resolutionBehavior">The resolution behavior.</param>
     /// <returns>The resolved object.</returns>
-    public static object Resolve(this IDependencyResolver resolver, Type typeFrom, object[] dependencyOverrides, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default) =>
+    public static object Resolve(this IDependencyResolver resolver, Type typeFrom, object[]? dependencyOverrides, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default) =>
         resolver.Resolve(typeFrom, null, dependencyOverrides, resolutionBehavior);
 
     /// <summary>
@@ -116,7 +116,7 @@ public static class DependencyResolverExtensions
     /// <param name="dependencyOverrides">A collection of objects which are used to override certain dependencies of the requested service.</param>
     /// <param name="resolutionBehavior">The resolution behavior.</param>
     /// <returns>The resolved object.</returns>
-    public static TKey? ResolveOrDefault<TKey>(this IDependencyResolver resolver, object? name, object[] dependencyOverrides, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default) =>
+    public static TKey? ResolveOrDefault<TKey>(this IDependencyResolver resolver, object? name, object[]? dependencyOverrides, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default) =>
         (TKey?)(resolver.ResolveOrDefault(TypeCache<TKey>.Type, name, dependencyOverrides, resolutionBehavior) ?? default(TKey));
 
     /// <summary>
@@ -146,7 +146,7 @@ public static class DependencyResolverExtensions
     /// <param name="dependencyOverrides">A collection of objects which are used to override certain dependencies of the requested service.</param>
     /// <param name="resolutionBehavior">The resolution behavior.</param>
     /// <returns>The resolved object.</returns>
-    public static TKey? ResolveOrDefault<TKey>(this IDependencyResolver resolver, object[] dependencyOverrides, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default) =>
+    public static TKey? ResolveOrDefault<TKey>(this IDependencyResolver resolver, object[]? dependencyOverrides, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default) =>
         (TKey?)(resolver.ResolveOrDefault(TypeCache<TKey>.Type, null, dependencyOverrides, resolutionBehavior) ?? default(TKey));
 
     /// <summary>
@@ -167,7 +167,7 @@ public static class DependencyResolverExtensions
     /// <param name="dependencyOverrides">A collection of objects which are used to override certain dependencies of the requested service.</param>
     /// <param name="resolutionBehavior">The resolution behavior.</param>
     /// <returns>The resolved object.</returns>
-    public static object? ResolveOrDefault(this IDependencyResolver resolver, Type typeFrom, object[] dependencyOverrides, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default) =>
+    public static object? ResolveOrDefault(this IDependencyResolver resolver, Type typeFrom, object[]? dependencyOverrides, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default) =>
         resolver.ResolveOrDefault(typeFrom, null, dependencyOverrides, resolutionBehavior);
 
     /// <summary>
@@ -219,7 +219,7 @@ public static class DependencyResolverExtensions
     /// <param name="dependencyOverrides">A collection of objects which are used to override certain dependencies of the requested services.</param>
     /// <param name="resolutionBehavior">The resolution behavior.</param>
     /// <returns>The resolved object.</returns>
-    public static IEnumerable<TKey> ResolveAll<TKey>(this IDependencyResolver resolver, object[] dependencyOverrides, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default) =>
+    public static IEnumerable<TKey> ResolveAll<TKey>(this IDependencyResolver resolver, object[]? dependencyOverrides, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default) =>
         (IEnumerable<TKey>)resolver.Resolve(TypeCache<IEnumerable<TKey>>.Type, null, dependencyOverrides, resolutionBehavior);
 
     /// <summary>
@@ -231,7 +231,7 @@ public static class DependencyResolverExtensions
     /// <param name="dependencyOverrides">A collection of objects which are used to override certain dependencies of the requested services.</param>
     /// <param name="resolutionBehavior">The resolution behavior.</param>
     /// <returns>The resolved object.</returns>
-    public static IEnumerable<TKey> ResolveAll<TKey>(this IDependencyResolver resolver, object? name, object[] dependencyOverrides, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default) =>
+    public static IEnumerable<TKey> ResolveAll<TKey>(this IDependencyResolver resolver, object? name, object[]? dependencyOverrides, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default) =>
         (IEnumerable<TKey>)resolver.Resolve(TypeCache<IEnumerable<TKey>>.Type, name, dependencyOverrides, resolutionBehavior);
 
     /// <summary>
@@ -282,7 +282,7 @@ public static class DependencyResolverExtensions
     /// <param name="dependencyOverrides">A collection of objects which are used to override certain dependencies of the requested services.</param>
     /// <param name="resolutionBehavior">The resolution behavior.</param>
     /// <returns>The resolved object.</returns>
-    public static IEnumerable<object> ResolveAll(this IDependencyResolver resolver, Type typeFrom, object[] dependencyOverrides, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default)
+    public static IEnumerable<object> ResolveAll(this IDependencyResolver resolver, Type typeFrom, object[]? dependencyOverrides, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default)
     {
         var type = TypeCache.EnumerableType.MakeGenericType(typeFrom);
         return (IEnumerable<object>)resolver.Resolve(type, null, dependencyOverrides, resolutionBehavior);
@@ -297,7 +297,7 @@ public static class DependencyResolverExtensions
     /// <param name="dependencyOverrides">A collection of objects which are used to override certain dependencies of the requested services.</param>
     /// <param name="resolutionBehavior">The resolution behavior.</param>
     /// <returns>The resolved object.</returns>
-    public static IEnumerable<object> ResolveAll(this IDependencyResolver resolver, Type typeFrom, object? name, object[] dependencyOverrides, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default)
+    public static IEnumerable<object> ResolveAll(this IDependencyResolver resolver, Type typeFrom, object? name, object[]? dependencyOverrides, ResolutionBehavior resolutionBehavior = ResolutionBehavior.Default)
     {
         var type = TypeCache.EnumerableType.MakeGenericType(typeFrom);
         return (IEnumerable<object>)resolver.Resolve(type, name, dependencyOverrides, resolutionBehavior);
