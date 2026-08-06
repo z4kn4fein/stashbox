@@ -157,8 +157,12 @@ const config = {
             label: 'Benchmarks',
             items: [
               {
+                href: 'https://matrix.dev-team.org/?category=dependency-injection&library=Stashbox',
+                label: '.NET Matrix',
+              },
+              {
                 href: 'https://danielpalme.github.io/IocPerformance',
-                label: 'Performance',
+                label: 'IoC Benchmark (Archived)',
               },
             ]
           },

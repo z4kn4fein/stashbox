@@ -18,13 +18,15 @@ jobs:
       pull-requests: write
 
     steps:
-    - uses: actions/stale@v10
+    - uses: actions/stale@v11
       with:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         stale-issue-message: 'This issue is marked stale because it has been open for 90 days with no activity.'
         stale-pr-message: 'This PR is marked stale because it has been open for 90 days with no activity.'
         close-issue-message: 'This issue was closed due to no activity.'
         close-pr-message: 'This PR was closed due to no activity.'
+        exempt-issue-labels: 'keep-open'
+        exempt-pr-labels: 'keep-open'
         days-before-issue-stale: 90
         days-before-pr-stale: 90
         days-before-issue-close: 10

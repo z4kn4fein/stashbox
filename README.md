@@ -62,7 +62,8 @@ Github (stable) | NuGet (stable) | NuGet (pre-release)
     - [Stashbox.Mocking](https://github.com/z4kn4fein/stashbox-mocking) (Moq, FakeItEasy, NSubstitute, RhinoMocks)
  
 ## Benchmarks
- - [Performance](https://github.com/danielpalme/IocPerformance)
+ - [.NET Matrix](https://matrix.dev-team.org/?category=dependency-injection&library=Stashbox)
+ - [IoC Benchmark (Archived)](https://danielpalme.github.io/IocPerformance)
     
 <br>
 
